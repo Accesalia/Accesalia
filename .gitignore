@@ -1,0 +1,22 @@
+# Secretos y entorno (por si acaso; supabase/ y frontend/ ya los ignoran)
+.env
+.env.*
+!.env.example
+*.key
+
+# Dependencias y builds
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Supabase local (datos de contenedor)
+supabase/.branches/
+supabase/.temp/
