@@ -20,3 +20,6 @@ Thumbs.db
 # Supabase local (datos de contenedor)
 supabase/.branches/
 supabase/.temp/
+
+.vercel
+.env*

@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { administradorPorId, nombreComercial } from "../../../lib/comercial";
-import { cambiarActivoAdministrador } from "../acciones";
+import {
+  administradorPorId,
+  resumenAdmin,
+  interaccionesDeAdministrador,
+  ORIGEN_LABEL,
+  TIPO_EVENTO_LABEL,
+} from "../../../lib/comercial";
 
 export const dynamic = "force-dynamic";
 
-function fecha(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+function fechaCorta(v: string | null): string {
+  if (!v) return "";
+  const [y, m, d] = v.split("-");
+  return `${d}/${m}/${y.slice(2)}`;
 }
 
 function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode }) {
@@ -24,182 +26,102 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: React.ReactNode })
   );
 }
 
-function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-lima-dark">{titulo}</h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-export default async function FichaAdministrador({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function FichaPersona({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const ficha = await administradorPorId(id);
-  if (!ficha) notFound();
+  const res = await administradorPorId(id);
+  if (!res) notFound();
+  const { admin, administracion } = res;
+  const [resumen, diario] = await Promise.all([resumenAdmin(id), interaccionesDeAdministrador(id, 20)]);
 
-  const { admin, administracion, companeros, comunidades, oportunidades } = ficha;
-  const toggleActivo = cambiarActivoAdministrador.bind(null, admin.id, !admin.activo);
+  const volver = administracion ? `/administraciones/${administracion.id}` : "/administraciones";
 
   return (
     <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto max-w-[1000px] px-6 py-10">
-        {/* Migas + acciones */}
+      <main className="mx-auto max-w-[800px] px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link href="/administradores" className="text-sm text-carbon/50 hover:text-carbon">
-            ← Cartera de administradores
+          <Link href={volver} className="text-sm text-carbon/50 hover:text-carbon">
+            ← {administracion ? administracion.nombre : "Cartera"}
           </Link>
-          <div className="flex items-center gap-2">
-            <form action={toggleActivo}>
-              <button
-                type="submit"
-                className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-carbon/70 transition hover:bg-black/5"
-              >
-                {admin.activo ? "Dar de baja" : "Reactivar"}
-              </button>
-            </form>
-            <Link
-              href={`/administradores/${admin.id}/editar`}
-              className="rounded-full bg-lima px-4 py-1.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white"
-            >
-              Editar
-            </Link>
-          </div>
+          <Link
+            href={`/administradores/${admin.id}/editar`}
+            className="rounded-full bg-lima px-4 py-1.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white"
+          >
+            Editar
+          </Link>
         </div>
 
-        {/* Cabecera */}
-        <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-carbon sm:text-3xl">{admin.nombre}</h1>
-            <p className="mt-1 text-carbon/60">
-              {admin.cargo && <span>{admin.cargo}</span>}
-              {admin.cargo && (administracion || admin.empresa) && <span> · </span>}
-              {administracion ? (
-                <span>{administracion.nombre}</span>
-              ) : admin.empresa ? (
-                <span>{admin.empresa}</span>
-              ) : (
-                <span className="text-carbon/40">Administrador autónomo</span>
-              )}
-            </p>
-          </div>
-          {!admin.activo && (
-            <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-semibold uppercase text-carbon/40">
-              De baja
-            </span>
-          )}
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Columna principal */}
-          <div className="space-y-6 lg:col-span-2">
-            <Tarjeta titulo="Contacto">
-              <dl className="grid grid-cols-2 gap-4">
-                <Dato etiqueta="Teléfono" valor={admin.telefono} />
-                <Dato etiqueta="Email" valor={admin.email} />
-              </dl>
-            </Tarjeta>
-
+        <div className="mt-6">
+          <h1 className="text-2xl font-bold text-carbon sm:text-3xl">{admin.nombre}</h1>
+          <p className="mt-1 text-carbon/60">
+            {admin.cargo && <span>{admin.cargo}</span>}
+            {admin.cargo && administracion && <span> · </span>}
             {administracion && (
-              <Tarjeta titulo="Administración de fincas">
-                <dl className="grid grid-cols-2 gap-4">
-                  <Dato etiqueta="Nombre" valor={administracion.nombre} />
-                  <Dato etiqueta="CIF" valor={administracion.cif} />
-                  <Dato etiqueta="Teléfono" valor={administracion.telefono} />
-                  <Dato etiqueta="Email" valor={administracion.email} />
-                  <Dato etiqueta="Municipio" valor={administracion.municipio} />
-                  <Dato etiqueta="Dirección" valor={administracion.direccion} />
-                </dl>
-                {companeros.length > 0 && (
-                  <div className="mt-5 border-t border-black/5 pt-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-carbon/40">
-                      Otras personas de esta administración
-                    </p>
-                    <ul className="mt-2 space-y-1">
-                      {companeros.map((c) => (
-                        <li key={c.id}>
-                          <Link
-                            href={`/administradores/${c.id}`}
-                            className="text-sm text-carbon hover:text-lima-dark"
-                          >
-                            {c.nombre}
-                            {c.cargo && <span className="text-carbon/45"> · {c.cargo}</span>}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </Tarjeta>
+              <Link href={`/administraciones/${administracion.id}`} className="hover:text-lima-dark">
+                {administracion.nombre}
+              </Link>
             )}
-
-            <Tarjeta titulo={`Comunidades (${comunidades.length})`}>
-              {comunidades.length === 0 ? (
-                <p className="text-sm text-carbon/40">
-                  Todavía no hay comunidades asociadas a este administrador.
-                </p>
-              ) : (
-                <ul className="divide-y divide-black/5">
-                  {comunidades.map((c) => (
-                    <li key={c.id} className="py-2 text-sm">
-                      <span className="text-carbon">{c.nombre}</span>
-                      {c.municipio && <span className="text-carbon/45"> · {c.municipio}</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Tarjeta>
-
-            <Tarjeta titulo={`Oportunidades (${oportunidades.length})`}>
-              {oportunidades.length === 0 ? (
-                <p className="text-sm text-carbon/40">Sin oportunidades comerciales registradas.</p>
-              ) : (
-                <ul className="divide-y divide-black/5">
-                  {oportunidades.map((o) => (
-                    <li key={o.id} className="flex items-center justify-between py-2 text-sm">
-                      <span className="text-carbon">
-                        {o.comunidad_provisional ?? "Comunidad sin materializar"}
-                      </span>
-                      <span className="rounded-full bg-lima-soft px-2 py-0.5 text-[10px] font-semibold uppercase text-lima-dark">
-                        {o.estado}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Tarjeta>
-          </div>
-
-          {/* Columna lateral: cartera + fechas (enchufes de IA) */}
-          <div className="space-y-6">
-            <Tarjeta titulo="Cartera">
-              <dl className="space-y-4">
-                <Dato etiqueta="Comercial dueño" valor={nombreComercial(admin.comercial)} />
-                <Dato
-                  etiqueta="Comisión por defecto"
-                  valor={
-                    admin.comision_por_defecto != null
-                      ? `${admin.comision_por_defecto} €`
-                      : null
-                  }
-                />
-                <Dato etiqueta="Alta en cartera" valor={fecha(admin.fecha_alta_administrador)} />
-              </dl>
-            </Tarjeta>
-
-            <Tarjeta titulo="Seguimiento">
-              <dl className="space-y-4">
-                <Dato etiqueta="Último contacto" valor={fecha(admin.fecha_ultimo_contacto)} />
-                <Dato etiqueta="Último encargo" valor={fecha(admin.fecha_ultimo_encargo)} />
-              </dl>
-            </Tarjeta>
-          </div>
+          </p>
         </div>
+
+        {/* Sali: cómo va la relación con esta persona (resumen vivo) */}
+        <section className="mt-6 rounded-2xl border border-lima/30 bg-lima-soft/30 p-5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-lima-dark/80">
+            Sali · cómo vas con {admin.nombre.split(" ")[0]}
+          </div>
+          {resumen ? (
+            <>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-carbon/85">{resumen.texto}</p>
+              <p className="mt-2 text-[11px] text-carbon/40">Al día a {fechaCorta(resumen.actualizado_en.slice(0, 10))}</p>
+            </>
+          ) : (
+            <p className="mt-1.5 text-sm text-carbon/50">
+              Aún no hay resumen. Sali lo escribirá en cuanto registres un contacto con esta persona.
+            </p>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          <dl className="grid grid-cols-2 gap-4">
+            <Dato etiqueta="Teléfono" valor={admin.telefono} />
+            <Dato etiqueta="Email" valor={admin.email} />
+          </dl>
+          {admin.notas && (
+            <div className="mt-4 border-t border-black/5 pt-4">
+              <dt className="text-xs font-medium uppercase tracking-wide text-carbon/40">Notas</dt>
+              <dd className="mt-1 whitespace-pre-wrap text-sm text-carbon/70">{admin.notas}</dd>
+            </div>
+          )}
+        </section>
+
+        {/* Diario: las interacciones con esta persona */}
+        <section className="mt-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-carbon/35">Diario ({diario.length})</h2>
+            <Link href="/comercial/contacto" className="text-xs font-semibold text-lima-dark hover:underline">+ Grabar contacto</Link>
+          </div>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+            {diario.length === 0 ? (
+              <p className="px-5 py-8 text-center text-sm text-carbon/40">Aún no hay contactos con esta persona.</p>
+            ) : (
+              <ul className="divide-y divide-black/5">
+                {diario.map((i) => (
+                  <li key={i.id} className="transition hover:bg-black/[0.015]">
+                    <Link href={`/comercial/interaccion/${i.id}`} className="block px-5 py-3">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-carbon/50">
+                        <span className="font-semibold text-carbon/70">{fechaCorta(i.fecha_evento) || fechaCorta(i.creado_en.slice(0, 10))}</span>
+                        <span className="rounded-full bg-black/5 px-2 py-0.5 font-semibold">{TIPO_EVENTO_LABEL[i.tipo_evento] ?? i.tipo_evento}</span>
+                        <span>{ORIGEN_LABEL[i.origen] ?? i.origen}</span>
+                        {i.requiere_humano && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">revisar</span>}
+                      </div>
+                      {i.transcripcion && <p className="mt-1 line-clamp-2 text-sm text-carbon/75">{i.transcripcion}</p>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -4,14 +4,18 @@ import { BarraSuperior } from "../components/BarraSuperior";
 // Navegador principal del ERP. Cada area ya esta modelada en la BD (54 tablas).
 // Por ahora solo "Subvenciones" tiene pantalla; el resto llegaran por bocados.
 const AREAS: { nombre: string; desc: string; href: string; icono: string; activa: boolean }[] = [
-  { nombre: "Comercial", desc: "Cartera de administradores, oportunidades y comisiones", href: "/administradores", icono: "◇", activa: true },
-  { nombre: "Proyecto técnico", desc: "Tramitación y documentación técnica", href: "#", icono: "▤", activa: false },
-  { nombre: "Obra", desc: "Ejecución, hitos y certificaciones", href: "#", icono: "⬒", activa: false },
-  { nombre: "Facturación", desc: "Facturas, cobros y pagos", href: "#", icono: "€", activa: false },
+  { nombre: "Expediente virtual", desc: "Tablero 360 de una comunidad: todas las áreas de un vistazo", href: "/expediente", icono: "◉", activa: true },
+  { nombre: "Datos administrativos", desc: "Trabajo administrativo de base: comunidades, equipo, administradores y contratas", href: "/administrativo", icono: "⌂", activa: true },
+  { nombre: "Área comercial", desc: "Hub del comercial: alta de leads, grabar contactos por voz, cartera y proyectos", href: "/comercial", icono: "◇", activa: true },
+  { nombre: "Proyecto técnico", desc: "Producción del proyecto: escaneo, nube, estado actual, solución, revisión", href: "/proyecto", icono: "▤", activa: true },
+  { nombre: "Catálogo 3D", desc: "Soluciones genéricas de venta: vídeo, renders y plano acotado de cada tipo", href: "/catalogo", icono: "◼", activa: true },
+  { nombre: "Visado", desc: "Visado COAM: código TL, tasas, PDF maestro y requerimientos del colegio", href: "/visado", icono: "✎", activa: true },
+  { nombre: "Obra", desc: "Inicio, seguimiento y fin de obra; constructora, CSS, CFO y visitas", href: "/obra", icono: "⬒", activa: true },
+  { nombre: "Facturación", desc: "Libro de Accesalia: hitos de cobro, facturas, cobros y pendientes", href: "/facturacion", icono: "€", activa: true },
   { nombre: "Subvenciones", desc: "Convocatorias, requisitos y documentación", href: "/", icono: "★", activa: true },
-  { nombre: "Licitación", desc: "Concursos y ofertas públicas", href: "#", icono: "⚑", activa: false },
+  { nombre: "Tres Presupuestos", desc: "Los tres presupuestos de contrata, comparación y adjudicación", href: "/tres-presupuestos", icono: "⚑", activa: true },
   { nombre: "CAES", desc: "Coordinación de actividades empresariales", href: "#", icono: "⛑", activa: false },
-  { nombre: "Licencias", desc: "Permisos y autorizaciones", href: "#", icono: "✓", activa: false },
+  { nombre: "Licencia / DR", desc: "Ayto o ECU, licencia o DR, tasas y requerimientos del ayuntamiento", href: "/licencia", icono: "✓", activa: true },
 ];
 
 export default function Menu() {

@@ -6,10 +6,12 @@
 // keys, backoff ante 429, y contabilidad en uso_llm best-effort. Lo generaliza
 // a dos naturalezas de API distintas detras de una interfaz unica:
 //
-//   NIVEL 'alto'  -> Anthropic (Claude Opus 4.8): fiabilidad, PDF nativo,
-//                    JSON garantizado por esquema. Para lo que importa.
-//   NIVEL 'base'  -> Mistral Large (UE): economico, formato OpenAI. Para lo
-//                    trivial. (No procesa datos personales fuera de la UE.)
+//   NIVEL 'alto'   -> Anthropic (Claude Opus 4.8): fiabilidad, PDF nativo,
+//                     JSON garantizado por esquema. Para lo que importa.
+//   NIVEL 'base'   -> Mistral Large (UE): solvente y economico. Extraccion/
+//                     resumenes con matiz. (No procesa datos personales fuera UE.)
+//   NIVEL 'ligero' -> Mistral Small (UE): barato y RAPIDO. Para juicios triviales
+//                     (clasificar, decidir relevante/cosmetico): no necesitan el Large.
 //
 // Cada edge declara su nivel. Para cambiar de modelo en el futuro: editar SOLO
 // el mapa NIVELES de abajo.
@@ -30,7 +32,7 @@ import { clienteServicio } from "./db.ts";
 // =============================================================================
 // Configuracion de niveles. EDITAR SOLO AQUI para cambiar modelo/version.
 // =============================================================================
-export type Nivel = "alto" | "base";
+export type Nivel = "alto" | "base" | "ligero";
 export type Proveedor = "anthropic" | "mistral";
 
 interface ConfigNivel {
@@ -44,6 +46,9 @@ export const NIVELES: Record<Nivel, ConfigNivel> = {
   // Mistral Large 3 (dic-2025), snapshot explicito para que el precio no cambie
   // solo si el alias salta de version.
   base: { proveedor: "mistral", modelo: "mistral-large-2512" },
+  // Mistral Small (UE): ~una fraccion del coste del Large, mas rapido. Para juicios
+  // triviales. Alias por ahora; se puede pinar a un snapshot cuando se confirme.
+  ligero: { proveedor: "mistral", modelo: "mistral-small-latest" },
 };
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
