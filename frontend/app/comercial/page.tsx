@@ -173,7 +173,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                           <span className="font-semibold text-carbon/70">{fecha(i.fecha_evento) || fecha(i.creado_en.slice(0, 10))}</span>
                           <span className="rounded-full bg-black/5 px-1.5 py-0.5 font-semibold">{TIPO_EVENTO_LABEL[i.tipo_evento] ?? i.tipo_evento}</span>
                           <span>{ORIGEN_LABEL[i.origen] ?? i.origen}</span>
-                          {i.administradores?.nombre && <span className="text-lima-dark">· {i.administradores.nombre}</span>}
+                          {i.persona?.nombre && <span className="text-lima-dark">· {i.persona.nombre}</span>}
                           {i.requiere_humano && <span className="rounded-full bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-700">revisar</span>}
                         </div>
                         {i.transcripcion && <p className="mt-0.5 line-clamp-2 text-xs text-carbon/75">{i.transcripcion}</p>}

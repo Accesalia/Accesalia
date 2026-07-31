@@ -23,3 +23,7 @@ supabase/.temp/
 
 .vercel
 .env*
+
+# Python (cache de los scripts de migracion)
+__pycache__/
+*.pyc

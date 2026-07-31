@@ -46,9 +46,14 @@ export default async function GrabarContacto({ searchParams }: { searchParams: P
               </select>
             </label>
             <label className="text-xs font-semibold uppercase tracking-wide text-carbon/40">Administrador (si aplica)
-              <select name="administrador_id" defaultValue="" className={`${inp} mt-1 block w-full`}>
+              {/* el valor es el id del PUESTO: la persona en su administracion */}
+              <select name="puesto_id" defaultValue="" className={`${inp} mt-1 block w-full`}>
                 <option value="">— suelto / lo vinculo luego —</option>
-                {admins.map((a) => <option key={a.id} value={a.id}>{[a.nombre, a.empresa].filter(Boolean).join(" · ")}</option>)}
+                {admins.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.empresa ? `${a.nombre} · ${a.empresa}` : `${a.nombre} · (falta la administración)`}
+                  </option>
+                ))}
               </select>
             </label>
           </div>

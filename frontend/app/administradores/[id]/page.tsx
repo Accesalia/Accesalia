@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
+import { SinAdministracion } from "../../components/SinAdministracion";
 import {
   administradorPorId,
   resumenAdmin,
@@ -52,14 +53,26 @@ export default async function FichaPersona({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="mt-6">
-          <h1 className="text-2xl font-bold text-carbon sm:text-3xl">{admin.nombre}</h1>
+          <h1 className="text-2xl font-bold text-carbon sm:text-3xl">
+            {administracion ? admin.nombre : <SinAdministracion>{admin.nombre}</SinAdministracion>}
+          </h1>
           <p className="mt-1 text-carbon/60">
             {admin.cargo && <span>{admin.cargo}</span>}
             {admin.cargo && administracion && <span> · </span>}
-            {administracion && (
+            {administracion ? (
               <Link href={`/administraciones/${administracion.id}`} className="hover:text-lima-dark">
                 {administracion.nombre}
               </Link>
+            ) : (
+              <>
+                {admin.cargo && <span> · </span>}
+                <Link
+                  href={`/administradores/${admin.id}/editar`}
+                  className="text-red-600 underline decoration-dotted underline-offset-2 hover:text-red-700"
+                >
+                  Falta saber de qué administración es
+                </Link>
+              </>
             )}
           </p>
         </div>

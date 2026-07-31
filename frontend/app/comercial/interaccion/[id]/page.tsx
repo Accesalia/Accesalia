@@ -24,6 +24,9 @@ const PINTA: Record<string, { label: string; icono: string; clase: string }> = {
   item_deseo_tecnico:        { label: "Deseo técnico (para el técnico)", icono: "🔧", clase: "border-violet-200 bg-violet-50" },
   item_actualizacion:        { label: "Actualización",                  icono: "•", clase: "border-black/10 bg-black/[0.02]" },
   item_nuevo_contacto:       { label: "Nuevo contacto",                 icono: "👤", clase: "border-black/10 bg-black/[0.02]" },
+  // Sali ya no da de alta personas por su cuenta: las propone. Dar de alta a
+  // un ser humano lo decide una persona, buscando primero si ya existe.
+  pendiente_nueva_persona:   { label: "Persona nueva por dar de alta",  icono: "◆", clase: "border-amber-300 bg-amber-50" },
   item_resultado_junta:      { label: "Resultado de junta",             icono: "🗳", clase: "border-black/10 bg-black/[0.02]" },
   item_otro:                 { label: "Anotado",                        icono: "•", clase: "border-black/10 bg-black/[0.02]" },
   item_error:                { label: "No pude procesar este trozo",    icono: "⚠", clase: "border-red-200 bg-red-50" },
@@ -52,6 +55,7 @@ function resumenAccion(e: EventoBitacora): string | null {
     case "item_deseo_tecnico": return "Deseo técnico guardado en el brief";
     case "item_nuevo_contacto": return `Contacto creado${nombre ? `: ${nombre}` : ""}`;
     case "pendiente_crear_comunidad": return `Comunidad pendiente${nombre ? ` «${nombre}»` : ""}`;
+    case "pendiente_nueva_persona": return `Persona por dar de alta${nombre ? `: ${nombre}` : ""}`;
     default: return null;
   }
 }
@@ -214,7 +218,7 @@ export default async function RevisionInteraccion({
                                 {cands.map((cand) => (
                                   <form key={cand.id} action={vincularAComunidad}>
                                     <Hidden interaccionId={it.id} comercialId={comercialId} />
-                                    <input type="hidden" name="administrador_id" value={it.administrador_id ?? ""} />
+                                    <input type="hidden" name="puesto_id" value={it.puesto_id ?? ""} />
                                     <input type="hidden" name="evento_id" value={e.id} />
                                     <input type="hidden" name="comunidad_id" value={cand.id} />
                                     <button className="rounded-full border border-lima/50 bg-white px-2.5 py-1 text-xs font-semibold text-carbon/80 hover:bg-lima hover:text-carbon">{cand.nombre}{cand.direccion ? ` · ${cand.direccion}` : ""}</button>
@@ -226,15 +230,15 @@ export default async function RevisionInteraccion({
                           <div className="mt-2 flex flex-wrap items-end gap-2">
                             <form action={confirmarComunidadNueva}>
                               <Hidden interaccionId={it.id} comercialId={comercialId} />
-                              <input type="hidden" name="administrador_id" value={it.administrador_id ?? ""} />
-                              <input type="hidden" name="administracion_id" value={admin?.administracion_id ?? ""} />
+                              <input type="hidden" name="puesto_id" value={it.puesto_id ?? ""} />
+                              <input type="hidden" name="empresa_id" value={admin?.empresaId ?? ""} />
                               <input type="hidden" name="evento_id" value={e.id} />
                               <button className="rounded-lg bg-lima px-3 py-1.5 text-sm font-semibold text-carbon hover:bg-lima-dark hover:text-white">✓ Es nueva, guárdala</button>
                             </form>
                             {comunidadesDelAdmin.length > 0 && (
                               <form action={vincularAComunidad} className="flex items-end gap-1.5">
                                 <Hidden interaccionId={it.id} comercialId={comercialId} />
-                                <input type="hidden" name="administrador_id" value={it.administrador_id ?? ""} />
+                                <input type="hidden" name="puesto_id" value={it.puesto_id ?? ""} />
                                 <input type="hidden" name="evento_id" value={e.id} />
                                 <select name="comunidad_id" defaultValue="" required className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-sm outline-none focus:border-lima">
                                   <option value="" disabled>…o una de estas</option>

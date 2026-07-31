@@ -73,17 +73,23 @@ export async function crearOportunidadManual(fd: FormData) {
   const alcance = txt(fd, "alcance");
   if (!comunidadId && !provisional) return; // sin comunidad no hay oportunidad
 
-  // Admin heredado de la comunidad (si existe).
-  let adminId: string | null = null;
+  // Con quien se habla en esa comunidad. Ya no es una columna de comunidades:
+  // se pregunta al vinculo vigente, que ademas sabe la PERSONA y no solo la
+  // casa. Si la comunidad no tiene administracion asignada, se queda vacio.
+  let puestoId: string | null = null;
   if (comunidadId) {
-    const cr = await api(`comunidades?select=administrador_id&id=eq.${comunidadId}&limit=1`, "GET");
-    adminId = ((await cr.json()) as { administrador_id: string | null }[])[0]?.administrador_id ?? null;
+    const cr = await api(
+      "comunidad_admin_responsable?select=puesto_id" +
+        `&comunidad_id=eq.${comunidadId}&vigente=is.true&limit=1`,
+      "GET",
+    );
+    puestoId = ((await cr.json()) as { puesto_id: string | null }[])[0]?.puesto_id ?? null;
   }
 
   const r = await api("oportunidades", "POST", {
     comunidad_id: comunidadId,
     comunidad_provisional: comunidadId ? null : provisional,
-    administrador_id: adminId,
+    puesto_id: puestoId,
     comercial_id: comercialId,
     tipo_origen: "otro",
     estado: "activa",

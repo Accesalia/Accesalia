@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { administracionesParaSelector } from "../../../lib/comunidades";
 import { crearComunidad } from "../acciones";
 import { FormComunidad } from "../FormComunidad";
 
 export const dynamic = "force-dynamic";
 
 export default async function NuevaComunidad() {
-  const administraciones = await administracionesParaSelector();
   return (
     <div className="min-h-screen">
       <BarraSuperior />
@@ -19,7 +17,7 @@ export default async function NuevaComunidad() {
         <p className="mt-1 text-carbon/55">
           La ficha base del edificio. De ella colgarán las hojas de encargo, subvenciones, obra y facturación.
         </p>
-        <FormComunidad accion={crearComunidad} administraciones={administraciones} textoBoton="Crear comunidad" />
+        <FormComunidad accion={crearComunidad} textoBoton="Crear comunidad" />
       </main>
     </div>
   );

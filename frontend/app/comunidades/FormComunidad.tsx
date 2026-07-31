@@ -38,13 +38,11 @@ function Campo({
 export function FormComunidad({
   accion,
   comunidad,
-  administraciones,
   textoBoton,
   hrefCancelar = "/comunidades",
 }: {
   accion: (fd: FormData) => void;
   comunidad?: Comunidad;
-  administraciones: { id: string; nombre: string }[];
   textoBoton: string;
   hrefCancelar?: string;
 }) {
@@ -70,36 +68,35 @@ export function FormComunidad({
           <Campo etiqueta="Código postal" name="cp" defaultValue={c?.cp} placeholder="28921" />
           <Campo etiqueta="Municipio" name="municipio" defaultValue={c?.municipio} placeholder="ALCORCÓN" />
           <Campo etiqueta="Provincia" name="provincia" defaultValue={c?.provincia} placeholder="MADRID" />
+          <Campo etiqueta="Comunidad autónoma" name="comunidad_autonoma"
+            defaultValue={c?.comunidad_autonoma} className="sm:col-span-2"
+            placeholder="COMUNIDAD DE MADRID" />
         </div>
       </section>
 
-      <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-lima-dark">Administración de fincas</h2>
-          <Link
-            href="/administraciones/nueva"
-            target="_blank"
-            className="shrink-0 rounded-full border border-lima px-3 py-1 text-xs font-semibold text-lima-dark transition hover:bg-lima hover:text-carbon"
-          >
-            + Nueva administración
-          </Link>
-        </div>
-        <label className="mt-4 block">
-          <span className="text-xs font-medium uppercase tracking-wide text-carbon/45">Administración que la gestiona</span>
-          <select
-            name="administracion_id"
-            defaultValue={c?.administracion_id ?? ""}
-            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-carbon outline-none transition focus:border-lima"
-          >
-            <option value="">— Sin administración / contacto directo —</option>
-            {administraciones.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nombre}
-              </option>
-            ))}
-          </select>
-          <span className="mt-1 block text-[11px] text-carbon/40">¿No está en la lista? Créala en la otra pestaña y recarga esta para elegirla.</span>
-        </label>
+      {/* La administracion NO se edita aqui.
+          Cambiar de administracion no es cambiar un dato del edificio: es cerrar
+          una etapa y abrir otra, con su fecha y su motivo, conservando la
+          anterior. Eso es lo que permite entender despues por que un documento
+          de hace dos anos lleva otra firma. Tiene pantalla propia. */}
+      <section className="rounded-2xl border border-black/5 bg-black/[0.015] p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-carbon/50">
+          Administración de fincas
+        </h2>
+        {c ? (
+          <p className="mt-2 text-sm text-carbon/60">
+            Se cambia desde la ficha de la comunidad, para poder guardar desde cuándo
+            y quién la llevaba antes.{" "}
+            <Link href={`/comunidades/${c.id}/administracion`}
+              className="font-medium text-lima-dark hover:underline">
+              Cambiar administración
+            </Link>
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-carbon/60">
+            Se asigna al terminar, desde la ficha de la comunidad.
+          </p>
+        )}
       </section>
 
       <div className="flex items-center gap-3">

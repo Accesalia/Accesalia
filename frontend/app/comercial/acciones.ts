@@ -17,7 +17,10 @@ function txt(fd: FormData, k: string): string | null {
 
 export async function crearInteraccion(fd: FormData) {
   const comercialId = txt(fd, "comercial_id");
-  const administradorId = txt(fd, "administrador_id");
+  // El sujeto de la nota es un PUESTO: la persona EN su administracion. Antes
+  // era administrador_id, que mezclaba a la persona con su casa; si cambiaba de
+  // empresa se perdia el hilo de lo hablado con ella.
+  const puestoId = txt(fd, "puesto_id");
   const transcripcion = txt(fd, "transcripcion");
   if (!transcripcion) return; // sin contenido no hay interaccion
 
@@ -26,8 +29,8 @@ export async function crearInteraccion(fd: FormData) {
     headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json", Prefer: "return=representation" },
     body: JSON.stringify({
       comercial_id: comercialId,
-      administrador_id: administradorId,
-      pendiente_vincular: !administradorId, // suelta si no se ancla a un admin
+      puesto_id: puestoId,
+      pendiente_vincular: !puestoId, // suelta si no se ancla a nadie
       transcripcion,
       origen: txt(fd, "origen") ?? "manual",
       tipo_evento: txt(fd, "tipo_evento") ?? "otro",

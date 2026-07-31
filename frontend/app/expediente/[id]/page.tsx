@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { comunidadPorId } from "../../../lib/comunidades";
+import { comunidadPorId, nombreAdministracion } from "../../../lib/comunidades";
 import { resumenFacturacionComunidad } from "../../../lib/hojas";
 import { resumenProyectoComunidad, responsableDe, tiposDe } from "../../../lib/proyecto";
 import { resumenVisadoComunidad, ESTADO_VISADO } from "../../../lib/visado";
@@ -109,7 +109,7 @@ export default async function Expediente({ params }: { params: Promise<{ id: str
           <Mini etiqueta="CIF" valor={c.cif_comunidad} />
           <Mini etiqueta="Ref. catastral" valor={c.referencia_catastral} />
           <Mini etiqueta="Presidente" valor={presidente?.nombre} />
-          <Mini etiqueta="Administración" valor={administracion?.nombre} />
+          <Mini etiqueta="Administración" valor={administracion ? nombreAdministracion(administracion) : null} />
           <Mini etiqueta="Personas" valor={personas.length || null} />
         </div>
       );
@@ -119,7 +119,7 @@ export default async function Expediente({ params }: { params: Promise<{ id: str
         <div className="flex h-full flex-col justify-between">
           <div className="space-y-0.5">
             <Mini etiqueta="Hojas de encargo" valor={numHojas || "0"} />
-            <Mini etiqueta="Administración" valor={administracion?.nombre} />
+            <Mini etiqueta="Administración" valor={administracion ? nombreAdministracion(administracion) : null} />
           </div>
           <span className="mt-3 inline-block w-fit rounded-full bg-lima-soft px-3 py-1 text-xs font-semibold text-lima-dark">
             + Crear hoja de encargo
@@ -272,7 +272,7 @@ export default async function Expediente({ params }: { params: Promise<{ id: str
           {subtitulo && <p className="mt-1 text-white/60">{subtitulo}</p>}
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             {c.cif_comunidad && <span className="rounded-full bg-white/10 px-2.5 py-1">CIF {c.cif_comunidad}</span>}
-            {administracion && <span className="rounded-full bg-white/10 px-2.5 py-1">Admin: {administracion.nombre}</span>}
+            {administracion && <span className="rounded-full bg-white/10 px-2.5 py-1">Admin: {nombreAdministracion(administracion)}</span>}
             <span className="rounded-full bg-white/10 px-2.5 py-1">{numHojas} hoja(s) de encargo</span>
           </div>
         </div>
@@ -337,7 +337,7 @@ export default async function Expediente({ params }: { params: Promise<{ id: str
                         <span className="font-semibold text-carbon/70">{fechaConv(i.fecha_evento) || fechaConv(i.creado_en.slice(0, 10))}</span>
                         {i.tipo_evento && <span className="rounded-full bg-black/5 px-2 py-0.5 font-semibold">{TIPO_EVENTO_LABEL[i.tipo_evento] ?? i.tipo_evento}</span>}
                         <span>{ORIGEN_LABEL[i.origen] ?? i.origen}</span>
-                        {i.administradores?.nombre && <span className="text-lima-dark">· {i.administradores.nombre}</span>}
+                        {i.persona?.nombre && <span className="text-lima-dark">· {i.persona.nombre}</span>}
                         {i.requiere_humano && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">revisar</span>}
                       </div>
                       {i.transcripcion && <p className="mt-1 line-clamp-2 text-sm text-carbon/75">{i.transcripcion}</p>}

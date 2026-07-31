@@ -77,7 +77,10 @@ export function FormularioAdministracion({
       <Seccion titulo="Relación">
         <div>
           <label className={labelCls} htmlFor="estado">Estado</label>
-          <select id="estado" name="estado" defaultValue={a?.estado ?? "contacto"} className={inputCls}>
+          <select id="estado" name="estado" defaultValue={a?.estado ?? ""} className={inputCls}>
+            {/* vacio a proposito: que una casa no tenga estado decidido es una
+                respuesta valida, y mejor que meterlas todas como "contacto" */}
+            <option value="">— Sin definir —</option>
             {ESTADOS_LISTA.map((e) => (
               <option key={e} value={e}>{ESTADOS[e].label}</option>
             ))}

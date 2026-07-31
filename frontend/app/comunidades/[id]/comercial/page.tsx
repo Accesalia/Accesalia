@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { cockpitComunidad, type OportunidadCockpit } from "../../../../lib/cockpit";
+import { nombreAdministracion } from "../../../../lib/comunidades";
 import { puntoActual, ORIGEN_LABEL, TIPO_EVENTO_LABEL, type HitoCatalogo } from "../../../../lib/comercial";
 import { Barra } from "../../../comercial/oportunidades/Barra";
 import { crearViabilidad, nuevaOportunidad, aplazarOportunidad, reactivarOportunidad } from "./acciones";
@@ -147,7 +148,7 @@ export default async function CockpitComercial({ params }: { params: Promise<{ i
             <h1 className="text-xl font-bold text-carbon">{c.nombre}</h1>
             <p className="text-sm text-carbon/55">{[c.direccion, dir2].filter(Boolean).join(" · ")}</p>
             <dl className="mt-3 space-y-1 text-sm">
-              <div className="flex justify-between gap-2"><dt className="text-carbon/45">Administración</dt><dd className="text-carbon">{ficha.administracion ? `${ficha.administracion.nombre}${ficha.administracion.telefono ? ` · ${ficha.administracion.telefono}` : ""}` : "—"}</dd></div>
+              <div className="flex justify-between gap-2"><dt className="text-carbon/45">Administración</dt><dd className="text-carbon">{ficha.administracion ? `${nombreAdministracion(ficha.administracion)}${ficha.administracion.telefono ? ` · ${ficha.administracion.telefono}` : ""}` : "—"}</dd></div>
               <div className="flex justify-between gap-2"><dt className="text-carbon/45">Presidente</dt><dd className="text-carbon">{presidente ? `${presidente.nombre}${presidente.telefono ? ` · ${presidente.telefono}` : ""}` : "—"}</dd></div>
             </dl>
           </section>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { administracionPorId, nombreComercial, ESTADOS } from "../../../lib/comercial";
+import { administracionPorId, nombreComercial, estadoDe } from "../../../lib/comercial";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,7 @@ export default async function FichaAdministracion({ params }: { params: Promise<
   if (!ficha) notFound();
 
   const { administracion: a, comercial, titular, personas, contactos, origen } = ficha;
-  const est = ESTADOS[a.estado];
+  const est = estadoDe(a.estado);
 
   return (
     <div className="min-h-screen">

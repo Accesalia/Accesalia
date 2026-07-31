@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
+import { SinAdministracion } from "../../components/SinAdministracion";
 import { comunidadPorId, ROLES } from "../../../lib/comunidades";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
   const ficha = await comunidadPorId(id);
   if (!ficha) notFound();
 
-  const { comunidad: c, administracion, personas, numHojas } = ficha;
+  const { comunidad: c, administracion, administracionesAnteriores, personas, numHojas } = ficha;
   const dir2 = [c.cp, c.municipio].filter(Boolean).join(" ");
   const subtitulo = [c.direccion, dir2, c.provincia].filter(Boolean).join(" · ");
 
@@ -118,19 +119,71 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
           </div>
 
           <div className="space-y-6">
-            <Tarjeta titulo="Administración de fincas">
+            <Tarjeta
+              titulo="Administración de fincas"
+              accion={
+                <Link href={`/comunidades/${c.id}/administracion`}
+                  className="text-xs font-medium text-lima-dark hover:underline">
+                  {administracion ? "Cambiar" : "Asignar"}
+                </Link>
+              }
+            >
               {administracion ? (
                 <div className="space-y-3">
-                  <Link href={`/administraciones/${administracion.id}`} className="text-sm font-medium text-carbon hover:text-lima-dark">
-                    {administracion.nombre}
-                  </Link>
+                  {administracion.empresaId ? (
+                    <Link href={`/administraciones/${administracion.empresaId}`}
+                      className="text-sm font-medium text-carbon hover:text-lima-dark">
+                      {administracion.empresa}
+                    </Link>
+                  ) : (
+                    <SinAdministracion>
+                      {administracion.persona ?? "Sin identificar"}
+                    </SinAdministracion>
+                  )}
                   <dl className="space-y-3">
+                    {/* con quien se habla de verdad: el modelo viejo solo
+                        guardaba la casa, no la persona */}
+                    {administracion.puestoId && administracion.persona && administracion.empresaId && (
+                      <Dato
+                        etiqueta="Persona de contacto"
+                        valor={
+                          <Link href={`/administradores/${administracion.puestoId}`}
+                            className="hover:text-lima-dark">
+                            {administracion.persona}
+                          </Link>
+                        }
+                      />
+                    )}
                     <Dato etiqueta="Teléfono" valor={administracion.telefono} />
                     <Dato etiqueta="Email" valor={administracion.email} />
+                    {administracion.desde && (
+                      <Dato etiqueta="Desde" valor={administracion.desde} />
+                    )}
                   </dl>
                 </div>
               ) : (
                 <p className="text-sm text-carbon/40">Sin administración asignada (contacto directo con la comunidad).</p>
+              )}
+
+              {/* Para eso guardamos el historico: para saber por que un
+                  documento de hace dos anos lleva otra firma. */}
+              {administracionesAnteriores.length > 0 && (
+                <div className="mt-5 border-t border-black/5 pt-4">
+                  <div className="text-xs font-medium uppercase tracking-wide text-carbon/40">
+                    Antes la llevaba
+                  </div>
+                  <ul className="mt-2 space-y-1.5">
+                    {administracionesAnteriores.map((a) => (
+                      <li key={a.vinculoId} className="text-sm text-carbon/60">
+                        {a.empresa ?? a.persona ?? "Sin identificar"}
+                        {a.hasta && <span className="text-carbon/40"> · hasta {a.hasta}</span>}
+                        {a.notas && (
+                          <p className="text-xs leading-snug text-carbon/40">{a.notas}</p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </Tarjeta>
 

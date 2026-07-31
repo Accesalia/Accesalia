@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
 
     const { data: inter, error: eInt } = await supabase
       .from("interacciones")
-      .select("id, transcripcion, fecha_evento, comercial_id, administrador_id")
+      .select("id, transcripcion, fecha_evento, comercial_id, puesto_id")
       .eq("id", interaccion_id)
       .single();
     if (eInt || !inter) return json({ error: `interaccion no encontrada: ${eInt?.message ?? "?"}` }, 404);
@@ -144,17 +144,32 @@ Deno.serve(async (req) => {
     const idsCtx = new Set<string>();
     const candMap = new Map<string, { nombre: string; direccion?: string | null }>();
     let adminNombre = "";
-    let adminFirmId: string | null = null; // firma del admin (para materializar contactos nuevos)
+    let adminFirmId: string | null = null; // la casa del sujeto de la nota
 
-    if (inter.administrador_id) {
-      const { data: persona } = await supabase
-        .from("administradores").select("nombre, empresa, administracion_id").eq("id", inter.administrador_id).single();
-      adminNombre = persona ? `${persona.nombre}${persona.empresa ? ` (${persona.empresa})` : ""}` : "";
-      adminFirmId = persona?.administracion_id ?? null;
-      if (persona?.administracion_id) {
-        const { data: coms } = await supabase
-          .from("comunidades").select("id, nombre, direccion").eq("administracion_id", persona.administracion_id).limit(150);
-        for (const c of coms ?? []) candMap.set(c.id, { nombre: c.nombre, direccion: c.direccion });
+    // El sujeto de la nota es un PUESTO: la persona EN su administracion. De ahi
+    // se sube a la casa, y de la casa a las comunidades que lleva, que ya no
+    // cuelgan de una columna sino del vinculo vigente.
+    if (inter.puesto_id) {
+      const { data: pu } = await supabase
+        .from("puesto")
+        .select("empresa_id, persona:persona_id(nombre), empresa:empresa_id(nombre_accesalia)")
+        .eq("id", inter.puesto_id).single();
+      // deno-lint-ignore no-explicit-any
+      const p = pu as any;
+      const nom = p?.persona?.nombre ?? "";
+      const casa = p?.empresa?.nombre_accesalia ?? "";
+      adminNombre = nom ? `${nom}${casa ? ` (${casa})` : ""}` : "";
+      adminFirmId = p?.empresa_id ?? null;
+      if (adminFirmId) {
+        const { data: vinculos } = await supabase
+          .from("comunidad_admin_responsable")
+          .select("comunidades(id, nombre, direccion)")
+          .eq("empresa_id", adminFirmId).eq("vigente", true).limit(150);
+        // deno-lint-ignore no-explicit-any
+        for (const v of (vinculos ?? []) as any[]) {
+          const c = v.comunidades;
+          if (c) candMap.set(c.id, { nombre: c.nombre, direccion: c.direccion });
+        }
       }
     }
 
@@ -227,7 +242,7 @@ Deno.serve(async (req) => {
 
         if (it.accion === "tarea_seguimiento") {
           const { data: t } = await supabase.from("tareas_seguimiento").insert({
-            comercial_id: inter.comercial_id ?? null, administrador_id: inter.administrador_id ?? null, interaccion_id,
+            comercial_id: inter.comercial_id ?? null, puesto_id: inter.puesto_id ?? null, interaccion_id,
             texto: it.tarea || it.notas || "(seguimiento)", condicion_cierre: it.condicion_cierre || null,
             fecha_limite: esISO(it.fecha_limite) ? it.fecha_limite : null,
           }).select("id").single();
@@ -241,8 +256,8 @@ Deno.serve(async (req) => {
               creados.anotados++;
             } else {
               const { data: op } = await supabase.from("oportunidades").insert({
-                comercial_id: inter.comercial_id ?? null, administrador_id: inter.administrador_id ?? null,
-                comunidad_id: comId, tipo_origen: inter.administrador_id ? "administrador_conocido" : "otro", estado: "activa",
+                comercial_id: inter.comercial_id ?? null, puesto_id: inter.puesto_id ?? null,
+                comunidad_id: comId, tipo_origen: inter.puesto_id ? "administrador_conocido" : "otro", estado: "activa",
                 origen_notas: [it.tipo_proyecto, it.importe, it.interes, it.notas].filter(Boolean).join(" · ") || null,
               }).select("id").single();
               if (op) { creados.oportunidades++; await registrarEvento({ operacion: OP, tipo: "oportunidad_creada", target_tabla: "oportunidades", target_id: op.id, datos: it }); }
@@ -266,15 +281,18 @@ Deno.serve(async (req) => {
             await registrarEvento({ operacion: OP, tipo: "item_deseo_tecnico", target_tabla: "interacciones", target_id: interaccion_id, datos: it });
             creados.anotados++;
           }
-        } else if (it.accion === "nuevo_contacto" && adminFirmId) {
-          // "Nos presentan a alguien" -> contacto real de la firma (proposito comercial).
-          const { data: co } = await supabase.from("contactos").insert({
-            administracion_id: adminFirmId, proposito: "comercial",
-            nombre: it.sujeto_nombre || it.contacto || null,
-            notas: [it.contacto, it.notas].filter(Boolean).join(" · ") || null,
-          }).select("id").single();
-          if (co) { creados.anotados++; await registrarEvento({ operacion: OP, tipo: "item_nuevo_contacto", target_tabla: "contactos", target_id: co.id, datos: it }); }
-          else { await registrarEvento({ operacion: OP, tipo: "item_nuevo_contacto", target_tabla: "interacciones", target_id: interaccion_id, datos: it }); creados.anotados++; }
+        } else if (it.accion === "nuevo_contacto") {
+          // "Nos presentan a alguien". Antes esto creaba una fila de persona a
+          // ciegas, y ahi esta el problema: dos personas se llaman igual mas a
+          // menudo de lo que parece, y una gestora que lleva quince comunidades
+          // acabaria duplicada quince veces. Sali PROPONE; dar de alta a un ser
+          // humano lo decide una persona, buscando primero en la lista.
+          creados.pendientes++;
+          await registrarEvento({
+            operacion: OP, tipo: "pendiente_nueva_persona",
+            target_tabla: "interacciones", target_id: interaccion_id,
+            datos: { ...it, empresa_id: adminFirmId },
+          });
         } else {
           // actualizacion / resultado_junta / otro (o deseo/contacto sin destino resoluble) -> anotado.
           await registrarEvento({ operacion: OP, tipo: `item_${it.accion}`, target_tabla: comId ? "comunidades" : "interacciones", target_id: comId ?? interaccion_id, datos: it });
@@ -321,8 +339,8 @@ Deno.serve(async (req) => {
     // "PROMPT ANEXO" de Sali: refrescar el resumen vivo del ADMINISTRADOR (persona)
     // tocado, en 2o plano (no retrasa la respuesta ni la pantalla de revision). El
     // resumen de las COMUNIDADES ya se refresco arriba con la pasada Opus (mas rica).
-    if (inter.administrador_id) {
-      const tarea = resumirAmbito({ ambito: "administrador", ambitoId: inter.administrador_id, supabase, actorId: actor_id })
+    if (inter.puesto_id) {
+      const tarea = resumirAmbito({ ambito: "administrador", ambitoId: inter.puesto_id, supabase, actorId: actor_id })
         .catch((e) => console.warn(`resumen admin no refrescado: ${e}`));
       // deno-lint-ignore no-explicit-any
       const rt = (globalThis as any).EdgeRuntime;

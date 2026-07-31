@@ -40,7 +40,7 @@ export default async function Diario({ searchParams }: { searchParams: Promise<{
                       <span className="font-semibold text-carbon/70">{fecha(i.fecha_evento) || fecha(i.creado_en.slice(0, 10))}</span>
                       <span className="rounded-full bg-black/5 px-2 py-0.5 font-semibold">{TIPO_EVENTO_LABEL[i.tipo_evento] ?? i.tipo_evento}</span>
                       <span>{ORIGEN_LABEL[i.origen] ?? i.origen}</span>
-                      {i.administradores?.nombre && <span className="text-lima-dark">· {i.administradores.nombre}{i.administradores.empresa ? ` (${i.administradores.empresa})` : ""}</span>}
+                      {i.persona?.nombre && <span className="text-lima-dark">· {i.persona.nombre}{i.persona.empresa ? ` (${i.persona.empresa})` : ""}</span>}
                       {i.requiere_humano && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">revisar</span>}
                       {i.comerciales?.nombre && !c && <span className="text-carbon/40">· {i.comerciales.nombre}</span>}
                     </div>

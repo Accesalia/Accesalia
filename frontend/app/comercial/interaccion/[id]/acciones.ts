@@ -94,26 +94,38 @@ function volver(interaccionId: string, comercialId: string | null) {
 export async function confirmarComunidadNueva(fd: FormData) {
   const interaccionId = txt(fd, "interaccion_id")!;
   const comercialId = txt(fd, "comercial_id");
-  const administradorId = txt(fd, "administrador_id");
-  const administracionId = txt(fd, "administracion_id");
+  // el sujeto es un PUESTO: la persona en su administracion
+  const puestoId = txt(fd, "puesto_id");
+  const empresaId = txt(fd, "empresa_id");
   const eventoId = txt(fd, "evento_id")!;
 
   const it = await eventoDatos(eventoId);
   const nombre = (it.sujeto_nombre as string) || (it.direccion as string) || "Comunidad nueva";
 
   // Crear la comunidad en el histórico (queda guardada desde la 1ª llamada, firme o no).
+  // Quien la administra ya NO es una columna de aqui: va aparte, en su vinculo,
+  // porque es una relacion con fecha e historia.
   const cr = await api("comunidades", "POST", {
-    administrador_id: administradorId,   // nullable: autogestionada
-    administracion_id: administracionId,
     nombre,
     direccion: (it.direccion as string) || null,
   }, "return=representation");
   const [com] = (await cr.json()) as { id: string }[];
   if (!com?.id) { await cerrarEvento(eventoId); return volver(interaccionId, comercialId); }
 
+  // El vinculo con su administracion, si se sabe. Puede no saberse: una
+  // comunidad pequena autogestionada no tiene, y eso es correcto.
+  if (puestoId || empresaId) {
+    await api("comunidad_admin_responsable", "POST", {
+      comunidad_id: com.id,
+      puesto_id: puestoId,
+      empresa_id: empresaId,
+      vigente: true,
+    });
+  }
+
   const r = await api("oportunidades", "POST", {
-    comercial_id: comercialId, administrador_id: administradorId, comunidad_id: com.id,
-    tipo_origen: administradorId ? "administrador_conocido" : "otro", estado: "activa", origen_notas: notasDe(it),
+    comercial_id: comercialId, puesto_id: puestoId, comunidad_id: com.id,
+    tipo_origen: puestoId ? "administrador_conocido" : "otro", estado: "activa", origen_notas: notasDe(it),
   }, "return=representation");
   const [op] = (await r.json()) as { id: string }[];
 
@@ -129,7 +141,7 @@ export async function confirmarComunidadNueva(fd: FormData) {
 export async function vincularAComunidad(fd: FormData) {
   const interaccionId = txt(fd, "interaccion_id")!;
   const comercialId = txt(fd, "comercial_id");
-  const administradorId = txt(fd, "administrador_id");
+  const puestoId = txt(fd, "puesto_id");
   const eventoId = txt(fd, "evento_id")!;
   const comunidadId = txt(fd, "comunidad_id");
   if (!comunidadId) return; // sin comunidad elegida no hay nada que enlazar
@@ -145,9 +157,9 @@ export async function vincularAComunidad(fd: FormData) {
   } else {
     const r = await api("oportunidades", "POST", {
       comercial_id: comercialId,
-      administrador_id: administradorId,
+      puesto_id: puestoId,
       comunidad_id: comunidadId,
-      tipo_origen: administradorId ? "administrador_conocido" : "otro",
+      tipo_origen: puestoId ? "administrador_conocido" : "otro",
       estado: "activa",
       origen_notas: notasDe(it),
     }, "return=representation");
@@ -181,8 +193,9 @@ export async function deshacerEvento(fd: FormData) {
   } else if (targetId && tabla === "oportunidades" && tipo === "oportunidad_creada") {
     await api(`interaccion_comunidad?interaccion_id=eq.${interaccionId}`, "DELETE"); // puente de esta nota (se rehará si se revincula)
     await api(`oportunidades?id=eq.${targetId}`, "DELETE");
-  } else if (targetId && (tabla === "tareas_seguimiento" || tabla === "condicionantes_comunidad" || tabla === "contactos")) {
-    // Filas auto-creadas por Sali (tarea, deseo/brief técnico, contacto): borrar la fila.
+  } else if (targetId && (tabla === "tareas_seguimiento" || tabla === "condicionantes_comunidad")) {
+    // Filas auto-creadas por Sali (tarea, deseo/brief técnico): borrar la fila.
+    // Ya no hay "contactos": Sali no crea personas por su cuenta, las propone.
     await api(`${tabla}?id=eq.${targetId}`, "DELETE");
   }
 
@@ -204,7 +217,7 @@ async function revertirMaterializaciones(interaccionId: string) {
       if (e.datos?.oportunidad_id) await api(`oportunidades?id=eq.${e.datos.oportunidad_id}`, "DELETE");
       await api(`comunidades?id=eq.${e.target_id}`, "DELETE");
     } else if (e.target_id && (e.tipo.endsWith("_creada") || e.tipo.startsWith("item_")) &&
-      (e.target_tabla === "oportunidades" || e.target_tabla === "tareas_seguimiento" || e.target_tabla === "condicionantes_comunidad" || e.target_tabla === "contactos")) {
+      (e.target_tabla === "oportunidades" || e.target_tabla === "tareas_seguimiento" || e.target_tabla === "condicionantes_comunidad")) {
       // Solo filas CREADAS por Sali; las anotaciones sobre algo existente no se borran.
       await api(`${e.target_tabla}?id=eq.${e.target_id}`, "DELETE");
     }

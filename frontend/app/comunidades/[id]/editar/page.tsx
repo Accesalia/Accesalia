@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
-import { comunidadPorId, administracionesParaSelector } from "../../../../lib/comunidades";
+import { comunidadPorId } from "../../../../lib/comunidades";
 import { actualizarComunidad } from "../../acciones";
 import { FormComunidad } from "../../FormComunidad";
 
@@ -9,10 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function EditarComunidad({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [ficha, administraciones] = await Promise.all([
-    comunidadPorId(id),
-    administracionesParaSelector(),
-  ]);
+  const ficha = await comunidadPorId(id);
   if (!ficha) notFound();
 
   const actualizar = actualizarComunidad.bind(null, id);
@@ -28,7 +25,6 @@ export default async function EditarComunidad({ params }: { params: Promise<{ id
         <FormComunidad
           accion={actualizar}
           comunidad={ficha.comunidad}
-          administraciones={administraciones}
           textoBoton="Guardar cambios"
           hrefCancelar={`/comunidades/${id}`}
         />

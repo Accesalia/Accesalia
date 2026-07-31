@@ -9,6 +9,11 @@ type Props = {
   persona?: Administrador | null;
   textoBoton: string;
   hrefCancelar: string;
+  /** En el alta, el buscador que evita duplicar a alguien que ya existe.
+   *  Cuando se pasa, sustituye al campo de nombre: la identidad la resuelve el
+   *  buscador (eliges a quien ya esta o creas), y aqui solo quedan los datos
+   *  del puesto. En la edicion no se pasa y el nombre se escribe normal. */
+  identidad?: React.ReactNode;
 };
 
 const labelCls = "block text-sm font-medium text-carbon/70";
@@ -16,18 +21,27 @@ const inputCls =
   "mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-carbon " +
   "outline-none focus:border-lima focus:ring-2 focus:ring-lima/30";
 
-export function FormularioPersona({ accion, persona, textoBoton, hrefCancelar }: Props) {
+export function FormularioPersona({
+  accion, persona, textoBoton, hrefCancelar, identidad,
+}: Props) {
   const p = persona;
   return (
     <form action={accion} className="space-y-6">
+      {identidad && (
+        <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          {identidad}
+        </section>
+      )}
       <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className={labelCls} htmlFor="nombre">
-              Nombre y apellidos <span className="text-lima-dark">*</span>
-            </label>
-            <input id="nombre" name="nombre" required defaultValue={p?.nombre ?? ""} className={inputCls} />
-          </div>
+          {!identidad && (
+            <div className="sm:col-span-2">
+              <label className={labelCls} htmlFor="nombre">
+                Nombre y apellidos <span className="text-lima-dark">*</span>
+              </label>
+              <input id="nombre" name="nombre" required defaultValue={p?.nombre ?? ""} className={inputCls} />
+            </div>
+          )}
           <div>
             <label className={labelCls} htmlFor="cargo">Cargo / rol</label>
             <input id="cargo" name="cargo" defaultValue={p?.cargo ?? ""} className={inputCls}

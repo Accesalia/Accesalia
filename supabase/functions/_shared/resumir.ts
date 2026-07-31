@@ -34,7 +34,9 @@ export async function resumirAmbito(opts: {
 }): Promise<{ ok: boolean; texto?: string; motivo?: string }> {
   const fase = opts.fase ?? "comercial";
   const supabase = opts.supabase ?? clienteServicio();
-  const col = opts.ambito === "administrador" ? "administrador_id" : "comunidad_id";
+  // El ambito "administrador" apunta a un PUESTO: la persona EN su casa. Se
+  // conserva el nombre del ambito porque es como se llama en el negocio.
+  const col = opts.ambito === "administrador" ? "puesto_id" : "comunidad_id";
 
   // Resumen previo (para evolucionarlo).
   const { data: prev } = await supabase
@@ -45,12 +47,17 @@ export async function resumirAmbito(opts: {
   let notas: Nota[] = [];
 
   if (opts.ambito === "administrador") {
-    const { data: p } = await supabase
-      .from("administradores").select("nombre, empresa").eq("id", opts.ambitoId).maybeSingle();
-    cabecera = `Administrador (persona): ${p?.nombre ?? "?"}${p?.empresa ? ` — ${p.empresa}` : ""}.`;
+    const { data: pu } = await supabase
+      .from("puesto")
+      .select("persona:persona_id(nombre), empresa:empresa_id(nombre_accesalia)")
+      .eq("id", opts.ambitoId).maybeSingle();
+    // deno-lint-ignore no-explicit-any
+    const p = pu as any;
+    const casa = p?.empresa?.nombre_accesalia;
+    cabecera = `Administrador (persona): ${p?.persona?.nombre ?? "?"}${casa ? ` — ${casa}` : ""}.`;
     const { data } = await supabase
       .from("interacciones").select("fecha_evento, creado_en, tipo_evento, transcripcion")
-      .eq("administrador_id", opts.ambitoId).order("creado_en", { ascending: false }).limit(30);
+      .eq("puesto_id", opts.ambitoId).order("creado_en", { ascending: false }).limit(30);
     notas = (data ?? []) as Nota[];
   } else {
     const { data: c } = await supabase
@@ -94,7 +101,7 @@ Reescribe el resumen al día de hoy.`;
   } else {
     await supabase.from("resumenes_ia").insert({
       ambito: opts.ambito, fase, texto, generado_por: "ia",
-      ...(opts.ambito === "administrador" ? { administrador_id: opts.ambitoId } : { comunidad_id: opts.ambitoId }),
+      ...(opts.ambito === "administrador" ? { puesto_id: opts.ambitoId } : { comunidad_id: opts.ambitoId }),
     });
   }
   return { ok: true, texto };

@@ -3,6 +3,25 @@
 // Acceso a datos del area COMERCIAL (CRM), solo de servidor. La cartera gira
 // sobre la ADMINISTRACION de fincas (unidad principal); las personas cuelgan de
 // ella. Mismo patron que lib/datos.ts: REST con la clave SECRETA (service role).
+//
+// El modelo de debajo cambio al retirar el modelo viejo, y este fichero se
+// reescribio para seguirlo. Devuelve las MISMAS formas que antes, a proposito:
+// asi las pantallas no se enteran del cambio.
+//
+//     administraciones_fincas  ->  empresa
+//     administradores          ->  puesto + persona
+//     contactos                ->  empresa_departamento + correo
+//     email (era una columna)  ->  correo
+//     administrador_id         ->  puesto_id
+//
+// Por que persona y puesto van separados: la persona es quien es (constante) y
+// el puesto es su trabajo en esa casa (vivo). Antes iban juntos, asi que cuando
+// alguien cambiaba de administracion se perdia el rastro de lo hablado con ella.
+//
+// Ojo con una cosa: lo que las pantallas llaman "administrador" es un PUESTO, y
+// su id es el id del puesto. No es casualidad: es el mismo id que guardan
+// interacciones.puesto_id y oportunidades.puesto_id, asi que los enlaces de las
+// conversaciones siguen funcionando sin traducir nada.
 
 import "server-only";
 
@@ -37,13 +56,26 @@ export const ESTADOS: Record<EstadoAdministracion, { label: string; clase: strin
 
 export const ESTADOS_LISTA = Object.keys(ESTADOS) as EstadoAdministracion[];
 
+// Sin decidir todavia. No es un estado mas: es la ausencia de decision, y se
+// pinta distinto para que se note que falta, no para disimularlo.
+export const SIN_ESTADO = { label: "Sin definir", clase: "bg-black/5 text-carbon/35" };
+
+/** Como se pinta un estado, incluido el caso de que no lo haya. */
+export function estadoDe(estado: EstadoAdministracion | null): { label: string; clase: string } {
+  return estado ? ESTADOS[estado] : SIN_ESTADO;
+}
+
 // ---- Tipos ----
 
 export type Comercial = { id: string; nombre: string; apellidos: string | null };
 
+// Una administracion de fincas. Debajo es una fila de empresa; el estado y las
+// fechas del ciclo comercial estan vacios de momento, que es la verdad: hasta
+// ahora no habia donde guardarlos.
 export type AdministracionFincas = {
   id: string;
   nombre: string;
+  nombre_legal: string | null;
   cif: string | null;
   telefono: string | null;
   email: string | null;
@@ -51,11 +83,14 @@ export type AdministracionFincas = {
   municipio: string | null;
   notas: string | null;
   activo: boolean;
-  estado: EstadoAdministracion;
+  // El titular ya no es una columna de la casa: es el puesto cuyo cargo dice
+  // "titular". Se sigue asomando aqui como un id porque para las pantallas es
+  // lo mismo de antes, y el id que se guarda es el del puesto.
+  titular_id: string | null;
+  estado: EstadoAdministracion | null;
   fecha_paso_a_cliente: string | null;
   motivo_fin: string | null;
   fecha_fin: string | null;
-  titular_id: string | null;
   comercial_id: string | null;
   comercial_captador_id: string | null;
   fecha_alta_cartera: string | null;
@@ -69,6 +104,7 @@ export type AdministracionCartera = AdministracionFincas & {
   personas: { count: number }[];
 };
 
+// Una persona EN una casa. El id es el del puesto, ver la nota de cabecera.
 export type Administrador = {
   id: string;
   nombre: string;
@@ -77,10 +113,13 @@ export type Administrador = {
   telefono: string | null;
   email: string | null;
   notas: string | null;
-  administracion_id: string | null;
+  empresa_id: string | null;
   activo: boolean;
 };
 
+// Un contacto por asunto: "contabilidad", "incidencias"... Debajo es un
+// departamento de la empresa con su correo. Util en administraciones grandes,
+// donde no escribes a una persona sino a un buzon.
 export type Contacto = {
   id: string;
   proposito: string;
@@ -108,81 +147,292 @@ export type AdministracionFicha = {
   origen: Origen[];
 };
 
-const SELECT_CARTERA =
-  "id,nombre,cif,telefono,email,direccion,municipio,notas,activo,estado," +
-  "fecha_paso_a_cliente,motivo_fin,fecha_fin,titular_id,comercial_id," +
-  "comercial_captador_id,fecha_alta_cartera,fecha_ultimo_contacto,fecha_ultimo_encargo," +
-  "comercial:comerciales!comercial_id(nombre,apellidos)," +
-  "personas:administradores!administracion_id(count)";
+// ---- Traduccion del modelo nuevo a las formas de siempre ----
+//
+// Todo lo que llega de Supabase pasa por aqui. Es el unico sitio del fichero
+// que sabe como se llaman de verdad las columnas.
+
+type CorreoFila = { email: string; principal: boolean };
+
+/** El correo bueno de una lista: el marcado principal, y si no, el primero. */
+function correoDe(correos: CorreoFila[] | null | undefined): string | null {
+  if (!correos || !correos.length) return null;
+  return (correos.find((c) => c.principal) ?? correos[0]).email;
+}
+
+type EmpresaFila = {
+  id: string;
+  nombre_accesalia: string;
+  nombre_legal: string | null;
+  cif: string | null;
+  telefono: string | null;
+  direccion: string | null;
+  municipio: string | null;
+  notas: string | null;
+  activa: boolean;
+  estado: EstadoAdministracion | null;
+  fecha_paso_a_cliente: string | null;
+  motivo_fin: string | null;
+  fecha_fin: string | null;
+  comercial_id: string | null;
+  comercial_captador_id: string | null;
+  fecha_alta_cartera: string | null;
+  fecha_ultimo_contacto: string | null;
+  fecha_ultimo_encargo: string | null;
+  correo?: CorreoFila[];
+};
+
+function comoAdministracion(e: EmpresaFila, titularId: string | null = null): AdministracionFincas {
+  return {
+    id: e.id,
+    nombre: e.nombre_accesalia,
+    nombre_legal: e.nombre_legal,
+    cif: e.cif,
+    telefono: e.telefono,
+    email: correoDe(e.correo),
+    direccion: e.direccion,
+    municipio: e.municipio,
+    notas: e.notas,
+    activo: e.activa,
+    titular_id: titularId,
+    estado: e.estado,
+    fecha_paso_a_cliente: e.fecha_paso_a_cliente,
+    motivo_fin: e.motivo_fin,
+    fecha_fin: e.fecha_fin,
+    comercial_id: e.comercial_id,
+    comercial_captador_id: e.comercial_captador_id,
+    fecha_alta_cartera: e.fecha_alta_cartera,
+    fecha_ultimo_contacto: e.fecha_ultimo_contacto,
+    fecha_ultimo_encargo: e.fecha_ultimo_encargo,
+  };
+}
+
+type PuestoFila = {
+  id: string;
+  empresa_id: string | null;
+  cargo: string | null;
+  telefono_empresa: string | null;
+  telefono_personal: string | null;
+  notas: string | null;
+  persona: { nombre: string; activa: boolean } | null;
+  empresa: { nombre_accesalia: string } | null;
+  correo?: CorreoFila[];
+};
+
+function comoAdministrador(p: PuestoFila): Administrador {
+  return {
+    id: p.id,
+    nombre: p.persona?.nombre ?? "(sin nombre)",
+    empresa: p.empresa?.nombre_accesalia ?? null,
+    cargo: p.cargo,
+    // el de la oficina primero: es el que se marca para hablar de trabajo
+    telefono: p.telefono_empresa ?? p.telefono_personal,
+    email: correoDe(p.correo),
+    notas: p.notas,
+    empresa_id: p.empresa_id,
+    activo: p.persona?.activa ?? true,
+  };
+}
+
+// Lo minimo de un puesto cuando solo hace falta decir de quien se habla.
+type PuestoAsomado = {
+  persona: { nombre: string } | null;
+  empresa: { nombre_accesalia: string } | null;
+} | null;
+
+function quienEs(p: PuestoAsomado): { nombre: string; empresa: string | null } | null {
+  if (!p) return null;
+  return { nombre: p.persona?.nombre ?? "(sin nombre)", empresa: p.empresa?.nombre_accesalia ?? null };
+}
+
+// comerciales cuelga de empresa por dos sitios (quien la lleva y quien la
+// trajo), asi que hay que decirle a PostgREST por cual entrar.
+const SEL_EMPRESA =
+  "id,nombre_accesalia,nombre_legal,cif,telefono,direccion,municipio,notas,activa,estado," +
+  "fecha_paso_a_cliente,motivo_fin,fecha_fin,comercial_id,comercial_captador_id," +
+  "fecha_alta_cartera,fecha_ultimo_contacto,fecha_ultimo_encargo," +
+  "correo!correo_empresa_id_fkey(email,principal)";
+
+const SEL_PUESTO =
+  "id,empresa_id,cargo,telefono_empresa,telefono_personal,notas," +
+  "persona:persona_id(nombre,activa),empresa:empresa_id(nombre_accesalia)," +
+  "correo!correo_puesto_id_fkey(email,principal)";
 
 // ---- Consultas ----
 
+/** El puesto que manda en una casa: el que lleva el cargo "titular". */
+function puestoTitular(empresaId: string) {
+  return rest<{ id: string; persona: { nombre: string } | null }[]>(
+    `puesto?select=id,persona:persona_id(nombre)&empresa_id=eq.${empresaId}&cargo=eq.titular&limit=1`,
+  );
+}
+
 /** Cartera: todas las administraciones con comercial dueno y nº de personas. */
 export async function listarCartera(): Promise<AdministracionCartera[]> {
-  return rest<AdministracionCartera[]>(
-    `administraciones_fincas?select=${SELECT_CARTERA}&order=nombre.asc`,
+  const filas = await rest<(EmpresaFila & {
+    comercial: { nombre: string; apellidos: string | null } | null;
+    personas: { count: number }[];
+  })[]>(
+    `empresa?select=${SEL_EMPRESA},` +
+      "comercial:comerciales!empresa_comercial_id_fkey(nombre,apellidos)," +
+      "personas:puesto(count)&order=nombre_accesalia.asc",
   );
+  return filas.map((f) => ({
+    ...comoAdministracion(f),
+    comercial: f.comercial,
+    personas: f.personas ?? [],
+  }));
 }
 
 /** Ficha completa de una administracion. */
 export async function administracionPorId(id: string): Promise<AdministracionFicha | null> {
-  const filas = await rest<AdministracionFincas[]>(
-    `administraciones_fincas?select=*&id=eq.${id}&limit=1`,
-  );
-  const administracion = filas[0];
-  if (!administracion) return null;
+  const filas = await rest<EmpresaFila[]>(`empresa?select=${SEL_EMPRESA}&id=eq.${id}&limit=1`);
+  if (!filas[0]) return null;
+  const empresa = filas[0];
 
-  const [comerciales, titulares, personas, contactos, origen] = await Promise.all([
-    administracion.comercial_id
+  const [comerciales, titulares, puestos, departamentos, origen] = await Promise.all([
+    empresa.comercial_id
       ? rest<Comercial[]>(
-          `comerciales?select=id,nombre,apellidos&id=eq.${administracion.comercial_id}&limit=1`,
+          `comerciales?select=id,nombre,apellidos&id=eq.${empresa.comercial_id}&limit=1`,
         )
       : Promise.resolve([] as Comercial[]),
-    administracion.titular_id
-      ? rest<{ id: string; nombre: string }[]>(
-          `administradores?select=id,nombre&id=eq.${administracion.titular_id}&limit=1`,
-        )
-      : Promise.resolve([] as { id: string; nombre: string }[]),
-    rest<Administrador[]>(
-      `administradores?select=id,nombre,empresa,cargo,telefono,email,notas,administracion_id,activo&administracion_id=eq.${id}&order=nombre.asc`,
-    ),
-    rest<Contacto[]>(
-      `contactos?select=id,proposito,nombre,telefono,email,notas,persona_id&administracion_id=eq.${id}&order=proposito.asc`,
+    puestoTitular(id),
+    rest<PuestoFila[]>(`puesto?select=${SEL_PUESTO}&empresa_id=eq.${id}`),
+    rest<{ id: string; departamento: string; telefono: string | null; notas: string | null;
+           correo?: CorreoFila[] }[]>(
+      "empresa_departamento?select=id,departamento,telefono,notas," +
+        `correo!correo_departamento_id_fkey(email,principal)&empresa_id=eq.${id}` +
+        "&order=departamento.asc",
     ),
     rest<Origen[]>(
-      `administracion_origen?select=id,tipo_origen,referente_externo,condiciona_oferta,notas&administracion_id=eq.${id}&order=creado_en.asc`,
+      "administracion_origen?select=id,tipo_origen,referente_externo,condiciona_oferta,notas" +
+        `&empresa_id=eq.${id}&order=creado_en.asc`,
     ),
   ]);
 
+  const titular = titulares[0]
+    ? { id: titulares[0].id, nombre: titulares[0].persona?.nombre ?? "(sin nombre)" }
+    : null;
+
   return {
-    administracion,
+    administracion: comoAdministracion(empresa, titular?.id ?? null),
     comercial: comerciales[0] ?? null,
-    titular: titulares[0] ?? null,
-    personas,
-    contactos,
+    titular,
+    // se ordena aqui y no en la consulta: el nombre vive en la tabla de al lado
+    personas: puestos.map(comoAdministrador).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    contactos: departamentos.map((d) => ({
+      id: d.id,
+      proposito: d.departamento,
+      nombre: null,
+      telefono: d.telefono,
+      email: correoDe(d.correo),
+      notas: d.notas,
+      persona_id: null,
+    })),
     origen,
   };
 }
 
 /** Administracion en crudo (para el formulario de edicion). */
 export async function administracionCruda(id: string): Promise<AdministracionFincas | null> {
-  const filas = await rest<AdministracionFincas[]>(
-    `administraciones_fincas?select=*&id=eq.${id}&limit=1`,
-  );
-  return filas[0] ?? null;
+  const [filas, titulares] = await Promise.all([
+    rest<EmpresaFila[]>(`empresa?select=${SEL_EMPRESA}&id=eq.${id}&limit=1`),
+    puestoTitular(id),
+  ]);
+  return filas[0] ? comoAdministracion(filas[0], titulares[0]?.id ?? null) : null;
 }
 
 /** Una persona (para su ficha o edicion), con su administracion. */
 export async function administradorPorId(
   id: string,
 ): Promise<{ admin: Administrador; administracion: { id: string; nombre: string } | null } | null> {
-  const filas = await rest<(Administrador & { administracion: { id: string; nombre: string } | null })[]>(
-    `administradores?select=id,nombre,empresa,cargo,telefono,email,notas,administracion_id,activo,administracion:administraciones_fincas!administradores_administracion_id_fkey(id,nombre)&id=eq.${id}&limit=1`,
+  const filas = await rest<(PuestoFila & { empresa: { id: string; nombre_accesalia: string } | null })[]>(
+    `puesto?select=id,empresa_id,cargo,telefono_empresa,telefono_personal,notas,` +
+      "persona:persona_id(nombre,activa),empresa:empresa_id(id,nombre_accesalia)," +
+      `correo!correo_puesto_id_fkey(email,principal)&id=eq.${id}&limit=1`,
   );
-  const row = filas[0];
-  if (!row) return null;
-  const { administracion, ...admin } = row;
-  return { admin, administracion };
+  const fila = filas[0];
+  if (!fila) return null;
+  return {
+    admin: comoAdministrador(fila),
+    administracion: fila.empresa
+      ? { id: fila.empresa.id, nombre: fila.empresa.nombre_accesalia }
+      : null,
+  };
+}
+
+// Alguien que ya esta dado de alta, para engancharlo en vez de volver a crearlo.
+export type PersonaExistente = { id: string; nombre: string; donde: string };
+
+/** Todas las personas de la app, con donde trabajan, para elegir de una lista.
+ *
+ *  Existe para no duplicar seres humanos: una gestora de Del Brio lleva quince
+ *  comunidades, y si cada alta creara una persona nueva tendriamos quince
+ *  Marias distintas. Devuelve el id de la PERSONA, no el del puesto: el puesto
+ *  es lo que se crea despues, al engancharla a una casa. */
+export async function personasParaElegir(): Promise<PersonaExistente[]> {
+  const filas = await rest<{
+    id: string; nombre: string;
+    puesto: { empresa: { nombre_accesalia: string } | null }[];
+  }[]>(
+    "persona?select=id,nombre,puesto(empresa:empresa_id(nombre_accesalia))" +
+      "&activa=is.true&order=nombre.asc&limit=2000",
+  );
+  return filas.map((f) => ({
+    id: f.id,
+    nombre: f.nombre,
+    donde: (f.puesto ?? [])
+      .map((p) => p.empresa?.nombre_accesalia)
+      .filter(Boolean)
+      .join(" · "),
+  }));
+}
+
+// ---- Lo que necesita el buscador de personas ----
+//
+// Se manda entero al navegador (unos cientos de filas) y alli se filtra segun
+// escribes. Es lo que permite que la lista responda al instante en vez de ir y
+// volver al servidor en cada tecla.
+
+export type PuestoElegible = {
+  id: string;              // id del PUESTO: es lo que guardan comunidades e interacciones
+  persona: string;
+  empresa: string | null;  // vacio = todavia no se sabe de que casa es
+  empresaId: string | null;
+};
+
+/** Todas las personas asignables, con la casa donde trabajan.
+ *
+ *  Existe para no duplicar seres humanos: una gestora de Del Brio lleva quince
+ *  comunidades, y si cada asignacion creara una persona nueva tendriamos quince
+ *  Marias con el rastro repartido. Primero se busca aqui; crear es el ultimo
+ *  recurso. */
+export async function puestosParaElegir(): Promise<PuestoElegible[]> {
+  const filas = await rest<{
+    id: string; empresa_id: string | null;
+    persona: { nombre: string; activa: boolean } | null;
+    empresa: { nombre_accesalia: string } | null;
+  }[]>(
+    "puesto?select=id,empresa_id,persona:persona_id(nombre,activa)," +
+      "empresa:empresa_id(nombre_accesalia)&limit=3000",
+  );
+  return filas
+    .filter((f) => f.persona?.activa !== false)
+    .map((f) => ({
+      id: f.id,
+      persona: f.persona?.nombre ?? "(sin nombre)",
+      empresa: f.empresa?.nombre_accesalia ?? null,
+      empresaId: f.empresa_id,
+    }))
+    .sort((a, b) => a.persona.localeCompare(b.persona, "es"));
+}
+
+/** Las administraciones, para el buscador por empresa. */
+export async function empresasParaElegir(): Promise<{ id: string; nombre: string }[]> {
+  const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
+    "empresa?select=id,nombre_accesalia&activa=is.true&order=nombre_accesalia.asc&limit=2000",
+  );
+  return filas.map((f) => ({ id: f.id, nombre: f.nombre_accesalia }));
 }
 
 export async function listarComerciales(): Promise<Comercial[]> {
@@ -192,9 +442,10 @@ export async function listarComerciales(): Promise<Comercial[]> {
 }
 
 export async function listarAdministraciones(): Promise<{ id: string; nombre: string }[]> {
-  return rest<{ id: string; nombre: string }[]>(
-    "administraciones_fincas?select=id,nombre&activo=eq.true&order=nombre.asc",
+  const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
+    "empresa?select=id,nombre_accesalia&activa=eq.true&order=nombre_accesalia.asc",
   );
+  return filas.map((f) => ({ id: f.id, nombre: f.nombre_accesalia }));
 }
 
 // ---- Helpers de presentacion ----
@@ -227,25 +478,51 @@ export type Interaccion = {
   transcripcion: string | null;
   pendiente_vincular: boolean;
   requiere_humano: boolean;
-  administradores: { nombre: string; empresa: string | null } | null;
+  // con quien se hablo. Se llamaba "administradores" cuando era una fila de
+  // aquella tabla; ahora es la persona, y el nombre lo dice.
+  persona: { nombre: string; empresa: string | null } | null;
   comerciales: { nombre: string } | null;
 };
 
 const SEL_INT =
   "id,fecha_evento,creado_en,origen,tipo_evento,transcripcion,pendiente_vincular,requiere_humano," +
-  "administradores:administrador_id(nombre,empresa),comerciales:comercial_id(nombre)";
+  "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
+  "comerciales:comercial_id(nombre)";
 
-/** Personas administradoras (el sujeto de una interaccion; FK administrador_id). */
-export function listarAdministradoresPersonas(): Promise<{ id: string; nombre: string; empresa: string | null }[]> {
-  return rest<{ id: string; nombre: string; empresa: string | null }[]>(
-    "administradores?select=id,nombre,empresa&activo=eq.true&order=nombre.asc&limit=2000",
+type InteraccionCruda = Omit<Interaccion, "persona"> & { puesto: PuestoAsomado };
+
+/** Las interacciones con el nombre de la persona ya resuelto. */
+function comoInteracciones(filas: InteraccionCruda[]): Interaccion[] {
+  return filas.map(({ puesto, ...i }) => ({ ...i, persona: quienEs(puesto) }));
+}
+
+/** Personas administradoras (el sujeto de una interaccion; FK puesto_id). */
+export async function listarAdministradoresPersonas(): Promise<
+  { id: string; nombre: string; empresa: string | null }[]
+> {
+  const filas = await rest<{ id: string; persona: { nombre: string; activa: boolean } | null;
+                             empresa: { nombre_accesalia: string } | null }[]>(
+    "puesto?select=id,persona:persona_id(nombre,activa),empresa:empresa_id(nombre_accesalia)" +
+      "&limit=2000",
   );
+  return filas
+    .filter((f) => f.persona?.activa !== false)
+    .map((f) => ({
+      id: f.id,
+      nombre: f.persona?.nombre ?? "(sin nombre)",
+      empresa: f.empresa?.nombre_accesalia ?? null,
+    }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
 /** Interacciones recientes (opcionalmente de un comercial), para el diario del hub. */
-export function interaccionesRecientes(comercialId?: string, limite = 25): Promise<Interaccion[]> {
+export async function interaccionesRecientes(comercialId?: string, limite = 25): Promise<Interaccion[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  return rest<Interaccion[]>(`interacciones?select=${SEL_INT}${f}&order=creado_en.desc&limit=${limite}`);
+  return comoInteracciones(
+    await rest<InteraccionCruda[]>(
+      `interacciones?select=${SEL_INT}${f}&order=creado_en.desc&limit=${limite}`,
+    ),
+  );
 }
 
 // ---- Revisión de una interacción (lo grabado | lo que Ordelia hizo) ----
@@ -284,8 +561,8 @@ export type InteraccionRevision = {
   requiere_humano: boolean;
   motivo_requiere_humano: string | null;
   comercial_id: string | null;
-  administrador_id: string | null;
-  administrador: { id: string; nombre: string; empresa: string | null; administracion_id: string | null } | null;
+  puesto_id: string | null;
+  administrador: { puestoId: string; nombre: string; empresa: string | null; empresaId: string | null } | null;
   comercial: { nombre: string; apellidos: string | null } | null;
 };
 
@@ -298,26 +575,52 @@ export type RevisionCompleta = {
 
 /** Todo lo necesario para revisar una interacción: la nota, lo que hizo la IA y el contexto para desambiguar. */
 export async function revisionInteraccion(id: string): Promise<RevisionCompleta | null> {
-  const filas = await rest<(InteraccionRevision & {
-    administrador: { id: string; nombre: string; empresa: string | null; administracion_id: string | null } | null;
-    comercial: { nombre: string; apellidos: string | null } | null;
-  })[]>(
-    `interacciones?select=id,transcripcion,origen,tipo_evento,fecha_evento,creado_en,extraccion,extraccion_estado,requiere_humano,motivo_requiere_humano,comercial_id,administrador_id,` +
-      `administrador:administrador_id(id,nombre,empresa,administracion_id),comercial:comercial_id(nombre,apellidos)&id=eq.${id}&limit=1`,
+  type Cruda = Omit<InteraccionRevision, "administrador" | "puesto_id"> & {
+    puesto_id: string | null;
+    puesto: (PuestoAsomado & { id: string; empresa_id: string | null }) | null;
+  };
+  const filas = await rest<Cruda[]>(
+    "interacciones?select=id,transcripcion,origen,tipo_evento,fecha_evento,creado_en,extraccion," +
+      "extraccion_estado,requiere_humano,motivo_requiere_humano,comercial_id,puesto_id," +
+      "puesto:puesto_id(id,empresa_id,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
+      `comercial:comercial_id(nombre,apellidos)&id=eq.${id}&limit=1`,
   );
-  const interaccion = filas[0];
-  if (!interaccion) return null;
+  const cruda = filas[0];
+  if (!cruda) return null;
 
-  const [eventos, comunidadesDelAdmin] = await Promise.all([
+  const { puesto, puesto_id, ...resto } = cruda;
+  const interaccion: InteraccionRevision = {
+    ...resto,
+    puesto_id,
+    administrador: puesto
+      ? {
+          puestoId: puesto.id,
+          nombre: puesto.persona?.nombre ?? "(sin nombre)",
+          empresa: puesto.empresa?.nombre_accesalia ?? null,
+          empresaId: puesto.empresa_id,
+        }
+      : null,
+  };
+
+  const [eventos, comunidades] = await Promise.all([
     rest<EventoBitacora[]>(
       `bitacora_ia?select=id,tipo,target_tabla,target_id,datos,deshecho,creado_en,actor_tipo&operacion=eq.comercial:${id}&order=creado_en.asc`,
     ),
-    interaccion.administrador?.administracion_id
-      ? rest<{ id: string; nombre: string; direccion: string | null }[]>(
-          `comunidades?select=id,nombre,direccion&administracion_id=eq.${interaccion.administrador.administracion_id}&activa=eq.true&order=nombre.asc&limit=300`,
+    // que comunidades lleva su casa: ya no es una columna de comunidades, es la
+    // tabla que dice quien administra que, y solo cuenta lo vigente
+    interaccion.administrador?.empresaId
+      ? rest<{ comunidades: { id: string; nombre: string; direccion: string | null } | null }[]>(
+          "comunidad_admin_responsable?select=comunidades(id,nombre,direccion)" +
+            `&empresa_id=eq.${interaccion.administrador.empresaId}` +
+            "&vigente=is.true&limit=300",
         )
-      : Promise.resolve([] as { id: string; nombre: string; direccion: string | null }[]),
+      : Promise.resolve([] as { comunidades: { id: string; nombre: string; direccion: string | null } | null }[]),
   ]);
+
+  const comunidadesDelAdmin = comunidades
+    .map((c) => c.comunidades)
+    .filter((c): c is { id: string; nombre: string; direccion: string | null } => !!c)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
   return { interaccion, eventos, comunidadesDelAdmin };
 }
@@ -334,21 +637,32 @@ export const FASE_LABEL: Record<string, string> = {
 /** Resumen vivo de Sali de un administrador-persona (fase comercial). */
 export async function resumenAdmin(administradorId: string): Promise<ResumenIA | null> {
   const filas = await rest<ResumenIA[]>(
-    `resumenes_ia?select=fase,texto,actualizado_en&ambito=eq.administrador&administrador_id=eq.${administradorId}&fase=eq.comercial&limit=1`,
+    "resumenes_ia?select=fase,texto,actualizado_en&ambito=eq.administrador" +
+      `&puesto_id=eq.${administradorId}&fase=eq.comercial&limit=1`,
   );
   return filas[0] ?? null;
 }
 
 /** Diario con un administrador-persona: sus interacciones, recientes primero. */
-export function interaccionesDeAdministrador(administradorId: string, limite = 25): Promise<Interaccion[]> {
-  return rest<Interaccion[]>(`interacciones?select=${SEL_INT}&administrador_id=eq.${administradorId}&order=creado_en.desc&limit=${limite}`);
+export async function interaccionesDeAdministrador(
+  administradorId: string,
+  limite = 25,
+): Promise<Interaccion[]> {
+  return comoInteracciones(
+    await rest<InteraccionCruda[]>(
+      `interacciones?select=${SEL_INT}&puesto_id=eq.${administradorId}&order=creado_en.desc&limit=${limite}`,
+    ),
+  );
 }
 
 /** Conversaciones que MENCIONAN una comunidad (vía el puente interaccion_comunidad).
  *  El texto crudo vive una vez en interacciones; aquí solo se asoma por el puntero. */
-export function interaccionesDeComunidad(comunidadId: string, limite = 25): Promise<Interaccion[]> {
-  return rest<Interaccion[]>(
-    `interacciones?select=${SEL_INT},interaccion_comunidad!inner(comunidad_id)&interaccion_comunidad.comunidad_id=eq.${comunidadId}&order=creado_en.desc&limit=${limite}`,
+export async function interaccionesDeComunidad(comunidadId: string, limite = 25): Promise<Interaccion[]> {
+  return comoInteracciones(
+    await rest<InteraccionCruda[]>(
+      `interacciones?select=${SEL_INT},interaccion_comunidad!inner(comunidad_id)` +
+        `&interaccion_comunidad.comunidad_id=eq.${comunidadId}&order=creado_en.desc&limit=${limite}`,
+    ),
   );
 }
 
@@ -427,17 +741,20 @@ export function catalogoHitos(): Promise<HitoCatalogo[]> {
 
 const SEL_OPORTUNIDAD =
   "id,estado,comunidad_provisional,origen_notas,creado_en," +
-  "comunidad:comunidad_id(id,nombre,direccion),administrador:administrador_id(nombre,empresa),comercial:comercial_id(nombre)," +
+  "comunidad:comunidad_id(id,nombre,direccion)," +
+  "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
+  "comercial:comercial_id(nombre)," +
   "hitos_oportunidad(id,hito,aplicable,estado,fecha,enlace_url,responsable_id)," +
   "negociacion_oportunidad(que_vendemos,precio,alcance,creado_en)";
 
 /** Oportunidades EN MARCHA (activas) con sus hitos y la oferta vigente. */
-export function oportunidadesEnMarcha(comercialId?: string): Promise<OportunidadEnMarcha[]> {
+export async function oportunidadesEnMarcha(comercialId?: string): Promise<OportunidadEnMarcha[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  return rest<OportunidadEnMarcha[]>(
+  const filas = await rest<(Omit<OportunidadEnMarcha, "administrador"> & { puesto: PuestoAsomado })[]>(
     `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.activa${f}&order=creado_en.desc&limit=200` +
       "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1",
   );
+  return filas.map(({ puesto, ...o }) => ({ ...o, administrador: quienEs(puesto) }));
 }
 
 // Deriva el punto actual: primer hito aplicable, NO ramal y no 'hecho', por orden.
@@ -465,7 +782,7 @@ export async function resumenComercial(comercialId?: string): Promise<ResumenCom
   };
   const fc = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   const [admins, interacciones, oportunidades, pendientesVincular] = await Promise.all([
-    cnt("administraciones_fincas"),
+    cnt("empresa"),
     cnt("interacciones", fc),
     cnt("oportunidades", fc),
     cnt("interacciones", `&pendiente_vincular=eq.true${fc}`),

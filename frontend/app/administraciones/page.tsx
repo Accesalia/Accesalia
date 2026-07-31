@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
-import { listarCartera, nombreComercial, nPersonas, ESTADOS } from "../../lib/comercial";
+import { listarCartera, nombreComercial, nPersonas, estadoDe } from "../../lib/comercial";
 import { CarteraCliente, type FilaCartera } from "./CarteraCliente";
 
 export const dynamic = "force-dynamic";
 
 export default async function Cartera() {
   const admins = await listarCartera();
-  const clientes = admins.filter((a) => a.estado.startsWith("cliente")).length;
+  const clientes = admins.filter((a) => a.estado?.startsWith("cliente")).length;
   const contactos = admins.filter((a) => a.estado === "contacto").length;
 
   // Aplanar en el servidor (lib/comercial es server-only) para que el cliente
@@ -16,8 +16,8 @@ export default async function Cartera() {
     id: a.id,
     nombre: a.nombre,
     municipio: a.municipio,
-    estadoLabel: ESTADOS[a.estado].label,
-    estadoClase: ESTADOS[a.estado].clase,
+    estadoLabel: estadoDe(a.estado).label,
+    estadoClase: estadoDe(a.estado).clase,
     comercialId: a.comercial_id,
     comercialNombre: nombreComercial(a.comercial),
     personas: nPersonas(a),
