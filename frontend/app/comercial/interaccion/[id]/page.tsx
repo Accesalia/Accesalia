@@ -138,8 +138,19 @@ export default async function RevisionInteraccion({
             <p className="mt-1 text-[15px] leading-relaxed text-carbon/85">{resumen}</p>
           </div>
         ) : !procesado ? (
-          <div className="mt-4 rounded-2xl border border-dashed border-black/15 bg-white p-4 text-sm text-carbon/55">
-            Sali aún no ha leído esta nota (o el procesado no está disponible ahora). El texto está guardado; se puede reprocesar.
+          /* Lo normal nada más guardar: Sali tarda entre veinte segundos y un
+             minuto, y ya no se la espera antes de traerte aquí. Se dice claro
+             que está trabajando, para que no parezca que se ha perdido. */
+          <div className="mt-4 rounded-2xl border border-dashed border-black/15 bg-white p-4 text-sm text-carbon/60">
+            <span className="font-medium text-carbon/80">Sali está leyendo esta nota.</span>{" "}
+            Suele tardar menos de un minuto.{" "}
+            <a href={`/comercial/interaccion/${it.id}${comercialId ? `?c=${comercialId}` : ""}`}
+              className="font-medium text-lima-dark hover:underline">
+              Actualizar
+            </a>
+            <p className="mt-1 text-carbon/45">
+              El texto ya está guardado, así que no se pierde nada aunque cierres.
+            </p>
           </div>
         ) : null}
 

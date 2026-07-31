@@ -41,22 +41,30 @@ export async function crearInteraccion(fd: FormData) {
   if (!res.ok) throw new Error(`crearInteraccion: ${await res.text()}`);
   const [creada] = (await res.json()) as { id: string }[];
 
-  // Procesado por IA AUTOMATICO (sin boton): lee, interpreta y actua. Best-effort:
-  // si la edge falla (p.ej. en local sin functions serve), la nota queda guardada
-  // igual; se podra reprocesar. Todo lo que hace queda en bitacora_ia (deshacer).
+  // Procesado por IA AUTOMATICO (sin boton): lee, interpreta y actua.
+  //
+  // NO se espera a que termine. Sali tarda entre veinte segundos y un minuto en
+  // pensar, y Vercel corta las funciones mucho antes: la accion moria a medias y
+  // el usuario se quedaba mirando el boton sin que pasara nada, aunque la nota
+  // ya estuviera guardada. Se le da el aviso a la edge y se sigue; Supabase ya
+  // tiene la peticion y la procesa por su cuenta aunque aqui dejemos de esperar.
+  //
+  // Si el aviso ni siquiera sale (local sin functions serve, red caida), la nota
+  // queda guardada como "sin procesar" y se puede reprocesar desde la revision.
   try {
     await fetch(`${URL_BASE}/functions/v1/extraer-comercial`, {
       method: "POST",
       headers: { Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" },
       body: JSON.stringify({ interaccion_id: creada.id }),
+      signal: AbortSignal.timeout(2500),
     });
-  } catch (e) {
-    console.warn(`extraer-comercial no disparado: ${e}`);
+  } catch {
+    // lo normal es acabar aqui por el corte de los 2,5 s: no es un fallo
   }
 
   // A la PANTALLA DE REVISIÓN de esta nota: izquierda lo grabado, derecha lo que
-  // Ordelia entendió/hizo. Para cuando el usuario llega, la edge ya la procesó
-  // (se esperó arriba); si falló, la revisión lo dice y el texto queda guardado.
+  // Ordelia entendió/hizo. Puede que llegue antes que ella: la pantalla lo dice
+  // y basta con recargar en unos segundos.
   revalidatePath("/comercial");
   redirect(comercialId ? `/comercial/interaccion/${creada.id}?c=${comercialId}` : `/comercial/interaccion/${creada.id}`);
 }
