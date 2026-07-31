@@ -5,6 +5,7 @@ import { listarEquipo } from "../../../../../../lib/equipo";
 import { actaData, destinatariosDeComunidad, fotoUrl } from "../../../../../../lib/visita";
 import { actualizarActa, borrarFoto, marcarEnviada, borrarVisita } from "../acciones";
 import { BotonImprimir } from "./BotonImprimir";
+import { Guardando } from "../../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,7 @@ export default async function ActaVisita({ params }: { params: Promise<{ id: str
           )}
           {!v.enviada && (
             <form action={marcarEnviada.bind(null, id, visitaId)}>
+              <Guardando />
               <button className="rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm font-medium text-carbon hover:border-lima">Marcar enviada</button>
             </form>
           )}
@@ -96,6 +98,7 @@ export default async function ActaVisita({ params }: { params: Promise<{ id: str
                 <img src={fotoUrl(f.storage_path)} alt={f.pie ?? "Foto de obra"} className="h-56 w-full object-cover" />
                 {f.pie && <figcaption className="px-2 py-1 text-xs text-carbon/60">{f.pie}</figcaption>}
                 <form action={borrarFoto.bind(null, id, visitaId, f.id, f.storage_path)} className="print:hidden">
+                  <Guardando />
                   <button className="w-full border-t border-black/5 px-2 py-1 text-[11px] text-red-500 hover:bg-red-50">Quitar foto</button>
                 </form>
               </figure>
@@ -116,6 +119,7 @@ export default async function ActaVisita({ params }: { params: Promise<{ id: str
         <details className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
           <summary className="cursor-pointer list-none text-sm font-semibold text-lima-dark">Editar acta · añadir fotos</summary>
           <form action={actualizarActa.bind(null, id, visitaId)} className="mt-3 space-y-3" encType="multipart/form-data">
+            <Guardando />
             <div className="grid grid-cols-2 gap-3">
               <label className="text-xs text-carbon/60">Fecha
                 <input type="date" name="fecha_visita" defaultValue={v.fecha_visita} className={`${inp} mt-1 block w-full`} />

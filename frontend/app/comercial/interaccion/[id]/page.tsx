@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../../components/BarraSuperior";
 import { revisionInteraccion, ORIGEN_LABEL, TIPO_EVENTO_LABEL, nombreComercial, type EventoBitacora } from "../../../../lib/comercial";
 import { confirmarComunidadNueva, vincularAComunidad, deshacerEvento, validarRevision, reprocesarEntrada } from "./acciones";
 import { BotonEliminar } from "./BotonEliminar";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -204,6 +205,7 @@ export default async function RevisionInteraccion({
                         <div key={e.id} className="flex items-center justify-between gap-2 rounded-xl border border-lima/30 bg-lima-soft/40 px-3 py-1.5">
                           <span className="text-sm text-carbon/80">✓ {nom}</span>
                           <form action={deshacerEvento}>
+                            <Guardando />
                             <Hidden interaccionId={it.id} comercialId={comercialId} />
                             <input type="hidden" name="evento_id" value={e.id} />
                             <input type="hidden" name="evento_tipo" value={e.tipo} />
@@ -240,6 +242,7 @@ export default async function RevisionInteraccion({
                           )}
                           <div className="mt-2 flex flex-wrap items-end gap-2">
                             <form action={confirmarComunidadNueva}>
+                              <Guardando />
                               <Hidden interaccionId={it.id} comercialId={comercialId} />
                               <input type="hidden" name="puesto_id" value={it.puesto_id ?? ""} />
                               <input type="hidden" name="empresa_id" value={admin?.empresaId ?? ""} />
@@ -248,6 +251,7 @@ export default async function RevisionInteraccion({
                             </form>
                             {comunidadesDelAdmin.length > 0 && (
                               <form action={vincularAComunidad} className="flex items-end gap-1.5">
+                                <Guardando />
                                 <Hidden interaccionId={it.id} comercialId={comercialId} />
                                 <input type="hidden" name="puesto_id" value={it.puesto_id ?? ""} />
                                 <input type="hidden" name="evento_id" value={e.id} />
@@ -259,6 +263,7 @@ export default async function RevisionInteraccion({
                               </form>
                             )}
                             <form action={deshacerEvento}>
+                              <Guardando />
                               <Hidden interaccionId={it.id} comercialId={comercialId} />
                               <input type="hidden" name="evento_id" value={e.id} />
                               <input type="hidden" name="evento_tipo" value={e.tipo} />
@@ -277,6 +282,7 @@ export default async function RevisionInteraccion({
             <details className="mt-3 rounded-2xl border border-black/5 bg-white p-4 shadow-sm">
               <summary className="cursor-pointer text-sm font-semibold text-carbon/60 hover:text-carbon">✎ Editar la nota</summary>
               <form action={reprocesarEntrada} className="mt-3 space-y-2">
+                <Guardando />
                 <Hidden interaccionId={it.id} comercialId={comercialId} />
                 <textarea
                   name="transcripcion"
@@ -343,6 +349,7 @@ export default async function RevisionInteraccion({
           <div className="flex items-center gap-2">
             <BotonEliminar acciones={accionesEncadenadas} interaccionId={it.id} comercialId={comercialId} />
             <form action={validarRevision}>
+              <Guardando />
               <Hidden interaccionId={it.id} comercialId={comercialId} />
               <button className="rounded-lg bg-carbon px-5 py-2.5 text-sm font-semibold text-white hover:bg-carbon/85">✓ Todo correcto</button>
             </form>
@@ -357,6 +364,7 @@ export default async function RevisionInteraccion({
 function DeshacerBtn({ evento, interaccionId, comercialId }: { evento: EventoBitacora; interaccionId: string; comercialId?: string | null }) {
   return (
     <form action={deshacerEvento}>
+      <Guardando />
       <Hidden interaccionId={interaccionId} comercialId={comercialId} />
       <input type="hidden" name="evento_id" value={evento.id} />
       <input type="hidden" name="evento_tipo" value={evento.tipo} />

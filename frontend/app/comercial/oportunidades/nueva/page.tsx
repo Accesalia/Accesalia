@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { listarComerciales, listarComunidadesSelector } from "../../../../lib/comercial";
 import { crearOportunidadManual } from "../acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function NuevaOportunidad({ searchParams }: { searchParams:
         <p className="mt-1 text-sm text-carbon/55">A mano. Se le monta el pipeline solo; podrás avanzarlo desde aquí o dictando notas.</p>
 
         <form action={crearOportunidadManual} className="mt-6 space-y-5 rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          <Guardando />
           {c ? <input type="hidden" name="comercial_id" value={c} /> : null}
 
           <div>

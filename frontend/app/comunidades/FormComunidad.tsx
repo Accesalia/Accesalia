@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Comunidad } from "../../lib/comunidades";
+import { Guardando } from "../components/Guardando";
 
 // Formulario compartido de alta/edicion de comunidad. Los campos son los ESTABLES
 // (capa 1). La accion (crear/actualizar) se inyecta desde la pagina; el boton y el
@@ -49,6 +50,7 @@ export function FormComunidad({
   const c = comunidad;
   return (
     <form action={accion} className="mt-8 space-y-8">
+      <Guardando />
       <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-lima-dark">Identidad</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">

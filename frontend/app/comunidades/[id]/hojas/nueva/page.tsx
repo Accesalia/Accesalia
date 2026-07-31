@@ -5,6 +5,7 @@ import { comunidadPorId } from "../../../../../lib/comunidades";
 import { bloquesActivos, contratasParaSelector } from "../../../../../lib/hojas";
 import { crearHojaEncargo } from "../acciones";
 import { SelectorConceptos } from "../SelectorConceptos";
+import { Guardando } from "../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function NuevaHoja({ params }: { params: Promise<{ id: stri
         </p>
 
         <form action={crear} className="mt-8 space-y-8">
+          <Guardando />
           {/* Datos de la actuacion */}
           <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-lima-dark">Actuación</h2>

@@ -6,6 +6,7 @@ import { listarEquipo } from "../../../../../../lib/equipo";
 import { obrasDeProyecto, constructoraDe } from "../../../../../../lib/obra";
 import { proyectosDeComunidad, tiposDe } from "../../../../../../lib/proyecto";
 import { crearActa } from "../acciones";
+import { Guardando } from "../../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function NuevaActa({
         </p>
 
         <form action={crearActa.bind(null, id, obraId)} className="mt-6 space-y-4 rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          <Guardando />
           <div className="grid grid-cols-2 gap-3">
             <label className="text-xs font-semibold uppercase tracking-wide text-carbon/40">Fecha de la visita
               <input type="date" name="fecha_visita" defaultValue={hoy} className={`${inp} mt-1 block w-full`} />

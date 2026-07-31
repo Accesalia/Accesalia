@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../../components/BarraSuperior";
 import { comunidadPorId, ROLES } from "../../../../../lib/comunidades";
 import { crearPersonaComunidad } from "../../../acciones";
+import { Guardando } from "../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function NuevaPersonaComunidad({ params }: { params: Promis
         <p className="mt-1 text-carbon/55">Presidente, vecino de contacto, secretario…</p>
 
         <form action={crear} className="mt-8 space-y-5">
+          <Guardando />
           <label className="block">
             <span className="text-xs font-medium uppercase tracking-wide text-carbon/45">Nombre *</span>
             <input name="nombre" required className={clase} placeholder="DELFÍN DURÁN VILLANUEVA" />

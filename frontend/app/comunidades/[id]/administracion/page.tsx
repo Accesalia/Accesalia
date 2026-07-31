@@ -5,6 +5,7 @@ import { SelectorPersona } from "../../../components/SelectorPersona";
 import { comunidadPorId, nombreAdministracion } from "../../../../lib/comunidades";
 import { puestosParaElegir, empresasParaElegir } from "../../../../lib/comercial";
 import { cambiarAdministracion } from "../../acciones";
+import { Guardando, BotonGuardar } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export default async function CambiarAdministracion(
         )}
 
         <form action={accion} className="mt-8 space-y-6">
+          <Guardando />
           <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
             <SelectorPersona
               puestos={puestos}
@@ -94,10 +96,9 @@ export default async function CambiarAdministracion(
           )}
 
           <div className="flex items-center gap-3">
-            <button type="submit"
-              className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+            <BotonGuardar className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
               Guardar
-            </button>
+            </BotonGuardar>
             <Link href={`/comunidades/${id}`}
               className="rounded-full px-5 py-2.5 text-sm font-medium text-carbon/60 hover:text-carbon">
               Cancelar

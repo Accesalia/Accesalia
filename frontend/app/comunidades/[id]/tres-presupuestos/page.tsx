@@ -26,6 +26,7 @@ import {
   borrarPresupuesto,
   marcarGanador,
 } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -105,6 +106,7 @@ function FilaPresupuesto({
         )}
         {!esGanador && (
           <form action={marcarGanador.bind(null, comunidadId, licitacionId, p.id)}>
+            <Guardando />
             <button className="font-semibold text-lima-dark hover:underline">★ marcar ganador</button>
           </form>
         )}
@@ -114,6 +116,7 @@ function FilaPresupuesto({
       <details className="mt-1.5">
         <summary className={link}>Editar presupuesto</summary>
         <form action={actualizarPresupuesto.bind(null, comunidadId, p.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-3">
+          <Guardando />
           <label className="text-xs text-carbon/60 sm:col-span-2">Contrata (ficha)
             <div className="mt-1"><SelectorContrata contratas={contratas} actual={p.contrata_id} /></div>
           </label>
@@ -210,6 +213,7 @@ function TarjetaLicitacion({
       <details className="mt-3">
         <summary className={link}>+ Añadir presupuesto</summary>
         <form action={anadirPresupuesto.bind(null, comunidadId, l.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-3">
+          <Guardando />
           <label className="text-xs text-carbon/60 sm:col-span-2">Contrata (ficha)
             <div className="mt-1"><SelectorContrata contratas={contratas} actual={null} /></div>
           </label>
@@ -247,6 +251,7 @@ function TarjetaLicitacion({
       <details className="mt-2">
         <summary className={link}>Votación y documentos de la licitación</summary>
         <form action={actualizarLicitacion.bind(null, comunidadId, l.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3">
+          <Guardando />
           <label className="text-xs text-carbon/60">Estado
             <select name="estado" defaultValue={l.estado} className={`${inp} mt-1 w-full`}>
               {Object.entries(ESTADO_LICITACION).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -306,12 +311,14 @@ function TarjetaProyecto({
       {licitaciones.length === 0 ? (
         <div className="mt-3">
           <p className="text-sm text-carbon/35">Sin licitación abierta todavía.</p>
-          <form action={crearLicitacion.bind(null, comunidadId, p.id)} className="mt-2"><button className={btn}>+ Abrir licitación</button></form>
+          <form action={crearLicitacion.bind(null, comunidadId, p.id)} className="mt-2">
+            <Guardando /><button className={btn}>+ Abrir licitación</button></form>
         </div>
       ) : (
         <div className="mt-3 space-y-3">
           {licitaciones.map((l) => <TarjetaLicitacion key={l.id} comunidadId={comunidadId} l={l} contratas={contratas} />)}
-          <form action={crearLicitacion.bind(null, comunidadId, p.id)}><button className="text-xs font-medium text-lima-dark hover:underline">+ Otra licitación (paquete distinto)</button></form>
+          <form action={crearLicitacion.bind(null, comunidadId, p.id)}>
+            <Guardando /><button className="text-xs font-medium text-lima-dark hover:underline">+ Otra licitación (paquete distinto)</button></form>
         </div>
       )}
     </section>

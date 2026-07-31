@@ -6,6 +6,7 @@ import { nombreAdministracion } from "../../../../lib/comunidades";
 import { puntoActual, ORIGEN_LABEL, TIPO_EVENTO_LABEL, type HitoCatalogo } from "../../../../lib/comercial";
 import { Barra } from "../../../comercial/oportunidades/Barra";
 import { crearViabilidad, nuevaOportunidad, aplazarOportunidad, reactivarOportunidad } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +66,7 @@ function BloqueOportunidad({ id, o, catalogo }: { id: string; o: OportunidadCock
         <details className="text-right">
           <summary className="cursor-pointer list-none text-[11px] text-carbon/40 hover:text-amber-700" title="Aplazar: queda latente y reactivable">aplazar ⏸</summary>
           <form action={aplazarOportunidad.bind(null, id, o.id)} className="mt-2 flex flex-col items-end gap-1.5">
+            <Guardando />
             <input name="reactivar_nota" placeholder="retomar cuándo (hagan hucha, salga subv…)" className="w-64 rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
             <input type="date" name="reactivar_fecha" title="fecha de reactivación (opcional)" className="rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
             <button className="rounded-lg bg-amber-500 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-600">Aparcar</button>
@@ -89,6 +91,7 @@ function BloqueOportunidad({ id, o, catalogo }: { id: string; o: OportunidadCock
               </span>
             ) : (
               <form action={crearViabilidad.bind(null, id, o.id)}>
+                <Guardando />
                 <button className="rounded-lg bg-lima px-3 py-1 text-xs font-semibold text-carbon hover:bg-lima-dark hover:text-white">Crear</button>
               </form>
             )
@@ -183,6 +186,7 @@ export default async function CockpitComercial({ params }: { params: Promise<{ i
 
             {/* Nueva oportunidad */}
             <form action={nuevaOportunidad.bind(null, id)} className="flex flex-wrap items-center gap-2">
+              <Guardando />
               <input name="que_vendemos" placeholder="qué se vende (ascensor, IEE…)" className="rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm outline-none focus:border-lima" />
               <input name="precio" placeholder="precio €" className="w-28 rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm outline-none focus:border-lima" />
               <button className="rounded-full bg-lima px-4 py-1.5 text-sm font-semibold text-carbon hover:bg-lima-dark hover:text-white">+ Nueva oportunidad</button>
@@ -202,6 +206,7 @@ export default async function CockpitComercial({ params }: { params: Promise<{ i
                           {o.reactivar_nota && <span className="ml-2 text-[11px] text-amber-700">retomar: {o.reactivar_nota}{o.reactivar_fecha ? ` (${fecha(o.reactivar_fecha)})` : ""}</span>}
                         </div>
                         <form action={reactivarOportunidad.bind(null, id, o.id)}>
+                          <Guardando />
                           <button className="rounded-lg border border-lima bg-white px-3 py-1 text-xs font-semibold text-lima-dark hover:bg-lima hover:text-carbon">↻ Retomar</button>
                         </form>
                       </div>

@@ -13,6 +13,7 @@ import {
 import { EMISOR_LABEL, EMISORES_ACCESALIA, hitosFacturablesDeComunidad } from "../../../../lib/facturacion";
 import { SelectorComunidad } from "../../../expediente/SelectorComunidad";
 import { actualizarHito, anadirHito, borrarHito, actualizarLinea } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,7 @@ function HitoRow({ comunidadId, h, facturable }: { comunidadId: string; h: HitoC
       <details className="mt-1">
         <summary className={link}>Registrar / editar</summary>
         <form action={actualizarHito.bind(null, comunidadId, h.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-4">
+          <Guardando />
           <label className="text-xs text-carbon/60">Disparador
             <select name="hito" defaultValue={h.hito} className={`${inp} mt-1 w-full`}>
               {HITOS.map((k) => <option key={k} value={k}>{HITO_LABEL[k]}</option>)}
@@ -146,6 +148,7 @@ function LineaCard({ comunidadId, l, facturables }: { comunidadId: string; l: Li
         <details>
           <summary className={link}>+ Añadir hito</summary>
           <form action={anadirHito.bind(null, comunidadId, l.id)} className="mt-2 flex flex-wrap items-end gap-2 rounded-xl bg-black/[0.02] p-3">
+            <Guardando />
             <label className="text-xs text-carbon/60">Disparador
               <select name="hito" className={`${inp} mt-1 block`}>{HITOS.map((k) => <option key={k} value={k}>{HITO_LABEL[k]}</option>)}</select>
             </label>
@@ -158,6 +161,7 @@ function LineaCard({ comunidadId, l, facturables }: { comunidadId: string; l: Li
         <details>
           <summary className={link}>Editar línea</summary>
           <form action={actualizarLinea.bind(null, comunidadId, l.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-3">
+            <Guardando />
             <label className="text-xs text-carbon/60 sm:col-span-2">Descripción<input name="descripcion" defaultValue={l.descripcion ?? ""} className={`${inp} mt-1 w-full`} /></label>
             <label className="text-xs text-carbon/60">Importe (€)<input name="importe" defaultValue={l.importe ?? ""} inputMode="decimal" className={`${inp} mt-1 w-full`} /></label>
             <label className="text-xs text-carbon/60">Emisor

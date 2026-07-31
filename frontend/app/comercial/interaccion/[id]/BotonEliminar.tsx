@@ -4,6 +4,7 @@
 // (todo lo que Sali encadenó a esta entrada). Solo si el humano confirma se envía.
 
 import { eliminarEntrada } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export function BotonEliminar({
   acciones,
@@ -21,6 +22,7 @@ export function BotonEliminar({
 
   return (
     <form action={eliminarEntrada}>
+      <Guardando />
       <input type="hidden" name="interaccion_id" value={interaccionId} />
       {comercialId ? <input type="hidden" name="comercial_id" value={comercialId} /> : null}
       <button

@@ -5,12 +5,14 @@
 // "como" esa persona.
 
 import { elegirPerfil } from "./perfilAcciones";
+import { Guardando } from "../components/Guardando";
 
 export type PersonaPerfil = { id: string; nombre: string; funcion: string | null };
 
 export function SelectorPerfil({ personas, actualId }: { personas: PersonaPerfil[]; actualId: string | null }) {
   return (
     <form action={elegirPerfil} className="flex items-center gap-2">
+      <Guardando />
       <span className="hidden text-xs font-medium uppercase tracking-wide text-white/40 lg:inline">Viendo como</span>
       <select
         name="perfil_id"

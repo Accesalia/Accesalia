@@ -23,6 +23,7 @@ import {
 import { ProgresoProyecto } from "../../../components/ProgresoProyecto";
 import { SelectorComunidad } from "../../../expediente/SelectorComunidad";
 import { crearProyecto, actualizarProyecto, actualizarVia, actualizarPaso, registrarRevision, actualizarTipos, modificarFases } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -101,6 +102,7 @@ function TarjetaProyecto({
       <details className="mt-2">
         <summary className={resumenEditar}>Modificar fases</summary>
         <form action={modificarFases.bind(null, comunidadId, p.id)} className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl bg-black/[0.02] p-3">
+          <Guardando />
           {[["escaneo", "Escaneo"], ["montaje_nube", "Nube"], ["estado_actual", "Estado actual"], ["proyecto", "Solución"]].map(([k, lbl]) => (
             <label key={k} className="flex items-center gap-1.5 text-sm text-carbon/80">
               <input type="checkbox" name={`aplica_${k}`} defaultChecked={APLICA[k]} /> {lbl}
@@ -148,6 +150,7 @@ function TarjetaProyecto({
       <details className="mt-1.5">
         <summary className={resumenEditar}>Editar vía de licencia</summary>
         <form action={actualizarVia.bind(null, comunidadId, p.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-4">
+          <Guardando />
           <label className="text-xs text-carbon/60">Entidad
             <select name="entidad_responsable" defaultValue={p.entidad_responsable ?? ""} className={`${inp} mt-1 w-full`}>
               <option value="">— sin definir —</option>
@@ -173,6 +176,7 @@ function TarjetaProyecto({
       <details className="mt-3">
         <summary className={resumenEditar}>Editar datos del proyecto</summary>
         <form action={actualizarProyecto.bind(null, comunidadId, p.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-3">
+          <Guardando />
           <label className="text-xs text-carbon/60">Situación
             <select name="estado" defaultValue={p.estado === "en_pausa" || p.estado === "no_procede" ? p.estado : "en_curso"} className={`${inp} mt-1 w-full`}>
               <option value="en_curso">En curso</option>
@@ -207,6 +211,7 @@ function TarjetaProyecto({
       <details className="mt-1.5">
         <summary className={resumenEditar}>Editar tipos</summary>
         <form action={actualizarTipos.bind(null, comunidadId, p.id)} className="mt-2 rounded-xl bg-black/[0.02] p-3">
+          <Guardando />
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             {tipos.map((t) => (
               <label key={t.id} className={`flex items-center gap-1.5 text-sm text-carbon/80 ${t.parent_id ? "ml-4" : ""}`}>
@@ -240,6 +245,7 @@ function TarjetaProyecto({
                 <details className="mt-1.5">
                   <summary className={resumenEditar}>Editar</summary>
                   <form action={actualizarPaso.bind(null, comunidadId, e.id)} className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <Guardando />
                     <label className="text-xs text-carbon/60 sm:col-span-2">Responsable
                       <select name="responsable" defaultValue={e.responsable_tecnico_id ?? ""} className={`${inp} mt-1 w-full`}>
                         <option value="">— sin asignar —</option>
@@ -290,6 +296,7 @@ function TarjetaProyecto({
         <details>
           <summary className={resumenEditar}>Registrar ronda de revisión</summary>
           <form action={registrarRevision.bind(null, comunidadId, p.id)} className="mt-2 space-y-2 rounded-xl bg-black/[0.02] p-3">
+            <Guardando />
             <label className="block text-xs text-carbon/60">Resultado
               <select name="resultado" className={`${inp} ml-2`}>
                 <option value="cambios">Pidió cambios</option>
@@ -338,6 +345,7 @@ export default async function ProyectoComunidad({ params }: { params: Promise<{ 
             <div className="rounded-2xl border border-dashed border-black/10 bg-white px-6 py-10 text-center">
               <p className="text-sm text-carbon/40">Sin proyecto registrado en esta comunidad.</p>
               <form action={crearProyecto.bind(null, id)} className="mt-3">
+                <Guardando />
                 <button className={btn}>+ Crear proyecto</button>
               </form>
             </div>

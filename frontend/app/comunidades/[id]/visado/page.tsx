@@ -25,6 +25,7 @@ import {
 } from "../../../../lib/visado";
 import { SelectorComunidad } from "../../../expediente/SelectorComunidad";
 import { crearVisado, actualizarVisado, borrarVisado, registrarRequerimientoCoam } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,7 @@ function FilaVisado({ comunidadId, v, equipo }: { comunidadId: string; v: Visado
       <details className="mt-2">
         <summary className={resumenEditar}>Editar visado</summary>
         <form action={actualizarVisado.bind(null, comunidadId, v.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-4">
+          <Guardando />
           <label className="text-xs text-carbon/60">Estado
             <select name="estado" defaultValue={v.estado} className={`${inp} mt-1 w-full`}>
               {Object.entries(ESTADO_VISADO).map(([k, val]) => <option key={k} value={k}>{val.label}</option>)}
@@ -261,6 +263,7 @@ function TarjetaProyectoVisado({
         <details>
           <summary className={resumenEditar}>+ Registrar visado</summary>
           <form action={crearVisado.bind(null, comunidadId, p.id)} className="mt-2 flex flex-wrap items-end gap-2 rounded-xl bg-black/[0.02] p-3">
+            <Guardando />
             <label className="text-xs text-carbon/60">Momento
               <select name="momento" className={`${inp} mt-1`}><option value="proyecto">Proyecto</option><option value="fin_obra">Fin de obra</option></select>
             </label>
@@ -275,6 +278,7 @@ function TarjetaProyectoVisado({
           <details>
             <summary className={resumenEditar}>Requerimiento del COAM</summary>
             <form action={registrarRequerimientoCoam.bind(null, comunidadId, p.id, visados[visados.length - 1].id)} className="mt-2 space-y-2 rounded-xl bg-black/[0.02] p-3">
+              <Guardando />
               <label className="block text-xs text-carbon/60">Estado
                 <select name="resultado" className={`${inp} ml-2`}><option value="requerido">Requerido (pendiente subsanar)</option><option value="resuelto">Resuelto</option></select>
               </label>

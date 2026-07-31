@@ -19,6 +19,7 @@ import { visitasDeObra, destinatariosDeComunidad, TIPO_DESTINATARIO, type Visita
 import { SelectorComunidad } from "../../../expediente/SelectorComunidad";
 import { crearObra, actualizarObra, borrarObra } from "./acciones";
 import { anadirDestinatario, borrarDestinatario } from "./visita/acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +69,8 @@ function TarjetaObra({ comunidadId, p, obras, contratas, visitasPorObra }: { com
       {obras.length === 0 ? (
         <div className="mt-3">
           <p className="text-sm text-carbon/35">Sin obra registrada todavía.</p>
-          <form action={crearObra.bind(null, comunidadId, p.id)} className="mt-2"><button className={btn}>+ Registrar obra</button></form>
+          <form action={crearObra.bind(null, comunidadId, p.id)} className="mt-2">
+            <Guardando /><button className={btn}>+ Registrar obra</button></form>
         </div>
       ) : (
         <ul className="mt-3 space-y-3">
@@ -108,6 +110,7 @@ function TarjetaObra({ comunidadId, p, obras, contratas, visitasPorObra }: { com
                 <details className="mt-2">
                   <summary className={resumenEditar}>Editar obra</summary>
                   <form action={actualizarObra.bind(null, comunidadId, o.id, p.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-4">
+                    <Guardando />
                     <label className="text-xs text-carbon/60">Estado
                       <select name="estado" defaultValue={o.estado} className={`${inp} mt-1 w-full`}>
                         {Object.entries(ESTADO_OBRA).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -216,6 +219,7 @@ function Destinatarios({ comunidadId, destinatarios }: { comunidadId: string; de
                 <span className="text-carbon/60">{d.email}</span>
               </span>
               <form action={borrarDestinatario.bind(null, comunidadId, d.id)}>
+                <Guardando />
                 <button className="shrink-0 text-xs text-red-500 hover:underline">quitar</button>
               </form>
             </li>
@@ -223,6 +227,7 @@ function Destinatarios({ comunidadId, destinatarios }: { comunidadId: string; de
         </ul>
       )}
       <form action={anadirDestinatario.bind(null, comunidadId)} className="mt-3 flex flex-wrap items-end gap-2">
+        <Guardando />
         <label className="text-xs text-carbon/60">Tipo
           <select name="tipo" className="mt-1 block rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-lima">
             <option value="contrata">Contrata</option><option value="administrador">Administrador</option><option value="presidente">Presidente</option><option value="otro">Otro</option>

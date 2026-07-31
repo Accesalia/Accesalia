@@ -18,6 +18,7 @@ import {
 } from "../../../../lib/licencia";
 import { SelectorComunidad } from "../../../expediente/SelectorComunidad";
 import { crearLicencia, actualizarLicencia, borrarLicencia, registrarRequerimientoLic } from "./acciones";
+import { Guardando } from "../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,7 @@ function FilaLicencia({ comunidadId, l, equipo }: { comunidadId: string; l: Lice
       <details className="mt-2">
         <summary className={resumenEditar}>Editar licencia</summary>
         <form action={actualizarLicencia.bind(null, comunidadId, l.id)} className="mt-2 grid grid-cols-2 gap-2 rounded-xl bg-black/[0.02] p-3 sm:grid-cols-4">
+          <Guardando />
           <label className="text-xs text-carbon/60">Estado
             <select name="estado" defaultValue={l.estado} className={`${inp} mt-1 w-full`}>
               {Object.entries(ESTADO_LICENCIA).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -255,6 +257,7 @@ function TarjetaProyectoLicencia({
         <details>
           <summary className={resumenEditar}>+ Registrar licencia</summary>
           <form action={crearLicencia.bind(null, comunidadId, p.id)} className="mt-2 flex flex-wrap items-end gap-2 rounded-xl bg-black/[0.02] p-3">
+            <Guardando />
             <label className="text-xs text-carbon/60">Tipo
               <select name="tipo_tramite" className={`${inp} mt-1`}>
                 <option value="">— pte definir —</option>
@@ -268,6 +271,7 @@ function TarjetaProyectoLicencia({
           <details>
             <summary className={resumenEditar}>Registrar requerimiento</summary>
             <form action={registrarRequerimientoLic.bind(null, comunidadId, p.id, licencias[licencias.length - 1].id)} className="mt-2 space-y-2 rounded-xl bg-black/[0.02] p-3">
+              <Guardando />
               <div className="flex gap-2">
                 <label className="text-xs text-carbon/60">Origen
                   <select name="origen" className={`${inp} mt-1`}><option value="ayuntamiento">Ayuntamiento</option><option value="ecu">ECU</option></select>

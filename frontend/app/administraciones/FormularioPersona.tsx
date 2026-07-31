@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Administrador } from "../../lib/comercial";
+import { Guardando, BotonGuardar } from "../components/Guardando";
 
 // Formulario compartido por alta y edicion de una persona (administrador) que
 // cuelga de una administracion. Server Component; action ya enlazada.
@@ -27,6 +28,7 @@ export function FormularioPersona({
   const p = persona;
   return (
     <form action={accion} className="space-y-6">
+      <Guardando />
       {identidad && (
         <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
           {identidad}
@@ -68,10 +70,9 @@ export function FormularioPersona({
       </section>
 
       <div className="flex items-center gap-3">
-        <button type="submit"
-          className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+        <BotonGuardar className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
           {textoBoton}
-        </button>
+        </BotonGuardar>
         <Link href={hrefCancelar} className="rounded-full px-5 py-2.5 text-sm font-medium text-carbon/60 hover:text-carbon">
           Cancelar
         </Link>

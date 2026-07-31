@@ -14,6 +14,7 @@ import {
 import { listarEquipo } from "../../../lib/equipo";
 import { iniciarPipeline, actualizarHito, registrarNegociacion } from "./acciones";
 import { Barra } from "./Barra";
+import { Guardando } from "../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -100,6 +101,7 @@ export default async function Oportunidades({ searchParams }: { searchParams: Pr
                     <details className="mt-1">
                       <summary className="cursor-pointer text-[11px] text-carbon/45 hover:text-carbon/70">✎ actualizar oferta</summary>
                       <form action={registrarNegociacion} className="mt-2 flex flex-wrap items-end gap-2">
+                        <Guardando />
                         <input type="hidden" name="oportunidad_id" value={o.id} />
                         {c ? <input type="hidden" name="comercial_id" value={c} /> : null}
                         <input name="que_vendemos" defaultValue={neg?.que_vendemos ?? ""} placeholder="qué (ascensor, SATE…)" className={`${inp} w-40`} />
@@ -116,6 +118,7 @@ export default async function Oportunidades({ searchParams }: { searchParams: Pr
                   <div className="mt-3">
                     {!conPipeline ? (
                       <form action={iniciarPipeline}>
+                        <Guardando />
                         <input type="hidden" name="oportunidad_id" value={o.id} />
                         {c ? <input type="hidden" name="comercial_id" value={c} /> : null}
                         <button className="rounded-lg border border-lima bg-white px-3 py-1.5 text-sm font-semibold text-lima-dark hover:bg-lima hover:text-carbon">▶ Iniciar pipeline</button>

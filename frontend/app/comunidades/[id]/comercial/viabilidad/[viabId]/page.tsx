@@ -5,6 +5,7 @@ import { viabilidadPorId, arquitectos } from "../../../../../../lib/viabilidad";
 import { bloquesActivos } from "../../../../../../lib/hojas";
 import { SelectorConceptos } from "../../../hojas/SelectorConceptos";
 import { guardarViabilidad } from "../../acciones";
+import { Guardando } from "../../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function FormViabilidad({
         <p className="mt-1 text-carbon/55">{comunidadNombre} · borrador v{viab.version}</p>
 
         <form action={guardar} className="mt-6 space-y-6">
+          <Guardando />
           {/* Cabecera */}
           <section className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-lima-dark">Cabecera</h2>

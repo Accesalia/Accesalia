@@ -3,6 +3,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { listarComerciales, listarAdministradoresPersonas, TIPO_EVENTO_LABEL, ORIGEN_LABEL } from "../../../lib/comercial";
 import { crearInteraccion } from "../acciones";
 import { DictadoVoz } from "./DictadoVoz";
+import { Guardando, BotonGuardar } from "../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function GrabarContacto({ searchParams }: { searchParams: P
         <p className="mt-1 text-sm text-carbon/55">Dicta por voz o escribe. La IA lo estructurará (admin, oportunidades, deseos técnicos, tareas) en el siguiente paso; por ahora se guarda tal cual.</p>
 
         <form action={crearInteraccion} className="mt-6 space-y-4 rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+          <Guardando />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <label className="text-xs font-semibold uppercase tracking-wide text-carbon/40 sm:col-span-2">Comercial
               <select name="comercial_id" defaultValue={c ?? ""} className={`${inp} mt-1 block w-full`}>
@@ -64,7 +66,7 @@ export default async function GrabarContacto({ searchParams }: { searchParams: P
           </div>
 
           <div className="flex items-center gap-3 pt-1">
-            <button className="rounded-lg bg-lima px-4 py-2 text-sm font-semibold text-carbon hover:bg-lima-dark hover:text-white">Guardar contacto</button>
+            <BotonGuardar className="rounded-lg bg-lima px-4 py-2 text-sm font-semibold text-carbon hover:bg-lima-dark hover:text-white">Guardar contacto</BotonGuardar>
             <Link href={c ? `/comercial?c=${c}` : "/comercial"} className="text-sm text-carbon/50 hover:text-carbon">Cancelar</Link>
           </div>
           <p className="text-[11px] text-carbon/40">No hace falta anclarlo a una comunidad: puede ser de un administrador o quedar suelto (se vincula después). Nada se pierde.</p>

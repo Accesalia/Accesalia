@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../../components/BarraSuperior";
 import { hojaPorId, estadoHoja, NATURALEZA, ORDEN_ESTADOS, facturacionDeHoja, estadoHito, HITO_LABEL } from "../../../../../lib/hojas";
 import { cambiarEstadoHoja } from "../acciones";
+import { Guardando } from "../../../../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,7 @@ export default async function DetalleHoja({ params }: { params: Promise<{ id: st
             {/* Cambiar estado — resuelve el grupo C */}
             <Tarjeta titulo="Estado">
               <form action={cambiar} className="flex flex-wrap items-end gap-3">
+                <Guardando />
                 <label className="flex-1">
                   <span className="text-xs text-carbon/45">Cambiar estado</span>
                   <select

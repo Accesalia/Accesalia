@@ -6,6 +6,7 @@ import {
   type AdministracionFincas,
   type Comercial,
 } from "../../lib/comercial";
+import { Guardando } from "../components/Guardando";
 
 // Formulario compartido por alta y edicion de una administracion de fincas.
 // Server Component: <form> nativo cuya action es una server action ya enlazada.
@@ -44,6 +45,7 @@ export function FormularioAdministracion({
   const a = administracion;
   return (
     <form action={accion} className="space-y-8">
+      <Guardando />
       <Seccion titulo="Identificación">
         <div className="sm:col-span-2">
           <label className={labelCls} htmlFor="nombre">

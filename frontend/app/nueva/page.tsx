@@ -1,6 +1,7 @@
 import { BarraSuperior } from "../components/BarraSuperior";
 import { crearConvocatoriaYExtraer } from "../acciones";
 import { BotonEnviar } from "../components/BotonEnviar";
+import { Guardando } from "../components/Guardando";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export default function NuevaConvocatoria() {
         </p>
 
         <form action={crearConvocatoriaYExtraer} className="mt-8 space-y-5">
+          <Guardando />
           <label className="block">
             <span className="text-sm font-medium text-carbon">PDF de las bases de la convocatoria</span>
             <input
