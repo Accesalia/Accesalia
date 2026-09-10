@@ -39,12 +39,16 @@ export function PestanasMaestros({ activa }: { activa: ClavePestana }) {
               href={p.href}
               aria-current={aqui ? "page" : undefined}
               className={
-                "flex items-center gap-2 rounded-t-lg px-4 py-2 text-base transition " +
+                // Un filo verde dibuja la forma de pestaña. Sin el, sobre negro
+                // no se ve donde empieza y acaba cada una: "parece todo un mar
+                // negro". La activa lo lleva salvo abajo, para que se lea como
+                // una carpeta que sale al fondo claro.
+                "flex items-center gap-2 rounded-t-lg border border-b-0 px-4 py-2 text-base transition " +
                 (aqui
-                  ? "bg-hueso font-semibold text-carbon"
+                  ? "border-lima bg-hueso font-semibold text-carbon"
                   : p.estado === "por_hacer"
-                    ? "font-medium text-white/40 hover:bg-white/10 hover:text-white/70"
-                    : "font-medium text-white/70 hover:bg-white/10 hover:text-white/90")
+                    ? "border-lima/25 font-medium text-white/40 hover:border-lima/60 hover:bg-white/10 hover:text-white/70"
+                    : "border-lima/40 font-medium text-white/70 hover:border-lima hover:bg-white/10 hover:text-white/90")
               }
             >
               {p.texto}
