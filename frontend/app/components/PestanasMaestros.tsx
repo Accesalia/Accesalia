@@ -10,12 +10,19 @@ import Link from "next/link";
 // Los nombres siguen el glosario: "administracion de fincas" es la EMPRESA y
 // "administrador" la persona. Y "administracion" a secas no se usa nunca,
 // porque tambien es el ayuntamiento.
+// El estado va aqui tambien, no solo en el menu: cinco pestañas iguales hacen
+// pensar que las cinco funcionan igual, y no es verdad. Monica: "contratas no
+// esta? y comunidades y equipo estan activos en cambio?".
+//
+//   al_dia    -> repasada con ella
+//   sin_ver   -> existe y funciona, pero sin repasar
+//   por_hacer -> todavia no hay pantalla; se entra y se ve que datos hay detras
 const PESTANAS = [
-  { clave: "administraciones", texto: "Administraciones de fincas", href: "/administraciones" },
-  { clave: "contratas", texto: "Contratas", href: "/contratas" },
-  { clave: "organismos", texto: "Organismos", href: "/organismos" },
-  { clave: "comunidades", texto: "Comunidades", href: "/comunidades" },
-  { clave: "equipo", texto: "Equipo", href: "/equipo" },
+  { clave: "administraciones", texto: "Administraciones de fincas", href: "/administraciones", estado: "al_dia" },
+  { clave: "contratas", texto: "Contratas", href: "/contratas", estado: "por_hacer" },
+  { clave: "organismos", texto: "Organismos", href: "/organismos", estado: "por_hacer" },
+  { clave: "comunidades", texto: "Comunidades", href: "/comunidades", estado: "sin_ver" },
+  { clave: "equipo", texto: "Equipo", href: "/equipo", estado: "sin_ver" },
 ] as const;
 
 export type ClavePestana = (typeof PESTANAS)[number]["clave"];
@@ -32,13 +39,23 @@ export function PestanasMaestros({ activa }: { activa: ClavePestana }) {
               href={p.href}
               aria-current={aqui ? "page" : undefined}
               className={
-                "rounded-t-lg px-4 py-2 text-base transition " +
+                "flex items-center gap-2 rounded-t-lg px-4 py-2 text-base transition " +
                 (aqui
                   ? "bg-hueso font-semibold text-carbon"
-                  : "font-medium text-white/70 hover:bg-white/10 hover:text-white/90")
+                  : p.estado === "por_hacer"
+                    ? "font-medium text-white/40 hover:bg-white/10 hover:text-white/70"
+                    : "font-medium text-white/70 hover:bg-white/10 hover:text-white/90")
               }
             >
               {p.texto}
+              {/* Un punto y ya: dice que ahi todavia no hay pantalla, sin
+                  gritarlo ni convertir la barra en un semaforo. */}
+              {p.estado === "por_hacer" && (
+                <span
+                  title="Todavía sin pantalla"
+                  className={"h-1.5 w-1.5 rounded-full " + (aqui ? "bg-amber-500" : "bg-white/35")}
+                />
+              )}
             </Link>
           );
         })}
