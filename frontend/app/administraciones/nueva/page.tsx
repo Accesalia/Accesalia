@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BarraSuperior } from "../../components/BarraSuperior";
+import { PestanasMaestros } from "../../components/PestanasMaestros";
 import { listarComerciales } from "../../../lib/comercial";
 import { crearAdministracion } from "../acciones";
 import { FormularioAdministracion } from "../FormularioAdministracion";
@@ -11,6 +12,7 @@ export default async function NuevaAdministracion() {
   return (
     <div className="min-h-screen">
       <BarraSuperior />
+      <PestanasMaestros activa="administraciones" />
       <main className="mx-auto max-w-[860px] px-6 py-10">
         <Link href="/administraciones" className="text-sm text-carbon/50 hover:text-carbon">
           ← Cartera de administraciones

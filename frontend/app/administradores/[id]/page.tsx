@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
+import { PestanasMaestros } from "../../components/PestanasMaestros";
 import { SinAdministracion } from "../../components/SinAdministracion";
 import {
   administradorPorId,
@@ -39,6 +40,7 @@ export default async function FichaPersona({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen">
       <BarraSuperior />
+      <PestanasMaestros activa="administraciones" />
       <main className="mx-auto max-w-[800px] px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link href={volver} className="text-sm text-carbon/50 hover:text-carbon">

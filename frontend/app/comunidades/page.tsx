@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
+import { PestanasMaestros } from "../components/PestanasMaestros";
 import { listarComunidades, contarComunidades } from "../../lib/comunidades";
 import { BuscadorLista } from "./BuscadorLista";
 
@@ -11,6 +12,7 @@ export default async function Comunidades() {
   return (
     <div className="min-h-screen">
       <BarraSuperior />
+      <PestanasMaestros activa="comunidades" />
       <main className="mx-auto max-w-[1000px] px-6 py-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>

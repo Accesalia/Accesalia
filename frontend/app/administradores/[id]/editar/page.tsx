@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
+import { PestanasMaestros } from "../../../components/PestanasMaestros";
 import { administradorPorId } from "../../../../lib/comercial";
 import { actualizarPersona } from "../../../administraciones/acciones";
 import { FormularioPersona } from "../../../administraciones/FormularioPersona";
@@ -19,6 +20,7 @@ export default async function EditarPersona({ params }: { params: Promise<{ id: 
   return (
     <div className="min-h-screen">
       <BarraSuperior />
+      <PestanasMaestros activa="administraciones" />
       <main className="mx-auto max-w-[720px] px-6 py-10">
         <Link href={`/administradores/${id}`} className="text-sm text-carbon/50 hover:text-carbon">
           ← {admin.nombre}

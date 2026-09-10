@@ -1,4 +1,5 @@
 import { BarraSuperior } from "../components/BarraSuperior";
+import { PestanasMaestros } from "../components/PestanasMaestros";
 import { listarEquipo, listarFunciones } from "../../lib/equipo";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function EquipoPage() {
   return (
     <div className="min-h-screen bg-black/[0.02]">
       <BarraSuperior />
+      <PestanasMaestros activa="equipo" />
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-carbon">
           <span className="text-lima-dark">❖</span> Equipo
