@@ -220,3 +220,65 @@ export async function marcarTitular(administracionId: string, personaId: string)
   await fijarTitular(administracionId, personaId);
   revalidatePath(`/administraciones/${administracionId}`);
 }
+
+// ---------------------------------------------------------------------------
+// El diario: una nota nueva sobre la administracion o sobre alguien de su gente.
+//
+// Monica, viendo la ficha: "aqui echo de menos la parte del diario comercial —o
+// en este caso diario administrativo—, donde alguien pueda meter una entrada de
+// texto con lo que sea".
+//
+// Es la primera escritura que abrimos en esta pantalla a proposito: una nota no
+// pisa ningun dato, solo se apila. Si sale mal, se borra una fila.
+//
+// El autor va a mano mientras no haya inicio de sesion. Cuando lo haya, saldra
+// de la sesion y este campo dejara de escribirse.
+// ---------------------------------------------------------------------------
+export async function crearNotaAdministracion(formData: FormData) {
+  const texto = String(formData.get("texto") ?? "").trim();
+  if (!texto) return;
+
+  const empresaId = String(formData.get("empresa_id") ?? "");
+  const puestoId = String(formData.get("puesto_id") ?? "");
+  const autor = String(formData.get("autor") ?? "").trim() || null;
+
+  // Cuelga de la persona si se eligio una, y si no, de la administracion.
+  // Nunca de las dos: la tabla lo impide con un CHECK.
+  const fila = puestoId
+    ? { puesto_id: puestoId, texto, autor, origen: "app" }
+    : { empresa_id: empresaId, texto, autor, origen: "app" };
+
+  const r = await fetch(`${URL_BASE}/rest/v1/notas_administracion_fincas`, {
+    method: "POST",
+    headers: cabeceras({ Prefer: "return=minimal" }),
+    body: JSON.stringify(fila),
+  });
+  if (!r.ok) throw new Error(`No se pudo guardar la nota: ${await r.text()}`);
+
+  revalidatePath(`/administraciones/${empresaId}`);
+}
+
+/**
+ * Corregir una entrada del diario. Monica: "el diario debe poder editarse, por
+ * las erratas".
+ *
+ * Se corrige el texto en su sitio, no se guarda version anterior: para una
+ * errata no hace falta, y guardar el historial de cada arreglo de dedo
+ * ensuciaria el diario mas de lo que ayuda. `actualizado_en` deja constancia
+ * de que se toco, que es lo unico que importa saber despues.
+ */
+export async function editarNotaAdministracion(formData: FormData) {
+  const id = String(formData.get("nota_id") ?? "");
+  const texto = String(formData.get("texto") ?? "").trim();
+  const empresaId = String(formData.get("empresa_id") ?? "");
+  if (!id || !texto) return;
+
+  const r = await fetch(`${URL_BASE}/rest/v1/notas_administracion_fincas?id=eq.${id}`, {
+    method: "PATCH",
+    headers: cabeceras({ Prefer: "return=minimal" }),
+    body: JSON.stringify({ texto }),
+  });
+  if (!r.ok) throw new Error(`No se pudo corregir la nota: ${await r.text()}`);
+
+  revalidatePath(`/administraciones/${empresaId}`);
+}

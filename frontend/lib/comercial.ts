@@ -102,6 +102,7 @@ export type AdministracionFincas = {
 export type AdministracionCartera = AdministracionFincas & {
   comercial: { nombre: string; apellidos: string | null } | null;
   personas: { count: number }[];
+  comunidades: { count: number }[];
 };
 
 // Una persona EN una casa. El id es el del puesto, ver la nota de cabecera.
@@ -115,6 +116,7 @@ export type Administrador = {
   notas: string | null;
   empresa_id: string | null;
   activo: boolean;
+  comunidades: number;
 };
 
 // Un contacto por asunto: "contabilidad", "incidencias"... Debajo es un
@@ -208,6 +210,7 @@ function comoAdministracion(e: EmpresaFila, titularId: string | null = null): Ad
 }
 
 type PuestoFila = {
+  comunidades?: { count: number }[];
   id: string;
   empresa_id: string | null;
   cargo: string | null;
@@ -231,6 +234,7 @@ function comoAdministrador(p: PuestoFila): Administrador {
     notas: p.notas,
     empresa_id: p.empresa_id,
     activo: p.persona?.activa ?? true,
+    comunidades: p.comunidades?.[0]?.count ?? 0,
   };
 }
 
@@ -256,7 +260,10 @@ const SEL_EMPRESA =
 const SEL_PUESTO =
   "id,empresa_id,cargo,telefono_empresa,telefono_personal,notas," +
   "persona:persona_id(nombre,activa),empresa:empresa_id(nombre_accesalia)," +
-  "correo!correo_puesto_id_fkey(email,principal)";
+  "correo!correo_puesto_id_fkey(email,principal)," +
+  // Cuantas comunidades lleva esta persona. Es el "a quien pregunto" de Monica,
+  // y en la ficha va junto a su nombre: sin eso la lista de gente no dice nada.
+  "comunidades:comunidad_admin_responsable(count)";
 
 // ---- Consultas ----
 
@@ -272,16 +279,71 @@ export async function listarCartera(): Promise<AdministracionCartera[]> {
   const filas = await rest<(EmpresaFila & {
     comercial: { nombre: string; apellidos: string | null } | null;
     personas: { count: number }[];
+    comunidades: { count: number }[];
   })[]>(
     `empresa?select=${SEL_EMPRESA},` +
       "comercial:comerciales!empresa_comercial_id_fkey(nombre,apellidos)," +
-      "personas:puesto(count)&order=nombre_accesalia.asc",
+      "personas:puesto(count)," +
+      // Las comunidades que lleva hoy: es la cifra que dice de un vistazo si una
+      // administracion es grande o testimonial, y la que Monica quiso en el listado.
+      "comunidades:comunidad_admin_responsable(count)&order=nombre_accesalia.asc",
   );
   return filas.map((f) => ({
     ...comoAdministracion(f),
     comercial: f.comercial,
     personas: f.personas ?? [],
+    comunidades: f.comunidades ?? [],
   }));
+}
+
+/** Cuantas comunidades lleva hoy, para el listado. */
+export function nComunidades(a: { comunidades?: { count: number }[] }): number {
+  return a.comunidades?.[0]?.count ?? 0;
+}
+
+// Las personas de todas las administraciones, con su puesto vigente. Alimenta la
+// pestaña "Personas" del listado: hasta ahora no habia forma de buscar a alguien
+// sin saber antes por que administracion entrar.
+export type PersonaCartera = {
+  id: string;
+  nombre: string;
+  cargo: string | null;
+  empresaId: string | null;
+  empresa: string | null;
+  comunidades: number;
+  email: string | null;
+  telefono: string | null;
+};
+
+export async function listarPersonasAdmin(): Promise<PersonaCartera[]> {
+  const filas = await rest<{
+    id: string;
+    cargo: string | null;
+    telefono_empresa: string | null;
+    telefono_personal: string | null;
+    persona: { id: string; nombre: string } | null;
+    empresa: { id: string; nombre_accesalia: string } | null;
+    correo: { email: string; principal: boolean }[];
+    comunidades: { count: number }[];
+  }[]>(
+    "puesto?select=id,cargo,telefono_empresa,telefono_personal," +
+      "persona(id,nombre),empresa(id,nombre_accesalia)," +
+      "correo!correo_puesto_id_fkey(email,principal)," +
+      "comunidades:comunidad_admin_responsable(count)&hasta=is.null&order=cargo.asc",
+  );
+  return filas
+    .filter((f) => f.persona)
+    .map((f) => ({
+      id: f.id,
+      nombre: f.persona!.nombre,
+      cargo: f.cargo,
+      empresaId: f.empresa?.id ?? null,
+      empresa: f.empresa?.nombre_accesalia ?? null,
+      comunidades: f.comunidades?.[0]?.count ?? 0,
+      email: (f.correo?.find((c) => c.principal) ?? f.correo?.[0])?.email ?? null,
+      telefono: f.telefono_empresa ?? f.telefono_personal ?? null,
+    }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
 /** Ficha completa de una administracion. */
@@ -788,4 +850,150 @@ export async function resumenComercial(comercialId?: string): Promise<ResumenCom
     cnt("interacciones", `&pendiente_vincular=eq.true${fc}`),
   ]);
   return { admins, interacciones, oportunidades, pendientesVincular };
+}
+
+// ---------------------------------------------------------------------------
+// Lo que se ve en la ficha de una administracion, repasado con Monica el
+// 10-sep-2026. El orden de la pantalla lo puso ella, y no por importancia sino
+// por frecuencia de uso: "si entro a la ficha de una administracion de fincas
+// es justo porque busco algo de ellos, sobre todo su contacto".
+// ---------------------------------------------------------------------------
+
+/** Una comunidad suya y en que anda. Alimenta "Lo que tenemos abierto". */
+export type ComunidadDeAdmin = {
+  comunidad: string;
+  municipio: string | null;
+  tipo: string | null;
+  estadoProyecto: string | null;
+  estadoObra: string | null;
+  quien: string | null;
+};
+
+export async function comunidadesDeAdministracion(empresaId: string): Promise<ComunidadDeAdmin[]> {
+  const filas = await rest<{
+    comunidad: {
+      nombre: string;
+      municipio: string | null;
+      proyectos: { tipo: string | null; estado: string | null; obras: { estado: string | null }[] }[];
+    } | null;
+    puesto: { persona: { nombre: string } | null } | null;
+  }[]>(
+    "comunidad_admin_responsable?select=" +
+      "comunidad:comunidades(nombre,municipio,proyectos(tipo,estado,obras(estado)))," +
+      "puesto(persona(nombre))" +
+      `&empresa_id=eq.${empresaId}&vigente=is.true`,
+  );
+
+  const salida: ComunidadDeAdmin[] = [];
+  for (const f of filas) {
+    if (!f.comunidad) continue;
+    const quien = f.puesto?.persona?.nombre ?? null;
+    const base = { comunidad: f.comunidad.nombre, municipio: f.comunidad.municipio, quien };
+    if (!f.comunidad.proyectos?.length) {
+      salida.push({ ...base, tipo: null, estadoProyecto: null, estadoObra: null });
+      continue;
+    }
+    for (const p of f.comunidad.proyectos) {
+      salida.push({ ...base, tipo: p.tipo, estadoProyecto: p.estado, estadoObra: p.obras?.[0]?.estado ?? null });
+    }
+  }
+  // Primero lo vivo: obra en marcha, luego sin empezar, luego el resto.
+  const peso = (c: ComunidadDeAdmin) =>
+    c.estadoObra === "en_curso" ? 0 : c.estadoObra === "pendiente_inicio" ? 1 : c.estadoObra === "finalizada" ? 3 : 2;
+  return salida.sort((a, b) => peso(a) - peso(b) || a.comunidad.localeCompare(b.comunidad, "es"));
+}
+
+/** Lo pactado con ellos: comisiones. */
+export type AcuerdoComision = {
+  id: string;
+  base: string | null;
+  importe: number | null;
+  porcentaje: number | null;
+  pagador: string | null;
+  vigente: boolean;
+  notas: string | null;
+  tienePersona: boolean;
+};
+
+export async function acuerdosDeAdministracion(empresaId: string): Promise<AcuerdoComision[]> {
+  const filas = await rest<{
+    id: string; base_calculo: string | null; importe: number | null; porcentaje: number | null;
+    pagador: string | null; vigente: boolean; notas: string | null; puesto_id: string | null;
+  }[]>(
+    "acuerdos_comision?select=id,base_calculo,importe,porcentaje,pagador,vigente,notas,puesto_id" +
+      `&empresa_id=eq.${empresaId}&order=pagador.asc`,
+  );
+  return filas.map((f) => ({
+    id: f.id, base: f.base_calculo, importe: f.importe, porcentaje: f.porcentaje,
+    pagador: f.pagador, vigente: f.vigente, notas: f.notas, tienePersona: f.puesto_id !== null,
+  }));
+}
+
+/** El diario: notas apiladas de la administracion y de su gente. */
+export type NotaAdmin = {
+  id: string;
+  texto: string;
+  autor: string | null;
+  origen: string;
+  creadoEn: string;
+  // Cuando se corrigio, si se corrigio. Se ensena junto a la entrada: una nota
+  // retocada no vale lo mismo que una escrita en caliente, y quien la lee
+  // despues tiene derecho a saberlo.
+  editadoEn: string | null;
+  sobre: string | null;
+};
+
+export async function notasDeAdministracion(empresaId: string, puestoIds: string[]): Promise<NotaAdmin[]> {
+  const trozos = [`empresa_id.eq.${empresaId}`];
+  if (puestoIds.length) trozos.push(`puesto_id.in.(${puestoIds.join(",")})`);
+  const filas = await rest<{
+    id: string; texto: string; autor: string | null; origen: string;
+    creado_en: string; actualizado_en: string;
+    puesto: { persona: { nombre: string } | null } | null;
+  }[]>(
+    "notas_administracion_fincas?select=id,texto,autor,origen,creado_en,actualizado_en,puesto(persona(nombre))" +
+      `&or=(${trozos.join(",")})&order=creado_en.desc`,
+  );
+  return filas.map((f) => ({
+    id: f.id, texto: f.texto, autor: f.autor, origen: f.origen, creadoEn: f.creado_en,
+    // Un par de segundos de margen: el trigger toca actualizado_en al insertar.
+    editadoEn:
+      new Date(f.actualizado_en).getTime() - new Date(f.creado_en).getTime() > 3000
+        ? f.actualizado_en
+        : null,
+    sobre: f.puesto?.persona?.nombre ?? null,
+  }));
+}
+
+/**
+ * Indice minimo para el buscador de la ficha: solo id y nombre.
+ *
+ * Monica: "la barra de busqueda debe estar tambien en la pagina de empresas,
+ * para poder buscar otra sin salir de aqui". Dos campos por fila, para que
+ * cargarlo no cueste nada.
+ */
+export type EntradaIndice = { id: string; nombre: string; sub: string | null; tipo: "adm" | "per" };
+
+export async function indiceMaestros(): Promise<EntradaIndice[]> {
+  const [empresas, puestos] = await Promise.all([
+    rest<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
+      "empresa?select=id,nombre_accesalia,municipio&order=nombre_accesalia.asc",
+    ),
+    rest<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null }[]>(
+      "puesto?select=id,cargo,persona(nombre),empresa(nombre_accesalia)&hasta=is.null",
+    ),
+  ]);
+  return [
+    ...empresas.map((e) => ({
+      id: e.id, nombre: e.nombre_accesalia, sub: e.municipio, tipo: "adm" as const,
+    })),
+    ...puestos
+      .filter((p) => p.persona)
+      .map((p) => ({
+        id: p.id,
+        nombre: p.persona!.nombre,
+        sub: p.empresa?.nombre_accesalia ?? p.cargo,
+        tipo: "per" as const,
+      })),
+  ];
 }
