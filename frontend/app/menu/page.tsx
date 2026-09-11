@@ -16,7 +16,7 @@ const AREAS: Area[] = [
   },
   { nombre: "Administraciones de fincas", desc: "Las administraciones, su gente y las comunidades que llevan", href: null },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null },
-  { nombre: "RRHH", desc: "Empleados, vacaciones, nóminas y documentos", href: null },
+  { nombre: "RRHH", desc: "Tus días y tus solicitudes. Para RRHH y dirección, además: vacaciones del equipo y fichas", href: "/rrhh" },
 ];
 
 export default function Menu() {
