@@ -9,7 +9,6 @@ import {
   lunesDe,
   nombreCompleto,
   personas,
-  salariosVigentes,
   saldos,
   solicitudesPendientes,
   sumarDias,
@@ -23,7 +22,8 @@ import { Ficha } from "./Ficha";
 import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, Proximamente, QuienEstaFuera, Titulo, tramo } from "./Piezas";
 
 // La vista de RRHH y direccion: lo que hay que resolver, quien esta fuera, los
-// empleados con su ficha y, solo para direccion, las transferencias del mes.
+// empleados con su ficha y las transferencias del mes (las hace RRHH). En la
+// ficha, el salario bruto solo lo ve direccion.
 
 const campo = "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-lima focus:ring-2 focus:ring-lima/30";
 
@@ -136,12 +136,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
   ]);
   const ids = activos.map((p) => p.id);
   const direccion = yo.veTodo;
-  const [saldoM, contratoM, datosM, salarioM] = await Promise.all([
-    saldos(anio, ids),
-    contratosVigentes(ids, hoy),
-    datosPersonales(ids),
-    direccion ? salariosVigentes(ids, hoy) : Promise.resolve(new Map()),
-  ]);
+  const [saldoM, contratoM, datosM] = await Promise.all([saldos(anio, ids), contratosVigentes(ids, hoy), datosPersonales(ids)]);
 
   // Saldo de cada solicitud en el año que le toca (casi siempre, este).
   const otrosAnios = [...new Set(pendientes.map((a) => Number(a.desde.slice(0, 4))).filter((y) => y !== anio))];
@@ -175,7 +170,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
   const conFicha = (id: string) => `${base}${base.includes("?") ? "&" : "?"}p=${id}#ficha`;
 
   const transferencias = activos
-    .map((p) => ({ p, iban: datosM.get(p.id)?.iban ?? null, neto: salarioM.get(p.id)?.netoMensual ?? null }))
+    .map((p) => ({ p, iban: datosM.get(p.id)?.iban ?? null, neto: datosM.get(p.id)?.netoMensual ?? null }))
     .filter((t) => t.iban || t.neto != null);
   const totalNeto = transferencias.reduce((s, t) => s + (t.neto ?? 0), 0);
 
@@ -183,7 +178,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
     <>
       <NotaAcceso>
         <b>Quién ve esta vista:</b> la función RRHH (hoy, Alexandra) y dirección (Mónica y Daniel). Cada empleado ve solo su
-        espacio. El salario y las transferencias, solo dirección.
+        espacio. El salario bruto, solo dirección.
       </NotaAcceso>
 
       {/* ---------- por resolver ---------- */}
@@ -292,14 +287,13 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
         {ficha && <Ficha persona={ficha} hoy={hoy} direccion={direccion} volverA={base} />}
       </section>
 
-      {/* ---------- transferencias (solo dirección) ---------- */}
-      {direccion && (
+      {/* ---------- transferencias (las hace RRHH) ---------- */}
         <section className="mt-10">
-          <Titulo extra="Solo dirección · con el neto de un mes normal">Transferencias de las nóminas</Titulo>
+          <Titulo extra="Con el neto de un mes normal">Transferencias de las nóminas</Titulo>
           <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
             {transferencias.length === 0 ? (
               <p className="px-5 py-6 text-base text-carbon/50">
-                Aún no hay cuentas ni netos en las fichas. Se ponen en cada ficha: la cuenta en <i>Datos personales</i> y el neto en <i>Salario</i>.
+                Aún no hay cuentas ni netos en las fichas. Se ponen en la ficha de cada uno, en <i>Datos personales</i>.
               </p>
             ) : (
               <table className="w-full min-w-[640px] text-sm">
@@ -343,10 +337,10 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
             )}
           </div>
           <p className="mt-2 text-sm text-carbon/50">
-            Cuando lleguen las nóminas a la app, el neto de cada mes saldrá de su propia nómina (pagas extra y bajas incluidas).
+            Cuando lleguen las nóminas a la app, el neto de cada mes saldrá de su propia nómina (pagas extra y bajas incluidas), y
+            se podrá sacar el fichero de transferencias para CaixaBankNow.
           </p>
         </section>
-      )}
 
       {/* ---------- lo que llega en las siguientes entregas ---------- */}
       <section className="mt-10 grid gap-3 md:grid-cols-2">

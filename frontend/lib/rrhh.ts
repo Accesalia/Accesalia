@@ -351,7 +351,13 @@ export function darFuncionTemporal(personaId: string, funcionId: string, desde: 
 // Ficha: datos personales, contrato y horario vigentes
 // ---------------------------------------------------------------------------
 
-export type DatosPersonales = { dni: string | null; direccion: string | null; iban: string | null; notas: string | null };
+export type DatosPersonales = {
+  dni: string | null;
+  direccion: string | null;
+  iban: string | null;
+  netoMensual: number | null; // con el IBAN: lo que se le transfiere un mes normal
+  notas: string | null;
+};
 export type Contrato = { id: string; tipo: string | null; categoria: string | null; horasSemana: number | null; desde: string; hasta: string | null };
 export type Horario = {
   id: string;
@@ -369,17 +375,22 @@ export type Horario = {
 
 export async function datosPersonales(ids: string[]): Promise<Map<string, DatosPersonales>> {
   if (ids.length === 0) return new Map();
-  const filas = await rest<(DatosPersonales & { persona_id: string })[]>(
-    `rrhh_datos_personales?select=persona_id,dni,direccion,iban,notas&persona_id=in.(${ids.join(",")})`,
+  const filas = await rest<{ persona_id: string; dni: string | null; direccion: string | null; iban: string | null; neto_mensual: number | null; notas: string | null }[]>(
+    `rrhh_datos_personales?select=persona_id,dni,direccion,iban,neto_mensual,notas&persona_id=in.(${ids.join(",")})`,
   );
-  return new Map(filas.map((f) => [f.persona_id, { dni: f.dni, direccion: f.direccion, iban: f.iban, notas: f.notas }]));
+  return new Map(
+    filas.map((f) => [
+      f.persona_id,
+      { dni: f.dni, direccion: f.direccion, iban: f.iban, netoMensual: f.neto_mensual == null ? null : Number(f.neto_mensual), notas: f.notas },
+    ]),
+  );
 }
 
 export function guardarDatosPersonales(personaId: string, d: DatosPersonales) {
   return escribir(
     "rrhh_datos_personales?on_conflict=persona_id",
     "POST",
-    { persona_id: personaId, ...d },
+    { persona_id: personaId, dni: d.dni, direccion: d.direccion, iban: d.iban, neto_mensual: d.netoMensual, notas: d.notas },
     { Prefer: "return=minimal,resolution=merge-duplicates" },
   );
 }
@@ -471,16 +482,17 @@ export function guardarHorario(
 
 // ---------------------------------------------------------------------------
 // Salario bruto anual. SOLO direccion (Monica, 11-sep-2026: para costes y KPIs).
+// El neto de un mes normal NO va aqui: va con la cuenta, en los datos para
+// pagar, porque las transferencias las hace RRHH.
 // ---------------------------------------------------------------------------
 
-export type Salario = { id: string; personaId: string; brutoAnual: number; netoMensual: number | null; desde: string; hasta: string | null };
+export type Salario = { id: string; personaId: string; brutoAnual: number; desde: string; hasta: string | null };
 
-type FilaSalario = { id: string; persona_id: string; bruto_anual: number; neto_mensual: number | null; desde: string; hasta: string | null };
+type FilaSalario = { id: string; persona_id: string; bruto_anual: number; desde: string; hasta: string | null };
 const comoSalario = (f: FilaSalario): Salario => ({
   id: f.id,
   personaId: f.persona_id,
   brutoAnual: Number(f.bruto_anual),
-  netoMensual: f.neto_mensual == null ? null : Number(f.neto_mensual),
   desde: f.desde,
   hasta: f.hasta,
 });
@@ -489,7 +501,7 @@ const comoSalario = (f: FilaSalario): Salario => ({
 export async function salariosVigentes(ids: string[], hoy: string): Promise<Map<string, Salario>> {
   if (ids.length === 0) return new Map();
   const filas = await rest<FilaSalario[]>(
-    `rrhh_salarios?select=id,persona_id,bruto_anual,neto_mensual,desde,hasta&persona_id=in.(${ids.join(",")})&order=desde.desc`,
+    `rrhh_salarios?select=id,persona_id,bruto_anual,desde,hasta&persona_id=in.(${ids.join(",")})&order=desde.desc`,
   );
   const out = new Map<string, Salario>();
   for (const f of filas) if (!out.has(f.persona_id) && vigenteEn(f, hoy)) out.set(f.persona_id, comoSalario(f));
@@ -497,15 +509,15 @@ export async function salariosVigentes(ids: string[], hoy: string): Promise<Map<
 }
 
 /** Un sueldo nuevo cierra el anterior el dia antes: asi queda la historia para los costes. */
-export async function guardarSalario(personaId: string, brutoAnual: number, netoMensual: number | null, desde: string, hoy: string) {
+export async function guardarSalario(personaId: string, brutoAnual: number, desde: string, hoy: string) {
   const actual = (await salariosVigentes([personaId], hoy)).get(personaId);
   if (actual && actual.desde === desde) {
-    return escribir(`rrhh_salarios?id=eq.${actual.id}`, "PATCH", { bruto_anual: brutoAnual, neto_mensual: netoMensual });
+    return escribir(`rrhh_salarios?id=eq.${actual.id}`, "PATCH", { bruto_anual: brutoAnual });
   }
   if (actual && actual.desde < desde) {
     await escribir(`rrhh_salarios?id=eq.${actual.id}`, "PATCH", { hasta: sumarDias(desde, -1) });
   }
-  return escribir("rrhh_salarios", "POST", { persona_id: personaId, bruto_anual: brutoAnual, neto_mensual: netoMensual, desde });
+  return escribir("rrhh_salarios", "POST", { persona_id: personaId, bruto_anual: brutoAnual, desde });
 }
 
 /** Documentos de la persona que hay en el archivo, por tipo (para saber que falta). */

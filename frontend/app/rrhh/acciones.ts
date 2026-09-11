@@ -25,8 +25,9 @@ import {
 // Cada accion mira primero QUIEN la pide. La pagina ya esconde lo que no toca,
 // pero eso no basta: una accion se puede llamar sin pasar por la pagina.
 //   - pedir y anular: cada uno lo suyo;
-//   - resolver, registrar ausencias y tocar fichas: funcion RRHH o direccion;
-//   - el salario: solo direccion.
+//   - resolver, registrar ausencias y tocar fichas (tambien la cuenta y el neto
+//     para las transferencias, que las hace RRHH): funcion RRHH o direccion;
+//   - el salario bruto: solo direccion.
 
 async function yo(): Promise<Yo> {
   const y = await quienSoy();
@@ -160,10 +161,13 @@ export async function guardarFicha(fd: FormData) {
   if (parte === "datos") {
     const iban = texto(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null;
     if (iban && !/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(iban)) redirect(`${volver}&error=iban#ficha`);
+    const neto = numero(fd, "neto");
+    if (neto != null && neto < 0) redirect(`${volver}&error=neto#ficha`);
     await guardarDatosPersonales(personaId, {
       dni: texto(fd, "dni")?.replace(/[\s-]/g, "").toUpperCase() ?? null,
       direccion: texto(fd, "direccion"),
       iban,
+      netoMensual: neto,
       notas: texto(fd, "notas"),
     });
   } else if (parte === "contrato") {
@@ -198,9 +202,8 @@ export async function guardarFicha(fd: FormData) {
     if (!y.veTodo) redirect(volver);
     const bruto = numero(fd, "bruto");
     const desde = fecha(fd, "desde");
-    const neto = numero(fd, "neto");
-    if (bruto == null || bruto < 0 || (neto != null && neto < 0) || !desde) redirect(`${volver}&error=salario#ficha`);
-    await guardarSalario(personaId, bruto, neto, desde, hoy);
+    if (bruto == null || bruto < 0 || !desde) redirect(`${volver}&error=salario#ficha`);
+    await guardarSalario(personaId, bruto, desde, hoy);
   }
   redirect(`${volver}&aviso=guardado#ficha`);
 }

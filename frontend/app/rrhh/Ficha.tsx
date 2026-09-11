@@ -14,8 +14,9 @@ import {
 import { guardarFicha, registrarAusencia } from "./acciones";
 import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, Proximamente, tramo } from "./Piezas";
 
-// La ficha del empleado. La ven RRHH y direccion. El salario, solo direccion
-// (Monica, 11-sep-2026: para costes, KPIs y las transferencias del mes).
+// La ficha del empleado. La ven RRHH y direccion, con la cuenta y el neto para
+// las transferencias (las hace RRHH). El bruto anual, solo direccion (Monica,
+// 11-sep-2026: para costes y KPIs).
 
 const campo =
   "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-lima focus:ring-2 focus:ring-lima/30";
@@ -118,6 +119,7 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               <Campo label="DNI o NIE"><input name="dni" defaultValue={datos?.dni ?? ""} className={campo} /></Campo>
               <Campo label="Dirección (para comunicaciones)"><input name="direccion" defaultValue={datos?.direccion ?? ""} className={campo} /></Campo>
               <Campo label="Cuenta para la nómina (IBAN)"><input name="iban" defaultValue={datos?.iban ?? ""} placeholder="ES00 0000 0000 0000 0000 0000" className={campo} /></Campo>
+              <Campo label="Neto de un mes normal (€)"><input name="neto" inputMode="decimal" defaultValue={datos?.netoMensual ?? ""} className={campo} /></Campo>
               <Campo label="Notas"><input name="notas" defaultValue={datos?.notas ?? ""} className={campo} /></Campo>
             </Form>
           }
@@ -127,6 +129,7 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               ["DNI", datos?.dni ?? <Falta />],
               ["Dirección", datos?.direccion ?? <Falta />],
               ["Cuenta", datos?.iban ? datos.iban.replace(/(.{4})/g, "$1 ").trim() : <Falta texto="falta: sin ella no se le puede pagar" />],
+              ["Neto al mes", datos?.netoMensual != null ? EUR.format(datos.netoMensual) : <Falta />],
               ...(datos?.notas ? ([["Notas", datos.notas]] as [string, ReactNode][]) : []),
             ]}
           />
@@ -254,7 +257,6 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               <Form persona={id} parte="salario">
                 <div className="grid grid-cols-2 gap-2">
                   <Campo label="Bruto anual (€)"><input name="bruto" inputMode="decimal" required defaultValue={salario?.brutoAnual ?? ""} className={campo} /></Campo>
-                  <Campo label="Neto de un mes normal (€)"><input name="neto" inputMode="decimal" defaultValue={salario?.netoMensual ?? ""} className={campo} /></Campo>
                   <Campo label="Desde"><input type="date" name="desde" required defaultValue={salario?.desde ?? hoy} className={campo} /></Campo>
                 </div>
                 <p className="text-xs text-carbon/50">Si cambias la fecha, se guarda como sueldo nuevo y el anterior queda en la historia.</p>
@@ -265,7 +267,6 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               <Pares
                 filas={[
                   ["Bruto anual", <b key="b">{EUR.format(salario.brutoAnual)}</b>],
-                  ["Neto al mes", salario.netoMensual != null ? EUR.format(salario.netoMensual) : <Falta />],
                   ["Desde", fechaLarga(salario.desde)],
                 ]}
               />

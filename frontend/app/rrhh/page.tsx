@@ -15,8 +15,8 @@ export const dynamic = "force-dynamic";
 // QUIEN VE QUE, por funcion:
 //   - todos: su espacio (sus dias, sus solicitudes, su horario);
 //   - funcion RRHH y direccion: ademas, la gestion (solicitudes, quien esta
-//     fuera, empleados y fichas);
-//   - direccion: ademas, el salario y las transferencias.
+//     fuera, empleados y fichas, y las transferencias, que las hace RRHH);
+//   - direccion: ademas, el salario bruto anual.
 
 const AVISOS: Record<string, string> = {
   pedida: "Solicitud enviada. Le llega a RRHH y a dirección.",
@@ -36,6 +36,7 @@ const ERRORES: Record<string, string> = {
   iban: "Esa cuenta no parece un IBAN. Revísala: empieza por ES y lleva 22 números más.",
   saldo: "Falta el número de días del año.",
   salario: "Revisa el salario: el bruto y la fecha son obligatorios.",
+  neto: "El neto no puede ser negativo.",
 };
 
 const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Madrid" });
