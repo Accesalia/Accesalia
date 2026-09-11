@@ -7,21 +7,27 @@ import {
   saldos,
   sumarDias,
 } from "../../lib/rrhh";
+import { documentosDe, documentosDeEmpresa, PERSONALES, puedeSubir, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { anularSolicitud } from "./acciones";
+import { ListaDocumentos } from "./Documentos";
 import { PedirDias } from "./PedirDias";
-import { ChipEstado, ChipTipo, diasTxt, NotaAcceso, Proximamente, tramo } from "./Piezas";
+import { ChipEstado, ChipTipo, diasTxt, NotaAcceso, tramo } from "./Piezas";
+import { SubirDocumento } from "./SubirDocumento";
 
 // Lo que ve CADA empleado: solo lo suyo. Tambien RRHH y direccion tienen su
 // espacio (Alexandra pide vacaciones como cualquiera).
 
-export async function MiEspacio({ yo, hoy }: { yo: Yo; hoy: string }) {
+export async function MiEspacio({ yo, hoy, gestor }: { yo: Yo; hoy: string; gestor: boolean }) {
   const anio = Number(hoy.slice(0, 4));
-  const [saldoMapa, mias, horario, cal] = await Promise.all([
+  const [saldoMapa, mias, horario, cal, docs, empresa] = await Promise.all([
     saldos(anio, [yo.id]),
     ausenciasDe(yo.id),
     horarioVigente(yo.id, hoy),
     calendarioEntre(hoy, sumarDias(hoy, 550)),
+    documentosDe(yo.id),
+    documentosDeEmpresa(),
   ]);
+  const subibles = PERSONALES.filter((t) => puedeSubir(yo.id, gestor, yo.id, t) && t !== "nomina").map((t) => ({ valor: t, etiqueta: TIPO_DOC[t] }));
   const saldo = saldoMapa.get(yo.id)!;
   const fuera = Object.fromEntries(noLaborables(cal));
   const pct = (n: number) => (saldo.total > 0 ? `${Math.max(0, (n / saldo.total) * 100)}%` : "0%");
@@ -136,8 +142,43 @@ export async function MiEspacio({ yo, hoy }: { yo: Yo; hoy: string }) {
             )}
           </div>
 
-          <Proximamente titulo="Tus nóminas" texto="Te aparecerán aquí cada mes, sin correos." />
-          <Proximamente titulo="Tus documentos" texto="Contrato, DNI, titulación, IRPF, y el convenio y el calendario de todos." />
+          <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+            <h3 className="text-base font-bold text-carbon">Tus nóminas</h3>
+            <div className="mt-2">
+              <ListaDocumentos
+                docs={docs.filter((d) => d.tipo === "nomina")}
+                puedeBorrar={false}
+                volver="/rrhh?vista=yo"
+                vacio="Te aparecerán aquí cada mes, sin correos."
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+            <h3 className="text-base font-bold text-carbon">Tus documentos</h3>
+            <div className="mt-2">
+              <ListaDocumentos
+                docs={docs.filter((d) => d.tipo !== "nomina")}
+                puedeBorrar={false}
+                volver="/rrhh?vista=yo"
+                vacio="Aún no hay documentos tuyos en la app."
+              />
+            </div>
+            {subibles.length > 0 && (
+              <div className="mt-3">
+                <p className="mb-1.5 text-xs text-carbon/50">Puedes subir tú lo que solo tienes tú: DNI, títulos, IRPF, justificantes.</p>
+                <SubirDocumento personaId={yo.id} tipos={subibles} mesPorDefecto={hoy.slice(0, 7)} />
+              </div>
+            )}
+            {empresa.length > 0 && (
+              <>
+                <h4 className="mt-5 text-[11px] font-bold uppercase tracking-wider text-carbon/45">De toda la plantilla</h4>
+                <div className="mt-1">
+                  <ListaDocumentos docs={empresa} puedeBorrar={false} volver="/rrhh?vista=yo" vacio="" />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>

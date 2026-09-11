@@ -110,7 +110,7 @@ export default async function Rrhh({
             errorAlta={errorAlta}
           />
         ) : (
-          <MiEspacio yo={yo} hoy={hoy} />
+          <MiEspacio yo={yo} hoy={hoy} gestor={gestor} />
         )}
       </main>
     </div>

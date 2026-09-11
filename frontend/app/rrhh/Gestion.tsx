@@ -18,8 +18,11 @@ import {
   type Persona,
 } from "../../lib/rrhh";
 import { resolverSolicitud } from "./acciones";
+import { DE_EMPRESA, documentosDeEmpresa, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { AltaEmpleado } from "./AltaEmpleado";
 import { Copiar } from "./Copiar";
+import { ListaDocumentos } from "./Documentos";
+import { SubirDocumento } from "./SubirDocumento";
 import { Ficha } from "./Ficha";
 import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, Proximamente, QuienEstaFuera, Titulo, tramo } from "./Piezas";
 
@@ -131,13 +134,14 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
   const anio = Number(hoy.slice(0, 4));
   const desde = lunesDe(hoy);
   const hasta = sumarDias(desde, 41);
-  const [activos, antiguos, pendientes, ausencias, cal, catalogo] = await Promise.all([
+  const [activos, antiguos, pendientes, ausencias, cal, catalogo, deEmpresa] = await Promise.all([
     personas(true),
     personas(false),
     solicitudesPendientes(),
     ausenciasEntre(desde, hasta),
     calendarioEntre(desde, hasta),
     alta ? funcionesCatalogo() : Promise.resolve([]),
+    documentosDeEmpresa(),
   ]);
   const ids = activos.map((p) => p.id);
   const direccion = yo.veTodo;
@@ -362,9 +366,23 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
           </p>
         </section>
 
+      {/* ---------- documentos de toda la plantilla ---------- */}
+      <section className="mt-10">
+        <Titulo extra="Los ve todo el equipo en su espacio">Documentos para toda la plantilla</Titulo>
+        <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+          <ListaDocumentos docs={deEmpresa} puedeBorrar volver="/rrhh" vacio="Todavía no hay ninguno. Aquí van el convenio, el calendario laboral y la normativa interna." />
+          <div className="mt-3">
+            <SubirDocumento personaId={null} tipos={DE_EMPRESA.map((t) => ({ valor: t, etiqueta: TIPO_DOC[t] }))} mesPorDefecto={hoy.slice(0, 7)} />
+          </div>
+        </div>
+      </section>
+
       {/* ---------- lo que llega en las siguientes entregas ---------- */}
       <section className="mt-10 grid gap-3 md:grid-cols-2">
-        <Proximamente titulo="Nóminas del mes" texto="Subes el PDF de la gestoría y la app lo reparte a cada uno. Sin iLovePDF, sin script, sin correos." />
+        <Proximamente
+          titulo="Nóminas del mes, de golpe"
+          texto="Subes el PDF de la gestoría y la app lo reparte a cada uno. Mientras tanto, se puede subir la de cada persona en su ficha."
+        />
         <Proximamente titulo="Calendario de la empresa" texto="Festivos y cierres de cada año, que descuentan solos al pedir días." />
       </section>
     </>

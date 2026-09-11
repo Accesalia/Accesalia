@@ -11,8 +11,11 @@ import {
   vigenteEn,
   type Persona,
 } from "../../lib/rrhh";
+import { documentosDe, PERSONALES, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { bajaEmpleado, deshacerBaja, guardarFicha, registrarAusencia } from "./acciones";
-import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, Proximamente, tramo } from "./Piezas";
+import { ListaDocumentos, mesAnterior } from "./Documentos";
+import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, tramo } from "./Piezas";
+import { SubirDocumento } from "./SubirDocumento";
 
 // La ficha del empleado. La ven RRHH y direccion, con la cuenta y el neto para
 // las transferencias (las hace RRHH). El bruto anual, solo direccion (Monica,
@@ -80,13 +83,14 @@ const Campo = ({ label, children }: { label: string; children: ReactNode }) => (
 export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Persona; hoy: string; direccion: boolean; volverA: string }) {
   const anio = Number(hoy.slice(0, 4));
   const id = persona.id;
-  const [datosM, contratoM, horario, saldoM, salarioM, aus] = await Promise.all([
+  const [datosM, contratoM, horario, saldoM, salarioM, aus, docs] = await Promise.all([
     datosPersonales([id]),
     contratosVigentes([id], hoy),
     horarioVigente(id, hoy),
     saldos(anio, [id]),
     direccion ? salariosVigentes([id], hoy) : Promise.resolve(new Map()),
     ausenciasDe(id),
+    documentosDe(id),
   ]);
   const datos = datosM.get(id) ?? null;
   const contrato = contratoM.get(id) ?? null;
@@ -338,7 +342,22 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
             </form>
           </details>
         </div>
-        <Proximamente titulo="Documentos y nóminas" texto="Contrato, DNI, titulación, IRPF y sus nóminas. Llegan en la siguiente entrega." />
+        <div>
+          <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-carbon/45">Documentos y nóminas</h4>
+          <ListaDocumentos
+            docs={docs}
+            puedeBorrar
+            volver={`${volverA}${volverA.includes("?") ? "&" : "?"}p=${id}#ficha`}
+            vacio="Todavía no hay documentos suyos en la app."
+          />
+          <div className="mt-3">
+            <SubirDocumento
+              personaId={id}
+              tipos={PERSONALES.map((t) => ({ valor: t, etiqueta: TIPO_DOC[t] }))}
+              mesPorDefecto={mesAnterior(hoy)}
+            />
+          </div>
+        </div>
       </div>
 
       {persona.activo && !persona.fechaBaja && (
