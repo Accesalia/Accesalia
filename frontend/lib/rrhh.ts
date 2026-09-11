@@ -93,7 +93,9 @@ export type Persona = {
   nombre: string;
   apellidos: string | null;
   email: string | null;
-  activo: boolean;
+  activo: boolean; // en activo HOY: activo y sin fecha de baja pasada
+  fechaBaja: string | null; // ultimo dia; puede ser futura
+  motivoBaja: string | null;
   funciones: FuncionAsignada[]; // todas, tambien las pasadas: son su historia
 };
 
@@ -103,6 +105,8 @@ type FilaPersona = {
   apellidos: string | null;
   email: string | null;
   activo: boolean;
+  fecha_baja: string | null;
+  motivo_baja: string | null;
   equipo_funciones: { desde: string | null; hasta: string | null; funciones: { id: string; clave: string; nombre: string } | null }[];
 };
 
@@ -115,22 +119,89 @@ export const nombreCompleto = (p: { nombre: string; apellidos: string | null }) 
 export const vigenteEn = (f: { desde: string | null; hasta: string | null }, dia: string) =>
   (!f.desde || f.desde <= dia) && (!f.hasta || f.hasta >= dia);
 
+/** Personas del equipo. true = en activo hoy; false = ex-empleados; null = todas. */
 export async function personas(activos: boolean | null = true): Promise<Persona[]> {
-  const filtro = activos === null ? "" : `&activo=is.${activos}`;
+  const hoy = hoyMadrid();
   const filas = await rest<FilaPersona[]>(
-    "equipo?select=id,nombre,apellidos,email,activo,equipo_funciones(desde,hasta,funciones(id,clave,nombre))" +
-      `${filtro}&order=nombre.asc`,
+    "equipo?select=id,nombre,apellidos,email,activo,fecha_baja,motivo_baja,equipo_funciones(desde,hasta,funciones(id,clave,nombre))" +
+      "&order=nombre.asc",
   );
-  return filas.map((f) => ({
+  const todas = filas.map((f) => ({
     id: f.id,
     nombre: f.nombre,
     apellidos: f.apellidos,
     email: f.email,
-    activo: f.activo,
+    activo: f.activo && (!f.fecha_baja || f.fecha_baja >= hoy),
+    fechaBaja: f.fecha_baja,
+    motivoBaja: f.motivo_baja,
     funciones: f.equipo_funciones
       .filter((ef) => ef.funciones)
       .map((ef) => ({ funcionId: ef.funciones!.id, clave: ef.funciones!.clave, nombre: ef.funciones!.nombre, desde: ef.desde, hasta: ef.hasta })),
   }));
+  return activos === null ? todas : todas.filter((p) => p.activo === activos);
+}
+
+export async function funcionesCatalogo(): Promise<{ id: string; nombre: string }[]> {
+  return rest<{ id: string; nombre: string }[]>("funciones?select=id,nombre&activa=is.true&order=orden.asc.nullslast,nombre.asc");
+}
+
+// ---------------------------------------------------------------------------
+// Alta y baja
+// ---------------------------------------------------------------------------
+
+/** Da de alta a una persona: la ficha, sus funciones, su contrato y sus dias del año. Devuelve su id. */
+export async function darDeAlta(a: {
+  nombre: string;
+  apellidos: string | null;
+  email: string | null;
+  desde: string;
+  funciones: string[];
+  contrato: { tipo: string | null; horasSemana: number | null } | null;
+  diasAnio: number | null;
+}): Promise<string> {
+  const [p] = await rest<{ id: string }[]>("equipo?select=id", {
+    method: "POST",
+    body: JSON.stringify({ nombre: a.nombre, apellidos: a.apellidos, email: a.email, activo: true }),
+    headers: { Prefer: "return=representation" },
+  });
+  if (a.funciones.length > 0)
+    await escribir("equipo_funciones", "POST", a.funciones.map((f) => ({ equipo_id: p.id, funcion_id: f, desde: a.desde })));
+  if (a.contrato)
+    await escribir("rrhh_contratos", "POST", { persona_id: p.id, tipo: a.contrato.tipo, horas_semana: a.contrato.horasSemana, desde: a.desde });
+  if (a.diasAnio != null) await guardarSaldo(p.id, Number(a.desde.slice(0, 4)), a.diasAnio, 0);
+  return p.id;
+}
+
+/**
+ * Da de baja: el ultimo dia que trabaja. Cierra con esa fecha sus funciones, su
+ * contrato, su horario y su sueldo, y retira lo que tenga pedido despues. Si
+ * la fecha ya ha pasado, deja de estar activo en el acto; si es futura, se
+ * queda fuera sola al dia siguiente (el guardian mira la fecha).
+ */
+export async function darDeBaja(personaId: string, ultimoDia: string, motivo: string, hoy: string) {
+  const q = `persona_id=eq.${personaId}`;
+  await escribir(`equipo?id=eq.${personaId}`, "PATCH", {
+    fecha_baja: ultimoDia,
+    motivo_baja: motivo,
+    ...(ultimoDia < hoy ? { activo: false } : {}),
+  });
+  // Lo que sigue abierto despues de ese dia se cierra ese dia. Lo que iba a
+  // empezar despues (una cobertura futura, o todo, si no llega a empezar) no
+  // llego a estar en vigor: se retira.
+  const abierto = `and=(or(hasta.is.null,hasta.gt.${ultimoDia}),or(desde.is.null,desde.lte.${ultimoDia}))`;
+  const borrar = (t: string, filtro: string) => rest(`${t}?${filtro}&desde=gt.${ultimoDia}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+  await borrar("equipo_funciones", `equipo_id=eq.${personaId}`);
+  for (const t of ["rrhh_contratos", "rrhh_horarios", "rrhh_salarios"]) await borrar(t, q);
+  await escribir(`equipo_funciones?equipo_id=eq.${personaId}&${abierto}`, "PATCH", { hasta: ultimoDia });
+  await escribir(`rrhh_contratos?${q}&${abierto}`, "PATCH", { hasta: ultimoDia, motivo_fin: motivo });
+  await escribir(`rrhh_horarios?${q}&${abierto}`, "PATCH", { hasta: ultimoDia });
+  await escribir(`rrhh_salarios?${q}&${abierto}`, "PATCH", { hasta: ultimoDia });
+  await escribir(`rrhh_ausencias?${q}&estado=eq.solicitada&desde=gt.${ultimoDia}`, "PATCH", { estado: "anulada", resuelta_en: new Date().toISOString() });
+}
+
+/** Deshacer una baja (por error, o porque al final se queda). No reabre lo que se cerro: se revisa en la ficha. */
+export function anularBaja(personaId: string) {
+  return escribir(`equipo?id=eq.${personaId}`, "PATCH", { fecha_baja: null, motivo_baja: null, activo: true });
 }
 
 // ---------------------------------------------------------------------------

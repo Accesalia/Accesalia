@@ -3,8 +3,11 @@
 import { redirect } from "next/navigation";
 import { quienSoy, puedeEntrar, type Yo } from "../../lib/sesion";
 import {
+  anularBaja,
   ausencia,
   calendarioEntre,
+  darDeAlta,
+  darDeBaja,
   crearAusencia,
   darFuncionTemporal,
   funcionesSinSuplente,
@@ -49,10 +52,15 @@ const fecha = (fd: FormData, k: string) => {
   const v = texto(fd, k);
   return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
 };
+// Numeros como se escriben aqui: "1.850,50", "1850,5", "6,5"... y tambien "6.5"
+// o "1850.50". El punto es de miles solo si va seguido de grupos de tres cifras.
 const numero = (fd: FormData, k: string) => {
-  const v = texto(fd, k);
-  if (v == null) return null;
-  const n = Number(v.replace(/\./g, "").replace(",", "."));
+  const v = texto(fd, k)?.replace(/\s|€/g, "");
+  if (!v) return null;
+  let s = v;
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  const n = Number(s);
   return Number.isFinite(n) ? n : null;
 };
 
@@ -145,6 +153,58 @@ export async function registrarAusencia(fd: FormData) {
   const dias = await diasLaborables(desde, hasta);
   await crearAusencia({ personaId, tipo, desde, hasta, dias, estado: "aprobada", resueltaPor: y.id, notas: texto(fd, "notas") });
   redirect(`${volver}&aviso=registrada#ficha`);
+}
+
+// ---------------------------------------------------------------------------
+// Alta y baja
+// ---------------------------------------------------------------------------
+
+export async function altaEmpleado(fd: FormData) {
+  await gestor();
+  const nombre = texto(fd, "nombre");
+  const desde = fecha(fd, "desde");
+  const email = texto(fd, "email")?.toLowerCase() ?? null;
+  if (!nombre) redirect("/rrhh?alta=1&error=nombre#alta");
+  if (!desde) redirect("/rrhh?alta=1&error=fechas#alta");
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) redirect("/rrhh?alta=1&error=correo#alta");
+
+  const tipo = texto(fd, "tipo");
+  const horas = numero(fd, "horas");
+  let id: string;
+  try {
+    id = await darDeAlta({
+      nombre,
+      apellidos: texto(fd, "apellidos"),
+      email,
+      desde,
+      funciones: fd.getAll("funciones").map(String).filter(Boolean),
+      contrato: tipo || horas != null ? { tipo, horasSemana: horas } : null,
+      diasAnio: numero(fd, "dias"),
+    });
+  } catch (e) {
+    // El unico choque posible es el correo: cada uno es de una sola persona.
+    if (String(e).includes("uq_equipo_email")) redirect("/rrhh?alta=1&error=correo_repetido#alta");
+    throw e;
+  }
+  redirect(`/rrhh?p=${id}&aviso=alta#ficha`);
+}
+
+export async function bajaEmpleado(fd: FormData) {
+  await gestor();
+  const personaId = String(fd.get("persona") ?? "");
+  const ultimo = fecha(fd, "ultimo");
+  const motivo = texto(fd, "motivo");
+  const detalle = texto(fd, "detalle");
+  if (!ultimo || !motivo) redirect(`/rrhh?p=${personaId}&error=baja#ficha`);
+  await darDeBaja(personaId, ultimo, detalle ? `${motivo}: ${detalle}` : motivo, hoyMadrid());
+  redirect(`/rrhh?p=${personaId}&aviso=baja#ficha`);
+}
+
+export async function deshacerBaja(fd: FormData) {
+  await gestor();
+  const personaId = String(fd.get("persona") ?? "");
+  await anularBaja(personaId);
+  redirect(`/rrhh?p=${personaId}&aviso=baja_anulada#ficha`);
 }
 
 // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ import {
   vigenteEn,
   type Persona,
 } from "../../lib/rrhh";
-import { guardarFicha, registrarAusencia } from "./acciones";
+import { bajaEmpleado, deshacerBaja, guardarFicha, registrarAusencia } from "./acciones";
 import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, Proximamente, tramo } from "./Piezas";
 
 // La ficha del empleado. La ven RRHH y direccion, con la cuenta y el neto para
@@ -110,6 +110,23 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
           Cerrar la ficha ✕
         </Link>
       </div>
+
+      {persona.fechaBaja && (
+        <div className={`mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm ${persona.activo ? "bg-amber-50 text-amber-900" : "bg-hueso text-carbon/70"}`}>
+          <span>
+            {persona.activo ? "Se va. Su último día es el " : "Se fue. Su último día fue el "}
+            <b>{fechaLarga(persona.fechaBaja)}</b>
+            {persona.motivoBaja && <> · {persona.motivoBaja}</>}
+            {persona.activo && ". Al día siguiente dejará de poder entrar en la app."}
+          </span>
+          <form action={deshacerBaja}>
+            <input type="hidden" name="persona" value={id} />
+            <button type="submit" className="rounded-full border border-black/15 bg-white px-3 py-1 text-xs font-semibold text-carbon/70 hover:border-lima hover:text-carbon">
+              Deshacer la baja
+            </button>
+          </form>
+        </div>
+      )}
 
       <div className="mt-5 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
         <Bloque
@@ -323,6 +340,41 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
         </div>
         <Proximamente titulo="Documentos y nóminas" texto="Contrato, DNI, titulación, IRPF y sus nóminas. Llegan en la siguiente entrega." />
       </div>
+
+      {persona.activo && !persona.fechaBaja && (
+        <details className="group mt-6 border-t border-black/5 pt-4">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-carbon/55 hover:text-alerta [&::-webkit-details-marker]:hidden">
+            Dar de baja…
+          </summary>
+          <form action={bajaEmpleado} className="mt-3 grid max-w-xl gap-2 rounded-xl bg-hueso p-4">
+            <input type="hidden" name="persona" value={id} />
+            <div className="grid grid-cols-2 gap-2">
+              <Campo label="Último día que trabaja"><input type="date" name="ultimo" required defaultValue={hoy} className={campo} /></Campo>
+              <Campo label="Motivo">
+                <select name="motivo" required defaultValue="" className={campo}>
+                  <option value="" disabled>Elige…</option>
+                  <option>Baja voluntaria</option>
+                  <option>Despido</option>
+                  <option>Fin de contrato</option>
+                  <option>No supera el periodo de prueba</option>
+                  <option>Jubilación</option>
+                  <option>Otro</option>
+                </select>
+              </Campo>
+            </div>
+            <Campo label="Detalle (opcional; solo lo ven RRHH y dirección)"><input name="detalle" className={campo} /></Campo>
+            <p className="text-xs text-carbon/55">
+              Se cierran con esa fecha sus funciones, su contrato, su horario y su sueldo, y se retira lo que tenga pedido para
+              después. Al día siguiente deja de poder entrar en la app y pasa a ex-empleados. Su ficha y su historia se conservan.
+            </p>
+            <div>
+              <button type="submit" className="rounded-full border border-alerta/40 bg-white px-4 py-2 text-sm font-semibold text-alerta transition hover:bg-alerta hover:text-white">
+                Dar de baja
+              </button>
+            </div>
+          </form>
+        </details>
+      )}
     </div>
   );
 }

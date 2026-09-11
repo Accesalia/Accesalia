@@ -64,8 +64,11 @@ async function esDelEquipo(email: string | undefined): Promise<boolean> {
   if (!email) return false;
   const url = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
   const secreto = process.env.SUPABASE_SECRET_KEY ?? "";
+  // En activo = activo y sin fecha de baja pasada (la baja puede ser futura).
+  const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
   const r = await fetch(
-    `${url}/rest/v1/equipo?select=id&activo=is.true&email=ilike.${encodeURIComponent(email.trim())}&limit=1`,
+    `${url}/rest/v1/equipo?select=id&activo=is.true&or=(fecha_baja.is.null,fecha_baja.gte.${hoy})` +
+      `&email=ilike.${encodeURIComponent(email.trim())}&limit=1`,
     { headers: { apikey: secreto, Authorization: `Bearer ${secreto}` }, cache: "no-store" },
   );
   if (!r.ok) return false;

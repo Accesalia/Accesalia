@@ -5,6 +5,7 @@ import {
   calendarioEntre,
   contratosVigentes,
   datosPersonales,
+  funcionesCatalogo,
   funcionesSinSuplente,
   lunesDe,
   nombreCompleto,
@@ -17,6 +18,7 @@ import {
   type Persona,
 } from "../../lib/rrhh";
 import { resolverSolicitud } from "./acciones";
+import { AltaEmpleado } from "./AltaEmpleado";
 import { Copiar } from "./Copiar";
 import { Ficha } from "./Ficha";
 import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, Proximamente, QuienEstaFuera, Titulo, tramo } from "./Piezas";
@@ -116,23 +118,26 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
   );
 }
 
-export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
+export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, errorAlta }: {
   yo: Yo;
   hoy: string;
   verEx: boolean;
   fichaId: string | null;
   sId: string | null;
   error: string | null;
+  alta: boolean;
+  errorAlta: string | null;
 }) {
   const anio = Number(hoy.slice(0, 4));
   const desde = lunesDe(hoy);
   const hasta = sumarDias(desde, 41);
-  const [activos, antiguos, pendientes, ausencias, cal] = await Promise.all([
+  const [activos, antiguos, pendientes, ausencias, cal, catalogo] = await Promise.all([
     personas(true),
     personas(false),
     solicitudesPendientes(),
     ausenciasEntre(desde, hasta),
     calendarioEntre(desde, hasta),
+    alta ? funcionesCatalogo() : Promise.resolve([]),
   ]);
   const ids = activos.map((p) => p.id);
   const direccion = yo.veTodo;
@@ -212,18 +217,22 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
       <section className="mt-10">
         <Titulo
           extra={
-            <span className="inline-flex gap-1">
+            <span className="inline-flex flex-wrap gap-1">
               <Link href="/rrhh" className={`rounded-full border px-3 py-1 text-sm ${!verEx ? "border-carbon bg-carbon text-white" : "border-black/10 bg-white text-carbon/60 hover:border-lima"}`}>
                 En activo · {activos.length}
               </Link>
               <Link href="/rrhh?ex=1" className={`rounded-full border px-3 py-1 text-sm ${verEx ? "border-carbon bg-carbon text-white" : "border-black/10 bg-white text-carbon/60 hover:border-lima"}`}>
                 Ex-empleados · {antiguos.length}
               </Link>
+              <Link href="/rrhh?alta=1#alta" className="rounded-full bg-lima px-3.5 py-1 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+                + Dar de alta
+              </Link>
             </span>
           }
         >
           Empleados
         </Titulo>
+        {alta && <AltaEmpleado hoy={hoy} funciones={catalogo} error={errorAlta} />}
         <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
@@ -247,8 +256,19 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error }: {
                     <td className="px-4 py-2.5">
                       <Link href={conFicha(p.id)} className="block">
                         <b className="font-semibold text-carbon">{nombreCompleto(p)}</b>
+                        {!verEx && p.fechaBaja && (
+                          <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                            se va el {tramo(p.fechaBaja, p.fechaBaja)}
+                          </span>
+                        )}
                         <span className="block text-xs text-carbon/45">
-                          {verEx ? (ultima ? `${ultima.nombre} · hasta ${tramo(ultima.hasta!, ultima.hasta!)} ${ultima.hasta!.slice(0, 4)}` : "—") : fns.join(" · ") || "—"}
+                          {verEx
+                            ? p.fechaBaja
+                              ? `Hasta el ${tramo(p.fechaBaja, p.fechaBaja)} de ${p.fechaBaja.slice(0, 4)}${ultima ? ` · ${ultima.nombre}` : ""}`
+                              : ultima
+                                ? `${ultima.nombre} · hasta ${tramo(ultima.hasta!, ultima.hasta!)} ${ultima.hasta!.slice(0, 4)}`
+                                : "—"
+                            : fns.join(" · ") || "—"}
                         </span>
                       </Link>
                     </td>

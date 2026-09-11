@@ -26,6 +26,9 @@ const AVISOS: Record<string, string> = {
   ya_resuelta: "Esa solicitud ya estaba resuelta.",
   guardado: "Guardado.",
   registrada: "Ausencia apuntada.",
+  alta: "Alta hecha. Completa aquí su ficha: DNI, cuenta, horario…",
+  baja: "Baja registrada.",
+  baja_anulada: "Baja deshecha: vuelve a estar en activo. Revisa sus funciones y su contrato en la ficha.",
 };
 const ERRORES: Record<string, string> = {
   tipo: "Elige qué es: vacaciones, permiso o ausencia.",
@@ -37,6 +40,13 @@ const ERRORES: Record<string, string> = {
   saldo: "Falta el número de días del año.",
   salario: "Revisa el salario: el bruto y la fecha son obligatorios.",
   neto: "El neto no puede ser negativo.",
+  baja: "Para dar de baja hacen falta el último día y el motivo.",
+};
+const ERRORES_ALTA: Record<string, string> = {
+  nombre: "Falta el nombre.",
+  fechas: "Falta el primer día.",
+  correo: "Ese correo no parece bien escrito.",
+  correo_repetido: "Ese correo ya es de otra persona del equipo.",
 };
 
 const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Madrid" });
@@ -44,7 +54,7 @@ const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "nu
 export default async function Rrhh({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string }>;
+  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string; alta?: string }>;
 }) {
   const sp = await searchParams;
   const yo = await quienSoy();
@@ -56,7 +66,9 @@ export default async function Rrhh({
   const fecha = FECHA_LARGA.format(new Date());
 
   const aviso = sp.aviso ? AVISOS[sp.aviso] : null;
-  const error = sp.error && !["cubre", "motivo"].includes(sp.error) ? ERRORES[sp.error] : null;
+  const enAlta = sp.alta === "1";
+  const error = sp.error && !enAlta && !["cubre", "motivo"].includes(sp.error) ? ERRORES[sp.error] : null;
+  const errorAlta = enAlta && sp.error ? ERRORES_ALTA[sp.error] ?? null : null;
   const pill = (activo: boolean) =>
     "rounded-full px-4 py-2 text-sm transition " + (activo ? "bg-lima font-bold text-carbon" : "text-carbon/60 hover:text-carbon");
 
@@ -94,6 +106,8 @@ export default async function Rrhh({
             fichaId={sp.p ?? null}
             sId={sp.s ?? null}
             error={sp.error ?? null}
+            alta={enAlta}
+            errorAlta={errorAlta}
           />
         ) : (
           <MiEspacio yo={yo} hoy={hoy} />

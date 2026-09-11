@@ -46,8 +46,11 @@ export async function personaPorCorreo(email: string): Promise<Yo | null> {
   const sel =
     "id,nombre,apellidos,email," +
     "equipo_funciones(desde,hasta,funciones(clave,nombre,ve_todo,funcion_areas(nivel,areas(clave,nombre))))";
+  // En activo = activo y sin fecha de baja pasada (la baja puede ser futura).
+  const hoyM = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
   const r = await fetch(
-    `${URL_BASE}/rest/v1/equipo?select=${sel}&activo=is.true&email=ilike.${encodeURIComponent(email.trim())}`,
+    `${URL_BASE}/rest/v1/equipo?select=${sel}&activo=is.true&or=(fecha_baja.is.null,fecha_baja.gte.${hoyM})` +
+      `&email=ilike.${encodeURIComponent(email.trim())}`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
   );
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
