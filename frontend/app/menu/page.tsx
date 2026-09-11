@@ -29,7 +29,7 @@ const AREAS: { nombre: string; desc: string; href: string; icono: string; estado
   { nombre: "Tres Presupuestos", desc: "Los tres presupuestos de contrata, comparación y adjudicación", href: "/tres-presupuestos", icono: "⚑", estado: "sin_ver" },
   { nombre: "Facturación", desc: "Libro de Accesalia: hitos de cobro, facturas, cobros y pendientes", href: "/facturacion", icono: "€", estado: "sin_ver" },
   { nombre: "Subvenciones", desc: "Convocatorias, requisitos y documentación", href: "/", icono: "★", estado: "sin_ver" },
-  { nombre: "CAES", desc: "Coordinación de actividades empresariales", href: "#", icono: "⛑", estado: "por_hacer" },
+  { nombre: "CAES", desc: "Certificados de ahorro energético", href: "#", icono: "⛑", estado: "por_hacer" },
 ];
 
 const SELLO: Record<Estado, { texto: string; clase: string }> = {
