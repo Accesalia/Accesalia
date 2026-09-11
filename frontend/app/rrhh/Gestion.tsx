@@ -29,7 +29,8 @@ import { ultimasPublicadas } from "../../lib/rrhhNominas";
 
 const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 import { Ficha } from "./Ficha";
-import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, Proximamente, QuienEstaFuera, Titulo, tramo } from "./Piezas";
+import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, QuienEstaFuera, Titulo, tramo } from "./Piezas";
+import { CalendarioEmpresa } from "./Calendario";
 
 // La vista de RRHH y direccion: lo que hay que resolver, quien esta fuera, los
 // empleados con su ficha y las transferencias del mes (las hace RRHH). En la
@@ -134,7 +135,7 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
   );
 }
 
-export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteId }: {
+export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteId, anioCal }: {
   yo: Yo;
   hoy: string;
   verEx: boolean;
@@ -143,6 +144,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
   error: string | null;
   alta: boolean;
   loteId: string | null;
+  anioCal: number;
 }) {
   const anio = Number(hoy.slice(0, 4));
   const desde = lunesDe(hoy);
@@ -237,7 +239,9 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
         <Titulo extra="Próximas seis semanas · días laborables">Quién está fuera</Titulo>
         <QuienEstaFuera desde={desde} hasta={hasta} hoy={hoy} equipo={activos} ausencias={ausencias} calendario={cal} />
         {cal.length === 0 && (
-          <p className="mt-2 text-sm text-carbon/50">Aún no hay festivos ni cierres cargados: el calendario de la empresa llega en la tercera entrega.</p>
+          <p className="mt-2 text-sm text-carbon/50">
+            En estas semanas no hay festivos ni cierres puestos. Se ponen abajo, en <a href="#calendario" className="font-semibold text-lima-dark hover:underline">el calendario de la empresa</a>.
+          </p>
         )}
       </section>
 
@@ -406,10 +410,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
         </div>
       </section>
 
-      {/* ---------- lo que llega en las siguientes entregas ---------- */}
-      <section className="mt-10 grid gap-3 md:grid-cols-2">
-        <Proximamente titulo="Calendario de la empresa" texto="Festivos y cierres de cada año, que descuentan solos al pedir días." />
-      </section>
+      <CalendarioEmpresa anio={anioCal} hoy={hoy} activos={activos} />
     </>
   );
 }

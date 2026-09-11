@@ -9,6 +9,7 @@ import {
 } from "../../lib/rrhh";
 import { documentosDe, documentosDeEmpresa, PERSONALES, puedeSubir, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { anularSolicitud } from "./acciones";
+import { CalendarioParaTodos } from "./Calendario";
 import { ListaDocumentos } from "./Documentos";
 import { PedirDias } from "./PedirDias";
 import { ChipEstado, ChipTipo, diasTxt, NotaAcceso, tramo } from "./Piezas";
@@ -141,6 +142,8 @@ export async function MiEspacio({ yo, hoy, gestor }: { yo: Yo; hoy: string; gest
               <p className="mt-2 text-sm text-carbon/50">RRHH aún no ha puesto tu horario en la app.</p>
             )}
           </div>
+
+          <CalendarioParaTodos anio={anio} />
 
           <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
             <h3 className="text-base font-bold text-carbon">Tus nóminas</h3>

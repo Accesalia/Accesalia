@@ -32,6 +32,8 @@ const AVISOS: Record<string, string> = {
   baja: "Baja registrada.",
   baja_anulada: "Baja deshecha: vuelve a estar en activo. Revisa sus funciones y su contrato en la ficha.",
   descartado: "PDF descartado.",
+  dia: "Día guardado en el calendario.",
+  dia_quitado: "Día quitado del calendario.",
   lote_cerrado: "Esas nóminas ya estaban publicadas o descartadas.",
 };
 const ERRORES: Record<string, string> = {
@@ -45,13 +47,15 @@ const ERRORES: Record<string, string> = {
   salario: "Revisa el salario: el bruto y la fecha son obligatorios.",
   neto: "El neto no puede ser negativo.",
   baja: "Para dar de baja hacen falta el último día y el motivo.",
+  dia: "Para el calendario hacen falta la fecha y qué es.",
+  anio: "Revisa los datos del año: los días de vacaciones son obligatorios y la jornada tiene que ser mayor que cero.",
 };
 const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Madrid" });
 
 export default async function Rrhh({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string; alta?: string; lote?: string; n?: string }>;
+  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string; alta?: string; lote?: string; n?: string; anio?: string }>;
 }) {
   const sp = await searchParams;
   const yo = await quienSoy();
@@ -109,6 +113,7 @@ export default async function Rrhh({
             error={sp.error ?? null}
             alta={enAlta}
             loteId={sp.lote ?? null}
+            anioCal={/^\d{4}$/.test(sp.anio ?? "") ? Number(sp.anio) : Number(hoy.slice(0, 4))}
           />
         ) : (
           <MiEspacio yo={yo} hoy={hoy} gestor={gestor} />

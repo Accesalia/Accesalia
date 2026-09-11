@@ -5,7 +5,11 @@ import { quienSoy, puedeEntrar, type Yo } from "../../lib/sesion";
 import {
   anularBaja,
   ausencia,
+  borrarDia,
   calendarioEntre,
+  guardarAnio,
+  guardarDia,
+  type TipoDia,
   darDeAlta,
   darDeBaja,
   crearAusencia,
@@ -240,6 +244,36 @@ export async function deshacerBaja(fd: FormData) {
   const personaId = String(fd.get("persona") ?? "");
   await anularBaja(personaId);
   redirect(`/rrhh?p=${personaId}&aviso=baja_anulada#ficha`);
+}
+
+// ---------------------------------------------------------------------------
+// El calendario de la empresa y el año laboral (RRHH y direccion)
+// ---------------------------------------------------------------------------
+
+export async function guardarDiaCalendario(fd: FormData) {
+  await gestor();
+  const f = fecha(fd, "fecha");
+  const tipo = texto(fd, "tipo");
+  const anio = f?.slice(0, 4) ?? String(fd.get("anio") ?? "");
+  if (!f || !tipo || !["festivo", "cierre_obligatorio", "turno"].includes(tipo)) redirect(`/rrhh?anio=${anio}&error=dia#calendario`);
+  await guardarDia(f, tipo as TipoDia, texto(fd, "descripcion"));
+  redirect(`/rrhh?anio=${anio}&aviso=dia#calendario`);
+}
+
+export async function borrarDiaCalendario(fd: FormData) {
+  await gestor();
+  await borrarDia(String(fd.get("id") ?? ""));
+  redirect(`/rrhh?anio=${String(fd.get("anio") ?? "")}&aviso=dia_quitado#calendario`);
+}
+
+export async function guardarParametrosAnio(fd: FormData) {
+  await gestor();
+  const anio = Number(fd.get("anio"));
+  const dias = numero(fd, "dias");
+  const jornada = numero(fd, "jornada");
+  if (!anio || dias == null || dias < 0 || (jornada != null && jornada <= 0)) redirect(`/rrhh?anio=${anio}&error=anio#calendario`);
+  await guardarAnio(anio, jornada, dias, texto(fd, "notas"));
+  redirect(`/rrhh?anio=${anio}&aviso=guardado#calendario`);
 }
 
 // ---------------------------------------------------------------------------

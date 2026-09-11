@@ -68,10 +68,145 @@ export const lunesDe = (s: string) => sumarDias(s, -((aFecha(s).getUTCDay() + 6)
 // Calendario de la empresa: festivos, cierres obligatorios y turnos
 // ---------------------------------------------------------------------------
 
-export type DiaCalendario = { fecha: string; tipo: "festivo" | "cierre_obligatorio" | "turno"; descripcion: string | null };
+export type TipoDia = "festivo" | "cierre_obligatorio" | "turno";
+export type DiaCalendario = { id: string; fecha: string; tipo: TipoDia; descripcion: string | null };
+
+export const TIPO_DIA: Record<TipoDia, string> = {
+  festivo: "Festivo",
+  cierre_obligatorio: "Cierre de oficina",
+  turno: "Turno a elegir",
+};
 
 export function calendarioEntre(desde: string, hasta: string): Promise<DiaCalendario[]> {
-  return rest<DiaCalendario[]>(`rrhh_calendario?select=fecha,tipo,descripcion&fecha=gte.${desde}&fecha=lte.${hasta}&order=fecha.asc`);
+  return rest<DiaCalendario[]>(`rrhh_calendario?select=id,fecha,tipo,descripcion&fecha=gte.${desde}&fecha=lte.${hasta}&order=fecha.asc`);
+}
+
+/** Un dia del calendario: si ya habia uno esa fecha, se cambia (un dia, una cosa). */
+export async function guardarDia(fecha: string, tipo: TipoDia, descripcion: string | null) {
+  await rest(`rrhh_calendario?fecha=eq.${fecha}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+  return escribir("rrhh_calendario", "POST", { fecha, tipo, descripcion });
+}
+
+export function borrarDia(id: string) {
+  return rest(`rrhh_calendario?id=eq.${id}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+}
+
+// ---------------------------------------------------------------------------
+// El año laboral: jornada anual del convenio y dias de vacaciones
+// ---------------------------------------------------------------------------
+
+export type ParametrosAnio = { anio: number; jornadaAnual: number | null; diasVacaciones: number; notas: string | null };
+
+export async function parametrosAnio(anio: number): Promise<ParametrosAnio | null> {
+  const [f] = await rest<{ anio: number; jornada_anual_horas: number | null; dias_vacaciones: number; notas: string | null }[]>(
+    `rrhh_anios?select=anio,jornada_anual_horas,dias_vacaciones,notas&anio=eq.${anio}&limit=1`,
+  );
+  return f
+    ? { anio: f.anio, jornadaAnual: f.jornada_anual_horas == null ? null : Number(f.jornada_anual_horas), diasVacaciones: Number(f.dias_vacaciones), notas: f.notas }
+    : null;
+}
+
+export function guardarAnio(anio: number, jornadaAnual: number | null, diasVacaciones: number, notas: string | null) {
+  return escribir(
+    "rrhh_anios?on_conflict=anio",
+    "POST",
+    { anio, jornada_anual_horas: jornadaAnual, dias_vacaciones: diasVacaciones, notas },
+    { Prefer: "return=minimal,resolution=merge-duplicates" },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Horas de un horario. Los horarios se escriben como en el Excel de la casa:
+// "9:00 - 18:00", a veces en dos tramos ("9:00 - 14:00 y 15:00 - 18:00"), y
+// la comida aparte ("1 h", "30 min", "1:30").
+// ---------------------------------------------------------------------------
+
+function minutos(h: string, m?: string) {
+  return Number(h) * 60 + Number(m ?? 0);
+}
+
+/** Horas de un dia escrito a mano. null si no se entiende. */
+export function horasDelDia(texto: string | null, comida: string | null): number | null {
+  if (!texto) return null;
+  const tramos = [...texto.matchAll(/(\d{1,2})(?:[:.h](\d{2}))?h?\s*(?:-|a|–)\s*(\d{1,2})(?:[:.h](\d{2}))?/g)];
+  if (tramos.length === 0) return null;
+  let total = tramos.reduce((s, t) => s + (minutos(t[3], t[4]) - minutos(t[1], t[2])), 0);
+  // La comida solo se descuenta en jornada PARTIDA: un solo tramo que acaba
+  // despues de las 16:00 ("9:00 - 18:00"). Con dos tramos, el hueco ya es la
+  // comida; y un dia que acaba a las 15:00 ("8:00 - 15:00", viernes) es
+  // jornada seguida, sin comida.
+  const fin = minutos(tramos[tramos.length - 1][3], tramos[tramos.length - 1][4]);
+  if (tramos.length === 1 && comida && fin > 16 * 60) {
+    const c = comida.toLowerCase().replace(",", ".");
+    const hm = c.match(/(\d{1,2})[:](\d{2})/);
+    const h = c.match(/(\d+(?:\.\d+)?)\s*h/);
+    const m = c.match(/(\d+)\s*m/);
+    total -= hm ? minutos(hm[1], hm[2]) : h ? Number(h[1]) * 60 + (m ? Number(m[1]) : 0) : m ? Number(m[1]) : 0;
+  }
+  return total > 0 ? Math.round((total / 60) * 100) / 100 : null;
+}
+
+/** Horas de lunes a viernes de un horario (indice 0 = lunes). */
+export function horasPorDia(h: Horario): (number | null)[] {
+  return [h.lunes, h.martes, h.miercoles, h.jueves, h.viernes].map((d) => horasDelDia(d, h.tiempoComida));
+}
+
+export type CalculoAnual = {
+  desde: string; // desde cuando cuenta ese año (1 de enero, o el dia que entro)
+  diasLaborables: number; // de lunes a viernes, sin festivos (los cierres SI cuentan: se pagan con vacaciones)
+  horasBrutas: number; // lo que suman esos dias con su horario
+  diasVacaciones: number;
+  horasVacaciones: number;
+  horasEfectivas: number; // brutas - vacaciones
+  jornada: number | null; // la del convenio, en proporcion si entro a mitad de año
+  diferencia: number | null; // efectivas - jornada: + trabaja de mas, - le faltan horas
+  diasLibres: number | null; // la diferencia en dias de su horario (solo si trabaja de mas)
+};
+
+/**
+ * Horas de verdad de una persona en un año, con su horario y el calendario.
+ * Los festivos no se trabajan; los cierres de oficina si cuentan como dias
+ * laborables, porque se pagan con dias de vacaciones.
+ */
+export function calcularAnio(
+  anio: number,
+  horario: Horario,
+  festivos: Set<string>,
+  params: { jornadaAnual: number | null; diasVacaciones: number },
+  inicio?: string | null,
+): CalculoAnual | null {
+  const porDia = horasPorDia(horario);
+  if (porDia.every((x) => x == null)) return null;
+  const desde = inicio && inicio > `${anio}-01-01` ? inicio : `${anio}-01-01`;
+  const dias = diasEntre(desde, `${anio}-12-31`);
+  let laborables = 0;
+  let brutas = 0;
+  for (const d of dias) {
+    const w = (aFecha(d).getUTCDay() + 6) % 7; // 0 = lunes
+    if (w > 4 || festivos.has(d)) continue;
+    const h = porDia[w];
+    if (h == null) continue;
+    laborables++;
+    brutas += h;
+  }
+  const fraccion = dias.length / diasEntre(`${anio}-01-01`, `${anio}-12-31`).length;
+  const media = laborables ? brutas / laborables : 0;
+  const diasVac = Math.round(params.diasVacaciones * fraccion * 2) / 2;
+  const horasVac = diasVac * media;
+  const efectivas = brutas - horasVac;
+  const jornada = params.jornadaAnual != null ? Math.round(params.jornadaAnual * fraccion * 10) / 10 : null;
+  const diferencia = jornada != null ? Math.round((efectivas - jornada) * 10) / 10 : null;
+  return {
+    desde,
+    diasLaborables: laborables,
+    horasBrutas: Math.round(brutas * 10) / 10,
+    diasVacaciones: diasVac,
+    horasVacaciones: Math.round(horasVac * 10) / 10,
+    horasEfectivas: Math.round(efectivas * 10) / 10,
+    jornada,
+    diferencia,
+    diasLibres: diferencia != null && diferencia > 0 && media > 0 ? Math.round((diferencia / media) * 2) / 2 : null,
+  };
 }
 
 /** Dias que no se trabajan para nadie: festivos y cierres. Un turno no cuenta: es a elegir. */
@@ -513,6 +648,33 @@ type FilaHorario = {
   desde: string;
   hasta: string | null;
 };
+
+/** El horario vigente hoy de varias personas. */
+export async function horariosVigentes(ids: string[], hoy: string): Promise<Map<string, Horario>> {
+  if (ids.length === 0) return new Map();
+  const filas = await rest<FilaHorario[]>(
+    `rrhh_horarios?select=id,persona_id,tipo_jornada,lunes,martes,miercoles,jueves,viernes,tiempo_comida,horas_semana,desde,hasta` +
+      `&persona_id=in.(${ids.join(",")})&order=desde.desc`,
+  );
+  const out = new Map<string, Horario>();
+  for (const f of filas) {
+    if (out.has(f.persona_id) || !vigenteEn(f, hoy)) continue;
+    out.set(f.persona_id, {
+      id: f.id,
+      tipoJornada: f.tipo_jornada,
+      lunes: f.lunes,
+      martes: f.martes,
+      miercoles: f.miercoles,
+      jueves: f.jueves,
+      viernes: f.viernes,
+      tiempoComida: f.tiempo_comida,
+      horasSemana: f.horas_semana == null ? null : Number(f.horas_semana),
+      desde: f.desde,
+      hasta: f.hasta,
+    });
+  }
+  return out;
+}
 
 export async function horarioVigente(personaId: string, hoy: string): Promise<Horario | null> {
   const filas = await rest<FilaHorario[]>(
