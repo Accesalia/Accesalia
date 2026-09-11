@@ -48,6 +48,8 @@ const ERRORES: Record<string, string> = {
   neto: "El neto no puede ser negativo.",
   baja: "Para dar de baja hacen falta el último día y el motivo.",
   dia: "Para el calendario hacen falta la fecha y qué es.",
+  iban_empresa: "La cuenta de Accesalia no es un IBAN válido: revisa los números.",
+  sufijo: "El sufijo son tres caracteres (casi siempre 000).",
   anio: "Revisa los datos del año: los días de vacaciones son obligatorios y la jornada tiene que ser mayor que cero.",
 };
 const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Madrid" });

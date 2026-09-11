@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { quienSoy, puedeEntrar, type Yo } from "../../lib/sesion";
+import { ibanValido } from "../../lib/sepa";
 import {
   anularBaja,
   ausencia,
@@ -9,6 +10,7 @@ import {
   calendarioEntre,
   guardarAnio,
   guardarDia,
+  guardarEmpresa,
   type TipoDia,
   darDeAlta,
   darDeBaja,
@@ -274,6 +276,23 @@ export async function guardarParametrosAnio(fd: FormData) {
   if (!anio || dias == null || dias < 0 || (jornada != null && jornada <= 0)) redirect(`/rrhh?anio=${anio}&error=anio#calendario`);
   await guardarAnio(anio, jornada, dias, texto(fd, "notas"));
   redirect(`/rrhh?anio=${anio}&aviso=guardado#calendario`);
+}
+
+/** Los datos de Accesalia como ordenante de las transferencias. */
+export async function guardarDatosEmpresa(fd: FormData) {
+  await gestor();
+  const iban = texto(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null;
+  const sufijo = (texto(fd, "sufijo") ?? "000").toUpperCase();
+  if (iban && !ibanValido(iban)) redirect("/rrhh?error=iban_empresa#transferencias");
+  if (!/^[0-9A-Z]{3}$/.test(sufijo)) redirect("/rrhh?error=sufijo#transferencias");
+  await guardarEmpresa({
+    razonSocial: texto(fd, "razon_social"),
+    nif: texto(fd, "nif")?.replace(/[\s-]/g, "").toUpperCase() ?? null,
+    sufijo,
+    iban,
+    bic: texto(fd, "bic")?.replace(/\s+/g, "").toUpperCase() ?? null,
+  });
+  redirect("/rrhh?aviso=guardado#transferencias");
 }
 
 // ---------------------------------------------------------------------------

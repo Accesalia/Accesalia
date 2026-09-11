@@ -5,6 +5,7 @@ import {
   calendarioEntre,
   contratosVigentes,
   datosPersonales,
+  empresa,
   funcionesCatalogo,
   funcionesSinSuplente,
   lunesDe,
@@ -17,7 +18,17 @@ import {
   type Ausencia,
   type Persona,
 } from "../../lib/rrhh";
-import { resolverSolicitud } from "./acciones";
+import { guardarDatosEmpresa, resolverSolicitud } from "./acciones";
+import { ibanValido } from "../../lib/sepa";
+
+/** El dia de pago por defecto: hoy, o el lunes si hoy es fin de semana. */
+function proximoLaborable(hoy: string): string {
+  const d = new Date(hoy + "T12:00:00Z");
+  const w = d.getUTCDay();
+  if (w === 6) d.setUTCDate(d.getUTCDate() + 2);
+  if (w === 0) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
 import { DE_EMPRESA, documentosDeEmpresa, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { BotonEnviar } from "../components/Aviso";
 import { AltaEmpleado } from "./AltaEmpleado";
@@ -207,6 +218,13 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
         .map((p) => ({ p, iban: datosM.get(p.id)?.iban ?? null, neto: datosM.get(p.id)?.netoMensual ?? null }))
         .filter((t) => t.iban || t.neto != null);
   const totalNeto = transferencias.reduce((s, t) => s + (t.neto ?? 0), 0);
+
+  // El fichero para el banco: solo las que tienen cuenta valida e importe.
+  const validas = transferencias.filter((t) => ibanValido(t.iban) && t.neto != null && t.neto > 0);
+  const fuera = transferencias.filter((t) => !validas.includes(t));
+  const emp = await empresa();
+  const faltaEmpresa = [!emp.razonSocial && "la razón social", !emp.nif && "el NIF", !ibanValido(emp.iban) && "la cuenta"].filter(Boolean) as string[];
+  const empresaLista = faltaEmpresa.length === 0;
   const mesTransf = delMes ? MESES[Number(delMes.periodo.slice(5, 7)) - 1] + " " + delMes.periodo.slice(0, 4) : null;
 
   return (
@@ -342,7 +360,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
       {/* ---------- transferencias (las hace RRHH) ---------- */}
         <NominasDelMes loteId={loteId} equipo={todos} direccion={direccion} error={error} />
 
-        <section className="mt-10">
+        <section id="transferencias" className="mt-10 scroll-mt-24">
           <Titulo extra={mesTransf ? `Con el líquido de cada nómina de ${mesTransf}` : "Con el neto de un mes normal (aún no hay nóminas publicadas)"}>
             Transferencias de las nóminas{mesTransf ? ` de ${mesTransf}` : ""}
           </Titulo>
@@ -368,6 +386,9 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
                         {iban ? (
                           <span className="inline-flex flex-wrap items-center gap-2">
                             {iban.replace(/(.{4})/g, "$1 ").trim()} <Copiar valor={iban} etiqueta="la cuenta" />
+                            {!ibanValido(iban) && (
+                              <span className="rounded-md bg-[#f6e9e8] px-1.5 py-0.5 text-xs font-semibold text-alerta">no es válida: revísala en su ficha</span>
+                            )}
                           </span>
                         ) : (
                           <span className="rounded-md bg-[#f6e9e8] px-1.5 py-0.5 text-xs font-semibold text-alerta">falta la cuenta</span>
@@ -394,9 +415,86 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
           </div>
           <p className="mt-2 text-sm text-carbon/50">
             {mesTransf
-              ? "Sale de las nóminas publicadas: pagas extra y bajas incluidas. El fichero para CaixaBankNow llegará cuando tengamos la cuenta de Accesalia."
+              ? "Sale de las nóminas publicadas: pagas extra y bajas incluidas."
               : "Cuando publiquéis las nóminas de un mes, el importe saldrá de cada nómina (pagas extra y bajas incluidas)."}
           </p>
+
+          {mesTransf && (
+            <div className="mt-4 grid gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm lg:grid-cols-[1.2fr_1fr]">
+              <div>
+                <h3 className="text-base font-bold text-carbon">Fichero para CaixaBankNow</h3>
+                <p className="mt-1 text-sm text-carbon/60">
+                  Un fichero de transferencias SEPA con todas las nóminas de {mesTransf}, marcadas como nómina y con un solo cargo en la
+                  cuenta de Accesalia. Se sube en CaixaBankNow, en el envío de ficheros de transferencias, y lo firma quien tenga firma.
+                </p>
+                <p className="mt-2 text-sm tabular-nums">
+                  <b>{validas.length}</b> transferencias · <b>{EUR.format(validas.reduce((s, t) => s + (t.neto ?? 0), 0))}</b>
+                  {fuera.length > 0 && (
+                    <span className="text-alerta">
+                      {" "}· se quedan fuera {fuera.length}, sin cuenta válida: {fuera.map((t) => nombreCompleto(t.p)).join(", ")}
+                    </span>
+                  )}
+                </p>
+                {empresaLista ? (
+                  <form action="/rrhh/transferencias" method="get" className="mt-3 flex flex-wrap items-end gap-2">
+                    <label className="grid gap-1 text-xs font-semibold text-carbon/55">
+                      Fecha de pago
+                      <input type="date" name="fecha" required defaultValue={proximoLaborable(hoy)} min={hoy} className="rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-lima" />
+                    </label>
+                    <button
+                      type="submit"
+                      disabled={validas.length === 0}
+                      className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      Descargar el fichero
+                    </button>
+                  </form>
+                ) : (
+                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    Para sacar el fichero faltan datos de Accesalia: {faltaEmpresa.join(", ")}. Se ponen aquí al lado.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-xl bg-hueso p-4">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-carbon/45">Accesalia, quien paga</h4>
+                <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                  <dt className="text-carbon/45">Razón social</dt>
+                  <dd>{emp.razonSocial ?? <span className="text-alerta">falta</span>}</dd>
+                  <dt className="text-carbon/45">NIF</dt>
+                  <dd className="tabular-nums">{emp.nif ? `${emp.nif} · sufijo ${emp.sufijo}` : <span className="text-alerta">falta</span>}</dd>
+                  <dt className="text-carbon/45">Cuenta</dt>
+                  <dd className="tabular-nums">{emp.iban ? emp.iban.replace(/(.{4})/g, "$1 ").trim() : <span className="text-alerta">falta</span>}</dd>
+                  <dt className="text-carbon/45">BIC</dt>
+                  <dd>{emp.bic ?? "—"}</dd>
+                </dl>
+                <details className="group mt-2">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-lima-dark hover:underline [&::-webkit-details-marker]:hidden">Editar</summary>
+                  <form action={guardarDatosEmpresa} className="mt-2 grid gap-2">
+                    {(
+                      [
+                        ["razon_social", "Razón social (como la tiene el banco)", emp.razonSocial],
+                        ["nif", "NIF", emp.nif],
+                        ["sufijo", "Sufijo (casi siempre 000)", emp.sufijo],
+                        ["iban", "Cuenta de las nóminas (IBAN)", emp.iban],
+                        ["bic", "BIC del banco", emp.bic ?? "CAIXESBBXXX"],
+                      ] as const
+                    ).map(([n, l, v]) => (
+                      <label key={n} className="grid gap-1 text-xs font-semibold text-carbon/55">
+                        {l}
+                        <input name={n} defaultValue={v ?? ""} className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-lima" />
+                      </label>
+                    ))}
+                    <div>
+                      <BotonEnviar pendiente="Guardando…" className="rounded-full bg-lima px-4 py-2 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+                        Guardar
+                      </BotonEnviar>
+                    </div>
+                  </form>
+                </details>
+              </div>
+            </div>
+          )}
         </section>
 
       {/* ---------- documentos de toda la plantilla ---------- */}

@@ -116,6 +116,30 @@ export function guardarAnio(anio: number, jornadaAnual: number | null, diasVacac
 }
 
 // ---------------------------------------------------------------------------
+// Accesalia como ordenante de las transferencias (fichero para el banco)
+// ---------------------------------------------------------------------------
+
+export type Empresa = { razonSocial: string | null; nif: string | null; sufijo: string; iban: string | null; bic: string | null };
+
+export async function empresa(): Promise<Empresa> {
+  const [f] = await rest<{ razon_social: string | null; nif: string | null; sufijo: string; iban_nominas: string | null; bic: string | null }[]>(
+    "rrhh_empresa?select=razon_social,nif,sufijo,iban_nominas,bic&id=eq.1&limit=1",
+  );
+  return f
+    ? { razonSocial: f.razon_social, nif: f.nif, sufijo: f.sufijo, iban: f.iban_nominas, bic: f.bic }
+    : { razonSocial: null, nif: null, sufijo: "000", iban: null, bic: null };
+}
+
+export function guardarEmpresa(e: Empresa) {
+  return escribir(
+    "rrhh_empresa?on_conflict=id",
+    "POST",
+    { id: 1, razon_social: e.razonSocial, nif: e.nif, sufijo: e.sufijo, iban_nominas: e.iban, bic: e.bic },
+    { Prefer: "return=minimal,resolution=merge-duplicates" },
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Horas de un horario. Los horarios se escriben como en el Excel de la casa:
 // "9:00 - 18:00", a veces en dos tramos ("9:00 - 14:00 y 15:00 - 18:00"), y
 // la comida aparte ("1 h", "30 min", "1:30").
