@@ -26,10 +26,15 @@ type Fila = {
       clave: string;
       nombre: string;
       ve_todo: boolean;
-      funcion_areas: { nivel: "ver" | "trabajar"; areas: { clave: string; nombre: string } | null }[];
+      funcion_areas: { nivel: Nivel; areas: { clave: string; nombre: string } | null }[];
     } | null;
   }[];
 };
+
+// Niveles en un area, de menos a mas: ver (solo mira), trabajar (trabaja en lo
+// suyo), supervisar (ve todo lo del area, p. ej. todas las carteras comerciales).
+export type Nivel = "ver" | "trabajar" | "supervisar";
+const PESO: Record<Nivel, number> = { ver: 1, trabajar: 2, supervisar: 3 };
 
 export type Yo = {
   id: string;
@@ -38,7 +43,7 @@ export type Yo = {
   email: string;
   funciones: { clave: string; nombre: string }[];
   veTodo: boolean;
-  areas: Record<string, "ver" | "trabajar">;
+  areas: Record<string, Nivel>;
 };
 
 /** La persona del equipo con ese correo, si esta activa. Si no, null: no entra. */
@@ -64,10 +69,13 @@ export async function personaPorCorreo(email: string): Promise<Yo | null> {
     .filter((x): x is NonNullable<typeof x> => !!x);
 
   // Si dos funciones abren la misma area, gana el nivel mas alto.
-  const areas: Record<string, "ver" | "trabajar"> = {};
+  const areas: Record<string, Nivel> = {};
   for (const fn of vigentes)
-    for (const fa of fn.funcion_areas)
-      if (fa.areas && areas[fa.areas.clave] !== "trabajar") areas[fa.areas.clave] = fa.nivel;
+    for (const fa of fn.funcion_areas) {
+      if (!fa.areas) continue;
+      const actual = areas[fa.areas.clave];
+      if (!actual || PESO[fa.nivel] > PESO[actual]) areas[fa.areas.clave] = fa.nivel;
+    }
 
   return {
     id: f.id,
@@ -100,9 +108,9 @@ export async function comercialDe(personaId: string): Promise<{ id: string; nomb
   return c ?? null;
 }
 
-/** ¿Puede entrar en esta area? Direccion, siempre. */
-export function puedeEntrar(yo: Yo, area: string, nivel: "ver" | "trabajar" = "ver"): boolean {
+/** ¿Llega a este nivel en esta area? Direccion, siempre. */
+export function puedeEntrar(yo: Yo, area: string, nivel: Nivel = "ver"): boolean {
   if (yo.veTodo) return true;
   const tiene = yo.areas[area];
-  return tiene === "trabajar" || (tiene === "ver" && nivel === "ver");
+  return !!tiene && PESO[tiene] >= PESO[nivel];
 }

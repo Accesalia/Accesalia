@@ -22,8 +22,9 @@ export const dynamic = "force-dynamic";
 // archivado y sale como "Próximamente".
 //
 // QUIEN VE QUE, por funcion:
-//   - direccion (Daniel, Monica): todas las carteras, con el selector, y la
-//     demostracion del comercial fantasma;
+//   - direccion (Daniel, Monica) y la funcion "Supervision comercial" (hoy
+//     Alejandra, que revisa y firma las hojas de encargo): todas las carteras,
+//     con el selector, y la demostracion del comercial fantasma;
 //   - un comercial (funcion comercial y su ficha en la lista de comerciales):
 //     SU cartera y nada mas, sin selector;
 //   - el resto no entra en el area.
@@ -45,7 +46,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   if (!yo) redirect("/entrar?volver=/comercial");
 
   const comerciales = await listarComerciales();
-  const direccion = yo.veTodo;
+  // Ven TODAS las carteras, con el selector: direccion y quien supervisa el
+  // area (hoy Alejandra: revisa y firma las hojas antes de que salgan).
+  const direccion = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar");
   const mio = await comercialDe(yo.id);
 
   // Un comercial ve lo suyo, diga lo que diga la direccion de la pagina.
@@ -119,7 +122,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
 
         {direccion && (
           <p className="mt-3 text-sm text-carbon/50">
-            Este selector solo lo veis dirección. Cada comercial entra y ve su cartera, sin él.
+            Este selector solo lo veis dirección y supervisión comercial. Cada comercial entra y ve su cartera, sin él.
           </p>
         )}
         {esDemo && (
