@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { datosPersonales, nombreCompleto, type Persona } from "../../lib/rrhh";
 import { lote, lotesRecientes, type Nomina } from "../../lib/rrhhNominas";
+import { BotonEnviar } from "../components/Aviso";
 import { descartar, guardarLote } from "./accionesNominas";
 import { EUR, Titulo } from "./Piezas";
 import { SubirLote } from "./SubirLote";
@@ -132,12 +133,22 @@ async function Revision({ id, equipo, direccion, error }: { id: string; equipo: 
 
         {abierto && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button type="submit" name="decision" value="publicar" className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+            <BotonEnviar
+              name="decision"
+              value="publicar"
+              pendiente="Publicando… (separando y guardando cada nómina)"
+              className="rounded-full bg-lima px-5 py-2.5 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white"
+            >
               Publicar las nóminas
-            </button>
-            <button type="submit" name="decision" value="guardar" className="rounded-full border border-black/15 bg-white px-4 py-2.5 text-sm font-semibold text-carbon/70 hover:border-lima">
+            </BotonEnviar>
+            <BotonEnviar
+              name="decision"
+              value="guardar"
+              pendiente="Guardando…"
+              className="rounded-full border border-black/15 bg-white px-4 py-2.5 text-sm font-semibold text-carbon/70 hover:border-lima"
+            >
               Guardar sin publicar
-            </button>
+            </BotonEnviar>
             <span className="text-sm text-carbon/50">
               {pendientes > 0
                 ? `Revisa las ${pendientes} marcadas en ámbar o rojo: al publicar, las propuestas que dejes como están se dan por buenas.`

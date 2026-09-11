@@ -159,16 +159,27 @@ export async function registrarAusencia(fd: FormData) {
 // Alta y baja
 // ---------------------------------------------------------------------------
 
-export async function altaEmpleado(fd: FormData) {
-  await gestor();
+/**
+ * Alta completa, todo en un sitio (Monica, 11-sep-2026: "si se hace todo en un
+ * solo sitio, marea menos"): la persona, sus funciones, datos personales,
+ * contrato, horario, dias del año y, si lo da de alta direccion, el bruto.
+ * Los documentos los sube despues el navegador, ya con la persona creada.
+ * Devuelve el id (lo llama el formulario desde el navegador).
+ */
+export async function altaEmpleado(fd: FormData): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const y = await gestor();
+  const hoy = hoyMadrid();
   const nombre = texto(fd, "nombre");
   const desde = fecha(fd, "desde");
   const email = texto(fd, "email")?.toLowerCase() ?? null;
-  if (!nombre) redirect("/rrhh?alta=1&error=nombre#alta");
-  if (!desde) redirect("/rrhh?alta=1&error=fechas#alta");
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) redirect("/rrhh?alta=1&error=correo#alta");
+  if (!nombre) return { ok: false, error: "Falta el nombre." };
+  if (!desde) return { ok: false, error: "Falta el primer día." };
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "Ese correo no parece bien escrito." };
+  const iban = texto(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null;
+  if (iban && !/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(iban)) return { ok: false, error: "La cuenta no parece un IBAN: empieza por ES y lleva 22 números más." };
 
   const tipo = texto(fd, "tipo");
+  const categoria = texto(fd, "categoria");
   const horas = numero(fd, "horas");
   let id: string;
   try {
@@ -178,15 +189,39 @@ export async function altaEmpleado(fd: FormData) {
       email,
       desde,
       funciones: fd.getAll("funciones").map(String).filter(Boolean),
-      contrato: tipo || horas != null ? { tipo, horasSemana: horas } : null,
+      contrato: tipo || categoria || horas != null ? { tipo, categoria, horasSemana: horas } : null,
       diasAnio: numero(fd, "dias"),
     });
   } catch (e) {
     // El unico choque posible es el correo: cada uno es de una sola persona.
-    if (String(e).includes("uq_equipo_email")) redirect("/rrhh?alta=1&error=correo_repetido#alta");
+    if (String(e).includes("uq_equipo_email")) return { ok: false, error: "Ese correo ya es de otra persona del equipo." };
     throw e;
   }
-  redirect(`/rrhh?p=${id}&aviso=alta#ficha`);
+
+  const datos = {
+    dni: texto(fd, "dni")?.replace(/[\s-]/g, "").toUpperCase() ?? null,
+    direccion: texto(fd, "direccion"),
+    iban,
+    netoMensual: numero(fd, "neto"),
+    notas: null,
+  };
+  if (datos.dni || datos.direccion || datos.iban || datos.netoMensual != null) await guardarDatosPersonales(id, datos);
+
+  const dias = ["lunes", "martes", "miercoles", "jueves", "viernes"] as const;
+  const h = Object.fromEntries(dias.map((d) => [d, texto(fd, d)])) as Record<(typeof dias)[number], string | null>;
+  if (dias.some((d) => h[d]) || texto(fd, "tipo_jornada")) {
+    await guardarHorario(id, null, {
+      tipoJornada: texto(fd, "tipo_jornada"),
+      ...h,
+      tiempoComida: texto(fd, "comida"),
+      horasSemana: numero(fd, "horas_horario"),
+      desde,
+    });
+  }
+
+  const bruto = numero(fd, "bruto");
+  if (y.veTodo && bruto != null && bruto >= 0) await guardarSalario(id, bruto, desde, hoy);
+  return { ok: true, id };
 }
 
 export async function bajaEmpleado(fd: FormData) {

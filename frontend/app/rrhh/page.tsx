@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Aviso } from "../components/Aviso";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { quienSoy, puedeEntrar } from "../../lib/sesion";
 import { hoyMadrid } from "../../lib/rrhh";
@@ -26,7 +27,8 @@ const AVISOS: Record<string, string> = {
   ya_resuelta: "Esa solicitud ya estaba resuelta.",
   guardado: "Guardado.",
   registrada: "Ausencia apuntada.",
-  alta: "Alta hecha. Completa aquí su ficha: DNI, cuenta, horario…",
+  alta: "Alta hecha. Esta es su ficha.",
+  alta_sin_docs: "Alta hecha, pero algún documento no se ha subido. Súbelo aquí, en su ficha.",
   baja: "Baja registrada.",
   baja_anulada: "Baja deshecha: vuelve a estar en activo. Revisa sus funciones y su contrato en la ficha.",
   descartado: "PDF descartado.",
@@ -44,13 +46,6 @@ const ERRORES: Record<string, string> = {
   neto: "El neto no puede ser negativo.",
   baja: "Para dar de baja hacen falta el último día y el motivo.",
 };
-const ERRORES_ALTA: Record<string, string> = {
-  nombre: "Falta el nombre.",
-  fechas: "Falta el primer día.",
-  correo: "Ese correo no parece bien escrito.",
-  correo_repetido: "Ese correo ya es de otra persona del equipo.",
-};
-
 const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Madrid" });
 
 export default async function Rrhh({
@@ -74,8 +69,7 @@ export default async function Rrhh({
         ? AVISOS[sp.aviso]
         : null;
   const enAlta = sp.alta === "1";
-  const error = sp.error && !enAlta && !["cubre", "motivo"].includes(sp.error) ? ERRORES[sp.error] : null;
-  const errorAlta = enAlta && sp.error ? ERRORES_ALTA[sp.error] ?? null : null;
+  const error = sp.error && !["cubre", "motivo", "repetida"].includes(sp.error) ? ERRORES[sp.error] : null;
   const pill = (activo: boolean) =>
     "rounded-full px-4 py-2 text-sm transition " + (activo ? "bg-lima font-bold text-carbon" : "text-carbon/60 hover:text-carbon");
 
@@ -102,8 +96,8 @@ export default async function Rrhh({
           )}
         </div>
 
-        {aviso && <p className="mt-4 rounded-xl bg-lima-soft px-4 py-3 text-base text-lima-dark">{aviso}</p>}
-        {error && <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-base text-amber-900">{error}</p>}
+        {aviso && <Aviso key={sp.aviso + (sp.n ?? "")} texto={aviso} />}
+        {error && <Aviso key={sp.error} texto={error} tono="mal" />}
 
         {enGestion ? (
           <Gestion
@@ -114,7 +108,6 @@ export default async function Rrhh({
             sId={sp.s ?? null}
             error={sp.error ?? null}
             alta={enAlta}
-            errorAlta={errorAlta}
             loteId={sp.lote ?? null}
           />
         ) : (

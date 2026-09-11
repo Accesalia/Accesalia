@@ -156,7 +156,7 @@ export async function darDeAlta(a: {
   email: string | null;
   desde: string;
   funciones: string[];
-  contrato: { tipo: string | null; horasSemana: number | null } | null;
+  contrato: { tipo: string | null; categoria?: string | null; horasSemana: number | null } | null;
   diasAnio: number | null;
 }): Promise<string> {
   const [p] = await rest<{ id: string }[]>("equipo?select=id", {
@@ -167,7 +167,13 @@ export async function darDeAlta(a: {
   if (a.funciones.length > 0)
     await escribir("equipo_funciones", "POST", a.funciones.map((f) => ({ equipo_id: p.id, funcion_id: f, desde: a.desde })));
   if (a.contrato)
-    await escribir("rrhh_contratos", "POST", { persona_id: p.id, tipo: a.contrato.tipo, horas_semana: a.contrato.horasSemana, desde: a.desde });
+    await escribir("rrhh_contratos", "POST", {
+      persona_id: p.id,
+      tipo: a.contrato.tipo,
+      categoria: a.contrato.categoria ?? null,
+      horas_semana: a.contrato.horasSemana,
+      desde: a.desde,
+    });
   if (a.diasAnio != null) await guardarSaldo(p.id, Number(a.desde.slice(0, 4)), a.diasAnio, 0);
   return p.id;
 }

@@ -19,6 +19,7 @@ import {
 } from "../../lib/rrhh";
 import { resolverSolicitud } from "./acciones";
 import { DE_EMPRESA, documentosDeEmpresa, TIPO_DOC } from "../../lib/rrhhDocumentos";
+import { BotonEnviar } from "../components/Aviso";
 import { AltaEmpleado } from "./AltaEmpleado";
 import { Copiar } from "./Copiar";
 import { ListaDocumentos } from "./Documentos";
@@ -98,9 +99,14 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
             ))}
             {error === "cubre" && <p className="text-sm font-semibold text-alerta">Falta decir quién cubre.</p>}
             <div className="flex flex-wrap gap-2">
-              <button type="submit" name="decision" value="aprobar" className="rounded-full bg-lima px-4 py-2 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">
+              <BotonEnviar
+                name="decision"
+                value="aprobar"
+                pendiente="Aprobando…"
+                className="rounded-full bg-lima px-4 py-2 text-sm font-semibold text-carbon transition hover:bg-lima-dark hover:text-white"
+              >
                 Aprobar
-              </button>
+              </BotonEnviar>
             </div>
           </form>
           <details className="group" open={error === "motivo"}>
@@ -113,9 +119,12 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
               <input name="motivo" required placeholder="El motivo: se lo verá quien la pidió" className={campo} />
               {error === "motivo" && <p className="text-sm font-semibold text-alerta">Pon el motivo para rechazarla.</p>}
               <div>
-                <button type="submit" className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold text-carbon transition hover:border-alerta hover:text-alerta">
+                <BotonEnviar
+                  pendiente="Rechazando…"
+                  className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold text-carbon transition hover:border-alerta hover:text-alerta"
+                >
                   Rechazar
-                </button>
+                </BotonEnviar>
               </div>
             </form>
           </details>
@@ -125,7 +134,7 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
   );
 }
 
-export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, errorAlta, loteId }: {
+export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteId }: {
   yo: Yo;
   hoy: string;
   verEx: boolean;
@@ -133,7 +142,6 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
   sId: string | null;
   error: string | null;
   alta: boolean;
-  errorAlta: string | null;
   loteId: string | null;
 }) {
   const anio = Number(hoy.slice(0, 4));
@@ -252,7 +260,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
         >
           Empleados
         </Titulo>
-        {alta && <AltaEmpleado hoy={hoy} funciones={catalogo} error={errorAlta} />}
+        {alta && <AltaEmpleado hoy={hoy} funciones={catalogo} direccion={direccion} />}
         <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
           <table className="w-full min-w-[720px] text-sm">
             <thead>

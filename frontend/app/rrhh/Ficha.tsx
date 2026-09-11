@@ -12,6 +12,7 @@ import {
   type Persona,
 } from "../../lib/rrhh";
 import { documentosDe, PERSONALES, TIPO_DOC } from "../../lib/rrhhDocumentos";
+import { BotonEnviar } from "../components/Aviso";
 import { bajaEmpleado, deshacerBaja, guardarFicha, registrarAusencia } from "./acciones";
 import { ListaDocumentos, mesAnterior } from "./Documentos";
 import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, tramo } from "./Piezas";
@@ -67,7 +68,7 @@ function Form({ persona, parte, children }: { persona: string; parte: string; ch
       <input type="hidden" name="parte" value={parte} />
       {children}
       <div>
-        <button type="submit" className={boton}>Guardar</button>
+        <BotonEnviar pendiente="Guardando…" className={boton}>Guardar</BotonEnviar>
       </div>
     </form>
   );
@@ -338,7 +339,7 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               </div>
               <Campo label="Notas (solo las ven RRHH y dirección)"><input name="notas" className={campo} /></Campo>
               <p className="text-xs text-carbon/50">Entra ya aprobada. Quien asigna trabajo verá que no está, pero no el motivo.</p>
-              <div><button type="submit" className={boton}>Apuntar</button></div>
+              <div><BotonEnviar pendiente="Apuntando…" className={boton}>Apuntar</BotonEnviar></div>
             </form>
           </details>
         </div>
@@ -387,9 +388,12 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               después. Al día siguiente deja de poder entrar en la app y pasa a ex-empleados. Su ficha y su historia se conservan.
             </p>
             <div>
-              <button type="submit" className="rounded-full border border-alerta/40 bg-white px-4 py-2 text-sm font-semibold text-alerta transition hover:bg-alerta hover:text-white">
+              <BotonEnviar
+                pendiente="Dando de baja…"
+                className="rounded-full border border-alerta/40 bg-white px-4 py-2 text-sm font-semibold text-alerta transition hover:bg-alerta hover:text-white"
+              >
                 Dar de baja
-              </button>
+              </BotonEnviar>
             </div>
           </form>
         </details>
