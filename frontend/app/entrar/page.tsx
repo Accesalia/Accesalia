@@ -27,6 +27,9 @@ export default async function Entrar({
   if (await quienSoy()) redirect(volver.startsWith("/") && !volver.startsWith("//") ? volver : "/menu");
 
   const aviso = error ? AVISOS[error] : null;
+  // Google solo se ofrece cuando esta configurado de verdad. Sin credenciales,
+  // el boton llevaba a una pagina de error de Supabase: un callejon sin salida.
+  const conGoogle = process.env.LOGIN_GOOGLE === "1";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-carbon px-4 py-10">
@@ -68,22 +71,32 @@ export default async function Entrar({
               {/* ---- Equipo: Google ---- */}
               <section className="mt-6">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/55">Equipo de Accesalia</h2>
-                <form action={entrarConGoogle} className="mt-2.5">
-                  <input type="hidden" name="volver" value={volver} />
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-black/15 bg-white px-4 py-3 text-base font-semibold text-carbon shadow-sm transition hover:border-lima hover:shadow-md"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden>
-                      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z" />
-                      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
-                      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.2-.1-2.3-.4-3.5z" />
-                    </svg>
-                    Entrar con Google
-                  </button>
-                </form>
-                <p className="mt-2 text-sm text-carbon/55">Con tu correo de Accesalia, el que acaba en .accesalia@gmail.com.</p>
+                {conGoogle ? (
+                  <form action={entrarConGoogle} className="mt-2.5">
+                    <input type="hidden" name="volver" value={volver} />
+                    <button
+                      type="submit"
+                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-black/15 bg-white px-4 py-3 text-base font-semibold text-carbon shadow-sm transition hover:border-lima hover:shadow-md"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden>
+                        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z" />
+                        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.2-.1-2.3-.4-3.5z" />
+                      </svg>
+                      Entrar con Google
+                    </button>
+                  </form>
+                ) : (
+                  <div className="mt-2.5 flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-dashed border-black/15 bg-hueso px-4 py-3 text-base font-semibold text-carbon/40">
+                    Entrar con Google · aún no está activado
+                  </div>
+                )}
+                <p className="mt-2 text-sm text-carbon/55">
+                  {conGoogle
+                    ? "Con tu correo de Accesalia, el que acaba en .accesalia@gmail.com."
+                    : "Mientras tanto, entra con el enlace al correo: escribe tu correo de Accesalia aquí debajo."}
+                </p>
               </section>
 
               <div className="my-6 flex items-center gap-3 text-sm text-carbon/40">

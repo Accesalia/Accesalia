@@ -26,6 +26,7 @@ const destinoSeguro = (v: FormDataEntryValue | null) => {
 
 export async function entrarConGoogle(fd: FormData) {
   const volver = destinoSeguro(fd.get("volver"));
+  if (process.env.LOGIN_GOOGLE !== "1") redirect(`/entrar?error=google&volver=${encodeURIComponent(volver)}`);
   const supabase = await clienteSesion();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
