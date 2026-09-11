@@ -92,7 +92,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {/* ---------------- accesos ---------------- */}
         <div className="mt-5 flex flex-wrap gap-2">
           <Link
-            href="/administraciones"
+            href={`/administraciones${sufijo}`}
             className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-lima hover:text-carbon"
           >
             🗂 Mis administradores

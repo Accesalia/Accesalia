@@ -274,8 +274,10 @@ function puestoTitular(empresaId: string) {
   );
 }
 
-/** Cartera: todas las administraciones con comercial dueno y nº de personas. */
-export async function listarCartera(): Promise<AdministracionCartera[]> {
+/** Cartera: las administraciones con comercial dueno y nº de personas. Con
+ *  comercialId, solo las suyas ("Mis administradores" del area comercial). */
+export async function listarCartera(comercialId?: string): Promise<AdministracionCartera[]> {
+  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   const filas = await rest<(EmpresaFila & {
     comercial: { nombre: string; apellidos: string | null } | null;
     personas: { count: number }[];
@@ -286,7 +288,7 @@ export async function listarCartera(): Promise<AdministracionCartera[]> {
       "personas:puesto(count)," +
       // Las comunidades que lleva hoy: es la cifra que dice de un vistazo si una
       // administracion es grande o testimonial, y la que Monica quiso en el listado.
-      "comunidades:comunidad_admin_responsable(count)&order=nombre_accesalia.asc",
+      `comunidades:comunidad_admin_responsable(count)${f}&order=nombre_accesalia.asc`,
   );
   return filas.map((f) => ({
     ...comoAdministracion(f),
