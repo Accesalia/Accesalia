@@ -21,6 +21,16 @@ export async function GET(req: NextRequest) {
   const volver = url.searchParams.get("volver") ?? "/menu";
   const destino = volver.startsWith("/") && !volver.startsWith("//") ? volver : "/menu";
 
+  // Google o Supabase pueden volver con un error en vez de un codigo: si ha
+  // cancelado en Google, o si el correo no es del equipo (lo corta el gancho
+  // hook_solo_equipo). Se dice lo que ha pasado, no "el enlace ha caducado".
+  const errorVuelta = url.searchParams.get("error");
+  if (errorVuelta) {
+    const motivo = (url.searchParams.get("error_description") ?? "").toLowerCase();
+    const aviso = motivo.includes("acceso") ? "sin_acceso" : "google";
+    return NextResponse.redirect(new URL(`/entrar?error=${aviso}`, origen));
+  }
+
   const supabase = await clienteSesion();
   const codigo = url.searchParams.get("code");
   const tokenHash = url.searchParams.get("token_hash");
