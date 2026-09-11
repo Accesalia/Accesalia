@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../lib/sesion";
+import { loginConfigurado } from "../../lib/auth/servidor";
 import { entrarConGoogle, enviarEnlace } from "./acciones";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,22 @@ export default async function Entrar({
 }) {
   const { volver = "/menu", error, enviado, salido } = await searchParams;
   if (await quienSoy()) redirect(volver.startsWith("/") && !volver.startsWith("//") ? volver : "/menu");
+
+  // Mientras el login no este configurado (produccion, de momento), la puerta
+  // lo dice y devuelve a la app, que sigue abierta como siempre.
+  if (!loginConfigurado()) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-carbon px-4 py-10">
+        <div className="w-full max-w-md rounded-2xl border-t-4 border-lima bg-white p-8 text-base leading-relaxed text-carbon/80 shadow-xl">
+          <h1 className="text-2xl font-bold text-carbon">Entrar</h1>
+          <p className="mt-4">El inicio de sesión todavía no está activado. Mientras tanto, la app está abierta.</p>
+          <a href="/menu" className="mt-5 inline-block rounded-xl bg-lima px-5 py-2.5 font-semibold text-carbon hover:bg-lima-dark hover:text-white">
+            Ir al menú
+          </a>
+        </div>
+      </main>
+    );
+  }
 
   const aviso = error ? AVISOS[error] : null;
   // Google solo se ofrece cuando esta configurado de verdad. Sin credenciales,

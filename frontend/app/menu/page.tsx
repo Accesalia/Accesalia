@@ -19,7 +19,7 @@ type Estado = "al_dia" | "sin_ver" | "por_hacer";
 
 const AREAS: { nombre: string; desc: string; href: string; icono: string; estado: Estado }[] = [
   { nombre: "Administración", desc: "Los maestros: comunidades, administraciones de fincas, contratas, organismos y equipo", href: "/administrativo", icono: "⌂", estado: "al_dia" },
-  { nombre: "Área comercial", desc: "Hub del comercial: alta de leads, grabar contactos por voz, cartera y proyectos", href: "/comercial", icono: "◇", estado: "sin_ver" },
+  { nombre: "Área comercial", desc: "Cuadro de mando del comercial: agenda, diario, oportunidades pendientes de firma, cartera y mapa", href: "/comercial", icono: "◇", estado: "al_dia" },
   { nombre: "Expediente virtual", desc: "Tablero 360 de una comunidad: todas las áreas de un vistazo", href: "/expediente", icono: "◉", estado: "sin_ver" },
   { nombre: "Proyecto técnico", desc: "Producción del proyecto: escaneo, nube, estado actual, solución, revisión", href: "/proyecto", icono: "▤", estado: "sin_ver" },
   { nombre: "Catálogo 3D", desc: "Soluciones genéricas de venta: vídeo, renders y plano acotado de cada tipo", href: "/catalogo", icono: "◼", estado: "sin_ver" },
@@ -30,6 +30,8 @@ const AREAS: { nombre: string; desc: string; href: string; icono: string; estado
   { nombre: "Facturación", desc: "Libro de Accesalia: hitos de cobro, facturas, cobros y pendientes", href: "/facturacion", icono: "€", estado: "sin_ver" },
   { nombre: "Subvenciones", desc: "Convocatorias, requisitos y documentación", href: "/", icono: "★", estado: "sin_ver" },
   { nombre: "CAES", desc: "Certificados de ahorro energético", href: "#", icono: "⛑", estado: "por_hacer" },
+  { nombre: "RRHH", desc: "Empleados, vacaciones, nóminas y documentos. La estructura ya está; falta la pantalla", href: "#", icono: "☺", estado: "por_hacer" },
+  { nombre: "Dirección", desc: "Estadísticas, KPIs y Sali: «¿cómo voy este mes?»", href: "#", icono: "◈", estado: "por_hacer" },
 ];
 
 const SELLO: Record<Estado, { texto: string; clase: string }> = {

@@ -16,7 +16,7 @@ type Estado = "al_dia" | "sin_ver" | "por_hacer";
 
 const TAREAS: { nombre: string; desc: string; href: string; icono: string; estado: Estado }[] = [
   { nombre: "Administraciones de fincas", desc: "Las empresas que administran las comunidades, su gente y lo pactado con ellas", href: "/administraciones", icono: "◇", estado: "al_dia" },
-  { nombre: "Contratas", desc: "Empresas que hacen la obra, su gente y su historia laboral", href: "/contratas", icono: "⬒", estado: "por_hacer" },
+  { nombre: "Contratas", desc: "Empresas que hacen la obra, su gente y su historia laboral", href: "/contratas", icono: "⬒", estado: "al_dia" },
   { nombre: "Organismos", desc: "Ayuntamientos, juntas de distrito, COAM y ECUs", href: "/organismos", icono: "⚖", estado: "por_hacer" },
   { nombre: "Comunidades", desc: "Ver y crear comunidades: la ficha base del edificio", href: "/comunidades", icono: "⌂", estado: "sin_ver" },
   { nombre: "Equipo de Accesalia", desc: "Directorio del personal y las funciones que cubre", href: "/equipo", icono: "❖", estado: "sin_ver" },

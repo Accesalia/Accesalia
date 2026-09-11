@@ -19,7 +19,7 @@ import Link from "next/link";
 //   por_hacer -> todavia no hay pantalla; se entra y se ve que datos hay detras
 const PESTANAS = [
   { clave: "administraciones", texto: "Administraciones de fincas", href: "/administraciones", estado: "al_dia" },
-  { clave: "contratas", texto: "Contratas", href: "/contratas", estado: "por_hacer" },
+  { clave: "contratas", texto: "Contratas", href: "/contratas", estado: "al_dia" },
   { clave: "organismos", texto: "Organismos", href: "/organismos", estado: "por_hacer" },
   { clave: "comunidades", texto: "Comunidades", href: "/comunidades", estado: "sin_ver" },
   { clave: "equipo", texto: "Equipo", href: "/equipo", estado: "sin_ver" },
