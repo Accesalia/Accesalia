@@ -29,6 +29,8 @@ const AVISOS: Record<string, string> = {
   alta: "Alta hecha. Completa aquí su ficha: DNI, cuenta, horario…",
   baja: "Baja registrada.",
   baja_anulada: "Baja deshecha: vuelve a estar en activo. Revisa sus funciones y su contrato en la ficha.",
+  descartado: "PDF descartado.",
+  lote_cerrado: "Esas nóminas ya estaban publicadas o descartadas.",
 };
 const ERRORES: Record<string, string> = {
   tipo: "Elige qué es: vacaciones, permiso o ausencia.",
@@ -54,7 +56,7 @@ const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "nu
 export default async function Rrhh({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string; alta?: string }>;
+  searchParams: Promise<{ vista?: string; ex?: string; p?: string; s?: string; aviso?: string; error?: string; alta?: string; lote?: string; n?: string }>;
 }) {
   const sp = await searchParams;
   const yo = await quienSoy();
@@ -65,7 +67,12 @@ export default async function Rrhh({
   const hoy = hoyMadrid();
   const fecha = FECHA_LARGA.format(new Date());
 
-  const aviso = sp.aviso ? AVISOS[sp.aviso] : null;
+  const aviso =
+    sp.aviso === "publicadas"
+      ? `Nóminas publicadas: ${sp.n ?? "todas"}. Cada uno tiene ya la suya en su espacio.`
+      : sp.aviso
+        ? AVISOS[sp.aviso]
+        : null;
   const enAlta = sp.alta === "1";
   const error = sp.error && !enAlta && !["cubre", "motivo"].includes(sp.error) ? ERRORES[sp.error] : null;
   const errorAlta = enAlta && sp.error ? ERRORES_ALTA[sp.error] ?? null : null;
@@ -108,6 +115,7 @@ export default async function Rrhh({
             error={sp.error ?? null}
             alta={enAlta}
             errorAlta={errorAlta}
+            loteId={sp.lote ?? null}
           />
         ) : (
           <MiEspacio yo={yo} hoy={hoy} gestor={gestor} />

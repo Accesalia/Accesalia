@@ -22,7 +22,11 @@ import { DE_EMPRESA, documentosDeEmpresa, TIPO_DOC } from "../../lib/rrhhDocumen
 import { AltaEmpleado } from "./AltaEmpleado";
 import { Copiar } from "./Copiar";
 import { ListaDocumentos } from "./Documentos";
+import { NominasDelMes } from "./Nominas";
 import { SubirDocumento } from "./SubirDocumento";
+import { ultimasPublicadas } from "../../lib/rrhhNominas";
+
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 import { Ficha } from "./Ficha";
 import { ChipTipo, Cuenta, diasTxt, EUR, NotaAcceso, Proximamente, QuienEstaFuera, Titulo, tramo } from "./Piezas";
 
@@ -121,7 +125,7 @@ function Solicitud({ a, equipo, yo, quedanAntes, solapes, error }: {
   );
 }
 
-export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, errorAlta }: {
+export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, errorAlta, loteId }: {
   yo: Yo;
   hoy: string;
   verEx: boolean;
@@ -130,11 +134,12 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
   error: string | null;
   alta: boolean;
   errorAlta: string | null;
+  loteId: string | null;
 }) {
   const anio = Number(hoy.slice(0, 4));
   const desde = lunesDe(hoy);
   const hasta = sumarDias(desde, 41);
-  const [activos, antiguos, pendientes, ausencias, cal, catalogo, deEmpresa] = await Promise.all([
+  const [activos, antiguos, pendientes, ausencias, cal, catalogo, deEmpresa, delMes] = await Promise.all([
     personas(true),
     personas(false),
     solicitudesPendientes(),
@@ -142,6 +147,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
     calendarioEntre(desde, hasta),
     alta ? funcionesCatalogo() : Promise.resolve([]),
     documentosDeEmpresa(),
+    ultimasPublicadas(),
   ]);
   const ids = activos.map((p) => p.id);
   const direccion = yo.veTodo;
@@ -178,10 +184,20 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
   const base = verEx ? "/rrhh?ex=1" : "/rrhh";
   const conFicha = (id: string) => `${base}${base.includes("?") ? "&" : "?"}p=${id}#ficha`;
 
-  const transferencias = activos
-    .map((p) => ({ p, iban: datosM.get(p.id)?.iban ?? null, neto: datosM.get(p.id)?.netoMensual ?? null }))
-    .filter((t) => t.iban || t.neto != null);
+  // Transferencias: con el liquido real de las ultimas nominas publicadas; si
+  // aun no hay ninguna, con el neto de un mes normal de cada ficha.
+  const todos = [...activos, ...antiguos];
+  const cuentasMes = delMes ? await datosPersonales(delMes.nominas.map((n) => n.personaId!)) : new Map();
+  const transferencias = delMes
+    ? delMes.nominas
+        .map((n) => ({ p: todos.find((x) => x.id === n.personaId)!, iban: cuentasMes.get(n.personaId!)?.iban ?? null, neto: n.liquido }))
+        .filter((t) => t.p)
+        .sort((a, b) => a.p.nombre.localeCompare(b.p.nombre, "es"))
+    : activos
+        .map((p) => ({ p, iban: datosM.get(p.id)?.iban ?? null, neto: datosM.get(p.id)?.netoMensual ?? null }))
+        .filter((t) => t.iban || t.neto != null);
   const totalNeto = transferencias.reduce((s, t) => s + (t.neto ?? 0), 0);
+  const mesTransf = delMes ? MESES[Number(delMes.periodo.slice(5, 7)) - 1] + " " + delMes.periodo.slice(0, 4) : null;
 
   return (
     <>
@@ -312,8 +328,12 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
       </section>
 
       {/* ---------- transferencias (las hace RRHH) ---------- */}
+        <NominasDelMes loteId={loteId} equipo={todos} direccion={direccion} error={error} />
+
         <section className="mt-10">
-          <Titulo extra="Con el neto de un mes normal">Transferencias de las nóminas</Titulo>
+          <Titulo extra={mesTransf ? `Con el líquido de cada nómina de ${mesTransf}` : "Con el neto de un mes normal (aún no hay nóminas publicadas)"}>
+            Transferencias de las nóminas{mesTransf ? ` de ${mesTransf}` : ""}
+          </Titulo>
           <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
             {transferencias.length === 0 ? (
               <p className="px-5 py-6 text-base text-carbon/50">
@@ -325,7 +345,7 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
                   <tr className="border-b border-black/5 text-left text-[11px] font-bold uppercase tracking-wider text-carbon/40">
                     <th className="px-4 pb-2 pt-3">Persona</th>
                     <th className="px-4 pb-2 pt-3">Cuenta</th>
-                    <th className="px-4 pb-2 pt-3 text-right">Neto</th>
+                    <th className="px-4 pb-2 pt-3 text-right">Importe</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -361,8 +381,9 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
             )}
           </div>
           <p className="mt-2 text-sm text-carbon/50">
-            Cuando lleguen las nóminas a la app, el neto de cada mes saldrá de su propia nómina (pagas extra y bajas incluidas), y
-            se podrá sacar el fichero de transferencias para CaixaBankNow.
+            {mesTransf
+              ? "Sale de las nóminas publicadas: pagas extra y bajas incluidas. El fichero para CaixaBankNow llegará cuando tengamos la cuenta de Accesalia."
+              : "Cuando publiquéis las nóminas de un mes, el importe saldrá de cada nómina (pagas extra y bajas incluidas)."}
           </p>
         </section>
 
@@ -379,10 +400,6 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, error
 
       {/* ---------- lo que llega en las siguientes entregas ---------- */}
       <section className="mt-10 grid gap-3 md:grid-cols-2">
-        <Proximamente
-          titulo="Nóminas del mes, de golpe"
-          texto="Subes el PDF de la gestoría y la app lo reparte a cada uno. Mientras tanto, se puede subir la de cada persona en su ficha."
-        />
         <Proximamente titulo="Calendario de la empresa" texto="Festivos y cierres de cada año, que descuentan solos al pedir días." />
       </section>
     </>

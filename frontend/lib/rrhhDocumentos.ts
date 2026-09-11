@@ -179,7 +179,7 @@ export async function apuntar(d: {
   titulo: string | null;
   ruta: string;
   subidoPor: string;
-}) {
+}): Promise<string> {
   if (d.tipo === "nomina" && d.personaId && d.periodo) {
     const [vieja] = await rest<Fila[]>(
       `rrhh_documentos?select=${SEL}&persona_id=eq.${d.personaId}&tipo=eq.nomina&periodo=eq.${d.periodo}&limit=1`,
@@ -190,11 +190,11 @@ export async function apuntar(d: {
         body: JSON.stringify({ fichero: d.ruta, titulo: d.titulo, subido_por: d.subidoPor }),
         headers: { Prefer: "return=minimal" },
       });
-      await borrarFichero(vieja.fichero);
-      return;
+      if (vieja.fichero !== d.ruta) await borrarFichero(vieja.fichero);
+      return vieja.id;
     }
   }
-  await rest("rrhh_documentos", {
+  const [nuevo] = await rest<{ id: string }[]>("rrhh_documentos?select=id", {
     method: "POST",
     body: JSON.stringify({
       persona_id: d.personaId,
@@ -204,9 +204,44 @@ export async function apuntar(d: {
       fichero: d.ruta,
       subido_por: d.subidoPor,
     }),
-    headers: { Prefer: "return=minimal" },
+    headers: { Prefer: "return=representation" },
   });
+  return nuevo.id;
 }
+
+// ---------------------------------------------------------------------------
+// Para el reparto de nominas: el PDF de la gestoria entra entero en lotes/ y
+// sale troceado, una pagina en la carpeta de cada persona.
+// ---------------------------------------------------------------------------
+
+export const PREFIJO_LOTES = "lotes/";
+
+export async function permisoDeSubidaLote(nombre: string): Promise<{ ruta: string; url: string }> {
+  const ruta = `${PREFIJO_LOTES}${crypto.randomUUID().slice(0, 8)}-${limpio(nombre)}`;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${ALMACEN}/${ruta}`, { method: "POST", headers: cab, cache: "no-store" });
+  if (!r.ok) throw new Error(`Storage ${r.status}: ${await r.text()}`);
+  const { url } = (await r.json()) as { url: string };
+  const publica = process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE;
+  return { ruta, url: `${publica}/storage/v1${url}` };
+}
+
+export async function bajarBytes(ruta: string): Promise<Uint8Array> {
+  const r = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, { headers: cab, cache: "no-store" });
+  if (!r.ok) throw new Error(`Storage ${r.status}: ${await r.text()}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+export async function subirBytes(ruta: string, bytes: Uint8Array, tipo = "application/pdf") {
+  const r = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+    method: "POST",
+    headers: { ...cab, "Content-Type": tipo, "x-upsert": "true" },
+    body: Buffer.from(bytes),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`Storage ${r.status}: ${await r.text()}`);
+}
+
+export { borrarFichero };
 
 export async function borrar(doc: DocRrhh) {
   await rest(`rrhh_documentos?id=eq.${doc.id}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
