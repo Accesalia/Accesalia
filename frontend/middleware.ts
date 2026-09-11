@@ -36,13 +36,40 @@ export async function middleware(req: NextRequest) {
 
   const ruta = req.nextUrl.pathname;
   const esPublico = PUBLICO.some((p) => ruta === p || ruta.startsWith(p));
-  if (process.env.LOGIN_OBLIGATORIO === "1" && !data.user && !esPublico) {
+  if (process.env.LOGIN_OBLIGATORIO !== "1" || esPublico) return res;
+
+  if (!data.user) {
     const a = req.nextUrl.clone();
     a.pathname = "/entrar";
     a.search = ruta === "/" ? "" : `?volver=${encodeURIComponent(ruta + req.nextUrl.search)}`;
     return NextResponse.redirect(a);
   }
+
+  // Tener sesion no basta: el correo tiene que ser de alguien del equipo EN
+  // ACTIVO, y se mira en cada visita. Asi, quien deja la empresa se queda
+  // fuera el mismo dia que se le da de baja, aunque su sesion siga viva.
+  if (!(await esDelEquipo(data.user.email))) {
+    await supabase.auth.signOut();
+    const a = req.nextUrl.clone();
+    a.pathname = "/entrar";
+    a.search = "?error=sin_acceso";
+    const fuera = NextResponse.redirect(a);
+    res.cookies.getAll().forEach((c) => fuera.cookies.set(c));
+    return fuera;
+  }
   return res;
+}
+
+async function esDelEquipo(email: string | undefined): Promise<boolean> {
+  if (!email) return false;
+  const url = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
+  const secreto = process.env.SUPABASE_SECRET_KEY ?? "";
+  const r = await fetch(
+    `${url}/rest/v1/equipo?select=id&activo=is.true&email=ilike.${encodeURIComponent(email.trim())}&limit=1`,
+    { headers: { apikey: secreto, Authorization: `Bearer ${secreto}` }, cache: "no-store" },
+  );
+  if (!r.ok) return false;
+  return ((await r.json()) as unknown[]).length > 0;
 }
 
 export const config = {
