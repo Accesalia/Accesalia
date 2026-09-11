@@ -1,195 +1,170 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { SelectorComunidad } from "../expediente/SelectorComunidad";
-import {
-  listarComerciales,
-  interaccionesRecientes,
-  oportunidadesEnMarcha,
-  catalogoHitos,
-  ultimoContactoComunidades,
-  nombreComercial,
-  ORIGEN_LABEL,
-  TIPO_EVENTO_LABEL,
-} from "../../lib/comercial";
-import { Barra } from "./oportunidades/Barra";
+import { listarComerciales } from "../../lib/comercial";
+import { cuadroComercial } from "../../lib/cuadroComercial";
+import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
+import { Acciones, Agenda, Cartera, Cifras, Diario, Leyenda, TarjetaOportunidad, Titulo } from "./CuadroPiezas";
+import { MapaCartera } from "./MapaCartera";
 
 export const dynamic = "force-dynamic";
 
-function fecha(v: string | null): string {
-  if (!v) return "";
-  const [y, m, d] = v.split("-");
-  return `${d}/${m}/${y.slice(2)}`;
-}
-function eur(n: number | null | undefined): string {
-  return n == null ? "" : `${n.toLocaleString("es-ES")} €`;
-}
+// Cuadro de mando del area comercial. Repasado con Monica el 11-sep-2026 contra
+// la version de julio; de cada una se quedo lo mejor:
+//
+//   - de julio: el buscador del expediente 360 arriba del todo (el comercial no
+//     se desentiende al firmar: es quien apaga los fuegos con la comunidad), los
+//     accesos a sus administradores y a sus proyectos, y las acciones rapidas
+//     encima del diario;
+//   - de la maqueta: el saludo con la fecha, la agenda de hoy y de la semana, el
+//     diario a la derecha, las oportunidades con su barra, "Cómo voy", la
+//     cartera y el mapa.
+//
+// Las oportunidades van a lo ancho, porque la barra de 9 pasos necesita sitio, y
+// se llaman "pendientes de firma": abiertas lo estan hasta el fin de obra, pero
+// lo comercial acaba al firmar.
+//
+// El selector de comercial es para quien supervisa (Daniel, Monica). Cuando un
+// comercial entre con su perfil, vera solo lo suyo y no lo vera. Hoy aun no hay
+// inicio de sesion, asi que se ve siempre.
 
-// Acceso rápido compacto (icono arriba, etiqueta corta) para la fila de 3.
-function Accion({ icono, titulo, href, disponible = true }: { icono: string; titulo: string; href: string; disponible?: boolean }) {
-  const cuerpo = (
-    <div className={`flex h-full flex-col items-center justify-center gap-1 rounded-xl border bg-white p-3 text-center shadow-sm transition ${disponible ? "border-black/5 hover:border-lima hover:shadow-md" : "border-dashed border-black/10 opacity-60"}`}>
-      <span className="text-2xl text-lima-dark">{icono}</span>
-      <div className="text-xs font-semibold leading-tight text-carbon">{titulo}</div>
-    </div>
-  );
-  return disponible ? <Link href={href} className="block h-full">{cuerpo}</Link> : <div className="h-full cursor-not-allowed">{cuerpo}</div>;
-}
-
-// Botón de navegación superior (fondo de armario / otras pantallas).
-function NavBtn({ icono, titulo, href, disponible = true }: { icono: string; titulo: string; href: string; disponible?: boolean }) {
-  const cls = `inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${disponible ? "border-black/10 bg-white text-carbon/75 hover:border-lima hover:text-carbon" : "border-dashed border-black/10 text-carbon/35 cursor-not-allowed"}`;
-  return disponible ? <Link href={href} className={cls}><span>{icono}</span>{titulo}</Link> : <span className={cls}><span>{icono}</span>{titulo}</span>;
-}
+const FECHA_LARGA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" });
 
 export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
   const { c } = await searchParams;
-  const [comerciales, recientes, oportunidades, catalogo] = await Promise.all([
-    listarComerciales(),
-    interaccionesRecientes(c, 5),
-    oportunidadesEnMarcha(c),
-    catalogoHitos(),
-  ]);
+  const comerciales = await listarComerciales();
+  const esDemo = c === ID_FANTASMA;
   const yo = comerciales.find((x) => x.id === c) ?? null;
-  const suf = c ? `?c=${c}` : "";
+  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(yo?.id ?? null);
+  const todos = !yo && !esDemo;
+  const sufijo = yo ? `?c=${yo.id}` : "";
+  const nombre = esDemo ? "Fantasma" : yo?.nombre ?? null;
 
-  // Limitar a 4 en el hub (para que el diario se vea); "ver más" lleva a la lista.
-  const opsView = oportunidades.slice(0, 4);
-  const diarioView = recientes.slice(0, 4);
-  const ultimoCont = await ultimoContactoComunidades(opsView.map((o) => o.comunidad?.id).filter((x): x is string => !!x));
+  const hoy = FECHA_LARGA.format(new Date());
+  const pill = (activo: boolean) =>
+    "rounded-full border px-3.5 py-1.5 text-sm transition " +
+    (activo ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/65 hover:border-lima");
 
   return (
-    <div className="min-h-screen bg-black/[0.02]">
+    <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto max-w-[1100px] px-6 py-8">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+      <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-7 sm:px-6">
+        {/* ---------------- cabecera ---------------- */}
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl font-bold text-carbon sm:text-3xl"><span className="text-lima-dark">◇</span> Área comercial</h1>
-            <p className="mt-1 text-carbon/55">{yo ? <>Hola, <b>{nombreComercial(yo)}</b>. Esto es lo tuyo.</> : "Elige quién eres para ver lo tuyo (provisional, hasta que haya login)."}</p>
+            <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Área comercial</h1>
+            <p className="mt-1.5 text-lg text-carbon/60">
+              {nombre ? <>Hola, <b className="text-carbon">{nombre}</b>. </> : "Todos los comerciales. "}
+              {hoy.charAt(0).toUpperCase() + hoy.slice(1)}.
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5">
-            <Link href="/comercial" className={`rounded-full border px-3 py-1 text-sm ${!c ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/60 hover:border-lima"}`}>Todos</Link>
+          <div className="flex flex-wrap gap-1.5">
+            <Link href="/comercial" className={pill(todos)}>Todos</Link>
             {comerciales.map((m) => (
-              <Link key={m.id} href={`/comercial?c=${m.id}`} className={`rounded-full border px-3 py-1 text-sm ${c === m.id ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/60 hover:border-lima"}`}>{m.nombre}</Link>
+              <Link key={m.id} href={`/comercial?c=${m.id}`} className={pill(yo?.id === m.id)}>{m.nombre}</Link>
             ))}
+            <Link
+              href={`/comercial?c=${ID_FANTASMA}`}
+              className={
+                "rounded-full border border-dashed px-3.5 py-1.5 text-sm transition " +
+                (esDemo ? "border-carbon bg-carbon font-semibold text-white" : "border-carbon/30 text-carbon/55 hover:border-carbon")
+              }
+            >
+              Fantasma · demo
+            </Link>
           </div>
         </div>
 
-        {/* Entrar a una comunidad (buscador → su cockpit comercial) */}
-        <div className="mt-5">
-          <SelectorComunidad hrefBase="/comunidades/" hrefSuffix="/comercial" />
-          <p className="mt-1.5 text-xs text-carbon/45">Entra a una comunidad para ver o crear sus oportunidades.</p>
+        {esDemo && (
+          <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
+            <b>Demostración.</b> Así se verá la pantalla de un comercial con su cartera cargada. Todo lo que ves es
+            inventado, salvo el mapa. No hay nada de esto en la base de datos, y por eso las acciones rápidas y las
+            tarjetas no llevan a ningún sitio.
+          </div>
+        )}
+
+        {/* ---------------- buscador del expediente 360 ---------------- */}
+        <div className="mt-6">
+          <SelectorComunidad hrefBase="/expediente/" />
+          <p className="mt-1.5 text-sm text-carbon/55">Busca una comunidad y abre su expediente completo.</p>
         </div>
 
-        {/* Navegación a lo mío (otras pantallas del área comercial) */}
+        {/* ---------------- accesos ---------------- */}
         <div className="mt-5 flex flex-wrap gap-2">
-          <NavBtn icono="🗂" titulo="Mis administradores" href="/administraciones" />
-          <NavBtn icono="📊" titulo="Mis proyectos contratados" href={`/comercial/proyectos${suf}`} />
+          <Link
+            href="/administraciones"
+            className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-lima hover:text-carbon"
+          >
+            🗂 Mis administradores
+          </Link>
+          <a
+            href="#pendientes"
+            className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-lima hover:text-carbon"
+          >
+            ↓ Pendientes de firma
+            <span className="rounded-full bg-lima-soft px-2 text-sm text-lima-dark">{cuadro.oportunidades.length}</span>
+          </a>
+          <Link
+            href={`/comercial/proyectos${sufijo}`}
+            className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-lima hover:text-carbon"
+          >
+            📊 Mis proyectos contratados
+          </Link>
         </div>
 
-        {/* Tablero: PC = oportunidades (2/3) | acciones+diario (1/3). Móvil = apilado. */}
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* ACCIONES RÁPIDAS — móvil 1º · PC columna derecha, fila 1. Fila de 3. */}
-          <section className="order-1 lg:order-none lg:col-start-3 lg:row-start-1">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-carbon/35">Acciones rápidas</h2>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <Accion icono="🎤" titulo="Grabar entrada" href={`/comercial/contacto${suf}`} />
-              <Accion icono="✎" titulo="Hoja de encargo" href="/expediente" />
-              <Accion icono="▤" titulo="Informe viabilidad" href="#" disponible={false} />
-            </div>
-          </section>
+        {/* ---------------- agenda | acciones + diario ---------------- */}
+        <div className="mt-7 grid items-start gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Agenda tareas={cuadro.agenda} />
+          </div>
+          <div className="flex flex-col gap-6">
+            <Acciones sufijo={sufijo} demo={esDemo} />
+            <Diario entradas={cuadro.diario} verMas={`/comercial/diario${sufijo}`} />
+          </div>
+        </div>
 
-          {/* OPORTUNIDADES EN MARCHA — móvil 2º · PC columna izquierda 2/3, ocupa 2 filas */}
-          <section className="order-2 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:row-span-2">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-carbon/35">Oportunidades en marcha ({oportunidades.length})</h2>
-              <Link href={`/comercial/oportunidades/nueva${suf}`} className="rounded-full bg-lima px-3 py-1 text-xs font-semibold text-carbon transition hover:bg-lima-dark hover:text-white">+ Crear nueva</Link>
-            </div>
-            <div className="mt-3 space-y-2">
-              {opsView.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-black/15 bg-white px-5 py-10 text-center text-sm text-carbon/45">
-                  Nada en marcha aún. <Link href={`/comercial/oportunidades/nueva${suf}`} className="font-semibold text-lima-dark hover:underline">Crea la primera →</Link>
-                </div>
-              ) : (
-                opsView.map((o) => {
-                  const titulo = o.comunidad?.nombre ?? o.comunidad_provisional ?? "Comunidad sin identificar";
-                  const neg = o.negociacion_oportunidad[0] ?? null;
-                  const ultimo = o.comunidad ? ultimoCont[o.comunidad.id] : undefined;
-                  const destino = o.comunidad ? `/comunidades/${o.comunidad.id}/comercial` : "/comercial/oportunidades";
-                  return (
-                    <Link key={o.id} href={destino} className="block rounded-2xl border border-black/5 bg-white p-4 shadow-sm transition hover:border-lima hover:shadow-md">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <div className="truncate font-semibold text-carbon">{titulo}</div>
-                          {o.comunidad?.direccion && <div className="truncate text-xs text-carbon/50">{o.comunidad.direccion}</div>}
-                          <div className="mt-0.5 text-xs">
-                            {o.administrador?.nombre ? <span className="text-lima-dark">{o.administrador.nombre}</span> : <span className="text-carbon/35">sin admin</span>}
-                            {o.comercial?.nombre && !c && <span className="text-carbon/50"> · {o.comercial.nombre}</span>}
-                          </div>
-                        </div>
-                        {neg && (neg.precio != null || neg.que_vendemos) && (
-                          <div className="shrink-0 text-right">
-                            {neg.precio != null && <div className="text-sm font-bold text-lima-dark">{eur(neg.precio)}</div>}
-                            {neg.que_vendemos && <div className="text-[11px] text-carbon/50">{neg.que_vendemos}</div>}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-carbon/45">
-                        <span>1er contacto: <b className="text-carbon/60">{fecha(o.creado_en.slice(0, 10))}</b></span>
-                        <span>últ. contacto: <b className="text-carbon/60">{ultimo ? fecha(ultimo) : "—"}</b></span>
-                        {!o.comunidad && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">sin dar de alta</span>}
-                      </div>
-
-                      <div className="mt-2">
-                        <Barra hitos={o.hitos_oportunidad} catalogo={catalogo} sinEnlaces />
-                      </div>
-                    </Link>
-                  );
-                })
-              )}
-              {oportunidades.length > opsView.length && (
-                <Link href={`/comercial/oportunidades${suf}`} className="block rounded-xl border border-black/10 bg-white px-4 py-2.5 text-center text-sm font-semibold text-lima-dark transition hover:border-lima">
-                  Ver las {oportunidades.length} oportunidades →
-                </Link>
-              )}
-            </div>
-          </section>
-
-          {/* DIARIO — móvil 3º · PC columna derecha, fila 2 */}
-          <section className="order-3 lg:order-none lg:col-start-3 lg:row-start-2">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-carbon/35">Últimos contactos</h2>
-              <Link href={`/comercial/contacto${suf}`} className="text-xs font-semibold text-lima-dark hover:underline">+ Grabar</Link>
-            </div>
-            <div className="mt-3 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-              {diarioView.length === 0 ? (
-                <p className="px-5 py-8 text-center text-sm text-carbon/40">Aún no hay contactos. Empieza dictando uno.</p>
+        {/* ---------------- pendientes de firma, a lo ancho ---------------- */}
+        <section id="pendientes" className="mt-10 scroll-mt-24">
+          <Titulo
+            extra={
+              <Link href={`/comercial/oportunidades${sufijo}`} className="text-sm font-semibold text-lima-dark hover:underline">
+                Ver la lista completa →
+              </Link>
+            }
+          >
+            Oportunidades pendientes de firma · {cuadro.oportunidades.length}
+          </Titulo>
+          <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+            <div className="min-w-[760px]">
+              <Leyenda pasos={cuadro.pasos} />
+              {cuadro.oportunidades.length === 0 ? (
+                <p className="px-5 py-10 text-center text-base text-carbon/50">
+                  No hay nada pendiente de firma.{" "}
+                  <Link href={`/comercial/oportunidades/nueva${sufijo}`} className="font-semibold text-lima-dark hover:underline">
+                    Abrir una oportunidad →
+                  </Link>
+                </p>
               ) : (
                 <ul className="divide-y divide-black/5">
-                  {diarioView.map((i) => (
-                    <li key={i.id} className="transition hover:bg-black/[0.015]">
-                      <Link href={`/comercial/interaccion/${i.id}${suf}`} className="block px-4 py-2.5">
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-carbon/50">
-                          <span className="font-semibold text-carbon/70">{fecha(i.fecha_evento) || fecha(i.creado_en.slice(0, 10))}</span>
-                          <span className="rounded-full bg-black/5 px-1.5 py-0.5 font-semibold">{TIPO_EVENTO_LABEL[i.tipo_evento] ?? i.tipo_evento}</span>
-                          <span>{ORIGEN_LABEL[i.origen] ?? i.origen}</span>
-                          {i.persona?.nombre && <span className="text-lima-dark">· {i.persona.nombre}</span>}
-                          {i.requiere_humano && <span className="rounded-full bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-700">revisar</span>}
-                        </div>
-                        {i.transcripcion && <p className="mt-0.5 line-clamp-2 text-xs text-carbon/75">{i.transcripcion}</p>}
-                      </Link>
+                  {cuadro.oportunidades.map((o) => (
+                    <li key={o.id}>
+                      <TarjetaOportunidad
+                        o={o}
+                        pasos={cuadro.pasos}
+                        umbralParado={cuadro.umbralParado}
+                        umbralSinContacto={cuadro.umbralSinContacto}
+                      />
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            {recientes.length >= 4 && (
-              <Link href={`/comercial/diario${suf}`} className="mt-2 block rounded-xl border border-black/10 bg-white px-4 py-2 text-center text-xs font-semibold text-lima-dark transition hover:border-lima">
-                Ver más contactos →
-              </Link>
-            )}
-          </section>
-        </div>
+          </div>
+        </section>
+
+        <Cifras cifras={cuadro.cifras} periodo={esDemo ? "últimos 90 días" : null} />
+        <Cartera cartera={cuadro.cartera} todos={todos} />
+        <MapaCartera mapa={cuadro.mapa} titulo={todos || esDemo ? "Dónde estamos y dónde no" : "Dónde estoy y dónde no"} />
       </main>
     </div>
   );

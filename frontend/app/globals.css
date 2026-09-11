@@ -9,6 +9,12 @@
   --color-lima-soft: #eef7e4;
   --color-hueso: #f7f7f5;
 
+  /* Lo que no depende de nosotros (arquitecto, escaneo, 3D): azul pizarra. */
+  --color-ajeno: #5b7fa6;
+  --color-ajeno-soft: #e8eef5;
+  /* Atasco: rojo apagado, que avise sin gritar. */
+  --color-alerta: #9f3a38;
+
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
