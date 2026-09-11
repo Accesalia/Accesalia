@@ -6,4 +6,7 @@ next-env.d.ts
 *.tsbuildinfo
 
 .vercel
+
+# El worker de MapLibre: se copia de node_modules antes de dev y de build
+/public/maplibre
 .env*

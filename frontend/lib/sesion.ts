@@ -89,6 +89,17 @@ export async function quienSoy(): Promise<Yo | null> {
   return personaPorCorreo(data.user.email);
 }
 
+/** El comercial que es esta persona (su cartera), si lo es. */
+export async function comercialDe(personaId: string): Promise<{ id: string; nombre: string } | null> {
+  const r = await fetch(`${URL_BASE}/rest/v1/comerciales?select=id,nombre&equipo_id=eq.${personaId}&activo=is.true&limit=1`, {
+    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+    cache: "no-store",
+  });
+  if (!r.ok) return null;
+  const [c] = (await r.json()) as { id: string; nombre: string }[];
+  return c ?? null;
+}
+
 /** ¿Puede entrar en esta area? Direccion, siempre. */
 export function puedeEntrar(yo: Yo, area: string, nivel: "ver" | "trabajar" = "ver"): boolean {
   if (yo.veTodo) return true;

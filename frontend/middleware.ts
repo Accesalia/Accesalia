@@ -77,5 +77,6 @@ async function esDelEquipo(email: string | undefined): Promise<boolean> {
 
 export const config = {
   // Todo menos los ficheros estaticos y las imagenes.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
+  // (el worker del mapa, /maplibre/*.mjs, tampoco necesita pasar por aqui).
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|maplibre/|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
 };
