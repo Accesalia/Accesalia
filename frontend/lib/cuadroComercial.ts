@@ -88,6 +88,35 @@ export type FichaExtracto = {
   historia: EntradaCuadro[];
 };
 
+// LA SEGUNDA VIDA COMERCIAL (Monica, 12-sep-2026). Cuando la hoja esta firmada
+// y verificada, la barra de nueve pasos ya no aporta y se sustituye por la
+// estrella "PROYECTO FIRMADO". Empieza otra barra: la de perseguir el cobro.
+//
+// Tiene tantos tramos como HITOS DE FACTURACION tenga esa hoja, y en cada uno
+// va el importe que cobra Accesalia Y el que cobra el comercial: "asi ve las
+// consecuencias de ser laxo con la comunidad en su bolsillo". Los tramos NO se
+// escriben aparte: se derivan de los hitos de la hoja, para que al renegociar
+// se recoloquen solos.
+export type HitoCobro = {
+  nombre: string; // "Adelanto a la firma", "Entrega del proyecto"
+  importe: number; // lo que cobra Accesalia
+  comision: number; // lo que le toca a el de ese tramo
+  previsto: string | null; // fecha prevista, del estandar
+  cobrado: string | null; // cuando entro de verdad; null = pendiente
+};
+
+export type FirmadaCuadro = {
+  id: string;
+  nombre: string;
+  empresa: string | null;
+  persona: string | null;
+  que: string | null;
+  precio: number;
+  firmada: string; // el dia que se dio por buena la hoja
+  hitos: HitoCobro[];
+  ficha: FichaExtracto | null;
+};
+
 export type TareaCuadro = { id: string; texto: string; donde: string | null; fecha: string | null; hora: string | null };
 
 export type EntradaCuadro = {
@@ -120,6 +149,7 @@ export type CuadroComercial = {
   agenda: TareaCuadro[];
   diario: EntradaCuadro[];
   oportunidades: OportunidadCuadro[];
+  firmadas: FirmadaCuadro[]; // la segunda lista: firmadas, pendientes de cobro
   cifras: CifraCuadro[];
   cartera: CarteraCuadro;
   mapa: DatosMapa;
@@ -432,6 +462,8 @@ export async function cuadroComercial(comercialId: string | null): Promise<Cuadr
     agenda: tareas,
     diario: entradas,
     oportunidades,
+    // Los hitos de facturacion de una hoja aun no viven en la app.
+    firmadas: [],
     cifras: CIFRAS_SIN_DATO,
     cartera,
     mapa,

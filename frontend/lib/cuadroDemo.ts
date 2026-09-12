@@ -305,6 +305,98 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
       },
     ],
 
+    // LA SEGUNDA VIDA COMERCIAL: ya firmadas, ahora hay que cobrarlas. Tres
+    // casos distintos a proposito: 50/50 al dia, tres plazos a medias, y el
+    // adelanto atascado (el caso de "pasó una derrama y vamos haciendo hucha").
+    firmadas: [
+      {
+        id: "f1", nombre: "ERAS 9 FUENLABRADA",
+        empresa: "Fincas Ortega Delgado", persona: "Toñi Cárdenas",
+        que: "Ascensor + licencia", precio: 13800, firmada: dia(-38),
+        hitos: [
+          { nombre: "Adelanto a la firma", importe: 6900, comision: 207, previsto: dia(-31), cobrado: dia(-29) },
+          { nombre: "Entrega del proyecto", importe: 6900, comision: 207, previsto: dia(12), cobrado: null },
+        ],
+        ficha: {
+          cobra: true,
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo firmada")],
+          envio: { cuando: enviadoEl(-45), para: ["tcardenas@ortegadelgado.es"], cc: [], hrefMail: null },
+          contactos: [
+            { papel: "administradora", nombre: "Toñi Cárdenas", telefono: "615 88 20 41" },
+            { papel: "presidente", nombre: "Emilio Rada", telefono: "600 12 93 55" },
+          ],
+          sali: {
+            atencion: false, cuando: "hace 2 horas",
+            conclusion: "Al día. El adelanto entró a los dos días y el segundo tramo no vence hasta dentro de 12 días.",
+            parrafos: ["La comisión de obras llevaba el tema muy de cerca y eso ha agilizado todo: votaron y pagaron sin recordatorios."],
+          },
+          historia: [
+            paso(-29, "correo", "Toñi Cárdenas", "Confirmado el ingreso del adelanto."),
+            paso(-38, "junta", "Fincas Ortega Delgado", "Aprobado en junta por unanimidad. Nos mandan la hoja firmada."),
+          ],
+        },
+      },
+      {
+        id: "f2", nombre: "RÍO DUERO 12 LEGANÉS",
+        empresa: "Marcal Asesores (Leganés)", persona: "Beatriz Martínez",
+        que: "SATE + subvención", precio: 24600, firmada: dia(-76),
+        hitos: [
+          { nombre: "Adelanto a la firma", importe: 7380, comision: 221, previsto: dia(-69), cobrado: dia(-66) },
+          { nombre: "Entrega del proyecto", importe: 9840, comision: 295, previsto: dia(-9), cobrado: null },
+          { nombre: "Concesión de licencia", importe: 7380, comision: 221, previsto: dia(45), cobrado: null },
+        ],
+        ficha: {
+          cobra: true,
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo firmada")],
+          envio: { cuando: enviadoEl(-84), para: ["bmartinez@marcalasesores.es"], cc: [], hrefMail: null },
+          contactos: [{ papel: "administradora", nombre: "Beatriz Martínez", telefono: "654 99 88 32" }],
+          sali: {
+            atencion: true, cuando: "hace 2 horas",
+            conclusion:
+              "El segundo tramo venció hace 9 días y son 9.840 €, de los que 295 € son tuyos. El proyecto está entregado, así que no hay excusa técnica: toca llamar a Beatriz.",
+            parrafos: [
+              "Van a subvención y la convocatoria cierra en noviembre; retrasarse en el pago retrasa la licencia y se quedan fuera. Es el argumento que mueve a esta comunidad.",
+            ],
+          },
+          historia: [
+            paso(-9, "correo", "Marcal", "Entregado el proyecto y emitida la factura del segundo tramo."),
+            paso(-66, "correo", "Beatriz Martínez", "Adelanto ingresado."),
+          ],
+        },
+      },
+      {
+        id: "f3", nombre: "SAN IGNACIO 6 ALCORCÓN",
+        empresa: "Villaraco Asesores", persona: null,
+        que: "Bajada a cota cero", precio: 8900, firmada: dia(-24),
+        hitos: [
+          { nombre: "Adelanto a la firma", importe: 4450, comision: 134, previsto: dia(-17), cobrado: null },
+          { nombre: "Entrega del proyecto", importe: 4450, comision: 134, previsto: dia(30), cobrado: null },
+        ],
+        ficha: {
+          cobra: false,
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo firmada")],
+          envio: { cuando: enviadoEl(-30), para: ["obras@villaracoasesores.com"], cc: [], hrefMail: null },
+          contactos: [
+            { papel: "administrador", nombre: "Nacho Villaraco", telefono: "618 92 44 73" },
+            { papel: "presidenta", nombre: "Sonia Redondo", telefono: null },
+          ],
+          sali: {
+            atencion: true, cuando: "hace 2 horas",
+            conclusion:
+              "Firmada hace 24 días y el adelanto sigue sin entrar: vencía hace 17. La fase comercial no está cerrada y tú no has cobrado nada de esta.",
+            parrafos: [
+              "Dijeron que había pasado una derrama de fachada y que iban haciendo hucha. Quedaron en pagar la mitad este mes y no ha llegado nada.",
+              "Villaraco manda mucho y firma poco; esta la firmaron, así que conviene no dejarla enfriar.",
+            ],
+          },
+          historia: [
+            paso(-17, "llamada", "Nacho Villaraco", "Pasó una derrama de fachada, van haciendo hucha. Quedan en adelantar la mitad este mes."),
+            paso(-24, "junta", "Villaraco", "Aprobada y firmada la hoja de encargo."),
+          ],
+        },
+      },
+    ],
+
     cifras: [
       { etiqueta: "Administradores nuevos", valor: "7", pie: "2 más que el trimestre anterior" },
       { etiqueta: "Hojas enviadas", valor: "23", pie: "de 31 oportunidades" },

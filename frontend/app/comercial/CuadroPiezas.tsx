@@ -7,6 +7,7 @@ import type {
   CifraCuadro,
   EntradaCuadro,
   EstadoTramo,
+  FirmadaCuadro,
   FilaRanking,
   OportunidadCuadro,
   Paso,
@@ -377,6 +378,113 @@ export function TarjetaOportunidad({
         {cuerpo}
       </div>
       {abierta && <FichaDesplegada ficha={o.ficha} />}
+    </div>
+  );
+}
+
+// -------------------------------------------------- la segunda vida comercial
+
+// Cuando la hoja esta firmada y verificada, la barra de nueve pasos ya no
+// aporta ("una HE firmada ya esta") y se sustituye por la ESTRELLA. Debajo
+// arranca la otra barra: la del cobro, con un tramo por hito de facturacion.
+//
+// COLOR (Monica, 12-sep-2026): rampa DORADA, de suave a intenso. El verde ya es
+// la barra comercial y el azul ya significa "depende de otros". El dorado se
+// oscurece segun avanza el cobro; el RETRASO no se dice con color, se dice con
+// el borde y con la fecha en rojo, para que un color no signifique dos cosas.
+const ORO_CLARO = [217, 183, 90];
+const ORO_OSCURO = [138, 100, 16];
+const oro = (i: number, n: number) => {
+  const t = n <= 1 ? 1 : i / (n - 1);
+  const c = ORO_CLARO.map((a, k) => Math.round(a + (ORO_OSCURO[k] - a) * t));
+  return `rgb(${c.join(",")})`;
+};
+
+export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
+  const [abierta, setAbierta] = useState(false);
+  const hoy = hoyISO();
+  const cobrado = f.hitos.filter((h) => h.cobrado);
+  const suyoCobrado = cobrado.reduce((s, h) => s + h.comision, 0);
+  const suyoTotal = f.hitos.reduce((s, h) => s + h.comision, 0);
+  const nosCobrado = cobrado.reduce((s, h) => s + h.importe, 0);
+
+  return (
+    <div className={abierta ? "bg-white ring-1 ring-lima/60" : ""}>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={abierta}
+        onClick={() => setAbierta((x) => !x)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setAbierta((x) => !x);
+          }
+        }}
+        className="cursor-pointer px-5 py-4 outline-none transition hover:bg-hueso/60 focus-visible:bg-hueso/60"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={"text-carbon/35 transition " + (abierta ? "rotate-90" : "")} aria-hidden>▸</span>
+              <span className="text-lg font-bold text-carbon">{f.nombre}</span>
+            </div>
+            <div className="mt-0.5 text-base text-lima-dark">
+              {f.empresa ?? <span className="text-carbon/40">sin administración</span>}
+              {f.persona && <span> · {f.persona}</span>}
+            </div>
+            {/* La estrella sustituye a la barra de nueve pasos. Los tiempos de
+                cada paso NO se pierden: siguen guardados para las estadisticas
+                de rendimiento del comercial y del administrador. */}
+            <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[#FBF3DC] px-3 py-1.5">
+              <span className="text-xl leading-none text-[#C9971B]" aria-hidden>★</span>
+              <span className="text-sm font-bold uppercase tracking-wider text-[#8A6410]">Proyecto firmado</span>
+              <span className="text-sm text-[#8A6410]/70">{ddmm(f.firmada)}</span>
+            </div>
+          </div>
+          <div className="w-[11.5rem] text-right">
+            <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(f.precio)}</div>
+            <div className="mt-1">
+              {f.que && (
+                <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">{f.que}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* la barra del cobro: un tramo por hito de facturacion */}
+        <Rejilla n={f.hitos.length} className="mt-4">
+          {f.hitos.map((h, i) => {
+            const tarde = !h.cobrado && h.previsto !== null && h.previsto < hoy;
+            return (
+              <div key={h.nombre + i} className="min-w-0">
+                <div
+                  className={"h-3 rounded-full " + (h.cobrado ? "" : tarde ? "border-2 border-dashed border-alerta" : "border border-black/10")}
+                  style={h.cobrado ? { background: oro(i, f.hitos.length) } : undefined}
+                />
+                <div className="mt-1.5 text-sm font-semibold leading-tight text-carbon/80">{h.nombre}</div>
+                <div className="text-sm tabular-nums text-carbon/60">{eur(h.importe)}</div>
+                {/* lo suyo, en cada tramo: la zanahoria */}
+                <div className="text-sm font-bold tabular-nums text-[#8A6410]">tuyo {eur(h.comision)}</div>
+                <div className={"text-xs " + (tarde ? "font-bold text-alerta" : "text-carbon/45")}>
+                  {h.cobrado ? `cobrado ${ddmm(h.cobrado)}` : h.previsto ? `${tarde ? "vencía" : "previsto"} ${ddmm(h.previsto)}` : "sin fecha"}
+                </div>
+              </div>
+            );
+          })}
+        </Rejilla>
+
+        <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-carbon/60">
+          <span>
+            Cobrado <b className="tabular-nums text-carbon/85">{eur(nosCobrado)}</b> de {eur(f.precio)}
+          </span>
+          <span className="text-[#8A6410]">
+            Tu comisión: <b className="tabular-nums">{eur(suyoCobrado)}</b> cobrada
+            {suyoTotal > suyoCobrado && <> · <b className="tabular-nums">{eur(suyoTotal - suyoCobrado)}</b> por cobrar</>}
+          </span>
+        </div>
+      </div>
+      {abierta && <FichaDesplegada ficha={f.ficha} />}
     </div>
   );
 }

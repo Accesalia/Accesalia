@@ -5,7 +5,7 @@ import { listarComerciales } from "../../lib/comercial";
 import { cuadroComercial } from "../../lib/cuadroComercial";
 import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
-import { Acciones, Agenda, Cartera, Cifras, Diario, Leyenda, TarjetaOportunidad, Titulo } from "./CuadroPiezas";
+import { Acciones, Agenda, Cartera, Cifras, Diario, Leyenda, TarjetaFirmada, TarjetaOportunidad, Titulo } from "./CuadroPiezas";
 import { MapaCartera } from "./MapaCartera";
 
 export const dynamic = "force-dynamic";
@@ -144,6 +144,13 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             ↓ Pendientes de firma
             <span className="rounded-full bg-lima-soft px-2 text-sm text-lima-dark">{cuadro.oportunidades.length}</span>
           </a>
+          <a
+            href="#cobros"
+            className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-[#C9971B] hover:text-carbon"
+          >
+            ↓ Firmadas sin cobrar
+            <span className="rounded-full bg-[#FBF3DC] px-2 text-sm text-[#8A6410]">{cuadro.firmadas.length}</span>
+          </a>
           <Proximamente texto="📊 Mis proyectos contratados" />
         </div>
 
@@ -173,6 +180,32 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                   {cuadro.oportunidades.map((o) => (
                     <li key={o.id}>
                       <TarjetaOportunidad o={o} pasos={cuadro.pasos} umbralParado={cuadro.umbralParado} umbralSinContacto={cuadro.umbralSinContacto} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* --------- la segunda vida: firmadas, pendientes de cobro --------- */}
+        {/* Otra base juridica y otra urgencia: aqui la decision ya esta tomada
+            y lo que falta es un pago comprometido (Monica, 12-sep-2026). */}
+        <section id="cobros" className="mt-10 scroll-mt-24">
+          <Titulo>Hojas firmadas pendientes de cobro · {cuadro.firmadas.length}</Titulo>
+          <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+            <div className="min-w-[760px]">
+              {cuadro.firmadas.length === 0 ? (
+                <p className="px-5 py-10 text-center text-base text-carbon/50">
+                  Nada firmado pendiente de cobro en la app todavía.
+                  <br />
+                  <span className="text-sm">Los hitos de pago de una hoja aún no se guardan aquí.</span>
+                </p>
+              ) : (
+                <ul className="divide-y divide-black/5">
+                  {cuadro.firmadas.map((f) => (
+                    <li key={f.id}>
+                      <TarjetaFirmada f={f} />
                     </li>
                   ))}
                 </ul>
