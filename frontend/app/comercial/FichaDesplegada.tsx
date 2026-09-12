@@ -225,8 +225,11 @@ export function FichaDesplegada({ ficha }: { ficha: FichaExtracto | null }) {
       <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)]">
         <Documentos
           docs={
+            // Los TRES documentos que salen juntos: viabilidad, presupuesto y
+            // hoja de encargo (Monica, 12-sep-2026).
             f?.documentos ?? [
               { rotulo: "Viabilidad", href: null, falta: "sin hacer" },
+              { rotulo: "Presupuesto", href: null, falta: "sin hacer" },
               { rotulo: "Hoja de encargo", href: null, falta: "sin hacer" },
             ]
           }

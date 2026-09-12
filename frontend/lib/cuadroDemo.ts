@@ -103,7 +103,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         diasAqui: 23, esperando: null, proximo: null, ultimoContacto: dia(-14), href: "#",
         ficha: {
           cobra: true,
-          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo enviada")],
           envio: {
             cuando: enviadoEl(-14),
             para: ["bmartinez@marcalasesores.es"],
@@ -143,7 +143,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         diasAqui: 9, esperando: "al arquitecto", proximo: null, ultimoContacto: dia(-10), href: "#",
         ficha: {
           cobra: true,
-          documentos: [falta("Viabilidad", "la está haciendo el arquitecto"), falta("Hoja de encargo", "aún no toca")],
+          documentos: [falta("Viabilidad", "la está haciendo el arquitecto"), falta("Presupuesto", "aún no toca"), falta("Hoja de encargo", "aún no toca")],
           envio: null,
           contactos: [
             { papel: "lo trajo · Thyssen", nombre: "Pedro Aranda", telefono: "649 05 22 18" },
@@ -176,7 +176,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         diasAqui: 4, esperando: null, proximo: null, ultimoContacto: dia(-4), href: "#",
         ficha: {
           cobra: false,
-          documentos: [falta("Viabilidad", "la hace Schindler"), hecho("Hoja de encargo enviada")],
+          documentos: [falta("Viabilidad", "la hace Schindler"), hecho("Presupuesto enviado"), hecho("Hoja de encargo enviada")],
           envio: {
             cuando: enviadoEl(-4),
             para: ["administracion@trebolfincas.es"],
@@ -212,7 +212,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         diasAqui: 6, esperando: null, proximo: `junta el ${DIA.format(new Date(dia(1)))}`, ultimoContacto: dia(-3), href: "#",
         ficha: {
           cobra: true,
-          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo enviada")],
           envio: {
             cuando: enviadoEl(-6),
             para: ["obras@villaracoasesores.com"],
@@ -249,7 +249,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         diasAqui: 6, esperando: "el 3D a medida", proximo: `junta el ${DIA.format(new Date(dia(6)))}`, ultimoContacto: dia(-2), href: "#",
         ficha: {
           cobra: true,
-          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          documentos: [hecho("Viabilidad enviada"), hecho("Presupuesto enviado"), hecho("Hoja de encargo enviada")],
           envio: {
             cuando: enviadoEl(-6),
             para: ["administracion@effic.es", "presidencia.badajoz18@gmail.com"],
@@ -287,7 +287,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         // Lo que no ha pasado se ve vacio, no se esconde.
         ficha: {
           cobra: null,
-          documentos: [falta("Viabilidad", "sin hacer"), falta("Hoja de encargo", "sin hacer")],
+          documentos: [falta("Viabilidad", "sin hacer"), falta("Presupuesto", "sin hacer"), falta("Hoja de encargo", "sin hacer")],
           envio: null,
           contactos: [],
           sali: {
