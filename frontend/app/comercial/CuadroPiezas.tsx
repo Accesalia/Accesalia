@@ -400,6 +400,21 @@ const oro = (i: number, n: number, alfa = 1) => {
   return `rgba(${c.join(",")},${alfa})`;
 };
 
+// Cuanto tarda en llegar cada tramo, contando desde la firma. Es lo que le da
+// el ancho: dos cobros seguidos se ven juntos, y uno a tres meses se ve lejos.
+function anchosPorTiempo(f: FirmadaCuadro): number[] {
+  const cero = new Date(f.firmada).getTime();
+  let previo = 0;
+  return f.hitos.map((h) => {
+    const cuando = h.cobrado ?? h.previsto;
+    if (!cuando) return 1;
+    const d = Math.max(0, Math.round((new Date(cuando).getTime() - cero) / 86_400_000));
+    const tramo = Math.max(1, d - previo);
+    previo = d;
+    return tramo;
+  });
+}
+
 export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
   const [abierta, setAbierta] = useState(false);
   const hoy = hoyISO();
@@ -452,10 +467,19 @@ export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
           </div>
         </div>
 
-        {/* la barra del cobro: un tramo por hito de facturacion */}
-        <Rejilla n={f.hitos.length} className="mt-4">
+        {/* La barra del cobro: un tramo por hito de facturacion, y ADEMAS
+            situada en el tiempo (Monica, 12-sep-2026): "una cosa es ver 28 de
+            octubre y otra ver que quedan 43 días hasta cobrar". El ancho de
+            cada tramo es proporcional a lo que tarda en llegar, con un minimo
+            para que el rotulo siga siendo legible, y debajo van los dias que
+            faltan o los que lleva vencido. */}
+        <div
+          className="mt-4 grid gap-1.5"
+          style={{ gridTemplateColumns: anchosPorTiempo(f).map((n) => `minmax(7rem, ${n}fr)`).join(" ") }}
+        >
           {f.hitos.map((h, i) => {
             const tarde = !h.cobrado && h.previsto !== null && h.previsto < hoy;
+            const faltan = h.previsto ? -dias(h.previsto) : null;
             return (
               <div key={h.nombre + i} className="min-w-0">
                 {/* Cobrado: relleno. Sin cobrar: hueco con el BORDE de su
@@ -476,12 +500,18 @@ export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
                 {/* lo suyo, en cada tramo: la zanahoria */}
                 <div className="text-sm font-bold tabular-nums text-[#8A6410]">tuyo {eur(h.comision)}</div>
                 <div className={"text-xs " + (tarde ? "font-bold text-alerta" : "text-carbon/45")}>
-                  {h.cobrado ? `cobrado ${ddmm(h.cobrado)}` : h.previsto ? `${tarde ? "vencía" : "previsto"} ${ddmm(h.previsto)}` : "sin fecha"}
+                  {h.cobrado
+                    ? `cobrado ${ddmm(h.cobrado)}`
+                    : h.previsto === null
+                      ? "sin fecha"
+                      : tarde
+                        ? `vencía ${ddmm(h.previsto)} · hace ${-faltan!} ${-faltan! === 1 ? "día" : "días"}`
+                        : `${ddmm(h.previsto)} · ${faltan === 0 ? "hoy" : `faltan ${faltan} ${faltan === 1 ? "día" : "días"}`}`}
                 </div>
               </div>
             );
           })}
-        </Rejilla>
+        </div>
 
         <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-carbon/60">
           <span>
