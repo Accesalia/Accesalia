@@ -481,21 +481,32 @@ export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
             const tarde = !h.cobrado && h.previsto !== null && h.previsto < hoy;
             const faltan = h.previsto ? -dias(h.previsto) : null;
             return (
-              <div key={h.nombre + i} className="min-w-0">
+              // Como un cronograma: el hito esta al FINAL del tramo, marcado
+              // con una linea, y sus datos van alineados ahi (Monica). Asi los
+              // "faltan 43 días" se leen como lo que queda para llegar.
+              <div key={h.nombre + i} className="min-w-0 text-right">
                 {/* Cobrado: relleno. Sin cobrar: hueco con el BORDE de su
                     dorado, "para que se vea a dónde se llega pero que aún no
                     estamos ahí" (Monica). Vencido: borde rojo discontinuo. */}
-                <div
-                  className={"h-3 rounded-full " + (tarde ? "border-2 border-dashed border-alerta" : "")}
-                  style={
-                    tarde
-                      ? undefined
-                      : h.cobrado
-                        ? { background: oro(i, f.hitos.length) }
-                        : { border: `2px solid ${oro(i, f.hitos.length, 0.45)}` }
-                  }
-                />
-                <div className="mt-1.5 text-sm font-semibold leading-tight text-carbon/80">{h.nombre}</div>
+                <div className="relative">
+                  <div
+                    className={"h-3 rounded-full " + (tarde ? "border-2 border-dashed border-alerta" : "")}
+                    style={
+                      tarde
+                        ? undefined
+                        : h.cobrado
+                          ? { background: oro(i, f.hitos.length) }
+                          : { border: `2px solid ${oro(i, f.hitos.length, 0.45)}` }
+                    }
+                  />
+                  {/* la marca de "aquí se llega" */}
+                  <span
+                    aria-hidden
+                    className={"absolute -top-1.5 right-0 h-6 w-[3px] rounded-full " + (tarde ? "bg-alerta" : "")}
+                    style={tarde ? undefined : { background: oro(i, f.hitos.length) }}
+                  />
+                </div>
+                <div className="mt-2 text-sm font-semibold leading-tight text-carbon/80">{h.nombre}</div>
                 <div className="text-sm tabular-nums text-carbon/60">{eur(h.importe)}</div>
                 {/* lo suyo, en cada tramo: la zanahoria */}
                 <div className="text-sm font-bold tabular-nums text-[#8A6410]">tuyo {eur(h.comision)}</div>
