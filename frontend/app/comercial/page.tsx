@@ -179,7 +179,13 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 <ul className="divide-y divide-black/5">
                   {cuadro.oportunidades.map((o) => (
                     <li key={o.id}>
-                      <TarjetaOportunidad o={o} pasos={cuadro.pasos} umbralParado={cuadro.umbralParado} umbralSinContacto={cuadro.umbralSinContacto} />
+                      <TarjetaOportunidad
+                        o={o}
+                        pasos={cuadro.pasos}
+                        umbralParado={cuadro.umbralParado}
+                        umbralSinContacto={cuadro.umbralSinContacto}
+                        verFicha={esDemo ? `/comercial/ficha/${o.id}?c=${ID_FANTASMA}` : null}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -205,7 +211,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 <ul className="divide-y divide-black/5">
                   {cuadro.firmadas.map((f) => (
                     <li key={f.id}>
-                      <TarjetaFirmada f={f} />
+                      <TarjetaFirmada f={f} verFicha={esDemo ? `/comercial/ficha/${f.id}?c=${ID_FANTASMA}` : null} />
                     </li>
                   ))}
                 </ul>

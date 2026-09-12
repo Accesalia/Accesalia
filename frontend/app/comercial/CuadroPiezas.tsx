@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Cobro, FichaDesplegada } from "./FichaDesplegada";
 import type {
@@ -246,14 +247,34 @@ function Tramo({ estado, paso }: { estado: EstadoTramo; paso: Paso }) {
   return <span title={`${paso.corto.join(" ")}: pendiente`} className={base + "h-2 bg-black/10"} />;
 }
 
+// El boton a la ficha completa: solo lleva a algun sitio cuando esa ficha
+// existe de verdad (hoy, la demostracion). Si no, dice "Próximamente".
+function VerFicha({ href }: { href: string | null }) {
+  const clase = "hidden shrink-0 flex-col items-center rounded-lg border border-dashed px-4 py-2 text-center sm:flex ";
+  if (!href)
+    return (
+      <span title="La ficha completa está por montar" onClick={(e) => e.stopPropagation()} className={clase + "cursor-not-allowed border-lima/70 bg-white"}>
+        <span className="text-sm font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">Próximamente</span>
+      </span>
+    );
+  return (
+    <Link href={href} onClick={(e) => e.stopPropagation()} className={clase + "border-lima bg-lima-soft transition hover:bg-lima"}>
+      <span className="text-sm font-bold uppercase tracking-wide text-lima-dark">Ver ficha completa</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/40">todo lo de esta comunidad</span>
+    </Link>
+  );
+}
+
 export function TarjetaOportunidad({
-  o, pasos, umbralParado, umbralSinContacto, conComercial,
+  o, pasos, umbralParado, umbralSinContacto, conComercial, verFicha = null,
 }: {
   o: OportunidadCuadro;
   pasos: Paso[];
   umbralParado: number;
   umbralSinContacto: number;
   conComercial?: string | null;
+  verFicha?: string | null;
 }) {
   const parada = o.diasAqui !== null && o.diasAqui >= umbralParado && !o.esperando;
   const sinContacto = o.ultimoContacto !== null && dias(o.ultimoContacto) > umbralSinContacto;
@@ -292,14 +313,7 @@ export function TarjetaOportunidad({
         </div>
 
         <div className="flex shrink-0 items-start gap-4">
-          <span
-            title="La ficha completa está por montar"
-            onClick={(e) => e.stopPropagation()}
-            className="hidden cursor-not-allowed flex-col items-center rounded-lg border border-dashed border-lima/70 bg-white px-4 py-2 text-center sm:flex"
-          >
-            <span className="text-sm font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">Próximamente</span>
-          </span>
+          <VerFicha href={verFicha} />
           {/* Ancho fijo: asi el precio, el tipo y el boton caen en la misma
               columna en todas las filas y se leen de un vistazo. */}
           <div className="w-[11.5rem] text-right">
@@ -415,7 +429,7 @@ function anchosPorTiempo(f: FirmadaCuadro): number[] {
   });
 }
 
-export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
+export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFicha?: string | null }) {
   const [abierta, setAbierta] = useState(false);
   const hoy = hoyISO();
   const cobrado = f.hitos.filter((h) => h.cobrado);
@@ -457,12 +471,15 @@ export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
               <span className="text-sm text-[#8A6410]/70">{ddmm(f.firmada)}</span>
             </div>
           </div>
-          <div className="w-[11.5rem] text-right">
-            <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(f.precio)}</div>
-            <div className="mt-1">
-              {f.que && (
-                <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">{f.que}</span>
-              )}
+          <div className="flex shrink-0 items-start gap-4">
+            <VerFicha href={verFicha} />
+            <div className="w-[11.5rem] text-right">
+              <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(f.precio)}</div>
+              <div className="mt-1">
+                {f.que && (
+                  <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">{f.que}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>

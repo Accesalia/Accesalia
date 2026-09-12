@@ -18,6 +18,8 @@ import {
   umbrales,
   type CuadroComercial,
   type EntradaCuadro,
+  type FirmadaCuadro,
+  type OportunidadCuadro,
   type EstadoTramo,
   type FichaExtracto,
 } from "./cuadroComercial";
@@ -93,7 +95,60 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         texto: "Reclaman la viabilidad de Sepúlveda. Les digo que está con el arquitecto." },
     ],
 
-    oportunidades: [
+    oportunidades: oportunidadesDemo(),
+
+    // LA SEGUNDA VIDA COMERCIAL: ya firmadas, ahora hay que cobrarlas. Tres
+    // casos distintos a proposito: 50/50 al dia, tres plazos a medias, y el
+    // adelanto atascado (el caso de "pasó una derrama y vamos haciendo hucha").
+    firmadas: firmadasDemo(),
+
+    cifras: [
+      { etiqueta: "Administradores nuevos", valor: "7", pie: "2 más que el trimestre anterior" },
+      { etiqueta: "Hojas enviadas", valor: "23", pie: "de 31 oportunidades" },
+      { etiqueta: "Hojas firmadas", valor: "14", pie: "9 sin respuesta", acento: true },
+      { etiqueta: "Contratado", valor: "168.400 €", pie: "suma de lo firmado", acento: true },
+      { etiqueta: "Comisión generada", valor: "5.052 €", pie: "sin liquidar" },
+      { etiqueta: "Acaba en firma", valor: "61 %", pie: "14 de 23 enviadas" },
+      { etiqueta: "Hasta la firma", valor: "47 días", pie: "la más lenta, 6 meses" },
+      { etiqueta: "Encargo medio", valor: "12.030 €", pie: "el mayor, 38.900 €" },
+    ],
+
+    cartera: {
+      cifras: [
+        { valor: "25", etiqueta: "administraciones" },
+        { valor: "132", etiqueta: "comunidades" },
+        { valor: "18", etiqueta: "prestadas" },
+      ],
+      mias: [
+        { nombre: "Trébol", dato: "9" },
+        { nombre: "Effic", dato: "7" },
+        { nombre: "Administración Rey", dato: "5" },
+        { nombre: "Marcal (Leganés)", dato: "3", prestada: true },
+      ],
+      estrella: [
+        { nombre: "Trébol", dato: "4 · 41.200 €" },
+        { nombre: "Fincas Ortega Delgado", dato: "3 · 28.700 €" },
+        { nombre: "Del Brío y Blanco", dato: "2 · 24.100 €" },
+        { nombre: "Effic", dato: "2 · 19.500 €" },
+        { nombre: "Administración Rey", dato: "1 · 12.400 €" },
+      ],
+      marean: [
+        { nombre: "Villaraco Asesores", dato: "11 · 0" },
+        { nombre: "Martín y Lorente", dato: "9 · 1" },
+        { nombre: "Jimeco", dato: "8 · 0" },
+        { nombre: "SM Fincas", dato: "7 · 1" },
+        { nombre: "Vallejo y Lara", dato: "6 · 0" },
+      ],
+      faltaEstrella: "",
+      faltaMarean: "",
+    },
+  };
+}
+
+// Las oportunidades y las hojas firmadas de la demostracion, aparte para que
+// tambien las pueda leer la ficha completa sin tocar la base.
+export function oportunidadesDemo(): OportunidadCuadro[] {
+  return [
       {
         id: "o1", nombre: "ALHELÍ 2 LEGANÉS", sinComunidad: false,
         empresa: "Marcal Asesores (Leganés)", persona: "Beatriz Martínez", prestada: true, trajo: null,
@@ -303,12 +358,11 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
           historia: [],
         },
       },
-    ],
+    ];
+}
 
-    // LA SEGUNDA VIDA COMERCIAL: ya firmadas, ahora hay que cobrarlas. Tres
-    // casos distintos a proposito: 50/50 al dia, tres plazos a medias, y el
-    // adelanto atascado (el caso de "pasó una derrama y vamos haciendo hucha").
-    firmadas: [
+export function firmadasDemo(): FirmadaCuadro[] {
+  return [
       {
         id: "f1", nombre: "ERAS 9 FUENLABRADA",
         empresa: "Fincas Ortega Delgado", persona: "Toñi Cárdenas",
@@ -395,47 +449,5 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
           ],
         },
       },
-    ],
-
-    cifras: [
-      { etiqueta: "Administradores nuevos", valor: "7", pie: "2 más que el trimestre anterior" },
-      { etiqueta: "Hojas enviadas", valor: "23", pie: "de 31 oportunidades" },
-      { etiqueta: "Hojas firmadas", valor: "14", pie: "9 sin respuesta", acento: true },
-      { etiqueta: "Contratado", valor: "168.400 €", pie: "suma de lo firmado", acento: true },
-      { etiqueta: "Comisión generada", valor: "5.052 €", pie: "sin liquidar" },
-      { etiqueta: "Acaba en firma", valor: "61 %", pie: "14 de 23 enviadas" },
-      { etiqueta: "Hasta la firma", valor: "47 días", pie: "la más lenta, 6 meses" },
-      { etiqueta: "Encargo medio", valor: "12.030 €", pie: "el mayor, 38.900 €" },
-    ],
-
-    cartera: {
-      cifras: [
-        { valor: "25", etiqueta: "administraciones" },
-        { valor: "132", etiqueta: "comunidades" },
-        { valor: "18", etiqueta: "prestadas" },
-      ],
-      mias: [
-        { nombre: "Trébol", dato: "9" },
-        { nombre: "Effic", dato: "7" },
-        { nombre: "Administración Rey", dato: "5" },
-        { nombre: "Marcal (Leganés)", dato: "3", prestada: true },
-      ],
-      estrella: [
-        { nombre: "Trébol", dato: "4 · 41.200 €" },
-        { nombre: "Fincas Ortega Delgado", dato: "3 · 28.700 €" },
-        { nombre: "Del Brío y Blanco", dato: "2 · 24.100 €" },
-        { nombre: "Effic", dato: "2 · 19.500 €" },
-        { nombre: "Administración Rey", dato: "1 · 12.400 €" },
-      ],
-      marean: [
-        { nombre: "Villaraco Asesores", dato: "11 · 0" },
-        { nombre: "Martín y Lorente", dato: "9 · 1" },
-        { nombre: "Jimeco", dato: "8 · 0" },
-        { nombre: "SM Fincas", dato: "7 · 1" },
-        { nombre: "Vallejo y Lara", dato: "6 · 0" },
-      ],
-      faltaEstrella: "",
-      faltaMarean: "",
-    },
-  };
+    ];
 }
