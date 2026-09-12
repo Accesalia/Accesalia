@@ -12,7 +12,15 @@
 // app/comercial/page.tsx. No hay nada que limpiar en la base.
 
 import "server-only";
-import { mapaDe, pasosComerciales, umbrales, type CuadroComercial, type EstadoTramo } from "./cuadroComercial";
+import {
+  mapaDe,
+  pasosComerciales,
+  umbrales,
+  type CuadroComercial,
+  type EntradaCuadro,
+  type EstadoTramo,
+  type FichaExtracto,
+} from "./cuadroComercial";
 
 export const ID_FANTASMA = "fantasma";
 
@@ -23,6 +31,16 @@ const dia = (desplazamiento: number) => {
   return d.toISOString().slice(0, 10);
 };
 const DIA = new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric" });
+const DIA_LARGO = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" });
+const enviadoEl = (d: number) => `enviado por mail el ${DIA_LARGO.format(new Date(dia(d)))}`;
+
+// Atajos para escribir las fichas desplegadas sin repetirse.
+const hecho = (rotulo: string): FichaExtracto["documentos"][number] => ({ rotulo, href: "#", falta: "" });
+const falta = (rotulo: string, texto: string): FichaExtracto["documentos"][number] => ({ rotulo, href: null, falta: texto });
+let nEntrada = 0;
+const paso = (d: number, tipo: string, con: string | null, texto: string, revisar = false): EntradaCuadro => ({
+  id: `h${++nEntrada}`, fecha: dia(d), tipo, con, texto, revisar, href: null,
+});
 
 // Una barra: cada paso con su estado. Lo que no se dice, pendiente.
 const ORDEN = ["primer_contacto", "visita", "polycam", "viabilidad_arquitecto", "preparacion_documentos",
@@ -83,6 +101,38 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra(H(5), "envio_documentos"),
         actual: { numero: "6", nombre: "Envío a la comunidad", ajeno: false, quien: null },
         diasAqui: 23, esperando: null, proximo: null, ultimoContacto: dia(-14), href: "#",
+        ficha: {
+          cobra: true,
+          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          envio: {
+            cuando: enviadoEl(-14),
+            para: ["bmartinez@marcalasesores.es"],
+            cc: ["jvarroyo.presidente@gmail.com", "maria.cuesta89@gmail.com"],
+            hrefMail: null,
+          },
+          contactos: [
+            { papel: "administradora", nombre: "Beatriz Martínez", telefono: "654 99 88 32" },
+            { papel: "presidente", nombre: "Juan Vicente Arroyo", telefono: "610 24 77 05" },
+            { papel: "vecina interesada", nombre: "María Cuesta", telefono: "627 31 40 12" },
+          ],
+          sali: {
+            atencion: true,
+            cuando: "hace 2 horas",
+            conclusion:
+              "Esto pide un empujón: la documentación salió hace 23 días y llevas 14 sin hablar con Beatriz. Marcal es buen administrador y no suele dar problemas, así que lo más probable es que esté esperando a la junta; una llamada corta lo aclara.",
+            parrafos: [
+              "Te llamó Beatriz el 2 de septiembre para ir a ver un portal de 24 vecinos que querían ascensor. En la visita el propio presidente te dijo que la comunidad estaba muy interesada.",
+              "El problema principal es el foso: hay que invadir parte del local de al lado. La comunidad negoció con el dueño perdonarle la derrama a cambio de que cediera ese trozo.",
+              "El dueño del local no quiso llegar a un acuerdo, fueron a juicio y lo ganó la comunidad. El proyecto se retomó tras la sentencia hace tres semanas. Lo que se vota ahora en junta es el incremento de presupuesto por la subida de precios.",
+            ],
+          },
+          historia: [
+            paso(0, "visita", "Beatriz Martínez", "Hemos ido a ver el portal. El foso da problemas, hay contadores que habría que mover. Beatriz dice que no quieren tocar los buzones bajo ningún concepto."),
+            paso(-14, "correo", "Beatriz Martínez", "Le enviamos la viabilidad y la hoja de encargo. Quedamos en que las lleva a la próxima junta."),
+            paso(-23, "llamada", "Beatriz Martínez", "Nos confirma que la sentencia es firme y que retoman el proyecto. Pide presupuesto actualizado con los precios de ahora."),
+            paso(-41, "visita", null, "Segunda visita con el técnico para medir el foso, ya con el local liberado."),
+          ],
+        },
       },
       {
         id: "o2", nombre: "SEPÚLVEDA 160 MADRID", sinComunidad: false,
@@ -91,6 +141,30 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra(H(3), "viabilidad_arquitecto"),
         actual: { numero: "4", nombre: "Viabilidad arquitecto", ajeno: true, quien: "arquitecto" },
         diasAqui: 9, esperando: "al arquitecto", proximo: null, ultimoContacto: dia(-10), href: "#",
+        ficha: {
+          cobra: true,
+          documentos: [falta("Viabilidad", "la está haciendo el arquitecto"), falta("Hoja de encargo", "aún no toca")],
+          envio: null,
+          contactos: [
+            { papel: "lo trajo · Thyssen", nombre: "Pedro Aranda", telefono: "649 05 22 18" },
+            { papel: "administración", nombre: "Trébol · centralita", telefono: "915 44 10 90" },
+          ],
+          sali: {
+            atencion: false,
+            cuando: "hace 2 horas",
+            conclusion:
+              "Dentro de lo normal, pero con la pelota en nuestro tejado: la viabilidad lleva 9 días con el arquitecto y Trébol ya la ha reclamado una vez.",
+            parrafos: [
+              "Pedro Aranda, de Thyssen, nos pasó el contacto. El ascensor ya está decidido con ellos: nos quieren para el proyecto y la licencia, no para la venta.",
+              "Escaneado hecho. Falta la viabilidad del arquitecto para poder preparar la hoja.",
+            ],
+          },
+          historia: [
+            paso(-8, "correo", "Trébol", "Reclaman la viabilidad de Sepúlveda. Les digo que está con el arquitecto."),
+            paso(-10, "visita", null, "Escaneo del portal. Entrada con dos escalones, el hueco da justo."),
+            paso(-15, "correo", null, "Pedro Aranda pasa el contacto. Ya tienen el ascensor decidido con Thyssen."),
+          ],
+        },
       },
       {
         id: "o3", nombre: "CARLOS FUENTES 61 MADRID", sinComunidad: false,
@@ -100,6 +174,33 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra(["primer_contacto", "visita", "polycam", "preparacion_documentos"], "envio_documentos", ["tresd", "viabilidad_arquitecto"]),
         actual: { numero: "6", nombre: "Envío a la comunidad", ajeno: false, quien: null },
         diasAqui: 4, esperando: null, proximo: null, ultimoContacto: dia(-4), href: "#",
+        ficha: {
+          cobra: false,
+          documentos: [falta("Viabilidad", "la hace Schindler"), hecho("Hoja de encargo enviada")],
+          envio: {
+            cuando: enviadoEl(-4),
+            para: ["administracion@trebolfincas.es"],
+            cc: ["jparra@schindler.es"],
+            hrefMail: null,
+          },
+          contactos: [
+            { papel: "lo trajo · Schindler", nombre: "Javier Parra", telefono: "600 77 31 45" },
+            { papel: "administración", nombre: "Trébol · centralita", telefono: "915 44 10 90" },
+          ],
+          sali: {
+            atencion: false,
+            cuando: "hace 2 horas",
+            conclusion: "Todo normal. Salió hace 4 días, aún es pronto para insistir.",
+            parrafos: [
+              "La trae Javier Parra, de Schindler, con la viabilidad ya hecha por ellos. Nosotros entramos con la hoja de encargo directamente.",
+              "Al venir de Schindler hace falta su orden de compra antes de arrancar nada.",
+            ],
+          },
+          historia: [
+            paso(-4, "correo", "Trébol", "Enviada la hoja de encargo con copia a Javier Parra."),
+            paso(-11, "visita", "Javier Parra", "Visita conjunta con Schindler. El hueco de escalera da de sobra."),
+          ],
+        },
       },
       {
         id: "o4", nombre: "DOCTOR FLEMING 44 MADRID", sinComunidad: false,
@@ -109,6 +210,34 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra([...H(6), "tresd"], "junta", []),
         actual: { numero: "7", nombre: "Junta de votación", ajeno: false, quien: null },
         diasAqui: 6, esperando: null, proximo: `junta el ${DIA.format(new Date(dia(1)))}`, ultimoContacto: dia(-3), href: "#",
+        ficha: {
+          cobra: true,
+          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          envio: {
+            cuando: enviadoEl(-6),
+            para: ["obras@villaracoasesores.com"],
+            cc: [],
+            hrefMail: null,
+          },
+          contactos: [
+            { papel: "administrador", nombre: "Nacho Villaraco", telefono: "618 92 44 73" },
+            { papel: "presidenta", nombre: "Sonia Redondo", telefono: null },
+          ],
+          sali: {
+            atencion: false,
+            cuando: "hace 2 horas",
+            conclusion: "Va bien y tiene fecha: junta mañana a las 20:00, con el 3D pedido y ya entregado.",
+            parrafos: [
+              "Villaraco manda muchas oportunidades y firma poquísimo, pero esta ha llegado hasta la junta con todo enviado.",
+              "Pidieron el 3D para enseñarlo a los vecinos; era de catálogo y se les mandó el mismo día.",
+            ],
+          },
+          historia: [
+            paso(-3, "junta", "Villaraco", "Confirman junta mañana a las 20:00. Piden llevar el 3D para enseñarlo a los vecinos."),
+            paso(-6, "correo", "Villaraco", "Enviadas viabilidad y hoja de encargo para llevar a junta."),
+            paso(-20, "visita", null, "Visita a la cubierta y a las fachadas. Hay humedades en el patio interior."),
+          ],
+        },
       },
       {
         id: "o5", nombre: "AV. BADAJOZ 18 MADRID", sinComunidad: false,
@@ -118,6 +247,35 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra(H(6), "junta", [], ["tresd"]),
         actual: { numero: "7", nombre: "Junta de votación", ajeno: false, quien: null },
         diasAqui: 6, esperando: "el 3D a medida", proximo: `junta el ${DIA.format(new Date(dia(6)))}`, ultimoContacto: dia(-2), href: "#",
+        ficha: {
+          cobra: true,
+          documentos: [hecho("Viabilidad enviada"), hecho("Hoja de encargo enviada")],
+          envio: {
+            cuando: enviadoEl(-6),
+            para: ["administracion@effic.es", "presidencia.badajoz18@gmail.com"],
+            cc: [],
+            hrefMail: null,
+          },
+          contactos: [
+            { papel: "administradora", nombre: "Carmen Ureña", telefono: "637 10 58 26" },
+            { papel: "presidente", nombre: "Alfonso Gil", telefono: "699 41 03 87" },
+          ],
+          sali: {
+            atencion: true,
+            cuando: "hace 2 horas",
+            conclusion:
+              "Ojo con esto: la junta es en 6 días y el 3D a medida sigue sin llegar. Sin él los vecinos votan a ciegas. Conviene apretar al técnico esta semana.",
+            parrafos: [
+              "Effic pregunta también por la subvención: quieren llevar a la junta el precio con y sin ayuda.",
+              "El 3D no es de catálogo, hay que hacerlo: el patio obliga a una solución rara y por eso está encargado al técnico.",
+            ],
+          },
+          historia: [
+            paso(-2, "llamada", "Carmen Ureña", "Pregunta si llegamos con el 3D a la junta. Le digo que sí, pero hay que confirmarlo con el técnico."),
+            paso(-6, "correo", "Effic", "Enviadas viabilidad y hoja de encargo, con el desglose de la subvención aparte."),
+            paso(-18, "visita", null, "Visita al portal. El patio complica el recorrido, hará falta 3D a medida."),
+          ],
+        },
       },
       {
         id: "o6", nombre: "BANDERAS DE CASTILLA 25", sinComunidad: true,
@@ -126,6 +284,24 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
         tramos: barra([], "primer_contacto"),
         actual: { numero: "1", nombre: "Primer contacto", ajeno: false, quien: null },
         diasAqui: 120, esperando: null, proximo: null, ultimoContacto: dia(-122), href: "#",
+        // Lo que no ha pasado se ve vacio, no se esconde.
+        ficha: {
+          cobra: null,
+          documentos: [falta("Viabilidad", "sin hacer"), falta("Hoja de encargo", "sin hacer")],
+          envio: null,
+          contactos: [],
+          sali: {
+            atencion: true,
+            cuando: "hace 2 horas",
+            conclusion:
+              "Esto está muerto: 120 días en primer contacto y ni una llamada en cuatro meses. O se retoma esta semana o conviene cerrarla como latente, con la condición apuntada.",
+            parrafos: [
+              "Llegó por Marcal de Castilla-La Mancha, en una tanda de direcciones sueltas. No hay ni comunidad dada de alta ni persona de contacto.",
+              "No consta ninguna visita ni ningún correo.",
+            ],
+          },
+          historia: [],
+        },
       },
     ],
 

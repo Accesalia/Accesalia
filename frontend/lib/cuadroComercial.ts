@@ -67,6 +67,25 @@ export type OportunidadCuadro = {
   proximo: string | null;
   ultimoContacto: string | null;
   href: string;
+  ficha: FichaExtracto | null; // null = todavia no hay nada que desplegar
+};
+
+// Lo que se ve al DESPLEGAR una oportunidad en la lista (Monica, 12-sep-2026):
+// "un extracto de lo mas relevante para no tener que ir siempre a la ficha".
+// Lo inmediato aqui; si quieres mas, "Ver ficha completa". Lo que falta no se
+// esconde: se enseña el hueco.
+export type FichaExtracto = {
+  cobra: boolean | null; // si esta oportunidad nos la cobramos o no
+  // Los dos papeles del comercial: viabilidad y hoja de encargo.
+  documentos: { rotulo: string; href: string | null; falta: string }[];
+  // El correo con el que salieron: lo minimo para poder preguntar por el.
+  envio: { cuando: string; para: string[]; cc: string[]; hrefMail: string | null } | null;
+  // Con quien hablar, con el telefono a la vista: "invita a llamar, que es bueno".
+  contactos: { papel: string; nombre: string; telefono: string | null }[];
+  // El estado de situacion que escribe Sali, con su boton de actualizar.
+  sali: { conclusion: string; atencion: boolean; parrafos: string[]; cuando: string } | null;
+  // Del diario, SOLO lo de esta direccion.
+  historia: EntradaCuadro[];
 };
 
 export type TareaCuadro = { id: string; texto: string; donde: string | null; fecha: string | null; hora: string | null };
@@ -293,6 +312,9 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
       proximo: juntaProxima ? `junta el ${DIA.format(new Date(b.junta!))}` : null,
       ultimoContacto: o.comunidad ? (ultimo[o.comunidad.id] ?? null) : null,
       href: o.comunidad ? `/expediente/${o.comunidad.id}` : "/comercial/oportunidades",
+      // Todavia no: la viabilidad, la hoja, los correos y los contactos no
+      // estan en la app. Se despliega el hueco, no se inventa nada.
+      ficha: null,
     };
   });
 }

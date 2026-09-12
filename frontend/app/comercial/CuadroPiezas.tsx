@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { Cobro, FichaDesplegada } from "./FichaDesplegada";
 import type {
   CarteraCuadro,
   CifraCuadro,
@@ -252,12 +256,17 @@ export function TarjetaOportunidad({
 }) {
   const parada = o.diasAqui !== null && o.diasAqui >= umbralParado && !o.esperando;
   const sinContacto = o.ultimoContacto !== null && dias(o.ultimoContacto) > umbralSinContacto;
+  // Se despliega aqui mismo, hacia abajo (Monica, 12-sep-2026).
+  const [abierta, setAbierta] = useState(false);
 
   const cuerpo = (
     <div className="px-5 py-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
+            <span className={"text-carbon/35 transition " + (abierta ? "rotate-90" : "")} aria-hidden>
+              ▸
+            </span>
             <span className="text-lg font-bold text-carbon">{o.nombre}</span>
             {o.sinComunidad && (
               <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-700">
@@ -274,14 +283,44 @@ export function TarjetaOportunidad({
             )}
             {conComercial && <span className="text-carbon/45"> · {conComercial}</span>}
           </div>
-        </div>
-        <div className="shrink-0 text-right">
-          {o.precio !== null ? (
-            <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(o.precio)}</div>
-          ) : (
-            <div className="text-base text-carbon/40">Sin precio aún</div>
+          {abierta && (
+            <div className="mt-2.5">
+              <Cobro cobra={o.ficha?.cobra ?? null} />
+            </div>
           )}
-          {o.que && <div className="text-sm text-carbon/55">{o.que}</div>}
+        </div>
+
+        <div className="flex shrink-0 items-start gap-4">
+          <span
+            title="La ficha completa está por montar"
+            onClick={(e) => e.stopPropagation()}
+            className="hidden cursor-not-allowed flex-col items-center rounded-lg border border-dashed border-lima/70 bg-white px-4 py-2 text-center sm:flex"
+          >
+            <span className="text-sm font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">Próximamente</span>
+          </span>
+          {/* Ancho fijo: asi el precio, el tipo y el boton caen en la misma
+              columna en todas las filas y se leen de un vistazo. */}
+          <div className="w-[11.5rem] text-right">
+            {o.precio !== null ? (
+              <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(o.precio)}</div>
+            ) : (
+              <div className="text-base text-carbon/40">Sin precio aún</div>
+            )}
+            {/* Que contratan, en grande: "es importante ver de un vistazo que
+                tipo de proyecto tenemos entre manos" (Monica, 12-sep-2026). */}
+            <div className="mt-1">
+              {o.que ? (
+                <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">
+                  {o.que}
+                </span>
+              ) : (
+                <span className="inline-block rounded-lg border border-dashed border-black/15 px-2.5 py-1 text-base leading-tight text-carbon/35">
+                  sin definir aún
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -319,8 +358,27 @@ export function TarjetaOportunidad({
     </div>
   );
 
-  // La ficha de la oportunidad esta archivada: la tarjeta no lleva a ningun sitio.
-  return cuerpo;
+  // No lleva a otra pantalla: se abre aqui mismo.
+  return (
+    <div className={abierta ? "bg-white ring-1 ring-lima/60" : ""}>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={abierta}
+        onClick={() => setAbierta((x) => !x)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setAbierta((x) => !x);
+          }
+        }}
+        className="cursor-pointer outline-none transition hover:bg-hueso/60 focus-visible:bg-hueso/60"
+      >
+        {cuerpo}
+      </div>
+      {abierta && <FichaDesplegada ficha={o.ficha} />}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------- cifras

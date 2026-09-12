@@ -133,8 +133,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         )}
 
         {/* ---------------- accesos ---------------- */}
+        {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
+            mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
         <div className="mt-6 flex flex-wrap gap-2">
-          <Proximamente texto="🔎 Buscar el expediente de una comunidad" />
           <Proximamente texto="🗂 Mis administradores" />
           <a
             href="#pendientes"
