@@ -394,10 +394,10 @@ export function TarjetaOportunidad({
 // el borde y con la fecha en rojo, para que un color no signifique dos cosas.
 const ORO_CLARO = [217, 183, 90];
 const ORO_OSCURO = [138, 100, 16];
-const oro = (i: number, n: number) => {
+const oro = (i: number, n: number, alfa = 1) => {
   const t = n <= 1 ? 1 : i / (n - 1);
   const c = ORO_CLARO.map((a, k) => Math.round(a + (ORO_OSCURO[k] - a) * t));
-  return `rgb(${c.join(",")})`;
+  return `rgba(${c.join(",")},${alfa})`;
 };
 
 export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
@@ -458,9 +458,18 @@ export function TarjetaFirmada({ f }: { f: FirmadaCuadro }) {
             const tarde = !h.cobrado && h.previsto !== null && h.previsto < hoy;
             return (
               <div key={h.nombre + i} className="min-w-0">
+                {/* Cobrado: relleno. Sin cobrar: hueco con el BORDE de su
+                    dorado, "para que se vea a dónde se llega pero que aún no
+                    estamos ahí" (Monica). Vencido: borde rojo discontinuo. */}
                 <div
-                  className={"h-3 rounded-full " + (h.cobrado ? "" : tarde ? "border-2 border-dashed border-alerta" : "border border-black/10")}
-                  style={h.cobrado ? { background: oro(i, f.hitos.length) } : undefined}
+                  className={"h-3 rounded-full " + (tarde ? "border-2 border-dashed border-alerta" : "")}
+                  style={
+                    tarde
+                      ? undefined
+                      : h.cobrado
+                        ? { background: oro(i, f.hitos.length) }
+                        : { border: `2px solid ${oro(i, f.hitos.length, 0.45)}` }
+                  }
                 />
                 <div className="mt-1.5 text-sm font-semibold leading-tight text-carbon/80">{h.nombre}</div>
                 <div className="text-sm tabular-nums text-carbon/60">{eur(h.importe)}</div>
