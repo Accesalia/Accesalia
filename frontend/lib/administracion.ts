@@ -132,6 +132,10 @@ export type FichaComunidad = {
   encargos: EncargoComunidad[];
   // datos economicos (solo facturacion)
   iban: string | null;
+  // EL TIPO DE PROYECTO ES UNA COSA CONCRETA (Monica, 25-sep-2026), del
+  // catalogo tipos_proyecto: Ascensor, SATE, Rampa... NO es el conjunto de
+  // cosas contratadas, que son los conceptos de la hoja.
+  tipos: string[];
   // derivados
   conProyecto: boolean;
   avisos: string[];
@@ -196,7 +200,12 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
       ),
       "los encargos",
     ),
-    intenta(rest<{ id: string }[]>(`proyectos?select=id&comunidad_id=eq.${id}&limit=1`), "los proyectos"),
+    intenta(
+      rest<{ id: string; proyecto_tipos: { tipos_proyecto: { nombre: string } | null }[] }[]>(
+        `proyectos?select=id,proyecto_tipos(tipos_proyecto(nombre))&comunidad_id=eq.${id}`,
+      ),
+      "los proyectos",
+    ),
   ]);
 
   return {
@@ -247,6 +256,11 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
       };
     }),
     iban: comunidad.iban,
+    tipos: [
+      ...new Set(
+        proyectos.flatMap((p) => (p.proyecto_tipos ?? []).map((t) => t.tipos_proyecto?.nombre).filter((x): x is string => !!x)),
+      ),
+    ],
     conProyecto: proyectos.length > 0,
     avisos,
   };

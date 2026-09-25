@@ -146,11 +146,11 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
         </Link>
 
         {/* ===================== la cabecera: limpia sobre el fondo ===================== */}
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-1 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
-          <div className="flex flex-wrap items-baseline gap-x-7 gap-y-1 text-lg">
+        <div className="mt-3 flex items-baseline gap-x-8 border-b border-black/10 pb-4">
+          <h1 className="min-w-0 truncate text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
+          <div className="ml-auto flex shrink-0 items-baseline gap-x-7 text-lg">
             <Dato et="" v={ultima?.comercial} />
-            <Dato et="Contratado" v={ultima?.que} />
+            <Dato et="Tipo" v={f.tipos.length ? f.tipos.join(" + ") : null} />
           </div>
         </div>
 
