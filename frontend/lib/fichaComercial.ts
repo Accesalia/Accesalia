@@ -79,6 +79,7 @@ export type FichaComercial = {
   hitos: HitoCobro[];
   diario: EntradaCuadro[];
   extracto: FichaExtracto | null; // lo que ya se ve desplegado en la lista
+  avisos?: string[]; // bloques que no se pudieron leer, para decirlo en pantalla
 };
 
 export const EDIFICIO_VACIO: Edificio = {

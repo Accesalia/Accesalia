@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { ID_FANTASMA } from "../../../../lib/cuadroDemo";
 import { fichaDemo } from "../../../../lib/fichaDemo";
+import { esComunidad, fichaReal } from "../../../../lib/fichaReal";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { Bloque, Cobros, DiarioCompleto, Documentos, eur, FichaEdificio, Olfato, Personas, Tiempos, Vacio, ddmm } from "./Piezas";
 
@@ -39,9 +40,13 @@ export default async function FichaCompleta({
   const mio = await comercialDe(yo.id);
   if (!direccion && !mio && !puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  // Hoy solo la demostracion, y solo la ve quien ve todas las carteras.
-  const f = direccion && c === ID_FANTASMA ? fichaDemo(id) : null;
+  // Dos origenes: la demostracion del fantasma (datos inventados) y una
+  // comunidad de verdad (id = comunidad_id). Lo real, de momento, solo lo ve
+  // quien ve todas las carteras: cada comercial vera las suyas cuando exista el
+  // vinculo comunidad-cartera.
+  const f = direccion && c === ID_FANTASMA ? fichaDemo(id) : esComunidad(id) && direccion ? await fichaReal(id) : null;
   if (!f) notFound();
+  const real = f.id === id && esComunidad(id);
 
   const volver = `/comercial${c ? `?c=${c}` : ""}`;
 
@@ -93,6 +98,12 @@ export default async function FichaCompleta({
             )}
           </div>
         </div>
+
+        {f.avisos && f.avisos.length > 0 && (
+          <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
+            No se ha podido leer {f.avisos.join(", ")}. El resto de la ficha es correcto; esos bloques salen vacíos.
+          </div>
+        )}
 
         {/* ------------------------------- el encargo ------------------------------ */}
         <Bloque titulo="El encargo · los tres documentos" de="hojas_encargo · versiones_hoja">
@@ -215,7 +226,7 @@ export default async function FichaCompleta({
         </Bloque>
 
         {/* --------------------------------- diario --------------------------------- */}
-        <Bloque titulo="Toda la historia con esta comunidad" de="interacciones · interaccion_comunidad">
+        <Bloque titulo={real ? "Histórico del expediente" : "Toda la historia con esta comunidad"} de={real ? "observaciones_expediente · licencia y obra, no comercial" : "interacciones · interaccion_comunidad"}>
           <DiarioCompleto entradas={f.diario} />
         </Bloque>
       </main>
