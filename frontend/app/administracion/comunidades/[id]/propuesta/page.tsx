@@ -53,7 +53,7 @@ function Tarjeta({ titulo, de, children, tono = "" }: { titulo?: string; de?: st
 /** Una tarjeta de dentro: el mismo lenguaje, medio tono mas apagada. */
 function Dentro({ titulo, de, ancho = "", children }: { titulo: string; de?: string; ancho?: string; children: React.ReactNode }) {
   return (
-    <div className={"rounded-xl border border-black/5 bg-hueso/70 p-4 " + ancho}>
+    <div className={"rounded-xl border border-lima/25 bg-lima-soft/50 p-4 " + ancho}>
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
         <h3 className="text-sm font-bold text-carbon/85">{titulo}</h3>
         {de && <span className="text-xs text-carbon/40">{de}</span>}
@@ -83,7 +83,7 @@ function Doc({ et, hay }: { et: string; hay?: boolean }) {
       title="El archivo de documentos está por montar"
       className={
         "inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border px-2.5 py-0.5 text-sm font-semibold " +
-        (hay ? "border-lima/60 bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/40")
+        (hay ? "border-lima/60 bg-lima-soft text-lima-dark" : "border-amber-300/70 bg-amber-50/60 text-amber-900/60")
       }
     >
       <span aria-hidden>📄</span>
@@ -95,11 +95,11 @@ function Doc({ et, hay }: { et: string; hay?: boolean }) {
 /** Lo que todavía no tiene dónde guardarse: en gris, con sus campos nombrados. */
 function Hueco({ texto, campos }: { texto: string; campos: string[] }) {
   return (
-    <div className="rounded-xl border border-dashed border-black/15 bg-hueso/60 px-4 py-3">
-      <p className="text-sm leading-snug text-carbon/50">{texto}</p>
+    <div className="rounded-xl border border-dashed border-amber-300/70 bg-amber-50/50 px-4 py-3">
+      <p className="text-sm leading-snug text-amber-900/65">{texto}</p>
       <ul className="mt-2 flex flex-wrap gap-1.5">
         {campos.map((c) => (
-          <li key={c} className="rounded-md border border-dashed border-black/15 bg-white px-2 py-0.5 text-xs text-carbon/45">
+          <li key={c} className="rounded-md border border-amber-200 bg-white/70 px-2 py-0.5 text-xs font-medium text-amber-900/70">
             {c}
           </li>
         ))}
@@ -166,7 +166,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
             {/* ---- lo primero: las excepciones. Sin tarjeta, y si no hay, una linea ---- */}
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-sm font-bold uppercase tracking-wider text-carbon/70">Notas</span>
-              <span className="min-w-0 flex-1 rounded-md border border-black/10 bg-white px-3 py-1 text-sm text-carbon/35">
+              <span className="min-w-0 flex-1 rounded-md border border-lima/30 bg-white px-3 py-1 text-sm text-carbon/40">
                 Escribe aquí lo que no cabe en ningún otro sitio
               </span>
             </div>
@@ -238,7 +238,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                     const est = ESTADO_HOJA[e.estado ?? ""] ?? { texto: e.estado ?? "sin estado", tono: "bg-black/5 text-carbon/60" };
                     const total = e.lineas.reduce((s, l) => s + (l.importe ?? 0), 0);
                     return (
-                      <div key={e.id} className="rounded-xl border border-black/5 bg-hueso/70 p-4">
+                      <div key={e.id} className="rounded-xl border border-lima/25 bg-lima-soft/50 p-4">
                         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
                           <span className="text-lg font-bold text-carbon">{e.que ?? "sin descripción"}</span>
                           <div className="flex flex-wrap items-center gap-2">
