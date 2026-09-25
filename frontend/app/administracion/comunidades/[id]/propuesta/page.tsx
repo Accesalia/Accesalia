@@ -68,7 +68,7 @@ function Dato({ et, v, ancho = "" }: { et: string; v: React.ReactNode; ancho?: s
   const vacio = v === null || v === undefined || v === "";
   return (
     <div className={"flex min-w-0 items-baseline gap-1.5 " + ancho}>
-      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}:</span>
+      {et && <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}:</span>}
       <span className={"truncate text-base " + (vacio ? "text-amber-700/50" : "text-carbon/90")}>
         {vacio ? "por completar" : v}
       </span>
@@ -149,7 +149,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
         <div className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-1 border-b border-black/10 pb-4">
           <h1 className="text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
           <div className="flex flex-wrap items-baseline gap-x-7 gap-y-1 text-lg">
-            <Dato et="Quien la lleva" v={ultima?.comercial} />
+            <Dato et="" v={ultima?.comercial} />
             <Dato et="Contratado" v={ultima?.que} />
           </div>
         </div>
@@ -192,9 +192,9 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                   ) : (
                     f.presidentes.map((p, i) => (
                       <div key={i} className="flex flex-wrap gap-x-8 gap-y-3 pb-3">
-                        <Dato et="Nombre" v={p.nombre} ancho="flex-1 basis-56" />
-                        <Dato et="Teléfono" v={p.telefono ? <span className="font-semibold text-lima-dark">{p.telefono}</span> : null} ancho="basis-32" />
-                        <Dato et="Correo" v={p.email} ancho="basis-48" />
+                        <Dato et="" v={<b className="font-semibold">{p.nombre}</b>} ancho="flex-1 basis-56" />
+                        <Dato et="" v={p.telefono ? <span className="font-semibold text-lima-dark">{p.telefono}</span> : "sin teléfono"} ancho="basis-32" />
+                        <Dato et="" v={p.email} ancho="basis-48" />
                         <Dato et="DNI" v={p.documento} ancho="basis-32" />
                         <Doc et="Documento del DNI" />
                       </div>
@@ -216,9 +216,9 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                     <ul className="space-y-2">
                       {f.otrosContactos.map((p, i) => (
                         <li key={i} className="flex flex-wrap gap-x-6 gap-y-2">
-                          <Dato et="Nombre" v={p.nombre} ancho="basis-44" />
-                          <Dato et="Teléfono" v={p.telefono} ancho="basis-32" />
-                          <Dato et="Correo" v={p.email} ancho="basis-44" />
+                          <Dato et="" v={<b className="font-semibold">{p.nombre}</b>} ancho="basis-44" />
+                          <Dato et="" v={p.telefono} ancho="basis-32" />
+                          <Dato et="" v={p.email} ancho="basis-44" />
                           <Dato et="Por qué está aquí" v={p.notas} ancho="flex-1 basis-52" />
                         </li>
                       ))}
@@ -289,13 +289,13 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
               {admin ? (
                 <>
                   <div className="space-y-3">
-                    <Dato et="Administración" v={admin.empresa} />
+                    <Dato et="" v={<b className="text-lg font-semibold">{admin.empresa}</b>} />
                     <div className="flex flex-wrap gap-x-6 gap-y-3">
-                      <Dato et="Teléfono general" v={admin.telefono} ancho="flex-1 basis-32" />
+                      <Dato et="Tel. general" v={admin.telefono} ancho="flex-1 basis-32" />
                       <Dato et="Desde" v={fecha(admin.desde)} ancho="basis-24" />
                     </div>
                     <div className="border-t border-black/5 pt-3">
-                      <Dato et="Persona que la lleva" v={admin.persona?.nombre} />
+                      <Dato et="" v={<b className="font-semibold">{admin.persona?.nombre}</b>} />
                     </div>
                     <div className="flex flex-wrap gap-x-6 gap-y-3">
                       <Dato
