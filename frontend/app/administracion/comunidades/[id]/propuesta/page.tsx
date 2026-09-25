@@ -70,7 +70,7 @@ function Dato({ et, v, ancho = "" }: { et: string; v: React.ReactNode; ancho?: s
     <div className={"flex min-w-0 items-baseline gap-1.5 " + ancho}>
       {et && <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}:</span>}
       <span className={"truncate text-base " + (vacio ? "text-amber-700/50" : "text-carbon/90")}>
-        {vacio ? "por completar" : v}
+        {vacio ? (et ? "por completar" : "—") : v}
       </span>
     </div>
   );
@@ -96,18 +96,15 @@ function Doc({ et, hay }: { et: string; hay?: boolean }) {
 }
 
 /** Lo que todavía no tiene dónde guardarse: en gris, con sus campos nombrados. */
-function Hueco({ texto, campos }: { texto: string; campos: string[] }) {
+function Hueco({ campos }: { campos: string[] }) {
   return (
-    <div className="rounded-xl border border-dashed border-amber-300/70 bg-amber-50/50 px-4 py-3">
-      <p className="text-sm leading-snug text-amber-900/65">{texto}</p>
-      <ul className="mt-2 flex flex-wrap gap-1.5">
-        {campos.map((c) => (
-          <li key={c} className="rounded-md border border-amber-200 bg-white/70 px-2 py-0.5 text-xs font-medium text-amber-900/70">
-            {c}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className="flex flex-wrap gap-1.5">
+      {campos.map((c) => (
+        <li key={c} className="rounded-md border border-amber-200 bg-amber-50/60 px-2 py-0.5 text-xs font-medium text-amber-900/70">
+          {c}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -169,9 +166,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
             {/* ---- lo primero: las excepciones. Sin tarjeta, y si no hay, una linea ---- */}
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-sm font-bold uppercase tracking-wider text-carbon/70">Notas</span>
-              <span className="min-w-0 flex-1 rounded-md border border-lima/30 bg-white px-3 py-1 text-sm text-carbon/40">
-                Escribe aquí lo que no cabe en ningún otro sitio
-              </span>
+              <span className="min-w-0 flex-1 rounded-md border border-lima/30 bg-white px-3 py-2.5" />
             </div>
 
             {/* ---- la comunidad, con quien manda dentro ---- */}
@@ -203,9 +198,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                       </div>
                     ))
                   )}
-                  <Hueco
-                    texto="El acta de nombramiento: de aquí sale el aviso cuando caduque el cargo. Con 250 comunidades vivas, a mano es inviable."
-                    campos={["📄 Acta de nombramiento", "Fecha del acta", "Vigencia hasta", "Aviso al caducar", "Presidentes anteriores"]}
+                  <Hueco campos={["📄 Acta de nombramiento", "Fecha del acta", "Vigencia hasta", "Aviso al caducar", "Presidentes anteriores"]}
                   />
                 </Dentro>
               </div>
@@ -272,9 +265,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                         )}
 
                         <div className="mt-3">
-                          <Hueco
-                            texto="En qué punto está: sale del flujo del proyecto y todavía hay que definirlo."
-                            campos={["Escaneo", "Visado", "Licencia", "Obra iniciada", "Obra terminada"]}
+                          <Hueco campos={["Escaneo", "Visado", "Licencia", "Obra iniciada", "Obra terminada"]}
                           />
                         </div>
                       </div>
@@ -325,17 +316,11 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                           </li>
                         ))}
                       </ul>
-                      <p className="mt-1.5 text-xs text-carbon/40">
-                        Importa en subvenciones: se tramitan dos o tres años después y puede haber documentación enviada al
-                        anterior.
-                      </p>
                     </div>
                   )}
                 </>
               ) : (
-                <p className="text-base text-amber-700/50">
-                  Sin administrador asignado. Son 646 de las 1.228: es el hueco más gordo que hay.
-                </p>
+                <p className="text-base text-amber-700/60">Sin administrador asignado.</p>
               )}
             </Tarjeta>
 
@@ -345,9 +330,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                 <Dato et="Hojas firmadas" v={<b className={firmadas ? "text-lima-dark" : "text-carbon/30"}>{firmadas}</b>} />
                 <Dato et="Tiene proyecto" v={<b className={f.conProyecto ? "text-lima-dark" : "text-carbon/30"}>{f.conProyecto ? "sí" : "no"}</b>} />
               </div>
-              <Hueco
-                texto="Viva o cerrada: se calculará de lo contratado — obra sin CFO, subvención sin resolución, IEE sin su documento — y se podrá reactivar si vuelven a llamar."
-                campos={["Viva o cerrada", "Por qué está viva", "Se puede reactivar"]}
+              <Hueco campos={["Viva o cerrada", "Por qué está viva", "Se puede reactivar"]}
               />
             </Tarjeta>
 
