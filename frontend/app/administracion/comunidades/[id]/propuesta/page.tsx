@@ -67,11 +67,11 @@ function Dentro({ titulo, de, ancho = "", children }: { titulo: string; de?: str
 function Dato({ et, v, ancho = "" }: { et: string; v: React.ReactNode; ancho?: string }) {
   const vacio = v === null || v === undefined || v === "";
   return (
-    <div className={"min-w-0 " + ancho}>
-      <div className="text-[11px] uppercase tracking-wide text-carbon/40">{et}</div>
-      <div className={"truncate text-base " + (vacio ? "text-amber-700/45" : "text-carbon/85")}>
+    <div className={"flex min-w-0 items-baseline gap-1.5 " + ancho}>
+      <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}:</span>
+      <span className={"truncate text-base " + (vacio ? "text-amber-700/50" : "text-carbon/90")}>
         {vacio ? "por completar" : v}
-      </div>
+      </span>
     </div>
   );
 }
@@ -79,19 +79,16 @@ function Dato({ et, v, ancho = "" }: { et: string; v: React.ReactNode; ancho?: s
 /** El botón de un documento guardado. Todavía no abre nada. */
 function Doc({ et, hay }: { et: string; hay?: boolean }) {
   return (
-    <div className="min-w-0">
-      <div className="text-[11px] uppercase tracking-wide text-carbon/40">{et}</div>
-      <span
-        title="El archivo de documentos está por montar"
-        className={
-          "mt-0.5 inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border px-2.5 py-1 text-sm font-semibold " +
-          (hay ? "border-lima bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/35")
-        }
-      >
-        <span aria-hidden>📄</span>
-        {hay ? "abrir" : "sin subir"}
-      </span>
-    </div>
+    <span
+      title="El archivo de documentos está por montar"
+      className={
+        "inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border px-2.5 py-0.5 text-sm font-semibold " +
+        (hay ? "border-lima/60 bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/40")
+      }
+    >
+      <span aria-hidden>📄</span>
+      {et}
+    </span>
   );
 }
 
@@ -148,26 +145,12 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
           ← Volver a la ficha de ahora
         </Link>
 
-        {/* ===================== la cabecera lo dice todo ===================== */}
-        <div className="mt-3 overflow-hidden rounded-2xl border-l-4 border-lima bg-white shadow-sm">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-5 py-4">
-            <h1 className="text-2xl font-bold leading-tight text-carbon sm:text-3xl">{f.nombre}</h1>
-            <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
-              <Dato et="CP" v={f.cp} />
-              <Dato et="Municipio" v={f.municipio} />
-              <Dato et="Provincia" v={f.provincia} />
-              <Dato et="Quien la lleva" v={ultima?.comercial} />
-              <div className="min-w-0">
-                <div className="text-[11px] uppercase tracking-wide text-carbon/40">Qué se ha contratado</div>
-                {ultima?.que ? (
-                  <span className="mt-0.5 inline-block rounded-lg bg-lima px-2.5 py-1 text-base font-bold leading-tight text-carbon">
-                    {ultima.que}
-                  </span>
-                ) : (
-                  <div className="text-base text-amber-700/45">nada todavía</div>
-                )}
-              </div>
-            </div>
+        {/* ===================== la cabecera: limpia sobre el fondo ===================== */}
+        <div className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-1 border-b border-black/10 pb-4">
+          <h1 className="text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
+          <div className="flex flex-wrap items-baseline gap-x-7 gap-y-1 text-lg">
+            <Dato et="Quien la lleva" v={ultima?.comercial} />
+            <Dato et="Contratado" v={ultima?.que} />
           </div>
         </div>
 
@@ -180,29 +163,30 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
         <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
           {/* ======================= columna izquierda ======================= */}
           <div className="space-y-5">
-            {/* ---- lo primero: las excepciones ---- */}
-            <Tarjeta titulo="Lo que hay que saber" de="las excepciones, antes que la rutina">
-              <p className="rounded-xl border border-dashed border-black/15 bg-hueso/50 px-4 py-6 text-center text-sm text-carbon/40">
-                Todavía no hay dónde escribirlas. Aquí irán dos o tres notas a la vista, y el resto se despliega.
-              </p>
-            </Tarjeta>
+            {/* ---- lo primero: las excepciones. Sin tarjeta, y si no hay, una linea ---- */}
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-sm font-bold uppercase tracking-wider text-carbon/70">Notas</span>
+              <span className="min-w-0 flex-1 rounded-md border border-black/10 bg-white px-3 py-1 text-sm text-carbon/35">
+                Escribe aquí lo que no cabe en ningún otro sitio
+              </span>
+            </div>
 
             {/* ---- la comunidad, con quien manda dentro ---- */}
-            <Tarjeta titulo="La comunidad de vecinos" de="quién es y qué edificio es">
-              <div className="flex flex-wrap gap-x-8 gap-y-4">
-                <Dato et="Nombre fiscal · el de la tarjeta del CIF" v={null} ancho="flex-1 basis-72" />
-                <Dato et="CIF" v={f.cif} ancho="basis-36" />
-                <Doc et="Tarjeta del CIF" />
+            <Tarjeta titulo="Datos Comunidad">
+              <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2">
+                <Dato et="Nombre fiscal (del CIF)" v={null} ancho="min-w-0 flex-1 basis-80" />
+                <Dato et="CIF" v={f.cif} />
+                <Doc et="tarjeta CIF" />
               </div>
-              <div className="mt-4 flex flex-wrap gap-x-8 gap-y-4 border-t border-black/5 pt-4">
-                <Dato et="Referencia catastral" v={f.edificio.catastro} ancho="basis-56" />
-                <Dato et="Viviendas" v={f.edificio.viviendas} ancho="basis-24" />
-                <Dato et="Año de construcción" v={f.edificio.anio} ancho="basis-32" />
+              <div className="mt-2.5 flex flex-wrap items-baseline gap-x-7 gap-y-2">
+                <Dato et="Ref. catastral" v={f.edificio.catastro} />
+                <Dato et="Viviendas" v={f.edificio.viviendas} />
+                <Dato et="Año" v={f.edificio.anio} />
               </div>
 
               {/* el presidente, con su acta en gris */}
               <div className="mt-5">
-                <Dentro titulo="Presidente" de="cambia cada año">
+                <Dentro titulo="Presidente">
                   {f.presidentes.length === 0 ? (
                     <p className="text-base text-amber-700/45">por completar</p>
                   ) : (
@@ -225,7 +209,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
 
               {/* y las otras personas, mas pequeñas: son la excepcion */}
               <div className="mt-4 max-w-2xl">
-                <Dentro titulo="Otras personas de contacto" de="la vecina, el hijo, quien de verdad lo lleva">
+                <Dentro titulo="Otras personas de contacto">
                   {f.otrosContactos.length === 0 ? (
                     <p className="text-sm text-carbon/40">Ninguna apuntada.</p>
                   ) : (
@@ -245,7 +229,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
             </Tarjeta>
 
             {/* ---- lo contratado: una tarjeta por hoja ---- */}
-            <Tarjeta titulo="Lo contratado" de="una tarjeta por cada hoja de encargo">
+            <Tarjeta titulo="Datos comerciales">
               {f.encargos.length === 0 ? (
                 <p className="text-sm text-carbon/40">No hay ninguna hoja de encargo de esta comunidad.</p>
               ) : (
@@ -301,7 +285,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
           {/* ======================== columna derecha ======================== */}
           <aside className="space-y-5 lg:sticky lg:top-20">
             {/* lo primero: con quien hay que hablar */}
-            <Tarjeta titulo="Administrador de fincas" de="con quién hay que hablar">
+            <Tarjeta titulo="Administrador de fincas">
               {admin ? (
                 <>
                   <div className="space-y-3">
