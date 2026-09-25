@@ -22,7 +22,15 @@ const AREAS: Area[] = [
     href: "/comercial",
     ve: (yo, comercial) => !yo || yo.veTodo || comercial || puedeEntrar(yo, "comercial"),
   },
-  { nombre: "Administraciones de fincas", desc: "Las administraciones, su gente y las comunidades que llevan", href: null, ve: () => true },
+  {
+    // El area de los MAESTROS (Monica, 25-sep-2026): lo primero que necesita el
+    // estudio para trabajar de verdad es poder dar de alta y mantener las
+    // administraciones y las comunidades. Dentro habra mas puertas.
+    nombre: "Área Administración",
+    desc: "Las administraciones de fincas y las comunidades de vecinos: consultarlas, abrir su ficha y dar de alta",
+    href: "/administracion",
+    ve: (yo) => !yo || yo.veTodo || puedeEntrar(yo, "administracion"),
+  },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, ve: () => true },
   {
     nombre: "RRHH",
