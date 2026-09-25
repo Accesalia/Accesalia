@@ -120,6 +120,14 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
         >
           Ver la propuesta nueva →
         </Link>
+        {/* Dar de alta otra se puede desde aqui tambien: el alta no es un
+            rincon de la lista, se llega a ella desde donde estes. */}
+        <Link
+          href="/administracion/comunidades/nueva"
+          className="ml-4 text-sm font-semibold text-carbon/55 transition hover:text-carbon"
+        >
+          + Dar de alta una comunidad
+        </Link>
 
         {/* ===================== LA DIRECCION, cabecera absoluta ===================== */}
         {/* Es UN solo campo de texto y no se descompone, a proposito. Al lado, lo
