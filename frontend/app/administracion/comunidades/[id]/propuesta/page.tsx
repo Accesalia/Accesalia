@@ -77,17 +77,20 @@ function Dato({ et, v, ancho = "" }: { et: string; v: React.ReactNode; ancho?: s
 }
 
 /** El botón de un documento guardado. Todavía no abre nada. */
+/** Un documento enlazado. Siempre con su cara de documento; si no está subido,
+ *  lo dice con un (falta) al lado, sin disfrazarse de otra cosa. */
 function Doc({ et, hay }: { et: string; hay?: boolean }) {
   return (
     <span
-      title="El archivo de documentos está por montar"
+      title={hay ? "El visor de documentos está por montar" : "Todavía no está subido"}
       className={
         "inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border px-2.5 py-0.5 text-sm font-semibold " +
-        (hay ? "border-lima/60 bg-lima-soft text-lima-dark" : "border-amber-300/70 bg-amber-50/60 text-amber-900/60")
+        (hay ? "border-lima/60 bg-lima-soft text-lima-dark" : "border-lima/30 bg-white text-lima-dark/55")
       }
     >
       <span aria-hidden>📄</span>
       {et}
+      {!hay && <span className="font-medium text-amber-700/70">(falta)</span>}
     </span>
   );
 }
@@ -176,7 +179,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
               <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2">
                 <Dato et="Nombre fiscal (del CIF)" v={null} ancho="min-w-0 flex-1 basis-80" />
                 <Dato et="CIF" v={f.cif} />
-                <Doc et="tarjeta CIF" />
+                <Doc et="Tarjeta CIF" />
               </div>
               <div className="mt-2.5 flex flex-wrap items-baseline gap-x-7 gap-y-2">
                 <Dato et="Ref. catastral" v={f.edificio.catastro} />
@@ -196,7 +199,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                         <Dato et="" v={p.telefono ? <span className="font-semibold text-lima-dark">{p.telefono}</span> : "sin teléfono"} ancho="basis-32" />
                         <Dato et="" v={p.email} ancho="basis-48" />
                         <Dato et="DNI" v={p.documento} ancho="basis-32" />
-                        <Doc et="Documento del DNI" />
+                        <Doc et="DNI" />
                       </div>
                     ))
                   )}
