@@ -114,6 +114,12 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
         <Link href="/administracion/comunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
           ← Comunidades
         </Link>
+        <Link
+          href={`/administracion/comunidades/${id}/propuesta`}
+          className="ml-4 text-sm font-semibold text-lima-dark transition hover:underline"
+        >
+          Ver la propuesta nueva →
+        </Link>
 
         {/* ===================== LA DIRECCION, cabecera absoluta ===================== */}
         {/* Es UN solo campo de texto y no se descompone, a proposito. Al lado, lo
