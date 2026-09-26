@@ -37,6 +37,21 @@ const PUERTAS: Puerta[] = [
   },
 ];
 
+// LAS TRES ALTAS (Monica, 25-sep-2026). Son tres cosas distintas, con tres
+// flujos y tres grupos de condiciones, y no se mezclan:
+//   comunidad     -> gira alrededor de la DIRECCION
+//   administrador -> gira alrededor de la PERSONA de contacto
+//   oportunidad   -> gira alrededor de la ENTRADA DEL DIARIO
+// Los tres botones viven aqui y tambien en comercial: una accion, dos puertas.
+
+type Alta = { nombre: string; gira: string; href: string | null };
+
+const ALTAS: Alta[] = [
+  { nombre: "Una comunidad", gira: "su dirección", href: "/administracion/comunidades/nueva" },
+  { nombre: "Un administrador", gira: "la persona de contacto", href: null },
+  { nombre: "Una oportunidad", gira: "la entrada del diario", href: null },
+];
+
 export default async function AreaAdministracion() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/administracion");
@@ -50,6 +65,29 @@ export default async function AreaAdministracion() {
 
         <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Área Administración</h1>
         <p className="mt-1.5 text-lg text-carbon/60">Los datos que sostienen todo lo demás: quién es quién y dónde.</p>
+
+        <div className="mt-7 flex flex-wrap gap-2.5">
+          {ALTAS.map((a) =>
+            a.href ? (
+              <Link
+                key={a.nombre}
+                href={a.href}
+                className="group inline-flex items-baseline gap-2 rounded-full bg-lima px-5 py-2.5 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white"
+              >
+                + Dar de alta {a.nombre.toLowerCase()}
+                <span className="text-sm font-medium text-carbon/55 group-hover:text-white/70">{a.gira}</span>
+              </Link>
+            ) : (
+              <span
+                key={a.nombre}
+                className="inline-flex items-baseline gap-2 rounded-full border border-dashed border-black/15 bg-white px-5 py-2.5 text-base font-semibold text-carbon/40"
+              >
+                + Dar de alta {a.nombre.toLowerCase()}
+                <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] uppercase tracking-wide">Próximamente</span>
+              </span>
+            ),
+          )}
+        </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {PUERTAS.map((p) => {

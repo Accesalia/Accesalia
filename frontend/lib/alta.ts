@@ -1,28 +1,21 @@
 // lib/alta.ts
 //
-// EL ALTA (Monica, 25-sep-2026). Es la puerta por la que entra todo lo
-// comercial. Su regla, dicha por ella:
+// EL ALTA DE UNA COMUNIDAD (Monica, 25-sep-2026).
 //
-//   "lo que debe ser necesario es O direccion O administrador O nota
-//    comercial, alguna cosa tiene que haber."
+// Son TRES altas distintas, con tres condiciones distintas, y no hay que
+// mezclarlas (me lo corrigio ella despues de que yo hiciera justo eso):
 //
-// Los tres casos que tiene que aguantar:
-//   1. una direccion y nada mas (no sabemos quien la administra);
-//   2. un administrador y NINGUNA direccion todavia ("Valentin me dice que
-//      pase el martes, tiene 3 comunidades para ascensor"): la nota queda
-//      colgada de el, y cuando lleguen las direcciones cada una abre su
-//      oportunidad apuntando a esta con `oportunidad_origen_id`;
-//   3. ni una cosa ni la otra: un contacto suelto de la web (Vanesa Lopez y su
-//      telefono). DECIDIDO por Monica: "la idea es que Vanesa y su telefono no
-//      existan mas que como nota comercial, hasta que al menos tengamos una
-//      direccion de la que tirar. Si no, no tenemos nada". O sea que NO se le
-//      busca sitio como persona: vive en el texto de la nota hasta que haya
-//      direccion, y entonces se crea la comunidad y ella pasa a ser suya.
+//   COMUNIDAD    gira alrededor de la DIRECCION -> la direccion es obligatoria
+//   ADMINISTRADOR gira alrededor de la PERSONA de contacto
+//   OPORTUNIDAD  gira alrededor de la ENTRADA DEL DIARIO
 //
-// Lo que se escribe, en este orden:
-//   comunidad (si hay direccion) -> su presidente -> su administrador
-//   -> oportunidad (con comunidad de verdad o `comunidad_provisional`)
-//   -> primera nota del diario, con fecha y autor.
+// Esto es la primera. Sin direccion no hay comunidad, porque la direccion ES
+// la comunidad. Lo demas —administrador, comercial, edificio, presidente,
+// nota— puede llegar despues.
+//
+// Aqui NO se abre oportunidad: eso es la tercera alta y tiene su puerta. Si
+// hay nota, se guarda como primera entrada del diario colgada de la comunidad,
+// con su fecha y con quien la escribio.
 
 import "server-only";
 
@@ -94,15 +87,18 @@ export async function opcionesAlta(): Promise<OpcionesAlta> {
 
 // ------------------------------------------------------------------- el alta
 
-export type DatosAlta = {
-  direccion: string | null;
+export type DatosComunidad = {
+  /** La direccion. Un solo texto que no se descompone, a proposito. Obligatoria. */
+  direccion: string;
   cp: string | null;
   municipio: string | null;
   provincia: string | null;
   administracionId: string | null;
   puestoId: string | null;
+  /** El comercial al que le toca. Se guarda en la NOTA, no en la comunidad:
+   *  el comercial cuelga de la administracion y de la oportunidad, nunca del
+   *  edificio. */
   comercialId: string | null;
-  tipoOrigen: string;
   nota: string | null;
   // el edificio
   anio: number | null;
@@ -113,73 +109,54 @@ export type DatosAlta = {
   presidente: { nombre: string; telefono: string | null; email: string | null; documento: string | null } | null;
 };
 
-export type ResultadoAlta = {
-  comunidadId: string | null;
-  oportunidadId: string;
-  interaccionId: string | null;
-};
+export type ResultadoComunidad = { comunidadId: string; interaccionId: string | null };
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 
-export async function crearAlta(d: DatosAlta, autorId: string | null): Promise<ResultadoAlta> {
-  // 1 · la comunidad, solo si hay direccion. `nombre` ES la direccion: un solo
-  //     texto que no se descompone, a proposito.
-  let comunidadId: string | null = null;
-  if (d.direccion) {
-    const c = await crear<{ id: string }>("comunidades", {
-      nombre: d.direccion,
-      cp: d.cp,
-      municipio: d.municipio,
-      provincia: d.provincia,
-      anio_construccion: d.anio,
-      num_viviendas: d.viviendas,
-      referencia_catastral: d.catastro,
-      cif_comunidad: d.cif,
-      activa: true,
+export async function crearComunidad(d: DatosComunidad, autorId: string | null): Promise<ResultadoComunidad> {
+  // 1 · la comunidad. `nombre` ES la direccion.
+  const c = await crear<{ id: string }>("comunidades", {
+    nombre: d.direccion,
+    cp: d.cp,
+    municipio: d.municipio,
+    provincia: d.provincia,
+    anio_construccion: d.anio,
+    num_viviendas: d.viviendas,
+    referencia_catastral: d.catastro,
+    cif_comunidad: d.cif,
+    activa: true,
+  });
+  const comunidadId = c.id;
+
+  // 2 · su presidente
+  if (d.presidente) {
+    await crear("personas_comunidad", {
+      comunidad_id: comunidadId,
+      nombre: d.presidente.nombre,
+      rol: "presidente",
+      telefono: d.presidente.telefono,
+      email: d.presidente.email,
+      documento: d.presidente.documento,
+      es_contacto_principal: true,
     });
-    comunidadId = c.id;
-
-    if (d.presidente) {
-      await crear("personas_comunidad", {
-        comunidad_id: comunidadId,
-        nombre: d.presidente.nombre,
-        rol: "presidente",
-        telefono: d.presidente.telefono,
-        email: d.presidente.email,
-        documento: d.presidente.documento,
-        es_contacto_principal: true,
-      });
-    }
-
-    if (d.administracionId) {
-      await crear("comunidad_admin_responsable", {
-        comunidad_id: comunidadId,
-        empresa_id: d.administracionId,
-        puesto_id: d.puestoId,
-        vigente: true,
-        desde: hoy(),
-      });
-    }
   }
 
-  // 2 · la oportunidad. Si no hay comunidad todavia, la direccion prometida (o
-  //     el nombre de quien llama) va en `comunidad_provisional`: el lead
-  //     fantasma que ya estaba previsto en el modelo.
-  const op = await crear<{ id: string }>("oportunidades", {
-    comunidad_id: comunidadId,
-    comunidad_provisional: comunidadId ? null : d.direccion,
-    comercial_id: d.comercialId,
-    puesto_id: d.puestoId,
-    tipo_origen: d.tipoOrigen,
-    estado: "activa",
-    origen_notas: d.nota,
-  });
+  // 3 · quien la administra
+  if (d.administracionId) {
+    await crear("comunidad_admin_responsable", {
+      comunidad_id: comunidadId,
+      empresa_id: d.administracionId,
+      puesto_id: d.puestoId,
+      vigente: true,
+      desde: hoy(),
+    });
+  }
 
-  // 3 · la primera nota del diario comercial: fecha, autor y texto.
+  // 4 · la primera entrada del diario, si la hay. Cuelga de la comunidad; no
+  //     hace falta oportunidad para que exista.
   let interaccionId: string | null = null;
   if (d.nota) {
     const i = await crear<{ id: string }>("interacciones", {
-      oportunidad_id: op.id,
       comercial_id: d.comercialId,
       puesto_id: d.puestoId,
       transcripcion: d.nota,
@@ -188,14 +165,12 @@ export async function crearAlta(d: DatosAlta, autorId: string | null): Promise<R
       autor_id: autorId,
     });
     interaccionId = i.id;
-    if (comunidadId) {
-      await crear("interaccion_comunidad", {
-        interaccion_id: i.id,
-        comunidad_id: comunidadId,
-        origen: "alta",
-      });
-    }
+    await crear("interaccion_comunidad", {
+      interaccion_id: i.id,
+      comunidad_id: comunidadId,
+      origen: "alta",
+    });
   }
 
-  return { comunidadId, oportunidadId: op.id, interaccionId };
+  return { comunidadId, interaccionId };
 }

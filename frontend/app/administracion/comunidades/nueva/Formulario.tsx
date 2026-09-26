@@ -4,18 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import type { OpcionesAlta } from "../../../../lib/alta";
 
-// EL FORMULARIO DE ALTA. La regla de Monica: con UNA de las tres basta
-// (direccion, administrador o nota). Por eso no hay campos obligatorios uno a
-// uno: lo que se comprueba es que haya algo de donde tirar.
-
-const ORIGENES: { valor: string; texto: string }[] = [
-  { valor: "administrador_conocido", texto: "Un administrador que ya conocemos" },
-  { valor: "web", texto: "La web" },
-  { valor: "boca_a_boca", texto: "Boca a boca" },
-  { valor: "contrata", texto: "Una contrata" },
-  { valor: "puerta_fria", texto: "Puerta fría" },
-  { valor: "otro", texto: "Otro" },
-];
+// EL FORMULARIO DEL ALTA DE UNA COMUNIDAD. Gira alrededor de la DIRECCION, que
+// es lo unico obligatorio: sin ella no hay comunidad. Abrir una oportunidad sin
+// direccion es OTRA alta, con su puerta.
 
 const campo =
   "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-base text-carbon outline-none transition focus:border-lima";
@@ -50,11 +41,10 @@ export function Formulario({
 }) {
   const [admin, setAdmin] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [nota, setNota] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   const personas = opciones.personas.filter((p) => p.empresaId === admin);
-  const hayAlgo = direccion.trim() !== "" || admin !== "" || nota.trim() !== "";
+  const hayDireccion = direccion.trim() !== "";
 
   return (
     <form action={accion} onSubmit={() => setEnviando(true)} className="mt-7 grid gap-5">
@@ -67,6 +57,7 @@ export function Formulario({
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
             autoFocus
+            required
             className={campo + " mt-1.5 text-lg font-semibold"}
           />
         </label>
@@ -133,16 +124,6 @@ export function Formulario({
           </select>
         </label>
 
-        <label htmlFor="origen">
-          <span className={etiqueta}>Cómo ha llegado</span>
-          <select id="origen" name="origen" defaultValue="administrador_conocido" className={campo + " mt-1.5"}>
-            {ORIGENES.map((o) => (
-              <option key={o.valor} value={o.valor}>
-                {o.texto}
-              </option>
-            ))}
-          </select>
-        </label>
       </Bloque>
 
       <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
@@ -151,8 +132,6 @@ export function Formulario({
           id="nota"
           name="nota"
           rows={4}
-          value={nota}
-          onChange={(e) => setNota(e.target.value)}
           placeholder="Me llama Adolfo, que quiere que Dani vaya a ver un ascensor aquí. El martes a las 12:15 en su oficina y de allí vais a verlo."
           className={campo + " mt-4 resize-y placeholder:text-carbon/25"}
         />
@@ -175,7 +154,7 @@ export function Formulario({
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          disabled={!hayAlgo || enviando}
+          disabled={!hayDireccion || enviando}
           className="rounded-xl bg-lima px-6 py-3 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35 disabled:hover:text-carbon/35"
         >
           {enviando ? "Guardando…" : "Guardar"}
@@ -183,11 +162,7 @@ export function Formulario({
         <Link href={volver} className="rounded-xl border border-black/10 px-5 py-3 text-base text-carbon/60 transition hover:border-lima">
           Cancelar
         </Link>
-        {!hayAlgo && (
-          <span className="text-sm text-carbon/45">
-            Con la dirección, el administrador o la nota basta. Hace falta al menos una.
-          </span>
-        )}
+        {!hayDireccion && <span className="text-sm text-carbon/45">Escribe la dirección.</span>}
       </div>
     </form>
   );

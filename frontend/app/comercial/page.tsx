@@ -100,14 +100,6 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               {todos ? "Todos los comerciales. " : <>Hola, <b className="text-carbon">{nombre}</b>. </>}
               {hoy.charAt(0).toUpperCase() + hoy.slice(1)}.
             </p>
-            {/* El alta tambien se hace desde aqui: un comercial no tiene por
-                que entrar en Administracion para abrir una ficha nueva. */}
-            <Link
-              href="/administracion/comunidades/nueva"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-lima px-5 py-2.5 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white"
-            >
-              + Dar de alta una comunidad
-            </Link>
           </div>
           {direccion && (
             <div className="flex flex-wrap gap-1.5">
