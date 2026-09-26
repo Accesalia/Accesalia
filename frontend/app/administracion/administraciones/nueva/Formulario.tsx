@@ -345,12 +345,12 @@ export function Formulario({
                   <Dato
                     id={"gente_" + f.id + "_nombre"}
                     nombre="Nombre"
-                    clase="sm:col-span-6"
+                    clase="sm:col-span-5"
                     valor={f.nombre}
                     alEscribir={(v) => setGente((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                   />
                   <Dato id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-4" />
-                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Num Col." clase="sm:col-span-2" />
+                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Num Col." clase="sm:col-span-3" />
                   <Dato id={"gente_" + f.id + "_departamento"} nombre="Dpto." clase="sm:col-span-5" />
                   <Dato id={"gente_" + f.id + "_desde"} nombre="Desde cuándo trabaja aquí" tipo="date" clase="sm:col-span-7" />
                   <Dato id={"gente_" + f.id + "_correoTrabajo"} nombre="Mail empresa" clase="sm:col-span-7" />
@@ -457,7 +457,7 @@ export function Formulario({
                   id="origen_notas"
                   nombre="Notas"
                   pista="por si hay detalles extra que se deban conocer: es la vecina de X, fue en la feria de Y, es el cuñado de…"
-                  clase="sm:col-span-10"
+                  clase="sm:col-span-12"
                 />
               </div>
 
