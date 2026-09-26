@@ -15,7 +15,7 @@ suelto: `bg-hueso`, `text-carbon`, `border-lima`.
 | `carbon` | `#2b2b2b` | El carboncillo del logo. Todo el texto y la barra de arriba. |
 | `carbon-soft` | `#3a3a3a` | Un punto menos duro. |
 | `lima` | `#7ac943` | El verde de la marca. **Acción**: botón principal, lo que se pulsa. |
-| `lima-dark` | `#5fa62f` | El mismo verde para texto sobre blanco, que el claro no se lee. |
+| `lima-dark` | `#3f7a1c` | El mismo verde, más profundo, para texto y para el fondo al pasar el ratón. Bajado desde `#5fa62f`, que daba 3,0:1 y no se leía. |
 | `lima-soft` | `#eef7e4` | Verde casi blanco. Fondo de las tarjetas **de dentro**. |
 | `hueso` | `#f7f7f5` | El crema suavísimo. **Fondo de toda la app.** |
 | `ajeno` | `#5b7fa6` | Azul pizarra: lo que **no depende de nosotros** (el arquitecto, el escaneo, el 3D). |
@@ -86,12 +86,28 @@ Y su forma, que también es suya:
    `text-sm` con `px-3 py-1.5`, etiqueta de `text-[10px]`, tarjetas de `p-4` y
    huecos de `gap-3` dentro y `gap-4` entre tarjetas. En una ficha, que se lee,
    el texto va más grande; en un formulario, que se rellena, no.
-8. **Cada casilla de elegir lleva su minibuscador.** El desplegable del
+8. **Con Enter se pasa al campo siguiente**, nunca se envía. Escribiendo una
+   dirección, lo último que uno espera al pulsar Enter es que se guarde todo.
+   Se recorre el formulario entero sin soltar el teclado: en el área de notas
+   Enter hace salto de línea, y sobre una casilla de elegir pasa de largo (se
+   abre con espacio o flecha abajo). Guardar se pulsa a propósito.
+9. **Las tarjetas llevan borde que se ve.** Un `border-black/5` casi invisible
+   deja la pantalla plana y sin estructura. Cuando Mónica entrega una maqueta,
+   **los colores de borde son suyos y vienen uno por tarjeta** — en el alta van
+   del `#5c5c5c` del administrador al `#bfbfbf` de los contactos, y eso marca
+   la jerarquía. Con ellos vienen también **su radio de esquina y sus huecos**
+   entre campos. Nada de eso se redondea a un valor único «de la casa».
+10. **Cada casilla de elegir lleva su minibuscador.** El desplegable del
    navegador solo encuentra por el principio, y no enseña lo que se escribe:
    tecleando «roen» no aparece «ADMINISTRACIONES ROEN». El componente
    `Elegir` abre un panel con un buscador arriba que encuentra el trozo esté
    donde esté, sin tildes ni mayúsculas de por medio. Se usa en todas, tengan
-   cinco opciones o doscientas ochenta.
+   cinco opciones o doscientas ochenta. Y **lo buscado se borra al cerrar**: si
+   se queda pegado, sigue filtrando por debajo sin que se vea.
+11. **Las líneas que se añaden a mano se pueden quitar**, y no se añade una
+   nueva mientras la anterior esté vacía. Si no, se acumulan filas en blanco
+   que no hay forma de borrar. Cada fila lleva identidad propia, no su
+   posición, para que quitar la de en medio no desordene lo escrito.
 
 ## Las piezas
 
