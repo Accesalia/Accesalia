@@ -114,8 +114,25 @@ export function Formulario({
     { valor: "__nueva__", texto: "+ No está en la lista: crear una nueva" },
     ...opciones.administraciones.map((a) => ({ valor: a.id, texto: a.nombre })),
   ];
-  const listaPersonas: Opcion[] = suyas.map((p) => ({ valor: p.id, texto: p.nombre, pista: p.cargo ?? undefined }));
   const listaComerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre }));
+
+  // LA PERSONA VA PRIMERO (asi lo puso Monica, y es lo correcto: a quien se
+  // visita es una persona, no una entidad fiscal). Como el buscador encuentra
+  // en toda la lista, no hace falta elegir antes la empresa: mientras no haya
+  // ninguna elegida se ven las 411 con su administracion al lado, y al elegir
+  // una persona su administracion se rellena sola.
+  const nombreEmpresa = new Map(opciones.administraciones.map((a) => [a.id, a.nombre]));
+  const listaPersonas: Opcion[] = (admin === "" ? opciones.personas : suyas).map((p) => ({
+    valor: p.id,
+    texto: p.nombre,
+    pista: admin === "" ? nombreEmpresa.get(p.empresaId) : (p.cargo ?? undefined),
+  }));
+  const [puesto, setPuesto] = useState("");
+  const elegirPersona = (v: string) => {
+    setPuesto(v);
+    const p = opciones.personas.find((x) => x.id === v);
+    if (p) setAdmin(p.empresaId);
+  };
 
   return (
     <form action={accion} onSubmit={() => setEnviando(true)} className="grid gap-4">
@@ -142,8 +159,10 @@ export function Formulario({
       {/* ---- la direccion y la nota, juntas ---- */}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]">
         <Caja titulo="La dirección">
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr]">
-            <label className="sm:col-span-3" htmlFor="direccion">
+          {/* Su fila: la dirección con el código postal al lado, y debajo la
+              localidad y la provincia. */}
+          <div className="grid gap-3 sm:grid-cols-12">
+            <label className="sm:col-span-10" htmlFor="direccion">
               <span className={etiqueta}>Dirección</span>
               <input
                 id="direccion"
@@ -155,9 +174,9 @@ export function Formulario({
                 className={campo + " mt-1 text-base font-semibold"}
               />
             </label>
-            <Campo id="municipio" nombre="Localidad" />
-            <Campo id="cp" nombre="Código postal" clase="sm:w-28" />
-            <Campo id="provincia" nombre="Provincia" />
+            <Campo id="cp" nombre="Código postal" clase="sm:col-span-2" />
+            <Campo id="municipio" nombre="Localidad" clase="sm:col-span-7" />
+            <Campo id="provincia" nombre="Provincia" clase="sm:col-span-5" />
           </div>
         </Caja>
 
@@ -177,17 +196,24 @@ export function Formulario({
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="grid gap-3">
             <Elegir
+              id="puesto"
+              nombre="Quién es la persona de contacto que la lleva"
+              opciones={listaPersonas}
+              valor={puesto}
+              alElegir={elegirPersona}
+              desactivado={creandoGente}
+            />
+            <Elegir
               id="administracion"
               nombre="Qué administración es, si ya está en nuestra lista"
               opciones={listaAdmin}
               valor={admin}
-              alElegir={setAdmin}
-            />
-            <Elegir
-              id="puesto"
-              nombre="Quién es la persona de contacto que la lleva"
-              opciones={listaPersonas}
-              desactivado={!admin || creandoGente}
+              alElegir={(v) => {
+                setAdmin(v);
+                // Si la persona elegida no es de esa administracion, se suelta.
+                const p = opciones.personas.find((x) => x.id === puesto);
+                if (p && p.empresaId !== v) setPuesto("");
+              }}
             />
             {admin && !adminNueva && (
               <button
@@ -201,7 +227,8 @@ export function Formulario({
           </div>
 
           <Caja titulo="De qué comercial es" tono="bg-form-nuestro">
-            <div className="grid gap-3">
+            {/* Los dos en la misma fila, como los puso ella. */}
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
               <Elegir id="comercial" nombre="Comercial de Accesalia" opciones={listaComerciales} />
               <Elegir id="origen" nombre="Cómo le ha llegado" opciones={ORIGENES} />
             </div>
@@ -239,29 +266,35 @@ export function Formulario({
 
           {creandoGente && (
             <div className="mt-4">
+              {/* Primero la persona, luego la empresa, y el botón DEBAJO de las
+                  dos: en medio parecía que las separaba. */}
               {Array.from({ length: personas }, (_, i) => (
                 <div key={i} className="mb-3 grid gap-3 sm:grid-cols-[2fr_1fr_2fr_2fr]">
                   <Campo id={"persona_" + i + "_nombre"} nombre="Quién es nuestro contacto en la administración" />
                   <Campo id={"persona_" + i + "_telefono"} nombre="Teléfono de trabajo" />
                   <Campo id={"persona_" + i + "_correo"} nombre="Correo del trabajo" />
-                  <Campo id={"persona_" + i + "_cargo"} nombre="Quién es allí: dueño, asalariado, administrativo…" />
+                  <Campo
+                    id={"persona_" + i + "_cargo"}
+                    nombre="Quién es allí: dueño, administrador contratado, otro…"
+                  />
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={() => setPersonas((n) => n + 1)}
-                className="text-xs font-semibold text-lima-dark hover:underline"
-              >
-                + Crear otra persona de contacto más
-              </button>
 
               {adminNueva && (
-                <div className="mt-4 grid gap-3 border-t border-black/10 pt-4 sm:grid-cols-[2fr_1fr_2fr]">
+                <div className="mb-3 grid gap-3 sm:grid-cols-[2fr_1fr_2fr]">
                   <Campo id="admin_nombre" nombre="Nombre de la empresa de administración de fincas" />
                   <Campo id="admin_telefono" nombre="Teléfono general, si es distinto" />
                   <Campo id="admin_correo" nombre="Correo de la empresa, si es distinto" />
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={() => setPersonas((n) => n + 1)}
+                className="text-xs font-semibold text-lima-dark hover:underline"
+              >
+                + Añadir más personas a esta empresa
+              </button>
             </div>
           )}
         </section>
@@ -271,25 +304,30 @@ export function Formulario({
       <Caja titulo="Datos que tenemos de la comunidad">
         <div className="grid items-start gap-4 lg:grid-cols-3">
           <Caja titulo="Presidente" tono="bg-form-dentro">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Campo id="presidente" nombre="Nombre" clase="sm:col-span-2" />
-              <Campo id="presidente_telefono" nombre="Teléfono" />
-              <Campo id="presidente_dni" nombre="DNI" />
-              <Campo id="presidente_email" nombre="Correo" clase="sm:col-span-2" />
-              <div className="flex flex-wrap gap-1.5 sm:col-span-2">
+            {/* Su orden: nombre y teléfono; debajo el DNI con sus documentos;
+                y el correo al final. */}
+            <div className="grid items-end gap-3 sm:grid-cols-10">
+              <Campo id="presidente" nombre="Nombre" clase="sm:col-span-7" />
+              <Campo id="presidente_telefono" nombre="Teléfono" clase="sm:col-span-3" />
+              <Campo id="presidente_dni" nombre="DNI" clase="sm:col-span-4" />
+              <div className="flex flex-wrap items-end gap-1.5 sm:col-span-6">
                 <Doc et="DNI" />
                 <Doc et="Acta de nombramiento" />
               </div>
+              <Campo id="presidente_email" nombre="Correo" clase="sm:col-span-10" />
             </div>
           </Caja>
 
           <Caja titulo="Datos de la comunidad, lo que sepamos" tono="bg-form-dentro">
-            <div className="grid items-end gap-3 sm:grid-cols-2">
-              <Campo id="cif" nombre="CIF" />
-              <Doc et="Tarjeta del CIF" />
-              <Campo id="iban" nombre="IBAN" clase="sm:col-span-2" />
-              <Campo id="mayores70" nombre="Vecinos de más de 70 años" />
-              <Campo id="discapacidad" nombre="Vecinos con discapacidad" />
+            {/* Su orden: CIF con su tarjeta, el censo, y el IBAN al final. */}
+            <div className="grid items-end gap-3 sm:grid-cols-10">
+              <Campo id="cif" nombre="CIF" clase="sm:col-span-7" />
+              <div className="flex items-end sm:col-span-3">
+                <Doc et="Tarjeta del CIF" />
+              </div>
+              <Campo id="mayores70" nombre="Vecinos de más de 70 años" clase="sm:col-span-5" />
+              <Campo id="discapacidad" nombre="Vecinos con discapacidad" clase="sm:col-span-5" />
+              <Campo id="iban" nombre="IBAN" clase="sm:col-span-10" />
             </div>
           </Caja>
 
@@ -303,8 +341,10 @@ export function Formulario({
         </div>
 
         <Caja titulo="Otras personas de contacto" tono="bg-form-dentro" clase="mt-4">
+          {/* El «+ añadir otra persona» va en la MISMA fila, al final, como lo
+              puso ella; sale en la última. */}
           {Array.from({ length: contactos }, (_, i) => (
-            <div key={i} className="mb-3 grid items-start gap-3 sm:grid-cols-[2fr_2fr_1fr_2fr]">
+            <div key={i} className="mb-3 grid items-end gap-3 sm:grid-cols-[2fr_3fr_1.3fr_3fr_auto]">
               <Campo id={"contacto_" + i + "_nombre"} nombre="Nombre" />
               <Elegir
                 id={"contacto_" + i + "_rol"}
@@ -313,15 +353,17 @@ export function Formulario({
               />
               <Campo id={"contacto_" + i + "_telefono"} nombre="Teléfono" />
               <Campo id={"contacto_" + i + "_email"} nombre="Correo" />
+              {i === contactos - 1 && (
+                <button
+                  type="button"
+                  onClick={() => setContactos((n) => n + 1)}
+                  className="whitespace-nowrap pb-1.5 text-xs font-semibold text-lima-dark hover:underline"
+                >
+                  + Añadir otra persona
+                </button>
+              )}
             </div>
           ))}
-          <button
-            type="button"
-            onClick={() => setContactos((n) => n + 1)}
-            className="text-xs font-semibold text-lima-dark hover:underline"
-          >
-            + Añadir otra persona
-          </button>
         </Caja>
       </Caja>
 
