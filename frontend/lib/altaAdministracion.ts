@@ -175,7 +175,7 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
       });
       if (dep.correo) {
         await crear("correo", {
-          empresa_id: empresaId,
+          // Del DEPARTAMENTO, y de nada mas: la BD exige un solo dueño.
           departamento_id: fila.id,
           email: dep.correo,
           etiqueta: "general",
@@ -188,30 +188,30 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
   // 2 · la gente. El jefe lleva cargo fijo; los demas, el suyo.
   let personas = 0;
   const alta = async (p: PersonaAlta, manda: boolean) => {
-    const fila = await crear<{ id: string }>("persona", { nombre: p.nombre, activa: true, notas: p.notas });
+    // El movil personal va en la PERSONA: la sigue si cambia de administracion.
+    const fila = await crear<{ id: string }>("persona", {
+      nombre: p.nombre,
+      activa: true,
+      notas: p.notas,
+      telefono_personal: p.telefonoPersonal,
+    });
     const pue = await crear<{ id: string }>("puesto", {
       persona_id: fila.id,
       empresa_id: empresaId,
       cargo: manda ? null : p.cargo,
       cargo_clave: manda ? "el que manda" : null,
       telefono_empresa: p.telefonoTrabajo,
-      telefono_personal: p.telefonoPersonal,
       numero_colegiado: p.colegiado,
       desde: p.desde ?? hoy(),
       notas: p.notas,
     });
-    for (const [email, etiqueta] of [
-      [p.correoTrabajo, "general"],
-      [p.correoPersonal, "personal"],
-    ] as const) {
-      if (!email) continue;
-      await crear("correo", {
-        puesto_id: pue.id,
-        empresa_id: empresaId,
-        email,
-        etiqueta,
-        principal: etiqueta === "general",
-      });
+    // Cada correo cuelga de UNA sola cosa (la BD lo exige): el del trabajo del
+    // puesto, el personal de la persona, que es quien se lo lleva consigo.
+    if (p.correoTrabajo) {
+      await crear("correo", { puesto_id: pue.id, email: p.correoTrabajo, etiqueta: "general", principal: true });
+    }
+    if (p.correoPersonal) {
+      await crear("correo", { persona_id: fila.id, email: p.correoPersonal, etiqueta: "personal", principal: false });
     }
     personas++;
   };

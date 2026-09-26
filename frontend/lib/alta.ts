@@ -205,8 +205,8 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
       if (!puestoId) puestoId = pue.id;
       if (per.correo) {
         await crear("correo", {
+          // Del PUESTO, y de nada mas: la BD exige un solo dueño.
           puesto_id: pue.id,
-          empresa_id: empresaId,
           email: per.correo,
           etiqueta: "general",
           principal: true,

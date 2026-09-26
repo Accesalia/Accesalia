@@ -209,6 +209,14 @@ font-semibold uppercase tracking-wide text-carbon/40` con la palabra
 
 ## Lo que aún no está decidido
 
+- **El fondo del alta tiene que ser distinto al de la ficha ya creada.** Pedido
+  por Mónica el 26-sep-2026: los formularios quedan tan resueltos que no se
+  distingue si estás metiendo datos o mirándolos, y hay que poder orientarse de
+  un vistazo. Falta que ella elija los dos colores: el de «estoy dando de alta»
+  y el de «esto ya existe». Hoy el alta usa `bg-form` (#f5fbf0).
+- **No hay un formato común para los botones que ABREN cosas** (otra ficha,
+  otra pantalla). El de «abrir ficha» de la tarjeta de comisión no le sirve y
+  se queda ahí solo hasta que se consensúe uno para toda la app.
 - El azul `ajeno` está definido pero casi sin usar: cuando entren las pantallas
   de producción y visado habrá que fijar dónde va.
 - No hay modo oscuro y no se ha pedido.

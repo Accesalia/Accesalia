@@ -170,11 +170,12 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
       rest<
         { vigente: boolean; desde: string | null; hasta: string | null; notas: string | null;
           empresa: { nombre_accesalia: string; cif: string | null; telefono: string | null; municipio: string | null } | null;
-          puesto: { cargo: string | null; telefono_empresa: string | null; telefono_personal: string | null; persona: { nombre: string } | null } | null }[]
+          puesto: { cargo: string | null; telefono_empresa: string | null;
+            persona: { nombre: string; telefono_personal: string | null } | null } | null }[]
       >(
         "comunidad_admin_responsable?select=vigente,desde,hasta,notas," +
           "empresa(nombre_accesalia,cif,telefono,municipio)," +
-          "puesto(cargo,telefono_empresa,telefono_personal,persona(nombre))" +
+          "puesto(cargo,telefono_empresa,persona(nombre,telefono_personal))" +
           `&comunidad_id=eq.${id}&order=vigente.desc,desde.desc.nullslast`,
       ),
       "el administrador",
@@ -230,7 +231,7 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
         ? {
             nombre: a.puesto.persona?.nombre ?? null,
             cargo: a.puesto.cargo,
-            telefono: a.puesto.telefono_empresa ?? a.puesto.telefono_personal,
+            telefono: a.puesto.telefono_empresa ?? a.puesto.persona?.telefono_personal ?? null,
           }
         : null,
     })),

@@ -215,9 +215,12 @@ type PuestoFila = {
   empresa_id: string | null;
   cargo: string | null;
   telefono_empresa: string | null;
-  telefono_personal: string | null;
   notas: string | null;
-  persona: { nombre: string; activa: boolean } | null;
+  // El movil y el correo personales son de la PERSONA: la siguen si cambia de
+  // administracion. Los del puesto se quedan en la empresa.
+  persona:
+    | { nombre: string; activa: boolean; telefono_personal: string | null; correo?: CorreoFila[] }
+    | null;
   empresa: { nombre_accesalia: string } | null;
   correo?: CorreoFila[];
 };
@@ -229,8 +232,8 @@ function comoAdministrador(p: PuestoFila): Administrador {
     empresa: p.empresa?.nombre_accesalia ?? null,
     cargo: p.cargo,
     // el de la oficina primero: es el que se marca para hablar de trabajo
-    telefono: p.telefono_empresa ?? p.telefono_personal,
-    email: correoDe(p.correo),
+    telefono: p.telefono_empresa ?? p.persona?.telefono_personal ?? null,
+    email: correoDe(p.correo) ?? correoDe(p.persona?.correo),
     notas: p.notas,
     empresa_id: p.empresa_id,
     activo: p.persona?.activa ?? true,
@@ -258,8 +261,9 @@ const SEL_EMPRESA =
   "correo!correo_empresa_id_fkey(email,principal)";
 
 const SEL_PUESTO =
-  "id,empresa_id,cargo,telefono_empresa,telefono_personal,notas," +
-  "persona:persona_id(nombre,activa),empresa:empresa_id(nombre_accesalia)," +
+  "id,empresa_id,cargo,telefono_empresa,notas," +
+  "persona:persona_id(nombre,activa,telefono_personal,correo!correo_persona_id_fkey(email,principal))," +
+  "empresa:empresa_id(nombre_accesalia)," +
   "correo!correo_puesto_id_fkey(email,principal)," +
   // Cuantas comunidades lleva esta persona. Es el "a quien pregunto" de Monica,
   // y en la ficha va junto a su nombre: sin eso la lista de gente no dice nada.
@@ -322,14 +326,15 @@ export async function listarPersonasAdmin(): Promise<PersonaCartera[]> {
     id: string;
     cargo: string | null;
     telefono_empresa: string | null;
-    telefono_personal: string | null;
-    persona: { id: string; nombre: string } | null;
+    persona: { id: string; nombre: string; telefono_personal: string | null;
+      correo: { email: string; principal: boolean }[] } | null;
     empresa: { id: string; nombre_accesalia: string } | null;
     correo: { email: string; principal: boolean }[];
     comunidades: { count: number }[];
   }[]>(
-    "puesto?select=id,cargo,telefono_empresa,telefono_personal," +
-      "persona(id,nombre),empresa(id,nombre_accesalia)," +
+    "puesto?select=id,cargo,telefono_empresa," +
+      "persona(id,nombre,telefono_personal,correo!correo_persona_id_fkey(email,principal))," +
+      "empresa(id,nombre_accesalia)," +
       "correo!correo_puesto_id_fkey(email,principal)," +
       "comunidades:comunidad_admin_responsable(count)&hasta=is.null&order=cargo.asc",
   );
@@ -342,8 +347,12 @@ export async function listarPersonasAdmin(): Promise<PersonaCartera[]> {
       empresaId: f.empresa?.id ?? null,
       empresa: f.empresa?.nombre_accesalia ?? null,
       comunidades: f.comunidades?.[0]?.count ?? 0,
-      email: (f.correo?.find((c) => c.principal) ?? f.correo?.[0])?.email ?? null,
-      telefono: f.telefono_empresa ?? f.telefono_personal ?? null,
+      // El del trabajo primero; si no hay, el suyo.
+      email:
+        (f.correo?.find((c) => c.principal) ?? f.correo?.[0])?.email ??
+        (f.persona!.correo?.find((c) => c.principal) ?? f.persona!.correo?.[0])?.email ??
+        null,
+      telefono: f.telefono_empresa ?? f.persona!.telefono_personal ?? null,
     }))
     .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
@@ -411,8 +420,9 @@ export async function administradorPorId(
   id: string,
 ): Promise<{ admin: Administrador; administracion: { id: string; nombre: string } | null } | null> {
   const filas = await rest<(PuestoFila & { empresa: { id: string; nombre_accesalia: string } | null })[]>(
-    `puesto?select=id,empresa_id,cargo,telefono_empresa,telefono_personal,notas,` +
-      "persona:persona_id(nombre,activa),empresa:empresa_id(id,nombre_accesalia)," +
+    `puesto?select=id,empresa_id,cargo,telefono_empresa,notas,` +
+      "persona:persona_id(nombre,activa,telefono_personal,correo!correo_persona_id_fkey(email,principal))," +
+      "empresa:empresa_id(id,nombre_accesalia)," +
       `correo!correo_puesto_id_fkey(email,principal)&id=eq.${id}&limit=1`,
   );
   const fila = filas[0];
