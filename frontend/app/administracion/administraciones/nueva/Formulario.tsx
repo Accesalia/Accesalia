@@ -399,13 +399,15 @@ export function Formulario({
                   valor={f.nombre}
                   alEscribir={(v) => setDepartamentos((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                 />
-                <Dato
+                <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-7" />
+                {/* Con la etiqueta en linea le quedaban 26px para escribir: la
+                    etiqueta va encima y el campo se queda la celda entera. */}
+                <Campo
                   id={"depto_" + f.id + "_queHace"}
                   nombre="Qué hace (para entendernos nosotros)"
-                  clase="sm:col-span-7"
+                  clase="sm:col-span-8"
                 />
-                <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-7" />
-                <Dato id={"depto_" + f.id + "_telefono"} nombre="Teléfono" clase="sm:col-span-4" />
+                <Dato id={"depto_" + f.id + "_telefono"} nombre="Teléfono" clase="sm:col-span-3" />
                 {departamentos.length > 1 && (
                   <div className="flex items-end sm:col-span-1">
                     <Quitar alPulsar={() => setDepartamentos((l) => l.filter((_, j) => j !== i))} />
@@ -441,7 +443,7 @@ export function Formulario({
               tit="text-[16px] text-carbon/85"
               tono="bg-[#fffdf5]"
               borde="border-marco"
-              clase="mt-4"
+              clase="mt-4 sm:mx-auto sm:w-[92%]"
             >
               <div className="grid gap-[14px] sm:grid-cols-12">
                 <Campo id="llego_quien" nombre="Nos llegó a través de (la persona)" clase="sm:col-span-5" />
@@ -454,8 +456,8 @@ export function Formulario({
                 />
               </div>
 
-              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3 sm:mx-auto sm:w-[83%]">
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#841a1a]">
+              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
+                <h3 className="mb-2 whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-[#841a1a]">
                   Rellenar si nos llega a través de otro y hay condiciones a respetar
                 </h3>
                 <div className="grid items-end gap-[14px] sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
