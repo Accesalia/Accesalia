@@ -83,17 +83,21 @@ function Campo({
   );
 }
 
-/** Un documento. En un alta nunca está todavía: dice SUBIR. Apagado hasta que
- *  haya dónde guardar ficheros. */
-function Doc({ et }: { et: string }) {
+/** Un documento, con la misma forma que un campo: su nombre encima, pequeño, y
+ *  debajo la caja. En un alta nunca está todavía, así que la caja dice SUBIR.
+ *  Así caben varios en una fila, al lado del dato al que acompañan. Apagado
+ *  hasta que haya dónde guardar ficheros. */
+function Doc({ nombre, clase = "" }: { nombre: string; clase?: string }) {
   return (
-    <span
-      title="Todavía no hay dónde guardar los documentos"
-      className="inline-flex shrink-0 cursor-not-allowed items-center gap-1 rounded-md border border-lima/30 bg-white px-2 py-1.5 text-xs font-semibold text-lima-dark/55"
-    >
-      <span aria-hidden>📄</span>
-      {et}
-      <span className="font-medium text-carbon/35">subir</span>
+    <span className={"block min-w-0 " + clase}>
+      <span className={etiqueta + " truncate"}>{nombre}</span>
+      <span
+        title="Todavía no hay dónde guardar los documentos"
+        className="mt-1 flex cursor-not-allowed items-center justify-center gap-1 rounded-lg border border-lima/30 bg-white px-2 py-1.5 text-xs font-semibold text-lima-dark/55"
+      >
+        <span aria-hidden>📄</span>
+        subir
+      </span>
     </span>
   );
 }
@@ -322,10 +326,8 @@ export function Formulario({
               <Campo id="presidente" nombre="Nombre" clase="sm:col-span-7" />
               <Campo id="presidente_telefono" nombre="Teléfono" clase="sm:col-span-3" />
               <Campo id="presidente_dni" nombre="DNI" clase="sm:col-span-4" />
-              <div className="flex flex-wrap items-end gap-1.5 sm:col-span-6">
-                <Doc et="DNI" />
-                <Doc et="Acta de nombramiento" />
-              </div>
+              <Doc nombre="DNI" clase="sm:col-span-2" />
+              <Doc nombre="Acta de nombramiento" clase="sm:col-span-4" />
               <Campo id="presidente_email" nombre="Correo" clase="sm:col-span-10" />
             </div>
           </Caja>
@@ -334,9 +336,7 @@ export function Formulario({
             {/* Su orden: CIF con su tarjeta, el censo, y el IBAN al final. */}
             <div className="grid items-end gap-3 sm:grid-cols-10">
               <Campo id="cif" nombre="CIF" clase="sm:col-span-7" />
-              <div className="flex items-end sm:col-span-3">
-                <Doc et="Tarjeta del CIF" />
-              </div>
+              <Doc nombre="Tarjeta del CIF" clase="sm:col-span-3" />
               <Campo id="mayores70" nombre="Vecinos de más de 70 años" clase="sm:col-span-5" />
               <Campo id="discapacidad" nombre="Vecinos con discapacidad" clase="sm:col-span-5" />
               <Campo id="iban" nombre="IBAN" clase="sm:col-span-10" />

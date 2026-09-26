@@ -116,6 +116,11 @@ enfocar `focus:border-lima`. Su etiqueta encima, diminuta:
 text-carbon`, y al pasar por encima `hover:bg-lima-dark hover:text-white`. El
 secundario es un borde: `rounded-xl border border-black/10 text-carbon/60`.
 
+**El documento.** En un formulario tiene la forma de un campo: **su nombre
+encima, pequeño, y debajo la caja**. Así cabe al lado del dato al que acompaña
+—el DNI y el acta junto al número de DNI, la tarjeta junto al CIF— en vez de
+envolverse a la línea siguiente. En una ficha, que se lee, va como píldora:
+
 **El documento.** Siempre con cara de documento, esté o no:
 
 ```
