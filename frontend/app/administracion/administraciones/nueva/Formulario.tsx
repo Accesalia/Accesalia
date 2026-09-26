@@ -263,7 +263,7 @@ export function Formulario({
         <div className="grid gap-4">
           <Caja titulo="Quién es el jefe" tono="bg-form-quieto" borde="border-[#5c5c5c]">
             {jefes.map((f, i) => (
-              <div key={f.id} className="mb-3 rounded-[14px] border-2 border-[#707070] bg-form-nuevo p-3">
+              <div key={f.id} className="mb-3 rounded-[14px] border-2 border-[#707070] bg-[#fffbeb] p-3">
                 <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
                   <Dato
                     id={"jefe_" + f.id + "_nombre"}
@@ -409,7 +409,7 @@ export function Formulario({
               <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
             </div>
 
-            <Caja titulo="Cómo le hemos conocido" tono="bg-form-nuevo" borde="border-[#8a8a8a]" clase="mt-4">
+            <Caja titulo="Cómo le hemos conocido" tono="bg-[#fffbeb]" borde="border-[#8a8a8a]" clase="mt-4">
               <div className="grid gap-[14px] sm:grid-cols-2">
                 <Campo id="llego_quien" nombre="Nos llegó a través de" pista="la persona" />
                 <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} />
