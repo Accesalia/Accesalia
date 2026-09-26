@@ -399,15 +399,16 @@ export function Formulario({
                   valor={f.nombre}
                   alEscribir={(v) => setDepartamentos((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                 />
-                <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-7" />
-                {/* Con la etiqueta en linea le quedaban 26px para escribir: la
-                    etiqueta va encima y el campo se queda la celda entera. */}
-                <Campo
-                  id={"depto_" + f.id + "_queHace"}
-                  nombre="Qué hace (para entendernos nosotros)"
-                  clase="sm:col-span-8"
-                />
+                <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-4" />
                 <Dato id={"depto_" + f.id + "_telefono"} nombre="Teléfono" clase="sm:col-span-3" />
+                {/* Idea suya: etiqueta corta, la explicacion dentro como pista
+                    y el campo a lo ancho. Asi sigue siendo ficha y cabe texto. */}
+                <Dato
+                  id={"depto_" + f.id + "_queHace"}
+                  nombre="Qué hace"
+                  pista="para entendernos nosotros, qué se hace aquí"
+                  clase="sm:col-span-12"
+                />
                 {departamentos.length > 1 && (
                   <div className="flex items-end sm:col-span-1">
                     <Quitar alPulsar={() => setDepartamentos((l) => l.filter((_, j) => j !== i))} />

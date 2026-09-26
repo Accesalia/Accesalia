@@ -82,29 +82,37 @@ Y su forma, que también es suya:
    («otras personas de contacto») va a lo ancho por debajo.
 6. **La pista va dentro del recuadro**, en gris, y desaparece al escribir. No
    como etiqueta fija encima, que ocupa el doble y se queda ahí molestando.
-7. **Apretado, no gigante.** Un formulario se rellena de un vistazo: campo de
+7. **En formato ficha, la etiqueta no pasa de doce o trece caracteres.** La
+   etiqueta y el campo en la misma línea solo funcionan con palabras cortas:
+   Nombre, Cargo, Teléfono. Con una etiqueta larga, la etiqueta se come la
+   celda y al campo no le queda sitio para escribir — «Qué hace (para
+   entendernos nosotros)» medía 250px en una celda de 276. La salida es la de
+   Mónica: **etiqueta corta y la explicación dentro, como pista**, con el campo
+   a lo ancho. Y los selectores de fecha, que traen su propio ancho mínimo de
+   unos 120px, piden fila propia o media fila entera.
+8. **Apretado, no gigante.** Un formulario se rellena de un vistazo: campo de
    `text-sm` con `px-3 py-1.5`, etiqueta de `text-[10px]`, tarjetas de `p-4` y
    huecos de `gap-3` dentro y `gap-4` entre tarjetas. En una ficha, que se lee,
    el texto va más grande; en un formulario, que se rellena, no.
-8. **Con Enter se pasa al campo siguiente**, nunca se envía. Escribiendo una
+9. **Con Enter se pasa al campo siguiente**, nunca se envía. Escribiendo una
    dirección, lo último que uno espera al pulsar Enter es que se guarde todo.
    Se recorre el formulario entero sin soltar el teclado: en el área de notas
    Enter hace salto de línea, y sobre una casilla de elegir pasa de largo (se
    abre con espacio o flecha abajo). Guardar se pulsa a propósito.
-9. **Las tarjetas llevan borde que se ve.** Un `border-black/5` casi invisible
+10. **Las tarjetas llevan borde que se ve.** Un `border-black/5` casi invisible
    deja la pantalla plana y sin estructura. Cuando Mónica entrega una maqueta,
    **los colores de borde son suyos y vienen uno por tarjeta** — en el alta van
    del `#5c5c5c` del administrador al `#bfbfbf` de los contactos, y eso marca
    la jerarquía. Con ellos vienen también **su radio de esquina y sus huecos**
    entre campos. Nada de eso se redondea a un valor único «de la casa».
-10. **Cada casilla de elegir lleva su minibuscador.** El desplegable del
+11. **Cada casilla de elegir lleva su minibuscador.** El desplegable del
    navegador solo encuentra por el principio, y no enseña lo que se escribe:
    tecleando «roen» no aparece «ADMINISTRACIONES ROEN». El componente
    `Elegir` abre un panel con un buscador arriba que encuentra el trozo esté
    donde esté, sin tildes ni mayúsculas de por medio. Se usa en todas, tengan
    cinco opciones o doscientas ochenta. Y **lo buscado se borra al cerrar**: si
    se queda pegado, sigue filtrando por debajo sin que se vea.
-11. **Las líneas que se añaden a mano se pueden quitar**, y no se añade una
+12. **Las líneas que se añaden a mano se pueden quitar**, y no se añade una
    nueva mientras la anterior esté vacía. Si no, se acumulan filas en blanco
    que no hay forma de borrar. Cada fila lleva identidad propia, no su
    posición, para que quitar la de en medio no desordene lo escrito.
