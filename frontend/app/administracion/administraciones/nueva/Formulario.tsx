@@ -52,12 +52,15 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Caja({
   titulo,
+  /** El color y el tamano del titulo los eligio ella, tarjeta por tarjeta. */
+  tit = "text-[14px] text-carbon/85",
   tono = "bg-form-card",
-  borde = "border-[#999999]",
+  borde = "border-marco",
   clase = "",
   children,
 }: {
   titulo?: string;
+  tit?: string;
   tono?: string;
   borde?: string;
   clase?: string;
@@ -65,7 +68,7 @@ function Caja({
 }) {
   return (
     <section className={"min-w-0 rounded-[14px] border p-4 shadow-sm " + borde + " " + tono + " " + clase}>
-      {titulo && <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-carbon/85">{titulo}</h2>}
+      {titulo && <h2 className={"mb-3 font-bold uppercase tracking-wider " + tit}>{titulo}</h2>}
       {children}
     </section>
   );
@@ -81,6 +84,8 @@ function Dato({
   valor,
   alEscribir,
   defecto,
+  tinta,
+  linea,
 }: {
   id: string;
   nombre: string;
@@ -90,18 +95,24 @@ function Dato({
   valor?: string;
   alEscribir?: (v: string) => void;
   defecto?: string;
+  /** El color de la etiqueta y el de la linea, cuando ella eligio uno. */
+  tinta?: string;
+  linea?: string;
 }) {
   const mandado = valor !== undefined && alEscribir !== undefined;
   return (
     <label className={"flex min-w-0 items-baseline gap-2 " + clase} htmlFor={id}>
-      <span className={etiqueta}>{nombre}</span>
+      <span className={etiqueta + " " + (tinta ?? "")}>{nombre}</span>
       <input
         id={id}
         name={id}
         type={tipo}
         placeholder={pista}
         defaultValue={mandado ? undefined : defecto}
-        className="min-w-0 flex-1 border-0 border-b border-black/20 bg-transparent px-1 py-0.5 text-sm text-carbon outline-none transition placeholder:text-carbon/45 focus:border-lima"
+        className={
+          "min-w-0 flex-1 border-0 border-b bg-transparent px-1 py-0.5 text-sm text-carbon outline-none transition placeholder:text-carbon/45 focus:border-lima " +
+          (linea ?? "border-black/20")
+        }
         {...(mandado ? { value: valor, onChange: (e) => alEscribir(e.target.value) } : {})}
       />
     </label>
@@ -117,6 +128,8 @@ function Campo({
   tipo,
   pista,
   defecto,
+  tinta,
+  marco,
 }: {
   id: string;
   nombre: string;
@@ -124,17 +137,19 @@ function Campo({
   tipo?: string;
   pista?: string;
   defecto?: string;
+  tinta?: string;
+  marco?: string;
 }) {
   return (
     <label className={"block min-w-0 " + clase} htmlFor={id}>
-      <span className={etiqueta + " block"}>{nombre}</span>
+      <span className={etiqueta + " block " + (tinta ?? "")}>{nombre}</span>
       <input
         id={id}
         name={id}
         type={tipo}
         placeholder={pista}
         defaultValue={defecto}
-        className={caja + " mt-1 placeholder:text-carbon/55"}
+        className={caja + " mt-1 placeholder:text-carbon/55 " + (marco ?? "")}
       />
     </label>
   );
@@ -246,7 +261,7 @@ export function Formulario({
           </div>
         </div>
         <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
-          <Campo id="nombre" nombre="Nombre habitual" pista="si todavía no lo sabes, déjalo vacío" />
+          <Campo id="nombre" nombre="Nombre habitual" />
           <Campo id="telefono" nombre="Teléfono" />
           <Campo id="municipio" nombre="Localidad" />
         </div>
@@ -261,9 +276,9 @@ export function Formulario({
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,540fr)_minmax(0,651fr)]">
         {/* ===================== columna izquierda ===================== */}
         <div className="grid gap-4">
-          <Caja titulo="Quién es el jefe" tono="bg-form-quieto" borde="border-[#5c5c5c]">
+          <Caja titulo="Quién es el jefe" tit="text-[15px] text-[#31600b]" tono="bg-form-quieto" borde="border-marco">
             {jefes.map((f, i) => (
-              <div key={f.id} className="mb-3 rounded-[14px] border-2 border-[#707070] bg-[#fffbeb] p-3">
+              <div key={f.id} className="mb-3 rounded-[14px] border-2 border-marco bg-[#fffdf5] p-3">
                 <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
                   <Dato
                     id={"jefe_" + f.id + "_nombre"}
@@ -273,23 +288,30 @@ export function Formulario({
                     alEscribir={(v) => setJefes((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                   />
                   <Fijo nombre="Cargo" valor="el que manda" clase="sm:col-span-5" />
-                  <Dato
-                    id={"jefe_" + f.id + "_telefonoTrabajo"}
-                    nombre="Tel. trabajo"
-                    clase="sm:col-span-4"
-                    {...(i === 0
-                      ? { valor: contacto.jefe, alEscribir: (v: string) => setContacto((c) => ({ ...c, jefe: v })) }
-                      : {})}
-                  />
-                  <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Tel. personal" clase="sm:col-span-4" />
-                  <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Número de colegiado" clase="sm:col-span-4" />
+                  <div className="flex min-w-0 items-baseline gap-3 sm:col-span-12">
+                    <span className={etiqueta}>Teléfonos:</span>
+                    <Dato
+                      id={"jefe_" + f.id + "_telefonoTrabajo"}
+                      nombre="Trabajo"
+                      clase="min-w-0 flex-1"
+                      {...(i === 0
+                        ? { valor: contacto.jefe, alEscribir: (v: string) => setContacto((c) => ({ ...c, jefe: v })) }
+                        : {})}
+                    />
+                    <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Personal" clase="min-w-0 flex-1" />
+                    <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Num Col." clase="min-w-0 flex-1" />
+                  </div>
                   <Dato id={"jefe_" + f.id + "_correoTrabajo"} nombre="Mail" clase="sm:col-span-12" />
-                  <Dato
-                    id={"jefe_" + f.id + "_notas"}
-                    nombre="Notas"
-                    pista="qué lleva, con qué temas le contactamos"
-                    clase="sm:col-span-12"
-                  />
+                  <label className="flex items-start gap-2 sm:col-span-12" htmlFor={"jefe_" + f.id + "_notas"}>
+                    <span className={etiqueta + " pt-2"}>Notas</span>
+                    <textarea
+                      id={"jefe_" + f.id + "_notas"}
+                      name={"jefe_" + f.id + "_notas"}
+                      rows={1}
+                      placeholder="qué lleva, con qué temas le contactamos"
+                      className={caja + " min-h-9 flex-1 resize-y placeholder:text-carbon/45"}
+                    />
+                  </label>
                 </div>
                 {jefes.length > 1 && (
                   <div className="mt-2 flex justify-end">
@@ -305,21 +327,21 @@ export function Formulario({
             />
           </Caja>
 
-          <Caja titulo="Quién más trabaja allí" tono="bg-form-quieto" borde="border-[#4a4a4a]">
+          <Caja titulo="Quién más trabaja allí" tit="text-[14px] text-carbon/85" tono="bg-form-quieto" borde="border-marco">
             {gente.map((f, i) => (
-              <div key={f.id} className="mb-3 rounded-[14px] border border-[#8a8a8a] bg-[#fffdf5] p-3">
+              <div key={f.id} className="mb-3 rounded-[14px] border border-marco bg-[#fffdf5] p-3">
                 <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
                   <Dato
                     id={"gente_" + f.id + "_nombre"}
                     nombre="Nombre"
-                    clase="sm:col-span-7"
+                    clase="sm:col-span-6"
                     valor={f.nombre}
                     alEscribir={(v) => setGente((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                   />
-                  <Dato id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-5" />
+                  <Dato id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-4" />
+                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Num Col." clase="sm:col-span-2" />
                   <Dato id={"gente_" + f.id + "_departamento"} nombre="Dpto." clase="sm:col-span-5" />
-                  <Dato id={"gente_" + f.id + "_desde"} nombre="Desde cuándo trabaja aquí" tipo="date" clase="sm:col-span-4" />
-                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Número de colegiado" clase="sm:col-span-3" />
+                  <Dato id={"gente_" + f.id + "_desde"} nombre="Desde cuándo trabaja aquí" tipo="date" clase="sm:col-span-7" />
                   <Dato id={"gente_" + f.id + "_correoTrabajo"} nombre="Mail empresa" clase="sm:col-span-7" />
                   <Dato
                     id={"gente_" + f.id + "_telefonoTrabajo"}
@@ -362,8 +384,9 @@ export function Formulario({
 
           <Caja
             titulo="Formas de contacto si se organiza por departamentos"
+            tit="text-[14px] text-carbon/85"
             tono="bg-form-quieto"
-            borde="border-[#636363]"
+            borde="border-marco"
           >
             {/* En DOS lineas, como los dejo ella: si van los cuatro en una, no
                 cabe el texto en ninguna caja y no se gana altura. */}
@@ -378,8 +401,7 @@ export function Formulario({
                 />
                 <Dato
                   id={"depto_" + f.id + "_queHace"}
-                  nombre="Qué hace"
-                  pista="para entendernos nosotros"
+                  nombre="Qué hace (para entendernos nosotros)"
                   clase="sm:col-span-7"
                 />
                 <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-7" />
@@ -401,7 +423,12 @@ export function Formulario({
 
         {/* ===================== columna derecha ===================== */}
         <div className="grid gap-4">
-          <Caja titulo="Nuestra relación con la administración de fincas" tono="bg-form-quieto" borde="border-[#707070]">
+          <Caja
+            titulo="Nuestra relación con la administración de fincas"
+            tit="text-[19px] text-[#31600b]"
+            tono="bg-form-quieto"
+            borde="border-marco"
+          >
             <div className="grid gap-[14px] sm:grid-cols-3">
               <Elegir id="comercial" nombre="Comercial que la lleva ahora" opciones={comerciales} />
               <Elegir id="comercial_captador" nombre="Comercial que la captó" opciones={comerciales} />
@@ -409,43 +436,46 @@ export function Formulario({
               <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
             </div>
 
-            <Caja titulo="Cómo le hemos conocido" tono="bg-[#fffbeb]" borde="border-[#8a8a8a]" clase="mt-4">
-              <div className="grid gap-[14px] sm:grid-cols-2">
-                <Campo id="llego_quien" nombre="Nos llegó a través de" pista="la persona" />
-                <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} />
+            <Caja
+              titulo="Cómo le hemos conocido"
+              tit="text-[16px] text-carbon/85"
+              tono="bg-[#fffdf5]"
+              borde="border-marco"
+              clase="mt-4"
+            >
+              <div className="grid gap-[14px] sm:grid-cols-12">
+                <Campo id="llego_quien" nombre="Nos llegó a través de (la persona)" clase="sm:col-span-5" />
+                <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} clase="sm:col-span-5" />
                 <Campo
                   id="origen_notas"
                   nombre="Notas"
                   pista="por si hay detalles extra que se deban conocer: es la vecina de X, fue en la feria de Y, es el cuñado de…"
-                  clase="sm:col-span-2"
+                  clase="sm:col-span-10"
                 />
               </div>
 
-              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#4d0505]">
+              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3 sm:w-[83%]">
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#841a1a]">
                   Rellenar si nos llega a través de otro y hay condiciones a respetar
                 </h3>
                 <div className="grid items-end gap-[14px] sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
-                  <label
-                    className="flex cursor-pointer items-center gap-2 text-xs font-bold uppercase leading-tight text-[#4d0505]"
-                    htmlFor="respetar"
-                  >
+                  <label className="cursor-pointer text-[9px] font-extrabold uppercase leading-tight text-[#3e0404]" htmlFor="respetar">
+                    <span className="block">
+                      Es de otro
+                      <br />
+                      no pisar
+                    </span>
                     <input
                       id="respetar"
                       name="respetar"
                       type="checkbox"
                       checked={respetar}
                       onChange={(e) => setRespetar(e.target.checked)}
-                      className="size-6 shrink-0 accent-[#4d0505]"
+                      className="ml-3 mt-1.5 size-6 accent-[#4d0505]"
                     />
-                    <span>
-                      Es de otro
-                      <br />
-                      no pisar
-                    </span>
                   </label>
-                  <Campo id="de_quien_es" nombre="Nos llegó por" />
-                  <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} />
+                  <Campo id="de_quien_es" nombre="Nos llegó por" tinta="font-extrabold text-[#720808]" />
+                  <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} tinta="font-extrabold text-[#720808]" />
                 </div>
               </section>
             </Caja>
@@ -454,55 +484,79 @@ export function Formulario({
                 hace que la comision resalte. */}
             <Caja
               titulo="¿Este administrador cobra comisión?"
+              tit="text-[13px] text-[#1b1a6b]"
               tono="bg-[#fbecb6]"
               borde="border-[#1b1c6b]"
               clase="mt-4 sm:mx-auto sm:w-[74%]"
             >
               <input type="hidden" name="comision_estado" value={comision} />
-              <div className="flex flex-wrap items-center gap-1.5">
-                {COMISION.map((o) => (
+              <div className="flex items-start gap-4">
+                <div className="shrink-0">
+                  <div className="flex gap-1.5">
+                    {COMISION.slice(0, 2).map((o) => (
+                      <button
+                        key={o.valor}
+                        type="button"
+                        onClick={() => setComision(o.valor)}
+                        className={
+                          "min-w-12 rounded-lg border px-3 py-1 text-xs font-bold transition " +
+                          (comision === o.valor
+                            ? o.vivo
+                            : "border-black/10 bg-white/60 text-carbon/35 hover:text-carbon/70")
+                        }
+                      >
+                        {o.texto}
+                      </button>
+                    ))}
+                  </div>
                   <button
-                    key={o.valor}
                     type="button"
-                    onClick={() => setComision(o.valor)}
+                    onClick={() => setComision(COMISION[2].valor)}
                     className={
-                      "rounded-lg border px-3 py-1 text-xs font-bold transition " +
-                      (comision === o.valor ? o.vivo : "border-black/10 bg-white/60 text-carbon/35 hover:text-carbon/70")
+                      "mt-1.5 w-full rounded-lg border px-3 py-1 text-xs font-bold transition " +
+                      (comision === COMISION[2].valor
+                        ? COMISION[2].vivo
+                        : "border-black/10 bg-white/60 text-carbon/35 hover:text-carbon/70")
                     }
                   >
-                    {o.texto}
+                    {COMISION[2].texto}
                   </button>
-                ))}
-              </div>
-              <div className="mt-3 flex items-end gap-3">
+                </div>
+
                 <Elegir
                   id="comision_titular"
                   nombre="Quién la cobra"
+                  tinta="font-extrabold text-[#1b1a6b]"
                   opciones={suGente}
-                  clase="min-w-0 flex-1"
+                  clase="min-w-0 flex-1 self-end"
                   vacio={suGente.length ? "—" : "primero da de alta a alguien"}
                   desactivado={suGente.length === 0}
                 />
-                <span
-                  title="La ficha de comisión todavía no está montada"
-                  className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border border-[#1b1c6b]/40 bg-white px-2.5 py-1 text-[11px] font-bold leading-tight text-[#1b1c6b]/70"
-                >
-                  <span aria-hidden className="text-base">
-                    ↗
-                  </span>
-                  <span>
-                    abrir
-                    <br />
-                    ficha comisión
-                  </span>
+
+                <span className="shrink-0 self-end">
+                  <span className={etiqueta + " block font-extrabold text-[#1b1a6b]"}>abrir ficha</span>
+                  <button
+                    type="button"
+                    disabled
+                    title="La ficha de comisión todavía no está montada"
+                    aria-label="Abrir su ficha de comisión"
+                    className="mt-1 flex size-8 cursor-not-allowed items-center justify-center rounded-lg bg-[#1b1c6b] text-base font-bold text-white shadow-sm disabled:opacity-45"
+                  >
+                    <span aria-hidden>↗</span>
+                  </button>
                 </span>
               </div>
             </Caja>
           </Caja>
 
-          <Caja titulo="Datos de la empresa administradora de fincas" tono="bg-form-quieto" borde="border-[#696969]">
+          <Caja
+            titulo="Datos de la empresa administradora de fincas"
+            tit="text-[14px] text-carbon/85"
+            tono="bg-form-quieto"
+            borde="border-marco"
+          >
             <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
-              <Dato id="nombre_legal" nombre="Nombre legal" pista="el de la tarjeta del CIF" clase="sm:col-span-8" />
+              <Dato id="nombre_legal" nombre="Nombre legal (el de la tarjeta del CIF)" clase="sm:col-span-8" />
               <Dato id="cif" nombre="CIF" clase="sm:col-span-4" />
               <Dato id="direccion" nombre="Dirección" clase="sm:col-span-12" />
               <Dato id="correo_general" nombre="Correo general principal" clase="sm:col-span-7" />

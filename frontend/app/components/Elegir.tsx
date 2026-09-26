@@ -29,6 +29,8 @@ export function Elegir({
   desactivado,
   clase = "",
   vacio = "—",
+  tinta,
+  marco,
 }: {
   id: string;
   nombre: string;
@@ -40,6 +42,9 @@ export function Elegir({
   desactivado?: boolean;
   clase?: string;
   vacio?: string;
+  /** El color de la etiqueta y el del marco, cuando se eligen. */
+  tinta?: string;
+  marco?: string;
 }) {
   const [propio, setPropio] = useState("");
   const elegido = valor ?? propio;
@@ -84,7 +89,7 @@ export function Elegir({
 
   return (
     <div className={"relative " + clase} ref={caja}>
-      <span className="block text-[10px] font-bold uppercase tracking-wide text-carbon/70">{nombre}</span>
+      <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>{nombre}</span>
       <input type="hidden" name={id} value={elegido} />
       <button
         type="button"
@@ -102,7 +107,8 @@ export function Elegir({
           }
         }}
         className={
-          "mt-1 flex w-full items-center justify-between gap-2 rounded-lg border border-black/10 bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
+          "mt-1 flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
+          (marco ?? "border-black/10") + " " +
           (abierto ? "border-lima" : "")
         }
       >

@@ -24,7 +24,11 @@
   --color-form-dentro: #fcfbf8;   /* una tarjeta dentro de otra */
   --color-form-nuevo: #fff5cc;    /* lo que se esta creando nuevo, amarillo */
   --color-form-nuestro: #eff5f1;  /* lo nuestro: el comercial */
-  --color-form-quieto: #fafafa;   /* lo que no cambia nunca: el edificio */
+  --color-form-quieto: #fafafa;
+  /* UN SOLO GRIS para el borde de las tarjetas. En el taller salieron once
+     tonos distintos porque es imposible acertar dos veces el mismo a ojo; es
+     uno, y con nombre, para cambiarlo en una linea. */
+  --color-marco: #707070;   /* lo que no cambia nunca: el edificio */
 
   /* Atasco: rojo apagado, que avise sin gritar. */
   --color-alerta: #9f3a38;
