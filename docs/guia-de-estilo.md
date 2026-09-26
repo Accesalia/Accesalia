@@ -60,6 +60,9 @@ Y su forma, que también es suya:
    persona, no una entidad fiscal.
 4. **Lo que se crea nuevo se despliega dentro**, en amarillo, sin salir de la
    pantalla. Nunca se manda a otra página a crear algo que hace falta aquí.
+   **Y su caja se ve siempre, aunque esté cerrada**: con su título y un botón
+   de «Crear» al lado. Si se esconde del todo hasta que alguien elige la opción
+   adecuada, para quien la usa no existe.
 5. **Lo demás, en columnas paralelas**, no en una pila. Lo que cruza a todas
    («otras personas de contacto») va a lo ancho por debajo.
 6. **La pista va dentro del recuadro**, en gris, y desaparece al escribir. No

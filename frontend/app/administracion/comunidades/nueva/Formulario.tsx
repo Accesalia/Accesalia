@@ -124,9 +124,10 @@ export function Formulario({
 
   const adminNueva = admin === "__nueva__";
   const suyas = adminNueva ? [] : opciones.personas.filter((p) => p.empresaId === admin);
-  // La caja amarilla sale cuando la administracion es nueva, o cuando la
-  // elegida no tiene gente, o cuando ella quiere anadir otra persona.
-  const creandoGente = adminNueva || personaSuelta || (admin !== "" && suyas.length === 0);
+  // La administracion elegida no tiene a nadie dado de alta: no hay a quien
+  // elegir, asi que la caja se abre sola y no tiene sentido cerrarla.
+  const sinGente = admin !== "" && !adminNueva && suyas.length === 0;
+  const creandoGente = adminNueva || personaSuelta || sinGente;
 
   return (
     <form action={accion} onSubmit={() => setEnviando(true)} className="grid gap-5">
@@ -248,12 +249,37 @@ export function Formulario({
           </Caja>
         </div>
 
-        {creandoGente && (
-          <Caja
-            titulo={adminNueva ? "No está en la lista: creamos una nueva" : "Damos de alta a la persona"}
-            tono="bg-form-nuevo"
-            clase="mt-5"
-          >
+        {/* La caja de crear uno nuevo SIEMPRE se ve, aunque sea cerrada: si se
+            esconde del todo, no existe. Se despliega con el botón. */}
+        <section className="mt-5 rounded-2xl border border-black/5 bg-form-nuevo p-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/70">
+              {sinGente
+                ? "Esta administración no tiene a nadie: damos de alta a la persona"
+                : "No es un administrador de la lista: creamos uno nuevo"}
+            </h2>
+            {!sinGente && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (adminNueva) setAdmin("");
+                  else if (personaSuelta) setPersonaSuelta(false);
+                  else setAdmin("__nueva__");
+                }}
+                className={
+                  "rounded-xl px-5 py-2 text-base font-bold transition " +
+                  (creandoGente
+                    ? "border border-black/15 bg-white text-carbon/60 hover:border-lima"
+                    : "bg-lima text-carbon hover:bg-lima-dark hover:text-white")
+                }
+              >
+                {creandoGente ? "Cerrar" : "Crear"}
+              </button>
+            )}
+          </div>
+
+          {creandoGente && (
+            <div className="mt-5">
             {Array.from({ length: personas }, (_, i) => (
               <div key={i} className="mb-4 grid gap-4 sm:grid-cols-[2fr_1fr_2fr_2fr]">
                 <Campo id={"persona_" + i + "_nombre"} nombre="Quién es nuestro contacto en la administración" />
@@ -277,8 +303,9 @@ export function Formulario({
                 <Campo id="admin_correo" nombre="Correo de la empresa, si es distinto" />
               </div>
             )}
-          </Caja>
-        )}
+            </div>
+          )}
+        </section>
       </Caja>
 
       {/* ---- todo lo de la comunidad, en tres columnas ---- */}
