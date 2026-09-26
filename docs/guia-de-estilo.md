@@ -31,6 +31,21 @@ Y el ámbar de Tailwind, que hace de **crema intenso** para lo que falta:
 | Texto caramelo sobre ese crema | `text-amber-900/80`, el título `text-amber-800/80` |
 | Un dato que falta, dentro de una ficha | `text-amber-700/50` con la palabra «por completar» |
 
+**Los grises tienen un suelo.** El texto pequeno necesita **4,5:1** de
+contraste sobre su fondo (WCAG AA, y lo mismo pide la HIG). Sobre el crema de
+las tarjetas eso deja fuera los grises muy claros: `carbon/45` da 2,7:1 y no
+vale. Los minimos que se usan:
+
+| Para qué | Clase | Contraste aprox. |
+|---|---|---|
+| Título de una tarjeta | `text-carbon/85` | 8,5:1 |
+| Etiqueta de un campo | `text-carbon/70` | 5,6:1 |
+| Pista o texto de apoyo | `text-carbon/65` | 5,1:1 |
+| Pista dentro del recuadro | `placeholder:text-carbon/55` | 4,5:1 |
+
+Solo lo **desactivado** puede bajar de ahí: la norma lo exime, y además tiene
+que leerse como apagado.
+
 **Nunca gris muerto.** Un hueco no es gris: es ámbar suave. El gris (`black/5`)
 es solo para bordes y para lo apagado de verdad (lo que está desactivado).
 

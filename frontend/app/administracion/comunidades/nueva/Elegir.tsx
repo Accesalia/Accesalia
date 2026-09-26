@@ -84,7 +84,7 @@ export function Elegir({
 
   return (
     <div className={"relative " + clase} ref={caja}>
-      <span className="block text-[10px] font-bold uppercase tracking-wide text-carbon/45">{nombre}</span>
+      <span className="block text-[10px] font-bold uppercase tracking-wide text-carbon/70">{nombre}</span>
       <input type="hidden" name={id} value={elegido} />
       <button
         type="button"
@@ -96,8 +96,8 @@ export function Elegir({
           (abierto ? "border-lima" : "")
         }
       >
-        <span className={"truncate " + (puesto ? "" : "text-carbon/35")}>{puesto ? puesto.texto : vacio}</span>
-        <span aria-hidden className="shrink-0 text-carbon/30">
+        <span className={"truncate " + (puesto ? "" : "text-carbon/55")}>{puesto ? puesto.texto : vacio}</span>
+        <span aria-hidden className="shrink-0 text-carbon/55">
           ▾
         </span>
       </button>
@@ -119,7 +119,7 @@ export function Elegir({
               }
             }}
             placeholder="Escribe para buscar…"
-            className="w-full border-b border-black/10 px-3 py-2 text-sm text-carbon outline-none placeholder:text-carbon/30"
+            className="w-full border-b border-black/10 px-3 py-2 text-sm text-carbon outline-none placeholder:text-carbon/55"
           />
           <ul className="max-h-60 overflow-auto py-1">
             {elegido !== "" && (
@@ -131,13 +131,13 @@ export function Elegir({
                     setAbierto(false);
                     setBusca("");
                   }}
-                  className="block w-full px-3 py-1.5 text-left text-sm text-carbon/40 hover:bg-hueso"
+                  className="block w-full px-3 py-1.5 text-left text-sm text-carbon/65 hover:bg-hueso"
                 >
                   Quitar lo elegido
                 </button>
               </li>
             )}
-            {filtradas.length === 0 && <li className="px-3 py-2 text-sm text-carbon/40">No hay ninguna que coincida.</li>}
+            {filtradas.length === 0 && <li className="px-3 py-2 text-sm text-carbon/65">No hay ninguna que coincida.</li>}
             {filtradas.map((o) => (
               <li key={o.valor}>
                 <button
@@ -153,7 +153,7 @@ export function Elegir({
                   }
                 >
                   {o.texto}
-                  {o.pista && <span className="ml-1.5 text-carbon/40">{o.pista}</span>}
+                  {o.pista && <span className="ml-1.5 text-carbon/60">{o.pista}</span>}
                 </button>
               </li>
             ))}
