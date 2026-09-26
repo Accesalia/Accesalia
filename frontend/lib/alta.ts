@@ -95,6 +95,13 @@ export type DatosComunidad = {
   provincia: string | null;
   administracionId: string | null;
   puestoId: string | null;
+  /** Si la administracion no existe todavia se crea AQUI, sin salir de la
+   *  pantalla: "que no tenga que ir a una pantalla para la direccion, a otra
+   *  para el canal, a otra para crearle admin" (Monica). */
+  administracionNueva: { nombre: string; telefono: string | null; correo: string | null } | null;
+  /** Lo mismo con la persona: si la administracion no tiene ninguna, o es
+   *  nueva, se da de alta aqui. */
+  personaNueva: { nombre: string; cargo: string | null; telefono: string | null; correo: string | null } | null;
   /** El comercial al que le toca. Se guarda en la NOTA, no en la comunidad:
    *  el comercial cuelga de la administracion y de la oportunidad, nunca del
    *  edificio. */
@@ -143,12 +150,52 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     });
   }
 
-  // 3 · quien la administra
-  if (d.administracionId) {
+  // 3 · quien la administra. La empresa y la persona pueden nacer aqui mismo.
+  let empresaId = d.administracionId;
+  if (!empresaId && d.administracionNueva) {
+    const e = await crear<{ id: string }>("empresa", {
+      nombre_accesalia: d.administracionNueva.nombre,
+      telefono: d.administracionNueva.telefono,
+      activa: true,
+    });
+    empresaId = e.id;
+    if (d.administracionNueva.correo) {
+      await crear("correo", {
+        empresa_id: empresaId,
+        email: d.administracionNueva.correo,
+        etiqueta: "general",
+        principal: true,
+      });
+    }
+  }
+
+  let puestoId = d.puestoId;
+  if (!puestoId && d.personaNueva && empresaId) {
+    const per = await crear<{ id: string }>("persona", { nombre: d.personaNueva.nombre, activa: true });
+    const pue = await crear<{ id: string }>("puesto", {
+      persona_id: per.id,
+      empresa_id: empresaId,
+      cargo: d.personaNueva.cargo,
+      telefono_empresa: d.personaNueva.telefono,
+      desde: hoy(),
+    });
+    puestoId = pue.id;
+    if (d.personaNueva.correo) {
+      await crear("correo", {
+        puesto_id: puestoId,
+        empresa_id: empresaId,
+        email: d.personaNueva.correo,
+        etiqueta: "general",
+        principal: true,
+      });
+    }
+  }
+
+  if (empresaId) {
     await crear("comunidad_admin_responsable", {
       comunidad_id: comunidadId,
-      empresa_id: d.administracionId,
-      puesto_id: d.puestoId,
+      empresa_id: empresaId,
+      puesto_id: puestoId,
       vigente: true,
       desde: hoy(),
     });
@@ -159,7 +206,7 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
   const op = await crear<{ id: string }>("oportunidades", {
     comunidad_id: comunidadId,
     comercial_id: d.comercialId,
-    puesto_id: d.puestoId,
+    puesto_id: puestoId,
     tipo_origen: d.tipoOrigen,
     estado: "activa",
     origen_notas: d.nota,
@@ -171,7 +218,7 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     const i = await crear<{ id: string }>("interacciones", {
       oportunidad_id: op.id,
       comercial_id: d.comercialId,
-      puesto_id: d.puestoId,
+      puesto_id: puestoId,
       transcripcion: d.nota,
       origen: "manual",
       fecha_evento: hoy(),

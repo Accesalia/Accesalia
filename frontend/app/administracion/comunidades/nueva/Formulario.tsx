@@ -49,10 +49,15 @@ export function Formulario({
   volver: string;
 }) {
   const [admin, setAdmin] = useState("");
+  const [personaNueva, setPersonaNueva] = useState(false);
   const [direccion, setDireccion] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  const personas = opciones.personas.filter((p) => p.empresaId === admin);
+  const adminNueva = admin === "__nueva__";
+  const personas = adminNueva ? [] : opciones.personas.filter((p) => p.empresaId === admin);
+  // Si la administracion es nueva, o es una que no tiene gente, la persona se
+  // da de alta aqui sin salir de la pantalla.
+  const pidePersonaNueva = adminNueva || personaNueva || (admin !== "" && personas.length === 0);
   const hayDireccion = direccion.trim() !== "";
 
   return (
@@ -86,26 +91,24 @@ export function Formulario({
             className={campo + " mt-1.5"}
           >
             <option value="">—</option>
+            <option value="__nueva__">+ Crear una administración nueva</option>
             {opciones.administraciones.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.nombre}
               </option>
             ))}
           </select>
-          {/* La pantalla de alta de administracion es la siguiente que se
-              monta; hasta entonces el boton se ve pero no lleva a un 404. */}
-          <span
-            title="Dar de alta una administración todavía no está montado"
-            className="mt-1.5 inline-flex cursor-not-allowed items-center gap-1.5 text-sm font-semibold text-carbon/35"
-          >
-            + Crear una administración nueva
-            <span className="rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wide">Próximamente</span>
-          </span>
+
         </label>
 
         <label htmlFor="puesto">
           <span className={etiqueta}>Persona que la lleva</span>
-          <select id="puesto" name="puesto" disabled={!admin} className={campo + " mt-1.5 disabled:bg-black/[.03]"}>
+          <select
+            id="puesto"
+            name="puesto"
+            disabled={!admin || pidePersonaNueva}
+            className={campo + " mt-1.5 disabled:bg-black/[.03]"}
+          >
             <option value="">—</option>
             {personas.map((p) => (
               <option key={p.id} value={p.id}>
@@ -114,10 +117,14 @@ export function Formulario({
               </option>
             ))}
           </select>
-          {admin && personas.length === 0 && (
-            <span className="mt-1.5 block text-sm text-amber-700">
-              Esta administración todavía no tiene personas dadas de alta.
-            </span>
+          {admin && !adminNueva && (
+            <button
+              type="button"
+              onClick={() => setPersonaNueva((x) => !x)}
+              className="mt-1.5 text-sm font-semibold text-lima-dark hover:underline"
+            >
+              {personaNueva ? "← Elegir una que ya está" : "+ Dar de alta una persona"}
+            </button>
           )}
         </label>
 
@@ -145,6 +152,23 @@ export function Formulario({
         </label>
 
       </Bloque>
+
+      {adminNueva && (
+        <Bloque titulo="La administración nueva">
+          <Campo id="admin_nombre" nombre="Nombre de la administración" ancho />
+          <Campo id="admin_telefono" nombre="Teléfono" />
+          <Campo id="admin_correo" nombre="Correo" />
+        </Bloque>
+      )}
+
+      {pidePersonaNueva && (
+        <Bloque titulo="La persona que la lleva">
+          <Campo id="persona_nombre" nombre="Nombre" ancho />
+          <Campo id="persona_cargo" nombre="Cargo" />
+          <Campo id="persona_telefono" nombre="Teléfono de trabajo" />
+          <Campo id="persona_correo" nombre="Correo" />
+        </Bloque>
+      )}
 
       <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-bold text-carbon">Primera nota</h2>

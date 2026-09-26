@@ -25,14 +25,31 @@ export async function guardarAlta(fd: FormData) {
   // La direccion ES la comunidad: sin ella no hay nada que dar de alta.
   if (!direccion) redirect("/administracion/comunidades/nueva?falta=1");
 
+  // "__nueva__" en el desplegable = la administracion se crea aqui mismo.
+  const elegida = texto(fd, "administracion");
+  const administracionId = elegida === "__nueva__" ? null : elegida;
+  const adminNombre = elegida === "__nueva__" ? texto(fd, "admin_nombre") : null;
+  const personaNombre = texto(fd, "persona_nombre");
+
   const presidenteNombre = texto(fd, "presidente");
   const datos: DatosComunidad = {
     direccion,
     cp: texto(fd, "cp"),
     municipio: texto(fd, "municipio"),
     provincia: texto(fd, "provincia"),
-    administracionId: texto(fd, "administracion"),
+    administracionId,
     puestoId: texto(fd, "puesto"),
+    administracionNueva: adminNombre
+      ? { nombre: adminNombre, telefono: texto(fd, "admin_telefono"), correo: texto(fd, "admin_correo") }
+      : null,
+    personaNueva: personaNombre
+      ? {
+          nombre: personaNombre,
+          cargo: texto(fd, "persona_cargo"),
+          telefono: texto(fd, "persona_telefono"),
+          correo: texto(fd, "persona_correo"),
+        }
+      : null,
     comercialId: texto(fd, "comercial"),
     tipoOrigen: texto(fd, "origen") ?? "otro",
     nota: texto(fd, "nota"),
