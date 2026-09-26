@@ -262,10 +262,17 @@ export function Formulario({
         </div>
         {/* El telefono se fue de aqui: no se sabia de quien era. Suben el
             comercial y la fecha de alta, que son lo que hay que ver sin bajar. */}
-        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)_150px]">
           <Campo id="nombre" nombre="Nombre habitual" />
           <Campo id="municipio" nombre="Localidad" />
-          <Elegir id="comercial" nombre="Comercial que la lleva" opciones={comerciales} />
+          {/* Si la esta dando de alta un comercial, sale el suyo ya puesto:
+              asi queda marcada como suya sin tener que elegirse a si mismo. */}
+          <Elegir
+            id="comercial"
+            nombre="Comercial que la lleva"
+            opciones={comerciales}
+            defecto={opciones.miComercial ?? undefined}
+          />
           {/* Por defecto hoy: cuanto menos haya que escribir, mejor. */}
           <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
         </div>
@@ -277,7 +284,7 @@ export function Formulario({
         )}
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,540fr)_minmax(0,651fr)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,601fr)_minmax(0,590fr)]">
         {/* ===================== columna izquierda ===================== */}
         <div className="grid gap-4">
           <Caja titulo="Quién es el jefe" tit="text-[15px] text-[#31600b]" tono="bg-form-quieto" borde="border-marco">
@@ -441,7 +448,7 @@ export function Formulario({
               tit="text-[16px] text-carbon/85"
               tono="bg-[#fffdf5]"
               borde="border-marco"
-              clase="mt-4 sm:mx-auto sm:w-[92%]"
+              clase="mt-4"
             >
               <div className="grid gap-[14px] sm:grid-cols-12">
                 <Campo id="llego_quien" nombre="Nos llegó a través de (la persona)" clase="sm:col-span-5" />
@@ -487,7 +494,7 @@ export function Formulario({
               tit="text-[13px] text-[#1b1a6b]"
               tono="bg-[#fbecb6]"
               borde="border-[#1b1c6b]"
-              clase="mt-4 sm:mx-auto sm:w-[74%]"
+              clase="mt-4 sm:mx-auto sm:w-[82%]"
             >
               <input type="hidden" name="comision_estado" value={comision} />
               <div className="flex items-start gap-4">

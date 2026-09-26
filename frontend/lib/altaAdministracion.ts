@@ -49,18 +49,24 @@ async function crear<T>(tabla: string, fila: Record<string, unknown>): Promise<T
 // ------------------------------------------------------------ lo que se elige
 
 export type OpcionSimple = { id: string; nombre: string };
-export type OpcionesAdmin = { comerciales: OpcionSimple[]; contratas: OpcionSimple[] };
+export type OpcionesAdmin = {
+  comerciales: OpcionSimple[];
+  contratas: OpcionSimple[];
+  /** Si quien esta rellenando la ficha es comercial, el suyo: sale ya puesto. */
+  miComercial: string | null;
+};
 
-export async function opcionesAdministracion(): Promise<OpcionesAdmin> {
+export async function opcionesAdministracion(equipoId?: string): Promise<OpcionesAdmin> {
   const [comerciales, contratas] = await Promise.all([
-    leer<{ id: string; nombre: string; apellidos: string | null }[]>(
-      "comerciales?select=id,nombre,apellidos&activo=eq.true&order=nombre.asc",
+    leer<{ id: string; nombre: string; apellidos: string | null; equipo_id: string | null }[]>(
+      "comerciales?select=id,nombre,apellidos,equipo_id&activo=eq.true&order=nombre.asc",
     ),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
   ]);
   return {
     comerciales: comerciales.map((c) => ({ id: c.id, nombre: [c.nombre, c.apellidos].filter(Boolean).join(" ") })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
+    miComercial: (equipoId && comerciales.find((c) => c.equipo_id === equipoId)?.id) || null,
   };
 }
 

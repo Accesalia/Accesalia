@@ -29,6 +29,7 @@ export function Elegir({
   desactivado,
   clase = "",
   vacio = "—",
+  defecto,
   tinta,
   marco,
 }: {
@@ -42,11 +43,13 @@ export function Elegir({
   desactivado?: boolean;
   clase?: string;
   vacio?: string;
+  /** Lo que viene ya puesto al abrir la pantalla (y se puede cambiar). */
+  defecto?: string;
   /** El color de la etiqueta y el del marco, cuando se eligen. */
   tinta?: string;
   marco?: string;
 }) {
-  const [propio, setPropio] = useState("");
+  const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
   const poner = (v: string) => {
     setPropio(v);

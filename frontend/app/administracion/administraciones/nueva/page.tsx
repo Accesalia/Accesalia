@@ -22,7 +22,7 @@ export default async function NuevaAdministracion({
   if (!yo) redirect("/entrar?volver=/administracion/administraciones/nueva");
   if (!puedeEntrar(yo, "administracion")) redirect("/menu");
 
-  const opciones = await opcionesAdministracion();
+  const opciones = await opcionesAdministracion(yo.id);
 
   return (
     <div className="min-h-screen bg-form">
