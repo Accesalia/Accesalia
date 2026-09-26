@@ -67,6 +67,16 @@ Y su forma, que también es suya:
    («otras personas de contacto») va a lo ancho por debajo.
 6. **La pista va dentro del recuadro**, en gris, y desaparece al escribir. No
    como etiqueta fija encima, que ocupa el doble y se queda ahí molestando.
+7. **Apretado, no gigante.** Un formulario se rellena de un vistazo: campo de
+   `text-sm` con `px-3 py-1.5`, etiqueta de `text-[10px]`, tarjetas de `p-4` y
+   huecos de `gap-3` dentro y `gap-4` entre tarjetas. En una ficha, que se lee,
+   el texto va más grande; en un formulario, que se rellena, no.
+8. **Cada casilla de elegir lleva su minibuscador.** El desplegable del
+   navegador solo encuentra por el principio, y no enseña lo que se escribe:
+   tecleando «roen» no aparece «ADMINISTRACIONES ROEN». El componente
+   `Elegir` abre un panel con un buscador arriba que encuentra el trozo esté
+   donde esté, sin tildes ni mayúsculas de por medio. Se usa en todas, tengan
+   cinco opciones o doscientas ochenta.
 
 ## Las piezas
 
