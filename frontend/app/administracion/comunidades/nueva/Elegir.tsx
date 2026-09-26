@@ -70,8 +70,12 @@ export function Elegir({
     };
   }, [abierto]);
 
+  // Al cerrar se BORRA lo buscado. Si no, se queda pegado y sigue filtrando por
+  // debajo: escribir "javier" aqui y volver luego dejaba la lista reducida a
+  // Javier aunque ya se hubiera elegido otra administracion.
   useEffect(() => {
     if (abierto) escribe.current?.focus();
+    else setBusca("");
   }, [abierto]);
 
   const q = limpio(busca.trim());
