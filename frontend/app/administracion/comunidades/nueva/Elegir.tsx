@@ -89,8 +89,18 @@ export function Elegir({
       <button
         type="button"
         id={id + "_boton"}
+        data-campo
         disabled={desactivado}
         onClick={() => setAbierto((x) => !x)}
+        onKeyDown={(e) => {
+          // Enter NO abre: sirve para pasar al campo siguiente (lo hace el
+          // formulario). Para abrir, espacio o flecha abajo.
+          if (e.key === "Enter") e.preventDefault();
+          else if (e.key === " " || e.key === "ArrowDown") {
+            e.preventDefault();
+            setAbierto(true);
+          }
+        }}
         className={
           "mt-1 flex w-full items-center justify-between gap-2 rounded-lg border border-black/10 bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
           (abierto ? "border-lima" : "")
@@ -106,6 +116,7 @@ export function Elegir({
         <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg">
           <input
             ref={escribe}
+            data-buscador
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onKeyDown={(e) => {

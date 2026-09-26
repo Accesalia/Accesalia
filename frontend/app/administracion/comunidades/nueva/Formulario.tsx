@@ -51,16 +51,19 @@ const nuevaFila = (): Fila => ({ id: "f" + ++siguiente, nombre: "" });
 function Caja({
   titulo,
   tono = "bg-form-card",
+  /** El color del borde. Lo puso ella tarjeta por tarjeta en el taller. */
+  borde = "border-[#999999]",
   clase = "",
   children,
 }: {
   titulo?: string;
   tono?: string;
+  borde?: string;
   clase?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className={"min-w-0 rounded-xl border border-black/5 p-4 shadow-sm " + tono + " " + clase}>
+    <section className={"min-w-0 rounded-[14px] border p-4 shadow-sm " + borde + " " + tono + " " + clase}>
       {titulo && <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-carbon/85">{titulo}</h2>}
       {children}
     </section>
@@ -184,8 +187,27 @@ export function Formulario({
 
   const faltaDireccion = direccion.trim() === "";
 
+  // CON ENTER SE PASA AL CAMPO SIGUIENTE, sin tener que coger el raton. Antes
+  // Enter enviaba el formulario, que es lo ultimo que uno espera escribiendo la
+  // direccion. En la nota no: alli Enter hace lo suyo, salto de linea.
+  const alPulsarTecla = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key !== "Enter") return;
+    const donde = e.target as HTMLElement;
+    if (donde.tagName === "TEXTAREA") return;
+    if (donde.hasAttribute("data-buscador")) return; // ahi Enter elige
+    if (donde.tagName !== "INPUT" && !donde.hasAttribute("data-campo")) return;
+    e.preventDefault();
+    const todos = Array.from(
+      e.currentTarget.querySelectorAll<HTMLElement>(
+        "input:not([type=hidden]):not([data-buscador]), textarea, [data-campo]",
+      ),
+    ).filter((x) => !(x as HTMLInputElement).disabled);
+    const siguiente = todos[todos.indexOf(donde) + 1];
+    siguiente?.focus();
+  };
+
   return (
-    <form action={accion} onSubmit={() => setEnviando(true)} className="grid gap-4">
+    <form action={accion} onSubmit={() => setEnviando(true)} onKeyDown={alPulsarTecla} className="grid gap-4">
       {/* ---- la cabecera: el titulo con su pista al lado, y los botones ---- */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -213,10 +235,10 @@ export function Formulario({
 
       {/* ---- la direccion y la nota, juntas (680 y 510, los suyos) ---- */}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,68fr)_minmax(0,51fr)]">
-        <Caja titulo="La dirección">
+        <Caja titulo="La dirección" borde="border-[#737373]">
           {/* Su fila: la dirección con el código postal al lado, y debajo la
               localidad y la provincia. */}
-          <div className="grid gap-3 sm:grid-cols-12">
+          <div className="grid gap-[14px] sm:grid-cols-12">
             <label className="block min-w-0 sm:col-span-10" htmlFor="direccion">
               <span className={etiqueta}>Dirección</span>
               <input
@@ -235,7 +257,7 @@ export function Formulario({
           </div>
         </Caja>
 
-        <Caja titulo="Primera nota" clase="flex h-full flex-col">
+        <Caja titulo="Primera nota" borde="border-[#616161]" clase="flex h-full flex-col">
           <textarea
             id="nota"
             name="nota"
@@ -247,7 +269,7 @@ export function Formulario({
       </div>
 
       {/* ---- el administrador de fincas (734 y 450, los suyos) ---- */}
-      <Caja titulo="Administrador de fincas: qué sabemos">
+      <Caja titulo="Administrador de fincas: qué sabemos" borde="border-[#5c5c5c]">
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,73fr)_minmax(0,45fr)]">
           <div className="grid gap-3">
             <Elegir
@@ -281,9 +303,9 @@ export function Formulario({
             )}
           </div>
 
-          <Caja titulo="De qué comercial es" tono="bg-form-nuestro">
+          <Caja titulo="De qué comercial es" tono="bg-form-nuestro" borde="border-[#757575]">
             {/* Los dos en la misma fila, como los puso ella. */}
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+            <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
               <Elegir id="comercial" nombre="Comercial de Accesalia" opciones={listaComerciales} />
               <Elegir id="origen" nombre="Cómo le ha llegado" opciones={ORIGENES} />
             </div>
@@ -292,7 +314,7 @@ export function Formulario({
 
         {/* La caja de crear uno nuevo SIEMPRE se ve, aunque sea cerrada: si se
             esconde del todo, no existe. Se despliega con el botón. */}
-        <section className="mt-4 rounded-xl border border-black/5 bg-form-nuevo p-4 shadow-sm">
+        <section className="mt-4 rounded-[14px] border border-[#787878] bg-form-nuevo p-4 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-xs font-bold uppercase tracking-wider text-carbon/85">
               {sinGente
@@ -324,7 +346,7 @@ export function Formulario({
               {/* Primero la persona, luego la empresa, y el botón DEBAJO de las
                   dos: en medio parecía que las separaba. */}
               {personas.map((f, i) => (
-                <div key={f.id} className="mb-3 grid items-end gap-3 sm:grid-cols-[2fr_1fr_2fr_2fr_auto]">
+                <div key={f.id} className="mb-3 grid items-end gap-[14px] sm:grid-cols-[2fr_1fr_2fr_2fr_auto]">
                   <Campo
                     id={"persona_" + f.id + "_nombre"}
                     nombre="Quién es nuestro contacto en la administración"
@@ -343,7 +365,7 @@ export function Formulario({
               ))}
 
               {adminNueva && (
-                <div className="mb-3 grid gap-3 sm:grid-cols-[2fr_1fr_2fr]">
+                <div className="mb-3 grid gap-[14px] sm:grid-cols-[2fr_1fr_2fr]">
                   <Campo id="admin_nombre" nombre="Nombre de la empresa de administración de fincas" />
                   <Campo id="admin_telefono" nombre="Teléfono general, si es distinto" />
                   <Campo id="admin_correo" nombre="Correo de la empresa, si es distinto" />
@@ -364,14 +386,14 @@ export function Formulario({
       </Caja>
 
       {/* ---- todo lo de la comunidad ---- */}
-      <Caja titulo="Datos que tenemos de la comunidad">
+      <Caja titulo="Datos que tenemos de la comunidad" borde="border-[#999999]">
         {/* Tres anchos DISTINTOS, los suyos: 410, 390 y 340. No es casualidad:
             cada una necesita el suyo para que la info quepa holgada. */}
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,41fr)_minmax(0,39fr)_minmax(0,34fr)]">
-          <Caja titulo="Presidente" tono="bg-form-dentro">
+          <Caja titulo="Presidente" tono="bg-form-dentro" borde="border-[#9e9e9e]">
             {/* Su orden: nombre y teléfono; debajo el DNI con sus documentos;
                 y el correo al final. */}
-            <div className="grid items-end gap-3 sm:grid-cols-10">
+            <div className="grid items-end gap-2.5 sm:grid-cols-10">
               <Campo id="presidente" nombre="Nombre" clase="sm:col-span-7" />
               <Campo id="presidente_telefono" nombre="Teléfono" clase="sm:col-span-3" />
               <Campo id="presidente_dni" nombre="DNI" clase="sm:col-span-5" />
@@ -381,9 +403,9 @@ export function Formulario({
             </div>
           </Caja>
 
-          <Caja titulo="Datos de la comunidad, lo que sepamos" tono="bg-form-dentro">
+          <Caja titulo="Datos de la comunidad, lo que sepamos" tono="bg-form-dentro" borde="border-[#838381]">
             {/* Su orden: CIF con su tarjeta, el censo, y el IBAN al final. */}
-            <div className="grid items-end gap-3 sm:grid-cols-10">
+            <div className="grid items-end gap-2.5 sm:grid-cols-10">
               <Campo id="cif" nombre="CIF" clase="sm:col-span-8" />
               <Doc nombre="Tarjeta del CIF" clase="sm:col-span-2" />
               <Campo id="mayores70" nombre="Vecinos de más de 70 años" clase="sm:col-span-5" />
@@ -392,8 +414,8 @@ export function Formulario({
             </div>
           </Caja>
 
-          <Caja titulo="Datos del edificio, lo que sepamos" tono="bg-form-quieto">
-            <div className="grid items-end gap-3 sm:grid-cols-10">
+          <Caja titulo="Datos del edificio, lo que sepamos" tono="bg-form-quieto" borde="border-[#858585]">
+            <div className="grid items-end gap-2.5 sm:grid-cols-10">
               <Campo id="anio" nombre="Año de construcción" clase="sm:col-span-5" />
               <Campo id="viviendas" nombre="Número de viviendas" clase="sm:col-span-5" />
               <Campo id="catastro" nombre="Referencia catastral" clase="sm:col-span-7" />
@@ -402,11 +424,11 @@ export function Formulario({
           </Caja>
         </div>
 
-        <Caja titulo="Otras personas de contacto" tono="bg-form-dentro" clase="mt-4">
+        <Caja titulo="Otras personas de contacto" tono="bg-form-dentro" borde="border-[#bfbfbf]" clase="mt-4">
           {/* El «+ añadir otra persona» va en la MISMA fila, al final, como lo
               puso ella; sale en la última y solo si esa tiene nombre. */}
           {contactos.map((f, i) => (
-            <div key={f.id} className="mb-3 grid items-end gap-3 sm:grid-cols-[2fr_3fr_1.3fr_3fr_auto_auto]">
+            <div key={f.id} className="mb-3 grid items-end gap-[14px] sm:grid-cols-[2fr_3fr_1.3fr_3fr_auto_auto]">
               <Campo
                 id={"contacto_" + f.id + "_nombre"}
                 nombre="Nombre"
