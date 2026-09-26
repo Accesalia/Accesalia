@@ -13,9 +13,9 @@
 // la comunidad. Lo demas —administrador, comercial, edificio, presidente,
 // nota— puede llegar despues.
 //
-// Aqui NO se abre oportunidad: eso es la tercera alta y tiene su puerta. Si
-// hay nota, se guarda como primera entrada del diario colgada de la comunidad,
-// con su fecha y con quien la escribio.
+// La nota SI abre oportunidad (Monica): el alta de una comunidad arranca su
+// proceso comercial. La diferencia con la tercera puerta no es que aqui no
+// haya oportunidad, es que aqui la direccion es obligatoria y alli no.
 
 import "server-only";
 
@@ -99,6 +99,8 @@ export type DatosComunidad = {
    *  el comercial cuelga de la administracion y de la oportunidad, nunca del
    *  edificio. */
   comercialId: string | null;
+  /** Como ha llegado: `oportunidades.tipo_origen`. */
+  tipoOrigen: string;
   nota: string | null;
   // el edificio
   anio: number | null;
@@ -109,7 +111,7 @@ export type DatosComunidad = {
   presidente: { nombre: string; telefono: string | null; email: string | null; documento: string | null } | null;
 };
 
-export type ResultadoComunidad = { comunidadId: string; interaccionId: string | null };
+export type ResultadoComunidad = { comunidadId: string; oportunidadId: string; interaccionId: string | null };
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 
@@ -152,11 +154,22 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     });
   }
 
-  // 4 · la primera entrada del diario, si la hay. Cuelga de la comunidad; no
-  //     hace falta oportunidad para que exista.
+  // 4 · su oportunidad: dar de alta una comunidad es arrancar su proceso
+  //     comercial. De aqui cuelga como ha llegado.
+  const op = await crear<{ id: string }>("oportunidades", {
+    comunidad_id: comunidadId,
+    comercial_id: d.comercialId,
+    puesto_id: d.puestoId,
+    tipo_origen: d.tipoOrigen,
+    estado: "activa",
+    origen_notas: d.nota,
+  });
+
+  // 5 · la primera entrada del diario, con su fecha y quien la escribio.
   let interaccionId: string | null = null;
   if (d.nota) {
     const i = await crear<{ id: string }>("interacciones", {
+      oportunidad_id: op.id,
       comercial_id: d.comercialId,
       puesto_id: d.puestoId,
       transcripcion: d.nota,
@@ -172,5 +185,5 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     });
   }
 
-  return { comunidadId, interaccionId };
+  return { comunidadId, oportunidadId: op.id, interaccionId };
 }

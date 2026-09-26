@@ -8,6 +8,15 @@ import type { OpcionesAlta } from "../../../../lib/alta";
 // es lo unico obligatorio: sin ella no hay comunidad. Abrir una oportunidad sin
 // direccion es OTRA alta, con su puerta.
 
+const ORIGENES: { valor: string; texto: string }[] = [
+  { valor: "administrador_conocido", texto: "Un administrador que ya conocemos" },
+  { valor: "web", texto: "La web" },
+  { valor: "boca_a_boca", texto: "Boca a boca" },
+  { valor: "contrata", texto: "Una contrata" },
+  { valor: "puerta_fria", texto: "Puerta fría" },
+  { valor: "otro", texto: "Otro" },
+];
+
 const campo =
   "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-base text-carbon outline-none transition focus:border-lima";
 const etiqueta = "block text-[11px] font-bold uppercase tracking-wide text-carbon/45";
@@ -110,6 +119,17 @@ export function Formulario({
               Esta administración todavía no tiene personas dadas de alta.
             </span>
           )}
+        </label>
+
+        <label htmlFor="origen">
+          <span className={etiqueta}>Cómo ha llegado</span>
+          <select id="origen" name="origen" defaultValue="administrador_conocido" className={campo + " mt-1.5"}>
+            {ORIGENES.map((o) => (
+              <option key={o.valor} value={o.valor}>
+                {o.texto}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label htmlFor="comercial">
