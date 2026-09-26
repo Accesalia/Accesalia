@@ -5,23 +5,21 @@ import { useState } from "react";
 import type { OpcionesAdmin } from "../../../../lib/altaAdministracion";
 import { Elegir, type Opcion } from "../../../components/Elegir";
 
-// EL ALTA DE UNA ADMINISTRACION DE FINCAS, con la colocacion que monto Monica
-// en el taller ("FORMULARIO ADMIN mONICA", 26-sep-2026). Su diseno tal cual:
-// sus bloques, sus bordes uno por tarjeta, sus anchos y sus palabras.
+// EL ALTA DE UNA ADMINISTRACION DE FINCAS, con la colocacion de Monica
+// ("FORMULARIO ADMIN mONICA") y su repaso de densidad del 26-sep-2026.
 //
-//   · Arriba, sin tarjeta: el nombre, el telefono y la localidad, con Guardar
-//     y Cancelar al lado.
-//   · Izquierda: quien es el jefe · quien mas trabaja alli · departamentos.
-//   · Derecha: nuestra relacion (con como le hemos conocido y la comision
-//     dentro) · los datos de la empresa.
+// FORMATO FICHA: la etiqueta y el campo van EN LA MISMA LINEA — "Mail ______",
+// "Cargo ______" — no la etiqueta encima y la caja debajo. Cada campo asi
+// ahorra una linea entera de alto, y en una ficha de datos eso es la diferencia
+// entre caber de un vistazo y ser kilometrica. Solo las notas largas llevan
+// caja de verdad.
 //
 // LO UNICO OBLIGATORIO es una persona con una forma de contacto. El nombre de
-// la administracion no: "a veces no sabemos ni el nombre, solo el del tio que
-// nos llama". Sin nombre, la persona se guarda suelta.
+// la administracion no: a veces solo se sabe el del que llama.
 
-const campo =
+const etiqueta = "shrink-0 text-[10px] font-bold uppercase tracking-wide text-carbon/70";
+const caja =
   "w-full rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition focus:border-lima";
-const etiqueta = "block text-[10px] font-bold uppercase tracking-wide text-carbon/70";
 
 const VIAS: Opcion[] = [
   { valor: "web", texto: "La web" },
@@ -32,21 +30,25 @@ const VIAS: Opcion[] = [
   { valor: "otro", texto: "Otro: feria, evento…" },
 ];
 
-const COMISION: Opcion[] = [
-  { valor: "sin_hablar", texto: "Todavía no se ha hablado" },
-  { valor: "cobra", texto: "Sí, cobra comisión" },
-  { valor: "no_cobra", texto: "No cobra" },
-];
-
 const RESERVADO: Opcion[] = [
   { valor: "ascensor", texto: "Ascensor" },
   { valor: "sate", texto: "SATE" },
   { valor: "ascensor_y_sate", texto: "Ascensor y SATE" },
 ];
 
+/** Los tres estados de la comision, a la vista y de un clic. El que manda va en
+ *  color; los otros dos siguen ahi, en gris fantasma, para que se vea que se
+ *  pueden cambiar. */
+const COMISION = [
+  { valor: "cobra", texto: "Sí", vivo: "bg-lima text-carbon border-lima" },
+  { valor: "no_cobra", texto: "No", vivo: "bg-ajeno text-white border-ajeno" },
+  { valor: "sin_hablar", texto: "Pendiente hablarlo", vivo: "bg-alerta text-white border-alerta" },
+];
+
 type Fila = { id: string; nombre: string };
 let siguiente = 0;
 const nuevaFila = (): Fila => ({ id: "f" + ++siguiente, nombre: "" });
+const hoy = () => new Date().toISOString().slice(0, 10);
 
 function Caja({
   titulo,
@@ -69,46 +71,49 @@ function Caja({
   );
 }
 
-function Campo({
+/** FORMATO FICHA: etiqueta y campo en la misma linea. */
+function Dato({
   id,
   nombre,
-  pista,
   clase = "",
+  tipo,
+  pista,
   valor,
   alEscribir,
-  tipo,
+  defecto,
 }: {
   id: string;
   nombre: string;
-  pista?: string;
   clase?: string;
+  tipo?: string;
+  pista?: string;
   valor?: string;
   alEscribir?: (v: string) => void;
-  tipo?: string;
+  defecto?: string;
 }) {
   const mandado = valor !== undefined && alEscribir !== undefined;
   return (
-    <label className={"block min-w-0 " + clase} htmlFor={id}>
+    <label className={"flex min-w-0 items-baseline gap-2 " + clase} htmlFor={id}>
       <span className={etiqueta}>{nombre}</span>
       <input
         id={id}
         name={id}
         type={tipo}
         placeholder={pista}
-        className={campo + " mt-1 placeholder:text-carbon/55"}
+        defaultValue={mandado ? undefined : defecto}
+        className="min-w-0 flex-1 border-0 border-b border-black/20 bg-transparent px-1 py-0.5 text-sm text-carbon outline-none transition placeholder:text-carbon/45 focus:border-lima"
         {...(mandado ? { value: valor, onChange: (e) => alEscribir(e.target.value) } : {})}
       />
     </label>
   );
 }
 
-/** Un dato que la app pone y no se toca. Se ve, para que quede claro qué se
- *  está guardando, pero no se puede cambiar. */
+/** Un dato que pone la app y no se toca. Se ve, para que quede claro. */
 function Fijo({ nombre, valor, clase = "" }: { nombre: string; valor: string; clase?: string }) {
   return (
-    <span className={"block min-w-0 " + clase}>
+    <span className={"flex min-w-0 items-baseline gap-2 " + clase}>
       <span className={etiqueta}>{nombre}</span>
-      <span className="mt-1 block truncate rounded-lg border border-dashed border-black/15 bg-black/[.03] px-3 py-1.5 text-sm font-semibold text-carbon/75">
+      <span className="min-w-0 flex-1 truncate border-b border-dashed border-black/20 px-1 py-0.5 text-sm font-semibold text-carbon/75">
         {valor}
       </span>
     </span>
@@ -122,9 +127,22 @@ function Quitar({ alPulsar }: { alPulsar: () => void }) {
       onClick={alPulsar}
       title="Quitar esta línea"
       aria-label="Quitar esta línea"
-      className="mb-px self-end rounded-lg border border-black/10 bg-white px-2.5 py-1 text-base leading-tight text-carbon/65 transition hover:border-alerta hover:text-alerta"
+      className="shrink-0 self-end rounded-lg border border-black/10 bg-white px-2.5 py-0.5 text-base leading-tight text-carbon/65 transition hover:border-alerta hover:text-alerta"
     >
       &times;
+    </button>
+  );
+}
+
+function Anadir({ texto, vacio, alPulsar }: { texto: string; vacio: boolean; alPulsar: () => void }) {
+  return (
+    <button
+      type="button"
+      disabled={vacio}
+      onClick={alPulsar}
+      className="text-xs font-semibold text-lima-dark hover:underline disabled:cursor-not-allowed disabled:text-carbon/35 disabled:no-underline"
+    >
+      {texto}
     </button>
   );
 }
@@ -143,11 +161,17 @@ export function Formulario({
   const [departamentos, setDepartamentos] = useState<Fila[]>([nuevaFila()]);
   const [contacto, setContacto] = useState({ jefe: "", trabajador: "" });
   const [respetar, setRespetar] = useState(false);
+  const [comision, setComision] = useState("sin_hablar");
   const [enviando, setEnviando] = useState(false);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre }));
 
-  // Lo unico obligatorio: alguien con nombre Y una forma de contacto.
+  // Quien cobra la comision se ELIGE entre la gente de esta administracion, no
+  // se escribe: si no, cada uno pone un alias distinto y no hay quien lo cruce.
+  const suGente: Opcion[] = [...jefes, ...gente]
+    .filter((f) => f.nombre.trim() !== "")
+    .map((f) => ({ valor: f.nombre.trim(), texto: f.nombre.trim() }));
+
   const hayPersona = jefes[0].nombre.trim() !== "" || gente[0].nombre.trim() !== "";
   const hayContacto = contacto.jefe.trim() !== "" || contacto.trabajador.trim() !== "";
   const puedeGuardar = hayPersona && hayContacto;
@@ -160,7 +184,7 @@ export function Formulario({
     e.preventDefault();
     const todos = Array.from(
       e.currentTarget.querySelectorAll<HTMLElement>(
-        "input:not([type=hidden]):not([data-buscador]), textarea, [data-campo]",
+        "input:not([type=hidden]):not([data-buscador]):not([type=checkbox]), textarea, [data-campo]",
       ),
     ).filter((x) => !(x as HTMLInputElement).disabled);
     todos[todos.indexOf(donde) + 1]?.focus();
@@ -188,10 +212,10 @@ export function Formulario({
             </button>
           </div>
         </div>
-        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
-          <Campo id="nombre" nombre="Nombre habitual" pista="si todavía no lo sabes, déjalo vacío" />
-          <Campo id="telefono" nombre="Teléfono" />
-          <Campo id="municipio" nombre="Localidad" />
+        <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
+          <Dato id="nombre" nombre="Nombre habitual" pista="si todavía no lo sabes, déjalo vacío" />
+          <Dato id="telefono" nombre="Teléfono" />
+          <Dato id="municipio" nombre="Localidad" />
         </div>
         {!puedeGuardar && (
           <p className="mt-2 text-xs text-carbon/65">
@@ -207,34 +231,31 @@ export function Formulario({
           <Caja titulo="Quién es el jefe" tono="bg-form-quieto" borde="border-[#5c5c5c]">
             {jefes.map((f, i) => (
               <div key={f.id} className="mb-3 rounded-[14px] border-2 border-[#707070] bg-form-nuevo p-3">
-                <div className="grid items-end gap-3 sm:grid-cols-10">
-                  <Campo
+                <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
+                  <Dato
                     id={"jefe_" + f.id + "_nombre"}
                     nombre="Nombre"
-                    clase="sm:col-span-6"
+                    clase="sm:col-span-7"
                     valor={f.nombre}
                     alEscribir={(v) => setJefes((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                   />
-                  <Fijo nombre="Cargo" valor="el que manda" clase="sm:col-span-4" />
-                  <Campo
+                  <Fijo nombre="Cargo" valor="el que manda" clase="sm:col-span-5" />
+                  <Dato
                     id={"jefe_" + f.id + "_telefonoTrabajo"}
-                    nombre="Teléfono de trabajo"
-                    clase="sm:col-span-3"
+                    nombre="Tel. trabajo"
+                    clase="sm:col-span-4"
                     {...(i === 0
-                      ? {
-                          valor: contacto.jefe,
-                          alEscribir: (v: string) => setContacto((c) => ({ ...c, jefe: v })),
-                        }
+                      ? { valor: contacto.jefe, alEscribir: (v: string) => setContacto((c) => ({ ...c, jefe: v })) }
                       : {})}
                   />
-                  <Campo id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Teléfono personal" clase="sm:col-span-3" />
-                  <Campo id={"jefe_" + f.id + "_colegiado"} nombre="Nº de colegiado" clase="sm:col-span-4" />
-                  <Campo id={"jefe_" + f.id + "_correoTrabajo"} nombre="Su correo" clase="sm:col-span-10" />
-                  <Campo
+                  <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Tel. personal" clase="sm:col-span-4" />
+                  <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Nº colegiado" clase="sm:col-span-4" />
+                  <Dato id={"jefe_" + f.id + "_correoTrabajo"} nombre="Mail" clase="sm:col-span-12" />
+                  <Dato
                     id={"jefe_" + f.id + "_notas"}
                     nombre="Notas"
                     pista="qué lleva, con qué temas le contactamos"
-                    clase="sm:col-span-10"
+                    clase="sm:col-span-12"
                   />
                 </div>
                 {jefes.length > 1 && (
@@ -244,33 +265,32 @@ export function Formulario({
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              disabled={jefes[jefes.length - 1].nombre.trim() === ""}
-              onClick={() => setJefes((l) => [...l, nuevaFila()])}
-              className="text-xs font-semibold text-lima-dark hover:underline disabled:cursor-not-allowed disabled:text-carbon/35 disabled:no-underline"
-            >
-              + Añadir otra persona si hay más de un jefe
-            </button>
+            <Anadir
+              texto="+ Añadir otra persona si hay más de un jefe"
+              vacio={jefes[jefes.length - 1].nombre.trim() === ""}
+              alPulsar={() => setJefes((l) => [...l, nuevaFila()])}
+            />
           </Caja>
 
           <Caja titulo="Quién más trabaja allí" tono="bg-form-quieto" borde="border-[#4a4a4a]">
             {gente.map((f, i) => (
               <div key={f.id} className="mb-3 rounded-[14px] border border-[#8a8a8a] bg-[#fffdf5] p-3">
-                <div className="grid items-end gap-3 sm:grid-cols-12">
-                  <Campo
+                <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
+                  <Dato
                     id={"gente_" + f.id + "_nombre"}
                     nombre="Nombre"
-                    clase="sm:col-span-5"
+                    clase="sm:col-span-7"
                     valor={f.nombre}
                     alEscribir={(v) => setGente((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                   />
-                  <Campo id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-4" />
-                  <Campo id={"gente_" + f.id + "_departamento"} nombre="Departamento" clase="sm:col-span-3" />
-                  <Campo id={"gente_" + f.id + "_correoTrabajo"} nombre="Mail de empresa" clase="sm:col-span-7" />
-                  <Campo
+                  <Dato id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-5" />
+                  <Dato id={"gente_" + f.id + "_departamento"} nombre="Dpto." clase="sm:col-span-5" />
+                  <Dato id={"gente_" + f.id + "_desde"} nombre="Desde" tipo="date" clase="sm:col-span-4" />
+                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Nº col." clase="sm:col-span-3" />
+                  <Dato id={"gente_" + f.id + "_correoTrabajo"} nombre="Mail empresa" clase="sm:col-span-7" />
+                  <Dato
                     id={"gente_" + f.id + "_telefonoTrabajo"}
-                    nombre="Teléfono de trabajo"
+                    nombre="Tel. trabajo"
                     clase="sm:col-span-5"
                     {...(i === 0
                       ? {
@@ -279,16 +299,18 @@ export function Formulario({
                         }
                       : {})}
                   />
-                  <Campo id={"gente_" + f.id + "_correoPersonal"} nombre="Mail personal" clase="sm:col-span-7" />
-                  <Campo id={"gente_" + f.id + "_telefonoPersonal"} nombre="Teléfono personal" clase="sm:col-span-5" />
-                  <Campo id={"gente_" + f.id + "_desde"} nombre="Desde cuándo trabaja aquí" clase="sm:col-span-6" />
-                  <Campo id={"gente_" + f.id + "_colegiado"} nombre="Nº de colegiado" clase="sm:col-span-6" />
-                  <Campo
-                    id={"gente_" + f.id + "_notas"}
-                    nombre="Notas"
-                    pista="qué lleva, con qué temas le contactamos"
-                    clase="sm:col-span-12"
-                  />
+                  <Dato id={"gente_" + f.id + "_correoPersonal"} nombre="Mail personal" clase="sm:col-span-7" />
+                  <Dato id={"gente_" + f.id + "_telefonoPersonal"} nombre="Tel. personal" clase="sm:col-span-5" />
+                  <label className="sm:col-span-12" htmlFor={"gente_" + f.id + "_notas"}>
+                    <span className={etiqueta + " block"}>Notas</span>
+                    <textarea
+                      id={"gente_" + f.id + "_notas"}
+                      name={"gente_" + f.id + "_notas"}
+                      rows={2}
+                      placeholder="qué lleva, con qué temas le contactamos"
+                      className={caja + " mt-1 resize-y placeholder:text-carbon/45"}
+                    />
+                  </label>
                 </div>
                 {gente.length > 1 && (
                   <div className="mt-2 flex justify-end">
@@ -297,14 +319,11 @@ export function Formulario({
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              disabled={gente[gente.length - 1].nombre.trim() === ""}
-              onClick={() => setGente((l) => [...l, nuevaFila()])}
-              className="text-xs font-semibold text-lima-dark hover:underline disabled:cursor-not-allowed disabled:text-carbon/35 disabled:no-underline"
-            >
-              + Añadir otra persona
-            </button>
+            <Anadir
+              texto="+ Añadir otra persona"
+              vacio={gente[gente.length - 1].nombre.trim() === ""}
+              alPulsar={() => setGente((l) => [...l, nuevaFila()])}
+            />
           </Caja>
 
           <Caja
@@ -312,116 +331,145 @@ export function Formulario({
             tono="bg-form-quieto"
             borde="border-[#636363]"
           >
+            {/* En DOS lineas, como los dejo ella: si van los cuatro en una, no
+                cabe el texto en ninguna caja y no se gana altura. */}
             {departamentos.map((f, i) => (
-              <div key={f.id} className="mb-3 grid items-end gap-[14px] sm:grid-cols-[2fr_3fr_3fr_2fr_auto]">
-                <Campo
+              <div key={f.id} className="mb-3 grid gap-x-6 gap-y-2 sm:grid-cols-12">
+                <Dato
                   id={"depto_" + f.id + "_nombre"}
                   nombre="Departamento"
+                  clase="sm:col-span-5"
                   valor={f.nombre}
                   alEscribir={(v) => setDepartamentos((l) => l.map((x, j) => (j === i ? { ...x, nombre: v } : x)))}
                 />
-                <Campo id={"depto_" + f.id + "_queHace"} nombre="Qué hace, para entendernos nosotros" />
-                <Campo id={"depto_" + f.id + "_correo"} nombre="Mail del departamento" />
-                <Campo id={"depto_" + f.id + "_telefono"} nombre="Teléfono del departamento" />
+                <Dato
+                  id={"depto_" + f.id + "_queHace"}
+                  nombre="Qué hace"
+                  pista="para entendernos nosotros"
+                  clase="sm:col-span-7"
+                />
+                <Dato id={"depto_" + f.id + "_correo"} nombre="Mail" clase="sm:col-span-7" />
+                <Dato id={"depto_" + f.id + "_telefono"} nombre="Teléfono" clase="sm:col-span-4" />
                 {departamentos.length > 1 && (
-                  <Quitar alPulsar={() => setDepartamentos((l) => l.filter((_, j) => j !== i))} />
+                  <div className="flex items-end sm:col-span-1">
+                    <Quitar alPulsar={() => setDepartamentos((l) => l.filter((_, j) => j !== i))} />
+                  </div>
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              disabled={departamentos[departamentos.length - 1].nombre.trim() === ""}
-              onClick={() => setDepartamentos((l) => [...l, nuevaFila()])}
-              className="text-xs font-semibold text-lima-dark hover:underline disabled:cursor-not-allowed disabled:text-carbon/35 disabled:no-underline"
-            >
-              + Añadir departamento
-            </button>
+            <Anadir
+              texto="+ Añadir departamento"
+              vacio={departamentos[departamentos.length - 1].nombre.trim() === ""}
+              alPulsar={() => setDepartamentos((l) => [...l, nuevaFila()])}
+            />
           </Caja>
         </div>
 
         {/* ===================== columna derecha ===================== */}
         <div className="grid gap-4">
           <Caja titulo="Nuestra relación con la administración de fincas" tono="bg-form-quieto" borde="border-[#707070]">
-            <div className="grid gap-[14px] sm:grid-cols-3">
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
               <Elegir id="comercial" nombre="Comercial que la lleva ahora" opciones={comerciales} />
               <Elegir id="comercial_captador" nombre="Comercial que la captó" opciones={comerciales} />
-              <Campo
-                id="alta_cartera"
-                nombre="Fecha de alta en cartera"
-                tipo="date"
-                valor={undefined}
-                alEscribir={undefined}
-              />
+              {/* Por defecto hoy: cuanto menos haya que escribir, mejor. */}
+              <Dato id="alta_cartera" nombre="Alta en cartera" tipo="date" defecto={hoy()} />
             </div>
 
             <Caja titulo="Cómo le hemos conocido" tono="bg-form-nuevo" borde="border-[#8a8a8a]" clase="mt-4">
-              <div className="grid gap-[14px] sm:grid-cols-2">
-                <Campo
-                  id="llego_quien"
-                  nombre="Nos llegó a través de (la persona)"
-                  pista="la vecina de…, el cuñado de…"
-                />
+              <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                <Dato id="llego_quien" nombre="Nos llegó a través de" pista="la persona" />
                 <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} />
-                <Campo
+                <Dato
                   id="origen_notas"
-                  nombre="Notas del origen"
-                  pista="por si hay detalles extra que se deban conocer: es la vecina de X, fue en la feria de Y…"
+                  nombre="Notas"
+                  pista="es la vecina de X, fue en la feria de Y, es el cuñado de…"
                   clase="sm:col-span-2"
                 />
               </div>
 
-              <section className="mt-4 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#4d0505]">
-                  Rellenar si nos llega a través de otro y hay condiciones a respetar
-                </h3>
-                <div className="mt-3 grid items-end gap-[14px] sm:grid-cols-[auto_2fr_2fr]">
-                  <label className="flex items-center gap-2 pb-2 text-xs font-semibold text-[#4d0505]" htmlFor="respetar">
+              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
+                <div className="grid items-center gap-x-5 gap-y-2 sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+                  <label
+                    className="flex cursor-pointer items-center gap-2 text-xs font-bold uppercase leading-tight text-[#4d0505]"
+                    htmlFor="respetar"
+                  >
                     <input
                       id="respetar"
                       name="respetar"
                       type="checkbox"
                       checked={respetar}
                       onChange={(e) => setRespetar(e.target.checked)}
-                      className="size-4 accent-[#4d0505]"
+                      className="size-6 shrink-0 accent-[#4d0505]"
                     />
-                    Hay que respetar la cartera: es de otro
+                    <span>
+                      Es de otro
+                      <br />
+                      no pisar
+                    </span>
                   </label>
-                  <Campo id="de_quien_es" nombre="De quién es este administrador (externo)" />
-                  <Elegir
-                    id="servicio_reservado"
-                    nombre="Se limita a (el resto es libre para ofrecérselo)"
-                    opciones={RESERVADO}
-                  />
+                  <Dato id="de_quien_es" nombre="Nos llegó por" />
+                  <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} />
                 </div>
               </section>
             </Caja>
 
+            {/* Mas estrecha a proposito: el hueco que queda al lado es lo que
+                hace que la comision resalte. */}
             <Caja
               titulo="¿Este administrador cobra comisión?"
               tono="bg-[#fbecb6]"
               borde="border-[#1b1c6b]"
-              clase="mt-4"
+              clase="mt-4 sm:mr-24"
             >
-              <div className="grid items-end gap-[14px] sm:grid-cols-[2fr_2fr_auto]">
-                <Elegir id="comision_estado" nombre="Cobra comisión" opciones={COMISION} vacio="Todavía no se ha hablado" />
-                <Campo id="comision_titular" nombre="Titular: quién de ellos la cobra" />
+              <input type="hidden" name="comision_estado" value={comision} />
+              <div className="flex flex-wrap items-center gap-1.5">
+                {COMISION.map((o) => (
+                  <button
+                    key={o.valor}
+                    type="button"
+                    onClick={() => setComision(o.valor)}
+                    className={
+                      "rounded-lg border px-3 py-1 text-xs font-bold transition " +
+                      (comision === o.valor ? o.vivo : "border-black/10 bg-white/60 text-carbon/35 hover:text-carbon/70")
+                    }
+                  >
+                    {o.texto}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 flex items-end gap-3">
+                <Elegir
+                  id="comision_titular"
+                  nombre="Quién la cobra"
+                  opciones={suGente}
+                  clase="min-w-0 flex-1"
+                  vacio={suGente.length ? "—" : "primero da de alta a alguien"}
+                  desactivado={suGente.length === 0}
+                />
                 <span
                   title="La ficha de comisión todavía no está montada"
-                  className="mb-px inline-flex cursor-not-allowed items-center gap-1 self-end rounded-lg border border-[#1b1c6b]/30 bg-white px-2.5 py-1.5 text-xs font-semibold text-carbon/70"
+                  className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border border-[#1b1c6b]/40 bg-white px-2.5 py-1 text-[11px] font-bold leading-tight text-[#1b1c6b]/70"
                 >
-                  Abrir su ficha de comisión
+                  <span aria-hidden className="text-base">
+                    ↗
+                  </span>
+                  <span>
+                    abrir
+                    <br />
+                    ficha comisión
+                  </span>
                 </span>
               </div>
             </Caja>
           </Caja>
 
           <Caja titulo="Datos de la empresa administradora de fincas" tono="bg-form-quieto" borde="border-[#696969]">
-            <div className="grid items-end gap-[14px] sm:grid-cols-12">
-              <Campo id="nombre_legal" nombre="Nombre legal (el de la tarjeta del CIF)" clase="sm:col-span-8" />
-              <Campo id="cif" nombre="CIF" clase="sm:col-span-4" />
-              <Campo id="direccion" nombre="Dirección" clase="sm:col-span-12" />
-              <Campo id="correo_general" nombre="Correo general principal" clase="sm:col-span-7" />
-              <Campo id="telefono_general" nombre="Teléfono general principal" clase="sm:col-span-5" />
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-12">
+              <Dato id="nombre_legal" nombre="Nombre legal" pista="el de la tarjeta del CIF" clase="sm:col-span-8" />
+              <Dato id="cif" nombre="CIF" clase="sm:col-span-4" />
+              <Dato id="direccion" nombre="Dirección" clase="sm:col-span-12" />
+              <Dato id="correo_general" nombre="Mail general" clase="sm:col-span-7" />
+              <Dato id="telefono_general" nombre="Tel. general" clase="sm:col-span-5" />
             </div>
             <p className="mt-3 text-xs text-carbon/65">
               Si hacen falta más teléfonos o correos, se dan de alta como departamento: recepción, contabilidad…
