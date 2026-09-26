@@ -134,9 +134,17 @@ export type Contacto = {
 
 export type Origen = {
   id: string;
-  tipo_origen: string;
-  referente_externo: string | null;
+  /** El canal, del catalogo unico. */
+  canal: { nombre: string; familia: string | null } | null;
+  /** Quien nos lo trajo: solo uno de los cuatro viene relleno. */
+  quien_persona: { nombre: string } | null;
+  quien_comercial: { nombre: string; apellidos: string | null } | null;
+  quien_contrata_contacto: { nombre: string } | null;
+  quien_persona_comunidad: { nombre: string } | null;
+  /** De quien es el cliente que no hay que pisar. */
+  dueno_contrata: { nombre: string } | null;
   condiciona_oferta: boolean;
+  servicio_reservado: string | null;
   notas: string | null;
 };
 
@@ -281,7 +289,9 @@ function puestoTitular(empresaId: string) {
 /** Cartera: las administraciones con comercial dueno y nº de personas. Con
  *  comercialId, solo las suyas ("Mis administradores" del area comercial). */
 export async function listarCartera(comercialId?: string): Promise<AdministracionCartera[]> {
-  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
+  // Solo administraciones de fincas: en `empresa` viven tambien ayuntamientos,
+  // bancos y organismos desde que tiene tipo.
+  const f = (comercialId ? `&comercial_id=eq.${comercialId}` : "") + "&tipo=eq.administracion_fincas";
   const filas = await rest<(EmpresaFila & {
     comercial: { nombre: string; apellidos: string | null } | null;
     personas: { count: number }[];
@@ -378,7 +388,13 @@ export async function administracionPorId(id: string): Promise<AdministracionFic
         "&order=departamento.asc",
     ),
     rest<Origen[]>(
-      "administracion_origen?select=id,tipo_origen,referente_externo,condiciona_oferta,notas" +
+      "administracion_origen?select=id,condiciona_oferta,servicio_reservado,notas," +
+        "canal:canal_id(nombre,familia)," +
+        "quien_persona:quien_persona_id(nombre)," +
+        "quien_comercial:quien_comercial_id(nombre,apellidos)," +
+        "quien_contrata_contacto:quien_contrata_contacto_id(nombre)," +
+        "quien_persona_comunidad:quien_persona_comunidad_id(nombre)," +
+        "dueno_contrata:dueno_contrata_id(nombre)" +
         `&empresa_id=eq.${id}&order=creado_en.asc`,
     ),
   ]);
@@ -504,7 +520,8 @@ export async function puestosParaElegir(): Promise<PuestoElegible[]> {
 /** Las administraciones, para el buscador por empresa. */
 export async function empresasParaElegir(): Promise<{ id: string; nombre: string }[]> {
   const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
-    "empresa?select=id,nombre_accesalia&activa=is.true&order=nombre_accesalia.asc&limit=2000",
+    "empresa?select=id,nombre_accesalia&activa=is.true&tipo=eq.administracion_fincas" +
+      "&order=nombre_accesalia.asc&limit=2000",
   );
   return filas.map((f) => ({ id: f.id, nombre: f.nombre_accesalia }));
 }
@@ -517,7 +534,8 @@ export async function listarComerciales(): Promise<Comercial[]> {
 
 export async function listarAdministraciones(): Promise<{ id: string; nombre: string }[]> {
   const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
-    "empresa?select=id,nombre_accesalia&activa=eq.true&order=nombre_accesalia.asc",
+    "empresa?select=id,nombre_accesalia&activa=eq.true&tipo=eq.administracion_fincas" +
+      "&order=nombre_accesalia.asc",
   );
   return filas.map((f) => ({ id: f.id, nombre: f.nombre_accesalia }));
 }
@@ -989,7 +1007,8 @@ export type EntradaIndice = { id: string; nombre: string; sub: string | null; ti
 export async function indiceMaestros(): Promise<EntradaIndice[]> {
   const [empresas, puestos] = await Promise.all([
     rest<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
-      "empresa?select=id,nombre_accesalia,municipio&order=nombre_accesalia.asc",
+      "empresa?select=id,nombre_accesalia,municipio&tipo=eq.administracion_fincas" +
+        "&order=nombre_accesalia.asc",
     ),
     rest<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null }[]>(
       "puesto?select=id,cargo,persona(nombre),empresa(nombre_accesalia)&hasta=is.null",

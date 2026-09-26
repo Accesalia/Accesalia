@@ -251,7 +251,8 @@ const SEL_OPORTUNIDAD =
   "id,creado_en,comunidad_provisional,origen_notas," +
   "comunidad:comunidad_id(id,nombre)," +
   "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
-  "contrata:contrata_origen_id(nombre)," +
+  // Quien nos lo trajo, si fue el contacto de una contrata.
+  "contrata:quien_contrata_contacto_id(nombre)," +
   "hitos_oportunidad(hito,aplicable,estado,fecha)," +
   "negociacion_oportunidad(que_vendemos,precio,creado_en)";
 
@@ -421,7 +422,7 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "&comercial_id=not.is.null";
   const empresas = await rest<{ id: string; nombre_accesalia: string; comunidades: { count: number }[] }[]>(
     `empresa?select=id,nombre_accesalia,comunidades:comunidad_admin_responsable(count)` +
-      `&comunidades.vigente=is.true${f}&limit=2000`,
+      `&tipo=eq.administracion_fincas&comunidades.vigente=is.true${f}&limit=2000`,
   );
   const conN = empresas
     .map((e) => ({ id: e.id, nombre: e.nombre_accesalia, n: e.comunidades?.[0]?.count ?? 0 }))

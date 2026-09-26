@@ -21,15 +21,6 @@ const etiqueta = "shrink-0 text-[10px] font-bold uppercase tracking-wide text-ca
 const caja =
   "w-full rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition focus:border-lima";
 
-const VIAS: Opcion[] = [
-  { valor: "web", texto: "La web" },
-  { valor: "boca_a_boca", texto: "Boca a boca: un vecino, otro administrador" },
-  { valor: "contrata", texto: "Una contrata" },
-  { valor: "comercial_interno", texto: "Un comercial nuestro" },
-  { valor: "puerta_fria", texto: "Puerta fría" },
-  { valor: "otro", texto: "Otro: feria, evento…" },
-];
-
 const RESERVADO: Opcion[] = [
   { valor: "ascensor", texto: "Ascensor" },
   { valor: "sate", texto: "SATE" },
@@ -213,6 +204,11 @@ export function Formulario({
   const [enviando, setEnviando] = useState(false);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre }));
+  // El como y el quien salen del catalogo de la base, no de una lista escrita
+  // aqui: si no, "web" en esta ficha y "web" en la de comunidad no son la
+  // misma palabra y no se pueden sumar nunca.
+  const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
+  const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
 
   // Quien cobra la comision se ELIGE entre la gente de esta administracion, no
   // se escribe: si no, cada uno pone un alias distinto y no hay quien lo cruce.
@@ -451,8 +447,15 @@ export function Formulario({
               clase="mt-4"
             >
               <div className="grid gap-[14px] sm:grid-cols-12">
-                <Campo id="llego_quien" nombre="Nos llegó a través de (la persona)" clase="sm:col-span-5" />
-                <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} clase="sm:col-span-5" />
+                {/* Ya no es texto libre: apunta a la agenda, porque de aqui salen
+                    las condiciones y las comisiones y hay que poder cruzarlo. */}
+                <Elegir
+                  id="llego_quien"
+                  nombre="Nos llegó a través de (la persona)"
+                  opciones={opciones.quienes}
+                  clase="sm:col-span-5"
+                />
+                <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={canales} clase="sm:col-span-5" />
                 <Campo
                   id="origen_notas"
                   nombre="Notas"
@@ -481,7 +484,12 @@ export function Formulario({
                       className="ml-3 mt-1.5 size-6 accent-[#4d0505]"
                     />
                   </label>
-                  <Campo id="de_quien_es" nombre="Nos llegó por" tinta="font-extrabold text-[#720808]" />
+                  <Elegir
+                      id="de_quien_es"
+                      nombre="Nos llegó por"
+                      tinta="font-extrabold text-[#720808]"
+                      opciones={contratas}
+                    />
                   <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} tinta="font-extrabold text-[#720808]" />
                 </div>
               </section>

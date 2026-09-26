@@ -75,7 +75,7 @@ export async function guardarAlta(fd: FormData) {
       : null,
     personasNuevas: personasDeLaAdministracion(fd),
     comercialId: texto(fd, "comercial"),
-    tipoOrigen: texto(fd, "origen") ?? "otro",
+    canalId: texto(fd, "origen"),
     nota: texto(fd, "nota"),
     anio: entero(fd, "anio"),
     viviendas: entero(fd, "viviendas"),

@@ -29,15 +29,6 @@ const ROLES: Opcion[] = [
   { valor: "otro", texto: "Otro" },
 ];
 
-const ORIGENES: Opcion[] = [
-  { valor: "administrador_conocido", texto: "Un administrador que ya conocemos" },
-  { valor: "web", texto: "La web" },
-  { valor: "boca_a_boca", texto: "Boca a boca" },
-  { valor: "contrata", texto: "Una contrata" },
-  { valor: "puerta_fria", texto: "Puerta fría" },
-  { valor: "otro", texto: "Otro" },
-];
-
 const campo =
   "w-full rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition focus:border-lima";
 const etiqueta = "block text-[10px] font-bold uppercase tracking-wide text-carbon/70";
@@ -167,6 +158,8 @@ export function Formulario({
     ...opciones.administraciones.map((a) => ({ valor: a.id, texto: a.nombre })),
   ];
   const listaComerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre }));
+  // Del catalogo de la base, compartido con el alta de administracion.
+  const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
 
   // LA PERSONA VA PRIMERO (asi lo puso Monica, y es lo correcto: a quien se
   // visita es una persona, no una entidad fiscal). Como el buscador encuentra
@@ -307,7 +300,7 @@ export function Formulario({
             {/* Los dos en la misma fila, como los puso ella. */}
             <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
               <Elegir id="comercial" nombre="Comercial de Accesalia" opciones={listaComerciales} />
-              <Elegir id="origen" nombre="Cómo le ha llegado" opciones={ORIGENES} />
+              <Elegir id="origen" nombre="Cómo le ha llegado" opciones={canales} />
             </div>
           </Caja>
         </div>

@@ -234,7 +234,8 @@ export function nombreAdministracion(a: AdministracionActual): string {
  *  ya lo llaman; debajo lee empresa, que es donde viven ahora. */
 export async function administracionesParaSelector(): Promise<{ id: string; nombre: string }[]> {
   const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
-    "empresa?select=id,nombre_accesalia&activa=is.true&order=nombre_accesalia.asc&limit=2000",
+    "empresa?select=id,nombre_accesalia&activa=is.true&tipo=eq.administracion_fincas" +
+      "&order=nombre_accesalia.asc&limit=2000",
   );
   return filas.map((f) => ({ id: f.id, nombre: f.nombre_accesalia }));
 }

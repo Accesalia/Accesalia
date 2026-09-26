@@ -17,6 +17,9 @@
 
 import "server-only";
 
+import { canalesDe, type Canal } from "./canales";
+import { columnasQuien, opcionesQuien, type OpcionQuien } from "./quien";
+
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 
@@ -54,19 +57,27 @@ export type OpcionesAdmin = {
   contratas: OpcionSimple[];
   /** Si quien esta rellenando la ficha es comercial, el suyo: sale ya puesto. */
   miComercial: string | null;
+  /** Como ha llegado, del catalogo unico, en el orden de ella. */
+  canales: Canal[];
+  /** Quien nos lo trajo: toda la gente a la que se puede apuntar. */
+  quienes: OpcionQuien[];
 };
 
 export async function opcionesAdministracion(equipoId?: string): Promise<OpcionesAdmin> {
-  const [comerciales, contratas] = await Promise.all([
+  const [comerciales, contratas, canales, quienes] = await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,equipo_id&activo=eq.true&order=nombre.asc",
     ),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
+    canalesDe("administracion"),
+    opcionesQuien(),
   ]);
   return {
     comerciales: comerciales.map((c) => ({ id: c.id, nombre: [c.nombre, c.apellidos].filter(Boolean).join(" ") })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
     miComercial: (equipoId && comerciales.find((c) => c.equipo_id === equipoId)?.id) || null,
+    canales,
+    quienes,
   };
 }
 
@@ -109,11 +120,14 @@ export type DatosAdministracion = {
   altaCartera: string | null;
   comisionEstado: string;
   // como le hemos conocido
-  llegoPor: string | null;
-  llegoQuien: string | null;
+  /** El canal del catalogo unico. */
+  canalId: string | null;
+  /** Quien nos lo trajo, con su clase delante: "persona:<id>", "contrata:<id>"... */
+  quien: string | null;
   origenNotas: string | null;
   respetarCartera: boolean;
-  deQuienEs: string | null;
+  /** De quien es el cliente que no hay que pisar: una contrata (FAIN, Schindler). */
+  duenoContrataId: string | null;
   servicioReservado: string | null;
   // la gente
   jefes: PersonaAlta[];
@@ -155,12 +169,13 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
     }
 
     // como le hemos conocido, con el respeto de cartera dentro
-    if (d.llegoPor || d.llegoQuien || d.origenNotas || d.respetarCartera) {
+    if (d.canalId || d.quien || d.origenNotas || d.respetarCartera || d.duenoContrataId) {
       await crear("administracion_origen", {
         empresa_id: empresaId,
-        tipo_origen: d.llegoPor ?? "otro",
-        referente_externo: d.deQuienEs ?? d.llegoQuien,
+        canal_id: d.canalId,
+        ...columnasQuien(d.quien),
         condiciona_oferta: d.respetarCartera,
+        dueno_contrata_id: d.duenoContrataId,
         servicio_reservado: d.servicioReservado,
         notas: d.origenNotas,
       });

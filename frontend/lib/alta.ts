@@ -19,6 +19,8 @@
 
 import "server-only";
 
+import { canalesDe, type Canal } from "./canales";
+
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 
@@ -58,14 +60,19 @@ export type OpcionesAlta = {
   administraciones: OpcionAdmin[];
   personas: OpcionPersona[];
   comerciales: OpcionComercial[];
+  /** Como ha llegado, del catalogo unico. Ya vienen en el orden de ella. */
+  canales: Canal[];
 };
 
 /** Todo lo que el formulario deja elegir. En cascada: primero la
  *  administracion, y las personas se filtran por ella en el navegador. */
 export async function opcionesAlta(): Promise<OpcionesAlta> {
-  const [admins, puestos, comerciales] = await Promise.all([
+  const [admins, puestos, comerciales, canales] = await Promise.all([
     leer<{ id: string; nombre_accesalia: string }[]>(
-      "empresa?select=id,nombre_accesalia&activa=is.true&order=nombre_accesalia.asc&limit=2000",
+      // Solo administraciones de fincas: `empresa` guarda tambien ayuntamientos,
+      // bancos y demas desde que tiene tipo.
+      "empresa?select=id,nombre_accesalia&activa=is.true&tipo=eq.administracion_fincas" +
+        "&order=nombre_accesalia.asc&limit=2000",
     ),
     leer<{ id: string; empresa_id: string | null; cargo: string | null; persona: { nombre: string } | null }[]>(
       "puesto?select=id,empresa_id,cargo,persona(nombre)&hasta=is.null&limit=2000",
@@ -73,6 +80,7 @@ export async function opcionesAlta(): Promise<OpcionesAlta> {
     leer<{ id: string; nombre: string; apellidos: string | null }[]>(
       "comerciales?select=id,nombre,apellidos&activo=eq.true&order=nombre.asc",
     ),
+    canalesDe("oportunidad"),
   ]);
 
   return {
@@ -82,6 +90,7 @@ export async function opcionesAlta(): Promise<OpcionesAlta> {
       .map((p) => ({ id: p.id, empresaId: p.empresa_id as string, nombre: p.persona!.nombre, cargo: p.cargo }))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
     comerciales: comerciales.map((c) => ({ id: c.id, nombre: [c.nombre, c.apellidos].filter(Boolean).join(" ") })),
+    canales,
   };
 }
 
@@ -107,8 +116,8 @@ export type DatosComunidad = {
    *  el comercial cuelga de la administracion y de la oportunidad, nunca del
    *  edificio. */
   comercialId: string | null;
-  /** Como ha llegado: `oportunidades.tipo_origen`. */
-  tipoOrigen: string;
+  /** Como ha llegado: el canal del catalogo unico (ver lib/canales.ts). */
+  canalId: string | null;
   nota: string | null;
   // el edificio
   anio: number | null;
@@ -231,7 +240,7 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     comunidad_id: comunidadId,
     comercial_id: d.comercialId,
     puesto_id: puestoId,
-    tipo_origen: d.tipoOrigen,
+    canal_id: d.canalId,
     estado: "activa",
     origen_notas: d.nota,
   });
