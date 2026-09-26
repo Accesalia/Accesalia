@@ -99,9 +99,10 @@ export type DatosComunidad = {
    *  pantalla: "que no tenga que ir a una pantalla para la direccion, a otra
    *  para el canal, a otra para crearle admin" (Monica). */
   administracionNueva: { nombre: string; telefono: string | null; correo: string | null } | null;
-  /** Lo mismo con la persona: si la administracion no tiene ninguna, o es
-   *  nueva, se da de alta aqui. */
-  personaNueva: { nombre: string; cargo: string | null; telefono: string | null; correo: string | null } | null;
+  /** Lo mismo con las personas: si la administracion no tiene ninguna, o es
+   *  nueva, se dan de alta aqui. Pueden ser varias; la primera es la que queda
+   *  como responsable de esta comunidad. */
+  personasNuevas: { nombre: string; cargo: string | null; telefono: string | null; correo: string | null }[];
   /** El comercial al que le toca. Se guarda en la NOTA, no en la comunidad:
    *  el comercial cuelga de la administracion y de la oportunidad, nunca del
    *  edificio. */
@@ -190,24 +191,27 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
   }
 
   let puestoId = d.puestoId;
-  if (!puestoId && d.personaNueva && empresaId) {
-    const per = await crear<{ id: string }>("persona", { nombre: d.personaNueva.nombre, activa: true });
-    const pue = await crear<{ id: string }>("puesto", {
-      persona_id: per.id,
-      empresa_id: empresaId,
-      cargo: d.personaNueva.cargo,
-      telefono_empresa: d.personaNueva.telefono,
-      desde: hoy(),
-    });
-    puestoId = pue.id;
-    if (d.personaNueva.correo) {
-      await crear("correo", {
-        puesto_id: puestoId,
+  if (empresaId) {
+    for (const per of d.personasNuevas) {
+      const fila = await crear<{ id: string }>("persona", { nombre: per.nombre, activa: true });
+      const pue = await crear<{ id: string }>("puesto", {
+        persona_id: fila.id,
         empresa_id: empresaId,
-        email: d.personaNueva.correo,
-        etiqueta: "general",
-        principal: true,
+        cargo: per.cargo,
+        telefono_empresa: per.telefono,
+        desde: hoy(),
       });
+      // La primera es la que se queda como responsable de esta comunidad.
+      if (!puestoId) puestoId = pue.id;
+      if (per.correo) {
+        await crear("correo", {
+          puesto_id: pue.id,
+          empresa_id: empresaId,
+          email: per.correo,
+          etiqueta: "general",
+          principal: true,
+        });
+      }
     }
   }
 

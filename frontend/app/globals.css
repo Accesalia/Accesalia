@@ -12,6 +12,17 @@
   /* Lo que no depende de nosotros (arquitecto, escaneo, 3D): azul pizarra. */
   --color-ajeno: #5b7fa6;
   --color-ajeno-soft: #e8eef5;
+  /* LOS FORMULARIOS DE ENTRADA tienen su propia paleta (Monica, 26-sep-2026,
+     montada por ella en el taller). Mas verde y mas calida que las fichas:
+     se entra a escribir, no a leer. Puede cambiar en otros formularios, pero
+     los nuevos se generan en esta linea. */
+  --color-form: #f5fbf0;          /* el fondo de la pagina */
+  --color-form-card: #fffcf0;     /* la tarjeta, crema */
+  --color-form-dentro: #fcfbf8;   /* una tarjeta dentro de otra */
+  --color-form-nuevo: #fff5cc;    /* lo que se esta creando nuevo, amarillo */
+  --color-form-nuestro: #eff5f1;  /* lo nuestro: el comercial */
+  --color-form-quieto: #fafafa;   /* lo que no cambia nunca: el edificio */
+
   /* Atasco: rojo apagado, que avise sin gritar. */
   --color-alerta: #9f3a38;
 

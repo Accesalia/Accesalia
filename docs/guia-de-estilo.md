@@ -34,6 +34,37 @@ Y el ámbar de Tailwind, que hace de **crema intenso** para lo que falta:
 **Nunca gris muerto.** Un hueco no es gris: es ámbar suave. El gris (`black/5`)
 es solo para bordes y para lo apagado de verdad (lo que está desactivado).
 
+## Los formularios de entrada
+
+Un formulario no se lee, se rellena: tiene **su propia paleta**, más verde y más
+cálida que la de las fichas. La montó Mónica en el taller el 26-sep-2026 y vale
+de línea de salida para todos los formularios nuevos; otro formulario podrá
+cambiarla, pero se parte de aquí.
+
+| Nombre | Valor | Dónde |
+|---|---|---|
+| `form` | `#f5fbf0` | El fondo de la página. Verde pálido. |
+| `form-card` | `#fffcf0` | La tarjeta, crema. |
+| `form-dentro` | `#fcfbf8` | Una tarjeta dentro de otra. |
+| `form-nuevo` | `#fff5cc` | Amarillo: **lo que se está creando nuevo** ahí mismo. |
+| `form-nuestro` | `#eff5f1` | Lo nuestro: el comercial. |
+| `form-quieto` | `#fafafa` | Gris: lo que no cambia nunca (el edificio). |
+
+Y su forma, que también es suya:
+
+1. **Guardar y Cancelar arriba**, en la misma línea que el título y a la
+   derecha. Abajo quedan a tres pantallas de donde se está escribiendo.
+2. **Lo que siempre se sabe, primero y a lo ancho.** En el alta de comunidad,
+   la dirección y la primera nota, una al lado de la otra.
+3. **La persona antes que la empresa.** A quien se visita es siempre una
+   persona, no una entidad fiscal.
+4. **Lo que se crea nuevo se despliega dentro**, en amarillo, sin salir de la
+   pantalla. Nunca se manda a otra página a crear algo que hace falta aquí.
+5. **Lo demás, en columnas paralelas**, no en una pila. Lo que cruza a todas
+   («otras personas de contacto») va a lo ancho por debajo.
+6. **La pista va dentro del recuadro**, en gris, y desaparece al escribir. No
+   como etiqueta fija encima, que ocupa el doble y se queda ahí molestando.
+
 ## Las piezas
 
 **La página.** `bg-hueso` de fondo (ya va en el `body`), barra superior

@@ -16,7 +16,23 @@ const entero = (fd: FormData, k: string) => {
   return Number.isFinite(n) ? n : null;
 };
 
-/** Las personas que haya anadido a mano, las que sean. */
+/** Las personas de la administracion que haya dado de alta aqui mismo. */
+function personasDeLaAdministracion(fd: FormData) {
+  const gente: { nombre: string; cargo: string | null; telefono: string | null; correo: string | null }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const nombre = texto(fd, `persona_${i}_nombre`);
+    if (!nombre) continue;
+    gente.push({
+      nombre,
+      cargo: texto(fd, `persona_${i}_cargo`),
+      telefono: texto(fd, `persona_${i}_telefono`),
+      correo: texto(fd, `persona_${i}_correo`),
+    });
+  }
+  return gente;
+}
+
+/** Las personas de la comunidad que haya anadido a mano, las que sean. */
 function otrasPersonas(fd: FormData) {
   const gente: { nombre: string; rol: string; telefono: string | null; email: string | null }[] = [];
   for (let i = 0; i < 20; i++) {
@@ -45,7 +61,6 @@ export async function guardarAlta(fd: FormData) {
   const elegida = texto(fd, "administracion");
   const administracionId = elegida === "__nueva__" ? null : elegida;
   const adminNombre = elegida === "__nueva__" ? texto(fd, "admin_nombre") : null;
-  const personaNombre = texto(fd, "persona_nombre");
 
   const presidenteNombre = texto(fd, "presidente");
   const datos: DatosComunidad = {
@@ -58,14 +73,7 @@ export async function guardarAlta(fd: FormData) {
     administracionNueva: adminNombre
       ? { nombre: adminNombre, telefono: texto(fd, "admin_telefono"), correo: texto(fd, "admin_correo") }
       : null,
-    personaNueva: personaNombre
-      ? {
-          nombre: personaNombre,
-          cargo: texto(fd, "persona_cargo"),
-          telefono: texto(fd, "persona_telefono"),
-          correo: texto(fd, "persona_correo"),
-        }
-      : null,
+    personasNuevas: personasDeLaAdministracion(fd),
     comercialId: texto(fd, "comercial"),
     tipoOrigen: texto(fd, "origen") ?? "otro",
     nota: texto(fd, "nota"),

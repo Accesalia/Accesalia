@@ -4,9 +4,20 @@ import Link from "next/link";
 import { useState } from "react";
 import type { OpcionesAlta } from "../../../../lib/alta";
 
-// EL FORMULARIO DEL ALTA DE UNA COMUNIDAD. Gira alrededor de la DIRECCION, que
-// es lo unico obligatorio: sin ella no hay comunidad. Abrir una oportunidad sin
-// direccion es OTRA alta, con su puerta.
+// EL FORMULARIO DE ALTA DE UNA COMUNIDAD, con la colocacion que monto Monica en
+// el taller el 26-sep-2026 ("FORMULARIO ALTA COMUNIDAD MONICA"). Vale de
+// plantilla para el resto de formularios de entrada.
+//
+// Lo que ella resolvio y conviene no deshacer:
+//   · Guardar y Cancelar ARRIBA, en la cabecera. Antes estaban a tres
+//     pantallas de la direccion.
+//   · La direccion y la primera nota, una al lado de la otra: lo primero que
+//     se ve es lo que siempre se sabe.
+//   · En el administrador, la PERSONA delante de la empresa.
+//   · Abajo, tres columnas en paralelo (presidente, comunidad, edificio) y las
+//     otras personas cruzando por debajo.
+//
+// La direccion es lo unico obligatorio: sin ella no hay comunidad.
 
 const ROLES: { valor: string; texto: string }[] = [
   { valor: "vecino", texto: "Vecino" },
@@ -29,37 +40,69 @@ const campo =
   "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-base text-carbon outline-none transition focus:border-lima";
 const etiqueta = "block text-[11px] font-bold uppercase tracking-wide text-carbon/45";
 
-/** Un documento. Misma cara que en la ficha; aqui, como es un alta, nunca esta
- *  subido todavia: dice SUBIR. Cuando haya donde guardarlos dira "abrir".
- *  De momento es un boton apagado, para ver la pantalla entera. */
+/** Una tarjeta del formulario. `tono` es el fondo; por defecto el crema. */
+function Caja({
+  titulo,
+  tono = "bg-form-card",
+  clase = "",
+  children,
+}: {
+  titulo?: string;
+  tono?: string;
+  clase?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={"rounded-2xl border border-black/5 p-5 shadow-sm " + tono + " " + clase}>
+      {titulo && <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-carbon/70">{titulo}</h2>}
+      {children}
+    </section>
+  );
+}
+
+function Campo({ id, nombre, clase = "" }: { id: string; nombre: string; clase?: string }) {
+  return (
+    <label className={clase} htmlFor={id}>
+      <span className={etiqueta}>{nombre}</span>
+      <input id={id} name={id} className={campo + " mt-1.5"} />
+    </label>
+  );
+}
+
+function Elige({
+  id,
+  nombre,
+  clase = "",
+  children,
+  ...resto
+}: {
+  id: string;
+  nombre: string;
+  clase?: string;
+  children: React.ReactNode;
+} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <label className={clase} htmlFor={id}>
+      <span className={etiqueta}>{nombre}</span>
+      <select id={id} name={id} className={campo + " mt-1.5 disabled:bg-black/[.03]"} {...resto}>
+        {children}
+      </select>
+    </label>
+  );
+}
+
+/** Un documento. En un alta nunca está todavía: dice SUBIR. Apagado hasta que
+ *  haya dónde guardar ficheros. */
 function Doc({ et }: { et: string }) {
   return (
     <span
       title="Todavía no hay dónde guardar los documentos"
-      className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border border-lima/30 bg-white px-2.5 py-1.5 text-sm font-semibold text-lima-dark/55"
+      className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border border-lima/30 bg-white px-2.5 py-2.5 text-sm font-semibold text-lima-dark/55"
     >
       <span aria-hidden>📄</span>
       {et}
       <span className="font-medium text-carbon/35">subir</span>
     </span>
-  );
-}
-
-function Bloque({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-bold text-carbon">{titulo}</h2>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">{children}</div>
-    </section>
-  );
-}
-
-function Campo({ id, nombre, ancho, clase }: { id: string; nombre: string; ancho?: boolean; clase?: string }) {
-  return (
-    <label className={clase ?? (ancho ? "sm:col-span-2" : undefined)} htmlFor={id}>
-      <span className={etiqueta}>{nombre}</span>
-      <input id={id} name={id} className={campo + " mt-1.5"} />
-    </label>
   );
 }
 
@@ -73,216 +116,234 @@ export function Formulario({
   volver: string;
 }) {
   const [admin, setAdmin] = useState("");
-  const [personaNueva, setPersonaNueva] = useState(false);
+  const [personaSuelta, setPersonaSuelta] = useState(false);
+  const [personas, setPersonas] = useState(1);
   const [direccion, setDireccion] = useState("");
-  const [contactos, setContactos] = useState(0);
+  const [contactos, setContactos] = useState(1);
   const [enviando, setEnviando] = useState(false);
 
   const adminNueva = admin === "__nueva__";
-  const personas = adminNueva ? [] : opciones.personas.filter((p) => p.empresaId === admin);
-  // Si la administracion es nueva, o es una que no tiene gente, la persona se
-  // da de alta aqui sin salir de la pantalla.
-  const pidePersonaNueva = adminNueva || personaNueva || (admin !== "" && personas.length === 0);
-  const hayDireccion = direccion.trim() !== "";
+  const suyas = adminNueva ? [] : opciones.personas.filter((p) => p.empresaId === admin);
+  // La caja amarilla sale cuando la administracion es nueva, o cuando la
+  // elegida no tiene gente, o cuando ella quiere anadir otra persona.
+  const creandoGente = adminNueva || personaSuelta || (admin !== "" && suyas.length === 0);
 
   return (
-    <form action={accion} onSubmit={() => setEnviando(true)} className="mt-7 grid gap-5">
-      <Bloque titulo="La dirección">
-        <label className="sm:col-span-2" htmlFor="direccion">
-          <span className={etiqueta}>Dirección</span>
-          <input
-            id="direccion"
-            name="direccion"
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
-            autoFocus
-            required
-            className={campo + " mt-1.5 text-lg font-semibold"}
+    <form action={accion} onSubmit={() => setEnviando(true)} className="grid gap-5">
+      {/* ---- la cabecera: el titulo y, a la derecha, los botones ---- */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Crear una nueva comunidad</h1>
+        <div className="flex items-center gap-3">
+          <Link
+            href={volver}
+            className="rounded-xl border border-black/15 bg-white px-5 py-3 text-base text-carbon/60 transition hover:border-lima"
+          >
+            Cancelar
+          </Link>
+          <button
+            type="submit"
+            disabled={!direccion.trim() || enviando}
+            className="rounded-xl bg-lima px-7 py-3 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35 disabled:hover:text-carbon/35"
+          >
+            {enviando ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
+      </div>
+
+      {/* ---- la direccion y la nota, juntas ---- */}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]">
+        <Caja titulo="La dirección">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="sm:col-span-2" htmlFor="direccion">
+              <span className={etiqueta}>Dirección</span>
+              <input
+                id="direccion"
+                name="direccion"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                autoFocus
+                required
+                className={campo + " mt-1.5 text-lg font-semibold"}
+              />
+            </label>
+            <Campo id="municipio" nombre="Localidad" />
+            <Campo id="cp" nombre="Código postal" />
+            <Campo id="provincia" nombre="Provincia" clase="sm:col-span-2" />
+          </div>
+        </Caja>
+
+        <Caja titulo="Primera nota" clase="flex h-full flex-col">
+          <textarea
+            id="nota"
+            name="nota"
+            rows={6}
+            placeholder="Quién lo pide, por qué se crea, de dónde nos llega… anota aquí los datos relevantes que sepamos."
+            className={campo + " min-h-40 flex-1 resize-y placeholder:text-carbon/35"}
           />
-        </label>
-        <Campo id="cp" nombre="Código postal" />
-        <Campo id="municipio" nombre="Localidad" />
-        <Campo id="provincia" nombre="Provincia" />
-      </Bloque>
+        </Caja>
+      </div>
 
-      <Bloque titulo="Quién la lleva">
-        <label htmlFor="administracion">
-          <span className={etiqueta}>Administración de fincas</span>
-          <select
-            id="administracion"
-            name="administracion"
-            value={admin}
-            onChange={(e) => setAdmin(e.target.value)}
-            className={campo + " mt-1.5"}
+      {/* ---- el administrador de fincas ---- */}
+      <Caja titulo="Administrador de fincas: qué sabemos">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_25rem]">
+          <div className="grid gap-4">
+            <Elige
+              id="administracion"
+              nombre="Qué administración es, si ya está en nuestra lista"
+              value={admin}
+              onChange={(e) => setAdmin(e.target.value)}
+            >
+              <option value="">—</option>
+              <option value="__nueva__">+ No está en la lista: crear una nueva</option>
+              {opciones.administraciones.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nombre}
+                </option>
+              ))}
+            </Elige>
+
+            <Elige
+              id="puesto"
+              nombre="Quién es la persona de contacto que la lleva"
+              disabled={!admin || creandoGente}
+            >
+              <option value="">—</option>
+              {suyas.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre}
+                  {p.cargo ? " · " + p.cargo : ""}
+                </option>
+              ))}
+            </Elige>
+
+            {admin && !adminNueva && (
+              <button
+                type="button"
+                onClick={() => setPersonaSuelta((x) => !x)}
+                className="justify-self-start text-sm font-semibold text-lima-dark hover:underline"
+              >
+                {personaSuelta ? "← Elegir una que ya está" : "+ Dar de alta una persona"}
+              </button>
+            )}
+          </div>
+
+          <Caja titulo="De qué comercial es" tono="bg-form-nuestro">
+            <div className="grid gap-4">
+              <Elige id="comercial" nombre="Comercial de Accesalia">
+                <option value="">—</option>
+                {opciones.comerciales.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </Elige>
+              <Elige id="origen" nombre="Cómo le ha llegado" defaultValue="administrador_conocido">
+                {ORIGENES.map((o) => (
+                  <option key={o.valor} value={o.valor}>
+                    {o.texto}
+                  </option>
+                ))}
+              </Elige>
+            </div>
+          </Caja>
+        </div>
+
+        {creandoGente && (
+          <Caja
+            titulo={adminNueva ? "No está en la lista: creamos una nueva" : "Damos de alta a la persona"}
+            tono="bg-form-nuevo"
+            clase="mt-5"
           >
-            <option value="">—</option>
-            <option value="__nueva__">+ Crear una administración nueva</option>
-            {opciones.administraciones.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nombre}
-              </option>
+            {Array.from({ length: personas }, (_, i) => (
+              <div key={i} className="mb-4 grid gap-4 sm:grid-cols-[2fr_1fr_2fr_2fr]">
+                <Campo id={"persona_" + i + "_nombre"} nombre="Quién es nuestro contacto en la administración" />
+                <Campo id={"persona_" + i + "_telefono"} nombre="Teléfono de trabajo" />
+                <Campo id={"persona_" + i + "_correo"} nombre="Correo del trabajo" />
+                <Campo id={"persona_" + i + "_cargo"} nombre="Quién es allí: dueño, asalariado, administrativo…" />
+              </div>
             ))}
-          </select>
-
-        </label>
-
-        <label htmlFor="puesto">
-          <span className={etiqueta}>Persona que la lleva</span>
-          <select
-            id="puesto"
-            name="puesto"
-            disabled={!admin || pidePersonaNueva}
-            className={campo + " mt-1.5 disabled:bg-black/[.03]"}
-          >
-            <option value="">—</option>
-            {personas.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre}
-                {p.cargo ? ` · ${p.cargo}` : ""}
-              </option>
-            ))}
-          </select>
-          {admin && !adminNueva && (
             <button
               type="button"
-              onClick={() => setPersonaNueva((x) => !x)}
-              className="mt-1.5 text-sm font-semibold text-lima-dark hover:underline"
+              onClick={() => setPersonas((n) => n + 1)}
+              className="text-sm font-semibold text-lima-dark hover:underline"
             >
-              {personaNueva ? "← Elegir una que ya está" : "+ Dar de alta una persona"}
+              + Crear otra persona de contacto más
             </button>
-          )}
-        </label>
 
-        <label htmlFor="origen">
-          <span className={etiqueta}>Cómo ha llegado</span>
-          <select id="origen" name="origen" defaultValue="administrador_conocido" className={campo + " mt-1.5"}>
-            {ORIGENES.map((o) => (
-              <option key={o.valor} value={o.valor}>
-                {o.texto}
-              </option>
-            ))}
-          </select>
-        </label>
+            {adminNueva && (
+              <div className="mt-5 grid gap-4 border-t border-black/10 pt-5 sm:grid-cols-[2fr_1fr_2fr]">
+                <Campo id="admin_nombre" nombre="Nombre de la empresa de administración de fincas" />
+                <Campo id="admin_telefono" nombre="Teléfono general, si es distinto" />
+                <Campo id="admin_correo" nombre="Correo de la empresa, si es distinto" />
+              </div>
+            )}
+          </Caja>
+        )}
+      </Caja>
 
-        <label htmlFor="comercial">
-          <span className={etiqueta}>Comercial</span>
-          <select id="comercial" name="comercial" className={campo + " mt-1.5"}>
-            <option value="">—</option>
-            {opciones.comerciales.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
+      {/* ---- todo lo de la comunidad, en tres columnas ---- */}
+      <Caja titulo="Datos que tenemos de la comunidad">
+        <div className="grid items-start gap-5 lg:grid-cols-3">
+          <Caja titulo="Presidente" tono="bg-form-dentro">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Campo id="presidente" nombre="Nombre" clase="sm:col-span-2" />
+              <Campo id="presidente_telefono" nombre="Teléfono" />
+              <Campo id="presidente_dni" nombre="DNI" />
+              <Campo id="presidente_email" nombre="Correo" clase="sm:col-span-2" />
+              <div className="flex flex-wrap gap-2 sm:col-span-2">
+                <Doc et="DNI" />
+                <Doc et="Acta de nombramiento" />
+              </div>
+            </div>
+          </Caja>
 
-      </Bloque>
+          <Caja titulo="Datos de la comunidad, lo que sepamos" tono="bg-form-dentro">
+            <div className="grid items-end gap-4 sm:grid-cols-2">
+              <Campo id="cif" nombre="CIF" />
+              <Doc et="Tarjeta del CIF" />
+              <Campo id="iban" nombre="IBAN" clase="sm:col-span-2" />
+              <Campo id="mayores70" nombre="Vecinos de más de 70 años" />
+              <Campo id="discapacidad" nombre="Vecinos con discapacidad" />
+            </div>
+          </Caja>
 
-      {adminNueva && (
-        <Bloque titulo="La administración nueva">
-          <Campo id="admin_nombre" nombre="Nombre de la administración" ancho />
-          <Campo id="admin_telefono" nombre="Teléfono" />
-          <Campo id="admin_correo" nombre="Correo" />
-        </Bloque>
-      )}
-
-      {pidePersonaNueva && (
-        <Bloque titulo="La persona que la lleva">
-          <Campo id="persona_nombre" nombre="Nombre" ancho />
-          <Campo id="persona_cargo" nombre="Cargo" />
-          <Campo id="persona_telefono" nombre="Teléfono de trabajo" />
-          <Campo id="persona_correo" nombre="Correo" />
-        </Bloque>
-      )}
-
-      <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-carbon">Primera nota</h2>
-        <textarea
-          id="nota"
-          name="nota"
-          rows={4}
-          placeholder="Me llama Adolfo, que quiere que Dani vaya a ver un ascensor aquí. El martes a las 12:15 en su oficina y de allí vais a verlo."
-          className={campo + " mt-4 resize-y placeholder:text-carbon/25"}
-        />
-      </section>
-
-      <Bloque titulo="El edificio">
-        <Campo id="anio" nombre="Año de construcción" />
-        <Campo id="viviendas" nombre="Número de viviendas" />
-        <Campo id="catastro" nombre="Referencia catastral" />
-      </Bloque>
-
-      {/* El CIF en su linea, y debajo la cuenta y el censo en una sola. Aqui y
-          no en el edificio porque estos tres CAMBIAN, y el edificio es lo que
-          no cambia nunca. */}
-      <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-carbon">La comunidad</h2>
-        <div className="mt-4 grid items-end gap-4 sm:grid-cols-2">
-          <Campo id="cif" nombre="CIF" />
-          <span className="pb-2">
-            <Doc et="Tarjeta del CIF" />
-          </span>
+          <Caja titulo="Datos del edificio, lo que sepamos" tono="bg-form-quieto">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Campo id="anio" nombre="Año de construcción" />
+              <Campo id="viviendas" nombre="Número de viviendas" />
+              <Campo id="catastro" nombre="Referencia catastral" clase="sm:col-span-2" />
+            </div>
+          </Caja>
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
-          <Campo id="iban" nombre="IBAN" clase="" />
-          <Campo id="mayores70" nombre="Vecinos de más de 70 años" clase="" />
-          <Campo id="discapacidad" nombre="Vecinos con discapacidad" clase="" />
-        </div>
-      </section>
 
-      <Bloque titulo="Presidente">
-        <Campo id="presidente" nombre="Nombre" ancho />
-        <Campo id="presidente_telefono" nombre="Teléfono" />
-        <Campo id="presidente_email" nombre="Correo" />
-        <Campo id="presidente_dni" nombre="DNI" />
-        <div className="flex flex-wrap gap-2 sm:col-span-2">
-          <Doc et="DNI" />
-          <Doc et="Acta de nombramiento" />
-        </div>
-      </Bloque>
-
-      {/* Quien mas haya: la vecina, el hijo, quien de verdad lo lleva. */}
-      <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-carbon">Otras personas de contacto</h2>
-        {Array.from({ length: contactos }, (_, i) => (
-          <div key={i} className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Campo id={`contacto_${i}_nombre`} nombre="Nombre" />
-            <label htmlFor={`contacto_${i}_rol`}>
-              <span className={etiqueta}>Qué es de la comunidad</span>
-              <select id={`contacto_${i}_rol`} name={`contacto_${i}_rol`} defaultValue="vecino" className={campo + " mt-1.5"}>
+        <Caja titulo="Otras personas de contacto" tono="bg-form-dentro" clase="mt-5">
+          {Array.from({ length: contactos }, (_, i) => (
+            <div key={i} className="mb-4 grid gap-4 sm:grid-cols-[2fr_3fr_1fr_2fr]">
+              <Campo id={"contacto_" + i + "_nombre"} nombre="Nombre" />
+              <Elige id={"contacto_" + i + "_rol"} nombre="Qué es de la comunidad, por qué está aquí" defaultValue="vecino">
                 {ROLES.map((r) => (
                   <option key={r.valor} value={r.valor}>
                     {r.texto}
                   </option>
                 ))}
-              </select>
-            </label>
-            <Campo id={`contacto_${i}_telefono`} nombre="Teléfono" />
-            <Campo id={`contacto_${i}_email`} nombre="Correo" />
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => setContactos((n) => n + 1)}
-          className="mt-4 text-sm font-semibold text-lima-dark hover:underline"
-        >
-          + Añadir otra persona
-        </button>
-      </section>
+              </Elige>
+              <Campo id={"contacto_" + i + "_telefono"} nombre="Teléfono" />
+              <Campo id={"contacto_" + i + "_email"} nombre="Correo" />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setContactos((n) => n + 1)}
+            className="text-sm font-semibold text-lima-dark hover:underline"
+          >
+            + Añadir otra persona
+          </button>
+        </Caja>
+      </Caja>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={!hayDireccion || enviando}
-          className="rounded-xl bg-lima px-6 py-3 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35 disabled:hover:text-carbon/35"
-        >
-          {enviando ? "Guardando…" : "Guardar"}
-        </button>
-        <Link href={volver} className="rounded-xl border border-black/10 px-5 py-3 text-base text-carbon/60 transition hover:border-lima">
-          Cancelar
-        </Link>
-        {!hayDireccion && <span className="text-sm text-carbon/45">Escribe la dirección.</span>}
-      </div>
+      {!direccion.trim() && (
+        <p className="text-sm text-carbon/45">Escribe la dirección: es lo único que no puede faltar.</p>
+      )}
     </form>
   );
 }

@@ -21,14 +21,13 @@ export default async function NuevaComunidad({ searchParams }: { searchParams: P
   const opciones = await opcionesAlta();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-form">
       <BarraSuperior />
-      <main className="mx-auto max-w-[1000px] px-4 pb-20 pt-5 sm:px-6">
+      <main className="mx-auto max-w-[1300px] px-4 pb-20 pt-5 sm:px-6">
         <Link href="/administracion/comunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
           ← Comunidades de vecinos
         </Link>
 
-        <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Nueva comunidad</h1>
 
         {falta && (
           <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
@@ -36,7 +35,9 @@ export default async function NuevaComunidad({ searchParams }: { searchParams: P
           </p>
         )}
 
-        <Formulario opciones={opciones} accion={guardarAlta} volver="/administracion/comunidades" />
+        <div className="mt-3">
+          <Formulario opciones={opciones} accion={guardarAlta} volver="/administracion/comunidades" />
+        </div>
       </main>
     </div>
   );
