@@ -29,6 +29,22 @@ const campo =
   "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-base text-carbon outline-none transition focus:border-lima";
 const etiqueta = "block text-[11px] font-bold uppercase tracking-wide text-carbon/45";
 
+/** Un documento. Misma cara que en la ficha; aqui, como es un alta, nunca esta
+ *  subido todavia: dice SUBIR. Cuando haya donde guardarlos dira "abrir".
+ *  De momento es un boton apagado, para ver la pantalla entera. */
+function Doc({ et }: { et: string }) {
+  return (
+    <span
+      title="Todavía no hay dónde guardar los documentos"
+      className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border border-lima/30 bg-white px-2.5 py-1.5 text-sm font-semibold text-lima-dark/55"
+    >
+      <span aria-hidden>📄</span>
+      {et}
+      <span className="font-medium text-carbon/35">subir</span>
+    </span>
+  );
+}
+
 function Bloque({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
@@ -201,8 +217,11 @@ export function Formulario({
           no cambia nunca. */}
       <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-bold text-carbon">La comunidad</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid items-end gap-4 sm:grid-cols-2">
           <Campo id="cif" nombre="CIF" />
+          <span className="pb-2">
+            <Doc et="Tarjeta del CIF" />
+          </span>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
           <Campo id="iban" nombre="IBAN" clase="" />
@@ -216,6 +235,10 @@ export function Formulario({
         <Campo id="presidente_telefono" nombre="Teléfono" />
         <Campo id="presidente_email" nombre="Correo" />
         <Campo id="presidente_dni" nombre="DNI" />
+        <div className="flex flex-wrap gap-2 sm:col-span-2">
+          <Doc et="DNI" />
+          <Doc et="Acta de nombramiento" />
+        </div>
       </Bloque>
 
       {/* Quien mas haya: la vecina, el hijo, quien de verdad lo lleva. */}
