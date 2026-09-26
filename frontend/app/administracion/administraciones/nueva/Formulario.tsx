@@ -108,6 +108,38 @@ function Dato({
   );
 }
 
+/** Un campo con su caja: la etiqueta encima. Es el de siempre, y es el que
+ *  va fuera de las cards de datos. */
+function Campo({
+  id,
+  nombre,
+  clase = "",
+  tipo,
+  pista,
+  defecto,
+}: {
+  id: string;
+  nombre: string;
+  clase?: string;
+  tipo?: string;
+  pista?: string;
+  defecto?: string;
+}) {
+  return (
+    <label className={"block min-w-0 " + clase} htmlFor={id}>
+      <span className={etiqueta + " block"}>{nombre}</span>
+      <input
+        id={id}
+        name={id}
+        type={tipo}
+        placeholder={pista}
+        defaultValue={defecto}
+        className={caja + " mt-1 placeholder:text-carbon/55"}
+      />
+    </label>
+  );
+}
+
 /** Un dato que pone la app y no se toca. Se ve, para que quede claro. */
 function Fijo({ nombre, valor, clase = "" }: { nombre: string; valor: string; clase?: string }) {
   return (
@@ -162,6 +194,7 @@ export function Formulario({
   const [contacto, setContacto] = useState({ jefe: "", trabajador: "" });
   const [respetar, setRespetar] = useState(false);
   const [comision, setComision] = useState("sin_hablar");
+  const [correos, setCorreos] = useState(1);
   const [enviando, setEnviando] = useState(false);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre }));
@@ -212,10 +245,10 @@ export function Formulario({
             </button>
           </div>
         </div>
-        <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
-          <Dato id="nombre" nombre="Nombre habitual" pista="si todavía no lo sabes, déjalo vacío" />
-          <Dato id="telefono" nombre="Teléfono" />
-          <Dato id="municipio" nombre="Localidad" />
+        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
+          <Campo id="nombre" nombre="Nombre habitual" pista="si todavía no lo sabes, déjalo vacío" />
+          <Campo id="telefono" nombre="Teléfono" />
+          <Campo id="municipio" nombre="Localidad" />
         </div>
         {!puedeGuardar && (
           <p className="mt-2 text-xs text-carbon/65">
@@ -249,7 +282,7 @@ export function Formulario({
                       : {})}
                   />
                   <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Tel. personal" clase="sm:col-span-4" />
-                  <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Nº colegiado" clase="sm:col-span-4" />
+                  <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Número de colegiado" clase="sm:col-span-4" />
                   <Dato id={"jefe_" + f.id + "_correoTrabajo"} nombre="Mail" clase="sm:col-span-12" />
                   <Dato
                     id={"jefe_" + f.id + "_notas"}
@@ -285,8 +318,8 @@ export function Formulario({
                   />
                   <Dato id={"gente_" + f.id + "_cargo"} nombre="Cargo" clase="sm:col-span-5" />
                   <Dato id={"gente_" + f.id + "_departamento"} nombre="Dpto." clase="sm:col-span-5" />
-                  <Dato id={"gente_" + f.id + "_desde"} nombre="Desde" tipo="date" clase="sm:col-span-4" />
-                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Nº col." clase="sm:col-span-3" />
+                  <Dato id={"gente_" + f.id + "_desde"} nombre="Desde cuándo trabaja aquí" tipo="date" clase="sm:col-span-4" />
+                  <Dato id={"gente_" + f.id + "_colegiado"} nombre="Número de colegiado" clase="sm:col-span-3" />
                   <Dato id={"gente_" + f.id + "_correoTrabajo"} nombre="Mail empresa" clase="sm:col-span-7" />
                   <Dato
                     id={"gente_" + f.id + "_telefonoTrabajo"}
@@ -301,14 +334,15 @@ export function Formulario({
                   />
                   <Dato id={"gente_" + f.id + "_correoPersonal"} nombre="Mail personal" clase="sm:col-span-7" />
                   <Dato id={"gente_" + f.id + "_telefonoPersonal"} nombre="Tel. personal" clase="sm:col-span-5" />
-                  <label className="sm:col-span-12" htmlFor={"gente_" + f.id + "_notas"}>
-                    <span className={etiqueta + " block"}>Notas</span>
+                  {/* Notas: en UNA linea, pero conservando su caja. */}
+                  <label className="flex items-start gap-2 sm:col-span-12" htmlFor={"gente_" + f.id + "_notas"}>
+                    <span className={etiqueta + " pt-2"}>Notas</span>
                     <textarea
                       id={"gente_" + f.id + "_notas"}
                       name={"gente_" + f.id + "_notas"}
-                      rows={2}
+                      rows={1}
                       placeholder="qué lleva, con qué temas le contactamos"
-                      className={caja + " mt-1 resize-y placeholder:text-carbon/45"}
+                      className={caja + " min-h-9 flex-1 resize-y placeholder:text-carbon/45"}
                     />
                   </label>
                 </div>
@@ -368,18 +402,18 @@ export function Formulario({
         {/* ===================== columna derecha ===================== */}
         <div className="grid gap-4">
           <Caja titulo="Nuestra relación con la administración de fincas" tono="bg-form-quieto" borde="border-[#707070]">
-            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-3">
+            <div className="grid gap-[14px] sm:grid-cols-3">
               <Elegir id="comercial" nombre="Comercial que la lleva ahora" opciones={comerciales} />
               <Elegir id="comercial_captador" nombre="Comercial que la captó" opciones={comerciales} />
               {/* Por defecto hoy: cuanto menos haya que escribir, mejor. */}
-              <Dato id="alta_cartera" nombre="Alta en cartera" tipo="date" defecto={hoy()} />
+              <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
             </div>
 
             <Caja titulo="Cómo le hemos conocido" tono="bg-form-nuevo" borde="border-[#8a8a8a]" clase="mt-4">
-              <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
-                <Dato id="llego_quien" nombre="Nos llegó a través de" pista="la persona" />
+              <div className="grid gap-[14px] sm:grid-cols-2">
+                <Campo id="llego_quien" nombre="Nos llegó a través de" pista="la persona" />
                 <Elegir id="llego_por" nombre="Nos conoció por (vía)" opciones={VIAS} />
-                <Dato
+                <Campo
                   id="origen_notas"
                   nombre="Notas"
                   pista="es la vecina de X, fue en la feria de Y, es el cuñado de…"
@@ -388,7 +422,10 @@ export function Formulario({
               </div>
 
               <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
-                <div className="grid items-center gap-x-5 gap-y-2 sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#4d0505]">
+                  Rellenar si nos llega a través de otro y hay condiciones a respetar
+                </h3>
+                <div className="grid items-end gap-[14px] sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
                   <label
                     className="flex cursor-pointer items-center gap-2 text-xs font-bold uppercase leading-tight text-[#4d0505]"
                     htmlFor="respetar"
@@ -407,7 +444,7 @@ export function Formulario({
                       no pisar
                     </span>
                   </label>
-                  <Dato id="de_quien_es" nombre="Nos llegó por" />
+                  <Campo id="de_quien_es" nombre="Nos llegó por" />
                   <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} />
                 </div>
               </section>
@@ -419,7 +456,7 @@ export function Formulario({
               titulo="¿Este administrador cobra comisión?"
               tono="bg-[#fbecb6]"
               borde="border-[#1b1c6b]"
-              clase="mt-4 sm:mr-24"
+              clase="mt-4 sm:mx-auto sm:w-[74%]"
             >
               <input type="hidden" name="comision_estado" value={comision} />
               <div className="flex flex-wrap items-center gap-1.5">
@@ -468,12 +505,18 @@ export function Formulario({
               <Dato id="nombre_legal" nombre="Nombre legal" pista="el de la tarjeta del CIF" clase="sm:col-span-8" />
               <Dato id="cif" nombre="CIF" clase="sm:col-span-4" />
               <Dato id="direccion" nombre="Dirección" clase="sm:col-span-12" />
-              <Dato id="correo_general" nombre="Mail general" clase="sm:col-span-7" />
-              <Dato id="telefono_general" nombre="Tel. general" clase="sm:col-span-5" />
+              <Dato id="correo_general" nombre="Correo general principal" clase="sm:col-span-7" />
+              <Dato id="telefono_general" nombre="Teléfono general principal" clase="sm:col-span-5" />
+              {Array.from({ length: correos - 1 }, (_, i) => (
+                <Dato key={i} id={"correo_mas_" + i} nombre="Otro correo" clase="sm:col-span-7" />
+              ))}
             </div>
-            <p className="mt-3 text-xs text-carbon/65">
-              Si hacen falta más teléfonos o correos, se dan de alta como departamento: recepción, contabilidad…
-            </p>
+            <div className="mt-3 flex flex-wrap items-baseline gap-4">
+              <Anadir texto="+ Añadir otro correo" vacio={false} alPulsar={() => setCorreos((n) => n + 1)} />
+              <span className="text-xs text-carbon/65">
+                Para más teléfonos, se da de alta el departamento: recepción, contabilidad…
+              </span>
+            </div>
           </Caja>
         </div>
       </div>
