@@ -462,7 +462,7 @@ export function Formulario({
               </div>
 
               <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3">
-                <h3 className="mb-2 whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-[#841a1a]">
+                <h3 className="mb-2 whitespace-nowrap text-[12px] font-bold uppercase tracking-wide text-[#841a1a]">
                   Rellenar si nos llega a través de otro y hay condiciones a respetar
                 </h3>
                 <div className="grid items-end gap-[14px] sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]">
