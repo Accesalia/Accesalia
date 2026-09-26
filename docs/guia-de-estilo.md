@@ -117,6 +117,12 @@ Y su forma, que también es suya:
    que no hay forma de borrar. Cada fila lleva identidad propia, no su
    posición, para que quitar la de en medio no desordene lo escrito.
 
+13. **Las notas se pueden estirar.** Un campo de notas es un `textarea` con
+   `resize-y`: el tirador del navegador deja hacerlo más alto para escribir a
+   gusto, y solo crece hacia abajo, así que no descoloca la tarjeta. El alto
+   no se guarda; es comodidad del momento. A Mónica le gusta: va en todas las
+   notas de ficha.
+
 ## Las piezas
 
 **La página.** `bg-hueso` de fondo (ya va en el `body`), barra superior
