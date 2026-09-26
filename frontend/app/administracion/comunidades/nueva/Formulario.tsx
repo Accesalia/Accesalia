@@ -63,11 +63,22 @@ function Caja({
   );
 }
 
-function Campo({ id, nombre, clase = "" }: { id: string; nombre: string; clase?: string }) {
+function Campo({
+  id,
+  nombre,
+  pista,
+  clase = "",
+}: {
+  id: string;
+  nombre: string;
+  /** La pista va DENTRO del recuadro, en gris, y se va al escribir. */
+  pista?: string;
+  clase?: string;
+}) {
   return (
     <label className={clase} htmlFor={id}>
       <span className={etiqueta}>{nombre}</span>
-      <input id={id} name={id} className={campo + " mt-1"} />
+      <input id={id} name={id} placeholder={pista} className={campo + " mt-1 placeholder:text-carbon/35"} />
     </label>
   );
 }
@@ -275,7 +286,8 @@ export function Formulario({
                   <Campo id={"persona_" + i + "_correo"} nombre="Correo del trabajo" />
                   <Campo
                     id={"persona_" + i + "_cargo"}
-                    nombre="Quién es allí: dueño, administrador contratado, otro…"
+                    nombre="Quién es allí"
+                    pista="dueño, administrador contratado, otro…"
                   />
                 </div>
               ))}
