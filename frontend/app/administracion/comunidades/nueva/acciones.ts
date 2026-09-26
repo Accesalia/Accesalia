@@ -16,6 +16,22 @@ const entero = (fd: FormData, k: string) => {
   return Number.isFinite(n) ? n : null;
 };
 
+/** Las personas que haya anadido a mano, las que sean. */
+function otrasPersonas(fd: FormData) {
+  const gente: { nombre: string; rol: string; telefono: string | null; email: string | null }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const nombre = texto(fd, `contacto_${i}_nombre`);
+    if (!nombre) continue;
+    gente.push({
+      nombre,
+      rol: texto(fd, `contacto_${i}_rol`) ?? "vecino",
+      telefono: texto(fd, `contacto_${i}_telefono`),
+      email: texto(fd, `contacto_${i}_email`),
+    });
+  }
+  return gente;
+}
+
 export async function guardarAlta(fd: FormData) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/administracion/comunidades/nueva");
@@ -57,6 +73,9 @@ export async function guardarAlta(fd: FormData) {
     viviendas: entero(fd, "viviendas"),
     catastro: texto(fd, "catastro"),
     cif: texto(fd, "cif"),
+    iban: texto(fd, "iban"),
+    mayores70: entero(fd, "mayores70"),
+    discapacidad: entero(fd, "discapacidad"),
     presidente: presidenteNombre
       ? {
           nombre: presidenteNombre,
@@ -65,6 +84,7 @@ export async function guardarAlta(fd: FormData) {
           documento: texto(fd, "presidente_dni"),
         }
       : null,
+    contactos: otrasPersonas(fd),
   };
 
   const hecho = await crearComunidad(datos, yo.id);

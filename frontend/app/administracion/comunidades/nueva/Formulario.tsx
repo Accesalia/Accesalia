@@ -8,6 +8,14 @@ import type { OpcionesAlta } from "../../../../lib/alta";
 // es lo unico obligatorio: sin ella no hay comunidad. Abrir una oportunidad sin
 // direccion es OTRA alta, con su puerta.
 
+const ROLES: { valor: string; texto: string }[] = [
+  { valor: "vecino", texto: "Vecino" },
+  { valor: "vicepresidente", texto: "Vicepresidente" },
+  { valor: "secretario", texto: "Secretario" },
+  { valor: "presidente", texto: "Presidente" },
+  { valor: "otro", texto: "Otro" },
+];
+
 const ORIGENES: { valor: string; texto: string }[] = [
   { valor: "administrador_conocido", texto: "Un administrador que ya conocemos" },
   { valor: "web", texto: "La web" },
@@ -30,9 +38,9 @@ function Bloque({ titulo, children }: { titulo: string; children: React.ReactNod
   );
 }
 
-function Campo({ id, nombre, ancho }: { id: string; nombre: string; ancho?: boolean }) {
+function Campo({ id, nombre, ancho, clase }: { id: string; nombre: string; ancho?: boolean; clase?: string }) {
   return (
-    <label className={ancho ? "sm:col-span-2" : undefined} htmlFor={id}>
+    <label className={clase ?? (ancho ? "sm:col-span-2" : undefined)} htmlFor={id}>
       <span className={etiqueta}>{nombre}</span>
       <input id={id} name={id} className={campo + " mt-1.5"} />
     </label>
@@ -51,6 +59,7 @@ export function Formulario({
   const [admin, setAdmin] = useState("");
   const [personaNueva, setPersonaNueva] = useState(false);
   const [direccion, setDireccion] = useState("");
+  const [contactos, setContactos] = useState(0);
   const [enviando, setEnviando] = useState(false);
 
   const adminNueva = admin === "__nueva__";
@@ -185,8 +194,22 @@ export function Formulario({
         <Campo id="anio" nombre="Año de construcción" />
         <Campo id="viviendas" nombre="Número de viviendas" />
         <Campo id="catastro" nombre="Referencia catastral" />
-        <Campo id="cif" nombre="CIF de la comunidad" />
       </Bloque>
+
+      {/* El CIF en su linea, y debajo la cuenta y el censo en una sola. Aqui y
+          no en el edificio porque estos tres CAMBIAN, y el edificio es lo que
+          no cambia nunca. */}
+      <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-bold text-carbon">La comunidad</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Campo id="cif" nombre="CIF" />
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
+          <Campo id="iban" nombre="IBAN" clase="" />
+          <Campo id="mayores70" nombre="Vecinos de más de 70 años" clase="" />
+          <Campo id="discapacidad" nombre="Vecinos con discapacidad" clase="" />
+        </div>
+      </section>
 
       <Bloque titulo="Presidente">
         <Campo id="presidente" nombre="Nombre" ancho />
@@ -194,6 +217,35 @@ export function Formulario({
         <Campo id="presidente_email" nombre="Correo" />
         <Campo id="presidente_dni" nombre="DNI" />
       </Bloque>
+
+      {/* Quien mas haya: la vecina, el hijo, quien de verdad lo lleva. */}
+      <section className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-bold text-carbon">Otras personas de contacto</h2>
+        {Array.from({ length: contactos }, (_, i) => (
+          <div key={i} className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Campo id={`contacto_${i}_nombre`} nombre="Nombre" />
+            <label htmlFor={`contacto_${i}_rol`}>
+              <span className={etiqueta}>Qué es de la comunidad</span>
+              <select id={`contacto_${i}_rol`} name={`contacto_${i}_rol`} defaultValue="vecino" className={campo + " mt-1.5"}>
+                {ROLES.map((r) => (
+                  <option key={r.valor} value={r.valor}>
+                    {r.texto}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Campo id={`contacto_${i}_telefono`} nombre="Teléfono" />
+            <Campo id={`contacto_${i}_email`} nombre="Correo" />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setContactos((n) => n + 1)}
+          className="mt-4 text-sm font-semibold text-lima-dark hover:underline"
+        >
+          + Añadir otra persona
+        </button>
+      </section>
 
       <div className="flex flex-wrap items-center gap-3">
         <button

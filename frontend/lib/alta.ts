@@ -113,9 +113,15 @@ export type DatosComunidad = {
   anio: number | null;
   viviendas: number | null;
   catastro: string | null;
+  // la comunidad como tal
   cif: string | null;
-  // el presidente
+  iban: string | null;
+  // El censo es lo que decide las subvenciones: si lo sabe hoy, que lo apunte.
+  mayores70: number | null;
+  discapacidad: number | null;
+  // su gente: el presidente y quien mas haya. Si lo tiene delante, que lo meta.
   presidente: { nombre: string; telefono: string | null; email: string | null; documento: string | null } | null;
+  contactos: { nombre: string; rol: string; telefono: string | null; email: string | null }[];
 };
 
 export type ResultadoComunidad = { comunidadId: string; oportunidadId: string; interaccionId: string | null };
@@ -133,11 +139,16 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     num_viviendas: d.viviendas,
     referencia_catastral: d.catastro,
     cif_comunidad: d.cif,
+    iban: d.iban,
+    num_residentes_mayores_70: d.mayores70,
+    num_residentes_discapacidad: d.discapacidad,
+    // Si ha contado el censo, la foto es de hoy.
+    fecha_actualizacion_censo: d.mayores70 !== null || d.discapacidad !== null ? hoy() : null,
     activa: true,
   });
   const comunidadId = c.id;
 
-  // 2 · su presidente
+  // 2 · su gente
   if (d.presidente) {
     await crear("personas_comunidad", {
       comunidad_id: comunidadId,
@@ -147,6 +158,15 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
       email: d.presidente.email,
       documento: d.presidente.documento,
       es_contacto_principal: true,
+    });
+  }
+  for (const c of d.contactos) {
+    await crear("personas_comunidad", {
+      comunidad_id: comunidadId,
+      nombre: c.nombre,
+      rol: c.rol,
+      telefono: c.telefono,
+      email: c.email,
     });
   }
 
