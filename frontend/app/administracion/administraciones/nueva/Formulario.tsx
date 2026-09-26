@@ -416,7 +416,7 @@ export function Formulario({
                 <Campo
                   id="origen_notas"
                   nombre="Notas"
-                  pista="es la vecina de X, fue en la feria de Y, es el cuñado de…"
+                  pista="por si hay detalles extra que se deban conocer: es la vecina de X, fue en la feria de Y, es el cuñado de…"
                   clase="sm:col-span-2"
                 />
               </div>
