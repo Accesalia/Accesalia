@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { OpcionesAlta } from "../../../../lib/alta";
-import { Elegir, type Opcion } from "./Elegir";
+import { Elegir, type Opcion } from "../../../components/Elegir";
 
 // EL FORMULARIO DE ALTA DE UNA COMUNIDAD, con la colocacion que monto Monica en
 // el taller el 26-sep-2026 ("FORMULARIO ALTA COMUNIDAD MONICA"). Vale de

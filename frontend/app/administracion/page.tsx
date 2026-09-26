@@ -48,7 +48,7 @@ type Alta = { nombre: string; gira: string; href: string | null };
 
 const ALTAS: Alta[] = [
   { nombre: "Una comunidad", gira: "su dirección", href: "/administracion/comunidades/nueva" },
-  { nombre: "Un administrador", gira: "la persona de contacto", href: null },
+  { nombre: "Un administrador", gira: "la persona de contacto", href: "/administracion/administraciones/nueva" },
   { nombre: "Una oportunidad", gira: "la entrada del diario", href: null },
 ];
 
