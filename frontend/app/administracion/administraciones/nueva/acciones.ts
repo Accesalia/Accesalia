@@ -73,15 +73,16 @@ export async function guardarAdministracion(fd: FormData) {
 
   const datos: DatosAdministracion = {
     nombre: texto(fd, "nombre"),
-    telefono: texto(fd, "telefono") ?? texto(fd, "telefono_general"),
+    // El telefono de la empresa es el general: en la cabecera no se sabia de quien era.
+    telefono: texto(fd, "telefono_general"),
     municipio: texto(fd, "municipio"),
     nombreLegal: texto(fd, "nombre_legal"),
     cif: texto(fd, "cif"),
     direccion: texto(fd, "direccion"),
     correoGeneral: texto(fd, "correo_general"),
     comercialId: texto(fd, "comercial"),
-    // Al crearla son el mismo: se separan el dia que la cartera cambie de mano.
-    comercialCaptadorId: texto(fd, "comercial_captador") ?? texto(fd, "comercial"),
+    // En el alta no hay captador ni heredero: el que se elige ES el captador.
+    comercialCaptadorId: texto(fd, "comercial"),
     altaCartera: fecha(fd, "alta_cartera"),
     comisionEstado: texto(fd, "comision_estado") ?? "sin_hablar",
     llegoPor: texto(fd, "llego_por"),

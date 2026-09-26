@@ -260,10 +260,14 @@ export function Formulario({
             </button>
           </div>
         </div>
-        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,2fr)_minmax(0,2fr)]">
+        {/* El telefono se fue de aqui: no se sabia de quien era. Suben el
+            comercial y la fecha de alta, que son lo que hay que ver sin bajar. */}
+        <div className="mt-3 grid gap-[14px] sm:grid-cols-[minmax(0,5fr)_minmax(0,3fr)_minmax(0,3fr)_minmax(0,2fr)]">
           <Campo id="nombre" nombre="Nombre habitual" />
-          <Campo id="telefono" nombre="Teléfono" />
           <Campo id="municipio" nombre="Localidad" />
+          <Elegir id="comercial" nombre="Comercial que la lleva" opciones={comerciales} />
+          {/* Por defecto hoy: cuanto menos haya que escribir, mejor. */}
+          <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
         </div>
         {!puedeGuardar && (
           <p className="mt-2 text-xs text-carbon/65">
@@ -432,13 +436,6 @@ export function Formulario({
             tono="bg-form-quieto"
             borde="border-marco"
           >
-            <div className="grid gap-[14px] sm:grid-cols-3">
-              <Elegir id="comercial" nombre="Comercial que la lleva ahora" opciones={comerciales} />
-              <Elegir id="comercial_captador" nombre="Comercial que la captó" opciones={comerciales} />
-              {/* Por defecto hoy: cuanto menos haya que escribir, mejor. */}
-              <Campo id="alta_cartera" nombre="Fecha de alta en cartera" tipo="date" defecto={hoy()} />
-            </div>
-
             <Caja
               titulo="Cómo le hemos conocido"
               tit="text-[16px] text-carbon/85"
