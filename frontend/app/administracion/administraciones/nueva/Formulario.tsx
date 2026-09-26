@@ -298,8 +298,8 @@ export function Formulario({
                         ? { valor: contacto.jefe, alEscribir: (v: string) => setContacto((c) => ({ ...c, jefe: v })) }
                         : {})}
                     />
-                    <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Personal" clase="min-w-0 flex-1" />
-                    <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Num Col." clase="min-w-0 flex-1" />
+                    <Dato id={"jefe_" + f.id + "_telefonoPersonal"} nombre="Personal" clase="min-w-0 flex-[1.1]" />
+                    <Dato id={"jefe_" + f.id + "_colegiado"} nombre="Num Col." clase="min-w-0 flex-[0.9]" />
                   </div>
                   <Dato id={"jefe_" + f.id + "_correoTrabajo"} nombre="Mail" clase="sm:col-span-12" />
                   <label className="flex items-start gap-2 sm:col-span-12" htmlFor={"jefe_" + f.id + "_notas"}>
@@ -454,7 +454,7 @@ export function Formulario({
                 />
               </div>
 
-              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3 sm:w-[83%]">
+              <section className="mt-3 rounded-[14px] border border-[#4d0505] bg-[#e1cbcb] p-3 sm:mx-auto sm:w-[83%]">
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#841a1a]">
                   Rellenar si nos llega a través de otro y hay condiciones a respetar
                 </h3>
@@ -540,7 +540,7 @@ export function Formulario({
                     disabled
                     title="La ficha de comisión todavía no está montada"
                     aria-label="Abrir su ficha de comisión"
-                    className="mt-1 flex size-8 cursor-not-allowed items-center justify-center rounded-lg bg-[#1b1c6b] text-base font-bold text-white shadow-sm disabled:opacity-45"
+                    className="mt-1 flex size-8 cursor-not-allowed items-center justify-center rounded-lg bg-[#1b1c6b] text-base font-bold text-white shadow-sm"
                   >
                     <span aria-hidden>↗</span>
                   </button>
