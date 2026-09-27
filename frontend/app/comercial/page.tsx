@@ -136,6 +136,14 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
             mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
         <div className="mt-6 flex flex-wrap gap-2">
+          {/* Lo primero, porque es lo que mas se hace: un comercial abre una
+              oportunidad desde SU pantalla, sin entrar en Administracion. */}
+          <Link
+            href="/comercial/oportunidades/nueva"
+            className="inline-flex items-center gap-2 rounded-full bg-lima px-5 py-2 text-base font-bold text-carbon shadow-sm transition hover:bg-lima-dark hover:text-white"
+          >
+            + Abrir oportunidad
+          </Link>
           <Proximamente texto="🗂 Mis administradores" />
           <a
             href="#pendientes"
