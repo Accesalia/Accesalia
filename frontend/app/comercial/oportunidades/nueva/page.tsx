@@ -1,0 +1,50 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { BarraSuperior } from "../../../components/BarraSuperior";
+import { opcionesOportunidad } from "../../../../lib/altaOportunidad";
+import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { Formulario } from "./Formulario";
+import { guardarOportunidad } from "./acciones";
+
+export const dynamic = "force-dynamic";
+
+// DAR DE ALTA UNA OPORTUNIDAD (Monica, 27-sep-2026).
+//
+// Una accion, dos puertas: el comercial la abre desde su pantalla sin entrar en
+// Administracion, y desde Administracion se llega a la misma. Gira alrededor de
+// la ENTRADA DEL DIARIO, que es lo unico que no puede faltar.
+
+export default async function NuevaOportunidad({
+  searchParams,
+}: {
+  searchParams: Promise<{ falta?: string }>;
+}) {
+  const { falta } = await searchParams;
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/oportunidades/nueva");
+  if (!puedeEntrar(yo, "comercial") && !puedeEntrar(yo, "administracion")) redirect("/menu");
+
+  const opciones = await opcionesOportunidad(yo.id);
+
+  return (
+    <div className="min-h-screen bg-form">
+      <BarraSuperior />
+      <main className="mx-auto max-w-[1300px] px-4 pb-20 pt-5 sm:px-6">
+        <Link href="/comercial" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
+          ← Área Comercial
+        </Link>
+
+        {falta && (
+          <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
+            No se ha guardado: hacían falta la entrada del diario, un comercial, y al menos una de las cuatro —
+            dirección, administración, teléfono o correo.
+          </p>
+        )}
+
+        <div className="mt-3">
+          <Formulario opciones={opciones} accion={guardarOportunidad} volver="/comercial" />
+        </div>
+      </main>
+    </div>
+  );
+}

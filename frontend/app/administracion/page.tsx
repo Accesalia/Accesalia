@@ -49,7 +49,7 @@ type Alta = { nombre: string; gira: string; href: string | null };
 const ALTAS: Alta[] = [
   { nombre: "Una comunidad", gira: "su dirección", href: "/administracion/comunidades/nueva" },
   { nombre: "Un administrador", gira: "la persona de contacto", href: "/administracion/administraciones/nueva" },
-  { nombre: "Una oportunidad", gira: "la entrada del diario", href: null },
+  { nombre: "Una oportunidad", gira: "la entrada del diario", href: "/comercial/oportunidades/nueva" },
 ];
 
 export default async function AreaAdministracion() {
