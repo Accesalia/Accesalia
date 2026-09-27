@@ -35,11 +35,14 @@ export function Marcar({
 }) {
   const [puestos, setPuestos] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
+  const [abierto, setAbierto] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
 
+  // La lista se ve SIN escribir nada: aqui se elige, no se teclea. Escribir solo
+  // sirve para encontrar antes, y filtra por el trozo que sea.
   const q = limpio(busca.trim());
   const libres = opciones.filter((o) => !puestos.includes(o.valor));
-  const salen = q === "" ? [] : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
+  const salen = q === "" ? libres : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
 
   // Con Enter se marca la primera que sale, sin tener que apuntar con el raton.
   const alTeclear = (e: React.KeyboardEvent) => {
@@ -53,7 +56,10 @@ export function Marcar({
 
   useEffect(() => {
     const fuera = (e: MouseEvent) => {
-      if (caja.current && !caja.current.contains(e.target as Node)) setBusca("");
+      if (caja.current && !caja.current.contains(e.target as Node)) {
+        setAbierto(false);
+        setBusca("");
+      }
     };
     document.addEventListener("mousedown", fuera);
     return () => document.removeEventListener("mousedown", fuera);
@@ -77,15 +83,24 @@ export function Marcar({
           type="text"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          onKeyDown={alTeclear}
-          placeholder="escribe para buscar y marcar"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setAbierto(false);
+              setBusca("");
+              return;
+            }
+            alTeclear(e);
+          }}
+          onFocus={() => setAbierto(true)}
+          onClick={() => setAbierto(true)}
+          placeholder="elige de la lista (o escribe para encontrar antes)"
           autoComplete="off"
           data-buscador
           className="w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
         />
-        {salen.length > 0 && (
+        {abierto && salen.length > 0 && (
           <ul className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-auto rounded-lg border border-marco bg-white py-1 shadow-lg">
-            {salen.slice(0, 40).map((o) => (
+            {salen.map((o) => (
               <li key={o.valor}>
                 <button
                   type="button"
