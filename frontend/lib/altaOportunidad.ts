@@ -89,10 +89,13 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
     ),
     canalesDe("oportunidad"),
     opcionesQuien(),
-    // Los agrupadores no se ofrecen: si se pudieran elegir, en seis meses habria
-    // oportunidades marcadas "Accesibilidad" a secas sin saber que eran.
+    // Solo lo que se contrata DIRECTAMENTE: lo que un cliente pide. El visado,
+    // el fin de obra o los tres presupuestos acompañan a un proyecto y aqui solo
+    // serian ruido. Y los agrupadores tampoco: si se pudieran elegir, en seis
+    // meses habria oportunidades marcadas "Accesibilidad" a secas.
     leer<{ id: string; nombre: string; padre: { nombre: string } | null }[]>(
-      "tipos_proyecto?select=id,nombre,padre:parent_id(nombre)&activo=is.true&elegible=is.true&order=orden.asc",
+      "tipos_proyecto?select=id,nombre,padre:parent_id(nombre)" +
+        "&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
     leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
       "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
