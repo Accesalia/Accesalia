@@ -47,7 +47,32 @@ function cuandoTarea(t: TareaCuadro): { texto: string; tono: "tarde" | "hoy" | "
   return { texto: DIA_CORTO.format(new Date(t.fecha)) + (t.hora ? ` · ${t.hora}` : ""), tono: "luego" };
 }
 
-export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
+/** El interruptor entre sus dos vistas de la agenda. El modo calendario esta
+ *  pedido pero aun no dibujado; el interruptor va desde ya para que se vea que
+ *  la agenda tiene dos caras (Monica, 28-sep-2026). */
+function Cambio({ verAgenda, verCalendario, calendario }: { verAgenda: string; verCalendario: string; calendario: boolean }) {
+  const uno = (activo: boolean) =>
+    "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide transition " +
+    (activo ? "bg-[#104269] text-[#FFCD00]" : "text-carbon/55 hover:text-carbon");
+  return (
+    <div className="flex gap-0.5 rounded-full border border-black/10 bg-hueso p-0.5">
+      <Link href={verAgenda} className={uno(!calendario)}>Agenda</Link>
+      <Link href={verCalendario} className={uno(calendario)}>Calendario</Link>
+    </div>
+  );
+}
+
+export function Agenda({
+  tareas,
+  verAgenda,
+  verCalendario,
+  calendario,
+}: {
+  tareas: TareaCuadro[];
+  verAgenda: string;
+  verCalendario: string;
+  calendario: boolean;
+}) {
   const hoy = hoyISO();
   const deHoy = tareas.filter((t) => t.fecha && t.fecha <= hoy);
   const semana = tareas.filter((t) => t.fecha && t.fecha > hoy);
@@ -93,8 +118,15 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div className="px-4 pt-3.5">
-        <Titulo>Lo que tengo que hacer</Titulo>
+        <Titulo extra={<Cambio verAgenda={verAgenda} verCalendario={verCalendario} calendario={calendario} />}>Lo que tengo que hacer</Titulo>
       </div>
+      {calendario ? (
+        <p className="px-5 py-10 text-center text-[14px] text-carbon/50">
+          El modo calendario está pedido y aún no lo he visto dibujado.
+          <br />
+          <span className="text-[12px]">Enséñame tu maqueta y lo monto aquí.</span>
+        </p>
+      ) : (
       <div>
         {tareas.length === 0 ? (
           <p className="px-5 py-10 text-center text-[14px] text-carbon/50">
@@ -115,64 +147,37 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
           </>
         )}
       </div>
+      )}
     </section>
   );
 }
 
 // ---------------------------------------------------------------- acciones
 
-// Montada de cero el 12-sep-2026: las pantallas de detras (abrir oportunidad,
-// grabar entrada, viabilidad, hoja) estan archivadas y se volveran a montar una
-// a una. Hasta entonces los botones estan, para que se vea el sitio, pero no
-// llevan a ningun sitio: "Próximamente".
-// Con `donde` la accion esta VIVA: marco entero en vez de discontinuo, y sin el
-// "proximamente". Sin `donde`, sigue siendo el hueco reservado de siempre.
-function Accion({
-  icono,
-  rotulo,
-  principal = false,
-  donde,
-}: {
-  icono: string;
-  rotulo: string;
-  principal?: boolean;
-  donde?: string;
-}) {
+// LA BALDOSA DEFINITIVA, no la provisional (Monica, 28-sep-2026): "no hay que
+// hacer sitio a lo que es temporal". Asi que ni el rotulo "Proximamente" ni el
+// marco discontinuo: la baldosa se ve ya como se va a ver cuando su pantalla
+// exista. Lo unico que cambia entre una viva y una que aun no lo esta es que
+// una es un enlace y la otra no.
+//
+// Las pantallas de detras (grabar entrada, viabilidad, hoja) estan archivadas y
+// se volveran a montar una a una.
+function Accion({ icono, rotulo, donde }: { icono: string; rotulo: string; donde?: string }) {
+  const caja = "flex h-full items-center gap-2 rounded-xl border border-[#223A5D] bg-[#5680A1] px-2.5 py-2";
   const dentro = (
     <>
       <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#223A5D] text-[12px] text-[#FFD500]">{icono}</span>
-      <div className="min-w-0">
-        <div className="text-[11px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
-        {!donde && (
-          <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#FFD500]/55">Próximamente</div>
-        )}
-      </div>
+      <div className="min-w-0 text-[11px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
     </>
   );
 
   if (donde)
     return (
-      <Link
-        href={donde}
-        className={
-          "flex h-full items-center gap-2 rounded-xl border px-2.5 py-2 transition hover:bg-[#4a7291] " +
-          (principal ? "border-[#223A5D] bg-[#5680A1]" : "border-[#223A5D] bg-[#5680A1]")
-        }
-      >
+      <Link href={donde} className={caja + " transition hover:bg-[#4a7291]"}>
         {dentro}
       </Link>
     );
-
-  return (
-    <div
-      className={
-        "flex h-full cursor-not-allowed items-center gap-2 rounded-xl border border-dashed px-2.5 py-2 " +
-        "border-dashed border-[#223A5D] bg-[#5680A1]"
-      }
-    >
-      {dentro}
-    </div>
-  );
+  return <div className={caja + " cursor-not-allowed"}>{dentro}</div>;
 }
 
 // Arriba lo que se HACE; abajo lo que genera documentos (Monica, 11-sep).
@@ -713,37 +718,36 @@ export function Pestana({
   cuantas,
   activo,
   donde,
-  aparte,
   icono,
+  clase = "",
 }: {
   texto: string;
   cuantas: number | null;
   activo: boolean;
   donde: string;
-  /** Crema en vez de gris: no es trabajo comercial puro —pero si no llega el
-   *  dinero, no se cobra—. Su codigo de color, mantenido dentro de la tira. */
-  aparte?: boolean;
   icono: React.ReactNode;
+  /** Su ancho. Son medidas suyas, de la maqueta de las cinco pestañas. */
+  clase?: string;
 }) {
-  const fondo = activo
-    ? "border-[#104269] bg-[#104269] text-[#FFCD00]"
-    : aparte
-      ? "border-[#D9C377] border-b-0 bg-[#F7E9B1] text-[#104269] hover:bg-[#FBF0C8]"
-      : "border-[#C9CDD2] border-b-0 bg-[#EDEDEE] text-[#104269] hover:bg-[#F6F6F7]";
   return (
     <Link
       href={donde}
       className={
-        "flex h-[42px] shrink-0 items-center gap-2 whitespace-nowrap rounded-t-[10px] border px-4 transition " + fondo
+        "relative flex h-[62px] items-center gap-1.5 rounded-t-[10px] border px-2.5 pt-5 pb-1.5 transition " +
+        (activo
+          ? "border-[#104269] bg-[#104269] text-[#FFCD00]"
+          : "border-b-0 border-[#C9CDD2] bg-[#EDEDEE] text-[#104269] hover:bg-[#F6F6F7]") +
+        " " +
+        clase
       }
     >
-      <span className="shrink-0 [&>svg]:size-5">{icono}</span>
-      <span className="text-[15px] font-bold leading-none">{texto}</span>
+      <span className="absolute left-2.5 top-1.5 [&>svg]:size-[17px]">{icono}</span>
+      <span className="min-w-0 flex-1 text-center text-[12.5px] font-bold leading-[1.15]">{texto}</span>
       {cuantas !== null && (
         <span
           className={
-            "ml-1 inline-block min-w-[30px] rounded-full px-1.5 text-center text-[11px] leading-[17px] tabular-nums " +
-            (activo ? "bg-[#FFFDF3] text-[#090B49]" : "bg-white/75 text-[#104269]")
+            "shrink-0 rounded-full px-1.5 text-[11px] leading-[17px] tabular-nums " +
+            (activo ? "bg-[#FFFDF3] text-[#090B49]" : "bg-white/80 text-[#104269]")
           }
         >
           {cuantas}
@@ -764,7 +768,7 @@ export function Pestana({
 export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: AgregadoFase[] }) {
   const cuantas = (clave: string) => agregado.find((a) => a.clave === clave)?.cuantas ?? 0;
   return (
-    <section className="rounded-lg bg-[#021101] px-4 py-4">
+    <section className="rounded-lg border-2 border-white bg-[#021101] px-4 py-4">
       <h2 className="text-[12px] font-extrabold uppercase leading-tight text-[#FFD500]">Vista agregada por fases</h2>
       <p className="mt-1.5 text-[10px] text-[#F9EDEC]">
         En verde lo tuyo, en <span className="text-[#87C1FF]">azul lo que depende de otros</span>. El caso estándar:
