@@ -75,6 +75,9 @@ export type OpcionesOportunidad = {
    *  suyo, no de la comunidad (Monica, 28-sep-2026). Aqui van las personas con
    *  puesto vivo en una administracion de fincas, con su empresa de pista. */
   administradores: OpcionSimple[];
+  /** Las administraciones de fincas: solo para decir en cual entra un
+   *  administrador que se crea al vuelo. */
+  administraciones: OpcionSimple[];
   comunidades: OpcionSimple[];
   contratas: OpcionSimple[];
   /** Presidente, vecino... para el contacto de la comunidad. */
@@ -85,7 +88,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, comunidades, contratas, puestos, vecinos] =
+  const [comerciales, canales, quienes, tipos, admins, comunidades, contratas, puestos, vecinos] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -99,6 +102,10 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
     leer<{ id: string; nombre: string; padre: { nombre: string } | null }[]>(
       "tipos_proyecto?select=id,nombre,padre:parent_id(nombre)" +
         "&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
+    ),
+    leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
+      "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
+        "&order=nombre_accesalia.asc&limit=2000",
     ),
     leer<{ id: string; nombre: string; municipio: string | null }[]>(
       "comunidades?select=id,nombre,municipio&order=nombre.asc&limit=3000",
@@ -136,6 +143,7 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
           ]),
       ),
     ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    administraciones: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, pista: a.municipio ?? undefined })),
     comunidades: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, pista: c.municipio ?? undefined })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
     rolesComunidad: [
@@ -188,6 +196,10 @@ export type DatosOportunidad = {
   direccionProvisional: string | null;
   /** La PERSONA que administra la finca. Su administracion se lee de su puesto. */
   administradorPersonaId: string | null;
+  /** O se crea aqui mismo, con lo minimo: "lo que estamos creando es la
+   *  oportunidad, el comercial tiene que estar en eso, no en hacer la ficha de
+   *  un administrador" (Monica, 28-sep-2026). Lo demas se completa despues. */
+  administradorNuevo: { nombre: string; telefono: string | null; correo: string | null; empresaId: string | null } | null;
 
   // quien me llama: o de la agenda, o se crea
   quien: string | null;
@@ -232,6 +244,28 @@ export async function crearOportunidad(
   d: DatosOportunidad,
   autorId: string | null,
 ): Promise<ResultadoOportunidad> {
+  // 0 · el administrador creado al vuelo. Nace con lo minimo y con dueño: el
+  //     comercial que abre la oportunidad. Nada de fichas huerfanas.
+  let administradorId = d.administradorPersonaId;
+  if (d.administradorNuevo?.nombre) {
+    const a = d.administradorNuevo;
+    const per = await crear<{ id: string }>("persona", {
+      nombre: a.nombre,
+      activa: true,
+      telefono_personal: a.telefono,
+    });
+    await crear("puesto", {
+      persona_id: per.id,
+      empresa_id: a.empresaId,
+      cargo: "Administrador de fincas",
+      comercial_id: d.comercialId,
+      comercial_captador_id: d.comercialId,
+      desde: hoy(),
+    });
+    if (a.correo) await crear("correo", { persona_id: per.id, email: a.correo, etiqueta: "personal", principal: false });
+    administradorId = per.id;
+  }
+
   // 1 · el contacto nuevo, si hay. Lo que ES decide DONDE acaba: eso es lo
   //     importante, no la etiqueta. Un administrador nuevo nace ya en la cartera
   //     de un comercial aunque todavia no sepamos de que administracion es.
@@ -265,9 +299,9 @@ export async function crearOportunidad(
       // Si es administrador y ya sabemos quien administra la finca, el nuevo
       // entra en SU misma casa: la empresa se lee del puesto de ella.
       let empresaId: string | null = null;
-      if (n.relacion === "administrador" && d.administradorPersonaId) {
+      if (n.relacion === "administrador" && administradorId) {
         const [pu] = await leer<{ empresa_id: string | null }[]>(
-          `puesto?select=empresa_id&persona_id=eq.${d.administradorPersonaId}&hasta=is.null&limit=1`,
+          `puesto?select=empresa_id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`,
         );
         empresaId = pu?.empresa_id ?? null;
       }

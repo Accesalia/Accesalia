@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 // UN SELECTOR CON BUSCADOR (Monica, 26-sep-2026).
 //
-// El desplegable de siempre solo encuentra por el PRINCIPIO: escribiendo "roen"
-// no aparece "ADMINISTRACIONES ROEN". Y ademas no se ve lo que uno escribe.
+// El desplegable de siempre solo encuentra por el PRINCIPIO: escribiendo "pinar"
+// no aparece "ADMINISTRACIONES EL PINAR". Y ademas no se ve lo que uno escribe.
 // Aqui hay un minibuscador arriba, se ve lo escrito, y encuentra el trozo este
 // donde este. Sin tildes ni mayusculas de por medio.
 //

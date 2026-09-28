@@ -22,6 +22,7 @@ export async function guardarOportunidad(fd: FormData) {
   const comunidadId = texto(fd, "comunidad");
   const direccionProvisional = texto(fd, "direccion_provisional");
   const administradorPersonaId = texto(fd, "administrador");
+  const adminNuevoNombre = texto(fd, "admin_nuevo_nombre");
   const nuevoTelefono = texto(fd, "nuevo_telefono");
   const nuevoCorreo = texto(fd, "nuevo_correo");
   const pasoArranque = texto(fd, "paso");
@@ -31,7 +32,12 @@ export async function guardarOportunidad(fd: FormData) {
   // Y el siguiente paso, que es lo que hace que la oportunidad no se escape:
   // sin el no hay nada que perseguir manana.
   const hayHilo = Boolean(
-    comunidadId || direccionProvisional || administradorPersonaId || nuevoTelefono || nuevoCorreo,
+    comunidadId ||
+    direccionProvisional ||
+    administradorPersonaId ||
+    adminNuevoNombre ||
+    nuevoTelefono ||
+    nuevoCorreo,
   );
   if (!nota || !comercialId || !hayHilo || !pasoArranque) redirect(VOLVER + "?falta=1");
 
@@ -45,6 +51,14 @@ export async function guardarOportunidad(fd: FormData) {
     comunidadId,
     direccionProvisional,
     administradorPersonaId,
+    administradorNuevo: adminNuevoNombre
+      ? {
+          nombre: adminNuevoNombre,
+          telefono: texto(fd, "admin_nuevo_telefono"),
+          correo: texto(fd, "admin_nuevo_correo"),
+          empresaId: texto(fd, "admin_nuevo_empresa"),
+        }
+      : null,
     quien: texto(fd, "quien"),
     contactoNuevo:
       marcado && nuevoNombre

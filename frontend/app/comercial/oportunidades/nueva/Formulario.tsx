@@ -25,8 +25,13 @@ const etiqueta = "block text-[10px] font-bold uppercase tracking-wide text-carbo
 const verde = "block text-[10px] font-bold uppercase tracking-wide text-[#237812]";
 const caja =
   "w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
+// Un boton NO se parece a un campo. Un campo es un rectangulo blanco que ocupa
+// toda la columna; un boton es una pastilla con color que mide lo que su texto.
+// Me lo ha tenido que decir tres veces (Monica, 28-sep-2026).
 const boton =
-  "w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-xs font-bold text-carbon/70 transition hover:border-lima hover:text-carbon";
+  "inline-flex w-auto items-center gap-1.5 self-start rounded-full border border-lima-dark bg-lima/25 px-3.5 py-1 text-xs font-bold text-carbon shadow-sm transition hover:bg-lima-dark hover:text-white";
+const botonPuesto =
+  "inline-flex w-auto items-center gap-1.5 self-start rounded-full border border-[#8a6410] bg-form-nuevo px-3.5 py-1 text-xs font-bold text-[#5c4208] shadow-sm";
 
 function Campo({
   id,
@@ -120,6 +125,11 @@ export function Formulario({
     texto: a.nombre,
     pista: a.pista,
   }));
+  const administraciones: Opcion[] = opciones.administraciones.map((a) => ({
+    valor: a.id,
+    texto: a.nombre,
+    pista: a.pista,
+  }));
   const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
   const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
   const relaciones: Opcion[] = RELACIONES.map((r) => ({ valor: r.valor, texto: r.texto, pista: r.pista }));
@@ -134,6 +144,15 @@ export function Formulario({
   const [direccion, setDireccion] = useState("");
   const [buscarDireccion, setBuscarDireccion] = useState(false);
   const [admin, setAdmin] = useState("");
+  // El administrador que se crea aqui mismo, con lo minimo. Queda puesto sin
+  // tener que volver a pescarlo de la lista.
+  const [modalAdmin, setModalAdmin] = useState(false);
+  const [anNombre, setAnNombre] = useState("");
+  const [anTel, setAnTel] = useState("");
+  const [anMail, setAnMail] = useState("");
+  const [anEmpresa, setAnEmpresa] = useState("");
+  const adminNuevo = anNombre.trim() !== "";
+
   const [quien, setQuien] = useState("");
   const [nuevo, setNuevo] = useState(false);
   const [relacion, setRelacion] = useState("");
@@ -160,9 +179,17 @@ export function Formulario({
     comunidad !== "" ||
     direccion.trim() !== "" ||
     admin !== "" ||
+    adminNuevo ||
     telNuevo.trim() !== "" ||
     mailNuevo.trim() !== "";
   const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
+
+  const quitarAdminNuevo = () => {
+    setAnNombre("");
+    setAnTel("");
+    setAnMail("");
+    setAnEmpresa("");
+  };
 
   const cerrarOtro = (v: boolean) => {
     setOtro(v);
@@ -266,7 +293,7 @@ export function Formulario({
 
           {/* La direccion se escribe; buscarla es el "por si acaso". */}
           <div className="grid gap-[14px] sm:grid-cols-[minmax(0,365fr)_minmax(0,245fr)]">
-            <div className="min-w-0">
+            <div className="flex min-w-0 flex-col items-start">
               <span className={verde}>Dirección de la comunidad</span>
               {comunidad === "" && (
                 <input
@@ -287,7 +314,7 @@ export function Formulario({
                   valor={comunidad}
                   alElegir={setComunidad}
                   vacio="busca la que ya tenemos"
-                  clase="mt-1.5"
+                  clase="mt-1.5 w-full"
                 />
               )}
               {comunidad === "" && (
@@ -297,26 +324,49 @@ export function Formulario({
               )}
             </div>
 
-            <div className="min-w-0">
-              <Elegir
-                id="administrador"
-                nombre="Quién es el administrador"
-                opciones={administradores}
-                valor={admin}
-                alElegir={setAdmin}
-                vacio="selecciona de la lista"
-                tinta="text-[#237812]"
-              />
-              {/* La ficha de alta ya existe: se abre aparte para no perder lo
-                  escrito aqui. Al volver, la nueva sale en la lista. */}
-              <a
-                href="/administracion/administraciones/nueva"
-                target="_blank"
-                rel="noreferrer"
-                className={boton + " mt-1.5 block text-center"}
-              >
-                Nuevo administrador, crearlo
-              </a>
+            <div className="flex min-w-0 flex-col items-start">
+              <span className={verde}>Quién es el administrador</span>
+              {adminNuevo ? (
+                <div className="mt-1 flex w-full items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
+                  <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
+                    {anNombre} <span className="font-normal text-[#5c4208]/70">· nuevo</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setModalAdmin(true)}
+                    className="text-xs font-bold text-[#5c4208] underline underline-offset-2"
+                  >
+                    cambiar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={quitarAdminNuevo}
+                    aria-label="Quitar"
+                    className="text-[#5c4208]/70 transition hover:text-[#5c4208]"
+                  >
+                    ×
+                  </button>
+                  <input type="hidden" name="admin_nuevo_nombre" value={anNombre} />
+                  <input type="hidden" name="admin_nuevo_telefono" value={anTel} />
+                  <input type="hidden" name="admin_nuevo_correo" value={anMail} />
+                  <input type="hidden" name="admin_nuevo_empresa" value={anEmpresa} />
+                </div>
+              ) : (
+                <>
+                  <Elegir
+                    id="administrador"
+                    nombre=""
+                    opciones={administradores}
+                    valor={admin}
+                    alElegir={setAdmin}
+                    vacio="selecciona de la lista"
+                    clase="w-full"
+                  />
+                  <button type="button" onClick={() => setModalAdmin(true)} className={boton + " mt-1.5"}>
+                    <span aria-hidden>+</span> Nuevo administrador, crearlo
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -341,13 +391,9 @@ export function Formulario({
                   setNuevo((x) => !x);
                   if (!nuevo) setQuien("");
                 }}
-                className={
-                  nuevo
-                    ? "w-full rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-xs font-bold text-[#5c4208]"
-                    : boton
-                }
+                className={nuevo ? botonPuesto : boton}
               >
-                {nuevo ? "✓ lo estoy creando" : "No le conozco, crear contacto nuevo"}
+                {nuevo ? "✓ lo estoy creando" : "+ No le conozco, crear contacto nuevo"}
               </button>
             </div>
           </div>
@@ -468,6 +514,70 @@ export function Formulario({
           Para guardar hacen falta: <b>lo que te han contado</b>, <b>un comercial</b>, <b>el siguiente paso</b>, y{" "}
           <b>al menos una de estas cuatro</b> — dirección, administración, teléfono o correo.
         </p>
+      )}
+
+      {/* Crear un administrador sin salir de aquí: lo mínimo para poder seguir.
+          Se crea de verdad al guardar la oportunidad, no antes. */}
+      {modalAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-carbon/40 p-4">
+          <div className="w-full max-w-[520px] rounded-[16px] border border-marco bg-white p-4 shadow-xl">
+            <h3 className="text-[15px] font-bold text-carbon">Administrador nuevo</h3>
+            <p className="mb-3 mt-1 text-xs text-carbon/65">
+              Lo justo para poder seguir con la oportunidad. Su ficha se completa después.
+            </p>
+            <div className="grid gap-[14px] sm:grid-cols-12">
+              <label className="block min-w-0 sm:col-span-5" htmlFor="an_nombre">
+                <span className={etiqueta}>Nombre</span>
+                <input
+                  id="an_nombre"
+                  value={anNombre}
+                  onChange={(e) => setAnNombre(e.target.value)}
+                  className={caja + " mt-1"}
+                />
+              </label>
+              <label className="block min-w-0 sm:col-span-4" htmlFor="an_telefono">
+                <span className={etiqueta}>Teléfono</span>
+                <input id="an_telefono" value={anTel} onChange={(e) => setAnTel(e.target.value)} className={caja + " mt-1"} />
+              </label>
+              <label className="block min-w-0 sm:col-span-3" htmlFor="an_correo">
+                <span className={etiqueta}>Correo</span>
+                <input id="an_correo" value={anMail} onChange={(e) => setAnMail(e.target.value)} className={caja + " mt-1"} />
+              </label>
+              <Elegir
+                id="an_empresa"
+                nombre="Administración de fincas en la que está"
+                opciones={administraciones}
+                valor={anEmpresa}
+                alElegir={setAnEmpresa}
+                vacio="todavía no lo sé"
+                clase="sm:col-span-12"
+              />
+            </div>
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  quitarAdminNuevo();
+                  setModalAdmin(false);
+                }}
+                className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:border-lima"
+              >
+                Quitar
+              </button>
+              <button
+                type="button"
+                disabled={!adminNuevo}
+                onClick={() => {
+                  setAdmin("");
+                  setModalAdmin(false);
+                }}
+                className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35"
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* El contacto de "otro": vecina, presidente, alguien de la comisión de
