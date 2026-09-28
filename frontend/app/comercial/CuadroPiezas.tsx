@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Cobro, FichaDesplegada } from "./FichaDesplegada";
 import type {
+  AgregadoFase,
   CarteraCuadro,
   CifraCuadro,
   EntradaCuadro,
@@ -173,13 +174,33 @@ function Accion({
 }
 
 // Arriba lo que se HACE; abajo lo que genera documentos (Monica, 11-sep).
-export function Acciones() {
+// Y al lado, el quinto: "como voy de lo mio", que no crea nada —mira—, por eso
+// es de otro color y ocupa la altura de los cuatro (su maqueta, 28-sep-2026).
+export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <Accion icono="◇" rotulo="Abrir oportunidad" principal donde="/comercial/oportunidades/nueva" />
-      <Accion icono="🎤" rotulo="Grabar entrada" />
-      <Accion icono="▤" rotulo="Informe de viabilidad" />
-      <Accion icono="✎" rotulo="Hoja de encargo" />
+    <div className="flex items-start gap-4">
+      <div className="grid flex-1 grid-cols-2 gap-3">
+        <Accion icono="◇" rotulo="Abrir oportunidad" principal donde="/comercial/oportunidades/nueva" />
+        <Accion icono="🎤" rotulo="Grabar entrada" />
+        <Accion icono="▤" rotulo="Informe de viabilidad" />
+        <Accion icono="✎" rotulo="Hoja de encargo" />
+      </div>
+      <Link
+        href={comoVoy}
+        className={
+          "flex w-[174px] shrink-0 flex-col items-center justify-center gap-4 self-stretch rounded-[10px] border px-3 py-4 text-center transition " +
+          (activo ? "border-[#FFD500] bg-[#161C20]" : "border-[#BFB112] bg-[#161C20] hover:border-[#FFD500]")
+        }
+      >
+        <span className="text-[20px] font-semibold leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
+        <svg viewBox="0 0 24 24" className="size-12 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3v18" />
+          <path d="M5 21h14" />
+          <path d="M3 7h18" />
+          <path d="m6 7-3 7h6Z" />
+          <path d="m18 7-3 7h6Z" />
+        </svg>
+      </Link>
     </div>
   );
 }
@@ -691,6 +712,93 @@ export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boo
         <CajaCartera titulo="Que marean" sub="mucho ir y venir, poco firmar">
           {cartera.marean ? <Ranking filas={cartera.marean} numerado tono="mal" /> : <Falta texto={cartera.faltaMarean} />}
         </CajaCartera>
+      </div>
+    </section>
+  );
+}
+
+// ------------------------------------------------- los botones de seccion
+
+/** Los cuatro de arriba: lo que cambia en la columna de la izquierda. Sus
+ *  colores (Monica, 28-sep-2026): apagado gris azulado, encendido azul marino
+ *  con el rotulo en amarillo, y el de cobrar aparte, en casi negro, porque no es
+ *  trabajo comercial puro —pero si no llega el dinero, no se cobra—. */
+export function BotonSeccion({
+  texto,
+  cuantas,
+  activo,
+  donde,
+  aparte,
+  icono,
+}: {
+  texto: string;
+  cuantas: number | null;
+  activo: boolean;
+  donde: string;
+  aparte?: boolean;
+  icono: React.ReactNode;
+}) {
+  const fondo = aparte
+    ? "border-[#BFB112] bg-[#161C20] text-[#FFE874]"
+    : activo
+      ? "border-[#BFB112] bg-[#104269] text-[#FFCD00]"
+      : "border-[#BFB112] bg-[#6E6D77]/60 text-[#104269] hover:bg-[#6E6D77]/75";
+  return (
+    <Link
+      href={donde}
+      className={"flex min-h-[84px] flex-1 items-center gap-3 rounded-[10px] border px-4 py-3 transition " + fondo}
+    >
+      <span className="shrink-0 [&>svg]:size-8">{icono}</span>
+      <span className="min-w-0">
+        <span className="block text-[20px] font-extrabold leading-tight">{texto}</span>
+        {cuantas !== null && (
+          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-sm text-[#090B49]">{cuantas}</span>
+        )}
+      </span>
+    </Link>
+  );
+}
+
+// --------------------------------------------- la vista agregada por fases
+
+/** DONDE ESTA EL TRABAJO, de un vistazo. Negro y neon a proposito: es lo unico
+ *  de la pantalla que se mira desde lejos (su maqueta del 28-sep-2026).
+ *
+ *  Verde lo tuyo, azul lo que depende de otros, y la cifra encima de cada fase
+ *  en rojo. El numerito de la fase iba en gris oscuro sobre negro —invisible—,
+ *  asi que va del color de su columna. */
+export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: AgregadoFase[] }) {
+  const cuantas = (clave: string) => agregado.find((a) => a.clave === clave)?.cuantas ?? 0;
+  return (
+    <section className="rounded-lg bg-[#021101] px-4 py-4">
+      <h2 className="text-[16.5px] font-extrabold leading-tight text-[#FFD500]">Vista agregada por fases</h2>
+      <p className="mt-2 text-sm text-[#F9EDEC]">
+        En verde lo tuyo, en <span className="text-[#87C1FF]">azul lo que depende de otros</span>. El caso estándar:
+        cuando no aplican, se salta los pasos que no le tocan.
+      </p>
+
+      <div className="mt-4 flex gap-1.5">
+        {pasos.map((p) => {
+          const n = cuantas(p.clave);
+          const tinta = p.ajeno ? "text-[#87C1FF]" : "text-[#23F242]";
+          return (
+            <div key={p.clave} className="min-w-0 flex-1">
+              <div className="mb-1.5 text-[16.5px] font-extrabold leading-tight text-[#FF463F]/80">{n} aquí</div>
+              <div
+                className={
+                  "h-2 rounded-full " +
+                  (p.ramal ? "border-[1.7px] border-dashed border-[#5B7FA6]" : p.ajeno ? "bg-[#489CF7]" : "bg-[#13D930]")
+                }
+              />
+              <div className={"mt-2 text-sm leading-[18px] " + tinta}>
+                {p.numero && <span className={"mr-1 " + (p.ajeno ? "text-[#4A93E2]" : "text-[#A2EDAD]")}>{p.numero}</span>}
+                {p.corto[0]}
+                {p.corto[1] && <span className="block">{p.corto[1]}</span>}
+              </div>
+              {p.quien && <div className="mt-0.5 text-xs leading-4 text-[#4A93E2]">{p.quien}</div>}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

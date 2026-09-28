@@ -143,9 +143,15 @@ export type CarteraCuadro = {
   faltaMarean: string;
 };
 
+/** Cuantas oportunidades ABIERTAS hay paradas en cada fase. Lo que ella quiere
+ *  ver de un vistazo: donde se esta formando el atasco —un pico de 3D, un monton
+ *  de juntas, o poca cosa en las fases previas a cobrar—. */
+export type AgregadoFase = { clave: string; cuantas: number };
+
 export type CuadroComercial = {
   demo: boolean;
   pasos: Paso[];
+  agregado: AgregadoFase[];
   agenda: TareaCuadro[];
   diario: EntradaCuadro[];
   oportunidades: OportunidadCuadro[];
@@ -293,6 +299,32 @@ export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
     }
   }
   return { tramos, actual, diasAqui, junta: por.get("junta")?.fecha ?? null };
+}
+
+/** EL RECUENTO POR FASES, sin tope.
+ *
+ *  Va aparte del listado a proposito: el listado trae 200 como mucho —con sus
+ *  precios, sus personas y su ultimo contacto—, y si se contara sobre eso los
+ *  numeros mentirian en cuanto haya mas de 200 abiertas, que es justo en la
+ *  pantalla que existe para fiarse de un vistazo. Aqui se piden SOLO los hitos,
+ *  que es lo unico que hace falta para saber en que fase esta cada una.
+ *
+ *  Y se cuenta con `leerBarra`, el mismo codigo que pinta la barrita de cada
+ *  tarjeta: si el recuento tuviera su propia idea de "en que fase esta", los dos
+ *  numeros acabarian discrepando y nadie sabria cual creer. */
+async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
+  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
+  const filas = await rest<{ id: string; creado_en: string; hitos_oportunidad: HitoCrudo[] }[]>(
+    `oportunidades?select=id,creado_en,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.activa${f}&limit=5000`,
+  );
+  const cuenta = new Map<string, number>();
+  for (const o of filas) {
+    // Abierta hasta que el dinero esta en la cuenta, no hasta la firma.
+    if (o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado === "hecho") continue;
+    const { actual } = leerBarra(pasos, o.hitos_oportunidad, o.creado_en);
+    if (actual) cuenta.set(actual.clave, (cuenta.get(actual.clave) ?? 0) + 1);
+  }
+  return pasos.map((p) => ({ clave: p.clave, cuantas: cuenta.get(p.clave) ?? 0 }));
 }
 
 const DIA = new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric" });
@@ -461,8 +493,9 @@ export async function cuadroComercial(comercialId: string | null): Promise<Cuadr
     umbrales(),
     carteraDe(comercialId),
   ]);
-  const [oportunidades, tareas, entradas, mapa] = await Promise.all([
+  const [oportunidades, agregado, tareas, entradas, mapa] = await Promise.all([
     oportunidadesPendientes(comercialId, pasos),
+    agregadoFases(comercialId, pasos),
     agenda(comercialId),
     diario(comercialId),
     mapaDe(empresaIds),
@@ -470,6 +503,7 @@ export async function cuadroComercial(comercialId: string | null): Promise<Cuadr
   return {
     demo: false,
     pasos,
+    agregado,
     agenda: tareas,
     diario: entradas,
     oportunidades,

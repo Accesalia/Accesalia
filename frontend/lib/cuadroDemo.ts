@@ -65,6 +65,21 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
   return {
     demo: true,
     pasos,
+    // Inventado, como todo lo de la demo, pero con numeros de una casa de
+    // verdad: asi se ve para que sirve el panel sin tener datos cargados.
+    agregado: [
+      { clave: "primer_contacto", cuantas: 45 },
+      { clave: "visita", cuantas: 38 },
+      { clave: "polycam", cuantas: 38 },
+      { clave: "viabilidad_arquitecto", cuantas: 15 },
+      { clave: "preparacion_documentos", cuantas: 23 },
+      { clave: "envio_documentos", cuantas: 72 },
+      { clave: "tresd", cuantas: 41 },
+      { clave: "junta", cuantas: 19 },
+      { clave: "firma", cuantas: 84 },
+      { clave: "cobro", cuantas: 14 },
+    ],
+
     umbralParado: u.parado,
     umbralSinContacto: u.sinContacto,
     mapa,
