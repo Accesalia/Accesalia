@@ -162,7 +162,18 @@ export function Agenda({
 //
 // Las pantallas de detras (grabar entrada, viabilidad, hoja) estan archivadas y
 // se volveran a montar una a una.
-function Accion({ icono, rotulo, donde }: { icono: string; rotulo: string; donde?: string }) {
+function Accion({
+  icono,
+  rotulo,
+  donde,
+  alPulsar,
+}: {
+  icono: string;
+  rotulo: string;
+  donde?: string;
+  /** Para la que no lleva a otra pantalla sino que abre una ventana aqui. */
+  alPulsar?: () => void;
+}) {
   const caja = "flex h-full items-center gap-2 rounded-xl border border-[#223A5D] bg-[#5680A1] px-2.5 py-2";
   const dentro = (
     <>
@@ -171,6 +182,12 @@ function Accion({ icono, rotulo, donde }: { icono: string; rotulo: string; donde
     </>
   );
 
+  if (alPulsar)
+    return (
+      <button type="button" onClick={alPulsar} className={caja + " text-left transition hover:bg-[#4a7291]"}>
+        {dentro}
+      </button>
+    );
   if (donde)
     return (
       <Link href={donde} className={caja + " transition hover:bg-[#4a7291]"}>
@@ -183,10 +200,10 @@ function Accion({ icono, rotulo, donde }: { icono: string; rotulo: string; donde
 // Arriba lo que se HACE; abajo lo que genera documentos (Monica, 11-sep).
 // Y al lado, el quinto: "como voy de lo mio", que no crea nada —mira—, por eso
 // es de otro color y ocupa la altura de los cuatro (su maqueta, 28-sep-2026).
-export function Acciones() {
+export function Acciones({ grabarEntrada }: { grabarEntrada?: () => void }) {
   return (
     <div className="grid grid-cols-3 gap-2">
-      <Accion icono="🎤" rotulo="Grabar entrada" />
+      <Accion icono="🎤" rotulo="Grabar entrada" alPulsar={grabarEntrada} />
       <Accion icono="▤" rotulo="Informe de viabilidad" />
       <Accion icono="✎" rotulo="Hoja de encargo" />
     </div>

@@ -5,8 +5,10 @@ import { listarComerciales } from "../../lib/comercial";
 import { cuadroComercial } from "../../lib/cuadroComercial";
 import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
+import { guardarEntrada } from "./acciones";
+import { Grabar } from "./Grabar";
+import { COMO_FUE, opcionesEntrada } from "../../lib/entradaDiario";
 import {
-  Acciones,
   Agenda,
   Pestana,
   Cartera,
@@ -105,6 +107,10 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   const nombre = esDemo ? "Fantasma" : elegido && direccion ? elegido.nombre : yo.nombre;
 
   const hoy = FECHA_LARGA.format(new Date());
+  const hoyISO = new Date().toLocaleDateString("sv-SE");
+  // Las listas de la ventana de grabar una entrada. En la demo no se ofrece
+  // nada: lo que se ve ahi es inventado y no existe en la base.
+  const paraGrabar = esDemo ? { oportunidades: [], personas: [] } : await opcionesEntrada(elegido?.id ?? mio?.id ?? null);
   const pill = (activo: boolean) =>
     "rounded-full border px-3.5 py-1.5 text-sm transition " +
     (activo ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/65 hover:border-lima");
@@ -344,7 +350,14 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           {/* ================= columna derecha, siempre igual =================
               Va sobre el azul, no fuera de el, en su propia zona blanca. */}
           <div className="flex flex-col gap-3 rounded-[10px] border border-[#0B3253] bg-white p-3">
-            <Acciones />
+            <Grabar
+              hoy={hoyISO}
+              comoFue={COMO_FUE}
+              oportunidades={paraGrabar.oportunidades}
+              personas={paraGrabar.personas}
+              comercialId={elegido?.id ?? mio?.id ?? null}
+              guardar={guardarEntrada}
+            />
             <Diario entradas={cuadro.diario} />
           </div>
         </div>
