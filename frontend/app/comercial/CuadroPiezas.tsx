@@ -122,7 +122,44 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
 // grabar entrada, viabilidad, hoja) estan archivadas y se volveran a montar una
 // a una. Hasta entonces los botones estan, para que se vea el sitio, pero no
 // llevan a ningun sitio: "Próximamente".
-function Accion({ icono, rotulo, principal = false }: { icono: string; rotulo: string; principal?: boolean }) {
+// Con `donde` la accion esta VIVA: marco entero en vez de discontinuo, y sin el
+// "proximamente". Sin `donde`, sigue siendo el hueco reservado de siempre.
+function Accion({
+  icono,
+  rotulo,
+  principal = false,
+  donde,
+}: {
+  icono: string;
+  rotulo: string;
+  principal?: boolean;
+  donde?: string;
+}) {
+  const dentro = (
+    <>
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-lima/70 text-lg text-carbon">{icono}</span>
+      <div className="min-w-0">
+        <div className={"text-base font-bold leading-tight " + (donde ? "text-carbon" : "text-carbon/70")}>{rotulo}</div>
+        {!donde && (
+          <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-carbon/40">Próximamente</div>
+        )}
+      </div>
+    </>
+  );
+
+  if (donde)
+    return (
+      <Link
+        href={donde}
+        className={
+          "flex h-full items-center gap-3 rounded-2xl border px-4 py-3.5 transition hover:border-lima-dark hover:shadow-sm " +
+          (principal ? "border-lima bg-lima-soft" : "border-black/10 bg-white")
+        }
+      >
+        {dentro}
+      </Link>
+    );
+
   return (
     <div
       className={
@@ -130,11 +167,7 @@ function Accion({ icono, rotulo, principal = false }: { icono: string; rotulo: s
         (principal ? "border-lima/50 bg-lima-soft/60" : "border-black/10 bg-white")
       }
     >
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-lima/70 text-lg text-carbon">{icono}</span>
-      <div className="min-w-0">
-        <div className="text-base font-bold leading-tight text-carbon/70">{rotulo}</div>
-        <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-carbon/40">Próximamente</div>
-      </div>
+      {dentro}
     </div>
   );
 }
@@ -143,7 +176,7 @@ function Accion({ icono, rotulo, principal = false }: { icono: string; rotulo: s
 export function Acciones() {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Accion icono="◇" rotulo="Abrir oportunidad" principal />
+      <Accion icono="◇" rotulo="Abrir oportunidad" principal donde="/comercial/oportunidades/nueva" />
       <Accion icono="🎤" rotulo="Grabar entrada" />
       <Accion icono="▤" rotulo="Informe de viabilidad" />
       <Accion icono="✎" rotulo="Hoja de encargo" />
