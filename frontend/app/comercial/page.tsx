@@ -8,7 +8,7 @@ import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import {
   Acciones,
   Agenda,
-  BotonSeccion,
+  Pestana,
   Cartera,
   Cifras,
   Diario,
@@ -156,13 +156,22 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             {/* Un administrador nuevo lo da de alta el comercial: es quien lo
                 conoce. Una comunidad NO: sus datos —CIF, actas, presidente— son
                 cosa de Administracion (Monica, 28-sep-2026). */}
-            <Link
-              href="/administracion/administraciones/nueva"
-              className="inline-flex items-center gap-2 rounded-2xl border border-dashed border-[#223A5D] bg-[#B45309] py-1 pl-1 pr-4 text-[11px] font-bold text-[#FFD500] transition hover:bg-[#9a460a]"
-            >
-              <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-sm">＋</span>
-              Alta nuevo Administrador
-            </Link>
+            <div className="flex items-stretch gap-2">
+              <Link
+                href="/comercial/oportunidades/nueva"
+                className="inline-flex w-[104px] flex-col items-center justify-center gap-1 rounded-xl border border-[#223A5D] bg-[#5288B2] px-2 py-2 text-center text-[11px] font-bold leading-tight text-white transition hover:bg-[#46769c]"
+              >
+                <span className="text-[13px] leading-none">◫</span>
+                Abrir Nueva oportunidad
+              </Link>
+              <Link
+                href="/administracion/administraciones/nueva"
+                className="inline-flex w-[104px] flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-[#223A5D] bg-[#B27252] px-2 py-2 text-center text-[11px] font-bold leading-tight text-[#FFD500] transition hover:bg-[#9c6045]"
+              >
+                <span className="text-[13px] leading-none">＋</span>
+                Alta nuevo Administrador
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -178,51 +187,57 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           </div>
         )}
 
+        {/* ------------------------- las pestanas ------------------------- */}
+        {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
+            mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
+        <div className="mt-6 flex flex-wrap gap-[12px] pl-[32px]">
+          <Pestana
+            texto="Mis administradores"
+            cuantas={cuadro.cartera.mias.length}
+            activo={seccion === "administradores"}
+            donde={aqui("administradores")}
+            icono={<IconoCartera />}
+          />
+          <Pestana
+            texto="Oportunidades abiertas"
+            cuantas={cuadro.oportunidades.length}
+            activo={seccion === "oportunidades"}
+            donde={aqui("oportunidades")}
+            icono={<IconoOportunidad />}
+          />
+          <Pestana
+            texto="Agenda"
+            cuantas={cuadro.agenda.length}
+            activo={seccion === "agenda"}
+            donde={aqui("agenda")}
+            icono={<IconoAgenda />}
+          />
+          <Pestana
+            texto="Ver Firmadas pendientes de cobrar"
+            cuantas={cuadro.firmadas.length}
+            activo={seccion === "cobros"}
+            donde={aqui("cobros")}
+            aparte
+            icono={<IconoCobro />}
+          />
+          <Pestana
+            texto="Cómo voy de lo mío"
+            cuantas={null}
+            activo={seccion === "comovoy"}
+            donde={aqui("comovoy")}
+            aparte
+            icono={<IconoBalanza />}
+          />
+        </div>
+
         {/* ------- las dos columnas: la izquierda cambia, la derecha no ------- */}
-        <div className="mt-6 grid items-start gap-[1.84%] xl:grid-cols-[minmax(0,1152fr)_minmax(0,470fr)]">
+        <div className="grid items-start gap-[31px] rounded-[10px] bg-[#104269] p-[17px] xl:grid-cols-[minmax(0,900fr)_minmax(0,390fr)]">
           {/* ================= columna izquierda ================= */}
           <div className="min-w-0">
-            {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en
-                el mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
-            <div className="flex flex-wrap gap-[9px]">
-              <BotonSeccion
-                texto="Mis administradores"
-                cuantas={cuadro.cartera.mias.length}
-                activo={seccion === "administradores"}
-                donde={aqui("administradores")}
-                clase="w-[222px]"
-                icono={<IconoCartera />}
-              />
-              <BotonSeccion
-                texto="Oportunidades abiertas"
-                cuantas={cuadro.oportunidades.length}
-                activo={seccion === "oportunidades"}
-                donde={aqui("oportunidades")}
-                clase="w-[240px]"
-                icono={<IconoOportunidad />}
-              />
-              <BotonSeccion
-                texto="Agenda"
-                cuantas={cuadro.agenda.length}
-                activo={seccion === "agenda"}
-                donde={aqui("agenda")}
-                clase="w-[120px]"
-                icono={<IconoAgenda />}
-              />
-              <BotonSeccion
-                texto="Ver Firmadas pendientes de cobrar"
-                cuantas={cuadro.firmadas.length}
-                activo={seccion === "cobros"}
-                donde={aqui("cobros")}
-                aparte
-                clase="ml-[28px] w-[220px]"
-                icono={<IconoCobro />}
-              />
-            </div>
 
             {/* ---- lo que tengo que hacer ---- */}
             {seccion === "agenda" && (
-              <div className="mt-6">
+              <div>
                 <Agenda tareas={cuadro.agenda} />
               </div>
             )}
@@ -230,12 +245,14 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             {/* ---- oportunidades abiertas: el agregado y la lista ---- */}
             {seccion === "oportunidades" && (
               <>
-                <div className="mt-6">
+                <div>
                   <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} />
                 </div>
-                <section className="mt-6">
-                  <Titulo>Oportunidades abiertas · {cuadro.oportunidades.length}</Titulo>
-                  <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+                <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+                  <div className="px-4 pt-3.5">
+                    <Titulo>Oportunidades abiertas · {cuadro.oportunidades.length}</Titulo>
+                  </div>
+                  <div className="overflow-x-auto">
                     <div className="min-w-[760px]">
                       {cuadro.oportunidades.length === 0 ? (
                         <p className="px-5 py-10 text-center text-base text-carbon/50">
@@ -264,7 +281,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
 
             {/* ---- mis administradores ---- */}
             {seccion === "administradores" && (
-              <div className="mt-6">
+              <div className="space-y-6">
                 <Cartera cartera={cuadro.cartera} todos={todos} />
                 <MapaCartera mapa={cuadro.mapa} titulo={todos || esDemo ? "Dónde estamos y dónde no" : "Dónde estoy y dónde no"} />
               </div>
@@ -274,9 +291,11 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             {/* Otra base juridica y otra urgencia: aqui la decision ya esta
                 tomada y lo que falta es un pago comprometido. */}
             {seccion === "cobros" && (
-              <section className="mt-6">
-                <Titulo>Hojas firmadas pendientes de cobro · {cuadro.firmadas.length}</Titulo>
-                <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+              <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+                <div className="px-4 pt-3.5">
+                  <Titulo>Hojas firmadas pendientes de cobro · {cuadro.firmadas.length}</Titulo>
+                </div>
+                <div className="overflow-x-auto">
                   <div className="min-w-[760px]">
                     {cuadro.firmadas.length === 0 ? (
                       <p className="px-5 py-10 text-center text-base text-carbon/50">
@@ -303,8 +322,8 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           </div>
 
           {/* ================= columna derecha, siempre igual ================= */}
-          <div className="flex flex-col gap-6">
-            <Acciones comoVoy={aqui("comovoy")} activo={seccion === "comovoy"} />
+          <div className="flex flex-col gap-4">
+            <Acciones />
             <Diario entradas={cuadro.diario} />
           </div>
         </div>
@@ -349,6 +368,19 @@ function IconoCobro() {
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <circle cx="12" cy="12" r="3" />
       <path d="M6 9v6M18 9v6" />
+    </svg>
+  );
+}
+
+// La balanza de "como voy de lo mio": esta pestaña no crea nada, mira.
+function IconoBalanza() {
+  return (
+    <svg viewBox="0 0 24 24" {...trazo}>
+      <path d="M12 3v18" />
+      <path d="M5 21h14" />
+      <path d="M3 7h18" />
+      <path d="m6 7-3 7h6Z" />
+      <path d="m18 7-3 7h6Z" />
     </svg>
   );
 }

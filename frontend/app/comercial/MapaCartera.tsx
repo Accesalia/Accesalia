@@ -187,7 +187,7 @@ export function MapaCartera({ mapa, titulo }: { mapa: DatosMapa; titulo: string 
   return (
     <section className="mt-10">
       <div className="mb-2.5">
-        <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/60">{titulo}</h2>
+        <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#9FC2DD]">{titulo}</h2>
       </div>
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         {/* El mapa ocupa toda la altura de su tarjeta (que iguala a la de las zonas). */}

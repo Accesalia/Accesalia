@@ -28,10 +28,10 @@ const ddmm = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 const EUR = new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 });
 const eur = (n: number) => `${EUR.format(n)} €`;
 
-export function Titulo({ children, extra }: { children: React.ReactNode; extra?: React.ReactNode }) {
+export function Titulo({ children, extra, claro }: { children: React.ReactNode; extra?: React.ReactNode; claro?: boolean }) {
   return (
     <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
-      <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/60">{children}</h2>
+      <h2 className={"text-[11px] font-bold uppercase tracking-wider " + (claro ? "text-[#9FC2DD]" : "text-carbon/60")}>{children}</h2>
       {extra}
     </div>
   );
@@ -91,9 +91,11 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
     );
 
   return (
-    <section>
-      <Titulo>Lo que tengo que hacer</Titulo>
-      <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+      <div className="px-4 pt-3.5">
+        <Titulo>Lo que tengo que hacer</Titulo>
+      </div>
+      <div>
         {tareas.length === 0 ? (
           <p className="px-5 py-10 text-center text-[14px] text-carbon/50">
             Nada para hoy ni para esta semana.
@@ -138,11 +140,11 @@ function Accion({
 }) {
   const dentro = (
     <>
-      <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-[13px] text-[#FFD500]">{icono}</span>
+      <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#223A5D] text-[12px] text-[#FFD500]">{icono}</span>
       <div className="min-w-0">
-        <div className="text-[15px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
+        <div className="text-[11px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
         {!donde && (
-          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FADE53]">Próximamente</div>
+          <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#FFD500]/55">Próximamente</div>
         )}
       </div>
     </>
@@ -153,7 +155,7 @@ function Accion({
       <Link
         href={donde}
         className={
-          "flex h-full items-center gap-3 rounded-2xl border px-3.5 py-3 transition hover:bg-[#4a7291] " +
+          "flex h-full items-center gap-2 rounded-xl border px-2.5 py-2 transition hover:bg-[#4a7291] " +
           (principal ? "border-[#223A5D] bg-[#5680A1]" : "border-[#223A5D] bg-[#5680A1]")
         }
       >
@@ -164,7 +166,7 @@ function Accion({
   return (
     <div
       className={
-        "flex h-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed px-3.5 py-3 " +
+        "flex h-full cursor-not-allowed items-center gap-2 rounded-xl border border-dashed px-2.5 py-2 " +
         "border-dashed border-[#223A5D] bg-[#5680A1]"
       }
     >
@@ -176,36 +178,12 @@ function Accion({
 // Arriba lo que se HACE; abajo lo que genera documentos (Monica, 11-sep).
 // Y al lado, el quinto: "como voy de lo mio", que no crea nada —mira—, por eso
 // es de otro color y ocupa la altura de los cuatro (su maqueta, 28-sep-2026).
-export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean }) {
+export function Acciones() {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 gap-3">
-        <Accion icono="◇" rotulo="Abrir oportunidad" principal donde="/comercial/oportunidades/nueva" />
-        <Accion icono="🎤" rotulo="Grabar entrada" />
-        <Accion icono="▤" rotulo="Informe de viabilidad" />
-        <Accion icono="✎" rotulo="Hoja de encargo" />
-      </div>
-
-      {/* "Como voy de lo mio" iba AL LADO de las cuatro en su maqueta, pero ahi
-          se llevaba un tercio de la columna y las baldosas se quedaban en 138
-          cuando necesitan 178: el texto se salia de su caja. Abajo y a lo ancho,
-          las cuatro recuperan su tamaño y este no pierde nada (28-sep-2026). */}
-      <Link
-        href={comoVoy}
-        className={
-          "flex items-center justify-center gap-3 rounded-2xl border bg-[#161C20] px-4 py-3 text-center transition " +
-          (activo ? "border-[#FFD500]" : "border-[#BFB112] hover:border-[#FFD500]")
-        }
-      >
-        <svg viewBox="0 0 24 24" className="size-7 shrink-0 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 3v18" />
-          <path d="M5 21h14" />
-          <path d="M3 7h18" />
-          <path d="m6 7-3 7h6Z" />
-          <path d="m18 7-3 7h6Z" />
-        </svg>
-        <span className="text-[15px] font-semibold uppercase leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
-      </Link>
+    <div className="grid grid-cols-3 gap-2">
+      <Accion icono="🎤" rotulo="Grabar entrada" />
+      <Accion icono="▤" rotulo="Informe de viabilidad" />
+      <Accion icono="✎" rotulo="Hoja de encargo" />
     </div>
   );
 }
@@ -214,9 +192,11 @@ export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean
 
 export function Diario({ entradas }: { entradas: EntradaCuadro[] }) {
   return (
-    <section className="flex min-h-0 flex-col">
-      <Titulo>Lo que va pasando</Titulo>
-      <div className="max-h-[30rem] overflow-y-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+    <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+      <div className="px-4 pt-3.5">
+        <Titulo>Lo que va pasando</Titulo>
+      </div>
+      <div className="max-h-[30rem] overflow-y-auto">
         {entradas.length === 0 ? (
           <p className="px-5 py-10 text-center text-[14px] text-carbon/50">Aún no hay nada grabado.</p>
         ) : (
@@ -620,8 +600,8 @@ export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFi
 export function Cifras({ cifras, periodo }: { cifras: CifraCuadro[]; periodo: string | null }) {
   const faltan = cifras.every((c) => c.valor === null);
   return (
-    <section className="mt-10">
-      <Titulo extra={periodo && <span className="text-[11px] text-carbon/55">{periodo}</span>}>Cómo voy de lo mío</Titulo>
+    <section>
+      <Titulo claro extra={periodo && <span className="text-[11px] text-[#9FC2DD]">{periodo}</span>}>Cómo voy de lo mío</Titulo>
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-black/5 bg-black/5 shadow-sm sm:grid-cols-4">
         {cifras.map((c) => (
           <div key={c.etiqueta} className="bg-white px-4 py-3.5">
@@ -697,8 +677,8 @@ const Falta = ({ texto }: { texto: string }) => (
 
 export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boolean }) {
   return (
-    <section className="mt-10">
-      <Titulo>{todos ? "Las carteras" : "Mis administradores"}</Titulo>
+    <section>
+      <Titulo claro>{todos ? "Las carteras" : "Mis administradores"}</Titulo>
       <div className="grid gap-4 md:grid-cols-3">
         <CajaCartera titulo={todos ? "Toda la cartera" : "Mi cartera"} sub={todos ? "lo que lleva cada comercial, sumado" : "lo que llevo"}>
           <div className="flex flex-wrap gap-x-6 gap-y-1 border-b border-black/5 px-4 py-3">
@@ -728,41 +708,47 @@ export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boo
  *  colores (Monica, 28-sep-2026): apagado gris azulado, encendido azul marino
  *  con el rotulo en amarillo, y el de cobrar aparte, en casi negro, porque no es
  *  trabajo comercial puro —pero si no llega el dinero, no se cobra—. */
-export function BotonSeccion({
+export function Pestana({
   texto,
   cuantas,
   activo,
   donde,
   aparte,
   icono,
-  clase = "",
 }: {
   texto: string;
   cuantas: number | null;
   activo: boolean;
   donde: string;
+  /** Crema en vez de gris: no es trabajo comercial puro —pero si no llega el
+   *  dinero, no se cobra—. Su codigo de color, mantenido dentro de la tira. */
   aparte?: boolean;
   icono: React.ReactNode;
-  /** Su ancho, y el aire que lleva delante. Son medidas suyas. */
-  clase?: string;
 }) {
-  const fondo = aparte
-    ? "border-[#BFB112] bg-[#161C20] text-[#FFE874]"
-    : activo
-      ? "border-[#BFB112] bg-[#104269] text-[#FFCD00]"
-      : "border-[#BFB112] bg-[#6E6D77]/60 text-[#104269] hover:bg-[#6E6D77]/75";
+  const fondo = activo
+    ? "border-[#104269] bg-[#104269] text-[#FFCD00]"
+    : aparte
+      ? "border-[#D9C377] border-b-0 bg-[#F7E9B1] text-[#104269] hover:bg-[#FBF0C8]"
+      : "border-[#C9CDD2] border-b-0 bg-[#EDEDEE] text-[#104269] hover:bg-[#F6F6F7]";
   return (
     <Link
       href={donde}
-      className={"flex min-h-[59px] items-center gap-2 rounded-[10px] border px-3 py-2 transition " + fondo + " " + clase}
+      className={
+        "flex h-[42px] shrink-0 items-center gap-2 whitespace-nowrap rounded-t-[10px] border px-4 transition " + fondo
+      }
     >
-      <span className="shrink-0 [&>svg]:size-6">{icono}</span>
-      <span className="min-w-0">
-        <span className="block text-[15px] font-bold leading-tight">{texto}</span>
-        {cuantas !== null && (
-          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-[11px] text-[#090B49]">{cuantas}</span>
-        )}
-      </span>
+      <span className="shrink-0 [&>svg]:size-5">{icono}</span>
+      <span className="text-[15px] font-bold leading-none">{texto}</span>
+      {cuantas !== null && (
+        <span
+          className={
+            "ml-1 inline-block min-w-[30px] rounded-full px-1.5 text-center text-[11px] leading-[17px] tabular-nums " +
+            (activo ? "bg-[#FFFDF3] text-[#090B49]" : "bg-white/75 text-[#104269]")
+          }
+        >
+          {cuantas}
+        </span>
+      )}
     </Link>
   );
 }
