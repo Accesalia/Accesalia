@@ -30,6 +30,21 @@
      uno, y con nombre, para cambiarlo en una linea. */
   --color-marco: #707070;   /* lo que no cambia nunca: el edificio */
 
+  /* EL ALTA DE OPORTUNIDAD, disenada por ella en Figma (28-sep-2026). Cada alta
+     llevara su propio FONDO OSCURO —oportunidades azul, administraciones dorado,
+     comunidades verde— para no confundirla nunca con una ficha ya creada. De
+     momento solo esta: las demas las quiere ver una por una. */
+  --color-alta-opp: #223a5d;        /* el fondo de la pagina */
+  --color-papel: #fff4c6;           /* la tarjeta sobre ese fondo */
+  --color-accion: #5680a1;          /* el boton que HACE algo: abrir, crear, buscar */
+  --color-accion-marco: #061d3a;
+  --color-accion-hover: #3f6785;
+  --color-raya: #bdc0c6;            /* las lineas que separan filas */
+  --color-marcado-hablo: #754a04;   /* con quien hablo: marron */
+  --color-marcado-paso: #0f1558;    /* el siguiente paso: azul marino */
+  --color-obligatorio: #700707;     /* el borde de lo que no puede faltar */
+  --color-obligatorio-fondo: #ffeeee;
+
   /* Atasco: rojo apagado, que avise sin gritar. */
   --color-alerta: #9f3a38;
 

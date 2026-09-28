@@ -5,13 +5,13 @@ import { useEffect, useRef, useState } from "react";
 // MARCAR VARIAS COSAS DE UNA LISTA (Monica, 27-sep-2026).
 //
 // "De lo que yo vendo, que me quieren comprar." Normalmente entre dos y cinco
-// cosas, asi que no vale una casilla de una sola linea: hace falta ver lo que se
-// lleva marcado. Mismo minibuscador que el selector de siempre —encuentra el
-// trozo donde este, sin tildes ni mayusculas—.
+// cosas. Mismo minibuscador que el selector de siempre —encuentra el trozo donde
+// este, sin tildes ni mayusculas—, y la lista se ve SIN escribir nada.
 //
-// Lo marcado se queda a la vista SOBRE EL FONDO, sin caja: si tiene aspecto de
-// campo parece que tambien hay que rellenarlo, y al comercial la sensacion de
-// "otra cosa mas que completar" le echa para atras (Monica, 28-sep-2026).
+// Lo marcado se queda A LA DERECHA del selector, sobre el fondo y sin caja: si
+// tiene aspecto de campo parece que tambien hay que rellenarlo, y al comercial
+// la sensacion de "otra cosa mas que completar" le echa para atras.
+// (Su diseño del 28-sep-2026.)
 
 export type Marca = { valor: string; texto: string; pista?: string };
 
@@ -23,29 +23,22 @@ const limpio = (s: string) =>
 
 export function Marcar({
   id,
-  nombre,
   opciones,
-  vacio = "nada marcado todavía",
-  pista = "elige de la lista (o escribe para encontrar antes)",
-  clase = "",
-  tinta,
+  pista = "elige de la lista",
+  ancho = "w-[280px]",
 }: {
   id: string;
-  nombre?: string;
   opciones: Marca[];
-  vacio?: string;
-  /** El texto guia de la casilla de buscar. */
+  /** El texto guia de la casilla. */
   pista?: string;
-  clase?: string;
-  tinta?: string;
+  /** Lo que mide el selector; lo marcado crece a su derecha. */
+  ancho?: string;
 }) {
   const [puestos, setPuestos] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
   const [abierto, setAbierto] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
 
-  // La lista se ve SIN escribir nada: aqui se elige, no se teclea. Escribir solo
-  // sirve para encontrar antes, y filtra por el trozo que sea.
   const q = limpio(busca.trim());
   const libres = opciones.filter((o) => !puestos.includes(o.valor));
   const salen = q === "" ? libres : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
@@ -74,18 +67,12 @@ export function Marcar({
   const texto = (v: string) => opciones.find((o) => o.valor === v)?.texto ?? v;
 
   return (
-    <div className={"min-w-0 " + clase} ref={caja}>
-      {nombre && (
-        <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>
-          {nombre}
-        </span>
-      )}
-
+    <div className="flex min-w-0 flex-1 items-start gap-3" ref={caja}>
       {puestos.map((v) => (
         <input key={v} type="hidden" name={id} value={v} />
       ))}
 
-      <div className={"relative " + (nombre ? "mt-1" : "")}>
+      <div className={"relative shrink-0 " + ancho}>
         <input
           id={id + "_busca"}
           type="text"
@@ -104,10 +91,14 @@ export function Marcar({
           placeholder={pista}
           autoComplete="off"
           data-buscador
-          className="w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
+          className="w-full rounded-lg border border-carbon/70 bg-white px-3 py-1.5 pr-8 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
         />
+        <span aria-hidden className="pointer-events-none absolute right-3 top-1.5 text-sm text-carbon/55">
+          ▾
+        </span>
+
         {abierto && salen.length > 0 && (
-          <ul className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-auto rounded-lg border border-marco bg-white py-1 shadow-lg">
+          <ul className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-auto rounded-lg border border-black/10 bg-white py-1 shadow-lg">
             {salen.map((o) => (
               <li key={o.valor}>
                 <button
@@ -128,12 +119,11 @@ export function Marcar({
       </div>
 
       {/* Sobre el fondo, sin marco: esto no se rellena, se mira. */}
-      <div className="mt-2 flex min-h-7 flex-wrap items-start gap-1.5">
-        {puestos.length === 0 && <span className="text-xs text-carbon/55">{vacio}</span>}
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5 pt-0.5">
         {puestos.map((v) => (
           <span
             key={v}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-lima/25 px-2 py-0.5 text-xs font-semibold text-carbon"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-lima/25 px-2 py-0.5 text-xs text-carbon"
           >
             {texto(v)}
             <button

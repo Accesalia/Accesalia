@@ -201,12 +201,16 @@ export type DatosOportunidad = {
    *  un administrador" (Monica, 28-sep-2026). Lo demas se completa despues. */
   administradorNuevo: { nombre: string; telefono: string | null; correo: string | null; empresaId: string | null } | null;
 
-  // quien me llama: o de la agenda, o se crea
+  // quien me llama: el propio administrador, o de la agenda, o se crea
+  /** El 90% de las veces quien llama ES el administrador de la finca. */
+  quienEsAdmin: boolean;
   quien: string | null;
   contactoNuevo: ContactoNuevo | null;
 
   // mi contacto alli
   mismoQueLlama: boolean;
+  /** Con quien hablo a partir de ahora es el administrador. */
+  contactoEsAdmin: boolean;
   contactoQuien: string | null;
   /** Cuando no esta en la agenda y la comunidad aun no existe: sala de espera. */
   contactoProvisional: { nombre: string | null; telefono: string | null; correo: string | null } | null;
@@ -324,6 +328,9 @@ export async function crearOportunidad(
     }
   }
 
+  // 1b · si quien contacto es el propio administrador, no se pregunta dos veces.
+  if (d.quienEsAdmin && administradorId) quien = "persona:" + administradorId;
+
   // 2 · el contacto de alli. Si es el mismo que llamo, no se pregunta dos veces.
   //     La ficha solo sabe guardar dos clases de contacto: el puesto de una
   //     persona (que es quien dice en que administracion trabaja) o un vecino.
@@ -334,6 +341,14 @@ export async function crearOportunidad(
   if (!contactoPuesto && !contactoVecino && contacto?.startsWith("persona:")) {
     const pid = contacto.slice(8);
     const [pu] = await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${pid}&hasta=is.null&limit=1`);
+    contactoPuesto = pu?.id ?? null;
+  }
+  // Y si con quien hablo es el administrador, se busca SU puesto vigente: eso
+  // es lo que dice en que administracion trabaja hoy.
+  if (!contactoPuesto && !contactoVecino && d.contactoEsAdmin && administradorId) {
+    const [pu] = await leer<{ id: string }[]>(
+      `puesto?select=id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`,
+    );
     contactoPuesto = pu?.id ?? null;
   }
   if (!contactoPuesto && !contactoVecino) contactoVecino = personaComunidadId;

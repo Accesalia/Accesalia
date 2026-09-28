@@ -118,7 +118,8 @@ export function Elegir({
           }
         }}
         className={
-          "mt-1 flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
+          (nombre !== "" ? "mt-1 " : "") +
+          "flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
           (marco ?? "border-black/10") + " " +
           (abierto ? "border-lima" : "")
         }

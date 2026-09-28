@@ -27,17 +27,17 @@ export default async function NuevaOportunidad({
   const opciones = await opcionesOportunidad(yo.id);
 
   return (
-    <div className="min-h-screen bg-form">
+    <div className="min-h-screen bg-alta-opp">
       <BarraSuperior />
       <main className="mx-auto max-w-[1300px] px-4 pb-20 pt-5 sm:px-6">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
+        <Link href="/comercial" className="text-sm font-semibold text-white/75 transition hover:text-white">
           ← Área Comercial
         </Link>
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-            No se ha guardado: hacían falta lo que te han contado, un comercial, el siguiente paso, y al menos una
-            de las cuatro — dirección, administración, teléfono o correo.
+            No se ha guardado: hacían falta qué te han contado, un comercial, el siguiente paso, y al menos una de
+            estas — dirección, administrador, teléfono o correo.
           </p>
         )}
 

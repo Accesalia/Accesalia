@@ -70,7 +70,11 @@ export async function guardarOportunidad(fd: FormData) {
             contrataId: texto(fd, "nuevo_contrata"),
           }
         : null,
-    mismoQueLlama: fd.get("mismo_que_llama") === "on",
+    // Sus tres casillas. "Fue el mismo administrador" existe porque el 90% de
+    // las veces lo es, y elegirlo dos veces fastidia al comercial.
+    quienEsAdmin: fd.get("quien_es_admin") === "on",
+    mismoQueLlama: fd.get("habla_llamo") === "on",
+    contactoEsAdmin: fd.get("habla_admin") === "on",
     contactoQuien: texto(fd, "contacto"),
     contactoProvisional: {
       nombre: texto(fd, "contacto_nombre"),
