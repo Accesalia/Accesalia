@@ -31,7 +31,7 @@ const eur = (n: number) => `${EUR.format(n)} €`;
 export function Titulo({ children, extra }: { children: React.ReactNode; extra?: React.ReactNode }) {
   return (
     <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
-      <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/60">{children}</h2>
+      <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/60">{children}</h2>
       {extra}
     </div>
   );
@@ -57,7 +57,7 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
   const grupo = (titulo: string, lista: TareaCuadro[], fondo: string, cabecera: string) =>
     lista.length > 0 && (
       <div className={fondo}>
-        <div className={"border-t border-black/5 px-5 py-2 text-xs font-bold uppercase tracking-wider first:border-t-0 " + cabecera}>
+        <div className={"border-t border-black/5 px-5 py-2 text-[10px] font-bold uppercase tracking-wider first:border-t-0 " + cabecera}>
           {titulo}
         </div>
         <ul>
@@ -72,12 +72,12 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
                   }
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-base text-carbon">{t.texto}</p>
-                  {t.donde && <p className="mt-0.5 text-sm text-carbon/55">{t.donde}</p>}
+                  <p className="text-[12px] text-carbon">{t.texto}</p>
+                  {t.donde && <p className="mt-0.5 text-[11px] text-carbon/55">{t.donde}</p>}
                 </div>
                 <span
                   className={
-                    "shrink-0 whitespace-nowrap pt-0.5 text-sm font-semibold " +
+                    "shrink-0 whitespace-nowrap pt-0.5 text-[11px] font-semibold " +
                     (c.tono === "tarde" ? "text-alerta" : c.tono === "hoy" ? "text-amber-700" : "text-carbon/55")
                   }
                 >
@@ -95,10 +95,10 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
       <Titulo>Lo que tengo que hacer</Titulo>
       <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
         {tareas.length === 0 ? (
-          <p className="px-5 py-10 text-center text-base text-carbon/50">
+          <p className="px-5 py-10 text-center text-[12px] text-carbon/50">
             Nada para hoy ni para esta semana.
             <br />
-            <span className="text-sm">Las tareas salen solas de lo que grabas en el diario.</span>
+            <span className="text-[11px]">Las tareas salen solas de lo que grabas en el diario.</span>
           </p>
         ) : (
           <>
@@ -138,11 +138,11 @@ function Accion({
 }) {
   const dentro = (
     <>
-      <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-lima/70 text-[13px] text-carbon">{icono}</span>
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-[13px] text-[#FFD500]">{icono}</span>
       <div className="min-w-0">
-        <div className={"text-[11px] font-bold leading-tight " + (donde ? "text-carbon" : "text-carbon/70")}>{rotulo}</div>
+        <div className="text-[16px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
         {!donde && (
-          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/40">Próximamente</div>
+          <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#FADE53]">Próximamente</div>
         )}
       </div>
     </>
@@ -153,8 +153,8 @@ function Accion({
       <Link
         href={donde}
         className={
-          "flex h-full min-h-[61px] items-center gap-[4%] rounded-2xl border px-[6%] py-3 transition hover:border-lima-dark hover:shadow-sm " +
-          (principal ? "border-lima bg-lima-soft" : "border-black/10 bg-white")
+          "flex h-full items-center gap-3 rounded-2xl border px-4 py-3.5 transition hover:bg-[#4a7291] " +
+          (principal ? "border-[#223A5D] bg-[#5680A1]" : "border-[#223A5D] bg-[#5680A1]")
         }
       >
         {dentro}
@@ -164,8 +164,8 @@ function Accion({
   return (
     <div
       className={
-        "flex h-full min-h-[61px] cursor-not-allowed items-center gap-[4%] rounded-2xl border border-dashed px-[6%] py-3 " +
-        (principal ? "border-lima/50 bg-lima-soft/60" : "border-black/10 bg-white")
+        "flex h-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed px-4 py-3.5 " +
+        "border-dashed border-[#223A5D] bg-[#5680A1]"
       }
     >
       {dentro}
@@ -178,28 +178,33 @@ function Accion({
 // es de otro color y ocupa la altura de los cuatro (su maqueta, 28-sep-2026).
 export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean }) {
   return (
-    <div className="flex items-start gap-4">
-      <div className="grid flex-1 grid-cols-2 gap-3">
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <Accion icono="◇" rotulo="Abrir oportunidad" principal donde="/comercial/oportunidades/nueva" />
         <Accion icono="🎤" rotulo="Grabar entrada" />
         <Accion icono="▤" rotulo="Informe de viabilidad" />
         <Accion icono="✎" rotulo="Hoja de encargo" />
       </div>
+
+      {/* "Como voy de lo mio" iba AL LADO de las cuatro en su maqueta, pero ahi
+          se llevaba un tercio de la columna y las baldosas se quedaban en 138
+          cuando necesitan 178: el texto se salia de su caja. Abajo y a lo ancho,
+          las cuatro recuperan su tamaño y este no pierde nada (28-sep-2026). */}
       <Link
         href={comoVoy}
         className={
-          "flex w-[30%] shrink-0 flex-col items-center justify-center gap-[8%] self-stretch rounded-[10px] border px-2 py-4 text-center transition " +
-          (activo ? "border-[#FFD500] bg-[#161C20]" : "border-[#BFB112] bg-[#161C20] hover:border-[#FFD500]")
+          "flex items-center justify-center gap-3 rounded-2xl border bg-[#161C20] px-4 py-3.5 text-center transition " +
+          (activo ? "border-[#FFD500]" : "border-[#BFB112] hover:border-[#FFD500]")
         }
       >
-        <span className="text-[14px] font-semibold leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
-        <svg viewBox="0 0 24 24" className="size-10 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="size-8 shrink-0 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3v18" />
           <path d="M5 21h14" />
           <path d="M3 7h18" />
           <path d="m6 7-3 7h6Z" />
           <path d="m18 7-3 7h6Z" />
         </svg>
+        <span className="text-[16px] font-semibold uppercase leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
       </Link>
     </div>
   );
@@ -213,23 +218,23 @@ export function Diario({ entradas }: { entradas: EntradaCuadro[] }) {
       <Titulo>Lo que va pasando</Titulo>
       <div className="max-h-[30rem] overflow-y-auto rounded-2xl border border-black/5 bg-white shadow-sm">
         {entradas.length === 0 ? (
-          <p className="px-5 py-10 text-center text-base text-carbon/50">Aún no hay nada grabado.</p>
+          <p className="px-5 py-10 text-center text-[12px] text-carbon/50">Aún no hay nada grabado.</p>
         ) : (
           <ul className="divide-y divide-black/5">
             {entradas.map((e) => {
               const cuerpo = (
                 <>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-carbon/55">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-carbon/55">
                     <span className="font-bold text-carbon/80">{ddmm(e.fecha)}</span>
-                    <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-xs font-semibold">{e.tipo}</span>
+                    <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[10px] font-semibold">{e.tipo}</span>
                     {e.con && <span className="text-lima-dark">{e.con}</span>}
                     {e.revisar && (
-                      <span className="rounded-full bg-amber-50 px-2 py-px text-xs font-bold uppercase tracking-wide text-amber-700">
+                      <span className="rounded-full bg-amber-50 px-2 py-px text-[10px] font-bold uppercase tracking-wide text-amber-700">
                         revisar
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 line-clamp-2 text-base leading-snug text-carbon/80">{e.texto}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-carbon/80">{e.texto}</p>
                 </>
               );
               return (
@@ -269,16 +274,16 @@ export function Leyenda({ pasos }: { pasos: Paso[] }) {
                 (p.ramal ? "border-2 border-dashed border-ajeno bg-transparent" : p.ajeno ? "bg-ajeno" : "bg-lima")
               }
             />
-            <div className={"mt-2 text-sm font-semibold leading-tight " + (p.ajeno ? "text-ajeno" : "text-carbon/80")}>
+            <div className={"mt-2 text-[11px] font-semibold leading-tight " + (p.ajeno ? "text-ajeno" : "text-carbon/80")}>
               {p.numero && <span className="mr-1 tabular-nums text-carbon/40">{p.numero}</span>}
               {p.corto[0]}
               {p.corto[1] && <span className="block">{p.corto[1]}</span>}
             </div>
-            {p.quien && <div className="mt-0.5 text-xs text-ajeno/80">{p.ramal ? "si la junta lo pide" : p.quien}</div>}
+            {p.quien && <div className="mt-0.5 text-[10px] text-ajeno/80">{p.ramal ? "si la junta lo pide" : p.quien}</div>}
           </div>
         ))}
       </Rejilla>
-      <p className="mt-3 text-sm text-carbon/55">
+      <p className="mt-3 text-[11px] text-carbon/55">
         En verde lo tuyo, en <span className="font-semibold text-ajeno">azul lo que depende de otros</span>. El caso normal: cada
         oportunidad se salta los pasos que no le tocan.
       </p>
@@ -308,13 +313,13 @@ function VerFicha({ href }: { href: string | null }) {
   if (!href)
     return (
       <span title="La ficha completa está por montar" onClick={(e) => e.stopPropagation()} className={clase + "cursor-not-allowed border-lima/70 bg-white"}>
-        <span className="text-sm font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
         <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">Próximamente</span>
       </span>
     );
   return (
     <Link href={href} onClick={(e) => e.stopPropagation()} className={clase + "border-lima bg-lima-soft transition hover:bg-lima"}>
-      <span className="text-sm font-bold uppercase tracking-wide text-lima-dark">Ver ficha completa</span>
+      <span className="text-[11px] font-bold uppercase tracking-wide text-lima-dark">Ver ficha completa</span>
       <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/40">todo lo de esta comunidad</span>
     </Link>
   );
@@ -343,19 +348,19 @@ export function TarjetaOportunidad({
             <span className={"text-carbon/35 transition " + (abierta ? "rotate-90" : "")} aria-hidden>
               ▸
             </span>
-            <span className="text-lg font-bold text-carbon">{o.nombre}</span>
+            <span className="text-[13px] font-bold text-carbon">{o.nombre}</span>
             {o.sinComunidad && (
-              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-700">
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
                 sin dar de alta
               </span>
             )}
           </div>
-          <div className="mt-0.5 text-base text-lima-dark">
+          <div className="mt-0.5 text-[12px] text-lima-dark">
             {o.empresa ?? <span className="text-carbon/40">sin administración</span>}
             {o.persona && <span> · {o.persona}</span>}
             {o.trajo && <span className="text-carbon/60"> · lo trajo {o.trajo}</span>}
             {o.prestada && (
-              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">prestada</span>
+              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">prestada</span>
             )}
             {conComercial && <span className="text-carbon/45"> · {conComercial}</span>}
           </div>
@@ -372,19 +377,19 @@ export function TarjetaOportunidad({
               columna en todas las filas y se leen de un vistazo. */}
           <div className="w-[11.5rem] text-right">
             {o.precio !== null ? (
-              <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(o.precio)}</div>
+              <div className="text-[13px] font-bold tabular-nums text-lima-dark">{eur(o.precio)}</div>
             ) : (
-              <div className="text-base text-carbon/40">Sin precio aún</div>
+              <div className="text-[12px] text-carbon/40">Sin precio aún</div>
             )}
             {/* Que contratan, en grande: "es importante ver de un vistazo que
                 tipo de proyecto tenemos entre manos" (Monica, 12-sep-2026). */}
             <div className="mt-1">
               {o.que ? (
-                <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">
+                <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-[13px] font-bold leading-tight text-carbon">
                   {o.que}
                 </span>
               ) : (
-                <span className="inline-block rounded-lg border border-dashed border-black/15 px-2.5 py-1 text-base leading-tight text-carbon/35">
+                <span className="inline-block rounded-lg border border-dashed border-black/15 px-2.5 py-1 text-[12px] leading-tight text-carbon/35">
                   sin definir aún
                 </span>
               )}
@@ -399,7 +404,7 @@ export function TarjetaOportunidad({
         ))}
       </Rejilla>
 
-      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-carbon/55">
+      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-carbon/55">
         {o.actual && (
           <span>
             Está en{" "}
@@ -510,9 +515,9 @@ export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFi
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className={"text-carbon/35 transition " + (abierta ? "rotate-90" : "")} aria-hidden>▸</span>
-              <span className="text-lg font-bold text-carbon">{f.nombre}</span>
+              <span className="text-[13px] font-bold text-carbon">{f.nombre}</span>
             </div>
-            <div className="mt-0.5 text-base text-lima-dark">
+            <div className="mt-0.5 text-[12px] text-lima-dark">
               {f.empresa ?? <span className="text-carbon/40">sin administración</span>}
               {f.persona && <span> · {f.persona}</span>}
             </div>
@@ -520,18 +525,18 @@ export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFi
                 cada paso NO se pierden: siguen guardados para las estadisticas
                 de rendimiento del comercial y del administrador. */}
             <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[#FBF3DC] px-3 py-1.5">
-              <span className="text-xl leading-none text-[#C9971B]" aria-hidden>★</span>
-              <span className="text-sm font-bold uppercase tracking-wider text-[#8A6410]">Proyecto firmado</span>
-              <span className="text-sm text-[#8A6410]/70">{ddmm(f.firmada)}</span>
+              <span className="text-[14px] leading-none text-[#C9971B]" aria-hidden>★</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8A6410]">Proyecto firmado</span>
+              <span className="text-[11px] text-[#8A6410]/70">{ddmm(f.firmada)}</span>
             </div>
           </div>
           <div className="flex shrink-0 items-start gap-4">
             <VerFicha href={verFicha} />
             <div className="w-[11.5rem] text-right">
-              <div className="text-lg font-bold tabular-nums text-lima-dark">{eur(f.precio)}</div>
+              <div className="text-[13px] font-bold tabular-nums text-lima-dark">{eur(f.precio)}</div>
               <div className="mt-1">
                 {f.que && (
-                  <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-lg font-bold leading-tight text-carbon">{f.que}</span>
+                  <span className="inline-block rounded-lg bg-lima px-2.5 py-1 text-[13px] font-bold leading-tight text-carbon">{f.que}</span>
                 )}
               </div>
             </div>
@@ -577,11 +582,11 @@ export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFi
                     style={tarde ? undefined : { background: oro(i, f.hitos.length) }}
                   />
                 </div>
-                <div className="mt-2 text-sm font-semibold leading-tight text-carbon/80">{h.nombre}</div>
-                <div className="text-sm tabular-nums text-carbon/60">{eur(h.importe)}</div>
+                <div className="mt-2 text-[11px] font-semibold leading-tight text-carbon/80">{h.nombre}</div>
+                <div className="text-[11px] tabular-nums text-carbon/60">{eur(h.importe)}</div>
                 {/* lo suyo, en cada tramo: la zanahoria */}
-                <div className="text-sm font-bold tabular-nums text-[#8A6410]">tuyo {eur(h.comision)}</div>
-                <div className={"text-xs " + (tarde ? "font-bold text-alerta" : "text-carbon/45")}>
+                <div className="text-[11px] font-bold tabular-nums text-[#8A6410]">tuyo {eur(h.comision)}</div>
+                <div className={"text-[10px] " + (tarde ? "font-bold text-alerta" : "text-carbon/45")}>
                   {h.cobrado
                     ? `cobrado ${ddmm(h.cobrado)}`
                     : h.previsto === null
@@ -595,7 +600,7 @@ export function TarjetaFirmada({ f, verFicha = null }: { f: FirmadaCuadro; verFi
           })}
         </div>
 
-        <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-carbon/60">
+        <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-carbon/60">
           <span>
             Cobrado <b className="tabular-nums text-carbon/85">{eur(nosCobrado)}</b> de {eur(f.precio)}
           </span>
@@ -616,25 +621,25 @@ export function Cifras({ cifras, periodo }: { cifras: CifraCuadro[]; periodo: st
   const faltan = cifras.every((c) => c.valor === null);
   return (
     <section className="mt-10">
-      <Titulo extra={periodo && <span className="text-sm text-carbon/55">{periodo}</span>}>Cómo voy de lo mío</Titulo>
+      <Titulo extra={periodo && <span className="text-[11px] text-carbon/55">{periodo}</span>}>Cómo voy de lo mío</Titulo>
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-black/5 bg-black/5 shadow-sm sm:grid-cols-4">
         {cifras.map((c) => (
           <div key={c.etiqueta} className="bg-white px-4 py-3.5">
-            <div className="text-sm text-carbon/60">{c.etiqueta}</div>
+            <div className="text-[11px] text-carbon/60">{c.etiqueta}</div>
             <div
               className={
-                "mt-1 text-2xl font-bold tabular-nums tracking-tight " +
+                "mt-1 text-[17px] font-bold tabular-nums tracking-tight " +
                 (c.valor === null ? "text-carbon/20" : c.acento ? "text-lima-dark" : "text-carbon")
               }
             >
               {c.valor ?? "—"}
             </div>
-            <div className={"mt-0.5 text-sm " + (c.valor === null ? "text-amber-700/80" : "text-carbon/45")}>{c.pie}</div>
+            <div className={"mt-0.5 text-[11px] " + (c.valor === null ? "text-amber-700/80" : "text-carbon/45")}>{c.pie}</div>
           </div>
         ))}
       </div>
       {faltan && (
-        <p className="mt-2 text-sm text-carbon/55">
+        <p className="mt-2 text-[11px] text-carbon/55">
           Estas cifras salen de las hojas firmadas, con su fecha y su importe. Cuando lleguen los datos de cada comercial,
           se rellenan solas.
         </p>
@@ -650,18 +655,18 @@ function Ranking({ filas, numerado, tono }: { filas: FilaRanking[]; numerado: bo
     <ul className="divide-y divide-black/5">
       {filas.map((f, i) => {
         const nombre = (
-          <span className="min-w-0 flex-1 truncate text-base text-carbon/85">
+          <span className="min-w-0 flex-1 truncate text-[12px] text-carbon/85">
             {f.nombre}
-            {f.prestada && <span className="ml-1.5 rounded-full bg-amber-50 px-1.5 py-px text-xs font-bold text-amber-700">prest.</span>}
+            {f.prestada && <span className="ml-1.5 rounded-full bg-amber-50 px-1.5 py-px text-[10px] font-bold text-amber-700">prest.</span>}
           </span>
         );
         return (
           <li key={f.nombre + i} className="flex items-center gap-2.5 px-4 py-2">
-            <span className="w-4 shrink-0 text-sm font-bold tabular-nums text-carbon/35">{numerado ? i + 1 : "·"}</span>
+            <span className="w-4 shrink-0 text-[11px] font-bold tabular-nums text-carbon/35">{numerado ? i + 1 : "·"}</span>
             {nombre}
             <span
               className={
-                "shrink-0 whitespace-nowrap text-sm font-bold tabular-nums " +
+                "shrink-0 whitespace-nowrap text-[11px] font-bold tabular-nums " +
                 (tono === "bien" ? "text-lima-dark" : tono === "mal" ? "text-alerta" : "text-carbon/60")
               }
             >
@@ -678,8 +683,8 @@ function CajaCartera({ titulo, sub, children }: { titulo: string; sub: string; c
   return (
     <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div className="border-b border-black/5 px-4 pb-2.5 pt-3">
-        <div className="text-base font-bold text-carbon">{titulo}</div>
-        <div className="text-sm text-carbon/50">{sub}</div>
+        <div className="text-[12px] font-bold text-carbon">{titulo}</div>
+        <div className="text-[11px] text-carbon/50">{sub}</div>
       </div>
       {children}
     </div>
@@ -687,7 +692,7 @@ function CajaCartera({ titulo, sub, children }: { titulo: string; sub: string; c
 }
 
 const Falta = ({ texto }: { texto: string }) => (
-  <p className="px-4 py-6 text-sm leading-relaxed text-amber-700/80">{texto}</p>
+  <p className="px-4 py-6 text-[11px] leading-relaxed text-amber-700/80">{texto}</p>
 );
 
 export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boolean }) {
@@ -699,8 +704,8 @@ export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boo
           <div className="flex flex-wrap gap-x-6 gap-y-1 border-b border-black/5 px-4 py-3">
             {cartera.cifras.map((c) => (
               <div key={c.etiqueta}>
-                <div className="text-xl font-bold tabular-nums text-carbon">{c.valor}</div>
-                <div className="text-sm text-carbon/55">{c.etiqueta}</div>
+                <div className="text-[14px] font-bold tabular-nums text-carbon">{c.valor}</div>
+                <div className="text-[11px] text-carbon/55">{c.etiqueta}</div>
               </div>
             ))}
           </div>
@@ -749,13 +754,13 @@ export function BotonSeccion({
   return (
     <Link
       href={donde}
-      className={"flex min-h-[59px] items-center gap-3 rounded-[10px] border px-4 py-3 transition " + fondo + " " + clase}
+      className={"flex min-h-[59px] items-center gap-2 rounded-[10px] border px-3 py-2 transition " + fondo + " " + clase}
     >
-      <span className="shrink-0 [&>svg]:size-[22px]">{icono}</span>
+      <span className="shrink-0 [&>svg]:size-7">{icono}</span>
       <span className="min-w-0">
-        <span className="block text-[14px] font-extrabold leading-tight">{texto}</span>
+        <span className="block text-[16px] font-bold leading-tight">{texto}</span>
         {cuantas !== null && (
-          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-[10px] text-[#090B49]">{cuantas}</span>
+          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-[11px] text-[#090B49]">{cuantas}</span>
         )}
       </span>
     </Link>
@@ -774,7 +779,7 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
   const cuantas = (clave: string) => agregado.find((a) => a.clave === clave)?.cuantas ?? 0;
   return (
     <section className="rounded-lg bg-[#021101] px-4 py-4">
-      <h2 className="text-[12px] font-extrabold leading-tight text-[#FFD500]">Vista agregada por fases</h2>
+      <h2 className="text-[12px] font-extrabold uppercase leading-tight text-[#FFD500]">Vista agregada por fases</h2>
       <p className="mt-1.5 text-[10px] text-[#F9EDEC]">
         En verde lo tuyo, en <span className="text-[#87C1FF]">azul lo que depende de otros</span>. El caso estándar:
         cuando no aplican, se salta los pasos que no le tocan.
@@ -789,7 +794,7 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
           const tinta = p.ajeno ? "text-[#87C1FF]" : "text-[#23F242]";
           return (
             <div key={p.clave} className="min-w-0">
-              <div className="mb-1 text-[12px] font-extrabold leading-none text-[#FF463F]/80">{n} aquí</div>
+              <div className="mb-1 text-[12px] font-extrabold uppercase leading-none text-[#FF463F]/80">{n} aquí</div>
               <div
                 className={
                   "h-2 rounded-full " +

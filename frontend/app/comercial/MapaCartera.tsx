@@ -182,12 +182,12 @@ export function MapaCartera({ mapa, titulo }: { mapa: DatosMapa; titulo: string 
   }, [vista]);
 
   const boton = (activo: boolean) =>
-    "rounded-full px-3 py-1 text-sm transition " + (activo ? "bg-carbon font-semibold text-white" : "text-carbon/65 hover:text-carbon");
+    "rounded-full px-3 py-1 text-[11px] transition " + (activo ? "bg-carbon font-semibold text-white" : "text-carbon/65 hover:text-carbon");
 
   return (
     <section className="mt-10">
       <div className="mb-2.5">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/60">{titulo}</h2>
+        <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/60">{titulo}</h2>
       </div>
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         {/* El mapa ocupa toda la altura de su tarjeta (que iguala a la de las zonas). */}
@@ -202,12 +202,12 @@ export function MapaCartera({ mapa, titulo }: { mapa: DatosMapa; titulo: string 
               <button type="button" className={boton(vista === "puntos")} onClick={() => setVista("puntos")}>Puntos</button>
             </div>
             {error && (
-              <p className="absolute inset-x-3 bottom-3 z-10 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <p className="absolute inset-x-3 bottom-3 z-10 rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
                 No se ha podido cargar la cartografía. Los datos siguen a la derecha, por zonas.
               </p>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-black/5 px-4 py-2.5 text-sm text-carbon/60">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-black/5 px-4 py-2.5 text-[11px] text-carbon/60">
             {vista === "grupos" ? (
               <>
                 <span className="flex items-center gap-1">
@@ -231,20 +231,20 @@ export function MapaCartera({ mapa, titulo }: { mapa: DatosMapa; titulo: string 
 
         <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
           <div className="border-b border-black/5 px-4 pb-2.5 pt-3">
-            <div className="text-base font-bold text-carbon">Por zonas</div>
-            <div className="text-sm text-carbon/50">primero donde casi no hay nada</div>
+            <div className="text-[12px] font-bold text-carbon">Por zonas</div>
+            <div className="text-[11px] text-carbon/50">primero donde casi no hay nada</div>
           </div>
           {mapa.total === 0 ? (
-            <p className="px-4 py-6 text-sm text-carbon/50">Sin comunidades en esta cartera.</p>
+            <p className="px-4 py-6 text-[11px] text-carbon/50">Sin comunidades en esta cartera.</p>
           ) : (
             <ul className="divide-y divide-black/5">
               {mapa.zonas.map((z) => (
                 <li key={z.nombre} className="px-4 py-2.5">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-base font-bold text-carbon">{z.nombre}</span>
-                    <span className={"text-base font-bold tabular-nums " + (z.vacia ? "text-alerta" : "text-lima-dark")}>{z.n}</span>
+                    <span className="text-[12px] font-bold text-carbon">{z.nombre}</span>
+                    <span className={"text-[12px] font-bold tabular-nums " + (z.vacia ? "text-alerta" : "text-lima-dark")}>{z.n}</span>
                   </div>
-                  <div className="mt-0.5 text-sm text-carbon/55">{z.detalle}</div>
+                  <div className="mt-0.5 text-[11px] text-carbon/55">{z.detalle}</div>
                 </li>
               ))}
             </ul>
