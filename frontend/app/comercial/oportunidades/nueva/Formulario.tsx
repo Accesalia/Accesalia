@@ -113,7 +113,9 @@ export function Formulario({
     pista: c.pista,
   }));
   const comunidades: Opcion[] = opciones.comunidades.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
-  const administraciones: Opcion[] = opciones.administraciones.map((a) => ({
+  // El administrador es una persona; la administracion en la que trabaja va de
+  // pista, porque es un atributo SUYO.
+  const administradores: Opcion[] = opciones.administradores.map((a) => ({
     valor: a.id,
     texto: a.nombre,
     pista: a.pista,
@@ -162,8 +164,6 @@ export function Formulario({
     mailNuevo.trim() !== "";
   const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
 
-  const iniciales = opciones.comerciales.find((c) => c.id === comercial)?.pista;
-
   const cerrarOtro = (v: boolean) => {
     setOtro(v);
     if (v) setModal(true);
@@ -201,7 +201,7 @@ export function Formulario({
         <label className="block w-[190px]">
           <span className={etiqueta}>Número de orden</span>
           <span className={caja + " mt-1 block bg-black/5 text-carbon/60"}>
-            {iniciales ? iniciales + "-" + new Date().getFullYear() + "-000" : "elige comercial"}
+            {"PER-" + new Date().getFullYear() + "-000"}
           </span>
         </label>
         <Campo id="fecha_llamada" nombre="Fecha de la llamada" tipo="date" defecto={hoy} clase="w-[150px]" />
@@ -299,17 +299,24 @@ export function Formulario({
 
             <div className="min-w-0">
               <Elegir
-                id="administracion"
+                id="administrador"
                 nombre="Quién es el administrador"
-                opciones={administraciones}
+                opciones={administradores}
                 valor={admin}
                 alElegir={setAdmin}
                 vacio="selecciona de la lista"
                 tinta="text-[#237812]"
               />
-              <button type="button" className={boton + " mt-1.5"} disabled>
+              {/* La ficha de alta ya existe: se abre aparte para no perder lo
+                  escrito aqui. Al volver, la nueva sale en la lista. */}
+              <a
+                href="/administracion/administraciones/nueva"
+                target="_blank"
+                rel="noreferrer"
+                className={boton + " mt-1.5 block text-center"}
+              >
                 Nuevo administrador, crearlo
-              </button>
+              </a>
             </div>
           </div>
 

@@ -21,7 +21,7 @@ export async function guardarOportunidad(fd: FormData) {
   const comercialId = texto(fd, "comercial");
   const comunidadId = texto(fd, "comunidad");
   const direccionProvisional = texto(fd, "direccion_provisional");
-  const administracionId = texto(fd, "administracion");
+  const administradorPersonaId = texto(fd, "administrador");
   const nuevoTelefono = texto(fd, "nuevo_telefono");
   const nuevoCorreo = texto(fd, "nuevo_correo");
   const pasoArranque = texto(fd, "paso");
@@ -30,7 +30,9 @@ export async function guardarOportunidad(fd: FormData) {
   // nota que se pierde: nadie recibe el aviso y nadie hace el seguimiento.
   // Y el siguiente paso, que es lo que hace que la oportunidad no se escape:
   // sin el no hay nada que perseguir manana.
-  const hayHilo = Boolean(comunidadId || direccionProvisional || administracionId || nuevoTelefono || nuevoCorreo);
+  const hayHilo = Boolean(
+    comunidadId || direccionProvisional || administradorPersonaId || nuevoTelefono || nuevoCorreo,
+  );
   if (!nota || !comercialId || !hayHilo || !pasoArranque) redirect(VOLVER + "?falta=1");
 
   const marcado = fd.get("nuevo_marcado") === "1";
@@ -42,7 +44,7 @@ export async function guardarOportunidad(fd: FormData) {
     comercialId,
     comunidadId,
     direccionProvisional,
-    administracionId,
+    administradorPersonaId,
     quien: texto(fd, "quien"),
     contactoNuevo:
       marcado && nuevoNombre

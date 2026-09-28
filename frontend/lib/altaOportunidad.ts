@@ -71,7 +71,10 @@ export type OpcionesOportunidad = {
   quienes: OpcionQuien[];
   /** De lo que vendemos, que quieren: la lista curada, sin los agrupadores. */
   tipos: OpcionSimple[];
-  administraciones: OpcionSimple[];
+  /** El administrador es una PERSONA, no una empresa: la empresa es un atributo
+   *  suyo, no de la comunidad (Monica, 28-sep-2026). Aqui van las personas con
+   *  puesto vivo en una administracion de fincas, con su empresa de pista. */
+  administradores: OpcionSimple[];
   comunidades: OpcionSimple[];
   contratas: OpcionSimple[];
   /** Presidente, vecino... para el contacto de la comunidad. */
@@ -82,7 +85,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, admins, comunidades, contratas, puestos, vecinos] =
+  const [comerciales, canales, quienes, tipos, comunidades, contratas, puestos, vecinos] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -97,17 +100,17 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
       "tipos_proyecto?select=id,nombre,padre:parent_id(nombre)" +
         "&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
-    leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
-      "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
-        "&order=nombre_accesalia.asc&limit=2000",
-    ),
     leer<{ id: string; nombre: string; municipio: string | null }[]>(
       "comunidades?select=id,nombre,municipio&order=nombre.asc&limit=3000",
     ),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
-    leer<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null }[]>(
-      "puesto?select=id,cargo,persona(nombre),empresa(nombre_accesalia)&hasta=is.null&limit=3000",
-    ),
+    leer<{
+      id: string;
+      cargo: string | null;
+      persona_id: string | null;
+      persona: { nombre: string } | null;
+      empresa: { nombre_accesalia: string; tipo: string | null } | null;
+    }[]>("puesto?select=id,cargo,persona_id,persona(nombre),empresa(nombre_accesalia,tipo)&hasta=is.null&limit=3000"),
     leer<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }[]>(
       "personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=nombre.asc&limit=3000",
     ).catch(() => []),
@@ -123,7 +126,16 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
     canales,
     quienes,
     tipos: tipos.map((t) => ({ id: t.id, nombre: t.nombre, pista: t.padre?.nombre ?? undefined })),
-    administraciones: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, pista: a.municipio ?? undefined })),
+    administradores: Object.values(
+      Object.fromEntries(
+        puestos
+          .filter((p) => p.empresa?.tipo === "administracion_fincas" && p.persona?.nombre && p.persona_id)
+          .map((p) => [
+            p.persona_id!,
+            { id: p.persona_id!, nombre: p.persona!.nombre, pista: p.empresa!.nombre_accesalia },
+          ]),
+      ),
+    ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
     comunidades: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, pista: c.municipio ?? undefined })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
     rolesComunidad: [
@@ -174,7 +186,8 @@ export type DatosOportunidad = {
   // el hilo
   comunidadId: string | null;
   direccionProvisional: string | null;
-  administracionId: string | null;
+  /** La PERSONA que administra la finca. Su administracion se lee de su puesto. */
+  administradorPersonaId: string | null;
 
   // quien me llama: o de la agenda, o se crea
   quien: string | null;
@@ -249,6 +262,15 @@ export async function crearOportunidad(
       // —ella lo dejo claro anteayer— y lleva el comercial, para que un
       // administrador nuevo no nazca huerfano.
       const cargo = RELACIONES.find((r) => r.valor === n.relacion)?.texto ?? null;
+      // Si es administrador y ya sabemos quien administra la finca, el nuevo
+      // entra en SU misma casa: la empresa se lee del puesto de ella.
+      let empresaId: string | null = null;
+      if (n.relacion === "administrador" && d.administradorPersonaId) {
+        const [pu] = await leer<{ empresa_id: string | null }[]>(
+          `puesto?select=empresa_id&persona_id=eq.${d.administradorPersonaId}&hasta=is.null&limit=1`,
+        );
+        empresaId = pu?.empresa_id ?? null;
+      }
       const per = await crear<{ id: string }>("persona", {
         nombre: n.nombre,
         activa: true,
@@ -256,7 +278,7 @@ export async function crearOportunidad(
       });
       await crear("puesto", {
         persona_id: per.id,
-        empresa_id: n.relacion === "administrador" ? d.administracionId : null,
+        empresa_id: empresaId,
         cargo,
         telefono_empresa: null,
         comercial_id: d.comercialId,
