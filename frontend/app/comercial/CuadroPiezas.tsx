@@ -733,21 +733,23 @@ export function Pestana({
     <Link
       href={donde}
       className={
-        "relative flex h-[62px] items-center gap-1.5 rounded-t-[10px] border px-2.5 pt-5 pb-1.5 transition " +
+        "relative flex h-[62px] items-center gap-1.5 rounded-t-[10px] border py-1.5 pl-[34px] pr-2.5 transition " +
         (activo
           ? "border-[#104269] bg-[#104269] text-[#FFCD00]"
-          : "border-b-0 border-[#C9CDD2] bg-[#EDEDEE] text-[#104269] hover:bg-[#F6F6F7]") +
+          : "border-b-0 border-[#AFBAC4] bg-[#D8DEE5] text-[#104269] hover:bg-[#E4E9EE]") +
         " " +
         clase
       }
     >
-      <span className="absolute left-2.5 top-1.5 [&>svg]:size-[17px]">{icono}</span>
-      <span className="min-w-0 flex-1 text-center text-[12.5px] font-bold leading-[1.15]">{texto}</span>
+      {/* El icono va arriba a la izquierda y NO empuja al texto: el hueco se lo
+          reserva el pl-[34px] de la caja. */}
+      <span className="absolute left-2.5 top-2 [&>svg]:size-[18px]">{icono}</span>
+      <span className="min-w-0 flex-1 text-center text-[14px] font-bold leading-[1.15]">{texto}</span>
       {cuantas !== null && (
         <span
           className={
-            "shrink-0 rounded-full px-1.5 text-[11px] leading-[17px] tabular-nums " +
-            (activo ? "bg-[#FFFDF3] text-[#090B49]" : "bg-white/80 text-[#104269]")
+            "shrink-0 rounded-full px-1.5 text-center text-[11px] leading-[17px] tabular-nums " +
+            (activo ? "bg-[#FFFDF3] text-[#090B49]" : "bg-white/85 text-[#104269]")
           }
         >
           {cuantas}

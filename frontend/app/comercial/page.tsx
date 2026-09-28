@@ -161,6 +161,27 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               </div>
             )}
 
+            {/* Las dos cosas que se CREAN. Van aqui arriba, y no junto a la
+                tira: pegadas a la linea azul pareceran una pestaña mas.
+                Un administrador nuevo lo da de alta el comercial: es quien lo
+                conoce. Una comunidad NO: sus datos —CIF, actas, presidente— son
+                cosa de Administracion (Monica, 28-sep-2026). */}
+            <div className="flex h-[62px] gap-2">
+              <Link
+                href="/comercial/oportunidades/nueva"
+                className="flex w-[100px] flex-col items-center justify-center gap-0.5 rounded-[10px] bg-[#5E744C] px-1.5 text-center text-[11px] font-bold leading-[1.15] text-[#FCEDA1] transition hover:bg-[#516340]"
+              >
+                <IconoNuevaOportunidad />
+                Abrir Nueva oportunidad
+              </Link>
+              <Link
+                href="/administracion/administraciones/nueva"
+                className="flex w-[100px] flex-col items-center justify-center gap-0.5 rounded-[10px] bg-[#B27252] px-1.5 text-center text-[11px] font-bold leading-[1.15] text-[#FCEDA1] transition hover:bg-[#9c6045]"
+              >
+                <IconoNuevoAdmin />
+                + Alta nuevo Administrador
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -176,59 +197,58 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           </div>
         )}
 
+        {/* ----------------------- la tira de pestañas -----------------------
+            Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
+            mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
+        <div className="mt-6 flex flex-wrap gap-[8px] pl-[13px]">
+            <Pestana
+              texto="Mis administradores"
+              cuantas={cuadro.cartera.mias.length}
+              activo={seccion === "administradores"}
+              donde={aqui("administradores")}
+              clase="w-[185px]"
+              icono={<IconoCartera />}
+            />
+            <Pestana
+              texto="Oportunidades abiertas"
+              cuantas={cuadro.oportunidades.length}
+              activo={seccion === "oportunidades"}
+              donde={aqui("oportunidades")}
+              clase="w-[180px]"
+              icono={<IconoOportunidad />}
+            />
+            <Pestana
+              texto="Agenda"
+              cuantas={null}
+              activo={seccion === "agenda"}
+              donde={aqui("agenda")}
+              clase="w-[110px]"
+              icono={<IconoAgenda />}
+            />
+            <Pestana
+              texto="Ver firmadas pendientes de cobrar"
+              cuantas={cuadro.firmadas.length}
+              activo={seccion === "cobros"}
+              donde={aqui("cobros")}
+              clase="w-[185px]"
+              icono={<IconoCobro />}
+            />
+            <Pestana
+              texto="Cómo voy de lo mío"
+              cuantas={null}
+              activo={seccion === "comovoy"}
+              donde={aqui("comovoy")}
+              clase="w-[150px]"
+              icono={<IconoBalanza />}
+            />
+        </div>
+
         {/* ------- las dos columnas: la izquierda cambia, la derecha no -------
-            El azul es SOLO la columna izquierda: la tira de pestañas no se sale
-            de su seccion, y el diario y las baldosas se quedan fuera, en una
-            seccion blanca, porque sobre el azul "casi ni se ven" (Monica). */}
-        <div className="mt-6 grid items-start gap-[16px] xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]">
+            El azul pasa por DEBAJO de las dos: es lo que las une y lo que le da
+            el contraste a la zona blanca del diario (su maqueta). */}
+        <div className="grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]">
           {/* ================= columna izquierda ================= */}
           <div className="min-w-0">
-            {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en
-                el mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
-            <div className="flex flex-wrap gap-[8px] pl-[13px]">
-              <Pestana
-                texto="Mis administradores"
-                cuantas={cuadro.cartera.mias.length}
-                activo={seccion === "administradores"}
-                donde={aqui("administradores")}
-                clase="w-[204px]"
-                icono={<IconoCartera />}
-              />
-              <Pestana
-                texto="Oportunidades abiertas"
-                cuantas={cuadro.oportunidades.length}
-                activo={seccion === "oportunidades"}
-                donde={aqui("oportunidades")}
-                clase="w-[188px]"
-                icono={<IconoOportunidad />}
-              />
-              <Pestana
-                texto="Agenda"
-                cuantas={cuadro.agenda.length}
-                activo={seccion === "agenda"}
-                donde={aqui("agenda")}
-                clase="w-[110px]"
-                icono={<IconoAgenda />}
-              />
-              <Pestana
-                texto="Ver firmadas pendientes de cobrar"
-                cuantas={cuadro.firmadas.length}
-                activo={seccion === "cobros"}
-                donde={aqui("cobros")}
-                clase="w-[205px]"
-                icono={<IconoCobro />}
-              />
-              <Pestana
-                texto="Cómo voy de lo mío"
-                cuantas={null}
-                activo={seccion === "comovoy"}
-                donde={aqui("comovoy")}
-                clase="w-[160px]"
-                icono={<IconoBalanza />}
-              />
-            </div>
-
-            <div className="rounded-[10px] bg-[#104269] p-[16px]">
 
             {/* ---- lo que tengo que hacer ---- */}
             {seccion === "agenda" && (
@@ -319,37 +339,13 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
 
             {/* ---- cómo voy de lo mío ---- */}
             {seccion === "comovoy" && <Cifras cifras={cuadro.cifras} periodo={esDemo ? "últimos 90 días" : null} />}
-            </div>
           </div>
 
           {/* ================= columna derecha, siempre igual =================
-              Arriba, lo que se CREA. Debajo, en su seccion blanca, lo que se
-              genera y lo que va pasando. */}
-          <div className="flex flex-col gap-[8px]">
-            {/* Un administrador nuevo lo da de alta el comercial: es quien lo
-                conoce. Una comunidad NO: sus datos —CIF, actas, presidente— son
-                cosa de Administracion (Monica, 28-sep-2026). */}
-            <div className="grid h-[62px] grid-cols-2 gap-2">
-              <Link
-                href="/comercial/oportunidades/nueva"
-                className="flex flex-col items-center justify-center gap-0.5 rounded-[10px] bg-[#5288B2] px-2 text-center text-[11px] font-bold leading-[1.15] text-[#FCEDA1] transition hover:bg-[#46769c]"
-              >
-                <IconoNuevaOportunidad />
-                Abrir Nueva oportunidad
-              </Link>
-              <Link
-                href="/administracion/administraciones/nueva"
-                className="flex flex-col items-center justify-center gap-0.5 rounded-[10px] bg-[#B27252] px-2 text-center text-[11px] font-bold leading-[1.15] text-[#FCEDA1] transition hover:bg-[#9c6045]"
-              >
-                <IconoNuevoAdmin />
-                + Alta nuevo Administrador
-              </Link>
-            </div>
-
-            <div className="flex flex-col gap-3 rounded-[10px] border-[3px] border-[#104269] bg-white p-3">
-              <Acciones />
-              <Diario entradas={cuadro.diario} />
-            </div>
+              Va sobre el azul, no fuera de el, en su propia zona blanca. */}
+          <div className="flex flex-col gap-3 rounded-[10px] border border-[#0B3253] bg-white p-3">
+            <Acciones />
+            <Diario entradas={cuadro.diario} />
           </div>
         </div>
       </main>
