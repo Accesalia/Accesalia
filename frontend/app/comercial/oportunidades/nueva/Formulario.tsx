@@ -295,7 +295,21 @@ export function Formulario({
           <div className="grid gap-[14px] sm:grid-cols-[minmax(0,365fr)_minmax(0,245fr)]">
             <div className="flex min-w-0 flex-col items-start">
               <span className={verde}>Dirección de la comunidad</span>
-              {comunidad === "" && (
+              {/* UN solo campo. Escribir y buscar son dos formas de decir lo
+                  mismo: tener las dos a la vez era un lio. El boton cambia de
+                  una a la otra y limpia la que deja. */}
+              {buscarDireccion ? (
+                <Elegir
+                  id="comunidad"
+                  nombre=""
+                  opciones={comunidades}
+                  valor={comunidad}
+                  alElegir={setComunidad}
+                  vacio="busca la que ya tenemos"
+                  clase="mt-1 w-full"
+                  abrirAlMontar
+                />
+              ) : (
                 <input
                   id="direccion_provisional"
                   name="direccion_provisional"
@@ -306,22 +320,21 @@ export function Formulario({
                   className={caja + " mt-1"}
                 />
               )}
-              {(buscarDireccion || comunidad !== "") && (
-                <Elegir
-                  id="comunidad"
-                  nombre=""
-                  opciones={comunidades}
-                  valor={comunidad}
-                  alElegir={setComunidad}
-                  vacio="busca la que ya tenemos"
-                  clase="mt-1.5 w-full"
-                />
-              )}
-              {comunidad === "" && (
-                <button type="button" onClick={() => setBuscarDireccion((x) => !x)} className={boton + " mt-1.5"}>
-                  {buscarDireccion ? "Mejor la escribo yo" : "O selecciona de las ya existentes"}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (buscarDireccion) {
+                    setComunidad("");
+                    setBuscarDireccion(false);
+                  } else {
+                    setDireccion("");
+                    setBuscarDireccion(true);
+                  }
+                }}
+                className={boton + " mt-1.5"}
+              >
+                {buscarDireccion ? "Escribirla yo" : "O selecciona de las ya existentes"}
+              </button>
             </div>
 
             <div className="flex min-w-0 flex-col items-start">

@@ -32,6 +32,7 @@ export function Elegir({
   defecto,
   tinta,
   marco,
+  abrirAlMontar,
 }: {
   id: string;
   nombre: string;
@@ -48,6 +49,9 @@ export function Elegir({
   /** El color de la etiqueta y el del marco, cuando se eligen. */
   tinta?: string;
   marco?: string;
+  /** Nace con la lista ya desplegada: para cuando se llega aqui pulsando un
+   *  boton que dice "selecciona de las existentes". */
+  abrirAlMontar?: boolean;
 }) {
   const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
@@ -56,7 +60,7 @@ export function Elegir({
     alElegir?.(v);
   };
 
-  const [abierto, setAbierto] = useState(false);
+  const [abierto, setAbierto] = useState(Boolean(abrirAlMontar));
   const [busca, setBusca] = useState("");
   const caja = useRef<HTMLDivElement>(null);
   const escribe = useRef<HTMLInputElement>(null);
