@@ -374,6 +374,14 @@ export function TarjetaOportunidad({
         </div>
 
         <div className="flex shrink-0 items-start gap-4">
+          <Link
+            href={`/comercial/oportunidades/${o.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="hidden shrink-0 flex-col items-center rounded-lg border border-[#223A5D] bg-[#5680A1] px-4 py-2 text-center transition hover:bg-[#46769c] sm:flex"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-wide text-white">Gestionar</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">fases, 3D, junta…</span>
+          </Link>
           <VerFicha href={verFicha} />
           {/* Ancho fijo: asi el precio, el tipo y el boton caen en la misma
               columna en todas las filas y se leen de un vistazo. */}
