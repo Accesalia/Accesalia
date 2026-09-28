@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // UN SELECTOR CON BUSCADOR (Monica, 26-sep-2026).
 //
@@ -34,6 +34,7 @@ export function Elegir({
   marco,
   abrirAlMontar,
   conPista,
+  dosLineas,
 }: {
   id: string;
   nombre: string;
@@ -56,6 +57,9 @@ export function Elegir({
   /** Al elegir, enseña tambien la pista: "Jose Luis · FINCAS SUR". Sin ella, un
    *  "Jose Luis" a secas puede ser una docena de Jose Luises (Monica, 28-sep). */
   conPista?: boolean;
+  /** El texto elegido puede ocupar dos lineas en vez de cortarse: para cuando
+   *  ademas del nombre se enseña la empresa (Monica, 28-sep-2026). */
+  dosLineas?: boolean;
 }) {
   const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
@@ -65,9 +69,21 @@ export function Elegir({
   };
 
   const [abierto, setAbierto] = useState(Boolean(abrirAlMontar));
+  // Si no hay sitio debajo, se despliega HACIA ARRIBA. Si no, en los campos de
+  // abajo del todo la lista se sale de la pantalla y hay que hacer scroll para
+  // verla (Monica, 28-sep-2026).
+  const [arriba, setArriba] = useState(false);
   const [busca, setBusca] = useState("");
   const caja = useRef<HTMLDivElement>(null);
   const escribe = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    if (!abierto) return;
+    const r = caja.current?.getBoundingClientRect();
+    if (!r) return;
+    const debajo = window.innerHeight - r.bottom;
+    setArriba(debajo < 300 && r.top > debajo);
+  }, [abierto]);
 
   // cerrar al pinchar fuera o con Escape
   useEffect(() => {
@@ -123,12 +139,13 @@ export function Elegir({
         }}
         className={
           (nombre !== "" ? "mt-1 " : "") +
+          (dosLineas ? "min-h-[52px] " : "") +
           "flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
           (marco ?? "border-black/10") + " " +
           (abierto ? "border-lima" : "")
         }
       >
-        <span className={"truncate " + (puesto ? "" : "text-carbon/55")}>
+        <span className={(dosLineas ? "line-clamp-2 text-[13px] leading-[1.25] " : "truncate ") + (puesto ? "" : "text-carbon/55")}>
           {puesto ? puesto.texto : vacio}
           {puesto && conPista && puesto.pista && <span className="text-carbon/60"> · {puesto.pista}</span>}
         </span>
@@ -138,7 +155,12 @@ export function Elegir({
       </button>
 
       {abierto && (
-        <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg">
+        <div
+          className={
+            "absolute left-0 right-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+            (arriba ? "bottom-full mb-1" : "top-full mt-1")
+          }
+        >
           <input
             ref={escribe}
             data-buscador

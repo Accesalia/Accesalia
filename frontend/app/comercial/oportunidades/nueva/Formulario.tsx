@@ -380,7 +380,7 @@ export function Formulario({
           {/* ---- quién ha contactado ---- */}
           <div className="grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] border-t border-raya py-[14px]">
             <span className={rotulo}>Quién ha contactado para pedirlo</span>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Casilla
                 texto={"Fue el mismo\nadministrador"}
                 nombre="quien_es_admin"
@@ -394,7 +394,7 @@ export function Formulario({
                 }}
                 tono="marron"
                 enLinea
-                clase="h-[52px] w-[175px] shrink-0"
+                clase="h-[52px] w-[150px] shrink-0"
               />
               <div className="min-w-0 flex-1">
                 <span className={apoyo + " mb-1 whitespace-nowrap text-center"}>Fue otra persona conocida</span>
@@ -414,6 +414,7 @@ export function Formulario({
                     desactivado={quienEsAdmin}
                     marco="border-carbon/70"
                     conPista
+                    dosLineas
                   />
                 )}
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // MARCAR VARIAS COSAS DE UNA LISTA (Monica, 27-sep-2026).
 //
@@ -40,12 +40,22 @@ export function Marcar({
   const [puestos, setPuestos] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
   const [abierto, setAbierto] = useState(false);
+  // Si no hay sitio debajo, hacia arriba: si no, la lista se sale de la pantalla.
+  const [arriba, setArriba] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
   const escribe = useRef<HTMLInputElement>(null);
 
   const q = limpio(busca.trim());
   const libres = opciones.filter((o) => !puestos.includes(o.valor));
   const salen = q === "" ? libres : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
+
+  useLayoutEffect(() => {
+    if (!abierto) return;
+    const r = caja.current?.getBoundingClientRect();
+    if (!r) return;
+    const debajo = window.innerHeight - r.bottom;
+    setArriba(debajo < 300 && r.top > debajo);
+  }, [abierto]);
 
   // Cerrar pinchando fuera o con Escape, como cualquier desplegable.
   useEffect(() => {
@@ -108,7 +118,12 @@ export function Marcar({
         </button>
 
         {abierto && (
-          <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg">
+          <div
+            className={
+              "absolute left-0 right-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+              (arriba ? "bottom-full mb-1" : "top-full mt-1")
+            }
+          >
             <input
               ref={escribe}
               data-buscador
