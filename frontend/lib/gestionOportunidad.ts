@@ -154,12 +154,12 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       reactivar_nota: string | null;
       comunidad: { nombre: string } | null;
       comercial: { nombre: string } | null;
-      puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre: string } | null } | null;
+      puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
     }[]
   >(
     `oportunidades?select=id,codigo,estado,creado_en,comunidad_provisional,reactivar_nota,` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre))&id=eq.${id}&limit=1`,
+      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))&id=eq.${id}&limit=1`,
   );
   if (!op) return null;
 
@@ -199,7 +199,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     direccion: op.comunidad?.nombre ?? op.comunidad_provisional ?? "(sin dirección)",
     estado: op.estado,
     comercial: op.comercial?.nombre ?? null,
-    administracion: op.puesto?.empresa?.nombre ?? null,
+    administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
     contacto: op.puesto?.persona?.nombre ?? null,
     contactoDonde: op.puesto?.cargo ?? null,
     creada: op.creado_en.slice(0, 10),

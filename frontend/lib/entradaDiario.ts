@@ -65,8 +65,8 @@ export async function opcionesEntrada(comercialId: string | null): Promise<{
     leer<{ id: string; codigo: string | null; comunidad: { nombre: string } | null }[]>(
       `oportunidades?select=id,codigo,comunidad:comunidad_id(nombre)${filtro}&order=creado_en.desc&limit=300`,
     ),
-    leer<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre: string } | null }[]>(
-      `puesto?select=id,cargo,persona:persona_id(nombre),empresa:empresa_id(nombre)&order=creado_en.desc&limit=600`,
+    leer<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null }[]>(
+      `puesto?select=id,cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)&order=creado_en.desc&limit=600`,
     ),
   ]);
 
@@ -83,7 +83,7 @@ export async function opcionesEntrada(comercialId: string | null): Promise<{
       .map((p) => ({
         valor: p.id,
         texto: p.persona!.nombre,
-        pista: p.empresa?.nombre ?? p.cargo ?? undefined,
+        pista: p.empresa?.nombre_accesalia ?? p.cargo ?? undefined,
       })),
   };
 }
@@ -157,13 +157,13 @@ export async function entradaPorId(id: string): Promise<EntradaFicha | null> {
       oportunidad_id: string | null;
       autor: { nombre: string } | null;
       comercial: { nombre: string } | null;
-      puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre: string } | null } | null;
+      puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
       oportunidad: { codigo: string | null; comunidad: { nombre: string } | null } | null;
     }[]
   >(
     `interacciones?select=id,creado_en,fecha_evento,origen,transcripcion,requiere_humano,motivo_requiere_humano,` +
       `oportunidad_id,autor:autor_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre)),` +
+      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
       `oportunidad:oportunidad_id(codigo,comunidad:comunidad_id(nombre))&id=eq.${id}&limit=1`,
   );
   if (!i) return null;
@@ -179,7 +179,7 @@ export async function entradaPorId(id: string): Promise<EntradaFicha | null> {
     autor: i.autor?.nombre ?? null,
     comercial: i.comercial?.nombre ?? null,
     con: i.puesto?.persona?.nombre ?? null,
-    conDonde: i.puesto?.empresa?.nombre ?? i.puesto?.cargo ?? null,
+    conDonde: i.puesto?.empresa?.nombre_accesalia ?? i.puesto?.cargo ?? null,
     oportunidadId: i.oportunidad_id,
     oportunidad: i.oportunidad?.comunidad?.nombre ?? i.oportunidad?.codigo ?? null,
   };
