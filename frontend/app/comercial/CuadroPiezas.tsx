@@ -340,12 +340,12 @@ export function TarjetaOportunidad({
               </span>
             )}
           </div>
-          <div className="mt-0.5 text-[12px] text-lima-dark">
+          <div className="mt-0.5 text-[13px] text-lima-dark">
             {o.empresa ?? <span className="text-carbon/40">sin administración</span>}
             {o.persona && <span> · {o.persona}</span>}
             {o.trajo && <span className="text-carbon/60"> · lo trajo {o.trajo}</span>}
             {o.prestada && (
-              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">prestada</span>
+              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700">prestada</span>
             )}
             {conComercial && <span className="text-carbon/45"> · {conComercial}</span>}
           </div>
@@ -389,7 +389,7 @@ export function TarjetaOportunidad({
         ))}
       </Rejilla>
 
-      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-carbon/55">
+      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-carbon/55">
         {o.actual && (
           <span>
             Está en{" "}
@@ -410,7 +410,7 @@ export function TarjetaOportunidad({
           </span>
         ) : null}
         {o.proximo && <span className="font-semibold text-carbon/75">{o.proximo}</span>}
-        <span className={sinContacto ? "font-semibold text-alerta" : ""}>
+        <span className={sinContacto ? "font-semibold text-alerta" : "text-carbon/80"}>
           últ. contacto {o.ultimoContacto ? ddmm(o.ultimoContacto) : "—"}
         </span>
       </div>
