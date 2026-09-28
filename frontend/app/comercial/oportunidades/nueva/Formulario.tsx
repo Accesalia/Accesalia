@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Elegir, type Opcion } from "../../../components/Elegir";
 import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
@@ -9,56 +9,55 @@ import { PASOS_DE_ARRANQUE, RELACIONES } from "../../../../lib/oportunidadVocabu
 
 // DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma (28-sep-2026).
 //
-// Lo que ella resolvio y yo no veia:
-//   · el fondo de la pagina es OSCURO, para no confundir nunca un alta con una
-//     ficha ya creada. Cada area tendra el suyo; este es el azul de comercial;
-//   · los datos son FILAS separadas por lineas, con el rotulo verde a la
-//     izquierda y el campo a la derecha. Antes era una columna plana de campos;
-//   · "que tengo que hacer" se va con el diario, debajo de lo que te han
-//     contado: lo que me cuentan, y lo que hago. Y en rojo, porque no es opcional;
-//   · cada boton azul lleva su explicacion al lado ("Es un nuevo administrador
-//     → + CREARLO"): el boton dice la accion, el texto dice para que;
-//   · el marcado no es de un solo color: marron para con quien hablo, azul
-//     marino para el paso siguiente. "No todas las casillas marcadas hablan de
-//     lo mismo."
+// LAS MEDIDAS SON SUYAS, sacadas del Figma, y no se "redondean" ni se cambian
+// por un reparto automatico: se las trabajo una por una y la primera vez las
+// sustitui por "que todo se estire", que es justo lo que las rompe.
 //
-// Y una regla suya que ahorra trabajo al comercial: "fue el mismo administrador"
-// sale marcable porque el 90% de las veces lo es, y elegirlo dos veces fastidia.
+// Sobre un ancho de pagina de 1252 (1300 menos los margenes):
+//   · cabecera: titulo 585 · numero 190 · fecha 128 · comercial 180 (el nombre
+//     de un comercial no necesita mas, y asi el titulo va en una sola linea)
+//   · tarjetas: 528 la del diario, 707 la de los datos, 28 de separacion
+//   · cada fila de datos: rotulo 132 · campo 362 · texto azul 75 · boton 83
+//   · "quien ha contactado": casilla 160 · desplegable 151 · boton 83
+//   · "en que dicen": 237, y lo marcado crece a su derecha
+//   · la caja de con quien hablo: 572 de ancho, casillas de 75 de alto
+//
+// Lo demas que decidio ella:
+//   · fondo OSCURO para no confundir un alta con una ficha ya creada;
+//   · "que tengo que hacer" va con el diario —lo que me cuentan y lo que hago—
+//     y en rojo, porque no es opcional;
+//   · cada boton azul lleva al lado el texto que explica para que sirve;
+//   · marron para "con quien hablo", azul marino para el paso siguiente: no
+//     todas las casillas marcadas hablan de lo mismo;
+//   · "fue el mismo administrador" se marca de una vez, porque el 90% de las
+//     veces lo es y elegirlo dos veces fastidia al comercial.
 
-const rotulo = "text-[11px] font-bold uppercase leading-tight tracking-wide text-[#237812]";
-const etiqueta = "block text-[10px] font-bold uppercase tracking-wide text-carbon/70";
-const etiquetaClara = "block text-[10px] font-bold uppercase tracking-wide text-[#fff4c6]/85";
-const apoyo = "text-[11px] font-bold leading-tight text-accion";
+const rotulo = "text-[10px] font-bold uppercase leading-[1.3] tracking-[0.05em] text-[#237812]";
+const etiqueta = "block text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/70";
+const etiquetaClara = "block text-[10px] font-bold uppercase tracking-[0.05em] text-[#fff4c6]/85";
+const apoyo = "block text-[11px] font-bold leading-[1.3] text-accion";
 const campo =
   "w-full rounded-lg border border-carbon/70 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
-// El boton que HACE algo. Ni se parece a un campo ni hace falta que lo explique:
-// para eso esta el texto azul de al lado.
 const accion =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[5px] border border-accion-marco bg-accion px-3.5 py-2 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-accion-hover";
+  "inline-flex h-[34px] shrink-0 items-center justify-center gap-1 rounded-[5px] border border-accion-marco bg-accion px-2 text-xs font-bold uppercase leading-tight text-white shadow-sm transition hover:bg-accion-hover";
 
-/** Una fila de la tarjeta de datos: rotulo a la izquierda, lo que sea a la
- *  derecha, y una raya que la separa de la anterior. */
-function Fila({
-  nombre,
-  primera,
-  children,
-}: {
-  nombre?: string;
-  primera?: boolean;
-  children: React.ReactNode;
-}) {
+/** Una fila de la tarjeta de datos. Cuatro columnas fijas, las suyas: el rotulo,
+ *  el campo, el texto que explica el boton, y el boton. */
+function Fila({ nombre, primera, children }: { nombre: string; primera?: boolean; children: React.ReactNode }) {
   return (
-    <div className={"py-3 " + (primera ? "" : "border-t border-raya")}>
-      <div className="grid grid-cols-[150px_minmax(0,1fr)] items-center gap-4">
-        <span className={rotulo}>{nombre}</span>
-        <div className="flex min-w-0 items-center gap-3">{children}</div>
-      </div>
+    <div
+      className={
+        "grid grid-cols-[132px_minmax(0,362fr)_75px_83px] items-center gap-x-[7px] py-[14px] " +
+        (primera ? "" : "border-t border-raya")
+      }
+    >
+      <span className={rotulo}>{nombre}</span>
+      {children}
     </div>
   );
 }
 
-/** Lo que se marca. El color dice DE QUE habla: marron para con quien hablo a
- *  partir de ahora, azul marino para el paso siguiente. */
+/** Lo que se marca. El color dice DE QUE habla. */
 function Casilla({
   texto,
   nombre,
@@ -76,30 +75,25 @@ function Casilla({
   conCuadro?: boolean;
   clase?: string;
 }) {
-  const relleno = tono === "marron" ? "bg-marcado-hablo text-[#fff5cc]" : "bg-marcado-paso text-white";
-  const borde = tono === "marron" ? "border-marcado-hablo" : "border-marcado-paso";
+  const relleno =
+    tono === "marron" ? "border-marcado-hablo bg-marcado-hablo text-[#fff5cc]" : "border-marcado-paso bg-marcado-paso text-white";
   return (
     <label
       className={
-        "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-center transition " +
-        (marcado ? relleno + " " + borde : "border-marco bg-white text-carbon/80 hover:border-accion") +
+        "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-2 text-center transition " +
+        (marcado ? relleno : "border-marco bg-white text-carbon/80 hover:border-accion") +
         " " +
         clase
       }
     >
-      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide">{texto}</span>
-      {conCuadro && (
-        <input
-          type="checkbox"
-          name={nombre}
-          checked={marcado}
-          onChange={(e) => alMarcar(e.target.checked)}
-          className={"size-5 " + (marcado ? "accent-white" : "accent-accion")}
-        />
-      )}
-      {!conCuadro && (
-        <input type="checkbox" name={nombre} checked={marcado} onChange={(e) => alMarcar(e.target.checked)} className="sr-only" />
-      )}
+      <span className="text-[11px] font-bold uppercase leading-[1.2] tracking-[0.04em]">{texto}</span>
+      <input
+        type="checkbox"
+        name={nombre}
+        checked={marcado}
+        onChange={(e) => alMarcar(e.target.checked)}
+        className={conCuadro ? "size-5 " + (marcado ? "accent-white" : "accent-accion") : "sr-only"}
+      />
     </label>
   );
 }
@@ -139,9 +133,7 @@ export function Formulario({
   const [anMail, setAnMail] = useState("");
   const [anEmpresa, setAnEmpresa] = useState("");
   const adminNuevo = anNombre.trim() !== "";
-  const hayAdmin = admin !== "" || adminNuevo;
 
-  // Quien ha contactado. El 90% de las veces es el propio administrador.
   const [quienEsAdmin, setQuienEsAdmin] = useState(false);
   const [quien, setQuien] = useState("");
   const [modalQuien, setModalQuien] = useState(false);
@@ -152,7 +144,6 @@ export function Formulario({
   const [qnContrata, setQnContrata] = useState("");
   const quienNuevo = qnNombre.trim() !== "";
 
-  // Con quien hablo a partir de ahora.
   const [hablaLlamo, setHablaLlamo] = useState(false);
   const [hablaAdmin, setHablaAdmin] = useState(false);
   const [hablaOtro, setHablaOtro] = useState(false);
@@ -165,8 +156,12 @@ export function Formulario({
   const [paso, setPaso] = useState("");
   const [enviando, setEnviando] = useState(false);
 
+  // El numero que le toca, en cuanto hay comercial. Lo quieren VER antes de
+  // guardar, para apuntarlo y hacer su seguimiento.
+  const codigo = comercial === "" ? "elige comercial" : opciones.codigoDe[comercial] ?? "sin iniciales";
+
   const hayHilo =
-    comunidad !== "" || direccion.trim() !== "" || hayAdmin || qnTel.trim() !== "" || qnMail.trim() !== "";
+    comunidad !== "" || direccion.trim() !== "" || admin !== "" || adminNuevo || qnTel.trim() !== "" || qnMail.trim() !== "";
   const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
 
   const quitarAdminNuevo = () => {
@@ -195,7 +190,6 @@ export function Formulario({
       action={guardar}
       onSubmit={() => setEnviando(true)}
       onKeyDown={(e) => {
-        // Enter pasa al campo siguiente, nunca envia. En el diario si escribe.
         if (e.key !== "Enter") return;
         const t = e.target as HTMLElement;
         if (t.tagName === "TEXTAREA") return;
@@ -210,40 +204,37 @@ export function Formulario({
         if (i >= 0 && i < campos.length - 1) campos[i + 1].focus();
       }}
     >
-      {/* ============ la cabecera, sobre el fondo oscuro ============ */}
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <h1 className="text-[27px] font-extrabold uppercase leading-none tracking-tight text-white">
+      {/* ===================== la cabecera ===================== */}
+      <div className="flex items-end gap-8">
+        <h1 className="min-w-0 flex-1 text-[26px] font-extrabold uppercase leading-[1.05] tracking-tight text-white">
           Estás creando una nueva oportunidad
         </h1>
-
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="block w-[215px]">
-            <span className={etiquetaClara}>Número de orden</span>
-            <span className={campo + " mt-1 block bg-white text-carbon/60"}>{"PER-" + new Date().getFullYear() + "-000"}</span>
-          </label>
-          <label className="block w-[150px]">
-            <span className={etiquetaClara}>Fecha del contacto</span>
-            <input id="fecha_llamada" name="fecha_llamada" type="date" defaultValue={hoy} className={campo + " mt-1"} />
-          </label>
-          <Elegir
-            id="comercial"
-            nombre="Comercial que la lleva"
-            opciones={comerciales}
-            valor={comercial}
-            alElegir={setComercial}
-            clase="w-[250px]"
-            tinta="text-[#fff4c6]/85"
-            marco="border-carbon/70"
-          />
-        </div>
+        <label className="block w-[190px] shrink-0">
+          <span className={etiquetaClara}>Número de orden</span>
+          <span className={campo + " mt-1 block"}>{codigo}</span>
+        </label>
+        <label className="block w-[128px] shrink-0">
+          <span className={etiquetaClara}>Fecha del contacto</span>
+          <input id="fecha_llamada" name="fecha_llamada" type="date" defaultValue={hoy} className={campo + " mt-1"} />
+        </label>
+        <Elegir
+          id="comercial"
+          nombre="Comercial que la lleva"
+          opciones={comerciales}
+          valor={comercial}
+          alElegir={setComercial}
+          clase="w-[180px] shrink-0"
+          tinta="text-[#fff4c6]/85"
+          marco="border-carbon/70"
+        />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-        <p className="max-w-[820px] text-sm text-white">
+      <div className="mt-3 flex items-center justify-between gap-6">
+        <p className="max-w-[768px] text-sm text-white">
           Lo importante de verdad: reflejar qué te han contado
           {soyComercial ? "" : " y a qué comercial le toca"}. El resto, se puede completar después.
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <Link href={volver} className="rounded-lg bg-white px-5 py-2 text-sm text-carbon/80 transition hover:text-carbon">
             Cancelar
           </Link>
@@ -257,26 +248,26 @@ export function Formulario({
         </div>
       </div>
 
-      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,500fr)_minmax(0,670fr)]">
+      <div className="mt-4 grid items-start gap-7 lg:grid-cols-[minmax(0,528fr)_minmax(0,707fr)]">
         {/* ============ lo que me cuentan, y lo que hago ============ */}
         <section className="min-w-0 rounded-[14px] border border-[#baa208] bg-papel p-4 shadow-sm">
-          <h2 className="text-[19px] font-bold uppercase leading-tight tracking-wide text-carbon">Qué te han contado</h2>
+          <h2 className="text-[19px] font-bold uppercase leading-tight tracking-[0.03em] text-carbon">Qué te han contado</h2>
           <textarea
             id="nota"
             name="nota"
-            rows={12}
+            rows={7}
             value={nota}
             onChange={(e) => setNota(e.target.value)}
             placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
-            className={campo + " mt-3 min-h-[320px] resize-y"}
+            className={campo + " mt-3 min-h-[180px] resize-y"}
           />
 
           {/* Sin esto la oportunidad se escapa: por eso va en rojo. */}
           <section className="mt-4 rounded-[14px] border-[3px] border-obligatorio bg-obligatorio-fondo p-3">
-            <h3 className="mb-2.5 text-center text-[13px] font-bold uppercase tracking-wide text-carbon">
+            <h3 className="mb-2.5 text-center text-[13px] font-bold uppercase tracking-[0.06em] text-carbon">
               <span className="text-[11px] text-obligatorio">Qué tengo que hacer:</span> Siguiente paso inmediato
             </h3>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-[15px]">
               {PASOS_DE_ARRANQUE.map((p) => (
                 <Casilla
                   key={p.clave}
@@ -285,7 +276,7 @@ export function Formulario({
                   alMarcar={(v) => setPaso(v ? p.clave : "")}
                   tono="marino"
                   conCuadro={false}
-                  clase="min-h-[62px]"
+                  clase="h-[56px]"
                 />
               ))}
             </div>
@@ -296,8 +287,8 @@ export function Formulario({
         {/* ============ qué datos tenemos ============ */}
         <section className="min-w-0 rounded-[14px] border border-[#237812] bg-papel p-4 shadow-sm">
           <div className="flex flex-wrap items-baseline gap-3">
-            <h2 className="text-[19px] font-bold uppercase leading-tight tracking-wide text-carbon">Qué datos tenemos</h2>
-            <span className="text-[10px] font-bold uppercase tracking-wide text-carbon/60">
+            <h2 className="text-[19px] font-bold uppercase leading-tight tracking-[0.03em] text-carbon">Qué datos tenemos</h2>
+            <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/60">
               Apunta lo que ya sepas, cuanto más mejor
             </span>
           </div>
@@ -313,7 +304,6 @@ export function Formulario({
                 valor={comunidad}
                 alElegir={setComunidad}
                 vacio="busca la que ya tenemos"
-                clase="min-w-0 flex-1"
                 marco="border-carbon/70"
                 abrirAlMontar
               />
@@ -325,12 +315,10 @@ export function Formulario({
                 value={direccion}
                 onChange={(e) => setDireccion(e.target.value)}
                 placeholder="dirección del edificio"
-                className={campo + " min-w-0 flex-1"}
+                className={campo}
               />
             )}
-            <span className={apoyo + " w-[92px] text-right"}>
-              {buscarDireccion ? "Mejor la escribo" : "Si ya existe, selecciónala"}
-            </span>
+            <span className={apoyo + " text-right"}>{buscarDireccion ? "Mejor la escribo" : "Si ya existe, selecciónala"}</span>
             <button
               type="button"
               onClick={() => {
@@ -351,7 +339,7 @@ export function Formulario({
           {/* ---- el administrador ---- */}
           <Fila nombre="¿Quién es su administrador?">
             {adminNuevo ? (
-              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
+              <div className="flex items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
                 <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
                   {anNombre} <span className="font-normal opacity-70">· nuevo</span>
                 </span>
@@ -371,101 +359,100 @@ export function Formulario({
                 valor={admin}
                 alElegir={setAdmin}
                 vacio="selecciona de la lista"
-                clase="min-w-0 flex-1"
                 marco="border-carbon/70"
               />
             )}
-            <span className={apoyo + " w-[92px] text-right"}>
-              {adminNuevo ? "Lo estás creando" : "Es un nuevo administrador"}
-            </span>
+            <span className={apoyo + " text-right"}>{adminNuevo ? "Lo estás creando" : "Es un nuevo administrador"}</span>
             <button type="button" onClick={() => setModalAdmin(true)} className={accion}>
               {adminNuevo ? "Cambiar" : "+ Crearlo"}
             </button>
           </Fila>
 
           {/* ---- quién ha contactado ---- */}
-          <Fila nombre="Quién ha contactado para pedirlo">
-            <Casilla
-              texto="Fue el mismo administrador"
-              nombre="quien_es_admin"
-              marcado={quienEsAdmin}
-              alMarcar={(v) => {
-                setQuienEsAdmin(v);
-                if (v) {
-                  setQuien("");
-                  quitarQuienNuevo();
-                }
-              }}
-              tono="marron"
-              clase="w-[190px]"
-            />
-            <div className="min-w-0 flex-1">
-              <span className={apoyo + " mb-1 block text-center"}>Fue otra persona conocida</span>
-              {quienNuevo ? (
-                <div className="flex items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
-                  <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
-                    {qnNombre} <span className="font-normal opacity-70">· nuevo</span>
-                  </span>
-                  <button type="button" onClick={quitarQuienNuevo} aria-label="Quitar" className="text-[#5c4208]/70">
-                    ×
-                  </button>
-                  <input type="hidden" name="nuevo_marcado" value="1" />
-                  <input type="hidden" name="nuevo_nombre" value={qnNombre} />
-                  <input type="hidden" name="nuevo_telefono" value={qnTel} />
-                  <input type="hidden" name="nuevo_correo" value={qnMail} />
-                  <input type="hidden" name="nuevo_relacion" value={qnRelacion} />
-                  <input type="hidden" name="nuevo_contrata" value={qnContrata} />
-                </div>
-              ) : (
-                <Elegir
-                  id="quien"
-                  nombre=""
-                  opciones={opciones.quienes}
-                  valor={quien}
-                  alElegir={(v) => {
-                    setQuien(v);
-                    if (v) setQuienEsAdmin(false);
-                  }}
-                  vacio="selecciónalo"
-                  desactivado={quienEsAdmin}
-                  marco="border-carbon/70"
-                />
-              )}
+          <div className="grid grid-cols-[132px_minmax(0,362fr)_75px_83px] items-center gap-x-[7px] border-t border-raya py-[14px]">
+            <span className={rotulo}>Quién ha contactado para pedirlo</span>
+            <div className="flex items-end gap-[26px]">
+              <Casilla
+                texto="Fue el mismo administrador"
+                nombre="quien_es_admin"
+                marcado={quienEsAdmin}
+                alMarcar={(v) => {
+                  setQuienEsAdmin(v);
+                  if (v) {
+                    setQuien("");
+                    quitarQuienNuevo();
+                  }
+                }}
+                tono="marron"
+                clase="h-[76px] w-[160px] shrink-0 py-2"
+              />
+              <div className="w-[151px] shrink-0">
+                <span className={apoyo + " mb-1 whitespace-nowrap text-center"}>Fue otra persona conocida</span>
+                {quienNuevo ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
+                    <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">{qnNombre}</span>
+                    <button type="button" onClick={quitarQuienNuevo} aria-label="Quitar" className="text-[#5c4208]/70">
+                      ×
+                    </button>
+                    <input type="hidden" name="nuevo_marcado" value="1" />
+                    <input type="hidden" name="nuevo_nombre" value={qnNombre} />
+                    <input type="hidden" name="nuevo_telefono" value={qnTel} />
+                    <input type="hidden" name="nuevo_correo" value={qnMail} />
+                    <input type="hidden" name="nuevo_relacion" value={qnRelacion} />
+                    <input type="hidden" name="nuevo_contrata" value={qnContrata} />
+                  </div>
+                ) : (
+                  <Elegir
+                    id="quien"
+                    nombre=""
+                    opciones={opciones.quienes}
+                    valor={quien}
+                    alElegir={(v) => {
+                      setQuien(v);
+                      if (v) setQuienEsAdmin(false);
+                    }}
+                    vacio="selecciónalo"
+                    desactivado={quienEsAdmin}
+                    marco="border-carbon/70"
+                  />
+                )}
+              </div>
             </div>
-            <div>
-              <span className={apoyo + " mb-1 block text-center"}>Fue un nuevo contacto</span>
-              <button type="button" onClick={() => setModalQuien(true)} className={accion + " w-full"}>
+            <div className="col-span-2 flex flex-col items-center">
+              <span className={apoyo + " mb-1 whitespace-nowrap"}>Fue un nuevo contacto</span>
+              <button type="button" onClick={() => setModalQuien(true)} className={accion + " w-[83px]"}>
                 {quienNuevo ? "Cambiar" : "+ Crearlo"}
               </button>
             </div>
-          </Fila>
+          </div>
 
           {/* ---- qué quieren ---- */}
-          <Fila nombre="En qué dicen que están interesados">
+          <div className="grid grid-cols-[132px_minmax(0,1fr)] items-center gap-x-[7px] border-t border-raya py-[14px]">
+            <span className={rotulo}>En qué dicen que están interesados</span>
             <Marcar
               id="tipos"
               opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
               pista="De lo que vendemos, qué quieren"
             />
-          </Fila>
+          </div>
 
           {/* ---- la tercera persona ---- */}
-          <div className="border-t border-raya py-3">
-            <section className="rounded-[14px] border border-marco bg-[#ecefec] px-4 py-3">
-              <h3 className="text-center text-[13px] font-bold uppercase tracking-wide text-[#0c1a64]">
+          <div className="border-t border-raya py-[14px]">
+            <section className="mx-auto max-w-[572px] rounded-[14px] border border-marco bg-[#ecefec] px-4 py-3">
+              <h3 className="text-center text-[13px] font-bold uppercase tracking-[0.07em] text-[#0c1a64]">
                 Con quién hablo de esto a partir de ahora
               </h3>
               <p className="mb-3 mt-0.5 text-center text-sm text-carbon/60">
                 (quien va a ser mi contacto para ir a verlo, enviar la hoja de encargo, etc.)
               </p>
-              <div className="mx-auto grid max-w-[560px] grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-6 px-[45px]">
                 <Casilla
                   texto="La persona que me llamó"
                   nombre="habla_llamo"
                   marcado={hablaLlamo}
                   alMarcar={setHablaLlamo}
                   tono="marron"
-                  clase="min-h-[78px]"
+                  clase="h-[75px]"
                 />
                 <Casilla
                   texto="El administrador"
@@ -473,14 +460,14 @@ export function Formulario({
                   marcado={hablaAdmin}
                   alMarcar={setHablaAdmin}
                   tono="marron"
-                  clase="min-h-[78px]"
+                  clase="h-[75px]"
                 />
                 <Casilla
                   texto={coNombre ? coNombre : "Otro (crear)"}
                   marcado={hablaOtro}
                   alMarcar={(v) => (v ? (setHablaOtro(true), setModalHablo(true)) : quitarOtro())}
                   tono="marron"
-                  clase="min-h-[78px]"
+                  clase="h-[75px]"
                 />
               </div>
               <input type="hidden" name="contacto" value={contacto} />
@@ -491,24 +478,15 @@ export function Formulario({
           </div>
 
           {/* ---- datos extra ---- */}
-          <div className="border-t border-raya py-3">
-            <div className="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-4">
-              <span className={rotulo}>Datos extra</span>
-              <div className="max-w-[420px]">
-                <span className={etiqueta}>Cómo nos conocieron</span>
-                <Elegir id="canal" nombre="" opciones={canales} vacio="—" clase="mt-1" marco="border-carbon/70" />
-              </div>
+          <div className="grid grid-cols-[132px_minmax(0,1fr)] items-start gap-x-[7px] border-t border-raya py-[14px]">
+            <span className={rotulo}>Datos extra</span>
+            <div className="w-[320px]">
+              <span className={etiqueta}>Cómo nos conocieron</span>
+              <Elegir id="canal" nombre="" opciones={canales} vacio="—" clase="mt-1" marco="border-carbon/70" />
             </div>
           </div>
         </section>
       </div>
-
-      {!puedeGuardar && (
-        <p className="mt-4 rounded-xl bg-white/90 px-4 py-3 text-sm text-carbon">
-          Para guardar hacen falta: <b>qué te han contado</b>, <b>un comercial</b>, <b>el siguiente paso</b>, y{" "}
-          <b>al menos una de estas</b> — dirección, administrador, teléfono o correo.
-        </p>
-      )}
 
       {/* ============ ventana: administrador nuevo ============ */}
       <Ventana
@@ -648,8 +626,8 @@ function Dato({
   );
 }
 
-/** Todas las ventanas iguales: una sola forma para toda la pantalla. Se quedan
- *  montadas aunque esten cerradas, para no perder lo escrito. */
+/** Todas las ventanas iguales. Se quedan montadas aunque esten cerradas, para no
+ *  perder lo escrito. */
 function Ventana({
   abierta,
   titulo,
@@ -667,10 +645,35 @@ function Ventana({
   alCerrar: () => void;
   puede: boolean;
 }) {
+  // Se cierra como se cierra cualquier ventana: con la X, pinchando fuera o con
+  // Escape. Si no se ha escrito nada, salir equivale a quitarla.
+  const salir = () => (puede ? alCerrar() : alQuitar());
+  useEffect(() => {
+    if (!abierta) return;
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") salir();
+    };
+    document.addEventListener("keydown", tecla);
+    return () => document.removeEventListener("keydown", tecla);
+  });
+
   return (
-    <div className={abierta ? "fixed inset-0 z-50 flex items-center justify-center bg-alta-opp/70 p-4" : "hidden"}>
-      <div className="w-full max-w-[560px] rounded-[16px] border border-marco bg-papel p-5 shadow-xl">
-        <h3 className="text-center text-[13px] font-bold uppercase tracking-wide text-[#0c1a64]">{titulo}</h3>
+    <div
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) salir();
+      }}
+      className={abierta ? "fixed inset-0 z-50 flex items-center justify-center bg-alta-opp/70 p-4" : "hidden"}
+    >
+      <div className="relative w-full max-w-[560px] rounded-[16px] border border-marco bg-papel p-5 shadow-xl">
+        <button
+          type="button"
+          onClick={salir}
+          aria-label="Cerrar"
+          className="absolute right-3 top-2 text-xl leading-none text-carbon/45 transition hover:text-carbon"
+        >
+          ×
+        </button>
+        <h3 className="text-center text-[13px] font-bold uppercase tracking-[0.07em] text-[#0c1a64]">{titulo}</h3>
         <p className="mb-4 mt-0.5 text-center text-sm text-carbon/60">{pie}</p>
         {children}
         <div className="mt-5 flex justify-center gap-3">
@@ -681,7 +684,7 @@ function Ventana({
             type="button"
             disabled={!puede}
             onClick={alCerrar}
-            className="rounded-[5px] border border-accion-marco bg-accion px-6 py-2 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-accion-hover disabled:cursor-not-allowed disabled:border-transparent disabled:bg-carbon/15 disabled:text-carbon/35"
+            className="h-[34px] rounded-[5px] border border-accion-marco bg-accion px-6 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-accion-hover disabled:cursor-not-allowed disabled:border-transparent disabled:bg-carbon/15 disabled:text-carbon/35"
           >
             Listo
           </button>

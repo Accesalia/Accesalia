@@ -66,6 +66,11 @@ export type OpcionesOportunidad = {
   comerciales: OpcionSimple[];
   /** Si quien rellena es comercial, el suyo sale ya puesto. */
   miComercial: string | null;
+  /** El numero que le tocaria a cada comercial. Se enseña EN CUANTO se elige
+   *  comercial, porque el comercial quiere VER su numero antes de guardar para
+   *  apuntarlo y hacer su seguimiento: si no, es un campo invisible para el
+   *  (Monica, 28-sep-2026). El definitivo se asigna al guardar. */
+  codigoDe: Record<string, string>;
   canales: Canal[];
   /** Toda la agenda, para "quien me llama" y para el contacto de alli. */
   quienes: OpcionQuien[];
@@ -123,6 +128,22 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
     ).catch(() => []),
   ]);
 
+  // El numero que le toca a cada uno: una sola lectura de los codigos que ya
+  // hay, y el correlativo se saca aqui. El de verdad se calcula al guardar.
+  const anio = new Date().getFullYear();
+  const yaPuestos = await leer<{ codigo: string }[]>(
+    `oportunidades?select=codigo&codigo=not.is.null&order=codigo.desc&limit=3000`,
+  ).catch(() => []);
+  const codigoDe: Record<string, string> = {};
+  for (const c of comerciales) {
+    if (!c.iniciales) continue;
+    const prefijo = `${c.iniciales}-${anio}-`;
+    const suyos = yaPuestos.filter((o) => o.codigo?.startsWith(prefijo));
+    const ultimo = suyos.map((o) => Number.parseInt(o.codigo.slice(prefijo.length), 10)).filter(Number.isFinite);
+    const n = ultimo.length ? Math.max(...ultimo) : 0;
+    codigoDe[c.id] = prefijo + String(n + 1).padStart(3, "0");
+  }
+
   return {
     comerciales: comerciales.map((c) => ({
       id: c.id,
@@ -130,6 +151,7 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
       pista: c.iniciales ?? undefined,
     })),
     miComercial: (equipoId && comerciales.find((c) => c.equipo_id === equipoId)?.id) || null,
+    codigoDe,
     canales,
     quienes,
     tipos: tipos.map((t) => ({ id: t.id, nombre: t.nombre, pista: t.padre?.nombre ?? undefined })),

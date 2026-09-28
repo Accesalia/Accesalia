@@ -5,13 +5,14 @@ import { useEffect, useRef, useState } from "react";
 // MARCAR VARIAS COSAS DE UNA LISTA (Monica, 27-sep-2026).
 //
 // "De lo que yo vendo, que me quieren comprar." Normalmente entre dos y cinco
-// cosas. Mismo minibuscador que el selector de siempre —encuentra el trozo donde
-// este, sin tildes ni mayusculas—, y la lista se ve SIN escribir nada.
+// cosas. Minibuscador que encuentra el trozo donde este, sin tildes ni
+// mayusculas, y la lista se ve SIN escribir nada.
 //
 // Lo marcado se queda A LA DERECHA del selector, sobre el fondo y sin caja: si
-// tiene aspecto de campo parece que tambien hay que rellenarlo, y al comercial
-// la sensacion de "otra cosa mas que completar" le echa para atras.
-// (Su diseño del 28-sep-2026.)
+// tiene aspecto de campo parece que tambien hay que rellenarlo (28-sep-2026).
+//
+// Y se cierra como se cierra cualquier desplegable: pinchando fuera, con Escape,
+// o volviendo a pinchar en el. Nunca se queda atrapado sin elegir nada.
 
 export type Marca = { valor: string; texto: string; pista?: string };
 
@@ -25,11 +26,10 @@ export function Marcar({
   id,
   opciones,
   pista = "elige de la lista",
-  ancho = "w-[280px]",
+  ancho = "w-[237px]",
 }: {
   id: string;
   opciones: Marca[];
-  /** El texto guia de la casilla. */
   pista?: string;
   /** Lo que mide el selector; lo marcado crece a su derecha. */
   ancho?: string;
@@ -43,8 +43,18 @@ export function Marcar({
   const libres = opciones.filter((o) => !puestos.includes(o.valor));
   const salen = q === "" ? libres : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
 
+  const cerrar = () => {
+    setAbierto(false);
+    setBusca("");
+  };
+
   // Con Enter se marca la primera que sale, sin tener que apuntar con el raton.
   const alTeclear = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      cerrar();
+      (e.target as HTMLElement).blur();
+      return;
+    }
     if (e.key !== "Enter") return;
     e.preventDefault();
     if (salen[0]) {
@@ -54,20 +64,25 @@ export function Marcar({
   };
 
   useEffect(() => {
+    if (!abierto) return;
     const fuera = (e: MouseEvent) => {
-      if (caja.current && !caja.current.contains(e.target as Node)) {
-        setAbierto(false);
-        setBusca("");
-      }
+      if (caja.current && !caja.current.contains(e.target as Node)) cerrar();
+    };
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") cerrar();
     };
     document.addEventListener("mousedown", fuera);
-    return () => document.removeEventListener("mousedown", fuera);
-  }, []);
+    document.addEventListener("keydown", tecla);
+    return () => {
+      document.removeEventListener("mousedown", fuera);
+      document.removeEventListener("keydown", tecla);
+    };
+  }, [abierto]);
 
   const texto = (v: string) => opciones.find((o) => o.valor === v)?.texto ?? v;
 
   return (
-    <div className="flex min-w-0 flex-1 items-start gap-3" ref={caja}>
+    <div className="flex min-w-0 items-start gap-3" ref={caja}>
       {puestos.map((v) => (
         <input key={v} type="hidden" name={id} value={v} />
       ))}
@@ -77,17 +92,13 @@ export function Marcar({
           id={id + "_busca"}
           type="text"
           value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              setAbierto(false);
-              setBusca("");
-              return;
-            }
-            alTeclear(e);
+          onChange={(e) => {
+            setBusca(e.target.value);
+            setAbierto(true);
           }}
-          onFocus={() => setAbierto(true)}
-          onClick={() => setAbierto(true)}
+          onKeyDown={alTeclear}
+          // Pinchar abre; volver a pinchar cierra. Como cualquier desplegable.
+          onMouseDown={() => setAbierto((x) => !x)}
           placeholder={pista}
           autoComplete="off"
           data-buscador
@@ -97,8 +108,9 @@ export function Marcar({
           ▾
         </span>
 
-        {abierto && salen.length > 0 && (
+        {abierto && (
           <ul className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-auto rounded-lg border border-black/10 bg-white py-1 shadow-lg">
+            {salen.length === 0 && <li className="px-3 py-2 text-sm text-carbon/65">No queda ninguna por marcar.</li>}
             {salen.map((o) => (
               <li key={o.valor}>
                 <button
@@ -119,7 +131,7 @@ export function Marcar({
       </div>
 
       {/* Sobre el fondo, sin marco: esto no se rellena, se mira. */}
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5 pt-0.5">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5 pt-1">
         {puestos.map((v) => (
           <span
             key={v}
