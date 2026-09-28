@@ -138,11 +138,11 @@ function Accion({
 }) {
   const dentro = (
     <>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-lima/70 text-lg text-carbon">{icono}</span>
+      <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-lima/70 text-[13px] text-carbon">{icono}</span>
       <div className="min-w-0">
-        <div className={"text-base font-bold leading-tight " + (donde ? "text-carbon" : "text-carbon/70")}>{rotulo}</div>
+        <div className={"text-[11px] font-bold leading-tight " + (donde ? "text-carbon" : "text-carbon/70")}>{rotulo}</div>
         {!donde && (
-          <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-carbon/40">Próximamente</div>
+          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/40">Próximamente</div>
         )}
       </div>
     </>
@@ -153,7 +153,7 @@ function Accion({
       <Link
         href={donde}
         className={
-          "flex h-full items-center gap-3 rounded-2xl border px-4 py-3.5 transition hover:border-lima-dark hover:shadow-sm " +
+          "flex h-full min-h-[61px] items-center gap-[4%] rounded-2xl border px-[6%] py-3 transition hover:border-lima-dark hover:shadow-sm " +
           (principal ? "border-lima bg-lima-soft" : "border-black/10 bg-white")
         }
       >
@@ -164,7 +164,7 @@ function Accion({
   return (
     <div
       className={
-        "flex h-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed px-4 py-3.5 " +
+        "flex h-full min-h-[61px] cursor-not-allowed items-center gap-[4%] rounded-2xl border border-dashed px-[6%] py-3 " +
         (principal ? "border-lima/50 bg-lima-soft/60" : "border-black/10 bg-white")
       }
     >
@@ -188,12 +188,12 @@ export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean
       <Link
         href={comoVoy}
         className={
-          "flex w-[174px] shrink-0 flex-col items-center justify-center gap-4 self-stretch rounded-[10px] border px-3 py-4 text-center transition " +
+          "flex w-[30%] shrink-0 flex-col items-center justify-center gap-[8%] self-stretch rounded-[10px] border px-2 py-4 text-center transition " +
           (activo ? "border-[#FFD500] bg-[#161C20]" : "border-[#BFB112] bg-[#161C20] hover:border-[#FFD500]")
         }
       >
-        <span className="text-[20px] font-semibold leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
-        <svg viewBox="0 0 24 24" className="size-12 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <span className="text-[14px] font-semibold leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
+        <svg viewBox="0 0 24 24" className="size-10 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3v18" />
           <path d="M5 21h14" />
           <path d="M3 7h18" />
@@ -730,6 +730,7 @@ export function BotonSeccion({
   donde,
   aparte,
   icono,
+  clase = "",
 }: {
   texto: string;
   cuantas: number | null;
@@ -737,6 +738,8 @@ export function BotonSeccion({
   donde: string;
   aparte?: boolean;
   icono: React.ReactNode;
+  /** Su ancho, y el aire que lleva delante. Son medidas suyas. */
+  clase?: string;
 }) {
   const fondo = aparte
     ? "border-[#BFB112] bg-[#161C20] text-[#FFE874]"
@@ -746,13 +749,13 @@ export function BotonSeccion({
   return (
     <Link
       href={donde}
-      className={"flex min-h-[84px] flex-1 items-center gap-3 rounded-[10px] border px-4 py-3 transition " + fondo}
+      className={"flex min-h-[59px] items-center gap-3 rounded-[10px] border px-4 py-3 transition " + fondo + " " + clase}
     >
-      <span className="shrink-0 [&>svg]:size-8">{icono}</span>
+      <span className="shrink-0 [&>svg]:size-[22px]">{icono}</span>
       <span className="min-w-0">
-        <span className="block text-[20px] font-extrabold leading-tight">{texto}</span>
+        <span className="block text-[14px] font-extrabold leading-tight">{texto}</span>
         {cuantas !== null && (
-          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-sm text-[#090B49]">{cuantas}</span>
+          <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-[10px] text-[#090B49]">{cuantas}</span>
         )}
       </span>
     </Link>
@@ -771,31 +774,34 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
   const cuantas = (clave: string) => agregado.find((a) => a.clave === clave)?.cuantas ?? 0;
   return (
     <section className="rounded-lg bg-[#021101] px-4 py-4">
-      <h2 className="text-[16.5px] font-extrabold leading-tight text-[#FFD500]">Vista agregada por fases</h2>
-      <p className="mt-2 text-sm text-[#F9EDEC]">
+      <h2 className="text-[12px] font-extrabold leading-tight text-[#FFD500]">Vista agregada por fases</h2>
+      <p className="mt-1.5 text-[10px] text-[#F9EDEC]">
         En verde lo tuyo, en <span className="text-[#87C1FF]">azul lo que depende de otros</span>. El caso estándar:
         cuando no aplican, se salta los pasos que no le tocan.
       </p>
 
-      <div className="mt-4 flex gap-1.5">
+      {/* Rejilla de columnas EXACTAS, no flex: con flex cada columna se ajusta a
+          su texto y las barras salen de distinto largo, que es lo que lo hacia
+          parecer dentado. */}
+      <div className="mt-3 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${pasos.length}, minmax(0, 1fr))` }}>
         {pasos.map((p) => {
           const n = cuantas(p.clave);
           const tinta = p.ajeno ? "text-[#87C1FF]" : "text-[#23F242]";
           return (
-            <div key={p.clave} className="min-w-0 flex-1">
-              <div className="mb-1.5 text-[16.5px] font-extrabold leading-tight text-[#FF463F]/80">{n} aquí</div>
+            <div key={p.clave} className="min-w-0">
+              <div className="mb-1 text-[12px] font-extrabold leading-none text-[#FF463F]/80">{n} aquí</div>
               <div
                 className={
                   "h-2 rounded-full " +
                   (p.ramal ? "border-[1.7px] border-dashed border-[#5B7FA6]" : p.ajeno ? "bg-[#489CF7]" : "bg-[#13D930]")
                 }
               />
-              <div className={"mt-2 text-sm leading-[18px] " + tinta}>
+              <div className={"mt-1.5 text-[10px] leading-[1.25] " + tinta}>
                 {p.numero && <span className={"mr-1 " + (p.ajeno ? "text-[#4A93E2]" : "text-[#A2EDAD]")}>{p.numero}</span>}
                 {p.corto[0]}
                 {p.corto[1] && <span className="block">{p.corto[1]}</span>}
               </div>
-              {p.quien && <div className="mt-0.5 text-xs leading-4 text-[#4A93E2]">{p.quien}</div>}
+              {p.quien && <div className="mt-0.5 text-[10px] leading-[1.3] text-[#4A93E2]">{p.quien}</div>}
             </div>
           );
         })}

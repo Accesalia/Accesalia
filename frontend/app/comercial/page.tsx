@@ -127,8 +127,8 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {/* ---------------- cabecera ---------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Área comercial</h1>
-            <p className="mt-1.5 text-lg text-carbon/60">
+            <h1 className="text-[25px] font-bold leading-tight text-carbon">Área comercial</h1>
+            <p className="mt-1.5 text-[13px] text-carbon/60">
               {todos ? "Todos los comerciales. " : <>Hola, <b className="text-carbon">{nombre}</b>. </>}
               {hoy.charAt(0).toUpperCase() + hoy.slice(1)}.
             </p>
@@ -158,9 +158,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cosa de Administracion (Monica, 28-sep-2026). */}
             <Link
               href="/administracion/administraciones/nueva"
-              className="inline-flex items-center gap-2 rounded-2xl border border-dashed border-[#223A5D] bg-[#B45309] py-1 pl-1 pr-4 text-base font-bold text-[#FFD500] transition hover:bg-[#9a460a]"
+              className="inline-flex items-center gap-2 rounded-2xl border border-dashed border-[#223A5D] bg-[#B45309] py-1 pl-1 pr-4 text-[11px] font-bold text-[#FFD500] transition hover:bg-[#9a460a]"
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-lg">＋</span>
+              <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-sm">＋</span>
               Alta nuevo Administrador
             </Link>
           </div>
@@ -179,17 +179,18 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         )}
 
         {/* ------- las dos columnas: la izquierda cambia, la derecha no ------- */}
-        <div className="mt-6 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_582px]">
+        <div className="mt-6 grid items-start gap-[1.84%] xl:grid-cols-[minmax(0,1152fr)_minmax(0,470fr)]">
           {/* ================= columna izquierda ================= */}
           <div className="min-w-0">
             {/* Buscar una comunidad NO esta aqui: vive en la barra de arriba, en
                 el mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
-            <div className="grid grid-cols-2 gap-3 2xl:grid-cols-4">
+            <div className="flex flex-wrap gap-[9px]">
               <BotonSeccion
                 texto="Mis administradores"
                 cuantas={cuadro.cartera.mias.length}
                 activo={seccion === "administradores"}
                 donde={aqui("administradores")}
+                clase="w-[201px]"
                 icono={<IconoCartera />}
               />
               <BotonSeccion
@@ -197,6 +198,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cuantas={cuadro.oportunidades.length}
                 activo={seccion === "oportunidades"}
                 donde={aqui("oportunidades")}
+                clase="w-[215px]"
                 icono={<IconoOportunidad />}
               />
               <BotonSeccion
@@ -204,6 +206,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cuantas={cuadro.agenda.length}
                 activo={seccion === "agenda"}
                 donde={aqui("agenda")}
+                clase="w-[118px]"
                 icono={<IconoAgenda />}
               />
               <BotonSeccion
@@ -212,6 +215,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 activo={seccion === "cobros"}
                 donde={aqui("cobros")}
                 aparte
+                clase="ml-[30px] w-[219px]"
                 icono={<IconoCobro />}
               />
             </div>
