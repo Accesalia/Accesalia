@@ -56,6 +56,21 @@ async function crear<T>(tabla: string, fila: Record<string, unknown>): Promise<T
   return filas[0];
 }
 
+async function actualizar(consulta: string, cambios: Record<string, unknown>): Promise<void> {
+  const r = await fetch(`${URL_BASE}/rest/v1/${consulta}`, {
+    method: "PATCH",
+    headers: {
+      apikey: SECRETO,
+      Authorization: `Bearer ${SECRETO}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(cambios),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`Supabase PATCH ${consulta} ${r.status}: ${await r.text()}`);
+}
+
 const hoy = () => new Date().toISOString().slice(0, 10);
 
 // ---------------------------------------------------------- lo que se elige
@@ -394,20 +409,21 @@ export async function crearOportunidad(
   //     hechos, quedan como que NO APLICAN: nos hemos saltado esa parte, y el
   //     diario explica por que. El flujo ya existe, no se inventa aqui.
   if (d.pasoArranque) {
-    const hitos = await leer<{ clave: string; orden: number; aplicable_por_defecto: boolean }[]>(
-      "hitos_comerciales?select=clave,orden,aplicable_por_defecto&order=orden.asc",
+    // Los hitos NO se crean aqui: los crea la base sola, con un disparador, en
+    // cuanto nace la oportunidad. Lo que hay que hacer es MARCAR LOS DE ANTES
+    // como que no aplican —nos hemos saltado esa parte, y el diario dice por
+    // que—. Intentar crearlos otra vez reventaba el alta entera, porque hay una
+    // regla que impide repetir el mismo hito (visto en la prueba del 28-sep).
+    const hitos = await leer<{ clave: string; orden: number }[]>(
+      "hitos_comerciales?select=clave,orden&order=orden.asc",
     );
     const arranque = hitos.find((h) => h.clave === d.pasoArranque);
-    if (arranque) {
-      for (const h of hitos) {
-        const antes = h.orden < arranque.orden;
-        await crear("hitos_oportunidad", {
-          oportunidad_id: op.id,
-          hito: h.clave,
-          aplicable: antes ? false : h.aplicable_por_defecto,
-          estado: antes ? "no_aplica" : "pendiente",
-        });
-      }
+    const antes = arranque ? hitos.filter((h) => h.orden < arranque.orden).map((h) => h.clave) : [];
+    if (antes.length > 0) {
+      await actualizar(`hitos_oportunidad?oportunidad_id=eq.${op.id}&hito=in.(${antes.join(",")})`, {
+        aplicable: false,
+        estado: "no_aplica",
+      });
     }
   }
 
