@@ -86,7 +86,7 @@ function Casilla({
         clase
       }
     >
-      <span className="text-[11px] font-bold uppercase leading-[1.2] tracking-[0.04em]">{texto}</span>
+      <span className="whitespace-pre-line text-[11px] font-bold uppercase leading-[1.2] tracking-[0.04em]">{texto}</span>
       <input
         type="checkbox"
         name={nombre}
@@ -371,9 +371,12 @@ export function Formulario({
           {/* ---- quién ha contactado ---- */}
           <div className="grid grid-cols-[132px_minmax(0,362fr)_75px_83px] items-center gap-x-[7px] border-t border-raya py-[14px]">
             <span className={rotulo}>Quién ha contactado para pedirlo</span>
-            <div className="flex items-end gap-[26px]">
+            {/* Acaba en la MISMA vertical que la direccion y el administrador:
+                tenerlos bailando cansa la vista. Por eso la casilla mide lo
+                suyo y el desplegable se come el resto. */}
+            <div className="flex items-center justify-between">
               <Casilla
-                texto="Fue el mismo administrador"
+                texto={"Fue el mismo\nadministrador"}
                 nombre="quien_es_admin"
                 marcado={quienEsAdmin}
                 alMarcar={(v) => {
@@ -384,7 +387,7 @@ export function Formulario({
                   }
                 }}
                 tono="marron"
-                clase="h-[76px] w-[160px] shrink-0 py-2"
+                clase="h-[72px] w-[160px] shrink-0 gap-1.5 py-2"
               />
               <div className="w-[151px] shrink-0">
                 <span className={apoyo + " mb-1 whitespace-nowrap text-center"}>Fue otra persona conocida</span>
@@ -418,7 +421,7 @@ export function Formulario({
                 )}
               </div>
             </div>
-            <div className="col-span-2 flex flex-col items-center">
+            <div className="flex flex-col items-center">
               <span className={apoyo + " mb-1 whitespace-nowrap"}>Fue un nuevo contacto</span>
               <button type="button" onClick={() => setModalQuien(true)} className={accion + " w-[83px]"}>
                 {quienNuevo ? "Cambiar" : "+ Crearlo"}
