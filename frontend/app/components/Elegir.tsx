@@ -33,6 +33,7 @@ export function Elegir({
   tinta,
   marco,
   abrirAlMontar,
+  conPista,
 }: {
   id: string;
   nombre: string;
@@ -52,6 +53,9 @@ export function Elegir({
   /** Nace con la lista ya desplegada: para cuando se llega aqui pulsando un
    *  boton que dice "selecciona de las existentes". */
   abrirAlMontar?: boolean;
+  /** Al elegir, enseña tambien la pista: "Jose Luis · FINCAS SUR". Sin ella, un
+   *  "Jose Luis" a secas puede ser una docena de Jose Luises (Monica, 28-sep). */
+  conPista?: boolean;
 }) {
   const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
@@ -124,7 +128,10 @@ export function Elegir({
           (abierto ? "border-lima" : "")
         }
       >
-        <span className={"truncate " + (puesto ? "" : "text-carbon/55")}>{puesto ? puesto.texto : vacio}</span>
+        <span className={"truncate " + (puesto ? "" : "text-carbon/55")}>
+          {puesto ? puesto.texto : vacio}
+          {puesto && conPista && puesto.pista && <span className="text-carbon/60"> · {puesto.pista}</span>}
+        </span>
         <span aria-hidden className="shrink-0 text-carbon/55">
           ▾
         </span>

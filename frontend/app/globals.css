@@ -51,6 +51,21 @@
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* LA MANITA. Tailwind 4 dejo de ponerla en los botones, asi que al pasar por
+   encima un boton no se distingue de un trozo de texto, y una casilla de texto
+   y un selector se ven igual de "escribibles". Ella lo vio en cuanto lo tuvo
+   delante (28-sep-2026): "por que en algunas el cursor cambia y en otras no?" */
+button:not(:disabled),
+a[href],
+summary,
+label:has(input[type="checkbox"]),
+label:has(input[type="radio"]) {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
 html,
 body {
   background: var(--color-hueso);

@@ -365,6 +365,7 @@ export function Formulario({
                 alElegir={setAdmin}
                 vacio="selecciona de la lista"
                 marco="border-carbon/70"
+                conPista
               />
             )}
             <span className={apoyo + " text-right"}>{adminNuevo ? "Lo estás creando" : "Es un nuevo administrador"}</span>
@@ -422,11 +423,12 @@ export function Formulario({
                     vacio="selecciónalo"
                     desactivado={quienEsAdmin}
                     marco="border-carbon/70"
+                    conPista
                   />
                 )}
               </div>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="col-span-2 flex flex-col items-center">
               <span className={apoyo + " mb-1 whitespace-nowrap"}>Fue un nuevo contacto</span>
               <button type="button" onClick={() => setModalQuien(true)} className={accion + " w-[83px]"}>
                 {quienNuevo ? "Cambiar" : "+ Crearlo"}
@@ -440,7 +442,8 @@ export function Formulario({
             <Marcar
               id="tipos"
               opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
-              pista="De lo que vendemos, qué quieren"
+              vacio="De lo que vendemos, qué quieren"
+              ancho="w-[290px]"
             />
           </div>
 
@@ -585,6 +588,7 @@ export function Formulario({
           alElegir={setContacto}
           vacio="no está en la lista"
           marco="border-carbon/70"
+          conPista
         />
         <div className="mt-4 grid gap-4 sm:grid-cols-12">
           <Dato
