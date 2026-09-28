@@ -304,8 +304,18 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
       "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1",
   );
 
-  // Pendientes de firma: lo firmado ya no es comercial, es obra.
-  const pendientes = filas.filter((o) => o.hitos_oportunidad.find((h) => h.hito === "firma")?.estado !== "hecho");
+  // UNA OPORTUNIDAD ESTA ABIERTA HASTA QUE EL DINERO ESTA EN LA CUENTA, no hasta
+  // que se firma (Monica, 28-sep-2026, corrigiendome: aqui ponia "lo firmado ya
+  // no es comercial, es obra", y es falso).
+  //
+  // Su razon, que es de oficio: tras la junta el administrador vaguea, el
+  // presidente esta de viaje, y hay que PERSEGUIR la firma. Y firmada tampoco
+  // esta hecho: se pide el OK para cargar el 50%, y llega el "espera, que no hay
+  // saldo, vamos a hacer una derrama" o "cuando nos den el credito". Si el
+  // cliente no paga es como si no hubiera firmado, y por experiencia saben que
+  // quien mejor persigue a su cliente es su comercial. Por eso cobra el cuando
+  // entra el primer pago, y no antes: son horas suyas.
+  const pendientes = filas.filter((o) => o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado !== "hecho");
 
   const ids = pendientes.map((o) => o.comunidad?.id).filter((x): x is string => !!x);
   const ultimo: Record<string, string> = {};
