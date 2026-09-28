@@ -141,7 +141,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             href="#pendientes"
             className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-base font-semibold text-carbon/80 transition hover:border-lima hover:text-carbon"
           >
-            ↓ Pendientes de firma
+            ↓ Oportunidades abiertas
             <span className="rounded-full bg-lima-soft px-2 text-sm text-lima-dark">{cuadro.oportunidades.length}</span>
           </a>
           <a
@@ -167,7 +167,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
 
         {/* ---------------- pendientes de firma, a lo ancho ---------------- */}
         <section id="pendientes" className="mt-10 scroll-mt-24">
-          <Titulo>Oportunidades pendientes de firma · {cuadro.oportunidades.length}</Titulo>
+          <Titulo>Oportunidades abiertas · {cuadro.oportunidades.length}</Titulo>
           <div className="overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
             <div className="min-w-[760px]">
               <Leyenda pasos={cuadro.pasos} />

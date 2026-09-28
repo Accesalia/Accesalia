@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Nueva oportunidad</title>
+<style>
+/* TODO el estilo va aqui dentro: este archivo no pide NADA a internet, para que
+   cualquier plugin de Figma lo pueda importar sin descargar nada. */
+:root{
+  --carbon:#2b2b2b;
+  --lima:#7ac943;
+  --lima-dark:#3f7a1c;
+  --lima-suave:#e5f3d8;
+  --marco:#707070;
+  --form:#f5fbf0;
+  --tarjeta:#fffdf5;
+  --amarillo:#fff5cc;
+  --verde:#237812;
+  --ocre:#baa208;
+  --ocre-texto:#5c4208;
+  --ocre-marco:#8a6410;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--form);
+  color:var(--carbon);
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.pagina{max-width:1300px;margin:0 auto;padding:24px 24px 80px}
+
+/* rotulos grises que separan los bloques (no son parte del diseno) */
+.rotulo-figma{
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#9a9a9a;margin:40px 0 10px;
+}
+
+/* --------------------------------------------------- piezas basicas */
+.etiqueta{
+  display:block;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:rgba(43,43,43,.7);
+}
+.etiqueta.verde{color:var(--verde)}
+.campo{
+  display:block;width:100%;margin-top:4px;
+  border:1px solid var(--marco);border-radius:8px;background:#fff;
+  padding:6px 12px;font-size:14px;color:var(--carbon);font-family:inherit;
+}
+.campo::placeholder{color:rgba(43,43,43,.55)}
+.campo.quieto{background:rgba(0,0,0,.05);color:rgba(43,43,43,.6);border-color:var(--marco)}
+.desplegable{
+  display:flex;width:100%;margin-top:4px;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid rgba(0,0,0,.10);border-radius:8px;background:#fff;
+  padding:6px 12px;font-size:14px;text-align:left;color:var(--carbon);font-family:inherit;
+}
+.desplegable .vacio{color:rgba(43,43,43,.55)}
+.desplegable .flecha{color:rgba(43,43,43,.55);flex:none}
+
+/* un boton NO se parece a un campo: pastilla con color, y mide lo que su texto */
+.boton{
+  display:inline-flex;align-items:center;gap:6px;width:auto;align-self:flex-start;
+  margin-top:6px;border:1px solid var(--lima-dark);border-radius:999px;
+  background:rgba(122,201,67,.25);padding:4px 14px;
+  font-size:12px;font-weight:700;color:var(--carbon);font-family:inherit;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+}
+.boton.creando{border-color:var(--ocre-marco);background:var(--amarillo);color:var(--ocre-texto)}
+.guardar{
+  border:0;border-radius:8px;background:var(--lima);padding:8px 24px;
+  font-size:14px;font-weight:700;color:var(--carbon);font-family:inherit;
+}
+.cancelar{
+  display:inline-block;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:#fff;
+  padding:8px 16px;font-size:14px;color:rgba(43,43,43,.75);text-decoration:none;font-family:inherit;
+}
+
+/* --------------------------------------------------- la cabecera */
+.cabecera{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+.cabecera h1{font-size:26px;font-weight:800;line-height:1}
+.pie-cabecera{
+  margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;
+  justify-content:space-between;gap:16px;
+}
+.pie-cabecera p{max-width:760px;font-size:12px;color:rgba(43,43,43,.7);line-height:1.45}
+.pie-cabecera .botones{display:flex;align-items:center;gap:12px}
+
+/* --------------------------------------------------- las dos tarjetas */
+.dos-columnas{
+  margin-top:16px;display:grid;align-items:start;gap:16px;
+  grid-template-columns:minmax(0,500fr) minmax(0,670fr);
+}
+.tarjeta{border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.05);background:var(--tarjeta)}
+.tarjeta.diario{border:1px solid var(--ocre)}
+.tarjeta.datos{border:1px solid var(--verde)}
+.tarjeta h2{font-size:19px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}
+.subtitulo{
+  margin:4px 0 12px;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:rgba(43,43,43,.6);
+}
+.diario textarea{margin-top:12px;min-height:260px;resize:vertical}
+
+/* --------------------------------------------------- filas de campos */
+.fila-direccion{display:grid;gap:14px;grid-template-columns:minmax(0,365fr) minmax(0,245fr)}
+.fila-quien{margin-top:16px;display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.columna{display:flex;min-width:0;flex-direction:column;align-items:flex-start}
+.al-pie{display:flex;align-items:flex-end}
+
+/* --------------------------------------------------- lo marcado, sobre el fondo */
+.marcados{margin-top:8px;display:flex;min-height:28px;flex-wrap:wrap;align-items:flex-start;gap:6px}
+.marca{
+  display:inline-flex;align-items:center;gap:6px;border-radius:8px;
+  background:rgba(122,201,67,.25);padding:2px 8px;font-size:12px;font-weight:600;
+}
+.marca .quitar{color:rgba(43,43,43,.6)}
+
+/* --------------------------------------------------- tarjetas de dentro */
+.caja{
+  margin-top:16px;border:1px solid var(--marco);border-radius:14px;
+  background:rgba(255,255,255,.7);padding:12px;
+}
+.caja.estrecha{max-width:520px}
+.caja h3,.rotulo-verde{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--verde);margin-bottom:8px;
+}
+.caja h3 .suave{font-weight:600;text-transform:none;letter-spacing:0;color:rgba(43,43,43,.6)}
+.casillas{display:flex;flex-wrap:wrap;gap:8px}
+.casilla{
+  display:flex;width:175px;flex-direction:column;align-items:center;gap:6px;
+  border:1px solid var(--marco);border-radius:8px;background:#fff;padding:8px 12px;text-align:center;
+}
+.casilla.marcada{border-color:var(--lima-dark);background:rgba(122,201,67,.2)}
+.casilla span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1.2;color:rgba(43,43,43,.8)}
+.casilla input{width:20px;height:20px;accent-color:var(--lima-dark)}
+
+/* --------------------------------------------------- desplegable abierto */
+.lista{
+  margin-top:4px;overflow:hidden;border:1px solid rgba(0,0,0,.10);border-radius:8px;
+  background:#fff;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);
+}
+.lista .buscar{width:100%;border:0;border-bottom:1px solid rgba(0,0,0,.1);padding:8px 12px;font-size:14px;font-family:inherit}
+.lista ul{list-style:none;padding:4px 0}
+.lista li{padding:6px 12px;font-size:14px}
+.lista li.sobre{background:var(--lima-suave)}
+
+/* --------------------------------------------------- modales */
+.fondo-modal{display:flex;justify-content:center;border-radius:18px;background:rgba(43,43,43,.4);padding:32px}
+.modal{
+  width:100%;max-width:520px;border:1px solid var(--marco);border-radius:16px;background:#fff;padding:16px;
+  box-shadow:0 20px 25px -5px rgba(0,0,0,.2);
+}
+.modal.ancho{max-width:540px}
+.modal h3{font-size:15px;font-weight:700}
+.modal p{margin:4px 0 12px;font-size:12px;color:rgba(43,43,43,.65);line-height:1.45}
+.rejilla{display:grid;gap:14px;grid-template-columns:repeat(12,minmax(0,1fr))}
+.c5{grid-column:span 5}.c4{grid-column:span 4}.c3{grid-column:span 3}
+.c7{grid-column:span 7}.c12{grid-column:span 12}
+.pie-modal{margin-top:16px;display:flex;justify-content:flex-end;gap:12px}
+
+/* --------------------------------------------------- bloque amarillo */
+.nuevo{margin-top:12px;border:1px solid var(--ocre-marco);border-radius:14px;background:var(--amarillo);padding:12px}
+.nuevo .titulo{
+  margin-bottom:8px;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ocre-texto);
+}
+.puesto{
+  margin-top:4px;display:flex;width:100%;align-items:center;gap:8px;
+  border:1px solid var(--ocre-marco);border-radius:8px;background:var(--amarillo);
+  padding:6px 12px;font-size:14px;
+}
+.puesto .nombre{flex:1;font-weight:600;color:var(--ocre-texto)}
+.puesto .cambiar{font-size:12px;font-weight:700;color:var(--ocre-texto);text-decoration:underline}
+</style>
+</head>
+
+<body>
+<div class="pagina">
+
+<p class="rotulo-figma">1 · la pantalla, tal como se ve al abrirla</p>
+
+<!-- ===================== la cabecera, sin tarjeta ===================== -->
+<div class="cabecera">
+  <h1>Nueva oportunidad</h1>
+
+  <label style="width:190px">
+    <span class="etiqueta">Número de orden</span>
+    <span class="campo quieto">PER-2026-000</span>
+  </label>
+
+  <label style="width:150px">
+    <span class="etiqueta">Fecha de la llamada</span>
+    <input class="campo" type="date" value="2026-09-28">
+  </label>
+
+  <div style="width:230px">
+    <span class="etiqueta">Comercial que la lleva</span>
+    <button class="desplegable"><span>Daniel Pérez</span><span class="flecha">▾</span></button>
+  </div>
+</div>
+
+<div class="pie-cabecera">
+  <p>Lo único necesario es que completes lo que te han dicho, y tenga asignado un comercial. Todo lo demás, si se
+     puede indicar bien, y si no, se completará después.</p>
+  <div class="botones">
+    <a class="cancelar" href="#">Cancelar</a>
+    <button class="guardar">Guardar</button>
+  </div>
+</div>
+
+<div class="dos-columnas">
+
+  <!-- ===================== el diario ===================== -->
+  <section class="tarjeta diario">
+    <h2>Qué te han contado</h2>
+    <textarea class="campo" rows="9" placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."></textarea>
+  </section>
+
+  <!-- ===================== los datos que tenemos ===================== -->
+  <section class="tarjeta datos">
+    <h2>Datos que tenemos</h2>
+    <p class="subtitulo">Apunta lo que ya sepas, cuanto más mejor</p>
+
+    <div class="fila-direccion">
+      <div class="columna">
+        <span class="etiqueta verde">Dirección de la comunidad</span>
+        <input class="campo" type="text" placeholder="dirección del edificio">
+        <button class="boton">O selecciona de las ya existentes</button>
+      </div>
+
+      <div class="columna">
+        <span class="etiqueta verde">Quién es el administrador</span>
+        <button class="desplegable"><span class="vacio">selecciona de la lista</span><span class="flecha">▾</span></button>
+        <button class="boton">+ Nuevo administrador, crearlo</button>
+      </div>
+    </div>
+
+    <div class="fila-quien">
+      <div>
+        <span class="etiqueta verde">Quién ha contactado para pedirlo</span>
+        <button class="desplegable"><span class="vacio">¿es alguien conocido? selecciónalo de la agenda</span><span class="flecha">▾</span></button>
+      </div>
+      <div class="al-pie">
+        <button class="boton">+ No le conozco, crear contacto nuevo</button>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <span class="etiqueta verde">En qué dicen que están interesados</span>
+      <span style="display:block;margin-bottom:4px;font-size:11px;color:rgba(43,43,43,.6)">De lo que vendemos, qué quieren</span>
+      <input class="campo" type="text" placeholder="selecciona uno o varios" style="margin-top:0">
+      <div class="marcados">
+        <span class="marca">SATE envolvente completa <span class="quitar">×</span></span>
+        <span class="marca">Ascensor <span class="quitar">×</span></span>
+        <span class="marca">Subvenciones <span class="quitar">×</span></span>
+      </div>
+    </div>
+
+    <section class="caja estrecha">
+      <h3>Con quién hablo de esto a partir de ahora
+        <span class="suave">(contacto para verlo, enviar, etc.)</span>
+      </h3>
+      <div class="casillas">
+        <label class="casilla marcada"><span>El mismo que me llamó</span><input type="checkbox" checked></label>
+        <label class="casilla"><span>El administrador</span><input type="checkbox"></label>
+        <label class="casilla"><span>Otro (crear)</span><input type="checkbox"></label>
+      </div>
+    </section>
+
+    <section class="caja">
+      <h3>Qué tengo que hacer: siguiente paso inmediato</h3>
+      <div class="casillas">
+        <label class="casilla"><span>Llamar para que me cuenten</span><input type="checkbox"></label>
+        <label class="casilla marcada"><span>Ir a verlo</span><input type="checkbox" checked></label>
+        <label class="casilla"><span>Enviar Hoja de Encargo</span><input type="checkbox"></label>
+      </div>
+    </section>
+
+    <h3 class="rotulo-verde" style="margin-top:16px">Datos extra</h3>
+    <div style="max-width:320px">
+      <span class="etiqueta">Cómo nos conocieron</span>
+      <button class="desplegable"><span class="vacio">—</span><span class="flecha">▾</span></button>
+    </div>
+  </section>
+</div>
+
+<p class="rotulo-figma">2 · el desplegable abierto (el buscador de direcciones)</p>
+<div style="width:365px">
+  <span class="etiqueta verde">Dirección de la comunidad</span>
+  <button class="desplegable" style="border-color:var(--lima)"><span class="vacio">busca la que ya tenemos</span><span class="flecha">▾</span></button>
+  <div class="lista">
+    <input class="buscar" placeholder="Escribe para buscar…">
+    <ul>
+      <li>ABELLA 7 MADRID</li>
+      <li class="sobre">ALBACETE 3 COSLADA</li>
+      <li>ALCALÁ DE GUADAIRA 38 MADRID</li>
+      <li>ALCOCER 27 MADRID</li>
+    </ul>
+  </div>
+</div>
+
+<p class="rotulo-figma">3 · modal: administrador nuevo</p>
+<div class="fondo-modal">
+  <div class="modal">
+    <h3>Administrador nuevo</h3>
+    <p>Lo justo para poder seguir con la oportunidad. Su ficha se completa después.</p>
+    <div class="rejilla">
+      <label class="c5"><span class="etiqueta">Nombre</span><input class="campo"></label>
+      <label class="c4"><span class="etiqueta">Teléfono</span><input class="campo"></label>
+      <label class="c3"><span class="etiqueta">Correo</span><input class="campo"></label>
+      <div class="c12">
+        <span class="etiqueta">Administración de fincas en la que está</span>
+        <button class="desplegable"><span class="vacio">todavía no lo sé</span><span class="flecha">▾</span></button>
+      </div>
+    </div>
+    <div class="pie-modal">
+      <button class="cancelar">Quitar</button>
+      <button class="guardar">Listo</button>
+    </div>
+  </div>
+</div>
+
+<p class="rotulo-figma">4 · modal: con quién hablo a partir de ahora</p>
+<div class="fondo-modal">
+  <div class="modal ancho">
+    <h3>Con quién hablo a partir de ahora</h3>
+    <p>La vecina, el presidente, alguien de la comisión de obras. Si ya está en la agenda, se elige; si no, se escribe.</p>
+    <span class="etiqueta">Si ya lo tenemos</span>
+    <button class="desplegable"><span class="vacio">no está en la lista</span><span class="flecha">▾</span></button>
+    <div class="rejilla" style="margin-top:12px">
+      <label class="c5"><span class="etiqueta">Si no está: cómo se llama</span><input class="campo" placeholder="a quien tengo que llamar"></label>
+      <label class="c4"><span class="etiqueta">Teléfono</span><input class="campo"></label>
+      <label class="c3"><span class="etiqueta">Correo</span><input class="campo"></label>
+    </div>
+    <div class="pie-modal">
+      <button class="cancelar">Quitar</button>
+      <button class="guardar">Listo</button>
+    </div>
+  </div>
+</div>
+
+<p class="rotulo-figma">5 · contacto nuevo, el bloque amarillo que se despliega</p>
+<div style="background:var(--tarjeta);border:1px solid var(--verde);border-radius:14px;padding:16px">
+  <div class="nuevo" style="margin-top:0">
+    <p class="titulo">Contacto nuevo — lo que es decide dónde se guarda</p>
+    <div class="rejilla">
+      <label class="c5"><span class="etiqueta">Nombre</span><input class="campo"></label>
+      <label class="c4"><span class="etiqueta">Teléfono</span><input class="campo"></label>
+      <label class="c3"><span class="etiqueta">Correo</span><input class="campo"></label>
+      <div class="c7">
+        <span class="etiqueta">Qué es</span>
+        <button class="desplegable"><span class="vacio">—</span><span class="flecha">▾</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="rotulo-figma">6 · el administrador recién creado, ya puesto en la ficha</p>
+<div style="width:245px">
+  <span class="etiqueta verde">Quién es el administrador</span>
+  <div class="puesto">
+    <span class="nombre">Vanesa Gómez <span style="font-weight:400;opacity:.7">· nuevo</span></span>
+    <span class="cambiar">cambiar</span>
+    <span style="opacity:.7">×</span>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
