@@ -190,7 +190,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cuantas={cuadro.cartera.mias.length}
                 activo={seccion === "administradores"}
                 donde={aqui("administradores")}
-                clase="w-[233px]"
+                clase="w-[222px]"
                 icono={<IconoCartera />}
               />
               <BotonSeccion
@@ -198,7 +198,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cuantas={cuadro.oportunidades.length}
                 activo={seccion === "oportunidades"}
                 donde={aqui("oportunidades")}
-                clase="w-[252px]"
+                clase="w-[240px]"
                 icono={<IconoOportunidad />}
               />
               <BotonSeccion
@@ -206,7 +206,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 cuantas={cuadro.agenda.length}
                 activo={seccion === "agenda"}
                 donde={aqui("agenda")}
-                clase="w-[126px]"
+                clase="w-[120px]"
                 icono={<IconoAgenda />}
               />
               <BotonSeccion
@@ -215,7 +215,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 activo={seccion === "cobros"}
                 donde={aqui("cobros")}
                 aparte
-                clase="ml-[30px] w-[216px]"
+                clase="ml-[28px] w-[220px]"
                 icono={<IconoCobro />}
               />
             </div>

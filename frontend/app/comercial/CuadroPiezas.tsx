@@ -57,7 +57,7 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
   const grupo = (titulo: string, lista: TareaCuadro[], fondo: string, cabecera: string) =>
     lista.length > 0 && (
       <div className={fondo}>
-        <div className={"border-t border-black/5 px-5 py-2 text-[10px] font-bold uppercase tracking-wider first:border-t-0 " + cabecera}>
+        <div className={"border-t border-black/5 px-5 py-2 text-[11px] font-bold uppercase tracking-wider first:border-t-0 " + cabecera}>
           {titulo}
         </div>
         <ul>
@@ -72,12 +72,12 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
                   }
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] text-carbon">{t.texto}</p>
-                  {t.donde && <p className="mt-0.5 text-[11px] text-carbon/55">{t.donde}</p>}
+                  <p className="text-[14px] text-carbon">{t.texto}</p>
+                  {t.donde && <p className="mt-0.5 text-[12px] text-carbon/55">{t.donde}</p>}
                 </div>
                 <span
                   className={
-                    "shrink-0 whitespace-nowrap pt-0.5 text-[11px] font-semibold " +
+                    "shrink-0 whitespace-nowrap pt-0.5 text-[12px] font-semibold " +
                     (c.tono === "tarde" ? "text-alerta" : c.tono === "hoy" ? "text-amber-700" : "text-carbon/55")
                   }
                 >
@@ -95,10 +95,10 @@ export function Agenda({ tareas }: { tareas: TareaCuadro[] }) {
       <Titulo>Lo que tengo que hacer</Titulo>
       <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
         {tareas.length === 0 ? (
-          <p className="px-5 py-10 text-center text-[12px] text-carbon/50">
+          <p className="px-5 py-10 text-center text-[14px] text-carbon/50">
             Nada para hoy ni para esta semana.
             <br />
-            <span className="text-[11px]">Las tareas salen solas de lo que grabas en el diario.</span>
+            <span className="text-[12px]">Las tareas salen solas de lo que grabas en el diario.</span>
           </p>
         ) : (
           <>
@@ -138,11 +138,11 @@ function Accion({
 }) {
   const dentro = (
     <>
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-[13px] text-[#FFD500]">{icono}</span>
+      <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[#223A5D] text-[13px] text-[#FFD500]">{icono}</span>
       <div className="min-w-0">
-        <div className="text-[16px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
+        <div className="text-[15px] font-bold leading-tight text-[#FFD500]">{rotulo}</div>
         {!donde && (
-          <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#FADE53]">Próximamente</div>
+          <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FADE53]">Próximamente</div>
         )}
       </div>
     </>
@@ -153,7 +153,7 @@ function Accion({
       <Link
         href={donde}
         className={
-          "flex h-full items-center gap-3 rounded-2xl border px-4 py-3.5 transition hover:bg-[#4a7291] " +
+          "flex h-full items-center gap-3 rounded-2xl border px-3.5 py-3 transition hover:bg-[#4a7291] " +
           (principal ? "border-[#223A5D] bg-[#5680A1]" : "border-[#223A5D] bg-[#5680A1]")
         }
       >
@@ -164,7 +164,7 @@ function Accion({
   return (
     <div
       className={
-        "flex h-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed px-4 py-3.5 " +
+        "flex h-full cursor-not-allowed items-center gap-3 rounded-2xl border border-dashed px-3.5 py-3 " +
         "border-dashed border-[#223A5D] bg-[#5680A1]"
       }
     >
@@ -193,18 +193,18 @@ export function Acciones({ comoVoy, activo }: { comoVoy: string; activo: boolean
       <Link
         href={comoVoy}
         className={
-          "flex items-center justify-center gap-3 rounded-2xl border bg-[#161C20] px-4 py-3.5 text-center transition " +
+          "flex items-center justify-center gap-3 rounded-2xl border bg-[#161C20] px-4 py-3 text-center transition " +
           (activo ? "border-[#FFD500]" : "border-[#BFB112] hover:border-[#FFD500]")
         }
       >
-        <svg viewBox="0 0 24 24" className="size-8 shrink-0 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="size-7 shrink-0 text-[#FFD500]" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3v18" />
           <path d="M5 21h14" />
           <path d="M3 7h18" />
           <path d="m6 7-3 7h6Z" />
           <path d="m18 7-3 7h6Z" />
         </svg>
-        <span className="text-[16px] font-semibold uppercase leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
+        <span className="text-[15px] font-semibold uppercase leading-tight text-[#FFE874]">Cómo voy de lo mío</span>
       </Link>
     </div>
   );
@@ -218,23 +218,23 @@ export function Diario({ entradas }: { entradas: EntradaCuadro[] }) {
       <Titulo>Lo que va pasando</Titulo>
       <div className="max-h-[30rem] overflow-y-auto rounded-2xl border border-black/5 bg-white shadow-sm">
         {entradas.length === 0 ? (
-          <p className="px-5 py-10 text-center text-[12px] text-carbon/50">Aún no hay nada grabado.</p>
+          <p className="px-5 py-10 text-center text-[14px] text-carbon/50">Aún no hay nada grabado.</p>
         ) : (
           <ul className="divide-y divide-black/5">
             {entradas.map((e) => {
               const cuerpo = (
                 <>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-carbon/55">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-carbon/55">
                     <span className="font-bold text-carbon/80">{ddmm(e.fecha)}</span>
-                    <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[10px] font-semibold">{e.tipo}</span>
+                    <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[11px] font-semibold">{e.tipo}</span>
                     {e.con && <span className="text-lima-dark">{e.con}</span>}
                     {e.revisar && (
-                      <span className="rounded-full bg-amber-50 px-2 py-px text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                      <span className="rounded-full bg-amber-50 px-2 py-px text-[11px] font-bold uppercase tracking-wide text-amber-700">
                         revisar
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-carbon/80">{e.texto}</p>
+                  <p className="mt-1 line-clamp-2 text-[14px] leading-snug text-carbon/80">{e.texto}</p>
                 </>
               );
               return (
@@ -655,18 +655,18 @@ function Ranking({ filas, numerado, tono }: { filas: FilaRanking[]; numerado: bo
     <ul className="divide-y divide-black/5">
       {filas.map((f, i) => {
         const nombre = (
-          <span className="min-w-0 flex-1 truncate text-[12px] text-carbon/85">
+          <span className="min-w-0 flex-1 truncate text-[14px] text-carbon/85">
             {f.nombre}
-            {f.prestada && <span className="ml-1.5 rounded-full bg-amber-50 px-1.5 py-px text-[10px] font-bold text-amber-700">prest.</span>}
+            {f.prestada && <span className="ml-1.5 rounded-full bg-amber-50 px-1.5 py-px text-[11px] font-bold text-amber-700">prest.</span>}
           </span>
         );
         return (
           <li key={f.nombre + i} className="flex items-center gap-2.5 px-4 py-2">
-            <span className="w-4 shrink-0 text-[11px] font-bold tabular-nums text-carbon/35">{numerado ? i + 1 : "·"}</span>
+            <span className="w-4 shrink-0 text-[12px] font-bold tabular-nums text-carbon/35">{numerado ? i + 1 : "·"}</span>
             {nombre}
             <span
               className={
-                "shrink-0 whitespace-nowrap text-[11px] font-bold tabular-nums " +
+                "shrink-0 whitespace-nowrap text-[12px] font-bold tabular-nums " +
                 (tono === "bien" ? "text-lima-dark" : tono === "mal" ? "text-alerta" : "text-carbon/60")
               }
             >
@@ -683,8 +683,8 @@ function CajaCartera({ titulo, sub, children }: { titulo: string; sub: string; c
   return (
     <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div className="border-b border-black/5 px-4 pb-2.5 pt-3">
-        <div className="text-[12px] font-bold text-carbon">{titulo}</div>
-        <div className="text-[11px] text-carbon/50">{sub}</div>
+        <div className="text-[14px] font-bold text-carbon">{titulo}</div>
+        <div className="text-[12px] text-carbon/50">{sub}</div>
       </div>
       {children}
     </div>
@@ -692,7 +692,7 @@ function CajaCartera({ titulo, sub, children }: { titulo: string; sub: string; c
 }
 
 const Falta = ({ texto }: { texto: string }) => (
-  <p className="px-4 py-6 text-[11px] leading-relaxed text-amber-700/80">{texto}</p>
+  <p className="px-4 py-6 text-[12px] leading-relaxed text-amber-700/80">{texto}</p>
 );
 
 export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boolean }) {
@@ -704,8 +704,8 @@ export function Cartera({ cartera, todos }: { cartera: CarteraCuadro; todos: boo
           <div className="flex flex-wrap gap-x-6 gap-y-1 border-b border-black/5 px-4 py-3">
             {cartera.cifras.map((c) => (
               <div key={c.etiqueta}>
-                <div className="text-[14px] font-bold tabular-nums text-carbon">{c.valor}</div>
-                <div className="text-[11px] text-carbon/55">{c.etiqueta}</div>
+                <div className="text-[15px] font-bold tabular-nums text-carbon">{c.valor}</div>
+                <div className="text-[12px] text-carbon/55">{c.etiqueta}</div>
               </div>
             ))}
           </div>
@@ -756,9 +756,9 @@ export function BotonSeccion({
       href={donde}
       className={"flex min-h-[59px] items-center gap-2 rounded-[10px] border px-3 py-2 transition " + fondo + " " + clase}
     >
-      <span className="shrink-0 [&>svg]:size-7">{icono}</span>
+      <span className="shrink-0 [&>svg]:size-6">{icono}</span>
       <span className="min-w-0">
-        <span className="block text-[16px] font-bold leading-tight">{texto}</span>
+        <span className="block text-[15px] font-bold leading-tight">{texto}</span>
         {cuantas !== null && (
           <span className="mt-1 inline-block rounded-full bg-[#FFFDF3] px-2 text-[11px] text-[#090B49]">{cuantas}</span>
         )}
