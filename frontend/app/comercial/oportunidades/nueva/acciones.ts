@@ -12,6 +12,21 @@ const texto = (fd: FormData, k: string) => {
   return v === "" ? null : v;
 };
 
+/** Una persona creada en la ventana de "crear un contacto nuevo". Lo que se
+ *  marca en QUE ES decide donde acaba guardada. */
+function persona(fd: FormData, pre: string) {
+  const nombre = texto(fd, pre + "_nombre");
+  if (!nombre) return null;
+  return {
+    nombre,
+    telefono: texto(fd, pre + "_telefono"),
+    correo: texto(fd, pre + "_correo"),
+    que: texto(fd, pre + "_que"),
+    otro: texto(fd, pre + "_otro"),
+    contrataId: texto(fd, pre + "_contrata"),
+  };
+}
+
 export async function guardarOportunidad(fd: FormData) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=" + VOLVER);
@@ -22,9 +37,9 @@ export async function guardarOportunidad(fd: FormData) {
   const comunidadId = texto(fd, "comunidad");
   const direccionProvisional = texto(fd, "direccion_provisional");
   const administradorPersonaId = texto(fd, "administrador");
-  const adminNuevoNombre = texto(fd, "admin_nuevo_nombre");
-  const nuevoTelefono = texto(fd, "nuevo_telefono");
-  const nuevoCorreo = texto(fd, "nuevo_correo");
+  const administradorNuevo = persona(fd, "admin_nuevo");
+  const quienNuevo = persona(fd, "quien_nuevo");
+  const otroNuevo = persona(fd, "otro_nuevo");
   const pasoArranque = texto(fd, "paso");
 
   // Las tres condiciones de ella. Sin comercial no es una oportunidad, es una
@@ -35,9 +50,9 @@ export async function guardarOportunidad(fd: FormData) {
     comunidadId ||
     direccionProvisional ||
     administradorPersonaId ||
-    adminNuevoNombre ||
-    nuevoTelefono ||
-    nuevoCorreo,
+    administradorNuevo ||
+    quienNuevo?.telefono ||
+    quienNuevo?.correo,
   );
   if (!nota || !comercialId || !hayHilo || !pasoArranque) redirect(VOLVER + "?falta=1");
 
@@ -51,36 +66,15 @@ export async function guardarOportunidad(fd: FormData) {
     comunidadId,
     direccionProvisional,
     administradorPersonaId,
-    administradorNuevo: adminNuevoNombre
-      ? {
-          nombre: adminNuevoNombre,
-          telefono: texto(fd, "admin_nuevo_telefono"),
-          correo: texto(fd, "admin_nuevo_correo"),
-          empresaId: texto(fd, "admin_nuevo_empresa"),
-        }
-      : null,
-    quien: texto(fd, "quien"),
-    contactoNuevo:
-      marcado && nuevoNombre
-        ? {
-            nombre: nuevoNombre,
-            telefono: nuevoTelefono,
-            correo: nuevoCorreo,
-            relacion: texto(fd, "nuevo_relacion") ?? "personal",
-            contrataId: texto(fd, "nuevo_contrata"),
-          }
-        : null,
+    administradorNuevo,
     // Sus tres casillas. "Fue el mismo administrador" existe porque el 90% de
     // las veces lo es, y elegirlo dos veces fastidia al comercial.
     quienEsAdmin: fd.get("quien_es_admin") === "on",
+    quien: texto(fd, "quien"),
+    quienNuevo,
     mismoQueLlama: fd.get("habla_llamo") === "on",
     contactoEsAdmin: fd.get("habla_admin") === "on",
-    contactoQuien: texto(fd, "contacto"),
-    contactoProvisional: {
-      nombre: texto(fd, "contacto_nombre"),
-      telefono: texto(fd, "contacto_telefono"),
-      correo: texto(fd, "contacto_correo"),
-    },
+    otroNuevo,
     // Una fila por cada cosa que quieren: normalmente entre dos y cinco.
     tipoIds: fd.getAll("tipos").map(String).filter(Boolean),
     canalId: texto(fd, "canal"),

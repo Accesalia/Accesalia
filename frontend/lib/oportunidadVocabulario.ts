@@ -14,17 +14,21 @@ export const PASOS_DE_ARRANQUE = [
   { clave: "envio_documentos", texto: "Enviar Hoja de Encargo" },
 ] as const;
 
-/** Que es la persona que llamo, cuando hay que crearla. No es una etiqueta:
- *  DECIDE DONDE SE GUARDA, que es lo que ella detecto.
+/** QUE ES la persona que se crea. No es una etiqueta: DECIDE DONDE SE GUARDA.
  *
- *  Sus dos familias: con los de arriba hay una relacion comercial estable —nos
- *  facturamos, y nos llaman justo para esto—; con los de abajo la relacion es de
- *  otro tipo, y que te llamen por un proyecto es la excepcion. */
-export const RELACIONES = [
-  { valor: "administrador", texto: "Administrador de fincas", pista: "relación comercial estable" },
-  { valor: "contrata", texto: "Comercial de contrata", pista: "relación comercial estable" },
-  { valor: "banco", texto: "Comercial de banco", pista: "relación comercial estable" },
-  { valor: "comunidad", texto: "Contacto de comunidad", pista: "otro tipo de relación" },
-  { valor: "organismo", texto: "Contacto de organismo oficial", pista: "otro tipo de relación" },
-  { valor: "personal", texto: "Contacto personal", pista: "otro tipo de relación" },
+ *  Tres casillas a la vista y un "otro" de texto libre, porque una lista cerrada
+ *  siempre se queda corta: el tecnico del ayuntamiento, el del banco, la de la
+ *  comision de obras. Antes eran seis valores fijos (Monica, 28-sep-2026). */
+export const QUE_ES = [
+  { valor: "administrador", texto: "Administrador" },
+  { valor: "contrata", texto: "Comercial contrata" },
+  { valor: "vecino", texto: "Vecino" },
 ] as const;
+
+/** Lo que se escribe en el cargo de cada uno. Para "otro" se usa lo que escriba
+ *  ella misma en la casilla de texto. */
+export const CARGO_DE: Record<string, string> = {
+  administrador: "Administrador de fincas",
+  contrata: "Comercial de contrata",
+  vecino: "Vecino",
+};

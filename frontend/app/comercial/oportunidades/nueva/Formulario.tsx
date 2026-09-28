@@ -5,37 +5,28 @@ import { useEffect, useState } from "react";
 import { Elegir, type Opcion } from "../../../components/Elegir";
 import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
-import { PASOS_DE_ARRANQUE, RELACIONES } from "../../../../lib/oportunidadVocabulario";
+import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 
 // DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma (28-sep-2026).
 //
-// LAS MEDIDAS SON SUYAS, sacadas del Figma, y no se "redondean" ni se cambian
-// por un reparto automatico: se las trabajo una por una y la primera vez las
-// sustitui por "que todo se estire", que es justo lo que las rompe.
+// LAS MEDIDAS SON SUYAS y se copian tal cual. Sobre 1252 de pagina:
+//   · cabecera: titulo · numero 190 · fecha 128 · comercial 180
+//   · tarjetas: 528 el diario, 707 los datos, 28 de separacion
+//   · cada fila: rotulo 128 · campo 362 · texto azul 75 · boton 83, 10 de hueco.
+//     Esos 10 son el MINIMO y marcan donde empieza todo lo demas;
+//   · el modal de crear contacto: 770 · nombre 238 · telefono 149 · correo 296.
 //
-// Sobre un ancho de pagina de 1252 (1300 menos los margenes):
-//   · cabecera: titulo 585 · numero 190 · fecha 128 · comercial 180 (el nombre
-//     de un comercial no necesita mas, y asi el titulo va en una sola linea)
-//   · tarjetas: 528 la del diario, 707 la de los datos, 28 de separacion
-//   · cada fila de datos: rotulo 128 · campo 362 · texto azul 75 · boton 83, y
-//     10 de separacion entre columnas. Esos 10 son la distancia que hay en su
-//     maqueta entre el rotulo y el campo, y son EL MINIMO: marcan donde empieza
-//     todo lo demas, para que el campo sea lo mas ancho posible y todo caiga en
-//     la misma vertical. Con esos numeros los campos empiezan en 138 y la fila
-//     termina en 678, que es justo lo que ella tiene.
-//   · "quien ha contactado": casilla 160 · desplegable 151 · boton 83
-//   · "en que dicen": 237, y lo marcado crece a su derecha
-//   · la caja de con quien hablo: 572 de ancho, casillas de 75 de alto
-//
-// Lo demas que decidio ella:
-//   · fondo OSCURO para no confundir un alta con una ficha ya creada;
+// Lo que decidio ella:
+//   · fondo OSCURO, para no confundir un alta con una ficha ya creada;
 //   · "que tengo que hacer" va con el diario —lo que me cuentan y lo que hago—
 //     y en rojo, porque no es opcional;
 //   · cada boton azul lleva al lado el texto que explica para que sirve;
 //   · marron para "con quien hablo", azul marino para el paso siguiente: no
 //     todas las casillas marcadas hablan de lo mismo;
 //   · "fue el mismo administrador" se marca de una vez, porque el 90% de las
-//     veces lo es y elegirlo dos veces fastidia al comercial.
+//     veces lo es y elegirlo dos veces fastidia al comercial;
+//   · y UN SOLO SITIO para crear una persona, se llegue por donde se llegue:
+//     lo que se marca en "que es" decide donde acaba guardada.
 
 const rotulo = "text-[10px] font-bold uppercase leading-[1.3] tracking-[0.05em] text-[#237812]";
 const etiqueta = "block text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/70";
@@ -45,9 +36,22 @@ const campo =
   "w-full rounded-lg border border-carbon/70 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
 const accion =
   "inline-flex h-[34px] shrink-0 items-center justify-center gap-1 rounded-[5px] border border-accion-marco bg-accion px-2 text-xs font-bold uppercase leading-tight text-white shadow-sm transition hover:bg-accion-hover";
+// Los botones de dentro de una ventana de crear: de la familia de lo que se
+// esta creando, no del azul de "ir a hacer algo".
+const botonCrema =
+  "h-[31px] rounded-lg border border-[#8a6410] bg-form-nuevo px-5 text-sm font-semibold text-[#5c4208] transition hover:bg-[#ffeeb0]";
 
-/** Una fila de la tarjeta de datos. Cuatro columnas fijas, las suyas: el rotulo,
- *  el campo, el texto que explica el boton, y el boton. */
+export type Persona = {
+  nombre: string;
+  telefono: string;
+  correo: string;
+  /** administrador · contrata · vecino, o vacio cuando es el "otro" de texto. */
+  que: string;
+  otro: string;
+  contrataId: string;
+};
+const VACIA: Persona = { nombre: "", telefono: "", correo: "", que: "", otro: "", contrataId: "" };
+
 function Fila({ nombre, primera, children }: { nombre: string; primera?: boolean; children: React.ReactNode }) {
   return (
     <div
@@ -70,6 +74,7 @@ function Casilla({
   alMarcar,
   tono,
   conCuadro = true,
+  enLinea,
   clase = "",
 }: {
   texto: string;
@@ -78,15 +83,21 @@ function Casilla({
   alMarcar: (v: boolean) => void;
   tono: "marron" | "marino";
   conCuadro?: boolean;
+  /** El texto a la izquierda y la casilla a la derecha, en una caja baja. */
+  enLinea?: boolean;
   clase?: string;
 }) {
   const relleno =
-    tono === "marron" ? "border-marcado-hablo bg-marcado-hablo text-[#fff5cc]" : "border-marcado-paso bg-marcado-paso text-white";
+    tono === "marron"
+      ? "border-marcado-hablo bg-marcado-hablo text-[#fff5cc]"
+      : "border-marcado-paso bg-marcado-paso text-white";
+  const apagado = enLinea ? "text-marcado-paso" : "text-carbon/80";
   return (
     <label
       className={
-        "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-2 text-center transition " +
-        (marcado ? relleno : "border-marco bg-white text-carbon/80 hover:border-accion") +
+        "flex cursor-pointer rounded-lg border transition " +
+        (enLinea ? "items-center justify-between gap-3 px-3.5 " : "flex-col items-center justify-center gap-2 px-2 text-center ") +
+        (marcado ? relleno : "border-marco bg-white " + apagado + " hover:border-accion") +
         " " +
         clase
       }
@@ -97,7 +108,7 @@ function Casilla({
         name={nombre}
         checked={marcado}
         onChange={(e) => alMarcar(e.target.checked)}
-        className={conCuadro ? "size-5 " + (marcado ? "accent-white" : "accent-accion") : "sr-only"}
+        className={conCuadro ? "size-5 shrink-0 " + (marcado ? "accent-white" : "accent-accion") : "sr-only"}
       />
     </label>
   );
@@ -117,10 +128,8 @@ export function Formulario({
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
   const comunidades: Opcion[] = opciones.comunidades.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
   const administradores: Opcion[] = opciones.administradores.map((a) => ({ valor: a.id, texto: a.nombre, pista: a.pista }));
-  const administraciones: Opcion[] = opciones.administraciones.map((a) => ({ valor: a.id, texto: a.nombre, pista: a.pista }));
-  const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
   const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
-  const relaciones: Opcion[] = RELACIONES.map((r) => ({ valor: r.valor, texto: r.texto, pista: r.pista }));
+  const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
 
   const soyComercial = opciones.miComercial !== null;
 
@@ -132,63 +141,68 @@ export function Formulario({
   const [buscarDireccion, setBuscarDireccion] = useState(false);
 
   const [admin, setAdmin] = useState("");
-  const [modalAdmin, setModalAdmin] = useState(false);
-  const [anNombre, setAnNombre] = useState("");
-  const [anTel, setAnTel] = useState("");
-  const [anMail, setAnMail] = useState("");
-  const [anEmpresa, setAnEmpresa] = useState("");
-  const adminNuevo = anNombre.trim() !== "";
-
   const [quienEsAdmin, setQuienEsAdmin] = useState(false);
   const [quien, setQuien] = useState("");
-  const [modalQuien, setModalQuien] = useState(false);
-  const [qnNombre, setQnNombre] = useState("");
-  const [qnTel, setQnTel] = useState("");
-  const [qnMail, setQnMail] = useState("");
-  const [qnRelacion, setQnRelacion] = useState("");
-  const [qnContrata, setQnContrata] = useState("");
-  const quienNuevo = qnNombre.trim() !== "";
 
   const [hablaLlamo, setHablaLlamo] = useState(false);
   const [hablaAdmin, setHablaAdmin] = useState(false);
-  const [hablaOtro, setHablaOtro] = useState(false);
-  const [modalHablo, setModalHablo] = useState(false);
-  const [contacto, setContacto] = useState("");
-  const [coNombre, setCoNombre] = useState("");
-  const [coTel, setCoTel] = useState("");
-  const [coMail, setCoMail] = useState("");
+
+  // Las tres personas que se pueden crear. Mismo sitio y mismo modal: lo unico
+  // que cambia es donde se guarda el resultado.
+  const [adminNuevo, setAdminNuevo] = useState<Persona | null>(null);
+  const [quienNuevo, setQuienNuevo] = useState<Persona | null>(null);
+  const [otroNuevo, setOtroNuevo] = useState<Persona | null>(null);
+  const [creando, setCreando] = useState<null | "admin" | "quien" | "otro">(null);
 
   const [paso, setPaso] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  // El numero que le toca, en cuanto hay comercial. Lo quieren VER antes de
-  // guardar, para apuntarlo y hacer su seguimiento.
   const codigo = comercial === "" ? "elige comercial" : opciones.codigoDe[comercial] ?? "sin iniciales";
 
   const hayHilo =
-    comunidad !== "" || direccion.trim() !== "" || admin !== "" || adminNuevo || qnTel.trim() !== "" || qnMail.trim() !== "";
+    comunidad !== "" ||
+    direccion.trim() !== "" ||
+    admin !== "" ||
+    adminNuevo !== null ||
+    (quienNuevo?.telefono ?? "") !== "" ||
+    (quienNuevo?.correo ?? "") !== "";
   const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
 
-  const quitarAdminNuevo = () => {
-    setAnNombre("");
-    setAnTel("");
-    setAnMail("");
-    setAnEmpresa("");
+  const guardarPersona = (p: Persona) => {
+    if (creando === "admin") setAdminNuevo(p);
+    if (creando === "quien") setQuienNuevo(p);
+    if (creando === "otro") setOtroNuevo(p);
+    setCreando(null);
   };
-  const quitarQuienNuevo = () => {
-    setQnNombre("");
-    setQnTel("");
-    setQnMail("");
-    setQnRelacion("");
-    setQnContrata("");
+  const descartarPersona = () => {
+    if (creando === "admin") setAdminNuevo(null);
+    if (creando === "quien") setQuienNuevo(null);
+    if (creando === "otro") setOtroNuevo(null);
+    setCreando(null);
   };
-  const quitarOtro = () => {
-    setContacto("");
-    setCoNombre("");
-    setCoTel("");
-    setCoMail("");
-    setHablaOtro(false);
-  };
+
+  const fichaNueva = (p: Persona, quitar: () => void) => (
+    <div className="flex h-[32px] items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 text-sm">
+      <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
+        {p.nombre} <span className="font-normal opacity-70">· nuevo</span>
+      </span>
+      <button type="button" onClick={quitar} aria-label="Quitar" className="text-[#5c4208]/70 hover:text-[#5c4208]">
+        ×
+      </button>
+    </div>
+  );
+
+  const ocultos = (pre: string, p: Persona | null) =>
+    p ? (
+      <>
+        <input type="hidden" name={pre + "_nombre"} value={p.nombre} />
+        <input type="hidden" name={pre + "_telefono"} value={p.telefono} />
+        <input type="hidden" name={pre + "_correo"} value={p.correo} />
+        <input type="hidden" name={pre + "_que"} value={p.que} />
+        <input type="hidden" name={pre + "_otro"} value={p.otro} />
+        <input type="hidden" name={pre + "_contrata"} value={p.contrataId} />
+      </>
+    ) : null;
 
   return (
     <form
@@ -267,7 +281,6 @@ export function Formulario({
             className={campo + " mt-3 min-h-[180px] resize-y"}
           />
 
-          {/* Sin esto la oportunidad se escapa: por eso va en rojo. */}
           <section className="mt-4 rounded-[14px] border-[3px] border-obligatorio bg-obligatorio-fondo p-3">
             <h3 className="mb-2.5 text-center text-[13px] font-bold uppercase tracking-[0.06em] text-carbon">
               <span className="text-[11px] text-obligatorio">Qué tengo que hacer:</span> Siguiente paso inmediato
@@ -344,18 +357,7 @@ export function Formulario({
           {/* ---- el administrador ---- */}
           <Fila nombre="¿Quién es su administrador?">
             {adminNuevo ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
-                <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
-                  {anNombre} <span className="font-normal opacity-70">· nuevo</span>
-                </span>
-                <button type="button" onClick={quitarAdminNuevo} aria-label="Quitar" className="text-[#5c4208]/70 hover:text-[#5c4208]">
-                  ×
-                </button>
-                <input type="hidden" name="admin_nuevo_nombre" value={anNombre} />
-                <input type="hidden" name="admin_nuevo_telefono" value={anTel} />
-                <input type="hidden" name="admin_nuevo_correo" value={anMail} />
-                <input type="hidden" name="admin_nuevo_empresa" value={anEmpresa} />
-              </div>
+              fichaNueva(adminNuevo, () => setAdminNuevo(null))
             ) : (
               <Elegir
                 id="administrador"
@@ -369,18 +371,16 @@ export function Formulario({
               />
             )}
             <span className={apoyo + " text-right"}>{adminNuevo ? "Lo estás creando" : "Es un nuevo administrador"}</span>
-            <button type="button" onClick={() => setModalAdmin(true)} className={accion}>
+            <button type="button" onClick={() => setCreando("admin")} className={accion}>
               {adminNuevo ? "Cambiar" : "+ Crearlo"}
             </button>
+            {ocultos("admin_nuevo", adminNuevo)}
           </Fila>
 
           {/* ---- quién ha contactado ---- */}
           <div className="grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] border-t border-raya py-[14px]">
             <span className={rotulo}>Quién ha contactado para pedirlo</span>
-            {/* Acaba en la MISMA vertical que la direccion y el administrador:
-                tenerlos bailando cansa la vista. Por eso la casilla mide lo
-                suyo y el desplegable se come el resto. */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <Casilla
                 texto={"Fue el mismo\nadministrador"}
                 nombre="quien_es_admin"
@@ -389,27 +389,17 @@ export function Formulario({
                   setQuienEsAdmin(v);
                   if (v) {
                     setQuien("");
-                    quitarQuienNuevo();
+                    setQuienNuevo(null);
                   }
                 }}
                 tono="marron"
-                clase="h-[72px] w-[160px] shrink-0 gap-1.5 py-2"
+                enLinea
+                clase="h-[52px] w-[175px] shrink-0"
               />
-              <div className="w-[151px] shrink-0">
+              <div className="min-w-0 flex-1">
                 <span className={apoyo + " mb-1 whitespace-nowrap text-center"}>Fue otra persona conocida</span>
                 {quienNuevo ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-sm">
-                    <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">{qnNombre}</span>
-                    <button type="button" onClick={quitarQuienNuevo} aria-label="Quitar" className="text-[#5c4208]/70">
-                      ×
-                    </button>
-                    <input type="hidden" name="nuevo_marcado" value="1" />
-                    <input type="hidden" name="nuevo_nombre" value={qnNombre} />
-                    <input type="hidden" name="nuevo_telefono" value={qnTel} />
-                    <input type="hidden" name="nuevo_correo" value={qnMail} />
-                    <input type="hidden" name="nuevo_relacion" value={qnRelacion} />
-                    <input type="hidden" name="nuevo_contrata" value={qnContrata} />
-                  </div>
+                  fichaNueva(quienNuevo, () => setQuienNuevo(null))
                 ) : (
                   <Elegir
                     id="quien"
@@ -420,7 +410,7 @@ export function Formulario({
                       setQuien(v);
                       if (v) setQuienEsAdmin(false);
                     }}
-                    vacio="selecciónalo"
+                    vacio="selecciona quién"
                     desactivado={quienEsAdmin}
                     marco="border-carbon/70"
                     conPista
@@ -430,10 +420,11 @@ export function Formulario({
             </div>
             <div className="col-span-2 flex flex-col items-center">
               <span className={apoyo + " mb-1 whitespace-nowrap"}>Fue un nuevo contacto</span>
-              <button type="button" onClick={() => setModalQuien(true)} className={accion + " w-[83px]"}>
+              <button type="button" onClick={() => setCreando("quien")} className={accion + " w-[83px]"}>
                 {quienNuevo ? "Cambiar" : "+ Crearlo"}
               </button>
             </div>
+            {ocultos("quien_nuevo", quienNuevo)}
           </div>
 
           {/* ---- qué quieren ---- */}
@@ -474,17 +465,14 @@ export function Formulario({
                   clase="h-[75px]"
                 />
                 <Casilla
-                  texto={coNombre ? coNombre : "Otro (crear)"}
-                  marcado={hablaOtro}
-                  alMarcar={(v) => (v ? (setHablaOtro(true), setModalHablo(true)) : quitarOtro())}
+                  texto={otroNuevo ? otroNuevo.nombre : "Otro (crear)"}
+                  marcado={otroNuevo !== null}
+                  alMarcar={(v) => (v ? setCreando("otro") : setOtroNuevo(null))}
                   tono="marron"
                   clase="h-[75px]"
                 />
               </div>
-              <input type="hidden" name="contacto" value={contacto} />
-              <input type="hidden" name="contacto_nombre" value={hablaOtro ? coNombre : ""} />
-              <input type="hidden" name="contacto_telefono" value={hablaOtro ? coTel : ""} />
-              <input type="hidden" name="contacto_correo" value={hablaOtro ? coMail : ""} />
+              {ocultos("otro_nuevo", otroNuevo)}
             </section>
           </div>
 
@@ -499,206 +487,161 @@ export function Formulario({
         </section>
       </div>
 
-      {/* ============ ventana: administrador nuevo ============ */}
-      <Ventana
-        abierta={modalAdmin}
-        titulo="Administrador nuevo"
-        pie="Lo justo para poder seguir con la oportunidad. Su ficha se completa después."
-        alQuitar={() => {
-          quitarAdminNuevo();
-          setModalAdmin(false);
-        }}
-        alCerrar={() => setModalAdmin(false)}
-        puede={adminNuevo}
-      >
-        <div className="grid gap-4 sm:grid-cols-12">
-          <Dato id="an_nombre" nombre="Nombre" clase="sm:col-span-5" valor={anNombre} alEscribir={setAnNombre} />
-          <Dato id="an_telefono" nombre="Teléfono" clase="sm:col-span-4" valor={anTel} alEscribir={setAnTel} />
-          <Dato id="an_correo" nombre="Correo" clase="sm:col-span-3" valor={anMail} alEscribir={setAnMail} />
-          <Elegir
-            id="an_empresa"
-            nombre="Administración de fincas en la que está"
-            opciones={administraciones}
-            valor={anEmpresa}
-            alElegir={setAnEmpresa}
-            vacio="todavía no lo sé"
-            clase="sm:col-span-12"
-            marco="border-carbon/70"
-          />
-        </div>
-      </Ventana>
-
-      {/* ============ ventana: quién ha contactado (nuevo) ============ */}
-      <Ventana
-        abierta={modalQuien}
-        titulo="Contacto nuevo"
-        pie="Lo que es decide dónde se guarda: un administrador va a la cartera, un comercial de contrata a su contrata, un vecino a la comunidad."
-        alQuitar={() => {
-          quitarQuienNuevo();
-          setModalQuien(false);
-        }}
-        alCerrar={() => setModalQuien(false)}
-        puede={quienNuevo}
-      >
-        <div className="grid gap-4 sm:grid-cols-12">
-          <Dato id="qn_nombre" nombre="Nombre" clase="sm:col-span-5" valor={qnNombre} alEscribir={setQnNombre} />
-          <Dato id="qn_telefono" nombre="Teléfono" clase="sm:col-span-4" valor={qnTel} alEscribir={setQnTel} />
-          <Dato id="qn_correo" nombre="Correo" clase="sm:col-span-3" valor={qnMail} alEscribir={setQnMail} />
-          <Elegir
-            id="qn_relacion"
-            nombre="Qué es"
-            opciones={relaciones}
-            valor={qnRelacion}
-            alElegir={setQnRelacion}
-            vacio="elige qué es"
-            clase={qnRelacion === "contrata" ? "sm:col-span-7" : "sm:col-span-12"}
-            marco="border-carbon/70"
-          />
-          {qnRelacion === "contrata" && (
-            <Elegir
-              id="qn_contrata"
-              nombre="De qué contrata"
-              opciones={contratas}
-              valor={qnContrata}
-              alElegir={setQnContrata}
-              clase="sm:col-span-5"
-              marco="border-carbon/70"
-            />
-          )}
-        </div>
-      </Ventana>
-
-      {/* ============ ventana: con quién hablo (otro) ============ */}
-      <Ventana
-        abierta={modalHablo}
-        titulo="Con quién hablo a partir de ahora"
-        pie="La vecina del quinto, el presidente, alguien de la comisión de obras. Si ya lo tenemos, se elige; si no, se escribe."
-        alQuitar={() => {
-          quitarOtro();
-          setModalHablo(false);
-        }}
-        alCerrar={() => setModalHablo(false)}
-        puede={coNombre.trim() !== "" || contacto !== ""}
-      >
-        <Elegir
-          id="contacto_lista"
-          nombre="Si ya lo tenemos"
-          opciones={opciones.contactos}
-          valor={contacto}
-          alElegir={setContacto}
-          vacio="no está en la lista"
-          marco="border-carbon/70"
-          conPista
-        />
-        <div className="mt-4 grid gap-4 sm:grid-cols-12">
-          <Dato
-            id="co_nombre"
-            nombre="Si no está: cómo se llama"
-            clase="sm:col-span-5"
-            pista="a quien tengo que llamar"
-            valor={coNombre}
-            alEscribir={setCoNombre}
-          />
-          <Dato id="co_telefono" nombre="Teléfono" clase="sm:col-span-4" valor={coTel} alEscribir={setCoTel} />
-          <Dato id="co_correo" nombre="Correo" clase="sm:col-span-3" valor={coMail} alEscribir={setCoMail} />
-        </div>
-      </Ventana>
+      {/* ============ UN SOLO sitio para crear una persona ============ */}
+      <ModalContacto
+        abierto={creando !== null}
+        inicial={creando === "admin" ? adminNuevo : creando === "quien" ? quienNuevo : otroNuevo}
+        queFijo={creando === "admin" ? "administrador" : undefined}
+        contratas={contratas}
+        alGuardar={guardarPersona}
+        alDescartar={descartarPersona}
+      />
     </form>
   );
 }
 
-/** Un campo de una ventana. */
-function Dato({
-  id,
-  nombre,
-  clase = "",
-  pista,
-  valor,
-  alEscribir,
+/** CREAR UN CONTACTO NUEVO — su maqueta del 28-sep-2026.
+ *
+ *  Uno solo para toda la pantalla: se llegue por donde se llegue, crear a una
+ *  persona se hace siempre en el mismo sitio. Lo que se marca en QUÉ ES decide
+ *  donde acaba guardada, y por eso esta a la vista y no metido en una lista.
+ *
+ *  Al administrador NO se le pregunta su administracion: puede existir un admin
+ *  del que todavia no sepamos de que casa es. Al de contrata si, porque su
+ *  ficha cuelga de la contrata. */
+function ModalContacto({
+  abierto,
+  inicial,
+  queFijo,
+  contratas,
+  alGuardar,
+  alDescartar,
 }: {
-  id: string;
-  nombre: string;
-  clase?: string;
-  pista?: string;
-  valor: string;
-  alEscribir: (v: string) => void;
+  abierto: boolean;
+  inicial: Persona | null;
+  queFijo?: string;
+  contratas: Opcion[];
+  alGuardar: (p: Persona) => void;
+  alDescartar: () => void;
 }) {
-  return (
-    <label className={"block min-w-0 " + clase} htmlFor={id}>
-      <span className={etiqueta}>{nombre}</span>
-      <input
-        id={id}
-        type="text"
-        placeholder={pista}
-        value={valor}
-        onChange={(e) => alEscribir(e.target.value)}
-        className={campo + " mt-1"}
-      />
-    </label>
-  );
-}
+  const [p, setP] = useState<Persona>(VACIA);
+  const pon = (c: Partial<Persona>) => setP((x) => ({ ...x, ...c }));
 
-/** Todas las ventanas iguales. Se quedan montadas aunque esten cerradas, para no
- *  perder lo escrito. */
-function Ventana({
-  abierta,
-  titulo,
-  pie,
-  children,
-  alQuitar,
-  alCerrar,
-  puede,
-}: {
-  abierta: boolean;
-  titulo: string;
-  pie: string;
-  children: React.ReactNode;
-  alQuitar: () => void;
-  alCerrar: () => void;
-  puede: boolean;
-}) {
-  // Se cierra como se cierra cualquier ventana: con la X, pinchando fuera o con
-  // Escape. Si no se ha escrito nada, salir equivale a quitarla.
-  const salir = () => (puede ? alCerrar() : alQuitar());
   useEffect(() => {
-    if (!abierta) return;
+    if (abierto) setP(inicial ?? { ...VACIA, que: queFijo ?? "" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abierto]);
+
+  useEffect(() => {
+    if (!abierto) return;
     const tecla = (e: KeyboardEvent) => {
-      if (e.key === "Escape") salir();
+      if (e.key === "Escape") alDescartar();
     };
     document.addEventListener("keydown", tecla);
     return () => document.removeEventListener("keydown", tecla);
   });
 
+  if (!abierto) return null;
+
+  const etiquetaOcre = "block text-[10px] font-bold uppercase tracking-[0.05em] text-[#5c4208]/70";
+  const rotuloOcre = "shrink-0 text-[11px] font-bold uppercase tracking-[0.04em] text-[#5c4208]/80";
+
   return (
     <div
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) salir();
+        if (e.target === e.currentTarget) alDescartar();
       }}
-      className={abierta ? "fixed inset-0 z-50 flex items-center justify-center bg-alta-opp/70 p-4" : "hidden"}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-alta-opp/70 p-4"
     >
-      <div className="relative w-full max-w-[560px] rounded-[16px] border border-marco bg-papel p-5 shadow-xl">
+      <div className="relative w-full max-w-[770px] rounded-[14px] border border-[#8a6410] bg-[#fcf8e7] px-6 py-5">
         <button
           type="button"
-          onClick={salir}
+          onClick={alDescartar}
           aria-label="Cerrar"
-          className="absolute right-3 top-2 text-xl leading-none text-carbon/45 transition hover:text-carbon"
+          className="absolute right-4 top-3 text-lg leading-none text-carbon/45 transition hover:text-carbon"
         >
           ×
         </button>
-        <h3 className="text-center text-[13px] font-bold uppercase tracking-[0.07em] text-[#0c1a64]">{titulo}</h3>
-        <p className="mb-4 mt-0.5 text-center text-sm text-carbon/60">{pie}</p>
-        {children}
-        <div className="mt-5 flex justify-center gap-3">
-          <button type="button" onClick={alQuitar} className="rounded-lg bg-white px-5 py-2 text-sm text-carbon/80">
-            Quitar
+
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#5c4208]">Crear un contacto nuevo</h3>
+
+        <div className="mt-3 flex gap-3">
+          <label className="block w-[238px]">
+            <span className={etiquetaOcre}>Nombre</span>
+            <input value={p.nombre} onChange={(e) => pon({ nombre: e.target.value })} className={campo + " mt-1"} />
+          </label>
+          <label className="block w-[149px]">
+            <span className={etiquetaOcre}>Teléfono</span>
+            <input value={p.telefono} onChange={(e) => pon({ telefono: e.target.value })} className={campo + " mt-1"} />
+          </label>
+          <label className="block w-[296px]">
+            <span className={etiquetaOcre}>Correo</span>
+            <input value={p.correo} onChange={(e) => pon({ correo: e.target.value })} className={campo + " mt-1"} />
+          </label>
+        </div>
+
+        {/* QUÉ ES: lo que decide dónde se guarda. */}
+        <div className="mt-5 flex items-stretch gap-4">
+          <span className="self-center text-[14px] font-bold uppercase tracking-[0.05em] text-carbon">Qué es</span>
+          <div className="border-l border-marco" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-9 gap-y-2">
+              {QUE_ES.map((q) => (
+                <label key={q.valor} className="flex cursor-pointer items-center gap-2.5">
+                  <span className="text-[11px] font-bold uppercase leading-[1.2] tracking-[0.04em] text-[#5c4208]/80">
+                    {q.texto}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={p.que === q.valor}
+                    onChange={(e) => pon({ que: e.target.checked ? q.valor : "", otro: "" })}
+                    className="size-5 shrink-0 accent-[#5c4208]"
+                  />
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-3 flex items-center gap-3">
+              <span className={rotuloOcre}>Otro</span>
+              <input
+                value={p.otro}
+                onChange={(e) => pon({ otro: e.target.value, que: e.target.value ? "" : p.que })}
+                placeholder="Comisión de obras, pariente de alguien, conocido…"
+                className={campo}
+              />
+            </div>
+
+            {p.que === "contrata" && (
+              <div className="mt-3 flex items-center gap-3">
+                <span className={rotuloOcre}>Empresa</span>
+                <Elegir
+                  id="modal_contrata"
+                  nombre=""
+                  opciones={contratas}
+                  valor={p.contrataId}
+                  alElegir={(v) => pon({ contrataId: v })}
+                  vacio="de qué contrata"
+                  marco="border-carbon/70"
+                  clase="flex-1"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-6">
+          <button type="button" onClick={alDescartar} className={botonCrema}>
+            Descartar
           </button>
           <button
             type="button"
-            disabled={!puede}
-            onClick={alCerrar}
-            className="h-[34px] rounded-[5px] border border-accion-marco bg-accion px-6 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-accion-hover disabled:cursor-not-allowed disabled:border-transparent disabled:bg-carbon/15 disabled:text-carbon/35"
+            disabled={p.nombre.trim() === ""}
+            onClick={() => alGuardar(p)}
+            className={
+              botonCrema + " disabled:cursor-not-allowed disabled:border-carbon/20 disabled:bg-black/5 disabled:text-carbon/35"
+            }
           >
-            Listo
+            Guardar
           </button>
         </div>
       </div>

@@ -21,11 +21,11 @@ import "server-only";
 
 import { canalesDe, type Canal } from "./canales";
 import { columnasQuien, opcionesQuien, type OpcionQuien } from "./quien";
-import { RELACIONES } from "./oportunidadVocabulario";
+import { CARGO_DE } from "./oportunidadVocabulario";
 
 // El vocabulario vive en un fichero aparte porque lo necesitan las dos
 // orillas: la pantalla y el servidor.
-export { PASOS_DE_ARRANQUE, RELACIONES } from "./oportunidadVocabulario";
+export { PASOS_DE_ARRANQUE, QUE_ES } from "./oportunidadVocabulario";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -195,20 +195,23 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
 
 // ------------------------------------------------------------------ el alta
 
-export type ContactoNuevo = {
+/** Una persona creada en la ventana de "crear un contacto nuevo". Lo que ES
+ *  decide DONDE se guarda, que es lo importante, no la etiqueta. */
+export type PersonaNueva = {
   nombre: string;
   telefono: string | null;
   correo: string | null;
-  /** Una de RELACIONES: decide en que tabla acaba. */
-  relacion: string;
-  /** Solo cuando es comercial de contrata: de cual. */
+  /** administrador · contrata · vecino, o vacio si es el "otro" de texto libre. */
+  que: string | null;
+  /** Lo que escriba cuando no es ninguno de los tres: "comision de obras". */
+  otro: string | null;
   contrataId: string | null;
 };
 
 export type DatosOportunidad = {
   /** Obligatorio: sin entrada del diario no hay oportunidad. */
   nota: string;
-  /** La fecha de la LLAMADA, no la de hoy. */
+  /** La fecha del CONTACTO, no la de hoy. */
   fechaLlamada: string | null;
   /** Obligatorio: una oportunidad sin comercial es una nota que se pierde. */
   comercialId: string;
@@ -216,26 +219,21 @@ export type DatosOportunidad = {
   // el hilo
   comunidadId: string | null;
   direccionProvisional: string | null;
-  /** La PERSONA que administra la finca. Su administracion se lee de su puesto. */
-  administradorPersonaId: string | null;
-  /** O se crea aqui mismo, con lo minimo: "lo que estamos creando es la
-   *  oportunidad, el comercial tiene que estar en eso, no en hacer la ficha de
-   *  un administrador" (Monica, 28-sep-2026). Lo demas se completa despues. */
-  administradorNuevo: { nombre: string; telefono: string | null; correo: string | null; empresaId: string | null } | null;
 
-  // quien me llama: el propio administrador, o de la agenda, o se crea
-  /** El 90% de las veces quien llama ES el administrador de la finca. */
+  // quien administra la finca: una PERSONA, elegida o creada aqui
+  administradorPersonaId: string | null;
+  administradorNuevo: PersonaNueva | null;
+
+  // quien ha contactado para pedirlo
+  /** El 90% de las veces es el propio administrador. */
   quienEsAdmin: boolean;
   quien: string | null;
-  contactoNuevo: ContactoNuevo | null;
+  quienNuevo: PersonaNueva | null;
 
-  // mi contacto alli
+  // con quien hablo de esto a partir de ahora
   mismoQueLlama: boolean;
-  /** Con quien hablo a partir de ahora es el administrador. */
   contactoEsAdmin: boolean;
-  contactoQuien: string | null;
-  /** Cuando no esta en la agenda y la comunidad aun no existe: sala de espera. */
-  contactoProvisional: { nombre: string | null; telefono: string | null; correo: string | null } | null;
+  otroNuevo: PersonaNueva | null;
 
   // lo demas
   tipoIds: string[];
@@ -270,94 +268,75 @@ export async function crearOportunidad(
   d: DatosOportunidad,
   autorId: string | null,
 ): Promise<ResultadoOportunidad> {
-  // 0 · el administrador creado al vuelo. Nace con lo minimo y con dueño: el
-  //     comercial que abre la oportunidad. Nada de fichas huerfanas.
-  let administradorId = d.administradorPersonaId;
-  if (d.administradorNuevo?.nombre) {
-    const a = d.administradorNuevo;
-    const per = await crear<{ id: string }>("persona", {
-      nombre: a.nombre,
-      activa: true,
-      telefono_personal: a.telefono,
-    });
-    await crear("puesto", {
-      persona_id: per.id,
-      empresa_id: a.empresaId,
-      cargo: "Administrador de fincas",
-      comercial_id: d.comercialId,
-      comercial_captador_id: d.comercialId,
-      desde: hoy(),
-    });
-    if (a.correo) await crear("correo", { persona_id: per.id, email: a.correo, etiqueta: "personal", principal: false });
-    administradorId = per.id;
-  }
+  // DONDE ACABA CADA PERSONA QUE SE CREA. Esto es lo unico que decide la
+  // casilla de "que es", y por eso esta a la vista en la ventana:
+  //   administrador → persona + puesto, SIN empresa: puede existir un admin del
+  //     que todavia no sepamos de que administracion es (ella, 28-sep-2026);
+  //   contrata      → la ficha de contactos de esa contrata;
+  //   vecino        → la persona de la comunidad, si la comunidad ya existe; y
+  //     si la direccion es todavia la que se acaba de escribir, se queda como
+  //     persona colgando de ESTA oportunidad, que lleva su numero, y se
+  //     recoloca cuando la direccion sea de verdad;
+  //   otro          → persona + puesto con el cargo que ella escriba.
+  const colocar = async (n: PersonaNueva | null): Promise<string | null> => {
+    if (!n?.nombre) return null;
 
-  // 1 · el contacto nuevo, si hay. Lo que ES decide DONDE acaba: eso es lo
-  //     importante, no la etiqueta. Un administrador nuevo nace ya en la cartera
-  //     de un comercial aunque todavia no sepamos de que administracion es.
-  let quien = d.quien;
-  let personaComunidadId: string | null = null;
-  if (d.contactoNuevo?.nombre) {
-    const n = d.contactoNuevo;
-    if (n.relacion === "comunidad" && d.comunidadId) {
-      const p = await crear<{ id: string }>("personas_comunidad", {
-        comunidad_id: d.comunidadId,
-        nombre: n.nombre,
-        rol: "otro",
-        telefono: n.telefono,
-        email: n.correo,
-      });
-      personaComunidadId = p.id;
-      quien = "vecino:" + p.id;
-    } else if (n.relacion === "contrata" && n.contrataId) {
-      const p = await crear<{ id: string }>("contrata_contactos", {
+    if (n.que === "contrata" && n.contrataId) {
+      const c = await crear<{ id: string }>("contrata_contactos", {
         contrata_id: n.contrataId,
         nombre: n.nombre,
         telefono: n.telefono,
         email: n.correo,
       });
-      quien = "contrata:" + p.id;
-    } else {
-      // Agenda general: persona con su puesto. El puesto puede no tener empresa
-      // —ella lo dejo claro anteayer— y lleva el comercial, para que un
-      // administrador nuevo no nazca huerfano.
-      const cargo = RELACIONES.find((r) => r.valor === n.relacion)?.texto ?? null;
-      // Si es administrador y ya sabemos quien administra la finca, el nuevo
-      // entra en SU misma casa: la empresa se lee del puesto de ella.
-      let empresaId: string | null = null;
-      if (n.relacion === "administrador" && administradorId) {
-        const [pu] = await leer<{ empresa_id: string | null }[]>(
-          `puesto?select=empresa_id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`,
-        );
-        empresaId = pu?.empresa_id ?? null;
-      }
-      const per = await crear<{ id: string }>("persona", {
-        nombre: n.nombre,
-        activa: true,
-        telefono_personal: n.telefono,
-      });
-      await crear("puesto", {
-        persona_id: per.id,
-        empresa_id: empresaId,
-        cargo,
-        telefono_empresa: null,
-        comercial_id: d.comercialId,
-        comercial_captador_id: d.comercialId,
-        desde: hoy(),
-      });
-      if (n.correo) await crear("correo", { persona_id: per.id, email: n.correo, etiqueta: "personal", principal: false });
-      quien = "persona:" + per.id;
+      return "contrata:" + c.id;
     }
-  }
 
-  // 1b · si quien contacto es el propio administrador, no se pregunta dos veces.
+    if (n.que === "vecino" && d.comunidadId) {
+      const v = await crear<{ id: string }>("personas_comunidad", {
+        comunidad_id: d.comunidadId,
+        nombre: n.nombre,
+        rol: "vecino",
+        telefono: n.telefono,
+        email: n.correo,
+      });
+      return "vecino:" + v.id;
+    }
+
+    const per = await crear<{ id: string }>("persona", {
+      nombre: n.nombre,
+      activa: true,
+      telefono_personal: n.telefono,
+    });
+    // El puesto es lo que dice QUE es y de quien es: nace con comercial, para
+    // que no quede huerfano. La empresa se pone despues, cuando se sepa.
+    await crear("puesto", {
+      persona_id: per.id,
+      empresa_id: null,
+      cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
+      comercial_id: d.comercialId,
+      comercial_captador_id: d.comercialId,
+      desde: hoy(),
+    });
+    if (n.correo) await crear("correo", { persona_id: per.id, email: n.correo, etiqueta: "personal", principal: false });
+    return "persona:" + per.id;
+  };
+
+  // 1 · las personas que se crean aqui mismo
+  const administradorRef = await colocar(d.administradorNuevo);
+  const administradorId = administradorRef?.startsWith("persona:")
+    ? administradorRef.slice(8)
+    : d.administradorPersonaId;
+
+  // 2 · quien ha contactado. Si es el mismo administrador, no se pregunta dos
+  //     veces: apunta a esa misma persona.
+  let quien = d.quien;
+  const quienRef = await colocar(d.quienNuevo);
+  if (quienRef) quien = quienRef;
   if (d.quienEsAdmin && administradorId) quien = "persona:" + administradorId;
 
-  // 2 · el contacto de alli. Si es el mismo que llamo, no se pregunta dos veces.
-  //     La ficha solo sabe guardar dos clases de contacto: el puesto de una
-  //     persona (que es quien dice en que administracion trabaja) o un vecino.
-  //     Si el que llamo es una persona de la agenda, se busca su puesto vigente.
-  const contacto = d.mismoQueLlama ? quien : d.contactoQuien;
+  // 3 · con quien hablo a partir de ahora
+  const otroRef = await colocar(d.otroNuevo);
+  const contacto = otroRef ?? (d.mismoQueLlama ? quien : null);
   let contactoPuesto = contacto?.startsWith("puesto:") ? contacto.slice(7) : null;
   let contactoVecino = contacto?.startsWith("vecino:") ? contacto.slice(7) : null;
   if (!contactoPuesto && !contactoVecino && contacto?.startsWith("persona:")) {
@@ -365,21 +344,21 @@ export async function crearOportunidad(
     const [pu] = await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${pid}&hasta=is.null&limit=1`);
     contactoPuesto = pu?.id ?? null;
   }
-  // Y si con quien hablo es el administrador, se busca SU puesto vigente: eso
-  // es lo que dice en que administracion trabaja hoy.
+  // Y si con quien hablo es el administrador, se busca SU puesto vigente.
   if (!contactoPuesto && !contactoVecino && d.contactoEsAdmin && administradorId) {
     const [pu] = await leer<{ id: string }[]>(
       `puesto?select=id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`,
     );
     contactoPuesto = pu?.id ?? null;
   }
-  if (!contactoPuesto && !contactoVecino) contactoVecino = personaComunidadId;
 
   // La BD exige: o contacto de verdad, o provisional. Nunca los dos.
   const hayReal = Boolean(contactoPuesto || contactoVecino);
-  const prov = !hayReal ? d.contactoProvisional : null;
+  const prov = !hayReal && d.otroNuevo?.nombre
+    ? { nombre: d.otroNuevo.nombre, telefono: d.otroNuevo.telefono, correo: d.otroNuevo.correo }
+    : null;
 
-  // 3 · el codigo y la oportunidad
+  // 4 · el codigo y la oportunidad
   const codigo = await siguienteCodigo(d.comercialId);
   const op = await crear<{ id: string }>("oportunidades", {
     codigo,
@@ -396,12 +375,12 @@ export async function crearOportunidad(
     ...columnasQuien(quien),
   });
 
-  // 4 · de lo que vendemos, que quieren. Una fila por cada cosa.
+  // 5 · de lo que vendemos, que quieren. Una fila por cada cosa.
   for (const tipoId of d.tipoIds) {
     await crear("oportunidad_tipos", { oportunidad_id: op.id, tipo_id: tipoId });
   }
 
-  // 5 · la entrada del diario, con la fecha de la LLAMADA y quien la escribio.
+  // 6 · la entrada del diario, con la fecha de la LLAMADA y quien la escribio.
   await crear("interacciones", {
     oportunidad_id: op.id,
     comercial_id: d.comercialId,
@@ -411,7 +390,7 @@ export async function crearOportunidad(
     autor_id: autorId,
   });
 
-  // 6 · por donde entramos en el flujo. Los pasos de ANTES no quedan como
+  // 7 · por donde entramos en el flujo. Los pasos de ANTES no quedan como
   //     hechos, quedan como que NO APLICAN: nos hemos saltado esa parte, y el
   //     diario explica por que. El flujo ya existe, no se inventa aqui.
   if (d.pasoArranque) {
