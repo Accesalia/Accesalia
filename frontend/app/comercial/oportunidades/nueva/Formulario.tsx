@@ -7,22 +7,26 @@ import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { PASOS_DE_ARRANQUE, RELACIONES } from "../../../../lib/oportunidadVocabulario";
 
-// DAR DE ALTA UNA OPORTUNIDAD — montada sobre SU maqueta (27-sep-2026).
+// DAR DE ALTA UNA OPORTUNIDAD — montada sobre SU maqueta (27-sep-2026),
+// repasada con ella bloque a bloque el 28-sep.
 //
-// Tres bloques, como los dejo ella: la cabecera con el comercial y la fecha a la
-// derecha; debajo, a la izquierda el diario, y a la derecha los datos que
-// tenemos. Dentro de los datos manda EL ORDEN, no las cajas: "de la comunidad" y
-// "de la llamada" son lineas con su rotulito, y el contacto en la comunidad y
-// lo que toca hacer van aparte.
+// Lo que cambia respecto a ayer, y por que:
+//   · la cabecera NO es una tarjeta: sus campos van sobre el fondo, y debajo
+//     el texto a la izquierda y los botones a la derecha;
+//   · nada de rotulo + etiqueta diciendo lo mismo: donde el rotulo ya lo dice,
+//     el campo va sin etiqueta;
+//   · la direccion se ESCRIBE por defecto y buscar la existente es el "por si
+//     acaso" —al reves que antes: "el comercial perezoso la crea siempre por
+//     ahorrar medio segundo en buscar", y asi por lo menos escribe la nueva;
+//   · hay TRES personas en esto, no dos: el administrador, quien me pasa el
+//     dato, y con quien hablo de los detalles a partir de ahora.
 
 const etiqueta = "block text-[10px] font-bold uppercase tracking-wide text-carbon/70";
+const verde = "block text-[10px] font-bold uppercase tracking-wide text-[#237812]";
 const caja =
   "w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
-
-/** Un rotulito que agrupa una linea de campos, sin dibujar otra tarjeta. */
-function Rotulo({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-[#237812] first:mt-0">{children}</h3>;
-}
+const boton =
+  "w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-xs font-bold text-carbon/70 transition hover:border-lima hover:text-carbon";
 
 function Campo({
   id,
@@ -31,7 +35,8 @@ function Campo({
   tipo = "text",
   pista,
   defecto,
-  soloLectura,
+  valor,
+  alEscribir,
 }: {
   id: string;
   nombre: string;
@@ -39,7 +44,8 @@ function Campo({
   tipo?: string;
   pista?: string;
   defecto?: string;
-  soloLectura?: boolean;
+  valor?: string;
+  alEscribir?: (v: string) => void;
 }) {
   return (
     <label className={"block min-w-0 " + clase} htmlFor={id}>
@@ -49,21 +55,44 @@ function Campo({
         name={id}
         type={tipo}
         placeholder={pista}
-        defaultValue={defecto}
-        readOnly={soloLectura}
-        className={caja + " mt-1" + (soloLectura ? " bg-black/5 text-carbon/60" : "")}
+        defaultValue={alEscribir ? undefined : defecto}
+        value={alEscribir ? valor : undefined}
+        onChange={alEscribir ? (e) => alEscribir(e.target.value) : undefined}
+        className={caja + " mt-1"}
       />
     </label>
   );
 }
 
-/** Una tarjeta dentro de los datos, para lo que ella quiso aparte. */
-function Caja({ titulo, children, clase = "" }: { titulo: string; children: React.ReactNode; clase?: string }) {
+/** Texto arriba, casilla debajo. Se usa para las dos cosas que ella quiso
+ *  marcar en vez de elegir: con quien hablo, y que tengo que hacer. */
+function Casilla({
+  texto,
+  nombre,
+  marcado,
+  alMarcar,
+}: {
+  texto: string;
+  nombre?: string;
+  marcado: boolean;
+  alMarcar: (v: boolean) => void;
+}) {
   return (
-    <section className={"mt-4 min-w-0 rounded-[14px] border border-marco bg-white/70 p-3 " + clase}>
-      <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#237812]">{titulo}</h3>
-      {children}
-    </section>
+    <label
+      className={
+        "flex w-[175px] cursor-pointer flex-col items-center gap-1.5 rounded-lg border px-3 py-2 text-center transition " +
+        (marcado ? "border-lima-dark bg-lima/20" : "border-marco bg-white hover:border-lima")
+      }
+    >
+      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-carbon/80">{texto}</span>
+      <input
+        type="checkbox"
+        name={nombre}
+        checked={marcado}
+        onChange={(e) => alMarcar(e.target.checked)}
+        className="size-5 accent-lima-dark"
+      />
+    </label>
   );
 }
 
@@ -93,10 +122,15 @@ export function Formulario({
   const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
   const relaciones: Opcion[] = RELACIONES.map((r) => ({ valor: r.valor, texto: r.texto, pista: r.pista }));
 
+  // Si quien rellena es comercial, el suyo sale ya puesto: entonces no hace
+  // falta recordarle que la oportunidad necesita comercial.
+  const soyComercial = opciones.miComercial !== null;
+
   const [comercial, setComercial] = useState(opciones.miComercial ?? "");
   const [nota, setNota] = useState("");
   const [comunidad, setComunidad] = useState("");
   const [direccion, setDireccion] = useState("");
+  const [buscarDireccion, setBuscarDireccion] = useState(false);
   const [admin, setAdmin] = useState("");
   const [quien, setQuien] = useState("");
   const [nuevo, setNuevo] = useState(false);
@@ -104,21 +138,42 @@ export function Formulario({
   const [telNuevo, setTelNuevo] = useState("");
   const [mailNuevo, setMailNuevo] = useState("");
   const [nombreNuevo, setNombreNuevo] = useState("");
+
+  // Con quien hablo a partir de ahora. Se puede marcar mas de uno.
   const [mismo, setMismo] = useState(true);
+  const [esAdmin, setEsAdmin] = useState(false);
+  const [otro, setOtro] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [contacto, setContacto] = useState("");
+  const [contactoNombre, setContactoNombre] = useState("");
+  const [contactoTel, setContactoTel] = useState("");
+  const [contactoMail, setContactoMail] = useState("");
+
   const [paso, setPaso] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  // Su regla para poder guardar: la entrada del diario, un comercial, y un hilo
-  // del que tirar. Sin comercial no es una oportunidad, es una nota que se pierde.
+  // Su regla para poder guardar: la entrada del diario, un comercial, un hilo
+  // del que tirar, y el siguiente paso —que es lo que hace que no se escape.
   const hayHilo =
     comunidad !== "" ||
     direccion.trim() !== "" ||
     admin !== "" ||
     telNuevo.trim() !== "" ||
     mailNuevo.trim() !== "";
-  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo;
+  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
 
   const iniciales = opciones.comerciales.find((c) => c.id === comercial)?.pista;
+
+  const cerrarOtro = (v: boolean) => {
+    setOtro(v);
+    if (v) setModal(true);
+    else {
+      setContacto("");
+      setContactoNombre("");
+      setContactoTel("");
+      setContactoMail("");
+    }
+  };
 
   return (
     <form
@@ -133,103 +188,86 @@ export function Formulario({
         e.preventDefault();
         const campos = Array.from(
           (e.currentTarget as HTMLFormElement).querySelectorAll<HTMLElement>(
-            "input:not([type=hidden]):not([readonly]), select, textarea, button[data-paso]",
+            "input:not([type=hidden]):not([readonly]), select, textarea",
           ),
         ).filter((x) => x.offsetParent !== null);
         const i = campos.indexOf(t);
         if (i >= 0 && i < campos.length - 1) campos[i + 1].focus();
       }}
     >
-      {/* ===================== la cabecera ===================== */}
-      <div className="rounded-[14px] border border-marco bg-form-card p-4 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[26px] font-extrabold leading-tight text-carbon">Nueva oportunidad</h1>
-            <p className="mt-1 text-xs text-carbon/70">
-              Lo único que no puede faltar es la entrada del diario. Y un comercial: sin comercial no es una
-              oportunidad, es una nota que se pierde.
-            </p>
-          </div>
+      {/* ===================== la cabecera, sin tarjeta ===================== */}
+      <div className="flex flex-wrap items-end gap-4">
+        <h1 className="text-[26px] font-extrabold leading-none text-carbon">Nueva oportunidad</h1>
+        <label className="block w-[190px]">
+          <span className={etiqueta}>Número de orden</span>
+          <span className={caja + " mt-1 block bg-black/5 text-carbon/60"}>
+            {iniciales ? iniciales + "-" + new Date().getFullYear() + "-000" : "elige comercial"}
+          </span>
+        </label>
+        <Campo id="fecha_llamada" nombre="Fecha de la llamada" tipo="date" defecto={hoy} clase="w-[150px]" />
+        <Elegir
+          id="comercial"
+          nombre="Comercial que la lleva"
+          opciones={comerciales}
+          valor={comercial}
+          alElegir={setComercial}
+          clase="w-[230px]"
+        />
+      </div>
 
-          <div className="flex flex-wrap items-end gap-3">
-            <Elegir
-              id="comercial"
-              nombre="Comercial que la lleva"
-              opciones={comerciales}
-              valor={comercial}
-              alElegir={setComercial}
-              clase="w-[230px]"
-            />
-            <Campo id="fecha_llamada" nombre="Fecha de la llamada" tipo="date" defecto={hoy} clase="w-[165px]" />
-            <label className="block w-[210px]">
-              <span className={etiqueta}>Número de orden</span>
-              <span className={caja + " mt-1 block bg-black/5 text-carbon/60"}>
-                {iniciales ? iniciales + "-" + new Date().getFullYear() + "-000" : "elige comercial"}
-              </span>
-            </label>
-            <Link
-              href={volver}
-              className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:border-lima"
-            >
-              Cancelar
-            </Link>
-            <button
-              type="submit"
-              disabled={!puedeGuardar || enviando}
-              className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35"
-            >
-              {enviando ? "Guardando…" : "Guardar"}
-            </button>
-          </div>
-        </div>
-        <p className="mt-2 text-[11px] text-carbon/60">
-          El número se asigna al guardar: lleva las iniciales del comercial que la capta, y no cambia aunque
-          después la lleve otro.
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-[760px] text-xs text-carbon/70">
+          Lo único necesario es que completes lo que te han dicho
+          {soyComercial ? "" : ", y tenga asignado un comercial"}. Todo lo demás, si se puede indicar bien, y si no,
+          se completará después.
         </p>
+        <div className="flex items-center gap-3">
+          <Link
+            href={volver}
+            className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:border-lima"
+          >
+            Cancelar
+          </Link>
+          <button
+            type="submit"
+            disabled={!puedeGuardar || enviando}
+            className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-carbon/35"
+          >
+            {enviando ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
       </div>
 
       <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,500fr)_minmax(0,670fr)]">
         {/* ===================== el diario ===================== */}
         <section className="min-w-0 rounded-[14px] border border-[#baa208] bg-[#fffdf5] p-4 shadow-sm">
-          <h2 className="text-[19px] font-bold leading-tight text-carbon">La entrada del diario</h2>
-          <p className="mb-3 mt-1 text-[10px] font-bold uppercase tracking-wide text-carbon/60">
-            Sin esto no hay oportunidad
-          </p>
-          <label className="block" htmlFor="nota">
-            <span className={etiqueta}>Qué te han contado</span>
-            <textarea
-              id="nota"
-              name="nota"
-              rows={9}
-              value={nota}
-              onChange={(e) => setNota(e.target.value)}
-              placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
-              className={caja + " mt-1 min-h-[220px] resize-y"}
-            />
-          </label>
-          <p className="mt-2 text-[11px] text-carbon/60">
-            Sin límite: si hacen falta quinientas palabras, se escriben. El campo crece solo.
-          </p>
+          <h2 className="text-[19px] font-bold uppercase leading-tight tracking-wide text-carbon">
+            Qué te han contado
+          </h2>
+          <textarea
+            id="nota"
+            name="nota"
+            rows={9}
+            value={nota}
+            onChange={(e) => setNota(e.target.value)}
+            placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
+            className={caja + " mt-3 min-h-[260px] resize-y"}
+          />
         </section>
 
         {/* ===================== los datos que tenemos ===================== */}
         <section className="min-w-0 rounded-[14px] border border-[#237812] bg-[#fffdf5] p-4 shadow-sm">
-          <h2 className="text-[19px] font-bold leading-tight text-carbon">Datos que tenemos</h2>
-          <p className="mb-2 mt-1 text-[10px] font-bold uppercase tracking-wide text-carbon/60">
-            Lo que haya. Nada de esto es obligatorio por separado
+          <h2 className="text-[19px] font-bold uppercase leading-tight tracking-wide text-carbon">
+            Datos que tenemos
+          </h2>
+          <p className="mb-3 mt-1 text-[10px] font-bold uppercase tracking-wide text-carbon/60">
+            Apunta lo que ya sepas, cuanto más mejor
           </p>
 
-          <Rotulo>De la comunidad</Rotulo>
+          {/* La direccion se escribe; buscarla es el "por si acaso". */}
           <div className="grid gap-[14px] sm:grid-cols-[minmax(0,365fr)_minmax(0,245fr)]">
             <div className="min-w-0">
-              <Elegir
-                id="comunidad"
-                nombre="Dirección"
-                opciones={comunidades}
-                valor={comunidad}
-                alElegir={setComunidad}
-                vacio="no está en la lista"
-              />
+              <span className={verde}>Dirección de la comunidad</span>
               {comunidad === "" && (
                 <input
                   id="direccion_provisional"
@@ -237,33 +275,57 @@ export function Formulario({
                   type="text"
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
-                  placeholder="si no está, escríbela aquí y queda provisional"
-                  className={caja + " mt-1.5"}
+                  placeholder="dirección del edificio"
+                  className={caja + " mt-1"}
                 />
               )}
+              {(buscarDireccion || comunidad !== "") && (
+                <Elegir
+                  id="comunidad"
+                  nombre=""
+                  opciones={comunidades}
+                  valor={comunidad}
+                  alElegir={setComunidad}
+                  vacio="busca la que ya tenemos"
+                  clase="mt-1.5"
+                />
+              )}
+              {comunidad === "" && (
+                <button type="button" onClick={() => setBuscarDireccion((x) => !x)} className={boton + " mt-1.5"}>
+                  {buscarDireccion ? "Mejor la escribo yo" : "O selecciona de las ya existentes"}
+                </button>
+              )}
             </div>
-            <Elegir
-              id="administracion"
-              nombre="Quién es el administrador"
-              opciones={administraciones}
-              valor={admin}
-              alElegir={setAdmin}
-              vacio="todavía no lo sé"
-            />
+
+            <div className="min-w-0">
+              <Elegir
+                id="administracion"
+                nombre="Quién es el administrador"
+                opciones={administraciones}
+                valor={admin}
+                alElegir={setAdmin}
+                vacio="selecciona de la lista"
+                tinta="text-[#237812]"
+              />
+              <button type="button" className={boton + " mt-1.5"} disabled>
+                Nuevo administrador, crearlo
+              </button>
+            </div>
           </div>
 
-          <Rotulo>De la llamada</Rotulo>
-          <div className="grid gap-[14px] sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          {/* Quien me pasa el dato. */}
+          <div className="mt-4 grid gap-[14px] sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Elegir
               id="quien"
-              nombre="Quién me llama"
+              nombre="Quién ha contactado para pedirlo"
               opciones={opciones.quienes}
               valor={quien}
               alElegir={(v) => {
                 setQuien(v);
                 if (v) setNuevo(false);
               }}
-              vacio="no está en la agenda"
+              vacio="¿es alguien conocido? selecciónalo de la agenda"
+              tinta="text-[#237812]"
             />
             <div className="flex items-end">
               <button
@@ -273,13 +335,12 @@ export function Formulario({
                   if (!nuevo) setQuien("");
                 }}
                 className={
-                  "w-full rounded-lg border px-3 py-1.5 text-xs font-bold transition " +
-                  (nuevo
-                    ? "border-[#8a6410] bg-form-nuevo text-[#5c4208]"
-                    : "border-marco bg-white text-carbon/70 hover:border-lima")
+                  nuevo
+                    ? "w-full rounded-lg border border-[#8a6410] bg-form-nuevo px-3 py-1.5 text-xs font-bold text-[#5c4208]"
+                    : boton
                 }
               >
-                {nuevo ? "✓ lo estoy creando" : "No está: crear contacto de agenda"}
+                {nuevo ? "✓ lo estoy creando" : "No le conozco, crear contacto nuevo"}
               </button>
             </div>
           </div>
@@ -336,84 +397,134 @@ export function Formulario({
             </div>
           )}
 
-          <Rotulo>Qué cosa les interesa</Rotulo>
-          <Marcar
-            id="tipos"
-            nombre="De lo que vendemos, qué quieren"
-            opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
-            vacio="nada marcado todavía"
-          />
+          {/* De lo que vendemos, que quieren. */}
+          <div className="mt-4">
+            <span className={verde}>En qué dicen que están interesados</span>
+            <span className="mb-1 block text-[11px] text-carbon/60">De lo que vendemos, qué quieren</span>
+            <Marcar
+              id="tipos"
+              opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
+              pista="selecciona uno o varios"
+              vacio="nada marcado todavía"
+            />
+          </div>
 
-          <Caja titulo="Contacto en la comunidad (si no es el administrador)">
-            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs font-semibold text-carbon/80">
-              <input
-                type="checkbox"
-                name="mismo_que_llama"
-                checked={mismo}
-                onChange={(e) => setMismo(e.target.checked)}
-                className="size-5 accent-lima-dark"
-              />
-              Es el mismo que me llamó
-            </label>
-            {!mismo && (
-              <div className="grid gap-[14px] sm:grid-cols-12">
-                <Elegir
-                  id="contacto"
-                  nombre="A quién llamo allí"
-                  opciones={opciones.contactos}
-                  clase="sm:col-span-12"
-                  vacio="no está en la lista"
-                />
-                <Campo
-                  id="contacto_nombre"
-                  nombre="Si no está: cómo se llama"
-                  clase="sm:col-span-5"
-                  pista="a quien tengo que llamar"
-                />
-                <Campo id="contacto_telefono" nombre="Teléfono" clase="sm:col-span-4" />
-                <Campo id="contacto_correo" nombre="Correo" clase="sm:col-span-3" />
-              </div>
+          {/* La tercera persona: con quien hablo de los detalles. */}
+          <section className="mt-4 max-w-[520px] rounded-[14px] border border-marco bg-white/70 p-3">
+            <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#237812]">
+              Con quién hablo de esto a partir de ahora{" "}
+              <span className="font-semibold normal-case tracking-normal text-carbon/60">
+                (contacto para verlo, enviar, etc.)
+              </span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <Casilla texto="El mismo que me llamó" nombre="mismo_que_llama" marcado={mismo} alMarcar={setMismo} />
+              <Casilla texto="El administrador" nombre="contacto_es_admin" marcado={esAdmin} alMarcar={setEsAdmin} />
+              <Casilla texto="Otro (crear)" marcado={otro} alMarcar={cerrarOtro} />
+            </div>
+            {otro && (contactoNombre || contacto) && (
+              <button
+                type="button"
+                onClick={() => setModal(true)}
+                className="mt-2 text-xs font-bold text-lima-dark underline underline-offset-2"
+              >
+                {contactoNombre || "contacto elegido"} — cambiar
+              </button>
             )}
-          </Caja>
+          </section>
 
-          <Caja titulo="Qué tengo que hacer">
+          {/* El siguiente paso: es lo que impide que se escape. */}
+          <section className="mt-4 rounded-[14px] border border-marco bg-white/70 p-3">
+            <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#237812]">
+              Qué tengo que hacer: siguiente paso inmediato
+            </h3>
             <div className="flex flex-wrap gap-2">
               {PASOS_DE_ARRANQUE.map((p) => (
-                <button
+                <Casilla
                   key={p.clave}
-                  type="button"
-                  data-paso
-                  onClick={() => setPaso(paso === p.clave ? "" : p.clave)}
-                  className={
-                    "rounded-lg border px-3 py-1.5 text-xs font-bold transition " +
-                    (paso === p.clave
-                      ? "border-lima-dark bg-lima-dark text-white"
-                      : "border-marco bg-white text-carbon/60 hover:border-lima hover:text-carbon")
-                  }
-                >
-                  {p.texto}
-                </button>
+                  texto={p.texto}
+                  marcado={paso === p.clave}
+                  alMarcar={(v) => setPaso(v ? p.clave : "")}
+                />
               ))}
             </div>
             <input type="hidden" name="paso" value={paso} />
-            <p className="mt-2 text-[11px] text-carbon/60">
-              Es por dónde entramos en el flujo comercial. Los pasos anteriores quedan como que no aplican, y el
-              diario explica por qué.
-            </p>
-          </Caja>
+          </section>
 
-          <Rotulo>Datos extra</Rotulo>
+          <h3 className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-[#237812]">Datos extra</h3>
           <Elegir id="canal" nombre="Cómo nos conocieron" opciones={canales} clase="sm:max-w-[320px]" />
         </section>
       </div>
 
       {!puedeGuardar && (
         <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Para guardar hacen falta tres cosas: <b>la entrada del diario</b>, <b>un comercial</b>, y{" "}
+          Para guardar hacen falta: <b>lo que te han contado</b>, <b>un comercial</b>, <b>el siguiente paso</b>, y{" "}
           <b>al menos una de estas cuatro</b> — dirección, administración, teléfono o correo.
         </p>
       )}
 
+      {/* El contacto de "otro": vecina, presidente, alguien de la comisión de
+          obras. Se queda montado aunque esté cerrado, para no perder lo escrito. */}
+      <div className={modal ? "fixed inset-0 z-50 flex items-center justify-center bg-carbon/40 p-4" : "hidden"}>
+        <div className="w-full max-w-[540px] rounded-[16px] border border-marco bg-white p-4 shadow-xl">
+          <h3 className="text-[15px] font-bold text-carbon">Con quién hablo a partir de ahora</h3>
+          <p className="mb-3 mt-1 text-xs text-carbon/65">
+            La vecina, el presidente, alguien de la comisión de obras. Si ya está en la agenda, se elige; si no, se
+            escribe.
+          </p>
+          <Elegir
+            id="contacto"
+            nombre="Si ya lo tenemos"
+            opciones={opciones.contactos}
+            valor={contacto}
+            alElegir={setContacto}
+            vacio="no está en la lista"
+          />
+          <div className="mt-3 grid gap-[14px] sm:grid-cols-12">
+            <Campo
+              id="contacto_nombre"
+              nombre="Si no está: cómo se llama"
+              clase="sm:col-span-5"
+              pista="a quien tengo que llamar"
+              valor={contactoNombre}
+              alEscribir={setContactoNombre}
+            />
+            <Campo
+              id="contacto_telefono"
+              nombre="Teléfono"
+              clase="sm:col-span-4"
+              valor={contactoTel}
+              alEscribir={setContactoTel}
+            />
+            <Campo
+              id="contacto_correo"
+              nombre="Correo"
+              clase="sm:col-span-3"
+              valor={contactoMail}
+              alEscribir={setContactoMail}
+            />
+          </div>
+          <div className="mt-4 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setModal(false);
+                cerrarOtro(false);
+              }}
+              className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:border-lima"
+            >
+              Quitar
+            </button>
+            <button
+              type="button"
+              onClick={() => setModal(false)}
+              className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white"
+            >
+              Listo
+            </button>
+          </div>
+        </div>
+      </div>
     </form>
   );
 }

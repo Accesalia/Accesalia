@@ -36,8 +36,8 @@ export default async function NuevaOportunidad({
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-            No se ha guardado: hacían falta la entrada del diario, un comercial, y al menos una de las cuatro —
-            dirección, administración, teléfono o correo.
+            No se ha guardado: hacían falta lo que te han contado, un comercial, el siguiente paso, y al menos una
+            de las cuatro — dirección, administración, teléfono o correo.
           </p>
         )}
 

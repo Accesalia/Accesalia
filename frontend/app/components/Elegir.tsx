@@ -92,7 +92,11 @@ export function Elegir({
 
   return (
     <div className={"relative " + clase} ref={caja}>
-      <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>{nombre}</span>
+      {/* Sin nombre no se dibuja la etiqueta: hay sitios donde el rotulo de
+          arriba ya lo dice y repetirlo es ruido. */}
+      {nombre !== "" && (
+        <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>{nombre}</span>
+      )}
       <input type="hidden" name={id} value={elegido} />
       <button
         type="button"

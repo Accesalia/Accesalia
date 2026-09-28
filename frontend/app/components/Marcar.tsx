@@ -7,8 +7,11 @@ import { useEffect, useRef, useState } from "react";
 // "De lo que yo vendo, que me quieren comprar." Normalmente entre dos y cinco
 // cosas, asi que no vale una casilla de una sola linea: hace falta ver lo que se
 // lleva marcado. Mismo minibuscador que el selector de siempre —encuentra el
-// trozo donde este, sin tildes ni mayusculas— y lo marcado se queda a la vista
-// en fichas que se quitan de un clic.
+// trozo donde este, sin tildes ni mayusculas—.
+//
+// Lo marcado se queda a la vista SOBRE EL FONDO, sin caja: si tiene aspecto de
+// campo parece que tambien hay que rellenarlo, y al comercial la sensacion de
+// "otra cosa mas que completar" le echa para atras (Monica, 28-sep-2026).
 
 export type Marca = { valor: string; texto: string; pista?: string };
 
@@ -23,13 +26,16 @@ export function Marcar({
   nombre,
   opciones,
   vacio = "nada marcado todavía",
+  pista = "elige de la lista (o escribe para encontrar antes)",
   clase = "",
   tinta,
 }: {
   id: string;
-  nombre: string;
+  nombre?: string;
   opciones: Marca[];
   vacio?: string;
+  /** El texto guia de la casilla de buscar. */
+  pista?: string;
   clase?: string;
   tinta?: string;
 }) {
@@ -69,15 +75,17 @@ export function Marcar({
 
   return (
     <div className={"min-w-0 " + clase} ref={caja}>
-      <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>
-        {nombre}
-      </span>
+      {nombre && (
+        <span className={"block text-[10px] font-bold uppercase tracking-wide text-carbon/70 " + (tinta ?? "")}>
+          {nombre}
+        </span>
+      )}
 
       {puestos.map((v) => (
         <input key={v} type="hidden" name={id} value={v} />
       ))}
 
-      <div className="relative mt-1">
+      <div className={"relative " + (nombre ? "mt-1" : "")}>
         <input
           id={id + "_busca"}
           type="text"
@@ -93,7 +101,7 @@ export function Marcar({
           }}
           onFocus={() => setAbierto(true)}
           onClick={() => setAbierto(true)}
-          placeholder="elige de la lista (o escribe para encontrar antes)"
+          placeholder={pista}
           autoComplete="off"
           data-buscador
           className="w-full rounded-lg border border-marco bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
@@ -119,12 +127,13 @@ export function Marcar({
         )}
       </div>
 
-      <div className="mt-2 flex min-h-9 flex-wrap items-start gap-1.5 rounded-lg border border-marco bg-white p-2">
+      {/* Sobre el fondo, sin marco: esto no se rellena, se mira. */}
+      <div className="mt-2 flex min-h-7 flex-wrap items-start gap-1.5">
         {puestos.length === 0 && <span className="text-xs text-carbon/55">{vacio}</span>}
         {puestos.map((v) => (
           <span
             key={v}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-lima/20 px-2 py-0.5 text-xs font-semibold text-carbon"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-lima/25 px-2 py-0.5 text-xs font-semibold text-carbon"
           >
             {texto(v)}
             <button

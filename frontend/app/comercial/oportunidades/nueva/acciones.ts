@@ -24,11 +24,14 @@ export async function guardarOportunidad(fd: FormData) {
   const administracionId = texto(fd, "administracion");
   const nuevoTelefono = texto(fd, "nuevo_telefono");
   const nuevoCorreo = texto(fd, "nuevo_correo");
+  const pasoArranque = texto(fd, "paso");
 
   // Las tres condiciones de ella. Sin comercial no es una oportunidad, es una
   // nota que se pierde: nadie recibe el aviso y nadie hace el seguimiento.
+  // Y el siguiente paso, que es lo que hace que la oportunidad no se escape:
+  // sin el no hay nada que perseguir manana.
   const hayHilo = Boolean(comunidadId || direccionProvisional || administracionId || nuevoTelefono || nuevoCorreo);
-  if (!nota || !comercialId || !hayHilo) redirect(VOLVER + "?falta=1");
+  if (!nota || !comercialId || !hayHilo || !pasoArranque) redirect(VOLVER + "?falta=1");
 
   const marcado = fd.get("nuevo_marcado") === "1";
   const nuevoNombre = texto(fd, "nuevo_nombre");
@@ -61,7 +64,7 @@ export async function guardarOportunidad(fd: FormData) {
     // Una fila por cada cosa que quieren: normalmente entre dos y cinco.
     tipoIds: fd.getAll("tipos").map(String).filter(Boolean),
     canalId: texto(fd, "canal"),
-    pasoArranque: texto(fd, "paso"),
+    pasoArranque,
   };
 
   const hecho = await crearOportunidad(datos, yo.id);
