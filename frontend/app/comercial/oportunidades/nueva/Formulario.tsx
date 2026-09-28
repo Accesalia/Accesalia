@@ -17,7 +17,12 @@ import { PASOS_DE_ARRANQUE, RELACIONES } from "../../../../lib/oportunidadVocabu
 //   · cabecera: titulo 585 · numero 190 · fecha 128 · comercial 180 (el nombre
 //     de un comercial no necesita mas, y asi el titulo va en una sola linea)
 //   · tarjetas: 528 la del diario, 707 la de los datos, 28 de separacion
-//   · cada fila de datos: rotulo 132 · campo 362 · texto azul 75 · boton 83
+//   · cada fila de datos: rotulo 128 · campo 362 · texto azul 75 · boton 83, y
+//     10 de separacion entre columnas. Esos 10 son la distancia que hay en su
+//     maqueta entre el rotulo y el campo, y son EL MINIMO: marcan donde empieza
+//     todo lo demas, para que el campo sea lo mas ancho posible y todo caiga en
+//     la misma vertical. Con esos numeros los campos empiezan en 138 y la fila
+//     termina en 678, que es justo lo que ella tiene.
 //   · "quien ha contactado": casilla 160 · desplegable 151 · boton 83
 //   · "en que dicen": 237, y lo marcado crece a su derecha
 //   · la caja de con quien hablo: 572 de ancho, casillas de 75 de alto
@@ -47,7 +52,7 @@ function Fila({ nombre, primera, children }: { nombre: string; primera?: boolean
   return (
     <div
       className={
-        "grid grid-cols-[132px_minmax(0,362fr)_75px_83px] items-center gap-x-[7px] py-[14px] " +
+        "grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] py-[14px] " +
         (primera ? "" : "border-t border-raya")
       }
     >
@@ -369,7 +374,7 @@ export function Formulario({
           </Fila>
 
           {/* ---- quién ha contactado ---- */}
-          <div className="grid grid-cols-[132px_minmax(0,362fr)_75px_83px] items-center gap-x-[7px] border-t border-raya py-[14px]">
+          <div className="grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] border-t border-raya py-[14px]">
             <span className={rotulo}>Quién ha contactado para pedirlo</span>
             {/* Acaba en la MISMA vertical que la direccion y el administrador:
                 tenerlos bailando cansa la vista. Por eso la casilla mide lo
@@ -430,7 +435,7 @@ export function Formulario({
           </div>
 
           {/* ---- qué quieren ---- */}
-          <div className="grid grid-cols-[132px_minmax(0,1fr)] items-center gap-x-[7px] border-t border-raya py-[14px]">
+          <div className="grid grid-cols-[128px_minmax(0,1fr)] items-center gap-x-[10px] border-t border-raya py-[14px]">
             <span className={rotulo}>En qué dicen que están interesados</span>
             <Marcar
               id="tipos"
@@ -481,7 +486,7 @@ export function Formulario({
           </div>
 
           {/* ---- datos extra ---- */}
-          <div className="grid grid-cols-[132px_minmax(0,1fr)] items-start gap-x-[7px] border-t border-raya py-[14px]">
+          <div className="grid grid-cols-[128px_minmax(0,1fr)] items-start gap-x-[10px] border-t border-raya py-[14px]">
             <span className={rotulo}>Datos extra</span>
             <div className="w-[320px]">
               <span className={etiqueta}>Cómo nos conocieron</span>
