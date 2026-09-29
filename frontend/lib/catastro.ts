@@ -165,17 +165,41 @@ export async function porDireccion(a: {
   calle: string;
   numero: string;
 }): Promise<{ referencia: string; direccion: string; cp: string | null }[]> {
+  // LA SIGLA ES OBLIGATORIA, aunque no lo parezca. Con el campo vacio Catastro
+  // contesta SIEMPRE "no existe ningun inmueble con los parametros indicados",
+  // hasta para direcciones que existen: probado con General Ricardos 238, que
+  // con Sigla=CL devuelve 15 inmuebles y sin sigla no devuelve nada. Como esto
+  // se iba a usar para repasar las 1.228 direcciones, tal cual estaba habria
+  // dicho que TODAS estan mal escritas.
   const q = new URLSearchParams({
     Provincia: a.provincia,
     Municipio: a.municipio,
-    Sigla: a.sigla ?? "",
+    Sigla: a.sigla || "CL",
     Calle: a.calle,
     Numero: a.numero,
   });
+  // CATASTRO CONTESTA DE TRES FORMAS DISTINTAS A LA MISMA PREGUNTA, y leer solo
+  // una las descarta EN SILENCIO. Ya paso: Calle Mayor 14 desaparecia siendo
+  // correcta. Las tres son:
+  //
+  //   lrcdnp.rcdnp  -> varias fincas en ese numero (lo normal)
+  //   bico.bi       -> una sola, y entonces no viene en lista
+  //   lerr          -> no la encuentra, y eso SI significa que no esta
+  //
+  // Importa el triple aqui: si esto se usa para repasar las 1.228 direcciones de
+  // Monica, una direccion buena marcada como "no encontrada" ensucia justo la
+  // lista que sirve para detectar las que de verdad estan mal escritas.
   const d = (await pedir(`${CALLEJERO}/Consulta_DNPLOC?${q}`)) as {
-    consulta_dnplocResult?: { lrcdnp?: { rcdnp?: Inmueble[] } };
+    consulta_dnplocResult?: {
+      lrcdnp?: { rcdnp?: Inmueble[] };
+      bico?: { bi?: Inmueble };
+      // `lerr` viene como LISTA, no como objeto con `err` dentro. El tipo que
+      // habia aqui no correspondia con lo que manda el servicio.
+      lerr?: { cod?: string; des?: string }[];
+    };
   };
-  const lista = d.consulta_dnplocResult?.lrcdnp?.rcdnp ?? [];
+  const r = d.consulta_dnplocResult;
+  const lista = r?.lrcdnp?.rcdnp ?? (r?.bico?.bi ? [r.bico.bi] : []);
   const fincas = new Map<string, { referencia: string; direccion: string; cp: string | null }>();
   for (const i of lista) {
     const rc = `${i.rc?.pc1 ?? ""}${i.rc?.pc2 ?? ""}`;
