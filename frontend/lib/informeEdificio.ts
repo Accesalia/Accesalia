@@ -94,10 +94,34 @@ const num = (s?: string) => {
 const urb = (i: Inm) => i.dt?.locs?.lous?.lourb;
 const rcDe = (i: Inm) => i.rc ?? i.idbi?.rc;
 
+const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Catastro CORTA LA CONEXION si se le pregunta muy seguido: es lo que hacia que
+ *  fallaran la finca y las coordenadas mientras la primera llamada iba bien. Asi
+ *  que van una detras de otra, con pausa, y con un reintento. */
+async function conCalma<T>(que: () => Promise<T>, reintentos = 2): Promise<T> {
+  let ultimo: unknown;
+  for (let n = 0; n <= reintentos; n++) {
+    if (n > 0) await espera(700 * n);
+    try {
+      return await que();
+    } catch (e) {
+      ultimo = e;
+    }
+  }
+  throw ultimo instanceof Error ? ultimo : new Error(String(ultimo));
+}
+
 async function jsonDe(u: string): Promise<Record<string, unknown>> {
   const r = await fetch(u, { cache: "no-store", headers: { Accept: "application/json" } });
-  if (!r.ok) throw new Error(`${r.status}`);
+  if (!r.ok) throw new Error(`Catastro respondio ${r.status}`);
   return r.json() as Promise<Record<string, unknown>>;
+}
+
+async function textoDe(u: string): Promise<string> {
+  const r = await fetch(u, { cache: "no-store" });
+  if (!r.ok) throw new Error(`Catastro respondio ${r.status}`);
+  return r.text();
 }
 
 /** Pregunta a una capa del geoportal "que hay en este punto". `radio` en metros:
@@ -436,7 +460,7 @@ const cab = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
 export async function traerDeFuera(ref: string): Promise<Crudo | null> {
   const fallos: string[] = [];
 
-  const d1 = (await jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}`)) as {
+  const d1 = (await conCalma(() => jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}`))) as {
     consulta_dnprcResult?: { lrcdnp?: { rcdnp?: Inm[] }; bico?: { bi?: Inm } };
   };
   const r1 = d1.consulta_dnprcResult;
@@ -451,31 +475,38 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
   let suelo: number | null = null;
   const rc0 = rcDe(primero);
   if (rc0?.car) {
+    await espera(350);
     try {
-      const d2 = (await jsonDe(
-        `${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}${rc0.car}${rc0.cc1 ?? ""}${rc0.cc2 ?? ""}`,
+      const d2 = (await conCalma(() =>
+        jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}${rc0.car}${rc0.cc1 ?? ""}${rc0.cc2 ?? ""}`),
       )) as { consulta_dnprcResult?: { bico?: { finca?: { ldt?: string; ltp?: string; dff?: { ss?: string } } } } };
       const f = d2.consulta_dnprcResult?.bico?.finca;
       fincaLdt = f?.ldt ?? "";
       tipoParcela = f?.ltp ?? "";
       suelo = num(f?.dff?.ss);
-    } catch {
-      fallos.push("No se han podido leer los datos de la finca (superficie de suelo, tipo de parcela).");
+    } catch (e) {
+      fallos.push(
+        `No se han podido leer los datos de la finca (superficie de suelo, tipo de parcela): ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
   let lat: number | null = null, lng: number | null = null, utmX: number | null = null, utmY: number | null = null;
   try {
-    const [g, u] = await Promise.all([
-      (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:4326&RC=${ref}`, { cache: "no-store" })).text(),
-      (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:25830&RC=${ref}`, { cache: "no-store" })).text(),
-    ]);
+    await espera(350);
+    const g = await conCalma(() => textoDe(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:4326&RC=${ref}`));
     lng = Number(/<xcen>([^<]+)/.exec(g)?.[1]);
     lat = Number(/<ycen>([^<]+)/.exec(g)?.[1]);
+    await espera(350);
+    const u = await conCalma(() => textoDe(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:25830&RC=${ref}`));
     utmX = Number(/<xcen>([^<]+)/.exec(u)?.[1]);
     utmY = Number(/<ycen>([^<]+)/.exec(u)?.[1]);
-  } catch {
-    fallos.push("No se han podido obtener las coordenadas: sin ellas no hay croquis ni datos de urbanismo.");
+    if (!Number.isFinite(lat!) || !Number.isFinite(lng!)) throw new Error("Catastro no devolvio coordenadas para esta referencia");
+  } catch (e) {
+    lat = lng = utmX = utmY = null;
+    fallos.push(
+      `No se han podido obtener las coordenadas, y sin ellas no hay croquis ni datos de urbanismo: ${e instanceof Error ? e.message : String(e)}`,
+    );
   }
 
   let protegido = null, condiciones = null, ascensor = null, apiru = null, arru = null;
@@ -532,9 +563,14 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
   };
 }
 
-/** Guardar. Si falla no se cae la pantalla: se ha consultado igual. */
+/** Guardar. Si falla no se cae la pantalla: se ha consultado igual.
+ *
+ *  UNA FICHA A MEDIAS NO SE GUARDA. Si Catastro nos ha cortado y no hay
+ *  coordenadas, guardarla dejaria el fallo congelado 120 dias y nadie sabria por
+ *  que esa direccion "no tiene croquis". Mejor no guardar y reintentar. */
 async function guardar(ref: string, c: Crudo) {
   if (!URL_BASE || !SECRETO) return;
+  if (c.fallos.length > 0 || c.lat === null || c.lng === null) return;
   const i = componer(ref, c);
   if (!i) return;
   const dato = (q: string) => i.secciones.flatMap((s) => s.datos).find((d) => d.que === q)?.valor ?? null;
@@ -569,6 +605,8 @@ async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | nul
     if (!r.ok) return null;
     const [f] = (await r.json()) as { bruto: Crudo | null; consultado_en: string }[];
     if (!f?.bruto?.inmuebles?.length) return null;
+    // Una guardada a medias se trata como si no existiera: asi se cura sola.
+    if (f.bruto.lat === null || f.bruto.lng === null || (f.bruto.fallos?.length ?? 0) > 0) return null;
     const dias = (Date.now() - new Date(f.consultado_en).getTime()) / 86400000;
     return dias > diasBueno ? null : f.bruto;
   } catch {
