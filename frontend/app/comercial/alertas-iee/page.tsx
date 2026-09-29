@@ -119,85 +119,109 @@ export default async function AlertasIEE({
           </div>
         )}
 
-        {/* ======================= EL PARTE DIARIO ======================= */}
+        {/* ======================= EL PARTE DIARIO =======================
+            CUATRO COLUMNAS Y NADA MAS (Monica): "son 4 columnas: direccion,
+            link a la IEE, asignar comercial, y opp abierta si/no. Y alerta
+            marcando NO en rojo con: hace 11 dias que se le paso."
+            "Sin mas complejidad, ok? Es una cosa facil de usar."
+
+            Un listado casi un excel, con una fila de cabecera por dia. Del
+            edificio no se pone ni año ni energetica ni municipio: para eso esta
+            el enlace. Aqui solo hace falta decidir a quien se le pasa y ver
+            quien no ha hecho nada. */}
         <section className="mt-6">
           <h2 className={ROTULO + " mb-2"}>El parte de cada día</h2>
-          <div className="space-y-2.5">
-            {dias.map((d) =>
-              // UN DIA VACIO TAMBIEN SE DICE -"si no ha habido, que lo diga
-              // tambien"-, pero no ocupa lo mismo que uno con hallazgos: con
-              // catorce dias delante, catorce tarjetas vacias entierran las dos
-              // que importan. Los vacios en una linea, los buenos en su caja.
-              d.alertas.length === 0 ? (
-                <div
-                  key={d.dia}
-                  className="flex items-baseline justify-between gap-3 rounded-[10px] border border-black/5 px-4 py-2"
-                >
-                  <span className="text-[13px] text-carbon/50">
-                    {d.dia === hoy ? "Hoy" : comoSeDice(d.dia)}
-                  </span>
-                  <span className="text-[12px] text-carbon/40">
-                    Ninguna. Se miró y no había nada.
-                  </span>
-                </div>
-              ) : (
-                <div key={d.dia} className={CAJA + " p-4"}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 className="text-[14px] font-bold text-carbon">
-                      Registradas desfavorables {d.dia === hoy ? "hoy, " : ""}
+
+          <div className={CAJA + " overflow-hidden"}>
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+                  <th className="px-4 py-2 font-bold">Dirección</th>
+                  <th className="px-3 py-2 font-bold">El informe</th>
+                  <th className="px-3 py-2 font-bold">Comercial</th>
+                  <th className="px-4 py-2 font-bold">¿Oportunidad abierta?</th>
+                </tr>
+              </thead>
+
+              {dias.map((d) => (
+                <tbody key={d.dia}>
+                  <tr className="border-y border-black/5 bg-hueso/60">
+                    <td colSpan={4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
+                      {d.dia === hoy ? "Hoy · " : ""}
                       {comoSeDice(d.dia)}
-                    </h3>
-                    <span className="text-[12px] text-carbon/45">
-                      {d.alertas.length === 1 ? "1 dirección" : `${d.alertas.length} direcciones`}
-                    </span>
-                  </div>
+                    </td>
+                  </tr>
 
-                  <ul className="mt-3 space-y-2">
-                    {d.alertas.map((a) => (
-                      <li
-                        key={a.codigo}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-hueso/40 px-3.5 py-2.5"
-                      >
-                        <div className="min-w-0">
-                          <Link
-                            href={`/comercial/alertas-iee/${a.codigo}`}
-                            className="text-[14px] font-bold text-[#2B6CB0] hover:underline"
-                          >
+                  {d.alertas.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
+                        — {d.dia === hoy ? "hoy" : "ese día"} no había nada —
+                      </td>
+                    </tr>
+                  ) : (
+                    d.alertas.map((a) => {
+                      const tarde =
+                        !a.oportunidadId &&
+                        a.asignadaEn &&
+                        Math.floor((Date.now() - new Date(a.asignadaEn).getTime()) / 864e5) >= plazo;
+                      const dias = a.asignadaEn
+                        ? Math.floor((Date.now() - new Date(a.asignadaEn).getTime()) / 864e5)
+                        : 0;
+                      return (
+                        <tr key={a.codigo} className="border-b border-black/5">
+                          <td className="px-4 py-2 font-bold text-carbon">
                             {a.direccion ?? "Sin dirección"}
-                          </Link>
-                          <div className="mt-0.5 text-[12px] text-carbon/55">
-                            {[
-                              a.municipio,
-                              a.anioConstruccion ? `de ${a.anioConstruccion}` : null,
-                              a.calificacionEnergetica ? `energética ${a.calificacionEnergetica}` : null,
-                              `emitido el ${enCastellano(a.fechaEmision)}`,
-                            ]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </div>
-                        </div>
-
-                        {a.asignadaA ? (
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-[12px] text-carbon/60">
-                              Con <b className="text-carbon">{a.comercial}</b>
-                              {a.asignadaEmailFallo ? (
-                                <span className="text-amber-700"> · el correo no salió</span>
-                              ) : a.asignadaEmailEn ? (
-                                <span className="text-lima-dark"> · avisado</span>
-                              ) : null}
-                            </span>
-                            <VolverAlMonton codigo={a.codigo} />
-                          </div>
-                        ) : (
-                          <Asignador codigo={a.codigo} comerciales={comerciales} />
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ),
-            )}
+                          </td>
+                          <td className="px-3 py-2">
+                            <Link
+                              href={`/comercial/alertas-iee/${a.codigo}`}
+                              className="font-semibold text-[#2B6CB0] hover:underline"
+                            >
+                              Ver el IEE
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2">
+                            {a.asignadaA ? (
+                              <span className="flex items-center gap-2 text-[12px] text-carbon/60">
+                                <b className="text-[13px] text-carbon">{a.comercial}</b>
+                                {a.asignadaEmailFallo ? (
+                                  <span className="text-amber-700">· el correo no salió</span>
+                                ) : null}
+                                <VolverAlMonton codigo={a.codigo} />
+                              </span>
+                            ) : (
+                              <Asignador codigo={a.codigo} comerciales={comerciales} />
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {a.oportunidadId ? (
+                              // Resuelto: check verde y punto. PENDIENTE (v2, suyo):
+                              // "deberiamos dar una opcion de 'llame y no quieren
+                              // verme' o algo asi" -cerrar sin oportunidad, pero
+                              // habiendolo trabajado, que no es lo mismo que ignorarlo-.
+                              <Link
+                                href={`/comercial/oportunidades/${a.oportunidadId}`}
+                                className="inline-flex items-center gap-1.5 font-bold text-lima-dark hover:underline"
+                              >
+                                <span aria-hidden className="text-[15px] leading-none">✓</span> Sí
+                              </Link>
+                            ) : !a.asignadaA ? (
+                              <span className="text-carbon/35">Sin asignar</span>
+                            ) : tarde ? (
+                              <span className="font-bold text-[#B91C1C]">
+                                No · hace {dias} {dias === 1 ? "día" : "días"} que se le pasó
+                              </span>
+                            ) : (
+                              <span className="text-carbon/45">Todavía no</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              ))}
+            </table>
           </div>
         </section>
 

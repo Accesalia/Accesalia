@@ -26,20 +26,20 @@ export function Asignador({
       className="flex shrink-0 items-center gap-2"
     >
       <input type="hidden" name="codigo" value={codigo} />
-      <label className="text-[12px] font-semibold text-carbon/55" htmlFor={`asignar-${codigo}`}>
-        Asignar a
-      </label>
+      {/* Sin rotulo aparte: va dentro de una tabla y la etiqueta suelta
+          ensancharia la columna. La primera opcion dice lo que hace. */}
       <select
         id={`asignar-${codigo}`}
         name="comercial"
+        aria-label="Asignar a un comercial"
         required
         disabled={mandando}
         defaultValue=""
-        className="h-[32px] rounded-[6px] border border-black/20 bg-white px-2 text-[13px] text-carbon"
+        className="h-[28px] rounded-[6px] border border-black/20 bg-white px-2 text-[12px] text-carbon"
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
       >
         <option value="" disabled>
-          Elegir…
+          Asignar a…
         </option>
         {comerciales.map((c) => (
           <option key={c.id} value={c.id}>
