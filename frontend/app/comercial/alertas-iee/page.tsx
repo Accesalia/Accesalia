@@ -69,7 +69,11 @@ export default async function AlertasIEE({
   ]);
 
   const hoy = dias[0]?.dia;
-  const sinAsignar = dias.flatMap((d) => d.alertas).filter((a) => a.estado === "nueva").length;
+  // Las que ya son nuestras no cuentan como trabajo pendiente: no hay nada que
+  // repartir, ya estan dentro.
+  const sinAsignar = dias
+    .flatMap((d) => d.alertas)
+    .filter((a) => a.estado === "nueva" && a.nuestra?.tipo !== "misma_finca").length;
   const sinCorreo = comerciales.filter((c) => !c.correo).map((c) => c.nombre);
 
   return (
@@ -172,8 +176,28 @@ export default async function AlertasIEE({
                         : 0;
                       return (
                         <tr key={a.codigo} className="border-b border-black/5">
-                          <td className="px-4 py-2 font-bold text-carbon">
-                            {a.direccion ?? "Sin dirección"}
+                          <td className="px-4 py-2">
+                            <div className="font-bold text-carbon">
+                              {a.direccion ?? "Sin dirección"}
+                            </div>
+                            {/* Las dos respuestas del cotejo, y dicen cosas
+                                opuestas: la misma finca es un cliente que ya
+                                tenemos; la misma calle es el mejor argumento
+                                que hay para llamar. */}
+                            {a.nuestra && (
+                              <div
+                                className={
+                                  "mt-0.5 text-[11px] " +
+                                  (a.nuestra.tipo === "misma_finca"
+                                    ? "text-carbon/45"
+                                    : "text-lima-dark")
+                                }
+                              >
+                                {a.nuestra.tipo === "misma_finca"
+                                  ? `Ya la tenemos: ${a.nuestra.comunidad}`
+                                  : `Misma calle que ${a.nuestra.comunidad}`}
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-2">
                             <Link
@@ -184,7 +208,17 @@ export default async function AlertasIEE({
                             </Link>
                           </td>
                           <td className="px-3 py-2">
-                            {a.asignadaA ? (
+                            {/* SI YA ES NUESTRA, NO SE ASIGNA (Monica): "que las
+                                que salgan en la lista a asignar no sean de las
+                                de nuestra bd". No se le regala a un comercial
+                                un cliente que ya tenemos. Pero NO se esconde:
+                                una fila que desaparece no se puede repescar, y
+                                ademas asi se ve que el cotejo funciona. */}
+                            {a.nuestra?.tipo === "misma_finca" && !a.asignadaA ? (
+                              <span className="text-[12px] text-carbon/45">
+                                Ya es nuestra
+                              </span>
+                            ) : a.asignadaA ? (
                               <span className="flex items-center gap-2 text-[12px] text-carbon/60">
                                 <b className="text-[13px] text-carbon">{a.comercial}</b>
                                 {a.asignadaEmailFallo ? (

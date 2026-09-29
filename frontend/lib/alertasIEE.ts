@@ -55,7 +55,22 @@ export type AlertaIEE = {
   asignadaEmailFallo: string | null;
   oportunidadId: string | null;
   comercial: string | null;
+  nuestra: Nuestra;
 };
+
+/** Si esto ya lo tocamos nosotros, y de que manera. Son dos cosas distintas y
+ *  NO hay que confundirlas:
+ *
+ *   - `misma_finca`: la referencia catastral coincide. Es nuestra. No es un
+ *     cliente nuevo: o ya es cliente o el IEE lo escribimos nosotros.
+ *   - `misma_calle`: es otro portal de una calle donde ya trabajamos. Eso NO se
+ *     descarta, es lo contrario: el comercial puede llamar y decir "hemos hecho
+ *     el 19 de su misma calle". Es el mejor argumento que hay.
+ */
+export type Nuestra =
+  | { tipo: "misma_finca"; comunidad: string }
+  | { tipo: "misma_calle"; comunidad: string }
+  | null;
 
 type Fila = {
   codigo: string;
@@ -115,7 +130,82 @@ const vestir = (f: Fila): AlertaIEE => ({
   asignadaEmailFallo: f.asignada_email_fallo,
   oportunidadId: f.oportunidad_id,
   comercial: f.comerciales?.nombre ?? null,
+  nuestra: null,
 });
+
+// ---------------------------------------------------------- ¿YA ES NUESTRA?
+//
+//   "Necesitamos descartar las que YA tengamos nosotros en nuestra bd.
+//    Accesalia es grande, movemos mucho, gran parte de esas IEE van a ser
+//    nuestras" (Monica).
+//
+// Tiene razon en el fondo y el cotejo hace falta, pero al probarlo con las
+// nueve primeras salio algo que cambia el diseño: NINGUNA era nuestra, y lo que
+// coincidia era la CALLE, no el edificio. Y eso no es un duplicado, es lo
+// contrario: "CL RIOJA 81" tiene IEE desfavorable y nosotros hicimos "RIOJA 19"
+// de esa misma calle. El comercial llama y dice que ya ha trabajado en el 19.
+//
+// Por eso hay dos respuestas y no una, y por eso NO SE ESCONDE NADA: se marca.
+// Un lead que desaparece de la lista no se puede repescar; uno marcado, si.
+//
+// EL COTEJO BUENO ES LA REFERENCIA CATASTRAL, que la nota informativa nos da.
+// Hoy la tienen 518 de las 1.228 comunidades, asi que para el resto hay que
+// caer en calle + numero, que es mas flojo: "SAN PABLO" caso con "San Pablo II
+// Avila", que no tiene nada que ver. De ahi que la calle exija ademas que
+// coincida el municipio, y aun asi se marque como pista y no como certeza.
+
+type ComunidadNuestra = { nombre: string; referencia_catastral: string | null };
+
+const sinTildes = (t: string) =>
+  t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+
+/** De "CL RIO JARAMA, 1" saca ["RIO JARAMA", "1"]. Los tipos de via sobran para
+ *  cotejar: la lista de Monica no los lleva. */
+function calleYNumero(direccion: string | null): { calle: string; numero: string } {
+  const limpia = sinTildes(direccion ?? "")
+    .replace(/^(CL|CALLE|AV|AVENIDA|PZ|PLAZA|PO|PASEO|CR|CTRA|CM|CAMINO|TR|RD|UR)\s+/, "")
+    .trim();
+  const [calle, resto] = limpia.split(",");
+  return { calle: (calle ?? "").trim(), numero: (resto ?? "").trim().split(/\s/)[0] ?? "" };
+}
+
+async function loNuestro(): Promise<ComunidadNuestra[]> {
+  try {
+    return await leer<ComunidadNuestra>("comunidades?select=nombre,referencia_catastral");
+  } catch {
+    return [];
+  }
+}
+
+function cotejar(a: AlertaIEE, nuestras: ComunidadNuestra[]): Nuestra {
+  // 1. La referencia catastral. Si coincide, no hay duda posible.
+  if (a.referenciaParcela) {
+    const igual = nuestras.find(
+      (c) => (c.referencia_catastral ?? "").slice(0, 14).toUpperCase() === a.referenciaParcela,
+    );
+    if (igual) return { tipo: "misma_finca", comunidad: igual.nombre };
+  }
+
+  const { calle, numero } = calleYNumero(a.direccion);
+  if (!calle || calle.length < 5) return null;
+  const muni = sinTildes(a.municipio ?? "").replace(/\(.*\)/, "").trim();
+
+  for (const c of nuestras) {
+    const suyo = sinTildes(c.nombre);
+    if (!suyo.includes(calle)) continue;
+    // El municipio tiene que aparecer tambien: sin esto, "SAN PABLO" de Leganes
+    // casaba con "SAN PABLO II AVILA".
+    if (muni && !suyo.includes(muni)) continue;
+    // Mismo numero y misma calle sin referencia catastral: es la misma finca,
+    // solo que no teniamos la referencia guardada.
+    // Sin construir expresiones: se parte en palabras y se mira si el
+    // numero esta. Asi "RIOJA 19" no casa con "RIOJA 190".
+    if (numero && suyo.split(/[^A-Z0-9]+/).includes(numero))
+      return { tipo: "misma_finca", comunidad: c.nombre };
+    return { tipo: "misma_calle", comunidad: c.nombre };
+  }
+  return null;
+}
 
 /** El dia en Madrid, en formato ISO. La fecha del barrido tiene que ser la del
  *  reloj de la oficina, no la del servidor, que esta en otro sitio. */
@@ -134,11 +224,16 @@ export async function radarPorDias(dias = 14): Promise<DiaDeRadar[]> {
       `&visto_en=gte.${desde.toISOString()}&order=visto_en.desc`,
   );
 
+  // Las comunidades se traen UNA vez y se cotejan en memoria: son mil y pico
+  // filas de dos campos, y hacerlo por alerta serian mil consultas.
+  const nuestras = await loNuestro();
+
   const porDia = new Map<string, AlertaIEE[]>();
   for (const f of filas) {
     const d = diaEnMadrid(new Date(f.visto_en));
     if (!porDia.has(d)) porDia.set(d, []);
-    porDia.get(d)!.push(vestir(f));
+    const a = vestir(f);
+    porDia.get(d)!.push({ ...a, nuestra: cotejar(a, nuestras) });
   }
 
   const lista: DiaDeRadar[] = [];
@@ -154,7 +249,9 @@ export async function alertaIEE(codigo: string): Promise<AlertaIEE | null> {
   const filas = await leer<Fila>(
     `iee_registrado?select=${CAMPOS}&codigo=eq.${encodeURIComponent(codigo)}&limit=1`,
   );
-  return filas[0] ? vestir(filas[0]) : null;
+  if (!filas[0]) return null;
+  const a = vestir(filas[0]);
+  return { ...a, nuestra: cotejar(a, await loNuestro()) };
 }
 
 export type ComercialAlQueAsignar = { id: string; nombre: string; correo: string | null };
