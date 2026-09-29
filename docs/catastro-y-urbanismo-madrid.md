@@ -213,15 +213,57 @@ Resto de municipios de la Comunidad de Madrid:
 https://www.rieecm.es/portal/home
 ```
 
-### ZIRE y ZETU
+### ZIRE y ZETU · PROBADO — **se calculan, no se consultan**
 
-- **ZIRE** — Zona de Impulso a la Rehabilitación Energética
-- **ZETU** — Zona de Especial Transformación Urbana
+- **ZETU** — Zona de Especial Transformación Urbana. **Máxima subvención**: hasta
+  el 75% en accesibilidad, 50% en conservación, 75% en salubridad.
+- **ZIRE** — Zona de Impulso a la Rehabilitación Energética. **Todo el resto de
+  Madrid capital**, con porcentajes algo menores.
 
-Propias del Ayuntamiento de Madrid, a través del geoportal. **Falta el enlace
-concreto: pendiente de que lo pase Alex.** Cuando llegue se prueba igual que los
-tres anteriores, y con todo en la mano se diseñan las tablas de lo urbanístico
-—puede que fusionando algunas—.
+**No hay una capa que se llame así.** Son la evolución de los planes: el
+*Plan Rehabilita Madrid* absorbió las antiguas **APIRU** (municipales, Plan MAD-RE
+2016-19) y **ARRU** (estatales) y las metió todas en **ZETU**. Y creó **ZIRE** para
+que el resto de la ciudad no se quedara sin ayudas.
+
+Así que la regla es:
+
+```
+municipio == MADRID  ?
+    cae en APIRU o en ARRU  ->  ZETU
+    si no                   ->  ZIRE
+si no                       ->  ni una ni otra (otro municipio, otras ayudas)
+```
+
+Servicio: `VIVIENDA/SUBVENCIONES_AMBITOS/MapServer`
+
+| capa | qué es | cuántos |
+|---|---|---|
+| 2 | **APIRU** | 119 |
+| 1 | **ARRU** | 17 |
+| 0 | APIRU art. 5c (parcelas sueltas) | 1.654 |
+
+**Respuesta real** en GENERAL RICARDOS 238:
+
+```json
+{"ID_APIRU": "17.01"...,  "NOMBRE_APIRU": "Vista Alegre",
+ "distrito": "...", "Licencia": null}
+```
+
+**OJO CON EL MUNICIPIO.** Al comprobarlo me equivoqué: el texto de Catastro dice
+*"CL ALHELÍ 6 LEGANÉS **(MADRID)**"* y ese MADRID es **la provincia**. Hay que usar
+el campo de municipio (`dt.nm`), no parsear el literal. El resultado equivocado
+*parecía* razonable, que es lo peligroso.
+
+### Y hay más: el dinero YA CONCEDIDO
+
+`VIVIENDA/PLAN_REHABILITA_MADRID/MapServer` tiene las subvenciones concedidas
+**año a año desde 2020**, desglosadas por accesibilidad, eficiencia energética,
+conservación, salubridad, ascensores, amianto y ahorro de CO2. No es "dónde hay
+dinero": es **dónde ha caído y en qué**.
+
+Para los municipios que no son Madrid capital (Leganés, Getafe, Fuenlabrada... que
+son mucha de la cartera) está `VIVIENDA/REHABILITACION_ENERGETICA_CM`, **sin
+comprobar todavía**.
 
 ---
 
@@ -230,7 +272,7 @@ tres anteriores, y con todo en la mano se diseñan las tablas de lo urbanístico
 | capa | de dónde | qué dice |
 |---|---|---|
 | **Catastro** | Estado | **qué hay construido** — probado |
-| **ZIRE · ZETU** | Ayuntamiento | **dónde hay dinero** — falta el enlace |
+| **ZETU · ZIRE** | Ayuntamiento | **dónde hay dinero** — probado; se calculan de APIRU + ARRU |
 | **Protección · CIPHAN** | Patrimonio | **qué se puede tocar** — probado |
 | **Modelos homogéneos** | juntas de distrito | **qué se puede vender** — probado |
 
