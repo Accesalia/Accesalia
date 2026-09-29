@@ -71,13 +71,27 @@ export async function GET(req: Request) {
   const cuantas = Math.min(Math.max(Number(url.searchParams.get("n") ?? 140), 1), 200);
   const empezado = Date.now();
 
-  const r = await fetch(
-    `${URL_BASE}/rest/v1/comunidades?select=id,nombre,referencia_catastral,cp,municipio` +
-      `&referencia_catastral=not.is.null&anio_construccion=is.null&order=nombre.asc&limit=${cuantas}`,
-    { headers: cab, cache: "no-store" },
-  );
-  if (!r.ok) return NextResponse.json({ ok: false, dice: await r.text() }, { status: 200 });
-  const filas = (await r.json()) as { id: string; nombre: string; referencia_catastral: string; cp: string | null; municipio: string | null }[];
+  // La ficha cuelga de la REFERENCIA, no de la comunidad: una finca puede servir
+  // a varios portales. Asi que se mira que referencias hay ya guardadas y se
+  // piden las que faltan. Son textos cortos: traerlos todos es barato.
+  const [rFichas, rComus] = await Promise.all([
+    fetch(`${URL_BASE}/rest/v1/catastro_finca?select=referencia&limit=5000`, { headers: cab, cache: "no-store" }),
+    fetch(
+      `${URL_BASE}/rest/v1/comunidades?select=id,nombre,referencia_catastral,cp,municipio,anio_construccion,num_viviendas` +
+        `&referencia_catastral=not.is.null&order=nombre.asc&limit=5000`,
+      { headers: cab, cache: "no-store" },
+    ),
+  ]);
+  if (!rComus.ok) return NextResponse.json({ ok: false, dice: await rComus.text() }, { status: 200 });
+
+  const yaEstan = new Set(((await rFichas.json()) as { referencia: string }[]).map((f) => f.referencia));
+  const todas = (await rComus.json()) as {
+    id: string; nombre: string; referencia_catastral: string; cp: string | null;
+    municipio: string | null; anio_construccion: number | null; num_viviendas: number | null;
+  }[];
+  const rc14 = (s: string) => s.replace(/\s/g, "").toUpperCase().slice(0, 14);
+  const pendientes = todas.filter((c) => rc14(c.referencia_catastral).length === 14 && !yaEstan.has(rc14(c.referencia_catastral)));
+  const filas = pendientes.slice(0, cuantas);
 
   const hecho: string[] = [];
   const sinFicha: { nombre: string; rc: string }[] = [];
@@ -102,20 +116,50 @@ export async function GET(req: Request) {
         continue;
       }
 
-      // Solo huecos. El cp solo si estaba vacio.
-      const cambio: Record<string, unknown> = { anio_construccion: f.anio, num_viviendas: f.viviendas };
-      if (!c.cp && f.cp) cambio.cp = f.cp;
-
-      const p = await fetch(`${URL_BASE}/rest/v1/comunidades?id=eq.${c.id}`, {
-        method: "PATCH",
-        headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },
-        body: JSON.stringify(cambio),
+      // LA FICHA ENTERA, con la respuesta en bruto: ya que se llama, se
+      // exprime. Lo que hoy no sepamos aprovechar, mañana estara guardado.
+      const g = await fetch(`${URL_BASE}/rest/v1/catastro_finca?on_conflict=referencia`, {
+        method: "POST",
+        headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({
+          referencia: f.referencia,
+          direccion: f.direccion || null,
+          municipio: f.municipio,
+          provincia: f.provincia,
+          cp: f.cp,
+          anio: f.anio,
+          inmuebles: f.inmuebles,
+          viviendas: f.viviendas,
+          superficie: f.superficie,
+          plantas: f.plantas,
+          usos: f.usos,
+          bruto: f.bruto,
+          consultado_en: new Date().toISOString(),
+        }),
       });
-      if (!p.ok) {
-        fallos.push(`${c.nombre}: ${await p.text()}`);
+      if (!g.ok) {
+        fallos.push(`${c.nombre}: ficha ${await g.text()}`);
         continue;
       }
-      hecho.push(`${c.nombre} · ${f.anio} · ${f.viviendas} viviendas`);
+
+      // Y en la tabla de ella, SOLO LOS HUECOS. Nunca se pisa nada puesto.
+      const cambio: Record<string, unknown> = {};
+      if (c.anio_construccion === null && f.anio !== null) cambio.anio_construccion = f.anio;
+      if (c.num_viviendas === null && f.viviendas > 0) cambio.num_viviendas = f.viviendas;
+      if (!c.cp && f.cp) cambio.cp = f.cp;
+
+      if (Object.keys(cambio).length > 0) {
+        const p = await fetch(`${URL_BASE}/rest/v1/comunidades?id=eq.${c.id}`, {
+          method: "PATCH",
+          headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify(cambio),
+        });
+        if (!p.ok) {
+          fallos.push(`${c.nombre}: ${await p.text()}`);
+          continue;
+        }
+      }
+      hecho.push(`${c.nombre} · ${f.anio} · ${f.viviendas} viviendas · ${f.superficie ?? "?"} m² · ${f.plantas.length} plantas`);
 
       // EL CANARIO, en dos niveles. No es lo mismo "AV DR FLEMING" contra
       // "AV DOCTOR FLEMING" -la misma, escrita distinto- que "AV ESPAÑA 27"
@@ -136,11 +180,7 @@ export async function GET(req: Request) {
     await new Promise((x) => setTimeout(x, 1200));
   }
 
-  const q = await fetch(
-    `${URL_BASE}/rest/v1/comunidades?select=id&referencia_catastral=not.is.null&anio_construccion=is.null&limit=1`,
-    { headers: { ...cab, Prefer: "count=exact" }, cache: "no-store" },
-  );
-  const quedan = Number(q.headers.get("content-range")?.split("/")[1] ?? "?");
+  const quedan = pendientes.length - hecho.length;
 
   return NextResponse.json({
     ok: true,

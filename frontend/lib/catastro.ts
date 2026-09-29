@@ -44,6 +44,13 @@ export type FichaCatastro = {
   superficie: number | null;
   plantas: string[];
   usos: { uso: string; cuantos: number }[];
+  /** EL REPARTO POR PORTALES. La referencia de 14 identifica la PARCELA, no el
+   *  portal: una misma referencia puede cubrir el 3 y el 5 de la misma avenida,
+   *  con escaleras distintas. Sin esto, a una comunidad se le atribuirian las
+   *  viviendas de toda la parcela. */
+  portales: { via: string; numero: string; inmuebles: number; viviendas: number; escaleras: string[] }[];
+  /** La respuesta entera de Catastro, para guardarla y no volver a pedirla. */
+  bruto: unknown;
 };
 
 type Inmueble = {
@@ -51,7 +58,7 @@ type Inmueble = {
   dt?: {
     np?: string;
     nm?: string;
-    locs?: { lous?: { lourb?: { dir?: { tv?: string; nv?: string; pnp?: string }; dp?: string; loint?: { pt?: string } } } };
+    locs?: { lous?: { lourb?: { dir?: { tv?: string; nv?: string; pnp?: string }; dp?: string; loint?: { pt?: string; es?: string } } } };
   };
   debi?: { luso?: string; sfc?: string; ant?: string };
 };
@@ -62,7 +69,7 @@ const soloDigitos = (s: string | undefined) => {
 };
 
 /** Junta la lista de inmuebles de una finca en una sola ficha. */
-function resumir(referencia: string, lista: Inmueble[]): FichaCatastro | null {
+function resumir(referencia: string, lista: Inmueble[], bruto: unknown): FichaCatastro | null {
   if (lista.length === 0) return null;
   const primero = lista[0];
   const urb = primero.dt?.locs?.lous?.lourb;
@@ -75,6 +82,23 @@ function resumir(referencia: string, lista: Inmueble[]): FichaCatastro | null {
     usos.set(u, (usos.get(u) ?? 0) + 1);
   }
   const plantas = Array.from(new Set(lista.map((i) => i.dt?.locs?.lous?.lourb?.loint?.pt).filter((p): p is string => !!p))).sort();
+
+  // El reparto por portal: se agrupa por numero de policia.
+  const porPortal = new Map<string, { via: string; numero: string; inmuebles: number; viviendas: number; escaleras: Set<string> }>();
+  for (const i of lista) {
+    const u = i.dt?.locs?.lous?.lourb;
+    const num = u?.dir?.pnp ?? "";
+    if (!num) continue;
+    const clave = `${u?.dir?.nv ?? ""}|${num}`;
+    const p =
+      porPortal.get(clave) ??
+      { via: [u?.dir?.tv, u?.dir?.nv].filter(Boolean).join(" "), numero: num, inmuebles: 0, viviendas: 0, escaleras: new Set<string>() };
+    p.inmuebles++;
+    if (i.debi?.luso === "Residencial") p.viviendas++;
+    const es = u?.loint?.es;
+    if (es) p.escaleras.add(es);
+    porPortal.set(clave, p);
+  }
 
   return {
     referencia,
@@ -90,6 +114,10 @@ function resumir(referencia: string, lista: Inmueble[]): FichaCatastro | null {
     superficie: lista.reduce((t, i) => t + (soloDigitos(i.debi?.sfc) ?? 0), 0) || null,
     plantas,
     usos: Array.from(usos, ([uso, cuantos]) => ({ uso, cuantos })).sort((a, b) => b.cuantos - a.cuantos),
+    portales: Array.from(porPortal.values())
+      .map((p) => ({ ...p, escaleras: Array.from(p.escaleras).sort() }))
+      .sort((a, b) => Number(a.numero) - Number(b.numero)),
+    bruto,
   };
 }
 
@@ -112,7 +140,7 @@ export async function porReferencia(referencia: string): Promise<FichaCatastro |
   const r = d.consulta_dnprcResult;
   if (!r) return null;
   const lista = r.lrcdnp?.rcdnp ?? (r.bico?.bi ? [r.bico.bi] : []);
-  return resumir(rc, lista);
+  return resumir(rc, lista, d);
 }
 
 /** La finca que hay en unas coordenadas. Es el camino FIABLE: no depende de como
