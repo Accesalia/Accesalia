@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
-import { informeEdificio } from "../../../../lib/informeEdificio";
+import { ascensorDe, informeEdificio } from "../../../../lib/informeEdificio";
+import { marcarAscensor } from "./acciones";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 export const dynamic = "force-dynamic";
@@ -114,6 +115,8 @@ export default async function Edificio({
       </div>
     );
 
+  const asc = await ascensorDe(referencia);
+
   const cual = vista === "informe" ? "informe" : vista === "resultados" ? "resultados" : "ficha";
   const solapa = (v: string, texto: string) => (
     <Link
@@ -199,6 +202,49 @@ export default async function Edificio({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {i.aerea ? <img src={i.aerea} alt="Ortofoto del edificio" className="h-full w-full object-cover" /> : null}
               {i.aerea && <Diana nota="Este edificio" />}
+            </div>
+
+            {/* La pregunta que decide si hay negocio, y que no dice ningun dato.
+                Se contesta aqui, mirando la foto, en dos segundos. */}
+            <div className="flex flex-wrap items-center gap-3 border-t border-black/5 px-4 py-3">
+              <span className="text-[13px] font-semibold text-carbon">¿Hay ascensor?</span>
+              <form action={marcarAscensor.bind(null, referencia, true)}>
+                <button
+                  className={
+                    "h-[30px] rounded-full border px-4 text-[12px] font-bold uppercase transition " +
+                    (asc.hay === true
+                      ? "border-[#237812] bg-[#237812] text-white"
+                      : "border-carbon/20 bg-white text-carbon/55 hover:border-carbon/45")
+                  }
+                >
+                  Sí
+                </button>
+              </form>
+              <form action={marcarAscensor.bind(null, referencia, false)}>
+                <button
+                  className={
+                    "h-[30px] rounded-full border px-4 text-[12px] font-bold uppercase transition " +
+                    (asc.hay === false
+                      ? "border-[#B45309] bg-[#B45309] text-white"
+                      : "border-carbon/20 bg-white text-carbon/55 hover:border-carbon/45")
+                  }
+                >
+                  No
+                </button>
+              </form>
+
+              {asc.hay === null ? (
+                <span className="text-[12px] text-carbon/45">Nadie lo ha mirado todavía</span>
+              ) : (
+                <span className="text-[12px] text-carbon/50">
+                  {asc.quien ? `Lo marcó ${asc.quien}` : "Marcado"}
+                  {asc.cuando && ` el ${new Intl.DateTimeFormat("es-ES", { dateStyle: "short" }).format(new Date(asc.cuando))}`}
+                  {" · "}
+                  <form action={marcarAscensor.bind(null, referencia, null)} className="inline">
+                    <button className="font-semibold text-[#2B6CB0] hover:underline">borrar</button>
+                  </form>
+                </span>
+              )}
             </div>
           </section>
         </div>

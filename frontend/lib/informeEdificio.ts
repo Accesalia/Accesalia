@@ -636,3 +636,30 @@ export async function informeEdificio(
   }
   return componer(ref, fuera);
 }
+
+export type Ascensor = { hay: boolean | null; quien: string | null; cuando: string | null };
+
+/** Lo que alguien marco mirando la ortofoto. Va aparte del informe porque NO es
+ *  un dato de Catastro ni del geoportal: es una observacion humana, y se lee y
+ *  se escribe por su cuenta. */
+export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
+  const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
+  const vacio: Ascensor = { hay: null, quien: null, cuando: null };
+  if (!URL_BASE || !SECRETO) return vacio;
+  try {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/ficha_catastro?select=tiene_ascensor,ascensor_visto_en,equipo:ascensor_visto_por(nombre)&referencia=eq.${ref}&limit=1`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!r.ok) return vacio;
+    const [f] = (await r.json()) as {
+      tiene_ascensor: boolean | null;
+      ascensor_visto_en: string | null;
+      equipo: { nombre: string } | null;
+    }[];
+    if (!f) return vacio;
+    return { hay: f.tiene_ascensor, quien: f.equipo?.nombre ?? null, cuando: f.ascensor_visto_en };
+  } catch {
+    return vacio;
+  }
+}
