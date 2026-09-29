@@ -13,7 +13,7 @@ import {
 import { COMO_FUE } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionAplazar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
-import { Fase, QueContratan, Serie, Titulo } from "./Piezas";
+import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -103,25 +103,11 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
         <div className="mt-6 grid items-start gap-5 xl:grid-cols-[minmax(0,1000fr)_minmax(0,430fr)]">
           {/* ================== columna izquierda: el trabajo ================== */}
           <div className="flex min-w-0 flex-col gap-5">
-            {/* --------------------- 2 · las diez fases --------------------- */}
-            <section className={CAJA}>
-              <div className="px-4 pt-4">
-                <Titulo
-                  extra={
-                    <span className="text-[11px] text-carbon/50">
-                      Marcar <b>no aplica</b> es lo que hace que una fase se salte
-                    </span>
-                  }
-                >
-                  Por dónde va
-                </Titulo>
-              </div>
-              <div>
-                {g.hitos.map((h) => (
-                  <Fase key={h.clave} h={h} estados={ESTADOS_HITO} equipo={equipo} guardar={accionHito.bind(null, id, h.clave)} />
-                ))}
-              </div>
-            </section>
+            {/* --------------------- 2 · las diez fases ---------------------
+                Una barra, y abierta solo la que toca. Antes eran diez filas con
+                cuatro botones cada una: dos pantallas de cosas que hoy no
+                aplican (Monica, 29-sep-2026). */}
+            <Fases hitos={g.hitos} estados={ESTADOS_HITO} equipo={equipo} guardar={accionHito.bind(null, id)} />
 
             {/* --------------------- 3 · qué contratan --------------------- */}
             <QueContratan tipos={tipos} elegidos={g.tiposElegidos} guardar={accionTipos.bind(null, id)} />

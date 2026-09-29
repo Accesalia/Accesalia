@@ -35,10 +35,80 @@ const QUIEN: Record<string, string> = {
   tecnico_3d: "lo hace quien monta el 3D",
 };
 
-/** UNA FASE. Es la pieza central de la pantalla: hasta hoy los diez hitos se
- *  creaban con la oportunidad y ahi se quedaban, porque no habia nada que los
- *  tocara. Pedir el 3D es esto: ponerlo EN CURSO y decir a quien se le pide. */
-export function Fase({
+/** LAS DIEZ FASES EN UNA LINEA, y abierta solo la que toca.
+ *
+ *  La barra es la misma que ella ya lee sin pensar en las tarjetas del cuadro:
+ *  verde lo hecho, azul lo que esta en marcha, gris lo que falta, y a rayas lo
+ *  que no aplica. Pulsando una se abre debajo.
+ *
+ *  Arranca abierta por la que esta EN CURSO -o la primera pendiente-, que es la
+ *  respuesta a "¿y ahora que hago?". */
+export function Fases({
+  hitos,
+  estados,
+  equipo,
+  guardar,
+}: {
+  hitos: HitoGestion[];
+  estados: readonly { valor: string; texto: string }[];
+  equipo: { valor: string; texto: string }[];
+  guardar: (clave: string, fd: FormData) => Promise<void>;
+}) {
+  const ahora =
+    hitos.find((h) => h.estado === "en_curso") ?? hitos.find((h) => h.estado === "pendiente" && h.aplicable) ?? hitos[0];
+  const [abierta, setAbierta] = useState<string | null>(ahora?.clave ?? null);
+  const h = hitos.find((x) => x.clave === abierta) ?? null;
+
+  const tramo = (x: HitoGestion) => {
+    if (x.estado === "no_aplica") return "h-2 border border-dashed border-black/20 bg-transparent";
+    if (x.estado === "hecho") return "h-2 bg-lima";
+    if (x.estado === "en_curso") return "h-3.5 bg-[#2B6CB0]";
+    return "h-2 bg-black/10";
+  };
+
+  return (
+    <section className={CAJA + " p-4"}>
+      <Titulo extra={<span className="text-[11px] text-carbon/50">Pulsa una fase para tocarla</span>}>Por dónde va</Titulo>
+
+      {/* La barra. Rejilla de columnas iguales, no flex: con flex cada tramo se
+          ajusta a su texto y salen de distinto largo, que es lo que lo hacia
+          parecer dentado. */}
+      <div className="grid items-end gap-1" style={{ gridTemplateColumns: `repeat(${hitos.length}, minmax(0,1fr))` }}>
+        {hitos.map((x) => (
+          <button
+            key={x.clave}
+            type="button"
+            onClick={() => setAbierta(abierta === x.clave ? null : x.clave)}
+            title={x.nombre}
+            className="flex flex-col gap-1 rounded pb-1 text-left transition hover:opacity-70"
+          >
+            <span className={"rounded-full " + tramo(x) + (abierta === x.clave ? " ring-2 ring-carbon/40 ring-offset-1" : "")} />
+            <span
+              className={
+                "truncate text-[10px] leading-tight " +
+                (x.estado === "no_aplica" ? "text-carbon/30 line-through" : abierta === x.clave ? "font-bold text-carbon" : "text-carbon/55")
+              }
+            >
+              {x.numero ? x.numero + " · " : ""}
+              {x.nombre}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {h && (
+        <div className="mt-4 border-t border-black/5 pt-3">
+          <Fase h={h} estados={estados} equipo={equipo} guardar={guardar.bind(null, h.clave)} />
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** UNA FASE, abierta. Hasta hoy los diez hitos se creaban con la oportunidad y
+ *  ahi se quedaban, porque no habia nada que los tocara. Pedir el 3D es esto:
+ *  ponerlo EN CURSO y decir a quien se le pide. */
+function Fase({
   h,
   estados,
   equipo,
@@ -49,26 +119,22 @@ export function Fase({
   equipo: { valor: string; texto: string }[];
   guardar: (fd: FormData) => Promise<void>;
 }) {
-  const [abierto, setAbierto] = useState(false);
   const [estado, setEstado] = useState(h.estado);
   const ajeno = !!h.rolQuien && h.rolQuien !== "comercial";
 
   return (
-    <form
-      action={guardar}
-      className={"border-t border-black/5 px-4 py-3 first:border-t-0 " + (h.estado === "no_aplica" ? "bg-black/[0.02]" : "")}
-    >
+    <form action={guardar}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="w-6 shrink-0 text-[12px] font-bold tabular-nums text-carbon/40">{h.numero ?? "·"}</span>
-        <div className="min-w-[190px] flex-1">
-          <div className={"text-[14px] font-semibold " + (h.estado === "no_aplica" ? "text-carbon/40" : "text-carbon")}>
+        <div className="min-w-[180px]">
+          <div className="text-[15px] font-bold text-carbon">
+            {h.numero ? h.numero + " · " : ""}
             {h.nombre}
           </div>
           {ajeno && <div className="text-[11px] text-[#2B6CB0]">{QUIEN[h.rolQuien!] ?? h.rolQuien}</div>}
         </div>
 
-        {/* Los cuatro estados, a la vista. Un desplegable esconde justo lo que
-            hay que ver de un vistazo: en que esta cada fase. */}
+        {/* Los cuatro estados a la vista: un desplegable esconde justo lo que hay
+            que ver de un vistazo. */}
         <div className="flex flex-wrap gap-1">
           {estados.map((e) => (
             <label key={e.valor} className="cursor-pointer">
@@ -92,59 +158,32 @@ export function Fase({
           ))}
         </div>
 
-        <button type="button" onClick={() => setAbierto((v) => !v)} className="text-[11px] font-semibold text-[#2B6CB0] hover:underline">
-          {abierto ? "cerrar" : "fecha, quién, enlace…"}
-        </button>
-        <button type="submit" className={BOTON}>Guardar</button>
+        <button type="submit" className={BOTON + " ml-auto"}>Guardar</button>
       </div>
 
-      {/* Lo de dentro solo estorba hasta que hace falta. */}
-      {abierto ? (
-        <div className="mt-3 flex flex-wrap gap-3 pl-9">
-          <label className="block w-[150px]">
-            <span className={ROTULO}>Cuándo</span>
-            <input type="date" name="fecha" defaultValue={h.fecha ?? ""} className={CAMPO + " mt-1"} />
-          </label>
-          <label className="block w-[210px]">
-            <span className={ROTULO}>Quién lo hace</span>
-            <select name="responsable" defaultValue={h.responsableId ?? ""} className={CAMPO + " mt-1"}>
-              <option value="">— sin asignar —</option>
-              {equipo.map((p) => (
-                <option key={p.valor} value={p.valor}>{p.texto}</option>
-              ))}
-            </select>
-          </label>
-          <label className="block min-w-[240px] flex-1">
-            <span className={ROTULO}>Enlace {h.clave === "polycam" ? "al escaneo / Polycam" : "al documento"}</span>
-            <input name="enlace" defaultValue={h.enlace ?? ""} placeholder="https://…" className={CAMPO + " mt-1"} />
-          </label>
-          <label className="block w-full">
-            <span className={ROTULO}>Notas</span>
-            <input name="notas" defaultValue={h.notas ?? ""} className={CAMPO + " mt-1"} />
-          </label>
-        </div>
-      ) : (
-        <>
-          {/* Sin abrir, los valores viajan igual: si no, guardar borraria lo que
-              no se ve. */}
-          <input type="hidden" name="fecha" value={h.fecha ?? ""} />
-          <input type="hidden" name="responsable" value={h.responsableId ?? ""} />
-          <input type="hidden" name="enlace" value={h.enlace ?? ""} />
-          <input type="hidden" name="notas" value={h.notas ?? ""} />
-          {(h.fecha || h.responsableId || h.enlace || h.notas) && (
-            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 pl-9 text-[12px] text-carbon/60">
-              {h.fecha && <span>{h.fecha.split("-").reverse().join("/")}</span>}
-              {h.responsableId && <span>{equipo.find((e) => e.valor === h.responsableId)?.texto ?? "asignado"}</span>}
-              {h.enlace && (
-                <a href={h.enlace} target="_blank" rel="noreferrer" className="font-semibold text-[#2B6CB0] hover:underline">
-                  ver el enlace
-                </a>
-              )}
-              {h.notas && <span className="text-carbon/50">{h.notas}</span>}
-            </div>
-          )}
-        </>
-      )}
+      <div className="mt-3 flex flex-wrap gap-3">
+        <label className="block w-[150px]">
+          <span className={ROTULO}>Cuándo</span>
+          <input type="date" name="fecha" defaultValue={h.fecha ?? ""} className={CAMPO + " mt-1"} />
+        </label>
+        <label className="block w-[210px]">
+          <span className={ROTULO}>Quién lo hace</span>
+          <select name="responsable" defaultValue={h.responsableId ?? ""} className={CAMPO + " mt-1"}>
+            <option value="">— sin asignar —</option>
+            {equipo.map((p) => (
+              <option key={p.valor} value={p.valor}>{p.texto}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block min-w-[230px] flex-1">
+          <span className={ROTULO}>Enlace {h.clave === "polycam" ? "al escaneo / Polycam" : "al documento"}</span>
+          <input name="enlace" defaultValue={h.enlace ?? ""} placeholder="https://…" className={CAMPO + " mt-1"} />
+        </label>
+        <label className="block min-w-[230px] flex-1">
+          <span className={ROTULO}>Notas</span>
+          <input name="notas" defaultValue={h.notas ?? ""} className={CAMPO + " mt-1"} />
+        </label>
+      </div>
     </form>
   );
 }
@@ -163,10 +202,33 @@ export function QueContratan({
   guardar: (fd: FormData) => Promise<void>;
 }) {
   const familias = Array.from(new Set(tipos.map((t) => t.padre ?? "Sueltos")));
+  const marcados = tipos.filter((t) => elegidos.includes(t.id));
+  const [abierto, setAbierto] = useState(elegidos.length === 0);
   return (
     <form action={guardar} className={CAJA + " p-4"}>
-      <Titulo extra={<button type="submit" className={BOTON}>Guardar</button>}>Qué contratan</Titulo>
-      <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Titulo
+        extra={
+          <button type="button" onClick={() => setAbierto((v) => !v)} className="text-[11px] font-semibold text-[#2B6CB0] hover:underline">
+            {abierto ? "cerrar" : "cambiar"}
+          </button>
+        }
+      >
+        Qué contratan
+      </Titulo>
+
+      {/* Cerrado, solo lo marcado: es una decision que se toma una vez y luego se
+          consulta. Desplegado eran tres columnas de casillas siempre a la vista. */}
+      {!abierto && (
+        <p className="text-[13px] text-carbon">
+          {marcados.length === 0 ? (
+            <span className="text-carbon/45">Sin definir todavía.</span>
+          ) : (
+            marcados.map((t) => t.nombre).join(" · ")
+          )}
+        </p>
+      )}
+
+      <div className={"grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 " + (abierto ? "" : "hidden")}>
         {familias.map((f) => {
           const dentro = tipos.filter((t) => (t.padre ?? "Sueltos") === f && t.contratable);
           if (dentro.length === 0) return null;
@@ -191,6 +253,11 @@ export function QueContratan({
           );
         })}
       </div>
+      {abierto && (
+        <div className="mt-3 flex justify-end">
+          <button type="submit" className={BOTON}>Guardar</button>
+        </div>
+      )}
     </form>
   );
 }
