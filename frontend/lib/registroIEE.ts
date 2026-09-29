@@ -207,6 +207,19 @@ async function aQuienSeAvisa(): Promise<string[]> {
   return Array.from(new Set(filas.map((f) => f.equipo_id)));
 }
 
+/** Cuantas desfavorables siguen sin repartir, de cualquier dia. Es lo que
+ *  convierte el aviso en un recordatorio: mientras quede una, vuelve a sonar. */
+async function cuantasSinAsignar(): Promise<number> {
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/iee_registrado?select=codigo&estado=eq.nueva&limit=1`,
+    { headers: { ...cab, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" },
+  );
+  if (!r.ok) return 0;
+  // PostgREST devuelve el total en Content-Range: "0-0/7".
+  const total = (r.headers.get("content-range") ?? "").split("/")[1];
+  return Number(total) || 0;
+}
+
 export type ResultadoBarrido = {
   desde: number;
   hasta: number;
@@ -215,6 +228,7 @@ export type ResultadoBarrido = {
   huecos: number;
   segundos: number;
   avisados: number;
+  pendientes: number;
   falloAviso: string | null;
   nuevas: { codigo: string; direccion: string | null; valoracion: string | null }[];
 };
@@ -283,42 +297,65 @@ export async function barrer({
     if (malo) avisar.push(nota);
   }
 
-  // El aviso: una linea por desfavorable, a quien lleve la supervision
-  // comercial. Ella las reparte; el comercial abre la oportunidad.
+  // EL AVISO: UNO AL DIA, Y SOLO SI HAY ALGO QUE HACER (Monica).
+  //
+  //   "A Alejandra deberia llegarle una alerta solo cuando hay IEE desfavorable
+  //    en esa barrida diaria: 'tienes IEE para asignar'."
+  //   "Ella puede entrar en la pagina a ver, pero si se olvida, que algo se lo
+  //    recuerde."
+  //
+  // Las dos frases juntas dan la regla: no una linea por informe, sino UN toque
+  // al dia; y no solo el dia que aparecen, sino MIENTRAS SIGA HABIENDO ALGO SIN
+  // ASIGNAR. Un aviso que suena una vez y se calla no es un recordatorio: es una
+  // notificacion que se pierde. Los dias sin nada pendiente, silencio.
   //
   // VA APARTE Y NO PUEDE TUMBAR EL BARRIDO: lo importante es que la IEE quede
-  // guardada. Si el aviso falla se dice en el resultado y se vuelve a intentar,
-  // pero no se pierde el hallazgo, que es lo que no se puede recuperar -el
-  // barrido solo va hacia delante-.
+  // guardada. Si el aviso falla se dice en el resultado, pero no se pierde el
+  // hallazgo, que es lo unico que no se puede recuperar: esto solo va hacia
+  // delante.
   let avisados = 0;
+  let pendientes = 0;
   let falloAviso: string | null = null;
-  if (avisar.length) {
+  try {
+    pendientes = await cuantasSinAsignar();
+  } catch {
+    pendientes = avisar.length;
+  }
+
+  if (pendientes > 0) {
     try {
-    const para = await aQuienSeAvisa();
-    if (para.length) {
-      const ra = await fetch(`${URL_BASE}/rest/v1/avisos`, {
-        method: "POST",
-        headers: { ...cabJson, Prefer: "return=minimal" },
-        body: JSON.stringify(
-          para.flatMap((id) =>
-            avisar.map((nota) => ({
+      const para = await aQuienSeAvisa();
+      if (para.length) {
+        const nuevasHoy = avisar.length;
+        const cabeza =
+          nuevasHoy > 0
+            ? `${nuevasHoy === 1 ? "1 IEE desfavorable nueva" : `${nuevasHoy} IEE desfavorables nuevas`} para asignar`
+            : `Sigues teniendo ${pendientes === 1 ? "1 IEE desfavorable" : `${pendientes} IEE desfavorables`} sin asignar`;
+        // Cuando hay nuevas, van sus direcciones: asi se sabe de que va sin
+        // abrir nada. Y si ademas quedan viejas, se dice cuantas.
+        const cola =
+          nuevasHoy > 0
+            ? `: ${avisar.map((n) => n.direccion ?? "sin direccion").join(" · ")}.` +
+              (pendientes > nuevasHoy ? ` Quedan ${pendientes} sin asignar en total.` : "")
+            : ".";
+
+        const ra = await fetch(`${URL_BASE}/rest/v1/avisos`, {
+          method: "POST",
+          headers: { ...cabJson, Prefer: "return=minimal" },
+          body: JSON.stringify(
+            para.map((id) => ({
               para_id: id,
               motivo: "alerta_iee",
-              texto:
-                `IEE DESFAVORABLE registrada: ${nota.direccion ?? "sin dirección"}` +
-                (nota.municipio ? ` (${nota.municipio})` : "") +
-                (nota.fechaEmision ? `. Emitida el ${nota.fechaEmision.split("-").reverse().join("/")}` : "") +
-                (nota.anioConstruccion ? `. Edificio de ${nota.anioConstruccion}` : "") + ".",
+              texto: cabeza + cola,
               enlace: "/comercial/alertas-iee",
             })),
           ),
-        ),
-      });
-      if (!ra.ok) falloAviso = `avisos: ${ra.status} ${(await ra.text()).slice(0, 200)}`;
-      else avisados = para.length * avisar.length;
-    } else {
-      falloAviso = "no hay nadie activo con la funcion supervision_comercial";
-    }
+        });
+        if (!ra.ok) falloAviso = `avisos: ${ra.status} ${(await ra.text()).slice(0, 200)}`;
+        else avisados = para.length;
+      } else {
+        falloAviso = "no hay nadie activo con la funcion supervision_comercial";
+      }
     } catch (e) {
       falloAviso = e instanceof Error ? e.message : String(e);
     }
@@ -340,5 +377,5 @@ export async function barrer({
     }),
   });
 
-  return { desde, hasta: ultimoBueno, encontrados, desfavorables, huecos, segundos, avisados, falloAviso, nuevas };
+  return { desde, hasta: ultimoBueno, encontrados, desfavorables, huecos, segundos, avisados, pendientes, falloAviso, nuevas };
 }

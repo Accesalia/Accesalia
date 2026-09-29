@@ -1,0 +1,348 @@
+import "server-only";
+
+// ============================================================================
+// EL RADAR: LO QUE SE VE Y LO QUE SE MIDE (Monica, 29-sep-2026)
+//
+// Lo pidio asi, y la sencillez es el encargo, no un atajo:
+//
+//   "Sin mas complejidad: una lista diaria de direcciones desfavorables o de NO
+//    hay nada. Con link al dato de la IEE que nos hemos descargado para verlo.
+//    En esa ficha de IEE vienen los datos, pero no hace falta HOY hacer nada
+//    con ellos salvo verlos. Es algo que primero debemos tener y luego evaluar."
+//
+// Y DEBAJO, LO QUE DE VERDAD LE IMPORTA:
+//
+//   "Regalarle un cliente y que lo ignore es algo que quiero saber."
+//
+// De ahi la segunda mitad: una lista de asignadas con comercial, fecha y si
+// salio oportunidad, y los agregados POR MES -"asi tienen tiempo de ir a verlos
+// y no hay excusa"-. El mes no es un capricho de presentacion: es el plazo justo
+// para que el numero sea justo.
+// ============================================================================
+
+const URL_BASE = process.env.SUPABASE_URL ?? "";
+const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
+const cab = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
+
+async function leer<T>(consulta: string): Promise<T[]> {
+  const r = await fetch(`${URL_BASE}/rest/v1/${consulta}`, { headers: cab, cache: "no-store" });
+  if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
+  return (await r.json()) as T[];
+}
+
+export type AlertaIEE = {
+  codigo: string;
+  referencia: string | null;
+  referenciaParcela: string | null;
+  direccion: string | null;
+  municipio: string | null;
+  cp: string | null;
+  anioConstruccion: number | null;
+  fechaEmision: string | null;
+  valoracion: string | null;
+  deficienciasSubsanadas: string | null;
+  calificacionEnergetica: string | null;
+  accesibilidadSatisface: boolean | null;
+  accesibilidadAjustes: boolean | null;
+  estadoExpediente: string | null;
+  validez: string | null;
+  bruto: Record<string, string> | null;
+  vistoEn: string;
+  estado: string;
+  asignadaA: string | null;
+  asignadaEn: string | null;
+  asignadaEmailEn: string | null;
+  asignadaEmailFallo: string | null;
+  oportunidadId: string | null;
+  comercial: string | null;
+};
+
+type Fila = {
+  codigo: string;
+  referencia: string | null;
+  referencia_parcela: string | null;
+  direccion: string | null;
+  municipio: string | null;
+  cp: string | null;
+  anio_construccion: number | null;
+  fecha_emision: string | null;
+  valoracion: string | null;
+  deficiencias_subsanadas: string | null;
+  calificacion_energetica: string | null;
+  accesibilidad_satisface: boolean | null;
+  accesibilidad_ajustes: boolean | null;
+  estado_expediente: string | null;
+  validez: string | null;
+  bruto: Record<string, string> | null;
+  visto_en: string;
+  estado: string;
+  asignada_a: string | null;
+  asignada_en: string | null;
+  asignada_email_en: string | null;
+  asignada_email_fallo: string | null;
+  oportunidad_id: string | null;
+  comerciales: { nombre: string } | null;
+};
+
+const CAMPOS =
+  "codigo,referencia,referencia_parcela,direccion,municipio,cp,anio_construccion,fecha_emision," +
+  "valoracion,deficiencias_subsanadas,calificacion_energetica,accesibilidad_satisface," +
+  "accesibilidad_ajustes,estado_expediente,validez,bruto,visto_en,estado,asignada_a,asignada_en," +
+  "asignada_email_en,asignada_email_fallo,oportunidad_id,comerciales(nombre)";
+
+const vestir = (f: Fila): AlertaIEE => ({
+  codigo: f.codigo,
+  referencia: f.referencia,
+  referenciaParcela: f.referencia_parcela,
+  direccion: f.direccion,
+  municipio: f.municipio,
+  cp: f.cp,
+  anioConstruccion: f.anio_construccion,
+  fechaEmision: f.fecha_emision,
+  valoracion: f.valoracion,
+  deficienciasSubsanadas: f.deficiencias_subsanadas,
+  calificacionEnergetica: f.calificacion_energetica,
+  accesibilidadSatisface: f.accesibilidad_satisface,
+  accesibilidadAjustes: f.accesibilidad_ajustes,
+  estadoExpediente: f.estado_expediente,
+  validez: f.validez,
+  bruto: f.bruto,
+  vistoEn: f.visto_en,
+  estado: f.estado,
+  asignadaA: f.asignada_a,
+  asignadaEn: f.asignada_en,
+  asignadaEmailEn: f.asignada_email_en,
+  asignadaEmailFallo: f.asignada_email_fallo,
+  oportunidadId: f.oportunidad_id,
+  comercial: f.comerciales?.nombre ?? null,
+});
+
+/** El dia en Madrid, en formato ISO. La fecha del barrido tiene que ser la del
+ *  reloj de la oficina, no la del servidor, que esta en otro sitio. */
+export const diaEnMadrid = (d: Date = new Date()): string =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(d);
+
+export type DiaDeRadar = { dia: string; alertas: AlertaIEE[] };
+
+/** Las desfavorables de los ultimos `dias` dias, AGRUPADAS POR DIA Y SIN SALTAR
+ *  NINGUNO: los dias vacios tambien salen, porque "si no ha habido, que lo diga
+ *  tambien". Un dia que falta no se distingue de un dia que nadie miro. */
+export async function radarPorDias(dias = 14): Promise<DiaDeRadar[]> {
+  const desde = new Date(Date.now() - dias * 864e5);
+  const filas = await leer<Fila>(
+    `iee_registrado?select=${CAMPOS}&valoracion=ilike.Desfavorable*` +
+      `&visto_en=gte.${desde.toISOString()}&order=visto_en.desc`,
+  );
+
+  const porDia = new Map<string, AlertaIEE[]>();
+  for (const f of filas) {
+    const d = diaEnMadrid(new Date(f.visto_en));
+    if (!porDia.has(d)) porDia.set(d, []);
+    porDia.get(d)!.push(vestir(f));
+  }
+
+  const lista: DiaDeRadar[] = [];
+  for (let i = 0; i < dias; i++) {
+    const d = diaEnMadrid(new Date(Date.now() - i * 864e5));
+    lista.push({ dia: d, alertas: porDia.get(d) ?? [] });
+  }
+  return lista;
+}
+
+/** Una sola, para su ficha. */
+export async function alertaIEE(codigo: string): Promise<AlertaIEE | null> {
+  const filas = await leer<Fila>(
+    `iee_registrado?select=${CAMPOS}&codigo=eq.${encodeURIComponent(codigo)}&limit=1`,
+  );
+  return filas[0] ? vestir(filas[0]) : null;
+}
+
+export type ComercialAlQueAsignar = { id: string; nombre: string; correo: string | null };
+
+/** A quien se puede asignar. Se trae el correo porque SI NO LO HAY NO SE LE
+ *  PUEDE ESCRIBIR, y eso hay que decirlo antes de asignar, no despues. */
+export async function comercialesActivos(): Promise<ComercialAlQueAsignar[]> {
+  const filas = await leer<{ id: string; nombre: string; equipo: { email: string | null } | null }>(
+    "comerciales?select=id,nombre,equipo(email)&activo=is.true&order=nombre",
+  );
+  return filas.map((f) => ({ id: f.id, nombre: f.nombre, correo: f.equipo?.email ?? null }));
+}
+
+export type Repartida = AlertaIEE & { diasDesdeAsignacion: number };
+
+/** Lo repartido. `comercial` filtra por uno; sin el, todos. */
+export async function repartidas(comercialId?: string): Promise<Repartida[]> {
+  const filtro = comercialId ? `&asignada_a=eq.${comercialId}` : "";
+  const filas = await leer<Fila>(
+    `iee_registrado?select=${CAMPOS}&asignada_a=not.is.null${filtro}&order=asignada_en.desc`,
+  );
+  return filas.map((f) => {
+    const a = vestir(f);
+    const dias = a.asignadaEn
+      ? Math.floor((Date.now() - new Date(a.asignadaEn).getTime()) / 864e5)
+      : 0;
+    return { ...a, diasDesdeAsignacion: dias };
+  });
+}
+
+export type MesDeComercial = {
+  mes: string;
+  comercialId: string;
+  comercial: string;
+  pasadas: number;
+  creadas: number;
+};
+
+/** "Pasadas 16, creadas 11", por comercial y POR MES. Se cuenta por el mes en
+ *  que se le PASO, no por el mes en que abrio la oportunidad: lo que se mide es
+ *  que hizo con lo que se le dio. */
+export async function agregadoPorMes(): Promise<MesDeComercial[]> {
+  const filas = await leer<Fila>(
+    `iee_registrado?select=asignada_en,asignada_a,oportunidad_id,comerciales(nombre)` +
+      `&asignada_a=not.is.null&order=asignada_en.desc`,
+  );
+
+  const cuenta = new Map<string, MesDeComercial>();
+  for (const f of filas) {
+    if (!f.asignada_en || !f.asignada_a) continue;
+    const mes = diaEnMadrid(new Date(f.asignada_en)).slice(0, 7);
+    const clave = `${mes}|${f.asignada_a}`;
+    if (!cuenta.has(clave))
+      cuenta.set(clave, {
+        mes,
+        comercialId: f.asignada_a,
+        comercial: f.comerciales?.nombre ?? "—",
+        pasadas: 0,
+        creadas: 0,
+      });
+    const c = cuenta.get(clave)!;
+    c.pasadas += 1;
+    if (f.oportunidad_id) c.creadas += 1;
+  }
+
+  return Array.from(cuenta.values()).sort(
+    (a, b) => b.mes.localeCompare(a.mes) || a.comercial.localeCompare(b.comercial),
+  );
+}
+
+/** El plazo vive en `parametros_alerta`, no en el codigo: es una decision de
+ *  negocio y se cambia sin desplegar. 10 dias es lo que dijo ella. */
+export async function diasParaAbrirOportunidad(): Promise<number> {
+  try {
+    const filas = await leer<{ valor: number }>(
+      "parametros_alerta?select=valor&clave=eq.iee_dias_para_opp&limit=1",
+    );
+    return Number(filas[0]?.valor) || 10;
+  } catch {
+    return 10;
+  }
+}
+
+// ============================================================================
+// LA VIGILANCIA
+//
+//   "Debe crearse una alerta de vigilancia: ¿se ha creado en menos de 10 días
+//    una opp con esa dirección? Si es que no, preguntar al comercial qué ha
+//    pasado. Regalarle un cliente y que lo ignore es algo que quiero saber."
+//
+// Dos pasos, y el primero es el que hace que el segundo sea justo:
+//
+//   1. ENGANCHAR SOLO. Si ya existe una oportunidad con esa referencia
+//      catastral, se ata a la alerta sin que nadie tenga que marcar nada. El
+//      comercial no deberia tener que decirnos que hizo su trabajo: se ve.
+//   2. PREGUNTAR UNA VEZ. Pasado el plazo y sin oportunidad, se pregunta. UNA
+//      vez -por eso `vigilancia_avisada_en`-: repetirlo cada dia seria acoso,
+//      no seguimiento.
+// ============================================================================
+
+const cabJson = { ...cab, "Content-Type": "application/json" };
+
+export type ResultadoVigilancia = { enganchadas: number; preguntadas: number; plazo: number };
+
+export async function vigilarAlertasIEE(): Promise<ResultadoVigilancia> {
+  const plazo = await diasParaAbrirOportunidad();
+  let enganchadas = 0;
+  let preguntadas = 0;
+
+  const abiertas = await leer<{
+    codigo: string;
+    referencia_parcela: string | null;
+    asignada_en: string | null;
+    asignada_a: string | null;
+    vigilancia_avisada_en: string | null;
+    comerciales: { nombre: string; equipo_id: string | null } | null;
+    direccion: string | null;
+  }>(
+    "iee_registrado?select=codigo,referencia_parcela,asignada_en,asignada_a,vigilancia_avisada_en," +
+      "direccion,comerciales(nombre,equipo_id)&asignada_a=not.is.null&oportunidad_id=is.null",
+  );
+
+  for (const a of abiertas) {
+    // ---- 1. ¿hay ya oportunidad para esa finca? ----
+    if (a.referencia_parcela) {
+      const opps = await leer<{ id: string }>(
+        `oportunidades?select=id&referencia_catastral=eq.${encodeURIComponent(a.referencia_parcela)}&limit=1`,
+      );
+      if (opps[0]) {
+        await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(a.codigo)}`, {
+          method: "PATCH",
+          headers: { ...cabJson, Prefer: "return=minimal" },
+          body: JSON.stringify({ oportunidad_id: opps[0].id, estado: "oportunidad" }),
+        });
+        enganchadas += 1;
+        continue;
+      }
+    }
+
+    // ---- 2. ¿se ha pasado el plazo y nadie ha hecho nada? ----
+    if (!a.asignada_en || a.vigilancia_avisada_en) continue;
+    const dias = Math.floor((Date.now() - new Date(a.asignada_en).getTime()) / 864e5);
+    if (dias < plazo) continue;
+
+    // Se pregunta al comercial y se le dice a quien reparte, que es quien queria
+    // saberlo. Si el comercial no tiene persona de equipo detras, al menos se
+    // entera quien reparte.
+    const para: string[] = [];
+    if (a.comerciales?.equipo_id) para.push(a.comerciales.equipo_id);
+    for (const id of await aQuienReparte()) if (!para.includes(id)) para.push(id);
+    if (!para.length) continue;
+
+    const donde = a.direccion ?? "una dirección";
+    await fetch(`${URL_BASE}/rest/v1/avisos`, {
+      method: "POST",
+      headers: { ...cabJson, Prefer: "return=minimal" },
+      body: JSON.stringify(
+        para.map((id) => ({
+          para_id: id,
+          motivo: "alerta_iee_sin_opp",
+          texto:
+            `Hace ${dias} días se le pasó a ${a.comerciales?.nombre ?? "un comercial"} la IEE desfavorable de ` +
+            `${donde} y todavía no hay oportunidad abierta. ¿Qué ha pasado?`,
+          enlace: "/comercial/alertas-iee",
+        })),
+      ),
+    });
+
+    await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(a.codigo)}`, {
+      method: "PATCH",
+      headers: { ...cabJson, Prefer: "return=minimal" },
+      body: JSON.stringify({ vigilancia_avisada_en: new Date().toISOString() }),
+    });
+    preguntadas += 1;
+  }
+
+  return { enganchadas, preguntadas, plazo };
+}
+
+/** Quien reparte las alertas: por CLAVE de funcion, no por nombre de persona. */
+async function aQuienReparte(): Promise<string[]> {
+  try {
+    const filas = await leer<{ equipo_id: string }>(
+      "equipo_funciones?select=equipo_id,funciones!inner(clave),equipo!inner(activo)" +
+        "&funciones.clave=eq.supervision_comercial&equipo.activo=is.true&hasta=is.null",
+    );
+    return Array.from(new Set(filas.map((f) => f.equipo_id)));
+  } catch {
+    return [];
+  }
+}

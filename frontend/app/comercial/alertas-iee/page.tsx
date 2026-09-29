@@ -1,0 +1,349 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { BarraSuperior } from "../../components/BarraSuperior";
+import { puedeEntrar, quienSoy } from "../../../lib/sesion";
+import {
+  agregadoPorMes,
+  comercialesActivos,
+  diasParaAbrirOportunidad,
+  radarPorDias,
+  repartidas,
+} from "../../../lib/alertasIEE";
+import { correoConfigurado } from "../../../lib/correo";
+import { Asignador, VolverAlMonton } from "./Piezas";
+
+export const dynamic = "force-dynamic";
+
+// ============================================================================
+// EL RADAR DE IEE DESFAVORABLES (Monica, 29-sep-2026)
+//
+// Lo que pidio, literal:
+//
+//   "Sin mas complejidad: una lista diaria de direcciones desfavorables o de NO
+//    hay nada. Con link al dato de la IEE que nos hemos descargado para verlo."
+//
+// Asi que la pantalla es una sucesion de dias, y LOS DIAS VACIOS TAMBIEN SALEN:
+// "y si no ha habido, que lo diga tambien". Un dia en blanco y un dia que nadie
+// miro se parecen demasiado como para dejarlos iguales.
+//
+// Debajo, lo que de verdad le importa: "regalarle un cliente y que lo ignore es
+// algo que quiero saber". De ahi el reparto, la columna de si salio oportunidad
+// y los agregados por mes.
+//
+// QUIEN ENTRA: quien supervisa el area comercial -hoy Alejandra- y direccion
+// -Monica y Daniel-. Va por nivel y no por nombre, asi que Alvaro, que es
+// comercial pero no supervisa, no entra a repartir.
+// ============================================================================
+
+const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
+const ROTULO = "text-[11px] font-bold uppercase tracking-wider text-carbon/45";
+
+const DIA_LARGO = new Intl.DateTimeFormat("es-ES", {
+  weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid",
+});
+
+function comoSeDice(iso: string): string {
+  const [a, m, d] = iso.split("-").map(Number);
+  return DIA_LARGO.format(new Date(Date.UTC(a, m - 1, d, 12)));
+}
+
+const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().join("/") : "—");
+
+export default async function AlertasIEE({
+  searchParams,
+}: {
+  searchParams: Promise<{ comercial?: string }>;
+}) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
+  if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
+
+  const { comercial: filtro } = await searchParams;
+
+  const [dias, comerciales, lista, meses, plazo] = await Promise.all([
+    radarPorDias(14),
+    comercialesActivos(),
+    repartidas(filtro),
+    agregadoPorMes(),
+    diasParaAbrirOportunidad(),
+  ]);
+
+  const hoy = dias[0]?.dia;
+  const sinAsignar = dias.flatMap((d) => d.alertas).filter((a) => a.estado === "nueva").length;
+  const sinCorreo = comerciales.filter((c) => !c.correo).map((c) => c.nombre);
+
+  return (
+    <div className="min-h-screen">
+      <BarraSuperior />
+      <main className="mx-auto w-full max-w-[1440px] px-6 pb-16 pt-5">
+        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+          ← Área comercial
+        </Link>
+
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className={ROTULO}>Canal de captación</div>
+            <h1 className="mt-1 text-[25px] font-bold leading-tight text-carbon">
+              Radar de IEE desfavorables
+            </h1>
+            <p className="mt-1.5 max-w-[70ch] text-[13px] text-carbon/60">
+              Cada mañana se mira el registro de la Comunidad de Madrid y se recoge lo que se ha
+              inscrito de nuevo. Un IEE desfavorable es un edificio al que el ayuntamiento le ha
+              dado plazo para resolver: <b className="text-carbon/80">van a necesitar un arquitecto</b>.
+            </p>
+          </div>
+          {sinAsignar > 0 && (
+            <div className="rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2.5">
+              <div className="text-[22px] font-bold leading-none text-amber-800">{sinAsignar}</div>
+              <div className="mt-1 text-[12px] font-semibold text-amber-800">sin asignar</div>
+            </div>
+          )}
+        </div>
+
+        {/* Lo que no funciona se dice antes de que alguien lo descubra fallando. */}
+        {(!correoConfigurado() || sinCorreo.length > 0) && (
+          <div className="mt-4 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+            {!correoConfigurado() && (
+              <p>
+                <b>El correo saliente todavía no está configurado.</b> Se puede asignar y queda
+                guardado, pero al comercial no le llegará el aviso por correo hasta que se ponga la
+                cuenta desde la que sale.
+              </p>
+            )}
+            {sinCorreo.length > 0 && (
+              <p className={correoConfigurado() ? "" : "mt-1.5"}>
+                Sin correo en su ficha de equipo, así que no se les puede escribir:{" "}
+                <b>{sinCorreo.join(", ")}</b>.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ======================= EL PARTE DIARIO ======================= */}
+        <section className="mt-6">
+          <h2 className={ROTULO + " mb-2"}>El parte de cada día</h2>
+          <div className="space-y-2.5">
+            {dias.map((d) =>
+              // UN DIA VACIO TAMBIEN SE DICE -"si no ha habido, que lo diga
+              // tambien"-, pero no ocupa lo mismo que uno con hallazgos: con
+              // catorce dias delante, catorce tarjetas vacias entierran las dos
+              // que importan. Los vacios en una linea, los buenos en su caja.
+              d.alertas.length === 0 ? (
+                <div
+                  key={d.dia}
+                  className="flex items-baseline justify-between gap-3 rounded-[10px] border border-black/5 px-4 py-2"
+                >
+                  <span className="text-[13px] text-carbon/50">
+                    {d.dia === hoy ? "Hoy" : comoSeDice(d.dia)}
+                  </span>
+                  <span className="text-[12px] text-carbon/40">
+                    Ninguna. Se miró y no había nada.
+                  </span>
+                </div>
+              ) : (
+                <div key={d.dia} className={CAJA + " p-4"}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="text-[14px] font-bold text-carbon">
+                      Registradas desfavorables {d.dia === hoy ? "hoy, " : ""}
+                      {comoSeDice(d.dia)}
+                    </h3>
+                    <span className="text-[12px] text-carbon/45">
+                      {d.alertas.length === 1 ? "1 dirección" : `${d.alertas.length} direcciones`}
+                    </span>
+                  </div>
+
+                  <ul className="mt-3 space-y-2">
+                    {d.alertas.map((a) => (
+                      <li
+                        key={a.codigo}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-hueso/40 px-3.5 py-2.5"
+                      >
+                        <div className="min-w-0">
+                          <Link
+                            href={`/comercial/alertas-iee/${a.codigo}`}
+                            className="text-[14px] font-bold text-[#2B6CB0] hover:underline"
+                          >
+                            {a.direccion ?? "Sin dirección"}
+                          </Link>
+                          <div className="mt-0.5 text-[12px] text-carbon/55">
+                            {[
+                              a.municipio,
+                              a.anioConstruccion ? `de ${a.anioConstruccion}` : null,
+                              a.calificacionEnergetica ? `energética ${a.calificacionEnergetica}` : null,
+                              `emitido el ${enCastellano(a.fechaEmision)}`,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </div>
+                        </div>
+
+                        {a.asignadaA ? (
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-[12px] text-carbon/60">
+                              Con <b className="text-carbon">{a.comercial}</b>
+                              {a.asignadaEmailFallo ? (
+                                <span className="text-amber-700"> · el correo no salió</span>
+                              ) : a.asignadaEmailEn ? (
+                                <span className="text-lima-dark"> · avisado</span>
+                              ) : null}
+                            </span>
+                            <VolverAlMonton codigo={a.codigo} />
+                          </div>
+                        ) : (
+                          <Asignador codigo={a.codigo} comerciales={comerciales} />
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ),
+            )}
+          </div>
+        </section>
+
+        {/* ======================= QUE SE HIZO CON ELLAS ======================= */}
+        <section className="mt-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className={ROTULO}>Qué se hizo con las que se pasaron</h2>
+              <p className="mt-1 text-[13px] text-carbon/60">
+                Se comprueba solo: si aparece una oportunidad con esa misma finca, se engancha sin
+                que nadie marque nada. Pasados <b className="text-carbon/80">{plazo} días</b> sin
+                oportunidad, se pregunta qué ha pasado.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <Link
+                href="/comercial/alertas-iee"
+                className={
+                  "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
+                  (!filtro
+                    ? "border-[#104269] bg-[#104269] text-white"
+                    : "border-black/10 text-carbon/60 hover:text-carbon")
+                }
+              >
+                Todos
+              </Link>
+              {comerciales.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/comercial/alertas-iee?comercial=${c.id}`}
+                  className={
+                    "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
+                    (filtro === c.id
+                      ? "border-[#104269] bg-[#104269] text-white"
+                      : "border-black/10 text-carbon/60 hover:text-carbon")
+                  }
+                >
+                  {c.nombre}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className={CAJA + " mt-3 overflow-hidden"}>
+            {lista.length === 0 ? (
+              <p className="p-4 text-[13px] text-carbon/45">
+                Todavía no se ha pasado ninguna{filtro ? " a este comercial" : ""}.
+              </p>
+            ) : (
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+                    <th className="px-4 py-2.5 font-bold">Dirección</th>
+                    <th className="px-4 py-2.5 font-bold">Comercial</th>
+                    <th className="px-4 py-2.5 font-bold">Se le pasó</th>
+                    <th className="px-4 py-2.5 font-bold">Días</th>
+                    <th className="px-4 py-2.5 font-bold">¿Se creó oportunidad?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lista.map((a) => {
+                    const tarde = !a.oportunidadId && a.diasDesdeAsignacion >= plazo;
+                    return (
+                      <tr key={a.codigo} className="border-b border-black/5 last:border-b-0">
+                        <td className="px-4 py-2.5">
+                          <Link
+                            href={`/comercial/alertas-iee/${a.codigo}`}
+                            className="font-semibold text-[#2B6CB0] hover:underline"
+                          >
+                            {a.direccion ?? "Sin dirección"}
+                          </Link>
+                          {a.municipio && <span className="text-carbon/50"> · {a.municipio}</span>}
+                        </td>
+                        <td className="px-4 py-2.5 font-semibold">{a.comercial ?? "—"}</td>
+                        <td className="px-4 py-2.5 tabular-nums text-carbon/70">
+                          {a.asignadaEn ? enCastellano(a.asignadaEn.slice(0, 10)) : "—"}
+                        </td>
+                        <td className="px-4 py-2.5 tabular-nums text-carbon/70">
+                          {a.diasDesdeAsignacion}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {a.oportunidadId ? (
+                            <Link
+                              href={`/comercial/oportunidades/${a.oportunidadId}`}
+                              className="font-bold text-lima-dark hover:underline"
+                            >
+                              Sí
+                            </Link>
+                          ) : tarde ? (
+                            <span className="font-bold text-amber-700">
+                              No · van {a.diasDesdeAsignacion} días
+                            </span>
+                          ) : (
+                            <span className="text-carbon/45">Todavía no</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+
+        {/* ======================= EL RECUENTO POR MES ======================= */}
+        <section className="mt-8">
+          <h2 className={ROTULO}>Pasadas y creadas, mes a mes</h2>
+          <p className="mt-1 max-w-[70ch] text-[13px] text-carbon/60">
+            Por meses cerrados, para que dé tiempo a ir a verlos. Se cuenta por el mes en que se le
+            pasó, no por el mes en que abrió la oportunidad: lo que se mide es qué hizo con lo que
+            se le dio.
+          </p>
+
+          <div className={CAJA + " mt-3 overflow-hidden"}>
+            {meses.length === 0 ? (
+              <p className="p-4 text-[13px] text-carbon/45">Todavía no hay nada que contar.</p>
+            ) : (
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+                    <th className="px-4 py-2.5 font-bold">Mes</th>
+                    <th className="px-4 py-2.5 font-bold">Comercial</th>
+                    <th className="px-4 py-2.5 font-bold">Pasadas</th>
+                    <th className="px-4 py-2.5 font-bold">Creadas</th>
+                    <th className="px-4 py-2.5 font-bold">De cada diez</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meses.map((m) => (
+                    <tr key={m.mes + m.comercialId} className="border-b border-black/5 last:border-b-0">
+                      <td className="px-4 py-2.5 tabular-nums text-carbon/70">{m.mes}</td>
+                      <td className="px-4 py-2.5 font-semibold">{m.comercial}</td>
+                      <td className="px-4 py-2.5 tabular-nums">{m.pasadas}</td>
+                      <td className="px-4 py-2.5 tabular-nums font-bold">{m.creadas}</td>
+                      <td className="px-4 py-2.5 tabular-nums text-carbon/70">
+                        {m.pasadas ? (Math.round((m.creadas / m.pasadas) * 100) / 10).toFixed(1) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

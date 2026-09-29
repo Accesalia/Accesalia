@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { barrer } from "../../../../lib/registroIEE";
+import { vigilarAlertasIEE } from "../../../../lib/alertasIEE";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // EL BARRIDO DEL REGISTRO DE IEE.
@@ -34,7 +35,12 @@ export async function GET(req: Request) {
   const maximo = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 400) : 60;
 
   try {
-    return NextResponse.json({ ok: true, ...(await barrer({ maximo })) });
+    const barrido = await barrer({ maximo });
+    // Y de paso la vigilancia: engancha las que ya tienen oportunidad y
+    // pregunta por las que llevan demasiado tiempo paradas. Va aqui y no en su
+    // propio reloj porque es el mismo momento del dia y el mismo asunto.
+    const vigilancia = await vigilarAlertasIEE();
+    return NextResponse.json({ ok: true, ...barrido, vigilancia });
   } catch (e) {
     return NextResponse.json({ ok: false, dice: e instanceof Error ? e.message : String(e) }, { status: 200 });
   }
