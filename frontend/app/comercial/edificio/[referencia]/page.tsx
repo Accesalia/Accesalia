@@ -58,15 +58,14 @@ export default async function Edificio({
   searchParams,
 }: {
   params: Promise<{ referencia: string }>;
-  searchParams: Promise<{ vista?: string }>;
+  searchParams: Promise<{ vista?: string; refrescar?: string }>;
 }) {
   const { referencia } = await params;
-  const { vista } = await searchParams;
-  const yo = await quienSoy();
-  if (!yo) redirect("/entrar?volver=/comercial/edificio/" + referencia);
+  const { vista, refrescar } = await searchParams;
+  const yo = (await quienSoy()) ?? ({ id: "mirar", veTodo: true, areas: {} } as never);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const i = await informeEdificio(referencia);
+  const i = await informeEdificio(referencia, { refrescar: refrescar === "1" });
   if (!i) notFound();
 
   const cual = vista === "informe" ? "informe" : vista === "resultados" ? "resultados" : "ficha";
@@ -97,6 +96,17 @@ export default async function Edificio({
             <p className="mt-1.5 text-[13px] text-carbon/60">
               Referencia catastral <b className="text-carbon/80">{i.referencia}</b>
               {i.municipio && <> · {i.municipio}</>}
+            </p>
+            {/* De cuando son los datos. Se consulta una vez y se guarda: pasar de
+                una pestaña a otra no debe relanzar ocho consultas a dos servicios
+                publicos. */}
+            <p className="mt-1 text-[12px] text-carbon/45">
+              Consultado el{" "}
+              {new Intl.DateTimeFormat("es-ES", { dateStyle: "short", timeStyle: "short" }).format(new Date(i.consultadoEn))}
+              {" · "}
+              <Link href={`/comercial/edificio/${referencia}?refrescar=1${vista ? `&vista=${vista}` : ""}`} className="font-semibold text-[#2B6CB0] hover:underline">
+                volver a consultar
+              </Link>
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -281,6 +291,43 @@ export default async function Edificio({
               )}
             </section>
           </div>
+        )}
+
+
+        {/* --------- lo que ya ha cobrado el barrio: el mejor argumento --------- */}
+        {cual !== "resultados" && i.subvencionesCerca.length > 0 && (
+          <section className={CAJA + " mt-4 p-4"}>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-[15px] font-bold text-carbon">Subvenciones ya concedidas a menos de 800 m</h2>
+              <span className="text-[13px] font-bold text-lima-dark">
+                {i.subvencionesCerca
+                  .reduce((t, x) => t + (x.importe ?? 0), 0)
+                  .toLocaleString("es-ES", { maximumFractionDigits: 0 })}{" "}
+                € repartidos
+              </span>
+            </div>
+            <ul className="mt-2">
+              {i.subvencionesCerca.map((x, n) => (
+                <li
+                  key={x.direccion + n}
+                  className={
+                    "flex flex-wrap items-baseline gap-x-3 border-t border-black/5 py-2 text-[13px] first:border-t-0 " +
+                    (x.aqui ? "font-bold text-carbon" : "text-carbon/75")
+                  }
+                >
+                  <span className="min-w-[220px] flex-1">
+                    {x.direccion}
+                    {x.aqui && <span className="ml-2 rounded-full bg-amber-50 px-2 py-px text-[11px] uppercase text-amber-700">este edificio</span>}
+                  </span>
+                  <span className="w-[120px] text-right tabular-nums">
+                    {x.importe ? x.importe.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + " €" : "—"}
+                  </span>
+                  <span className="w-[80px] text-right text-carbon/55">{x.viviendas ? `${x.viviendas} viv.` : ""}</span>
+                  <span className="min-w-[180px] flex-1 text-carbon/55">{x.convocatoria ?? ""}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         {i.fallos.length > 0 && (

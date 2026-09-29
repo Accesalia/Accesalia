@@ -32,6 +32,18 @@ export type Dato = {
 
 export type Seccion = { titulo: string; datos: Dato[] };
 
+/** Una subvencion ya concedida en la zona. Vale para dos cosas: saber si a ESTE
+ *  edificio ya le dieron algo, y como argumento de venta -"a los de al lado les
+ *  dieron 207.900 euros"-. */
+export type SubvencionCerca = {
+  direccion: string;
+  importe: number | null;
+  convocatoria: string | null;
+  viviendas: number | null;
+  ahorroCo2: number | null;
+  aqui: boolean;
+};
+
 /** Una conclusion de venta. `tono`: lo que juega a favor, lo que hay que vigilar,
  *  y lo que solo cuenta como contexto. */
 export type Conclusion = { texto: string; porque: string; tono: "favor" | "ojo" | "dato" };
@@ -50,6 +62,10 @@ export type InformeEdificio = {
   secciones: Seccion[];
   /** Lo que significa ESTE edificio, para la conversacion con el administrador. */
   conclusiones: Conclusion[];
+  subvencionesCerca: SubvencionCerca[];
+  /** Cuando se pregunto a Catastro y al geoportal. Un dato de hace un año no es
+   *  falso, pero conviene saber que es de hace un año. */
+  consultadoEn: string;
   /** Los PDFs que hay que descargar y adjuntar. */
   pdfs: { que: string; url: string }[];
   /** Lo que no se ha podido saber y hay que ver en la visita. */
@@ -68,6 +84,8 @@ type Inm = {
   };
   debi?: { luso?: string; sfc?: string; cpt?: string; ant?: string };
 };
+
+const eur = (n: number) => n.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + " €";
 
 const num = (s?: string) => {
   const n = Number(String(s ?? "").replace(/[^\d]/g, ""));
@@ -109,58 +127,43 @@ const limpiaClave = (k: string) => k.split(".").pop() ?? k;
 const atributos = (a: Record<string, string | number | null>) =>
   Object.fromEntries(Object.entries(a).map(([k, v]) => [limpiaClave(k), v]));
 
+// -------------------------------------------------------------- LO CRUDO
+//
+// Lo que se trae de fuera, tal cual. Se guarda entero y de aqui sale el informe
+// SIEMPRE: da igual si acaba de llegar de Catastro o si lleva un mes guardado.
+// Una sola derivacion, para que no haya dos caminos que digan cosas distintas.
+
+export type Crudo = {
+  inmuebles: Inm[];
+  fincaLdt: string;
+  tipoParcela: string;
+  suelo: number | null;
+  lat: number | null;
+  lng: number | null;
+  utmX: number | null;
+  utmY: number | null;
+  protegido: Record<string, unknown> | null;
+  condiciones: Record<string, unknown> | null;
+  ascensor: Record<string, unknown> | null;
+  apiru: Record<string, unknown> | null;
+  arru: Record<string, unknown> | null;
+  cerca: SubvencionCerca[];
+  fallos: string[];
+  consultadoEn: string;
+};
+
 // ------------------------------------------------------------------ el informe
 
-export async function informeEdificio(referenciaBruta: string): Promise<InformeEdificio | null> {
-  const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
-  if (ref.length < 14) return null;
-
-  const fallos: string[] = [];
+function componer(ref: string, c: Crudo): InformeEdificio | null {
+  const { inmuebles, fincaLdt, tipoParcela, suelo, lat, lng, utmX, utmY } = c;
+  const { protegido, condiciones, ascensor, apiru, arru, cerca } = c;
+  const fallos = [...c.fallos];
   const pdfs: { que: string; url: string }[] = [];
-
-  // --- 1 · Catastro: todos los inmuebles de la parcela ---------------------
-  const d1 = (await jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}`)) as {
-    consulta_dnprcResult?: { lrcdnp?: { rcdnp?: Inm[] }; bico?: { bi?: Inm } };
-  };
-  const r1 = d1.consulta_dnprcResult;
-  const inmuebles = r1?.lrcdnp?.rcdnp ?? (r1?.bico?.bi ? [r1.bico.bi] : []);
   if (inmuebles.length === 0) return null;
 
   const primero = inmuebles[0];
   const dir = urb(primero)?.dir;
   const municipio = primero.dt?.nm ?? null;
-
-  // --- 2 · los datos de la FINCA (solo salen pidiendo UN inmueble) ---------
-  let fincaLdt = "";
-  let tipoParcela = "";
-  let suelo: number | null = null;
-  const rc0 = rcDe(primero);
-  if (rc0?.car) {
-    try {
-      const d2 = (await jsonDe(
-        `${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}${rc0.car}${rc0.cc1 ?? ""}${rc0.cc2 ?? ""}`,
-      )) as { consulta_dnprcResult?: { bico?: { finca?: { ldt?: string; ltp?: string; dff?: { ss?: string } } } } };
-      const f = d2.consulta_dnprcResult?.bico?.finca;
-      fincaLdt = f?.ldt ?? "";
-      tipoParcela = f?.ltp ?? "";
-      suelo = num(f?.dff?.ss);
-    } catch {
-      fallos.push("No se han podido leer los datos de la finca (superficie de suelo, tipo de parcela).");
-    }
-  }
-
-  // --- 3 · coordenadas, en grados y en UTM --------------------------------
-  let lat: number | null = null, lng: number | null = null, utmX: number | null = null, utmY: number | null = null;
-  try {
-    const g = await (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:4326&RC=${ref}`, { cache: "no-store" })).text();
-    lng = Number(/<xcen>([^<]+)/.exec(g)?.[1]);
-    lat = Number(/<ycen>([^<]+)/.exec(g)?.[1]);
-    const u = await (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:25830&RC=${ref}`, { cache: "no-store" })).text();
-    utmX = Number(/<xcen>([^<]+)/.exec(u)?.[1]);
-    utmY = Number(/<ycen>([^<]+)/.exec(u)?.[1]);
-  } catch {
-    fallos.push("No se han podido obtener las coordenadas: sin ellas no hay croquis ni datos de urbanismo.");
-  }
 
   // --- 4 · cuentas sobre los inmuebles -------------------------------------
   const anios = inmuebles.map((i) => num(i.debi?.ant)).filter((n): n is number => n !== null);
@@ -192,33 +195,7 @@ export async function informeEdificio(referenciaBruta: string): Promise<InformeE
   const pctNumero = inmuebles.length ? Math.round((viviendas.length / inmuebles.length) * 100) : 0;
   const pctSuperficie = supTotal ? Math.round((supVivienda / supTotal) * 100) : 0;
 
-  // --- 5 · urbanismo (solo Madrid capital, y solo con coordenadas) ---------
   const esMadrid = (municipio ?? "").toUpperCase() === "MADRID";
-  let protegido: Record<string, unknown> | null = null;
-  let condiciones: Record<string, unknown> | null = null;
-  let ascensor: Record<string, unknown> | null = null;
-  let apiru: Record<string, unknown> | null = null;
-  let arru: Record<string, unknown> | null = null;
-
-  if (esMadrid && utmX && utmY) {
-    const pide = async (s: string, c: number, radio = 0) => {
-      try {
-        const f = await enElPunto(s, c, utmX!, utmY!, radio);
-        return f[0] ? atributos(f[0].attributes) : null;
-      } catch {
-        fallos.push(`No responde el geoportal (${s}, capa ${c}).`);
-        return null;
-      }
-    };
-    [protegido, condiciones, ascensor, apiru, arru] = await Promise.all([
-      pide("DESARROLLO_URBANO_ACTUALIZADO/EDIFICIOS_PROTEGIDOS_VIGENTE", 4),
-      pide("PGOUM97/PG_ANALISIS_EDIFICACION", 8),
-      // Los ascensores son PUNTOS, uno por portal: hay que buscar CERCA.
-      pide("URBANISMO/MODELO_ASCENSORES_ESPACIO_PUBLICO", 1, 30),
-      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 2),
-      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 1),
-    ]);
-  }
 
   // ZETU y ZIRE no son capas: se calculan. El Plan Rehabilita absorbio APIRU y
   // ARRU dentro de ZETU, y creo ZIRE para el resto de Madrid capital.
@@ -313,8 +290,22 @@ export async function informeEdificio(referenciaBruta: string): Promise<InformeE
               arru ? "Área de Regeneración y Renovación Urbana, de los planes estatales." : undefined),
             d("Licencia", apiru?.Licencia ? String(apiru.Licencia) : "—",
               "Aparece en el ámbito APIRU. Pendiente de confirmar qué significa exactamente."),
-            d("Subvenciones ya concedidas cerca", "—",
-              "El censo del geoportal dice qué se ha concedido en la zona y por cuánto. Consulta pendiente de montar.", true),
+            d("¿Ya le concedieron algo a este edificio?", cerca.some((x) => x.aqui) ? "Sí" : "No",
+              cerca.some((x) => x.aqui)
+                ? "Ya han cobrado ayuda: conviene mirar de qué convocatoria y si queda algo por pedir."
+                : undefined),
+            d("Subvenciones concedidas a 800 m", cerca.length === 0 ? "Ninguna" : `${cerca.length} · ${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))}`,
+              cerca.length > 0
+                ? "Dinero que ya ha caído en el barrio. Es el mejor argumento que hay delante de una junta."
+                : undefined),
+            d(
+              "CO₂ evitado cerca",
+              cerca.some((x) => (x.ahorroCo2 ?? 0) > 0)
+                ? `${Math.round(cerca.reduce((t, x) => t + (x.ahorroCo2 ?? 0), 0)).toLocaleString("es-ES")} kg/año`
+                : "—",
+              undefined,
+              !cerca.some((x) => (x.ahorroCo2 ?? 0) > 0),
+            ),
             d("¿Tiene IEE registrada?", "—",
               "Si ya la tiene y es antigua, o no la tiene, es de las primeras cosas que se pueden vender. Consulta pendiente de montar.", true),
           ],
@@ -335,8 +326,8 @@ export async function informeEdificio(referenciaBruta: string): Promise<InformeE
   ];
 
   // ------- las conclusiones: de los datos a la conversacion de venta -------
-  const c: Conclusion[] = [];
-  const mete = (tono: Conclusion["tono"], texto: string, porque: string) => c.push({ tono, texto, porque });
+  const conc: Conclusion[] = [];
+  const mete = (tono: Conclusion["tono"], texto: string, porque: string) => conc.push({ tono, texto, porque });
 
   if (zona === "ZETU")
     mete("favor", "Zona de máxima subvención", "Hasta el 75% en accesibilidad y salubridad, y hasta el 50% en conservación.");
@@ -376,6 +367,18 @@ export async function informeEdificio(referenciaBruta: string): Promise<InformeE
   if (garaje.length)
     mete("ojo", "Hay garaje o trasteros bajo rasante", "Ojo con el foso del ascensor y con las instalaciones que pasen por ahí.");
 
+  if (cerca.length > 0) {
+    const mayor = cerca[0];
+    mete(
+      "favor",
+      `${cerca.length} subvenciones concedidas a menos de 800 m`,
+      `${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))} ya repartidos en el barrio` +
+        (mayor.importe ? `. La mayor: ${eur(mayor.importe)} en ${mayor.direccion}${mayor.viviendas ? ` (${mayor.viviendas} viviendas)` : ""}.` : "."),
+    );
+  }
+  if (cerca.some((x) => x.aqui))
+    mete("ojo", "A este edificio ya le concedieron ayuda", "Hay que mirar de qué convocatoria fue y si queda algo por pedir.");
+
   mete("dato", `${viviendas.length} viviendas`, "El tamaño manda en la derrama: cuantas más viviendas, menos paga cada una.");
 
   const soloYendo = [
@@ -405,9 +408,193 @@ export async function informeEdificio(referenciaBruta: string): Promise<InformeE
       : null,
     visorCatastro: `https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCListaBienes.aspx?RefC=${ref}`,
     secciones,
-    conclusiones: c,
+    conclusiones: conc,
+    subvencionesCerca: cerca,
+    consultadoEn: c.consultadoEn,
     pdfs,
     soloYendo,
     fallos,
   };
+}
+
+// ============================================================================
+// TRAER, GUARDAR, LEER
+//
+// Pasar de una pestaña a otra relanzaba OCHO consultas a Catastro y al
+// geoportal. Ademas de lento, es darles la lata a dos servicios publicos y
+// gratuitos (Monica lo colapso probando, con razon).
+//
+// Asi que se consulta UNA VEZ y se guarda. Lo que se guarda es LO CRUDO, y el
+// informe se compone igual venga de donde venga.
+// ============================================================================
+
+const URL_BASE = process.env.SUPABASE_URL ?? "";
+const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
+const cab = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
+
+/** Todo lo de fuera, en paralelo donde se puede. */
+export async function traerDeFuera(ref: string): Promise<Crudo | null> {
+  const fallos: string[] = [];
+
+  const d1 = (await jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}`)) as {
+    consulta_dnprcResult?: { lrcdnp?: { rcdnp?: Inm[] }; bico?: { bi?: Inm } };
+  };
+  const r1 = d1.consulta_dnprcResult;
+  const inmuebles = r1?.lrcdnp?.rcdnp ?? (r1?.bico?.bi ? [r1.bico.bi] : []);
+  if (inmuebles.length === 0) return null;
+
+  const primero = inmuebles[0];
+  const municipio = primero.dt?.nm ?? null;
+
+  // Los datos de la FINCA solo salen pidiendo UN inmueble concreto.
+  let fincaLdt = "", tipoParcela = "";
+  let suelo: number | null = null;
+  const rc0 = rcDe(primero);
+  if (rc0?.car) {
+    try {
+      const d2 = (await jsonDe(
+        `${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}${rc0.car}${rc0.cc1 ?? ""}${rc0.cc2 ?? ""}`,
+      )) as { consulta_dnprcResult?: { bico?: { finca?: { ldt?: string; ltp?: string; dff?: { ss?: string } } } } };
+      const f = d2.consulta_dnprcResult?.bico?.finca;
+      fincaLdt = f?.ldt ?? "";
+      tipoParcela = f?.ltp ?? "";
+      suelo = num(f?.dff?.ss);
+    } catch {
+      fallos.push("No se han podido leer los datos de la finca (superficie de suelo, tipo de parcela).");
+    }
+  }
+
+  let lat: number | null = null, lng: number | null = null, utmX: number | null = null, utmY: number | null = null;
+  try {
+    const [g, u] = await Promise.all([
+      (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:4326&RC=${ref}`, { cache: "no-store" })).text(),
+      (await fetch(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:25830&RC=${ref}`, { cache: "no-store" })).text(),
+    ]);
+    lng = Number(/<xcen>([^<]+)/.exec(g)?.[1]);
+    lat = Number(/<ycen>([^<]+)/.exec(g)?.[1]);
+    utmX = Number(/<xcen>([^<]+)/.exec(u)?.[1]);
+    utmY = Number(/<ycen>([^<]+)/.exec(u)?.[1]);
+  } catch {
+    fallos.push("No se han podido obtener las coordenadas: sin ellas no hay croquis ni datos de urbanismo.");
+  }
+
+  let protegido = null, condiciones = null, ascensor = null, apiru = null, arru = null;
+  let cerca: SubvencionCerca[] = [];
+  const esMadrid = (municipio ?? "").toUpperCase() === "MADRID";
+
+  if (esMadrid && utmX && utmY) {
+    const pide = async (s: string, c: number, radio = 0) => {
+      try {
+        const f = await enElPunto(s, c, utmX!, utmY!, radio);
+        return f[0] ? atributos(f[0].attributes) : null;
+      } catch {
+        fallos.push(`No responde el geoportal (${s}, capa ${c}).`);
+        return null;
+      }
+    };
+    [protegido, condiciones, ascensor, apiru, arru] = await Promise.all([
+      pide("DESARROLLO_URBANO_ACTUALIZADO/EDIFICIOS_PROTEGIDOS_VIGENTE", 4),
+      pide("PGOUM97/PG_ANALISIS_EDIFICACION", 8),
+      // Los ascensores son PUNTOS, uno por portal: hay que buscar CERCA.
+      pide("URBANISMO/MODELO_ASCENSORES_ESPACIO_PUBLICO", 1, 30),
+      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 2),
+      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 1),
+    ]);
+
+    try {
+      const [f, aqui] = await Promise.all([
+        enElPunto("VIVIENDA/REHABILITACION_ENERGETICA_CM", 0, utmX, utmY, 800),
+        enElPunto("VIVIENDA/REHABILITACION_ENERGETICA_CM", 0, utmX, utmY, 35),
+      ]);
+      const suyos = new Set(aqui.map((x) => String(atributos(x.attributes).OBJECTID)));
+      cerca = f
+        .map((x) => {
+          const a = atributos(x.attributes);
+          return {
+            direccion: String(a.DIRECCION ?? "").trim(),
+            importe: typeof a.IMPORTE_SUBVENCION____ === "number" ? a.IMPORTE_SUBVENCION____ : null,
+            convocatoria: a.CONVOCATORIA ? String(a.CONVOCATORIA) : null,
+            viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? a.VIVIENDAS_EDIFICIO : null,
+            ahorroCo2: typeof a["AHORRO_CO2__kg_año_"] === "number" ? (a["AHORRO_CO2__kg_año_"] as number) : null,
+            aqui: suyos.has(String(a.OBJECTID)),
+          };
+        })
+        .sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
+    } catch {
+      fallos.push("No se han podido consultar las subvenciones ya concedidas en la zona.");
+    }
+  }
+
+  return {
+    inmuebles, fincaLdt, tipoParcela, suelo, lat, lng, utmX, utmY,
+    protegido, condiciones, ascensor, apiru, arru, cerca, fallos,
+    consultadoEn: new Date().toISOString(),
+  };
+}
+
+/** Guardar. Si falla no se cae la pantalla: se ha consultado igual. */
+async function guardar(ref: string, c: Crudo) {
+  if (!URL_BASE || !SECRETO) return;
+  const i = componer(ref, c);
+  if (!i) return;
+  const dato = (q: string) => i.secciones.flatMap((s) => s.datos).find((d) => d.que === q)?.valor ?? null;
+
+  await fetch(`${URL_BASE}/rest/v1/ficha_catastro?on_conflict=referencia`, {
+    method: "POST",
+    headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({
+      referencia: ref,
+      direccion: i.direccionOficial || null,
+      municipio: i.municipio,
+      cp: dato("Municipio y código postal")?.split("·").pop()?.trim() ?? null,
+      tipo_parcela: c.tipoParcela || null,
+      superficie_suelo: c.suelo,
+      inmuebles: c.inmuebles.length,
+      lat: c.lat, lng: c.lng, utm_x: c.utmX, utm_y: c.utmY,
+      // LO CRUDO ENTERO: de aqui se vuelve a componer el informe sin pedir nada.
+      bruto: c,
+      consultado_en: c.consultadoEn,
+    }),
+  });
+}
+
+/** Lo guardado. Null si no hay nada o si esta pasado de fecha. */
+async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | null> {
+  if (!URL_BASE || !SECRETO) return null;
+  try {
+    const r = await fetch(`${URL_BASE}/rest/v1/ficha_catastro?select=bruto,consultado_en&referencia=eq.${ref}&limit=1`, {
+      headers: cab,
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const [f] = (await r.json()) as { bruto: Crudo | null; consultado_en: string }[];
+    if (!f?.bruto?.inmuebles?.length) return null;
+    const dias = (Date.now() - new Date(f.consultado_en).getTime()) / 86400000;
+    return dias > diasBueno ? null : f.bruto;
+  } catch {
+    return null;
+  }
+}
+
+/** La puerta: primero lo guardado, y solo si no hay se sale fuera. */
+export async function informeEdificio(
+  referenciaBruta: string,
+  opciones: { refrescar?: boolean; diasBueno?: number } = {},
+): Promise<InformeEdificio | null> {
+  const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
+  if (ref.length < 14) return null;
+
+  if (!opciones.refrescar) {
+    const guardado = await leerDeLaBase(ref, opciones.diasBueno ?? 120);
+    if (guardado) return componer(ref, guardado);
+  }
+
+  const fuera = await traerDeFuera(ref);
+  if (!fuera) return null;
+  try {
+    await guardar(ref, fuera);
+  } catch {
+    /* que no se guarde no impide enseñarlo */
+  }
+  return componer(ref, fuera);
 }
