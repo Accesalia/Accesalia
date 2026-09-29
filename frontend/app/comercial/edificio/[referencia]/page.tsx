@@ -32,6 +32,71 @@ export const maxDuration = 60;
 
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 
+// ============================ EL ESQUELETO ============================
+//
+// PROVISIONAL Y A PROPOSITO EN GRIS (Monica, 29-sep-2026).
+//
+// Esta pantalla hoy se ve a 1.392 px de ancho, pero el dia que viva dentro del
+// bloque 1 tendra 1.168: hay una columna de bloques de 172 a la izquierda y el
+// marco del frame alrededor. Juzgar el reparto al ancho de hoy es juzgarlo a un
+// ancho que no va a existir -"las fotos enormes hacen que uno se pierda"-.
+//
+// Asi que esto NO es diseño: es una regla de medir. Va en gris y con el borde
+// discontinuo para que se note que esta de prestado, y solo aparece con ?marco=1
+// para no tocar la pantalla de verdad. Las medidas SI son las buenas, salidas
+// del esqueleto de Figma: columna 172, hueco 14, marco 16.
+
+const BLOQUES = [
+  { n: 1, titulo: "Toma de datos", estado: "En curso" },
+  { n: 2, titulo: "Documentación", estado: "Sin empezar" },
+  { n: 3, titulo: "Decisión de los vecinos", estado: "Sin empezar" },
+  { n: 4, titulo: "Cierre", estado: "Sin empezar" },
+];
+
+function ColumnaBloques() {
+  return (
+    <div className="flex w-[172px] shrink-0 flex-col gap-2">
+      {BLOQUES.map((b) => {
+        const activo = b.n === 1;
+        return (
+          <div
+            key={b.n}
+            className={
+              "rounded-[10px] border p-[10px_11px] " +
+              (activo ? "border-[#333] bg-[#333]" : "border-[#dcdcdc] bg-[#fbfbfb]")
+            }
+          >
+            <div className={"text-[10px] font-bold uppercase tracking-[.08em] " + (activo ? "text-white" : "text-[#9a9a9a]")}>
+              Bloque {b.n}
+            </div>
+            <div className={"mt-0.5 text-[13px] font-bold leading-tight " + (activo ? "text-white" : "text-carbon")}>
+              {b.titulo}
+            </div>
+            <div className={"mt-1.5 text-[11px] leading-snug " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>
+              {b.estado}
+            </div>
+          </div>
+        );
+      })}
+      <p className="mt-1 text-[10px] leading-snug text-carbon/40">
+        Esqueleto de medida.<br />No es la pantalla.
+      </p>
+    </div>
+  );
+}
+
+/** Mete lo de dentro en el sitio y el ancho que tendra de verdad. Sin marco,
+ *  no estorba: devuelve lo mismo que le dan. */
+function Marco({ activo, children }: { activo: boolean; children: React.ReactNode }) {
+  if (!activo) return <>{children}</>;
+  return (
+    <div className="mt-3 flex items-stretch gap-[14px]">
+      <ColumnaBloques />
+      <div className="min-w-0 flex-1 rounded-[10px] border border-dashed border-black/25 p-4">{children}</div>
+    </div>
+  );
+}
+
 const TONO: Record<string, { marco: string; punto: string; rotulo: string }> = {
   favor: { marco: "border-lima/50 bg-lima-soft/30", punto: "bg-lima-dark", rotulo: "text-lima-dark" },
   ojo: { marco: "border-amber-300/70 bg-amber-50/60", punto: "bg-amber-600", rotulo: "text-amber-700" },
@@ -59,10 +124,11 @@ export default async function Edificio({
   searchParams,
 }: {
   params: Promise<{ referencia: string }>;
-  searchParams: Promise<{ vista?: string; refrescar?: string }>;
+  searchParams: Promise<{ vista?: string; refrescar?: string; marco?: string }>;
 }) {
   const { referencia } = await params;
-  const { vista, refrescar } = await searchParams;
+  const { vista, refrescar, marco } = await searchParams;
+  const conMarco = marco === "1";
   const yo = (await quienSoy()) ?? ({ id: "mirar", veTodo: true, areas: {} } as never);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
@@ -134,9 +200,20 @@ export default async function Edificio({
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1440px] px-6 pb-16 pt-5">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
-          ← Área comercial
-        </Link>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+            ← Área comercial
+          </Link>
+          {/* El interruptor de la regla de medir. Se queda en la vista que estes. */}
+          <Link
+            href={`/comercial/edificio/${referencia}?${conMarco ? "" : "marco=1&"}${vista ? `vista=${vista}` : ""}`}
+            className="text-[11px] font-bold uppercase tracking-wide text-carbon/40 transition hover:text-carbon"
+          >
+            {conMarco ? "Quitar el esqueleto · ancho 1.392" : "Ver dentro del bloque 1 · ancho 1.168"}
+          </Link>
+        </div>
+
+        <Marco activo={conMarco}>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
@@ -432,6 +509,7 @@ export default async function Edificio({
             </ul>
           </section>
         )}
+        </Marco>
       </main>
     </div>
   );
