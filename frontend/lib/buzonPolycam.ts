@@ -186,6 +186,66 @@ export type Repaso = {
   errores: string[];
 };
 
+/** Guardar los adjuntos, dejar la nota en el diario y avisar. Lo usan los dos
+ *  caminos: el reloj cuando acierta con la direccion, y una persona desde la
+ *  bandeja cuando no acerto. Devuelve a cuanta gente se aviso. */
+async function colocar(
+  cliente: ImapFlow,
+  uid: number | string,
+  correo: ParsedMail,
+  d: { oportunidadId: string; comunidadId: string; comunidadNombre: string; autorId: string | null; tipoPolycamId: string },
+): Promise<number> {
+  // 1 · los adjuntos, al almacen
+  const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
+  for (const a of adjuntos) {
+    const ruta = `oportunidades/${d.oportunidadId}/polycam/${crypto.randomUUID().slice(0, 8)}-${limpioNombre(a.filename ?? "escaneo")}`;
+    await subirFichero(ruta, a.content as Buffer, a.contentType ?? "application/octet-stream");
+    await apuntarDocumento({
+      oportunidadId: d.oportunidadId,
+      comunidadId: d.comunidadId,
+      tipoDocumentoId: d.tipoPolycamId,
+      ruta,
+      naturaleza: "subido",
+    });
+  }
+
+  // 2 · el cuerpo, al diario. `origen` solo admite cinco valores y polycam no es
+  //     uno: llego por correo, asi que 'mail' es lo honesto, y el texto dice de
+  //     donde sale.
+  const cuerpo = (correo.text ?? "").trim();
+  await crear("interacciones", {
+    oportunidad_id: d.oportunidadId,
+    transcripcion:
+      `[Escaneo Polycam recibido por correo · ${adjuntos.length} ${adjuntos.length === 1 ? "fichero" : "ficheros"}]` +
+      (cuerpo ? `\n\n${cuerpo}` : ""),
+    origen: "mail",
+    fecha_evento: (correo.date ?? new Date()).toISOString().slice(0, 10),
+    autor_id: d.autorId,
+    extraccion_estado: "sin_procesar",
+    requiere_humano: false,
+    pendiente_vincular: false,
+  });
+
+  // 3 · y que se entere quien lo revisa. Con la direccion POR VALIDAR: el cotejo
+  //     automatico es lo mas fragil de todo esto, y quien abre el fichero puede
+  //     comprobarlo sin coste ninguno.
+  const avisados = await avisarAQuienHace("viabilidades", {
+    texto: `Polycam recibido de ${d.comunidadNombre}. Valida que la dirección es correcta antes de empezar.`,
+    motivo: "polycam_recibido",
+    enlace: `/comercial/oportunidades/${d.oportunidadId}`,
+    oportunidadId: d.oportunidadId,
+  });
+
+  // 4 · hecho: leido y sin la etiqueta de sin sitio, por si venia de la bandeja
+  await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+  try {
+    await cliente.messageFlagsRemove(String(uid), [SIN_SITIO], { uid: true });
+  } catch {
+    /* no la tenia */
+  }
+  return avisados;
+}
+
 export async function repasarBuzon(): Promise<Repaso> {
   const usuario = process.env.BUZON_POLYCAM_USUARIO;
   const clave = process.env.BUZON_POLYCAM_CLAVE;
@@ -264,48 +324,13 @@ export async function repasarBuzon(): Promise<Repaso> {
         }
         const oportunidadId = ops[0].id;
 
-        // 4 · los adjuntos, al almacen
-        const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
-        for (const a of adjuntos) {
-          const ruta = `oportunidades/${oportunidadId}/polycam/${crypto.randomUUID().slice(0, 8)}-${limpioNombre(a.filename ?? "escaneo")}`;
-          await subirFichero(ruta, a.content as Buffer, a.contentType ?? "application/octet-stream");
-          await apuntarDocumento({
-            oportunidadId,
-            comunidadId: comunidad.id,
-            tipoDocumentoId: tipoPolycam.id,
-            ruta,
-            naturaleza: "subido",
-          });
-        }
-
-        // 5 · el cuerpo, al diario. `origen` solo admite cinco valores y polycam
-        //     no es uno: llego por correo, asi que 'mail' es lo honesto, y el
-        //     texto dice de donde sale.
-        const cuerpo = (correo.text ?? "").trim();
-        await crear("interacciones", {
-          oportunidad_id: oportunidadId,
-          transcripcion:
-            `[Escaneo Polycam recibido por correo · ${adjuntos.length} ${adjuntos.length === 1 ? "fichero" : "ficheros"}]` +
-            (cuerpo ? `\n\n${cuerpo}` : ""),
-          origen: "mail",
-          fecha_evento: (correo.date ?? new Date()).toISOString().slice(0, 10),
-          autor_id: autorId,
-          extraccion_estado: "sin_procesar",
-          requiere_humano: false,
-          pendiente_vincular: false,
-        });
-
-        // 6 · y que Alex se entere. Con la direccion POR VALIDAR: el cotejo
-        //     automatico es lo mas fragil de todo esto, y quien abre el fichero
-        //     puede comprobarlo sin coste.
-        r.avisos += await avisarAQuienHace("viabilidades", {
-          texto: `Polycam recibido de ${comunidad.nombre}. Valida que la dirección es correcta antes de empezar.`,
-          motivo: "polycam_recibido",
-          enlace: `/comercial/oportunidades/${oportunidadId}`,
+        r.avisos += await colocar(cliente, uid, correo, {
           oportunidadId,
+          comunidadId: comunidad.id,
+          comunidadNombre: comunidad.nombre,
+          autorId,
+          tipoPolycamId: tipoPolycam.id,
         });
-
-        await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
         r.colocados++;
       } catch (e) {
         // Un correo que falla NO se marca leido: se vuelve a intentar al rato.
@@ -318,4 +343,120 @@ export async function repasarBuzon(): Promise<Repaso> {
   }
 
   return r;
+}
+
+
+// --------------------------------------------------------------- la bandeja
+
+export type CorreoSinSitio = {
+  uid: number;
+  de: string;
+  asunto: string;
+  cuando: string;
+  adjuntos: string[];
+  cuerpo: string;
+  /** Lo que la app cree que es, para no hacer buscar a mano lo que ya sabe. */
+  sugerencia: { id: string; nombre: string } | null;
+};
+
+/** Lo que el reloj no supo colocar. Sale del propio buzon: no hay tabla de
+ *  pendientes, y el correo original es la mejor copia de seguridad que hay. */
+export async function sinSitio(): Promise<CorreoSinSitio[]> {
+  const usuario = process.env.BUZON_POLYCAM_USUARIO;
+  const clave = process.env.BUZON_POLYCAM_CLAVE;
+  if (!usuario || !clave) return [];
+
+  const comunidades = await leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=5000");
+
+  const cliente = new ImapFlow({
+    host: "imap.gmail.com",
+    port: 993,
+    secure: true,
+    auth: { user: usuario, pass: clave.replace(/\s+/g, "") },
+    logger: false,
+  });
+
+  const fuera: CorreoSinSitio[] = [];
+  await cliente.connect();
+  const cerrojo = await cliente.getMailboxLock("INBOX", { readOnly: false });
+  try {
+    const uids = await cliente.search({ keyword: SIN_SITIO });
+    for (const uid of (Array.isArray(uids) ? uids : []).slice(-40).reverse()) {
+      const bajado = await cliente.download(String(uid), undefined, { uid: true });
+      if (!bajado?.content) continue;
+      const correo: ParsedMail = await simpleParser(bajado.content);
+      const asunto = correo.subject?.trim() || "(sin asunto)";
+      fuera.push({
+        uid: Number(uid),
+        de: correo.from?.value?.[0]?.address ?? "—",
+        asunto,
+        cuando: (correo.date ?? new Date()).toISOString().slice(0, 16).replace("T", " "),
+        adjuntos: (correo.attachments ?? []).filter((a: Attachment) => a.size > 0).map((a: Attachment) => a.filename ?? "(sin nombre)"),
+        cuerpo: (correo.text ?? "").trim().slice(0, 400),
+        sugerencia: cotejar(asunto, comunidades),
+      });
+    }
+  } finally {
+    cerrojo.release();
+    await cliente.logout();
+  }
+  return fuera;
+}
+
+/** Colocar a mano uno de los de la bandeja, en la oportunidad que diga la persona. */
+export async function colocarAMano(uid: number, oportunidadId: string): Promise<string> {
+  const usuario = process.env.BUZON_POLYCAM_USUARIO;
+  const clave = process.env.BUZON_POLYCAM_CLAVE;
+  if (!usuario || !clave) throw new Error("Faltan las variables del buzón.");
+
+  const [ops, tipos, equipo] = await Promise.all([
+    leer<{ id: string; comunidad_id: string | null; comunidad: { nombre: string } | null }[]>(
+      `oportunidades?select=id,comunidad_id,comunidad:comunidad_id(nombre)&id=eq.${oportunidadId}&limit=1`,
+    ),
+    leer<{ id: string }[]>("tipos_documento?select=id&nombre=eq.Escaneo%20Polycam&limit=1"),
+    leer<{ id: string; email: string | null }[]>("equipo?select=id,email&activo=is.true"),
+  ]);
+  const op = ops[0];
+  if (!op) throw new Error("Esa oportunidad no existe.");
+  if (!tipos[0]) throw new Error('Falta el tipo de documento "Escaneo Polycam".');
+  const porCorreo = new Map(equipo.filter((e) => e.email).map((e) => [correoLlano(e.email!), e.id]));
+
+  const cliente = new ImapFlow({
+    host: "imap.gmail.com",
+    port: 993,
+    secure: true,
+    auth: { user: usuario, pass: clave.replace(/\s+/g, "") },
+    logger: false,
+  });
+
+  await cliente.connect();
+  const cerrojo = await cliente.getMailboxLock("INBOX");
+  try {
+    const bajado = await cliente.download(String(uid), undefined, { uid: true });
+    if (!bajado?.content) throw new Error("Ese correo ya no está en el buzón.");
+    const correo: ParsedMail = await simpleParser(bajado.content);
+    const de = correo.from?.value?.[0]?.address ?? "";
+    await colocar(cliente, uid, correo, {
+      oportunidadId,
+      comunidadId: op.comunidad_id ?? "",
+      comunidadNombre: op.comunidad?.nombre ?? "esa dirección",
+      autorId: porCorreo.get(correoLlano(de)) ?? null,
+      tipoPolycamId: tipos[0].id,
+    });
+    return correo.subject?.trim() || "(sin asunto)";
+  } finally {
+    cerrojo.release();
+    await cliente.logout();
+  }
+}
+
+/** Las oportunidades abiertas, para el desplegable de la bandeja. */
+export async function oportunidadesAbiertas(): Promise<{ valor: string; texto: string }[]> {
+  const filas = await leer<{ id: string; codigo: string | null; comunidad: { nombre: string } | null; comunidad_provisional: string | null }[]>(
+    "oportunidades?select=id,codigo,comunidad:comunidad_id(nombre),comunidad_provisional&estado=eq.activa&order=creado_en.desc&limit=500",
+  );
+  return filas.map((o) => ({
+    valor: o.id,
+    texto: (o.comunidad?.nombre ?? o.comunidad_provisional ?? "(sin dirección)") + (o.codigo ? ` · ${o.codigo}` : ""),
+  }));
 }
