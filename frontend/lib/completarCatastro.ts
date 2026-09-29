@@ -71,7 +71,11 @@ const SIGLAS: Record<string, string> = {
   CR: "CR", CTRA: "CR", CARRETERA: "CR", RD: "RD", RONDA: "RD",
   GL: "GL", GTA: "GL", GLORIETA: "GL", UR: "UR", URBANIZACION: "UR",
 };
-const TODAS = ["CL", "AV", "PZ", "CM", "PS", "TR", "CR", "GL", "RD", "UR"];
+// Cuando la direccion no trae sigla se prueban estas, y SOLO estas. Con las
+// diez, una direccion que no existe costaba veinte consultas y once segundos:
+// cuarenta de esas no caben en los cinco minutos que dura la funcion. Estas
+// cinco cubren practicamente todo el callejero de sus barrios.
+const TODAS = ["CL", "AV", "PZ", "CM", "PS"];
 
 export type Partida = { sigla: string; calle: string; numero: string };
 
@@ -193,7 +197,7 @@ export type ResultadoTanda = {
 
 /** Una tanda. Se llama tantas veces como haga falta: lo hecho no se repite,
  *  porque `cotejo_catastro` lleva la cuenta. Los 'fallo' SI se reintentan. */
-export async function completarTanda(cuantas = 80): Promise<ResultadoTanda> {
+export async function completarTanda(cuantas = 40): Promise<ResultadoTanda> {
   const t0 = Date.now();
 
   const lista = (await pendientes()).slice(0, cuantas);
@@ -210,7 +214,7 @@ export async function completarTanda(cuantas = 80): Promise<ResultadoTanda> {
     }
     cuenta[resultado.estado] = (cuenta[resultado.estado] ?? 0) + 1;
 
-    await fetch(`${URL_BASE}/rest/v1/cotejo_catastro?on_conflict=comunidad_id`, {
+    const rg = await fetch(`${URL_BASE}/rest/v1/cotejo_catastro?on_conflict=comunidad_id`, {
       method: "POST",
       headers: { ...cabJson, Prefer: "resolution=merge-duplicates,return=minimal" },
       body: JSON.stringify({
@@ -227,6 +231,9 @@ export async function completarTanda(cuantas = 80): Promise<ResultadoTanda> {
         intentado_en: new Date().toISOString(),
       }),
     });
+    // Si la anotacion falla, se para: seguir seria repasar las mismas una y otra
+    // vez sin avanzar, que es exactamente lo que parecia estar pasando.
+    if (!rg.ok) throw new Error(`cotejo_catastro: ${rg.status} ${(await rg.text()).slice(0, 200)}`);
 
     // SOLO cuando hay una y solo una. Y solo estos cuatro campos: `nombre` ni
     // se menciona en el cuerpo, asi no hay forma de tocarlo por accidente.
@@ -261,23 +268,34 @@ export async function completarTanda(cuantas = 80): Promise<ResultadoTanda> {
  *  por una tabla embebida: son mil y pico identificadores, cabe de sobra, y una
  *  consulta que uno cree que filtra y no filtra volveria a repasar las 1.228
  *  enteras cada vez sin avisar. */
+/** PostgREST DEVUELVE COMO MUCHO 1.000 FILAS, y `limit=5000` no lo cambia: el
+ *  tope lo pone el servidor, no la consulta. Pedir de mil en mil hasta que se
+ *  acaben es la unica forma de verlas todas.
+ *
+ *  No es un detalle: con 1.228 comunidades, sin esto las 228 ultimas no existian
+ *  para el trabajo, y encima el contador se quedaba clavado en 1.000 como si
+ *  fuera una cuenta cuando era un techo. */
+async function traerTodo<T>(consulta: string): Promise<T[]> {
+  const todo: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${consulta}`, {
+      headers: { ...cab, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${consulta.split("?")[0]}: ${r.status} ${(await r.text()).slice(0, 160)}`);
+    const trozo = (await r.json()) as T[];
+    todo.push(...trozo);
+    if (trozo.length < 1000) return todo;
+  }
+}
+
 async function pendientes(): Promise<Comunidad[]> {
-  const rc = await fetch(
-    `${URL_BASE}/rest/v1/comunidades?select=id,nombre,municipio,provincia&order=nombre&limit=5000`,
-    { headers: cab, cache: "no-store" },
-  );
-  if (!rc.ok) throw new Error(`comunidades: ${rc.status} ${(await rc.text()).slice(0, 200)}`);
-  const todas = (await rc.json()) as Comunidad[];
-
+  const todas = await traerTodo<Comunidad>("comunidades?select=id,nombre,municipio,provincia&order=nombre");
   // Los 'fallo' NO cuentan como hechos: fue el servicio, no la direccion.
-  const rh = await fetch(
-    `${URL_BASE}/rest/v1/cotejo_catastro?select=comunidad_id&estado=neq.fallo&limit=5000`,
-    { headers: cab, cache: "no-store" },
-  );
   const hechas = new Set(
-    rh.ok ? ((await rh.json()) as { comunidad_id: string }[]).map((f) => f.comunidad_id) : [],
+    (await traerTodo<{ comunidad_id: string }>("cotejo_catastro?select=comunidad_id&estado=neq.fallo"))
+      .map((f) => f.comunidad_id),
   );
-
   return todas.filter((c) => !hechas.has(c.id));
 }
 

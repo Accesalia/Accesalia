@@ -31,14 +31,21 @@ export async function GET(req: Request) {
   if (!(await permitido(req))) return NextResponse.json({ error: "No." }, { status: 403 });
   // El reloj llama por GET, y para el reloj SI tiene que trabajar.
   if (req.headers.get("x-vercel-cron")) return POST(req);
-  return NextResponse.json({ ok: true, quedan: await cuantasQuedan(), nota: "GET solo mira. POST hace una tanda." });
+  // Y con ?hacer=1 tambien trabaja desde el navegador. Hace falta poder lanzarla
+  // a mano Y VER QUE CONTESTA: esperar al reloj a ciegas no dice si va o no va.
+  if (new URL(req.url).searchParams.get("hacer")) return POST(req);
+  return NextResponse.json({
+    ok: true,
+    quedan: await cuantasQuedan(),
+    nota: "Para hacer una tanda ahora: añade ?hacer=1 a esta misma dirección.",
+  });
 }
 
 export async function POST(req: Request) {
   if (!(await permitido(req))) return NextResponse.json({ error: "No." }, { status: 403 });
 
   const pedido = Number(new URL(req.url).searchParams.get("cuantas"));
-  const cuantas = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 120) : 80;
+  const cuantas = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 120) : 40;
 
   try {
     return NextResponse.json({ ok: true, ...(await completarTanda(cuantas)) });
