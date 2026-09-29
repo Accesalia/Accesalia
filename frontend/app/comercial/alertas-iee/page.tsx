@@ -75,7 +75,10 @@ export default async function AlertasIEE({
   return (
     <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1440px] px-6 pb-16 pt-5">
+      {/* MARGENES A LOS LADOS (Monica): "al ser una tabla simple, le damos
+          margenes a los lados para que no se estire tanto". Cuatro columnas
+          repartidas en 1.392 px dejan la fila medio vacia y se lee peor. */}
+      <main className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-5">
         <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
           ← Área comercial
         </Link>

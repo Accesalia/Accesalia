@@ -31,11 +31,18 @@ export async function GET(req: Request) {
 
   // `maximo` deja pedir una pasada mas larga a mano sin tocar el codigo, por si
   // un dia el registro publica una tanda grande de golpe.
-  const pedido = Number(new URL(req.url).searchParams.get("maximo"));
+  const q = new URL(req.url).searchParams;
+  const pedido = Number(q.get("maximo"));
   const maximo = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 400) : 60;
 
+  // ?atras=12 recoge los 12 informes ANTERIORES a la marca. Es una excepcion a
+  // mano -la regla es mirar solo hacia delante- y esta para poder ver la
+  // pantalla con datos de verdad. No mueve la marca ni avisa a nadie.
+  const haciaAtras = Number(q.get("atras"));
+  const atras = Number.isFinite(haciaAtras) && haciaAtras > 0 ? Math.min(haciaAtras, 200) : 0;
+
   try {
-    const barrido = await barrer({ maximo });
+    const barrido = await barrer({ maximo, atras });
     // Y de paso la vigilancia: engancha las que ya tienen oportunidad y
     // pregunta por las que llevan demasiado tiempo paradas. Va aqui y no en su
     // propio reloj porque es el mismo momento del dia y el mismo asunto.

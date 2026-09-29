@@ -28,7 +28,11 @@
 //      sin referencia catastral habria que casar direcciones a mano.
 // ============================================================================
 
+import { enviarCorreo } from "./correo";
+
 const RAIZ = "https://www.rieecm.es/portal/home/nota_informativa_codigo_iee";
+const ENLACE_PANTALLA =
+  (process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app") + "/comercial/alertas-iee";
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 const cab = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
@@ -194,17 +198,33 @@ async function desdeDondeSeguir(): Promise<number> {
  *  una linea. `hasta is null` = el cargo sigue vigente. */
 const FUNCION_QUE_REPARTE = "supervision_comercial";
 
-async function aQuienSeAvisa(): Promise<string[]> {
+type QuienReparte = { id: string; nombre: string; correo: string | null };
+
+async function aQuienSeAvisa(): Promise<QuienReparte[]> {
   const r = await fetch(
     `${URL_BASE}/rest/v1/equipo_funciones` +
-      `?select=equipo_id,funciones!inner(clave),equipo!inner(activo)` +
+      `?select=equipo_id,funciones!inner(clave),equipo!inner(activo,nombre,email)` +
       `&funciones.clave=eq.${FUNCION_QUE_REPARTE}` +
       `&equipo.activo=is.true&hasta=is.null`,
     { headers: cab, cache: "no-store" },
   );
   if (!r.ok) return [];
-  const filas = (await r.json()) as { equipo_id: string }[];
-  return Array.from(new Set(filas.map((f) => f.equipo_id)));
+  const filas = (await r.json()) as {
+    equipo_id: string;
+    equipo: { nombre: string; email: string | null } | null;
+  }[];
+  const vistos = new Set<string>();
+  const lista: QuienReparte[] = [];
+  for (const f of filas) {
+    if (vistos.has(f.equipo_id)) continue;
+    vistos.add(f.equipo_id);
+    lista.push({
+      id: f.equipo_id,
+      nombre: f.equipo?.nombre ?? "",
+      correo: f.equipo?.email ?? null,
+    });
+  }
+  return lista;
 }
 
 /** Cuantas desfavorables siguen sin repartir, de cualquier dia. Es lo que
@@ -240,18 +260,33 @@ export async function barrer({
   maximo = 60,
   huecosParaParar = 8,
   pausaMs = 250,
-}: { maximo?: number; huecosParaParar?: number; pausaMs?: number } = {}): Promise<ResultadoBarrido> {
+  atras = 0,
+}: {
+  maximo?: number;
+  huecosParaParar?: number;
+  pausaMs?: number;
+  /** EXCEPCION, Y A MANO. La regla es mirar solo hacia delante, pero para ver
+   *  la pantalla funcionando hace falta que haya algo dentro, y hoy no hay.
+   *  Con `atras` se recogen los N informes anteriores a la marca: son reales,
+   *  del registro, no inventados. Y NO mueve la marca ni avisa a nadie, para
+   *  que el barrido de cada mañana siga como si esto no hubiera pasado. */
+  atras?: number;
+} = {}): Promise<ResultadoBarrido> {
   const t0 = Date.now();
-  const desde = await desdeDondeSeguir();
+  const marca = await desdeDondeSeguir();
+  const haciaAtras = atras > 0;
+  const desde = haciaAtras ? marca - atras : marca;
+  const tope = haciaAtras ? marca : desde + maximo;
   let n = desde;
   let huecos = 0;
   let encontrados = 0;
   let desfavorables = 0;
-  let ultimoBueno = desde;
+  let ultimoBueno = marca;
   const nuevas: ResultadoBarrido["nuevas"] = [];
   const avisar: NotaIEE[] = [];
 
-  while (n - desde < maximo && huecos < huecosParaParar) {
+  // Hacia atras no se para en los huecos: se sabe donde acaba, es la marca.
+  while (n < tope && (haciaAtras || huecos < huecosParaParar)) {
     n += 1;
     const nota = await leerNota(codigoDe(n));
     // Ir despacio es obligatorio: es un registro publico y pequeño, y si lo
@@ -261,7 +296,7 @@ export async function barrer({
     if (!nota) { huecos += 1; continue; }
 
     huecos = 0;
-    ultimoBueno = n;
+    if (!haciaAtras) ultimoBueno = n;
     encontrados += 1;
     const malo = esDesfavorable(nota);
     if (malo) desfavorables += 1;
@@ -322,7 +357,7 @@ export async function barrer({
     pendientes = avisar.length;
   }
 
-  if (pendientes > 0) {
+  if (pendientes > 0 && !haciaAtras) {
     try {
       const para = await aQuienSeAvisa();
       if (para.length) {
@@ -343,8 +378,8 @@ export async function barrer({
           method: "POST",
           headers: { ...cabJson, Prefer: "return=minimal" },
           body: JSON.stringify(
-            para.map((id) => ({
-              para_id: id,
+            para.map((q) => ({
+              para_id: q.id,
               motivo: "alerta_iee",
               texto: cabeza + cola,
               enlace: "/comercial/alertas-iee",
@@ -353,6 +388,27 @@ export async function barrer({
         });
         if (!ra.ok) falloAviso = `avisos: ${ra.status} ${(await ra.text()).slice(0, 200)}`;
         else avisados = para.length;
+
+        // Y POR CORREO, que hoy es lo unico que de verdad avisa: la tabla de
+        // avisos todavia no se pinta en ninguna pantalla, asi que un
+        // recordatorio que solo viva ahi no recuerda nada. Ella lo dijo abierto:
+        // "una notificacion o un mail o lo que sea".
+        for (const q of para) {
+          if (!q.correo) continue;
+          const enviado = await enviarCorreo({
+            para: q.correo,
+            asunto: nuevasHoy > 0 ? `Radar: ${cabeza.toLowerCase()}` : "Radar: quedan IEE sin asignar",
+            texto:
+              `Hola ${q.nombre},
+
+${cabeza}${cola}
+
+` +
+              `Puedes repartirlas aquí: ${ENLACE_PANTALLA}
+`,
+          });
+          if (!enviado.ok && !falloAviso) falloAviso = `correo: ${enviado.dice ?? "no salio"}`;
+        }
       } else {
         falloAviso = "no hay nadie activo con la funcion supervision_comercial";
       }
@@ -374,6 +430,7 @@ export async function barrer({
       huecos,
       segundos,
       fallo: falloAviso,
+      nota: haciaAtras ? `recogida a mano de ${atras} anteriores a la marca; la marca no se mueve` : null,
     }),
   });
 
