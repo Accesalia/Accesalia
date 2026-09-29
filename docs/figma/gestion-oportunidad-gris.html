@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Gestión de oportunidad · esqueleto</title>
+<style>
+  /* ESQUELETO EN GRIS. Solo estructura: ni colores de marca, ni iconos, ni
+     florituras. Lienzo de 1440, que es el ancho real de la pantalla de Monica.
+     Lo que se dibuje aqui mide lo que va a medir de verdad. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #222222; }
+
+  .rotulo   { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #9a9a9a; }
+  .nota     { font-size: 12px; color: #9a9a9a; }
+  .hueco    { border: 1px dashed #c8c8c8; border-radius: 6px; color: #9a9a9a; font-size: 12px;
+              display: flex; align-items: center; justify-content: center; text-align: center; }
+  .caja     { border: 1px solid #dcdcdc; border-radius: 10px; background: #ffffff; }
+  .pieza    { font-size: 11px; border: 1px solid #d8d8d8; border-radius: 999px; padding: 3px 9px; color: #5a5a5a; background: #f6f6f6; }
+  .titulo   { font-size: 15px; font-weight: 700; }
+
+  .pagina   { width: 1440px; margin: 0 auto 56px; }
+  .pie      { font-size: 12px; color: #9a9a9a; margin: 0 0 8px 2px; }
+
+  .marco    { display: flex; gap: 14px; align-items: stretch; }
+
+  /* ---- la columna de bloques: menu e indicador de avance a la vez ---- */
+  .bloques  { width: 172px; flex: 0 0 172px; display: flex; flex-direction: column; gap: 8px; }
+  .bloque   { border: 1px solid #dcdcdc; border-radius: 10px; padding: 10px 11px; background: #fbfbfb; }
+  .bloque.activo { background: #333333; border-color: #333333; }
+  .bloque.activo .b-n, .bloque.activo .b-t { color: #ffffff; }
+  .bloque.activo .b-s { color: #cfcfcf; }
+  .b-n      { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: #9a9a9a; text-transform: uppercase; }
+  .b-t      { font-size: 13px; font-weight: 700; line-height: 1.2; margin-top: 2px; }
+  .b-s      { font-size: 11px; line-height: 1.35; color: #8a8a8a; margin-top: 5px; }
+
+  .derecha  { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ---- la cabecera: tres columnas de ANCHOS DISTINTOS segun lo que llevan ---- */
+  .cabecera { display: grid; grid-template-columns: 330px 1fr 330px; gap: 0; }
+  .cab-col  { padding: 14px 16px; }
+  .cab-col + .cab-col { border-left: 1px solid #e8e8e8; }
+
+  .dato     { margin-bottom: 10px; }
+  .dato:last-child { margin-bottom: 0; }
+  .dato .v  { font-size: 13px; margin-top: 2px; }
+
+  .quemado  { display: flex; gap: 9px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .quemado:last-child { border-bottom: 0; }
+  .q-n      { font-size: 10px; font-weight: 700; color: #b0b0b0; width: 12px; flex: 0 0 12px; }
+  .q-t      { font-size: 12px; line-height: 1.35; color: #5a5a5a; }
+
+  .contacto { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+  .contacto:last-child { border-bottom: 0; }
+  .c-q      { color: #9a9a9a; }
+
+  /* ---- el frame del bloque ---- */
+  .frame    { padding: 16px; min-height: 520px; }
+  .f-cab    { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+
+  .sali     { border: 1px solid #dcdcdc; border-radius: 10px; background: #f7f7f7; padding: 12px 14px; }
+  .sali .t  { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #7a7a7a; margin-bottom: 6px; }
+  .sali p   { font-size: 13px; line-height: 1.5; color: #444444; margin-bottom: 8px; }
+  .sali p:last-child { margin-bottom: 0; }
+
+  .dos      { display: grid; grid-template-columns: 1fr 360px; gap: 14px; align-items: start; }
+  .tres     { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+
+  .fila     { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .fila:last-child { border-bottom: 0; }
+  .fila .n  { width: 14px; flex: 0 0 14px; color: #b0b0b0; font-size: 12px; }
+  .fila .f  { width: 92px; flex: 0 0 92px; }
+  .fila .e  { flex: 0 0 auto; }
+  .fila .d  { flex: 1; min-width: 0; color: #5a5a5a; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .fila .a  { flex: 0 0 auto; font-size: 11px; color: #7a7a7a; }
+
+  .boton    { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 14px;
+              border: 1px solid #b8b8b8; border-radius: 6px; background: #efefef; font-size: 12px; font-weight: 700;
+              text-transform: uppercase; letter-spacing: .03em; color: #444444; }
+  .boton.fuerte { background: #333333; border-color: #333333; color: #ffffff; }
+
+  .casillas { display: flex; flex-wrap: wrap; gap: 18px; }
+  .casilla  { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .cuadro   { width: 16px; height: 16px; border: 1px solid #a8a8a8; border-radius: 3px; background: #ffffff; }
+  .cuadro.si { background: #555555; border-color: #555555; }
+
+  h1.doc    { font-size: 22px; margin: 34px auto 6px; width: 1440px; }
+  p.doc     { font-size: 13px; color: #6a6a6a; margin: 0 auto 22px; width: 1440px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<h1 class="doc">Gestión de una oportunidad · esqueleto en gris</h1>
+<p class="doc">
+  Lienzo de 1440, que es el ancho real de la pantalla. Lo que midas aquí es lo que va a medir.<br>
+  Solo estructura: sin colores de marca, sin iconos, sin adornos. Los recuadros de rayas son huecos por decidir.<br>
+  Cuatro marcos, uno por bloque. El marco no cambia; lo que cambia es lo de dentro.
+</p>
+
+<!-- ============================ BLOQUE 1 ============================ -->
+<div class="pagina">
+  <p class="pie">BLOQUE 1 · TOMA DE DATOS — se hace y se olvida. Sali casi no está.</p>
+  <div class="marco">
+
+    <div class="bloques">
+      <div class="bloque activo">
+        <div class="b-n">Bloque 1</div><div class="b-t">Toma de datos</div>
+        <div class="b-s">Falta el Polycam</div>
+      </div>
+      <div class="bloque">
+        <div class="b-n">Bloque 2</div><div class="b-t">Documentación</div>
+        <div class="b-s">Sin empezar</div>
+      </div>
+      <div class="bloque">
+        <div class="b-n">Bloque 3</div><div class="b-t">Decisión de los vecinos</div>
+        <div class="b-s">Sin empezar</div>
+      </div>
+      <div class="bloque">
+        <div class="b-n">Bloque 4</div><div class="b-t">Cierre</div>
+        <div class="b-s">Sin empezar</div>
+      </div>
+    </div>
+
+    <div class="derecha">
+
+      <div class="caja cabecera">
+        <div class="cab-col">
+          <div class="dato"><div class="rotulo">Dirección</div><div class="v" style="font-size:17px;font-weight:700;line-height:1.25">GENERAL RICARDOS 238, MADRID</div></div>
+          <div class="dato"><div class="rotulo">Administración</div><div class="v">Marcal Asesores <span class="nota">· Leganés</span></div></div>
+          <div class="dato"><div class="rotulo">Tipo de proyecto</div><div class="v"><span class="pieza">Ascensor</span> <span class="pieza">Cota cero</span></div></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Por dónde vamos</div>
+          <div class="quemado"><span class="q-n">1</span><span class="q-t"><b>Toma de datos</b> — en curso. Falta el Polycam.</span></div>
+          <div class="hueco" style="height:58px;margin-top:8px">aquí se irá acumulando una línea por bloque quemado</div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Contactos de la comunidad</div>
+          <div class="contacto"><span>Beatriz Martínez</span><span class="c-q">administradora</span></div>
+          <div class="contacto"><span>Fermín Monge</span><span class="c-q">presidente</span></div>
+          <div class="contacto"><span>Toñi Cárdenas</span><span class="c-q">vecina · comisión de obras</span></div>
+          <div class="nota" style="margin-top:8px">+ añadir contacto</div>
+        </div>
+      </div>
+
+      <div class="caja frame">
+        <div class="f-cab">
+          <div class="titulo">Toma de datos</div>
+          <div class="nota">Se sale de aquí cuando tengo lo necesario para avanzar</div>
+        </div>
+
+        <div class="dos">
+          <div>
+            <div class="rotulo" style="margin-bottom:8px">El escaneo</div>
+            <div class="hueco" style="height:150px">Soltar aquí el Polycam · o llega solo por el buzón de correo</div>
+
+            <div class="rotulo" style="margin:18px 0 8px">Qué habrá que hacer — solo apuntarlo, aún no se hace</div>
+            <div class="casillas">
+              <label class="casilla"><span class="cuadro si"></span> Necesita viabilidad</label>
+              <label class="casilla"><span class="cuadro si"></span> Necesita 3D</label>
+              <label class="casilla"><span class="cuadro"></span> Necesita 3 presupuestos</label>
+              <label class="casilla"><span class="cuadro"></span> Necesita financiación</label>
+            </div>
+          </div>
+
+          <div>
+            <div class="rotulo" style="margin-bottom:8px">Lo que va pasando</div>
+            <div class="caja" style="padding:12px 14px">
+              <div style="font-size:12px;color:#9a9a9a">28/09 · visita · Beatriz Martínez</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:3px">Hemos ido a ver el portal. El foso da problemas, hay contadores que habría que mover.</div>
+              <div style="border-top:1px solid #f0f0f0;margin:10px 0"></div>
+              <div style="font-size:12px;color:#9a9a9a">27/09 · llamada · Fermín Monge</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:3px">Me llama Fermín: el martes me lleva a ver tres portales que tienen ascensor.</div>
+            </div>
+            <div class="hueco" style="height:76px;margin-top:10px">Grabar una entrada</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================ BLOQUE 2 ============================ -->
+<div class="pagina">
+  <p class="pie">BLOQUE 2 · DOCUMENTACIÓN — el taller. Aquí está el trabajo de verdad y aquí hay que quitar fricción. Sali, corta y seca.</p>
+  <div class="marco">
+
+    <div class="bloques">
+      <div class="bloque"><div class="b-n">Bloque 1</div><div class="b-t">Toma de datos</div><div class="b-s">Hecho · 04/09</div></div>
+      <div class="bloque activo"><div class="b-n">Bloque 2</div><div class="b-t">Documentación</div><div class="b-s">Falta enviarla</div></div>
+      <div class="bloque"><div class="b-n">Bloque 3</div><div class="b-t">Decisión de los vecinos</div><div class="b-s">Sin empezar</div></div>
+      <div class="bloque"><div class="b-n">Bloque 4</div><div class="b-t">Cierre</div><div class="b-s">Sin empezar</div></div>
+    </div>
+
+    <div class="derecha">
+
+      <div class="caja cabecera">
+        <div class="cab-col">
+          <div class="dato"><div class="rotulo">Dirección</div><div class="v" style="font-size:17px;font-weight:700;line-height:1.25">GENERAL RICARDOS 238, MADRID</div></div>
+          <div class="dato"><div class="rotulo">Administración</div><div class="v">Marcal Asesores <span class="nota">· Leganés</span></div></div>
+          <div class="dato"><div class="rotulo">Tipo de proyecto</div><div class="v"><span class="pieza">Ascensor</span> <span class="pieza">Cota cero</span></div></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Por dónde vamos</div>
+          <div class="quemado"><span class="q-n">1</span><span class="q-t">Polycam 04/09 · quieren ascensor sin perder el patio · sí 3D, no financiación</span></div>
+          <div class="quemado"><span class="q-n">2</span><span class="q-t"><b>Documentación</b> — viabilidad lista, hoja v2 sin enviar</span></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Contactos de la comunidad</div>
+          <div class="contacto"><span>Beatriz Martínez</span><span class="c-q">administradora</span></div>
+          <div class="contacto"><span>Fermín Monge</span><span class="c-q">presidente</span></div>
+          <div class="contacto"><span>Toñi Cárdenas</span><span class="c-q">vecina · comisión de obras</span></div>
+        </div>
+      </div>
+
+      <div class="caja frame">
+        <div class="f-cab">
+          <div class="titulo">Documentación</div>
+          <div class="nota">Se sale de aquí cuando está lista Y enviada</div>
+        </div>
+
+        <div class="sali" style="margin-bottom:14px">
+          <div class="t">Sali</div>
+          <p>La viabilidad lleva 6 días lista y sin enviar. La junta es el 20.</p>
+        </div>
+
+        <div class="tres">
+          <div class="caja" style="padding:12px 14px">
+            <div class="titulo" style="font-size:13px">Viabilidad</div>
+            <div class="nota" style="margin:6px 0 10px">Lista · v2 · Alex Figueroa</div>
+            <div class="hueco" style="height:46px">ver · generar · enviar</div>
+          </div>
+          <div class="caja" style="padding:12px 14px">
+            <div class="titulo" style="font-size:13px">3D</div>
+            <div class="nota" style="margin:6px 0 10px">De catálogo · Ascensor Tipo 7 · entregado</div>
+            <div class="hueco" style="height:46px">ver</div>
+          </div>
+          <div class="caja" style="padding:12px 14px">
+            <div class="titulo" style="font-size:13px">Presupuesto</div>
+            <div class="nota" style="margin:6px 0 10px">Sin generar</div>
+            <div class="hueco" style="height:46px">generar</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px" class="caja">
+          <div style="padding:12px 14px 4px"><div class="titulo" style="font-size:13px">Hoja de encargo</div></div>
+          <div style="padding:0 14px 12px">
+            <div class="fila"><span class="n">1</span><span class="f">14/09/2026</span><span class="e"><span class="pieza">Enviada</span></span><span class="d">14.500 €</span><span class="a">ver · historial</span></div>
+            <div class="fila"><span class="n">2</span><span class="f">02/10/2026</span><span class="e"><span class="pieza">Sin enviar</span></span><span class="d">11.200 € · le bajamos el precio</span><span class="a">ver · enviar</span></div>
+            <div style="margin-top:10px"><span class="boton">+ Nueva versión</span></div>
+          </div>
+        </div>
+
+        <div class="dos" style="margin-top:14px">
+          <div class="caja" style="padding:12px 14px">
+            <div class="titulo" style="font-size:13px">El trato</div>
+            <div style="font-size:13px;margin-top:8px">Ascensor + licencia · <b>11.200 €</b> · antes 14.500</div>
+            <div class="nota" style="margin-top:4px">El administrador cobra comisión · quién lo trae: Beatriz Martínez</div>
+            <div class="hueco" style="height:44px;margin-top:10px">precios hablados · comisión · qué contratan</div>
+          </div>
+          <div>
+            <div class="hueco" style="height:118px">ENVIAR<br>elegir documentos + plantilla de correo</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================ BLOQUE 3 ============================ -->
+<div class="pagina">
+  <p class="pie">BLOQUE 3 · DECISIÓN DE LOS VECINOS — negociación. Aquí Sali se luce, y quien empuja es la agenda.</p>
+  <div class="marco">
+
+    <div class="bloques">
+      <div class="bloque"><div class="b-n">Bloque 1</div><div class="b-t">Toma de datos</div><div class="b-s">Hecho · 04/09</div></div>
+      <div class="bloque"><div class="b-n">Bloque 2</div><div class="b-t">Documentación</div><div class="b-s">Enviada · 02/10</div></div>
+      <div class="bloque activo"><div class="b-n">Bloque 3</div><div class="b-t">Decisión de los vecinos</div><div class="b-s">2 juntas · sin decidir</div></div>
+      <div class="bloque"><div class="b-n">Bloque 4</div><div class="b-t">Cierre</div><div class="b-s">Sin empezar</div></div>
+    </div>
+
+    <div class="derecha">
+
+      <div class="caja cabecera">
+        <div class="cab-col">
+          <div class="dato"><div class="rotulo">Dirección</div><div class="v" style="font-size:17px;font-weight:700;line-height:1.25">GENERAL RICARDOS 238, MADRID</div></div>
+          <div class="dato"><div class="rotulo">Administración</div><div class="v">Marcal Asesores <span class="nota">· Leganés</span></div></div>
+          <div class="dato"><div class="rotulo">Tipo de proyecto</div><div class="v"><span class="pieza">Ascensor</span> <span class="pieza">Cota cero</span></div></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Por dónde vamos</div>
+          <div class="quemado"><span class="q-n">1</span><span class="q-t">Polycam 04/09 · quieren ascensor sin perder el patio</span></div>
+          <div class="quemado"><span class="q-n">2</span><span class="q-t">Hoja v2 enviada 02/10 · 11.200 € · viabilidad y 3D listos</span></div>
+          <div class="quemado"><span class="q-n">3</span><span class="q-t"><b>Decisión</b> — 2 juntas, sin decidir</span></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Contactos de la comunidad</div>
+          <div class="contacto"><span>Beatriz Martínez</span><span class="c-q">administradora</span></div>
+          <div class="contacto"><span>Fermín Monge</span><span class="c-q">presidente</span></div>
+          <div class="contacto"><span>Toñi Cárdenas</span><span class="c-q">vecina · comisión de obras</span></div>
+        </div>
+      </div>
+
+      <div class="caja frame">
+        <div class="f-cab">
+          <div class="titulo">Decisión de los vecinos</div>
+          <div class="nota">Se sale de aquí cuando han decidido</div>
+        </div>
+
+        <div class="sali" style="margin-bottom:14px">
+          <div class="t">Sali</div>
+          <p><b>Ojo con la subvención.</b> Beatriz te dijo el 4 de septiembre que en la junta les hables de la subvención, pero que <b>no les pases la hoja de encargo de subvenciones</b>: hay vecinos en contra y se pondrían como fieras.</p>
+          <p>Van dos juntas sin decidir. En la del 20/10 pidieron comparar con otras dos empresas — hace 9 días y no sabemos nada. <b>Toca llamar a Beatriz.</b></p>
+          <p>Toñi Cárdenas (comisión de obras) es la que más empuja a favor: si hay que apoyarse en alguien, en ella.</p>
+        </div>
+
+        <div class="dos">
+          <div>
+            <div class="caja" style="padding:12px 14px">
+              <div class="titulo" style="font-size:13px">Las juntas</div>
+              <div style="margin-top:6px">
+                <div class="fila"><span class="n">1</span><span class="f">03/09/2026</span><span class="e"><span class="pieza">Aplazada</span></span><span class="d">no hubo quórum, 9 de 24</span><span class="a">cambiar</span></div>
+                <div class="fila"><span class="n">2</span><span class="f">20/10/2026</span><span class="e"><span class="pieza">Piden más presupuestos</span></span><span class="d">quieren comparar con otras dos</span><span class="a">cambiar</span></div>
+                <div class="fila"><span class="n">3</span><span class="f">15/11/2026</span><span class="e"><span class="pieza">Sin celebrar</span></span><span class="d"></span><span class="a">cambiar</span></div>
+              </div>
+              <div style="margin-top:10px"><span class="boton">+ Añadir junta</span></div>
+            </div>
+
+            <div class="caja" style="padding:12px 14px;margin-top:14px">
+              <div class="titulo" style="font-size:13px">Lo que han pedido cambiar</div>
+              <div class="hueco" style="height:70px;margin-top:8px">lo que obliga a volver al bloque 2</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="rotulo" style="margin-bottom:8px">Lo que va pasando</div>
+            <div class="caja" style="padding:12px 14px">
+              <div style="font-size:12px;color:#9a9a9a">21/10 · llamada · Beatriz Martínez</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:3px">Quedaron en pedir dos presupuestos más. Me avisa cuando los tengan.</div>
+            </div>
+            <div class="hueco" style="height:76px;margin-top:10px">Grabar una entrada</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================ BLOQUE 4 ============================ -->
+<div class="pagina">
+  <p class="pie">BLOQUE 4 · CIERRE — se abre SIEMPRE, también con un no. Y el porqué del no vale dinero.</p>
+  <div class="marco">
+
+    <div class="bloques">
+      <div class="bloque"><div class="b-n">Bloque 1</div><div class="b-t">Toma de datos</div><div class="b-s">Hecho · 04/09</div></div>
+      <div class="bloque"><div class="b-n">Bloque 2</div><div class="b-t">Documentación</div><div class="b-s">Enviada · 02/10</div></div>
+      <div class="bloque"><div class="b-n">Bloque 3</div><div class="b-t">Decisión de los vecinos</div><div class="b-s">Votaron sí · 15/11</div></div>
+      <div class="bloque activo"><div class="b-n">Bloque 4</div><div class="b-t">Cierre</div><div class="b-s">Falta cobrar</div></div>
+    </div>
+
+    <div class="derecha">
+
+      <div class="caja cabecera">
+        <div class="cab-col">
+          <div class="dato"><div class="rotulo">Dirección</div><div class="v" style="font-size:17px;font-weight:700;line-height:1.25">GENERAL RICARDOS 238, MADRID</div></div>
+          <div class="dato"><div class="rotulo">Administración</div><div class="v">Marcal Asesores <span class="nota">· Leganés</span></div></div>
+          <div class="dato"><div class="rotulo">Tipo de proyecto</div><div class="v"><span class="pieza">Ascensor</span> <span class="pieza">Cota cero</span></div></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Por dónde vamos</div>
+          <div class="quemado"><span class="q-n">1</span><span class="q-t">Polycam 04/09</span></div>
+          <div class="quemado"><span class="q-n">2</span><span class="q-t">Hoja v2 enviada 02/10 · 11.200 €</span></div>
+          <div class="quemado"><span class="q-n">3</span><span class="q-t">Votaron sí el 15/11, a la tercera junta</span></div>
+          <div class="quemado"><span class="q-n">4</span><span class="q-t"><b>Cierre</b> — firmada, falta el cobro</span></div>
+        </div>
+        <div class="cab-col">
+          <div class="rotulo" style="margin-bottom:6px">Contactos de la comunidad</div>
+          <div class="contacto"><span>Beatriz Martínez</span><span class="c-q">administradora</span></div>
+          <div class="contacto"><span>Fermín Monge</span><span class="c-q">presidente</span></div>
+          <div class="contacto"><span>Toñi Cárdenas</span><span class="c-q">vecina · comisión de obras</span></div>
+        </div>
+      </div>
+
+      <div class="caja frame">
+        <div class="f-cab">
+          <div class="titulo">Cierre</div>
+          <div class="nota">Se sale de aquí cuando el dinero está en cuenta — y eso abre el área de proyecto</div>
+        </div>
+
+        <div class="sali" style="margin-bottom:14px">
+          <div class="t">Sali</div>
+          <p>Firmada el 18/11 y verificada. <b>El primer pago lleva 12 días sin llegar</b> y el comercial no cobra hasta que entre. Beatriz dijo que lo pasaba a contabilidad el día 20.</p>
+        </div>
+
+        <div class="dos">
+          <div>
+            <div class="caja" style="padding:12px 14px">
+              <div class="titulo" style="font-size:13px">Han dicho que SÍ</div>
+              <div style="margin-top:8px">
+                <div class="fila"><span class="f">18/11/2026</span><span class="e"><span class="pieza">Firmada</span></span><span class="d">hoja v2 · verificada</span><span class="a">ver</span></div>
+                <div class="fila"><span class="f">—</span><span class="e"><span class="pieza">Sin cobrar</span></span><span class="d">primer pago · 3.360 €</span><span class="a">apuntar cobro</span></div>
+              </div>
+            </div>
+
+            <div class="caja" style="padding:12px 14px;margin-top:14px">
+              <div class="titulo" style="font-size:13px">Si hubieran dicho que NO</div>
+              <div class="nota" style="margin-top:6px">Este trozo es el que aparece cuando la decisión es negativa</div>
+              <div style="margin-top:10px">
+                <div class="rotulo">Por qué no</div>
+                <div class="hueco" style="height:34px;margin-top:4px">no hay dinero · eligen otro arquitecto · no lo ven necesario · …</div>
+              </div>
+              <div style="margin-top:10px">
+                <div class="rotulo">Y entonces qué hacemos</div>
+                <div class="hueco" style="height:34px;margin-top:4px">volver a llamar en 6 meses · avisar si sale subvención · nada</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="rotulo" style="margin-bottom:8px">Lo que va pasando</div>
+            <div class="caja" style="padding:12px 14px">
+              <div style="font-size:12px;color:#9a9a9a">18/11 · correo · Beatriz Martínez</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:3px">Nos devuelve la hoja firmada. Tacharon el precio a boli y pusieron el acordado.</div>
+            </div>
+            <div class="hueco" style="height:76px;margin-top:10px">Grabar una entrada</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
