@@ -194,3 +194,139 @@ export function QueContratan({
     </form>
   );
 }
+
+// ------------------------------------------------------- la serie de intentos
+
+/** EL PATRON QUE SE REPITE (Monica, 29-sep-2026).
+ *
+ *  Hay dos clases de cosa en esta pantalla y mezclarlas es lo que la hacia
+ *  farragosa:
+ *
+ *    - LAS FASES: diez casillas, una de cada, en linea. Dicen POR DONDE VA.
+ *    - LAS COSAS CON VIDA PROPIA: la junta, la hoja de encargo, la viabilidad,
+ *      el 3D. De cada una puede haber VARIAS, con su fecha y su estado, y se
+ *      rehacen. Dicen QUE HAY Y COMO ESTA.
+ *
+ *  Una casilla solo sabe hecho / no hecho. Debajo de la casilla "junta" caben
+ *  tres juntas: la que se aplazo, la que pidio mas presupuestos y la que salio
+ *  favorable. Toda esa historia -los dos plantones- se perderia si solo se
+ *  guardara la ultima. Y es informacion de venta.
+ *
+ *  UN INTENTO = UNA LINEA. Por eso cabe: tres juntas son tres lineas.
+ *  Y se dibuja IGUAL para las cuatro, asi que se aprende una vez. */
+export function Serie({
+  titulo,
+  pie,
+  intentos,
+  estados,
+  guardar,
+  vacio,
+}: {
+  titulo: string;
+  pie: string;
+  intentos: {
+    id: string;
+    fecha: string | null;
+    estado: string | null;
+    detalle: string | null;
+    marca: boolean;
+    marcaTexto: string;
+  }[];
+  estados: readonly { valor: string; texto: string }[];
+  /** null = uno nuevo. */
+  guardar: (id: string | null, fd: FormData) => Promise<void>;
+  vacio: string;
+}) {
+  const [abierto, setAbierto] = useState<string | null>(null);
+  const dd = (f: string | null) => (f ? f.split("-").reverse().join("/") : "sin fecha");
+
+  return (
+    <section className={CAJA + " p-4"}>
+      <Titulo extra={<span className="text-[11px] text-carbon/50">{pie}</span>}>{titulo}</Titulo>
+
+      {intentos.length === 0 ? (
+        <p className="py-2 text-[13px] text-carbon/50">{vacio}</p>
+      ) : (
+        <ol className="mb-3">
+          {intentos.map((i, n) => (
+            <li key={i.id} className="border-t border-black/5 first:border-t-0">
+              {/* Una linea. Lo de dentro solo se abre si se toca. */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                <span className="w-5 shrink-0 text-[12px] font-bold tabular-nums text-carbon/35">{n + 1}</span>
+                <span className="w-[92px] shrink-0 text-[13px] font-semibold tabular-nums text-carbon">{dd(i.fecha)}</span>
+                <span className="shrink-0 rounded-full border border-black/10 bg-hueso px-2 py-0.5 text-[11px] font-bold uppercase text-carbon/70">
+                  {estados.find((e) => e.valor === i.estado)?.texto ?? "—"}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-[13px] text-carbon/65">{i.detalle ?? ""}</span>
+                <span className="w-[72px] shrink-0 text-right">
+                  {i.marca && (
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold uppercase text-amber-700">
+                      {i.marcaTexto}
+                    </span>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAbierto(abierto === i.id ? null : i.id)}
+                  className="w-[52px] shrink-0 text-right text-[11px] font-semibold text-[#2B6CB0] hover:underline"
+                >
+                  {abierto === i.id ? "cerrar" : "cambiar"}
+                </button>
+              </div>
+              {abierto === i.id && (
+                <form action={guardar.bind(null, i.id)} className="pb-3 pl-8">
+                  <Campos estados={estados} v={i} />
+                </form>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      {/* Y otro mas. Aplazada, piden mas presupuestos, vuelven a votar. */}
+      <details>
+        <summary className="cursor-pointer list-none text-[12px] font-bold uppercase tracking-wide text-[#2B6CB0]">
+          + Añadir otra
+        </summary>
+        <form action={guardar.bind(null, null)} className="mt-2">
+          <Campos estados={estados} v={null} />
+        </form>
+      </details>
+    </section>
+  );
+}
+
+function Campos({
+  estados,
+  v,
+}: {
+  estados: readonly { valor: string; texto: string }[];
+  v: { fecha: string | null; estado: string | null; detalle: string | null; marca: boolean } | null;
+}) {
+  return (
+    <div className="flex flex-wrap items-end gap-3">
+      <label className="block w-[145px]">
+        <span className={ROTULO}>Cuándo</span>
+        <input type="date" name="fecha" defaultValue={v?.fecha ?? ""} className={CAMPO + " mt-1"} />
+      </label>
+      <label className="block w-[210px]">
+        <span className={ROTULO}>Cómo salió</span>
+        <select name="resultado" defaultValue={v?.estado ?? "pendiente"} className={CAMPO + " mt-1"}>
+          {estados.map((e) => (
+            <option key={e.valor} value={e.valor}>{e.texto}</option>
+          ))}
+        </select>
+      </label>
+      <label className="block min-w-[240px] flex-1">
+        <span className={ROTULO}>Qué pasó exactamente</span>
+        <input name="detalle" defaultValue={v?.detalle ?? ""} className={CAMPO + " mt-1"} />
+      </label>
+      <label className="flex h-[34px] cursor-pointer items-center gap-2">
+        <input type="checkbox" name="seguimiento" defaultChecked={v?.marca ?? false} className="size-4 accent-[#237812]" />
+        <span className="text-[13px] text-carbon">Perseguirla</span>
+      </label>
+      <input type="hidden" name="celebrada" value="" />
+      <button className={BOTON}>Guardar</button>
+    </div>
+  );
+}

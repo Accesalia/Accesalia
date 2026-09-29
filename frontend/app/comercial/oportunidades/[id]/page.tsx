@@ -13,7 +13,7 @@ import {
 import { COMO_FUE } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionAplazar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
-import { Fase, QueContratan, Titulo } from "./Piezas";
+import { Fase, QueContratan, Serie, Titulo } from "./Piezas";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -168,7 +168,7 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
               </div>
             </form>
 
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="flex flex-col gap-5">
               {/* ------------------------- 5 · el 3D ------------------------- */}
               <form action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
                 <Titulo>El 3D</Titulo>
@@ -209,41 +209,25 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
                 </div>
               </form>
 
-              {/* ------------------------ 6 · la junta ------------------------ */}
-              <form action={accionJunta.bind(null, id, g.junta?.id ?? null)} className={CAJA + " p-4"}>
-                <Titulo>La junta</Titulo>
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-end gap-3">
-                    <label className="block flex-1">
-                      <span className={ROTULO}>Cuándo</span>
-                      <input type="date" name="fecha" defaultValue={g.junta?.fecha ?? ""} className={CAMPO + " mt-1"} />
-                    </label>
-                    <label className="flex h-[34px] cursor-pointer items-center gap-2">
-                      <input type="checkbox" name="celebrada" defaultChecked={g.junta?.celebrada ?? false} className="size-4 accent-[#237812]" />
-                      <span className="text-[13px] text-carbon">Ya se celebró</span>
-                    </label>
-                  </div>
-                  <label className="block">
-                    <span className={ROTULO}>Cómo salió</span>
-                    <select name="resultado" defaultValue={g.junta?.resultado ?? "pendiente"} className={CAMPO + " mt-1"}>
-                      {RESULTADOS_JUNTA.map((r) => (
-                        <option key={r.valor} value={r.valor}>{r.texto}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className={ROTULO}>Qué pasó exactamente</span>
-                    <input name="detalle" defaultValue={g.junta?.detalle ?? ""} className={CAMPO + " mt-1"} />
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <input type="checkbox" name="seguimiento" defaultChecked={g.junta?.seguimiento ?? false} className="size-4 accent-[#237812]" />
-                    <span className="text-[13px] text-carbon">Hay que perseguirla</span>
-                  </label>
-                </div>
-                <div className="mt-3 flex justify-end">
-                  <button className={BOTON}>Guardar</button>
-                </div>
-              </form>
+              {/* ------------------------ 6 · las juntas ------------------------
+                  SERIE, no ficha: una junta se aplaza, piden mas presupuestos y
+                  se vuelve a votar. "Ya nos han dado planton dos veces" es
+                  informacion de venta, y guardando solo la ultima se pierde. */}
+              <Serie
+                titulo="Las juntas"
+                pie="Una línea por junta: se aplazan, se repiten"
+                vacio="Todavía no hay ninguna junta apuntada."
+                estados={RESULTADOS_JUNTA}
+                guardar={accionJunta.bind(null, id)}
+                intentos={g.juntas.map((x) => ({
+                  id: x.id,
+                  fecha: x.fecha,
+                  estado: x.resultado,
+                  detalle: x.detalle,
+                  marca: x.seguimiento,
+                  marcaTexto: "perseguir",
+                }))}
+              />
             </div>
           </div>
 

@@ -87,6 +87,15 @@ export type HitoGestion = {
 
 export type TipoGestion = { id: string; clave: string; nombre: string; padre: string | null; contratable: boolean };
 
+export type JuntaGestion = {
+  id: string;
+  fecha: string | null;
+  celebrada: boolean;
+  resultado: string | null;
+  detalle: string | null;
+  seguimiento: boolean;
+};
+
 export type EntradaOportunidad = { id: string; fecha: string; comoFue: string; texto: string; con: string | null };
 
 export type Gestion = {
@@ -104,14 +113,10 @@ export type Gestion = {
   tiposElegidos: string[];
   negociacion: { queVendemos: string | null; precio: number | null; alcance: string | null; notas: string | null } | null;
   tresD: { tipo: string | null; estado: string | null; fechaNecesaria: string | null; fechaEntrega: string | null } | null;
-  junta: {
-    id: string;
-    fecha: string | null;
-    celebrada: boolean;
-    resultado: string | null;
-    detalle: string | null;
-    seguimiento: boolean;
-  } | null;
+  /** LA SERIE. Una junta no es un dato, es una historia: se aplaza, piden mas
+   *  presupuestos, se vuelve a votar. "Esta comunidad ya nos ha dado planton dos
+   *  veces" es informacion de venta, y guardando solo la ultima se pierde. */
+  juntas: JuntaGestion[];
   diario: EntradaOportunidad[];
 };
 
@@ -180,7 +185,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     leer<
       { id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; resultado_detalle: string | null; requiere_seguimiento: boolean }[]
     >(
-      `juntas?select=id,fecha_junta,celebrada,resultado,resultado_detalle,requiere_seguimiento&oportunidad_id=eq.${id}&order=creado_en.desc&limit=1`,
+      `juntas?select=id,fecha_junta,celebrada,resultado,resultado_detalle,requiere_seguimiento&oportunidad_id=eq.${id}&order=fecha_junta.asc.nullslast,creado_en.asc`,
     ),
     leer<
       { id: string; fecha_evento: string | null; creado_en: string; origen: string; transcripcion: string | null; puesto: { persona: { nombre: string } | null } | null }[]
@@ -227,16 +232,14 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     tresD: tres[0]
       ? { tipo: tres[0].tipo_3d, estado: tres[0].estado, fechaNecesaria: tres[0].fecha_necesaria, fechaEntrega: tres[0].fecha_entrega }
       : null,
-    junta: juntas[0]
-      ? {
-          id: juntas[0].id,
-          fecha: juntas[0].fecha_junta,
-          celebrada: juntas[0].celebrada,
-          resultado: juntas[0].resultado,
-          detalle: juntas[0].resultado_detalle,
-          seguimiento: juntas[0].requiere_seguimiento,
-        }
-      : null,
+    juntas: juntas.map((j) => ({
+      id: j.id,
+      fecha: j.fecha_junta,
+      celebrada: j.celebrada,
+      resultado: j.resultado,
+      detalle: j.resultado_detalle,
+      seguimiento: j.requiere_seguimiento,
+    })),
     diario: entradas.map((e) => ({
       id: e.id,
       fecha: e.fecha_evento ?? e.creado_en.slice(0, 10),
@@ -361,4 +364,5 @@ export async function aplazar(oportunidadId: string, nota: string | null) {
 export async function reactivar(oportunidadId: string) {
   await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "activa" });
 }
+
 
