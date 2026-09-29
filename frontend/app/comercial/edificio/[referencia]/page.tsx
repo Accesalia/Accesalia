@@ -38,6 +38,21 @@ const TONO: Record<string, { marco: string; punto: string; rotulo: string }> = {
 };
 const NOMBRE_TONO: Record<string, string> = { favor: "a favor", ojo: "ojo", dato: "contexto" };
 
+/** La diana. Las dos imagenes se piden CENTRADAS en el centroide de la parcela,
+ *  asi que el edificio esta exactamente en el medio. Sin marcarlo no hay manera
+ *  de saber cual es, que era justo lo que fallaba. */
+function Diana({ nota }: { nota: string }) {
+  return (
+    <>
+      <span className="pointer-events-none absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#FF2D2D] shadow-[0_0_0_2px_rgba(255,255,255,.9)]" />
+      <span className="pointer-events-none absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FF2D2D] shadow-[0_0_0_2px_rgba(255,255,255,.9)]" />
+      <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-carbon">
+        {nota}
+      </span>
+    </>
+  );
+}
+
 export default async function Edificio({
   params,
   searchParams,
@@ -110,9 +125,10 @@ export default async function Edificio({
                 Cartografía catastral: la parcela, los patios, las plantas de cada cuerpo y las escaleras rotuladas.
               </p>
             </div>
-            <div className="mt-3 aspect-square w-full bg-hueso">
+            <div className="relative mt-3 aspect-square w-full bg-hueso">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {i.croquis ? <img src={i.croquis} alt="Croquis catastral" className="h-full w-full object-cover" /> : null}
+              {i.croquis && <Diana nota="Este edificio" />}
             </div>
           </section>
 
@@ -123,9 +139,10 @@ export default async function Edificio({
                 <b>Mira la azotea:</b> si hay casetón, hay ascensor. Si no lo hay, no lo tienen.
               </p>
             </div>
-            <div className="mt-3 aspect-square w-full bg-hueso">
+            <div className="relative mt-3 aspect-square w-full bg-hueso">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {i.aerea ? <img src={i.aerea} alt="Ortofoto del edificio" className="h-full w-full object-cover" /> : null}
+              {i.aerea && <Diana nota="Este edificio" />}
             </div>
           </section>
         </div>
