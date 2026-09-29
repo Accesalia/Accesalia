@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { informeEdificio } from "../../../../lib/informeEdificio";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
@@ -65,8 +65,54 @@ export default async function Edificio({
   const yo = (await quienSoy()) ?? ({ id: "mirar", veTodo: true, areas: {} } as never);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const i = await informeEdificio(referencia, { refrescar: refrescar === "1" });
-  if (!i) notFound();
+  // Una pantalla NO SE CAE porque un servicio de fuera este de mal humor. Si
+  // Catastro no contesta se dice, y ya esta: caerse obliga a adivinar.
+  let i = null;
+  let seRompio: string | null = null;
+  try {
+    i = await informeEdificio(referencia, { refrescar: refrescar === "1" });
+  } catch (e) {
+    seRompio = e instanceof Error ? e.message : String(e);
+  }
+
+  if (!i)
+    return (
+      <div className="min-h-screen">
+        <BarraSuperior />
+        <main className="mx-auto w-full max-w-[820px] px-6 pb-16 pt-5">
+          <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+            ← Área comercial
+          </Link>
+          <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
+            <h1 className="text-[18px] font-bold text-amber-900">
+              {seRompio ? "Catastro no contesta ahora mismo" : "No hay ninguna finca con esa referencia"}
+            </h1>
+            <p className="mt-2 text-[14px] leading-relaxed text-amber-900/90">
+              {seRompio ? (
+                <>
+                  Es un servicio público y a veces corta la conexión cuando se le pregunta mucho seguido. Vuelve a
+                  intentarlo en un minuto: no se ha perdido nada.
+                </>
+              ) : (
+                <>
+                  La referencia <b>{referencia}</b> no existe en Catastro, o está mal copiada. Tiene que tener 14
+                  caracteres.
+                </>
+              )}
+            </p>
+            {seRompio && <p className="mt-3 text-[12px] text-amber-900/70">Lo que dijo exactamente: {seRompio}</p>}
+            <div className="mt-4">
+              <Link
+                href={`/comercial/edificio/${referencia}?refrescar=1`}
+                className="inline-flex h-[32px] items-center rounded-[6px] border border-[#223A5D] bg-[#5680A1] px-3.5 text-[12px] font-bold uppercase text-white transition hover:bg-[#46769c]"
+              >
+                Volver a intentarlo
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
 
   const cual = vista === "informe" ? "informe" : vista === "resultados" ? "resultados" : "ficha";
   const solapa = (v: string, texto: string) => (

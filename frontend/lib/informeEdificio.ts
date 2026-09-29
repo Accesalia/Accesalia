@@ -99,10 +99,10 @@ const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Catastro CORTA LA CONEXION si se le pregunta muy seguido: es lo que hacia que
  *  fallaran la finca y las coordenadas mientras la primera llamada iba bien. Asi
  *  que van una detras de otra, con pausa, y con un reintento. */
-async function conCalma<T>(que: () => Promise<T>, reintentos = 2): Promise<T> {
+async function conCalma<T>(que: () => Promise<T>, reintentos = 1): Promise<T> {
   let ultimo: unknown;
   for (let n = 0; n <= reintentos; n++) {
-    if (n > 0) await espera(700 * n);
+    if (n > 0) await espera(900);
     try {
       return await que();
     } catch (e) {
@@ -475,7 +475,7 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
   let suelo: number | null = null;
   const rc0 = rcDe(primero);
   if (rc0?.car) {
-    await espera(350);
+    await espera(250);
     try {
       const d2 = (await conCalma(() =>
         jsonDe(`${CALL}/Consulta_DNPRC?Provincia=&Municipio=&RefCat=${ref}${rc0.car}${rc0.cc1 ?? ""}${rc0.cc2 ?? ""}`),
@@ -493,11 +493,11 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
 
   let lat: number | null = null, lng: number | null = null, utmX: number | null = null, utmY: number | null = null;
   try {
-    await espera(350);
+    await espera(250);
     const g = await conCalma(() => textoDe(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:4326&RC=${ref}`));
     lng = Number(/<xcen>([^<]+)/.exec(g)?.[1]);
     lat = Number(/<ycen>([^<]+)/.exec(g)?.[1]);
-    await espera(350);
+    await espera(250);
     const u = await conCalma(() => textoDe(`${COOR}/Consulta_CPMRC?Provincia=&Municipio=&SRS=EPSG:25830&RC=${ref}`));
     utmX = Number(/<xcen>([^<]+)/.exec(u)?.[1]);
     utmY = Number(/<ycen>([^<]+)/.exec(u)?.[1]);
