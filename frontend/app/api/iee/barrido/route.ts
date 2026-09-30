@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { barrer } from "../../../../lib/registroIEE";
 import { vigilarAlertasIEE } from "../../../../lib/alertasIEE";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { esElReloj } from "../../../../lib/reloj";
+import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
 // EL BARRIDO DEL REGISTRO DE IEE.
 //
@@ -20,6 +20,8 @@ import { esElReloj } from "../../../../lib/reloj";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
+
+const TAREA = "iee_barrido";
 
 async function permitido(req: Request): Promise<boolean> {
   if (esElReloj(req)) return true;
@@ -42,15 +44,25 @@ export async function GET(req: Request) {
   const haciaAtras = Number(q.get("atras"));
   const atras = Number.isFinite(haciaAtras) && haciaAtras > 0 ? Math.min(haciaAtras, 200) : 0;
 
+  const empezada = Date.now();
+  const quien = esElReloj(req) ? "reloj" : "persona";
   try {
     const barrido = await barrer({ maximo, atras });
     // Y de paso la vigilancia: engancha las que ya tienen oportunidad y
     // pregunta por las que llevan demasiado tiempo paradas. Va aqui y no en su
     // propio reloj porque es el mismo momento del dia y el mismo asunto.
     const vigilancia = await vigilarAlertasIEE();
-    return NextResponse.json({ ok: true, ...barrido, vigilancia });
+    const hecho = { ...barrido, vigilancia };
+    // El resumen en una linea, para poder leer la tabla sin abrir el detalle.
+    const dice =
+      `${barrido.desfavorables} desfavorables de ${barrido.encontrados} leidas` +
+      (barrido.falloAviso ? ` · aviso: ${barrido.falloAviso}` : "");
+    await apuntarPasada({ tarea: TAREA, empezada, ok: !barrido.falloAviso, dice, detalle: hecho, quien });
+    return NextResponse.json({ ok: true, ...hecho });
   } catch (e) {
-    return NextResponse.json({ ok: false, dice: e instanceof Error ? e.message : String(e) }, { status: 200 });
+    const dice = e instanceof Error ? e.message : String(e);
+    await apuntarPasada({ tarea: TAREA, empezada, ok: false, dice, quien });
+    return NextResponse.json({ ok: false, dice }, { status: 200 });
   }
 }
 

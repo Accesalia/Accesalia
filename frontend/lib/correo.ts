@@ -25,6 +25,7 @@ export type Area =
   | "gerencia"
   | "facturacion"
   | "tecnicos"
+  | "licencias"
   | "daniel";
 
 // El nombre es lo que lee en su bandeja quien recibe el correo, antes de abrirlo.
@@ -37,6 +38,7 @@ const BUZONES: Record<Area, { direccion: string; nombre: string }> = {
   gerencia: { direccion: "gerencia.accesalia@gmail.com", nombre: "Accesalia · Gerencia" },
   facturacion: { direccion: "facturacion.accesalia@gmail.com", nombre: "Accesalia · Facturación" },
   tecnicos: { direccion: "tecnicos.accesalia@gmail.com", nombre: "Accesalia · Técnicos" },
+  licencias: { direccion: "licencias.accesalia@gmail.com", nombre: "Accesalia · Licencias" },
   // No es el correo de trabajo de Daniel: se creo para el CRM, es funcional
   // como los demas. Lo usa la agenda.
   daniel: { direccion: "daniel.accesalia@gmail.com", nombre: "Accesalia · Daniel" },
@@ -46,7 +48,7 @@ const BUZONES: Record<Area, { direccion: string; nombre: string }> = {
 // vistazo que variable hace falta para cada area, y no depende de que el
 // empaquetado sepa resolver un nombre calculado.
 //
-// facturacion y tecnicos son de hoy (30-sep): sus claves puede que todavia no
+// facturacion, tecnicos y licencias son de hoy (30-sep): sus claves puede que todavia no
 // esten en Vercel. No pasa nada -el area se queda "sin configurar" y se dice en
 // pantalla-, pero el nombre de la variable tiene que ser EXACTAMENTE el de aqui.
 const CLAVES: Record<Area, string | undefined> = {
@@ -57,6 +59,7 @@ const CLAVES: Record<Area, string | undefined> = {
   gerencia: process.env.GMAIL_GERENCIA,
   facturacion: process.env.GMAIL_FACTURACION,
   tecnicos: process.env.GMAIL_TECNICOS,
+  licencias: process.env.GMAIL_LICENCIAS,
   daniel: process.env.GMAIL_DANIEL,
 };
 

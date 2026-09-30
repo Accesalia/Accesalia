@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { completarTanda, cuantasQuedan } from "../../../../lib/completarCatastro";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { esElReloj } from "../../../../lib/reloj";
+import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
 // COMPLETAR LAS COMUNIDADES CONTRA CATASTRO, A TANDAS.
 //
@@ -20,6 +20,8 @@ import { esElReloj } from "../../../../lib/reloj";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
+
+const TAREA = "comunidades_catastro";
 
 async function permitido(req: Request): Promise<boolean> {
   if (esElReloj(req)) return true;
@@ -48,9 +50,15 @@ export async function POST(req: Request) {
   const pedido = Number(new URL(req.url).searchParams.get("cuantas"));
   const cuantas = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 120) : 40;
 
+  const empezada = Date.now();
+  const quien = esElReloj(req) ? "reloj" : "persona";
   try {
-    return NextResponse.json({ ok: true, ...(await completarTanda(cuantas)) });
+    const hecho = await completarTanda(cuantas);
+    await apuntarPasada({ tarea: TAREA, empezada, ok: true, detalle: hecho, quien });
+    return NextResponse.json({ ok: true, ...hecho });
   } catch (e) {
-    return NextResponse.json({ ok: false, dice: e instanceof Error ? e.message : String(e) }, { status: 200 });
+    const dice = e instanceof Error ? e.message : String(e);
+    await apuntarPasada({ tarea: TAREA, empezada, ok: false, dice, quien });
+    return NextResponse.json({ ok: false, dice }, { status: 200 });
   }
 }
