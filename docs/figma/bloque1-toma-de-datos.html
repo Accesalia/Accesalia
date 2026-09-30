@@ -53,7 +53,7 @@ h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3
 .ct .q{color:#7a7a7a;font-size:11px}
 
 /* ---- la franja: escaneo · casillas · escaneo ---- */
-.franja{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
+.franja{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;background:#fff;
         border:1px solid #d9d9d9;border-radius:10px;padding:8px 13px;margin-bottom:12px}
 .cas{display:flex;gap:24px;justify-content:center}
 .cas span{font-size:12.5px;display:flex;align-items:center;gap:7px}
@@ -85,11 +85,19 @@ h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3
 /* ---- izquierda: FICHA, apretada ---- */
 .grupo{margin-bottom:10px}
 .grupo:last-child{margin-bottom:0}
-.grupo{background:#EFEDED;border-radius:8px;padding:7px 9px}
+.grupo{padding:0}
+/* LA BANDA DEL TITULO. Cada subtitulo lleva el color de SU tarjeta -azul lo del
+   Catastro, rojo lo que condiciona, verde lo que se puede pedir-, en un tinte
+   flojo con el borde a todo color. Asi se sabe de que familia es cada bloque
+   sin leerlo. Idea de Monica, y sustituye al gris que tenian los grupos. */
 .grupo h4{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#1c1c1c;
-          border-bottom:1px solid #d7d5d5;padding-bottom:3px;margin-bottom:5px}
-.grupo.nuestro{background:#E4EED9}
-.grupo.nuestro h4{font-size:12px;text-decoration:underline;border-bottom:0}
+          background:#E3EAF0;border:1px solid #104269;border-radius:5px;
+          padding:3px 7px;margin-bottom:6px}
+.card.hacer .sub2 h5{background:#F7EAEA;border:1px solid #820707}
+.card.pedir .sub2 h5{background:#E9F3EC;border:1px solid #0C8124}
+.card .sub2 h5{border-radius:5px;padding:3px 7px;margin-bottom:6px}
+.grupo.nuestro{background:#E4EED9;border-radius:8px;padding:7px 9px}
+.grupo.nuestro h4{font-size:12px;text-decoration:underline;background:none;border:0;padding:0}
 .par2{display:grid;grid-template-columns:max-content 1fr;gap:1px 9px;font-size:12px;align-items:baseline}
 .par2 .k{color:#6e6e6e;white-space:nowrap}
 .par2 .v{font-weight:600}
@@ -233,7 +241,7 @@ h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3
     <div class="hueca" style="margin-top:8px;height:42px">Grabar una entrada</div>
    </div>
 
-   <div class="caja" style="grid-column:1 / span 2;margin-top:2px">
+   <div class="caja" style="grid-column:2 / span 2;margin-top:2px">
   <div style="display:flex;justify-content:space-between;align-items:baseline">
    <div class="rot">Subvenciones ya concedidas a menos de 800 m</div>
    <div style="font-size:13px"><b>2.782.212 €</b> <span class="firma">en 10 obras</span></div>
