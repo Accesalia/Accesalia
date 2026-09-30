@@ -154,6 +154,51 @@ presidente ni acta.
 
 ---
 
+## 4 bis. Las tres patas, y la que no se puede automatizar
+
+| | qué aporta | ¿automatizable? |
+|---|---|---|
+| **Catastro** | **el edificio**: parcela, accesos, inmuebles, año, superficie, uso, coeficiente | **sí**, por API y gratis |
+| **la ley (LPH)** | **las formas posibles**: comunidad / subcomunidad / complejo inmobiliario, y cómo anidan | es vocabulario y reglas, no datos |
+| **el campo** | **qué órgano existe aquí de verdad, y quién lo preside** | **no. Nunca.** |
+
+### Resultado negativo, probado: Catastro NO revela las subcomunidades
+
+Se probó si los coeficientes de participación sumaban 100 **por escalera** — lo que
+habría significado que Catastro refleja la división del título constitutivo y nos dice
+dónde están las subcomunidades. **No es así: suman 100 por PARCELA.**
+
+```
+PICO CEJO 55            100.000      ETRURIA + LUCANO    100.100
+MARCENADO               100.080      AV ALBUFERA 250     100.190
+LAS FLORES 79-81         96.010      PALMAS DE LAS 43      9.920  <- excepcion
+```
+
+Catastro refleja **una sola división horizontal por parcela**. La estructura de
+órganos **no se puede deducir de ningún dato público**: está en el título constitutivo
+o la sabe el administrador. Es dato que aporta el comercial, y no hay atajo.
+
+**Y eso convierte el alta en una confirmación, no en un formulario.** Catastro dice
+"aquí hay 9 accesos" y al comercial se le hace UNA pregunta: *¿esto es una comunidad,
+nueve subcomunidades, o una mancomunidad de nueve?* El resto lo rellena Catastro.
+
+**Aviso: no hacer aritmética con el coeficiente sin comprobarlo.** Palmas de Las 43
+suma 9,92 y Las Flores 96,01.
+
+### Y un hallazgo sobre Marcenado que confirma el átomo
+
+La parcela `0158902VK4705G` **no es "Marcenado 1"**: son **300 fincas** que abarcan
+Marcenado **1, 2 y 4** más **Acuerdo 34**, con **20 accesos** y escaleras de la A a la
+K. La escalera **C aparece dos veces**, en Marcenado 1 y en Marcenado 2.
+
+> **La escalera sola no identifica nada.** Hacen falta los tres: calle, número y
+> escalera.
+
+Y la referencia escrita el 30-sep para las tres filas de Marcenado es correcta pero
+**gruesa**: apunta a la manzana entera, no a su escalera.
+
+---
+
 ## 5. Los invariantes
 
 Estas reglas sostienen el modelo, y ninguna necesita un "suele":
