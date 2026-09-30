@@ -364,6 +364,50 @@ necesito?" se contesta contando, en un único sitio, sin excepciones que recorda
 
 ---
 
+## 8 bis. Lo que ya está construido (1-oct-2026)
+
+**`accesos_comunidad`** — 1.244 filas: 1.218 principales (una por comunidad con
+referencia) y 26 accesos adicionales. Generada de lo que ya estaba escrito, sin teclear
+un dato.
+
+> **OJO CON EL NOMBRE DE LA TABLA.** Aviso de Mónica: *"pon en algún sitio que lo de
+> accesos viene porque son accesos a la calle y son los que determinan la unidad, si no
+> en dos semanas alguien verá ese nombre y creerá que es una tabla de cosas técnicas."*
+> En un estudio de accesibilidad «acceso» suena a rampa o a ascensor. **Aquí un acceso
+> es un portal: una escalera con su puerta a la calle.** Está escrito en el `comment on
+> table` para quien la abra.
+
+**Mancomunidad / comunidad / subcomunidad: no son tres tablas, son la misma.** Viven en
+`comunidades` con dos columnas nuevas, porque por la definición de Mónica los tres **son
+comunidades** — todos tienen presidente y junta que vota. Como abuela, madre e hija están
+en la tabla de personas.
+
+| columna | qué contesta | de dónde sale |
+|---|---|---|
+| `figura` | **qué generación eres**: mancomunidad / comunidad / subcomunidad | el título constitutivo, lo sabe el administrador |
+| `parte_de_id` | **quién es tu madre** | la estructura; puede faltar |
+
+No es duplicar: `figura` se puede saber **antes** de tener la fila de la madre, y cuando
+las dos no cuadran eso también informa («dice que es subcomunidad y no sabemos de quién»).
+
+**El candado que aún no se puede activar:** `(municipio, tipo_via, nombre_via, numero,
+escalera)` debería ser único, porque un acceso pertenece a un solo órgano. Hoy hay filas
+que comparten acceso porque la misma escalera se metió como varias comunidades (AV ANGELES
+6 y AV ANGELES 6 LEGANES, las cuatro de NÉCTAR 31, las tres de MARCENADO). **La lista de
+choques es la lista de fusiones pendientes**, y esas son decisión de Mónica.
+
+**Y un error que casi cometemos:** `cotejo_catastro.candidatos` estaba haciendo **dos
+trabajos** sin nada que los distinguiera — 26 eran «los otros accesos que también son
+míos» y 164 «los portales hermanos entre los que elegí». Av España 35 de Majadahonda lo
+enseña: tiene 8 portales y las filas `35-2` y `35-6` guardan las ocho cada una. Una carga
+a ciegas habría metido 164 accesos en la comunidad equivocada. Es el síntoma exacto de la
+tabla que faltaba: **un campo de notas acabando con dos significados dentro.**
+
+**De rebote, un filón comercial:** de esos 164 hermanos, **99 no son clientes**. Son
+portales de edificios donde ya se está trabajando con el vecino sin contratar.
+
+---
+
 ## 9. Lo que NO está decidido
 
 - **El órgano se crea siempre.** DECIDIDO por Mónica el 30-sep-2026.
