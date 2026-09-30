@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { completarTanda, cuantasQuedan } from "../../../../lib/completarCatastro";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { esElReloj } from "../../../../lib/reloj";
 
 // COMPLETAR LAS COMUNIDADES CONTRA CATASTRO, A TANDAS.
 //
@@ -21,7 +22,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 async function permitido(req: Request): Promise<boolean> {
-  if (req.headers.get("x-vercel-cron")) return true;
+  if (esElReloj(req)) return true;
   const yo = await quienSoy();
   // Esto reescribe la lista curada a mano de Monica: no lo lanza cualquiera.
   return !!yo && puedeEntrar(yo, "comercial", "supervisar");
@@ -30,7 +31,7 @@ async function permitido(req: Request): Promise<boolean> {
 export async function GET(req: Request) {
   if (!(await permitido(req))) return NextResponse.json({ error: "No." }, { status: 403 });
   // El reloj llama por GET, y para el reloj SI tiene que trabajar.
-  if (req.headers.get("x-vercel-cron")) return POST(req);
+  if (esElReloj(req)) return POST(req);
   // Y con ?hacer=1 tambien trabaja desde el navegador. Hace falta poder lanzarla
   // a mano Y VER QUE CONTESTA: esperar al reloj a ciegas no dice si va o no va.
   if (new URL(req.url).searchParams.get("hacer")) return POST(req);

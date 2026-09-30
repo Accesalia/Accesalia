@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { repasarBuzon } from "../../../../lib/buzonPolycam";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { esElReloj } from "../../../../lib/reloj";
 
 // REPASAR EL BUZON DEL POLYCAM.
 //
@@ -15,9 +16,8 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 async function permitido(req: Request): Promise<boolean> {
-  // El reloj de Vercel manda esta cabecera y nadie de fuera puede falsificarla:
-  // las peticiones de fuera que la traigan las descarta la propia plataforma.
-  if (req.headers.get("x-vercel-cron")) return true;
+  // Como se identifica el reloj, y por que no basta con una cabecera: lib/reloj.ts.
+  if (esElReloj(req)) return true;
   const yo = await quienSoy();
   return !!yo && puedeEntrar(yo, "comercial", "trabajar");
 }

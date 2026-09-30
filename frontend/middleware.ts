@@ -5,12 +5,19 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { esElReloj } from "./lib/reloj";
 
 // Lo que se ve sin haber entrado: la propia puerta y la vuelta del correo o de Google.
 const PUBLICO = ["/entrar", "/auth/"];
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
+
+  // EL RELOJ PASA. No tiene cookie de sesion porque no tiene navegador, y sin
+  // esta linea el guardian lo mandaba al login: los relojes se lanzaban
+  // puntuales y no ejecutaban nada. Se identifica por su cuenta -ver
+  // lib/reloj.ts- y cada ruta vuelve a comprobarlo por dentro.
+  if (esElReloj(req)) return res;
 
   // Sin las claves del login (produccion, hasta que se configure), el guardian
   // se aparta y la app sigue abierta como siempre. Nunca deja a nadie fuera

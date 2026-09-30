@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { barrer } from "../../../../lib/registroIEE";
 import { vigilarAlertasIEE } from "../../../../lib/alertasIEE";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { esElReloj } from "../../../../lib/reloj";
 
 // EL BARRIDO DEL REGISTRO DE IEE.
 //
@@ -21,7 +22,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 async function permitido(req: Request): Promise<boolean> {
-  if (req.headers.get("x-vercel-cron")) return true;
+  if (esElReloj(req)) return true;
   const yo = await quienSoy();
   return !!yo && puedeEntrar(yo, "comercial", "trabajar");
 }
