@@ -102,8 +102,18 @@ export async function asignarAlerta(formulario: FormData) {
   });
 
   const { asunto, texto, html } = plantilla(comercial.nombre, alerta);
+  // Sale del buzon del AREA COMERCIAL, no del correo de nadie. Y las respuestas
+  // vuelven a QUIEN HA REPARTIDO: el comercial lee "Accesalia - Comercial" y, si
+  // contesta "esa ya es mia", le llega a ella. Ver docs/correos.md.
   const salio = comercial.correo
-    ? await enviarCorreo({ para: comercial.correo, asunto, texto, html })
+    ? await enviarCorreo({
+        desde: "comercial",
+        para: comercial.correo,
+        responderA: yo.email,
+        asunto,
+        texto,
+        html,
+      })
     : { ok: false, dice: `${comercial.nombre} no tiene correo en su ficha de equipo` };
 
   await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(codigo)}`, {

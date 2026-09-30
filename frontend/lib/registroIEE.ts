@@ -396,6 +396,9 @@ export async function barrer({
         for (const q of para) {
           if (!q.correo) continue;
           const enviado = await enviarCorreo({
+            // El radar es del area comercial, asi que sale de su buzon. Aqui no
+            // hay "responder a": no lo manda una persona, lo manda el barrido.
+            desde: "comercial",
             para: q.correo,
             asunto: nuevasHoy > 0 ? `Radar: ${cabeza.toLowerCase()}` : "Radar: quedan IEE sin asignar",
             texto:

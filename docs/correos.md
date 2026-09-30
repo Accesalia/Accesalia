@@ -36,10 +36,21 @@ para el CRM.
 | subvenciones | `subvenciones.accesalia@gmail.com` | `GMAIL_SUBVENCIONES` | por decidir |
 | obras | `obras.accesalia@gmail.com` | `GMAIL_OBRAS` | por decidir |
 | gerencia | `gerencia.accesalia@gmail.com` | `GMAIL_GERENCIA` | por decidir |
+| facturación | `facturacion.accesalia@gmail.com` | `GMAIL_FACTURACION` | por decidir |
+| técnicos | `tecnicos.accesalia@gmail.com` | `GMAIL_TECNICOS` | por decidir |
 | Daniel | `daniel.accesalia@gmail.com` | `GMAIL_DANIEL` | su agenda |
 
-Las seis llaves están puestas en Vercel desde el 25-sep-2026. **No hay que
-crear ningún buzón nuevo ni pedirle nada a Ana** para que esto funcione.
+Las seis primeras llaves están puestas en Vercel desde el 25-sep-2026. Las de
+**facturación y técnicos se pidieron el 30-sep** porque Mónica cuenta con que
+sean las siguientes que necesiten mandar cosas; hasta que estén, esas dos áreas
+se quedan "sin configurar" y la app lo dice en pantalla en vez de callárselo.
+
+**El nombre de la variable tiene que coincidir exactamente** con el que espera
+`lib/correo.ts`. Una letra de diferencia es lo mismo que no existir.
+
+**Una variable nueva en Vercel no entra en funcionamiento hasta el siguiente
+despliegue.** El despliegue que está corriendo ve las variables que existían
+cuando se construyó. Después de añadir o cambiar una, hace falta un `push`.
 
 **Comercial tiene dos buzones a propósito**, y los dos motivos cuentan: el del
 Polycam recibe adjuntos que pesan, y lo lee una máquina cada diez minutos

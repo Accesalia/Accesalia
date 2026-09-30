@@ -9,7 +9,7 @@ import {
   radarPorDias,
   repartidas,
 } from "../../../lib/alertasIEE";
-import { correoConfigurado } from "../../../lib/correo";
+import { buzonListo } from "../../../lib/correo";
 import { Asignador, VolverAlMonton } from "./Piezas";
 
 export const dynamic = "force-dynamic";
@@ -108,17 +108,17 @@ export default async function AlertasIEE({
         </div>
 
         {/* Lo que no funciona se dice antes de que alguien lo descubra fallando. */}
-        {(!correoConfigurado() || sinCorreo.length > 0) && (
+        {(!buzonListo("comercial") || sinCorreo.length > 0) && (
           <div className="mt-4 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
-            {!correoConfigurado() && (
+            {!buzonListo("comercial") && (
               <p>
-                <b>El correo saliente todavía no está configurado.</b> Se puede asignar y queda
-                guardado, pero al comercial no le llegará el aviso por correo hasta que se ponga la
-                cuenta desde la que sale.
+                <b>El buzón del área comercial todavía no puede mandar correo.</b> Se puede asignar
+                y queda guardado, pero al comercial no le llegará el aviso hasta que esté puesta la
+                clave de <code>comercial.accesalia@gmail.com</code>.
               </p>
             )}
             {sinCorreo.length > 0 && (
-              <p className={correoConfigurado() ? "" : "mt-1.5"}>
+              <p className={buzonListo("comercial") ? "" : "mt-1.5"}>
                 Sin correo en su ficha de equipo, así que no se les puede escribir:{" "}
                 <b>{sinCorreo.join(", ")}</b>.
               </p>
