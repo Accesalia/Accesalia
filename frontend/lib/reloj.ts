@@ -70,3 +70,63 @@ export async function apuntarPasada(p: {
     // A proposito en silencio: ver arriba.
   }
 }
+
+// ============================================================================
+// LEER LO APUNTADO. Para la pantalla de control de /relojes.
+// ============================================================================
+
+export type Reloj = { tarea: string; nombre: string; cada: string; ruta: string };
+
+// LOS RELOJES SE DECLARAN AQUI, no se deducen de lo apuntado. La diferencia
+// importa: un reloj que NUNCA ha corrido no tiene ni una linea en la tabla, y si
+// la pantalla se hiciera solo con lo apuntado, ese reloj -el unico que de verdad
+// esta roto- seria el unico que no saldria. Es exactamente lo que paso el
+// 29-sep: tres relojes muertos y ninguna señal.
+export const RELOJES: Reloj[] = [
+  { tarea: "buzon_polycam", nombre: "Buzón del Polycam", cada: "cada 10 minutos", ruta: "/api/buzon/polycam" },
+  { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 7:15", ruta: "/api/iee/barrido" },
+  { tarea: "comunidades_catastro", nombre: "Rellenar Catastro", cada: "cada 5 minutos · temporal", ruta: "/api/comunidades/catastro" },
+];
+
+export type Pasada = {
+  id: number;
+  tarea: string;
+  empezada_en: string;
+  ms: number | null;
+  ok: boolean | null;
+  dice: string | null;
+  quien: string;
+};
+
+export async function ultimasPasadas(cuantas = 60): Promise<Pasada[]> {
+  if (!URL_BASE || !SECRETO) return [];
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/pasada_reloj` +
+      `?select=id,tarea,empezada_en,ms,ok,dice,quien&order=empezada_en.desc&limit=${cuantas}`,
+    { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
+  );
+  if (!r.ok) return [];
+  return (await r.json()) as Pasada[];
+}
+
+/** La ultima de cada reloj, para la foto de arriba. Se pide una a una y no de
+ *  golpe: con un solo `limit` alto, un reloj que corre cada 5 minutos tapa al
+ *  que corre una vez al dia y ese se queda sin ultima pasada. */
+export async function ultimaDeCadaReloj(): Promise<Record<string, Pasada | undefined>> {
+  const salida: Record<string, Pasada | undefined> = {};
+  if (!URL_BASE || !SECRETO) return salida;
+  await Promise.all(
+    RELOJES.map(async ({ tarea }) => {
+      const r = await fetch(
+        `${URL_BASE}/rest/v1/pasada_reloj` +
+          `?select=id,tarea,empezada_en,ms,ok,dice,quien&tarea=eq.${tarea}` +
+          `&order=empezada_en.desc&limit=1`,
+        { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
+      );
+      if (!r.ok) return;
+      const [p] = (await r.json()) as Pasada[];
+      salida[tarea] = p;
+    }),
+  );
+  return salida;
+}
