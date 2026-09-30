@@ -135,9 +135,22 @@ antes de que vayan en un contrato.*
 | letra | qué es | en la cartera |
 |---|---|---|
 | **H** | comunidad de propietarios (propiedad horizontal) | 522 |
-| **E** | comunidad de bienes — **normal en las antiguas**, no es un error | 41 |
+| **E** | comunidad de bienes — **bloquea subvenciones**, ver abajo | 41 |
 | A / B | sociedad anónima / limitada: **no son comunidades** | 4 |
-| — | `52118110H` en COBRE 18 TORREJÓN es un **DNI de persona**, no un CIF | 1 |
+| DNI | persona física: **vivienda unifamiliar** | 1 |
+
+**La E no es una curiosidad, es un problema operativo.** Palabras de Mónica:
+*"están en trámite de actualización precisamente porque tener E y no H les da
+problemas con las subvenciones."* Así que la letra del CIF es una **señal comercial**:
+una comunidad con `E` tiene un trámite pendiente **antes** de poder pedir la ayuda.
+Son 41 en la cartera, y es candidato claro a aviso en la app.
+
+**Y el cliente puede ser una persona física.** `52118110H` en COBRE 18 TORREJÓN está
+bien puesto: es la casa de una trabajadora de Accesalia, una vivienda unifamiliar a la
+que se le tramitó el proyecto para que pudiera acceder a la subvención. *"Es una
+anomalía, no nuestro trabajo habitual."* Pero el modelo tiene que admitirla **sin
+inventarle una junta falsa**: hay cliente, hay acceso y hay expediente, y no hay
+presidente ni acta.
 
 ---
 
@@ -223,12 +236,35 @@ falta el nivel de encima, que es más pequeño.
 
 ---
 
-## 8. Lo que NO está decidido
+## 8. Campo vacío o fila: la regla que resuelve el "y si no toca"
 
-- **¿El órgano se crea siempre, o solo cuando agrupa más de un acceso?** Crearlo
-  siempre es más limpio y más caro de arrancar; crearlo solo cuando agrupa deja dos
-  formas de decir lo mismo. *Recomendación: siempre*, para que "¿cuántos síes
-  necesito?" se conteste en un único sitio.
+Pregunta de Mónica: *"el modelo no sería esa tabla, pero con campos vacíos si no
+toca? una opp es algo así como un nombre descriptivo de un conjunto de datos donde
+algunos pueden ser null?"*
+
+Sí en la mitad, y la mitad que no es la importante:
+
+> **Un campo vacío dice "no hace falta". Nunca puede decir "hay tres".**
+
+- **`escalera` es un campo, y puede ir vacío.** Un acceso tiene cero o un nombre de
+  escalera. Pico Cejo 55 lo deja vacío y no cuesta nada. Su instinto es correcto: el
+  caso normal no debe pagar por el excepcional.
+- **Los accesos son filas, no campos.** Porque pueden ser 1, 3, 9 o 203, y eso no lo
+  dice ningún hueco. La diferencia entre columna y tabla no es si está vacía: es
+  **cuántas caben**.
+- **Y la oportunidad no es un saco de campos opcionales**: es un nombre descriptivo
+  (su etiqueta) **más el conjunto de accesos que cubre**. Ese conjunto puede tener un
+  solo elemento, y entonces es una fila. Igual de barato que una columna.
+
+**Por eso "crearlo siempre" sale gratis:** para las 1.176 comunidades de un solo
+acceso es exactamente una fila, con la escalera vacía. Y la pregunta "¿cuántos síes
+necesito?" se contesta contando, en un único sitio, sin excepciones que recordar.
+
+---
+
+## 9. Lo que NO está decidido
+
+- **El órgano se crea siempre.** DECIDIDO por Mónica el 30-sep-2026.
 - **El reparto histórico.** Qué filas de las 1.228 son en realidad accesos de un
   mismo órgano es decisión de Mónica, caso a caso. Las pistas están: mismo
   presidente + mismo CIF + mismo edificio. Pero **el mismo presidente no basta**:
