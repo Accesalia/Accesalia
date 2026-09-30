@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Bloque 1 · Toma de datos · esqueleto</title>
+<!--
+  ESQUELETO EN GRIS. Solo estructura: ni colores de marca, ni iconos, ni
+  florituras. Lienzo de 1440, que es el ancho real de la pantalla de Monica.
+  Lo que se dibuje aqui mide lo que va a medir de verdad.
+
+  Acordado con Monica el 30-sep-2026, en cinco vueltas:
+   - La cabecera va de lado a lado; el carril de bloques baja.
+   - Izquierda: FICHA apretada, "lo que dice el Catastro" (+ lo que vimos
+     nosotros, que se MARCA aqui: ascensor y patios, con su firma).
+   - Centro: dos CARDS, "lo que condiciona lo que puedo hacer" y "lo que
+     condiciona lo que puedo pedir". Nada de modales.
+   - Las cuatro restricciones estan TODAS EN SI a proposito: es un inventario
+     de campos, no un edificio real. En la realidad casi todas seran "No" y
+     ocuparan una linea.
+   - Imagenes CUADRADAS en columna, con diana centrada para orientarse.
+   - El diario a la derecha, con letra un punto mayor: eso se lee, no se
+     consulta.
+-->
+<style>
+@page{size:389mm 352mm;margin:0}
+@media print{body{padding:10px}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#8EB180;color:#1c1c1c;font:13px/1.45 ui-sans-serif,system-ui,'Segoe UI',sans-serif;padding:0}
+.todo{width:1440px;margin:0 auto;padding:16px 0}
+.regla{position:fixed;right:8px;bottom:8px;z-index:99;background:#1c1c1c;color:#fff;
+       font:11px/1.4 ui-monospace,monospace;padding:5px 9px;border-radius:6px;opacity:.88}
+.rot{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#8a8a8a}
+/* Los tres rotulos que mandan, con el color que les puso Monica */
+.rot.catastro{font-size:12px;color:#104269;text-decoration:underline}
+.rot.hacer{font-size:12px;color:#820707;text-decoration:underline}
+.rot.pedir{font-size:12px;color:#0C8124;text-decoration:underline}
+.caja{border:1px solid #d9d9d9;border-radius:10px;padding:11px 13px;background:#fff}
+.hueca{border:1px dashed #cfcfcf;border-radius:10px;background:#fafafa;color:#a0a0a0;
+       display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:10px}
+
+.cab{display:grid;grid-template-columns:1.15fr 1fr 310px;gap:14px;margin-bottom:12px}
+h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3px 0}
+.sub{font-size:11.5px;color:#6e6e6e}
+.par{display:flex;gap:7px;font-size:12px;margin-top:5px}
+.eti{display:inline-block;background:#D8ECC4;border:1px solid #c9c9c9;border-radius:20px;padding:1px 8px;font-size:10.5px;color:#4a4a4a;margin-right:4px}
+/* LO QUE NOS HAN CONTADO. Tres campos que escribe una persona, no un servicio:
+   por eso van sobre su propio panel gris y en su color. Se me habian perdido al
+   reorganizar la ficha y los recoloco Monica aqui, en la cabecera. */
+.contado{background:rgba(217,217,217,.5);border-radius:8px;padding:8px 10px;margin-top:8px}
+.qt{font-size:12px;font-weight:700;color:#76749D;line-height:1.5}
+.qt .d{font-weight:400;color:#4a4a4a}
+.ct{display:grid;grid-template-columns:1fr auto auto;gap:3px 10px;font-size:12px;align-items:baseline}
+.ct .q{color:#7a7a7a;font-size:11px}
+
+/* ---- la franja: escaneo · casillas · escaneo ---- */
+.franja{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
+        border:1px solid #d9d9d9;border-radius:10px;padding:8px 13px;margin-bottom:12px}
+.cas{display:flex;gap:24px;justify-content:center}
+.cas span{font-size:12.5px;display:flex;align-items:center;gap:7px}
+.cu{width:12px;height:12px;border:1.5px solid #6a6a6a;border-radius:2px;display:inline-block}
+.cu.on{background:#2b2b2b;border-color:#2b2b2b}
+.esc{display:flex;align-items:center;gap:8px;font-size:12px}
+.esc .r{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8a8a8a}
+.vacio{border:1px solid #cfcfcf;border-radius:5px;background:#fafafa;min-width:62px;height:20px;display:inline-block}
+.agendar{border:1px solid #2b2b2b;border-radius:5px;padding:2px 10px;font-size:11.5px;font-weight:700;background:#fff}
+
+/* LA PESTAÑA (Monica, 30-sep): el fondo tiene que decir "esto que estas viendo
+   ES el bloque 1". El bloque activo cruza el hueco de 14 y se come el borde del
+   panel: sin linea entre ellos, el ojo lee una pieza. Los inactivos se quedan
+   cortos y por eso se ve que no estan abiertos. */
+.bajo{display:flex;gap:14px;align-items:flex-start}
+.bl.on{border-radius:10px 0 0 10px;border-right:0;width:187px;margin-right:-15px;position:relative;z-index:2}
+.panel{flex:1;min-width:0;border:1px solid #104269;border-radius:0 10px 10px 10px;
+       background:rgba(16,66,105,.055);padding:14px}
+.carril{width:172px;flex:0 0 172px;display:flex;flex-direction:column;gap:8px}
+.bl{border:1px solid #dcdcdc;background:#fbfbfb;border-radius:10px;padding:10px 11px}
+.bl.on{border-color:#fff;background:#104269;color:#fff;border-radius:0}
+.bl .n{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9a9a9a}
+.bl.on .n{color:#fff}
+.bl .t{font-size:13px;font-weight:700;margin-top:2px;line-height:1.2}
+.bl .e{font-size:11px;color:#8a8a8a;margin-top:6px}
+.bl.on .e{color:#cfcfcf}
+.cuerpo{flex:1;display:grid;grid-template-columns:262px 1fr 206px 298px;gap:14px;align-items:start}
+
+/* ---- izquierda: FICHA, apretada ---- */
+.grupo{margin-bottom:10px}
+.grupo:last-child{margin-bottom:0}
+.grupo{background:#EFEDED;border-radius:8px;padding:7px 9px}
+.grupo h4{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#1c1c1c;
+          border-bottom:1px solid #d7d5d5;padding-bottom:3px;margin-bottom:5px}
+.grupo.nuestro{background:#E4EED9}
+.grupo.nuestro h4{font-size:12px;text-decoration:underline;border-bottom:0}
+.par2{display:grid;grid-template-columns:max-content 1fr;gap:1px 9px;font-size:12px;align-items:baseline}
+.par2 .k{color:#6e6e6e;white-space:nowrap}
+.par2 .v{font-weight:600}
+.k2{color:#6e6e6e;font-size:12px;margin-top:3px}
+.v2{font-weight:600;font-size:12px;padding-left:11px;line-height:1.35}
+.sang{padding-left:11px;color:#8a8a8a}
+.si{font-weight:700}
+.no{color:#8a8a8a}
+.firma{font-weight:400;color:#8a8a8a;font-size:11px}
+.visto{display:grid;grid-template-columns:1fr 1px 1fr;gap:0 11px}
+.visto .sep{background:#438538}
+.vc .t6{font-size:12px;font-weight:700;color:#14781E;margin-bottom:4px}
+.vc .bots{display:flex;gap:5px}
+.vc .cuantos-fila{margin-top:5px;font-size:11.5px;color:#8a8a8a;display:flex;align-items:center;gap:6px}
+.vc .quien2{margin-top:5px;font-size:11px;color:#8a8a8a;line-height:1.3}
+.bot{border:1px solid #bdbdbd;border-radius:5px;padding:1px 8px;font-size:11.5px;color:#5a5a5a;background:#fff}
+.bot.on{background:#2b2b2b;border-color:#2b2b2b;color:#fff;font-weight:700}
+.cuantos{border:1px solid #bdbdbd;border-radius:5px;padding:1px 6px;font-size:11.5px;min-width:34px;
+         display:inline-block;text-align:center;font-weight:700}
+
+/* ---- centro: CARDS, con aire ---- */
+.card{border-radius:10px;background:#fff;padding:13px 15px}
+.card.hacer{border:1px solid #820707}
+.card.pedir{border:1px solid #0C8124}
+.card > .rot{margin-bottom:9px}
+.sub2{margin-bottom:11px}
+.sub2:last-child{margin-bottom:0}
+.sub2 h5{font-size:11.5px;font-weight:700;color:#1c1c1c;margin-bottom:3px}
+.fila{font-size:12px;line-height:1.4;padding-left:2px}
+.fila .e{color:#6e6e6e}
+.fila.sec{padding-left:13px;color:#4a4a4a;font-size:11.5px}
+.pdfs{font-size:11.5px;padding-left:2px;margin-top:2px}
+.pdfs u{margin-right:9px}
+.sub2 .par2{margin-left:2px}
+.nota{font-size:11.5px;color:#4a4a4a;line-height:1.4;margin-left:2px}
+.enlace{font-size:11.5px;margin-top:3px;margin-left:2px}
+.linea{display:flex;gap:16px;font-size:12px;margin-left:2px}
+
+.pila{display:flex;flex-direction:column;gap:12px}
+.tabla{width:100%;border-collapse:collapse;font-size:11.5px}
+.tabla th{text-align:left;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#8a8a8a;
+          font-weight:700;border-bottom:1px solid #e2e2e2;padding:3px 6px}
+.tabla td{padding:2.5px 6px;border-bottom:1px solid #f0f0f0}
+.tabla td.n{text-align:right;font-variant-numeric:tabular-nums}
+.ent{border-bottom:1px solid #eee;padding:7px 0}
+.ent:last-of-type{border:0}
+.ent .c{font-size:11px;color:#8a8a8a}
+.ent p{font-size:12.5px;margin-top:2px;line-height:1.45}
+
+/* ---- abajo: las tres imagenes, grandes ---- */
+.imgs{display:flex;flex-direction:column;gap:10px}
+.diana{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;
+       border:1.5px solid #2b2b2b;border-radius:50%}
+.diana:before,.diana:after{content:'';position:absolute;background:#2b2b2b}
+.diana:before{left:50%;top:-6px;bottom:-6px;width:1.5px;margin-left:-.75px}
+.diana:after{top:50%;left:-6px;right:-6px;height:1.5px;margin-top:-.75px}
+.pie{position:absolute;left:0;right:0;bottom:6px;font-size:10px;color:#9a9a9a;text-align:center}
+.img{border:1px dashed #cfcfcf;border-radius:10px;background:#fafafa;aspect-ratio:1/1;position:relative;
+     display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#9a9a9a}
+</style></head><body><div class="todo">
+
+ <div class="cab">
+  <div class="caja">
+   <div class="rot">Dirección</div>
+   <h1>GENERAL RICARDOS 238, MADRID</h1>
+   <div class="sub">Carabanchel · Puerta Bonita &nbsp;·&nbsp; 0954708VK3705D</div>
+   <div class="par"><span class="rot" style="padding-top:3px;color:#76749D">Administración</span>
+     <span><b>Iván Ruiz</b> — Marçal Asesores <span class="firma">Leganés</span></span></div>
+   <div class="contado">
+    <div class="qt">Nos llega a través de <span class="d">— la persona que viene de la ficha de crear.</span></div>
+    <div class="qt">Mi contacto en la comunidad para quedar a tomar datos es <span class="d">— lo que venga en la ficha.</span></div>
+    <div class="qt" style="margin-top:3px">Dicen que están interesados en
+     <span class="eti">Ascensor</span><span class="eti">Cota cero</span></div>
+   </div>
+  </div>
+  <div class="caja">
+   <div class="rot">Por dónde vamos</div>
+   <div style="margin-top:6px;font-size:12.5px"><b>1 · Toma de datos</b> — en curso. Falta el Polycam.</div>
+   <div class="hueca" style="margin-top:8px;height:84px">aquí se irá acumulando una línea por bloque quemado</div>
+  </div>
+  <div class="caja">
+   <div class="rot">Contactos de la comunidad</div>
+   <div class="ct" style="margin-top:6px">
+    <span><b>Beatriz Martínez</b></span><span>666 444 555</span><span class="q">administradora</span>
+    <span><b>Fermín Monge</b></span><span>666 444 555</span><span class="q">presidente</span>
+    <span><b>Toñi Cárdenas</b></span><span>666 444 555</span><span class="q">vecina · comisión</span>
+   </div>
+   <div style="margin-top:7px;font-size:11.5px;color:#6e6e6e">+ añadir contacto</div>
+  </div>
+ </div>
+
+ <div class="franja">
+  <div class="esc" style="gap:18px">
+   <span class="esc" style="gap:8px"><span class="r">Escaneo previsto</span><span class="vacio"></span><span class="agendar">Agendar</span></span>
+   <span class="esc" style="gap:8px"><span class="r">Recibido</span><span class="firma">todavía no ha llegado</span></span>
+  </div>
+  <div class="cas">
+   <span><i class="cu on"></i> Necesita viabilidad</span>
+   <span><i class="cu on"></i> Necesita 3D</span>
+   <span><i class="cu"></i> Necesita 3 presupuestos</span>
+   <span><i class="cu"></i> Necesita financiación</span>
+  </div>
+ </div>
+
+ <div class="bajo">
+  <div class="carril">
+   <div class="bl on"><div class="n">Bloque 1</div><div class="t">Toma de datos</div><div class="e">Falta el Polycam</div></div>
+   <div class="bl"><div class="n">Bloque 2</div><div class="t">Documentación</div><div class="e">Sin empezar</div></div>
+   <div class="bl"><div class="n">Bloque 3</div><div class="t">Decisión de los vecinos</div><div class="e">Sin empezar</div></div>
+   <div class="bl"><div class="n">Bloque 4</div><div class="t">Cierre</div><div class="e">Sin empezar</div></div>
+  </div>
+
+  <div class="panel"><div class="cuerpo">
+   <div class="caja">
+    <div class="rot catastro" style="margin-bottom:7px">Lo que dice el Catastro</div>
+    <div class="grupo"><h4>El edificio</h4><div class="par2"><span class="k">Año de construcción</span><span class="v">1967</span><span class="k">Tipo de parcela</span><span class="v">División horizontal</span><span class="k">Portales</span><span class="v">2 &nbsp;<span class='firma'>238 · 240</span></span><span class="k">Escaleras</span><span class="v">2 &nbsp;<span class='firma'>A · B</span></span></div><div class="k2">Superficie</div><div class="v2">suelo 612 m&sup2; · construida 4.180 m&sup2;</div><div class="k2">Plantas</div><div class="v2">6 sobre rasante · 1 bajo rasante</div></div>
+    <div class="grupo"><h4>Usos</h4><div class="par2"><span class="k">Inmuebles</span><span class="v">48</span><span class="k"><span class='sang'>Viviendas</span></span><span class="v">42</span><span class="k"><span class='sang'>Locales</span></span><span class="v">4 <span class='firma'>planta baja</span></span><span class="k"><span class='sang'>Oficinas</span></span><span class="v">—</span><span class="k"><span class='sang'>Garaje y trasteros</span></span><span class="v">2</span><span class="k">Superficie media</span><span class="v">82 m&sup2;/vivienda</span><span class="k">Coeficiente medio</span><span class="v">2,08%</span></div><div class="k2">Residencial</div><div class="v2">88% por número · 91% por superficie</div></div>
+    <div class="grupo nuestro"><h4>Lo que hemos visto nosotros</h4><div class="visto">  <div class="vc">    <div class="t6">Ascensor</div>    <div class="bots"><span class="bot">Sí</span><span class="bot on">No</span></div>    <div class="quien2">lo vio Álvaro<br>el 12/09</div>  </div>  <div class="sep"></div>  <div class="vc">    <div class="t6">Patios</div>    <div class="bots"><span class="bot on">Sí</span><span class="bot">No</span></div>    <div class="cuantos-fila">¿cuántos? <span class="cuantos">2</span></div>    <div class="quien2">lo vio Álvaro<br>el 12/09</div>  </div></div></div>
+   </div>
+
+   <div class="pila">
+    <div class="card hacer"><div class="rot hacer">Lo que condiciona lo que puedo hacer</div><div class="sub2"><h5>Modelo de ascensor obligatorio</h5><div class="fila"><b>Sí</b> · ocupación de espacio público</div><div class="pdfs"><u>Informe (PDF)</u><u>Modelo (PDF)</u></div></div><div class="sub2"><h5>Protegido</h5><div class="fila"><b>Sí</b> · nivel Estructural</div><div class="fila sec"><b>Hay que</b> respetar la composición de las fachadas.</div><div class="fila sec"><span class="e">Nº de catálogo</span> 30224</div><div class="pdfs" style="padding-left:13px"><u>Plano de protección (PDF)</u></div></div><div class="sub2"><h5>Conjunto homogéneo</h5><div class="fila"><b>Sí</b> · Poblado de Almendrales <span class="firma">CH11</span></div></div><div class="sub2"><h5>Patrimonio</h5><div class="fila"><b>Sí</b> · en el <b>entorno</b> de un BIC</div><div class="fila sec">La Equitativa · Monumento</div><div class="fila sec"><span class="e">declarado</span> 24/09/2013</div></div></div>
+    <div class="card pedir"><div class="rot pedir">Lo que condiciona lo que puedo pedir</div><div class="sub2"><h5>IEE</h5><div class="fila"><b>Sí</b> · 14/03/2024 · <b>desfavorable</b></div><div class="fila sec"><span class="e">Accesibilidad</span> no cumple</div><div class="fila sec" style="padding-left:24px">admite ajustes razonables</div><div class="fila sec"><span class="e">Calificación energética</span> E</div><div class="pdfs" style="padding-left:13px"><u>Ver la ficha del informe</u></div></div><div class="sub2"><h5>Subvenciones</h5><div class="fila">ZONA <b>ZETU</b> · Colonia Lucentum</div><div class="fila sec">APIRU <b>Sí</b> <span class="firma">17.02</span></div><div class="fila sec">ARRU <b>Sí</b> <span class="firma">Villaverde</span></div><div class="fila sec">Art. 5c <b>Sí</b></div></div><div class="sub2"><h5>Subvenciones ya concedidas aquí</h5><div class="fila">36.809 € <span class="e">· REHABILITA 2022</span></div><div class="fila sec"><b>3.680 €</b> por vivienda <span class="firma">10 viviendas</span></div></div></div>
+   </div>
+
+   <div class="caja">
+    <div class="rot" style="margin-bottom:8px">Las imágenes</div>
+    <div class="imgs">
+     <div class="img"><div class="diana"></div><div class="pie">Croquis catastral</div></div>
+     <div class="img"><div class="diana"></div><div class="pie">Vista aérea</div></div>
+     <div class="img"><div class="pie">Polycam · llega solo por el buzón</div></div>
+    </div>
+    <div style="margin-top:9px;font-size:11.5px;line-height:1.75">
+     <u>Visor oficial del Catastro</u><br><u>Ficha de catastro (PDF)</u>
+    </div>
+   </div>
+
+   <div class="caja">
+    <div class="rot">Lo que va pasando</div>
+    <div class="ent"><div class="c">28/09 · visita · Beatriz Martínez</div><p>Hemos ido a ver el portal. El foso da problemas, hay contadores que habría que mover.</p></div><div class="ent"><div class="c">27/09 · llamada · Fermín Monge</div><p>Me llama Fermín: el martes me lleva a ver tres portales que tienen ascensor.</p></div><div class="ent"><div class="c">22/09 · correo · Beatriz Martínez</div><p>Me pasa el acta de la última junta. Aprobaron pedir presupuestos.</p></div><div class="ent"><div class="c">15/09 · llamada · Toñi Cárdenas</div><p>La comisión quiere ver el 3D antes de convocar. Quedamos en pasarlo la semana que viene.</p></div><div class="ent"><div class="c">12/09 · visita · Álvaro</div><p>Toma de datos en el portal. No hay ascensor y el patio interior es amplio.</p></div><div class="ent"><div class="c">04/09 · llamada · Fermín Monge</div><p>Primer contacto. Nos llegan por el administrador.</p></div>
+    <div class="hueca" style="margin-top:8px;height:42px">Grabar una entrada</div>
+   </div>
+
+   <div class="caja" style="grid-column:1 / span 2;margin-top:2px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+   <div class="rot">Subvenciones ya concedidas a menos de 800 m</div>
+   <div style="font-size:13px"><b>2.782.212 €</b> <span class="firma">en 10 obras</span></div>
+  </div>
+  <table class="tabla" style="margin-top:6px">
+   <tr><th>Dirección</th><th style="text-align:right">Concedido</th><th style="text-align:right">Viviendas</th><th>Programa</th></tr>
+   <tr><td>CALLE ORENSE 177</td><td class="n">62.496 €</td><td class="n">28 viv.</td><td>NGEU_MRR Programa 3</td></tr><tr><td>CALLE JAEN 33</td><td class="n">464.040 €</td><td class="n">40 viv.</td><td>NGEU_MRR Programa 3</td></tr><tr><td>CALLE BERRUGUETE 41</td><td class="n">377.222 €</td><td class="n">48 viv.</td><td>REHABILITA 2023</td></tr><tr><td>CALLE ARTISTAS 43</td><td class="n">368.000 €</td><td class="n">46 viv.</td><td>REHABILITA 2023</td></tr><tr><td>CALLE ARTISTAS 43</td><td class="n">284.079 €</td><td class="n">46 viv.</td><td>NGEU_MRR Programa 3</td></tr><tr><td>GAVIA 32</td><td class="n">31.680 €</td><td class="n">18 viv.</td><td>NGEU_MRR Programa 3</td></tr><tr><td>CALLE EDGAR NEVILLE 1</td><td class="n">114.018 €</td><td class="n">19 viv.</td><td>Programa PREE</td></tr><tr><td>CASTILLO DE CHIREL 7</td><td class="n">29.517 €</td><td class="n">6 viv.</td><td>REHABILITA 2021</td></tr>
+  </table>
+ </div>
+  </div></div>
+ </div>
+
+
+</div>
+<div class="regla" id="regla">midiendo…</div>
+<script>
+ // CHIVATO DEL ESQUELETO. Dice cuanto mide de verdad la ventana, para saber si
+ // el lienzo de 1440 es el bueno o nos estamos pasando. No va en la app.
+ function medir(){
+   var v = document.documentElement.clientWidth;
+   document.getElementById('regla').textContent =
+     'tu ventana: ' + v + ' px  ·  el lienzo: 1440 px  ·  ' +
+     (v >= 1440 ? 'cabe' : 'SE DESBORDA por ' + (1440 - v) + ' px');
+ }
+ medir(); addEventListener('resize', medir);
+</script>
+</body></html>
