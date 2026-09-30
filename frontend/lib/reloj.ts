@@ -85,7 +85,8 @@ export type Reloj = { tarea: string; nombre: string; cada: string; ruta: string 
 export const RELOJES: Reloj[] = [
   { tarea: "buzon_polycam", nombre: "Buzón del Polycam", cada: "cada 10 minutos", ruta: "/api/buzon/polycam" },
   { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 7:15", ruta: "/api/iee/barrido" },
-  { tarea: "comunidades_catastro", nombre: "Rellenar Catastro", cada: "cada 5 minutos · temporal", ruta: "/api/comunidades/catastro" },
+  { tarea: "comunidades_catastro", nombre: "Rellenar Catastro", cada: "a mano · el barrido ya acabó", ruta: "/api/comunidades/catastro" },
+  { tarea: "callejero_catastro", nombre: "Callejero oficial", cada: "cada 5 minutos · temporal, hasta bajarlo", ruta: "/api/callejero/cargar" },
 ];
 
 export type Pasada = {
