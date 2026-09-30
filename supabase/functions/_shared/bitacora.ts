@@ -7,7 +7,7 @@
 // Adaptado del bitacora.ts de las apps moviles. Diferencias de dominio:
 //   · No hay `entrada_id` (nota de voz) ni `user_id` (aun no hay auth). El
 //     contexto es una OPERACION (ej. "extraccion_convocatoria:<uuid>") y el
-//     actor puede ser la IA, un humano (personal_interno) o el sistema.
+//     actor puede ser la IA, un humano (equipo) o el sistema.
 //
 // CONTRATO (identico al del movil):
 //   · Codigo + params, NO prosa: `tipo` es el codigo; `datos` los params. La
@@ -28,7 +28,7 @@ export interface Evento {
   /** Codigo del evento (ej. extraccion_generada, requisito_editado, casilla_add). */
   tipo: string;
   actor_tipo?: ActorTipo;
-  /** personal_interno hoy; auth.users el dia de manana. */
+  /** equipo hoy; auth.users el dia de manana. */
   actor_id?: string | null;
   target_tabla?: string | null;
   target_id?: string | null;

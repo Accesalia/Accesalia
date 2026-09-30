@@ -88,7 +88,7 @@ export interface OpcionesIA {
   // --- Contabilidad (uso_llm) ---
   /** Nombre de la edge que llama. Si se pasa, se registra en uso_llm. */
   origen?: string;
-  /** Actor que dispara la llamada (personal_interno). Opcional. */
+  /** Actor que dispara la llamada (equipo). Opcional. */
   actorId?: string | null;
 }
 
