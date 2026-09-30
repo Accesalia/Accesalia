@@ -241,7 +241,7 @@ export async function descargarMunicipio(m: Municipio): Promise<number> {
 }
 
 /** Una tanda de municipios. Los mas grandes primero, que son los que se usan. */
-export async function cargarTanda(cuantos = 8): Promise<{
+export async function cargarTanda(cuantos = 4): Promise<{
   hechos: { municipio: string; vias: number }[];
   fallos: { municipio: string; dice: string }[];
   quedan: number;

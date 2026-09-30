@@ -73,7 +73,9 @@ export async function POST(req: Request) {
   if (!(await permitido(req))) return NextResponse.json({ error: "No." }, { status: 403 });
 
   const pedido = Number(new URL(req.url).searchParams.get("cuantos"));
-  const cuantos = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 25) : 8;
+  // De cuatro en cuatro por defecto: los primeros son los mas gordos (Madrid
+  // capital son 9.629 vias) y hay 300 segundos de margen, no mas.
+  const cuantos = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 25) : 4;
 
   const empezada = Date.now();
   const quien = esElReloj(req) ? "reloj" : "persona";
