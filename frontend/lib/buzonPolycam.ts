@@ -40,6 +40,29 @@ async function leer<T>(path: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+// TRAERLO TODO, DE VERDAD.
+//
+// PostgREST corta en 1.000 filas y `limit` NO lo cambia: se le pueden pedir
+// 5.000 y devuelve 1.000 sin decir que ha recortado. Aqui eso significaba que
+// las 228 comunidades que pasan de la milesima eran invisibles para el cotejo:
+// llegaba su Polycam, no se encontraba la direccion y se quedaba en el monton
+// de "no se de quien es", para siempre y sin sintoma.
+//
+// La unica forma de pasar del tope es pedir por tramos con la cabecera Range.
+async function leerTodo<T>(path: string): Promise<T[]> {
+  const todo: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
+      headers: { ...cab, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+    const trozo = (await r.json()) as T[];
+    todo.push(...trozo);
+    if (trozo.length < 1000) return todo;
+  }
+}
+
 async function crear<T>(tabla: string, fila: unknown): Promise<T> {
   const r = await fetch(`${URL_BASE}/rest/v1/${tabla}`, {
     method: "POST",
@@ -252,7 +275,7 @@ export async function repasarBuzon(): Promise<Repaso> {
   if (!usuario || !clave) throw new Error("Faltan BUZON_POLYCAM_USUARIO / BUZON_POLYCAM_CLAVE en el entorno.");
 
   const [comunidades, equipo, tipos] = await Promise.all([
-    leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=5000"),
+    leerTodo<{ id: string; nombre: string }>("comunidades?select=id,nombre"),
     leer<{ id: string; email: string | null }[]>("equipo?select=id,email&activo=is.true"),
     leer<{ id: string; nombre: string }[]>("tipos_documento?select=id,nombre&nombre=eq.Escaneo%20Polycam&limit=1"),
   ]);
@@ -366,7 +389,7 @@ export async function sinSitio(): Promise<CorreoSinSitio[]> {
   const clave = process.env.BUZON_POLYCAM_CLAVE;
   if (!usuario || !clave) return [];
 
-  const comunidades = await leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=5000");
+  const comunidades = await leerTodo<{ id: string; nombre: string }>("comunidades?select=id,nombre");
 
   const cliente = new ImapFlow({
     host: "imap.gmail.com",
