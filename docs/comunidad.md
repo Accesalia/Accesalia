@@ -260,6 +260,21 @@ Estas reglas sostienen el modelo, y ninguna necesita un "suele":
 6. **El número de hojas de encargo no es una decisión de modelo: es una consecuencia
    de la tramitación.** Si hay tres, la administración pidió tres. Nunca se
    "ordenan" ni se fusionan.
+7. **Lo que se guarda es el `id`, nunca el nombre.** Mónica, 30-sep-2026: *"el id de
+   la opp es lo que hay que guardar, pero el nombre NO. Si la opp está codificada por
+   id, no pasa nada: el dato nombre cambia, y las hojas de encargo se cancelan con
+   nueva versión y listo."*
+
+   **El caso real que lo demuestra:** `ALFONSO XII MADRID`. Javier Parra, de
+   Schindler, llamó a Álvaro y le dio la dirección mal. Días después la corrigieron —
+   era **Alfonso XIII 8, Parla** — pero ya se habían emitido hojas de encargo con la
+   dirección equivocada. Con el nombre como clave eso es una fila huérfana para
+   siempre; con el `id` como clave es **un campo que se corrige y unas versiones de
+   hoja que se rehacen**.
+
+   Y esto ya está soportado: `versiones_hoja` guarda una foto de cada versión, así
+   que la dirección vieja **sobrevive donde tiene que sobrevivir** (en el documento
+   que se envió) sin contaminar el dato vivo. La corrección no borra la historia.
 
 ---
 
