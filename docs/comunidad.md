@@ -76,6 +76,48 @@ La parcela es **el contenedor de Catastro**. Es uno de los agrupadores, no el ej
 
 ---
 
+## 2 bis. Las DOS jerarquías, que no se anidan una en otra
+
+Mónica, 30-sep-2026: *"nuestro modelo: mancomunidad — comunidad — subcomunidad. Y como
+opp: dirección — número — escalera. Y baja en la dirección hasta que quede definido su
+acceso a la calle."* Correcto, y son **dos jerarquías independientes**:
+
+```
+QUIÉN VOTA  (la ley)                      CÓMO SE LLAMA  (el acceso)
+mancomunidad   (complejo, art. 24)        calle
+   comunidad   (art. 2.a)                    número
+      subcomunidad (art. 2.d)                   escalera
+```
+
+- **De 0 a 3 niveles de órgano.** Lo normal es uno (la comunidad). Y puede haber
+  **cero**: la vivienda unifamiliar de una persona física no tiene junta ni
+  presidente. Conviene implementarlo como **autorreferencia** (`parte_de`) y no como
+  tres tablas, para que una mancomunidad de mancomunidades no rompa nada.
+- **La dirección NO está por encima de la comunidad**: es el **nombre de cada
+  acceso**. Una comunidad puede tener accesos en **dos calles distintas** — Etruria 26,
+  Etruria 28 y Lucano 65 son una sola comunidad. Así que la calle no envuelve al
+  órgano; cuelga de cada acceso.
+- **La parcela no está en ninguna de las dos.** Es el agrupador de Catastro, y es
+  ortogonal: la parcela de Marcenado tiene 20 accesos repartidos entre varias
+  comunidades.
+
+### "Bajar hasta que quede definido": la regla, y la restricción que sale de ella
+
+Se desciende calle → número → escalera **hasta que el acceso sea único**:
+
+| edificio | ¿basta calle + número? | escalera |
+|---|---|---|
+| PICO CEJO 55 | sí, hay uno solo | **vacía** |
+| ETRURIA 26 / 28 / LUCANO 65 | sí, cada acceso tiene su número | presente pero redundante |
+| AV ALBUFERA 250 | **no**, hay nueve | **imprescindible** |
+| MARCENADO (parcela de 20 accesos) | **no**, y la escalera C se repite en el nº1 y en el nº2 | **hacen falta los tres** |
+
+> **De ahí sale la restricción de la base: (municipio, calle, número, escalera) tiene
+> que ser único.** Y es la que impide volver a tener tres filas para la misma
+> presidenta.
+
+---
+
 ## 3. Los cuatro agrupadores
 
 Cada uno agrupa accesos a su manera, y **ninguno se deduce de los otros**. Ésa es la
@@ -314,13 +356,16 @@ necesito?" se contesta contando, en un único sitio, sin excepciones que recorda
   mismo órgano es decisión de Mónica, caso a caso. Las pistas están: mismo
   presidente + mismo CIF + mismo edificio. Pero **el mismo presidente no basta**:
   JON AZPITARTE preside dos comunidades con CIFs y parcelas distintas.
-- **Los importes de subvención.** Los datos concedidos dicen que **partir en más
-  expedientes no multiplica el dinero**: Albufera cobró 830.000 € en un solo
-  expediente (83 viviendas, 18 actuaciones, 1,85 M€ protegible), y el máximo
-  concedido de la serie llega a 1,2 M€. Los 100.000 € que se repiten 228 veces son
-  el edificio típico de un ascensor, no un techo del expediente. **Hay que
-  confirmarlo en las bases de cada convocatoria**, porque si es así, un argumento
-  comercial que se está usando no se sostiene.
+- ~~Los importes de subvención.~~ **CONFIRMADO por Mónica el 30-sep-2026: partir en
+  más expedientes NO multiplica el dinero.** Los datos concedidos ya lo decían:
+  Albufera cobró 830.000 € en un solo expediente (83 viviendas, 18 actuaciones,
+  1,85 M€ protegible) y el máximo de la serie llega a 1,2 M€; los 100.000 € que se
+  repiten 228 veces son el edificio típico de un ascensor, no un techo. Así que
+  **no se parte un proyecto para multiplicar fondos**: el número de expedientes lo
+  impone el número de direcciones postales, y no es una palanca.
+- **El CIF `E`: aparcado.** Las 41 comunidades con CIF de comunidad de bienes tienen
+  un trámite pendiente que les bloquea subvenciones, pero no toca ahora. Ver
+  `memory/letras-del-cif.md`.
 
 ---
 
