@@ -26,7 +26,7 @@
 @media print{body{padding:10px}}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#8EB180;color:#1c1c1c;font:13px/1.45 ui-sans-serif,system-ui,'Segoe UI',sans-serif;padding:0}
-.todo{width:1440px;margin:0 auto;padding:16px 0}
+.todo{width:1300px;margin:0 auto;padding:16px 0}
 .regla{position:fixed;right:8px;bottom:8px;z-index:99;background:#1c1c1c;color:#fff;
        font:11px/1.4 ui-monospace,monospace;padding:5px 9px;border-radius:6px;opacity:.88}
 .rot{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#8a8a8a}
@@ -38,7 +38,7 @@ body{background:#8EB180;color:#1c1c1c;font:13px/1.45 ui-sans-serif,system-ui,'Se
 .hueca{border:1px dashed #cfcfcf;border-radius:10px;background:#fafafa;color:#a0a0a0;
        display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:10px}
 
-.cab{display:grid;grid-template-columns:1.15fr 1fr 310px;gap:14px;margin-bottom:12px}
+.cab{display:grid;grid-template-columns:1.15fr 1fr 310px;gap:10px;margin-bottom:12px}
 h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3px 0}
 .sub{font-size:11.5px;color:#6e6e6e}
 .par{display:flex;gap:7px;font-size:12px;margin-top:5px}
@@ -68,19 +68,19 @@ h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3
    ES el bloque 1". El bloque activo cruza el hueco de 14 y se come el borde del
    panel: sin linea entre ellos, el ojo lee una pieza. Los inactivos se quedan
    cortos y por eso se ve que no estan abiertos. */
-.bajo{display:flex;gap:14px;align-items:flex-start}
-.bl.on{border-radius:10px 0 0 10px;border-right:0;width:187px;margin-right:-15px;position:relative;z-index:2}
+.bajo{display:flex;gap:10px;align-items:flex-start}
+.bl.on{border-radius:10px 0 0 10px;width:183px;margin-right:-11px;position:relative;z-index:2}
 .panel{flex:1;min-width:0;border:1px solid #104269;border-radius:0 10px 10px 10px;
-       background:rgba(16,66,105,.055);padding:14px}
+       background:#104269;padding:11px}
 .carril{width:172px;flex:0 0 172px;display:flex;flex-direction:column;gap:8px}
 .bl{border:1px solid #dcdcdc;background:#fbfbfb;border-radius:10px;padding:10px 11px}
-.bl.on{border-color:#fff;background:#104269;color:#fff;border-radius:0}
+.bl.on{border:0;border-left:2px solid #fff;background:#104269;color:#fff}
 .bl .n{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9a9a9a}
 .bl.on .n{color:#fff}
 .bl .t{font-size:13px;font-weight:700;margin-top:2px;line-height:1.2}
 .bl .e{font-size:11px;color:#8a8a8a;margin-top:6px}
 .bl.on .e{color:#cfcfcf}
-.cuerpo{flex:1;display:grid;grid-template-columns:262px 1fr 206px 298px;gap:14px;align-items:start}
+.cuerpo{flex:1;display:grid;grid-template-columns:262px 330px 190px 282px;gap:10px;align-items:start}
 
 /* ---- izquierda: FICHA, apretada ---- */
 .grupo{margin-bottom:10px}
@@ -254,9 +254,14 @@ h1{font-size:23px;font-weight:700;letter-spacing:-.2px;line-height:1.15;margin:3
  // el lienzo de 1440 es el bueno o nos estamos pasando. No va en la app.
  function medir(){
    var v = document.documentElement.clientWidth;
+   // Si no cabe, se encoge entero. Nada se recoloca: en el portatil de 16 y en
+   // el monitor de 27 se ve LO MISMO, y en una ventana pequeña, lo mismo pero
+   // mas pequeño.
+   var todo = document.querySelector('.todo');
+   todo.style.zoom = v < 1300 ? (v / 1300).toFixed(3) : '';
    document.getElementById('regla').textContent =
-     'tu ventana: ' + v + ' px  ·  el lienzo: 1440 px  ·  ' +
-     (v >= 1440 ? 'cabe' : 'SE DESBORDA por ' + (1440 - v) + ' px');
+     'tu ventana: ' + v + ' px  ·  el lienzo: 1300 px  ·  ' +
+     (v >= 1300 ? 'cabe, con ' + (v - 1300) + ' px de aire' : 'SE DESBORDA por ' + (1300 - v) + ' px');
  }
  medir(); addEventListener('resize', medir);
 </script>
