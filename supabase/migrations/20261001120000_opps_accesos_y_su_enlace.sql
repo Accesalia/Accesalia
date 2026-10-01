@@ -145,7 +145,16 @@ siempre agregativa y NUNCA SE FUERZA.
 
 EL ENLACE NO SE PUEDE DEDUCIR DE LA REFERENCIA, y casi metimos la pata: la
 parcela de Santa Cruz de Marcenado tiene 20 portales y la opp es "1 ESC C", uno
-solo. Enlazar por referencia le habria colgado los 20.$doc$;
+solo. Enlazar por referencia le habria colgado los 20.
+
+UNA OPP SIN ACCESOS ES UN ESTADO VALIDO, no un error. Monica lo vio al cerrar el
+dia con 10 sin resolver: "me sirve de stress test: opp creada, sin accesos porque
+faltan datos, y luego se le van sumando detalles. Es perfecto, flujo estandar".
+La opp nace con un nombre y nada mas -el comercial solo da PISTAS- y se le van
+colgando datos. El bloqueo esta en la HOJA DE ENCARGO, no en el alta: ahi si hace
+falta la direccion resuelta contra Catastro, porque ese documento viaja a firma,
+subvencion y contrato. Antes de eso se puede jugar con los nombres sin que pase
+nada.$doc$;
 
 comment on column opp_accesos.hasta is
 $doc$Cuando el acceso SALIO de la oportunidad. Nulo = sigue dentro. La fila no se
