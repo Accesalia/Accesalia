@@ -71,7 +71,12 @@ Valdemorillo 1 (titulada "escalera derecha", 12 de 30 viviendas, y C=12 D=12 I=6
   D = derecha    I = izquierda    C = centro
   T = trastero   G = garaje       L = local      S = sotano
 Las de 0 viviendas no son portales... SALVO que el encargo sea precisamente eso:
-Longares 8(B) es un garaje con humedades y es un acceso legitimo.$doc$;
+Longares 8(B) es un garaje con humedades y es un acceso legitimo.
+
+EL UMBRAL SON 3 VIVIENDAS (criterio de Monica, 1-oct-2026): un portal con 1 o 2
+viviendas NO es una escalera, es la porteria o un local mal clasificado. Sirve
+para decidir cuando una direccion tiene UN solo portal de verdad y por tanto el
+ascensor no puede ir en otro sitio.$doc$;
 
 create index if not exists accesos_ref_idx on accesos (ref_catastral);
 create index if not exists accesos_direccion_idx on accesos (municipio, nombre_via, numero);
