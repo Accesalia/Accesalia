@@ -85,6 +85,13 @@ export type Reloj = { tarea: string; nombre: string; cada: string; ruta: string 
 export const RELOJES: Reloj[] = [
   { tarea: "buzon_polycam", nombre: "Buzón del Polycam", cada: "cada 10 minutos", ruta: "/api/buzon/polycam" },
   { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 7:15", ruta: "/api/iee/barrido" },
+  // TEMPORAL, A PROPOSITO. Va a tandas preguntandole al registro por nuestras
+  // 2.037 direcciones, y cuando acaba se queda callado: comprueba la ultima
+  // pasada y, si termino entera, no hace nada. Pero el HORARIO sobra en cuanto
+  // acabe, por la regla de Monica -un reloj dormido es peor que no tenerlo-, asi
+  // que en cuanto diga "nada que hacer" se quita de vercel.json y baja a
+  // RETIRADOS. Para rehacerlo algun dia: ?reiniciar=1.
+  { tarea: "iee_direcciones", nombre: "IEE de nuestras direcciones", cada: "cada 15 minutos · TEMPORAL, quitar al acabar", ruta: "/api/iee/direcciones" },
 ];
 
 // ============================================================================

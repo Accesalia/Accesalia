@@ -138,7 +138,16 @@ const aSiNo = (s: string | undefined): boolean | null => {
  *  numero todavia no existe, que es como el barrido sabe que ha llegado al
  *  final de lo publicado. */
 export async function leerNota(codigo: string): Promise<NotaIEE | null> {
-  const r = await fetch(`${RAIZ}/${encodeURIComponent(codigo)}`, {
+  return leerNotaDeUrl(`${RAIZ}/${encodeURIComponent(codigo)}`);
+}
+
+/** La misma nota, pedida por la URL que sea. El registro la sirve por numero de
+ *  registro (lo que usa el barrido diario) y tambien por id de edificio, que es
+ *  como se llega preguntando por una direccion. Es LA MISMA PAGINA, y el codigo
+ *  de registro sale de dentro, no de la URL: por eso las dos puertas acaban en
+ *  la misma fila y no se duplica nada. */
+export async function leerNotaDeUrl(url: string): Promise<NotaIEE | null> {
+  const r = await fetch(url, {
     headers: { "X-Requested-With": "XMLHttpRequest", "User-Agent": "Mozilla/5.0" },
     cache: "no-store",
   });
@@ -285,6 +294,49 @@ export type ResultadoBarrido = {
   nuevas: { codigo: string; direccion: string | null; valoracion: string | null }[];
 };
 
+/** Guarda una nota, venga del barrido por numero o de preguntar por una
+ *  direccion. Van a la MISMA tabla por decision de Monica: "no deberian ir
+ *  separadas; el radar nos da info comercial, IEE registrada de nuestro trabajo
+ *  hecho/cobrable". Son dos usos del mismo hecho.
+ *
+ *  `vistoEn` existe por un efecto feo que se vio a tiempo: la pantalla del radar
+ *  enseña los ultimos 14 dias por esa fecha, y cargar de golpe nuestras 1.200
+ *  direcciones con fecha de hoy inundaria el parte de hoy con cientos de filas
+ *  que no se han inscrito hoy. Preguntando por direccion se pasa la fecha de
+ *  EMISION, que ademas es la verdad: ese es el dia en que se registro. */
+export async function guardarNota(nota: NotaIEE, motivo?: MotivoIEE | null, vistoEn?: string | null) {
+  const porQue = motivo === undefined ? porQueInteresa(nota) : motivo;
+  const r = await fetch(`${URL_BASE}/rest/v1/iee_registrado?on_conflict=codigo`, {
+    method: "POST",
+    headers: { ...cabJson, Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({
+      codigo: nota.codigo,
+      referencia: nota.referencia,
+      referencia_parcela: nota.referenciaParcela,
+      direccion: nota.direccion,
+      municipio: nota.municipio,
+      cp: nota.cp,
+      anio_construccion: nota.anioConstruccion,
+      anio_rehabilitacion: nota.anioRehabilitacion,
+      fecha_emision: nota.fechaEmision,
+      valoracion: nota.valoracion,
+      deficiencias_subsanadas: nota.deficienciasSubsanadas,
+      fecha_subsanacion: nota.fechaSubsanacion,
+      accesibilidad_satisface: nota.accesibilidadSatisface,
+      accesibilidad_ajustes: nota.accesibilidadAjustes,
+      calificacion_energetica: nota.calificacionEnergetica,
+      estado_expediente: nota.estadoExpediente,
+      validez: nota.validez,
+      bruto: nota.bruto,
+      ...(vistoEn ? { visto_en: vistoEn } : {}),
+      // Se guarda siempre. "nueva" = hay que repartirla; "sin_interes" = ni
+      // desfavorable ni con accesibilidad pendiente, asi que no molesta a nadie.
+      estado: porQue ? "nueva" : "sin_interes",
+    }),
+  });
+  if (!r.ok) throw new Error(`iee_registrado: ${r.status} ${(await r.text()).slice(0, 200)}`);
+}
+
 /** Tantea hacia delante hasta encadenar `huecosParaParar` numeros que no
  *  existen: ahi se acaba lo publicado. El tope es por seguridad, para que una
  *  pasada nunca se eternice. */
@@ -335,33 +387,7 @@ export async function barrer({
     if (motivo === "desfavorable") desfavorables += 1;
     if (motivo === "accesibilidad") accesibilidad += 1;
 
-    await fetch(`${URL_BASE}/rest/v1/iee_registrado?on_conflict=codigo`, {
-      method: "POST",
-      headers: { ...cabJson, Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({
-        codigo: nota.codigo,
-        referencia: nota.referencia,
-        referencia_parcela: nota.referenciaParcela,
-        direccion: nota.direccion,
-        municipio: nota.municipio,
-        cp: nota.cp,
-        anio_construccion: nota.anioConstruccion,
-        anio_rehabilitacion: nota.anioRehabilitacion,
-        fecha_emision: nota.fechaEmision,
-        valoracion: nota.valoracion,
-        deficiencias_subsanadas: nota.deficienciasSubsanadas,
-        fecha_subsanacion: nota.fechaSubsanacion,
-        accesibilidad_satisface: nota.accesibilidadSatisface,
-        accesibilidad_ajustes: nota.accesibilidadAjustes,
-        calificacion_energetica: nota.calificacionEnergetica,
-        estado_expediente: nota.estadoExpediente,
-        validez: nota.validez,
-        bruto: nota.bruto,
-        // Se guarda siempre. "nueva" = hay que repartirla; "sin_interes" = ni
-        // desfavorable ni con accesibilidad pendiente, asi que no molesta a nadie.
-        estado: motivo ? "nueva" : "sin_interes",
-      }),
-    });
+    await guardarNota(nota, motivo);
 
     nuevas.push({ codigo: nota.codigo, direccion: nota.direccion, valoracion: nota.valoracion });
     if (motivo) avisar.push({ nota, motivo });
