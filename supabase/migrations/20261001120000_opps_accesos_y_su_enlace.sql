@@ -175,6 +175,11 @@ La razon de fondo: la junta vota por el edificio, no por un rellano. Y las
 excepciones son exactamente las opps cuyo NOMBRE nombra el portal -"1 ESC C",
 "escalera derecha", "15 G", "PORTAL G"-, que van una a una.
 
+LA REGLA MAS SOLIDA, y no deduce nada: UNA SOLA ESCALERA REAL. Si en esa
+direccion solo hay un portal con vecinos, cualquier obra ocurre ahi -ascensor,
+rampa, SATE o pericial-, porque no hay otro sitio donde ponerla. No necesita
+saber el tipo de obra. Cerro 57 opps de las 116 que quedaban.
+
 SEGUNDA FUENTE, GRATIS: los nombres de carpeta y de los ficheros 3D nombran el
 portal, porque el tecnico tuvo que ir a medirlo.
     avreconquista6portalG   ·   Julian Besteiro 15 D.glb   ·   Genil 5 A.glb
