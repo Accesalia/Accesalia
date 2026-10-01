@@ -165,9 +165,12 @@ proyecto (unas 300). Dice CUANTOS portales casi siempre, y CUAL casi nunca:
   * cuando la obra es el edificio entero: "9 ASC + 9 SATES", "6 escaleras de 20"
 
 EL TIPO DE OBRA DETERMINA EL GRANO, y es la palanca que de verdad cierra casos:
-    SATE · fachada · cubierta · saneamiento  ->  el EDIFICIO, todos los portales
-    ASCENSOR                                 ->  por escalera, uno cada uno
-    ACCESIBILIDAD · rampa · cota cero        ->  el PORTAL, no una escalera
+    SATE · fachada · cubierta · amianto      ->  el EDIFICIO, todos los portales
+    SANEAMIENTO                              ->  el EDIFICIO
+    ASCENSOR · ELEVADOR                      ->  por escalera, uno cada uno
+    ACCESIBILIDAD · rampa · bajada a cota 0  ->  el PORTAL, no una escalera
+    IEE                                      ->  POR PORTAL: uno por cada uno
+                                                 (Albufera 250: 9 IEEs para 9 portales)
 Lo de accesibilidad es criterio de Monica (1-oct-2026): "salvo que se diga
 expresamente, lo normal es que accesibilidad sea del portal, no de una escalera
 concreta". Una rampa esta en la entrada y sirve a todo lo que hay detras.
@@ -186,6 +189,14 @@ Comprobado 5 de 5 contra las fichas, que suelen decir el numero de ascensores:
 La razon de fondo: la junta vota por el edificio, no por un rellano. Y las
 excepciones son exactamente las opps cuyo NOMBRE nombra el portal -"1 ESC C",
 "escalera derecha", "15 G", "PORTAL G"-, que van una a una.
+
+PRIMERA GRIETA DEL PATRON, encontrada el 1-oct-2026: FUENLABRADA 15 de Alcorcon
+dice "ascensor" en singular, PEM 70.000 y una sola superficie (126,10 -> 88,20
+m2), pero tiene DOS escaleras de 16 viviendas. El patron diria las dos y el
+dinero dice una. Asi que hay un contraste mas, y barato:
+    EL PEM FRENTE AL NUMERO DE ESCALERAS. Un ascensor ronda los 70.000 EUR; si el
+    PEM da para uno y hay tres escaleras, el patron esta mintiendo.
+Esa quedo pendiente de Monica a proposito, sin grabar.
 
 LA REGLA MAS SOLIDA, y no deduce nada: UNA SOLA ESCALERA REAL. Si en esa
 direccion solo hay un portal con vecinos, cualquier obra ocurre ahi -ascensor,
