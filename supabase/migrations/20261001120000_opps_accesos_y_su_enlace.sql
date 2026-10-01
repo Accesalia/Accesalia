@@ -75,6 +75,13 @@ Valdemorillo 1 (titulada "escalera derecha", 12 de 30 viviendas, y C=12 D=12 I=6
 Las de 0 viviendas no son portales... SALVO que el encargo sea precisamente eso:
 Longares 8(B) es un garaje con humedades y es un acceso legitimo.
 
+Y OJO CON LOS EDIFICIOS QUE NO SON DE VIVIENDAS: AV EUROPA 20 de Alcobendas es
+CBRE GWS ESPAÑA S.L., CIF B83402883 -una EMPRESA, no una comunidad de
+propietarios-. Catastro declara UN solo inmueble y 0 viviendas, y es CORRECTO
+porque son oficinas. Ahi la letra de escalera (T) no es un trastero: es la
+etiqueta del unico inmueble. Pasa igual en AV OESTE 1 de Alcorcon. No confundir
+"0 viviendas" con "dato incompleto": mirar primero cuantos inmuebles tiene.
+
 EL UMBRAL SON 3 VIVIENDAS (criterio de Monica, 1-oct-2026): un portal con 1 o 2
 viviendas NO es una escalera, es la porteria o un local mal clasificado. Sirve
 para decidir cuando una direccion tiene UN solo portal de verdad y por tanto el
