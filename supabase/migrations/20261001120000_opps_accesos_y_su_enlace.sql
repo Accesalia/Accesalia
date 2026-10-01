@@ -163,6 +163,18 @@ No es heuristica sobre el nombre: es lo que fisicamente abarca la obra. Un
 aislamiento no se para en el rellano y un ascensor no sirve a dos escaleras.
 El tipo ya esta en la base: proyecto_tipos, 636 filas sobre 609 proyectos.
 
+Y PARA EL ASCENSOR, el patron que acepto Monica el 1-oct-2026:
+    tipo = ascensor Y el nombre NO nombra portal  ->  TODAS las escaleras reales
+Comprobado 5 de 5 contra las fichas, que suelen decir el numero de ascensores:
+    Albufera 250        "9 ASC + 9 SATES"      Catastro: 9 escaleras
+    Puerto Morcuera 11  "6 ASCENSORES"         Catastro: 6
+    Tubo 5              "ASC (4) + ELEVADOR"   Catastro: 4
+    Sahara 83           "2 ASCENSORES"         Catastro: 2
+    Francisca Delgado 7 "7 ascensores"         Catastro: 8 (Monica: son 8)
+La razon de fondo: la junta vota por el edificio, no por un rellano. Y las
+excepciones son exactamente las opps cuyo NOMBRE nombra el portal -"1 ESC C",
+"escalera derecha", "15 G", "PORTAL G"-, que van una a una.
+
 SEGUNDA FUENTE, GRATIS: los nombres de carpeta y de los ficheros 3D nombran el
 portal, porque el tecnico tuvo que ir a medirlo.
     avreconquista6portalG   ·   Julian Besteiro 15 D.glb   ·   Genil 5 A.glb
