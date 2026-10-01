@@ -20,6 +20,31 @@
 //     desde la pantalla de la oportunidad. El correo falla -asuntos mal escritos,
 //     ficheros de mas de 25 MB, reenvios desde el movil- y cuando falle tiene que
 //     haber otra forma. No es un apaño temporal: es la salida de emergencia.
+//
+// SEGUNDA VUELTA (1-oct-2026). Resulta que el buzon llevaba 72 pasadas limpias y
+// CERO escaneos guardados, y no estaba roto: miraba donde no hay nada. Los
+// comerciales mandan un ENLACE de poly.cam en el cuerpo, y el `polycam.png` que
+// viene adjunto no es el escaneo, es la miniatura del enlace.
+//
+// Tres cosas cambian:
+//
+//  4. EL FICHERO Y EL ENLACE SON EL MISMO DOCUMENTO CON DISTINTO CUERPO. Si cabe,
+//     se guarda (backend='supabase'). Si no cabe, se apunta la URL
+//     (backend='enlace') y queda marcado como incompleto a proposito. NO hay
+//     descarga automatica: criterio de Monica, "si llega fichero se guarda; si no,
+//     Alex lo descarga y lo guarda a mano. El 80% de las veces lo tiene hecho".
+//     Gmail convierte en enlace de Drive todo adjunto de mas de 25 MB, y los GLB
+//     van de 3 a 36 MB, asi que esto pasa de verdad.
+//
+//  5. LA MINIATURA NO ES EL ESCANEO. Va al tipo "Captura del 3D", que ya existe en
+//     el catalogo y sirve de portada. Guardarla como "Escaneo Polycam" seria
+//     basura disfrazada de dato.
+//
+//  6. EL ESCANEO ES DE UN PORTAL, NO DE UNA DIRECCION. "El tecnico no quiere Genil
+//     5, quiere Genil 5 A", y cada escalera se escanea por separado. Si el asunto
+//     no dice la escalera, se vincula a TODAS las de esa direccion: se vinculan
+//     ids, no se duplica el fichero. "Entre por donde entre, encontrare el
+//     escaneo".
 
 import "server-only";
 
@@ -96,12 +121,52 @@ export function correoLlano(e: string): string {
   return `${local}@${dominio}`;
 }
 
+/** Lo que el correo añade por su cuenta al reenviar. Solo cuenta al principio. */
+const REENVIO = new Set(["FWD", "FW", "RE", "RV", "RES", "ESCANEO", "ESCANER", "POLYCAM", "3D"]);
+
+/** Tipos de via. Se quitan SOLO si van delante, que es donde hacen de tipo. En
+ *  "VIRGEN DEL CAMINO 4" o en "PLAZA DE LA ALBUFERA 11" la palabra es parte del
+ *  nombre de la calle, y quitarla de ahi confunde direcciones distintas: sin esta
+ *  regla, "VIRGEN DEL CAMINO 4 LEGANES" encajaba con "VIRGEN DE ICIAR 15
+ *  ESCALERA 4 ALCORCON". Y "C" no se puede quitar en medio porque es la escalera
+ *  C de Santa Cruz de Marcenado 1, que no es la D ni la E. */
+const TIPOS_VIA = new Set([
+  "CALLE", "C", "CL", "AVENIDA", "AV", "AVDA", "AVD", "PLAZA", "PZ", "PL",
+  "PASEO", "PS", "PO", "CAMINO", "CM", "CNO", "CARRETERA", "CR", "CTRA",
+  "TRAVESIA", "TR", "RONDA", "RD", "GLORIETA", "GTA", "VEREDA", "SENDA",
+  "BULEVAR", "BL", "COLONIA", "URBANIZACION", "URB", "POLIGONO", "PG",
+]);
+
+/** Particulas y muletillas del numero: no distinguen nada en ningun sitio. */
+const PARTICULAS = new Set(["DE", "DEL", "LA", "EL", "LOS", "LAS", "Y", "NUM", "NO"]);
+
+/** Las palabras que de verdad nombran la direccion, en orden. */
+function significativas(s: string): string[] {
+  const t = aplanar(s).split(" ").filter(Boolean);
+  while (t.length && REENVIO.has(t[0])) t.shift();
+  if (t.length && TIPOS_VIA.has(t[0])) t.shift();
+  return t.filter((p) => !PARTICULAS.has(p));
+}
+
+export type ComunidadCotejable = { id: string; nombre: string; municipio?: string | null };
+
 /** Una direccion del asunto contra la lista de comunidades. Devuelve la comunidad
- *  SOLO si no hay duda: si encajan dos, no encaja ninguna. */
+ *  SOLO si no hay duda: si encajan dos, no encaja ninguna.
+ *
+ *  El cotejo es por CONJUNTO DE PALABRAS, que es la regla que ya vale para el
+ *  callejero, y no por cadena. Comparar cadenas falla con la direccion correcta
+ *  escrita por la persona correcta: "Fwd: Calle Cristo de la victoria 129" contra
+ *  "CRISTO DE LA VICTORIA 129 MADRID" no cabe en ningun sentido, porque al asunto
+ *  le sobran FWD y CALLE y al nombre le sobra MADRID (1-oct-2026, primer correo
+ *  real que entro al buzon: se perdio por esto).
+ *
+ *  Encaja si TODAS las palabras del nombre estan en el asunto, descontando el
+ *  municipio: el comercial no lo escribe, y Monica lo lleva pegado al final de
+ *  cada nombre. El numero entra en esa cuenta, y es lo que separa el 129 del 131. */
 export function cotejar(
   asunto: string,
-  comunidades: { id: string; nombre: string }[],
-): { id: string; nombre: string } | null {
+  comunidades: ComunidadCotejable[],
+): ComunidadCotejable | null {
   const a = aplanar(asunto);
   if (a.length < 6) return null;
 
@@ -109,11 +174,68 @@ export function cotejar(
   if (exactas.length === 1) return exactas[0];
   if (exactas.length > 1) return null;
 
-  const dentro = comunidades.filter((c) => {
-    const n = aplanar(c.nombre);
-    return n.length >= 6 && (a.includes(n) || n.includes(a));
+  const enAsunto = significativas(asunto);
+  if (!enAsunto.length) return null;
+  const hay = new Set(enAsunto);
+  const esNumero = (p: string) => /^\d/.test(p);
+  const asuntoTieneNumero = enAsunto.some(esNumero);
+
+  /** Las palabras con las que esta comunidad se distingue: las de su nombre,
+   *  descontando su municipio (que el comercial no suele escribir). */
+  const clave = (c: ComunidadCotejable) => {
+    const todas = significativas(c.nombre);
+    const delMunicipio = new Set(significativas(c.municipio ?? ""));
+    const sin = todas.filter((p) => !delMunicipio.has(p));
+    // Si al quitar el municipio no queda calle, el municipio ERA la calle:
+    // "TORREJON 12 TORREJON DE ARDOZ", "MADRID 38-40 HUMANES DE MADRID".
+    return sin.some((p) => !esNumero(p)) ? sin : todas;
+  };
+
+  const cabe = (suyas: string[]): boolean => {
+    // Una sola palabra no basta para jugarse un documento, y solo numeros no
+    // nombran ninguna calle: "MADRID 38-40 HUMANES DE MADRID" se queda en
+    // [38, 40] al descontarle su municipio, y eso encaja con cualquier cosa.
+    if (suyas.length < 2) return false;
+    if (!suyas.some((p) => !esNumero(p))) return false;
+    if (!suyas.every((p) => hay.has(p))) return false;
+
+    const numeros = suyas.filter(esNumero);
+
+    // Sin numero no se come a los que lo tienen: "ALFONSO XII MADRID" encajaba
+    // dentro de los cuatro Alfonso XII de Mostoles.
+    if (!numeros.length) return !asuntoTieneNumero;
+
+    // La calle va DELANTE de su numero, y basta con su primera palabra: detras
+    // del numero va el portal, la letra, el BIS, el barrio o la provincia, y eso
+    // cambia de una direccion a otra ("ABREVADERO 2 PORTAL 16",
+    // "ARTURO SORIA 162 A", "ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA TOLEDO").
+    // Sin esta guarda, "TOLEDO 2 ALCORCON" encajaba dentro de
+    // "CAPITAN DAOIZ 2 TALAVERA DE LA REINA.TOLEDO": sus dos palabras estaban,
+    // pero separadas y en desorden.
+    const cabeza = suyas.find((p) => !esNumero(p))!;
+    return enAsunto.indexOf(cabeza) < enAsunto.indexOf(numeros[0]);
+  };
+
+  let candidatas = comunidades
+    .map((c) => ({ c, suyas: clave(c) }))
+    .filter((x) => cabe(x.suyas));
+  if (!candidatas.length) return null;
+
+  // Primer desempate: el MUNICIPIO, si el asunto lo nombra. "CAÑADA 8" existe en
+  // Alcorcon y en Madrid, y son dos fincas que no tienen nada que ver.
+  const conMunicipio = candidatas.filter((x) => {
+    const mun = significativas(x.c.municipio ?? "");
+    return mun.length > 0 && mun.every((p) => hay.has(p));
   });
-  return dentro.length === 1 ? dentro[0] : null;
+  if (conMunicipio.length) candidatas = conMunicipio;
+  if (candidatas.length === 1) return candidatas[0].c;
+
+  // Segundo desempate: gana la MAS ESPECIFICA, la que gasta mas palabras del
+  // asunto. Si el comercial escribe "ESPARTA 5-7", la finca agrupada es la
+  // respuesta, no un empate con "ESPARTA 5" y "ESPARTA 7".
+  const largo = Math.max(...candidatas.map((x) => x.suyas.length));
+  const masLargas = candidatas.filter((x) => x.suyas.length === largo);
+  return masLargas.length === 1 ? masLargas[0].c : null;
 }
 
 // ------------------------------------------------------------------ almacen
@@ -201,8 +323,49 @@ export async function avisarAQuienHace(
 
 // ------------------------------------------------------------------- el paso
 
+/** Gmail aparta a Spam lo que no conoce, y un zip de un desconocido es
+ *  exactamente su perfil. El buzon solo miraba INBOX, asi que un escaneo caido
+ *  en Spam no existia y no iba a existir nunca: el 1-oct-2026 el primer escaneo
+ *  enviado desde un movil no aparecio por ningun lado, con el reloj corriendo
+ *  cada diez minutos y dando mirados: 0.
+ *
+ *  La regla es la de Monica: de los remitentes dados de alta en la app no se va
+ *  nada a Spam, porque nadie mas escribe a ese buzon. Aqui se aplica donde la
+ *  controlamos nosotros, y eso es mejor que un filtro de Gmail: no hay nada que
+ *  configurar, nadie lo puede desconfigurar y no depende de una API que las
+ *  contrasenas de aplicacion no abren.
+ *
+ *  Solo RESCATA: mira el remitente, mueve el correo a INBOX y lo deja para la
+ *  pasada normal de abajo. No descarga nada, asi que un zip de 20 MB tirado en
+ *  Spam no cuesta un byte hasta que se sabe que es de casa. */
+async function rescatarDeSpam(cliente: ImapFlow, delEquipo: Set<string>): Promise<number> {
+  const buzones = await cliente.list();
+  // El nombre del buzon de Spam cambia con el idioma de la cuenta. Lo que no
+  // cambia es su marca IMAP, \Junk, y por eso se busca por ahi y no por nombre.
+  const spam = buzones.find((b) => b.specialUse === "\\Junk");
+  if (!spam) return 0;
+
+  let rescatados = 0;
+  const cerrojo = await cliente.getMailboxLock(spam.path);
+  try {
+    const uids = await cliente.search({ seen: false });
+    if (!Array.isArray(uids)) return 0;
+    for (const uid of uids) {
+      const sobre = await cliente.fetchOne(String(uid), { envelope: true }, { uid: true });
+      const de = sobre && sobre.envelope?.from?.[0]?.address;
+      if (!de || !delEquipo.has(correoLlano(de))) continue;
+      await cliente.messageMove(String(uid), "INBOX", { uid: true });
+      rescatados++;
+    }
+  } finally {
+    cerrojo.release();
+  }
+  return rescatados;
+}
+
 export type Repaso = {
   mirados: number;
+  rescatados: number;
   colocados: number;
   sinSitio: { de: string; asunto: string; porque: string }[];
   avisos: number;
@@ -275,7 +438,7 @@ export async function repasarBuzon(): Promise<Repaso> {
   if (!usuario || !clave) throw new Error("Faltan BUZON_POLYCAM_USUARIO / BUZON_POLYCAM_CLAVE en el entorno.");
 
   const [comunidades, equipo, tipos] = await Promise.all([
-    leerTodo<{ id: string; nombre: string }>("comunidades?select=id,nombre"),
+    leerTodo<ComunidadCotejable>("comunidades?select=id,nombre,municipio"),
     leer<{ id: string; email: string | null }[]>("equipo?select=id,email&activo=is.true"),
     leer<{ id: string; nombre: string }[]>("tipos_documento?select=id,nombre&nombre=eq.Escaneo%20Polycam&limit=1"),
   ]);
@@ -292,9 +455,11 @@ export async function repasarBuzon(): Promise<Repaso> {
     logger: false,
   });
 
-  const r: Repaso = { mirados: 0, colocados: 0, sinSitio: [], avisos: 0, errores: [] };
+  const r: Repaso = { mirados: 0, rescatados: 0, colocados: 0, sinSitio: [], avisos: 0, errores: [] };
 
   await cliente.connect();
+  // Primero se rescata lo que Gmail aparto, para que entre en ESTA pasada.
+  r.rescatados = await rescatarDeSpam(cliente, new Set(porCorreo.keys()));
   const cerrojo = await cliente.getMailboxLock("INBOX");
   try {
     // Sin leer y sin la etiqueta de "ya miré esto y no supe colocarlo".
@@ -389,7 +554,7 @@ export async function sinSitio(): Promise<CorreoSinSitio[]> {
   const clave = process.env.BUZON_POLYCAM_CLAVE;
   if (!usuario || !clave) return [];
 
-  const comunidades = await leerTodo<{ id: string; nombre: string }>("comunidades?select=id,nombre");
+  const comunidades = await leerTodo<ComunidadCotejable>("comunidades?select=id,nombre,municipio");
 
   const cliente = new ImapFlow({
     host: "imap.gmail.com",
