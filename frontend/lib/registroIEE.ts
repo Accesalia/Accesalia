@@ -197,6 +197,13 @@ export async function leerNota(codigo: string): Promise<NotaIEE | null> {
 export type MotivoIEE = "desfavorable" | "accesibilidad";
 
 export function porQueInteresa(n: NotaIEE): MotivoIEE | null {
+  // "Exento" no es un lead ni un dato incompleto: no hay obligacion de
+  // accesibilidad, y por eso la nota trae esos campos en blanco y la validez con
+  // asterisco. Tiene que estar AQUI y no solo en la pantalla: esta funcion fija
+  // el `estado` de la fila, y si las dos reglas no dicen lo mismo, la tabla y la
+  // pantalla se contradicen. Ya paso: una fila marcada "nueva" que la pantalla
+  // no enseñaba.
+  if ((n.estadoExpediente ?? "").toLowerCase() === "exento") return null;
   if ((n.valoracion ?? "").toLowerCase().startsWith("desfavorable")) return "desfavorable";
   // "El edificio satisface completamente las condiciones de accesibilidad" = No.
   if (n.accesibilidadSatisface === false) return "accesibilidad";
