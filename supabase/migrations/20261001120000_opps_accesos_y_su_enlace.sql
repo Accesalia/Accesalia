@@ -190,13 +190,21 @@ La razon de fondo: la junta vota por el edificio, no por un rellano. Y las
 excepciones son exactamente las opps cuyo NOMBRE nombra el portal -"1 ESC C",
 "escalera derecha", "15 G", "PORTAL G"-, que van una a una.
 
-PRIMERA GRIETA DEL PATRON, encontrada el 1-oct-2026: FUENLABRADA 15 de Alcorcon
-dice "ascensor" en singular, PEM 70.000 y una sola superficie (126,10 -> 88,20
-m2), pero tiene DOS escaleras de 16 viviendas. El patron diria las dos y el
-dinero dice una. Asi que hay un contraste mas, y barato:
-    EL PEM FRENTE AL NUMERO DE ESCALERAS. Un ascensor ronda los 70.000 EUR; si el
-    PEM da para uno y hay tres escaleras, el patron esta mintiendo.
-Esa quedo pendiente de Monica a proposito, sin grabar.
+Y EL PATRON AGUANTO UNA PRUEBA, con una leccion de por medio. FUENLABRADA 15 de
+Alcorcon dice "ascensor" en singular y PEM 70.000 con DOS escaleras de 16
+viviendas, asi que dude: propuse contrastar el PEM contra el numero de escaleras
+-un ascensor ronda los 70.000- y dar el patron por roto.
+
+Me equivoque en las dos cosas. El acta de votacion dice que la obra cuesta
+225.170 EUR, o sea que `proyectos.pem` NO es el coste de obra y ese contraste no
+vale. Y lo mas importante:
+
+    UN SOLO ASCENSOR PUEDE SERVIR A DOS ACCESOS si es de NUCLEO COMUN.
+    Acta de Fuenlabrada 15: "en el patio, para facilitar el embarque a AMBOS
+    LADOS, se colocara una pasarela de cristal traslucido con ventilacion".
+
+Asi que contar ascensores NO es contar accesos, y el patron -todas las escaleras
+reales- sale reforzado, no roto.
 
 LA REGLA MAS SOLIDA, y no deduce nada: UNA SOLA ESCALERA REAL. Si en esa
 direccion solo hay un portal con vecinos, cualquier obra ocurre ahi -ascensor,
