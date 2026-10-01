@@ -206,6 +206,12 @@ vale. Y lo mas importante:
 Asi que contar ascensores NO es contar accesos, y el patron -todas las escaleras
 reales- sale reforzado, no roto.
 
+EN CASO DE DUDA, TODOS. Criterio de Monica, dicho dos veces (Alcalde de Mostoles
+9 y Av Aragon 1): "no tengo ni idea, vamos a darle TODAS las escaleras sin mas.
+Caso habitual: no lo sabemos, ya nos enteraremos despues". Es el valor por
+defecto correcto: no bloquea, no afirma de menos, y se corrige solo el dia que
+alguien mire. Lo contrario -dejarlo vacio- hace que la opp no exista para nadie.
+
 LA REGLA MAS SOLIDA, y no deduce nada: UNA SOLA ESCALERA REAL. Si en esa
 direccion solo hay un portal con vecinos, cualquier obra ocurre ahi -ascensor,
 rampa, SATE o pericial-, porque no hay otro sitio donde ponerla. No necesita
