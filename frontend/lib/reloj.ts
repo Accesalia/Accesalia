@@ -85,9 +85,54 @@ export type Reloj = { tarea: string; nombre: string; cada: string; ruta: string 
 export const RELOJES: Reloj[] = [
   { tarea: "buzon_polycam", nombre: "Buzón del Polycam", cada: "cada 10 minutos", ruta: "/api/buzon/polycam" },
   { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 7:15", ruta: "/api/iee/barrido" },
-  { tarea: "comunidades_catastro", nombre: "Rellenar Catastro", cada: "a mano · el barrido ya acabó", ruta: "/api/comunidades/catastro" },
-  { tarea: "callejero_catastro", nombre: "Callejero oficial", cada: "cada 5 minutos · temporal, hasta bajarlo", ruta: "/api/callejero/cargar" },
-  { tarea: "fichas_catastro", nombre: "Fichas de Catastro", cada: "cada 5 minutos · temporal, hasta bajarlas", ruta: "/api/catastro/fichas" },
+];
+
+// ============================================================================
+// LOS RETIRADOS: tareas que ACABARON y ya no tienen horario.
+// ============================================================================
+//
+// Criterio de Monica (1-oct-2026), y es el bueno: un reloj dormido es peor que
+// no tenerlo. "No siempre nos daremos cuenta de que existen, si no los buscamos
+// expresamente, y quitarlos / ponerlos parece bastante trivial: creo que sera
+// mas facil ponerlos desde cero mas adelante que recuperarlos".
+//
+// Asi que el HORARIO se borra de vercel.json y la tarea baja aqui. Lo que NO se
+// borra nunca es la RUTA ni su codigo: ahi vive el trabajo de verdad (el cotejo
+// del callejero por conjunto de palabras, las abreviaturas, el BIS -> (B)...),
+// y eso si seria costoso de rehacer. Sin horario la ruta sigue viva y se lanza
+// a mano añadiendole ?hacer=1 a la direccion.
+//
+// Esta lista hace dos cosas: deja constancia de que existieron (es la respuesta
+// a "documentemos que estan ahi") y da nombre a sus pasadas antiguas en el
+// historial de /relojes, que si no saldrian con el nombre tecnico a secas.
+//
+// Para volver a encender cualquiera: una entrada en frontend/vercel.json con su
+// ruta y un horario de cron. Nada mas.
+
+export type Retirado = Reloj & { porque: string };
+
+export const RETIRADOS: Retirado[] = [
+  {
+    tarea: "comunidades_catastro",
+    nombre: "Rellenar Catastro",
+    cada: "retirado · acabó el 30-sep-2026",
+    ruta: "/api/comunidades/catastro",
+    porque: "Escribió la referencia catastral, el CP y las coordenadas de las 1.218 comunidades que se pudieron cotejar. No quedan pendientes.",
+  },
+  {
+    tarea: "callejero_catastro",
+    nombre: "Callejero oficial",
+    cada: "retirado · acabó el 1-oct-2026",
+    ruta: "/api/callejero/cargar",
+    porque: "Bajó las 71.802 vías de los 185 municipios de Madrid. El refresco debe ir donde se usa (la pantalla de alta, cuando una calle no aparezca), no en un horario.",
+  },
+  {
+    tarea: "fichas_catastro",
+    nombre: "Fichas de Catastro",
+    cada: "retirado · acabó el 1-oct-2026",
+    ruta: "/api/catastro/fichas",
+    porque: "Bajó la ficha de los 1.244 accesos: 1.184 parcelas, 2.524 portales y 46.456 inmuebles. Para comunidades nuevas se lanza a mano con ?hacer=1.",
+  },
 ];
 
 export type Pasada = {

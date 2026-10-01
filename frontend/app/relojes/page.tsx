@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { quienSoy } from "../../lib/sesion";
-import { RELOJES, ultimaDeCadaReloj, ultimasPasadas, type Pasada } from "../../lib/reloj";
+import { RELOJES, RETIRADOS, ultimaDeCadaReloj, ultimasPasadas, type Pasada } from "../../lib/reloj";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +70,10 @@ export default async function Relojes() {
   if (!yo.veTodo) redirect("/menu");
 
   const [ultimas, historial] = await Promise.all([ultimaDeCadaReloj(), ultimasPasadas(80)]);
-  const porTarea = new Map(RELOJES.map((r) => [r.tarea, r]));
+  // Los retirados entran SOLO para poner nombre a sus pasadas antiguas del
+  // historial. Arriba no salen: una tarea sin horario no es un reloj, y
+  // anunciarla como si lo fuera es justo la mentira que esta pantalla evita.
+  const porTarea = new Map([...RELOJES, ...RETIRADOS].map((r) => [r.tarea, r]));
   const nombreDe = (tarea: string) => porTarea.get(tarea)?.nombre ?? tarea;
 
   return (

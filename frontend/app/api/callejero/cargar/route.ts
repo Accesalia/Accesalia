@@ -27,6 +27,13 @@ import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 //    ?municipios=1&provincia=TOLEDO&filtro=TALAVERA
 // y la siguiente tanda ya lo baja.
 
+//
+// YA NO TIENE RELOJ (1-oct-2026). El trabajo acabo y el horario se quito de
+// vercel.json a peticion de Monica: un cron dormido no se encuentra cuando hace
+// falta. La ruta sigue viva: se lanza a mano abriendola con ?hacer=1. Para
+// volver a programarla, una entrada en frontend/vercel.json. Ver RETIRADOS en
+// lib/reloj.ts.
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;

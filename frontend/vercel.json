@@ -10,14 +10,6 @@
     {
       "path": "/api/iee/barrido",
       "schedule": "15 7 * * *"
-    },
-    {
-      "path": "/api/callejero/cargar",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/catastro/fichas",
-      "schedule": "*/5 * * * *"
     }
   ]
 }
