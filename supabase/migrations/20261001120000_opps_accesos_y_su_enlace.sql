@@ -69,6 +69,8 @@ es lo UNICO que separa dos parcelas que ambas llaman "36". Criterio de Monica:
 LAS LETRAS DE ESCALERA DE CATASTRO SIGNIFICAN ALGO, descubierto con la ficha de
 Valdemorillo 1 (titulada "escalera derecha", 12 de 30 viviendas, y C=12 D=12 I=6):
   D = derecha    I = izquierda    C = centro
+  DR = derecha   IZ / IZDA = izquierda          (Gallegos 12, Jeromin 23)
+  1D 1I 2D 2I = numero de portal pegado al lado (Montejurra 31 y 33)
   T = trastero   G = garaje       L = local      S = sotano
 Las de 0 viviendas no son portales... SALVO que el encargo sea precisamente eso:
 Longares 8(B) es un garaje con humedades y es un acceso legitimo.
@@ -158,7 +160,10 @@ proyecto (unas 300). Dice CUANTOS portales casi siempre, y CUAL casi nunca:
 EL TIPO DE OBRA DETERMINA EL GRANO, y es la palanca que de verdad cierra casos:
     SATE · fachada · cubierta · saneamiento  ->  el EDIFICIO, todos los portales
     ASCENSOR                                 ->  por escalera, uno cada uno
-    RAMPA · bajada a cota cero               ->  por entrada
+    ACCESIBILIDAD · rampa · cota cero        ->  el PORTAL, no una escalera
+Lo de accesibilidad es criterio de Monica (1-oct-2026): "salvo que se diga
+expresamente, lo normal es que accesibilidad sea del portal, no de una escalera
+concreta". Una rampa esta en la entrada y sirve a todo lo que hay detras.
 No es heuristica sobre el nombre: es lo que fisicamente abarca la obra. Un
 aislamiento no se para en el rellano y un ascensor no sirve a dos escaleras.
 El tipo ya esta en la base: proyecto_tipos, 636 filas sobre 609 proyectos.
