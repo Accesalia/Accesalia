@@ -6,6 +6,8 @@ import {
   agregadoPorMes,
   comercialesActivos,
   diasParaAbrirOportunidad,
+  grado,
+  porQue,
   radarPorDias,
   repartidas,
 } from "../../../lib/alertasIEE";
@@ -15,7 +17,13 @@ import { Asignador, VolverAlMonton } from "./Piezas";
 export const dynamic = "force-dynamic";
 
 // ============================================================================
-// EL RADAR DE IEE DESFAVORABLES (Monica, 29-sep-2026)
+// EL RADAR DE IEE (Monica, 29-sep-2026; el criterio, el 1-oct-2026)
+//
+// EMPEZO SIENDO "el radar de IEE desfavorables" y dejo de serlo cuando ella vio
+// por que ese filon llega tarde: "casi ninguna comunidad presenta una IEE
+// desfavorable si no tiene ya resuelto como hacerla, porque saben que les
+// obligaran". El bueno es el contrario, y la regla entera esta en `grado()` de
+// lib/alertasIEE.ts. Aqui solo se pinta en ese orden.
 //
 // Lo que pidio, literal:
 //
@@ -91,12 +99,14 @@ export default async function AlertasIEE({
           <div>
             <div className={ROTULO}>Canal de captación</div>
             <h1 className="mt-1 text-[25px] font-bold leading-tight text-carbon">
-              Radar de IEE desfavorables
+              Radar de IEE
             </h1>
             <p className="mt-1.5 max-w-[70ch] text-[13px] text-carbon/60">
               Cada mañana se mira el registro de la Comunidad de Madrid y se recoge lo que se ha
-              inscrito de nuevo. Un IEE desfavorable es un edificio al que el ayuntamiento le ha
-              dado plazo para resolver: <b className="text-carbon/80">van a necesitar un arquitecto</b>.
+              inscrito de nuevo. Arriba de cada día va lo mejor:{" "}
+              <b className="text-carbon/80">el que no cumple accesibilidad y no puede pagarla solo</b>,
+              porque necesita la subvención y porque, al estar su informe favorable, nadie le está
+              mirando. Las desfavorables van al final: ésas ya llegan con arquitecto puesto.
             </p>
           </div>
           {sinAsignar > 0 && (
@@ -144,6 +154,7 @@ export default async function AlertasIEE({
               <thead>
                 <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
                   <th className="px-4 py-2 font-bold">Dirección</th>
+                  <th className="px-3 py-2 font-bold">Por qué está aquí</th>
                   <th className="px-3 py-2 font-bold">El informe</th>
                   <th className="px-3 py-2 font-bold">Comercial</th>
                   <th className="px-4 py-2 font-bold">¿Oportunidad abierta?</th>
@@ -153,7 +164,7 @@ export default async function AlertasIEE({
               {dias.map((d) => (
                 <tbody key={d.dia}>
                   <tr className="border-y border-black/5 bg-hueso/60">
-                    <td colSpan={4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
+                    <td colSpan={5} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
                       {d.dia === hoy ? "Hoy · " : ""}
                       {comoSeDice(d.dia)}
                     </td>
@@ -161,7 +172,7 @@ export default async function AlertasIEE({
 
                   {d.alertas.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
+                      <td colSpan={5} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
                         — {d.dia === hoy ? "hoy" : "ese día"} no había nada —
                       </td>
                     </tr>
@@ -198,6 +209,25 @@ export default async function AlertasIEE({
                                   : `Misma calle que ${a.nuestra.comunidad}`}
                               </div>
                             )}
+                          </td>
+                          {/* POR QUE ESTA AQUI. La tabla tenia 4 columnas por
+                              encargo suyo -"sin mas complejidad"-, y esta quinta
+                              entra porque ella lo abrio al cambiar el criterio:
+                              "el criterio cambia, porque los datos que se
+                              muestran tambien. Demos la info que necesita".
+                              Y hace falta: con dos motivos distintos, quien
+                              reparte no puede saber cual es cada uno sin abrir
+                              el informe. Las dos primeras en negro, que son las
+                              buenas; las demas en gris. */}
+                          <td className="px-3 py-2">
+                            <span
+                              className={
+                                "text-[12px] " +
+                                (grado(a)! <= 2 ? "font-semibold text-carbon/80" : "text-carbon/45")
+                              }
+                            >
+                              {porQue[grado(a)!]}
+                            </span>
                           </td>
                           <td className="px-3 py-2">
                             <Link

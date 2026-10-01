@@ -214,14 +214,67 @@ export const diaEnMadrid = (d: Date = new Date()): string =>
 
 export type DiaDeRadar = { dia: string; alertas: AlertaIEE[] };
 
+// ---------------------------------------------------------------- el orden
+
+/** EL ORDEN DE CALIDAD DE UN LEAD (Monica, 1-oct-2026). No es el que parecia, y
+ *  son DOS preguntas en este orden:
+ *
+ *  1. Manda la VALORACION, y la FAVORABLE va PRIMERO. "Casi ninguna comunidad
+ *     presenta una IEE desfavorable si no tiene ya resuelto como hacerla, porque
+ *     saben que les obligaran": la desfavorable llega con arquitecto puesto. La
+ *     favorable que no cumple accesibilidad es territorio virgen, y nadie la
+ *     esta mirando porque no sale en ninguna lista de desfavorables.
+ *
+ *  2. Dentro de eso, los AJUSTES RAZONABLES. "Ajustes razonables" en una IEE
+ *     significa que la obra NO sube la cuota mas de 3 veces la ordinaria; por
+ *     encima se considera esfuerzo economico excesivo y la comunidad no esta
+ *     obligada. Asi que un "NO" quiere decir QUE NO PUEDEN PAGARLA SOLOS, y eso
+ *     es exactamente lo que vende Accesalia: la subvencion. El NO va DELANTE.
+ *
+ *  Y "Exento" no es un lead ni un dato incompleto: no hay obligacion de
+ *  accesibilidad, y por eso la nota trae esos campos en blanco y la validez con
+ *  asterisco.
+ *
+ *  La regla vive AQUI y en un solo sitio, no partida entre una consulta y una
+ *  funcion: antes el filtro estaba metido en la URL (`valoracion=ilike.
+ *  Desfavorable*`) y por eso la pantalla no podia ver una favorable ni queriendo. */
+export type Grado = 1 | 2 | 3 | 4 | 5;
+
+const esDesfavorable = (a: AlertaIEE) =>
+  (a.valoracion ?? "").toLowerCase().startsWith("desfavorable");
+
+/** null = no es un lead. */
+export function grado(a: AlertaIEE): Grado | null {
+  if ((a.estadoExpediente ?? "").toLowerCase() === "exento") return null;
+  const malo = esDesfavorable(a);
+  if (a.accesibilidadSatisface === false) {
+    const necesitaSubvencion = a.accesibilidadAjustes === false;
+    if (!malo) return necesitaSubvencion ? 1 : 2;
+    return necesitaSubvencion ? 3 : 4;
+  }
+  // Cumple accesibilidad: solo interesa si esta desfavorable, y es lo ultimo,
+  // porque entonces el problema es de conservacion o estructura.
+  return malo ? 5 : null;
+}
+
+export const porQue: Record<Grado, string> = {
+  1: "No cumple accesibilidad · no pueden pagarla solos",
+  2: "No cumple accesibilidad · pueden pagarla",
+  3: "Desfavorable · no pueden pagarla solos",
+  4: "Desfavorable · pueden pagarla",
+  5: "Desfavorable por conservación",
+};
+
 /** Las desfavorables de los ultimos `dias` dias, AGRUPADAS POR DIA Y SIN SALTAR
  *  NINGUNO: los dias vacios tambien salen, porque "si no ha habido, que lo diga
  *  tambien". Un dia que falta no se distingue de un dia que nadie miro. */
 export async function radarPorDias(dias = 14): Promise<DiaDeRadar[]> {
   const desde = new Date(Date.now() - dias * 864e5);
+  // Se piden TODAS las del periodo y se criba aqui con `grado`. Son unas seis a
+  // la semana en toda la Comunidad, asi que el volumen no es problema, y la regla
+  // queda en un solo sitio en vez de repartida entre la URL y el codigo.
   const filas = await leer<Fila>(
-    `iee_registrado?select=${CAMPOS}&valoracion=ilike.Desfavorable*` +
-      `&visto_en=gte.${desde.toISOString()}&order=visto_en.desc`,
+    `iee_registrado?select=${CAMPOS}&visto_en=gte.${desde.toISOString()}&order=visto_en.desc`,
   );
 
   // Las comunidades se traen UNA vez y se cotejan en memoria: son mil y pico
@@ -230,16 +283,19 @@ export async function radarPorDias(dias = 14): Promise<DiaDeRadar[]> {
 
   const porDia = new Map<string, AlertaIEE[]>();
   for (const f of filas) {
+    const a = vestir(f);
+    if (grado(a) === null) continue;
     const d = diaEnMadrid(new Date(f.visto_en));
     if (!porDia.has(d)) porDia.set(d, []);
-    const a = vestir(f);
     porDia.get(d)!.push({ ...a, nuestra: cotejar(a, nuestras) });
   }
 
   const lista: DiaDeRadar[] = [];
   for (let i = 0; i < dias; i++) {
     const d = diaEnMadrid(new Date(Date.now() - i * 864e5));
-    lista.push({ dia: d, alertas: porDia.get(d) ?? [] });
+    // Lo mejor arriba: dentro de cada dia manda el grado, no la hora.
+    const alertas = (porDia.get(d) ?? []).sort((x, y) => grado(x)! - grado(y)!);
+    lista.push({ dia: d, alertas });
   }
   return lista;
 }
