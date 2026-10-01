@@ -145,6 +145,24 @@ export function sinTildes(t: string): string {
     .replace(/\u0001/g, "Ñ");
 }
 
+/**
+ * CIEGA A LA EÑE, solo para BUSCAR.
+ *
+ * `sinTildes` respeta la Ñ a proposito, porque es como Catastro escribe el
+ * nombre y es lo que se guarda y se muestra: CAÑADA, BAÑEZA. Pero al BUSCAR eso
+ * se vuelve en contra, porque nadie escribe la eñe con prisa: quien teclea
+ * "baneza" no encontraba CL BAÑEZA y la app le decia que esa calle no existe.
+ * Paso de verdad el 1-oct-2026, buscando los linderos de Ganapanes.
+ *
+ * Asi que la posicion de la eñe se convierte en `_`, el comodin de una sola
+ * letra de SQL: "BANEZA" -> "BA_EZA", que casa con BAÑEZA sin aflojar el resto
+ * del nombre. Y vale en los dos sentidos, porque tambien se ciega la Ñ de quien
+ * la escribe bien.
+ */
+function comodinDeEne(t: string): string {
+  return t.replace(/[NÑ]/g, "_");
+}
+
 /** El nombre limpio: solo letras, numeros, Ñ y un espacio entre palabras. */
 export function textoDeVia(nombre: string): string {
   return sinTildes(nombre).replace(/[^A-Z0-9Ñ]+/g, " ").trim();
@@ -274,9 +292,10 @@ export type ViaEncontrada = {
 /**
  * Busca un nombre de calle en el callejero oficial de un municipio.
  *
- * Tres pasadas, de la mas fiable a la menos: el nombre tal cual, la clave de
- * palabras (que perdona el articulo del reves) y por ultimo parecido de texto,
- * que es lo que pilla las erratas de una letra (COLLANATES -> COLLANTES).
+ * Cuatro pasadas, de la mas fiable a la menos: el nombre tal cual, la clave de
+ * palabras (que perdona el articulo del reves), el nombre con la eñe en duda
+ * (BANEZA -> BAÑEZA) y por ultimo parecido de texto, que es lo que pilla las
+ * erratas de una letra (COLLANATES -> COLLANTES).
  */
 export async function buscarVia(municipio: string, calle: string): Promise<ViaEncontrada[]> {
   const clave = claveDeVia(calle);
@@ -309,6 +328,16 @@ export async function buscarVia(municipio: string, calle: string): Promise<ViaEn
   const porClave = await leer<Fila[]>(`${base}&clave=eq.${encodeURIComponent(clave)}`);
   if (porClave.length) return salida(porClave, "mismas palabras");
 
+  // La eñe. Va aqui, antes del parecido, porque NO es una aproximacion: es el
+  // nombre completo con la misma longitud y solo la eñe en duda, asi que el
+  // resultado es tan fiable como el de "igual". Ver comodinDeEne.
+  if (/[NÑ]/.test(texto)) {
+    const conEne = await leer<Fila[]>(
+      `${base}&busqueda=ilike.${encodeURIComponent(comodinDeEne(texto))}`,
+    );
+    if (conEne.length) return salida(conEne, "igual");
+  }
+
   // Ultimo recurso: calles que CONTENGAN la palabra mas larga de la nuestra. La
   // mas larga y no la ultima, porque es la que distingue: de "GENERAL RICADOS",
   // "GENERAL" sale en veinte calles y "RICADOS" en ninguna, pero trae RICARDOS
@@ -316,7 +345,7 @@ export async function buscarVia(municipio: string, calle: string): Promise<ViaEn
   // eso va marcada: quien la use tiene que mirar lo que sale.
   const larga = texto.split(" ").sort((a, b) => b.length - a.length)[0] ?? texto;
   const parecidas = await leer<Fila[]>(
-    `${base}&busqueda=ilike.*${encodeURIComponent(larga.slice(0, 6))}*&limit=12`,
+    `${base}&busqueda=ilike.*${encodeURIComponent(comodinDeEne(larga.slice(0, 6)))}*&limit=12`,
   );
   return salida(parecidas, "parecida");
 }
