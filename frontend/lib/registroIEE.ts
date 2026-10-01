@@ -180,7 +180,28 @@ export async function leerNota(codigo: string): Promise<NotaIEE | null> {
   };
 }
 
-const esDesfavorable = (n: NotaIEE) => (n.valoracion ?? "").toLowerCase().startsWith("desfavorable");
+/** DOS motivos para que una IEE interese, y no son el mismo negocio.
+ *
+ *  La desfavorable llega TARDE. Monica, 1-oct-2026: "casi ninguna comunidad
+ *  presenta una IEE desfavorable si no tiene ya resuelto como hacerla, porque
+ *  saben que les obligaran".
+ *
+ *  El hueco de verdad es la FAVORABLE con la accesibilidad sin resolver: "si van
+ *  a hacer SATE, pueden presentar IEE favorable pero con accesibilidad no
+ *  resuelta. Y ese es NUESTRO hueco perfecto". Nadie la esta mirando, porque no
+ *  sale en ninguna lista de desfavorables.
+ *
+ *  Devuelve el MOTIVO y no un si/no porque no se trabajan igual: una corre con un
+ *  plazo legal detras y la otra va con un SATE en el horizonte. Y el motivo no
+ *  necesita columna nueva: sale de los campos que ya se guardan. */
+export type MotivoIEE = "desfavorable" | "accesibilidad";
+
+export function porQueInteresa(n: NotaIEE): MotivoIEE | null {
+  if ((n.valoracion ?? "").toLowerCase().startsWith("desfavorable")) return "desfavorable";
+  // "El edificio satisface completamente las condiciones de accesibilidad" = No.
+  if (n.accesibilidadSatisface === false) return "accesibilidad";
+  return null;
+}
 
 async function desdeDondeSeguir(): Promise<number> {
   const r = await fetch(`${URL_BASE}/rest/v1/barrido_iee?select=ultimo_codigo&order=ultimo_codigo.desc&limit=1`, {
@@ -245,6 +266,10 @@ export type ResultadoBarrido = {
   hasta: number;
   encontrados: number;
   desfavorables: number;
+  /** Las favorables con la accesibilidad sin resolver: el hueco. Va aparte y NO
+   *  se suma a `desfavorables`, porque esa cuenta se guarda en barrido_iee y
+   *  cambiarle el significado falsearia el historico. */
+  accesibilidad: number;
   huecos: number;
   segundos: number;
   avisados: number;
@@ -281,9 +306,10 @@ export async function barrer({
   let huecos = 0;
   let encontrados = 0;
   let desfavorables = 0;
+  let accesibilidad = 0;
   let ultimoBueno = marca;
   const nuevas: ResultadoBarrido["nuevas"] = [];
-  const avisar: NotaIEE[] = [];
+  const avisar: { nota: NotaIEE; motivo: MotivoIEE }[] = [];
 
   // Hacia atras no se para en los huecos: se sabe donde acaba, es la marca.
   while (n < tope && (haciaAtras || huecos < huecosParaParar)) {
@@ -298,8 +324,9 @@ export async function barrer({
     huecos = 0;
     if (!haciaAtras) ultimoBueno = n;
     encontrados += 1;
-    const malo = esDesfavorable(nota);
-    if (malo) desfavorables += 1;
+    const motivo = porQueInteresa(nota);
+    if (motivo === "desfavorable") desfavorables += 1;
+    if (motivo === "accesibilidad") accesibilidad += 1;
 
     await fetch(`${URL_BASE}/rest/v1/iee_registrado?on_conflict=codigo`, {
       method: "POST",
@@ -323,13 +350,14 @@ export async function barrer({
         estado_expediente: nota.estadoExpediente,
         validez: nota.validez,
         bruto: nota.bruto,
-        // Una favorable se guarda, pero no se reparte a nadie.
-        estado: malo ? "nueva" : "sin_interes",
+        // Se guarda siempre. "nueva" = hay que repartirla; "sin_interes" = ni
+        // desfavorable ni con accesibilidad pendiente, asi que no molesta a nadie.
+        estado: motivo ? "nueva" : "sin_interes",
       }),
     });
 
     nuevas.push({ codigo: nota.codigo, direccion: nota.direccion, valoracion: nota.valoracion });
-    if (malo) avisar.push(nota);
+    if (motivo) avisar.push({ nota, motivo });
   }
 
   // EL AVISO: UNO AL DIA, Y SOLO SI HAY ALGO QUE HACER (Monica).
@@ -364,13 +392,14 @@ export async function barrer({
         const nuevasHoy = avisar.length;
         const cabeza =
           nuevasHoy > 0
-            ? `${nuevasHoy === 1 ? "1 IEE desfavorable nueva" : `${nuevasHoy} IEE desfavorables nuevas`} para asignar`
-            : `Sigues teniendo ${pendientes === 1 ? "1 IEE desfavorable" : `${pendientes} IEE desfavorables`} sin asignar`;
-        // Cuando hay nuevas, van sus direcciones: asi se sabe de que va sin
-        // abrir nada. Y si ademas quedan viejas, se dice cuantas.
+            ? `${nuevasHoy === 1 ? "1 IEE nueva" : `${nuevasHoy} IEE nuevas`} para asignar`
+            : `Sigues teniendo ${pendientes === 1 ? "1 IEE" : `${pendientes} IEE`} sin asignar`;
+        // Cuando hay nuevas, van sus direcciones CON SU MOTIVO: una desfavorable
+        // y una favorable sin accesibilidad no se trabajan igual, y quien reparte
+        // tiene que saberlo sin abrir nada.
         const cola =
           nuevasHoy > 0
-            ? `: ${avisar.map((n) => n.direccion ?? "sin direccion").join(" · ")}.` +
+            ? `: ${avisar.map((a) => `${a.nota.direccion ?? "sin direccion"} (${a.motivo === "desfavorable" ? "desfavorable" : "accesibilidad sin resolver"})`).join(" · ")}.` +
               (pendientes > nuevasHoy ? ` Quedan ${pendientes} sin asignar en total.` : "")
             : ".";
 
@@ -437,5 +466,5 @@ ${cabeza}${cola}
     }),
   });
 
-  return { desde, hasta: ultimoBueno, encontrados, desfavorables, huecos, segundos, avisados, pendientes, falloAviso, nuevas };
+  return { desde, hasta: ultimoBueno, encontrados, desfavorables, accesibilidad, huecos, segundos, avisados, pendientes, falloAviso, nuevas };
 }

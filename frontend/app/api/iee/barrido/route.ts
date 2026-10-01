@@ -55,7 +55,7 @@ export async function GET(req: Request) {
     const hecho = { ...barrido, vigilancia };
     // El resumen en una linea, para poder leer la tabla sin abrir el detalle.
     const dice =
-      `${barrido.desfavorables} desfavorables de ${barrido.encontrados} leidas` +
+      `${barrido.desfavorables} desfavorables y ${barrido.accesibilidad} sin accesibilidad, de ${barrido.encontrados} leidas` +
       (barrido.falloAviso ? ` · aviso: ${barrido.falloAviso}` : "");
     await apuntarPasada({ tarea: TAREA, empezada, ok: !barrido.falloAviso, dice, detalle: hecho, quien });
     return NextResponse.json({ ok: true, ...hecho });
