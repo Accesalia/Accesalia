@@ -201,14 +201,23 @@ comunidad, asi que las filas ordenadas cuentan si la mancomunidad se AMPLIO y cu
 -- no por referencia catastral: la referencia es la parcela, y una parcela puede
 -- tener varias comunidades. Nada se escribe hasta que ella vea el recuento.
 --
--- << ON DELETE RESTRICT, PROPUESTO POR CLAUDE, PENDIENTE DE SU OK >>
---    Con RESTRICT no se puede borrar una comunidad mientras le queden accesos:
---    hay que reapuntarlos primero. Es lo que se hizo a mano en la fusion de las
---    12 del 1-oct, y asi la base obliga a hacerlo bien en vez de dejar accesos
---    huerfanos o, peor, borrarlos en cascada.
+-- ON DELETE SET NULL, decidido por Monica el 2-oct-2026. Yo habia propuesto
+-- RESTRICT -que no deja borrar una comunidad mientras le queden accesos- y ella
+-- lo corrigio con el caso real, que yo no habia pensado:
+--
+--     "No creo que nunca borre una comunidad, no le veo la necesidad salvo que
+--      sea un error: se crea una que tiene datos incorrectos y se decide
+--      borrarla y crearla desde cero. Para ese caso, tener los accesos en null
+--      es mejor: quedan ahi a la espera de la nueva comunidad. Tener accesos
+--      mudos que no aparecen no es problema."
+--
+-- Con RESTRICT, ese borrado -el unico que va a pasar de verdad- seria imposible
+-- sin desenganchar los accesos a mano primero. Con SET NULL los accesos
+-- sobreviven, se quedan esperando, y se vuelven a enganchar a la comunidad
+-- buena. El acceso nunca se pierde: existe con o sin comunidad.
 
 alter table accesos
-  add column if not exists comunidad_id uuid references comunidades(id) on delete restrict;
+  add column if not exists comunidad_id uuid references comunidades(id) on delete set null;
 
 create index if not exists accesos_comunidad_id_idx on accesos (comunidad_id);
 
@@ -219,6 +228,10 @@ que su referencia catastral: algo suyo que no cambia (Monica, 2-oct-2026).
 Importa porque solo el propietario del acceso puede autorizar que se intervenga en el, y
 eso es norma legal: sin esto no se sabe quien firma. Las comunidades de una oportunidad se
 DERIVAN de sus accesos; no se guardan aparte.
+
+Si se borra la comunidad, el acceso SOBREVIVE y esta columna se queda vacia (on delete set
+null). Decision de Monica: el unico borrado real es corregir un alta mala, y entonces los
+accesos esperan a que se cree la comunidad buena.
 
 Vacio = todavia no se ha podido determinar. Se rellena desde `accesos_comunidad`, cruzando
 por direccion (municipio + via + numero + escalera) y NO por referencia catastral, porque
