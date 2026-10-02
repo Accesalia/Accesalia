@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
+import { cuantosPendientes } from "../../lib/revisionPolycam";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +41,63 @@ const AREAS: Area[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// LAS PUERTAS POR FUNCION (Monica, 2-oct-2026)
+//
+// Hasta hoy este cuadro repartia SOLO por area, y la mitad de las funciones no
+// abren area ninguna: `viabilidades`, `iee`, `escaneo`, `proyecto`,
+// `facturacion`... Alex entraba y veia dos tarjetas, una muerta. Sus palabras:
+//
+//   "cada persona que se loguea vera una serie de cosas, segun las funciones que
+//    tenga asignadas. Ahora mismo Alex entra y tiene entre otras la funcion
+//    viabilidad. Deberia verse ahi el boton que lleva a esta pantalla en su
+//    cuadro de mando de entrada, no? Y yo y Daniel, tener todos los botones."
+//
+// Asi que esto es una puerta a UNA pantalla, no a un area: la llave es la clave
+// de la funcion, y quien ve todo (direccion) las ve todas. Cuando una funcion
+// junte tres o cuatro puertas, eso ya sera un area y se creara entonces.
+//
+// EL ROTULO ES PROVISIONAL y ella lo sabe: "el bloque nuevo debe llamarse
+// revision polycam, pero es provisional. Luego puedo cambiarlo". Hoy hay una
+// sola puerta, asi que el bloque se llama como ella.
+// ---------------------------------------------------------------------------
+
+const ROTULO_PUERTAS = "Revisión Polycam";
+
+type Puerta = {
+  nombre: string;
+  desc: string;
+  href: string;
+  /** La clave de la funcion que abre esta puerta. */
+  funcion: string;
+  /** Lo que hay esperando, para no tener que entrar a mirar. */
+  cuantos?: () => Promise<number>;
+  comoSeCuenta?: (n: number) => string;
+};
+
+const PUERTAS: Puerta[] = [
+  {
+    nombre: "Revisión Polycam",
+    desc: "Los escaneados que han entrado por el buzón, por decir de qué portal es cada uno",
+    href: "/viabilidades/revision-polycam",
+    funcion: "viabilidades",
+    cuantos: cuantosPendientes,
+    comoSeCuenta: (n) => (n === 1 ? "1 escaneado esperando" : `${n} escaneados esperando`),
+  },
+];
+
 export default async function Menu() {
   const yo = await quienSoy();
   const comercial = yo ? !!(await comercialDe(yo.id)) : false;
   const areas = AREAS.filter((a) => a.ve(yo, comercial));
+
+  // Sin sesion se ven todas, como hacen ya las areas de arriba: asi se puede
+  // ensenar la app sin entrar.
+  const puertas = PUERTAS.filter(
+    (p) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === p.funcion),
+  );
+  // Solo se cuenta lo que se va a pintar.
+  const cuentas = await Promise.all(puertas.map((p) => (p.cuantos ? p.cuantos() : Promise.resolve(0))));
 
   return (
     <div className="min-h-screen">
@@ -82,6 +136,33 @@ export default async function Menu() {
             );
           })}
         </div>
+
+        {puertas.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/45">
+              {ROTULO_PUERTAS}
+            </h2>
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {puertas.map((p, i) => (
+                <Link
+                  key={p.href}
+                  href={p.href}
+                  className="block rounded-2xl border border-ajeno/40 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-lg font-semibold text-carbon">{p.nombre}</h3>
+                    {p.comoSeCuenta && cuentas[i] > 0 && (
+                      <span className="shrink-0 rounded-full border border-ajeno/40 bg-ajeno-soft px-2.5 py-0.5 text-[11px] font-bold text-[#3f5f80]">
+                        {p.comoSeCuenta(cuentas[i])}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-carbon/60">{p.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
