@@ -105,15 +105,30 @@ async function numerosDe(idCalle: number): Promise<{ idEdificio: string; numero:
 
 type Direccion = { municipio: string; via: string; numero: string };
 
+/** PostgREST CORTA EN 1.000 FILAS Y NO LO DICE, y pedirle `Range: 0-9999` no
+ *  sirve de nada: contesta 1.000 como si fuera todo. La primera noche (1-oct)
+ *  esto leyo 999 de nuestras 2.037 direcciones, y lo peor no fue perderlas: la
+ *  rebanada acababa justo en MADRID, que era su ultimo municipio por orden
+ *  alfabetico, asi que al terminar Madrid el trabajo se dio por ACABADO y el
+ *  reloj paso a contestar "nada que hacer" cada quince minutos. 21 municipios
+ *  y 296 direcciones se quedaron sin preguntar, en silencio.
+ *
+ *  La unica forma de pasar del tope es pedir por tramos. El `order` no es
+ *  adorno: sin un orden fijo, dos tramos pueden repetir y saltarse filas. */
 async function nuestrasDirecciones(): Promise<Direccion[]> {
-  const r = await fetch(
-    `${URL_BASE}/rest/v1/accesos?select=municipio,tipo_via,nombre_via,numero`,
-    { headers: { ...cab, Range: "0-9999" }, cache: "no-store" },
-  );
-  if (!r.ok) throw new Error(`accesos: ${r.status} ${(await r.text()).slice(0, 200)}`);
-  const filas = (await r.json()) as {
+  const filas: {
     municipio: string; tipo_via: string; nombre_via: string; numero: string;
-  }[];
+  }[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/accesos?select=municipio,tipo_via,nombre_via,numero&order=id`,
+      { headers: { ...cab, Range: `${desde}-${desde + 999}` }, cache: "no-store" },
+    );
+    if (!r.ok) throw new Error(`accesos: ${r.status} ${(await r.text()).slice(0, 200)}`);
+    const trozo = (await r.json()) as typeof filas;
+    filas.push(...trozo);
+    if (trozo.length < 1000) break;
+  }
   // Varias escaleras comparten portal y edificio: al registro se le pregunta por
   // la DIRECCION, asi que se preguntan las distintas y no los 2.530 accesos.
   const vistas = new Set<string>();
@@ -196,7 +211,15 @@ export async function barrerNuestrasDirecciones({
   }
   const municipios = [...porMunicipio.keys()].sort();
 
+  // Cuando se corta A MEDIA CALLE hay que salir de los DOS bucles. Si solo se
+  // sale del de dentro, el de fuera sigue, vuelve a mirar el reloj y escribe
+  // `siguiente` con el municipio SIGUIENTE: el que se habia cortado quedaria
+  // medio hecho y marcado como terminado. Nunca llego a pasar, pero pasaria el
+  // primer dia que Madrid no quepa en una tanda.
+  let cortadoAquiMismo = false;
+
   for (const mun of municipios) {
+    if (cortadoAquiMismo) break;
     if (mun < desdeMunicipio) continue;
     if ((Date.now() - t0) / 1000 > segundosMaximos) {
       // Se corta ANTES de empezar un municipio, nunca a la mitad: asi `siguiente`
@@ -230,6 +253,7 @@ export async function barrerNuestrasDirecciones({
           // volver a leerlas no duplica nada- y saltarselo no lo seria.
           r.incompleto = true;
           r.siguiente = mun;
+          cortadoAquiMismo = true;
           break;
         }
         const calle = suyas.get(via);
