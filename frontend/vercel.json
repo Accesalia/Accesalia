@@ -10,10 +10,6 @@
     {
       "path": "/api/iee/barrido",
       "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/iee/direcciones",
-      "schedule": "*/15 * * * *"
     }
   ]
 }

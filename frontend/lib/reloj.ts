@@ -93,13 +93,6 @@ export const RELOJES: Reloj[] = [
   // condicion todo el año -antes de las 7, siempre- en vez de clavar las 5:00
   // la mitad del año y quedarse en las 6:00 la otra mitad.
   { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 5 de la madrugada", ruta: "/api/iee/barrido" },
-  // TEMPORAL, A PROPOSITO. Va a tandas preguntandole al registro por nuestras
-  // 2.037 direcciones, y cuando acaba se queda callado: comprueba la ultima
-  // pasada y, si termino entera, no hace nada. Pero el HORARIO sobra en cuanto
-  // acabe, por la regla de Monica -un reloj dormido es peor que no tenerlo-, asi
-  // que en cuanto diga "nada que hacer" se quita de vercel.json y baja a
-  // RETIRADOS. Para rehacerlo algun dia: ?reiniciar=1.
-  { tarea: "iee_direcciones", nombre: "IEE de nuestras direcciones", cada: "cada 15 minutos · TEMPORAL, quitar al acabar", ruta: "/api/iee/direcciones" },
 ];
 
 // ============================================================================
@@ -127,6 +120,25 @@ export const RELOJES: Reloj[] = [
 export type Retirado = Reloj & { porque: string };
 
 export const RETIRADOS: Retirado[] = [
+  // ESTE NO ACABO: ESTA PARADO. Es la unica entrada de esta lista que no
+  // termino su trabajo, y se dice aqui para que nadie lo lea como hecho.
+  {
+    tarea: "iee_direcciones",
+    nombre: "IEE de nuestras direcciones",
+    cada: "PARADO el 2-oct-2026 · no acabó",
+    ruta: "/api/iee/direcciones",
+    porque:
+      "PARADO POR UN BUCLE, no por haber acabado. Se acuerda de por qué MUNICIPIO seguir, " +
+      "pero no de por qué CALLE: Madrid tiene 422 calles con IEE y no cabe en los 240 " +
+      "segundos de una tanda, así que se cortaba a media faena, apuntaba 'sigo por MADRID' " +
+      "y la pasada siguiente empezaba Madrid otra vez desde el principio. Estuvo tres horas " +
+      "repreguntando las mismas 420 calles cada cuarto de hora, sin pasar nunca a Leganés, " +
+      "Alcorcón ni Móstoles. Monica lo mandó parar el 2-oct a mediodía, y bien mandado: " +
+      "machacar un registro público pequeño es la manera de que nos corten. " +
+      "QUEDA PENDIENTE: que recuerde la calle además del municipio, y entonces se vuelve a " +
+      "programar. Lo ya guardado es bueno y no se repite: las notas se guardan por número " +
+      "de registro.",
+  },
   {
     tarea: "comunidades_catastro",
     nombre: "Rellenar Catastro",
