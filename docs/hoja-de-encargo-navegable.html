@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Hoja de encargo · maqueta</title>
+<style>
+/* MAQUETA de la pestaña Hoja de encargo (2-oct-2026), sacada del esbozo de
+   Monica: docs/pestaña hoja de encargo (solo es un ejemplo...).docx.
+   Datos de EJEMPLO. No pide nada a internet. */
+:root{
+  --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+  --hueso:#f7f7f5; --form:#f5fbf0; --card:#fffcf0; --nuevo:#fff5cc;
+  --borde:#cfcfcf; --ambar:#fdf6e3; --ambar-b:#f0d78c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--hueso);color:var(--carbon);font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.barra{background:var(--carbon);color:#fff;padding:10px 24px;font-weight:700;letter-spacing:.02em}
+.barra span{color:var(--lima)}
+main{max-width:1500px;margin:0 auto;padding:18px 24px 80px}
+a{color:inherit}
+.volver{font-size:13px;font-weight:600;color:rgba(43,43,43,.6);text-decoration:none}
+h1{font-size:25px;font-weight:700;margin-top:10px}
+.sub{font-size:13px;color:rgba(43,43,43,.65);margin-top:4px}
+.sub b{color:rgba(43,43,43,.85)}
+.aviso-maqueta{display:inline-block;margin-left:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:2px 8px;vertical-align:middle}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.titulo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(43,43,43,.7);margin-bottom:10px}
+.fila{display:flex;gap:16px;align-items:stretch}
+.btn{border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;color:rgba(43,43,43,.8)}
+.btn:hover{border-color:var(--carbon)}
+.btn.prim{background:var(--lima);border-color:var(--lima);color:var(--carbon);font-weight:700}
+.btn.prim:hover{background:var(--lima-dark);color:#fff}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 12px;font-size:13px;font-weight:600;border:1px solid rgba(0,0,0,.12);background:#fff;color:rgba(43,43,43,.45)}
+.chip.on{background:var(--lima-soft);border-color:var(--lima);color:var(--lima-dark)}
+.chip.on::before{content:"✓";font-weight:800}
+
+/* 1 · lo contratado */
+.contratado{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}
+.contratado .chips{display:flex;flex-wrap:wrap;gap:8px}
+.total-grande{text-align:right}
+.total-grande .n{font-size:24px;font-weight:800}
+.total-grande .p{font-size:12px;color:rgba(43,43,43,.65)}
+
+/* 2 · hojas + visor */
+.hojas{flex:0 0 46%}
+.hoja{border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.hoja.sel{border-color:var(--lima);background:var(--lima-soft)}
+.hoja .nom{font-weight:700}
+.hoja .meta{font-size:12px;color:rgba(43,43,43,.65)}
+.estado{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:2px 8px}
+.estado.firmada{background:var(--lima-soft);color:var(--lima-dark);border:1px solid var(--lima)}
+.estado.enviada{background:var(--ambar);color:#8a5a00;border:1px solid var(--ambar-b)}
+.docs{display:flex;gap:6px;grid-column:1/3}
+.doc{font-size:12px;border-radius:8px;padding:4px 9px;border:1px solid rgba(122,201,67,.6);background:var(--lima-soft);color:var(--lima-dark);cursor:pointer;font-weight:600}
+.doc.falta{border-color:rgba(122,201,67,.3);background:#fff;color:rgba(63,122,28,.55);cursor:default}
+.doc.activo{outline:2px solid var(--carbon)}
+.visor{flex:1;display:flex;flex-direction:column}
+.visor .marco{flex:1;background:#e9e9e6;border-radius:12px;padding:14px;overflow:auto;max-height:420px}
+.visor .solo{font-size:11px;color:rgba(43,43,43,.6)}
+
+/* 3 · generador */
+#generador{display:none;margin-top:16px;background:var(--form);border:1px solid #b9d9a0;border-radius:18px;padding:16px}
+#generador.abierto{display:block}
+.gen-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gen-cab h2{font-size:18px}
+.gen{display:grid;grid-template-columns:minmax(430px,40%) 1fr;gap:16px;align-items:start}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel .tarjeta{background:var(--card)}
+.etq{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(43,43,43,.7);margin-bottom:3px}
+select,input[type=text]{width:100%;font:inherit;font-size:13px;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:6px 10px;background:#fff}
+select:focus,input:focus{outline:none;border-color:var(--lima)}
+.que-donde{display:grid;grid-template-columns:1fr 1fr 24px;gap:8px;margin-bottom:6px;align-items:center}
+.quitar{border:none;background:none;color:rgba(43,43,43,.5);cursor:pointer;font-size:16px}
+.mas{font-size:12px;font-weight:600;color:var(--lima-dark);background:none;border:none;cursor:pointer;padding:2px 0}
+.dato-auto{font-size:13px}
+.dato-auto small{color:rgba(43,43,43,.6)}
+.bloques{display:flex;flex-wrap:wrap;gap:6px}
+.bloques .chip{cursor:pointer;font-size:12px;padding:4px 10px}
+.bloques .chip:not(.on):hover{border-color:var(--carbon);color:var(--carbon)}
+.linea{display:grid;grid-template-columns:1fr auto 92px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed #e2e2e2}
+.linea .n{font-size:13px;font-weight:600}
+.linea .pago{grid-column:1/4;display:flex;gap:6px;align-items:center;font-size:12px;color:rgba(43,43,43,.65)}
+.linea .pago select{width:auto;flex:1;font-size:12px;padding:3px 8px}
+.seg{display:inline-flex;border:1px solid rgba(0,0,0,.18);border-radius:9px;overflow:hidden}
+.seg button{border:none;background:#fff;font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;color:rgba(43,43,43,.6)}
+.seg button+button{border-left:1px solid rgba(0,0,0,.12)}
+.seg button.on{background:var(--carbon);color:#fff}
+.importe{text-align:right}
+.importe:disabled{background:#f3f3f3;color:rgba(43,43,43,.4)}
+.solo-texto{font-size:12px;color:rgba(43,43,43,.6);margin-top:8px}
+.suma{display:flex;justify-content:space-between;font-weight:700;margin-top:8px}
+
+/* la hoja, como papel */
+.papel-zona{position:sticky;top:12px}
+.papel-pista{font-size:12px;color:rgba(43,43,43,.65);margin-bottom:6px}
+.papel{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);border-radius:4px;padding:38px 46px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.5;max-height:calc(100vh - 60px);overflow:auto}
+.papel h3{text-align:center;font-size:13px;letter-spacing:.02em;margin-bottom:8px}
+.papel .centro{text-align:center}
+.papel .banda{background:#7f7f7f;color:#fff;text-align:center;font-weight:700;padding:3px;margin-top:14px}
+.papel .banda2{background:#92d050;text-align:center;font-weight:700;padding:3px}
+.papel .bloque{margin:10px 0}
+.papel .bloque b{display:block}
+.papel .bloque ul{margin-left:18px}
+.papel table{width:100%;border-collapse:collapse;margin:8px 0}
+.papel td{padding:3px 4px;border-bottom:1px solid #eee}
+.papel td.r{text-align:right;white-space:nowrap}
+.papel .totalbanda{background:#92d050;text-align:center;font-weight:700;padding:3px;margin-top:4px}
+.papel .clausula{font-size:10px;color:#444;margin-top:10px}
+.papel .conforme td{border:1px solid #999;height:22px}
+.papel .conforme td:first-child{background:#e6e6e6;width:38%}
+.papel [contenteditable]:hover{outline:1px dashed var(--lima)}
+.papel [contenteditable]:focus{outline:2px solid var(--lima);background:#fbfff7}
+.papel .dato{background:#f3f9ec;border-radius:3px;padding:0 2px}
+.papel .fijo{position:relative}
+.papel .fijo:hover::after{content:"se cambia en las casillas de la izquierda";position:absolute;right:0;top:-16px;font-size:10px;background:var(--carbon);color:#fff;padding:1px 6px;border-radius:4px}
+.muestra{font-size:10px;color:#666;font-family:Arial}
+</style>
+</head>
+<body>
+<div class="barra">acces<span>alia</span></div>
+<main>
+  <a class="volver" href="#">← Oportunidad</a>
+  <h1>C/ Pingüino 9, Madrid <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+  <p class="sub"><b>ALV-2026-032</b> · Álvaro · Hoja de encargo</p>
+
+  <!-- 1 · LO CONTRATADO -->
+  <section class="tarjeta contratado">
+    <div>
+      <div class="titulo">Qué han contratado</div>
+      <div class="chips">
+        <span class="chip on">Proyecto</span>
+        <span class="chip on">DO</span>
+        <span class="chip on">CSS</span>
+        <span class="chip on">Subvención</span>
+        <span class="chip">IEE</span>
+        <span class="chip">Memoria</span>
+      </div>
+    </div>
+    <div class="total-grande">
+      <div class="titulo" style="margin:0">Importe total</div>
+      <div class="n">9.400 € + IVA</div>
+      <div class="p">11.374 € IVA incluido · suma de las 2 hojas</div>
+    </div>
+  </section>
+
+  <!-- 2 · LAS HOJAS + EL VISOR -->
+  <section class="fila" style="margin-top:16px">
+    <div class="tarjeta hojas">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="titulo" style="margin:0">Hojas de encargo</div>
+        <button class="btn prim" onclick="abrir('nueva')">+ Generar nueva hoja</button>
+      </div>
+
+      <div class="hoja sel" id="h1">
+        <div><span class="nom">Hoja 1 · Ascensor</span> <span class="estado firmada">Firmada</span>
+          <div class="meta">Versión 2 · 30-may-2025 · Comunidad de Propietarios Pingüino 9</div></div>
+        <button class="btn" onclick="abrir('h1')">Modificar</button>
+        <div class="docs">
+          <span class="doc" onclick="ver(this,'Hoja 1 · generada · versión 2')">📄 Generada v2</span>
+          <span class="doc activo" onclick="ver(this,'Hoja 1 · firmada (PDF de la comunidad)')">📄 Firmada</span>
+        </div>
+      </div>
+
+      <div class="hoja" id="h2">
+        <div><span class="nom">Hoja 2 · Subvenciones</span> <span class="estado enviada">Enviada, sin firmar</span>
+          <div class="meta">Versión 1 · 30-may-2025 · Comunidad de Propietarios Pingüino 9</div></div>
+        <button class="btn" onclick="abrir('h2')">Modificar</button>
+        <div class="docs">
+          <span class="doc" onclick="ver(this,'Hoja 2 · generada · versión 1')">📄 Generada v1</span>
+          <span class="doc falta">📄 Firmada (falta)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tarjeta visor">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div class="titulo" style="margin:0" id="visor-titulo">Hoja 1 · firmada (PDF de la comunidad)</div>
+        <span class="solo">solo ver · <a href="#">abrir en pestaña aparte ↗</a></span>
+      </div>
+      <div class="marco">
+        <div class="papel muestra" style="max-height:none;padding:22px 26px;font-size:9px">
+          <h3 style="font-size:10px">HOJA DE ENCARGO DE SERVICIOS PROFESIONALES DE ARQUITECTURA</h3>
+          <p>Presupuesto del arquitecto D. Daniel de Soto Martín-Caro colegiado nº 24.103 del COAM…</p>
+          <p class="centro" style="margin-top:6px">Proyecto para <b>instalación de ascensor</b> en: <b>C/ Pingüino 9, Madrid</b></p>
+          <div class="banda" style="font-size:9px">IMPORTE HONORARIOS ARQUITECTURA</div>
+          <p style="margin-top:6px">REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN …<br>DIRECCIÓN FACULTATIVA …<br>COORDINACIÓN DE SEGURIDAD Y SALUD …</p>
+          <p style="margin-top:30px;text-align:right;font-style:italic;color:#335">firmado: Presidente CP Pingüino 9 · 12-jun-2025</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · GENERAR / MODIFICAR -->
+  <section id="generador">
+    <div class="gen-cab">
+      <h2 id="gen-titulo">Nueva hoja de encargo</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="cerrar()">Cancelar</button>
+        <button class="btn prim" onclick="alert('Aquí se guarda la versión y sale el PDF para mandar por mail.')">Generar hoja (PDF)</button>
+      </div>
+    </div>
+
+    <div class="gen">
+      <div class="panel">
+        <div class="tarjeta">
+          <div class="titulo">Cabecera</div>
+          <label class="etq">A quién</label>
+          <select id="aquien" onchange="pintar()">
+            <option>Comunidad de Propietarios Pingüino 9 · H-87654321</option>
+            <option>Ascensores Ejemplo S.L. · B-12345678</option>
+          </select>
+          <label class="etq" style="margin-top:10px">Qué + dónde</label>
+          <div id="actuaciones"></div>
+          <button class="mas" onclick="anadirActuacion()">+ añadir otra actuación</button>
+          <div class="dato-auto" style="margin-top:8px"><span class="etq" style="display:inline">Fecha</span> 2 de octubre de 2026 <small>· la de hoy, sola</small></div>
+        </div>
+
+        <div class="tarjeta">
+          <div class="titulo">Qué incluye</div>
+          <div class="bloques" id="bloques"></div>
+        </div>
+
+        <div class="tarjeta">
+          <div class="titulo">Importes y forma de pago</div>
+          <div id="lineas"></div>
+          <div class="suma"><span>Total honorarios</span><span id="suma"></span></div>
+          <div class="solo-texto" id="solotexto"></div>
+        </div>
+      </div>
+
+      <div class="papel-zona">
+        <div class="papel-pista">La hoja tal como saldrá. <b>Haz clic en cualquier texto para cambiarlo</b> en esta hoja (el catálogo no se toca). Los importes se cambian en las casillas.</div>
+        <div class="papel" id="papel"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const B = [
+ ["TOMA","Toma de datos y 3D","no_aparece","TOMA DE DATOS Y MODELADO 3D",["Visita a la Comunidad para toma de datos","Medición y modelado tridimensional de los elementos comunes","Realización de fotografías"]],
+ ["PROY","Redacción proyecto","se_cobra","REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN",["Redacción del Proyecto conforme al CTE y normativa aplicable","Justificación del cumplimiento de exigencias básicas","Planos, mediciones y presupuesto","Estudio de Gestión de Residuos"]],
+ ["LIC","Licencias","no_aparece","TRAMITACIÓN DE LICENCIAS Y PERMISOS",["Gestión de Licencia: Obtención de la licencia urbanística o Declaración Responsable (DR) ante el Ayuntamiento Competente, incluyendo la preparación y presentación de la documentación requerida.","Resolución de cualquier requerimiento solicitado por los organismos competentes.","Tramitación de Tasas: Asesoramiento y gestión en el pago de las tasas de residuos y del ICIO, incluyendo la gestión para la obtención de posibles bonificaciones."]],
+ ["3P","3 presupuestos","no_aparece","SOLICITUD Y ANÁLISIS DE PRESUPUESTOS",["Colaboración con la Comunidad de Propietarios para la obtención de tres presupuestos.","Solicitud de al menos tres presupuestos a contratas especializadas, sobre las mediciones específicas del Proyecto.","Análisis de los importes recibidos, comprobando el ajuste a proyecto de todos ellos.","Asesoramiento a la Comunidad para elegir el que más se ajuste a sus intereses."]],
+ ["CFO","Fin de obra (CFO)","no_aparece","FIN DE OBRA",["Revisión de la ejecución de los trabajos para comprobar su conformidad con el proyecto técnico aprobado.","Emisión del Certificado Final de Obra.","Firma de Fin de Obra por la Dirección Facultativa."]],
+ ["CSS","CSS","se_cobra","COORDINACIÓN DE SEGURIDAD Y SALUD",["Redacción del Estudio de Seguridad y Salud.","Coordinación de Seguridad y Salud durante la ejecución de las obras, incluyendo visitas de seguimiento y control documental.","Asesoramiento a la Comunidad y a la empresa contratista en materia de seguridad y salud durante la obra."]],
+ ["SUBV","Subvenciones","se_cobra","TRAMITACIÓN DE SUBVENCIONES",["Asesoramiento técnico sobre las subvenciones aplicables al proyecto.","Preparación y presentación de la documentación técnica necesaria para la solicitud.","Gestión continuada de la tramitación de las ayudas hasta su concesión.","Acompañamiento a la Comunidad durante todo el proceso, hasta la percepción efectiva de la ayuda concedida."]],
+ ["IEE","IEE","se_cobra","INFORME DE EVALUACIÓN DEL EDIFICIO (IEE)",["Elaboración del IEE conforme a los requisitos del Ayuntamiento correspondiente.","Evaluación del estado de conservación, accesibilidad y eficiencia energética.","Inscripción y tramitación telemática del informe ante el organismo competente."]],
+ ["LEE","Libro del edificio","se_cobra","LIBRO DEL EDIFICIO",["Elaboración del documento que recopila la información técnica del edificio.","Incorporación de instrucciones de uso y mantenimiento del inmueble.","Registro y entrega en formato digital a la Comunidad de Propietarios."]],
+ ["CEE","CEE","se_cobra","CERTIFICADO DE EFICIENCIA ENERGÉTICA",["Realización del Certificado de Eficiencia Energética del edificio en su estado actual.","Registro oficial del certificado ante el organismo competente."]],
+ ["DF","Dirección facultativa","se_cobra","DIRECCIÓN FACULTATIVA",["Dirección de la obra durante su ejecución por parte de los técnicos competentes del Estudio de Arquitectura.","Supervisión del cumplimiento del Proyecto Técnico aprobado y del control de calidad.","Coordinación con la empresa contratista para resolver incidencias.","Firma del Certificado Final de Obra una vez finalizados los trabajos."]],
+ ["MEM","Memoria técnica","se_cobra","MEMORIA TÉCNICA SIMPLIFICADA",["Redacción de una memoria técnica que describa la actuación prevista.","Elaboración de los planos necesarios para justificar la intervención.","Adaptación de la documentación al tipo de procedimiento aplicable."]],
+ ["PER","Informe pericial","se_cobra","INFORME PERICIAL",["Visita al inmueble para toma de datos y análisis.","Redacción de un informe técnico imparcial.","Inclusión de fotografías, planos u otros documentos que respalden el análisis."]],
+ ["URB","Consulta urbanística","se_cobra","CONSULTA URBANÍSTICA",["Análisis de la normativa urbanística vigente aplicable al inmueble.","Elaboración de un informe técnico con los parámetros urbanísticos fundamentales.","Presentación de la Consulta ante el Organismo responsable y seguimiento hasta resolución."]],
+];
+const PAGOS = ["50% a la contratación (provisión de fondos) · 50% a la entrega del Proyecto","100% a la firma del Plan de Seguridad y Salud","100% a la contratación","1.980 € a la contratación · 3% de lo concedido a la concesión","Otra (se escribe en la hoja)"];
+const TIPOS = ["Ascensor","Rampa","Plataforma","SATE envolvente completa","SATE fachada","Subvenciones","CSS","DF","IEE","Memoria técnica valorada"];
+const DONDE = ["Edificio completo","Portal 9","Escalera A","Escalera B","Portales 9 y 11"];
+const EUR = n => n.toLocaleString("es-ES",{maximumFractionDigits:2});
+
+let st;
+const INICIAL = {
+  nueva:{titulo:"Nueva hoja de encargo",act:[["Ascensor","Edificio completo"]],on:{},modo:{},imp:{},pago:{}},
+  h1:{titulo:"Modificar hoja 1 · Ascensor (saldrá la versión 3)",act:[["Ascensor","Edificio completo"]],
+      on:{TOMA:1,PROY:1,LIC:1,CFO:1,DF:1,CSS:1},modo:{DF:"incluido"},imp:{PROY:6500,CSS:920},pago:{PROY:0,CSS:1}},
+  h2:{titulo:"Modificar hoja 2 · Subvenciones (saldrá la versión 2)",act:[["Subvenciones","Edificio completo"]],
+      on:{SUBV:1},modo:{},imp:{SUBV:1980},pago:{SUBV:3}},
+};
+
+function abrir(k){
+  st = JSON.parse(JSON.stringify(INICIAL[k]));
+  document.getElementById("gen-titulo").textContent = st.titulo;
+  document.getElementById("generador").classList.add("abierto");
+  document.getElementById("papel").innerHTML = "";
+  pintarActuaciones(); pintar(); construirPapel();
+  document.getElementById("generador").scrollIntoView({behavior:"smooth"});
+}
+function cerrar(){ document.getElementById("generador").classList.remove("abierto"); }
+function ver(el,t){ document.querySelectorAll(".doc").forEach(d=>d.classList.remove("activo")); el.classList.add("activo"); document.getElementById("visor-titulo").textContent=t; }
+
+function pintarActuaciones(){
+  const c = document.getElementById("actuaciones");
+  c.innerHTML = st.act.map((a,i)=>`<div class="que-donde">
+    <select onchange="st.act[${i}][0]=this.value;cabecera()">${TIPOS.map(t=>`<option ${t==a[0]?"selected":""}>${t}</option>`).join("")}</select>
+    <select onchange="st.act[${i}][1]=this.value;cabecera()">${DONDE.map(t=>`<option ${t==a[1]?"selected":""}>${t}</option>`).join("")}</select>
+    ${st.act.length>1?`<button class="quitar" title="quitar" onclick="st.act.splice(${i},1);pintarActuaciones();cabecera()">×</button>`:"<span></span>"}
+  </div>`).join("");
+}
+function anadirActuacion(){ st.act.push(["Ascensor","Escalera A"]); pintarActuaciones(); cabecera(); }
+
+// la regla de la DF: incluida si hay proyecto, se cobra si no. El CFO va con la DF.
+function modoDe(b){
+  if (st.modo[b[0]]) return st.modo[b[0]];
+  if (b[0]==="DF") return st.on.PROY ? "incluido" : "se_cobra";
+  return b[2];
+}
+function toggle(c){
+  st.on[c] = !st.on[c];
+  if (c==="DF" && st.on.DF) st.on.CFO = 1;
+  pintar(); bloquesPapel();
+}
+function pintar(){
+  document.getElementById("bloques").innerHTML = B.map(b=>`<span class="chip ${st.on[b[0]]?"on":""}" onclick="toggle('${b[0]}')">${b[1]}</span>`).join("");
+  const conLinea = B.filter(b=>st.on[b[0]] && modoDe(b)!=="no_aparece");
+  const sin = B.filter(b=>st.on[b[0]] && modoDe(b)==="no_aparece");
+  document.getElementById("lineas").innerHTML = conLinea.length ? conLinea.map(b=>{
+    const m = modoDe(b), c=b[0];
+    return `<div class="linea"><span class="n">${b[1]}</span>
+      <span class="seg">${[["se_cobra","Se cobra"],["incluido","Incluido"],["no_aparece","No aparece"]].map(([v,t])=>`<button class="${m==v?"on":""}" onclick="st.modo['${c}']='${v}';pintar();desglose()">${t}</button>`).join("")}</span>
+      <input type="text" class="importe" ${m!=="se_cobra"?"disabled":""} value="${m==="se_cobra"?(st.imp[c]??""):"—"}" placeholder="€" oninput="st.imp['${c}']=Number(this.value.replace(/\\./g,'').replace(',','.'))||0;suma();desglose()">
+      ${m==="se_cobra"?`<span class="pago">Forma de pago <select onchange="st.pago['${c}']=+this.value;desglose()">${PAGOS.map((p,i)=>`<option value="${i}" ${(st.pago[c]??0)==i?"selected":""}>${p}</option>`).join("")}</select></span>`:""}
+    </div>`;}).join("") : `<div class="solo-texto">Marca arriba lo que incluye la hoja.</div>`;
+  document.getElementById("solotexto").innerHTML = sin.length ? "Solo texto, sin precio: " + sin.map(b=>b[1]).join(" · ") + `<br><span style="font-size:11px">(se pasan a precio con el interruptor de su línea, si aparecen arriba)</span>` : "";
+  // los "no aparece" marcados también pueden pasar a cobrarse: se listan con su interruptor
+  if (sin.length){
+    document.getElementById("solotexto").innerHTML = "Solo texto, sin precio: " + sin.map(b=>`<b>${b[1]}</b> <a href="#" onclick="st.modo['${b[0]}']='se_cobra';pintar();desglose();return false" style="font-size:11px;color:var(--lima-dark)">cobrar</a>`).join(" · ");
+  }
+  suma(); desglose(); cabecera();
+}
+function suma(){
+  const s = B.filter(b=>st.on[b[0]] && modoDe(b)==="se_cobra").reduce((a,b)=>a+(st.imp[b[0]]||0),0);
+  document.getElementById("suma").textContent = EUR(s)+" € + IVA = "+EUR(s*1.21)+" €";
+}
+
+// ---- el papel
+function construirPapel(){
+  document.getElementById("papel").innerHTML = `
+    <div style="font-size:9px;color:#888;text-align:right">c/ Alhambra 24. 28047 Madrid · B86374055</div>
+    <h3>HOJA DE ENCARGO DE SERVICIOS PROFESIONALES DE ARQUITECTURA</h3>
+    <p contenteditable>Presupuesto del arquitecto D. Daniel de Soto Martín-Caro colegiado nº 24.103 del COAM para la realización de los siguientes trabajos profesionales de arquitectura:</p>
+    <div id="p-cab" class="centro fijo" style="margin-top:8px"></div>
+    <div class="banda">IMPORTE HONORARIOS ARQUITECTURA</div>
+    <div class="banda2">Desglose de Importes:</div>
+    <div id="p-bloques"></div>
+    <div id="p-desglose" class="fijo"></div>
+    <p contenteditable style="margin-top:8px"><i>Nota:</i> Los importes mencionados no incluyen tasas administrativas, que serán abonadas por la Comunidad de Propietarios.</p>
+    <div id="p-icio"></div>
+    <div id="p-pago" class="fijo"></div>
+    <p style="text-align:right;margin-top:14px">En Madrid, a <span class="dato">2 de octubre de 2026</span><br>Daniel de Soto</p>
+    <p style="margin-top:16px">Conforme:</p>
+    <table class="conforme"><tr><td>Razón Social</td><td id="p-razon" class="dato"></td></tr><tr><td>Dirección</td><td></td></tr><tr><td>CIF</td><td id="p-cif" class="dato"></td></tr><tr><td>Firma</td><td></td></tr><tr><td>Fecha firma</td><td></td></tr><tr><td>Nombre (Representante)</td><td></td></tr><tr><td>Nº cuenta para el cargo</td><td></td></tr></table>
+    <p style="font-size:10px">(*) Importes válidos durante los 3 meses siguientes a la fecha de emisión.</p>`;
+  bloquesPapel(); desglose(); cabecera();
+}
+function cabecera(){
+  const el = document.getElementById("p-cab"); if(!el) return;
+  el.innerHTML = st.act.map(a=>`<div><b class="dato">${a[0]}</b> — <span class="dato">${a[1]}</span>, C/ Pingüino 9, Madrid</div>`).join("");
+  const [razon,cif] = document.getElementById("aquien").value.split(" · ");
+  document.getElementById("p-razon").textContent = razon;
+  document.getElementById("p-cif").textContent = cif;
+}
+// los parrafos se añaden y se quitan SIN tocar los demas: lo que se haya
+// editado a mano en un bloque se queda.
+function bloquesPapel(){
+  const cont = document.getElementById("p-bloques"); if(!cont) return;
+  B.forEach((b,i)=>{
+    let el = cont.querySelector(`[data-c="${b[0]}"]`);
+    if (st.on[b[0]] && !el){
+      el = document.createElement("div"); el.className="bloque"; el.dataset.c=b[0]; el.dataset.i=i; el.contentEditable=true;
+      el.innerHTML = `<b>${b[3]}</b><ul>${b[4].map(x=>`<li>${x}</li>`).join("")}</ul>`;
+      const sig = [...cont.children].find(x=>+x.dataset.i>i);
+      cont.insertBefore(el, sig||null);
+    } else if (!st.on[b[0]] && el) el.remove();
+  });
+  const icio = document.getElementById("p-icio");
+  icio.innerHTML = st.on.LIC ? `<div class="clausula" contenteditable><b>** Cláusula de Responsabilidad sobre la Bonificación del ICIO</b><br>El arquitecto se compromete a gestionar la solicitud de bonificación del ICIO ante el Ayuntamiento correspondiente. No obstante, la concesión de dicha bonificación queda exclusivamente sujeta a los criterios y resoluciones de la administración municipal. En caso de que no sea concedida (…), la Comunidad de Propietarios asumirá íntegramente el abono de dicho impuesto.</div>` : "";
+}
+function desglose(){
+  const el = document.getElementById("p-desglose"); if(!el) return;
+  const filas = B.filter(b=>st.on[b[0]] && modoDe(b)!=="no_aparece");
+  const s = filas.filter(b=>modoDe(b)==="se_cobra").reduce((a,b)=>a+(st.imp[b[0]]||0),0);
+  el.innerHTML = `<table>${filas.map(b=>{const c=modoDe(b)==="se_cobra"; const n=st.imp[b[0]]||0;
+    return `<tr><td>${b[3].charAt(0)+b[3].slice(1).toLowerCase()}</td><td class="r">${c?`<span class="dato">${EUR(n)} € + ${EUR(n*.21)} IVA = ${EUR(n*1.21)} €</span>`:"<i>incluido</i>"}</td></tr>`}).join("")}</table>
+    <div class="totalbanda">Total Honorarios Profesionales: ${EUR(s)} € + IVA</div>`;
+  const p = document.getElementById("p-pago");
+  const cobr = filas.filter(b=>modoDe(b)==="se_cobra");
+  p.innerHTML = cobr.length ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul style="margin-left:18px">${cobr.map(b=>`<li>${b[3].charAt(0)+b[3].slice(1).toLowerCase()}: <span class="dato">${PAGOS[st.pago[b[0]]??0]}</span></li>`).join("")}</ul>` : "";
+}
+abrir("h1");
+</script>
+</body>
+</html>

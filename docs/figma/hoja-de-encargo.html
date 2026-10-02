@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Hoja de encargo</title>
+<style>
+/* MAQUETA de la pestaña Hoja de encargo (2-oct-2026), sacada del esbozo de
+   Monica: docs/pestaña hoja de encargo (solo es un ejemplo...).docx.
+   PARA FIGMA: sin codigo, todo el estilo aqui dentro, no pide NADA a internet.
+   Cada estado de la pantalla va pintado debajo del anterior con su rotulo.
+   La version que se puede tocar es docs/hoja-de-encargo-navegable.html. */
+:root{
+  --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+  --hueso:#f7f7f5; --form:#f5fbf0; --card:#fffcf0; --nuevo:#fff5cc;
+  --borde:#cfcfcf; --ambar:#fdf6e3; --ambar-b:#f0d78c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--hueso);color:var(--carbon);font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.barra{background:var(--carbon);color:#fff;padding:10px 24px;font-weight:700;letter-spacing:.02em}
+.barra span{color:var(--lima)}
+main{max-width:1500px;margin:0 auto;padding:18px 24px 80px}
+a{color:inherit}
+.volver{font-size:13px;font-weight:600;color:rgba(43,43,43,.6);text-decoration:none}
+h1{font-size:25px;font-weight:700;margin-top:10px}
+.sub{font-size:13px;color:rgba(43,43,43,.65);margin-top:4px}
+.sub b{color:rgba(43,43,43,.85)}
+.aviso-maqueta{display:inline-block;margin-left:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:2px 8px;vertical-align:middle}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.titulo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(43,43,43,.7);margin-bottom:10px}
+.fila{display:flex;gap:16px;align-items:stretch}
+.btn{border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;color:rgba(43,43,43,.8)}
+.btn:hover{border-color:var(--carbon)}
+.btn.prim{background:var(--lima);border-color:var(--lima);color:var(--carbon);font-weight:700}
+.btn.prim:hover{background:var(--lima-dark);color:#fff}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 12px;font-size:13px;font-weight:600;border:1px solid rgba(0,0,0,.12);background:#fff;color:rgba(43,43,43,.45)}
+.chip.on{background:var(--lima-soft);border-color:var(--lima);color:var(--lima-dark)}
+.chip.on::before{content:"✓";font-weight:800}
+
+/* 1 · lo contratado */
+.contratado{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}
+.contratado .chips{display:flex;flex-wrap:wrap;gap:8px}
+.total-grande{text-align:right}
+.total-grande .n{font-size:24px;font-weight:800}
+.total-grande .p{font-size:12px;color:rgba(43,43,43,.65)}
+
+/* 2 · hojas + visor */
+.hojas{flex:0 0 46%}
+.hoja{border:1px solid #e4e4e4;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.hoja.sel{border-color:var(--lima);background:var(--lima-soft)}
+.hoja .nom{font-weight:700}
+.hoja .meta{font-size:12px;color:rgba(43,43,43,.65)}
+.estado{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:2px 8px}
+.estado.firmada{background:var(--lima-soft);color:var(--lima-dark);border:1px solid var(--lima)}
+.estado.enviada{background:var(--ambar);color:#8a5a00;border:1px solid var(--ambar-b)}
+.docs{display:flex;gap:6px;grid-column:1/3}
+.doc{font-size:12px;border-radius:8px;padding:4px 9px;border:1px solid rgba(122,201,67,.6);background:var(--lima-soft);color:var(--lima-dark);cursor:pointer;font-weight:600}
+.doc.falta{border-color:rgba(122,201,67,.3);background:#fff;color:rgba(63,122,28,.55);cursor:default}
+.doc.activo{outline:2px solid var(--carbon)}
+.visor{flex:1;display:flex;flex-direction:column}
+.visor .marco{flex:1;background:#e9e9e6;border-radius:12px;padding:14px;overflow:auto;max-height:420px}
+.visor .solo{font-size:11px;color:rgba(43,43,43,.6)}
+
+/* 3 · generador */
+#generador{display:none;margin-top:16px;background:var(--form);border:1px solid #b9d9a0;border-radius:18px;padding:16px}
+#generador.abierto{display:block}
+.gen-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gen-cab h2{font-size:18px}
+.gen{display:grid;grid-template-columns:minmax(430px,40%) 1fr;gap:16px;align-items:start}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel .tarjeta{background:var(--card)}
+.etq{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(43,43,43,.7);margin-bottom:3px}
+select,input[type=text]{width:100%;font:inherit;font-size:13px;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:6px 10px;background:#fff}
+select:focus,input:focus{outline:none;border-color:var(--lima)}
+.que-donde{display:grid;grid-template-columns:1fr 1fr 24px;gap:8px;margin-bottom:6px;align-items:center}
+.quitar{border:none;background:none;color:rgba(43,43,43,.5);cursor:pointer;font-size:16px}
+.mas{font-size:12px;font-weight:600;color:var(--lima-dark);background:none;border:none;cursor:pointer;padding:2px 0}
+.dato-auto{font-size:13px}
+.dato-auto small{color:rgba(43,43,43,.6)}
+.bloques{display:flex;flex-wrap:wrap;gap:6px}
+.bloques .chip{cursor:pointer;font-size:12px;padding:4px 10px}
+.bloques .chip:not(.on):hover{border-color:var(--carbon);color:var(--carbon)}
+.linea{display:grid;grid-template-columns:1fr auto 92px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed #e2e2e2}
+.linea .n{font-size:13px;font-weight:600}
+.linea .pago{grid-column:1/4;display:flex;gap:6px;align-items:center;font-size:12px;color:rgba(43,43,43,.65)}
+.linea .pago select{width:auto;flex:1;font-size:12px;padding:3px 8px}
+.seg{display:inline-flex;border:1px solid rgba(0,0,0,.18);border-radius:9px;overflow:hidden}
+.seg button{border:none;background:#fff;font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;color:rgba(43,43,43,.6)}
+.seg button+button{border-left:1px solid rgba(0,0,0,.12)}
+.seg button.on{background:var(--carbon);color:#fff}
+.importe{text-align:right}
+.importe:disabled{background:#f3f3f3;color:rgba(43,43,43,.4)}
+.solo-texto{font-size:12px;color:rgba(43,43,43,.6);margin-top:8px}
+.suma{display:flex;justify-content:space-between;font-weight:700;margin-top:8px}
+
+/* la hoja, como papel */
+.papel-zona{position:sticky;top:12px}
+.papel-pista{font-size:12px;color:rgba(43,43,43,.65);margin-bottom:6px}
+.papel{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);border-radius:4px;padding:38px 46px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.5;max-height:calc(100vh - 60px);overflow:auto}
+.papel h3{text-align:center;font-size:13px;letter-spacing:.02em;margin-bottom:8px}
+.papel .centro{text-align:center}
+.papel .banda{background:#7f7f7f;color:#fff;text-align:center;font-weight:700;padding:3px;margin-top:14px}
+.papel .banda2{background:#92d050;text-align:center;font-weight:700;padding:3px}
+.papel .bloque{margin:10px 0}
+.papel .bloque b{display:block}
+.papel .bloque ul{margin-left:18px}
+.papel table{width:100%;border-collapse:collapse;margin:8px 0}
+.papel td{padding:3px 4px;border-bottom:1px solid #eee}
+.papel td.r{text-align:right;white-space:nowrap}
+.papel .totalbanda{background:#92d050;text-align:center;font-weight:700;padding:3px;margin-top:4px}
+.papel .clausula{font-size:10px;color:#444;margin-top:10px}
+.papel .conforme td{border:1px solid #999;height:22px}
+.papel .conforme td:first-child{background:#e6e6e6;width:38%}
+.papel [contenteditable]:hover{outline:1px dashed var(--lima)}
+.papel [contenteditable]:focus{outline:2px solid var(--lima);background:#fbfff7}
+.papel .dato{background:#f3f9ec;border-radius:3px;padding:0 2px}
+.papel .fijo{position:relative}
+.papel .fijo:hover::after{content:"se cambia en las casillas de la izquierda";position:absolute;right:0;top:-16px;font-size:10px;background:var(--carbon);color:#fff;padding:1px 6px;border-radius:4px}
+.muestra{font-size:10px;color:#666;font-family:Arial}
+
+/* --- para Figma: todo abierto y a su altura, nada escondido ni con scroll */
+.rotulo-figma{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a9a9a;margin:40px 0 10px}
+#generador{display:block}
+.papel{max-height:none;overflow:visible}
+.papel-zona{position:static}
+.visor .marco{max-height:none}
+.papel .fijo:hover::after{content:none}
+</style>
+</head>
+<body>
+<div class="barra">acces<span>alia</span></div>
+<main>
+  <p class="rotulo-figma">1 · la pestaña al abrirla: lo contratado, las hojas y el visor</p>
+  <a class="volver" href="#">← Oportunidad</a>
+  <h1>C/ Pingüino 9, Madrid <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+  <p class="sub"><b>ALV-2026-032</b> · Álvaro · Hoja de encargo</p>
+
+  <!-- 1 · LO CONTRATADO -->
+  <section class="tarjeta contratado">
+    <div>
+      <div class="titulo">Qué han contratado</div>
+      <div class="chips">
+        <span class="chip on">Proyecto</span>
+        <span class="chip on">DO</span>
+        <span class="chip on">CSS</span>
+        <span class="chip on">Subvención</span>
+        <span class="chip">IEE</span>
+        <span class="chip">Memoria</span>
+      </div>
+    </div>
+    <div class="total-grande">
+      <div class="titulo" style="margin:0">Importe total</div>
+      <div class="n">9.400 € + IVA</div>
+      <div class="p">11.374 € IVA incluido · suma de las 2 hojas</div>
+    </div>
+  </section>
+
+  <!-- 2 · LAS HOJAS + EL VISOR -->
+  <section class="fila" style="margin-top:16px">
+    <div class="tarjeta hojas">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="titulo" style="margin:0">Hojas de encargo</div>
+        <button class="btn prim">+ Generar nueva hoja</button>
+      </div>
+
+      <div class="hoja sel" id="h1">
+        <div><span class="nom">Hoja 1 · Ascensor</span> <span class="estado firmada">Firmada</span>
+          <div class="meta">Versión 2 · 30-may-2025 · Comunidad de Propietarios Pingüino 9</div></div>
+        <button class="btn">Modificar</button>
+        <div class="docs">
+          <span class="doc">📄 Generada v2</span>
+          <span class="doc activo">📄 Firmada</span>
+        </div>
+      </div>
+
+      <div class="hoja" id="h2">
+        <div><span class="nom">Hoja 2 · Subvenciones</span> <span class="estado enviada">Enviada, sin firmar</span>
+          <div class="meta">Versión 1 · 30-may-2025 · Comunidad de Propietarios Pingüino 9</div></div>
+        <button class="btn">Modificar</button>
+        <div class="docs">
+          <span class="doc">📄 Generada v1</span>
+          <span class="doc falta">📄 Firmada (falta)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tarjeta visor">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div class="titulo" style="margin:0" id="visor-titulo">Hoja 1 · firmada (PDF de la comunidad)</div>
+        <span class="solo">solo ver · <a href="#">abrir en pestaña aparte ↗</a></span>
+      </div>
+      <div class="marco">
+        <div class="papel muestra" style="max-height:none;padding:22px 26px;font-size:9px">
+          <h3 style="font-size:10px">HOJA DE ENCARGO DE SERVICIOS PROFESIONALES DE ARQUITECTURA</h3>
+          <p>Presupuesto del arquitecto D. Daniel de Soto Martín-Caro colegiado nº 24.103 del COAM…</p>
+          <p class="centro" style="margin-top:6px">Proyecto para <b>instalación de ascensor</b> en: <b>C/ Pingüino 9, Madrid</b></p>
+          <div class="banda" style="font-size:9px">IMPORTE HONORARIOS ARQUITECTURA</div>
+          <p style="margin-top:6px">REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN …<br>DIRECCIÓN FACULTATIVA …<br>COORDINACIÓN DE SEGURIDAD Y SALUD …</p>
+          <p style="margin-top:30px;text-align:right;font-style:italic;color:#335">firmado: Presidente CP Pingüino 9 · 12-jun-2025</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · GENERAR / MODIFICAR -->
+  <p class="rotulo-figma">2 · al pulsar «Modificar» en la hoja 1 (o «Generar nueva»): se despliega debajo, sin salir de la pantalla</p>
+  <section id="generador" class="abierto">
+    <div class="gen-cab">
+      <h2 id="gen-titulo">Modificar hoja 1 · Ascensor (saldrá la versión 3)</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn">Cancelar</button>
+        <button class="btn prim">Generar hoja (PDF)</button>
+      </div>
+    </div>
+
+    <div class="gen">
+      <div class="panel">
+        <div class="tarjeta">
+          <div class="titulo">Cabecera</div>
+          <label class="etq">A quién</label>
+          <select id="aquien">
+            <option>Comunidad de Propietarios Pingüino 9 · H-87654321</option>
+            <option>Ascensores Ejemplo S.L. · B-12345678</option>
+          </select>
+          <label class="etq" style="margin-top:10px">Qué + dónde</label>
+          <div id="actuaciones"><div class="que-donde">
+    <select><option selected="">Ascensor</option><option>Rampa</option><option>Plataforma</option><option>SATE envolvente completa</option><option>SATE fachada</option><option>Subvenciones</option><option>CSS</option><option>DF</option><option>IEE</option><option>Memoria técnica valorada</option></select>
+    <select><option selected="">Edificio completo</option><option>Portal 9</option><option>Escalera A</option><option>Escalera B</option><option>Portales 9 y 11</option></select>
+    <span></span>
+  </div></div>
+          <button class="mas">+ añadir otra actuación</button>
+          <div class="dato-auto" style="margin-top:8px"><span class="etq" style="display:inline">Fecha</span> 2 de octubre de 2026 <small>· la de hoy, sola</small></div>
+        </div>
+
+        <div class="tarjeta">
+          <div class="titulo">Qué incluye</div>
+          <div class="bloques" id="bloques"><span class="chip on">Toma de datos y 3D</span><span class="chip on">Redacción proyecto</span><span class="chip on">Licencias</span><span class="chip ">3 presupuestos</span><span class="chip on">Fin de obra (CFO)</span><span class="chip on">CSS</span><span class="chip ">Subvenciones</span><span class="chip ">IEE</span><span class="chip ">Libro del edificio</span><span class="chip ">CEE</span><span class="chip on">Dirección facultativa</span><span class="chip ">Memoria técnica</span><span class="chip ">Informe pericial</span><span class="chip ">Consulta urbanística</span></div>
+        </div>
+
+        <div class="tarjeta">
+          <div class="titulo">Importes y forma de pago</div>
+          <div id="lineas"><div class="linea"><span class="n">Redacción proyecto</span>
+      <span class="seg"><button class="on">Se cobra</button><button class="">Incluido</button><button class="">No aparece</button></span>
+      <input type="text" class="importe" value="6500" placeholder="€">
+      <span class="pago">Forma de pago <select><option value="0" selected="">50% a la contratación (provisión de fondos) · 50% a la entrega del Proyecto</option><option value="1">100% a la firma del Plan de Seguridad y Salud</option><option value="2">100% a la contratación</option><option value="3">1.980 € a la contratación · 3% de lo concedido a la concesión</option><option value="4">Otra (se escribe en la hoja)</option></select></span>
+    </div><div class="linea"><span class="n">CSS</span>
+      <span class="seg"><button class="on">Se cobra</button><button class="">Incluido</button><button class="">No aparece</button></span>
+      <input type="text" class="importe" value="920" placeholder="€">
+      <span class="pago">Forma de pago <select><option value="0">50% a la contratación (provisión de fondos) · 50% a la entrega del Proyecto</option><option value="1" selected="">100% a la firma del Plan de Seguridad y Salud</option><option value="2">100% a la contratación</option><option value="3">1.980 € a la contratación · 3% de lo concedido a la concesión</option><option value="4">Otra (se escribe en la hoja)</option></select></span>
+    </div><div class="linea"><span class="n">Dirección facultativa</span>
+      <span class="seg"><button class="">Se cobra</button><button class="on">Incluido</button><button class="">No aparece</button></span>
+      <input type="text" class="importe" disabled="" value="—" placeholder="€">
+      
+    </div></div>
+          <div class="suma"><span>Total honorarios</span><span id="suma">7420 € + IVA = 8978,2 €</span></div>
+          <div class="solo-texto" id="solotexto">Solo texto, sin precio: <b>Toma de datos y 3D</b> <a href="#" style="font-size:11px;color:var(--lima-dark)">cobrar</a> · <b>Licencias</b> <a href="#" style="font-size:11px;color:var(--lima-dark)">cobrar</a> · <b>Fin de obra (CFO)</b> <a href="#" style="font-size:11px;color:var(--lima-dark)">cobrar</a></div>
+        </div>
+      </div>
+
+      <div class="papel-zona">
+        <div class="papel-pista">La hoja tal como saldrá. <b>Haz clic en cualquier texto para cambiarlo</b> en esta hoja (el catálogo no se toca). Los importes se cambian en las casillas.</div>
+        <div class="papel" id="papel">
+    <div style="font-size:9px;color:#888;text-align:right">c/ Alhambra 24. 28047 Madrid · B86374055</div>
+    <h3>HOJA DE ENCARGO DE SERVICIOS PROFESIONALES DE ARQUITECTURA</h3>
+    <p>Presupuesto del arquitecto D. Daniel de Soto Martín-Caro colegiado nº 24.103 del COAM para la realización de los siguientes trabajos profesionales de arquitectura:</p>
+    <div id="p-cab" class="centro fijo" style="margin-top:8px"><div><b class="dato">Ascensor</b> — <span class="dato">Edificio completo</span>, C/ Pingüino 9, Madrid</div></div>
+    <div class="banda">IMPORTE HONORARIOS ARQUITECTURA</div>
+    <div class="banda2">Desglose de Importes:</div>
+    <div id="p-bloques"><div class="bloque" data-c="TOMA" data-i="0"><b>TOMA DE DATOS Y MODELADO 3D</b><ul><li>Visita a la Comunidad para toma de datos</li><li>Medición y modelado tridimensional de los elementos comunes</li><li>Realización de fotografías</li></ul></div><div class="bloque" data-c="PROY" data-i="1"><b>REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN</b><ul><li>Redacción del Proyecto conforme al CTE y normativa aplicable</li><li>Justificación del cumplimiento de exigencias básicas</li><li>Planos, mediciones y presupuesto</li><li>Estudio de Gestión de Residuos</li></ul></div><div class="bloque" data-c="LIC" data-i="2"><b>TRAMITACIÓN DE LICENCIAS Y PERMISOS</b><ul><li>Gestión de Licencia: Obtención de la licencia urbanística o Declaración Responsable (DR) ante el Ayuntamiento Competente, incluyendo la preparación y presentación de la documentación requerida.</li><li>Resolución de cualquier requerimiento solicitado por los organismos competentes.</li><li>Tramitación de Tasas: Asesoramiento y gestión en el pago de las tasas de residuos y del ICIO, incluyendo la gestión para la obtención de posibles bonificaciones.</li></ul></div><div class="bloque" data-c="CFO" data-i="4"><b>FIN DE OBRA</b><ul><li>Revisión de la ejecución de los trabajos para comprobar su conformidad con el proyecto técnico aprobado.</li><li>Emisión del Certificado Final de Obra.</li><li>Firma de Fin de Obra por la Dirección Facultativa.</li></ul></div><div class="bloque" data-c="CSS" data-i="5"><b>COORDINACIÓN DE SEGURIDAD Y SALUD</b><ul><li>Redacción del Estudio de Seguridad y Salud.</li><li>Coordinación de Seguridad y Salud durante la ejecución de las obras, incluyendo visitas de seguimiento y control documental.</li><li>Asesoramiento a la Comunidad y a la empresa contratista en materia de seguridad y salud durante la obra.</li></ul></div><div class="bloque" data-c="DF" data-i="10"><b>DIRECCIÓN FACULTATIVA</b><ul><li>Dirección de la obra durante su ejecución por parte de los técnicos competentes del Estudio de Arquitectura.</li><li>Supervisión del cumplimiento del Proyecto Técnico aprobado y del control de calidad.</li><li>Coordinación con la empresa contratista para resolver incidencias.</li><li>Firma del Certificado Final de Obra una vez finalizados los trabajos.</li></ul></div></div>
+    <div id="p-desglose" class="fijo"><table><tbody><tr><td>Redacción del proyecto básico y de ejecución</td><td class="r"><span class="dato">6500 € + 1365 IVA = 7865 €</span></td></tr><tr><td>Coordinación de seguridad y salud</td><td class="r"><span class="dato">920 € + 193,2 IVA = 1113,2 €</span></td></tr><tr><td>Dirección facultativa</td><td class="r"><i>incluido</i></td></tr></tbody></table>
+    <div class="totalbanda">Total Honorarios Profesionales: 7420 € + IVA</div></div>
+    <p style="margin-top:8px"><i>Nota:</i> Los importes mencionados no incluyen tasas administrativas, que serán abonadas por la Comunidad de Propietarios.</p>
+    <div id="p-icio"><div class="clausula"><b>** Cláusula de Responsabilidad sobre la Bonificación del ICIO</b><br>El arquitecto se compromete a gestionar la solicitud de bonificación del ICIO ante el Ayuntamiento correspondiente. No obstante, la concesión de dicha bonificación queda exclusivamente sujeta a los criterios y resoluciones de la administración municipal. En caso de que no sea concedida (…), la Comunidad de Propietarios asumirá íntegramente el abono de dicho impuesto.</div></div>
+    <div id="p-pago" class="fijo"><p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul style="margin-left:18px"><li>Redacción del proyecto básico y de ejecución: <span class="dato">50% a la contratación (provisión de fondos) · 50% a la entrega del Proyecto</span></li><li>Coordinación de seguridad y salud: <span class="dato">100% a la firma del Plan de Seguridad y Salud</span></li></ul></div>
+    <p style="text-align:right;margin-top:14px">En Madrid, a <span class="dato">2 de octubre de 2026</span><br>Daniel de Soto</p>
+    <p style="margin-top:16px">Conforme:</p>
+    <table class="conforme"><tbody><tr><td>Razón Social</td><td id="p-razon" class="dato">Comunidad de Propietarios Pingüino 9</td></tr><tr><td>Dirección</td><td></td></tr><tr><td>CIF</td><td id="p-cif" class="dato">H-87654321</td></tr><tr><td>Firma</td><td></td></tr><tr><td>Fecha firma</td><td></td></tr><tr><td>Nombre (Representante)</td><td></td></tr><tr><td>Nº cuenta para el cargo</td><td></td></tr></tbody></table>
+    <p style="font-size:10px">(*) Importes válidos durante los 3 meses siguientes a la fecha de emisión.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+
+
+</body></html>

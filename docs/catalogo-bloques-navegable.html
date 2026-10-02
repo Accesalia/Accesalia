@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Catálogo de bloques · maqueta</title>
+<style>
+/* MAQUETA del catalogo de bloques (2-oct-2026): donde Monica crea, cambia y
+   retira los bloques que los comerciales marcan al generar una hoja de
+   encargo. Datos de EJEMPLO (los textos son los de produccion, recortados).
+   No pide nada a internet. */
+:root{
+  --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+  --hueso:#f7f7f5; --form:#f5fbf0; --card:#fffcf0; --nuevo:#fff5cc; --borde:#cfcfcf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--hueso);color:var(--carbon);font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.barra{background:var(--carbon);color:#fff;padding:10px 24px;font-weight:700;letter-spacing:.02em}
+.barra span{color:var(--lima)}
+main{max-width:1500px;margin:0 auto;padding:18px 24px 80px}
+.volver{font-size:13px;font-weight:600;color:rgba(43,43,43,.6);text-decoration:none}
+.cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:10px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px}
+h1{font-size:25px;font-weight:700}
+.sub{font-size:13px;color:rgba(43,43,43,.65);margin-top:4px}
+.aviso-maqueta{display:inline-block;margin-left:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:2px 8px;vertical-align:middle}
+.btn{border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;color:rgba(43,43,43,.8)}
+.btn:hover{border-color:var(--carbon)}
+.btn.prim{background:var(--lima);border-color:var(--lima);color:var(--carbon);font-weight:700}
+.btn.prim:hover{background:var(--lima-dark);color:#fff}
+.btn.peligro{color:#9f3a38;border-color:rgba(159,58,56,.35)}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.titulo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(43,43,43,.7);margin-bottom:10px}
+.dos{display:grid;grid-template-columns:minmax(420px,38%) 1fr;gap:16px;margin-top:16px;align-items:start}
+
+/* la lista */
+.fila{display:grid;grid-template-columns:28px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.fila:hover{background:#fafaf7}
+.fila.sel{background:var(--lima-soft);border-color:var(--lima)}
+.fila .n{font-weight:600}
+.fila .t{font-size:11px;color:rgba(43,43,43,.6)}
+.flechas{display:flex;flex-direction:column;line-height:1}
+.flechas button{border:none;background:none;cursor:pointer;color:rgba(43,43,43,.5);font-size:11px;padding:1px 4px}
+.flechas button:hover{color:var(--carbon)}
+.pild{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.pild.se_cobra{background:var(--lima-soft);color:var(--lima-dark);border:1px solid var(--lima)}
+.pild.incluido{background:#e8eef5;color:#3d5a7a;border:1px solid #9fb5cc}
+.pild.no_aparece{background:#f1f1ef;color:rgba(43,43,43,.65);border:1px solid #d6d6d2}
+.imp{font-size:12px;color:rgba(43,43,43,.75);min-width:56px;text-align:right}
+.plegado{margin-top:10px;border-top:1px dashed #ddd;padding-top:8px}
+.plegado summary{cursor:pointer;font-size:12px;font-weight:700;color:rgba(43,43,43,.65);text-transform:uppercase;letter-spacing:.06em}
+.fila.off .n{color:rgba(43,43,43,.45);text-decoration:line-through}
+
+/* el bloque abierto */
+.editor{background:var(--card)}
+.editor.nuevo{background:var(--nuevo);border-color:#e7cf6a}
+.ed-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
+.ed-cab h2{font-size:17px}
+.etq{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(43,43,43,.7);margin-bottom:3px}
+input[type=text],textarea{width:100%;font:inherit;font-size:13px;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:7px 10px;background:#fff}
+textarea{resize:vertical;min-height:170px;line-height:1.5;font-family:Consolas,"Segoe UI",monospace;font-size:12.5px}
+input:focus,textarea:focus{outline:none;border-color:var(--lima)}
+.rejilla{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px}
+.rejilla3{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
+.seg{display:inline-flex;border:1px solid rgba(0,0,0,.18);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:none;background:#fff;font-size:12px;font-weight:600;padding:7px 12px;cursor:pointer;color:rgba(43,43,43,.65)}
+.seg button+button{border-left:1px solid rgba(0,0,0,.12)}
+.seg button.on{background:var(--carbon);color:#fff}
+.pista{font-size:11.5px;color:rgba(43,43,43,.65);margin-top:4px}
+.pie{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+.vista{margin-top:14px}
+.papel{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:4px;padding:18px 26px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.5}
+.papel b{display:block}
+.papel ul{margin-left:18px}
+.chipdemo{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600;border:1px solid var(--lima);background:var(--lima-soft);color:var(--lima-dark)}
+.chipdemo::before{content:"✓";font-weight:800}
+.usos{font-size:12px;color:rgba(43,43,43,.65)}
+</style>
+</head>
+<body>
+<div class="barra">acces<span>alia</span></div>
+<main>
+  <a class="volver" href="#">← Área comercial</a>
+  <div class="cab">
+    <div>
+      <h1>Catálogo de bloques <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+      <p class="sub">Lo que los comerciales pueden marcar al generar una hoja de encargo, en el orden en que sale en la hoja.</p>
+    </div>
+    <button class="btn prim" onclick="nuevo()">+ Nuevo bloque</button>
+  </div>
+
+  <div class="dos">
+    <div class="tarjeta">
+      <div class="titulo">Bloques activos · <span id="nact"></span></div>
+      <div id="lista"></div>
+      <details class="plegado" id="pleg">
+        <summary>Retirados · <span id="ninact"></span></summary>
+        <div id="lista-off" style="margin-top:6px"></div>
+      </details>
+    </div>
+
+    <div class="tarjeta editor" id="editor"></div>
+  </div>
+</main>
+
+<script>
+let B = [
+ {c:"TOMA",corto:"Toma de datos y 3D",d:"no_aparece",imp:null,usos:842,t:"TOMA DE DATOS Y MODELADO 3D\n• Visita a la Comunidad para toma de datos\n• Medición y modelado tridimensional de los elementos comunes\n• Realización de fotografías"},
+ {c:"PROY",corto:"Redacción proyecto",d:"se_cobra",imp:null,usos:1012,t:"REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN\n• Redacción del Proyecto conforme al CTE y normativa aplicable\n• Justificación del cumplimiento de exigencias básicas\n• Planos, mediciones y presupuesto\n• Estudio de Gestión de Residuos"},
+ {c:"LIC",corto:"Licencias",d:"no_aparece",imp:null,usos:1103,t:"TRAMITACIÓN DE LICENCIAS Y PERMISOS\n• Gestión de Licencia: obtención de la licencia urbanística o Declaración Responsable (DR) ante el Ayuntamiento competente.\n• Resolución de cualquier requerimiento solicitado por los organismos competentes.\n• Tramitación de Tasas: asesoramiento y gestión en el pago de las tasas y del ICIO."},
+ {c:"3P",corto:"3 presupuestos",d:"no_aparece",imp:null,usos:388,t:"SOLICITUD Y ANÁLISIS DE PRESUPUESTOS\n• Colaboración con la Comunidad de Propietarios para la obtención de tres presupuestos.\n• Análisis de los importes recibidos, comprobando el ajuste a proyecto de todos ellos."},
+ {c:"CFO",corto:"Fin de obra (CFO)",d:"no_aparece",imp:null,usos:960,t:"FIN DE OBRA\n• Revisión de la ejecución de los trabajos.\n• Emisión del Certificado Final de Obra.\n• Firma de Fin de Obra por la Dirección Facultativa."},
+ {c:"CSS",corto:"CSS",d:"se_cobra",imp:920,usos:1001,t:"COORDINACIÓN DE SEGURIDAD Y SALUD\n• Redacción del Estudio de Seguridad y Salud.\n• Coordinación de Seguridad y Salud durante la ejecución de las obras.\n• Asesoramiento a la Comunidad y a la contratista en materia de seguridad y salud."},
+ {c:"SUBV",corto:"Subvenciones",d:"se_cobra",imp:1980,usos:0,t:"TRAMITACIÓN DE SUBVENCIONES\n• Asesoramiento técnico sobre las subvenciones aplicables al proyecto.\n• Preparación y presentación de la documentación técnica necesaria para la solicitud.\n• Gestión continuada de la tramitación de las ayudas hasta su concesión."},
+ {c:"IEE",corto:"IEE",d:"se_cobra",imp:950,usos:96,t:"INFORME DE EVALUACIÓN DEL EDIFICIO (IEE)\n• Elaboración del IEE conforme a los requisitos del Ayuntamiento.\n• Inscripción y tramitación telemática del informe."},
+ {c:"LEE",corto:"Libro del edificio",d:"se_cobra",imp:null,usos:71,t:"LIBRO DEL EDIFICIO\n• Elaboración del documento que recopila la información técnica del edificio.\n• Registro y entrega en formato digital a la Comunidad de Propietarios."},
+ {c:"CEE",corto:"CEE",d:"se_cobra",imp:null,usos:64,t:"CERTIFICADO DE EFICIENCIA ENERGÉTICA\n• Realización del CEE del edificio en su estado actual.\n• Registro oficial del certificado ante el organismo competente."},
+ {c:"DF",corto:"Dirección facultativa",d:"se_cobra",imp:null,usos:935,t:"DIRECCIÓN FACULTATIVA\n• Dirección de la obra durante su ejecución.\n• Supervisión del cumplimiento del Proyecto Técnico aprobado.\n• Firma del Certificado Final de Obra una vez finalizados los trabajos."},
+ {c:"MEM",corto:"Memoria técnica",d:"se_cobra",imp:null,usos:120,t:"MEMORIA TÉCNICA SIMPLIFICADA\n• Redacción de una memoria técnica que describa la actuación prevista.\n• Elaboración de los planos necesarios para justificar la intervención."},
+ {c:"PER",corto:"Informe pericial",d:"se_cobra",imp:null,usos:22,t:"INFORME PERICIAL\n• Visita al inmueble para toma de datos y análisis.\n• Redacción de un informe técnico imparcial."},
+ {c:"URB",corto:"Consulta urbanística",d:"se_cobra",imp:null,usos:31,t:"CONSULTA URBANÍSTICA\n• Análisis de la normativa urbanística vigente aplicable al inmueble.\n• Presentación de la Consulta ante el Organismo responsable."},
+];
+let OFF = [
+ {c:"SA",corto:"Subvenciones accesibilidad",d:"se_cobra",imp:null,usos:641,t:"GESTIÓN DE SUBVENCIONES ACCESIBILIDAD\n• …"},
+ {c:"SE",corto:"Subvenciones eficiencia",d:"se_cobra",imp:null,usos:271,t:"GESTIÓN DE SUBVENCIONES DE EFICIENCIA ENERGÉTICA\n• …"},
+ {c:"FIN",corto:"Solicitud de financiación",d:"se_cobra",imp:null,usos:18,t:"SOLICITUD DE FINANCIACIÓN\n• …"},
+ {c:"S1",corto:"SATE con cesión de CAES",d:"se_cobra",imp:null,usos:9,t:"…"},
+ {c:"S2",corto:"SATE + ascensor con CAES",d:"se_cobra",imp:null,usos:4,t:"…"},
+];
+const ETQ = {se_cobra:"Se cobra",incluido:"Incluido",no_aparece:"No aparece"};
+const EUR = n => n==null||n==="" ? "" : Number(n).toLocaleString("es-ES")+" €";
+let sel = "CSS", modo = "editar", borrador = null;
+
+function pintarLista(){
+  document.getElementById("nact").textContent = B.length;
+  document.getElementById("ninact").textContent = OFF.length;
+  document.getElementById("lista").innerHTML = B.map((b,i)=>`
+    <div class="fila ${b.c===sel&&modo==="editar"?"sel":""}" onclick="elegir('${b.c}')">
+      <span class="flechas"><button title="subir" onclick="event.stopPropagation();mover(${i},-1)">▲</button><button title="bajar" onclick="event.stopPropagation();mover(${i},1)">▼</button></span>
+      <span><span class="n">${b.corto}</span><br><span class="t">${b.t.split("\n")[0]}</span></span>
+      <span class="pild ${b.d}">${ETQ[b.d]}</span>
+      <span class="imp">${EUR(b.imp)}</span>
+    </div>`).join("");
+  document.getElementById("lista-off").innerHTML = OFF.map(b=>`
+    <div class="fila off" onclick="elegirOff('${b.c}')"><span></span>
+      <span><span class="n">${b.corto}</span><br><span class="t">usado en ${b.usos} hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>`).join("");
+}
+function mover(i,d){ const j=i+d; if(j<0||j>=B.length) return; [B[i],B[j]]=[B[j],B[i]]; pintarLista(); }
+function elegir(c){ sel=c; modo="editar"; borrador=JSON.parse(JSON.stringify(B.find(b=>b.c===c))); pintarLista(); pintarEditor(); }
+function elegirOff(c){ sel=c; modo="retirado"; borrador=OFF.find(b=>b.c===c); pintarLista(); pintarEditor(); }
+function nuevo(){ modo="nuevo"; borrador={c:"N"+Date.now(),corto:"",d:"se_cobra",imp:null,usos:0,t:"TÍTULO DEL BLOQUE EN MAYÚSCULAS\n• Primer punto\n• Segundo punto"}; pintarLista(); pintarEditor(); }
+function duplicar(){ const o=borrador; modo="nuevo"; borrador={...o,c:"N"+Date.now(),corto:o.corto+" (copia)",usos:0}; pintarLista(); pintarEditor(); }
+
+function parrafo(t){ const [tit,...r]=t.split("\n"); return `<b>${tit}</b><ul>${r.filter(x=>x.trim()).map(x=>`<li>${x.replace(/^•\s*/,"")}</li>`).join("")}</ul>`; }
+function pintarEditor(){
+  const b = borrador, e = document.getElementById("editor");
+  e.className = "tarjeta editor" + (modo==="nuevo"?" nuevo":"");
+  if (modo==="retirado"){
+    e.innerHTML = `<div class="ed-cab"><h2>${b.corto} <span class="pild no_aparece">Retirado</span></h2>
+      <button class="btn prim" onclick="alert('Vuelve a la lista de activos, al final.')">Volver a activar</button></div>
+      <p class="usos">Retirado del catálogo: los comerciales ya no lo ven al generar una hoja. Sigue en las <b>${b.usos} hojas antiguas</b> que lo usaron, que no cambian.</p>
+      <div class="vista"><span class="etq">Así salía en la hoja</span><div class="papel">${parrafo(b.t)}</div></div>`;
+    return;
+  }
+  e.innerHTML = `
+    <div class="ed-cab">
+      <h2>${modo==="nuevo"?"Nuevo bloque":b.corto}</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="${modo==="nuevo"?"elegir(sel)":"elegir(sel)"}">Cancelar</button>
+        <button class="btn prim" onclick="alert('Guardado. Los comerciales lo ven ya en la próxima hoja; las hojas ya generadas no cambian.')">Guardar</button>
+      </div>
+    </div>
+    <div class="rejilla">
+      <div><label class="etq">Nombre corto</label>
+        <input type="text" value="${b.corto}" placeholder="Visado ascensor" oninput="borrador.corto=this.value;demo()">
+        <div class="pista">Así lo ve el comercial: <span id="chip" class="chipdemo">${b.corto||"…"}</span></div></div>
+      <div><label class="etq">Cómo sale en el desglose de importes</label>
+        <span class="seg">${["no_aparece","incluido","se_cobra"].map(v=>`<button class="${b.d===v?"on":""}" onclick="borrador.d='${v}';pintarEditor()">${ETQ[v]}</button>`).join("")}</span>
+        <div class="pista">${b.d==="no_aparece"?"Su párrafo sale en la hoja, pero no tiene línea de precio.":b.d==="incluido"?"Sale en el desglose como «incluido», sin precio.":"Sale en el desglose con su importe y genera línea de facturación."} En cada hoja se puede cambiar.</div></div>
+    </div>
+    <label class="etq">Texto que va a la hoja</label>
+    <textarea oninput="borrador.t=this.value;demo()">${b.t}</textarea>
+    <div class="pista">La primera línea es el título. Cada línea que empieza por • es un punto.</div>
+    <div class="rejilla3">
+      <div class="vista" style="margin:0"><span class="etq">Así sale en la hoja</span><div class="papel" id="vista">${parrafo(b.t)}</div></div>
+      <div><label class="etq">Importe por defecto</label>
+        <input type="text" value="${b.imp??""}" placeholder="vacío = se pone en cada hoja" ${b.d!=="se_cobra"?"disabled":""} oninput="borrador.imp=this.value">
+        <div class="pista">${b.d==="se_cobra"?"Sale puesto al marcarlo; el comercial lo cambia si hace falta.":"Solo los que se cobran llevan importe."}</div></div>
+    </div>
+    ${modo==="editar"?`<div class="pie">
+      <span class="usos">Usado en <b>${b.usos}</b> hojas. Cambiarlo no toca las ya generadas.</span>
+      <span style="display:flex;gap:8px"><button class="btn" onclick="duplicar()">Duplicar para hacer una variante</button>
+      <button class="btn peligro" onclick="alert('Pasa a «Retirados». No se borra: las hojas que lo usan lo conservan.')">Retirar</button></span>
+    </div>`:""}`;
+}
+function demo(){ document.getElementById("chip").textContent=borrador.corto||"…"; document.getElementById("vista").innerHTML=parrafo(borrador.t); }
+elegir("CSS");
+</script>
+</body>
+</html>

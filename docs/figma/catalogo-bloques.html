@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Catálogo de bloques</title>
+<style>
+/* MAQUETA del catalogo de bloques (2-oct-2026): donde Monica crea, cambia y
+   retira los bloques que los comerciales marcan al generar una hoja de
+   encargo. Datos de EJEMPLO (los textos son los de produccion, recortados).
+   PARA FIGMA: sin codigo, todo el estilo aqui dentro, no pide NADA a internet.
+   Cada estado va debajo del anterior con su rotulo. La version que se puede
+   tocar es docs/catalogo-bloques-navegable.html. */
+:root{
+  --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+  --hueso:#f7f7f5; --form:#f5fbf0; --card:#fffcf0; --nuevo:#fff5cc; --borde:#cfcfcf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--hueso);color:var(--carbon);font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.barra{background:var(--carbon);color:#fff;padding:10px 24px;font-weight:700;letter-spacing:.02em}
+.barra span{color:var(--lima)}
+main{max-width:1500px;margin:0 auto;padding:18px 24px 80px}
+.volver{font-size:13px;font-weight:600;color:rgba(43,43,43,.6);text-decoration:none}
+.cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:10px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px}
+h1{font-size:25px;font-weight:700}
+.sub{font-size:13px;color:rgba(43,43,43,.65);margin-top:4px}
+.aviso-maqueta{display:inline-block;margin-left:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:2px 8px;vertical-align:middle}
+.btn{border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;color:rgba(43,43,43,.8)}
+.btn:hover{border-color:var(--carbon)}
+.btn.prim{background:var(--lima);border-color:var(--lima);color:var(--carbon);font-weight:700}
+.btn.prim:hover{background:var(--lima-dark);color:#fff}
+.btn.peligro{color:#9f3a38;border-color:rgba(159,58,56,.35)}
+.tarjeta{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.titulo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(43,43,43,.7);margin-bottom:10px}
+.dos{display:grid;grid-template-columns:minmax(420px,38%) 1fr;gap:16px;margin-top:16px;align-items:start}
+
+/* la lista */
+.fila{display:grid;grid-template-columns:28px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.fila:hover{background:#fafaf7}
+.fila.sel{background:var(--lima-soft);border-color:var(--lima)}
+.fila .n{font-weight:600}
+.fila .t{font-size:11px;color:rgba(43,43,43,.6)}
+.flechas{display:flex;flex-direction:column;line-height:1}
+.flechas button{border:none;background:none;cursor:pointer;color:rgba(43,43,43,.5);font-size:11px;padding:1px 4px}
+.flechas button:hover{color:var(--carbon)}
+.pild{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.pild.se_cobra{background:var(--lima-soft);color:var(--lima-dark);border:1px solid var(--lima)}
+.pild.incluido{background:#e8eef5;color:#3d5a7a;border:1px solid #9fb5cc}
+.pild.no_aparece{background:#f1f1ef;color:rgba(43,43,43,.65);border:1px solid #d6d6d2}
+.imp{font-size:12px;color:rgba(43,43,43,.75);min-width:56px;text-align:right}
+.plegado{margin-top:10px;border-top:1px dashed #ddd;padding-top:8px}
+.plegado summary{cursor:pointer;font-size:12px;font-weight:700;color:rgba(43,43,43,.65);text-transform:uppercase;letter-spacing:.06em}
+.fila.off .n{color:rgba(43,43,43,.45);text-decoration:line-through}
+
+/* el bloque abierto */
+.editor{background:var(--card)}
+.editor.nuevo{background:var(--nuevo);border-color:#e7cf6a}
+.ed-cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
+.ed-cab h2{font-size:17px}
+.etq{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(43,43,43,.7);margin-bottom:3px}
+input[type=text],textarea{width:100%;font:inherit;font-size:13px;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:7px 10px;background:#fff}
+textarea{resize:vertical;min-height:170px;line-height:1.5;font-family:Consolas,"Segoe UI",monospace;font-size:12.5px}
+input:focus,textarea:focus{outline:none;border-color:var(--lima)}
+.rejilla{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px}
+.rejilla3{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
+.seg{display:inline-flex;border:1px solid rgba(0,0,0,.18);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:none;background:#fff;font-size:12px;font-weight:600;padding:7px 12px;cursor:pointer;color:rgba(43,43,43,.65)}
+.seg button+button{border-left:1px solid rgba(0,0,0,.12)}
+.seg button.on{background:var(--carbon);color:#fff}
+.pista{font-size:11.5px;color:rgba(43,43,43,.65);margin-top:4px}
+.pie{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+.vista{margin-top:14px}
+.papel{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:4px;padding:18px 26px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.5}
+.papel b{display:block}
+.papel ul{margin-left:18px}
+.chipdemo{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600;border:1px solid var(--lima);background:var(--lima-soft);color:var(--lima-dark)}
+.chipdemo::before{content:"✓";font-weight:800}
+.usos{font-size:12px;color:rgba(43,43,43,.65)}
+
+.rotulo-figma{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a9a9a;margin:40px 0 10px}
+.estado-figma{margin-bottom:30px}
+</style>
+</head>
+<body>
+<div class="barra">acces<span>alia</span></div>
+<main>
+<p class="rotulo-figma">1 · la pantalla al abrirla: la lista a la izquierda, el bloque elegido abierto a la derecha</p>
+<div class="estado-figma">
+  <a class="volver" href="#">← Área comercial</a>
+  <div class="cab">
+    <div>
+      <h1>Catálogo de bloques <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+      <p class="sub">Lo que los comerciales pueden marcar al generar una hoja de encargo, en el orden en que sale en la hoja.</p>
+    </div>
+    <button class="btn prim">+ Nuevo bloque</button>
+  </div>
+
+  <div class="dos">
+    <div class="tarjeta">
+      <div class="titulo">Bloques activos · <span id="nact">14</span></div>
+      <div id="lista">
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Toma de datos y 3D</span><br><span class="t">TOMA DE DATOS Y MODELADO 3D</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Redacción proyecto</span><br><span class="t">REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Licencias</span><br><span class="t">TRAMITACIÓN DE LICENCIAS Y PERMISOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">3 presupuestos</span><br><span class="t">SOLICITUD Y ANÁLISIS DE PRESUPUESTOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Fin de obra (CFO)</span><br><span class="t">FIN DE OBRA</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila sel">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CSS</span><br><span class="t">COORDINACIÓN DE SEGURIDAD Y SALUD</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">920 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Subvenciones</span><br><span class="t">TRAMITACIÓN DE SUBVENCIONES</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">1980 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">IEE</span><br><span class="t">INFORME DE EVALUACIÓN DEL EDIFICIO (IEE)</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">950 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Libro del edificio</span><br><span class="t">LIBRO DEL EDIFICIO</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CEE</span><br><span class="t">CERTIFICADO DE EFICIENCIA ENERGÉTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Dirección facultativa</span><br><span class="t">DIRECCIÓN FACULTATIVA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Memoria técnica</span><br><span class="t">MEMORIA TÉCNICA SIMPLIFICADA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Informe pericial</span><br><span class="t">INFORME PERICIAL</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Consulta urbanística</span><br><span class="t">CONSULTA URBANÍSTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div></div>
+      <details class="plegado" id="pleg">
+        <summary>Retirados · <span id="ninact">5</span></summary>
+        <div id="lista-off" style="margin-top:6px">
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones accesibilidad</span><br><span class="t">usado en 641 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones eficiencia</span><br><span class="t">usado en 271 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Solicitud de financiación</span><br><span class="t">usado en 18 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE con cesión de CAES</span><br><span class="t">usado en 9 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE + ascensor con CAES</span><br><span class="t">usado en 4 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div></div>
+      </details>
+    </div>
+
+    <div class="tarjeta editor" id="editor">
+    <div class="ed-cab">
+      <h2>CSS</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn">Cancelar</button>
+        <button class="btn prim">Guardar</button>
+      </div>
+    </div>
+    <div class="rejilla">
+      <div><label class="etq">Nombre corto</label>
+        <input type="text" value="CSS" placeholder="Visado ascensor">
+        <div class="pista">Así lo ve el comercial: <span id="chip" class="chipdemo">CSS</span></div></div>
+      <div><label class="etq">Cómo sale en el desglose de importes</label>
+        <span class="seg"><button class="">No aparece</button><button class="">Incluido</button><button class="on">Se cobra</button></span>
+        <div class="pista">Sale en el desglose con su importe y genera línea de facturación. En cada hoja se puede cambiar.</div></div>
+    </div>
+    <label class="etq">Texto que va a la hoja</label>
+    <textarea>COORDINACIÓN DE SEGURIDAD Y SALUD
+• Redacción del Estudio de Seguridad y Salud.
+• Coordinación de Seguridad y Salud durante la ejecución de las obras.
+• Asesoramiento a la Comunidad y a la contratista en materia de seguridad y salud.</textarea>
+    <div class="pista">La primera línea es el título. Cada línea que empieza por • es un punto.</div>
+    <div class="rejilla3">
+      <div class="vista" style="margin:0"><span class="etq">Así sale en la hoja</span><div class="papel" id="vista"><b>COORDINACIÓN DE SEGURIDAD Y SALUD</b><ul><li>Redacción del Estudio de Seguridad y Salud.</li><li>Coordinación de Seguridad y Salud durante la ejecución de las obras.</li><li>Asesoramiento a la Comunidad y a la contratista en materia de seguridad y salud.</li></ul></div></div>
+      <div><label class="etq">Importe por defecto</label>
+        <input type="text" value="920" placeholder="vacío = se pone en cada hoja">
+        <div class="pista">Sale puesto al marcarlo; el comercial lo cambia si hace falta.</div></div>
+    </div>
+    <div class="pie">
+      <span class="usos">Usado en <b>1001</b> hojas. Cambiarlo no toca las ya generadas.</span>
+      <span style="display:flex;gap:8px"><button class="btn">Duplicar para hacer una variante</button>
+      <button class="btn peligro">Retirar</button></span>
+    </div></div>
+  </div>
+</div>
+<p class="rotulo-figma">2 · «Duplicar para hacer una variante»: de la Dirección facultativa sale un bloque nuevo (amarillo) que se retoca</p>
+<div class="estado-figma">
+  <a class="volver" href="#">← Área comercial</a>
+  <div class="cab">
+    <div>
+      <h1>Catálogo de bloques <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+      <p class="sub">Lo que los comerciales pueden marcar al generar una hoja de encargo, en el orden en que sale en la hoja.</p>
+    </div>
+    <button class="btn prim">+ Nuevo bloque</button>
+  </div>
+
+  <div class="dos">
+    <div class="tarjeta">
+      <div class="titulo">Bloques activos · <span id="nact">14</span></div>
+      <div id="lista">
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Toma de datos y 3D</span><br><span class="t">TOMA DE DATOS Y MODELADO 3D</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Redacción proyecto</span><br><span class="t">REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Licencias</span><br><span class="t">TRAMITACIÓN DE LICENCIAS Y PERMISOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">3 presupuestos</span><br><span class="t">SOLICITUD Y ANÁLISIS DE PRESUPUESTOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Fin de obra (CFO)</span><br><span class="t">FIN DE OBRA</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CSS</span><br><span class="t">COORDINACIÓN DE SEGURIDAD Y SALUD</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">920 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Subvenciones</span><br><span class="t">TRAMITACIÓN DE SUBVENCIONES</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">1980 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">IEE</span><br><span class="t">INFORME DE EVALUACIÓN DEL EDIFICIO (IEE)</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">950 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Libro del edificio</span><br><span class="t">LIBRO DEL EDIFICIO</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CEE</span><br><span class="t">CERTIFICADO DE EFICIENCIA ENERGÉTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Dirección facultativa</span><br><span class="t">DIRECCIÓN FACULTATIVA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Memoria técnica</span><br><span class="t">MEMORIA TÉCNICA SIMPLIFICADA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Informe pericial</span><br><span class="t">INFORME PERICIAL</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Consulta urbanística</span><br><span class="t">CONSULTA URBANÍSTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div></div>
+      <details class="plegado" id="pleg">
+        <summary>Retirados · <span id="ninact">5</span></summary>
+        <div id="lista-off" style="margin-top:6px">
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones accesibilidad</span><br><span class="t">usado en 641 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones eficiencia</span><br><span class="t">usado en 271 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Solicitud de financiación</span><br><span class="t">usado en 18 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE con cesión de CAES</span><br><span class="t">usado en 9 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE + ascensor con CAES</span><br><span class="t">usado en 4 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div></div>
+      </details>
+    </div>
+
+    <div class="tarjeta editor nuevo" id="editor">
+    <div class="ed-cab">
+      <h2>Nuevo bloque</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn">Cancelar</button>
+        <button class="btn prim">Guardar</button>
+      </div>
+    </div>
+    <div class="rejilla">
+      <div><label class="etq">Nombre corto</label>
+        <input type="text" value="Visado ascensor" placeholder="Visado ascensor">
+        <div class="pista">Así lo ve el comercial: <span id="chip" class="chipdemo">Visado ascensor</span></div></div>
+      <div><label class="etq">Cómo sale en el desglose de importes</label>
+        <span class="seg"><button class="on">No aparece</button><button class="">Incluido</button><button class="">Se cobra</button></span>
+        <div class="pista">Su párrafo sale en la hoja, pero no tiene línea de precio. En cada hoja se puede cambiar.</div></div>
+    </div>
+    <label class="etq">Texto que va a la hoja</label>
+    <textarea>VISADO DE PROYECTO DE ASCENSOR
+• Presentación del Proyecto de instalación de ascensor ante el Colegio Oficial de Arquitectos de Madrid (COAM)
+• Seguimiento hasta la obtención del visado</textarea>
+    <div class="pista">La primera línea es el título. Cada línea que empieza por • es un punto.</div>
+    <div class="rejilla3">
+      <div class="vista" style="margin:0"><span class="etq">Así sale en la hoja</span><div class="papel" id="vista"><b>VISADO DE PROYECTO DE ASCENSOR</b><ul><li>Presentación del Proyecto de instalación de ascensor ante el Colegio Oficial de Arquitectos de Madrid (COAM)</li><li>Seguimiento hasta la obtención del visado</li></ul></div></div>
+      <div><label class="etq">Importe por defecto</label>
+        <input type="text" value="" placeholder="vacío = se pone en cada hoja" disabled="">
+        <div class="pista">Solo los que se cobran llevan importe.</div></div>
+    </div>
+    </div>
+  </div>
+</div>
+<p class="rotulo-figma">3 · los retirados, desplegados: se ven, se pueden volver a activar, y las hojas antiguas los conservan</p>
+<div class="estado-figma">
+  <a class="volver" href="#">← Área comercial</a>
+  <div class="cab">
+    <div>
+      <h1>Catálogo de bloques <span class="aviso-maqueta">maqueta · datos de ejemplo</span></h1>
+      <p class="sub">Lo que los comerciales pueden marcar al generar una hoja de encargo, en el orden en que sale en la hoja.</p>
+    </div>
+    <button class="btn prim">+ Nuevo bloque</button>
+  </div>
+
+  <div class="dos">
+    <div class="tarjeta">
+      <div class="titulo">Bloques activos · <span id="nact">14</span></div>
+      <div id="lista">
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Toma de datos y 3D</span><br><span class="t">TOMA DE DATOS Y MODELADO 3D</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Redacción proyecto</span><br><span class="t">REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Licencias</span><br><span class="t">TRAMITACIÓN DE LICENCIAS Y PERMISOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">3 presupuestos</span><br><span class="t">SOLICITUD Y ANÁLISIS DE PRESUPUESTOS</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Fin de obra (CFO)</span><br><span class="t">FIN DE OBRA</span></span>
+      <span class="pild no_aparece">No aparece</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CSS</span><br><span class="t">COORDINACIÓN DE SEGURIDAD Y SALUD</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">920 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Subvenciones</span><br><span class="t">TRAMITACIÓN DE SUBVENCIONES</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">1980 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">IEE</span><br><span class="t">INFORME DE EVALUACIÓN DEL EDIFICIO (IEE)</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp">950 €</span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Libro del edificio</span><br><span class="t">LIBRO DEL EDIFICIO</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">CEE</span><br><span class="t">CERTIFICADO DE EFICIENCIA ENERGÉTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Dirección facultativa</span><br><span class="t">DIRECCIÓN FACULTATIVA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Memoria técnica</span><br><span class="t">MEMORIA TÉCNICA SIMPLIFICADA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Informe pericial</span><br><span class="t">INFORME PERICIAL</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div>
+    <div class="fila ">
+      <span class="flechas"><button title="subir">▲</button><button title="bajar">▼</button></span>
+      <span><span class="n">Consulta urbanística</span><br><span class="t">CONSULTA URBANÍSTICA</span></span>
+      <span class="pild se_cobra">Se cobra</span>
+      <span class="imp"></span>
+    </div></div>
+      <details class="plegado" id="pleg" open="">
+        <summary>Retirados · <span id="ninact">5</span></summary>
+        <div id="lista-off" style="margin-top:6px">
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones accesibilidad</span><br><span class="t">usado en 641 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Subvenciones eficiencia</span><br><span class="t">usado en 271 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">Solicitud de financiación</span><br><span class="t">usado en 18 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE con cesión de CAES</span><br><span class="t">usado en 9 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div>
+    <div class="fila off"><span></span>
+      <span><span class="n">SATE + ascensor con CAES</span><br><span class="t">usado en 4 hojas antiguas</span></span>
+      <span></span><span class="imp"></span></div></div>
+      </details>
+    </div>
+
+    <div class="tarjeta editor" id="editor"><div class="ed-cab"><h2>Subvenciones accesibilidad <span class="pild no_aparece">Retirado</span></h2>
+      <button class="btn prim">Volver a activar</button></div>
+      <p class="usos">Retirado del catálogo: los comerciales ya no lo ven al generar una hoja. Sigue en las <b>641 hojas antiguas</b> que lo usaron, que no cambian.</p>
+      <div class="vista"><span class="etq">Así salía en la hoja</span><div class="papel"><b>GESTIÓN DE SUBVENCIONES ACCESIBILIDAD</b><ul><li>…</li></ul></div></div></div>
+  </div>
+</div>
+</main>
+</body>
+</html>
