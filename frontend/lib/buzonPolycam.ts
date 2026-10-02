@@ -59,6 +59,28 @@ const ALMACEN = "documentos-comerciales";
 /** La etiqueta que se le pone al correo que no se supo colocar. */
 export const SIN_SITIO = "accesalia-sin-sitio";
 
+// REMITENTES DE CONFIANZA QUE NO SON PERSONAS.
+//
+// Cuando el escaneo se comparte DESDE EL MOVIL, el correo no lo manda el chico:
+// lo manda Polycam en su nombre. El 1-oct llego uno asi y el buzon lo rechazo
+// con "el remitente no es del equipo", que era verdad y era inutil: ese es
+// justo el flujo normal. Monica, 2-oct: "incluyamos a Polycam en la lista del
+// equipo o lo que sea".
+//
+// No va en la tabla `equipo`, que es el directorio de personal y no tiene por
+// que llenarse de cosas que no son personas. Va aqui, y sirve para las dos
+// puertas: el rescate de Spam y la entrada por INBOX.
+//
+// La direccion es la que mando el correo de verdad, leida del buzon, no la de
+// memoria: `notifications@poly.cam` -en ingles, y .cam, que es el dominio de
+// Polycam, no .com-. Un caracter de mas aqui y el escaneo vuelve a quedarse
+// fuera sin un solo sintoma.
+//
+// Estos correos NO tienen autor: `autor_id` se queda vacio a proposito, porque
+// quien lo mando es un robot. De quien es el escaneo se sabra por la direccion,
+// no por el remitente.
+export const REMITENTES_ROBOT = new Set(["notifications@poly.cam"]);
+
 async function leer<T>(path: string): Promise<T> {
   const r = await fetch(`${URL_BASE}/rest/v1/${path}`, { headers: cab, cache: "no-store" });
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
@@ -459,7 +481,9 @@ export async function repasarBuzon(): Promise<Repaso> {
 
   await cliente.connect();
   // Primero se rescata lo que Gmail aparto, para que entre en ESTA pasada.
-  r.rescatados = await rescatarDeSpam(cliente, new Set(porCorreo.keys()));
+  // Los robots de confianza tambien se rescatan de Spam: si no, el escaneo que
+  // Gmail aparte por venir de un desconocido se queda ahi para siempre.
+  r.rescatados = await rescatarDeSpam(cliente, new Set([...porCorreo.keys(), ...REMITENTES_ROBOT]));
   const cerrojo = await cliente.getMailboxLock("INBOX");
   try {
     // Sin leer y sin la etiqueta de "ya miré esto y no supe colocarlo".
@@ -478,9 +502,11 @@ export async function repasarBuzon(): Promise<Repaso> {
         de = correo.from?.value?.[0]?.address ?? "—";
 
         // 1 · ¿lo manda alguien de casa? Ese buzon tiene una direccion que
-        //     cualquiera puede escribir.
-        const autorId = porCorreo.get(correoLlano(de));
-        if (!autorId) {
+        //     cualquiera puede escribir. "De casa" incluye a Polycam, que es
+        //     quien manda los escaneos compartidos desde el movil: ver
+        //     REMITENTES_ROBOT. Esos entran sin autor, a proposito.
+        const autorId = porCorreo.get(correoLlano(de)) ?? null;
+        if (!autorId && !REMITENTES_ROBOT.has(correoLlano(de))) {
           await cliente.messageFlagsAdd(String(uid), [SIN_SITIO], { uid: true });
           await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
           r.sinSitio.push({ de, asunto, porque: "el remitente no es del equipo" });

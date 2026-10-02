@@ -84,7 +84,15 @@ export type Reloj = { tarea: string; nombre: string; cada: string; ruta: string 
 // 29-sep: tres relojes muertos y ninguna señal.
 export const RELOJES: Reloj[] = [
   { tarea: "buzon_polycam", nombre: "Buzón del Polycam", cada: "cada 10 minutos", ruta: "/api/buzon/polycam" },
-  { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 7:15", ruta: "/api/iee/barrido" },
+  // A LAS 5 DE LA MADRUGADA, por encargo de Monica (2-oct-2026): "Accesalia
+  // abre a las 7, asi cuando entre por la mañana Alejandra, esta listo".
+  //
+  // En vercel.json pone 3:00, y no es un despiste: los horarios de Vercel son
+  // en UTC y no admiten zona horaria. 3:00 UTC son las 5:00 en Madrid con
+  // horario de verano y las 4:00 en invierno. Se eligio la hora que cumple SU
+  // condicion todo el año -antes de las 7, siempre- en vez de clavar las 5:00
+  // la mitad del año y quedarse en las 6:00 la otra mitad.
+  { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 5 de la madrugada", ruta: "/api/iee/barrido" },
   // TEMPORAL, A PROPOSITO. Va a tandas preguntandole al registro por nuestras
   // 2.037 direcciones, y cuando acaba se queda callado: comprueba la ultima
   // pasada y, si termino entera, no hace nada. Pero el HORARIO sobra en cuanto

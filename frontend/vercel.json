@@ -9,7 +9,7 @@
     },
     {
       "path": "/api/iee/barrido",
-      "schedule": "15 7 * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/iee/direcciones",
