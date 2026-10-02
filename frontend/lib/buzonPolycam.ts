@@ -56,6 +56,16 @@ const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 const cab = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
 const ALMACEN = "documentos-comerciales";
 
+// EL ALMACEN DE LOS ESCANEADOS, que NO es el de los documentos. Nombre de Monica
+// (2-oct-2026). Los motivos estan en la migracion 20261002210000, y el de peso es
+// que el permiso va por almacen: manaña puede hacer falta que alguien abra
+// escaneos sin poder abrir las hojas de encargo firmadas.
+//
+// Se llama "y fotos" porque el escaneado no viene solo: el que los hace manda
+// ademas unas 30 fotos por direccion, y son mas peso que el propio .glb. Eso es
+// de otro sprint, pero el almacen ya se llama como lo que va a guardar.
+const ALMACEN_POLYCAM = "almacen-polycam-y-fotos";
+
 /** La etiqueta que se le pone al correo que no se supo colocar. */
 export const SIN_SITIO = "accesalia-sin-sitio";
 
@@ -262,14 +272,22 @@ export function cotejar(
 
 // ------------------------------------------------------------------ almacen
 
-async function subirFichero(ruta: string, datos: Buffer, tipoMime: string) {
-  const r = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+async function subirFichero(ruta: string, datos: Buffer, tipoMime: string, almacen = ALMACEN) {
+  const r = await fetch(`${URL_BASE}/storage/v1/object/${almacen}/${ruta}`, {
     method: "POST",
     headers: { ...cab, "Content-Type": tipoMime || "application/octet-stream" },
     body: new Uint8Array(datos),
   });
   if (!r.ok) throw new Error(`Storage ${r.status}: ${await r.text()}`);
 }
+
+/** La extension, con su punto, o nada. `limpioNombre` la quita para hacer el
+ *  nombre legible, y luego hay que devolverla: un fichero sin extension no lo
+ *  abre nada. */
+const extension = (s: string) => {
+  const m = s.match(/\.[a-z0-9]{1,8}$/i);
+  return m ? m[0].toLowerCase() : "";
+};
 
 const limpioNombre = (s: string) =>
   aplanar(s.replace(/\.[a-z0-9]+$/i, ""))
@@ -357,10 +375,13 @@ export async function avisarAQuienHace(
  *  configurar, nadie lo puede desconfigurar y no depende de una API que las
  *  contrasenas de aplicacion no abren.
  *
- *  Solo RESCATA: mira el remitente, mueve el correo a INBOX y lo deja para la
- *  pasada normal de abajo. No descarga nada, asi que un zip de 20 MB tirado en
- *  Spam no cuesta un byte hasta que se sabe que es de casa. */
-async function rescatarDeSpam(cliente: ImapFlow, delEquipo: Set<string>): Promise<number> {
+ *  YA NO MIRA QUIEN LO MANDA: rescata todo lo que haya sin leer en Spam. Monica,
+ *  2-oct-2026: "que se guarde todo, no filtra ni por remitente, ni asunto, ni
+ *  nada". Antes solo rescataba a los del equipo, y eso dejaba en Spam para
+ *  siempre justo lo que mas importa: el correo que manda Polycam en nombre del
+ *  comercial, o el escaneo que el chico envia desde su icloud personal. A ese
+ *  buzon solo le escribe quien le escribe, asi que no hay nada que cribar. */
+async function rescatarDeSpam(cliente: ImapFlow): Promise<number> {
   const buzones = await cliente.list();
   // El nombre del buzon de Spam cambia con el idioma de la cuenta. Lo que no
   // cambia es su marca IMAP, \Junk, y por eso se busca por ahi y no por nombre.
@@ -373,9 +394,6 @@ async function rescatarDeSpam(cliente: ImapFlow, delEquipo: Set<string>): Promis
     const uids = await cliente.search({ seen: false });
     if (!Array.isArray(uids)) return 0;
     for (const uid of uids) {
-      const sobre = await cliente.fetchOne(String(uid), { envelope: true }, { uid: true });
-      const de = sobre && sobre.envelope?.from?.[0]?.address;
-      if (!de || !delEquipo.has(correoLlano(de))) continue;
       await cliente.messageMove(String(uid), "INBOX", { uid: true });
       rescatados++;
     }
@@ -385,14 +403,86 @@ async function rescatarDeSpam(cliente: ImapFlow, delEquipo: Set<string>): Promis
   return rescatados;
 }
 
+// LA CUENTA DE UNA PASADA, y cambia de forma el 2-oct-2026 porque el trabajo
+// cambio. Antes decia cuantos habia COLOCADO y cuales se habian quedado SIN
+// SITIO, porque el buzon decidia y rechazaba. Ahora no rechaza nada: guarda todo
+// y decidir es cosa de Alex en su pantalla. Asi que los campos que contaban
+// rechazos ya no cuentan nada, y lo que hay que ver en /relojes es cuanto entro.
+//
+// DESVIACION: esto cambia lo que se ve en el historial de /relojes. Las pasadas
+// viejas seguiran teniendo los campos antiguos en su `detalle`, que es correcto:
+// cuentan lo que pasaba entonces.
 export type Repaso = {
+  /** Correos abiertos en esta pasada. */
   mirados: number;
+  /** Sacados de la carpeta de Spam, ahora sin mirar quien los manda. */
   rescatados: number;
-  colocados: number;
-  sinSitio: { de: string; asunto: string; porque: string }[];
-  avisos: number;
+  /** Filas nuevas en `escaneados_polycam`. */
+  guardados: number;
+  /** Ficheros subidos al almacen. Un correo puede traer varios. */
+  ficheros: number;
+  /** Los que ya estaban guardados de una pasada anterior y no se repiten. */
+  repetidos: number;
   errores: string[];
 };
+
+// ---------------------------------------------------------------------------
+// GUARDAR UN ESCANEADO
+// ---------------------------------------------------------------------------
+
+/** El enlace de Polycam, si el correo trae uno en vez de un adjunto. Es el
+ *  camino de "enviar enlace" del movil, el que llega desde notifications@poly.cam
+ *  con el asunto "capture has been shared with you". Se guarda el enlace Y, si
+ *  viene, el fichero: "aunque la ruta caduque, a veces necesitamos reintentar si
+ *  falla, mejor tenerlo" (Monica). */
+function enlacePolycam(correo: ParsedMail): string | null {
+  const donde = `${correo.text ?? ""}\n${typeof correo.html === "string" ? correo.html : ""}`;
+  const m = donde.match(/https?:\/\/[^\s"'<>)]*poly\.cam[^\s"'<>)]*/i);
+  return m ? m[0] : null;
+}
+
+type FilaEscaneado = {
+  remitente: string | null;
+  asunto: string | null;
+  identificador_correo: string | null;
+  nombre_original_fichero: string | null;
+  ruta_polycam: string | null;
+};
+
+/** Mete la fila y devuelve su id. Si ese fichero de ese correo ya estaba, no la
+ *  duplica y devuelve null: la pareja (identificador_correo, nombre_original_
+ *  fichero) es unica a proposito, para que una segunda pasada no guarde dos veces
+ *  lo mismo. */
+async function meterEscaneado(fila: FilaEscaneado): Promise<string | null> {
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/escaneados_polycam` +
+      `?on_conflict=identificador_correo,nombre_original_fichero`,
+    {
+      method: "POST",
+      headers: {
+        ...cab,
+        "Content-Type": "application/json",
+        Prefer: "return=representation,resolution=ignore-duplicates",
+      },
+      body: JSON.stringify(fila),
+    },
+  );
+  if (!r.ok) throw new Error(`escaneados_polycam ${r.status}: ${await r.text()}`);
+  const [creada] = (await r.json()) as { id: string }[];
+  return creada?.id ?? null;
+}
+
+/** Apunta en la fila donde ha quedado el fichero. Va en dos pasos -primero la
+ *  fila, luego el fichero- porque la ruta lleva dentro el id de la fila, y asi
+ *  cada escaneado tiene su carpeta y no hay nombres que choquen. */
+async function apuntarRuta(id: string, ruta: string): Promise<void> {
+  const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ polycam: ruta }),
+  });
+  if (!r.ok) throw new Error(`escaneados_polycam PATCH ${r.status}: ${await r.text()}`);
+}
 
 /** Guardar los adjuntos, dejar la nota en el diario y avisar. Lo usan los dos
  *  caminos: el reloj cuando acierta con la direccion, y una persona desde la
@@ -454,20 +544,40 @@ async function colocar(
   return avisados;
 }
 
+// ============================================================================
+// REPASAR EL BUZON: ENTRA TODO Y SE GUARDA TODO
+// ============================================================================
+//
+// Reescrito el 2-oct-2026 con la regla de Monica, literal:
+//
+//   "que se guarde todo, no filtra ni por remitente, ni asunto, ni nada. Se
+//    guardan los datos: remitente, asunto, fecha y un id, y el archivo que tenga."
+//
+// LO QUE HACIA ANTES Y POR QUE ESTABA MAL. Rechazaba dos veces: si el remitente
+// no estaba de alta en `equipo`, fuera; y si el asunto no encajaba con una
+// direccion, fuera tambien. El 2-oct llegaron tres escaneados de prueba y los
+// tres rebotaron:
+//
+//   07:40  fiigoop@gmail.com            "12_3_2026"            remitente
+//   08:10  ahernandez.accesalia@...     "Escaneo Oficina..."   el asunto no es una direccion
+//   14:10  abrahamhernandezq07@icloud   "Alhambra 24 Madrid"   remitente
+//
+// Dos de los tres eran gente de casa mandando desde el movil con su cuenta
+// personal, que es lo que pasa siempre: el telefono envia por la cuenta que
+// tiene. Disciplinar eso no funciona, y por eso el filtro sobra.
+//
+// AHORA el cotejo no decide, PROPONE: el escaneado se guarda y en la pantalla
+// "revision polycam" se le ofrecen a Alex los accesos candidatos, y el marca
+// cuales son -una escalera, otra, o todas-. Eso vive en relacion_polycam_acceso.
+//
+// Y NO VA A `documentos`: "polycam no es un documento, es un escaneado. Los demas
+// documentos se guardan cuando ya hay firmas, o al menos algo solido. El polycam
+// es fase temprana, y no siempre se hace."
+
 export async function repasarBuzon(): Promise<Repaso> {
   const usuario = process.env.BUZON_POLYCAM_USUARIO;
   const clave = process.env.BUZON_POLYCAM_CLAVE;
   if (!usuario || !clave) throw new Error("Faltan BUZON_POLYCAM_USUARIO / BUZON_POLYCAM_CLAVE en el entorno.");
-
-  const [comunidades, equipo, tipos] = await Promise.all([
-    leerTodo<ComunidadCotejable>("comunidades?select=id,nombre,municipio"),
-    leer<{ id: string; email: string | null }[]>("equipo?select=id,email&activo=is.true"),
-    leer<{ id: string; nombre: string }[]>("tipos_documento?select=id,nombre&nombre=eq.Escaneo%20Polycam&limit=1"),
-  ]);
-  const tipoPolycam = tipos[0];
-  if (!tipoPolycam) throw new Error('Falta el tipo de documento "Escaneo Polycam" en el catálogo.');
-
-  const porCorreo = new Map(equipo.filter((e) => e.email).map((e) => [correoLlano(e.email!), e.id]));
 
   const cliente = new ImapFlow({
     host: "imap.gmail.com",
@@ -477,75 +587,93 @@ export async function repasarBuzon(): Promise<Repaso> {
     logger: false,
   });
 
-  const r: Repaso = { mirados: 0, rescatados: 0, colocados: 0, sinSitio: [], avisos: 0, errores: [] };
+  const r: Repaso = {
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [],
+  };
 
   await cliente.connect();
   // Primero se rescata lo que Gmail aparto, para que entre en ESTA pasada.
-  // Los robots de confianza tambien se rescatan de Spam: si no, el escaneo que
-  // Gmail aparte por venir de un desconocido se queda ahi para siempre.
-  r.rescatados = await rescatarDeSpam(cliente, new Set([...porCorreo.keys(), ...REMITENTES_ROBOT]));
+  r.rescatados = await rescatarDeSpam(cliente);
   const cerrojo = await cliente.getMailboxLock("INBOX");
   try {
-    // Sin leer y sin la etiqueta de "ya miré esto y no supe colocarlo".
-    const pendientes = await cliente.search({ seen: false });
-    const lista = Array.isArray(pendientes) ? pendientes : [];
+    // LOS QUE NO SE HAN GUARDADO TODAVIA. Son dos grupos:
+    //
+    //   · los que estan sin leer, que es lo normal;
+    //   · y los que el codigo viejo marco con la etiqueta porque no supo
+    //     colocarlos. Esos estan leidos pero NO guardados, asi que si solo se
+    //     buscara por "sin leer" se quedarian en el buzon para siempre. Los tres
+    //     escaneados de prueba del 2-oct estan ahi, y con esto entran solos.
+    const sinLeer = await cliente.search({ seen: false });
+    const rebotados = await cliente.search({ keyword: SIN_SITIO });
+    const lista = [
+      ...new Set([
+        ...(Array.isArray(sinLeer) ? sinLeer : []),
+        ...(Array.isArray(rebotados) ? rebotados : []),
+      ]),
+    ];
 
     for (const uid of lista) {
       r.mirados++;
       let asunto = "(sin asunto)";
-      let de = "—";
       try {
         const bajado = await cliente.download(String(uid), undefined, { uid: true });
         if (!bajado?.content) throw new Error("el correo no trae contenido");
         const correo: ParsedMail = await simpleParser(bajado.content);
         asunto = correo.subject?.trim() || "(sin asunto)";
-        de = correo.from?.value?.[0]?.address ?? "—";
 
-        // 1 · ¿lo manda alguien de casa? Ese buzon tiene una direccion que
-        //     cualquiera puede escribir. "De casa" incluye a Polycam, que es
-        //     quien manda los escaneos compartidos desde el movil: ver
-        //     REMITENTES_ROBOT. Esos entran sin autor, a proposito.
-        const autorId = porCorreo.get(correoLlano(de)) ?? null;
-        if (!autorId && !REMITENTES_ROBOT.has(correoLlano(de))) {
-          await cliente.messageFlagsAdd(String(uid), [SIN_SITIO], { uid: true });
-          await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
-          r.sinSitio.push({ de, asunto, porque: "el remitente no es del equipo" });
-          continue;
+        const comun = {
+          remitente: correo.from?.value?.[0]?.address ?? null,
+          asunto: correo.subject?.trim() || null,
+          // El Message-ID: con esto se vuelve siempre al correo original, a su
+          // fecha y a su cuerpo, sin copiarlos aqui.
+          identificador_correo: correo.messageId ?? null,
+          ruta_polycam: enlacePolycam(correo),
+        };
+
+        const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
+
+        // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
+        // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
+        // tambien: queda constancia de que ese correo entro, que es lo que ella
+        // pidio -"se guardan los datos... y el archivo que tenga"-.
+        if (!adjuntos.length) {
+          const id = await meterEscaneado({ ...comun, nombre_original_fichero: null });
+          if (id) r.guardados++;
+          else r.repetidos++;
         }
 
-        // 2 · la direccion del asunto, sin adivinar
-        const comunidad = cotejar(asunto, comunidades);
-        if (!comunidad) {
-          await cliente.messageFlagsAdd(String(uid), [SIN_SITIO], { uid: true });
-          await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
-          r.sinSitio.push({ de, asunto, porque: "el asunto no encaja con ninguna dirección, o encaja con varias" });
-          continue;
+        // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
+        // escaneado distinto; por eso lo unico es la pareja del correo con el
+        // nombre del fichero, y no el correo a secas.
+        for (const a of adjuntos) {
+          const nombre = a.filename ?? "escaneo";
+          const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre });
+          if (!id) {
+            r.repetidos++;
+            continue;
+          }
+          r.guardados++;
+          // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
+          // carpeta y dos ficheros con el mismo nombre no se pisan.
+          const ruta = `${id}/${limpioNombre(nombre)}${extension(nombre)}`;
+          await subirFichero(
+            ruta,
+            a.content as Buffer,
+            a.contentType ?? "application/octet-stream",
+            ALMACEN_POLYCAM,
+          );
+          await apuntarRuta(id, ruta);
+          r.ficheros++;
         }
 
-        // 3 · su oportunidad. Si hay varias abiertas, tampoco se adivina.
-        const ops = await leer<{ id: string }[]>(
-          `oportunidades?select=id&comunidad_id=eq.${comunidad.id}&estado=eq.activa&order=creado_en.desc`,
-        );
-        if (ops.length !== 1) {
-          await cliente.messageFlagsAdd(String(uid), [SIN_SITIO], { uid: true });
-          await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
-          r.sinSitio.push({
-            de,
-            asunto,
-            porque: ops.length === 0 ? `${comunidad.nombre} no tiene ninguna oportunidad abierta` : `${comunidad.nombre} tiene ${ops.length} oportunidades abiertas`,
-          });
-          continue;
+        // Hecho: leido, y fuera la etiqueta de "no supe colocarlo", que ya no
+        // significa nada porque ahora todo se guarda.
+        await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+        try {
+          await cliente.messageFlagsRemove(String(uid), [SIN_SITIO], { uid: true });
+        } catch {
+          // Si la etiqueta no estaba, da igual.
         }
-        const oportunidadId = ops[0].id;
-
-        r.avisos += await colocar(cliente, uid, correo, {
-          oportunidadId,
-          comunidadId: comunidad.id,
-          comunidadNombre: comunidad.nombre,
-          autorId,
-          tipoPolycamId: tipoPolycam.id,
-        });
-        r.colocados++;
       } catch (e) {
         // Un correo que falla NO se marca leido: se vuelve a intentar al rato.
         r.errores.push(`${asunto} · ${e instanceof Error ? e.message : String(e)}`);

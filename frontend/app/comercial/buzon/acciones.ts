@@ -15,7 +15,9 @@ export async function accionRepasar() {
   await permiso();
   const r = await repasarBuzon();
   revalidatePath("/comercial/buzon");
-  redirect(`/comercial/buzon?hecho=${r.colocados}&mirados=${r.mirados}`);
+  // `colocados` ya no existe: desde el 2-oct-2026 el buzon no coloca, GUARDA. Lo
+  // que se cuenta es cuantos escaneados entraron. Ver lib/buzonPolycam.ts.
+  redirect(`/comercial/buzon?hecho=${r.guardados}&mirados=${r.mirados}`);
 }
 
 export async function accionColocar(uid: number, fd: FormData) {
