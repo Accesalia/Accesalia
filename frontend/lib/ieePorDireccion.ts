@@ -152,8 +152,17 @@ async function nuestrasDirecciones(): Promise<Direccion[]> {
 async function municipiosDelRegistro(): Promise<Map<string, string>> {
   const r = await fetch(PORTAL, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" });
   if (!r.ok) throw new Error(`portal: ${r.status}`);
-  // Esta pagina viene en ISO-8859-1 aunque la cabecera diga otra cosa.
-  const html = new TextDecoder("iso-8859-1").decode(await r.arrayBuffer());
+  // ESTA pagina si es UTF-8 de verdad, y leerla como ISO-8859-1 la destroza.
+  //
+  // Lo de que el registro miente con la codificacion vale para la NOTA, no para
+  // aqui, y por copiar la precaucion donde no tocaba: "Leganés" se convertia en
+  // "LEGANA S", que no se parece a nuestro "LEGANES", y el municipio se
+  // apuntaba como "fuera del registro". Cayeron los seis municipios con tilde
+  // en medio de palabra -Leganés, Alcorcón, Móstoles, San Sebastián de los
+  // Reyes, Torrejón de Ardoz y Pozuelo de Alarcón: 488 accesos- y "Alcalá de
+  // Henares" se salvo por pura casualidad, porque su tilde va en la ultima
+  // letra. El sintoma era un numero tranquilo en un informe, no un error.
+  const html = await r.text();
   const i = html.indexOf("municipio-input");
   if (i < 0) throw new Error("el portal ya no trae el desplegable de municipios");
   const trozo = html.slice(i, html.indexOf("</select>", i));
