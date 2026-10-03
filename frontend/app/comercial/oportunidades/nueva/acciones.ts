@@ -79,6 +79,9 @@ export async function guardarOportunidad(fd: FormData) {
     tipoIds: fd.getAll("tipos").map(String).filter(Boolean),
     canalId: texto(fd, "canal"),
     pasoArranque,
+    // Lo que sale de la ventana de Catastro. Sin ella, el nombre es lo escrito.
+    nombre: texto(fd, "nombre_opp") ?? direccionProvisional,
+    portalIds: (texto(fd, "portal_ids") ?? "").split(",").filter(Boolean),
   };
 
   const hecho = await crearOportunidad(datos, yo.id);

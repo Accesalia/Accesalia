@@ -6,6 +6,7 @@ import { Elegir, type Opcion } from "../../../components/Elegir";
 import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
+import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 
 // DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma (28-sep-2026).
 //
@@ -139,6 +140,10 @@ export function Formulario({
   const [comunidad, setComunidad] = useState("");
   const [direccion, setDireccion] = useState("");
   const [buscarDireccion, setBuscarDireccion] = useState(false);
+  // La ventana de Catastro (3-oct-2026): se abre con Intro o con la lupa, y si
+  // se cierra sin terminar lo escrito se queda como provisional.
+  const [ventana, setVentana] = useState(false);
+  const [resuelta, setResuelta] = useState<DireccionResuelta | null>(null);
 
   const [admin, setAdmin] = useState("");
   const [quienEsAdmin, setQuienEsAdmin] = useState(false);
@@ -214,6 +219,11 @@ export function Formulario({
         if (t.tagName === "TEXTAREA") return;
         if (t.hasAttribute("data-buscador")) return;
         e.preventDefault();
+        // En la direccion, Intro no salta de campo: abre la ventana de buscar.
+        if (t.hasAttribute("data-direccion")) {
+          if (direccion.trim()) setVentana(true);
+          return;
+        }
         const campos = Array.from(
           (e.currentTarget as HTMLFormElement).querySelectorAll<HTMLElement>(
             "input:not([type=hidden]):not([readonly]), select, textarea",
@@ -325,17 +335,49 @@ export function Formulario({
                 marco="border-carbon/70"
                 abrirAlMontar
               />
+            ) : resuelta ? (
+              // Ya buscada: se ve con el nombre y se puede deshacer, como lo
+              // que se crea nuevo en esta misma pantalla.
+              <div className="flex h-[32px] items-center gap-2 rounded-lg border border-accion bg-[#eef3f8] px-3 text-sm">
+                <span className="min-w-0 flex-1 truncate font-semibold text-accion-marco" title={resuelta.nombre}>
+                  ✓ {resuelta.nombre}
+                  <span className="font-normal opacity-70">
+                    {" "}
+                    · {resuelta.pendiente ? "pendiente de la visita" : `${resuelta.portalIds.length} ${resuelta.portalIds.length === 1 ? "acceso" : "accesos"}`}
+                  </span>
+                </span>
+                <button type="button" onClick={() => setResuelta(null)} aria-label="Deshacer" className="text-accion-marco/70 hover:text-accion-marco">
+                  ×
+                </button>
+              </div>
             ) : (
-              <input
-                id="direccion_provisional"
-                name="direccion_provisional"
-                type="text"
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                placeholder="dirección del edificio"
-                className={campo}
-              />
+              <div className="relative">
+                <input
+                  id="direccion_provisional"
+                  type="text"
+                  data-direccion
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                  placeholder="dirección del edificio"
+                  className={campo + " pr-10"}
+                />
+                <button
+                  type="button"
+                  onClick={() => direccion.trim() && setVentana(true)}
+                  aria-label="Buscar la dirección en Catastro"
+                  title="Buscar en Catastro (o pulsa Intro)"
+                  className="absolute right-1 top-1/2 flex h-[26px] w-[28px] -translate-y-1/2 items-center justify-center rounded-md border border-accion-marco bg-accion text-white transition hover:bg-accion-hover"
+                >
+                  <svg viewBox="0 0 20 20" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <circle cx="8.5" cy="8.5" r="5.5" />
+                    <path d="M13 13l4.5 4.5" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
             )}
+            {!buscarDireccion && <input type="hidden" name="direccion_provisional" value={direccion} />}
+            <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
+            <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
             <span className={apoyo + " text-right"}>{buscarDireccion ? "Mejor la escribo" : "Si ya existe, selecciónala"}</span>
             <button
               type="button"
@@ -345,6 +387,7 @@ export function Formulario({
                   setBuscarDireccion(false);
                 } else {
                   setDireccion("");
+                  setResuelta(null);
                   setBuscarDireccion(true);
                 }
               }}
@@ -487,6 +530,17 @@ export function Formulario({
           </div>
         </section>
       </div>
+
+      {ventana && (
+        <VentanaDireccion
+          escrito={direccion.trim()}
+          alListo={(r) => {
+            setResuelta(r);
+            setVentana(false);
+          }}
+          alCerrar={() => setVentana(false)}
+        />
+      )}
 
       {/* ============ UN SOLO sitio para crear una persona ============ */}
       <ModalContacto

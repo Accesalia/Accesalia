@@ -56,6 +56,23 @@ async function crear<T>(tabla: string, fila: Record<string, unknown>): Promise<T
   return filas[0];
 }
 
+/** Crea la fila, o si ya esta (segun `conflicto`) la actualiza. Devuelve la fila. */
+async function crearOActualizar<T>(tabla: string, conflicto: string, fila: Record<string, unknown>): Promise<T[]> {
+  const r = await fetch(`${URL_BASE}/rest/v1/${tabla}?on_conflict=${conflicto}`, {
+    method: "POST",
+    headers: {
+      apikey: SECRETO,
+      Authorization: `Bearer ${SECRETO}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify(fila),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`Supabase ${tabla} ${r.status}: ${await r.text()}`);
+  return (await r.json()) as T[];
+}
+
 async function actualizar(consulta: string, cambios: Record<string, unknown>): Promise<void> {
   const r = await fetch(`${URL_BASE}/rest/v1/${consulta}`, {
     method: "PATCH",
@@ -255,6 +272,12 @@ export type DatosOportunidad = {
   canalId: string | null;
   /** Por que paso del flujo entramos. */
   pasoArranque: string | null;
+
+  // la ventana "Buscar la direccion" (3-oct-2026)
+  /** El que propone la app o lo que escribio el comercial. Se cambia cuando quiera. */
+  nombre: string | null;
+  /** ficha_catastro_portal.id de lo que el comercial dijo que incluye. */
+  portalIds: string[];
 };
 
 export type ResultadoOportunidad = { id: string; codigo: string | null };
@@ -377,6 +400,7 @@ export async function crearOportunidad(
   const codigo = await siguienteCodigo(d.comercialId);
   const op = await crear<{ id: string }>("oportunidades", {
     codigo,
+    nombre: d.nombre,
     comunidad_id: d.comunidadId,
     comunidad_provisional: d.comunidadId ? null : d.direccionProvisional,
     comercial_id: d.comercialId,
@@ -423,6 +447,45 @@ export async function crearOportunidad(
       await actualizar(`hitos_oportunidad?oportunidad_id=eq.${op.id}&hito=in.(${antes.join(",")})`, {
         aplicable: false,
         estado: "no_aplica",
+      });
+    }
+  }
+
+  // 8 · lo que incluye: los portales elegidos en la ventana de Catastro, cada
+  //     uno como ACCESO (el atomo: calle + numero + escalera) enlazado a la
+  //     oportunidad. Si el acceso ya existia -otra opp, otro año- se reutiliza:
+  //     la clave de `accesos` es la direccion, nunca se duplica.
+  if (d.portalIds.length > 0) {
+    type PortalFicha = {
+      id: string;
+      tipo_via: string | null;
+      nombre_via: string | null;
+      numero: string;
+      escalera: string | null;
+      ficha_catastro: { referencia: string; municipio: string | null };
+    };
+    const portales = await leer<PortalFicha[]>(
+      `ficha_catastro_portal?select=id,tipo_via,nombre_via,numero,escalera,ficha_catastro!inner(referencia,municipio)` +
+        `&id=in.(${d.portalIds.map(encodeURIComponent).join(",")})`,
+    );
+    for (const p of portales) {
+      const [acceso] = await crearOActualizar<{ id: string }>(
+        "accesos",
+        "municipio,tipo_via,nombre_via,numero,escalera",
+        {
+          municipio: p.ficha_catastro.municipio ?? "",
+          tipo_via: p.tipo_via ?? "",
+          nombre_via: p.nombre_via ?? "",
+          numero: p.numero,
+          escalera: p.escalera ?? "",
+          ref_catastral: p.ficha_catastro.referencia,
+          ficha_catastro_portal_id: p.id,
+        },
+      );
+      await crear("relacion_oportunidad_accesos", {
+        opp_id: op.id,
+        acceso_id: acceso.id,
+        de_donde: "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
       });
     }
   }
