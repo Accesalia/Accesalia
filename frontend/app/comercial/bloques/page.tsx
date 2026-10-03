@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
+import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
 import { catalogoBloques, puedeGestionarBloques } from "../../../lib/catalogoBloques";
 import { Catalogo } from "./Catalogo";
@@ -25,9 +25,8 @@ export default async function PaginaBloques({ searchParams }: { searchParams: Pr
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1500px] px-6 pb-16 pt-5 text-sm">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
-          ← Área comercial
-        </Link>
+        {/* Se llega desde el menu y desde otros sitios: vuelve a la de antes. */}
+        <Volver />
         <Catalogo bloques={bloques} inicial={b ?? null} />
       </main>
     </div>
