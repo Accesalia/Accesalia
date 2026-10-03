@@ -441,9 +441,25 @@ function enlacePolycam(correo: ParsedMail): string | null {
   return m ? m[0] : null;
 }
 
+/** EL DIA DEL ESCANEO, del nombre que Polycam pone al fichero: dia_mes_año
+ *  ("15_9_2026.zip" -> 2026-09-15). El .glb por dentro no trae fecha, y la del
+ *  correo no vale: los reenvios llegan meses despues (Monica, 3-oct-2026: es la
+ *  "fecha de visita" de la viabilidad, "es importante"). */
+export function fechaDelEscaneo(nombre: string): string | null {
+  const m = /^(\d{1,2})[_-](\d{1,2})[_-](\d{4})/.exec(nombre);
+  if (!m) return null;
+  const [d, mes, a] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  if (mes < 1 || mes > 12 || d < 1 || d > 31) return null;
+  return `${a}-${String(mes).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
 type FilaEscaneado = {
   remitente: string | null;
   asunto: string | null;
+  /** Cuando llego el correo. */
+  fecha: string | null;
+  /** Cuando se HIZO el escaneo: la fecha de visita de la viabilidad. */
+  fecha_escaneo: string | null;
   identificador_correo: string | null;
   nombre_original_fichero: string | null;
   ruta_polycam: string | null;
@@ -624,6 +640,8 @@ export async function repasarBuzon(): Promise<Repaso> {
         const comun = {
           remitente: correo.from?.value?.[0]?.address ?? null,
           asunto: correo.subject?.trim() || null,
+          // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
+          fecha: correo.date ? correo.date.toISOString() : null,
           // El Message-ID: con esto se vuelve siempre al correo original, a su
           // fecha y a su cuerpo, sin copiarlos aqui.
           identificador_correo: correo.messageId ?? null,
@@ -637,7 +655,7 @@ export async function repasarBuzon(): Promise<Repaso> {
         // tambien: queda constancia de que ese correo entro, que es lo que ella
         // pidio -"se guardan los datos... y el archivo que tenga"-.
         if (!adjuntos.length) {
-          const id = await meterEscaneado({ ...comun, nombre_original_fichero: null });
+          const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
           if (id) r.guardados++;
           else r.repetidos++;
         }
@@ -647,7 +665,7 @@ export async function repasarBuzon(): Promise<Repaso> {
         // nombre del fichero, y no el correo a secas.
         for (const a of adjuntos) {
           const nombre = a.filename ?? "escaneo";
-          const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre });
+          const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre, fecha_escaneo: fechaDelEscaneo(nombre) });
           if (!id) {
             r.repetidos++;
             continue;
