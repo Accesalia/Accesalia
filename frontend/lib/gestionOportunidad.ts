@@ -15,6 +15,7 @@
 // quien hace el 3D se apunta en el responsable del hito, que si apunta a
 // `equipo` (20 personas de verdad). Cuando se unifiquen, se mueve.
 
+import { avisoDireccion, cuenta } from "./direccionNombre";
 import "server-only";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -102,6 +103,8 @@ export type Gestion = {
   id: string;
   codigo: string | null;
   direccion: string;
+  /** "Pendiente de confirmar alcance / direccion", o null. Ver avisoDireccion. */
+  aviso: string | null;
   estado: string;
   comercial: string | null;
   administracion: string | null;
@@ -157,14 +160,16 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       creado_en: string;
       comunidad_provisional: string | null;
       reactivar_nota: string | null;
+      referencia_catastral: string | null;
+      vivos: { count: number }[];
       comunidad: { nombre: string } | null;
       comercial: { nombre: string } | null;
       puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
     }[]
   >(
-    `oportunidades?select=id,codigo,estado,creado_en,comunidad_provisional,reactivar_nota,` +
+    `oportunidades?select=id,codigo,estado,creado_en,comunidad_provisional,reactivar_nota,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))&id=eq.${id}&limit=1`,
+      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))&id=eq.${id}&limit=1&vivos.hasta=is.null`,
   );
   if (!op) return null;
 
@@ -202,6 +207,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     id: op.id,
     codigo: op.codigo,
     direccion: op.comunidad?.nombre ?? op.comunidad_provisional ?? "(sin dirección)",
+    aviso: avisoDireccion(cuenta(op.vivos), op.referencia_catastral),
     estado: op.estado,
     comercial: op.comercial?.nombre ?? null,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,

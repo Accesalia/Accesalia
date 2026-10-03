@@ -278,6 +278,8 @@ export type DatosOportunidad = {
   nombre: string | null;
   /** ficha_catastro_portal.id de lo que el comercial dijo que incluye. */
   portalIds: string[];
+  /** Solo con "pendiente hasta la visita": se sabe el edificio, no el alcance. */
+  referenciaCatastral: string | null;
 };
 
 export type ResultadoOportunidad = { id: string; codigo: string | null };
@@ -401,6 +403,7 @@ export async function crearOportunidad(
   const op = await crear<{ id: string }>("oportunidades", {
     codigo,
     nombre: d.nombre,
+    referencia_catastral: d.referenciaCatastral,
     comunidad_id: d.comunidadId,
     comunidad_provisional: d.comunidadId ? null : d.direccionProvisional,
     comercial_id: d.comercialId,

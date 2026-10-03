@@ -59,6 +59,11 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-[25px] font-bold leading-tight text-carbon">{g.direccion}</h1>
+            {g.aviso && (
+              <span className="mt-1.5 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
+                {g.aviso}
+              </span>
+            )}
             <p className="mt-1.5 text-[13px] text-carbon/60">
               {g.codigo && <b className="text-carbon/80">{g.codigo}</b>}
               {g.comercial && <> · {g.comercial}</>}

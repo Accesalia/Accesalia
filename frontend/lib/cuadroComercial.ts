@@ -8,6 +8,7 @@
 // Repasado con Monica el 11-sep-2026 contra la version de julio. Lo que se quedo
 // de cada una esta en app/comercial/page.tsx.
 
+import { avisoDireccion, cuenta } from "./direccionNombre";
 import "server-only";
 import { datosMapa, type DatosMapa, type ComunidadEnMapa } from "./mapaComunidades";
 
@@ -68,6 +69,8 @@ export type OportunidadCuadro = {
   ultimoContacto: string | null;
   href: string;
   ficha: FichaExtracto | null; // null = todavia no hay nada que desplegar
+  /** "Pendiente de confirmar alcance / direccion", o null. Ver avisoDireccion. */
+  aviso?: string | null;
 };
 
 // Lo que se ve al DESPLEGAR una oportunidad en la lista (Monica, 12-sep-2026):
@@ -251,10 +254,14 @@ type OportunidadCruda = {
   contrata: { nombre: string } | null;
   hitos_oportunidad: HitoCrudo[];
   negociacion_oportunidad: { que_vendemos: string | null; precio: number | null }[];
+  referencia_catastral: string | null;
+  vivos: { count: number }[];
 };
 
 const SEL_OPORTUNIDAD =
-  "id,creado_en,comunidad_provisional,origen_notas," +
+  "id,creado_en,comunidad_provisional,origen_notas,referencia_catastral," +
+  // Los accesos VIVOS (sin baja): de aqui sale el aviso de la direccion.
+  "vivos:relacion_oportunidad_accesos(count)," +
   "comunidad:comunidad_id(id,nombre)," +
   "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
   // Quien nos lo trajo, si fue el contacto de una contrata.
@@ -333,7 +340,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   const filas = await rest<OportunidadCruda[]>(
     `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.activa${f}&order=creado_en.desc&limit=200` +
-      "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1",
+      "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
   );
 
   // UNA OPORTUNIDAD ESTA ABIERTA HASTA QUE EL DINERO ESTA EN LA CUENTA, no hasta
@@ -369,6 +376,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
     return {
       id: o.id,
       nombre,
+      aviso: avisoDireccion(cuenta(o.vivos), o.referencia_catastral),
       sinComunidad: !o.comunidad,
       empresa: o.puesto?.empresa?.nombre_accesalia ?? null,
       persona: o.puesto?.persona?.nombre ?? null,

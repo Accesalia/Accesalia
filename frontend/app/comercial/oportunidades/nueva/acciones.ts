@@ -82,6 +82,7 @@ export async function guardarOportunidad(fd: FormData) {
     // Lo que sale de la ventana de Catastro. Sin ella, el nombre es lo escrito.
     nombre: texto(fd, "nombre_opp") ?? direccionProvisional,
     portalIds: (texto(fd, "portal_ids") ?? "").split(",").filter(Boolean),
+    referenciaCatastral: texto(fd, "referencia_opp"),
   };
 
   const hecho = await crearOportunidad(datos, yo.id);

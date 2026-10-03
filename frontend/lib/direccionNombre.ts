@@ -73,3 +73,23 @@ export function nombrePropuesto(elegidos: Portal[], todos: Portal[], municipio: 
   });
   return `${trozos.join(" + ")}, ${bonito(municipio)}`;
 }
+
+// ============================================================ el aviso
+
+/**
+ * LO QUE LE FALTA A LA DIRECCION DE UNA OPP. No se guarda: se CALCULA al
+ * momento con lo que la opp tiene (Monica, 3-oct-2026: "muchisimo mejor que
+ * algo que haya que marcar y desmarcar"). Asi no se queda nunca desfasado: en
+ * cuanto alguien enlaza los accesos, el aviso se va solo.
+ *
+ *   tiene accesos vivos (relacion_oportunidad_accesos)-> nada que avisar
+ *   tiene parcela pero ningun acceso        -> falta elegir que escaleras
+ *   ni parcela ni accesos                   -> la direccion no esta confirmada
+ */
+export function avisoDireccion(accesosVivos: number, referenciaCatastral: string | null): string | null {
+  if (accesosVivos > 0) return null;
+  return referenciaCatastral ? "Pendiente de confirmar alcance" : "Pendiente de confirmar dirección";
+}
+
+/** PostgREST devuelve el conteo de una relacion como [{ count: n }]. */
+export const cuenta = (x: { count: number }[] | null | undefined) => x?.[0]?.count ?? 0;

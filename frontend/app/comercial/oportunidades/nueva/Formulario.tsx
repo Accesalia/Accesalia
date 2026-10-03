@@ -378,6 +378,7 @@ export function Formulario({
             {!buscarDireccion && <input type="hidden" name="direccion_provisional" value={direccion} />}
             <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
             <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
+            <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
             <span className={apoyo + " text-right"}>{buscarDireccion ? "Mejor la escribo" : "Si ya existe, selecciónala"}</span>
             <button
               type="button"

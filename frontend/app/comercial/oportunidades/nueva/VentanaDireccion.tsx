@@ -24,6 +24,9 @@ export type DireccionResuelta = {
   portalIds: string[];
   /** "No lo se: pendiente hasta la visita". */
   pendiente: boolean;
+  /** Con "pendiente": la parcela, que es lo que distingue "falta el alcance"
+   *  de "falta la direccion". Si eran varias (el 6 y el 6 B), la primera. */
+  parcela: string | null;
 };
 
 type Paso =
@@ -167,7 +170,7 @@ export function VentanaDireccion({
     const claves = pendiente ? [] : Array.from(marcados);
     const r = await pedir("Guardando la ficha de Catastro…", () => confirmarDireccion(paso.parcelas, claves));
     if (!r) return;
-    alListo({ nombre: nombre.trim() || escrito, portalIds: r.portalIds, pendiente });
+    alListo({ nombre: nombre.trim() || escrito, portalIds: r.portalIds, pendiente, parcela: pendiente ? paso.parcelas[0] : null });
   };
 
   // El nombre que propone la app, mientras el comercial no lo toque.
