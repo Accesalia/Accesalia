@@ -57,19 +57,18 @@ const AREAS: Area[] = [
 // de la funcion, y quien ve todo (direccion) las ve todas. Cuando una funcion
 // junte tres o cuatro puertas, eso ya sera un area y se creara entonces.
 //
-// EL ROTULO ES PROVISIONAL y ella lo sabe: "el bloque nuevo debe llamarse
-// revision polycam, pero es provisional. Luego puedo cambiarlo". Hoy hay una
-// sola puerta, asi que el bloque se llama como ella.
+// EL ROTULO DEL BLOQUE se quito el 3-oct-2026: se llamaba "Revision Polycam"
+// porque era la unica puerta. Con la segunda ("Modificar plantilla de Hoja de
+// Encargo") cada ventanita lleva su nombre y basta.
 // ---------------------------------------------------------------------------
 
-const ROTULO_PUERTAS = "Revisión Polycam";
 
 type Puerta = {
   nombre: string;
   desc: string;
   href: string;
-  /** La clave de la funcion que abre esta puerta. */
-  funcion: string;
+  /** Las claves de las funciones que abren esta puerta (basta una). */
+  funciones: string[];
   /** Lo que hay esperando, para no tener que entrar a mirar. */
   cuantos?: () => Promise<number>;
   comoSeCuenta?: (n: number) => string;
@@ -80,9 +79,17 @@ const PUERTAS: Puerta[] = [
     nombre: "Revisión Polycam",
     desc: "Los escaneados que han entrado por el buzón, por decir de qué portal es cada uno",
     href: "/viabilidades/revision-polycam",
-    funcion: "viabilidades",
+    funciones: ["viabilidades"],
     cuantos: cuantosPendientes,
     comoSeCuenta: (n) => (n === 1 ? "1 escaneado esperando" : `${n} escaneados esperando`),
+  },
+  {
+    // El catalogo de bloques (Monica, 3-oct-2026): direccion y la secretaria
+    // comercial. Direccion ya lo ve todo; la llave que hace falta es la otra.
+    nombre: "Modificar plantilla de Hoja de Encargo",
+    desc: "Los bloques que se marcan al generar una hoja: sus textos, su orden y sus importes por defecto",
+    href: "/comercial/bloques",
+    funciones: ["direccion", "secretaria"],
   },
 ];
 
@@ -94,7 +101,7 @@ export default async function Menu() {
   // Sin sesion se ven todas, como hacen ya las areas de arriba: asi se puede
   // ensenar la app sin entrar.
   const puertas = PUERTAS.filter(
-    (p) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === p.funcion),
+    (p) => !yo || yo.veTodo || yo.funciones.some((f) => p.funciones.includes(f.clave)),
   );
   // Solo se cuenta lo que se va a pintar.
   const cuentas = await Promise.all(puertas.map((p) => (p.cuantos ? p.cuantos() : Promise.resolve(0))));
@@ -139,10 +146,7 @@ export default async function Menu() {
 
         {puertas.length > 0 && (
           <section className="mt-10">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-carbon/45">
-              {ROTULO_PUERTAS}
-            </h2>
-            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {puertas.map((p, i) => (
                 <Link
                   key={p.href}
