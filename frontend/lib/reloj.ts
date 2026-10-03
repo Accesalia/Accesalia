@@ -142,9 +142,24 @@ export const RETIRADOS: Retirado[] = [
   {
     tarea: "comunidades_catastro",
     nombre: "Rellenar Catastro",
-    cada: "retirado · acabó el 30-sep-2026",
-    ruta: "/api/comunidades/catastro",
-    porque: "Escribió la referencia catastral, el CP y las coordenadas de las 1.218 comunidades que se pudieron cotejar. No quedan pendientes.",
+    cada: "retirado · acabó el 30-sep-2026 · CÓDIGO BORRADO el 3-oct",
+    ruta: "(ya no existe)",
+    porque:
+      "Escribió la referencia catastral, el CP y las coordenadas de las 1.218 comunidades " +
+      "que se pudieron cotejar. No quedaban pendientes. EL CÓDIGO SE BORRÓ el 3-oct-2026, " +
+      "y es una excepción a la norma de más arriba —aquí no se borra la ruta— decidida por " +
+      "Mónica con este motivo: «bajarse una ficha, completar etc, lo tenemos que hacer de " +
+      "otra manera: con UNA sola dirección y desde otro disparador». Es decir: la ficha se " +
+      "pide al dar de alta una dirección, no en barridos sobre toda la base. Y esta " +
+      "herramienta razonaba sobre COMUNIDADES, mientras que el modelo decidido ese mismo " +
+      "día razona sobre ACCESOS, así que había que reescribirla entera igualmente. " +
+      "El cotejo del callejero NO se perdió: vive en lib/callejero.ts y no se tocó. " +
+      "Lo único que merecía la pena de las 308 líneas era esta lista de sufijos que en un " +
+      "nombre de comunidad NO son parte de la calle y hay que cortar antes de cotejar: " +
+      "PORTAL, PTAL, BLOQUE, BLQ, FASE, ESCALERA, ESC, LOCAL, BIS, PTA. " +
+      "(El 3-oct el cotejo de Alcobendas falló en «CUESTA BLANCA 2 FASE 1 BLOQUE C» " +
+      "justamente por no aplicarla.) Su tabla de memoria, cotejo_catastro, está en el " +
+      "esquema historico_de_tablas.",
   },
   {
     tarea: "callejero_catastro",
@@ -156,9 +171,18 @@ export const RETIRADOS: Retirado[] = [
   {
     tarea: "fichas_catastro",
     nombre: "Fichas de Catastro",
-    cada: "retirado · acabó el 1-oct-2026",
-    ruta: "/api/catastro/fichas",
-    porque: "Bajó la ficha de los 1.244 accesos: 1.184 parcelas, 2.524 portales y 46.456 inmuebles. Para comunidades nuevas se lanza a mano con ?hacer=1.",
+    cada: "retirado · acabó el 1-oct-2026 · CÓDIGO BORRADO el 3-oct",
+    ruta: "(ya no existe)",
+    porque:
+      "Bajó la ficha de los 1.244 accesos: 1.184 parcelas, 2.524 portales y 46.456 " +
+      "inmuebles. Estaba guardada para lanzarla a mano con ?hacer=1 cuando hubiera " +
+      "comunidades nuevas, y EL CÓDIGO SE BORRÓ el 3-oct-2026 revirtiendo esa decisión, " +
+      "por el mismo motivo que la de arriba: la ficha se pedirá de UNA dirección concreta " +
+      "y desde otro disparador —el alta—, no en barridos. Lo que bajó NO se pierde: está " +
+      "en ficha_catastro (1.186 brutas), ficha_catastro_portal (2.527) y " +
+      "ficha_catastro_inmueble (46.519), y el marcador de qué acceso tiene qué ficha pasó " +
+      "a accesos.ficha_catastro_portal_id. Su tabla de memoria, accesos_comunidad, está " +
+      "en el esquema historico_de_tablas.",
   },
 ];
 
