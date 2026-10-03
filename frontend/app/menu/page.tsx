@@ -76,9 +76,9 @@ type Puerta = {
 
 const PUERTAS: Puerta[] = [
   {
-    nombre: "Revisión Polycam",
-    desc: "Los escaneados que han entrado por el buzón, por decir de qué portal es cada uno",
-    href: "/viabilidades/revision-polycam",
+    nombre: "Mesa de viabilidades",
+    desc: "Los escaneados del buzón: de qué portal es cada uno, y su viabilidad",
+    href: "/viabilidades",
     funciones: ["viabilidades"],
     cuantos: cuantosPendientes,
     comoSeCuenta: (n) => (n === 1 ? "1 escaneado esperando" : `${n} escaneados esperando`),

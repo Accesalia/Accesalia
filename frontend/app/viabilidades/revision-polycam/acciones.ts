@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { buscarAMano, vincular, type Busqueda } from "../../../lib/revisionPolycam";
 import { quienSoy } from "../../../lib/sesion";
 
-const DONDE = "/viabilidades/revision-polycam";
+const DONDE = "/viabilidades";
 
 /** QUIEN ENTRA: quien tiene la funcion `viabilidades`, que hoy son Alex Figueroa y
  *  Daniel. Monica: "van a tener acceso alexander figueroa y daniel, ambos porque
