@@ -166,6 +166,12 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
         </span>
       </div>
 
+      {m.opp && !m.opp.comercial && (
+        <div className="mt-3 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
+          <b>Esta oportunidad no tiene comercial asignado.</b> Puedes escribirla y guardarla, pero para enviarla hay que
+          asignárselo en la ficha de la oportunidad: el correo va a su comercial.
+        </div>
+      )}
       {m.danielAvisado && (
         <div className="mt-3 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
           <b>Daniel está avisado</b> de que esta viabilidad se ha atascado.
@@ -391,8 +397,9 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               disabled={pendiente || m.danielAvisado}
               onClick={() =>
                 empezar(async () => {
-                  await accionAvisarDaniel(m.id, datos());
+                  const fallos = await accionAvisarDaniel(m.id, datos());
                   setSucio(false);
+                  if (fallos.length) setError(`Apuntado, pero el correo no ha salido: ${fallos.join(" · ")}`);
                   router.refresh();
                 })
               }
@@ -411,8 +418,14 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               </button>
               <button
                 type="button"
-                disabled={pendiente || m.enviada}
-                onClick={() => empezar(async () => accionEnviar(m.id, datos()))}
+                disabled={pendiente || m.enviada || !m.opp?.comercial}
+                title={!m.opp?.comercial ? "La opp no tiene comercial asignado" : undefined}
+                onClick={() =>
+                  empezar(async () => {
+                    const fallos = await accionEnviar(m.id, datos());
+                    if (fallos.length) setError(fallos.join(" · "));
+                  })
+                }
                 className="whitespace-nowrap rounded-xl bg-lima px-5 py-2.5 text-[14px] font-extrabold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50"
               >
                 Enviar al comercial

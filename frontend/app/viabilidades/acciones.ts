@@ -4,6 +4,34 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
+import { enviarCorreo } from "../../lib/correo";
+import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
+
+const APP = process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app";
+
+/** La viabilidad, lo justo para escribir el correo. */
+async function deQueVa(id: string) {
+  const [v] = await leer<{ oportunidad_id: string | null; oportunidades: { codigo: string | null; nombre: string | null } | null }[]>(
+    `viabilidades?select=oportunidad_id,oportunidades(codigo,nombre)&id=eq.${encodeURIComponent(id)}&limit=1`,
+  );
+  return v;
+}
+
+/** Manda el mismo correo a cada persona, una a una (que nadie vea a quien mas
+ *  se le ha mandado). Devuelve lo que no salio, para decirlo en pantalla: un
+ *  correo que no sale en silencio es peor que uno que no sale. */
+async function escribirA(personas: Persona[], asunto: string, texto: string, responderA: string): Promise<string[]> {
+  const fallos: string[] = [];
+  for (const p of personas) {
+    if (!p.correo) {
+      fallos.push(`${p.nombre} no tiene correo en su ficha de equipo`);
+      continue;
+    }
+    const r = await enviarCorreo({ desde: "comercial", para: p.correo, asunto, texto, responderA });
+    if (!r.ok) fallos.push(`${p.nombre}: ${r.dice}`);
+  }
+  return fallos;
+}
 
 // Lo que la Mesa de viabilidades le pide al servidor. Cada accion comprueba
 // quien pregunta: una accion de servidor es una puerta a produccion.
@@ -58,21 +86,53 @@ export async function accionJuntar(id: string, escaneoId: string) {
   revalidatePath(`/viabilidades/${id}`);
 }
 
-/** "Me he atascado": queda apuntado cuando, y la viabilidad lo enseña en la
- *  lista para que Daniel, que tambien la ve, sepa que le toca. */
-export async function accionAvisarDaniel(id: string, d: DatosMesa) {
-  await haceViabilidades();
+/** "Me he atascado": queda apuntado cuando y le escribe a quien tenga HOY la
+ *  funcion de responsable tecnico (Daniel). La viabilidad sale en la lista con
+ *  "Daniel avisado", que el tambien la ve. */
+export async function accionAvisarDaniel(id: string, d: DatosMesa): Promise<string[]> {
+  const yo = await haceViabilidades();
   await guardar(id, d);
   await marcar(id, "daniel_avisado_en");
+  const v = await deQueVa(id);
+  const quien = await quienTieneLaFuncion("responsable_tecnico");
+  const donde = v?.oportunidades?.nombre ?? v?.oportunidades?.codigo ?? "una viabilidad";
+  const fallos = quien.length
+    ? await escribirA(
+        quien,
+        `Viabilidad atascada: ${donde}`,
+        `${yo.nombre} se ha atascado con la viabilidad de ${donde} y te pide que la mires.\n\n` +
+          `Ábrela aquí: ${APP}/viabilidades/${id}\n`,
+        yo.email,
+      )
+    : ["nadie tiene hoy la función de responsable técnico"];
   revalidatePath("/viabilidades");
   revalidatePath(`/viabilidades/${id}`);
+  return fallos;
 }
 
-/** Se guarda lo ultimo y pasa al comercial. Sale de la lista de Alex. */
-export async function accionEnviar(id: string, d: DatosMesa) {
-  await haceViabilidades();
+/** Se guarda lo ultimo y pasa al comercial: le llega un correo a el y a quien
+ *  comparta su cartera. Sin comercial asignado no se puede: no habria a quien. */
+export async function accionEnviar(id: string, d: DatosMesa): Promise<string[]> {
+  const yo = await haceViabilidades();
+  const v = await deQueVa(id);
+  const lleva = v?.oportunidad_id ? await quienLlevaLaOpp(v.oportunidad_id) : { comercial: null, personas: [] };
+  if (!lleva.personas.length) return ["Esta oportunidad no tiene comercial asignado: asígnaselo en su ficha y vuelve a enviarla."];
+
+  // Primero se deja constancia y luego se escribe: si el correo fallara, la
+  // viabilidad ya esta en manos del comercial igualmente, y se dice el fallo.
   await guardar(id, d);
   await marcar(id, "enviada_en");
+  const donde = v?.oportunidades?.nombre ?? v?.oportunidades?.codigo ?? "tu oportunidad";
+  const fallos = await escribirA(
+    lleva.personas,
+    `Viabilidad lista para completar: ${donde}`,
+    `${yo.nombre} ha terminado su parte de la viabilidad de ${donde}.\n\n` +
+      `Ahora te toca completarla (tus precios, las tasas e ICIO, y retocar el texto a gusto del cliente) ` +
+      `y mandarla con la hoja de encargo.\n\n` +
+      `La oportunidad: ${APP}/comercial/oportunidades/${v!.oportunidad_id}\n`,
+    yo.email,
+  );
   revalidatePath("/viabilidades");
-  redirect("/viabilidades?enviada=1");
+  if (!fallos.length) redirect("/viabilidades?enviada=1");
+  return fallos;
 }

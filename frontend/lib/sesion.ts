@@ -97,15 +97,27 @@ export async function quienSoy(): Promise<Yo | null> {
   return personaPorCorreo(data.user.email);
 }
 
-/** El comercial que es esta persona (su cartera), si lo es. */
+/** La cartera comercial que abre esta persona, si abre alguna.
+ *
+ *  Primero la suya, si es comercial. Si no, la que comparte: Alejandra no es
+ *  comercial, pero tiene "un acceso comercial compartido con Daniel" (Monica,
+ *  3-oct-2026), asi que entra en la de Daniel y la ve como si fuera el. Ver
+ *  `relacion_cartera_compartida`. */
 export async function comercialDe(personaId: string): Promise<{ id: string; nombre: string } | null> {
-  const r = await fetch(`${URL_BASE}/rest/v1/comerciales?select=id,nombre&equipo_id=eq.${personaId}&activo=is.true&limit=1`, {
-    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
-    cache: "no-store",
-  });
-  if (!r.ok) return null;
-  const [c] = (await r.json()) as { id: string; nombre: string }[];
-  return c ?? null;
+  const pedir = async (path: string) => {
+    const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+      cache: "no-store",
+    });
+    return r.ok ? ((await r.json()) as { id: string; nombre: string }[]) : [];
+  };
+  const [propia] = await pedir(`comerciales?select=id,nombre&equipo_id=eq.${personaId}&activo=is.true&limit=1`);
+  if (propia) return propia;
+  const [compartida] = await pedir(
+    `comerciales?select=id,nombre,relacion_cartera_compartida!inner(equipo_id)` +
+      `&relacion_cartera_compartida.equipo_id=eq.${personaId}&activo=is.true&limit=1`,
+  );
+  return compartida ? { id: compartida.id, nombre: compartida.nombre } : null;
 }
 
 /** ¿Llega a este nivel en esta area? Direccion, siempre. */
