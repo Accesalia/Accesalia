@@ -98,5 +98,9 @@ export async function guardarOportunidad(fd: FormData) {
   const hecho = await crearOportunidad(datos, yo.id);
 
   revalidatePath("/comercial");
-  redirect("/comercial?nueva=" + encodeURIComponent(hecho.codigo ?? hecho.id));
+  // AL CREARLA SE ATERRIZA EN SU GESTION, no en el cuadro (Monica, 5-oct-2026):
+  // "es donde uno deberia aterrizar al crear una nueva opp, por defecto". Y tiene
+  // sentido: lo siguiente que se hace con una oportunidad recien creada es
+  // mirarle el edificio y quedar para tomar datos, y las dos cosas estan ahi.
+  redirect("/comercial/oportunidades/" + hecho.id);
 }

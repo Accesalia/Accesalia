@@ -637,18 +637,86 @@ export async function informeEdificio(
   return componer(ref, fuera);
 }
 
-export type Ascensor = { hay: boolean | null; quien: string | null; cuando: string | null };
+export type Iee = {
+  fecha: string | null;
+  valoracion: string | null;
+  /** ¿La accesibilidad cumple? false es lo normal en los edificios de antes. */
+  accesibilidadCumple: boolean | null;
+  /** ¿Admite ajustes razonables? Un NO aqui es la senal de compra. */
+  admiteAjustes: boolean | null;
+  energetica: string | null;
+};
 
-/** Lo que alguien marco mirando la ortofoto. Va aparte del informe porque NO es
- *  un dato de Catastro ni del geoportal: es una observacion humana, y se lee y
- *  se escribe por su cuenta. */
+/** EL IEE REGISTRADO, cruzado por referencia catastral.
+ *
+ *  El dato lleva tiempo en la base -lo trae el radar del registro publico- pero
+ *  el informe del edificio no lo miraba: tenia un "—" y la nota "consulta
+ *  pendiente de montar". Esto la monta.
+ *
+ *  Y es de lo mas valioso que hay aqui, por dos lecturas suyas:
+ *
+ *    "El filon son las FAVORABLES pendientes de accesibilidad: al estar su
+ *     informe favorable, nadie les esta mirando."
+ *
+ *    "'Ajustes razonables = NO' es la senal de compra: significa que la obra
+ *     pasa de tres veces la cuota, y entonces venden subvenciones."
+ *
+ *  Solo estan los edificios ya barridos por el radar, asi que lo normal es que
+ *  no haya fila. Eso no es un fallo: es que de ese edificio no sabemos nada. */
+export async function ieeDe(referenciaBruta: string): Promise<Iee | null> {
+  const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
+  if (!URL_BASE || !SECRETO || ref.length < 14) return null;
+  try {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/iee_registrado?select=fecha_emision,valoracion,accesibilidad_satisface,` +
+        `accesibilidad_ajustes,calificacion_energetica&referencia=eq.${ref}` +
+        `&order=fecha_emision.desc.nullslast&limit=1`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!r.ok) return null;
+    const [f] = (await r.json()) as {
+      fecha_emision: string | null;
+      valoracion: string | null;
+      accesibilidad_satisface: boolean | null;
+      accesibilidad_ajustes: boolean | null;
+      calificacion_energetica: string | null;
+    }[];
+    if (!f) return null;
+    return {
+      fecha: f.fecha_emision,
+      valoracion: f.valoracion,
+      accesibilidadCumple: f.accesibilidad_satisface,
+      admiteAjustes: f.accesibilidad_ajustes,
+      energetica: f.calificacion_energetica,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type Ascensor = {
+  hay: boolean | null;
+  quien: string | null;
+  cuando: string | null;
+  /** Cuantos patios. 0 es "no tiene"; null es "nadie los ha contado". */
+  patios: number | null;
+  patiosQuien: string | null;
+  patiosCuando: string | null;
+};
+
+/** LO QUE HEMOS VISTO NOSOTROS: el ascensor y los patios. Va aparte del informe
+ *  porque NO son datos de Catastro ni del geoportal: son observaciones humanas,
+ *  y por eso llevan firma -quien y cuando-. Se leen y se escriben por su cuenta.
+ *  Los patios los anadio ella el 5-oct-2026: "es un dato del edificio como lo es
+ *  el numero de viviendas, solo que con otro origen: manual en vez de Catastro". */
 export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
-  const vacio: Ascensor = { hay: null, quien: null, cuando: null };
+  const vacio: Ascensor = { hay: null, quien: null, cuando: null, patios: null, patiosQuien: null, patiosCuando: null };
   if (!URL_BASE || !SECRETO) return vacio;
   try {
     const r = await fetch(
-      `${URL_BASE}/rest/v1/ficha_catastro?select=tiene_ascensor,ascensor_visto_en,equipo:ascensor_visto_por(nombre)&referencia=eq.${ref}&limit=1`,
+      `${URL_BASE}/rest/v1/ficha_catastro?select=tiene_ascensor,ascensor_visto_en,equipo:ascensor_visto_por(nombre),` +
+        `patios,patios_vistos_en,conto:patios_vistos_por(nombre)&referencia=eq.${ref}&limit=1`,
       { headers: cab, cache: "no-store" },
     );
     if (!r.ok) return vacio;
@@ -656,9 +724,19 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
       tiene_ascensor: boolean | null;
       ascensor_visto_en: string | null;
       equipo: { nombre: string } | null;
+      patios: number | null;
+      patios_vistos_en: string | null;
+      conto: { nombre: string } | null;
     }[];
     if (!f) return vacio;
-    return { hay: f.tiene_ascensor, quien: f.equipo?.nombre ?? null, cuando: f.ascensor_visto_en };
+    return {
+      hay: f.tiene_ascensor,
+      quien: f.equipo?.nombre ?? null,
+      cuando: f.ascensor_visto_en,
+      patios: f.patios,
+      patiosQuien: f.conto?.nombre ?? null,
+      patiosCuando: f.patios_vistos_en,
+    };
   } catch {
     return vacio;
   }

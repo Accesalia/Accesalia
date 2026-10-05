@@ -1,4 +1,4 @@
-import { ascensorDe, informeEdificio } from "../../../../lib/informeEdificio";
+import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdificio";
 
 // EL EDIFICIO, DENTRO DEL BLOQUE 1 (Monica, 5-oct-2026).
 //
@@ -97,7 +97,11 @@ const EUR = new Intl.NumberFormat("es-ES");
 /** Devuelve las TRES primeras columnas de su rejilla: 262 · 330 · 190. La cuarta
  *  -el diario- la pone la pantalla. */
 export async function Edificio({ referencia }: { referencia: string }) {
-  const [i, asc] = await Promise.all([informeEdificio(referencia), ascensorDe(referencia)]);
+  const [i, asc, iee] = await Promise.all([
+    informeEdificio(referencia),
+    ascensorDe(referencia),
+    ieeDe(referencia),
+  ]);
 
   // Catastro puede no contestar, o la referencia puede estar mal escrita. Eso se
   // DICE, no se esconde, y se dice donde iba el informe.
@@ -115,7 +119,10 @@ export async function Edificio({ referencia }: { referencia: string }) {
   const edificio = de("El edificio");
   const usos = de("Los usos");
   const hacer = [...de("Restricciones"), ...de("Protección")];
-  const pedir = de("Dinero: a qué ayudas entra");
+  // La fila "¿Tiene IEE registrada?" del informe era un hueco con la nota
+  // "consulta pendiente de montar". Ya esta montada aqui arriba, con el dato de
+  // verdad, asi que se quita de la lista para no decirlo dos veces.
+  const pedir = de("Dinero: a qué ayudas entra").filter((d) => !/IEE/i.test(d.que));
 
   return (
     <>
@@ -142,9 +149,15 @@ export async function Edificio({ referencia }: { referencia: string }) {
           <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
             <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} />
             <div className="bg-[#438538]" />
-            {/* Los patios todavia no tienen columna en ficha_catastro: entran en
-                la etapa de los patios. Hasta entonces el control se ve, vacio. */}
-            <Visto que="Patios" hay={null} cuantos={null} />
+            {/* Los patios son un NUMERO, no un si/no: su maqueta pregunta
+                "¿cuantos?". El 0 es un dato -no tiene- y el nulo es otro. */}
+            <Visto
+              que="Patios"
+              hay={asc.patios === null ? null : asc.patios > 0}
+              cuantos={asc.patios}
+              quien={asc.patiosQuien}
+              cuando={asc.patiosCuando}
+            />
           </div>
         </div>
       </section>
@@ -164,6 +177,73 @@ export async function Edificio({ referencia }: { referencia: string }) {
 
         <section className={CAJA}>
           <div className={ROT + " text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
+
+          {/* EL IEE, primero, porque es lo que mas vende. Dos lecturas suyas:
+              el filon son las FAVORABLES pendientes de accesibilidad -"al estar
+              su informe favorable, nadie les esta mirando"-, y "ajustes
+              razonables = NO es la senal de compra", porque significa que la
+              obra pasa de tres veces la cuota. */}
+          <div className="mt-2 border-b border-black/10 pb-2">
+            <div className="flex items-baseline justify-between gap-x-2">
+              <span className="text-[11px] text-carbon/65">IEE</span>
+              <span className="text-[12px] font-semibold text-carbon">
+                {!iee ? (
+                  <span className="text-[#8a8a8a]">no nos consta</span>
+                ) : (
+                  <>
+                    Sí
+                    {iee.fecha && <span className="font-normal text-carbon/65"> · {iee.fecha.split("-").reverse().join("/")}</span>}
+                    {iee.valoracion && (
+                      <span className={iee.valoracion.toLowerCase().startsWith("desfav") ? " text-[#820707]" : ""}>
+                        {" "}· {iee.valoracion.toLowerCase()}
+                      </span>
+                    )}
+                  </>
+                )}
+              </span>
+            </div>
+            {!iee ? (
+              <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
+                Solo sabemos de los edificios que ha barrido el radar del registro. Que no conste
+                no quiere decir que no lo tengan.
+              </p>
+            ) : (
+              <>
+                <div className="mt-1 flex items-baseline justify-between gap-x-2">
+                  <span className="text-[11px] text-carbon/65">Accesibilidad</span>
+                  <span className="text-[12px] font-semibold text-carbon">
+                    {iee.accesibilidadCumple === null ? "—" : iee.accesibilidadCumple ? "cumple" : "no cumple"}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-x-2 pl-5">
+                  <span className="text-[11px] text-carbon/55">ajustes razonables</span>
+                  <span
+                    className={
+                      "text-[12px] font-semibold " +
+                      (iee.admiteAjustes === false ? "text-[#0C8124]" : "text-carbon")
+                    }
+                  >
+                    {iee.admiteAjustes === null ? "—" : iee.admiteAjustes ? "los admite" : "NO los admite"}
+                  </span>
+                </div>
+                {iee.admiteAjustes === false && (
+                  <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
+                    Es la señal de compra: la obra pasa de tres veces la cuota, así que van a
+                    querer la subvención.
+                  </p>
+                )}
+                {iee.accesibilidadCumple === false && iee.valoracion?.toLowerCase().startsWith("favo") && (
+                  <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
+                    Informe favorable con la accesibilidad sin resolver: nadie les está mirando.
+                  </p>
+                )}
+                <div className="mt-1 flex items-baseline justify-between gap-x-2">
+                  <span className="text-[11px] text-carbon/65">Calificación energética</span>
+                  <span className="text-[12px] font-semibold text-carbon">{iee.energetica ?? "—"}</span>
+                </div>
+              </>
+            )}
+          </div>
           {/* El IEE sale aqui dentro, en su fila "¿Tiene IEE registrada?", que hoy
               dice "—" y "consulta pendiente de montar". No se le pone un aviso
               encima: el informe ya lo dice en su sitio. */}
