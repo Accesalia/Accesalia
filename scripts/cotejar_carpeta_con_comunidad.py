@@ -25,10 +25,23 @@ def letras(s, muni=None):
 
 numeros = lambda s: set(re.findall(r'\d+', limpio(s)))
 
+# LOS MUNICIPIOS NO SE ESCRIBEN A MANO AQUI (5-oct-2026). Estaban fijos
+# -ALCORCON, ALCOBENDAS, FUENLABRADA- y al correrlo para Mostoles se llevo por
+# delante las 286 filas de Leganes y no metio ninguna de Mostoles. Este fichero
+# lo rehace entero cada vez, asi que tiene que mirar TODO lo que haya leido.
+import glob, os, sys
+municipios = [a.upper() for a in sys.argv[1:] if not a.startswith('-')]
+if not municipios:
+    municipios = sorted(os.path.basename(x)[7:-4].upper().replace('_', ' ')
+                        for x in glob.glob('fichas_*.csv'))
 fichas = {}
-for m in ('ALCORCON','ALCOBENDAS','FUENLABRADA'):
-    for f in csv.DictReader(io.open('fichas_%s.csv' % m.lower(), encoding='utf-8')):
+for m in municipios:
+    p = 'fichas_%s.csv' % m.lower().replace(' ', '_')
+    if not os.path.exists(p):
+        continue
+    for f in csv.DictReader(io.open(p, encoding='utf-8')):
         fichas[(m, f['carpeta'])] = f
+print('cotejando: %s' % ', '.join(sorted({k[0] for k in fichas})))
 clon = {(c['municipio'], c['carpeta']) for c in
         b.leer('comunidades_fuera_de_lista_provisional_hasta_revisar_una_a_una?select=municipio,carpeta')}
 ya = set()
@@ -38,7 +51,11 @@ for d in b.leer('documentos?select=origen_ruta_dropbox&origen_ruta_dropbox=not.i
         ya.add((p[2].upper(), p[3]))
 pend = sorted(k for k in fichas if k not in clon and k not in ya)
 
-coms = b.leer('comunidades?select=id,nombre,municipio&municipio=in.(ALCORCON,ALCOBENDAS,FUENLABRADA)', por_tramos=True)
+# La lista de municipios estaba fija AQUI TAMBIEN, y es la que de verdad rompia
+# Mostoles: sin sus comunidades no hay contra que cotejar. Se piden las de los
+# municipios que se esten leyendo, sean los que sean.
+coms = b.leer('comunidades?select=id,nombre,municipio&municipio=in.(%s)'
+              % ','.join('"%s"' % m for m in sorted({k[0] for k in fichas})), por_tramos=True)
 con_opp = {o['comunidad_id'] for o in b.leer('oportunidades?select=comunidad_id&comunidad_id=not.is.null', por_tramos=True)}
 
 ok, dud, nada = [], [], []
