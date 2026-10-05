@@ -1,0 +1,6 @@
+carpeta,estado,comunidad,comunidad_id,cif_en_base,parecido,n_tarjetas,ruta,nif_leido,denominacion_leida,como_se_lee
+losresidenciales10,sin pareja,,,,0.0,0,,,,sin tarjeta
+madrid2,sin pareja,,,,0.0,1,MADRID\1APROVINCIA\COLMENAR VIEJO\madrid2\1.DATOS\2.DOCUMENTACION\cif.pdf,,,mirar
+planetas5,sin pareja,SANTO DOMINGO DE GUZMAN 5 COLMENAR VIEJO,0f27d183-0e69-48e0-b6b1-2938ddb54ace,H81975682,0.33,0,,,,sin tarjeta
+sanjuandelacruz38,sin pareja,,,,0.0,0,,,,sin tarjeta
+santodomingodeguzman5,casa,SANTO DOMINGO DE GUZMAN 5 COLMENAR VIEJO,0f27d183-0e69-48e0-b6b1-2938ddb54ace,H81975682,1.0,1,MADRID\1APROVINCIA\COLMENAR VIEJO\santodomingodeguzman5\1.DATOS\2.DOCUMENTACION\CIF.pdf,,,mirar

@@ -1,0 +1,772 @@
+[
+ {
+  "carpeta": "alava6",
+  "cid": "12acf0ab-118a-4344-b022-9580a922c9c9",
+  "nombre_base": "ALAVA 6 FUENLABRADA",
+  "cif_base": "B28111516",
+  "nif": "B28111516",
+  "den": "OSTALAZAR SL",
+  "nota": "EMPRESA. Domicilio social CL DOCTOR ESQUERDO 57 MADRID",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\alava6\\1.DATOS\\2.DOCUMENTACION\\CIF OSTALAZAR (2).pdf"
+ },
+ {
+  "carpeta": "alemania11",
+  "cid": "b6769ff9-794d-4efb-8f75-e07c31347e1f",
+  "nombre_base": "ALEMANIA 11 FUENLABRADA",
+  "cif_base": "H79602397",
+  "nif": "H79602397",
+  "den": "CDAD PROP CL ALEMANIA N 11 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\alemania11\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "alemania6",
+  "cid": "19f23b15-f7fe-435a-b3be-649a64cc6083",
+  "nombre_base": "ALEMANIA 6 FUENLABRADA",
+  "cif_base": "H79228748",
+  "nif": "H79228748",
+  "den": "CDAD PROP CL ALEMANIA N 6 FUENLABRADA",
+  "nota": "tarjeta moderna con CSV; NIF definitivo 18-08-1989",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\alemania6\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "andalucia10",
+  "cid": "9db87e08-a03d-4410-885d-a868b6b2b630",
+  "nombre_base": "ANDALUCIA 10 FUENLABRADA",
+  "cif_base": "H79706339",
+  "nif": "H79706339",
+  "den": "CDAD PROP CL ANDALUCIA N 10 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\andalucia10\\ASCENSOR\\1.DATOS\\2.DOCUMENTACION\\cif andalucia 10 fuenlabrada.pdf"
+ },
+ {
+  "carpeta": "andalucia6",
+  "cid": "fbe45529-238b-4ea8-9d68-b2b5a54868a8",
+  "nombre_base": "ANDALUCIA 6 FUENLABRADA",
+  "cif_base": "H79882866",
+  "nif": "H79882866",
+  "den": "CDAD PROP CL ANDALUCIA N 6 FUENLABRADA",
+  "nota": "el 6o digito salia borroso; se deduce por el digito de control, que solo cuadra con un 8. Sello del Registro de la Propiedad 27-JUN-2006",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\andalucia6\\1.DATOS\\2.DOCUMENTACION\\CIF CP ANDALUCIA 6_000829.pdf"
+ },
+ {
+  "carpeta": "angeles14",
+  "cid": "e7baf195-d913-4a98-8677-d9d944e28c6d",
+  "nombre_base": "ANGELES 14 FUENLABRADA",
+  "cif_base": "H79741518",
+  "nif": "H79741518",
+  "den": "CDAD PROP CL LOS ANGELES N 14 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\angeles14\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD.pdf"
+ },
+ {
+  "carpeta": "angeles7",
+  "cid": "bbbb08ba-2396-4178-b6b2-10fb50f7225f",
+  "nombre_base": "ANGELES 7 FUENLABRADA",
+  "cif_base": "H79746053",
+  "nif": "H79746053",
+  "den": "CDAD PROP CL LOS ANGELES N 7 FUENLABRADA",
+  "nota": "CIF confirmado a mano en el libro de actas de 1983",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\angeles7\\sate - accesalia\\DATOS\\documentacion\\CIF comunidad.pdf"
+ },
+ {
+  "carpeta": "argentina20",
+  "cid": "5b394477-311b-42d6-bd82-981dafdee873",
+  "nombre_base": "ARGENTINA 20 FUENLABRADA",
+  "cif_base": "H79833398",
+  "nif": "H79833398",
+  "den": "CDAD PROP CL ARGENTINA N 20 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\argentina20\\1.DATOS\\2.DOCUMENTACION\\CIF,..pdf"
+ },
+ {
+  "carpeta": "austria8",
+  "cid": "e25df94f-655f-481e-a62a-6f96a34af8be",
+  "nombre_base": "AUSTRIA 8 FUENLABRADA",
+  "cif_base": "H78759263",
+  "nif": "H78759263",
+  "den": "CDAD PROP CL AUSTRIA 8 FUENLABRADA",
+  "nota": "LA TARJETA ES LA VIEJA, con letra E (E78759263). El CIF vigente es con H, y lo certifica el Banco Sabadell el 14-05-2026 sobre la cuenta ES62 0081 0295 0400 0129 8234, y lo confirma el IEE. AVISO: su administradora habla de una MANCOMUNIDAD, y el IEE dice que el edificio comparte medianeria con CL AUSTRIA 10 y CL AUSTRIA 6, que NO estan en la lista. Presidente segun el IEE: RAFAEL EXPOSITO CABRERA, DNI 51861873R",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\austria8\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "avespana9",
+  "cid": "495f2ec1-80d4-4803-9f8a-7755995cfc81",
+  "nombre_base": "AV ESPAÑA 9 FUENLABRADA",
+  "cif_base": "H78767076",
+  "nif": "H78767076",
+  "den": "CDAD PROP AV ESPANA 9 FUENLABRADA",
+  "nota": "NIF definitivo 08-03-1988",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avespaña9\\1.DATOS\\2.DOCUMENTACION\\CIF 270.pdf"
+ },
+ {
+  "carpeta": "avestados1",
+  "cid": "3fc023cd-0494-4f97-8148-edcfba0212d2",
+  "nombre_base": "AV ESTADOS 1 FUENLABRADA",
+  "cif_base": "H79104279",
+  "nif": "H79104279",
+  "den": "CDAD PROP AV LOS ESTADOS N 1 FUENLABRADA",
+  "nota": "NIF definitivo 13-04-1989",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avestados1\\ASCENSOR\\1.DATOS\\2.DOCUMENTACION\\cif av. estados 1 fuenlabrada.pdf"
+ },
+ {
+  "carpeta": "avestados18",
+  "cid": "98414baa-5491-4149-9c14-7793a68ca1a3",
+  "nombre_base": "AV ESTADOS 18 FUENLABRADA",
+  "cif_base": "H79825618",
+  "nif": "H79825618",
+  "den": "CDAD PROP AV DE LOS ESTADOS N 18 FUENLABRADA",
+  "nota": "NIF definitivo 01-01-1991",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avestados18\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "avestados4",
+  "cid": "0dde6533-8233-4bf1-8d1d-c2873cc605e1",
+  "nombre_base": "AV ESTADOS 4 FUENLABRADA",
+  "cif_base": "E78447554",
+  "nif": "E78447554",
+  "den": "CDAD PROP AVDA DE LOS ESTADOS 4 DE FUENLABRADA",
+  "nota": "LETRA E. CP 28945",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avestados4\\DATOS\\documentacion\\cif estados 4.pdf"
+ },
+ {
+  "carpeta": "avfranciscojaviersauquillo22",
+  "cid": "da6b79d3-0da0-47f1-8944-6f581a7f4f12",
+  "nombre_base": "AV FRANCISCO JAVIER SAUQUILLO 22 FUENLABRADA",
+  "cif_base": "H80207020",
+  "nif": "H80207020",
+  "den": "CDAD PROP CL FRANCISCO JAVIER SAUQUILLO N 22 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avfranciscojaviersauquillo22\\ascensor TERMINADO\\1.DATOS\\2.DOCUMENTACION\\cif francisco javier sauquillo 22 fuenlabrada.pdf"
+ },
+ {
+  "carpeta": "avprovincias10",
+  "cid": "c6830be5-cbe0-497f-9929-f22f20916c08",
+  "nombre_base": "AV PROVINCIAS 10 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H80024334",
+  "den": "CDAD PROP AV DE LAS PROVINCIAS N 10 FUENLABRADA",
+  "nota": "la matriz de puntos esta comida; lo leyo Monica a ojo el 3-oct y el digito de control cuadra",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avprovincias10\\DATOS\\datos\\CIF Comunidad (3).pdf"
+ },
+ {
+  "carpeta": "avprovincias14",
+  "cid": "0d5d29c6-fe46-46e3-8cdf-b5264282b8e3",
+  "nombre_base": "AV PROVINCIAS 14 FUENLABRADA",
+  "cif_base": "H78576980",
+  "nif": "H78576980",
+  "den": "CDAD PROP CL AV PROVINCIAS 14 FUENLABRADA",
+  "nota": "CP 28941. NIF definitivo 10-11-1987",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avprovincias14\\1.DATOS\\2.DOCUMENTACION\\CIF_Comunidad.pdf"
+ },
+ {
+  "carpeta": "avprovincias16",
+  "cid": "723cfc0b-bfca-4601-a6cf-4f6c0067a638",
+  "nombre_base": "AV PROVINCIAS 16 FUENLABRADA",
+  "cif_base": "H80135908",
+  "nif": "H80135908",
+  "den": "CDAD PROP AV DE LAS PROVINCIAS N 16 FUENLABRADA",
+  "nota": "NIF definitivo 08-04-1992",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avprovincias16\\1.DATOS\\2.DOCUMENTACION\\PROVINCIAS-16-CIF-NUEVO.PDF"
+ },
+ {
+  "carpeta": "avprovincias46",
+  "cid": "4c5e5fc0-0e30-4552-88ac-28843e108a98",
+  "nombre_base": "AV PROVINCIAS 46 FUENLABRADA",
+  "cif_base": "H79490140",
+  "nif": "H79490140",
+  "den": "CDAD PROP AV DE LAS PROVINCIAS N 46 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avprovincias46\\1.DATOS\\2.DOCUMENTACION\\CIF PROVINCIAS, 46.pdf"
+ },
+ {
+  "carpeta": "avregiones6",
+  "cid": "fb720b3d-53c6-44c3-8380-ac1017f387fd",
+  "nombre_base": "AV REGIONES 6 FUENLABRADA",
+  "cif_base": "H79783130",
+  "nif": "H79783130",
+  "den": "CDAD PROP AV DE LAS REGIONES N 6 FUENLABRADA",
+  "nota": "NIF definitivo 01-12-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\avregiones6\\SATE Y AEROTERMIA\\1.DATOS\\2.DOCUMENTACION\\CIF (1).pdf"
+ },
+ {
+  "carpeta": "belen7",
+  "cid": "56f15a13-b4c0-4293-ac5a-69299532c175",
+  "nombre_base": "BELEN 7 FUENLABRADA",
+  "cif_base": "H79707493",
+  "nif": "H79707493",
+  "den": "CDAD PROP CL BELEN N 7 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\belen7\\1.DATOS\\2.DOCUMENTACION\\cif.pdf"
+ },
+ {
+  "carpeta": "brunete3",
+  "cid": "92536a60-a776-4678-b6c5-9b1cdf1255fe",
+  "nombre_base": "BRUNETE 3 FUENLABRADA",
+  "cif_base": "H79277513",
+  "nif": "H79277513",
+  "den": "CDAD PROP CL BRUNETE N 3 FUENLABRADA",
+  "nota": "el sobre dice ADMINISTRACIONES ROYMAR SL como apoderado",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\brunete3\\1 sate + ascensor\\1.DATOS\\2.DOCUMENTACION\\CIF CDAD. PROP. BRUNETE 3.pdf"
+ },
+ {
+  "carpeta": "callao31",
+  "cid": "b358d605-74c3-48fe-91c1-a03fc8fd3203",
+  "nombre_base": "CALLAO 31 FUENLABRADA",
+  "cif_base": "H79634564",
+  "nif": "H79634564",
+  "den": "CDAD PROP CL CALLAO N 31 FUENLABRADA",
+  "nota": "CP 28945 corregido a mano",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\callao31\\1.DATOS\\2.DOCUMENTACION\\cif callao 31.pdf"
+ },
+ {
+  "carpeta": "callao35",
+  "cid": "985f7e68-b4cd-432f-bd61-e412b32a7988",
+  "nombre_base": "CALLAO 35 FUENLABRADA",
+  "cif_base": "H79121620",
+  "nif": "H79121620",
+  "den": "CDAD PROP CL CALLAO 35 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\callao35\\1.DATOS\\2.DOCUMENTACION\\cif callao 35.pdf"
+ },
+ {
+  "carpeta": "canarias8",
+  "cid": "aacf53b6-a8a5-40a1-ad8e-9d1f71357853",
+  "nombre_base": "CANARIAS 8 FUENLABRADA",
+  "cif_base": "H78347028",
+  "nif": "H78347028",
+  "den": "CDAD PROP CANARIAS 8 FUENLABRADA",
+  "nota": "NIF definitivo 01-12-1986",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\canarias8\\3 Mejora accesibilidad\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD (3).pdf"
+ },
+ {
+  "carpeta": "castillalanueva33",
+  "cid": "6557b7d3-aa87-4a7b-b629-d5065f1de377",
+  "nombre_base": "CASTILLA LA NUEVA 33 FUENLABRADA",
+  "cif_base": "H79387577",
+  "nif": "H79387577",
+  "den": "CDAD PROP CL CASTILLA LA NUEVA N 33 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\castillalanueva33\\1.DATOS\\2.DOCUMENTACION\\CIF .pdf"
+ },
+ {
+  "carpeta": "castillalanueva37bis",
+  "cid": "1aeefaf3-8d4e-4526-8aa0-0663ea7caeb8",
+  "nombre_base": "CASTILLA LA NUEVA 37BIS FUENLABRADA",
+  "cif_base": "H79410346",
+  "nif": "H79410346",
+  "den": "CDAD PROP CL CASTILLA LA NUEVA N 37 BIS FUENLABRADA",
+  "nota": "EL BIS ES EL PORTAL B del 37. CP 28941. NIF 10-04-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\castillalanueva37bis\\1.DATOS\\2.DOCUMENTACION\\CIF CASTILLA LA NUEVA 37BIS FUENLABRADA.pdf"
+ },
+ {
+  "carpeta": "castillalanueva40",
+  "cid": "c26757c1-f4d2-412f-b373-f581ebd1cdba",
+  "nombre_base": "CASTILLA LA NUEVA 40 FUENLABRADA",
+  "cif_base": "H79562864",
+  "nif": "H79562864",
+  "den": "CDAD PROP CL CASTILLA LA NUEVA N 40 FUENLABRADA",
+  "nota": "NIF definitivo 31-10-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\castillalanueva40\\1.DATOS\\2.DOCUMENTACION\\cif CN-40-NUEVO.pdf"
+ },
+ {
+  "carpeta": "castillalavieja8",
+  "cid": "25ced794-c5ea-4e66-8628-636287914876",
+  "nombre_base": "CASTILLA LA VIEJA 8 FUENLABRADA",
+  "cif_base": "H79679098",
+  "nif": "H79679098",
+  "den": "CDAD PROP CL CASTILLA LA VIEJA N 8 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\castillalavieja8\\1.DATOS\\2.DOCUMENTACION\\CIF CASTILLA LA VIEJA 8.pdf"
+ },
+ {
+  "carpeta": "castillejos23",
+  "cid": "808adbce-ab8b-4eab-98df-2fb3fc945fa9",
+  "nombre_base": "CASTILLEJOS 23 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H79442745",
+  "den": "CDAD PROP CL CASTILLEJOS N 23 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\castillejos23\\DATOS\\DOCUMENTACION\\cif castillejos 23.pdf"
+ },
+ {
+  "carpeta": "comunidaddemadrid9",
+  "cid": "8a202224-66be-4f74-acb8-ca0df94f6e60",
+  "nombre_base": "COMUNIDAD DE MADRID 9 FUENLABRADA",
+  "cif_base": "H80074024",
+  "nif": "H80074024",
+  "den": "CDAD PROP CL COMUNIDAD DE MADRID FUENLABRADA",
+  "nota": "la denominacion NO lleva numero; el domicilio si: CL COMUNIDAD DE MADRID 9",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\comunidaddemadrid9\\DATOS\\documentacion\\cif comunidad de madrid 9 fuenlabrada.pdf"
+ },
+ {
+  "carpeta": "delicias1",
+  "cid": "88b9544e-c4b2-4050-9a29-5f564b27c3f6",
+  "nombre_base": "DELICIAS 1 FUENLABRADA",
+  "cif_base": "H79760112",
+  "nif": "H79760112",
+  "den": "CDAD PROP CL DELICIAS N 1 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\delicias1\\1.DATOS\\2.DOCUMENTACION\\cif.pdf"
+ },
+ {
+  "carpeta": "delicias7",
+  "cid": "9ec7ddd2-359f-4391-a0ab-f6c473061d84",
+  "nombre_base": "DELICIAS 7 FUENLABRADA",
+  "cif_base": "H81223174",
+  "nif": "H81223174",
+  "den": "CDAD PROP CL DELICIAS N 7 DE FUENLABRADA",
+  "nota": "CP 28944. NIF definitivo 29-06-1995",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\delicias7\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD.pdf"
+ },
+ {
+  "carpeta": "eras9",
+  "cid": "6dc61222-c376-4c7d-a75c-e72775f920d1",
+  "nombre_base": "ERAS 9 FUENLABRADA",
+  "cif_base": "H79934220",
+  "nif": "H79934220",
+  "den": "CDAD PROP CL LAS HERAS N 9 FUENLABRADA",
+  "nota": "OJO: la calle oficial es LAS HERAS, no ERAS. CP 28944",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\eras9\\dr\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD.pdf"
+ },
+ {
+  "carpeta": "fatima6",
+  "cid": "8e62b50c-bed0-46bc-b0c9-a25f039ad6f5",
+  "nombre_base": "FATIMA 6 FUENLABRADA",
+  "cif_base": "H79266052",
+  "nif": "H79266052",
+  "den": "CDAD PROP CL FATIMA 6",
+  "nota": "la denominacion no lleva FUENLABRADA",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\fatima6\\1.DATOS\\2.DOCUMENTACION\\CIF FATIMA 6 (1).pdf"
+ },
+ {
+  "carpeta": "francia5",
+  "cid": "f904d0dc-a6c0-45fe-9639-640175c33c5e",
+  "nombre_base": "FRANCIA 5 FUENLABRADA",
+  "cif_base": "H79704250",
+  "nif": "H79704250",
+  "den": "CDAD PROP CL FRANCIA N 5 FUENLABRADA",
+  "nota": "NIF definitivo 27-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\francia5\\1.DATOS\\2.DOCUMENTACION\\FRANCIA 5 TARJETA CIF.pdf"
+ },
+ {
+  "carpeta": "francia50",
+  "cid": "df00e0a7-b0bc-4c8e-a44c-8fb1ea62b214",
+  "nombre_base": "FRANCIA 50 FUENLABRADA",
+  "cif_base": "H79661443",
+  "nif": "H79661443",
+  "den": "CDAD PROP CL FRANCIA N 50 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\francia50\\ASCENSOR\\1.DATOS\\2.DOCUMENTACION\\datos de la cp\\CIF1.pdf"
+ },
+ {
+  "carpeta": "francia7",
+  "cid": "e59d8c8f-9796-48b4-8402-2b63cd27e228",
+  "nombre_base": "FRANCIA 7 FUENLABRADA",
+  "cif_base": "H79538823",
+  "nif": "H79538823",
+  "den": "CDAD PROP CL FRANCIA N 7 FUENLABRADA",
+  "nota": "NIF definitivo 16-10-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\francia7\\1.DATOS\\2.DOCUMENTACION\\TARJETA CIF C.P FRANCIA 7.pdf"
+ },
+ {
+  "carpeta": "habana41",
+  "cid": "7eeacfa9-347d-476d-acc4-8977f927fe68",
+  "nombre_base": "HABANA 41 FUENLABRADA",
+  "cif_base": "H79697546",
+  "nif": "H79697546",
+  "den": "CDAD PROP CL HABANA N 41 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\habana41\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "humera16",
+  "cid": "3c89acf9-aaaf-44e8-afd4-b64a723dca01",
+  "nombre_base": "HUMERA 16 FUENLABRADA",
+  "cif_base": "H79112322",
+  "nif": "H79112322",
+  "den": "CDAD PROP CL HUMERA 16 FUENLABRADA",
+  "nota": "NIF definitivo 20-04-1989",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\humera16\\1.DATOS\\2.DOCUMENTACION\\0073 CIF COMUNIDADES.pdf"
+ },
+ {
+  "carpeta": "humera23",
+  "cid": "f8278ede-c0bf-43d0-be37-c4f3e0e365d0",
+  "nombre_base": "HUMERA 23 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H79617072",
+  "den": "CDAD PROP CL HUMERA N 23 FUENLABRADA",
+  "nota": "NIF definitivo 01-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\humera23\\DATOS\\actas y datos\\CIF (1).pdf"
+ },
+ {
+  "carpeta": "hungria4",
+  "cid": "b90ba8e3-5f1b-47f7-9b7c-4c08f050b002",
+  "nombre_base": "HUNGRIA 4 FUENLABRADA",
+  "cif_base": "H79740700",
+  "nif": "H79740700",
+  "den": "CDAD PROP CL HUNGRIA N 4 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\hungria4\\1 DATOS COMUNES\\2.DOCUMENTACION\\cif hungria 4_2.pdf"
+ },
+ {
+  "carpeta": "islasbritanicas26",
+  "cid": "ff077c70-7e85-4f34-8118-5f60279f90aa",
+  "nombre_base": "ISLAS BRITANICAS 26 FUENLABRADA",
+  "cif_base": "H79253514",
+  "nif": "H79253514",
+  "den": "CDAD PROP CL ISLAS BRITANICAS 26 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\islasbritanicas26\\1.DATOS\\2.DOCUMENTACION\\CIF Islas Británicas 26.pdf"
+ },
+ {
+  "carpeta": "italia11",
+  "cid": "d9a44b01-7259-49c3-95db-0dc247583c02",
+  "nombre_base": "ITALIA 11 FUENLABRADA",
+  "cif_base": "H79803797",
+  "nif": "H79803797",
+  "den": "CDAD PROP CL ITALIA N 11 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\italia11\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD ITALIA.pdf"
+ },
+ {
+  "carpeta": "italia35",
+  "cid": "da5c0264-43b7-4910-9a90-a35338107359",
+  "nombre_base": "ITALIA 35 FUENLABRADA",
+  "cif_base": "H79044913",
+  "nif": "H79044913",
+  "den": "CDAD PROP CL ITALIA 35 DE FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\italia35\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "lavega6",
+  "cid": "bfa1c11a-35d6-4065-9544-fe289edc9f8c",
+  "nombre_base": "LA VEGA 6 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H79858643",
+  "den": "CDAD PROP CL LA VEGA N 6 FUENLABRADA",
+  "nota": "NIF definitivo 25-02-1991",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\lavega6\\ascensor terminado\\DATOS\\datos\\DE LA VEGA 6 CIF.pdf"
+ },
+ {
+  "carpeta": "leganes14",
+  "cid": "48088491-7938-4d92-8f55-4e724008eba0",
+  "nombre_base": "LEGANES 14 FUENLABRADA",
+  "cif_base": "H79801049",
+  "nif": "H79801049",
+  "den": "CDAD PROP CL LEGANES N 14 FUENLABRADA",
+  "nota": "CP 28945. NIF definitivo 01-12-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\leganes14\\1.DATOS\\2.DOCUMENTACION\\CP LEGANES 14   TARJETA CIF.pdf"
+ },
+ {
+  "carpeta": "lima5",
+  "cid": "fbadaf26-24f6-4c79-9c52-5c03c6dc8036",
+  "nombre_base": "LIMA 5 FUENLABRADA",
+  "cif_base": "H81427155",
+  "nif": "H81427155",
+  "den": "CDAD PROP CL LIMA N 5 DE FUENLABRADA",
+  "nota": "CP 28944",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\lima5\\SATE\\1.DATOS\\2.DOCUMENTACION\\CIF1.pdf"
+ },
+ {
+  "carpeta": "malaga22",
+  "cid": "a71ccddc-bd76-43c2-9102-e7f3c1ca8f81",
+  "nombre_base": "MALAGA 22 FUENLABRADA",
+  "cif_base": "H80459464",
+  "nif": "H80459464",
+  "den": "CDAD PROP CL MALAGA 22 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\malaga22\\cambio tuberias\\1.DATOS\\2.DOCUMENTACION\\CIF MALAGA 22 FUENLABRADA.pdf"
+ },
+ {
+  "carpeta": "mostoles3portal2",
+  "cid": "9a6ff4c1-469f-496d-b565-96d5157e33f6",
+  "nombre_base": "MOSTOLES 3 PORTAL 2 FUENLABRADA",
+  "cif_base": "H79267993",
+  "nif": "H79267993",
+  "den": "CDAD PROP CL MOSTOLES N 3 BLOQUE 2 FUENLABRADA",
+  "nota": "la tarjeta dice BLOQUE 2, no portal 2",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\mostoles3portal2\\Ascensor TERMINADO\\DATOS\\datos\\CIF 2.pdf"
+ },
+ {
+  "carpeta": "mostoles3portal4",
+  "cid": "c77b587d-7780-44ae-a16b-ed5f100718ef",
+  "nombre_base": "MOSTOLES 3 PORTAL 4 FUENLABRADA",
+  "cif_base": "H84265164",
+  "nif": "H84265164",
+  "den": "CDAD PROP C/ MOSTOLES 3 EN FUENLABRADA",
+  "nota": "la denominacion NO dice el portal; el domicilio si: CL MOSTOLES PORTAL 4, 3. CP 28944. 03-03-2005",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\mostoles3portal4\\1.DATOS\\2.DOCUMENTACION\\CIF CP MOSTOLES 3 PORTAL 4.pdf"
+ },
+ {
+  "carpeta": "mostoles3portal7",
+  "cid": "1c6a4271-52a1-48b1-b6d3-09d9ee970508",
+  "nombre_base": "MOSTOLES 3 PORTAL 7 FUENLABRADA",
+  "cif_base": "H79568283",
+  "nif": "H79568283",
+  "den": "CDAD PROP CL MOSTOLES N 3 PORTAL 7 FUENLABRADA",
+  "nota": "NIF definitivo 02-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\mostoles3portal7\\SATE\\1.DATOS\\2.DOCUMENTACION\\CIF_Mostoles_3_7.pdf"
+ },
+ {
+  "carpeta": "mostoles3portal8",
+  "cid": "5cca43a3-76f5-4c3d-a9e1-141310f617b6",
+  "nombre_base": "MOSTOLES 3 PORTAL 8 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H79265153",
+  "den": "CDAD PROP CL MOSTOLES N 3 FUENLABRADA",
+  "nota": "la denominacion NO dice el portal. NIF definitivo 23-10-1989",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\mostoles3portal8\\DATOS\\documentacion\\CIF COMUINIDAD.pdf"
+ },
+ {
+  "carpeta": "nazaret14",
+  "cid": "792fe691-1cd8-4c54-8282-b1bb741d47df",
+  "nombre_base": "NAZARET 14 FUENLABRADA",
+  "cif_base": "H79549671",
+  "nif": "H79549671",
+  "den": "CDAD PROP CL NAZARET N 14 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\nazaret14\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "nazaret32bis",
+  "cid": "c02c4bd2-61af-46c1-b725-07a2a5f57ffb",
+  "nombre_base": "NAZARET 32 BIS FUENLABRADA",
+  "cif_base": "H79706172",
+  "nif": "H79706172",
+  "den": "CDAD PROP CL NAZARET N 32 BIS FUENLABRADA",
+  "nota": "CP 28941. El libro de actas dice: edificio sito en CALLE ANDALUCIA 8, HOY calle Nazaret 32 BIS. La calle cambio de nombre",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\nazaret32bis\\SATE\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "oriente6",
+  "cid": "1c9c3f63-0b35-402e-806d-be3ae7df02f5",
+  "nombre_base": "ORIENTE 6 FUENLABRADA",
+  "cif_base": "H79699617",
+  "nif": "H79699617",
+  "den": "CDAD PROP CL ORIENTE N 6 FUENLABRADA",
+  "nota": "NIF definitivo 01-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\oriente6\\1.DATOS\\2.DOCUMENTACION\\CIF CP ORIENTE 6.pdf"
+ },
+ {
+  "carpeta": "paseodegranada2",
+  "cid": "2c07f47c-c111-45b3-a049-6e0677dec772",
+  "nombre_base": "PASEO DE GRANADA 2 FUENLABRADA",
+  "cif_base": "H79943031",
+  "nif": "H79943031",
+  "den": "CDAD PROP PS GRANADA N 2 FUENLABRADA",
+  "nota": "NIF 01-02-1991. Administra ARACASA ASESORES, CL CALLAO 52",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paseodegranada2\\sate\\1.DATOS\\2.DOCUMENTACION\\CIF_comunidad.pdf"
+ },
+ {
+  "carpeta": "paseodoctorseveroochoa10",
+  "cid": "ffaf3897-176e-4798-a60b-19a849d26451",
+  "nombre_base": "PASEO DR SEVERO OCHOA 10 FUENLABRADA",
+  "cif_base": "H85862803",
+  "nif": "H85862803",
+  "den": "CDAD PROP PS DOCTOR SEVERO OCHOA N 10 FUENLABRADA",
+  "nota": "CP 28945. NIF definitivo 15-01-2010",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paseodoctorseveroochoa10\\1.DATOS\\2.DOCUMENTACION\\CIF SEVERO OCHOA 10.pdf"
+ },
+ {
+  "carpeta": "paseoolimpo16",
+  "cid": "ab618319-49c7-4ff1-a49a-41521da8609b",
+  "nombre_base": "PASEO OLIMPO 16 FUENLABRADA",
+  "cif_base": "H79607446",
+  "nif": "H79607446",
+  "den": "CDAD PROP PS DEL OLIMPO N 16 FUENLABRADA",
+  "nota": "NIF definitivo 01-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paseoolimpo16\\sate\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "paseosanantonio3",
+  "cid": "24d7ba90-a4bd-49d7-b091-7d9d03d160f6",
+  "nombre_base": "PASEO SAN ANTONIO 3 FUENLABRADA",
+  "cif_base": "H79741195",
+  "nif": "H79741195",
+  "den": "(sin denominacion oficial)",
+  "nota": "NO ES TARJETA: es una autorizacion firmada. CIF valido. PRESIDENTE: FERNANDO OLIVA RELANO, DNI 51315138E (17-01-2022)",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paseosanantonio3\\DATOS\\datos\\CIF de Comunidad de Propietarios.pdf"
+ },
+ {
+  "carpeta": "paseosanantonio4",
+  "cid": "9fe5264c-18b1-4d3e-b34b-4d2f2c257ea0",
+  "nombre_base": "PASEO SAN ANTONIO 4 FUENLABRADA",
+  "cif_base": "H79574778",
+  "nif": "H79574778",
+  "den": "CDAD PROP PS SAN ANTONIO N 4 FUENLABRADA",
+  "nota": "NIF definitivo 15-11-2022",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paseosanantonio4\\SATE\\1.DATOS\\2.DOCUMENTACION\\CIF COMUNIDAD DE PROPIETARIOS PASEO SAN ANTONIO 4.pdf"
+ },
+ {
+  "carpeta": "paular5",
+  "cid": "cbb6f301-efe2-4cc8-a99a-20d5c3e1f884",
+  "nombre_base": "PAULAR 5 FUENLABRADA",
+  "cif_base": "H80228158",
+  "nif": "H80228158",
+  "den": "CDAD PROP CL PAULAR N 5 FUENLABRADA",
+  "nota": "NIF 01-01-1992. Administra AEA FINCAS, C CONSTITUCION 28 LOCAL",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\paular5\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "pelayos11",
+  "cid": "8466c774-dbc6-41df-b6b0-63dd329dd4c7",
+  "nombre_base": "PELAYOS 11 FUENLABRADA",
+  "cif_base": "H79674370",
+  "nif": "H79674370",
+  "den": "(sin denominacion oficial)",
+  "nota": "NO ES TARJETA: autorizacion firmada. CIF valido. PRESIDENTE: ANTONIO ARTERO HOMBRADO, DNI 51973224D (17-01-2022)",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\pelayos11\\DATOS\\datos\\CP PELAYOS 11 HOJA ENCARGO ASCENSOR.CIF, DNI PRESIDNETE.pdf"
+ },
+ {
+  "carpeta": "plazadenicaragua3",
+  "cid": "c679477c-bd85-4df3-acc2-204a5980bb64",
+  "nombre_base": "PLAZA DE NICARAGUA 3 FUENLABRADA",
+  "cif_base": "H79775755",
+  "nif": "H79775755",
+  "den": "CDAD PROP CL NICARAGUA N 3 FUENLABRADA",
+  "nota": "OJO: la tarjeta dice CALLE Nicaragua, tu lista dice PLAZA DE Nicaragua",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\plazadenicaragua3\\1.DATOS\\2.DOCUMENTACION\\CIF NICARAGUA, 3.pdf"
+ },
+ {
+  "carpeta": "plazaparis5",
+  "cid": "691b9c2f-666e-410a-a92f-c8bde8369b53",
+  "nombre_base": "PLAZA PARIS 5 FUENLABRADA",
+  "cif_base": "H80030885",
+  "nif": "H80030885",
+  "den": "CDAD PROP PZ PARIS 5 FUENLABRADA",
+  "nota": "coincide con el CIF que ya habia en la base",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\plazaparis5\\1. DATOS\\2.DOCUMENTACION\\El CIF P 5.pdf"
+ },
+ {
+  "carpeta": "plazaparis6",
+  "cid": "66440957-d8a2-400f-94ee-42996342df99",
+  "nombre_base": "PLAZA PARIS 6 FUENLABRADA",
+  "cif_base": "H79647061",
+  "nif": "H79647061",
+  "den": "CDAD PROP PZ PARIS N 6 FUENLABRADA",
+  "nota": "coincide con la base. Libro de actas de 1981 sellado: INSCRITA EN EL CENSO DE ENTIDADES JURIDICAS con ese CI, 20-NOV-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\plazaparis6\\1.DATOS\\2.DOCUMENTACION\\Cif Plaza Paris, 6.pdf"
+ },
+ {
+  "carpeta": "plazaparis7",
+  "cid": "afb8e294-3f51-4d72-895c-8ad8d9090537",
+  "nombre_base": "PLAZA PARIS 7 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H81561797",
+  "den": "CDAD PROP PZ PARIS N 7 FUENLABRADA",
+  "nota": "CP 28943",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\plazaparis7\\PROYECTO\\SUBVENCION 2021\\CIF 32.pdf"
+ },
+ {
+  "carpeta": "polvoranca23",
+  "cid": "78e40d93-88c1-4aa0-bef0-f67b250d9306",
+  "nombre_base": "POLVORANCA 23 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H78425139",
+  "den": "CDAD PROP CL POLVORANCA 23 FUENLABRADA",
+  "nota": "NIF definitivo 16-02-1987",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\polvoranca23\\DATOS\\documentacion\\CIF Polvoranca 23.pdf"
+ },
+ {
+  "carpeta": "sanandres1",
+  "cid": "b0c5760f-bca4-437a-b01a-43253872a90a",
+  "nombre_base": "SAN ANDRES 1 FUENLABRADA",
+  "cif_base": "H79702627",
+  "nif": "H79702627",
+  "den": "CDAD PROP CL SAN ANDRES N 1 FUENLABRADA",
+  "nota": "CP 28945. NIF 01-11-1990",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\sanandres1\\DATOS\\datos\\CIF comunidad.pdf"
+ },
+ {
+  "carpeta": "sanandres2",
+  "cid": "7f2adbc4-30e3-4517-80d9-8492d733d230",
+  "nombre_base": "SAN ANDRES 2 FUENLABRADA",
+  "cif_base": "H80783475",
+  "nif": "H80783475",
+  "den": "CDAD PROP CL SAN ANDRES N 2 FUENLABRADA",
+  "nota": "CP 28945",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\sanandres2\\1.DATOS\\2.DOCUMENTACION\\CIF CP SAN ANDRES 2 FUENLABRADA.pdf"
+ },
+ {
+  "carpeta": "sanfranciscojavier2",
+  "cid": "e2136681-7055-4fbb-97c5-4aed2afd32f1",
+  "nombre_base": "SAN FRANCISCO JAVIER 2 FUENLABRADA",
+  "cif_base": "",
+  "nif": "H79655023",
+  "den": "CDAD PROP CL SAN FRANCISCO JAVIER N 2 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\sanfranciscojavier2\\DATOS\\DATOS\\CIF COMUNIDAD.pdf"
+ },
+ {
+  "carpeta": "sanjose9",
+  "cid": "bf6a8ebf-241b-426a-a52c-4a375d4fc48f",
+  "nombre_base": "SAN JOSE 9 FUENLABRADA",
+  "cif_base": "H78548823",
+  "nif": "H78548823",
+  "den": "CDAD PROP CL SAN JOSE 9 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\sanjose9\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "turquia22",
+  "cid": "a4990a2f-f19b-43b2-b65e-7bcc3430d788",
+  "nombre_base": "TURQUIA 22 FUENLABRADA",
+  "cif_base": "H81284598",
+  "nif": "H81284598",
+  "den": "CDAD PROP CL TURQUIA N 22 DE FUENLABRADA",
+  "nota": "CP 28943",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\turquia22\\1.DATOS\\2.DOCUMENTACION\\TURQUIA, 22 - CIF.pdf"
+ },
+ {
+  "carpeta": "villaviciosadeodon2",
+  "cid": "c6945c3a-199c-46ef-98d8-24d8c76183e6",
+  "nombre_base": "VILLAVICIOSA DE ODON 2 FUENLABRADA",
+  "cif_base": "H79098539",
+  "nif": "H79098539",
+  "den": "CDAD PROP CL VILLAVICIOSA DE ODON N 2 FUENLABRADA",
+  "nota": "NIF definitivo 11-04-1989",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\villaviciosadeodon2\\1.DATOS\\2.DOCUMENTACION\\CIF CDADvillaviciosa 02.pdf"
+ },
+ {
+  "carpeta": "zamora1-3-5",
+  "cid": "4dc0ab7b-b490-46a0-a08f-535614a70288",
+  "nombre_base": "ZAMORA 1-3-5 FUENLABRADA",
+  "cif_base": "H79663209",
+  "nif": "H79663209",
+  "den": "CDAD PROP ED ZAMORA CL ZAMORA FUENLABRADA",
+  "nota": "EDIFICIO ZAMORA, calle Zamora S/N: abarca los numeros 1, 3 y 5. Administra VALENTIN ALCOCER, CL SORIA 1",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\zamora1-3-5\\SATE\\1.DATOS\\2.DOCUMENTACION\\CIF.pdf"
+ },
+ {
+  "carpeta": "zamora25",
+  "cid": "23dce9f1-ef00-4c3f-9a14-0c2f105ef6ed",
+  "nombre_base": "ZAMORA 25 FUENLABRADA",
+  "cif_base": "H78759206",
+  "nif": "H78759206",
+  "den": "CDAD PROP ZAMORA 25 FUENLABRADA",
+  "nota": "NIF definitivo 04-03-1988",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\zamora25\\ASCENSOR\\1.DATOS\\2.DOCUMENTACION\\CIF zamora25.pdf"
+ },
+ {
+  "carpeta": "zamora6",
+  "cid": "c16cbe40-297a-4fa6-a1c0-6798f2f81e4e",
+  "nombre_base": "ZAMORA 6 FUENLABRADA",
+  "cif_base": "H79997185",
+  "nif": "H79997185",
+  "den": "CDAD PROP CL ZAMORA 6 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\zamora6\\1.DATOS\\2.DOCUMENTACION\\Cif Zamora 6.pdf"
+ },
+ {
+  "carpeta": "zaragoza7",
+  "cid": "6d7163d0-f036-4f73-92d4-f3c50d8282c1",
+  "nombre_base": "ZARAGOZA 7 FUENLABRADA",
+  "cif_base": "H79490132",
+  "nif": "H79490132",
+  "den": "CDAD PROP CL ZARAGOZA N 7 FUENLABRADA",
+  "nota": "",
+  "ruta": "MADRID\\1APROVINCIA\\FUENLABRADA\\zaragoza7\\1.DATOS\\2.DOCUMENTACION\\Tarjeta CIF Comunidad.pdf"
+ }
+]
