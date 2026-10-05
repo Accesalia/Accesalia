@@ -247,6 +247,8 @@ type HitoCrudo = { hito: string; aplicable: boolean; estado: string; fecha: stri
 type OportunidadCruda = {
   id: string;
   creado_en: string;
+  /** Cuando se abrio el encargo de verdad. Vacia en las que no se sabe. */
+  fecha_apertura: string | null;
   comunidad_provisional: string | null;
   origen_notas: string | null;
   comunidad: { id: string; nombre: string } | null;
@@ -259,7 +261,7 @@ type OportunidadCruda = {
 };
 
 const SEL_OPORTUNIDAD =
-  "id,creado_en,comunidad_provisional,origen_notas,referencia_catastral," +
+  "id,creado_en,fecha_apertura,comunidad_provisional,origen_notas,referencia_catastral," +
   // Los accesos VIVOS (sin baja): de aqui sale el aviso de la direccion.
   "vivos:relacion_oportunidad_accesos(count)," +
   "comunidad:comunidad_id(id,nombre)," +
@@ -321,14 +323,14 @@ export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
  *  numeros acabarian discrepando y nadie sabria cual creer. */
 async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const filas = await rest<{ id: string; creado_en: string; hitos_oportunidad: HitoCrudo[] }[]>(
-    `oportunidades?select=id,creado_en,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.activa${f}&limit=5000`,
+  const filas = await rest<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: HitoCrudo[] }[]>(
+    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.abierta${f}&limit=5000`,
   );
   const cuenta = new Map<string, number>();
   for (const o of filas) {
     // Abierta hasta que el dinero esta en la cuenta, no hasta la firma.
     if (o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado === "hecho") continue;
-    const { actual } = leerBarra(pasos, o.hitos_oportunidad, o.creado_en);
+    const { actual } = leerBarra(pasos, o.hitos_oportunidad, o.fecha_apertura ?? o.creado_en);
     if (actual) cuenta.set(actual.clave, (cuenta.get(actual.clave) ?? 0) + 1);
   }
   return pasos.map((p) => ({ clave: p.clave, cuantas: cuenta.get(p.clave) ?? 0 }));
@@ -339,7 +341,7 @@ const DIA = new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric" 
 async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]): Promise<OportunidadCuadro[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   const filas = await rest<OportunidadCruda[]>(
-    `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.activa${f}&order=creado_en.desc&limit=200` +
+    `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.abierta${f}&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=200` +
       "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
   );
 
@@ -369,7 +371,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
   }
 
   return pendientes.map((o) => {
-    const b = leerBarra(pasos, o.hitos_oportunidad, o.creado_en);
+    const b = leerBarra(pasos, o.hitos_oportunidad, o.fecha_apertura ?? o.creado_en);
     const neg = o.negociacion_oportunidad[0];
     const nombre = o.comunidad?.nombre ?? o.comunidad_provisional ?? "Sin dirección todavía";
     const juntaProxima = b.actual?.clave === "junta" && b.junta && b.junta >= hoyISO();

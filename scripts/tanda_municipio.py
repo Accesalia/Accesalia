@@ -36,6 +36,7 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.parse
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -141,7 +142,10 @@ def main():
         sys.exit("No existe la carpeta de %s en el Dropbox." % municipio)
 
     b = arrancar()
-    comunidades = b.leer("comunidades?select=id,nombre,cif_comunidad&municipio=ilike." + municipio)
+    # El municipio va en la URL: si lleva espacios ("ALCALA DE HENARES") hay que
+    # codificarlos o la peticion ni sale. Nos mordio en 20 municipios de 43.
+    comunidades = b.leer("comunidades?select=id,nombre,cif_comunidad&municipio=ilike."
+                         + urllib.parse.quote(municipio))
     carpetas = sorted(d for d in os.listdir(raiz) if os.path.isdir(os.path.join(raiz, d)))
     print("\n%s: %d carpetas en Dropbox, %d comunidades en tu lista\n"
           % (municipio, len(carpetas), len(comunidades)))

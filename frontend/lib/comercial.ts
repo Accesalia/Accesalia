@@ -795,6 +795,8 @@ export type OportunidadEnMarcha = {
   comunidad_provisional: string | null;
   origen_notas: string | null;
   creado_en: string;
+  /** Cuando se abrio el encargo de verdad. Vacia en las que no se sabe. */
+  fecha_apertura: string | null;
   comunidad: { id: string; nombre: string; direccion: string | null } | null;
   administrador: { nombre: string; empresa: string | null } | null;
   comercial: { nombre: string } | null;
@@ -832,7 +834,7 @@ export function catalogoHitos(): Promise<HitoCatalogo[]> {
 }
 
 const SEL_OPORTUNIDAD =
-  "id,estado,comunidad_provisional,origen_notas,creado_en," +
+  "id,estado,comunidad_provisional,origen_notas,creado_en,fecha_apertura," +
   "comunidad:comunidad_id(id,nombre,direccion)," +
   "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
   "comercial:comercial_id(nombre)," +
@@ -843,7 +845,7 @@ const SEL_OPORTUNIDAD =
 export async function oportunidadesEnMarcha(comercialId?: string): Promise<OportunidadEnMarcha[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   const filas = await rest<(Omit<OportunidadEnMarcha, "administrador"> & { puesto: PuestoAsomado })[]>(
-    `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.activa${f}&order=creado_en.desc&limit=200` +
+    `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.abierta${f}&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=200` +
       "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1",
   );
   return filas.map(({ puesto, ...o }) => ({ ...o, administrador: quienEs(puesto) }));

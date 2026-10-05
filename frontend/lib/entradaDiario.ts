@@ -63,7 +63,7 @@ export async function opcionesEntrada(comercialId: string | null): Promise<{
 
   const [ops, puestos] = await Promise.all([
     leer<{ id: string; codigo: string | null; comunidad: { nombre: string } | null }[]>(
-      `oportunidades?select=id,codigo,comunidad:comunidad_id(nombre)${filtro}&order=creado_en.desc&limit=300`,
+      `oportunidades?select=id,codigo,comunidad:comunidad_id(nombre)${filtro}&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=300`,
     ),
     leer<{ id: string; cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null }[]>(
       `puesto?select=id,cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)&order=creado_en.desc&limit=600`,

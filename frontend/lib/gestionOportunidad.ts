@@ -97,7 +97,26 @@ export type JuntaGestion = {
   seguimiento: boolean;
 };
 
-export type EntradaOportunidad = { id: string; fecha: string; comoFue: string; texto: string; con: string | null };
+/** Una linea del diario de la oportunidad. Vienen de DOS sitios:
+ *
+ *  - `interacciones`: lo que se graba desde la app (nota de voz, correo, visita).
+ *    Esas se pueden abrir, y por eso llevan `enlazable`.
+ *  - `notas_oportunidad`: el diario de antes de que existiera la app, rescatado
+ *    de las fichas de datos de Dropbox. Monica, 4-oct-2026: "la ficha de
+ *    oportunidad ya tiene ese hueco: ES el diario. Solo que en este caso no
+ *    podemos dar todos los datos, como quien escribe la nota, pero SI podemos
+ *    ver fecha y texto. Estas notas son ese diario cuando no existia, son la
+ *    razon de que lo montaramos, para darles su hueco."
+ *    No se abren -no hay ficha de una nota- ni tienen autor: no se sabe quien la
+ *    escribio, y ponerlo seria inventarlo. */
+export type EntradaOportunidad = {
+  id: string;
+  fecha: string;
+  comoFue: string;
+  texto: string;
+  con: string | null;
+  enlazable: boolean;
+};
 
 export type Gestion = {
   id: string;
@@ -107,11 +126,18 @@ export type Gestion = {
   aviso: string | null;
   estado: string;
   comercial: string | null;
+  /** Para elegirlo en la ficha: ninguna de las 1.228 migradas lo tiene aun. */
+  comercialId: string | null;
   administracion: string | null;
   contacto: string | null;
   contactoDonde: string | null;
   creada: string;
-  reactivarNota: string | null;
+  /** La de verdad, si se sabe. Vacia = solo tenemos la de importacion. */
+  fechaApertura: string | null;
+  /** La pausa ABIERTA, si la hay (la que no tiene 'hasta'). Las pausas son un
+   *  historial, no un campo: hace falta para saber que llevaba dos anos parada
+   *  esperando una subvencion que les llego el mes pasado. */
+  pausa: { desde: string; motivo: string | null; condicion: string | null; tejado: string | null } | null;
   hitos: HitoGestion[];
   tiposElegidos: string[];
   negociacion: { queVendemos: string | null; precio: number | null; alcance: string | null; notas: string | null } | null;
@@ -158,22 +184,26 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       codigo: string | null;
       estado: string;
       creado_en: string;
+      fecha_apertura: string | null;
       comunidad_provisional: string | null;
-      reactivar_nota: string | null;
       referencia_catastral: string | null;
       vivos: { count: number }[];
+      pausas: { desde: string; motivo: string | null; condicion_reactivacion: string | null; pelota_en_tejado: string | null }[];
       comunidad: { nombre: string } | null;
+      comercial_id: string | null;
       comercial: { nombre: string } | null;
       puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
     }[]
   >(
-    `oportunidades?select=id,codigo,estado,creado_en,comunidad_provisional,reactivar_nota,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
+    `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
+      `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))&id=eq.${id}&limit=1&vivos.hasta=is.null`,
+      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))` +
+      `&id=eq.${id}&limit=1&vivos.hasta=is.null&pausas.hasta=is.null`,
   );
   if (!op) return null;
 
-  const [catalogo, hitos, tipos, neg, tres, juntas, entradas] = await Promise.all([
+  const [catalogo, hitos, tipos, neg, tres, juntas, notas, entradas] = await Promise.all([
     leer<{ clave: string; nombre: string; orden: number; es_ramal: boolean; responsable_rol: string | null }[]>(
       "hitos_comerciales?select=clave,nombre,orden,es_ramal,responsable_rol&order=orden.asc",
     ),
@@ -191,6 +221,10 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       { id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; resultado_detalle: string | null; requiere_seguimiento: boolean }[]
     >(
       `juntas?select=id,fecha_junta,celebrada,resultado,resultado_detalle,requiere_seguimiento&oportunidad_id=eq.${id}&order=fecha_junta.asc.nullslast,creado_en.asc`,
+    ),
+    leer<{ id: string; fecha: string | null; texto: string; autor: string | null; origen: string }[]>(
+      `notas_oportunidad?select=id,fecha,texto,autor,origen&oportunidad_id=eq.${id}` +
+        `&order=fecha.desc.nullslast,creado_en.asc`,
     ),
     leer<
       { id: string; fecha_evento: string | null; creado_en: string; origen: string; transcripcion: string | null; puesto: { persona: { nombre: string } | null } | null }[]
@@ -210,11 +244,22 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     aviso: avisoDireccion(cuenta(op.vivos), op.referencia_catastral),
     estado: op.estado,
     comercial: op.comercial?.nombre ?? null,
+    comercialId: op.comercial_id,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
     contacto: op.puesto?.persona?.nombre ?? null,
     contactoDonde: op.puesto?.cargo ?? null,
-    creada: op.creado_en.slice(0, 10),
-    reactivarNota: op.reactivar_nota,
+    // La fecha que importa es cuando se abrio el encargo; si no se sabe -las
+    // importadas de julio-, se cae a cuando entro la fila en la app.
+    creada: op.fecha_apertura ?? op.creado_en.slice(0, 10),
+    fechaApertura: op.fecha_apertura,
+    pausa: op.pausas?.[0]
+      ? {
+          desde: op.pausas[0].desde,
+          motivo: op.pausas[0].motivo,
+          condicion: op.pausas[0].condicion_reactivacion,
+          tejado: op.pausas[0].pelota_en_tejado,
+        }
+      : null,
     hitos: catalogo.map((c) => {
       const h = puesto[c.clave];
       return {
@@ -246,13 +291,27 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       detalle: j.resultado_detalle,
       seguimiento: j.requiere_seguimiento,
     })),
-    diario: entradas.map((e) => ({
-      id: e.id,
-      fecha: e.fecha_evento ?? e.creado_en.slice(0, 10),
-      comoFue: ORIGEN[e.origen] ?? e.origen,
-      texto: e.transcripcion ?? "",
-      con: e.puesto?.persona?.nombre ?? null,
-    })),
+    // El diario, con las dos fuentes juntas y en orden: lo grabado en la app y
+    // lo rescatado de las fichas de Dropbox. Las notas sin fecha van al final:
+    // no se les pone una inventada.
+    diario: [
+      ...entradas.map((e) => ({
+        id: e.id,
+        fecha: e.fecha_evento ?? e.creado_en.slice(0, 10),
+        comoFue: ORIGEN[e.origen] ?? e.origen,
+        texto: e.transcripcion ?? "",
+        con: e.puesto?.persona?.nombre ?? null,
+        enlazable: true,
+      })),
+      ...notas.map((n) => ({
+        id: n.id,
+        fecha: n.fecha ?? "",
+        comoFue: n.origen === "ficha_dropbox" ? "ficha de Dropbox" : (ORIGEN[n.origen] ?? n.origen),
+        texto: n.texto,
+        con: n.autor,
+        enlazable: false,
+      })),
+    ].sort((a, b) => (b.fecha || "0").localeCompare(a.fecha || "0")),
   };
 }
 
@@ -357,18 +416,45 @@ export async function guardarJunta(
   else await escribir("POST", "juntas", fila);
 }
 
-/** Aplazar: la oportunidad queda LATENTE, no cerrada. Tres salidas tiene el
- *  cierre -si, no, y latente con su condicion-, y esta es la tercera: "retomar
- *  cuando hagan hucha", "cuando salga la subvencion". */
-export async function aplazar(oportunidadId: string, nota: string | null) {
-  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, {
-    estado: "latente",
-    reactivar_nota: oNulo(nota),
+/** Pausar: la oportunidad queda PAUSADA, no cerrada. No esta perdida, esta
+ *  esperando: "retomar cuando hagan hucha", "cuando salga la subvencion".
+ *
+ *  Y cada pausa es UNA FILA de historial, no un campo que se pisa. Monica,
+ *  4-oct-2026: "lleva abierta desde hace dos anos, pero es que estaban
+ *  esperando una subvencion que les llego el mes pasado y ahora por eso se
+ *  reabre". Con un hueco de uno solo, la segunda pausa borra la primera y se
+ *  pierde justo eso.
+ *
+ *  'condicion' es lo que escribe el comercial en "retomarla cuando". Los otros
+ *  dos campos de la tabla -motivo y pelota_en_tejado- aun no tienen sitio en la
+ *  pantalla: eso se habla antes de ponerlo. */
+export async function pausar(oportunidadId: string, condicion: string | null) {
+  await escribir("POST", "historial_pausas_oportunidad", {
+    oportunidad_id: oportunidadId,
+    condicion_reactivacion: oNulo(condicion),
   });
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "pausada" });
 }
 
+/** Retomarla: se cierra la pausa abierta poniendole fecha de fin -asi queda
+ *  cuanto tiempo estuvo parada y por que- y la oportunidad vuelve a abierta. */
 export async function reactivar(oportunidadId: string) {
-  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "activa" });
+  const hoy = new Date().toISOString().slice(0, 10);
+  await escribir("PATCH", `historial_pausas_oportunidad?oportunidad_id=eq.${oportunidadId}&hasta=is.null`, {
+    hasta: hoy,
+  });
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "abierta" });
 }
 
+/** EL COMERCIAL QUE LLEVA LA OPP (Monica, 3-oct-2026: "hay que poder elegir el
+ *  comercial asignado a cada opp"). A el le llegan los correos de la opp, y a
+ *  quien comparta su cartera (Alejandra, en la de Daniel). El codigo no se toca:
+ *  lleva las siglas de quien la TRAJO, y eso no cambia aunque la herede otro. */
+export async function cambiarComercial(oportunidadId: string, comercialId: string | null) {
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { comercial_id: comercialId });
+}
 
+/** Los comerciales que se pueden elegir: los activos. */
+export async function comercialesActivos(): Promise<{ id: string; nombre: string }[]> {
+  return leer<{ id: string; nombre: string }[]>("comerciales?select=id,nombre&activo=is.true&order=nombre.asc");
+}

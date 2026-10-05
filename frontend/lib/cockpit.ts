@@ -36,9 +36,11 @@ export type JuntaRow = { fecha_junta: string | null; celebrada: boolean };
 
 export type OportunidadCockpit = {
   id: string;
-  estado: string; // activa | latente
-  reactivar_nota: string | null;
-  reactivar_fecha: string | null;
+  estado: string; // abierta | pausada | cerrada
+  /** Cuando se abrio el encargo de verdad. Vacia en las que no se sabe. */
+  fecha_apertura: string | null;
+  /** la pausa ABIERTA, si la hay: las pausas son un historial, no un campo */
+  pausas: { desde: string; motivo: string | null; condicion_reactivacion: string | null; pelota_en_tejado: string | null }[];
   creado_en: string;
   hitos_oportunidad: HitoOportunidad[];
   negociacion_oportunidad: Negociacion[]; // vigente = [0]
@@ -60,7 +62,8 @@ export type Cockpit = {
 };
 
 const SEL_OP =
-  "id,estado,reactivar_nota,reactivar_fecha,creado_en," +
+  "id,estado,creado_en,fecha_apertura," +
+  "pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado)," +
   "hitos_oportunidad(id,hito,aplicable,estado,fecha,enlace_url,responsable_id)," +
   "negociacion_oportunidad(que_vendemos,precio,alcance,creado_en)," +
   "viabilidades(id,numero,version,vigente,viable)," +
@@ -76,7 +79,8 @@ export async function cockpitComunidad(id: string): Promise<Cockpit | null> {
   const [oportunidades, catalogo, resumenes, diario] = await Promise.all([
     rest<OportunidadCockpit[]>(
       `oportunidades?select=${SEL_OP}&comunidad_id=eq.${id}` +
-        `&order=creado_en.desc&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1`,
+        `&order=fecha_apertura.desc.nullslast,creado_en.desc&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1` +
+        `&pausas.hasta=is.null`,
     ),
     catalogoHitos(),
     resumenesComunidad(id),

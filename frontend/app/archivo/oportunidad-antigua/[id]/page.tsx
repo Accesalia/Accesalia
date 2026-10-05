@@ -64,11 +64,11 @@ function BloqueOportunidad({ id, o, catalogo }: { id: string; o: OportunidadCock
           <div className="text-[11px] text-carbon/45">Siguiente paso: <b className="text-carbon/70">{paso?.nombre ?? "—"}</b></div>
         </div>
         <details className="text-right">
-          <summary className="cursor-pointer list-none text-[11px] text-carbon/40 hover:text-amber-700" title="Aplazar: queda latente y reactivable">aplazar ⏸</summary>
+          <summary className="cursor-pointer list-none text-[11px] text-carbon/40 hover:text-amber-700" title="Pausar: no esta perdida, esta esperando">aplazar ⏸</summary>
           <form action={aplazarOportunidad.bind(null, id, o.id)} className="mt-2 flex flex-col items-end gap-1.5">
             <Guardando />
-            <input name="reactivar_nota" placeholder="retomar cuándo (hagan hucha, salga subv…)" className="w-64 rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
-            <input type="date" name="reactivar_fecha" title="fecha de reactivación (opcional)" className="rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
+            <input name="condicion_reactivacion" placeholder="retomar cuándo (hagan hucha, salga subv…)" className="w-64 rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
+            <input type="date" name="pausa_desde" title="pausada desde (opcional)" className="rounded-lg border border-black/15 bg-white px-2.5 py-1 text-xs outline-none focus:border-lima" />
             <button className="rounded-lg bg-amber-500 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-600">Aparcar</button>
           </form>
         </details>
@@ -127,8 +127,8 @@ export default async function CockpitComercial({ params }: { params: Promise<{ i
   const { comunidad: ficha, catalogoHitos: catalogo } = ck;
   const c = ficha.comunidad;
   const presidente = ficha.personas.find((p) => p.rol === "presidente");
-  const activas = ck.oportunidades.filter((o) => o.estado === "activa");
-  const latentes = ck.oportunidades.filter((o) => o.estado === "latente");
+  const activas = ck.oportunidades.filter((o) => o.estado === "abierta");
+  const latentes = ck.oportunidades.filter((o) => o.estado === "pausada");
   const dir2 = [c.cp, c.municipio].filter(Boolean).join(" ");
 
   // Puntos clave (derivados de las oportunidades activas)
@@ -210,7 +210,12 @@ export default async function CockpitComercial({ params }: { params: Promise<{ i
                       <div key={o.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-black/5 bg-black/[0.015] px-3 py-2">
                         <div className="text-sm text-carbon/75">
                           {neg?.que_vendemos ?? "Oportunidad"}
-                          {o.reactivar_nota && <span className="ml-2 text-[11px] text-amber-700">retomar: {o.reactivar_nota}{o.reactivar_fecha ? ` (${fecha(o.reactivar_fecha)})` : ""}</span>}
+                          {o.pausas?.[0] && (
+                            <span className="ml-2 text-[11px] text-amber-700">
+                              parada desde {fecha(o.pausas[0].desde)}
+                              {o.pausas[0].condicion_reactivacion ? ` · retomar: ${o.pausas[0].condicion_reactivacion}` : ""}
+                            </span>
+                          )}
                         </div>
                         <form action={reactivarOportunidad.bind(null, id, o.id)}>
                           <Guardando />

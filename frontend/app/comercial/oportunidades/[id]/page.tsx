@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import {
   catalogoTipos,
+  comercialesActivos,
   equipoOpciones,
   gestionOportunidad,
   ESTADOS_HITO,
@@ -12,7 +13,7 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { COMO_FUE } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionAplazar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
+import { accionComercial, accionPausar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
@@ -33,16 +34,24 @@ export const dynamic = "force-dynamic";
 
 const EUR = new Intl.NumberFormat("es-ES");
 
+/** 2026-03-14 -> 14/03/26 */
+function fechaCorta(v: string): string {
+  const [a, m, d] = v.split("-");
+  return `${d}/${m}/${a.slice(2)}`;
+}
+
 export default async function GestionOportunidad({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const [g, tipos, equipo] = await Promise.all([gestionOportunidad(id), catalogoTipos(), equipoOpciones()]);
+  const [g, tipos, equipo, comerciales] = await Promise.all([gestionOportunidad(id), catalogoTipos(), equipoOpciones(), comercialesActivos()]);
+  // Elegir el comercial: quien supervisa el area comercial. Los demas lo leen.
+  const eligeComercial = puedeEntrar(yo, "comercial", "supervisar");
   if (!g) notFound();
 
-  const latente = g.estado === "latente";
+  const pausada = g.estado === "pausada";
   const hechos = g.hitos.filter((h) => h.estado === "hecho").length;
   const aplican = g.hitos.filter((h) => h.estado !== "no_aplica").length;
   const ahora = g.hitos.find((h) => h.estado === "en_curso") ?? g.hitos.find((h) => h.estado === "pendiente" && h.aplicable);
@@ -66,10 +75,31 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
             )}
             <p className="mt-1.5 text-[13px] text-carbon/60">
               {g.codigo && <b className="text-carbon/80">{g.codigo}</b>}
-              {g.comercial && <> · {g.comercial}</>}
+              {!eligeComercial && g.comercial && <> · {g.comercial}</>}
               {g.administracion && <> · {g.administracion}</>}
               {g.contacto && <> · {g.contacto}{g.contactoDonde && <span className="text-carbon/45"> ({g.contactoDonde})</span>}</>}
             </p>
+            {eligeComercial && (
+              <form action={accionComercial.bind(null, id)} className="mt-2 flex items-center gap-2">
+                <span className={ROTULO}>Comercial que la lleva</span>
+                <select
+                  name="comercial"
+                  defaultValue={g.comercialId ?? ""}
+                  className={
+                    "rounded-[8px] border px-2.5 py-1 text-[13px] " +
+                    (g.comercialId ? "border-carbon/25 bg-white text-carbon" : "border-amber-300 bg-amber-50 text-amber-900")
+                  }
+                >
+                  <option value="">sin asignar</option>
+                  {comerciales.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+                <button className={BOTON + " !py-1"}>Guardar</button>
+              </form>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="text-right">
@@ -79,29 +109,30 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
                 {ahora && <span className="font-normal text-carbon/55"> · ahora, {ahora.nombre.toLowerCase()}</span>}
               </div>
             </div>
-            {latente ? (
+            {pausada ? (
               <form action={accionReactivar.bind(null, id)}>
                 <button className={BOTON + " !bg-[#5E744C] !border-[#3f5236] hover:!bg-[#516340]"}>Reactivar</button>
               </form>
             ) : (
               <details className="relative">
                 <summary className="cursor-pointer list-none rounded-[6px] border border-carbon/25 px-3 py-1.5 text-[12px] font-bold uppercase text-carbon/60 transition hover:border-carbon/50">
-                  Aplazar
+                  Pausar
                 </summary>
-                <form action={accionAplazar.bind(null, id)} className={CAJA + " absolute right-0 z-20 mt-2 w-[320px] p-3"}>
+                <form action={accionPausar.bind(null, id)} className={CAJA + " absolute right-0 z-20 mt-2 w-[320px] p-3"}>
                   <span className={ROTULO}>Retomarla cuándo</span>
                   <input name="nota" placeholder="cuando hagan hucha, si sale la subvención…" className={CAMPO + " mt-1"} />
-                  <button className={BOTON + " mt-2 w-full"}>Dejarla latente</button>
+                  <button className={BOTON + " mt-2 w-full"}>Pausarla</button>
                 </form>
               </details>
             )}
           </div>
         </div>
 
-        {latente && (
+        {pausada && (
           <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
-            <b>Latente.</b> No está perdida: está esperando.
-            {g.reactivarNota && <> Se retoma {g.reactivarNota}.</>}
+            <b>Pausada{g.pausa && <> desde el {fechaCorta(g.pausa.desde)}</>}.</b> No está perdida: está esperando.
+            {g.pausa?.condicion && <> Se retoma {g.pausa.condicion}.</>}
+            {g.pausa?.motivo && <> Motivo: {g.pausa.motivo}.</>}
           </div>
         )}
 
@@ -258,18 +289,59 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
                 <p className="px-4 pb-6 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>
               ) : (
                 <ul className="max-h-[36rem] divide-y divide-black/5 overflow-y-auto">
-                  {g.diario.map((e) => (
-                    <li key={e.id}>
-                      <Link href={`/comercial/interaccion/${e.id}`} className="block px-4 py-3 transition hover:bg-black/[0.02]">
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-carbon/55">
-                          <span className="font-bold text-carbon/80">{e.fecha.split("-").reverse().join("/")}</span>
-                          <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
-                          {e.con && <span className="text-lima-dark">{e.con}</span>}
-                        </div>
-                        <p className="mt-1 line-clamp-3 text-[14px] leading-snug text-carbon/80">{e.texto}</p>
-                      </Link>
-                    </li>
-                  ))}
+                  {g.diario.map((e) => {
+                    // La cabecera es igual venga de donde venga la entrada. Lo que
+                    // cambia es como se lee el texto largo:
+                    //   - una INTERACCION se abre: se pincha y va a su ficha.
+                    //   - una NOTA rescatada de Dropbox no tiene ficha propia, asi
+                    //     que se DESPLIEGA aqui mismo. Sin esto, el recorte a tres
+                    //     lineas dejaria ilegible la mitad del diario: muchas son
+                    //     correos enteros de doce o veinte lineas.
+                    const cabecera = (
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-carbon/55">
+                        <span className="font-bold text-carbon/80">
+                          {e.fecha ? e.fecha.split("-").reverse().join("/") : "sin fecha"}
+                        </span>
+                        <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
+                        {e.con && <span className="text-lima-dark">{e.con}</span>}
+                      </div>
+                    );
+                    const TEXTO = "mt-1 whitespace-pre-line text-[14px] leading-snug text-carbon/80";
+                    const largo = e.texto.length > 150 || e.texto.includes("\n");
+
+                    if (e.enlazable) {
+                      return (
+                        <li key={e.id}>
+                          <Link href={`/comercial/interaccion/${e.id}`} className="block px-4 py-3 transition hover:bg-black/[0.02]">
+                            {cabecera}
+                            <p className={TEXTO + " line-clamp-3"}>{e.texto}</p>
+                          </Link>
+                        </li>
+                      );
+                    }
+                    if (!largo) {
+                      return (
+                        <li key={e.id} className="px-4 py-3">
+                          {cabecera}
+                          <p className={TEXTO}>{e.texto}</p>
+                        </li>
+                      );
+                    }
+                    return (
+                      <li key={e.id}>
+                        <details className="group px-4 py-3 transition hover:bg-black/[0.02]">
+                          <summary className="cursor-pointer list-none">
+                            {cabecera}
+                            <p className={TEXTO + " line-clamp-3 group-open:hidden"}>{e.texto}</p>
+                            <span className="mt-0.5 inline-block text-[11px] font-semibold text-lima-dark group-open:hidden">
+                              leer entera
+                            </span>
+                          </summary>
+                          <p className={TEXTO}>{e.texto}</p>
+                        </details>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </section>

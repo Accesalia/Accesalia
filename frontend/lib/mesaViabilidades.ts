@@ -203,7 +203,7 @@ async function oppsDeAccesos(accesoIds: string[]): Promise<OppFila[]> {
   );
   const ids = Array.from(new Set(rel.map((r) => r.opp_id)));
   if (!ids.length) return [];
-  return leer<OppFila[]>(`oportunidades?select=${SEL_OPP}&estado=eq.activa&id=in.(${ids.join(",")})`);
+  return leer<OppFila[]>(`oportunidades?select=${SEL_OPP}&estado=eq.abierta&id=in.(${ids.join(",")})`);
 }
 
 // ------------------------------------------------------------- el montón 2

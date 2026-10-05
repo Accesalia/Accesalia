@@ -408,7 +408,7 @@ export async function crearOportunidad(
     comunidad_provisional: d.comunidadId ? null : d.direccionProvisional,
     comercial_id: d.comercialId,
     canal_id: d.canalId,
-    estado: "activa",
+    estado: "abierta",
     puesto_id: contactoPuesto,
     persona_comunidad_id: contactoVecino,
     contacto_provisional: prov?.nombre ?? null,

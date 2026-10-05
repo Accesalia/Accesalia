@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
-  aplazar,
+  cambiarComercial,
+  pausar,
   guardarJunta,
   guardarNegociacion,
   guardarTipos,
@@ -87,9 +88,9 @@ export async function accionJunta(id: string, juntaId: string | null, fd: FormDa
   refrescar(id);
 }
 
-export async function accionAplazar(id: string, fd: FormData) {
+export async function accionPausar(id: string, fd: FormData) {
   await permiso(id);
-  await aplazar(id, texto(fd, "nota"));
+  await pausar(id, texto(fd, "nota"));
   refrescar(id);
 }
 
@@ -112,5 +113,15 @@ export async function accionEntrada(id: string, fd: FormData) {
     puestoId: texto(fd, "con"),
     autorId: yo.id,
   });
+  refrescar(id);
+}
+
+/** Elegir o cambiar el comercial que lleva la opp. Lo hace quien SUPERVISA el
+ *  area comercial (Monica, Daniel, Alejandra), igual que repartir las alertas:
+ *  un comercial no se reasigna opps. */
+export async function accionComercial(id: string, fd: FormData) {
+  const yo = await permiso(id);
+  if (!puedeEntrar(yo, "comercial", "supervisar")) return;
+  await cambiarComercial(id, texto(fd, "comercial"));
   refrescar(id);
 }

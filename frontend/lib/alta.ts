@@ -241,7 +241,7 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     comercial_id: d.comercialId,
     puesto_id: puestoId,
     canal_id: d.canalId,
-    estado: "activa",
+    estado: "abierta",
     origen_notas: d.nota,
   });
 

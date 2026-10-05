@@ -813,7 +813,7 @@ export async function colocarAMano(uid: number, oportunidadId: string): Promise<
 /** Las oportunidades abiertas, para el desplegable de la bandeja. */
 export async function oportunidadesAbiertas(): Promise<{ valor: string; texto: string }[]> {
   const filas = await leer<{ id: string; codigo: string | null; comunidad: { nombre: string } | null; comunidad_provisional: string | null }[]>(
-    "oportunidades?select=id,codigo,comunidad:comunidad_id(nombre),comunidad_provisional&estado=eq.activa&order=creado_en.desc&limit=500",
+    "oportunidades?select=id,codigo,comunidad:comunidad_id(nombre),comunidad_provisional&estado=eq.abierta&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=500",
   );
   return filas.map((o) => ({
     valor: o.id,
