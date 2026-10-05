@@ -23,24 +23,71 @@ const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white p-[11px_13px] px-[
 
 /** Un dato del informe: etiqueta a la izquierda, valor a la derecha, y debajo su
  *  traduccion, que es lo que lo hace util ("con ese porcentaje entrais en
- *  Rehabilita"). Lo que falta NO se esconde: se dice en ambar. */
+ *  Rehabilita").
+ *
+ *  Lo que falta se dice -no se esconde- pero en GRIS, no en ambar. Ella,
+ *  5-oct-2026, mirando la columna del Catastro: "¿ambar? en la columna 1 no
+ *  estan asi". En su maqueta lo que no se sabe es una raya gris y ya: el ambar
+ *  de la guia de estilo es para un hueco que hay que rellenar, y esto es un dato
+ *  que el Catastro no da. */
 function Dato({ que, valor, significa, falta }: { que: string; valor: string; significa?: string; falta?: boolean }) {
   return (
     <div className="border-t border-black/5 py-[5px] first:border-t-0 first:pt-0">
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
         <span className="text-[11px] text-carbon/65">{que}</span>
-        <span className={"text-[12px] font-semibold " + (falta ? "text-amber-700/70" : "text-carbon")}>{valor}</span>
+        <span className={"text-[12px] font-semibold " + (falta ? "text-[#8a8a8a]" : "text-carbon")}>{valor}</span>
       </div>
       {significa && <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">{significa}</p>}
     </div>
   );
 }
 
-function Hueco({ que, porque }: { que: string; porque: string }) {
+/** LO QUE HEMOS VISTO NOSOTROS. Los dos en paralelo, separados por su linea
+ *  verde, tal como los dibujo: no es un aviso de que falte algo, es el sitio
+ *  donde se apunta lo que no dice ningun servicio. Por eso NO va en ambar.
+ *
+ *  El que esta puesto va en negrita y el otro en gris; si no se sabe, los dos en
+ *  gris. Y debajo la firma, que es lo que lo hace fiable: quien lo vio y cuando. */
+function Visto({
+  que,
+  hay,
+  cuantos,
+  quien,
+  cuando,
+}: {
+  que: string;
+  hay: boolean | null;
+  cuantos?: number | null;
+  quien?: string | null;
+  cuando?: string | null;
+}) {
+  const marca = (v: boolean) =>
+    hay === v ? "font-bold text-carbon" : "text-[#8a8a8a]";
   return (
-    <div className="mt-2 rounded-[8px] border border-amber-200 bg-amber-50/60 px-2.5 py-1.5">
-      <div className="text-[11px] font-semibold text-amber-800/80">{que}</div>
-      <p className="text-[11px] leading-snug text-amber-900/70">{porque}</p>
+    <div>
+      <div className="text-[11px] text-carbon/65">{que}</div>
+      <div className="mt-0.5 flex items-baseline gap-3 text-[12px]">
+        <span className={marca(true)}>Sí</span>
+        <span className={marca(false)}>No</span>
+        {cuantos !== undefined && (
+          <span className="flex items-baseline gap-1.5">
+            <span className="text-[11px] text-carbon/50">¿cuántos?</span>
+            <span className="inline-block min-w-[34px] rounded-[5px] border border-[#bdbdbd] px-1.5 py-px text-center text-[11.5px] text-carbon">
+              {cuantos ?? ""}
+            </span>
+          </span>
+        )}
+      </div>
+      <p className="mt-0.5 text-[11px] text-[#8a8a8a]">
+        {quien ? (
+          <>
+            lo vio {quien}
+            {cuando && <> el {cuando.slice(8, 10)}/{cuando.slice(5, 7)}</>}
+          </>
+        ) : (
+          "sin mirar"
+        )}
+      </p>
     </div>
   );
 }
@@ -92,19 +139,13 @@ export async function Edificio({ referencia }: { referencia: string }) {
             firmado con quien y cuando. */}
         <div className="mt-3 border-t border-black/10 pt-2">
           <div className="text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/55">Lo que hemos visto nosotros</div>
-          <div className="mt-1.5 flex items-baseline justify-between gap-x-2">
-            <span className="text-[11px] text-carbon/65">Ascensor</span>
-            <span className={"text-[12px] font-semibold " + (asc.hay === null ? "text-amber-700/70" : "text-carbon")}>
-              {asc.hay === null ? "sin mirar" : asc.hay ? "Sí" : "No"}
-            </span>
+          <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
+            <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} />
+            <div className="bg-[#438538]" />
+            {/* Los patios todavia no tienen columna en ficha_catastro: entran en
+                la etapa de los patios. Hasta entonces el control se ve, vacio. */}
+            <Visto que="Patios" hay={null} cuantos={null} />
           </div>
-          {asc.quien && (
-            <p className="text-[11px] text-carbon/50">
-              lo vio {asc.quien}
-              {asc.cuando && <> el {asc.cuando.slice(8, 10)}/{asc.cuando.slice(5, 7)}</>}
-            </p>
-          )}
-          <Hueco que="Patios" porque="Todavía no hay dónde guardarlos." />
         </div>
       </section>
 
@@ -123,8 +164,10 @@ export async function Edificio({ referencia }: { referencia: string }) {
 
         <section className={CAJA}>
           <div className={ROT + " text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
+          {/* El IEE sale aqui dentro, en su fila "¿Tiene IEE registrada?", que hoy
+              dice "—" y "consulta pendiente de montar". No se le pone un aviso
+              encima: el informe ya lo dice en su sitio. */}
           <div className="mt-2">{pedir.map((d) => <Dato key={d.que} {...d} />)}</div>
-          <Hueco que="IEE" porque="El dato está en la base, pero el informe todavía no lo cruza." />
         </section>
 
         {/* Lo que han cobrado los de al lado: es el argumento de venta, no un
