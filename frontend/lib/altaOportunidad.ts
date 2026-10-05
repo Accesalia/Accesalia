@@ -124,7 +124,7 @@ export type OpcionesOportunidad = {
   contactos: OpcionQuien[];
 };
 
-export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOportunidad> {
+export async function opcionesOportunidad(equipoId?: string, mio?: string | null): Promise<OpcionesOportunidad> {
   const [comerciales, canales, quienes, tipos, admins, comunidades, contratas, puestos, vecinos] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
@@ -182,7 +182,10 @@ export async function opcionesOportunidad(equipoId?: string): Promise<OpcionesOp
       nombre: [c.nombre, c.apellidos].filter(Boolean).join(" "),
       pista: c.iniciales ?? undefined,
     })),
-    miComercial: (equipoId && comerciales.find((c) => c.equipo_id === equipoId)?.id) || null,
+    // El que sale puesto: el suyo o el de la cartera que comparte (Alejandra
+    // entra con el de Daniel). Lo calcula la sesion; si no lo pasa, el de su
+    // ficha de equipo.
+    miComercial: mio !== undefined ? mio : (equipoId && comerciales.find((c) => c.equipo_id === equipoId)?.id) || null,
     codigoDe,
     canales,
     quienes,
@@ -400,6 +403,9 @@ export async function crearOportunidad(
   const codigo = await siguienteCodigo(d.comercialId);
   const op = await crear<{ id: string }>("oportunidades", {
     codigo,
+    // Nace el dia del contacto, no el dia que se apunta: una oportunidad que se
+    // registra tarde conserva su fecha (Monica, 5-oct-2026).
+    fecha_apertura: d.fechaLlamada ?? hoy(),
     nombre: d.nombre,
     referencia_catastral: d.referenciaCatastral,
     comunidad_id: d.comunidadId,
@@ -456,40 +462,73 @@ export async function crearOportunidad(
   //     uno como ACCESO (el atomo: calle + numero + escalera) enlazado a la
   //     oportunidad. Si el acceso ya existia -otra opp, otro año- se reutiliza:
   //     la clave de `accesos` es la direccion, nunca se duplica.
-  if (d.portalIds.length > 0) {
-    type PortalFicha = {
-      id: string;
-      tipo_via: string | null;
-      nombre_via: string | null;
-      numero: string;
-      escalera: string | null;
-      ficha_catastro: { referencia: string; municipio: string | null };
-    };
-    const portales = await leer<PortalFicha[]>(
-      `ficha_catastro_portal?select=id,tipo_via,nombre_via,numero,escalera,ficha_catastro!inner(referencia,municipio)` +
-        `&id=in.(${d.portalIds.map(encodeURIComponent).join(",")})`,
-    );
-    for (const p of portales) {
-      const [acceso] = await crearOActualizar<{ id: string }>(
-        "accesos",
-        "municipio,tipo_via,nombre_via,numero,escalera",
-        {
-          municipio: p.ficha_catastro.municipio ?? "",
-          tipo_via: p.tipo_via ?? "",
-          nombre_via: p.nombre_via ?? "",
-          numero: p.numero,
-          escalera: p.escalera ?? "",
-          ref_catastral: p.ficha_catastro.referencia,
-          ficha_catastro_portal_id: p.id,
-        },
-      );
-      await crear("relacion_oportunidad_accesos", {
-        opp_id: op.id,
-        acceso_id: acceso.id,
-        de_donde: "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
-      });
-    }
-  }
+  await enlazarAccesos(
+    op.id,
+    d.portalIds,
+    "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
+  );
 
   return { id: op.id, codigo };
+}
+
+/** Los portales elegidos en la ventana de Catastro, como ACCESOS (el atomo:
+ *  calle + numero + escalera) enlazados a la oportunidad. Si el acceso ya
+ *  existia -otra opp, otro año- se reutiliza: la clave de `accesos` es la
+ *  direccion, nunca se duplica. Lo usan el alta y el cambio de direccion. */
+export async function enlazarAccesos(oppId: string, portalIds: string[], deDonde: string): Promise<number> {
+  if (portalIds.length === 0) return 0;
+  type PortalFicha = {
+    id: string;
+    tipo_via: string | null;
+    nombre_via: string | null;
+    numero: string;
+    escalera: string | null;
+    ficha_catastro: { referencia: string; municipio: string | null };
+  };
+  const portales = await leer<PortalFicha[]>(
+    `ficha_catastro_portal?select=id,tipo_via,nombre_via,numero,escalera,ficha_catastro!inner(referencia,municipio)` +
+      `&id=in.(${portalIds.map(encodeURIComponent).join(",")})`,
+  );
+  for (const p of portales) {
+    const [acceso] = await crearOActualizar<{ id: string }>(
+      "accesos",
+      "municipio,tipo_via,nombre_via,numero,escalera",
+      {
+        municipio: p.ficha_catastro.municipio ?? "",
+        tipo_via: p.tipo_via ?? "",
+        nombre_via: p.nombre_via ?? "",
+        numero: p.numero,
+        escalera: p.escalera ?? "",
+        ref_catastral: p.ficha_catastro.referencia,
+        ficha_catastro_portal_id: p.id,
+      },
+    );
+    await crear("relacion_oportunidad_accesos", { opp_id: oppId, acceso_id: acceso.id, de_donde: deDonde });
+  }
+  return portales.length;
+}
+
+/** BUSCAR O CAMBIAR LA DIRECCION de una oportunidad ya creada (Monica,
+ *  5-oct-2026). Dos casos, y los dos pasan mucho: se dejo provisional en el
+ *  alta, o la direccion era otra -"nos dicen una calle de Parla y resulta que
+ *  es Fuenlabrada; la persona que nos llama, sobre todo si es comercial de
+ *  ascensores, suele dar los datos mal"-.
+ *
+ *  Los accesos de antes NO se borran: se cierran con fecha (`hasta`), para que
+ *  quede rastro de que hubo otra direccion. */
+export async function cambiarDireccion(
+  oppId: string,
+  r: { nombre: string; portalIds: string[]; parcela: string | null },
+): Promise<void> {
+  const [op] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${oppId}&limit=1`);
+  if (!op) throw new Error("No existe esa oportunidad");
+
+  await actualizar(`relacion_oportunidad_accesos?opp_id=eq.${oppId}&hasta=is.null`, { hasta: hoy() });
+  await enlazarAccesos(oppId, r.portalIds, "Buscada o cambiada en la ficha de la oportunidad, en la ventana de Catastro");
+  await actualizar(`oportunidades?id=eq.${oppId}`, {
+    nombre: r.nombre,
+    referencia_catastral: r.parcela,
+    // Sin comunidad, el nombre provisional es lo unico que la nombra.
+    ...(op.comunidad_id ? {} : { comunidad_provisional: r.nombre }),
+  });
 }

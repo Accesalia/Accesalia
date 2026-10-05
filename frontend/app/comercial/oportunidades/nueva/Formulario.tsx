@@ -117,10 +117,13 @@ function Casilla({
 
 export function Formulario({
   opciones,
+  eligeComercial,
   accion: guardar,
   volver,
 }: {
   opciones: OpcionesOportunidad;
+  /** Fijo para el comercial con cartera propia; el resto elige. */
+  eligeComercial: boolean;
   accion: (fd: FormData) => void | Promise<void>;
   volver: string;
 }) {
@@ -144,6 +147,11 @@ export function Formulario({
   // se cierra sin terminar lo escrito se queda como provisional.
   const [ventana, setVentana] = useState(false);
   const [resuelta, setResuelta] = useState<DireccionResuelta | null>(null);
+  // Una direccion escrita y sin buscar no se guarda por despiste (Monica,
+  // 5-oct-2026: la de Fresnedillas se quedo sin accesos porque "ni se me
+  // ocurrio" abrir la ventana). Al guardar, se abre sola; si se cierra sin
+  // terminar, ESO es dejarla provisional a proposito.
+  const [provisionalAdrede, setProvisionalAdrede] = useState(false);
 
   const [admin, setAdmin] = useState("");
   const [quienEsAdmin, setQuienEsAdmin] = useState(false);
@@ -171,7 +179,15 @@ export function Formulario({
     adminNuevo !== null ||
     (quienNuevo?.telefono ?? "") !== "" ||
     (quienNuevo?.correo ?? "") !== "";
-  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "";
+  // Con quien hablo a partir de ahora: obligatorio, como el siguiente paso
+  // (Monica, 5-oct-2026). Y la casilla tiene que apuntar a alguien de verdad:
+  // "la persona que me llamo" sin decir quien llamo no es un contacto.
+  const hayContacto =
+    (hablaLlamo && (quien !== "" || quienNuevo !== null || quienEsAdmin)) ||
+    (hablaAdmin && (admin !== "" || adminNuevo !== null)) ||
+    otroNuevo !== null;
+  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "" && hayContacto;
+  const sinBuscar = !buscarDireccion && !resuelta && direccion.trim() !== "";
 
   const guardarPersona = (p: Persona) => {
     if (creando === "admin") setAdminNuevo(p);
@@ -212,7 +228,14 @@ export function Formulario({
   return (
     <form
       action={guardar}
-      onSubmit={() => setEnviando(true)}
+      onSubmit={(e) => {
+        if (sinBuscar && !provisionalAdrede) {
+          e.preventDefault();
+          setVentana(true);
+          return;
+        }
+        setEnviando(true);
+      }}
       onKeyDown={(e) => {
         if (e.key !== "Enter") return;
         const t = e.target as HTMLElement;
@@ -252,6 +275,7 @@ export function Formulario({
           opciones={comerciales}
           valor={comercial}
           alElegir={setComercial}
+          desactivado={!eligeComercial}
           clase="w-[180px] shrink-0"
           tinta="text-[#fff4c6]/85"
           marco="border-carbon/70"
@@ -357,7 +381,10 @@ export function Formulario({
                   type="text"
                   data-direccion
                   value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
+                  onChange={(e) => {
+                    setDireccion(e.target.value);
+                    setProvisionalAdrede(false);
+                  }}
                   placeholder="dirección del edificio"
                   className={campo + " pr-10"}
                 />
@@ -379,7 +406,13 @@ export function Formulario({
             <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
             <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
             <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
-            <span className={apoyo + " text-right"}>{buscarDireccion ? "Mejor la escribo" : "Si ya existe, selecciónala"}</span>
+            <span className={apoyo + " text-right"}>
+              {buscarDireccion
+                ? "Mejor la escribo"
+                : sinBuscar && provisionalAdrede
+                  ? "Sin buscar en Catastro: se guarda provisional"
+                  : "Si ya existe, selecciónala"}
+            </span>
             <button
               type="button"
               onClick={() => {
@@ -487,6 +520,7 @@ export function Formulario({
           <div className="border-t border-raya py-[14px]">
             <section className="mx-auto max-w-[572px] rounded-[14px] border border-marco bg-[#ecefec] px-4 py-3">
               <h3 className="text-center text-[13px] font-bold uppercase tracking-[0.07em] text-[#0c1a64]">
+                {!hayContacto && <span className="text-[11px] text-obligatorio">Obligatorio: </span>}
                 Con quién hablo de esto a partir de ahora
               </h3>
               <p className="mb-3 mt-0.5 text-center text-sm text-carbon/60">
@@ -539,7 +573,11 @@ export function Formulario({
             setResuelta(r);
             setVentana(false);
           }}
-          alCerrar={() => setVentana(false)}
+          alCerrar={() => {
+            setVentana(false);
+            // Cerrar sin terminar es dejarla provisional a proposito.
+            if (direccion.trim()) setProvisionalAdrede(true);
+          }}
         />
       )}
 

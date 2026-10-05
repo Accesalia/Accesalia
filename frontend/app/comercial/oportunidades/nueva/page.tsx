@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { opcionesOportunidad } from "../../../../lib/altaOportunidad";
-import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { Formulario } from "./Formulario";
 import { guardarOportunidad } from "./acciones";
 
@@ -24,7 +24,8 @@ export default async function NuevaOportunidad({
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/nueva");
   if (!puedeEntrar(yo, "comercial") && !puedeEntrar(yo, "administracion")) redirect("/menu");
 
-  const opciones = await opcionesOportunidad(yo.id);
+  const { elige, mio } = await eligeComercialAlDarDeAlta(yo);
+  const opciones = await opcionesOportunidad(yo.id, mio?.id ?? null);
 
   return (
     <div className="min-h-screen bg-alta-opp">
@@ -36,13 +37,13 @@ export default async function NuevaOportunidad({
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-            No se ha guardado: hacían falta qué te han contado, un comercial, el siguiente paso, y al menos una de
-            estas — dirección, administrador, teléfono o correo.
+            No se ha guardado: hacían falta qué te han contado, un comercial, el siguiente paso, con quién hablas a
+            partir de ahora, y al menos una de estas — dirección, administrador, teléfono o correo.
           </p>
         )}
 
         <div className="mt-3">
-          <Formulario opciones={opciones} accion={guardarOportunidad} volver="/comercial" />
+          <Formulario opciones={opciones} eligeComercial={elige} accion={guardarOportunidad} volver="/comercial" />
         </div>
       </main>
     </div>

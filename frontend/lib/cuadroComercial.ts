@@ -55,6 +55,7 @@ export type OportunidadCuadro = {
   id: string;
   nombre: string;
   sinComunidad: boolean; // aun no tiene ficha de comunidad: solo un nombre o una pista
+  comunidadId?: string | null;
   empresa: string | null;
   persona: string | null;
   prestada: boolean;
@@ -381,6 +382,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
       nombre,
       aviso: avisoDireccion(cuenta(o.vivos), o.referencia_catastral),
       sinComunidad: !o.comunidad,
+      comunidadId: o.comunidad?.id ?? null,
       empresa: o.puesto?.empresa?.nombre_accesalia ?? null,
       persona: o.puesto?.persona?.nombre ?? null,
       prestada: false, // aun no esta modelado quien presta que (ver docs/cartera-alvaro-notas.md)
@@ -526,4 +528,90 @@ export async function cuadroComercial(comercialId: string | null): Promise<Cuadr
     umbralParado: u.parado,
     umbralSinContacto: u.sinContacto,
   };
+}
+
+// ------------------------------------------------- al desplegar una oportunidad
+
+/** Lo que se ve al DESPLEGAR una oportunidad real en la lista: su diario y a
+ *  quien llamar (Monica, 5-oct-2026: "Tu historia con esta comunidad" salia
+ *  vacio en todas, porque nunca se habia conectado). Se pide al desplegar, no
+ *  al abrir la lista: con mil oportunidades, cargar el diario de todas de golpe
+ *  haria la pantalla lentisima. */
+export async function extractoDeOportunidad(
+  id: string,
+): Promise<{ historia: EntradaCuadro[]; contactos: FichaExtracto["contactos"] }> {
+  type PersonaPuesto = { cargo: string | null; telefono_empresa: string | null; contrata: { nombre: string } | null; empresa: { nombre_accesalia: string } | null };
+  const [ops, entradas, notas] = await Promise.all([
+    rest<{
+      contacto_provisional: string | null;
+      telefono_provisional: string | null;
+      puesto: (PersonaPuesto & { persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }) | null;
+      vecino: { nombre: string; rol: string | null; telefono: string | null } | null;
+      trajo: { nombre: string; apellidos: string | null; telefono_personal: string | null; puesto: PersonaPuesto[] } | null;
+    }[]>(
+      `oportunidades?select=contacto_provisional,telefono_provisional,` +
+        `puesto:puesto_id(cargo,telefono_empresa,contrata:contratas(nombre),empresa:empresa_id(nombre_accesalia),persona:persona_id(nombre,apellidos,telefono_personal)),` +
+        `vecino:persona_comunidad_id(nombre,rol,telefono),` +
+        `trajo:quien_lo_trae(nombre,apellidos,telefono_personal,puesto(cargo,telefono_empresa,contrata:contratas(nombre),empresa(nombre_accesalia)))` +
+        `&id=eq.${id}&limit=1&trajo.puesto.hasta=is.null`,
+    ),
+    rest<{ id: string; fecha_evento: string | null; creado_en: string; origen: string; transcripcion: string | null; requiere_humano: boolean; puesto: { persona: { nombre: string } | null } | null }[]>(
+      `interacciones?select=id,fecha_evento,creado_en,origen,transcripcion,requiere_humano,puesto:puesto_id(persona:persona_id(nombre))` +
+        `&oportunidad_id=eq.${id}&order=creado_en.desc&limit=40`,
+    ),
+    rest<{ id: string; fecha: string | null; texto: string; autor: string | null }[]>(
+      `notas_oportunidad?select=id,fecha,texto,autor&oportunidad_id=eq.${id}&order=fecha.desc.nullslast,creado_en.asc&limit=60`,
+    ),
+  ]);
+  const op = ops[0];
+
+  // El diario: lo grabado en la app y lo rescatado de Dropbox, juntos y por
+  // fecha. Las notas sin fecha, al final: no se les inventa una.
+  const historia: EntradaCuadro[] = [
+    ...entradas.map((i) => ({
+      id: i.id,
+      fecha: i.fecha_evento ?? i.creado_en.slice(0, 10),
+      tipo: TIPO[i.origen] ?? i.origen,
+      con: i.puesto?.persona?.nombre ?? null,
+      texto: i.transcripcion ?? "",
+      revisar: i.requiere_humano,
+      href: `/comercial/interaccion/${i.id}`,
+    })),
+    ...notas.map((n) => ({
+      id: n.id,
+      fecha: n.fecha ?? "",
+      tipo: "ficha de Dropbox",
+      con: n.autor,
+      texto: n.texto,
+      revisar: false,
+      href: null,
+    })),
+  ].sort((a, b) => (b.fecha || "0").localeCompare(a.fecha || "0"));
+
+  // A quien llamar, con el telefono a la vista ("invita a llamar, que es
+  // bueno"). El del puesto primero: es el de trabajo, el normal.
+  const donde = (p: PersonaPuesto | null | undefined) => p?.empresa?.nombre_accesalia ?? p?.contrata?.nombre ?? null;
+  const contactos: FichaExtracto["contactos"] = [];
+  if (op?.puesto?.persona) {
+    contactos.push({
+      papel: ["contacto", op.puesto.cargo, donde(op.puesto)].filter(Boolean).join(" · "),
+      nombre: [op.puesto.persona.nombre, op.puesto.persona.apellidos].filter(Boolean).join(" "),
+      telefono: op.puesto.telefono_empresa ?? op.puesto.persona.telefono_personal,
+    });
+  }
+  if (op?.vecino) {
+    contactos.push({ papel: ["contacto", op.vecino.rol].filter(Boolean).join(" · "), nombre: op.vecino.nombre, telefono: op.vecino.telefono });
+  }
+  if (op?.contacto_provisional) {
+    contactos.push({ papel: "contacto (provisional)", nombre: op.contacto_provisional, telefono: op.telefono_provisional });
+  }
+  if (op?.trajo) {
+    const p = op.trajo.puesto?.[0];
+    contactos.push({
+      papel: ["lo trajo", p?.cargo, donde(p)].filter(Boolean).join(" · "),
+      nombre: [op.trajo.nombre, op.trajo.apellidos].filter(Boolean).join(" "),
+      telefono: p?.telefono_empresa ?? op.trajo.telefono_personal,
+    });
+  }
+  return { historia, contactos };
 }

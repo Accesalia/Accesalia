@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { crearOportunidad, type DatosOportunidad } from "../../../../lib/altaOportunidad";
-import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 const VOLVER = "/comercial/oportunidades/nueva";
 
@@ -33,7 +33,10 @@ export async function guardarOportunidad(fd: FormData) {
   if (!puedeEntrar(yo, "comercial", "trabajar") && !puedeEntrar(yo, "administracion", "trabajar")) redirect("/menu");
 
   const nota = texto(fd, "nota");
-  const comercialId = texto(fd, "comercial");
+  // El comercial con cartera propia no elige: la oportunidad es suya, diga lo
+  // que diga el formulario.
+  const { elige, mio } = await eligeComercialAlDarDeAlta(yo);
+  const comercialId = elige ? texto(fd, "comercial") : (mio?.id ?? null);
   const comunidadId = texto(fd, "comunidad");
   const direccionProvisional = texto(fd, "direccion_provisional");
   const administradorPersonaId = texto(fd, "administrador");
@@ -54,7 +57,14 @@ export async function guardarOportunidad(fd: FormData) {
     quienNuevo?.telefono ||
     quienNuevo?.correo,
   );
-  if (!nota || !comercialId || !hayHilo || !pasoArranque) redirect(VOLVER + "?falta=1");
+  // Y con quien hablo a partir de ahora (Monica, 5-oct-2026): obligatorio, y
+  // apuntando a alguien de verdad.
+  const quienLlama = Boolean(texto(fd, "quien") || quienNuevo || fd.get("quien_es_admin") === "on");
+  const hayContacto =
+    (fd.get("habla_llamo") === "on" && quienLlama) ||
+    (fd.get("habla_admin") === "on" && Boolean(administradorPersonaId || administradorNuevo)) ||
+    Boolean(otroNuevo);
+  if (!nota || !comercialId || !hayHilo || !pasoArranque || !hayContacto) redirect(VOLVER + "?falta=1");
 
   const marcado = fd.get("nuevo_marcado") === "1";
   const nuevoNombre = texto(fd, "nuevo_nombre");

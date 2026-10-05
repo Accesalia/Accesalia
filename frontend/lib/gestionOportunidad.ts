@@ -131,6 +131,8 @@ export type Gestion = {
   administracion: string | null;
   contacto: string | null;
   contactoDonde: string | null;
+  /** Quien nos la trajo, con su puesto de hoy: "Belén López · COMERCIAL · DIDEPRO". */
+  trajo: string | null;
   creada: string;
   /** La de verdad, si se sabe. Vacia = solo tenemos la de importacion. */
   fechaApertura: string | null;
@@ -193,13 +195,19 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comercial_id: string | null;
       comercial: { nombre: string } | null;
       puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
+      trajo: {
+        nombre: string;
+        apellidos: string | null;
+        puesto: { cargo: string | null; empresa: { nombre_accesalia: string } | null; contrata: { nombre: string } | null }[];
+      } | null;
     }[]
   >(
     `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))` +
-      `&id=eq.${id}&limit=1&vivos.hasta=is.null&pausas.hasta=is.null`,
+      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
+      `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
+      `&id=eq.${id}&limit=1&vivos.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
   );
   if (!op) return null;
 
@@ -248,6 +256,15 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
     contacto: op.puesto?.persona?.nombre ?? null,
     contactoDonde: op.puesto?.cargo ?? null,
+    trajo: op.trajo
+      ? [
+          [op.trajo.nombre, op.trajo.apellidos].filter(Boolean).join(" "),
+          op.trajo.puesto?.[0]?.cargo,
+          op.trajo.puesto?.[0]?.empresa?.nombre_accesalia ?? op.trajo.puesto?.[0]?.contrata?.nombre,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : null,
     // La fecha que importa es cuando se abrio el encargo; si no se sabe -las
     // importadas de julio-, se cae a cuando entro la fila en la app.
     creada: op.fecha_apertura ?? op.creado_en.slice(0, 10),

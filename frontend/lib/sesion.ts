@@ -120,6 +120,23 @@ export async function comercialDe(personaId: string): Promise<{ id: string; nomb
   return compartida ? { id: compartida.id, nombre: compartida.nombre } : null;
 }
 
+/** Al dar de alta una oportunidad, ¿elige el comercial o le sale el suyo fijo?
+ *  (Monica, 5-oct-2026). Solo lo tiene FIJO el comercial con cartera propia:
+ *  "si entra Alvaro, no elige porque ya sale Alvaro". Eligen el perfil superior
+ *  (Daniel, Monica) y quien atiende la oficina, como Alejandra: "por si lo crea
+ *  ella alguna vez, es muy frecuente si viene por la web o llaman a la oficina".
+ *  `mio` es el que sale puesto: el suyo, o el de la cartera que comparte. */
+export async function eligeComercialAlDarDeAlta(
+  yo: Yo,
+): Promise<{ elige: boolean; mio: { id: string; nombre: string } | null }> {
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/comerciales?select=id&equipo_id=eq.${yo.id}&activo=is.true&limit=1`,
+    { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
+  );
+  const propia = r.ok ? ((await r.json()) as { id: string }[]).length > 0 : false;
+  return { elige: puedeEntrar(yo, "comercial", "supervisar") || !propia, mio: await comercialDe(yo.id) };
+}
+
 /** ¿Llega a este nivel en esta area? Direccion, siempre. */
 export function puedeEntrar(yo: Yo, area: string, nivel: Nivel = "ver"): boolean {
   if (yo.veTodo) return true;

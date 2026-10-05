@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { crearEntrada } from "../../lib/entradaDiario";
+import { extractoDeOportunidad } from "../../lib/cuadroComercial";
 import { comercialDe, puedeEntrar, quienSoy } from "../../lib/sesion";
 
 const texto = (fd: FormData, k: string) => {
@@ -35,4 +36,13 @@ export async function guardarEntrada(fd: FormData) {
   });
 
   revalidatePath("/comercial");
+}
+
+/** Lo que se carga al DESPLEGAR una oportunidad en la lista: su diario y a
+ *  quien llamar. Solo lectura, pero tambien con permiso: una pantalla abierta
+ *  no es un permiso. */
+export async function extractoOportunidad(id: string) {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial")) return null;
+  return extractoDeOportunidad(id);
 }

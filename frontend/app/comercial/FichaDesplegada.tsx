@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FichaExtracto, EntradaCuadro } from "../../lib/cuadroComercial";
+import { extractoOportunidad } from "./acciones";
 
 // LA FICHA COMERCIAL, DESPLEGADA EN LA PROPIA LISTA (Monica, 12-sep-2026, con
 // su boceto en docs/EJEMPLO FICHA COMERCIAL DESPLEGADA.png):
@@ -210,11 +211,31 @@ function Historia({ entradas }: { entradas: EntradaCuadro[] }) {
 
 // ------------------------------------------------------------ el conjunto
 
-export function FichaDesplegada({ ficha }: { ficha: FichaExtracto | null }) {
-  const f = ficha;
+export function FichaDesplegada({ ficha, oportunidadId }: { ficha: FichaExtracto | null; oportunidadId?: string }) {
+  // Las oportunidades reales traen la ficha vacia: su diario y sus contactos se
+  // piden al desplegar (Monica, 5-oct-2026). La demostracion ya los trae.
+  const [extra, setExtra] = useState<Pick<FichaExtracto, "historia" | "contactos"> | null>(null);
+  const [cargando, setCargando] = useState(false);
+  useEffect(() => {
+    if (ficha || !oportunidadId) return;
+    let vivo = true;
+    setCargando(true);
+    extractoOportunidad(oportunidadId)
+      .then((r) => vivo && r && setExtra(r))
+      .finally(() => vivo && setCargando(false));
+    return () => {
+      vivo = false;
+    };
+  }, [ficha, oportunidadId]);
+  const f: FichaExtracto | null =
+    ficha ??
+    (extra && (extra.historia.length > 0 || extra.contactos.length > 0)
+      ? { cobra: null, documentos: [], envio: null, sali: null, ...extra }
+      : null);
   return (
     <div className="border-t border-black/5 bg-hueso/50 px-5 py-5">
-      {!f && (
+      {cargando && <p className="mb-4 text-sm text-carbon/45">Cargando el diario de esta oportunidad…</p>}
+      {!f && !cargando && (
         <p className="mb-4 rounded-lg border border-dashed border-black/15 bg-white px-4 py-3 text-sm text-carbon/55">
           De esta oportunidad todavía no hay nada en la app: ni viabilidad, ni hoja, ni correos, ni contactos. Así se verá
           cuando los haya.
@@ -227,7 +248,7 @@ export function FichaDesplegada({ ficha }: { ficha: FichaExtracto | null }) {
           docs={
             // Los TRES documentos que salen juntos: viabilidad, presupuesto y
             // hoja de encargo (Monica, 12-sep-2026).
-            f?.documentos ?? [
+            (f?.documentos?.length ? f.documentos : null) ?? [
               { rotulo: "Viabilidad", href: null, falta: "sin hacer" },
               { rotulo: "Presupuesto", href: null, falta: "sin hacer" },
               { rotulo: "Hoja de encargo", href: null, falta: "sin hacer" },

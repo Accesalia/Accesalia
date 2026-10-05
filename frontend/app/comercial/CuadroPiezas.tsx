@@ -465,7 +465,7 @@ export function TarjetaOportunidad({
       >
         {cuerpo}
       </div>
-      {abierta && <FichaDesplegada ficha={o.ficha} />}
+      {abierta && <FichaDesplegada ficha={o.ficha} oportunidadId={o.id} />}
     </div>
   );
 }

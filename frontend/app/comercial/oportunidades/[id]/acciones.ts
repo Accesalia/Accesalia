@@ -13,6 +13,7 @@ import {
   tocarHito,
 } from "../../../../lib/gestionOportunidad";
 import { crearEntrada } from "../../../../lib/entradaDiario";
+import { cambiarDireccion } from "../../../../lib/altaOportunidad";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 const texto = (fd: FormData, k: string) => {
@@ -123,5 +124,16 @@ export async function accionComercial(id: string, fd: FormData) {
   const yo = await permiso(id);
   if (!puedeEntrar(yo, "comercial", "supervisar")) return;
   await cambiarComercial(id, texto(fd, "comercial"));
+  refrescar(id);
+}
+
+/** La direccion buscada en Catastro desde la ficha: la que se dejo provisional,
+ *  o la que resulto ser otra. */
+export async function accionDireccion(
+  id: string,
+  r: { nombre: string; portalIds: string[]; parcela: string | null },
+) {
+  await permiso(id);
+  await cambiarDireccion(id, r);
   refrescar(id);
 }

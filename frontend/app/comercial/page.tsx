@@ -293,7 +293,15 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                                 pasos={cuadro.pasos}
                                 umbralParado={cuadro.umbralParado}
                                 umbralSinContacto={cuadro.umbralSinContacto}
-                                verFicha={esDemo ? `/comercial/ficha/${o.id}?c=${ID_FANTASMA}` : null}
+                                verFicha={
+                                  esDemo
+                                    ? `/comercial/ficha/${o.id}?c=${ID_FANTASMA}`
+                                    : // La ficha real, de momento por COMUNIDAD y solo para direccion,
+                                      // habilitada para que Monica la vea y decida (5-oct-2026).
+                                      direccion && o.comunidadId
+                                      ? `/comercial/ficha/${o.comunidadId}`
+                                      : null
+                                }
                               />
                             </li>
                           ))}
