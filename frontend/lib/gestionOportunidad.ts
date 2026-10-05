@@ -149,6 +149,13 @@ export type Gestion = {
    *  veces" es informacion de venta, y guardando solo la ultima se pierde. */
   juntas: JuntaGestion[];
   diario: EntradaOportunidad[];
+  /** La del edificio. De aqui cuelga TODO el informe -catastro, proteccion,
+   *  zona, subvenciones-, que es la mitad de la pantalla del bloque 1.
+   *
+   *  Sale del ACCESO, que es donde vive la buena: el campo de `oportunidades` es
+   *  del alta y esta vacio en las 1.229. Por los accesos la tienen 1.217.
+   *  Vacia solo mientras la direccion sea provisional: entonces no hay edificio. */
+  referenciaCatastral: string | null;
 };
 
 const ORIGEN: Record<string, string> = {
@@ -190,6 +197,10 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comunidad_provisional: string | null;
       referencia_catastral: string | null;
       vivos: { count: number }[];
+      /** La referencia BUENA vive en el acceso, no en la oportunidad: el campo
+       *  de `oportunidades` es del alta y esta vacio en las 1.229. Una esquina
+       *  tiene varios accesos; para traer el edificio vale cualquiera. */
+      portales: { acceso: { ref_catastral: string | null } | null }[];
       pausas: { desde: string; motivo: string | null; condicion_reactivacion: string | null; pelota_en_tejado: string | null }[];
       comunidad: { nombre: string } | null;
       comercial_id: string | null;
@@ -203,11 +214,12 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     }[]
   >(
     `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
+      `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
       `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
-      `&id=eq.${id}&limit=1&vivos.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
+      `&id=eq.${id}&limit=1&vivos.hasta=is.null&portales.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
   );
   if (!op) return null;
 
@@ -250,6 +262,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     codigo: op.codigo,
     direccion: op.comunidad?.nombre ?? op.comunidad_provisional ?? "(sin dirección)",
     aviso: avisoDireccion(cuenta(op.vivos), op.referencia_catastral),
+    referenciaCatastral:
+      op.portales?.map((p) => p.acceso?.ref_catastral).find(Boolean) ?? op.referencia_catastral,
     estado: op.estado,
     comercial: op.comercial?.nombre ?? null,
     comercialId: op.comercial_id,

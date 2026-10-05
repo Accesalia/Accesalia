@@ -18,12 +18,14 @@ import type { HitoGestion } from "../../../../lib/gestionOportunidad";
 
 export const AZUL = "#104269";
 
-/** Los diez hitos, en cuatro. El 3D (`tresd`, ramal) va en Documentacion: ahi es
- *  donde se hace y donde el carril tiene que avisar de que falta. Pendiente de
- *  que ella lo confirme: por para que sirve, seria del 3. */
+/** Los diez hitos, en cuatro. El 3D (`tresd`, ramal) va en TOMA DE DATOS, no en
+ *  Documentacion: ella, 5-oct-2026, "el 3D es en el bloque 1, exactamente donde
+ *  estaba, PORQUE PARA HACERLO PRIMERO HAY QUE MARCARLO" -y la casilla
+ *  "necesita 3D" esta en la cabecera del bloque 1-. Cuadra ademas con el
+ *  catalogo, donde "Toma de datos y Modelado 3D" es un solo tipo. */
 export const BLOQUES: { n: number; titulo: string; hitos: string[] }[] = [
-  { n: 1, titulo: "Toma de datos", hitos: ["primer_contacto", "visita", "polycam"] },
-  { n: 2, titulo: "Documentación", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos", "tresd"] },
+  { n: 1, titulo: "Toma de datos", hitos: ["primer_contacto", "visita", "polycam", "tresd"] },
+  { n: 2, titulo: "Documentación", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos"] },
   { n: 3, titulo: "Decisión de los vecinos", hitos: ["junta"] },
   { n: 4, titulo: "Cierre", hitos: ["firma", "cobro"] },
 ];

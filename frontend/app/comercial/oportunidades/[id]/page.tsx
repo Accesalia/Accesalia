@@ -17,9 +17,12 @@ import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionComercial, accionPausar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { AZUL, Carril } from "./Carril";
+import { Edificio } from "./Edificio";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
+// El informe del edificio sale a Catastro y al geoportal de Madrid: tarda.
+export const maxDuration = 60;
 
 // GESTIONAR UNA OPORTUNIDAD (Monica, 28-sep-2026).
 //
@@ -154,9 +157,27 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
             style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px" }}
             className="min-w-0 flex-1 border bg-white/40 p-4"
           >
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1000fr)_minmax(0,430fr)]">
-          {/* ================== columna izquierda: el trabajo ================== */}
-          <div className="flex min-w-0 flex-col gap-5">
+        {/* SUS CUATRO ANCHOS FIJOS, del esqueleto del 30-sep: 262 · 330 · 190 ·
+            282. "Sus anchos son el diseno": no se redondean ni se reparten en
+            fracciones. Las tres primeras las llena el informe del edificio; la
+            cuarta, el diario. Y el trabajo que todavia no tiene bloque asignado
+            va en una segunda fila, a lo ancho.
+
+            Se colocan por rejilla y no por orden en el fichero, para no mover de
+            sitio codigo que ya funciona. */}
+        <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
+          {g.referenciaCatastral ? (
+            <Edificio referencia={g.referenciaCatastral} />
+          ) : (
+            <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-3">
+              <b>Todavía no hay edificio que mirar.</b> Esta oportunidad no tiene referencia
+              catastral, así que no se puede traer ni el Catastro, ni la zona, ni las
+              subvenciones. Se arregla fijando la dirección.
+            </div>
+          )}
+
+          {/* ================== el trabajo (segunda fila, a lo ancho) ================== */}
+          <div className="flex min-w-0 flex-col gap-5 xl:col-span-4 xl:row-start-2">
             {/* --------------------- 2 · las diez fases ---------------------
                 Una barra, y abierta solo la que toca. Antes eran diez filas con
                 cuatro botones cada una: dos pantallas de cosas que hoy no
@@ -271,8 +292,8 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
             </div>
           </div>
 
-          {/* ============ columna derecha: 7 · el diario de esta opp ============ */}
-          <div className="flex flex-col gap-5">
+          {/* ============ cuarta columna: 7 · el diario de esta opp ============ */}
+          <div className="flex min-w-0 flex-col gap-5 xl:col-start-4 xl:row-start-1">
             <form action={accionEntrada.bind(null, id)} className={CAJA + " p-4"}>
               <Titulo>Grabar aquí</Titulo>
               <textarea
