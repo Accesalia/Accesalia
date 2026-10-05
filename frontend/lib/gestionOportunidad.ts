@@ -131,6 +131,8 @@ export type Gestion = {
   administracion: string | null;
   contacto: string | null;
   contactoDonde: string | null;
+  /** El del puesto, que es el del trabajo. "Los telefonos a la vista." */
+  contactoTelefono: string | null;
   /** Quien nos la trajo, con su puesto de hoy: "Belén López · COMERCIAL · DIDEPRO". */
   trajo: string | null;
   creada: string;
@@ -156,6 +158,9 @@ export type Gestion = {
    *  del alta y esta vacio en las 1.229. Por los accesos la tienen 1.217.
    *  Vacia solo mientras la direccion sea provisional: entonces no hay edificio. */
   referenciaCatastral: string | null;
+  /** Para colgar de ella lo que es de la COMUNIDAD y no de esta oportunidad: sus
+   *  contactos, por ejemplo. Vacia si la direccion todavia es provisional. */
+  comunidadId: string | null;
 };
 
 const ORIGEN: Record<string, string> = {
@@ -163,6 +168,25 @@ const ORIGEN: Record<string, string> = {
 };
 
 // ------------------------------------------------------------------ leer
+
+export type ContactoComunidad = { nombre: string; telefono: string | null; papel: string | null };
+
+/** LOS CONTACTOS DE LA COMUNIDAD, para la cabecera del bloque 1.
+ *
+ *  Con el telefono A LA VISTA, que es su regla: "invita a llamar, y eso es
+ *  bueno". Son de la COMUNIDAD, no de esta oportunidad: el mismo presidente vale
+ *  para el encargo del ascensor y para el de la subvencion.
+ *
+ *  Hoy `personas_comunidad` son los 543 presidentes de las fichas de Dropbox. El
+ *  dia que se migren a la agenda unica, esto mira a `puesto` y la pantalla no se
+ *  entera. */
+export async function contactosDeComunidad(comunidadId: string): Promise<ContactoComunidad[]> {
+  const filas = await leer<{ nombre: string; telefono: string | null; rol: string | null; es_contacto_principal: boolean | null }[]>(
+    `personas_comunidad?select=nombre,telefono,rol,es_contacto_principal&comunidad_id=eq.${comunidadId}` +
+      `&order=es_contacto_principal.desc.nullslast,nombre.asc&limit=12`,
+  );
+  return filas.map((f) => ({ nombre: f.nombre, telefono: f.telefono, papel: f.rol }));
+}
 
 export async function catalogoTipos(): Promise<TipoGestion[]> {
   const filas = await leer<
@@ -195,6 +219,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       creado_en: string;
       fecha_apertura: string | null;
       comunidad_provisional: string | null;
+      comunidad_id: string | null;
       referencia_catastral: string | null;
       vivos: { count: number }[];
       /** La referencia BUENA vive en el acceso, no en la oportunidad: el campo
@@ -205,7 +230,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comunidad: { nombre: string } | null;
       comercial_id: string | null;
       comercial: { nombre: string } | null;
-      puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
+      puesto: { cargo: string | null; telefono_empresa: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
       trajo: {
         nombre: string;
         apellidos: string | null;
@@ -213,11 +238,11 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       } | null;
     }[]
   >(
-    `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
+    `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
-      `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
+      `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
       `&id=eq.${id}&limit=1&vivos.hasta=is.null&portales.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
   );
@@ -264,12 +289,14 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     aviso: avisoDireccion(cuenta(op.vivos), op.referencia_catastral),
     referenciaCatastral:
       op.portales?.map((p) => p.acceso?.ref_catastral).find(Boolean) ?? op.referencia_catastral,
+    comunidadId: op.comunidad_id,
     estado: op.estado,
     comercial: op.comercial?.nombre ?? null,
     comercialId: op.comercial_id,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
     contacto: op.puesto?.persona?.nombre ?? null,
     contactoDonde: op.puesto?.cargo ?? null,
+    contactoTelefono: op.puesto?.telefono_empresa ?? null,
     trajo: op.trajo
       ? [
           [op.trajo.nombre, op.trajo.apellidos].filter(Boolean).join(" "),

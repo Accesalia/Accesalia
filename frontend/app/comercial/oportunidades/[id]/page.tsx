@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CambiarDireccion } from "./CambiarDireccion";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import {
   catalogoTipos,
   comercialesActivos,
+  contactosDeComunidad,
   equipoOpciones,
   gestionOportunidad,
   ESTADOS_HITO,
@@ -14,9 +14,10 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { COMO_FUE } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionComercial, accionPausar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
+import { accionEntrada, accionHito, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
-import { AZUL, Carril } from "./Carril";
+import { AZUL, Carril, bloquesDe } from "./Carril";
+import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
@@ -60,6 +61,11 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
   const hechos = g.hitos.filter((h) => h.estado === "hecho").length;
   const aplican = g.hitos.filter((h) => h.estado !== "no_aplica").length;
   const ahora = g.hitos.find((h) => h.estado === "en_curso") ?? g.hitos.find((h) => h.estado === "pendiente" && h.aplicable);
+  // "Dicen que estan interesados en": los tipos marcados, con su nombre.
+  const quieren = tipos.filter((t) => g.tiposElegidos.includes(t.id)).map((t) => t.nombre);
+  // El bloque por el que va, para el "Por donde vamos" de la cabecera.
+  const bloqueAhora = bloquesDe(g.hitos).find((b) => b.activo) ?? null;
+  const contactos = g.comunidadId ? await contactosDeComunidad(g.comunidadId) : [];
 
   return (
     <div className="min-h-screen">
@@ -72,73 +78,18 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
         </Link>
 
         {/* ------------------------- 1 · cabecera ------------------------- */}
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[25px] font-bold leading-tight text-carbon">{g.direccion}</h1>
-            <div className="mt-1.5 flex flex-wrap items-center">
-              {g.aviso && (
-                <span className="inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
-                  {g.aviso}
-                </span>
-              )}
-              <CambiarDireccion id={id} actual={g.direccion} pendiente={Boolean(g.aviso)} />
-            </div>
-            <p className="mt-1.5 text-[13px] text-carbon/60">
-              {g.codigo && <b className="text-carbon/80">{g.codigo}</b>}
-              {!eligeComercial && g.comercial && <> · {g.comercial}</>}
-              {g.administracion && <> · {g.administracion}</>}
-              {g.contacto && <> · {g.contacto}{g.contactoDonde && <span className="text-carbon/45"> ({g.contactoDonde})</span>}</>}
-              {g.trajo && <> · <span className="text-carbon/45">lo trajo</span> {g.trajo}</>}
-            </p>
-            {eligeComercial && (
-              <form action={accionComercial.bind(null, id)} className="mt-2 flex items-center gap-2">
-                <span className={ROTULO}>Comercial que la lleva</span>
-                <select
-                  name="comercial"
-                  defaultValue={g.comercialId ?? ""}
-                  className={
-                    "rounded-[8px] border px-2.5 py-1 text-[13px] " +
-                    (g.comercialId ? "border-carbon/25 bg-white text-carbon" : "border-amber-300 bg-amber-50 text-amber-900")
-                  }
-                >
-                  <option value="">sin asignar</option>
-                  {comerciales.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-                <button className={BOTON + " !py-1"}>Guardar</button>
-              </form>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="text-right">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-carbon/45">Va por</div>
-              <div className="text-[15px] font-bold text-carbon">
-                {hechos} de {aplican} fases
-                {ahora && <span className="font-normal text-carbon/55"> · ahora, {ahora.nombre.toLowerCase()}</span>}
-              </div>
-            </div>
-            {pausada ? (
-              <form action={accionReactivar.bind(null, id)}>
-                <button className={BOTON + " !bg-[#5E744C] !border-[#3f5236] hover:!bg-[#516340]"}>Reactivar</button>
-              </form>
-            ) : (
-              <details className="relative">
-                <summary className="cursor-pointer list-none rounded-[6px] border border-carbon/25 px-3 py-1.5 text-[12px] font-bold uppercase text-carbon/60 transition hover:border-carbon/50">
-                  Pausar
-                </summary>
-                <form action={accionPausar.bind(null, id)} className={CAJA + " absolute right-0 z-20 mt-2 w-[320px] p-3"}>
-                  <span className={ROTULO}>Retomarla cuándo</span>
-                  <input name="nota" placeholder="cuando hagan hucha, si sale la subvención…" className={CAMPO + " mt-1"} />
-                  <button className={BOTON + " mt-2 w-full"}>Pausarla</button>
-                </form>
-              </details>
-            )}
-          </div>
-        </div>
-
+        <Cabecera
+          id={id}
+          g={g}
+          comerciales={comerciales}
+          eligeComercial={eligeComercial}
+          hechos={hechos}
+          aplican={aplican}
+          ahora={ahora}
+          quieren={quieren}
+          bloqueAhora={bloqueAhora}
+          contactos={contactos}
+        />
         {pausada && (
           <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
             <b>Pausada{g.pausa && <> desde el {fechaCorta(g.pausa.desde)}</>}.</b> No está perdida: está esperando.
