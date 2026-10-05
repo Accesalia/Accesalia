@@ -312,24 +312,19 @@ export async function crearOportunidad(
   // casilla de "que es", y por eso esta a la vista en la ventana:
   //   administrador → persona + puesto, SIN empresa: puede existir un admin del
   //     que todavia no sepamos de que administracion es (ella, 28-sep-2026);
-  //   contrata      → la ficha de contactos de esa contrata;
+  //   contrata      → persona + puesto EN esa contrata. Desde el 5-oct-2026 las
+  //     personas de las contratas viven en la agenda unica, como las demas;
   //   vecino        → la persona de la comunidad, si la comunidad ya existe; y
   //     si la direccion es todavia la que se acaba de escribir, se queda como
   //     persona colgando de ESTA oportunidad, que lleva su numero, y se
   //     recoloca cuando la direccion sea de verdad;
   //   otro          → persona + puesto con el cargo que ella escriba.
+  //
+  // El telefono y el correo van al PUESTO, no a la persona. Ella, 5-oct-2026:
+  // "son del puesto salvo que expresamente se diga lo contrario. Son relaciones
+  // laborales, no amigos".
   const colocar = async (n: PersonaNueva | null): Promise<string | null> => {
     if (!n?.nombre) return null;
-
-    if (n.que === "contrata" && n.contrataId) {
-      const c = await crear<{ id: string }>("contrata_contactos", {
-        contrata_id: n.contrataId,
-        nombre: n.nombre,
-        telefono: n.telefono,
-        email: n.correo,
-      });
-      return "contrata:" + c.id;
-    }
 
     if (n.que === "vecino" && d.comunidadId) {
       const v = await crear<{ id: string }>("personas_comunidad", {
@@ -345,19 +340,22 @@ export async function crearOportunidad(
     const per = await crear<{ id: string }>("persona", {
       nombre: n.nombre,
       activa: true,
-      telefono_personal: n.telefono,
     });
     // El puesto es lo que dice QUE es y de quien es: nace con comercial, para
-    // que no quede huerfano. La empresa se pone despues, cuando se sepa.
-    await crear("puesto", {
+    // que no quede huerfano. La empresa se pone despues, cuando se sepa; la
+    // contrata, en cambio, ya se sabe al elegirla.
+    const enContrata = n.que === "contrata" && n.contrataId ? n.contrataId : null;
+    const pu = await crear<{ id: string }>("puesto", {
       persona_id: per.id,
       empresa_id: null,
+      contrata_id: enContrata,
       cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
+      telefono_empresa: n.telefono,
       comercial_id: d.comercialId,
       comercial_captador_id: d.comercialId,
       desde: hoy(),
     });
-    if (n.correo) await crear("correo", { persona_id: per.id, email: n.correo, etiqueta: "personal", principal: false });
+    if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
     return "persona:" + per.id;
   };
 

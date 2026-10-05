@@ -21,9 +21,12 @@
 // Vanesa, una persona sin puesto, que se permite. Por eso el quien apunta a la
 // PERSONA y no a su cargo: si cambia de trabajo, sigue siendo quien fue.
 //
-// Hay tres apuntadores mas, y cada uno existe por una norma suya: las contratas
-// son un mundo aparte de las administraciones, los vecinos cuelgan de una
-// comunidad con su rol, y los comerciales son de casa.
+// Hay dos apuntadores mas, y cada uno existe por una norma suya: los vecinos
+// cuelgan de una comunidad con su rol, y los comerciales son de casa.
+//
+// Las personas de las CONTRATAS ya no son un apuntador aparte (5-oct-2026):
+// viven en la agenda unica con un puesto en su contrata. Las contratas siguen
+// siendo un mundo aparte como empresas, no sus personas.
 
 import "server-only";
 
@@ -44,16 +47,19 @@ export type OpcionQuien = { valor: string; texto: string; pista?: string };
 /** Toda la gente a la que puede apuntar un "nos lo trajo", en una sola lista.
  *  El valor lleva delante de que clase es, porque cada clase vive en su tabla. */
 export async function opcionesQuien(): Promise<OpcionQuien[]> {
-  const [personas, comerciales, contratas, vecinos] = await Promise.all([
-    leer<{ id: string; nombre: string; puesto: { cargo: string | null; empresa: { nombre_accesalia: string } | null }[] }[]>(
-      "persona?select=id,nombre,puesto(cargo,empresa(nombre_accesalia))&activa=is.true&order=nombre.asc&limit=3000",
+  const [personas, comerciales, vecinos] = await Promise.all([
+    leer<{
+      id: string;
+      nombre: string;
+      apellidos: string | null;
+      puesto: { cargo: string | null; empresa: { nombre_accesalia: string } | null; contrata: { nombre: string } | null }[];
+    }[]>(
+      "persona?select=id,nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre))" +
+        "&puesto.hasta=is.null&activa=is.true&order=nombre.asc&limit=3000",
     ),
     leer<{ id: string; nombre: string; apellidos: string | null }[]>(
       "comerciales?select=id,nombre,apellidos&activo=eq.true&order=nombre.asc",
     ),
-    leer<{ id: string; nombre: string; contrata: { nombre: string } | null }[]>(
-      "contrata_contactos?select=id,nombre,contrata:contrata_id(nombre)&order=nombre.asc&limit=1000",
-    ).catch(() => []),
     leer<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }[]>(
       "personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=nombre.asc&limit=2000",
     ).catch(() => []),
@@ -65,16 +71,15 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
       texto: [c.nombre, c.apellidos].filter(Boolean).join(" "),
       pista: "comercial nuestro",
     })),
-    ...personas.map((p) => ({
-      valor: "persona:" + p.id,
-      texto: p.nombre,
-      pista: [p.puesto?.[0]?.cargo, p.puesto?.[0]?.empresa?.nombre_accesalia].filter(Boolean).join(" · ") || "sin empresa",
-    })),
-    ...contratas.map((c) => ({
-      valor: "contrata:" + c.id,
-      texto: c.nombre,
-      pista: c.contrata?.nombre ? "contrata · " + c.contrata.nombre : "contrata",
-    })),
+    ...personas.map((p) => {
+      const pu = p.puesto?.[0];
+      const donde = pu?.empresa?.nombre_accesalia ?? (pu?.contrata?.nombre ? "contrata · " + pu.contrata.nombre : null);
+      return {
+        valor: "persona:" + p.id,
+        texto: [p.nombre, p.apellidos].filter(Boolean).join(" "),
+        pista: [pu?.cargo, donde].filter(Boolean).join(" · ") || "sin empresa",
+      };
+    }),
     ...vecinos.map((v) => ({
       valor: "vecino:" + v.id,
       texto: v.nombre,
@@ -84,17 +89,20 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
 }
 
 /** Del valor de la casilla a la columna que toca. Solo una, nunca dos: la base
- *  lo exige con `un_solo_quien`. */
+ *  lo exige con `un_solo_quien`. Sirve igual para la oportunidad y para la
+ *  administracion (`administracion_origen`): las dos tienen las mismas tres.
+ *
+ *  La persona de la agenda va a `quien_lo_trae` (decidido el 4-oct-2026). El
+ *  comercial y el vecino conservan su columna porque no estan en la agenda:
+ *  "los cuatro quien no son lo mismo". */
 export function columnasQuien(valor: string | null): {
-  quien_persona_id: string | null;
+  quien_lo_trae: string | null;
   quien_comercial_id: string | null;
-  quien_contrata_contacto_id: string | null;
   quien_persona_comunidad_id: string | null;
 } {
   const vacio = {
-    quien_persona_id: null,
+    quien_lo_trae: null,
     quien_comercial_id: null,
-    quien_contrata_contacto_id: null,
     quien_persona_comunidad_id: null,
   };
   if (!valor) return vacio;
@@ -103,9 +111,8 @@ export function columnasQuien(valor: string | null): {
   const clase = valor.slice(0, corte);
   const id = valor.slice(corte + 1);
   if (!id) return vacio;
-  if (clase === "persona") return { ...vacio, quien_persona_id: id };
+  if (clase === "persona") return { ...vacio, quien_lo_trae: id };
   if (clase === "comercial") return { ...vacio, quien_comercial_id: id };
-  if (clase === "contrata") return { ...vacio, quien_contrata_contacto_id: id };
   if (clase === "vecino") return { ...vacio, quien_persona_comunidad_id: id };
   return vacio;
 }

@@ -253,7 +253,7 @@ type OportunidadCruda = {
   origen_notas: string | null;
   comunidad: { id: string; nombre: string } | null;
   puesto: { persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
-  contrata: { nombre: string } | null;
+  trajo: { nombre: string; apellidos: string | null } | null;
   hitos_oportunidad: HitoCrudo[];
   negociacion_oportunidad: { que_vendemos: string | null; precio: number | null }[];
   referencia_catastral: string | null;
@@ -266,8 +266,9 @@ const SEL_OPORTUNIDAD =
   "vivos:relacion_oportunidad_accesos(count)," +
   "comunidad:comunidad_id(id,nombre)," +
   "puesto:puesto_id(persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia))," +
-  // Quien nos lo trajo, si fue el contacto de una contrata.
-  "contrata:quien_contrata_contacto_id(nombre)," +
+  // Quien nos lo trajo: una persona de la agenda (de una contrata, de una
+  // administracion, un tecnico municipal...). Desde el 5-oct-2026.
+  "trajo:quien_lo_trae(nombre,apellidos)," +
   "hitos_oportunidad(hito,aplicable,estado,fecha)," +
   "negociacion_oportunidad(que_vendemos,precio,creado_en)";
 
@@ -383,7 +384,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
       empresa: o.puesto?.empresa?.nombre_accesalia ?? null,
       persona: o.puesto?.persona?.nombre ?? null,
       prestada: false, // aun no esta modelado quien presta que (ver docs/cartera-alvaro-notas.md)
-      trajo: o.contrata ? o.contrata.nombre : null,
+      trajo: o.trajo ? [o.trajo.nombre, o.trajo.apellidos].filter(Boolean).join(" ") : null,
       precio: neg?.precio ?? null,
       que: neg?.que_vendemos ?? null,
       tramos: b.tramos,
