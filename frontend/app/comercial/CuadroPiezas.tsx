@@ -309,14 +309,15 @@ function Tramo({ estado, paso }: { estado: EstadoTramo; paso: Paso }) {
 }
 
 // El boton a la ficha completa: solo lleva a algun sitio cuando esa ficha
-// existe de verdad (hoy, la demostracion). Si no, dice "Próximamente".
-function VerFicha({ href }: { href: string | null }) {
+// existe de verdad. Si no, dice POR QUE no: hoy la ficha es la de la comunidad,
+// asi que una oportunidad con la direccion provisional todavia no la tiene.
+function VerFicha({ href, motivo = "Próximamente" }: { href: string | null; motivo?: string }) {
   const clase = "hidden shrink-0 flex-col items-center rounded-lg border border-dashed px-4 py-2 text-center sm:flex ";
   if (!href)
     return (
-      <span title="La ficha completa está por montar" onClick={(e) => e.stopPropagation()} className={clase + "cursor-not-allowed border-lima/70 bg-white"}>
+      <span title={motivo} onClick={(e) => e.stopPropagation()} className={clase + "cursor-not-allowed border-lima/70 bg-white"}>
         <span className="text-[11px] font-bold uppercase tracking-wide text-carbon/60">Ver ficha completa</span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">Próximamente</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-carbon/35">{motivo}</span>
       </span>
     );
   return (
@@ -387,7 +388,7 @@ export function TarjetaOportunidad({
             <span className="text-[11px] font-bold uppercase tracking-wide text-white">Gestionar</span>
             <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">fases, 3D, junta…</span>
           </Link>
-          <VerFicha href={verFicha} />
+          <VerFicha href={verFicha} motivo={o.sinComunidad ? "Falta la comunidad" : "Próximamente"} />
           {/* Ancho fijo: asi el precio, el tipo y el boton caen en la misma
               columna en todas las filas y se leen de un vistazo. */}
           <div className="w-[11.5rem] text-right">
