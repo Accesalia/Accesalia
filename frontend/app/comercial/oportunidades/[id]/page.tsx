@@ -16,6 +16,7 @@ import { COMO_FUE } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionComercial, accionPausar, accionEntrada, accionHito, accionJunta, accionNegociacion, accionReactivar, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
+import { AZUL, Carril } from "./Carril";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +61,9 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
   return (
     <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1500px] px-6 pb-16 pt-5">
+      {/* El lienzo es el suyo: 1300, el ancho real de su pantalla. Lo que se
+          dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep). */}
+      <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
         <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
           ← Oportunidades abiertas
         </Link>
@@ -141,7 +144,17 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
           </div>
         )}
 
-        <div className="mt-6 grid items-start gap-5 xl:grid-cols-[minmax(0,1000fr)_minmax(0,430fr)]">
+        {/* ------------------- el carril y el panel -------------------
+            La columna de bloques es menu e indicador de avance a la vez, y el
+            activo cruza el hueco para fundirse con el panel: "sin linea entre
+            ellos, el ojo lee una pieza" (Monica, 30-sep-2026). */}
+        <div className="mt-6 flex items-stretch gap-[14px]">
+          <Carril hitos={g.hitos} />
+          <div
+            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px" }}
+            className="min-w-0 flex-1 border bg-white/40 p-4"
+          >
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1000fr)_minmax(0,430fr)]">
           {/* ================== columna izquierda: el trabajo ================== */}
           <div className="flex min-w-0 flex-col gap-5">
             {/* --------------------- 2 · las diez fases ---------------------
@@ -350,6 +363,8 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
                 </ul>
               )}
             </section>
+          </div>
+        </div>
           </div>
         </div>
       </main>
