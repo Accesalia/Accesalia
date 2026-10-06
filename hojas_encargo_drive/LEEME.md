@@ -13,4 +13,4 @@ El volcado espera a que esten creadas todas las opps.
 - `extraido_*.jsonl`: los datos en bruto, uno por hoja.
 - `hojas_monday.json`, `monday_candidatas.json`: las hojas que ya estan en la base
   (importadas de Monday) en la misma direccion: la migracion las COMPLETA.
-- `montar_excel.py` -> `../cruce_hojas_tanda1.xlsx`.
+- `montar_excel.py` -> `../docs/cruce_hojas_tanda1.xlsx`.

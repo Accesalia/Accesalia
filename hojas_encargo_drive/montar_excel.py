@@ -109,6 +109,6 @@ for hoja, anchos in ((ws, [5, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45
 for fila in ws.iter_rows(min_row=2):
     fila[1].fill = PatternFill('solid', fgColor=color[fila[1].value])
     fila[20].fill = PatternFill('solid', fgColor='EAF4FF')
-salida = '../cruce_hojas_tanda1.xlsx'
+salida = '../docs/cruce_hojas_tanda1.xlsx'
 wb.save(salida)
 print(dict(cuenta), 'extraidas', len(ext), '->', salida)
