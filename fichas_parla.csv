@@ -1,57 +1,157 @@
-carpeta,lectura,cif,presidente,dni_presidente,administrador,admin_contacto,admin_telefono,admin_correo,trajo_empresa,trajo_persona,comercial_interno,comercial_de_donde,ayto_tecnico,ref_catastral,notas,ficha
-AlfonsoXIII2,ok,H80726268,María Mercedes Valtierra Alonso,52080056Y,De Roseda & Asociados SL,,,administracion@derosedaasociados.com,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,DAVID CÁMARA DE FAIN,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad: CDAD DE PROP CL ALFONSO XIII Nº2 PARLA,MADRID\1APROVINCIA\PARLA\AlfonsoXIII2\FICHA DE DATOS ACCESALIA.docx
-AlfonsoXelsabio44,ok,,,,,,,,,,Daniel,por defecto: sin etiqueta = Daniel,,,,MADRID\1APROVINCIA\PARLA\AlfonsoXelsabio44\FICHA DATOS TECNICOS.docx
+carpeta,lectura,cif,presidente,dni_presidente,administrador,admin_contacto,admin_telefono,admin_correo,trajo_empresa,trajo_persona,comercial_interno,comercial_de_donde,ayto_tecnico,ref_catastral,notas,tachado,notas_admin,notas_encargo,notas_subvenciones,ficha
+AlfonsoXIII2,ok,H80726268,María Mercedes Valtierra Alonso,52080056Y,De Roseda & Asociados SL,,,administracion@derosedaasociados.com,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,DAVID CÁMARA DE FAIN,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad: CDAD DE PROP CL ALFONSO XIII Nº2 PARLA
+CIF:	H80726268
+Presidente:	María Mercedes Valtierra Alonso
+DNI:		52080056Y
+
+Código postal:	28982
+Referencia catastral: 	4741201VK3544S
+Fachada:
+PEM:	81.958,82
+
+residuos: 300
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO
+
+
+
+19/2021/OMECP
+
+Jefe de obra: Víctor Esquinas
+
+COAM: TL/001151/2024 FIN DE OBRA",,,,,MADRID\1APROVINCIA\PARLA\AlfonsoXIII2\FICHA DE DATOS ACCESALIA.docx
+AlfonsoXelsabio44,ok,,,,,,,,,,Daniel,por defecto: sin etiqueta = Daniel,,,,,,,,MADRID\1APROVINCIA\PARLA\AlfonsoXelsabio44\FICHA DATOS TECNICOS.docx
 alcorcon7,ok,,,,,,,,AGLSYP,,Daniel,por defecto: sin etiqueta = Daniel,,,"04/04/22 REUTILIZAR 3D DE TIPICO LEGANES
+
 05/05/2022
 ESTAN A LA ESPERA DE FINANCIACION PARA APROBARLO
+
 07/07/22 ascensor
-aprobado en junta, pdte de financiacion (prob a finales de julio)",MADRID\1APROVINCIA\PARLA\alcorcon7\FICHA DATOS TECNICOS.docx
-alfonsoXIII8,ok,,,,,,,,,,Alvaro,etiqueta de la ficha,,JEFE,,MADRID\1APROVINCIA\PARLA\alfonsoXIII8\FICHA DATOS.docx
-alfonsoXelsabio39,ok,,,,,,,,FAIN,ALBERTO DE PAZ,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,"FSA caracol CP Alfonso X el Sabio 39 Parla
+aprobado en junta, pdte de financiacion (prob a finales de julio)",,,,,MADRID\1APROVINCIA\PARLA\alcorcon7\FICHA DATOS TECNICOS.docx
+alfonsoXIII8,ok,,,,,,,,,,Alvaro,etiqueta de la ficha,,,,,,,,MADRID\1APROVINCIA\PARLA\alfonsoXIII8\FICHA DATOS.docx
+alfonsoXelsabio39,ok,,,,,,,,FAIN,ALBERTO DE PAZ,Daniel,por defecto: sin etiqueta = Daniel,,,"FSA caracol CP Alfonso X el Sabio 39 Parla
 Recibidos
+
 Alberto De Paz Ahijado
 Adjuntos
 29 may 2023, 20:33 (hace 13 horas)
 para mí, daniel
+
 Buenas tardes.
 Os agradecería que me mandarais una presentación 3D tipo caracol para la próxima junta 1/06. Acceso portal mediante salvaescaleras,  no creo que podamos resolverlo con rampa.
 Pasármela por favor para antes de este jueves cualquier cosa me decís.
+
+
 Alberto de Paz
+
 Responsable Delegación
+
 Fain Ascensores
+
 672048948
 25/05/2023
 Quiere 3D para presentar el 01/06/2023.
+
 01/06/2023
-Le mandé unos 3D para que lo vendiese el.",MADRID\1APROVINCIA\PARLA\alfonsoXelsabio39\FICHA DATOS TECNICOS.docx
-aranjuez2,ok,,,,,,,,ARQUIOBRAS,SUSANA BARCO,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,22/06/2023	 Mónica manda presupuesto.,MADRID\1APROVINCIA\PARLA\aranjuez2\FICHA DATOS TECNICOS.docx
+Le mandé unos 3D para que lo vendiese el.",,,,,MADRID\1APROVINCIA\PARLA\alfonsoXelsabio39\FICHA DATOS TECNICOS.docx
+aranjuez2,ok,,,,,,,,ARQUIOBRAS,SUSANA BARCO,Daniel,por defecto: sin etiqueta = Daniel,,,22/06/2023	 Mónica manda presupuesto.,,,,,MADRID\1APROVINCIA\PARLA\aranjuez2\FICHA DATOS TECNICOS.docx
 ciudades1,ok,H79652145,,51851596M,OAGALES,Juana Matei,911567462,juana.matei@oagales.com,FAIN,ALBERTO CALLEJA,Daniel,por defecto: sin etiqueta = Daniel,Valentín 9 a 2 h.,4749302VK3544N,"22-01-2024
 De: Juan Luis Ruiz de Mier Maldonado <juanluis.ruizdemier@fainascensores.com>
 Date: lun, 22 ene 2024 a las 12:57
 Subject: Re: [External] CIUDADES 1 PARLA - status obra
 To: Ana Santamarta <asantamarta.accesalia@gmail.com>
+
+
 Buenos días Ana,
+
 Todavía no hemos empezado, tenemos que reunirnos con el cliente en estas semanas. Cuando vayamos a empezar te lo comunicaré.
+
 Un cordial saludo.
+
 04-03-2024 AGENDADO EL 10 DE ABRIL PARA FOTOS LOCAL LLAMO A ADMON POR TELEFONO Y ME COMENTAN QUE EL TEMA DE LOS LOCALES ES SENSIBLE YA QUE NO QUERIAN HACER LAS OBRAS.
 EN PRINCIPIO HABRÁ ALGUIEN PARA ABRIR PERO QUE SI PASA ALGO NOS LLAMAN
-Septiembre 2025 CFO",MADRID\1APROVINCIA\PARLA\ciudades1\FICHA DATOS TECNICOS.docx
+Septiembre 2025 CFO",,,,,MADRID\1APROVINCIA\PARLA\ciudades1\FICHA DATOS TECNICOS.docx
 ciudades8,ok,,,,,,,,,ADM CON AGLSYP,Daniel,por defecto: sin etiqueta = Daniel,,,"31/03/2022 preparar 3D para semana que viene
 06/07/22 ascensor
-aprobado en junta, pdte de financiacion (prob a finales de julio)",MADRID\1APROVINCIA\PARLA\ciudades8\FICHA DATOS TECNICOS.docx
-enriquegranados 7A,ok,,,,ASESORIA JURIDICA PROLEY,Bárbara,685524773    916995574/,ajproley@gmail.com,,,Daniel,etiqueta de la ficha,,JEFE,,MADRID\1APROVINCIA\PARLA\enriquegranados 7A\FICHA DATOS.docx
-fernandoIII26,ok,,,,,,,,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\fernandoIII26\FICHA DE DATOS ACCESALIA.docx
-fernandoIII27,ok,,,,,,,,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\fernandoIII27\FICHA DE DATOS ACCESALIA.docx
-fuenlabrada63,ok,,,,,,,,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\fuenlabrada63\FICHA DE DATOS ACCESALIA.docx
-fuente22,ok,,,,,,,juntas@oagales.com,,LUIS OAGALES,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,14/01/2025 se envía hoja de encargo pry + df,MADRID\1APROVINCIA\PARLA\fuente22\FICHA DATOS TECNICOS.docx
-fuentebella14,ok,,,,,,,,,ANDRES ENWE,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\fuentebella14\FICHA DE DATOS ACCESALIA.docx
-fuentebella28,ok,H79306148,JOSE MIGUEL MANTILLA ROCHAS,52182044N,GESTAFIN,Jose Javier Trigo Gonzalez,91 698 36 84 / 626 962 257,javier.trigo@gestafin.es,cdad,ADMIN JAVIER TRIGO DE GESTAFIN Sonia Castellanos + OA GALES,Daniel,por defecto: sin etiqueta = Daniel,,4340101VK3544S,"28/09/2023
+aprobado en junta, pdte de financiacion (prob a finales de julio)",,,,,MADRID\1APROVINCIA\PARLA\ciudades8\FICHA DATOS TECNICOS.docx
+enriquegranados 7A,ok,,,,ASESORIA JURIDICA PROLEY,Bárbara,685524773    916995574/,ajproley@gmail.com,,,Daniel,etiqueta de la ficha,,,,,,"---------- Forwarded message ---------
+De: ASESORIA JURIDICA PROLEY <ajproley@gmail.com>
+Date: jue, 30 jul 2026 a las 10:44
+Subject: C.P. ENRIQUE GRANADOS 7A
+To: danieldesoto@accesalia.com <danieldesoto@accesalia.com>
+
+
+Buenos días,
+Necesitamos presupuesto de arquitecto, dado que ARQUIOBRAS para poder facilitar su presupuesto necesitamos previamente el vuestro.
+Quedamos a la espera de contestación.
+Gracias.
+Un saludo.
+Bárbara.
+
+31-07-26 HE enviada a Monica para su ok -enviada",,MADRID\1APROVINCIA\PARLA\enriquegranados 7A\FICHA DATOS.docx
+fernandoIII26,ok,,,,,,,,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:
+Referencia catastral:
+Fachada:
+PEM:	residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO",,,,,MADRID\1APROVINCIA\PARLA\fernandoIII26\FICHA DE DATOS ACCESALIA.docx
+fernandoIII27,ok,,,,,,,,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:
+Referencia catastral:
+Fachada:
+PEM:	residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO",,,,,MADRID\1APROVINCIA\PARLA\fernandoIII27\FICHA DE DATOS ACCESALIA.docx
+fuenlabrada63,ok,,,,,,,,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:			28981
+Referencia catastral: 		4251703VK3545S
+Fachada:			16m
+PEM:
+residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO",,,,,MADRID\1APROVINCIA\PARLA\fuenlabrada63\FICHA DE DATOS ACCESALIA.docx
+fuente22,ok,,,,,,,juntas@oagales.com,,LUIS OAGALES,Daniel,por defecto: sin etiqueta = Daniel,,,14/01/2025 se envía hoja de encargo pry + df,,,,,MADRID\1APROVINCIA\PARLA\fuente22\FICHA DATOS TECNICOS.docx
+fuentebella14,ok,,,,,,,,,ANDRES ENWE,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:
+Referencia catastral:
+Fachada:
+PEM:	residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO",,,,,MADRID\1APROVINCIA\PARLA\fuentebella14\FICHA DE DATOS ACCESALIA.docx
+fuentebella28,ok,H79306148,,50736119M,"OFICINA ADMINISTRATIVA GALES, S.L. 23-01-2024",Luis y Sara,91 156 74 62,sara.lopez@oagales.com; juntas@oagales.com Contactos constructoras: Oscar de Generación Vertical - info@generacionvertical.es - 687513290,cdad,Sonia Castellanos + OA GALES,Daniel,por defecto: sin etiqueta = Daniel,,4340101VK3544S,"28/09/2023
 VICTOR DEL PINO DE ARQUIOBRAS HA HECHO YA OBRAS EN ESA COMUNIDAD. PREGUNTARLE, PORQUE HA PUESTO SATE DE 8 EN ALGUNA PARTE. PREGUNTARLE LOS DETALLES. PIDE EL FAVOR DE QUE TRATEMOS DE MANDARLE EL PRESUP A ÉL PARA QUE PUEDA POSICIONARSE BIEN.
+
 05/10/2023 Ojo, cuando hagamos el presupuesto de arquitectura, hay que AÑADIR una partida de 3.000 EUROS en concepto de gestión documental.
 18/10/2023 MANDAR PRESUPUESTO NUESTRO A ARQUIOBRAS ANTES DE MANDAR AL CLIENTE PARA QUE VEA LO QUE HAY QUE TOCAR (VICTOR DEL PINO)
+
 15/11/2023 llama una tal Sonia, vecina del cuarto pidiendo hablar con Jonatan, justo después de que la otra contrata Generación Vertical (no arquiobras) ha estado hablando con él sobre las mismas cosas.
+
 La vecina dice que hay una ITE desfavorable de mayo 2023 que nosotros no hemos recibido. Nosotros teníamos una IEE de noviembre 2022 que era desfavorable. La señora ha dicho que nos las va a mandar por mail. Parece estar a la gresca con el administrador. Mucho cuidado! Al parecer tienen un plazo para subsanar la IEE defectuosa, y se les está acabando.
+
 24/11/2023 Informan que la caldera es de los tres bloques, con proyecto terminado. Los trasteros de PB tienen conflicto con la comunidad de vecinos por la disputa de su propiedad.
+
 ---------- Forwarded message ---------
 De: Victor Del Pino - Arquiobras <vdelpino@arquiobras.es>
 Date: mar., 7 may. 2024 17:51
@@ -59,38 +159,144 @@ Subject: RE: FUENTEBELLA 28 PARLA
 To: Oficina Accesalia <oficina.accesalia@gmail.com>
 Cc: Gestafin <info@gestafin.es>
 Buenas tardes Ana,
+
 Finalmente parece ser que la persona del 4, Sonia .. ha conseguido cargarse al administrador (Javier de Gestafin). Según los vecinos han aceptado la obra a otra empresa que va 50.000 euros más económica que nosotros. (creo que se van a dar un buen castañazo). Por eso creo yo que todavía no han empezado. En esa comunidad hemos trabajado mucho durante años para llegar a realizar fachada y cubierta y finalmente se lo han aceptado a otros. Como bien sabéis, nosotros os presentamos para el proyecto y tema tecnico. Por lo que tenéis que pedir documentación de nuevo administrador para vuestros cobros, ver quien realiza la obra y sobre todo para no pillaros las manos como dirección facultativa  … pedirles toda la documentación de empresa y de personal.
 Ya me contáis al respecto de cómo queda este tema. Gracias
-30/09/2024 ENTREGADO EL CONTRATO, LA COMUNIDAD LO HA APROBADO PERO NO LO HAN FIRMADO TODAVÍA",MADRID\1APROVINCIA\PARLA\fuentebella28\FICHA DATOS TECNICOS.docx
+
+
+30/09/2024 ENTREGADO EL CONTRATO, LA COMUNIDAD LO HA APROBADO PERO NO LO HAN FIRMADO TODAVÍA",ADMIN JAVIER TRIGO DE GESTAFIN · GESTAFIN · Jose · Javier Trigo · Gonzalez · 91 698 36 84 / 626 962 257 · javier.trigo@gestafin.es · Victor · de · Arquiobras · - vdelpino@arquiobras.es · JOSE MIGUEL MANTILLA ROCHAS · 52182044N,,,,MADRID\1APROVINCIA\PARLA\fuentebella28\FICHA DATOS TECNICOS.docx
 fuentebella45,ok,H79764353,,01483322Y,OA GALES,Susana Roca Puerto,911567462,susana.roca@oagales.com; juntas@oagales.com; juana.matei@oagales.com,FAIN,ALBERTO CALLEJA,Daniel,por defecto: sin etiqueta = Daniel,,4238501VK3543N,"6 paradas por hueco de escalera con recorte en 3 lados.
-SE AJUSTO EL PDF DE LA VALORACION FIN DE OBRA 1 CENTIMO PARA QUE CUADRARA EXACTO",MADRID\1APROVINCIA\PARLA\fuentebella45\FICHA DATOS TECNICOS.docx
-fuentebella55,ok,,,,,,,,,,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,"09/07/2024 ENVIAN PRESUPUESTO ACEPTADO POR LA COMUNIDAD. Hay que adaptarse 100% a las mediciones de ARQUIOBRAS!!! Orden y todo exacto. Si hay algo que nos rechina, hay que mandarles un listado.",MADRID\1APROVINCIA\PARLA\fuentebella55\FICHA DATOS TECNICOS.docx
-fuentebella68,ok,H79617312,,,A través de pedro de inpe,,,chema1978@hotmail.com,PEDRO IMPE,PEDRO IMPE,Daniel,por defecto: sin etiqueta = Daniel,,,,MADRID\1APROVINCIA\PARLA\fuentebella68\FICHA DATOS TECNICOS.docx
-fuentebella73,ok,,,,,RUBEN 622 388 378,,Fincas-gales@oagales.com,,RUBEN OAGALES,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,"06/11/2024 QUE LE LLAME DANIEL: RUBEN 622 388 378
-11/11/2024 enviada hoja de encargo pry + subv.",MADRID\1APROVINCIA\PARLA\fuentebella73\FICHA DATOS TECNICOS.docx
-fuentebella8,ok,H80152523,MARTA DIAZ PEREZ,11813035M,SIGLO 21 ABOGADOS,TANIA PARRA RIVAS,916644017,tania@asesoriasiglo21.com DATOS CONSTRUCTOR,CONSTRUCTIVE SOLUTIONS,JOSE MANUEL CARRASCO,Daniel,por defecto: sin etiqueta = Daniel,,4340501VK3544S,,MADRID\1APROVINCIA\PARLA\fuentebella8\FICHA DATOS TECNICOS.docx
-gobernador8,ok,H79821450,MARÍA DEL CARMEN SANTOS GONZALEZ,51608549E,NUBAGES ADMINISTRACIÓN,,,nubages@nubages.es,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,JUAN ANTONIO ALVAREZ,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:	CDAD DE PROP CL GOBERNADOR 8 PARLA,MADRID\1APROVINCIA\PARLA\gobernador8\FICHA DE DATOS ACCESALIA.docx
+SE AJUSTO EL PDF DE LA VALORACION FIN DE OBRA 1 CENTIMO PARA QUE CUADRARA EXACTO",,,,,MADRID\1APROVINCIA\PARLA\fuentebella45\FICHA DATOS TECNICOS.docx
+fuentebella55,ok,,,,,,,,,,Daniel,por defecto: sin etiqueta = Daniel,,,"09/07/2024 ENVIAN PRESUPUESTO ACEPTADO POR LA COMUNIDAD. Hay que adaptarse 100% a las mediciones de ARQUIOBRAS!!! Orden y todo exacto. Si hay algo que nos rechina, hay que mandarles un listado.",,,,,MADRID\1APROVINCIA\PARLA\fuentebella55\FICHA DATOS TECNICOS.docx
+fuentebella68,ok,H79617312,,,A través de pedro de inpe,,,chema1978@hotmail.com,PEDRO IMPE,PEDRO IMPE,Daniel,por defecto: sin etiqueta = Daniel,,,,,,,,MADRID\1APROVINCIA\PARLA\fuentebella68\FICHA DATOS TECNICOS.docx
+fuentebella73,ok,,,,,RUBEN 622 388 378,,Fincas-gales@oagales.com,,RUBEN OAGALES,Daniel,por defecto: sin etiqueta = Daniel,,,"06/11/2024 QUE LE LLAME DANIEL: RUBEN 622 388 378
+11/11/2024 enviada hoja de encargo pry + subv.",,,,,MADRID\1APROVINCIA\PARLA\fuentebella73\FICHA DATOS TECNICOS.docx
+fuentebella8,ok,H80152523,MARTA DIAZ PEREZ,11813035M,SIGLO 21 ABOGADOS,TANIA PARRA RIVAS,916644017,tania@asesoriasiglo21.com DATOS CONSTRUCTOR,CONSTRUCTIVE SOLUTIONS,JOSE MANUEL CARRASCO,Daniel,por defecto: sin etiqueta = Daniel,,4340501VK3544S,,,,,,MADRID\1APROVINCIA\PARLA\fuentebella8\FICHA DATOS TECNICOS.docx
+gobernador8,ok,H79821450,MARÍA DEL CARMEN SANTOS GONZALEZ,51608549E,NUBAGES ADMINISTRACIÓN,,,nubages@nubages.es,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,JUAN ANTONIO ALVAREZ,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:	CDAD DE PROP CL GOBERNADOR 8 PARLA
+CIF:		H79821450
+Presidente:	MARÍA DEL CARMEN SANTOS GONZALEZ
+DNI:		51608549 E
+
+Código postal:	28980
+Referencia catastral: 		5044103VK3554S
+Fachada:			52.13m
+PEM:				89.771,58
+residuos:
+SUPEFICIES
+left8887200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AMBITO ORDENACION
+DISTRITO
+
+Jefe de obra: Abel?
+
+COAM:
+
+TL/020544/2023",,,,,MADRID\1APROVINCIA\PARLA\gobernador8\FICHA DE DATOS ACCESALIA.docx
 jaimeIelconquistador39,ok,,,,GESTAFIN,Jose Javier Trigo Gonzalez,91 698 36 84 / 626 962 257,javier.trigo@gestafin.es www.gestafin.es,Admin Javier trigo,,Daniel,por defecto: sin etiqueta = Daniel,,4843804VK3544S,"28/05/2023 Se envía al administrador presupuesto de sate y next generation.
-27/09/2023	SATE",MADRID\1APROVINCIA\PARLA\jaimeIelconquistador39\FICHA DATOS TECNICOS.docx
-jarama1,ok,,,,,,,,AGLSYP,,Daniel,por defecto: sin etiqueta = Daniel,,,31/08/22 PREPARAR UN 3D PARA PRESENTACION SEPTIEMBRE,MADRID\1APROVINCIA\PARLA\jarama1\FICHA DATOS TECNICOS.docx
-jerusalen16,ok,H78693181,,,RAQUEL MARÍN ABOGADOS.,,,,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,Oscar Lopez Fernandez,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:	CP JERUSALÉN 16,MADRID\1APROVINCIA\PARLA\jerusalen16\FICHA DE DATOS ACCESALIA.docx
-juandeaustria4,ok,,,,,,,andres.heras@engwe.com,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\juandeaustria4\FICHA DE DATOS ACCESALIA.docx
-lagotiberiades8,ok,H79966537,Mª CONSUELO MORENO LÓPEZ,50692654X,PURIFICACIÓN FERNÁNDEZ,,,INFO@PFABOGADA.COM,,ALBERTO CALLEJA FAIN,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad: CDAD. PROP. LAGO TIBERIADES, 8 PARLA (MADRID)",MADRID\1APROVINCIA\PARLA\lagotiberiades8\FICHA DE DATOS ACCESALIA.docx
-leganes12,ok,,,,ADMIN B Y R,,,,CDAD,,Daniel,por defecto: sin etiqueta = Daniel,,,03/06/22 NOS PIDE EL ADMIN PRESUPUESTO POR MAIL. NO SABEMOS CÓMO HA LLEGADO,MADRID\1APROVINCIA\PARLA\leganes12\FICHA DATOS TECNICOS.docx
-leganes8,sin ficha,,,,,,,,,,,,,,,
-olvido4,ok,,,,OFICINA ADMINISTRATIVA GALES,Luis Santiago Navas,91 156 74 62,juntas@oagales.com; comunidades@oagales.com,,LUIS ADMINISTRADOR,Daniel,por defecto: sin etiqueta = Daniel,,JEFE,30/10/2024 SE ENVIAN HOJAS DE ENCARGO PROY + DF Y SUBVENCIONES.,MADRID\1APROVINCIA\PARLA\olvido4\FICHA DATOS TECNICOS.docx
-pablocasals26,ok,H80001076,SILVIA GARCIA ROS,53465588H,AFIGECO Docs cp pedidos 26/10/22,PEPE NAVARRO (ADMINISTRADOR) / SERGIO (DPTO ADMINISTRACION),916991416 / 638946888,pepenavarro@afigeco.com; sergio@afigeco.com,FAIN,ALBERTO DE PAZ,Daniel,por defecto: sin etiqueta = Daniel,,4236301VK3543N,SUBVENCIONES: SE COBRA POR CADA SUBV ADICIONAL DESPUÉS DE LA PRIMERA PRESENTACION,MADRID\1APROVINCIA\PARLA\pablocasals26\FICHA DATOS TECNICOS.docx
-real82,sin ficha,,,,,,,,,,,,,,,
+27/09/2023	SATE",,,,,MADRID\1APROVINCIA\PARLA\jaimeIelconquistador39\FICHA DATOS TECNICOS.docx
+jarama1,ok,,,,,,,,AGLSYP,,Daniel,por defecto: sin etiqueta = Daniel,,,31/08/22 PREPARAR UN 3D PARA PRESENTACION SEPTIEMBRE,,,,,MADRID\1APROVINCIA\PARLA\jarama1\FICHA DATOS TECNICOS.docx
+jerusalen16,ok,H78693181,,,RAQUEL MARÍN ABOGADOS.,,,,4768850488950037077652984500ADMINISTRADOR DE FINCAS        SI           NO,Oscar Lopez Fernandez,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:	CP JERUSALÉN 16
+CIF:		H78693181
+Presidente:
+DNI:
+
+Código postal:	28980
+Referencia catastral: 	4245201VK3544N
+Fachada:
+PEM:  48.437,95
+residuos:
+SUPEFICIES  20 m2
+AMBITO ORDENACION
+DISTRITO
+
+TL-015726-2019",,,,,MADRID\1APROVINCIA\PARLA\jerusalen16\FICHA DE DATOS ACCESALIA.docx
+juandeaustria4,ok,,,,,,,andres.heras@engwe.com,,ANDRES ENGWE,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:
+Referencia catastral:
+Fachada:
+PEM:	residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO
+
+
+
+
+ANDRES J. HERAS <andres.heras@engwe.com>
+
+13:44 (hace 5 horas)
+
+
+
+
+para mí, gerardo.ferrero
+
+
+
+Hola Daniel, te adjunto planos del ascensor que se hizo en Parla y es igual a un 99% del que necesitamos en la calle Juan de Austria nº4 de Parla.",,,,,MADRID\1APROVINCIA\PARLA\juandeaustria4\FICHA DE DATOS ACCESALIA.docx
+lagotiberiades8,ok,H79966537,Mª CONSUELO MORENO LÓPEZ,50692654X,PURIFICACIÓN FERNÁNDEZ,,,INFO@PFABOGADA.COM,,ALBERTO CALLEJA FAIN,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad: CDAD. PROP. LAGO TIBERIADES, 8 PARLA (MADRID)
+CIF: H79966537
+Presidente: Mª CONSUELO MORENO LÓPEZ
+DNI: 50692654 X
+
+Código postal: 28980
+Referencia catastral: 4044301VK3544S
+Fachada:
+PEM: 63.141,46€ residuos:
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO
+
+
+Expediente parla 81/2021/OMECP
+
+
+
+Inicio de obra 18/07/22
+Jefe de obra: Angel Luis Díaz Plaza angelluis.diaz@fainascensores.com 630127010 (18/07/2022)
+
+Constructor: Industrias Metalurgicas Sidero 2018 <imsidero@gmail.com>
+
+TL/008370/2024 CFO",,,,,MADRID\1APROVINCIA\PARLA\lagotiberiades8\FICHA DE DATOS ACCESALIA.docx
+leganes12,ok,,,,ADMIN B Y R,,,,CDAD,,Daniel,por defecto: sin etiqueta = Daniel,,,03/06/22 NOS PIDE EL ADMIN PRESUPUESTO POR MAIL. NO SABEMOS CÓMO HA LLEGADO,,,,,MADRID\1APROVINCIA\PARLA\leganes12\FICHA DATOS TECNICOS.docx
+leganes8,sin ficha,,,,,,,,,,,,,,,,,,,
+olvido4,ok,,,,OFICINA ADMINISTRATIVA GALES,Luis Santiago Navas,91 156 74 62,juntas@oagales.com; comunidades@oagales.com,,LUIS ADMINISTRADOR,Daniel,por defecto: sin etiqueta = Daniel,,,30/10/2024 SE ENVIAN HOJAS DE ENCARGO PROY + DF Y SUBVENCIONES.,,,,,MADRID\1APROVINCIA\PARLA\olvido4\FICHA DATOS TECNICOS.docx
+pablocasals26,ok,H80001076,SILVIA GARCIA ROS,53465588H,AFIGECO Docs cp pedidos 26/10/22,PEPE NAVARRO (ADMINISTRADOR) / SERGIO (DPTO ADMINISTRACION),916991416 / 638946888,pepenavarro@afigeco.com; sergio@afigeco.com,FAIN,ALBERTO DE PAZ,Daniel,por defecto: sin etiqueta = Daniel,,4236301VK3543N,SUBVENCIONES: SE COBRA POR CADA SUBV ADICIONAL DESPUÉS DE LA PRIMERA PRESENTACION,,,,,MADRID\1APROVINCIA\PARLA\pablocasals26\FICHA DATOS TECNICOS.docx
+real82,sin ficha,,,,,,,,,,,,,,,,,,,
 rioguadalquivir3,ok,H79338216,PABLO ACEVES CALERO,02072793X,GESTAFIN,Jose Javier Trigo Gonzalez,91 698 36 84 / 626 962 257,javier.trigo@gestafin.es,,,Daniel,por defecto: sin etiqueta = Daniel,,4450601VK3545S,"19/09/2023 han mandado anteproyecto y presupuesto
+
 Adjunto información de la obra que quiere acometer la comunidad. Nos gustaría que nos comentaras y solucionaras las dudas.
+
+
 Los trabajos que quieren realizar son la fachada con SATE y aislamiento de cubierta sin impermeabilización. Adjuntamos informe de Toscana Arquitectos realizado en su momento y nuestra oferta. También Toscana tiene realizado el informe IEE pero no lo tenemos en nuestro poder porque se pararon los trabajos por cuestiones de vecinos y garaje. Faltaría pagarles la factura pendiente y nos lo darían sin problemas.
+
 La idea es acogerse a subvención pero empezar las obras con financiación bancaria para no demorarlas. En principio la comunidad quiere contratar el proyecto con Toscana porque ya lo tienen estudiado, pero Toscana no tramita ayudas y quieren que os encarguéis vosotros. Se trataría de hablar con Toscana para que el proyecto lo realizaran bajo vuestras indicaciones para que ellos recibieran el máximo de ayudas o subvenciones. ¿esto es posible?
+
 Si no es posible, necesitamos que nos paséis oferta del proyecto y tramitación de ayudas en conjunto y que os encargarías vosotros de todo. Recordar que la fachada tiene  la peculiaridad de retirada de unas piedras de fachada con peligro de desprendimiento con relieve que hay que quitar y por tanto hay que cambiar unas ventanas.
+
 Pongo en copia al administrador y esperamos contestación al respecto para reactivarlo todo con urgencia. Muchas gracias de antemano.
 02/10/2023 Reunirse con presidente, vicepresidente, Victor del Pino y administrador Javier Trigo 11/11/23. Se añaden honorarios por gestión documental en el proyecto (presupuesto arquitectura) para Javier Trigo.
 05/10/2023 Ojo, cuando hagamos el presupuesto de arquitectura, hay que AÑADIR una partida de 3.500 EUROS en concepto de gestión documental.
-PARA DAVID: El código postal catastral y de Google no coincide. El tomado como valido en correos es 28981(en el CIF aparece 28980)",MADRID\1APROVINCIA\PARLA\rioguadalquivir3\FICHA DATOS TECNICOS.docx
-sananton70,ok,H79704060,ROBIN ANTONIO RIVAS FERNANDEZ,54420205C,ADMINISTRACION FINCAS GARCIA RETAMOSA,Tomas García Retamosa,645748010; 916988709,admonfincasgarciaretamosa@gmail.com,CDAD,ADM CON AGLSYP,Daniel,por defecto: sin etiqueta = Daniel,,4750601VK3545S,"31/03/2022 estudiar
+PARA DAVID: El código postal catastral y de Google no coincide. El tomado como valido en correos es 28981(en el CIF aparece 28980)",,,,,MADRID\1APROVINCIA\PARLA\rioguadalquivir3\FICHA DATOS TECNICOS.docx
+sananton70,ok,H79704060,ROBIN ANTONIO RIVAS FERNANDEZ,54420205C,,,,mluisanunez@nubages.es,CDAD,ADM CON AGLSYP,Daniel,por defecto: sin etiqueta = Daniel,,4750601VK3545S,"31/03/2022 estudiar
 16-01-2024 REVOCOS Y REFORMAS POZUELO, CONSTRUCTOR RAUL: 666613214
 16-01-2024  HAY QUE TRAMITAR OCUP ESPACIO CON CONTENEDORES Y ANDAMIOS.
 CEE SOLO SI LO PIDE EL COAM.
@@ -98,23 +304,123 @@ SATE DE 8 CM MARCA TRADITERM DE PUMA.
 RESPETAR COLOR ACTUAL DEL SATE.
 SOLO INTERVENCION EN TESTEROS. NO CUBIERTA, BAJOS NI PATIOS.
 DIRECCION DE OBRA Y CSS
+
 SE ENVIA HOJA DE ENCARGO. RAUL 666613214. ADMIN TOMAS 645748010
+
 Nos tienen que mandar un presupuesto para adaptarnos a él. Reclamado a Raúl por mail (30/01/2024)
+
+
 Únicamente se han sacado fotos
 06-11-2024 APROBACION DE LICENCIA. LLEGA HOY Y SE ENVIA A ADMON Y CONTRATA. SE LES AVISA QUE LA OBRA TIENE QUE EMPEZAR ANTES DE 6 MESES SI NO CADUCA LICENCIA
 22/07/2026 el administrador informa:
+
 de:
 garcia retamosa <admonfincasgarciaretamosa@gmail.com>
+
 para:
 Oficina Accesalia <oficina.accesalia@gmail.com>
 fecha:
 21 jul 2026, 10:22
-Bns días, esta comunidad ya no es administrada por nosotros. diríjase a mluisanunez@nubages.es",MADRID\1APROVINCIA\PARLA\sananton70\FICHA DATOS TECNICOS.docx
-sanblas12,ok,,,,,,,,,PEDRO ARANDA  THYSSEN,Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:,MADRID\1APROVINCIA\PARLA\sanblas12\FICHA DE DATOS ACCESALIA.docx
-sanblas26,ok,,,,,,,,AGLSYP,,Daniel,por defecto: sin etiqueta = Daniel,,,"17/10/22 VISITA COMUNIDAD CON 3D CON AGLSYP. SE VENDIO, PERO NO TENEMOS AUN FIRMADA HOJA DE ENCARGO (PDTE TRAMITE EL TEMA AGLSYP CON LA CDAD)",MADRID\1APROVINCIA\PARLA\sanblas26\FICHA DATOS TECNICOS.docx
-santotomásdeaquino37,sin ficha,,,,,,,,,,,,,,,
-soledad9,ok,,,,,,,,IBERLEAN,,Daniel,por defecto: sin etiqueta = Daniel,,,16/09/22 ASCENSOR EN VIVIENDA PARTICULAR,MADRID\1APROVINCIA\PARLA\soledad9\FICHA DATOS TECNICOS.docx
+Bns días, esta comunidad ya no es administrada por nosotros. diríjase a mluisanunez@nubages.es",NOMBRE · ADMINISTRACION FINCAS GARCIA RETAMOSA · DIRECCION · PERSONA DE CONTACTO · Tomas · García Retamosa · TELEFONO · 645748010 · ; 916988709 · E-MAIL · admonfincasgarciaretamosa@gmail.com,,,,MADRID\1APROVINCIA\PARLA\sananton70\FICHA DATOS TECNICOS.docx
+sanblas12,ok,,,,,,,,,PEDRO ARANDA  THYSSEN,Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:
+CIF:
+Presidente:
+DNI:
+
+Código postal:
+Referencia catastral:
+Fachada:
+PEM:	          residuos:
+Superficie:",,,,,MADRID\1APROVINCIA\PARLA\sanblas12\FICHA DE DATOS ACCESALIA.docx
+sanblas26,ok,,,,,,,,AGLSYP,,Daniel,por defecto: sin etiqueta = Daniel,,,"17/10/22 VISITA COMUNIDAD CON 3D CON AGLSYP. SE VENDIO, PERO NO TENEMOS AUN FIRMADA HOJA DE ENCARGO (PDTE TRAMITE EL TEMA AGLSYP CON LA CDAD)",,,,,MADRID\1APROVINCIA\PARLA\sanblas26\FICHA DATOS TECNICOS.docx
+santotomásdeaquino37,sin ficha,,,,,,,,,,,,,,,,,,,
+soledad9,ok,,,,,,,,IBERLEAN,,Daniel,por defecto: sin etiqueta = Daniel,,,16/09/22 ASCENSOR EN VIVIENDA PARTICULAR,,,,,MADRID\1APROVINCIA\PARLA\soledad9\FICHA DATOS TECNICOS.docx
 travesiaisabelii3,ok,H79736765,ANTONIA RUEDA TORRADO,02227473S,De Roseda & Asociados SL,,,administracion@derosedaasociados.com,,DAVID CÁMARA (FAIN),Daniel,por defecto: sin etiqueta = Daniel,,,"Técnico: Dennis
-Propiedad: CDAD PROP TRAVESÍA ISABEL II 3 PARLA",MADRID\1APROVINCIA\PARLA\travesiaisabelii3\FICHA DE DATOS ACCESALIA.docx
-virgendelafuencisla8,ok,H79580593,Ignacio Rubio,,IGM,,,info@igmserviciosjuridicos.com,,"inma (jefa), Lola (secretaria)",Daniel,por defecto: sin etiqueta = Daniel,,,Propiedad:	CP VIRGEN DE LA FUENCISLA 8 PARLA,MADRID\1APROVINCIA\PARLA\virgendelafuencisla8\1 SATE\FICHA DE DATOS ACCESALIA.docx
-zuloaga7,ok,H79716411,ISIDRO LOPEZ,,DE ROSEDA & ASOCIADOS SL.,Miriam,912482465,miriam@derosedaasociados.com (de vac hasta el 27/07 enviar a rocio@derosedaasociados.com),,,Carlos,etiqueta de la ficha,,5449201VK3554N,,MADRID\1APROVINCIA\PARLA\zuloaga7\FICHA DATOS.docx
+
+Propiedad: CDAD PROP TRAVESÍA ISABEL II 3 PARLA
+CIF: H79736765
+Presidente: ANTONIA RUEDA TORRADO
+DNI: 02227473 S
+Nº de viviendas: 20
+Año de antigüedad del edificio:	1975
+Nº de cta. de la cdad.: ES17 2085 9718 72 0330440077
+Código postal:	28980 PARLA	 (MADRID)
+Referencia catastral: 5041802VK3554S
+Fachada:
+PEM: 59.821,29
+residuos:
+Años 1975
+SUPEFICIES
+AMBITO ORDENACION
+DISTRITO
+
+
+
+
+Expediente ayto parla: 80/2021/OMECP
+
+
+Expediente COAM tras requerimiento segunda incidencia:
+
+TL/000582/2022
+
+Ojo, pagaron de fianza 338 euros en junio 2021
+Les dijeron que tenían que pagar 100 eur
+Llega un requerimiento de que paguen 250 euros.
+En sept 2022 se pregunta a la comunidad si quieren que preguntemos qué hacer.
+No contestan
+22/11/22 La cdad pregunta que cómo va la licencia
+No me habían contestado.
+Llega requerimiento: dicen que ya han visto los 100 euros y les reclaman 150 euros más
+Se vuelve a preguntar a la cp qué quieren que hagamos
+
+
+COAM: TL/018397/2024 – CFO
+
+JEFE DE OBRA: VICTOR ESQUINAS",,,,,MADRID\1APROVINCIA\PARLA\travesiaisabelii3\FICHA DE DATOS ACCESALIA.docx
+virgendelafuencisla8,ok,H79580593,Ignacio Rubio,,IGM,,,info@igmserviciosjuridicos.com,,"inma (jefa), Lola (secretaria)",Daniel,por defecto: sin etiqueta = Daniel,,,"Propiedad:	CP VIRGEN DE LA FUENCISLA 8 PARLA
+CIF:		H79580593
+Presidente:	Ignacio Rubio
+Tlf 629620469 ignaciorubio46@gmail.com
+DNI:
+
+Código postal:	28980
+Referencia catastral: 5048401VK3554N   AÑO 1967
+Superficies 17.55
+Fachada:
+PEM:	          residuos:
+
+Contacto: luxor espacios
+
+Aurora García <aurora.garcia@luxorespacios.com>
+No es un certificado de confianza. Datos del remitente
+para:
+ignaciorubio46@gmail.com,
+Inma García <inmagarcia@igmserviciosjuridicos.com>
+
+Cc:
+Daniel de Soto <danieldesoto@accesalia.es>,
+""Adriana N. Pirotti"" <adriana.pirotti@luxorespacios.com>,
+Cristina Gomez <cristina.gomez@luxorespacios.com>,
+Daniel Luxor <Daniel.samblas@luxorespacios.com>
+
+De: InfoAbogados <info@igmserviciosjuridicos.com>
+Enviado el: viernes, 6 de junio de 2025 10:57
+Para: 'danielsotoarquitecto@gmail.com' <danielsotoarquitecto@gmail.com>
+Asunto: HUMEDADES VIVIENDA
+
+Buenos días Daniel,
+
+Le paso datos del  propietario que tiene problemas de humedades en su vivienda, en la pared del salón.
+Contacto Juan Carlos 645600583  piso BºA
+
+C/ Virgen de Fuencisla nº 8 (Parla )
+
+GRACIAS.
+
+UN SALUDO.",,,,,MADRID\1APROVINCIA\PARLA\virgendelafuencisla8\1 SATE\FICHA DE DATOS ACCESALIA.docx
+zuloaga7,ok,H79716411,ISIDRO LOPEZ,,DE ROSEDA & ASOCIADOS SL.,Miriam,912482465,miriam@derosedaasociados.com (de vac hasta el 27/07 enviar a rocio@derosedaasociados.com),,,Carlos,etiqueta de la ficha,,5449201VK3554N,,,,"HE ENVIADA
+09/07/2026 En catastro ZULOAGA 7 aparece como ZULUAGA 9
+16/07/2026 (Adriana) envío proyecto terminado a schindler, administrador y Carlos g.
+
+Pdt ok al proyecto y envíe doc pendiente",,MADRID\1APROVINCIA\PARLA\zuloaga7\FICHA DATOS.docx

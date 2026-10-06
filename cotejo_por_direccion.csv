@@ -52,6 +52,21 @@ ok|FUENLABRADA|valdemoro8|VALDEMORO 8 FUENLABRADA|243ee7cf-ac1f-4df0-a18d-e703f3
 ok|FUENLABRADA|valladolid1|VALLADOLID 1 FUENLABRADA|a5dba58c-082b-4ad3-bf86-cf5bf86e536d
 ok|FUENLABRADA|valladolid13|VALLADOLID 13 FUENLABRADA|3de00897-0399-4921-b19f-ef1be7dd93a2
 ok|FUENLABRADA|villalon1|VILLALON 1 FUENLABRADA|703323e0-00a0-4de4-9efe-82e41ae27690
+ok|GETAFE|albacete13|ALBACETE 13 GETAFE|539353ea-8617-4e83-9845-9397176f4804
+ok|GETAFE|austria5|AUSTRIA 5 GETAFE|b0131a21-b390-4d46-921d-70318b547610
+ok|GETAFE|avbuenosaires15|AV BUENOS AIRES 15 GETAFE|eb9c6c59-d01f-467c-8829-8599d4cc170a
+ok|GETAFE|avespaña27|AV ESPAÑA 27 GETAFE|e5f0c248-8c09-48a4-8143-f966ff941d16
+ok|GETAFE|avespaña33|AV ESPAÑA 33 GETAFE|b1a90840-96af-4540-bea6-b0e7ff8c6ee0
+ok|GETAFE|avgibraltar4-6-8|AV GIBRALTAR 4-6-8 GETAFE|dac3be03-d559-40a8-819c-4e2488cf99d2
+ok|GETAFE|brunete10|BRUNETE 10 GETAFE|127a5e24-8716-45f4-9503-d5a3580bf63c
+ok|GETAFE|colibri5|COLIBRI 5 GETAFE|4ad2417a-f733-4893-9468-cc73172f150e
+ok|GETAFE|isaacperal8|ISAAC PERAL 8 GETAFE|f9838293-92ec-4958-ba8b-3f0677224604
+ok|GETAFE|magdalena3|MAGDALENA 3 GETAFE|3b6c24e3-d8ba-4b33-a8ac-08d5895fb47c
+ok|GETAFE|parla20|PARLA 20 GETAFE|38e334e8-b97f-44e4-802e-695d3f4bf534
+ok|GETAFE|perdiz5|PERDIZ 5 GETAFE|d2b2d08e-0c25-47a9-8301-54fdf0c5c8ba
+ok|GETAFE|titulcia12|TITULCIA 12 GETAFE|b26f5956-43da-46d9-95c3-02b8dbcc4b1b
+ok|GETAFE|valdemorillo1|VALDEMORILLO 1 GETAFE|4ac8318f-f46b-463c-8609-26a568551291
+ok|GETAFE|valencia10|VALENCIA 10 GETAFE|cd317475-c624-42f6-a10a-704299a4048f
 ok|LEGANES|alcarria60|ALCARRIA 60 LEGANES|02091844-48a8-44f1-bc41-9f44b051f542
 ok|LEGANES|alheli2|ALHELI 2 LEGANES|c7df158b-3cd6-43fc-a578-ed0d343d1320
 ok|LEGANES|alheli6|ALHELI 6 LEGANES|ff4f0628-4be9-42cf-8232-26d38f8c5e25
@@ -184,6 +199,42 @@ ok|MOSTOLES|riollobregat9|CALLE RIO LLOBREGAT 9 MOSTOLES|343fd3e1-1388-4387-bac1
 ok|MOSTOLES|riotormes1|RIO TORMES 1 MOSTOLES|7f6cb787-9cb6-452c-ba1c-65f1a333e8c3
 ok|MOSTOLES|simonhernandez43-45|SIMON HERNANDEZ 43-45 MOSTOLES|168f5b8a-0780-42d6-891f-e77e8c724e1a
 ok|MOSTOLES|simonhernandez44|SIMON HERNANDEZ 44 MOSTOLES|5689ed3b-bc39-4f42-83a6-81dbe4b07140
+ok|PARLA|AlfonsoXIII2|ALFONSO XIII 2 PARLA|545998a3-7a83-46fc-84c4-264284e2ab70
+ok|PARLA|alfonsoXIII8|ALFONSO XIII 8 PARLA MADRID|24a38bfc-6fb8-4ae8-8d0f-37d2e02da5e0
+ok|PARLA|ciudades1|CIUDADES 1 PARLA|7059667a-4c19-4303-b890-412009c6cdee
+ok|PARLA|fuentebella28|FUENTEBELLA 28 PARLA|f39d8ca2-c561-41d4-b6e2-27aec9fea47f
+ok|PARLA|fuentebella45|FUENTEBELLA 45 PARLA|6511cd52-40c3-4bae-b11d-1da841c3f89f
+ok|PARLA|fuentebella68|FUENTEBELLA 68 PARLA|f4cb9b17-f2aa-4f22-96da-26796ba520c6
+ok|PARLA|gobernador8|GOBERNADOR 8 PARLA|63843df9-b678-4f11-99f0-011144edbe25
+ok|PARLA|lagotiberiades8|LAGO TIBERIADES 8 PARLA|376c083d-59bd-439e-957a-abfa299083d0
+ok|PARLA|pablocasals26|PABLO CASALS 26 PARLA|edb5f1e6-6213-48bb-b313-4362261835c0
+ok|PARLA|rioguadalquivir3|RIO GUADALQUIVIR 3 PARLA|08328d75-8119-4383-a663-e9f2371bd9d4
+ok|PARLA|sananton70|SAN ANTON 70 PARLA|2d0f171e-e9c2-4b1c-8b3d-6667a4f7762e
+ok|PARLA|travesiaisabelii3|TRAVESIA ISABEL II 3 PARLA|50561e3d-49ca-48ee-9f23-21c33764b322
+ok|PARLA|virgendelafuencisla8|VIRGEN DE LA FUENCISLA 8 PARLA|61e8283a-5d32-4942-8784-6e814c2411d8
+ok|PARLA|zuloaga7|ZULOAGA 7 PARLA|320266a7-0f01-42eb-b6ef-92032e65425e
+ok|SAN SEBASTIAN DE LOS REYES|avaragon1|AVDA ARAGON 1 SAN SEBASTIAN DE LOS REYES|23c1d116-be91-4e78-b084-bc1cb2cba33a
+ok|SAN SEBASTIAN DE LOS REYES|avcolmenarviejo18|AV COLMENAR VIEJO 18 SAN SEBASTIAN DE LOS REYES|8a2ab8d3-5804-456a-a425-9d159c0e2abc
+ok|SAN SEBASTIAN DE LOS REYES|avcolmenarviejo4|AV COLMENAR VIEJO 4 SAN SEBASTIAN DE LOS REYES|2c082310-8b41-4f24-ab12-e54da7f5e67c
+ok|SAN SEBASTIAN DE LOS REYES|avcolmenarviejo6|AV COLMENAR VIEJO 6 SAN SEBASTIAN DE LOS REYES|5220cfc2-2d38-405e-a114-e89de6f27d87
+ok|SAN SEBASTIAN DE LOS REYES|avcolmenarviejo8|AV COLMENAR VIEJO 8 SAN SEBASTIAN DE LOS REYES|2ddc5da6-e9d2-4467-b63c-caa783e665b5
+ok|SAN SEBASTIAN DE LOS REYES|avsierra5|AV SIERRA 5 SAN SEBASTIAN DE LOS REYES|77e35950-8671-41e2-87ee-309de7d0f170
+ok|SAN SEBASTIAN DE LOS REYES|gregorioizquierdo53|GREGORIO IZQUIERDO 53 SSR|ea3bdd2e-c430-49ef-ba9f-72e0625f2651
+ok|SAN SEBASTIAN DE LOS REYES|hontanillas2|HONTANILLAS 2 SAN SEBASTIAN DE LOS REYES|4cd26734-a595-45bb-be74-71252d4ff45f
+ok|SAN SEBASTIAN DE LOS REYES|independencia43|INDEPENDENCIA 43 SAN SEBASTIAN DE LOS REYES|54bfaeab-b180-4ba9-af26-96690320dd1a
+ok|SAN SEBASTIAN DE LOS REYES|jarama1|JARAMA 1 SAN SEBASTIAN DE LOS REYES|ee48a02c-17cc-43b1-946a-2f250c0b483c
+ok|SAN SEBASTIAN DE LOS REYES|laprensa11|LA PRENSA 11 SSR|243129c6-3255-42d5-88a8-b17244cf9c32
+ok|SAN SEBASTIAN DE LOS REYES|navasdetolosa7|NAVAS DE TOLOSA 7 SAN SEBASTIAN DE LOS REYES|d896b930-c883-403d-82c9-0cf317786301
+ok|SAN SEBASTIAN DE LOS REYES|oriente3|ORIENTE 3 SAN SEBASTIAN DE LOS REYES|90faf234-ac05-4c7f-b8ad-d985a7aa5713
+ok|SAN SEBASTIAN DE LOS REYES|picosdeolite18|PICOS DE OLITE 18 SAN SEBASTIAN DE LOS REYES|9d40e0be-e2fb-4263-9d4d-9ba00aa25485
+ok|SAN SEBASTIAN DE LOS REYES|pilar17|PILAR 17 SAN SEBASTIAN DE LOS REYES|fdce8fb2-b593-409f-9d1c-23c503a943fd
+ok|SAN SEBASTIAN DE LOS REYES|real7|REAL 7 SAN SEBASTIAN DE LOS REYES|82389c92-6ed3-4233-9cda-f7b63f041264
+ok|SAN SEBASTIAN DE LOS REYES|real9|REAL 9 SAN SEBASTIAN DE LOS REYES|9f2c74f8-d563-4fd5-907c-47abd916dc24
+ok|SAN SEBASTIAN DE LOS REYES|realvieja5|REAL VIEJA 5 SAN SEBASTIAN DE LOS REYES|e85ee091-40e2-4e11-a4b2-137d12171811
+ok|SAN SEBASTIAN DE LOS REYES|realvieja8|REAL VIEJA 8 SAN SEBASTIAN DE LOS REYES|0291e0ef-54f7-4fa2-9278-3c447e8f383b
+ok|SAN SEBASTIAN DE LOS REYES|sacramento38|SACRAMENTO 38 SSR|c8ef2a63-70ea-4780-9fa6-62adecb8e051
+ok|SAN SEBASTIAN DE LOS REYES|travesiasanonofre4|TRAVESIA SAN ONOFRE 4 SAN SEBASTIAN DE LOS REYES|072aed94-4575-4dfa-8e5f-5e5ef67fba70
+ok|SAN SEBASTIAN DE LOS REYES|valenciadedonjuan3|VALENCIA DE DON JUAN 3 SAN SEBASTIAN DE LOS REYES|9a1439bc-55ca-4eee-838c-12d280239fed
 dudosa|FUENLABRADA|comunidaddemadrid28|"CDAD PROP CL COMUNIDAD DE MADRID FUENLABRADA || COMUNIDAD DE MADRID 28 FUENLABRADA"|
 dudosa|FUENLABRADA|zamora12|"CDAD PROP ED ZAMORA CL ZAMORA FUENLABRADA || ZAMORA 12 FUENLABRADA"|
 dudosa|FUENLABRADA|zamora21|"CDAD PROP ED ZAMORA CL ZAMORA FUENLABRADA || ZAMORA 21 FUENLABRADA"|
@@ -199,78 +250,4 @@ sin_pareja|FUENLABRADA|0-plano urbano fuenlabrada dwg||
 sin_pareja|FUENLABRADA|mejicosn||
 sin_pareja|FUENLABRADA|paseocares1||
 sin_pareja|FUENLABRADA|planos chalet codi||
-sin_pareja|MOSTOLES|_CALCULO DE FIANZA||
-sin_pareja|MOSTOLES|alfonsoxii6||
-sin_pareja|MOSTOLES|alfonsoxii7||
-sin_pareja|MOSTOLES|alfonsoxii8||
-sin_pareja|MOSTOLES|america16||
-sin_pareja|MOSTOLES|arroyomolinos9||
-sin_pareja|MOSTOLES|avCarlosV39||
-sin_pareja|MOSTOLES|avCarlosV51-65||
-sin_pareja|MOSTOLES|avcerroprieto16||
-sin_pareja|MOSTOLES|avcerroprieto7||
-sin_pareja|MOSTOLES|avdosdemayo53||
-sin_pareja|MOSTOLES|avdosdemayo73||
-sin_pareja|MOSTOLES|avolimpica2||
-sin_pareja|MOSTOLES|avonu76||
-sin_pareja|MOSTOLES|avportugal12||
-sin_pareja|MOSTOLES|avportugal15||
-sin_pareja|MOSTOLES|avportugal41||
-sin_pareja|MOSTOLES|avportugal43-45||
-sin_pareja|MOSTOLES|avportugal46||
-sin_pareja|MOSTOLES|badajoz35||
-sin_pareja|MOSTOLES|barcelona27||
-sin_pareja|MOSTOLES|berardomartin12||
-sin_pareja|MOSTOLES|bolivia10||
-sin_pareja|MOSTOLES|burgos4||
-sin_pareja|MOSTOLES|caminodehumanes27||
-sin_pareja|MOSTOLES|caminodeleganes5||
-sin_pareja|MOSTOLES|caminodeleganes58||
-sin_pareja|MOSTOLES|carcavilla1||
-sin_pareja|MOSTOLES|carcavilla7||
-sin_pareja|MOSTOLES|castellon13||
-sin_pareja|MOSTOLES|castellon19||
-sin_pareja|MOSTOLES|cerroprieto7||
-sin_pareja|MOSTOLES|empecinado13||
-sin_pareja|MOSTOLES|empecinado17||
-sin_pareja|MOSTOLES|empecinado21||
-sin_pareja|MOSTOLES|empecinado6||
-sin_pareja|MOSTOLES|españoleto5||
-sin_pareja|MOSTOLES|ginebra2||
-sin_pareja|MOSTOLES|guadalajara4||
-sin_pareja|MOSTOLES|guadalupe3||
-sin_pareja|MOSTOLES|guadalupe6||
-sin_pareja|MOSTOLES|huesca1||
-sin_pareja|MOSTOLES|juandeocaña37||
-sin_pareja|MOSTOLES|juanramonjimenez7||
-sin_pareja|MOSTOLES|julioromero1||
-sin_pareja|MOSTOLES|lapaz24||
-sin_pareja|MOSTOLES|malasaña4||
-sin_pareja|MOSTOLES|mariblanca12||
-sin_pareja|MOSTOLES|mercedes3||
-sin_pareja|MOSTOLES|montevideo3||
-sin_pareja|MOSTOLES|niza2||
-sin_pareja|MOSTOLES|oviedo9||
-sin_pareja|MOSTOLES|parqueamerica4||
-sin_pareja|MOSTOLES|pintorvelazquez75||
-sin_pareja|MOSTOLES|plazadelafuensanta4||
-sin_pareja|MOSTOLES|plazadelafuensanta7||
-sin_pareja|MOSTOLES|rejilla1||
-sin_pareja|MOSTOLES|rioebro32||
-sin_pareja|MOSTOLES|riogarona1||
-sin_pareja|MOSTOLES|riogarona3||
-sin_pareja|MOSTOLES|riogenil4||
-sin_pareja|MOSTOLES|riollobregat10||
-sin_pareja|MOSTOLES|riosella2-4-6||
-sin_pareja|MOSTOLES|riotormes2||
-sin_pareja|MOSTOLES|riotormes4||
-sin_pareja|MOSTOLES|simonhernandez29||
-sin_pareja|MOSTOLES|simonhernandez70-72||
-sin_pareja|MOSTOLES|soria3||
-sin_pareja|MOSTOLES|tenienteruiz2||
-sin_pareja|MOSTOLES|valladolid8||
-sin_pareja|MOSTOLES|veracruz26||
-sin_pareja|MOSTOLES|viena2,4y6||
-sin_pareja|MOSTOLES|villaolimpica18||
-sin_pareja|MOSTOLES|zamora4||
-sin_pareja|MOSTOLES|zaragoza2||
+sin_pareja|SAN SEBASTIAN DE LOS REYES|año1492n6||
