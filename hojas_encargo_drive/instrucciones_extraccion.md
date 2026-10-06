@@ -71,6 +71,8 @@ Para cada fichero, saca UN objeto JSON en UNA línea con esta forma exacta:
 | SATE CON CESION DE CAES | SATE con cesión de CAEs |
 | SATE + ASCENSOR CON CESION DE CAES | SATE + ascensor con CAEs |
 | MEDICIONES Y CIEGO | mediciones y presupuesto ciego |
+| MODIFICACION DE PROYECTO | modificación, división, modificado o nueva DR de un proyecto que ya existe |
+| GESTION DE CAES | gestión o tramitación de CAEs (certificados de ahorro energético): con importe si se cobra; si es descuento o va dentro de otra cosa, incluido |
 
 "Documentación Técnica Anexa" (IEE+CEE+... para la subvención) → si lleva precio propio y no
 encaja en uno solo, "SIN CASAR" con su importe y explícalo en rarezas.
@@ -80,7 +82,7 @@ encaja en uno solo, "SIN CASAR" con su importe y explícalo en rarezas.
 3 Presupuestos · Accesibilidad · Aerotermia · Añadir parada · Arreglo cubierta · Arreglo fachada ·
 Ascensor · CAES · Cambio de cabina · Cambio de puertas · CEE · CFO · Consulta urbanística ·
 Cota cero · CSS · DF · Doc técnica subv (IEE+CEE+LEE) · Eficiencia energética · Financiación ·
-Fotovoltaica · IEE · Accesibilidad portal · Informe pericial · Informe técnico · Intervenciones exterior · LEE · Licencia ·
+Fotovoltaica · IEE · Accesibilidad portal · Otros - proyecto técnico · Informe pericial · Informe técnico · Intervenciones exterior · LEE · Licencia ·
 Memoria técnica valorada · Modificación asc. · Otros · Plataforma · Rampa · SATE cubierta ·
 SATE envolvente completa · SATE fachada · Subvenciones · Toma de datos y Modelado 3D ·
 Visado Colegio

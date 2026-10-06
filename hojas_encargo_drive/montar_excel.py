@@ -53,6 +53,27 @@ def normalizar(d):
     for c in conc:
         if c.get('bloque') == 'SIN CASAR' and re.search(r'medici', c.get('texto') or '', re.I) and re.search(r'ciego', c.get('texto') or '', re.I):
             c['bloque'] = 'MEDICIONES Y CIEGO'
+    # 5. CAES (Monica, 6-oct): "¿la cobramos? linea que se cobra. ¿No la cobramos? linea
+    #    incluida. ¿No se menciona? no sale." Un descuento por cesion = no se cobra.
+    ES_CAES = re.compile(r'(?<![A-Za-z])CAES?(?![A-Za-z])|AHORRO ENERG', re.I)
+    for c in conc:
+        if c.get('bloque') == 'SIN CASAR' and ES_CAES.search(c.get('texto') or ''):
+            if (c.get('importe') or 0) > 0:
+                c['bloque'] = 'GESTION DE CAES'; c['incluido'] = False
+            else:
+                c['bloque'] = 'GESTION DE CAES'; c['importe'] = None; c['incluido'] = True
+    menciona = any(ES_CAES.search((c.get('texto') or '') + ' ' + (c.get('bloque') or '')) for c in conc)
+    if menciona and not any(c.get('bloque') == 'GESTION DE CAES' for c in conc):
+        conc.append({'texto': 'CAES (no se cobran aparte)', 'bloque': 'GESTION DE CAES', 'importe': None,
+                     'pct_exito': None, 'forma_pago': None, 'incluido': True})
+    # 6. Conceptos sueltos que son lo que son (leidos en las tandas 1 y 2).
+    for c in conc:
+        if c.get('bloque') != 'SIN CASAR': continue
+        t = c.get('texto') or ''
+        if re.search(r'proyecto', t, re.I): c['bloque'] = 'REDACCION PROYECTO'
+        elif re.search(r'inspecci', t, re.I): c['bloque'] = 'INFORME PERICIAL'
+        elif re.search(r'asesoramiento.*(ayuda|subvenc)', t, re.I): c['bloque'] = 'TRAMITACION SUBVENCIONES'; c['incluido'] = True
+        elif re.search(r'consulta urban', t, re.I): c['bloque'] = 'CONSULTA URBANISTICA'
     # 4. Que se hace: elevador = plataforma elevadora = Plataforma; portal = Accesibilidad portal.
     que = list(d.get('que_se_hace') or []); sin = []
     for t in d.get('que_se_hace_sin_casar') or []:
@@ -120,7 +141,7 @@ for i, (frec, firm, env) in enumerate(tanda):
         estado = r['estado']
         motivos = ['RESUELTO LEYENDO: ' + r['nota']] if r.get('nota') else []
         if r['estado'] == 'PREGUNTA': motivos = ['PARA TI: ' + r['nota']]
-        for campo in ('fecha_hoja', 'total_base', 'a_quien'):
+        for campo in ('fecha_hoja', 'total_base', 'a_quien', 'que_se_hace', 'conceptos', 'que_se_hace_sin_casar'):
             if campo in r: d = dict(d); d[campo] = r[campo]
         fh = d.get('fecha_hoja')
     cuenta[estado] += 1

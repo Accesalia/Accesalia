@@ -181,53 +181,103 @@
   "nota": "Doc técnica anexa = importe fijo de la subvención (regla)."
  },
  "F176": {
-  "estado": "PREGUNTA",
-  "grupo": "tipo",
-  "nota": "'Rehabilitación parcial' (BRUNO AYLLON 3, REV2 4.000; la firmada lleva sello LUXOR): no hay tipo de obra."
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Rehabilitación parcial (REV2, 4.000). Otros - proyecto técnico."
  },
  "F187": {
-  "estado": "PREGUNTA",
-  "grupo": "tipo",
-  "nota": "'Rehabilitación parcial DR' (CASTILLO DE SIMANCAS 7, 3.500): no hay tipo de obra."
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Rehabilitación parcial DR (3.500). Otros - proyecto técnico."
  },
  "F042": {
-  "estado": "PREGUNTA",
-  "grupo": "tipo",
-  "nota": "Solución de humedades en sótanos y trasteros (ISABEL DE FARNESIO 6, 1.800): no hay tipo de obra."
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Humedades en sótanos y trasteros (1.800). Otros - proyecto técnico."
  },
  "F245": {
-  "estado": "PREGUNTA",
-  "grupo": "tipo",
-  "nota": "Reestructuración del techo del cuarto de máquinas (MAGDALENA 3, 3.500): no hay tipo de obra."
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Techo del cuarto de máquinas (3.500). Otros - proyecto técnico."
  },
  "F133": {
-  "estado": "PREGUNTA",
-  "grupo": "modif",
-  "nota": "Modificación de un proyecto existente (HERNÁN CORTÉS 13, 1.200)."
+  "estado": "OK",
+  "nota": "Bloque Modificación de proyecto (modificación).",
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Modificación de proyecto: modificación",
+    "bloque": "MODIFICACION DE PROYECTO",
+    "importe": 1200,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
  },
  "F238": {
-  "estado": "PREGUNTA",
-  "grupo": "modif",
-  "nota": "División de un proyecto existente (BRUNETE 3, 1.500)."
+  "estado": "OK",
+  "nota": "Bloque Modificación de proyecto (división).",
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Modificación de proyecto: división del proyecto",
+    "bloque": "MODIFICACION DE PROYECTO",
+    "importe": 1500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
  },
  "F240": {
-  "estado": "PREGUNTA",
-  "grupo": "modif",
-  "nota": "Modificado de proyecto visado para licencia y Next Generation (VILLAMANÍN 37, 2.500)."
+  "estado": "OK",
+  "nota": "Bloque Modificación de proyecto (modificado visado).",
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Modificación de proyecto: modificado de proyecto visado para licencia y Next Generation",
+    "bloque": "MODIFICACION DE PROYECTO",
+    "importe": 2500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
  },
  "F159": {
-  "estado": "PREGUNTA",
-  "grupo": "modif",
-  "nota": "Nueva DR de una obra ya contratada: proyecto y DF a 0, cobra 650 por visado + seguro RC + DR (VIRGEN DE ICIAR 17)."
+  "estado": "OK",
+  "nota": "Bloque Modificación de proyecto (nueva DR); proyecto y DF ya contratados, a 0.",
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Modificación de proyecto: nueva DR (visado, seguro RC y DR)",
+    "bloque": "MODIFICACION DE PROYECTO",
+    "importe": 650,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
  },
  "F128": {
-  "estado": "PREGUNTA",
-  "grupo": "caes",
-  "nota": "'Tramitación de CAES' cobrada APARTE, 632 € (RÍO ARAGÓN 6, de ROEN): no es descuento por cesión."
+  "estado": "OK",
+  "nota": "Gestión de CAES cobrada aparte (632): línea que se cobra."
  },
  "F129": {
-  "estado": "PREGUNTA",
-  "grupo": "caes",
-  "nota": "'Gestión de CAES' cobrada APARTE, 408 € (SONSOLES 4, de ROEN): no es descuento por cesión."
+  "estado": "OK",
+  "nota": "Gestión de CAES cobrada aparte (408): línea que se cobra."
  }
 }

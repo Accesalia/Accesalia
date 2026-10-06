@@ -106,7 +106,7 @@ for k, (p, dec, el, dd) in enumerate(filas):
         if r:
             estado = r['estado']
             motivos = [('PARA TI: ' if estado == 'PREGUNTA' else 'RESUELTO LEYENDO: ') + r['nota']] if r.get('nota') else []
-            for campo in ('fecha_hoja', 'total_base', 'a_quien'):
+            for campo in ('fecha_hoja', 'total_base', 'a_quien', 'que_se_hace', 'conceptos', 'que_se_hace_sin_casar'):
                 if campo in r: d = dict(d); d[campo] = r[campo]
         fila(N, estado, motivos, frec, d, firm, env, como)
 
