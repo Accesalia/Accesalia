@@ -10,6 +10,10 @@
     {
       "path": "/api/iee/barrido",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/bdns/vigilar",
+      "schedule": "0 4 1,16 * *"
     }
   ]
 }

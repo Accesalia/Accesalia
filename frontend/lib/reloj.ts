@@ -93,6 +93,10 @@ export const RELOJES: Reloj[] = [
   // condicion todo el año -antes de las 7, siempre- en vez de clavar las 5:00
   // la mitad del año y quedarse en las 6:00 la otra mitad.
   { tarea: "iee_barrido", nombre: "Barrido de IEE", cada: "todos los días a las 5 de la madrugada", ruta: "/api/iee/barrido" },
+  // CADA 15 DIAS, por encargo de Monica (6-oct-2026): "para que no quede
+  // obsoleto en 4 semanas". El 1 y el 16 a las 4:00 UTC (6:00 en verano y 5:00
+  // en invierno en Madrid), antes de que abra la oficina.
+  { tarea: "bdns_vigilar", nombre: "Subvenciones concedidas (BDNS)", cada: "el día 1 y el 16 de cada mes, de madrugada", ruta: "/api/bdns/vigilar" },
 ];
 
 // ============================================================================
