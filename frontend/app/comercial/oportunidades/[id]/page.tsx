@@ -47,8 +47,22 @@ function fechaCorta(v: string): string {
   return `${d}/${m}/${a.slice(2)}`;
 }
 
-export default async function GestionOportunidad({ params }: { params: Promise<{ id: string }> }) {
+// LAS VISTAS DEL BLOQUE 1 (Monica, 6-oct-2026): "un switch de vista
+// ficha/vista informe". Vendra una tercera ("apoyo comercial"): se anade aqui.
+const VISTAS = [
+  { clave: "ficha", rotulo: "Vista ficha" },
+  { clave: "informe", rotulo: "Vista informe" },
+] as const;
+
+export default async function GestionOportunidad({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ vista?: string }>;
+}) {
   const { id } = await params;
+  const vista = (await searchParams).vista === "informe" ? "informe" : "ficha";
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -121,8 +135,34 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
+        {g.referenciaCatastral && (
+          <div className="mb-[10px] flex gap-1">
+            {VISTAS.map((v) => (
+              <Link
+                key={v.clave}
+                href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
+                scroll={false}
+                className={
+                  "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
+                  (vista === v.clave ? "border-carbon bg-carbon text-white" : "border-carbon/25 bg-white text-carbon/70 hover:border-carbon/50")
+                }
+              >
+                {v.rotulo}
+              </Link>
+            ))}
+          </div>
+        )}
         <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
-          {g.referenciaCatastral ? (
+          {g.referenciaCatastral && vista === "informe" ? (
+            // El anexo tal cual sale en la viabilidad: lo que ve el cliente.
+            <div className="xl:col-span-3">
+              <iframe
+                src={`/comercial/oportunidades/${id}/anexo#view=FitH`}
+                title="Informe del edificio"
+                className="h-[1000px] w-full rounded-[10px] border border-carbon/20 bg-white"
+              />
+            </div>
+          ) : g.referenciaCatastral ? (
             <Edificio referencia={g.referenciaCatastral} id={id} />
           ) : (
             <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-3">

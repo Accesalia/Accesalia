@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { intentarAnexo } from "../../lib/anexoGuardado";
 import { enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { enviarCorreo } from "../../lib/correo";
@@ -52,6 +54,9 @@ export async function accionEmpezar(fd: FormData) {
   const opp = String(fd.get("opp") ?? "");
   if (!escaneo || !opp) return;
   const id = await empezar(escaneo, opp, yo.id);
+  // El anexo (la ficha del edificio) se adjunta solo, despues de responder:
+  // Alex no espera a Catastro para empezar a escribir.
+  after(() => intentarAnexo(id));
   redirect(`/viabilidades/${id}`);
 }
 
@@ -122,6 +127,8 @@ export async function accionEnviar(id: string, d: DatosMesa): Promise<string[]> 
   // viabilidad ya esta en manos del comercial igualmente, y se dice el fallo.
   await guardar(id, d);
   await marcar(id, "enviada_en");
+  // Se rehace con el coste de obra ya puesto: las ayudas llevan su estimacion.
+  after(() => intentarAnexo(id));
   const donde = v?.oportunidades?.nombre ?? v?.oportunidades?.codigo ?? "tu oportunidad";
   const fallos = await escribirA(
     lleva.personas,
