@@ -21,6 +21,8 @@ import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
+import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
+import { Bloque2 } from "./Bloque2";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -60,10 +62,15 @@ export default async function GestionOportunidad({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ vista?: string }>;
+  searchParams: Promise<{ vista?: string; bloque?: string }>;
 }) {
   const { id } = await params;
-  const vista = (await searchParams).vista === "informe" ? "informe" : "ficha";
+  const sp = await searchParams;
+  const vista = sp.vista === "informe" ? "informe" : "ficha";
+  // El bloque que se ESTA VIENDO, que no tiene por que ser por el que va la
+  // oportunidad: el carril es menu ademas de indicador. Hoy hay pantalla para el
+  // 1 y el 2.
+  const bloque = sp.bloque === "2" ? 2 : 1;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -86,9 +93,60 @@ export default async function GestionOportunidad({
     g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
     viabilidadDeOpp(id),
   ]);
+  const documentacion = bloque === 2 ? await documentacionDe(id, g.comunidadId) : null;
+
+  // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
+  // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
+  // se negocia. Un solo sitio donde se guarda.
+  const trato = (dentro: boolean) => (
+    <form action={accionNegociacion.bind(null, id)} className={dentro ? "" : CAJA + " p-4"}>
+      {!dentro && (
+      <Titulo
+        extra={
+          <span className="text-[11px] text-carbon/50">Cada cambio queda guardado: un precio que baja cuenta algo</span>
+        }
+      >
+        Qué le vendemos
+      </Titulo>
+      )}
+      <div className="flex flex-wrap gap-3">
+        <label className="block min-w-[260px] flex-1">
+          <span className={ROTULO}>Qué le vendemos</span>
+          <input
+            name="que_vendemos"
+            defaultValue={g.negociacion?.queVendemos ?? ""}
+            placeholder="Ascensor + licencia"
+            className={CAMPO + " mt-1"}
+          />
+        </label>
+        <label className="block w-[150px]">
+          <span className={ROTULO}>Precio (€)</span>
+          <input
+            name="precio"
+            defaultValue={g.negociacion?.precio != null ? EUR.format(g.negociacion.precio) : ""}
+            inputMode="decimal"
+            className={CAMPO + " mt-1"}
+          />
+        </label>
+        <label className="block min-w-[260px] flex-1">
+          <span className={ROTULO}>Alcance</span>
+          <input name="alcance" defaultValue={g.negociacion?.alcance ?? ""} className={CAMPO + " mt-1"} />
+        </label>
+      </div>
+      <label className="mt-3 block">
+        <span className={ROTULO}>Notas de la negociación</span>
+        <input name="notas" defaultValue={g.negociacion?.notas ?? ""} className={CAMPO + " mt-1"} />
+      </label>
+      <div className="mt-3 flex justify-end">
+        <button className={BOTON}>Guardar</button>
+      </div>
+    </form>
+  );
 
   return (
-    <div className="min-h-screen">
+    // El verde de su maqueta del bloque 1 (#8EB180). De momento solo en el
+    // bloque 2: lo montado del bloque 1 se afina aparte (Monica, 6-oct-2026).
+    <div className="min-h-screen" style={bloque === 2 ? { background: "#8EB180" } : undefined}>
       <BarraSuperior />
       {/* El lienzo es el suyo: 1300, el ancho real de su pantalla. Lo que se
           dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep). */}
@@ -124,11 +182,15 @@ export default async function GestionOportunidad({
             activo cruza el hueco para fundirse con el panel: "sin linea entre
             ellos, el ojo lee una pieza" (Monica, 30-sep-2026). */}
         <div className="mt-6 flex items-stretch gap-[14px]">
-          <Carril hitos={g.hitos} />
+          <Carril hitos={g.hitos} visto={bloque} id={id} />
           <div
-            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px" }}
-            className="min-w-0 flex-1 border bg-white/40 p-4"
+            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px", ...(bloque === 2 ? { background: AZUL } : {}) }}
+            className={"min-w-0 flex-1 border " + (bloque === 2 ? "p-[11px]" : "bg-white/40 p-4")}
           >
+        {bloque === 2 && documentacion ? (
+          <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} />
+        ) : (
+        <>
         {/* SUS CUATRO ANCHOS FIJOS, del esqueleto del 30-sep: 262 · 330 · 190 ·
             282. "Sus anchos son el diseno": no se redondean ni se reparten en
             fracciones. Las tres primeras las llena el informe del edificio; la
@@ -137,7 +199,7 @@ export default async function GestionOportunidad({
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
-        {(g.referenciaCatastral || viabilidad) && (
+        {bloque === 1 && (g.referenciaCatastral || viabilidad) && (
           <div className="mb-[10px] flex items-center gap-1">
             {g.referenciaCatastral && VISTAS.map((v) => (
               <Link
@@ -197,50 +259,11 @@ export default async function GestionOportunidad({
             <QueContratan tipos={tipos} elegidos={g.tiposElegidos} guardar={accionTipos.bind(null, id)} />
 
             {/* ----------------- 4 · qué vendemos y por cuánto ----------------- */}
-            <form action={accionNegociacion.bind(null, id)} className={CAJA + " p-4"}>
-              <Titulo
-                extra={
-                  <span className="text-[11px] text-carbon/50">Cada cambio queda guardado: un precio que baja cuenta algo</span>
-                }
-              >
-                Qué le vendemos
-              </Titulo>
-              <div className="flex flex-wrap gap-3">
-                <label className="block min-w-[260px] flex-1">
-                  <span className={ROTULO}>Qué le vendemos</span>
-                  <input
-                    name="que_vendemos"
-                    defaultValue={g.negociacion?.queVendemos ?? ""}
-                    placeholder="Ascensor + licencia"
-                    className={CAMPO + " mt-1"}
-                  />
-                </label>
-                <label className="block w-[150px]">
-                  <span className={ROTULO}>Precio (€)</span>
-                  <input
-                    name="precio"
-                    defaultValue={g.negociacion?.precio != null ? EUR.format(g.negociacion.precio) : ""}
-                    inputMode="decimal"
-                    className={CAMPO + " mt-1"}
-                  />
-                </label>
-                <label className="block min-w-[260px] flex-1">
-                  <span className={ROTULO}>Alcance</span>
-                  <input name="alcance" defaultValue={g.negociacion?.alcance ?? ""} className={CAMPO + " mt-1"} />
-                </label>
-              </div>
-              <label className="mt-3 block">
-                <span className={ROTULO}>Notas de la negociación</span>
-                <input name="notas" defaultValue={g.negociacion?.notas ?? ""} className={CAMPO + " mt-1"} />
-              </label>
-              <div className="mt-3 flex justify-end">
-                <button className={BOTON}>Guardar</button>
-              </div>
-            </form>
+            {trato(false)}
 
             <div className="flex flex-col gap-5">
               {/* ------------------------- 5 · el 3D ------------------------- */}
-              <form action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
+              <form id="el-3d" action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
                 <Titulo>El 3D</Titulo>
                 <div className="flex flex-col gap-3">
                   <label className="block">
@@ -395,6 +418,8 @@ export default async function GestionOportunidad({
             </section>
           </div>
         </div>
+        </>
+        )}
           </div>
         </div>
       </main>

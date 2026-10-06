@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { HitoGestion } from "../../../../lib/gestionOportunidad";
 
 // EL CARRIL DE LOS CUATRO BLOQUES (Monica, 5-oct-2026).
@@ -70,39 +71,58 @@ export function bloquesDe(hitos: HitoGestion[]): EstadoBloque[] {
   });
 }
 
-export function Carril({ hitos }: { hitos: HitoGestion[] }) {
+/** Los bloques que ya tienen pantalla. El resto se ve en el carril pero aun no
+ *  se abre. */
+const CON_PANTALLA = new Set([1, 2]);
+
+/** EL CARRIL ES MENU E INDICADOR A LA VEZ. La pestaña oscura es el bloque que
+ *  se esta VIENDO ("esto que estas viendo ES el bloque 1", Monica, 30-sep); por
+ *  donde va la oportunidad lo dice el pie de cada bloque. */
+export function Carril({ hitos, visto, id }: { hitos: HitoGestion[]; visto: number; id: string }) {
   return (
     <div className="flex w-[172px] shrink-0 flex-col gap-2">
-      {bloquesDe(hitos).map((b) => (
-        <div
-          key={b.n}
-          style={
-            b.activo
+      {bloquesDe(hitos).map(({ activo: _enCurso, ...b }) => {
+        const activo = b.n === visto;
+        const abre = CON_PANTALLA.has(b.n) && !activo;
+        const pinta = {
+          title: CON_PANTALLA.has(b.n) ? undefined : "Este bloque aún no tiene pantalla",
+          style:
+            activo
               ? { background: AZUL, width: 183, marginRight: -11, borderLeft: "2px solid #fff" }
-              : undefined
-          }
-          className={
+              : undefined,
+          className:
             "relative px-[11px] py-[10px] " +
-            (b.activo
+            (activo
               ? "z-20 rounded-l-[10px] text-white"
-              : "rounded-[10px] border border-[#dcdcdc] bg-[#fbfbfb]")
-          }
-        >
+              : "rounded-[10px] border border-[#dcdcdc] bg-[#fbfbfb]" + (abre ? " block transition hover:border-[#104269]" : "")),
+        };
+        const dentro = (
+          <>
           <div
             className={
-              "text-[10px] font-bold uppercase tracking-[0.08em] " + (b.activo ? "text-white" : "text-[#9a9a9a]")
+              "text-[10px] font-bold uppercase tracking-[0.08em] " + (activo ? "text-white" : "text-[#9a9a9a]")
             }
           >
             Bloque {b.n}
           </div>
-          <div className={"mt-0.5 text-[13px] font-bold leading-[1.2] " + (b.activo ? "text-white" : "text-carbon")}>
+          <div className={"mt-0.5 text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon")}>
             {b.titulo}
           </div>
-          <div className={"mt-1.5 text-[11px] leading-snug " + (b.activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>
+          <div className={"mt-1.5 text-[11px] leading-snug " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>
             {b.pie}
           </div>
-        </div>
-      ))}
+          </>
+        );
+        return abre ? (
+          <Link key={b.n} href={`/comercial/oportunidades/${id}${b.n === 1 ? "" : `?bloque=${b.n}`}`} scroll={false} {...pinta}>
+            {dentro}
+          </Link>
+        ) : (
+          <div key={b.n} {...pinta}>
+            {dentro}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import type { Desglose } from "../../../lib/catalogoBloques";
 import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionComunidad } from "../../../lib/hojaEncargo";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
 import { accionApuntarFirmada, accionBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
+import { estadoDeHoja } from "../../../lib/estadoHoja";
 
 // LA PESTAÑA HOJA DE ENCARGO, tal cual la maqueta que Monica aprobo el 2-oct-2026
 // (docs/figma/hoja-de-encargo.html):
@@ -25,16 +26,6 @@ const aNumero = (v: string) => {
   return Number.isFinite(n) ? n : null;
 };
 
-const ESTADO: Record<string, { texto: string; clase: string }> = {
-  borrador: { texto: "Generada", clase: "border-black/15 bg-hueso text-carbon/70" },
-  enviada_comunidad: { texto: "Enviada, sin firmar", clase: "border-[#f0d78c] bg-[#fdf6e3] text-[#8a5a00]" },
-  devuelta_firmada: { texto: "Firmada", clase: "border-lima bg-lima-soft text-lima-dark" },
-  pendiente_firma_daniel: { texto: "Pendiente de firma de Daniel", clase: "border-[#f0d78c] bg-[#fdf6e3] text-[#8a5a00]" },
-  firmada_daniel: { texto: "Firmada por Daniel", clase: "border-[#f0d78c] bg-[#fdf6e3] text-[#8a5a00]" },
-  cambios_solicitados: { texto: "Piden cambios", clase: "border-[#f0d78c] bg-[#fdf6e3] text-[#8a5a00]" },
-  rechazada: { texto: "Rechazada", clase: "border-alerta/40 bg-[#fbeeee] text-alerta" },
-  archivada: { texto: "Archivada", clase: "border-black/15 bg-hueso text-carbon/60" },
-};
 
 // "Que han contratado": las seis etiquetas de su esbozo, y que bloques
 // encienden cada una. La subvencion vieja (accesibilidad / eficiencia) tambien.
@@ -309,10 +300,7 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
           {hojas.map((h) => {
             // Un borrador se dice: no tiene PDF, no ha salido y no se marca enviado.
             const enBorrador = !!h.version?.borrador;
-            const e =
-              enBorrador && h.estado === "borrador"
-                ? { texto: "Borrador", clase: "border-dashed border-carbon/30 bg-white text-carbon/60" }
-                : ESTADO[h.estado] ?? { texto: h.estado, clase: "border-black/15 bg-hueso text-carbon/70" };
+            const e = estadoDeHoja(h.estado, enBorrador);
             const abierta = st?.hojaId === h.id;
             // La firmada va con la ultima version GENERADA (la que tiene PDF).
             const ultimaGenerada = h.documentos.filter((d) => d.tipo === "generada").at(-1)?.versionId ?? null;
