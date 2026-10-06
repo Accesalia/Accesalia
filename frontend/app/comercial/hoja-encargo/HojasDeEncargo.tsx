@@ -196,8 +196,13 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
     const modo: Record<string, Desglose> = {};
     const imp: Record<string, string> = {};
     const pago: Record<string, string> = {};
+    const junto: Record<string, boolean> = {};
     for (const k of h?.conceptos ?? []) {
+      // La linea del conjunto: su importe es el que se escribio (precio unico o
+      // la suma), y vuelve tal cual.
+      if (k.esConjunto && k.importe != null) imp.CONJUNTO = EUR.format(k.importe);
       if (!k.bloqueId || !datos.bloques.some((b) => b.id === k.bloqueId)) continue;
+      if (k.enConjunto) junto[k.bloqueId] = true;
       on[k.bloqueId] = true;
       if (k.desglose) modo[k.bloqueId] = k.desglose;
       if (k.importe != null) imp[k.bloqueId] = EUR.format(k.importe);
@@ -208,7 +213,12 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
       : [{ clave: claveAct.current++, tipoId: "", accesoIds: accesosOpp }];
     setSt({
       hojaId: h?.id ?? null,
-      titulo: h ? `Modificar hoja ${h.numero} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})` : "Nueva hoja de encargo",
+      // Si la ultima es un borrador, se sigue ESE: no sale una version mas.
+      titulo: h
+        ? h.version?.borrador
+          ? `Seguir el borrador · hoja ${h.numero} · ${h.titulo} (versión ${h.version.numero})`
+          : `Modificar hoja ${h.numero} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})`
+        : "Nueva hoja de encargo",
       oppId: oppDeHoja,
       aQuien: h?.pagadorTipo === "contrata" && h.contrataId ? h.contrataId : "comunidad",
       actuaciones: acts,
@@ -217,9 +227,11 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
       imp,
       pago,
       texto: Object.fromEntries(
-        (h?.conceptos ?? []).filter((k) => k.descripcion).map((k) => [k.bloqueId ?? "CONJUNTO", k.descripcion as string]),
+        (h?.conceptos ?? [])
+          .filter((k) => k.descripcion && (k.bloqueId || k.esConjunto))
+          .map((k) => [k.esConjunto ? "CONJUNTO" : (k.bloqueId as string), k.descripcion as string]),
       ),
-      junto: {},
+      junto,
       html: h?.version?.html ?? null,
     });
     setTimeout(() => document.getElementById("generador")?.scrollIntoView({ behavior: "smooth" }), 50);
@@ -295,9 +307,16 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
           </div>
           {hojas.length === 0 && <p className="py-6 text-center text-carbon/60">Esta comunidad aún no tiene ninguna hoja.</p>}
           {hojas.map((h) => {
-            const e = ESTADO[h.estado] ?? { texto: h.estado, clase: "border-black/15 bg-hueso text-carbon/70" };
+            // Un borrador se dice: no tiene PDF, no ha salido y no se marca enviado.
+            const enBorrador = !!h.version?.borrador;
+            const e =
+              enBorrador && h.estado === "borrador"
+                ? { texto: "Borrador", clase: "border-dashed border-carbon/30 bg-white text-carbon/60" }
+                : ESTADO[h.estado] ?? { texto: h.estado, clase: "border-black/15 bg-hueso text-carbon/70" };
             const abierta = st?.hojaId === h.id;
-            const firmadaDeUltima = h.documentos.some((d) => d.tipo === "firmada" && d.versionId === h.version?.id);
+            // La firmada va con la ultima version GENERADA (la que tiene PDF).
+            const ultimaGenerada = h.documentos.filter((d) => d.tipo === "generada").at(-1)?.versionId ?? null;
+            const firmadaDeUltima = h.documentos.some((d) => d.tipo === "firmada" && d.versionId === ultimaGenerada);
             return (
               <div key={h.id} className={"mb-2 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-xl border px-3 py-2.5 " + (abierta ? "border-lima bg-lima-soft" : "border-[#e4e4e4]")}>
                 <div>
@@ -305,7 +324,12 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
                     Hoja {h.numero} · {h.titulo}
                   </span>{" "}
                   <span className={"rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] " + e.clase}>{e.texto}</span>
-                  {h.estado === "borrador" && h.version?.html && (
+                  {enBorrador && h.estado !== "borrador" && (
+                    <span className="ml-1.5 rounded-full border border-dashed border-carbon/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] text-carbon/60">
+                      + borrador
+                    </span>
+                  )}
+                  {h.estado === "borrador" && !enBorrador && ultimaGenerada && (
                     <button
                       type="button"
                       disabled={ocupado}
@@ -316,13 +340,13 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
                     </button>
                   )}
                   <div className="text-xs text-carbon/65">
-                    {h.version ? `Versión ${h.version.numero}` : "Sin versión"}
+                    {h.version ? `Versión ${h.version.numero}${enBorrador ? " (borrador, sin PDF)" : ""}` : "Sin versión"}
                     {h.fecha && ` · ${new Date(h.fecha).toLocaleDateString("es-ES")}`} · {h.aQuien}
                     {h.importe > 0 && ` · ${eur(h.importe)} € + IVA`}
                   </div>
                 </div>
                 <button type="button" className={BTN} disabled={ocupado} onClick={() => abrir(h)}>
-                  Modificar
+                  {enBorrador ? "Seguir el borrador" : "Modificar"}
                 </button>
                 <div className="col-span-2 flex flex-wrap gap-1.5">
                   {h.documentos.map((d) => {
@@ -338,7 +362,7 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
                       </button>
                     );
                   })}
-                  {h.version && !firmadaDeUltima && (
+                  {ultimaGenerada && !firmadaDeUltima && (
                     <button
                       type="button"
                       disabled={ocupado}
@@ -448,6 +472,18 @@ function Generador({
   // Las que el comercial ha marcado como parte de un proyecto conjunto.
   const enConjunto = cobrados.filter((b) => st.junto[b.id]);
   const sumaConjunto = enConjunto.reduce((s, b) => s + importeDe(b), 0);
+  // El conjunto existe con dos o mas lineas. Su importe es el escrito (precio
+  // unico) o, si no se toca, la suma de las de dentro.
+  const hayConjunto = enConjunto.length >= 2;
+  const importeConjunto = hayConjunto ? aNumero(st.imp.CONJUNTO ?? "") ?? sumaConjunto : 0;
+  const dentro = (b: BloqueHoja) => hayConjunto && !!st.junto[b.id];
+  // LO QUE SE COBRA: las lineas sueltas + el conjunto. Las de dentro no suman:
+  // su precio ya esta en el del conjunto.
+  const total = cobrados.filter((b) => !dentro(b)).reduce((s, b) => s + importeDe(b), 0) + importeConjunto;
+  // Como se llama cada linea en el documento: el texto escrito una vez por el
+  // comercial, o si no hay, el titulo del bloque.
+  const nombreLinea = (b: BloqueHoja) => (st.texto[b.id] ?? "").trim() || frase(b.titulo);
+  const nombreConjunto = (st.texto.CONJUNTO ?? "").trim() || "Proyecto conjunto: " + enConjunto.map((b) => nombreLinea(b)).join(" + ");
 
   const contrata = datos.contratas.find((c) => c.id === st.aQuien) ?? null;
   const razon = st.aQuien === "comunidad" ? datos.comunidad.nombre : contrata?.nombre ?? "";
@@ -526,16 +562,27 @@ function Generador({
         } else if (!st.on[b.id] && el) el.remove();
       });
 
+    // EL DESGLOSE. "La hoja desglosa": si hay proyecto conjunto, sale su linea
+    // con su precio y, debajo y sangradas, las que lo forman -con su precio si
+    // lo tienen, o "incluido en el conjunto" si va a precio unico-.
     const des = p.querySelector<HTMLElement>('[data-p="desglose"]');
-    if (des)
-      des.innerHTML =
-        `<table>${conLinea
-          .map((b) => {
-            const n = importeDe(b);
-            const valor = modoDe(b) === "se_cobra" ? `${eur(n)} € + ${eur(n * 0.21)} IVA = ${eur(n * 1.21)} €` : "<i>incluido</i>";
-            return `<tr><td>${esc(frase(b.titulo))}</td><td class="r">${valor}</td></tr>`;
-          })
-          .join("")}</table>` + `<div class="totalbanda">Total Honorarios Profesionales: ${eur(suma)} € + IVA</div>`;
+    const precio = (n: number) => `${eur(n)} € + ${eur(n * 0.21)} IVA = ${eur(n * 1.21)} €`;
+    if (des) {
+      const filas: string[] = [];
+      if (hayConjunto) {
+        filas.push(`<tr><td><b>${esc(nombreConjunto)}</b></td><td class="r"><b>${precio(importeConjunto)}</b></td></tr>`);
+        for (const b of enConjunto) {
+          const n = importeDe(b);
+          filas.push(`<tr><td style="padding-left:16px">${esc(nombreLinea(b))}</td><td class="r">${n > 0 ? precio(n) : "<i>incluido en el conjunto</i>"}</td></tr>`);
+        }
+      }
+      for (const b of conLinea) {
+        if (dentro(b)) continue;
+        const valor = modoDe(b) === "se_cobra" ? precio(importeDe(b)) : "<i>incluido</i>";
+        filas.push(`<tr><td>${esc(nombreLinea(b))}</td><td class="r">${valor}</td></tr>`);
+      }
+      des.innerHTML = `<table>${filas.join("")}</table>` + `<div class="totalbanda">Total Honorarios Profesionales: ${eur(total)} € + IVA</div>`;
+    }
 
     const icio = p.querySelector<HTMLElement>('[data-p="icio"]');
     if (icio) {
@@ -546,10 +593,13 @@ function Generador({
 
     const pago = p.querySelector<HTMLElement>('[data-p="pago"]');
     if (pago)
+      // Se paga lo que se cobra: el conjunto como una sola cosa (con la forma de
+      // pago de su primera linea) y cada linea suelta con la suya.
       pago.innerHTML = cobrados.length
-        ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul class="pago">${cobrados
-            .map((b) => `<li>${esc(frase(b.titulo))}: ${esc(pagoDe(b))}</li>`)
-            .join("")}</ul>`
+        ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul class="pago">${[
+            ...(hayConjunto ? [`<li>${esc(nombreConjunto)}: ${esc(pagoDe(enConjunto[0]))}</li>`] : []),
+            ...cobrados.filter((b) => !dentro(b)).map((b) => `<li>${esc(nombreLinea(b))}: ${esc(pagoDe(b))}</li>`),
+          ].join("")}</ul>`
         : "";
   });
 
@@ -574,17 +624,11 @@ function Generador({
           formaPago: modoDe(b) === "se_cobra" ? pagoDe(b) : null,
           // El texto de la linea, escrito una vez: va a la hoja y a la viabilidad.
           texto: (st.texto[b.id] ?? "").trim() || null,
-          enConjunto: Boolean(st.junto[b.id]) && modoDe(b) === "se_cobra",
+          enConjunto: dentro(b) && modoDe(b) === "se_cobra",
         })),
         // La linea condensada, si la hay. Su importe puede NO ser la suma: "a
         // veces el proyecto conjunto tiene un precio unico, y otras se desglosa".
-        conjunto:
-          enConjunto.length >= 2
-            ? {
-                texto: (st.texto.CONJUNTO ?? "").trim() || null,
-                importe: aNumero(st.imp.CONJUNTO ?? "") ?? sumaConjunto,
-              }
-            : null,
+        conjunto: hayConjunto ? { texto: (st.texto.CONJUNTO ?? "").trim() || null, importe: importeConjunto } : null,
         html: copia.innerHTML,
       });
       if (!r.ok) return setError(r.error);
@@ -792,7 +836,7 @@ function Generador({
             <div className="mt-2 flex justify-between font-bold">
               <span>Total honorarios</span>
               <span>
-                {eur(suma)} € + IVA = {eur(suma * 1.21)} €
+                {eur(total)} € + IVA = {eur(total * 1.21)} €
               </span>
             </div>
             {soloTexto.length > 0 && (

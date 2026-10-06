@@ -100,6 +100,11 @@ export type ConceptoHoja = {
   formaPago: string | null;
   /** El texto de la linea, escrito una vez por el comercial. */
   descripcion: string | null;
+  /** Va DENTRO del proyecto conjunto: su importe es informativo, lo que se
+   *  cobra es el del conjunto. */
+  enConjunto: boolean;
+  /** ES la linea del proyecto conjunto (la condensada). */
+  esConjunto: boolean;
 };
 /** Un documento de la fila: la generada (foto de la app o PDF de Drive) o la
  *  firmada. `enlace` vacio = esta en el almacen y se firma al abrirla. */
@@ -115,7 +120,9 @@ export type Hoja = {
   aQuien: string;
   pagadorTipo: "comunidad" | "contrata";
   contrataId: string | null;
-  version: { id: string; numero: number; html: string | null } | null;
+  /** La ultima version. `borrador` = se guardo sin PDF: sigue viva y no ha
+   *  salido de Accesalia ("si es PDF, ya esta congelado"). */
+  version: { id: string; numero: number; html: string | null; borrador: boolean } | null;
   conceptos: ConceptoHoja[];
   actuaciones: { tipoId: string; accesoIds: string[] }[];
   importe: number;
@@ -187,13 +194,13 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       contrata: { nombre: string } | null;
       version_firmada_id: string | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null }[];
-      conceptos: { version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
+      conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
       `hojas_encargo?select=id,oportunidad_id,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
         `contrata:pagador_contrata_id(nombre),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html),` +
-        `conceptos:conceptos_hoja(version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
+        `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
         `&comunidad_id=eq.${comunidadId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
     ),
@@ -229,8 +236,9 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       // Los conceptos de la ultima version; las antiguas no los tienen
       // atados a version, y entonces valen todos los de la hoja.
       const deUltima = h.conceptos.filter((k) => ultima && k.version_hoja_id === ultima.id);
-      const conceptos = (deUltima.length ? deUltima : h.conceptos)
-        .filter((k) => k.incluido)
+      const filasConceptos = (deUltima.length ? deUltima : h.conceptos).filter((k) => k.incluido);
+      const conjuntos = new Set(filasConceptos.map((k) => k.incluido_en_concepto_id).filter(Boolean));
+      const conceptos = filasConceptos
         .map((k) => ({
           bloqueId: k.bloque_id,
           codigo: k.bloque?.codigo ?? null,
@@ -239,25 +247,25 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
           importe: k.importe,
           descripcion: k.descripcion,
           formaPago: k.forma_pago,
+          enConjunto: !!k.incluido_en_concepto_id,
+          esConjunto: conjuntos.has(k.id),
         }));
+      // Lo que se cobra: cada linea suelta + el conjunto. Las de DENTRO del
+      // conjunto no suman: su precio ya esta en el del conjunto (sea la suma o
+      // un precio unico).
       const importe = conceptos
-        .filter((k) => (k.desglose ? k.desglose === "se_cobra" : true))
+        .filter((k) => !k.enConjunto && (k.desglose ? k.desglose === "se_cobra" : true))
         .reduce((s, k) => s + (Number(k.importe) || 0), 0);
       const tipos = [...h.actuaciones].sort((a, b) => a.orden - b.orden);
       const documentos: Documento[] = [];
       for (const v of versiones) {
-        if (v.contenido_html || v.url_pdf_hoja)
+        // Un BORRADOR no es un documento: no tiene PDF y no sale en la lista.
+        if (v.url_pdf_hoja)
           documentos.push({
             tipo: "generada",
             etiqueta: `Generada v${v.numero_version}`,
-            // Las de la app tienen su PDF (o se hace al pedirlo); las antiguas,
-            // su enlace de Drive.
-            enlace:
-              v.contenido_html || v.url_pdf_hoja?.startsWith("almacen:")
-                ? `/comercial/hoja-encargo/pdf/${v.id}`
-                : v.url_pdf_hoja
-                  ? enlaceDoc(v.url_pdf_hoja)
-                  : null,
+            // Las de la app, su PDF del almacen; las antiguas, su enlace de Drive.
+            enlace: v.url_pdf_hoja.startsWith("almacen:") ? `/comercial/hoja-encargo/pdf/${v.id}` : enlaceDoc(v.url_pdf_hoja),
             versionId: v.id,
             indice: 0,
           });
@@ -281,7 +289,14 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
         aQuien: h.pagador_tipo === "contrata" ? h.contrata?.nombre ?? "Contrata" : c.nombre,
         pagadorTipo: h.pagador_tipo,
         contrataId: h.pagador_contrata_id,
-        version: ultima ? { id: ultima.id, numero: ultima.numero_version, html: ultima.contenido_html } : null,
+        version: ultima
+          ? {
+              id: ultima.id,
+              numero: ultima.numero_version,
+              html: ultima.contenido_html,
+              borrador: !!ultima.contenido_html && !ultima.url_pdf_hoja,
+            }
+          : null,
         conceptos,
         actuaciones: tipos.filter((t) => t.tipo).map((t) => ({ tipoId: t.tipo!.id, accesoIds: t.accesos.map((a) => a.acceso_id) })),
         importe,
@@ -354,8 +369,9 @@ function limpiarHtml(html: string): string {
  *  anterior de ESTA hoja. Solo las que no estuvieran ya marcadas: la primera que
  *  las dejo atras es la que cuenta. */
 async function marcarViabilidadesSuperadas(hojaId: string, versionNueva: string): Promise<void> {
+  // !inner: que el filtro por hoja recorte las filas, no solo lo de dentro.
   const usaban = await leer<{ viabilidad_id: string; version: { hoja_encargo_id: string } | null }[]>(
-    `relacion_viabilidad_hojas?select=viabilidad_id,version:version_hoja_id(hoja_encargo_id)` +
+    `relacion_viabilidad_hojas?select=viabilidad_id,version:version_hoja_id!inner(hoja_encargo_id)` +
       `&version.hoja_encargo_id=eq.${hojaId}`,
   );
   const ids = [...new Set(usaban.filter((u) => u.version).map((u) => u.viabilidad_id))];
@@ -367,10 +383,12 @@ async function marcarViabilidadesSuperadas(hojaId: string, versionNueva: string)
 }
 
 export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string; versionId: string }> {
-  const tipos = await leer<{ id: string; nombre: string }[]>(
-    `tipos_proyecto?select=id,nombre&id=in.(${g.actuaciones.map((a) => a.tipoId).join(",")})`,
-  );
-  const descripcion = g.actuaciones.map((a) => tipos.find((t) => t.id === a.tipoId)?.nombre).filter(Boolean).join(" + ");
+  // Un borrador puede llevar actuaciones a medias, sin tipo todavia.
+  const actuaciones = g.actuaciones.filter((a) => a.tipoId);
+  const tipos = actuaciones.length
+    ? await leer<{ id: string; nombre: string }[]>(`tipos_proyecto?select=id,nombre&id=in.(${actuaciones.map((a) => a.tipoId).join(",")})`)
+    : [];
+  const descripcion = actuaciones.map((a) => tipos.find((t) => t.id === a.tipoId)?.nombre).filter(Boolean).join(" + ");
   const pagador =
     g.aQuien.tipo === "contrata"
       ? { pagador_tipo: "contrata", pagador_contrata_id: g.aQuien.id }
@@ -402,7 +420,13 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     // firmada anterior sigue apuntada (version_firmada_id) y se sigue viendo.
     await pedir(`hojas_encargo?id=eq.${hojaId}`, {
       method: "PATCH",
-      body: JSON.stringify({ ...pagador, descripcion, estado: "borrador", fecha_estado: new Date().toISOString() }),
+      // Un BORRADOR no cambia el estado: no ha salido de Accesalia, y si la hoja
+      // estaba firmada, lo firmado sigue siendo lo que vale.
+      body: JSON.stringify(
+        g.borrador
+          ? { ...pagador, descripcion }
+          : { ...pagador, descripcion, estado: "borrador", fecha_estado: new Date().toISOString() },
+      ),
     });
   }
 
@@ -413,21 +437,41 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   // congelado. Asi tampoco se paga el coste de convertirlo cada vez que guarda.
   const pdf = g.borrador ? null : await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`);
 
-  // 3 · la version, con la hoja tal cual
-  const previas = await leer<{ numero_version: number }[]>(
-    `versiones_hoja?select=numero_version&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
-  );
-  const base = g.conceptos.filter((k) => k.desglose === "se_cobra").reduce((s, k) => s + (k.importe ?? 0), 0);
-  const numero = (previas[0]?.numero_version ?? 0) + 1;
-  const [v] = await crear<{ id: string }>("versiones_hoja", {
-    hoja_encargo_id: hojaId,
-    numero_version: numero,
+  // 3 · la version, con la hoja tal cual.
+  //
+  //     Lo que se cobra: cada linea suelta + el conjunto. Las de DENTRO del
+  //     conjunto no suman, porque su precio ya va en el del conjunto: o es la
+  //     suma de las dos, o un precio unico distinto (Monica, 6-oct-2026).
+  const base =
+    g.conceptos.filter((k) => k.desglose === "se_cobra" && !k.enConjunto).reduce((s, k) => s + (k.importe ?? 0), 0) +
+    (g.conjunto?.importe ?? 0);
+  const filaVersion = {
     fecha_generada: hoy(),
     contenido_html: html,
     importe_base: base,
     iva_porcentaje: 21,
     importe_total: Math.round(base * 121) / 100,
-  });
+  };
+  //     UN BORRADOR NO APILA VERSIONES. Si la ultima es un borrador (sin PDF),
+  //     se reescribe esa misma: guardar diez veces no son diez versiones, y al
+  //     generar, ese borrador ES la version que sale. Una version con PDF no se
+  //     toca nunca: es lo que se envio.
+  const [previa] = await leer<{ id: string; numero_version: number; url_pdf_hoja: string | null; contenido_html: string | null }[]>(
+    `versiones_hoja?select=id,numero_version,url_pdf_hoja,contenido_html&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
+  );
+  const reusar = previa && !previa.url_pdf_hoja && !!previa.contenido_html;
+  let v: { id: string };
+  let numero: number;
+  if (reusar) {
+    numero = previa.numero_version;
+    v = { id: previa.id };
+    await pedir(`versiones_hoja?id=eq.${previa.id}`, { method: "PATCH", body: JSON.stringify(filaVersion) });
+    // Sus conceptos se rehacen: un borrador no tiene facturacion colgando.
+    await pedir(`conceptos_hoja?version_hoja_id=eq.${previa.id}`, { method: "DELETE" });
+  } else {
+    numero = (previa?.numero_version ?? 0) + 1;
+    [v] = await crear<{ id: string }>("versiones_hoja", { hoja_encargo_id: hojaId, numero_version: numero, ...filaVersion });
+  }
 
   // 4 · el PDF al almacen, junto a la version. En borrador no hay PDF, y eso ES
   //     la marca: "si es PDF, ya esta congelado; si aun es editable, es que no
@@ -462,6 +506,8 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         desglose: "se_cobra",
         importe: g.conjunto.importe,
         descripcion: g.conjunto.texto,
+        // Se cobra como una sola cosa: con la forma de pago de su primera linea.
+        forma_pago: g.conceptos.find((k) => k.enConjunto)?.formaPago ?? null,
       }]);
       conjuntoId = c?.id ?? null;
     }
@@ -484,11 +530,11 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
 
   // 6 · el que + donde: es de la hoja, se rehace entero
   await pedir(`actuaciones_hoja?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });
-  const acts = await crear<{ id: string }>(
+  const acts = actuaciones.length ? await crear<{ id: string }>(
     "actuaciones_hoja",
-    g.actuaciones.map((a, i) => ({ hoja_encargo_id: hojaId, tipo_proyecto_id: a.tipoId, orden: i + 1 })),
-  );
-  const filas = acts.flatMap((a, i) => g.actuaciones[i].accesoIds.map((acceso_id) => ({ actuacion_id: a.id, acceso_id })));
+    actuaciones.map((a, i) => ({ hoja_encargo_id: hojaId, tipo_proyecto_id: a.tipoId, orden: i + 1 })),
+  ) : [];
+  const filas = acts.flatMap((a, i) => actuaciones[i].accesoIds.map((acceso_id) => ({ actuacion_id: a.id, acceso_id })));
   if (filas.length) await crear("actuacion_accesos", filas);
 
   // 7 · LAS VIABILIDADES QUE ESTA HOJA DEJA ATRAS (Monica, 6-oct-2026).
@@ -510,6 +556,11 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
 // --------------------------------------------------------------- estados
 
 export async function marcarEnviada(hojaId: string) {
+  // Solo se envia lo que tiene PDF: un borrador no ha salido de Accesalia.
+  const [v] = await leer<{ url_pdf_hoja: string | null }[]>(
+    `versiones_hoja?select=url_pdf_hoja&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
+  );
+  if (!v?.url_pdf_hoja) throw new Error("La última versión es un borrador: genera la hoja antes de marcarla enviada.");
   await pedir(`hojas_encargo?id=eq.${hojaId}`, {
     method: "PATCH",
     body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
@@ -541,8 +592,9 @@ export async function permisoFirmada(hojaId: string, nombre: string): Promise<{ 
 export async function apuntarFirmada(hojaId: string, ruta: string) {
   const info = await fetch(`${URL_BASE}/storage/v1/object/info/${ALMACEN}/${ruta}`, { headers: CAB, cache: "no-store" });
   if (!info.ok) throw new Error("El fichero no ha llegado al almacén.");
+  // La firma es de la ultima version GENERADA (con PDF), no de un borrador.
   const [v] = await leer<{ id: string; pdfs_firmados: string[] | null }[]>(
-    `versiones_hoja?select=id,pdfs_firmados&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
+    `versiones_hoja?select=id,pdfs_firmados&hoja_encargo_id=eq.${hojaId}&url_pdf_hoja=not.is.null&order=numero_version.desc&limit=1`,
   );
   if (!v) throw new Error("La hoja no tiene ninguna versión generada.");
   await pedir(`versiones_hoja?id=eq.${v.id}`, {
@@ -580,8 +632,8 @@ export async function enlaceFirmada(hojaId: string, versionId: string, n: number
 
 // ------------------------------------------------- la version, en PDF
 
-/** El PDF de una version: el guardado en el almacen, o (si es de antes de que
- *  la app los guardara) hecho al momento con su hoja. */
+/** El PDF de una version: el guardado en el almacen al generarla. Un borrador
+ *  no tiene, y NO se fabrica al pedirlo: el PDF es lo que congela la hoja. */
 export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array; comunidadId: string; nombre: string } | null> {
   const [v] = await leer<{
     contenido_html: string | null;
@@ -596,6 +648,5 @@ export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array
     const r = await fetch(`${URL_BASE}/storage/v1/object/${resto}`, { headers: CAB, cache: "no-store" });
     if (r.ok) return { pdf: new Uint8Array(await r.arrayBuffer()), comunidadId: v.hoja.comunidad_id, nombre };
   }
-  if (!v.contenido_html) return null;
-  return { pdf: new Uint8Array(await pdfDeHoja(v.contenido_html, nombre)), comunidadId: v.hoja.comunidad_id, nombre };
+  return null;
 }

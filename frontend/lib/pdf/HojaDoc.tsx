@@ -92,10 +92,15 @@ const BLOQUES = new Set(["div", "p", "h1", "h2", "h3", "h4", "ul", "ol", "li", "
 const esBloque = (n: Nodo) => typeof n !== "string" && BLOQUES.has(n.tag);
 const tieneClase = (n: Exclude<Nodo, string>, c: string) => n.clase.split(/\s+/).includes(c);
 
-/** "margin-top:12px" del atributo style: lo unico que usa el papel. */
+/** Del atributo style, lo unico que usa el papel: "margin-top:12px" en los
+ *  bloques y "padding-left:16px" en las lineas de dentro del proyecto conjunto. */
 function margenArriba(estilo: string) {
   const m = estilo.match(/margin-top\s*:\s*(\d+)px/i);
   return m ? { marginTop: Math.round(Number(m[1]) * 0.75) } : {};
+}
+function sangria(estilo: string) {
+  const m = estilo.match(/padding-left\s*:\s*(\d+)px/i);
+  return m ? { paddingLeft: Math.round(Number(m[1]) * 0.75) } : {};
 }
 
 type Marca = { b?: boolean; i?: boolean; u?: boolean };
@@ -183,7 +188,7 @@ function bloque(n: Exclude<Nodo, string>, m: Marca, k: string): ReactNode {
               {celdas.map((c, j) => {
                 const estilo = conforme ? (j === 0 ? s.confEtq : s.confValor) : tieneClase(c, "r") ? s.celdaR : s.celda;
                 return (
-                  <View key={`${k}${i}-${j}`} style={estilo}>
+                  <View key={`${k}${i}-${j}`} style={[estilo, sangria(c.estilo)]}>
                     {hijos(c.hijos, m, `${k}${i}-${j}-`)}
                   </View>
                 );
