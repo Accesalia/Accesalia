@@ -1,4 +1,5 @@
 import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdificio";
+import { accionPatios } from "./acciones";
 
 // EL EDIFICIO, DENTRO DEL BLOQUE 1 (Monica, 5-oct-2026).
 //
@@ -96,7 +97,7 @@ const EUR = new Intl.NumberFormat("es-ES");
 
 /** Devuelve las TRES primeras columnas de su rejilla: 262 · 330 · 190. La cuarta
  *  -el diario- la pone la pantalla. */
-export async function Edificio({ referencia }: { referencia: string }) {
+export async function Edificio({ referencia, id }: { referencia: string; id: string }) {
   const [i, asc, iee] = await Promise.all([
     informeEdificio(referencia),
     ascensorDe(referencia),
@@ -151,13 +152,37 @@ export async function Edificio({ referencia }: { referencia: string }) {
             <div className="bg-[#438538]" />
             {/* Los patios son un NUMERO, no un si/no: su maqueta pregunta
                 "¿cuantos?". El 0 es un dato -no tiene- y el nulo es otro. */}
-            <Visto
-              que="Patios"
-              hay={asc.patios === null ? null : asc.patios > 0}
-              cuantos={asc.patios}
-              quien={asc.patiosQuien}
-              cuando={asc.patiosCuando}
-            />
+            {/* Los patios SE RELLENAN aqui: es el unico dato de esta columna que
+                no viene de fuera. Un numero, no un si/no -su maqueta pregunta
+                "¿cuantos?"-, y se guarda firmado. */}
+            <form action={accionPatios.bind(null, referencia, id)}>
+              <div className="text-[11px] text-carbon/65">Patios</div>
+              <div className="mt-0.5 flex items-baseline gap-2 text-[12px]">
+                <span className={asc.patios === null ? "text-[#8a8a8a]" : asc.patios > 0 ? "font-bold text-carbon" : "text-[#8a8a8a]"}>Sí</span>
+                <span className={asc.patios === 0 ? "font-bold text-carbon" : "text-[#8a8a8a]"}>No</span>
+                <span className="text-[11px] text-carbon/50">¿cuántos?</span>
+                <input
+                  name="patios"
+                  type="number"
+                  min={0}
+                  max={99}
+                  defaultValue={asc.patios ?? ""}
+                  aria-label="Cuántos patios tiene"
+                  className="w-[44px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
+                />
+                <button className="text-[11px] font-semibold text-[#2B6CB0] hover:underline">guardar</button>
+              </div>
+              <p className="mt-0.5 text-[11px] text-[#8a8a8a]">
+                {asc.patiosQuien ? (
+                  <>
+                    los contó {asc.patiosQuien}
+                    {asc.patiosCuando && <> el {asc.patiosCuando.slice(8, 10)}/{asc.patiosCuando.slice(5, 7)}</>}
+                  </>
+                ) : (
+                  "sin mirar"
+                )}
+              </p>
+            </form>
           </div>
         </div>
       </section>

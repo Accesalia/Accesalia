@@ -137,3 +137,42 @@ export async function accionDireccion(
   await cambiarDireccion(id, r);
   refrescar(id);
 }
+
+// ¿CUANTOS PATIOS TIENE? (Monica, 5-oct-2026).
+//
+// "Es un dato del edificio como lo es el numero de viviendas, solo que con otro
+// origen: manual en vez de Catastro. Manual incluye con posibilidad de fallo,
+// claro."
+//
+// Por eso va firmado, igual que el ascensor: un dato que pone una persona vale
+// lo que valga quien lo puso y cuando lo miro. Y por eso el 0 es un dato -no
+// tiene patios- y el vacio es otro: nadie los ha contado.
+export async function accionPatios(referencia: string, id: string, fd: FormData) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
+  if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
+
+  const crudo = String(fd.get("patios") ?? "").trim();
+  const n = crudo === "" ? null : Number(crudo);
+  if (n !== null && (!Number.isInteger(n) || n < 0 || n > 99)) return;
+
+  // Upsert, no update: si la ficha de Catastro todavia no se guardo -porque el
+  // servicio fallo ese dia-, lo que vio una persona no se puede perder.
+  await fetch(`${process.env.SUPABASE_URL}/rest/v1/ficha_catastro?on_conflict=referencia`, {
+    method: "POST",
+    headers: {
+      apikey: process.env.SUPABASE_SECRET_KEY ?? "",
+      Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({
+      referencia: referencia.replace(/\s/g, "").toUpperCase().slice(0, 14),
+      patios: n,
+      patios_vistos_por: n === null ? null : yo.id,
+      patios_vistos_en: n === null ? null : new Date().toISOString(),
+    }),
+  });
+
+  revalidatePath(`/comercial/oportunidades/${id}`);
+}

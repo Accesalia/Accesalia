@@ -637,6 +637,43 @@ export async function informeEdificio(
   return componer(ref, fuera);
 }
 
+/** LOS 21 DISTRITOS DE MADRID CAPITAL.
+ *
+ *  Catastro guarda el distrito como un NUMERO -"11"-, que no dice nada a quien
+ *  mira la pantalla. Esta es la correspondencia oficial del Ayuntamiento, que no
+ *  cambia: no es una interpretacion, es la tabla. */
+const DISTRITOS_MADRID: Record<string, string> = {
+  "1": "Centro", "2": "Arganzuela", "3": "Retiro", "4": "Salamanca",
+  "5": "Chamartín", "6": "Tetuán", "7": "Chamberí", "8": "Fuencarral-El Pardo",
+  "9": "Moncloa-Aravaca", "10": "Latina", "11": "Carabanchel", "12": "Usera",
+  "13": "Puente de Vallecas", "14": "Moratalaz", "15": "Ciudad Lineal",
+  "16": "Hortaleza", "17": "Villaverde", "18": "Villa de Vallecas",
+  "19": "Vicálvaro", "20": "San Blas-Canillejas", "21": "Barajas",
+};
+
+/** El distrito, con su nombre, para el subtitulo de la cabecera.
+ *
+ *  Solo en Madrid capital: fuera no hay distritos municipales. El BARRIO que
+ *  ella puso en su maqueta -"Carabanchel · Puerta Bonita"- no lo tenemos en
+ *  ninguna fuente, y no se inventa. */
+export async function distritoDe(referenciaBruta: string): Promise<string | null> {
+  const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
+  if (!URL_BASE || !SECRETO || ref.length < 14) return null;
+  try {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/ficha_catastro?select=municipio,distrito_municipal&referencia=eq.${ref}&limit=1`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!r.ok) return null;
+    const [f] = (await r.json()) as { municipio: string | null; distrito_municipal: string | null }[];
+    if (!f?.distrito_municipal || !/^MADRID$/i.test((f.municipio || "").trim())) return null;
+    const nombre = DISTRITOS_MADRID[f.distrito_municipal.trim()];
+    return nombre ? `Distrito ${f.distrito_municipal} · ${nombre}` : null;
+  } catch {
+    return null;
+  }
+}
+
 export type Iee = {
   fecha: string | null;
   valoracion: string | null;

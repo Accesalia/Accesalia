@@ -54,8 +54,11 @@ pend = sorted(k for k in fichas if k not in clon and k not in ya)
 # La lista de municipios estaba fija AQUI TAMBIEN, y es la que de verdad rompia
 # Mostoles: sin sus comunidades no hay contra que cotejar. Se piden las de los
 # municipios que se esten leyendo, sean los que sean.
+# Los municipios con espacios -SAN SEBASTIAN DE LOS REYES- rompian la URL, asi
+# que la lista va codificada.
+from urllib.parse import quote
 coms = b.leer('comunidades?select=id,nombre,municipio&municipio=in.(%s)'
-              % ','.join('"%s"' % m for m in sorted({k[0] for k in fichas})), por_tramos=True)
+              % quote(','.join('"%s"' % m for m in sorted({k[0] for k in fichas}))), por_tramos=True)
 con_opp = {o['comunidad_id'] for o in b.leer('oportunidades?select=comunidad_id&comunidad_id=not.is.null', por_tramos=True)}
 
 ok, dud, nada = [], [], []

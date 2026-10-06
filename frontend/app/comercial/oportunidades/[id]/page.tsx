@@ -19,6 +19,7 @@ import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { AZUL, Carril, bloquesDe } from "./Carril";
 import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
+import { distritoDe } from "../../../../lib/informeEdificio";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -65,7 +66,10 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
   const quieren = tipos.filter((t) => g.tiposElegidos.includes(t.id)).map((t) => t.nombre);
   // El bloque por el que va, para el "Por donde vamos" de la cabecera.
   const bloqueAhora = bloquesDe(g.hitos).find((b) => b.activo) ?? null;
-  const contactos = g.comunidadId ? await contactosDeComunidad(g.comunidadId) : [];
+  const [contactos, distrito] = await Promise.all([
+    g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
+    g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -89,6 +93,7 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
           quieren={quieren}
           bloqueAhora={bloqueAhora}
           contactos={contactos}
+          distrito={distrito}
         />
         {pausada && (
           <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
@@ -118,7 +123,7 @@ export default async function GestionOportunidad({ params }: { params: Promise<{
             sitio codigo que ya funciona. */}
         <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
           {g.referenciaCatastral ? (
-            <Edificio referencia={g.referenciaCatastral} />
+            <Edificio referencia={g.referenciaCatastral} id={id} />
           ) : (
             <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-3">
               <b>Todavía no hay edificio que mirar.</b> Esta oportunidad no tiene referencia

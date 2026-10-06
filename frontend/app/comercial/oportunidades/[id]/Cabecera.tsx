@@ -28,6 +28,7 @@ export function Cabecera({
   quieren,
   bloqueAhora,
   contactos,
+  distrito,
 }: {
   id: string;
   g: Gestion;
@@ -39,6 +40,9 @@ export function Cabecera({
   quieren: string[];
   bloqueAhora: EstadoBloque | null;
   contactos: ContactoComunidad[];
+  /** "Distrito 11 · Carabanchel". Solo en Madrid capital; el BARRIO que ella
+   *  puso en su maqueta no lo tenemos en ninguna fuente y no se inventa. */
+  distrito: string | null;
 }) {
   const pausada = g.estado === "pausada";
   return (
@@ -63,6 +67,7 @@ export function Cabecera({
             <p className="mt-1 text-[12px] text-carbon/55">
               {g.codigo && <b className="text-carbon/75">{g.codigo}</b>}
               {!eligeComercial && g.comercial && <> · {g.comercial}</>}
+              {distrito && <> &nbsp;·&nbsp; {distrito}</>}
               {g.referenciaCatastral && <> &nbsp;·&nbsp; <span className="font-mono">{g.referenciaCatastral}</span></>}
             </p>
 
