@@ -1,0 +1,97 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (6-oct-2026) en las firmadas de 2024 (antes de oct) y rezagadas.",
+ "Y24_012": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO VILLA TALENCE 2 - ESCOLAPIOS- ALCALA .docx",
+  "nota": "Mal emparejada: la firmada de ASCENSOR (13-02-2024) va con la hoja de 12-02 (Escolapios), no con la de subvención de mayo."
+ },
+ "Y24_072": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO BLAS CABRERA 137 MADRID schindler.docx",
+  "nota": "Mal emparejada: la firmada de BAJADA A COTA CERO va con la hoja de Schindler, no con la de subvención."
+ },
+ "Y24_078": {
+  "estado": "OK",
+  "nota": "Subvención 1.980 (el Word dice 'no enviado' en el nombre, pero llegó firmada el 30-07-2024)."
+ },
+ "Y24_084": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO infantas 9 alcorcon.docx",
+  "nota": "Mal emparejada: la firmada de Schindler (PRY, DF y CSS, 28-08-2024) va con la hoja de 20-08-2024, no con la de subvención de 2025."
+ },
+ "Y24_068": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA ENCARGO paseo olimpo 16 fuenlabrada NEXT GEN Y SUBV Y CAES.docx",
+  "nota": "La enviada en PDF era un escaneo sin texto; la misma hoja está en Word (04-07-2024)."
+ },
+ "Y24_047": {
+  "estado": "OK",
+  "nota": "Propuesta: proyecto+licencia+DO 6.500 conjunto (con sustitución de los dos ascensores) + subvención 1.980."
+ },
+ "Y24_058": {
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Saneado / humedades en sótano: Otros - proyecto técnico."
+ },
+ "Y24_070a": {
+  "estado": "OK",
+  "nota": "La firmada trae las dos hojas (rampa y subvención); un día de diferencia en la fecha, mismo importe."
+ },
+ "Y24_077b": {
+  "estado": "OK",
+  "nota": "La firmada trae las dos hojas (proyecto 19-jul y subvención 18-jul)."
+ },
+ "Y24_098": {
+  "estado": "OK",
+  "nota": "El nombre de la firmada dice 08-01-2024 pero la hoja es de 07-01-2025: el año del nombre está mal (es 2025)."
+ },
+ "Y24_103": {
+  "estado": "OK",
+  "nota": "Proyecto de accesibilidad 4.200 conjunto + subvención 1.980."
+ },
+ "Y24_014": {
+  "estado": "OK",
+  "nota": "Honorarios según RD 853/2021 (12.000 + 300 × 120 viviendas = 48.000), en 3 mensualidades; DF y CSS a cargo de la constructora."
+ },
+ "Y24_116": {
+  "estado": "OK",
+  "nota": "El PDF trae dos hojas (proyecto y subvención) firmadas digitalmente; esta firmada es la de SUBVENCIÓN (1.980). El nombre dice 06-05 pero la hoja es del 21-05."
+ },
+ "Y24_117": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firmada la de PROYECTO (SATE) del 21-05: adelanto 7.220 de 16.900."
+ },
+ "Y24_020a": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.550 de 17.690 (proyecto 15.200 + LEE/IEE 2.490)."
+ },
+ "Y24_027": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.500 de 28.050; si no se concede, los honorarios son el adelanto."
+ },
+ "Y24_052": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firma DIDEPRO (no la comunidad): adelanto 8.500; lo concedido menos 8.500 se reparte al 50% entre Accesalia y DIDEPRO. Firmada 'EN PAUSA'."
+ },
+ "Y24_061": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 5.500 de 11.370; tres hojas en el documento (proyecto, subvención, cesión de CAES)."
+ },
+ "Y24_062": {
+  "estado": "PREGUNTA",
+  "grupo": "ng",
+  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 7.220 de 16.110; dos hojas en el documento (proyecto y subvención)."
+ },
+ "Y24_054b": {
+  "estado": "OK",
+  "nota": "Propuesta de honorarios Next Generation con precios por línea (proyecto 2.250, CEE 1.075, LEE+IEE 2.240, subvención 1.200, DF+CSS 2.600)."
+ }
+}

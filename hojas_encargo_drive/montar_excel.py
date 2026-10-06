@@ -71,6 +71,9 @@ def normalizar(d):
         if c.get('bloque') != 'SIN CASAR': continue
         t = c.get('texto') or ''
         if re.search(r'libro del edificio', t, re.I): c['bloque'] = 'LEE'   # 'Libro del Edificio + IEE' con precio: el LEE (IEE dentro)
+        elif re.search(r'(?<![A-Za-z])LEE(?![A-Za-z])', t): c['bloque'] = 'LEE'   # 'LEE + IEE' con un precio: el LEE
+        elif re.search(r'(?<![A-Za-z])IEE(?![A-Za-z])', t): c['bloque'] = 'IEE'   # 'CEE e IEE' con un precio
+        elif re.search(r'(?<![A-Za-z])DF(?![A-Za-z])|DIRECCI', t, re.I): c['bloque'] = 'DF'   # 'DF + CSS' con un precio
         elif re.search(r'proyecto', t, re.I): c['bloque'] = 'REDACCION PROYECTO'
         elif re.search(r'inspecci', t, re.I): c['bloque'] = 'INFORME PERICIAL'
         elif re.search(r'asesoramiento.*(ayuda|subvenc)', t, re.I): c['bloque'] = 'TRAMITACION SUBVENCIONES'; c['incluido'] = True
