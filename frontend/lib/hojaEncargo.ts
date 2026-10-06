@@ -98,6 +98,8 @@ export type ConceptoHoja = {
   desglose: Desglose | null;
   importe: number | null;
   formaPago: string | null;
+  /** El texto de la linea, escrito una vez por el comercial. */
+  descripcion: string | null;
 };
 /** Un documento de la fila: la generada (foto de la app o PDF de Drive) o la
  *  firmada. `enlace` vacio = esta en el almacen y se firma al abrirla. */
@@ -127,6 +129,9 @@ export type BloqueHoja = {
   puntos: string[];
   desglose: Desglose;
   importe: number | null;
+  /** proyecto · servicio · documento_tecnico. Solo lo de naturaleza `proyecto`
+   *  puede entrar en un PROYECTO CONJUNTO. */
+  naturaleza: string | null;
 };
 export type DatosHoja = {
   comunidad: { id: string; nombre: string; cif: string | null; municipio: string | null };
@@ -182,18 +187,18 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       contrata: { nombre: string } | null;
       version_firmada_id: string | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null }[];
-      conceptos: { version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
+      conceptos: { version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
       `hojas_encargo?select=id,oportunidad_id,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
         `contrata:pagador_contrata_id(nombre),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html),` +
-        `conceptos:conceptos_hoja(version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
+        `conceptos:conceptos_hoja(version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
         `&comunidad_id=eq.${comunidadId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
     ),
-    leer<{ id: string; codigo: string; nombre_corto: string | null; nombre: string; texto_plantilla: string | null; desglose: Desglose; honorarios_defecto: number | null }[]>(
-      "bloques?select=id,codigo,nombre_corto,nombre,texto_plantilla,desglose,honorarios_defecto&activo=is.true&order=orden.asc.nullslast",
+    leer<{ id: string; codigo: string; nombre_corto: string | null; nombre: string; texto_plantilla: string | null; desglose: Desglose; honorarios_defecto: number | null; naturaleza: string | null }[]>(
+      "bloques?select=id,codigo,nombre_corto,nombre,texto_plantilla,desglose,honorarios_defecto,naturaleza&activo=is.true&order=orden.asc.nullslast",
     ),
     leer<{ id: string; nombre: string }[]>(
       "tipos_proyecto?select=id,nombre&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
@@ -232,6 +237,7 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
           nombreCorto: k.bloque?.nombre_corto ?? k.bloque?.nombre ?? "Concepto",
           desglose: k.desglose,
           importe: k.importe,
+          descripcion: k.descripcion,
           formaPago: k.forma_pago,
         }));
       const importe = conceptos
@@ -292,6 +298,7 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
         puntos: resto.map((l) => l.trim()).filter(Boolean),
         desglose: b.desglose,
         importe: b.honorarios_defecto,
+        naturaleza: b.naturaleza ?? null,
       };
     }),
     tipos,
@@ -307,7 +314,21 @@ export type Generar = {
   oportunidadId: string;
   aQuien: { tipo: "comunidad" } | { tipo: "contrata"; id: string };
   actuaciones: { tipoId: string; accesoIds: string[] }[];
-  conceptos: { bloqueId: string; desglose: Desglose; importe: number | null; formaPago: string | null }[];
+  conceptos: {
+    bloqueId: string;
+    desglose: Desglose;
+    importe: number | null;
+    formaPago: string | null;
+    /** El texto de la linea, escrito una vez por el comercial. Viaja a la hoja y
+     *  a la viabilidad: una fuente, dos destinos. */
+    texto: string | null;
+    /** Si esta linea va dentro del proyecto conjunto. */
+    enConjunto: boolean;
+  }[];
+  /** La linea condensada, cuando hay dos o mas cosas que van juntas. Su importe
+   *  NO es siempre la suma: "a veces el proyecto conjunto tiene un precio unico,
+   *  y otras se desglosa; solo el comercial sabe cual es cada caso". */
+  conjunto: { texto: string | null; importe: number } | null;
   html: string;
 };
 
@@ -400,7 +421,24 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   });
 
   // 5 · los conceptos de ESTA version
-  if (g.conceptos.length)
+  if (g.conceptos.length) {
+    // EL PROYECTO CONJUNTO VA PRIMERO, porque las lineas que lo componen apuntan
+    // a el. La hoja enseña las tres -el conjunto y cada cosa con su precio- y la
+    // viabilidad solo el conjunto: "la hoja desglosa, la viabilidad agrupa".
+    let conjuntoId: string | null = null;
+    if (g.conjunto) {
+      const [c] = await crear<{ id: string }>("conceptos_hoja", [{
+        hoja_encargo_id: hojaId,
+        version_hoja_id: v.id,
+        bloque_id: null,
+        incluido: true,
+        desglose: "se_cobra",
+        importe: g.conjunto.importe,
+        descripcion: g.conjunto.texto,
+      }]);
+      conjuntoId = c?.id ?? null;
+    }
+
     await crear(
       "conceptos_hoja",
       g.conceptos.map((k) => ({
@@ -411,8 +449,11 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         desglose: k.desglose,
         importe: k.desglose === "se_cobra" ? k.importe : null,
         forma_pago: k.desglose === "se_cobra" ? k.formaPago : null,
+        descripcion: k.texto,
+        incluido_en_concepto_id: k.enConjunto ? conjuntoId : null,
       })),
     );
+  }
 
   // 6 · el que + donde: es de la hoja, se rehace entero
   await pedir(`actuaciones_hoja?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });

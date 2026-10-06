@@ -38,8 +38,13 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
       return { ok: false, error: "Cada actuación necesita su tipo de proyecto." };
     if (g.actuaciones.some((a) => !a.accesoIds.length)) return { ok: false, error: "Cada actuación necesita al menos un acceso." };
     if (!g.conceptos.length) return { ok: false, error: "Marca al menos un bloque." };
-    if (g.conceptos.some((k) => k.desglose === "se_cobra" && !(k.importe && k.importe > 0)))
+    // Las lineas que van DENTRO de un proyecto conjunto pueden ir a cero: "a
+    // veces el proyecto conjunto tiene un precio unico, y otras se desglosa"
+    // (Monica, 6-oct-2026). Lo que no puede faltar es el importe del conjunto.
+    if (g.conceptos.some((k) => k.desglose === "se_cobra" && !k.enConjunto && !(k.importe && k.importe > 0)))
       return { ok: false, error: "Falta el importe de alguna línea que se cobra." };
+    if (g.conjunto && !(g.conjunto.importe > 0))
+      return { ok: false, error: "Falta el importe del proyecto conjunto." };
     if (g.aQuien.tipo === "contrata" && !g.aQuien.id) return { ok: false, error: "Elige la contrata." };
     const r = await generarHoja(g, yo);
     revalidatePath("/comercial/hoja-encargo");

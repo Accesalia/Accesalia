@@ -65,6 +65,14 @@ type Estado = {
   modo: Record<string, Desglose>;
   imp: Record<string, string>;
   pago: Record<string, string>;
+  /** EL TEXTO DE CADA LINEA, escrito UNA vez (Monica, 6-oct-2026): "proyecto de
+   *  bajada a cota cero de 5 ascensores". Viaja a la hoja y a la viabilidad: una
+   *  fuente, dos destinos. La clave CONJUNTO es la de la linea condensada. */
+  texto: Record<string, string>;
+  /** Que lineas van dentro del PROYECTO CONJUNTO. Cada una conserva su importe
+   *  -el ascensor baja de 6.000 a 5.000 por ir conjunto- y la condensada es la
+   *  suma. La hoja enseña las tres; la viabilidad, solo la suma. */
+  junto: Record<string, boolean>;
   html: string | null;
 };
 
@@ -206,6 +214,10 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
       modo,
       imp,
       pago,
+      texto: Object.fromEntries(
+        (h?.conceptos ?? []).filter((k) => k.descripcion).map((k) => [k.bloqueId ?? "CONJUNTO", k.descripcion as string]),
+      ),
+      junto: {},
       html: h?.version?.html ?? null,
     });
     setTimeout(() => document.getElementById("generador")?.scrollIntoView({ behavior: "smooth" }), 50);
@@ -431,6 +443,9 @@ function Generador({
   const soloTexto = marcados.filter((b) => modoDe(b) === "no_aparece");
   const cobrados = conLinea.filter((b) => modoDe(b) === "se_cobra");
   const suma = cobrados.reduce((s, b) => s + importeDe(b), 0);
+  // Las que el comercial ha marcado como parte de un proyecto conjunto.
+  const enConjunto = cobrados.filter((b) => st.junto[b.id]);
+  const sumaConjunto = enConjunto.reduce((s, b) => s + importeDe(b), 0);
 
   const contrata = datos.contratas.find((c) => c.id === st.aQuien) ?? null;
   const razon = st.aQuien === "comunidad" ? datos.comunidad.nombre : contrata?.nombre ?? "";
@@ -555,7 +570,19 @@ function Generador({
           desglose: modoDe(b),
           importe: modoDe(b) === "se_cobra" ? importeDe(b) : null,
           formaPago: modoDe(b) === "se_cobra" ? pagoDe(b) : null,
+          // El texto de la linea, escrito una vez: va a la hoja y a la viabilidad.
+          texto: (st.texto[b.id] ?? "").trim() || null,
+          enConjunto: Boolean(st.junto[b.id]) && modoDe(b) === "se_cobra",
         })),
+        // La linea condensada, si la hay. Su importe puede NO ser la suma: "a
+        // veces el proyecto conjunto tiene un precio unico, y otras se desglosa".
+        conjunto:
+          enConjunto.length >= 2
+            ? {
+                texto: (st.texto.CONJUNTO ?? "").trim() || null,
+                importe: aNumero(st.imp.CONJUNTO ?? "") ?? sumaConjunto,
+              }
+            : null,
         html: copia.innerHTML,
       });
       if (!r.ok) return setError(r.error);
@@ -656,7 +683,23 @@ function Generador({
               const m = modoDe(b);
               return (
                 <div key={b.id} className="grid grid-cols-[1fr_auto_92px] items-center gap-2 border-b border-dashed border-[#e2e2e2] py-1.5">
-                  <span className="text-[13px] font-semibold">{b.nombreCorto}</span>
+                  <span className="text-[13px] font-semibold">
+                    {b.nombreCorto}
+                    {/* VA EN EL CONJUNTO. Solo para lo que es proyecto: con SATE
+                        y ascensor juntos, cada uno conserva su importe y la linea
+                        condensada es la suma. */}
+                    {b.naturaleza === "proyecto" && m === "se_cobra" && (
+                      <label className="ml-2 cursor-pointer text-[11px] font-normal text-carbon/55">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(st.junto[b.id])}
+                          onChange={(e) => poner({ junto: { ...st.junto, [b.id]: e.target.checked } })}
+                          className="mr-1 align-middle"
+                        />
+                        va en el conjunto
+                      </label>
+                    )}
+                  </span>
                   <Interruptor valor={m} alCambiar={(v) => poner({ modo: { ...st.modo, [b.id]: v } })} />
                   <input
                     type="text"
@@ -667,6 +710,20 @@ function Generador({
                     onChange={(e) => poner({ imp: { ...st.imp, [b.id]: e.target.value } })}
                     className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
                   />
+                  {m === "se_cobra" && (
+                    <div className="col-span-3">
+                      {/* EL TEXTO, escrito una vez: viaja a la hoja y a la
+                          viabilidad. "Proyecto de bajada a cota cero de 5
+                          ascensores." */}
+                      <input
+                        type="text"
+                        value={st.texto[b.id] ?? ""}
+                        placeholder={`Cómo se llama en el documento — "${b.nombreCorto?.toLowerCase() ?? ""}…"`}
+                        onChange={(e) => poner({ texto: { ...st.texto, [b.id]: e.target.value } })}
+                        className="mb-1 w-full rounded-[10px] border border-black/15 bg-white px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
+                      />
+                    </div>
+                  )}
                   {m === "se_cobra" && (
                     <div className="col-span-3 flex items-center gap-1.5 text-xs text-carbon/65">
                       <span className="shrink-0">Forma de pago</span>
@@ -683,6 +740,41 @@ function Generador({
                 </div>
               );
             })}
+            {/* LA LINEA DEL PROYECTO CONJUNTO (Monica, 6-oct-2026).
+                Aparece cuando hay dos o mas marcadas como "va en el conjunto".
+                Su importe viene prerrellenado con la suma, PERO ES EDITABLE:
+                "a veces el proyecto conjunto tiene un precio UNICO, y otras se
+                desglosa; de ahi que la mano del comercial sea la que retoca al
+                final, solo el sabe cual es cada caso".
+                La hoja enseña las tres lineas; la viabilidad, solo esta. */}
+            {enConjunto.length >= 2 && (
+              <div className="mt-2 rounded-xl border border-lima/40 bg-lima-soft/40 p-2.5">
+                <div className="text-[11px] font-bold uppercase tracking-wide text-lima-dark/80">
+                  Proyecto conjunto · {enConjunto.map((b) => b.nombreCorto).join(" + ")}
+                </div>
+                <input
+                  type="text"
+                  value={st.texto.CONJUNTO ?? ""}
+                  placeholder="Proyecto conjunto de bajada a cota cero de 5 ascensores y arreglo de cubierta"
+                  onChange={(e) => poner({ texto: { ...st.texto, CONJUNTO: e.target.value } })}
+                  className="mt-1.5 w-full rounded-[10px] border border-black/15 bg-white px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
+                />
+                <div className="mt-1.5 flex items-center justify-between gap-2">
+                  <span className="text-xs text-carbon/65">Importe del conjunto</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={st.imp.CONJUNTO ?? EUR.format(sumaConjunto)}
+                    onChange={(e) => poner({ imp: { ...st.imp, CONJUNTO: e.target.value } })}
+                    className="w-[110px] rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] leading-snug text-carbon/55">
+                  Sale la suma de las líneas de arriba. Cámbialo si el conjunto va a precio único.
+                </p>
+              </div>
+            )}
+
             <div className="mt-2 flex justify-between font-bold">
               <span>Total honorarios</span>
               <span>
