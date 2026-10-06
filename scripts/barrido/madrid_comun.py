@@ -166,8 +166,13 @@ def info(prefijo):
 
 
 def rellenar(clave, prefijo, carp, datos, tps, n=(), huecos=(), comunidad=None, presi=None, adm=None, captador=DANIEL, lleva=DANIEL,
-             trae_pu=None, trae_pc=None, subvencion=None):
-    c, oid = info(prefijo)
+             trae_pu=None, trae_pc=None, subvencion=None, oid_fijo=None):
+    if oid_fijo:   # comunidad con varias opps (encargos distintos): se rellena la que se dice
+        cs = b.leer('comunidades?select=id,nombre,cif_comunidad,iban&municipio=eq.MADRID&nombre=like.' + quote(prefijo) + '*'); assert len(cs) == 1, prefijo
+        c, oid = cs[0], oid_fijo
+        assert b.leer('oportunidades?select=id&id=eq.%s&comunidad_id=eq.%s' % (oid, c['id'])), (prefijo, oid)
+    else:
+        c, oid = info(prefijo)
     o = b.leer('oportunidades?select=origen_notas,fecha_apertura,quien_lo_trae,puesto_id,referencia_catastral&id=eq.' + oid)[0]
     if o['origen_notas']:
         print('ya escrita, se salta:', prefijo); OPP[clave] = (c, oid, carp); return
@@ -250,7 +255,7 @@ txt = lambda n: '\n\n'.join('%s %s' % (f, t) if f and not t.startswith(f[8:10]) 
 J = lambda n: '\n\n'.join(t for f, t in n)
 
 # ================================================================= 4. MANIAS (municipio MADRID)
-def mania(texto, dep, fecha, carp, clave=None, trozo=None, cita=None, tecnico=None):
+def mania(texto, dep, fecha, carp, clave=None, trozo=None, cita=None, tecnico=None, ruta=None):
     nid = None; oid = None; cid = None
     if clave and cita:      # cita literal de un campo de la ficha (no de una nota): va a la opp, sin nota
         oid = OPP[clave][1]
@@ -259,7 +264,7 @@ def mania(texto, dep, fecha, carp, clave=None, trozo=None, cita=None, tecnico=No
     else:
         cid = CLON.get(carp) or (b.leer(T + '?select=id&municipio=eq.MADRID&carpeta=eq.' + quote(carp)) or [{'id': None}])[0]['id']
     ins('manias_organismos', [{'municipio_id': MUN, 'departamento': dep, 'tecnico': tecnico, 'mania': texto, 'cita': cita, 'fecha': fecha, 'oportunidad_id': oid,
-                               'nota_oportunidad_id': nid, 'clon_id': cid, 'ruta_dropbox': R(carp), 'origen': 'ficha_dropbox'}])
+                               'nota_oportunidad_id': nid, 'clon_id': cid, 'ruta_dropbox': ruta or R(carp), 'origen': 'ficha_dropbox'}])
 
 
 
