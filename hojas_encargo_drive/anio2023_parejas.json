@@ -1,0 +1,836 @@
+[
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/san vicente 10 leganes subvenciones 30-10-2023.pdf",
+  "recibida": "2023-10-30",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO san vicente 10 leganes SUBVENCION fijo pry propio.pdf"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN VICENTE 10 LEGANES SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO san vicente 10 leganes SUBVENCION fijo pry propio.pdf"
+  ],
+  "d": "Y23_000"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/SAN ANDRES 1 LEGANES ASCENSOR 02-01-2023.pdf",
+  "recibida": "2023-01-02",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES PRY.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO san andres 1 fuenlabrada solo CSS fain.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO san andres 1 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES PRY.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y23_001"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PABLO CASALS 26 PARLA CODIGOS DE PEDIDO PRY Y CSS 02-01-2023.pdf",
+  "recibida": "2023-01-02",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_002"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CARLOS ARNICHES 25 MADRID ASCENSOR 23-10-2023.pdf",
+  "recibida": "2023-10-23",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CARLOS ARNICHES 25 MADRID PRY.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO CARLOS ARNICHES 25 MADRID SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CARLOS ARNICHES 25 MADRID PRY.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CARLOS ARNICHES 25 MADRID PRY y DO.pdf"
+  ],
+  "d": "Y23_003"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/HUNGRIA 4 FUENLABRADA 17-04-2023.pdf",
+  "recibida": "2023-04-17",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA SATE .docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA asc + sate + subvencion.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA (SUBVENCIONADO).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUNGRIA 4 FUENLABRADA .docx"
+  ],
+  "d": "Y23_004"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/RIO MANZANARES 26 LEGANÉS CODIGOS DE PEDIDO ARQUITECTO 30-10-2023.pdf",
+  "recibida": "2023-10-30",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_005"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AGUILAS 74 MADRID 19-07-2023.pdf",
+  "recibida": "2023-07-19",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV DE LAS AGUILAS 74 MADRID subv.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV DE LAS AGUILAS 74 MADRID.docx"
+  ],
+  "d": "Y23_006"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ENCISO 1 MADRID css 16-10-2023.pdf",
+  "recibida": "2023-10-16",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ENCISO 1 MADRID CSS.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ENCISO 1 MADRID CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ENCISO 1 MADRID SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO enciso 1 madrid PROYECTO y DO fain.pdf"
+  ],
+  "d": "Y23_007"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/RIO DUERO 71 LEGANES SATE 14-08-2023.pdf",
+  "recibida": "2023-08-14",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RIO DUERO 71 LEGANES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RIO DUERO 71 LEGANES.docx"
+  ],
+  "d": "Y23_008"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/SAN ANDRES 1 LEGANES SUBVENCION 02-01-2023.pdf",
+  "recibida": "2023-01-02",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 FUENLABRADA SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO san andres 1 fuenlabrada solo CSS fain.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO san andres 1 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES PRY.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 LEGANES SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 1 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y23_009"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/BELEN 7 FUENLABRADA 14-06-2023.pdf",
+  "recibida": "2023-06-14",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO BELEN 7 FUENLABRADA .docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO BELEN 7 FUENLABRADA sate solo CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SATE BELEN 7 FUENLABRADA.docx"
+  ],
+  "d": "Y23_010"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ERAS 9 FUENLABRADA SUBV 17-01-2023.pdf",
+  "recibida": "2023-01-17",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO ERAS 9 FUENLABRADA PROYECTO y css.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO eras 9 fuenlabrada IEE .docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PROYECTO.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PRY CSS SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PRY.pdf"
+  ],
+  "d": "Y23_011"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CASTILLA LA VIEJA 8 FUENLABRADA SATE_30-03-2023.pdf",
+  "recibida": "2023-03-30",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CASTILLA LA VIEJA 8 FUENLABRADA.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CASTILLA LA VIEJA 8 FUENLABRADA.docx"
+  ],
+  "d": "Y23_012"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/madrid 79 humanes ASCENSOR 14-06-2023.gdoc",
+  "recibida": "2023-06-14",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MADRID 79 HUMANES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MADRID 79 HUMANES.docx"
+  ],
+  "d": "Y23_013"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/FERIA 8 MADRID SATE + ASC NEXT GEN 10-07-2023.pdf",
+  "recibida": "2023-07-10",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/FERIA 8 MADRID RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FERIA 8 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FERIA 8 MADRID SUBVENCIÓN pry y df.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO FERIA 8 MADRID  SUBVENCION fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/FERIA 8 MADRID RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "d": "Y23_014"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/BALEARES 34 MOSTOLES 28-03-2023.pdf",
+  "recibida": "2023-03-28",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO BALEARES 34 MOSTOLES (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO BALEARES 34 MOSTOLES.docx"
+  ],
+  "d": "Y23_015"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PLAZA DE LA FLOR 6 LEGANES SUBV 14-08-2023.pdf",
+  "recibida": "2023-08-14",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO PLAZA DE LA FLOR 6 LEGANES SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO PLAZA DE LA FLOR 6 LEGANES SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DE LA FLOR 6 LEGANES SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO plaza de la flor 6 leganes solo CSS.pdf"
+  ],
+  "d": "Y23_016"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CASTELLON 1 MOSTOLES SATE 18-04-2023.pdf",
+  "recibida": "2023-04-18",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CASTELLON 1 MOSTOLES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CASTELLON 1 MOSTOLES.docx"
+  ],
+  "d": "Y23_017"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PINTOR VELAZQUEZ 65 MOSTOLES SATE 13-01-2023.pdf",
+  "recibida": "2023-01-13",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PINTOR VELAZQUEZ 65 MOSTOLES C SUB.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PINTOR VELAZQUEZ 65 MOSTOLES.docx"
+  ],
+  "d": "Y23_018"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PEZ 11 MADRID SUBVENCION 11-01-2023.pdf",
+  "recibida": "2023-01-11",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pez 11 madrid SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pez 11 madrid SUBVENCION.docx"
+  ],
+  "d": "Y23_019"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ITALIA 35 FUENLABRADA - pry y subvencion 26-02-2023.pdf",
+  "recibida": "2023-02-26",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO italia 35 fuenlabrada SUBVENCION variable.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ITALIA 35 FUENLABRADA v2.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO italia 35 fuenlabrada SUBVENCION variable.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SATE ITALIA 35 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ITALIA 35 FUENLABRADA.docx"
+  ],
+  "d": "Y23_020"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MANRESA 56 MADRID mail 27-03-2023 aprobación proyecto de ejecucion.pdf",
+  "recibida": "2023-03-27",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 56 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 56 madrid SUBVENCION fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MANRESA 56  MADRID SATE.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO Manresa 56 (2) Madrid SATE.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MANRESA 56 MADRID MODIFICACION SUBVENCIONES.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MANRESA 56  MADRID v2 SATE.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO manresa 56 madrid fain BASICO Y EJECUCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 56 madrid RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO D O MANRESA 56 MADRID.docx"
+  ],
+  "d": "Y23_021"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/NARVÁEZ 33 MADRID 19-03-2023.pdf",
+  "recibida": "2023-03-19",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NARVAEZ 33 MADRID.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NARVAEZ 33 MADRID.docx"
+  ],
+  "d": "Y23_022"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV CARLOS V 42 MOSTOLES 29-05-2023.pdf",
+  "recibida": "2023-05-29",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CARLOS V 42 MOSTOLES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CARLOS V 42 MOSTOLES.docx"
+  ],
+  "d": "Y23_023"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV PROVINCIAS 10 FUENLABRADA subvencion fuenlabrada 01-06-2023.pdf",
+  "recibida": "2023-06-01",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PROVINCIAS 10 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av provincias 10 fuenlabrada SUBVENCION variable.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV PROVINCIAS 10 FUENLABRADA SUBVENCION.docx"
+  ],
+  "d": "Y23_024"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CAMINO DE LAS CRUCES 28 MADRID SUBV A EXITO 05-06-2023.pdf",
+  "recibida": "2023-06-05",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID PRY SUBV.docx"
+  ],
+  "d": "Y23_025"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AVENIDA QUINTA 26 MADRID - SUBVENCION 16-10-2023.pdf",
+  "recibida": "2023-10-16",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV QUINTA 26 MADRID SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV QUINTA 26 MADRID SUBVENCION.docx"
+  ],
+  "d": "Y23_026"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/cebreros 1 madrid subvencion renovacion 18-10-2023.pdf",
+  "recibida": "2023-10-18",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cebreros 1 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cebreros 1 madrid RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO cebreros 1 madrid SUBVENCION.docx"
+  ],
+  "d": "Y23_027"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/faisanes 15 aranjuez subvenciones 05-12-2023.pdf",
+  "recibida": "2023-12-05",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO faisanes 15 aranjuez SUBVENCION fijo pry propio (3).docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO faisanes 15 aranjuez SUBVENCION fijo pry propio (3).docx"
+  ],
+  "d": "Y23_028"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV PROVINCIAS 10 FUENLABRADA SUBVENCIONES CAM 14-12-2023.pdf",
+  "recibida": "2023-12-14",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PROVINCIAS 10 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av provincias 10 fuenlabrada SUBVENCION variable.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV PROVINCIAS 10 FUENLABRADA SUBVENCION.docx"
+  ],
+  "d": "Y23_029"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV PROVINCIAS 10 FUENLABRADA MODIFICACION SUBVENCIONES FUENLABRADA 14-12-2023.pdf",
+  "recibida": "2023-12-14",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/modificacion HOJA DE ENCARGO av. provincias 10 fuenlabrada SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PROVINCIAS 10 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO av provincias 10 fuenlabrada SUBVENCION variable.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO AV PROVINCIAS 10 FUENLABRADA SUBVENCION.docx"
+  ],
+  "d": "Y23_030"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/joaquin ibarra 37 madrid subvenciones 18-12-2023.pdf",
+  "recibida": "2023-12-18",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO joaquin ibarra 37 madrid SUBVENCION fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO joaquin ibarra 37 madrid SUBVENCION fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO joaquin ibarra 37 madrid SUBVENCION.docx"
+  ],
+  "d": "Y23_031"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/cañada 8 alcorcon subvenciones 20-12-2023 (1).pdf",
+  "recibida": "2023-12-20",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cañada 8 alcorcon SUBVENCION fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cañada 8 alcorcon SUBVENCION fijo pry propio.docx"
+  ],
+  "d": "Y23_032"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/JEROMIN 23 LEGANES subvenciones 22-11-2023.pdf",
+  "recibida": "2023-11-22",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO JEROMIN 23 LEGANES ascensor PROYECTO, DO y CSS fain.docx.pdf"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO JEROMIN 23 LEGANES ascensor PROYECTO, DO y CSS fain.docx.pdf"
+  ],
+  "d": "Y23_033"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/padilla 4 mostoles subvenciones 08-09-2023.pdf",
+  "recibida": "2023-09-08",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PADILLA 4 MOSTOLES SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PADILLA 4 MOSTOLES SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PADILLA 4 MOSTOLES PRY.docx"
+  ],
+  "d": "Y23_034"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/LUIS VIVES 11 ALCALA pry y css fain 25-04-2023.pdf",
+  "recibida": "2023-04-25",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO luis vives 11 alcala ampliacion proyecto fain.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO luis vives 11 alcala ampliacion proyecto fain.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO LUIS VIVES 11 ALCALA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO LUIS VIVES 11 ALCALA SUBVENCION.docx"
+  ],
+  "d": "Y23_035"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/palermo 7 torrejon 13-07-2023 pry css y subv.pdf",
+  "recibida": "2023-07-13",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PALERMO 7 TORREJON PRY.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO PALERMO 7 TORREJON SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PALERMO 7 TORREJON.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO PALERMO 7 TORREJON SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PALERMO 7 TORREJON PRY.docx"
+  ],
+  "d": "Y23_036"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/sierra de contraviesa 38-40 madrid 07-11-2023 next generation.pdf",
+  "recibida": "2023-11-07",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SIERRA DE CONTRAVIESA 38 Y 40 MADRID NEXT GEN PRG 3 Y 5.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SIERRA DE CONTRAVIESA 38 Y 40 MADRID NEXT GEN PRG 3 Y 5.docx"
+  ],
+  "d": "Y23_037"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/guadalajara 3 alcorcon asc y rampa PRY+CSS 01-12-2023.pdf",
+  "recibida": "2023-12-01",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO guadalajara 3 alcorcon asc y rampa PRY+CSS.docx.pdf"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO guadalajara 3 alcorcon asc y rampa PRY+CSS.docx.pdf"
+  ],
+  "d": "Y23_038"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/TORREJON 9 FUENLABRADA PRY 13-06-2023.pdf",
+  "recibida": "2023-06-13",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO torrejon 9 fuenlabrada SUBVENCION fijo pry propio (2).docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TORREJON 9 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO torrejon 9 fuenlabrada SUBVENCION fijo pry propio (2).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TORREJON 9 FUENLABRADA PROYECTO.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO torrejon 9 fuenlabrada subvencion.pdf"
+  ],
+  "d": "Y23_039"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/FATIMA 6 FUENLABRADA CODIGOS DE PEDIDO ARQUITECTO 11-04-2023.pdf",
+  "recibida": "2023-04-11",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_040"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ALVARO DE BAZAN 4 ALCALA SUBVENCIONES 30-06-2023_signed.pdf",
+  "recibida": "2023-06-30",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO ALVARO DE BAZAN 4 ALCALA SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO ALVARO DE BAZAN 4 ALCALA SUBV.docx"
+  ],
+  "d": "Y23_041"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COBRE 18 TORREJON DE ARDOZ 10-07-2023.pdf",
+  "recibida": "2023-07-10",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cobre 18 torrejon NEXT GEN Y SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cobre 18 torrejon NEXT GEN Y SUBV.docx"
+  ],
+  "d": "Y23_042"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COBRE 18 TORREJON DE ARDOZ 10-07-2023_v2.pdf",
+  "recibida": "2023-07-10",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cobre 18 torrejon NEXT GEN Y SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO cobre 18 torrejon NEXT GEN Y SUBV.docx"
+  ],
+  "d": "Y23_043"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PERICIAL rabat 10 madrid 18-10-2023.pdf",
+  "recibida": "2023-10-18",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PERICIAL rabat 10 madrid.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PERICIAL rabat 10 madrid.docx"
+  ],
+  "d": "Y23_044"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/islas britanicas 26 FUENLABRADA 31-01-2023.pdf",
+  "recibida": "2023-01-31",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO islas britanicas 26 fuenlabrada SUBVENCION fijo pry propio (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ISLAS BRITANICAS 26 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO  ISLAS BRITANICAS 26 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ISLAS BRITANICAS 26 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y23_045"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Islas Britanicas 26 Fuenlabrada subvenciones 08-06-2023.pdf",
+  "recibida": "2023-06-08",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO islas britanicas 26 fuenlabrada SUBVENCION fijo pry propio (1).docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO islas britanicas 26 fuenlabrada SUBVENCION fijo pry propio (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ISLAS BRITANICAS 26 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO  ISLAS BRITANICAS 26 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ISLAS BRITANICAS 26 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y23_046"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PLAZA PARIS 6 FUENLABRADA PROYECTO Y CSS 28-11-2023.pdf",
+  "recibida": "2023-11-28",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO plaza paris 6 fuenlabrada SUBVENCION fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza paris 6 fuenlabrada cdad prop.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO plaza paris 6 fuenlabrada SUBVENCION fijo pry propio.docx"
+  ],
+  "d": "Y23_047"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PLAZA PARIS 6 FUENLABRADA SUBVENCIONES 28-11-2023.pdf",
+  "recibida": "2023-11-28",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO plaza paris 6 fuenlabrada SUBVENCION fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza paris 6 fuenlabrada cdad prop.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO plaza paris 6 fuenlabrada SUBVENCION fijo pry propio.docx"
+  ],
+  "d": "Y23_048"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/SAN ROQUE 18 GUADALAJARA 29-03-2023.pdf",
+  "recibida": "2023-03-29",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO san roque 18 guadalajara NEXT GEN PRG 3 Y 5.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ROQUE 18 GUADALAJARA.docx"
+  ],
+  "d": "Y23_049"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COVADONGA 22 LEGANES subvencion firmada 24-07-2023.pdf",
+  "recibida": "2023-07-24",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO COVADONGA 22 LEGANES RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO covadonga 22 leganes ascensor.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO COVADONGA 22 LEGANES RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO covadonga 22 leganes SUBVENCION fijo pry propio.pdf"
+  ],
+  "d": "Y23_050"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/HOJA DE ENCARGO SAHARA 83 MADRID 01-02-2023 no firmado pero válido.docx",
+  "recibida": "2023-02-01",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAHARA 83 MADRID .docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAHARA 83 MADRID .docx"
+  ],
+  "d": "Y23_051"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ALEMANIA 11 FUENLABRADA CODIGOS DE PEDIDO CSS 08-05-2023.pdf",
+  "recibida": "2023-05-08",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_052"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PADILLA 4 MOSTOLES CODIGOS DE PEDIDO ARQUITECTO 14-02-2023.pdf",
+  "recibida": "2023-02-14",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_053"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MANRESA 56 MADRID CODIGOS DE PEDIDO ARQUITECTO 18-04-2023.pdf",
+  "recibida": "2023-04-18",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_054"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ALVARO BAZAN 4 ALCALA CODIGOS PEDIDO 10-07-2023.pdf",
+  "recibida": "2023-07-10",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_055"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/plaza concordia 1 alcobendas schindler bajada a cota cero 14-06-2023.pdf",
+  "recibida": "2023-06-14",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO pz concordia 1 alcobendas SUBVENCION fijo pry propio.pdf"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza concordia 1 alcobendas schindler.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO pz concordia 1 alcobendas SUBVENCION fijo pry propio.pdf"
+  ],
+  "d": "Y23_056"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Gandhi 21 madrid - Proyecto - mail con administrador 10-02-2023.pdf",
+  "recibida": "2023-02-10",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO gandhi 21 madrid SUBVENCION (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO gandhi 21 madrid SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO GANDHI 21 MADRID SUBV.docx"
+  ],
+  "d": "Y23_057"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/RAFAEL FINAT 38 MADRID - FAIN 20-07-2023.pdf",
+  "recibida": "2023-07-20",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL FINAT 38 MADRID.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL FINAT 38 MADRID.docx"
+  ],
+  "d": "Y23_058"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/santa tecla 46 madrid subvenciones 04-05-2023.pdf",
+  "recibida": "2023-05-04",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SANTA TECLA 46 MADRID subvencion.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SANTA TECLA 46 MADRID subvencion.docx"
+  ],
+  "d": "Y23_059"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/TRAVESIA ISABEL II PARLA CSS 14-09-2023 CODIGOS DE PEDIDO.pdf",
+  "recibida": "2023-09-14",
+  "caso": "sin_clave",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_060"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PUERTO DE MONASTERIO 20 MADRID CODIGOS DE PEDIDO ARQUITECTO 08-05-2023.pdf",
+  "recibida": "2023-05-08",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_061"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CARDENAL HERRERA ORIA 283 MADRID ASCENSOR CODIGOS DE PEDIDO ARQUITECTO 17-08-2023.pdf",
+  "recibida": "2023-08-17",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_062"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/madrid 79 humanes ASCENSOR 14-06-2023.pdf",
+  "recibida": "2023-06-14",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MADRID 79 HUMANES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MADRID 79 HUMANES.docx"
+  ],
+  "d": "Y23_063"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COVADONGA 22 LEGANÉS CODIGOS DE PEDIDO ARQUITECTO 04-07-2023.pdf",
+  "recibida": "2023-07-04",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_064"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/BADALONA 48 MADRID CODIGOS DE PEDIDO ARQUITECTO 18-10-2023.pdf",
+  "recibida": "2023-10-18",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_065"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/TORRECILLA DEL LEAL 21 MADRID ASCENSOR 11-10-2023.pdf",
+  "recibida": "2023-10-11",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO torrecilla del leal 21 madrid PRY.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO torrecilla del leal 21 madrid PRY.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO torrecilla del leal 21 madrid SUBV.docx"
+  ],
+  "d": "Y23_066"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/TENERIFE 8 MADRID CODIGOS DE PEDIDO ARQUITECTO 28-02-2023.pdf",
+  "recibida": "2023-02-28",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y23_067"
+ }
+]

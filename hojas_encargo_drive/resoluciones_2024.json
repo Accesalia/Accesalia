@@ -61,34 +61,39 @@
   "nota": "El PDF trae dos hojas (proyecto y subvención) firmadas digitalmente; esta firmada es la de SUBVENCIÓN (1.980). El nombre dice 06-05 pero la hoja es del 21-05."
  },
  "Y24_117": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firmada la de PROYECTO (SATE) del 21-05: adelanto 7.220 de 16.900."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firmada la de PROYECTO (SATE) del 21-05: adelanto 7.220 de 16.900. (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 7.220 € + IVA a la firma; el resto. solo si se concede el programa 5.",
+  "total_base": 16900
  },
  "Y24_020a": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.550 de 17.690 (proyecto 15.200 + LEE/IEE 2.490)."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.550 de 17.690 (proyecto 15.200 + LEE/IEE 2.490). (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 8.550 € + IVA a la firma; el resto. solo si se concede el programa 5.",
+  "total_base": 17690
  },
  "Y24_027": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.500 de 28.050; si no se concede, los honorarios son el adelanto."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 8.500 de 28.050; si no se concede, los honorarios son el adelanto. (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 8.500 € + IVA a la firma; el resto. solo si se concede el programa 5.",
+  "total_base": 28050
  },
  "Y24_052": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firma DIDEPRO (no la comunidad): adelanto 8.500; lo concedido menos 8.500 se reparte al 50% entre Accesalia y DIDEPRO. Firmada 'EN PAUSA'."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Firma DIDEPRO (no la comunidad): adelanto 8.500; lo concedido menos 8.500 se reparte al 50% entre Accesalia y DIDEPRO. Firmada 'EN PAUSA'. (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 8.500 € + IVA a la firma; el resto. solo si se concede el programa 5."
  },
  "Y24_061": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 5.500 de 11.370; tres hojas en el documento (proyecto, subvención, cesión de CAES)."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 5.500 de 11.370; tres hojas en el documento (proyecto, subvención, cesión de CAES). (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 5.500 € + IVA a la firma; el resto. solo si se concede el programa 5.",
+  "total_base": 11370
  },
  "Y24_062": {
-  "estado": "PREGUNTA",
-  "grupo": "ng",
-  "nota": "PARA TI (Next Generation): adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 7.220 de 16.110; dos hojas en el documento (proyecto y subvención)."
+  "estado": "OK",
+  "nota": "Next Generation: adelanto a cuenta + importe total que solo se cobra si se concede el programa 5. Adelanto 7.220 de 16.110; dos hojas en el documento (proyecto y subvención). (Mónica: el importe es el total de la hoja; la condición va en la forma de pago.)",
+  "forma_pago_general": "Adelanto a cuenta 7.220 € + IVA a la firma; el resto. solo si se concede el programa 5.",
+  "total_base": 16110
  },
  "Y24_054b": {
   "estado": "OK",

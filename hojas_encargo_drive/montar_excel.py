@@ -66,6 +66,14 @@ def normalizar(d):
     if menciona and not any(c.get('bloque') == 'GESTION DE CAES' for c in conc):
         conc.append({'texto': 'CAES (no se cobran aparte)', 'bloque': 'GESTION DE CAES', 'importe': None,
                      'pct_exito': None, 'forma_pago': None, 'incluido': True})
+    # 7. Next Generation (Monica, 6-oct): el "adelanto a cuenta del importe total" NO es un
+    #    concepto: es la forma de pago (el resto, solo si se concede la subvencion).
+    for c in [c for c in conc if re.search(r'adelanto', c.get('texto') or '', re.I) and c.get('bloque') == 'SIN CASAR']:
+        conc.remove(c)
+        # Si la forma de pago ya cuenta el adelanto, se queda como esta; si no, se le pone.
+        if c.get('importe') and not re.search(r'adelanto', d.get('forma_pago_general') or '', re.I):
+            imp = f"{c['importe']:,.0f}".replace(',', '.')
+            d = dict(d); d['forma_pago_general'] = f"Adelanto a cuenta {imp} € + IVA a la firma; el resto, solo si se concede la subvención." + (' ' + d['forma_pago_general'] if d.get('forma_pago_general') else '')
     # 6. Conceptos sueltos que son lo que son (leidos en las tandas 1 y 2).
     for c in conc:
         if c.get('bloque') != 'SIN CASAR': continue
@@ -162,7 +170,7 @@ for i, (frec, firm, env) in enumerate(tanda):
         estado = r['estado']
         motivos = ['RESUELTO LEYENDO: ' + r['nota']] if r.get('nota') else []
         if r['estado'] == 'PREGUNTA': motivos = ['PARA TI: ' + r['nota']]
-        for campo in ('fecha_hoja', 'total_base', 'a_quien', 'que_se_hace', 'conceptos', 'que_se_hace_sin_casar'):
+        for campo in ('fecha_hoja', 'total_base', 'a_quien', 'que_se_hace', 'conceptos', 'que_se_hace_sin_casar', 'forma_pago_general'):
             if campo in r: d = dict(d); d[campo] = r[campo]
         fh = d.get('fecha_hoja')
     cuenta[estado] += 1

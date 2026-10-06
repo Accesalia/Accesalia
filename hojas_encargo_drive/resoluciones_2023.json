@@ -1,0 +1,108 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (6-oct-2026) en las firmadas de 2023.",
+ "Y23_006a": {
+  "estado": "OK",
+  "nota": "Next Generation: adelanto 12.000 de 22.290. La firmada trae las dos versiones del mismo día (con y sin la nota de subvenciones): es UNA hoja; se guarda esta."
+ },
+ "Y23_006b": {
+  "estado": "APARTAR",
+  "nota": "Otra versión del mismo día y mismo importe que Y23_006a (sin la nota de subvenciones): la misma hoja."
+ },
+ "Y23_013": {
+  "estado": "APARTAR",
+  "nota": "Copia en Google Docs de la firmada Y23_063 (duplicado)."
+ },
+ "Y23_063": {
+  "estado": "OK",
+  "nota": "Precio conjunto 5.500, CSS incluida."
+ },
+ "Y23_014": {
+  "estado": "OK",
+  "nota": "Next Generation: adelanto 8.000 de 16.900. A mano en la firmada: '2ª parte a convenir'."
+ },
+ "Y23_022": {
+  "estado": "OK",
+  "nota": "Next Generation: adelanto 6.500 + 17.230 si se concede. La firmada lleva un día menos que la hoja (19 vs 20-03).",
+  "forma_pago_general": "Adelanto a cuenta 6.500 € + IVA a la firma; el resto (17.230), solo si se concede la subvención."
+ },
+ "Y23_025": {
+  "estado": "OK",
+  "nota": "Subvención 3,5% a éxito (la forma de pago de la hoja dice 100% al encargo: errata de la plantilla)."
+ },
+ "Y23_033": {
+  "estado": "OK",
+  "enviada": null,
+  "nota": "Mal emparejada y sin enviada de subvención en la carpeta: datos de la propia firmada (21-11-2023, subvención de accesibilidad 1.980 + IVA, IEE si hace falta; firma C.P. JEROMÍN 23, CIF con E).",
+  "fecha_hoja": "2023-11-21",
+  "total_base": 1980,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Tramitación de Subvención de Accesibilidad",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": 1980,
+    "pct_exito": null,
+    "forma_pago": "100% al encargo",
+    "incluido": false
+   },
+   {
+    "texto": "Informe de Evaluación del Edificio (si hace falta)",
+    "bloque": "IEE",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ],
+  "forma_pago_general": "100% del importe en el momento del encargo mediante cargo en cuenta."
+ },
+ "Y23_035": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO LUIS VIVES 11 ALCALA.docx",
+  "nota": "Mal emparejada: la firmada de proyecto y CSS de FAIN (2023) va con la hoja de proyecto, no con la ampliación de 2024."
+ },
+ "Y23_047": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza paris 6 fuenlabrada cdad prop.docx",
+  "nota": "Mal emparejada: la firmada de PROYECTO Y CSS va con la hoja de proyecto, no con la de subvención."
+ },
+ "Y23_048": {
+  "estado": "OK",
+  "nota": "Subvención 1.500 ('acuerdo especial' de precio)."
+ },
+ "Y23_056": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza concordia 1 alcobendas schindler.docx",
+  "nota": "Mal emparejada: la firmada de Schindler (bajada a cota cero) va con la hoja de Schindler, no con la de subvención."
+ },
+ "Y23_038": {
+  "estado": "OK",
+  "a_quien": "contrata: ROSERSESE",
+  "nota": "Paga ROSERSESE (Valencia) aunque diga 'conforme comunidad'. Precio conjunto 3.500 + CSS."
+ },
+ "Y23_039": {
+  "estado": "OK",
+  "nota": "Leída la firmada: va con el PDF enviado del 16-06-2023 (5.500), no con el Word del 26-06."
+ },
+ "Y23_041": {
+  "estado": "OK",
+  "nota": "Subvención 1.800; el nombre de la firmada lleva una fecha anterior a la hoja (06-07): es el mismo encargo."
+ },
+ "Y23_042": {
+  "estado": "OK",
+  "nota": "Promotor particular, no comunidad. Next Generation: total 5.840; si no se concede, 4.700."
+ },
+ "Y23_043": {
+  "estado": "OK",
+  "nota": "Segundo PDF firmado ('_v2') de la misma hoja que Y23_042: se guardan los dos."
+ },
+ "Y23_044": {
+  "estado": "PREGUNTA",
+  "grupo": "colegiales",
+  "nota": "Informe pericial (RABAT 10): cobra 300 € de 'gastos colegiales' (visado) en línea aparte. ¿Qué bloque? ¿O va dentro del informe?"
+ }
+}
