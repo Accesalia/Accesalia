@@ -557,10 +557,13 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
 
 export async function marcarEnviada(hojaId: string) {
   // Solo se envia lo que tiene PDF: un borrador no ha salido de Accesalia.
-  const [v] = await leer<{ url_pdf_hoja: string | null }[]>(
-    `versiones_hoja?select=url_pdf_hoja&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
+  const [v] = await leer<{ id: string; url_pdf_hoja: string | null }[]>(
+    `versiones_hoja?select=id,url_pdf_hoja&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
   );
   if (!v?.url_pdf_hoja) throw new Error("La última versión es un borrador: genera la hoja antes de marcarla enviada.");
+  // La fecha de envio es de la VERSION que salio: si luego se manda otra, cada
+  // una conserva la suya.
+  await pedir(`versiones_hoja?id=eq.${v.id}`, { method: "PATCH", body: JSON.stringify({ fecha_enviada: hoy() }) });
   await pedir(`hojas_encargo?id=eq.${hojaId}`, {
     method: "PATCH",
     body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
