@@ -41,3 +41,15 @@ Salida: una línea JSON por firmada, en el fichero que te indique el lote:
  "importes_firmada":"<resumen corto: concepto importe; ...>"|null,
  "a_quien":"comunidad" | "contrata: <nombre>" | null,
  "motivo":"<una frase: por qué>"}
+
+## Añadido para la tanda 3 (firmadas SIN pareja por el nombre)
+- La lista de candidatas puede venir VACÍA o ser mala. Antes de rendirte, busca la enviada:
+  (a) en `seleccion_encargos.xlsx` (esta carpeta; pestaña seleccion_encargos: columna A dirección,
+      B fecha, C tipo, columna V el enlace al Google Doc con `id=...`): busca la calle y el número;
+  (b) en Drive, `title contains '<calle>'` con `parentId = '16F3hl2VlRgXzrmd_wL3IAmzPAawuZZ1I'` y sin él.
+  Ojo con las abreviaturas (NTRA/NUESTRA, PZ/PLAZA, AV/AVENIDA, STA/SANTA) y con el municipio.
+  Si la encuentras así, en "elegidas" pon `drive:<id>|<título exacto en Drive>`.
+- Si el lote trae "pista": "parece un pedido o documento de una contrata", compruébalo al leer: si
+  es un pedido, código de pedido, número de cuenta, confirming o documento de una empresa (no
+  una hoja de encargo de Accesalia), la decisión es "no es hoja".
+- Si la firmada es anterior a octubre de 2024, decídela igual.

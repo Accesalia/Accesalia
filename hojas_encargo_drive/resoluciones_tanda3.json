@@ -1,0 +1,27 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (6-oct-2026) en la tanda 3 (firmadas sin pareja por el nombre).",
+ "S15": {
+  "estado": "OK",
+  "nota": "Firma la mancomunidad Santa María la Blanca 3-5 / Iglesia 22. S19 es otro escaneo de la misma firmada: se guardan los dos."
+ },
+ "S19": {
+  "estado": "OK",
+  "nota": "Segundo escaneo de la misma firmada que S15: se guarda junto a ella."
+ },
+ "S21": {
+  "estado": "OK",
+  "nota": "Mismo papel e importe (6.000); la fecha se retocó al firmar (23 → 26-dic-2024)."
+ },
+ "S17": {
+  "estado": "OK",
+  "nota": "La firmada dice AV DEL MONTE 85 (el fichero dice 89: errata). 'Libro del Edificio + IEE' 1.140 = LEE con el IEE dentro."
+ },
+ "S28": {
+  "estado": "OK",
+  "nota": "'Libro del Edificio + IEE' 2.850 = LEE con el IEE dentro. Condicionado a subvención (programa 5)."
+ },
+ "S40": {
+  "estado": "OK",
+  "nota": "'Libro del Edificio + IEE' 1.770 = LEE con el IEE dentro. El '→ 10.285' a mano es el adelanto con IVA (8.500 × 1,21)."
+ }
+}
