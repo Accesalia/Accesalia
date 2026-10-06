@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Anexo de la viabilidad</title>
+<style>
+/* MAQUETA del ANEXO de la viabilidad: la ficha del edificio en limpio, SIN IA
+   (6-oct-2026). Dos edificios reales para ver los dos extremos:
+     1 · Villamanin 37 (Madrid capital): casi todo se sabe.
+     2 · Polvoranca 24-28 (Leganes): fuera de Madrid capital y sin IEE: huecos.
+   VUELTA DEL 6-OCT (Monica + Daniel): nada "pendiente de ver". Solo sale lo
+   que SE SABE; lo que no se sabe no aparece. "Lo que hemos comprobado" solo si
+   ya se ha ido. Las subvenciones de alrededor, todas y con su direccion. Y las
+   ayudas, como lista de lo que podria obtener segun lo que nos han pedido, con
+   sus importes.
+   Lo que dice Catastro y el registro de IEE es real; protección, zona y
+   subvenciones de Villamanin son de EJEMPLO. PARA FIGMA: sin codigo, todo el
+   estilo aqui dentro, no pide nada a internet. */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f7f7f5;color:#2b2b2b;font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1300px;margin:0 auto;padding:18px 24px 80px}
+.rotulo-figma{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a9a9a;margin:36px 0 10px}
+.marco{background:#e9e9e6;border-radius:14px;padding:24px}
+
+/* --- la pagina A4 --- */
+.a4{background:#fff;width:794px;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:38px 46px 30px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#222}
+.membrete{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #92d050;padding-bottom:7px}
+.logo{font-size:15px;font-weight:700;letter-spacing:.01em}
+.logo span{color:#7ac943}
+.membrete .que{font-size:9px;color:#777;text-align:right;line-height:1.35}
+.titular{display:grid;grid-template-columns:1fr 150px 150px;gap:12px;margin-top:14px;align-items:stretch}
+.titular h1{font-size:18px;line-height:1.25}
+.titular .dir{font-size:11px;color:#555;margin-top:3px}
+.titular .ref{font-size:9.5px;color:#888;margin-top:6px}
+.img{border-radius:6px;background:#eef0ec;border:1px solid #dfe3dc;display:flex;align-items:flex-end;justify-content:center;font-size:8.5px;color:#777;padding:4px;min-height:112px;position:relative;overflow:hidden}
+.img.croquis{background:repeating-linear-gradient(45deg,#f6f1f1 0 8px,#efe6e6 8px 9px)}
+.img.aerea{background:linear-gradient(135deg,#9aa38f,#c9c3ad 40%,#8f9a86)}
+.img.aerea span{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+
+.cifras{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px 0 4px}
+.cifra{background:#f4f8ef;border-radius:6px;padding:7px 6px;text-align:center}
+.cifra b{display:block;font-size:15px;line-height:1.2}
+.cifra span{font-size:8.5px;color:#555;text-transform:uppercase;letter-spacing:.04em}
+
+h2{font-size:11.5px;background:#92d050;padding:3px 8px;margin:13px 0 6px;display:flex;justify-content:space-between}
+h2 small{font-weight:400;font-size:9px;color:#335c12}
+.resumen{font-size:11.5px;margin-bottom:5px}
+.puntos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.punto{border:1px solid #e3e6df;border-radius:6px;padding:6px 8px}
+.punto b{display:block;font-size:10.5px;margin-bottom:1px}
+.punto p{font-size:10px;color:#444;line-height:1.4}
+
+/* el IEE como semaforo */
+.iee{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.luz{border-radius:6px;padding:6px 7px;font-size:9.5px;line-height:1.3;border:1px solid}
+.luz b{display:block;font-size:11px}
+.luz.bien{background:#eef7e4;border-color:#b9dc97}
+.luz.mal{background:#fbeeee;border-color:#e6b9b9}
+.luz.dato{background:#f5f5f2;border-color:#e0e0da}
+.nota{font-size:10px;color:#555;margin-top:5px}
+
+.condiciones{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.cond{border-radius:6px;padding:6px 8px;font-size:10px;border:1px solid #e0e0da;background:#fafaf8}
+.cond b{display:block;font-size:10.5px}
+.cond.libre b::before{content:"✓ ";color:#3f7a1c}
+.cond.ojo b::before{content:"! ";color:#9f3a38}
+
+.ayudas{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ayuda{border-left:3px solid #92d050;background:#f7faf3;padding:6px 9px;border-radius:0 6px 6px 0}
+.ayuda b{display:block;font-size:10.5px}
+.ayuda p{font-size:10px;color:#444}
+.entorno{margin-top:7px;border:1px solid #cfe5b8;border-radius:6px;padding:7px 9px}
+.entorno .t{font-size:10px;font-weight:700;margin-bottom:3px}
+.entorno table{width:100%;border-collapse:collapse;font-size:10px}
+.entorno td{padding:2px 0;border-top:1px solid #eef2e8}
+.entorno td.r{text-align:right;white-space:nowrap;font-weight:700}
+
+/* las ayudas, por lo que nos han pedido */
+.pedido{font-size:11px;margin:2px 0 4px}
+.pedido b{background:#f4f8ef;border-radius:4px;padding:0 4px}
+table.lineas{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6px}
+table.lineas th{font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;color:#666;text-align:left;font-weight:700;padding:2px 4px;border-bottom:1px solid #cfe5b8}
+table.lineas td{padding:4px;border-bottom:1px solid #eef2e8;vertical-align:top}
+table.lineas td.est{text-align:right;white-space:nowrap;font-weight:700;color:#2f6510}
+.ademas{font-size:11px;margin:8px 0 3px}
+.aviso{font-size:9px;color:#777;margin-top:3px}
+/* los huecos, convertidos en servicio */
+.comprobar{border:1.5px dashed #b9c4ad;border-radius:8px;padding:8px 11px;margin-top:2px;background:#fcfdfb}
+.comprobar ul{list-style:none;columns:2;column-gap:18px}
+.comprobar li{font-size:10px;padding-left:14px;position:relative;margin-bottom:3px;break-inside:avoid}
+.comprobar li::before{content:"☐";position:absolute;left:0;top:-1px;color:#6d7f5c}
+.comprobar li i{color:#777;font-style:normal}
+
+.pie{margin-top:12px;font-size:8px;color:#888;border-top:1px solid #ddd;padding-top:5px;display:flex;justify-content:space-between;gap:12px}
+.ejemplo{display:inline-block;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:0 5px;vertical-align:1px;margin-left:3px;font-family:"Segoe UI",sans-serif}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ======================================================================= -->
+<p class="rotulo-figma">1 · Madrid capital, ya visitado — CL Villamanín 37 (nos han pedido un ascensor)</p>
+<div class="marco"><div class="a4">
+  <div class="membrete"><div class="logo">acces<span>alia</span></div>
+    <div class="que">Anexo al informe de viabilidad<br>Ficha del edificio · 6 de octubre de 2026</div></div>
+
+  <div class="titular">
+    <div><h1>CL Villamanín 37</h1><div class="dir">28011 Madrid · distrito de Latina</div>
+      <div class="ref">Referencia catastral 6333423VK3763C</div></div>
+    <div class="img croquis"><span>croquis catastral</span></div>
+    <div class="img aerea"><span>foto aérea</span></div>
+  </div>
+
+  <div class="cifras">
+    <div class="cifra"><b>1970</b><span>construido</span></div>
+    <div class="cifra"><b>PB + 6</b><span>plantas</span></div>
+    <div class="cifra"><b>30</b><span>viviendas</span></div>
+    <div class="cifra"><b>3</b><span>locales y otros</span></div>
+    <div class="cifra"><b>91%</b><span>residencial</span></div>
+  </div>
+
+  <h2>1 · El edificio y lo que implica su época <small>Catastro</small></h2>
+  <p class="resumen">Edificio residencial de 1970, con planta baja y seis alturas: 30 viviendas y 3 locales u otros usos en una sola escalera.</p>
+  <div class="puntos">
+    <div class="punto"><b>Sin aislamiento térmico</b><p>Anterior a la norma de 1979: se construyó sin ninguna exigencia de aislamiento. Cualquier mejora de fachada o cubierta se nota en consumo y en la calificación energética.</p></div>
+    <div class="punto"><b>Materiales de la época</b><p>Anterior a 2002: conviene revisar bajantes y cubiertas de fibrocemento antes de cualquier obra.</p></div>
+    <div class="punto"><b>Siete alturas</b><p>Un acceso sin barreras desde la calle hasta cada planta es lo que más valor añade a las viviendas altas.</p></div>
+  </div>
+
+  <h2>2 · Su Informe de Evaluación del Edificio (IEE) <small>Registro de la Comunidad de Madrid</small></h2>
+  <div class="iee">
+    <div class="luz bien"><b>Favorable</b>valoración final</div>
+    <div class="luz mal"><b>No cumple</b>accesibilidad</div>
+    <div class="luz mal"><b>No admite</b>ajustes razonables</div>
+    <div class="luz mal"><b>E</b>eficiencia energética</div>
+    <div class="luz dato"><b>2028</b>vence (emitido jun-2018)</div>
+  </div>
+  <p class="nota">El edificio está en buen estado de conservación, pero la accesibilidad queda pendiente y, al no admitir ajustes razonables, su solución pasa por una obra.</p>
+
+  <h2>3 · Lo que condiciona la obra <small>Geoportal del Ayuntamiento de Madrid <span class="ejemplo">ejemplo</span></small></h2>
+  <div class="condiciones">
+    <div class="cond libre"><b>Sin protección</b>No está catalogado ni es Bien de Interés Cultural.</div>
+    <div class="cond libre"><b>Sin conjunto homogéneo</b>La fachada puede tratarse como el edificio necesite.</div>
+    <div class="cond ojo"><b>Modelo de ascensor fijado</b>El distrito exige un modelo concreto: el proyecto parte de él.</div>
+  </div>
+
+  <h2>4 · Ayudas a las que puede optar <small>según el histórico de convocatorias <span class="ejemplo">ejemplo</span></small></h2>
+  <p class="pedido">Para el <b>ascensor</b> que nos han pedido podría acceder a:</p>
+  <table class="lineas">
+    <tr><th>Convocatoria</th><th>Qué cubre</th><th>Cuánto da</th><th style="text-align:right">Para este edificio</th></tr>
+    <tr><td>Plan Rehabilita Madrid · accesibilidad</td><td>Ascensor, rampas y supresión de barreras</td><td>40% de la obra, hasta 9.000 € por vivienda</td><td class="est">≈ 72.000 €</td></tr>
+    <tr><td>Comunidad de Madrid · accesibilidad</td><td>Ascensor en edificios de más de 4 plantas</td><td>hasta 6.000 € por vivienda</td><td class="est">≈ 54.000 €</td></tr>
+  </table>
+  <p class="ademas">Y si además se incluyera <b>eficiencia energética</b> en la misma obra:</p>
+  <table class="lineas">
+    <tr><td>Programa de rehabilitación energética (PREE)</td><td>Fachada y cubierta: aislamiento</td><td>65% de la obra si el ahorro supera el 30%</td><td class="est">≈ 195.000 €</td></tr>
+  </table>
+  <p class="aviso">Estimaciones con el coste de obra del informe de viabilidad (ascensor 180.000 €, envolvente 300.000 €) y las 30 viviendas del edificio. La cuantía final depende de la convocatoria abierta en cada momento.</p>
+
+  <div class="entorno"><div class="t">En su entorno, a menos de 800 m, 9 comunidades ya las han conseguido: 1.204.600 € <span class="ejemplo">ejemplo</span></div>
+    <table>
+      <tr><td>CL Illescas 112 · 48 viviendas · ascensor · Rehabilita Madrid 2024</td><td class="r">207.900 €</td></tr>
+      <tr><td>CL Villamanín 21 · 36 viviendas · envolvente · PREE 5000</td><td class="r">164.300 €</td></tr>
+      <tr><td>CL Camarena 45 · 40 viviendas · ascensor · Rehabilita Madrid 2023</td><td class="r">158.000 €</td></tr>
+      <tr><td>CL Sanchidrián 12 · 32 viviendas · ascensor · Rehabilita Madrid 2022</td><td class="r">142.600 €</td></tr>
+      <tr><td>CL Illescas 98 · 24 viviendas · envolvente · PREE 5000</td><td class="r">121.800 €</td></tr>
+      <tr><td>CL Villaviciosa 17 · 20 viviendas · ascensor · Rehabilita Madrid 2024</td><td class="r">110.250 €</td></tr>
+      <tr><td>CL Gallur 30 · 30 viviendas · accesibilidad · Rehabilita Madrid 2022</td><td class="r">104.300 €</td></tr>
+      <tr><td>AV Nuestra Señora de Valvanera 64 · 28 viviendas · accesibilidad · Rehabilita Madrid 2023</td><td class="r">98.450 €</td></tr>
+      <tr><td>CL Maqueda 8 · 18 viviendas · ascensor · Rehabilita Madrid 2021</td><td class="r">97.000 €</td></tr>
+    </table></div>
+
+  <h2>5 · Lo que hemos comprobado en la visita <small>visita del 30-sep-2026 <span class="ejemplo">ejemplo</span></small></h2>
+  <div class="puntos">
+    <div class="punto"><b>Sin ascensor</b><p>No hay casetón en la azotea ni hueco en la escalera.</p></div>
+    <div class="punto"><b>Tres escalones en el portal</b><p>El acceso desde la calle no es practicable para una silla de ruedas.</p></div>
+    <div class="punto"><b>Escalera de 1,10 m</b><p>Con un ojo de escalera de 1,40 × 1,60 m: cabe un ascensor por dentro.</p></div>
+  </div>
+
+  <div class="pie"><span>Fuentes: Dirección General del Catastro · Registro de IEE de la Comunidad de Madrid · Geoportal del Ayuntamiento de Madrid. Consultado el 6-oct-2026.</span><span>Accesalia · B86374055</span></div>
+</div></div>
+
+<!-- ======================================================================= -->
+<p class="rotulo-figma">2 · fuera de Madrid capital, sin IEE y sin visita: solo sale lo que se sabe — CL Polvoranca 24-28, Leganés (nos han pedido una rampa)</p>
+<div class="marco"><div class="a4">
+  <div class="membrete"><div class="logo">acces<span>alia</span></div>
+    <div class="que">Anexo al informe de viabilidad<br>Ficha del edificio · 6 de octubre de 2026</div></div>
+
+  <div class="titular">
+    <div><h1>CL Polvoranca 24, 26 y 28</h1><div class="dir">Leganés</div>
+      <div class="ref">Referencia catastral 4546101VK3644N</div></div>
+    <div class="img croquis"><span>croquis catastral</span></div>
+    <div class="img aerea"><span>foto aérea</span></div>
+  </div>
+
+  <div class="cifras">
+    <div class="cifra"><b>1966</b><span>construido</span></div>
+    <div class="cifra"><b>PB + 4</b><span>plantas</span></div>
+    <div class="cifra"><b>54</b><span>viviendas</span></div>
+    <div class="cifra"><b>3</b><span>portales</span></div>
+    <div class="cifra"><b>6</b><span>locales y otros</span></div>
+  </div>
+
+  <h2>1 · El edificio y lo que implica su época <small>Catastro</small></h2>
+  <p class="resumen">Conjunto residencial de 1966 con tres portales en una misma finca, planta baja y cuatro alturas: 54 viviendas y 6 locales u otros usos.</p>
+  <div class="puntos">
+    <div class="punto"><b>Sin aislamiento térmico</b><p>Anterior a la norma de 1979: se construyó sin ninguna exigencia de aislamiento.</p></div>
+    <div class="punto"><b>Materiales de la época</b><p>Anterior a 2002: conviene revisar bajantes y cubiertas de fibrocemento antes de cualquier obra.</p></div>
+    <div class="punto"><b>Tres portales</b><p>Pueden actuar todos a la vez o empezar por uno y sumar los demás después.</p></div>
+  </div>
+
+  <h2>2 · Su Informe de Evaluación del Edificio (IEE) <small>Registro de la Comunidad de Madrid</small></h2>
+  <div class="iee">
+    <div class="luz dato" style="grid-column:span 5"><b>No consta ninguna IEE registrada</b>En el registro de la Comunidad de Madrid no figura ningún informe para este edificio.</div>
+  </div>
+
+  <h2>3 · Ayudas a las que puede optar <small>según el histórico de convocatorias <span class="ejemplo">ejemplo</span></small></h2>
+  <p class="pedido">Para la <b>rampa</b> que nos han pedido podría acceder a:</p>
+  <table class="lineas">
+    <tr><th>Convocatoria</th><th>Qué cubre</th><th>Cuánto da</th><th style="text-align:right">Para este edificio</th></tr>
+    <tr><td>Comunidad de Madrid · accesibilidad</td><td>Rampas, plataformas y supresión de barreras en el portal</td><td>40% de la obra, hasta 9.000 € por vivienda</td><td class="est">≈ 14.000 €</td></tr>
+  </table>
+  <p class="ademas">Y si además se incluyera <b>eficiencia energética</b> en la misma obra:</p>
+  <table class="lineas">
+    <tr><td>Programa de rehabilitación energética de la Comunidad de Madrid</td><td>Fachada y cubierta: aislamiento</td><td>65% de la obra si el ahorro supera el 30%</td><td class="est">≈ 351.000 €</td></tr>
+  </table>
+  <p class="aviso">Estimaciones con el coste de obra del informe de viabilidad (rampa 35.000 €, envolvente 540.000 €) y las 54 viviendas del conjunto. La cuantía final depende de la convocatoria abierta en cada momento.</p>
+
+  <div class="pie"><span>Fuentes: Dirección General del Catastro · Registro de IEE de la Comunidad de Madrid. Consultado el 6-oct-2026.</span><span>Accesalia · B86374055</span></div>
+</div></div>
+
+</main>
+</body>
+</html>

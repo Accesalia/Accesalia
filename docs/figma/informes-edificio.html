@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Informes del edificio</title>
+<style>
+/* MAQUETA de las dos vistas nuevas del bloque 1 (6-oct-2026): el informe
+   COMERCIAL (privado, para el comercial) y el informe PUBLICO (se enseña al
+   administrador y va como anexo de la viabilidad). Los mismos datos, con dos
+   enfoques. PARA FIGMA: sin codigo, todo el estilo aqui dentro, no pide nada a
+   internet. Edificio real: CL Villamanin 37 (Catastro e IEE de produccion). Lo
+   de subvenciones y condicionantes es de EJEMPLO: se marca asi. */
+:root{
+  --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+  --hueso:#f7f7f5; --azul:#104269; --rojo:#820707; --verde:#0C8124; --ambar:#fdf6e3; --ambar-b:#f0d78c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--hueso);color:var(--carbon);font-family:"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+.barra{background:var(--carbon);color:#fff;padding:10px 24px;font-weight:700}
+.barra span{color:var(--lima)}
+main{max-width:1300px;margin:0 auto;padding:18px 24px 80px}
+.rotulo-figma{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a9a9a;margin:40px 0 10px}
+h1{font-size:25px;font-weight:700}
+.sub{font-size:13px;color:rgba(43,43,43,.65);margin-top:4px}
+.ejemplo{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:#e8eef5;color:#3d5a7a;border-radius:99px;padding:1px 7px;vertical-align:middle;margin-left:6px}
+
+/* el interruptor de las tres vistas, como Agenda / Calendario */
+.vistas{display:inline-flex;border:1px solid rgba(0,0,0,.15);border-radius:12px;overflow:hidden;background:#fff;margin-top:14px}
+.vistas span{padding:7px 16px;font-size:13px;font-weight:600;color:rgba(43,43,43,.65)}
+.vistas span+span{border-left:1px solid rgba(0,0,0,.1)}
+.vistas .on{background:var(--carbon);color:#fff}
+.privado{display:inline-block;margin-left:10px;font-size:11px;font-weight:700;color:#8a5a00;background:var(--ambar);border:1px solid var(--ambar-b);border-radius:99px;padding:2px 9px;vertical-align:middle}
+
+/* ------------------------------------------------ informe comercial */
+.comercial{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+.sec{background:#fff;border:1px solid #d9d9d9;border-radius:14px;padding:16px}
+.sec h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-decoration:underline;text-underline-offset:2px;margin-bottom:10px}
+.sec.uno h2{color:var(--azul)} .sec.dos h2{color:var(--rojo)} .sec.tres h2{color:var(--verde)}
+.tip{border-top:1px solid rgba(0,0,0,.06);padding:9px 0}
+.tip:first-of-type{border-top:0;padding-top:0}
+.tip b{display:block;font-size:13.5px}
+.tip p{font-size:13px;color:rgba(43,43,43,.8);margin-top:2px;line-height:1.45}
+.tip .de{font-size:11px;color:rgba(43,43,43,.55);margin-top:3px}
+.diana{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:6px;padding:1px 6px;margin-right:4px;vertical-align:1px}
+.diana.vende{background:var(--lima-soft);color:var(--lima-dark);border:1px solid var(--lima)}
+.diana.ojo{background:#fbeeee;color:var(--rojo);border:1px solid #e3b4b4}
+.diana.libre{background:#e8f4ec;color:var(--verde);border:1px solid #9fd0ae}
+.sub3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(43,43,43,.6);margin:12px 0 6px}
+.sub3:first-of-type{margin-top:0}
+table.cerca{width:100%;border-collapse:collapse;font-size:12.5px}
+table.cerca td{padding:4px 2px;border-top:1px solid rgba(0,0,0,.06);vertical-align:top}
+table.cerca td.r{text-align:right;white-space:nowrap;font-weight:600}
+table.cerca .conv{font-size:11px;color:rgba(43,43,43,.6)}
+.hueco{background:var(--ambar);border:1px dashed var(--ambar-b);border-radius:8px;padding:6px 8px;font-size:12px;color:#8a5a00;margin-top:6px}
+.frase{margin-top:16px;background:#fff;border:1px solid #d9d9d9;border-radius:14px;padding:14px 16px}
+.frase h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(43,43,43,.7);margin-bottom:6px}
+.frase p{font-size:14px;line-height:1.5}
+
+/* ------------------------------------------------ informe publico (A4) */
+.marco{background:#e9e9e6;border-radius:14px;padding:24px;margin-top:16px}
+.a4{background:#fff;max-width:780px;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:40px 48px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:#222}
+.a4 .membrete{display:flex;justify-content:space-between;font-size:9px;color:#888;border-bottom:2px solid #92d050;padding-bottom:6px}
+.a4 .membrete b{font-size:14px;color:#2b2b2b;letter-spacing:.02em}
+.a4 .membrete b span{color:#7ac943}
+.a4 h3{font-size:17px;margin:16px 0 2px}
+.a4 .dir{font-size:12px;color:#555}
+.a4 .cifras{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.a4 .cifra{background:#f4f8ef;border-radius:6px;padding:8px;text-align:center}
+.a4 .cifra b{display:block;font-size:16px}
+.a4 .cifra span{font-size:9.5px;color:#555;text-transform:uppercase;letter-spacing:.04em}
+.a4 h4{font-size:12px;background:#92d050;padding:3px 8px;margin:14px 0 6px}
+.a4 h4.gris{background:#7f7f7f;color:#fff}
+.a4 ul{margin-left:18px}
+.a4 li{margin-bottom:4px}
+.a4 table{width:100%;border-collapse:collapse;margin-top:4px}
+.a4 td{padding:3px 4px;border-bottom:1px solid #eee}
+.a4 td.r{text-align:right;white-space:nowrap}
+.a4 .llamada{border:2px solid #92d050;border-radius:6px;padding:10px 12px;margin-top:14px;font-size:12px}
+.a4 .llamada b{display:block;font-size:13px;margin-bottom:2px}
+.a4 .pie{margin-top:16px;font-size:8.5px;color:#888;border-top:1px solid #ddd;padding-top:6px}
+</style>
+</head>
+<body>
+<div class="barra">acces<span>alia</span></div>
+<main>
+
+<!-- ======================================================================= -->
+<p class="rotulo-figma">1 · bloque 1, vista «Informe comercial»: solo para el comercial</p>
+
+<h1>CL VILLAMANÍN 37, Madrid <span class="ejemplo">maqueta</span></h1>
+<p class="sub">Latina · 1970 · planta baja + 6 · 30 viviendas · IEE favorable (jun-2018)</p>
+<div class="vistas"><span>Ficha de datos</span><span class="on">Informe comercial</span><span>Informe público</span></div>
+<span class="privado">🔒 Privado: no se enseña ni se adjunta</span>
+
+<div class="comercial">
+  <section class="sec uno">
+    <h2>1 · Lo probable</h2>
+    <div class="tip"><span class="diana vende">vende</span><b>Sin aislamiento: háblales del SATE</b>
+      <p>Es de 1970, anterior a la NBE-CT-79: se construyó sin ninguna exigencia de aislamiento. Fachada y cubierta pierden calor por todas partes, y con una E en el certificado energético lo notan en la factura.</p>
+      <p class="de">Del año de Catastro y del CEE del registro</p></div>
+    <div class="tip"><span class="diana ojo">ojo</span><b>Puede haber amianto</b>
+      <p>Anterior a 2002: bajantes, depósitos o cubiertas de fibrocemento. Míralo en la visita y cuéntalo en el presupuesto: si aparece en obra, es un contradictorio seguro.</p>
+      <p class="de">Del año de Catastro</p></div>
+    <div class="tip"><span class="diana vende">vende</span><b>Siete alturas: el ascensor es lo que más se vende</b>
+      <p>Con planta baja + 6, un vecino del sexto sin ascensor accesible no baja a la calle. Si ya tienen ascensor, la conversación es la cota cero.</p>
+      <p class="de">De las plantas de Catastro · ascensor: sin mirar todavía</p></div>
+    <div class="tip"><span class="diana vende">vende</span><b>La IEE dice que no cumplen accesibilidad… y que no pueden pagarlo solos</b>
+      <p>«Ajustes razonables = No»: la obra que necesitan pasa de tres veces la cuota anual. Solos no llegan: necesitan subvención, y eso es lo que vendemos.</p>
+      <p class="de">Del registro de IEE de la Comunidad de Madrid</p></div>
+    <div class="tip"><span class="diana ojo">ojo</span><b>La IEE caduca en 2028</b>
+      <p>Diez años desde junio de 2018. Si encargan obra ahora, la siguiente IEE ya la recoge.</p></div>
+  </section>
+
+  <section class="sec dos">
+    <h2>2 · Lo que condiciona lo que se puede hacer</h2>
+    <div class="tip"><span class="diana libre">libre</span><b>Nada de Patrimonio ni otros condicionantes</b>
+      <p>No está catalogado, no es BIC ni forma parte de un conjunto homogéneo. Puedes proponer lo que el edificio necesite sin trámite de Patrimonio.</p>
+      <p class="de">Del geoportal del Ayuntamiento <span class="ejemplo">ejemplo</span></p></div>
+    <div class="tip"><span class="diana ojo">ojo</span><b>El modelo de ascensor lo fija el Ayuntamiento: míralo antes de hablarlo</b>
+      <p>En esta zona hay modelo impuesto. Si es exterior, da igual lo grande que sea la escalera: no lo van a autorizar dentro. No prometas nada hasta verlo.</p>
+      <p class="de">Del geoportal del Ayuntamiento <span class="ejemplo">ejemplo</span></p></div>
+    <div class="tip"><span class="diana ojo">ojo</span><b>Varios inmuebles en la parcela</b>
+      <p>33 inmuebles para 30 viviendas: hay locales o trasteros. Pregunta quién vota y si los locales pagan.</p>
+      <p class="de">De Catastro</p></div>
+  </section>
+
+  <section class="sec tres">
+    <h2>3 · Lo que puede conseguirse con subvenciones</h2>
+    <div class="sub3">Este edificio</div>
+    <div class="tip"><b>No le han concedido nada todavía</b>
+      <p>No consta ninguna ayuda concedida a Villamanín 37 en las convocatorias publicadas.</p>
+      <p class="de">De las concesiones publicadas</p></div>
+    <div class="hueco">Pedidas y denegadas: no hay fuente pública. Sale de lo que sepamos nosotros o nos cuenten.</div>
+    <div class="hueco">Baremo según los vecinos (mayores de 70, discapacidad): falta el censo de la comunidad.</div>
+    <div class="sub3">Lo que han conseguido otros a menos de 800 m <span class="ejemplo">ejemplo</span></div>
+    <table class="cerca">
+      <tr><td>CL Illescas 112<div class="conv">Rehabilita Madrid 2024 · ascensor</div></td><td class="r">207.900 €</td></tr>
+      <tr><td>CL Villamanín 21<div class="conv">PREE 5000 · envolvente</div></td><td class="r">164.300 €</td></tr>
+      <tr><td>AV Nuestra Señora de Valvanera 64<div class="conv">Rehabilita Madrid 2023 · accesibilidad</div></td><td class="r">98.450 €</td></tr>
+      <tr><td colspan="2" style="font-size:11.5px;color:rgba(43,43,43,.65)">9 obras · 1.204.600 € en total. Es el mejor argumento delante de una junta.</td></tr>
+    </table>
+  </section>
+</div>
+
+<div class="frase">
+  <h2>Para abrir la conversación</h2>
+  <p>«Vuestro edificio es de 1970, sin aislamiento y con una IEE que dice que no cumple accesibilidad. Vuestros vecinos de Illescas 112 han conseguido 207.900 € para su ascensor: con vuestras siete alturas, vosotros entráis en la misma convocatoria.»</p>
+</div>
+
+<!-- ======================================================================= -->
+<p class="rotulo-figma">2 · bloque 1, vista «Informe público»: lo que se enseña al administrador y va como anexo de la viabilidad (sale en PDF)</p>
+
+<div class="vistas"><span>Ficha de datos</span><span>Informe comercial</span><span class="on">Informe público</span></div>
+
+<div class="marco">
+  <div class="a4">
+    <div class="membrete"><b>acces<span>alia</span></b><span>Informe del edificio · 6 de octubre de 2026<br>Anexo al informe de viabilidad</span></div>
+    <h3>Su edificio: lo que dice, lo que le van a pedir y lo que puede conseguir</h3>
+    <div class="dir">CL Villamanín 37 · 28011 Madrid · Ref. catastral 6333423VK3763C</div>
+
+    <div class="cifras">
+      <div class="cifra"><b>1970</b><span>año de construcción</span></div>
+      <div class="cifra"><b>PB + 6</b><span>plantas</span></div>
+      <div class="cifra"><b>30</b><span>viviendas</span></div>
+      <div class="cifra"><b>E</b><span>eficiencia energética</span></div>
+    </div>
+
+    <h4>Lo que la normativa ya le está pidiendo</h4>
+    <ul>
+      <li><b>Accesibilidad.</b> Su Informe de Evaluación del Edificio (junio de 2018) recoge que el edificio no satisface las condiciones de accesibilidad. Es una obligación que antes o después tendrán que resolver.</li>
+      <li><b>Inspección.</b> Su IEE tiene validez hasta 2028. La próxima reflejará el estado de lo que se haga, o de lo que no.</li>
+    </ul>
+
+    <h4>Lo que su edificio tiene por su época</h4>
+    <ul>
+      <li><b>Sin aislamiento.</b> Los edificios anteriores a 1979 se construyeron sin exigencia de aislamiento térmico. Mejorar fachada y cubierta reduce el consumo y sube la calificación energética, que es lo que piden las ayudas de eficiencia.</li>
+      <li><b>Materiales de la época.</b> En edificios anteriores a 2002 conviene revisar bajantes y cubiertas de fibrocemento antes de cualquier obra.</li>
+      <li><b>Siete alturas.</b> Un acceso sin barreras hasta la calle es lo que más valor añade a las viviendas de las plantas altas.</li>
+    </ul>
+
+    <h4>El momento: ayudas a las que puede optar</h4>
+    <p>Su edificio está en zona con ayudas de rehabilitación del Ayuntamiento de Madrid, y cumple el porcentaje de uso residencial que se exige. En su entorno, a menos de 800 metros, otras comunidades ya las han conseguido:</p>
+    <table>
+      <tr><td>Ascensor · Rehabilita Madrid 2024</td><td class="r">207.900 €</td></tr>
+      <tr><td>Envolvente térmica · PREE 5000</td><td class="r">164.300 €</td></tr>
+      <tr><td>Accesibilidad · Rehabilita Madrid 2023</td><td class="r">98.450 €</td></tr>
+      <tr><td><b>9 obras en su entorno</b></td><td class="r"><b>1.204.600 €</b></td></tr>
+    </table>
+
+    <div class="llamada"><b>Mejor ahora, con tiempo y con ayuda.</b>
+      Lo que su edificio necesita va a tener que hacerse. Hacerlo dentro de una convocatoria abierta, con el proyecto preparado a tiempo, es la diferencia entre pagarlo entero o pagar una parte.</div>
+
+    <div class="pie">Datos de la Dirección General del Catastro, del Registro de Informes de Evaluación de Edificios de la Comunidad de Madrid y de las concesiones publicadas por el Ayuntamiento de Madrid. Accesalia · c/ Alhambra 24, 28047 Madrid · B86374055</div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>
