@@ -12,6 +12,7 @@ for f in glob.glob('extraido_*.jsonl'):
     for l in open(f, encoding='utf-8'):
         if l.strip():
             d = json.loads(l); ext[d['n']] = d
+res = {k: v for k, v in json.load(open('resoluciones_tanda1.json', encoding='utf-8')).items() if not k.startswith('_')}
 monday = json.load(open('monday_candidatas.json', encoding='utf-8'))
 
 # Otras versiones del mismo encargo en las carpetas de fuentes ("Modificado ...",
@@ -90,8 +91,7 @@ for i, (frec, firm, env) in enumerate(tanda):
     else: estado = None
     fh = d.get('fecha_hoja')
     if fh and fh > frec: motivos.append('la hoja es POSTERIOR a la firmada')
-    if fh and frec and (datetime.date.fromisoformat(frec) - datetime.date.fromisoformat(fh)).days > 180:
-        motivos.append('más de 6 meses entre hoja y firma')
+    # La vigencia de 3 meses NO se tiene en cuenta (Monica): no se avisa del tiempo entre hoja y firma.
     mod = cab.get('MODIFICADO', '')[:10]
     if mod and mod > frec: motivos.append('el documento se tocó DESPUÉS de llegar firmada')
     ov = otras_versiones(k, env.split('/')[-1]) if k else []
@@ -103,6 +103,15 @@ for i, (frec, firm, env) in enumerate(tanda):
     if any(c.get('bloque') == 'SIN CASAR' for c in d.get('conceptos') or []) or d.get('que_se_hace_sin_casar'):
         motivos.append('concepto sin casar con el catálogo')
     if not estado: estado = 'REVISAR' if motivos else 'OK'
+    # Lo resuelto leyendo manda sobre lo automatico.
+    r = res.get(n)
+    if r:
+        estado = r['estado']
+        motivos = ['RESUELTO LEYENDO: ' + r['nota']] if r.get('nota') else []
+        if r['estado'] == 'PREGUNTA': motivos = ['PARA TI: ' + r['nota']]
+        for campo in ('fecha_hoja', 'total_base', 'a_quien'):
+            if campo in r: d = dict(d); d[campo] = r[campo]
+        fh = d.get('fecha_hoja')
     cuenta[estado] += 1
     conc = d.get('conceptos') or []
     txt_conc = '\n'.join(
@@ -118,7 +127,7 @@ for i, (frec, firm, env) in enumerate(tanda):
         wc.append([n, d.get('direccion'), c.get('texto'), c.get('bloque'), eur(c.get('importe')), c.get('pct_exito'), 'sí' if c.get('incluido') else '', c.get('forma_pago')])
 
 # formato
-color = {'OK': 'DCEFC8', 'REVISAR': 'FFF2CC', 'APARTAR': 'F4CCCC'}
+color = {'OK': 'DCEFC8', 'REVISAR': 'FFF2CC', 'PREGUNTA': 'FFD966', 'APARTAR': 'F4CCCC', 'ANULADA': 'D9D9D9'}
 for hoja, anchos in ((ws, [5, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45, 22, 14, 35, 50, 14, 10, 30]),
                      (wc, [5, 30, 45, 30, 12, 9, 12, 45])):
     for j, a in enumerate(anchos, 1):
