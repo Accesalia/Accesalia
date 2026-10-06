@@ -463,7 +463,30 @@ type FilaEscaneado = {
   identificador_correo: string | null;
   nombre_original_fichero: string | null;
   ruta_polycam: string | null;
+  /** QUIEN FUE A VISITAR Y ESCANEAR. Sale del correo del remitente, cuadrado
+   *  con el del equipo. Si el remitente no es de nadie -el propio Polycam avisa
+   *  desde notifications@poly.cam- se queda vacio: adivinar quien fue por el
+   *  parecido del correo seria inventarlo. */
+  visito_id: string | null;
 };
+
+/** El del equipo cuyo correo es ese, o null. Primero de los cuatro papeles que
+ *  deja una viabilidad: quien hizo la visita y el escaneo (Monica, 6-oct-2026). */
+async function quienEscaneo(remitente: string | null): Promise<string | null> {
+  const mail = (remitente ?? "").trim().toLowerCase();
+  if (!mail || !mail.includes("@")) return null;
+  try {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/equipo?select=id&email=ilike.${encodeURIComponent(mail)}&limit=1`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!r.ok) return null;
+    const [q] = (await r.json()) as { id: string }[];
+    return q?.id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /** Mete la fila y devuelve su id. Si ese fichero de ese correo ya estaba, no la
  *  duplica y devuelve null: la pareja (identificador_correo, nombre_original_
@@ -637,8 +660,14 @@ export async function repasarBuzon(): Promise<Repaso> {
         const correo: ParsedMail = await simpleParser(bajado.content);
         asunto = correo.subject?.trim() || "(sin asunto)";
 
+        const quienVino = correo.from?.value?.[0]?.address ?? null;
         const comun = {
-          remitente: correo.from?.value?.[0]?.address ?? null,
+          remitente: quienVino,
+          // QUIEN FUE A VISITAR Y ESCANEAR, el primero de los cuatro papeles de
+          // una viabilidad. Se pone solo, que es su criterio: "que se cree solo,
+          // igual que quien hizo la visita o el polycam, que salen de los datos
+          // que cuelgan de esas acciones".
+          visito_id: await quienEscaneo(quienVino),
           asunto: correo.subject?.trim() || null,
           // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
           fecha: correo.date ? correo.date.toISOString() : null,

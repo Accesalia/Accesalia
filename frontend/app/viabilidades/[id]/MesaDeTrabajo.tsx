@@ -22,6 +22,9 @@ const de = "ml-1.5 text-[10.5px] font-semibold normal-case tracking-normal text-
 const campo =
   "w-full rounded-[10px] border border-carbon/25 bg-white px-3 py-2 text-[14px] text-carbon outline-none transition focus:border-lima-dark focus:ring-2 focus:ring-lima/40";
 const bloque = "border-t border-black/[0.06] py-3 first:border-t-0 first:pt-0";
+
+/** La linea mientras se teclea: el importe es texto hasta que se guarda. */
+type LineaUI = { grupo: "obra" | "tasas"; concepto: string; importe: string; biPct: number; ivaPct: number };
 const ajeno =
   "inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#3f5f80] bg-ajeno px-3.5 text-[12px] font-bold uppercase tracking-wide text-white transition hover:bg-[#4a6d91] disabled:opacity-50";
 const ajenoClaro =
@@ -45,9 +48,13 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
   const [objeto, setObjeto] = useState(m.objeto);
   const [descripcion, setDescripcion] = useState(m.descripcion);
   const [conclusion, setConclusion] = useState(m.conclusion);
-  const [pem, setPem] = useState(m.pem !== null ? m.pem.toLocaleString("es-ES") : "");
-  const [bi, setBi] = useState(String(m.biPct));
-  const [iva, setIva] = useState(String(m.ivaPct));
+  // El dinero que pone Alex, por lineas. Si no hay ninguna todavia, se arranca
+  // con una de obra: lo normal es que haya al menos una.
+  const [lineas, setLineas] = useState<LineaUI[]>(
+    m.lineas.length
+      ? m.lineas.map((l) => ({ ...l, importe: l.importe !== null ? l.importe.toLocaleString("es-ES") : "" }))
+      : [{ grupo: "obra", concepto: "", importe: "", biPct: 19, ivaPct: 10 }],
+  );
   const [especifico, setEspecifico] = useState(m.especifico);
   const [modelo, setModelo] = useState(m.modeloId ?? "");
   const [escaleras, setEscaleras] = useState(m.escaleras);
@@ -113,21 +120,32 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
     }
   };
 
-  // ---- los precios
-  const pemN = numero(pem);
-  const biN = numero(bi) ?? 0;
-  const ivaN = numero(iva) ?? 0;
-  const sinIva = pemN !== null ? pemN * (1 + biN / 100) : null;
-  const conIva = sinIva !== null ? sinIva * (1 + ivaN / 100) : null;
+  // ---- los precios, LINEA A LINEA. Ella, 6-oct-2026: el beneficio industrial y
+  // el IVA van por linea y no al total, "asi pueden comparar presupuesto de
+  // contrata con estimado de viabilidad".
+  const totalDe = (l: LineaUI) => {
+    const base = numero(l.importe);
+    if (base === null) return null;
+    return base * (1 + (l.grupo === "obra" ? l.biPct : 0) / 100) * (1 + l.ivaPct / 100);
+  };
+  const suma = (g: "obra" | "tasas") =>
+    lineas.filter((l) => l.grupo === g).reduce((s, l) => s + (totalDe(l) ?? 0), 0);
+  const cambiar = (i: number, cambio: Partial<LineaUI>) => {
+    setLineas((ls) => ls.map((l, n) => (n === i ? { ...l, ...cambio } : l)));
+    setSucio(true);
+  };
 
   const datos = (): DatosMesa => ({
     fechaVisita: fecha || null,
     objeto,
     descripcion,
     conclusion,
-    pem: pemN,
-    biPct: biN,
-    ivaPct: ivaN,
+    // Se siguen mandando hasta que se jubilen las columnas viejas: la primera
+    // linea de obra hace de PEM para lo que todavia las lee.
+    pem: numero(lineas.find((l) => l.grupo === "obra")?.importe ?? ""),
+    biPct: lineas.find((l) => l.grupo === "obra")?.biPct ?? 19,
+    ivaPct: lineas.find((l) => l.grupo === "obra")?.ivaPct ?? 10,
+    lineas: lineas.map((l) => ({ ...l, importe: numero(l.importe) })),
     modeloId: modelo || null,
     especifico,
     escaleras: escaleras.map((e) => ({ accesoId: e.accesoId, texto: e.texto })),
@@ -357,38 +375,154 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
             ))}
           </div>
 
+          {/* EL DINERO QUE PONE ALEX, POR LINEAS (Monica, 6-oct-2026).
+              Era una sola cifra de PEM. "Imagina que incluimos aerotermia: eso es
+              un precio como el PEM, que estimamos. Las lineas de Alex pueden ser
+              UNA O VARIAS." Y el beneficio industrial y el IVA van POR LINEA
+              para poder comparar cada estimacion con el presupuesto real.
+              Los HONORARIOS no estan aqui: los pone el comercial despues. */}
           <div className={bloque}>
-            <span className={etq}>Presupuesto de ejecución material estimado</span>
-            <div className="mt-1 grid grid-cols-[150px_1fr] items-start gap-3">
-              <input value={pem} onChange={(x) => tocar(setPem)(x.target.value)} placeholder="350.000" inputMode="decimal" className={campo} />
-              <div className="rounded-xl border border-black/[0.08] bg-[#fafaf8] px-3 py-2 text-[13px] leading-[1.75]">
-                <div className="flex justify-between gap-2.5">
-                  <span>PEM</span>
-                  <b className="tabular-nums">{pemN !== null ? eur(pemN) : "—"}</b>
-                </div>
-                <div className="flex items-center justify-between gap-2.5">
-                  <span>
-                    +{" "}
-                    <input value={bi} onChange={(x) => tocar(setBi)(x.target.value)} className="w-9 rounded border border-carbon/20 px-1 text-center text-[12px]" />
-                    % beneficio industrial · obra sin IVA
-                  </span>
-                  <b className="tabular-nums">{sinIva !== null ? eur(sinIva) : "—"}</b>
-                </div>
-                <div className="mt-0.5 flex items-center justify-between gap-2.5 border-t border-black/10 pt-0.5 font-extrabold">
-                  <span>
-                    +{" "}
-                    <input value={iva} onChange={(x) => tocar(setIva)(x.target.value)} className="w-9 rounded border border-carbon/20 px-1 text-center text-[12px] font-normal" />
-                    % IVA · lo que pagan
-                  </span>
-                  <b className="tabular-nums">{conIva !== null ? eur(conIva) : "—"}</b>
-                </div>
+            <span className={etq}>Coste de ejecución de obra estimado</span>
+            <div className="mt-1 space-y-1.5">
+              {lineas.map((l, i) =>
+                l.grupo !== "obra" ? null : (
+                  <div key={i} className="grid grid-cols-[1fr_84px_auto_auto_92px_14px] items-center gap-x-1.5 text-[12px]">
+                    <input
+                      value={l.concepto}
+                      onChange={(x) => cambiar(i, { concepto: x.target.value })}
+                      placeholder="SATE · aerotermia · ascensor"
+                      className={campo}
+                    />
+                    <input
+                      value={l.importe}
+                      onChange={(x) => cambiar(i, { importe: x.target.value })}
+                      placeholder="320.000"
+                      inputMode="decimal"
+                      className={campo + " text-right"}
+                    />
+                    <span className="flex items-center gap-1 text-carbon/50">
+                      +
+                      <input
+                        value={String(l.biPct)}
+                        onChange={(x) => cambiar(i, { biPct: Number(x.target.value) || 0 })}
+                        className="w-9 rounded border border-carbon/20 px-1 text-center"
+                      />
+                      % BI
+                    </span>
+                    <span className="flex items-center gap-1 text-carbon/50">
+                      +
+                      <input
+                        value={String(l.ivaPct)}
+                        onChange={(x) => cambiar(i, { ivaPct: Number(x.target.value) || 0 })}
+                        className="w-9 rounded border border-carbon/20 px-1 text-center"
+                      />
+                      % IVA
+                    </span>
+                    <b className="text-right tabular-nums">
+                      {totalDe(l) !== null ? eur(totalDe(l) as number) : "—"}
+                    </b>
+                    <button
+                      type="button"
+                      title="Quitar la línea"
+                      onClick={() => { setLineas((ls) => ls.filter((_, n) => n !== i)); setSucio(true); }}
+                      className="text-carbon/30 hover:text-alerta"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ),
+              )}
+              <div className="flex items-baseline justify-between gap-2 border-t border-black/10 pt-1.5">
+                <button
+                  type="button"
+                  onClick={() => { setLineas((ls) => [...ls, { grupo: "obra", concepto: "", importe: "", biPct: 19, ivaPct: 10 }]); setSucio(true); }}
+                  className="text-[11.5px] font-semibold text-lima-dark hover:underline"
+                >
+                  + añadir obra
+                </button>
+                <span className="text-[13px] font-extrabold tabular-nums">
+                  Total intervención, IVA incluido: {eur(suma("obra"))}
+                </span>
               </div>
             </div>
+          </div>
+
+          {/* LAS TASAS. Van aparte y SIN IVA: "las tasas de ayuntamiento no
+              llevan IVA". Y son varias -licencia, ICIO- y luego las de la ECU. */}
+          <div className={bloque}>
+            <span className={etq}>Tasas</span>
+            <div className="mt-1 space-y-1.5">
+              {lineas.map((l, i) =>
+                l.grupo !== "tasas" ? null : (
+                  <div key={i} className="grid grid-cols-[1fr_84px_auto_92px_14px] items-center gap-x-1.5 text-[12px]">
+                    <input
+                      value={l.concepto}
+                      onChange={(x) => cambiar(i, { concepto: x.target.value })}
+                      placeholder="licencia · ICIO"
+                      className={campo}
+                    />
+                    <input
+                      value={l.importe}
+                      onChange={(x) => cambiar(i, { importe: x.target.value })}
+                      placeholder="42.000"
+                      inputMode="decimal"
+                      className={campo + " text-right"}
+                    />
+                    <span className="text-[11px] text-carbon/40">sin IVA</span>
+                    <b className="text-right tabular-nums">
+                      {totalDe(l) !== null ? eur(totalDe(l) as number) : "—"}
+                    </b>
+                    <button
+                      type="button"
+                      title="Quitar la línea"
+                      onClick={() => { setLineas((ls) => ls.filter((_, n) => n !== i)); setSucio(true); }}
+                      className="text-carbon/30 hover:text-alerta"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ),
+              )}
+              <div className="flex items-baseline justify-between gap-2 border-t border-black/10 pt-1.5">
+                <button
+                  type="button"
+                  onClick={() => { setLineas((ls) => [...ls, { grupo: "tasas", concepto: "", importe: "", biPct: 0, ivaPct: 0 }]); setSucio(true); }}
+                  className="text-[11.5px] font-semibold text-lima-dark hover:underline"
+                >
+                  + añadir tasa
+                </button>
+                <span className="text-[13px] font-bold tabular-nums">Total tasas: {eur(suma("tasas"))}</span>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] leading-snug text-carbon/50">
+              Los honorarios no van aquí: los pone el comercial al rematar, y salen de la hoja de encargo.
+            </p>
           </div>
 
           <div className={bloque}>
             <span className={etq}>Conclusión</span>
             <textarea rows={2} value={conclusion} onChange={(x) => tocar(setConclusion)(x.target.value)} className={campo + " mt-1 resize-y"} />
+          </div>
+
+          {/* LOS CUATRO PAPELES. Ninguno se elige: salen de lo que ya pasó.
+              Ella, 6-oct-2026: "trazabilidad de intervinientes: quién hizo la
+              visita y el polycam, quién ve la viabilidad, quién la remató con
+              los precios y el texto, y quién la firma". */}
+          <div className={bloque}>
+            <span className={etq}>Quién ha hecho qué</span>
+            <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]">
+              {[
+                ["Visitó y escaneó", m.papeles.visitaron.join(" · ")],
+                ["Redacta", m.papeles.redacta],
+                ["Remata", m.papeles.remata],
+                ["Firma", m.papeles.firma],
+              ].map(([que, quien]) => (
+                <div key={que as string} className="flex items-baseline justify-between gap-2">
+                  <span className="text-carbon/55">{que}</span>
+                  <b className={quien ? "text-carbon" : "font-normal text-carbon/35"}>{quien || "todavía no"}</b>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-3.5">

@@ -344,6 +344,27 @@ export type Mesa = {
   catalogo: { id: string; codigo: string; nombre: string }[];
   /** Escaneos vinculados que aun no estan en ninguna viabilidad: los que se pueden juntar. */
   paraJuntar: { id: string; texto: string }[];
+  /** LOS CUATRO PAPELES (Monica, 6-oct-2026): "trazabilidad de intervinientes:
+   *  quien hizo la visita y el polycam, quien ve la viabilidad, quien la remato
+   *  con los precios y el texto, y quien la firma". Ninguno se elige a mano. */
+  /** EL DINERO QUE PONE ALEX: una linea por cosa que se va a ejecutar.
+   *
+   *  Antes era UNA cifra de PEM. Ella, 6-oct-2026: "imagina que incluimos
+   *  aerotermia: eso es un precio como el PEM, que estimamos. Las lineas de Alex
+   *  pueden ser UNA O VARIAS". Y el beneficio industrial y el IVA van POR LINEA
+   *  "para poder comparar presupuesto de contrata con estimado de viabilidad".
+   *
+   *  Los HONORARIOS no estan aqui: salen de la hoja de encargo y los pone el
+   *  comercial despues, porque "Alex no deberia ver que precios cobramos". */
+  lineas: Linea[];
+  papeles: {
+    /** Quien fue a tomar los datos. Puede ser mas de uno: una viabilidad junta
+     *  varios escaneos, y entonces fueron varias personas. */
+    visitaron: string[];
+    redacta: string | null;
+    remata: string | null;
+    firma: string | null;
+  };
 };
 
 export async function mesa(id: string): Promise<Mesa | null> {
@@ -362,18 +383,28 @@ export async function mesa(id: string): Promise<Mesa | null> {
     modelo_escalera_id: string | null;
     necesita_3d_especifico: boolean;
     captura: string | null;
+    viabilidad_conceptos: { grupo: string | null; concepto: string | null; importe: number | null;
+                            bi_porcentaje: number | null; iva_porcentaje: number | null; orden: number | null }[];
     oportunidades: OppFila | null;
     relacion_viabilidad_accesos: { acceso_id: string; descripcion: string | null }[];
+    redacta: { nombre: string } | null;
+    remata: { nombre: string } | null;
+    firma: { nombre: string } | null;
   };
   const [v] = await leer<V[]>(
     `viabilidades?select=id,actualizado_en,enviada_en,daniel_avisado_en,fecha_visita,objeto,descripcion_intervenciones,conclusion,` +
       `pem_estimado,beneficio_industrial_pct,iva_obra_pct,modelo_escalera_id,necesita_3d_especifico,captura,` +
-      `oportunidades(${SEL_OPP}),relacion_viabilidad_accesos(acceso_id,descripcion)&id=eq.${id}&limit=1`,
+      `viabilidad_conceptos(grupo,concepto,importe,bi_porcentaje,iva_porcentaje,orden),` +
+      `oportunidades(${SEL_OPP}),relacion_viabilidad_accesos(acceso_id,descripcion),` +
+      `redacta:redacta_id(nombre),remata:remata_id(nombre),firma:arquitecto_id(nombre)` +
+      `&id=eq.${id}&limit=1`,
   );
   if (!v) return null;
 
   const [escaneos, catalogo, sueltos] = await Promise.all([
-    leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=eq.${id}&order=fecha_escaneo.asc.nullslast`),
+    leer<(EscaneoFila & { visito: { nombre: string } | null })[]>(
+      `escaneados_polycam?select=${SEL_ESC},visito:visito_id(nombre)&viabilidad_id=eq.${id}&order=fecha_escaneo.asc.nullslast`,
+    ),
     leer<{ id: string; codigo: string; nombre: string }[]>("modelos_escalera?select=id,codigo,nombre&activo=is.true&order=orden.asc.nullslast,codigo.asc"),
     leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&order=creado_en.asc`),
   ]);
@@ -426,6 +457,26 @@ export async function mesa(id: string): Promise<Mesa | null> {
     // Con varias escaleras, una caja por escalera. Con una sola, basta la general.
     escaleras: lista.length > 1 ? lista.map((a) => ({ accesoId: a.id, nombre: nombreDeEscalera(a, variosNumeros), texto: texto.get(a.id) ?? "" })) : [],
     catalogo,
+    // Solo las dos que pone Alex. Las de honorarios y subvencion vienen de la
+    // hoja de encargo y las mete el comercial despues.
+    lineas: (v.viabilidad_conceptos ?? [])
+      .filter((c) => c.grupo === "obra" || c.grupo === "tasas")
+      .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
+      .map((c) => ({
+        grupo: c.grupo as "obra" | "tasas",
+        concepto: c.concepto ?? "",
+        importe: c.importe === null ? null : Number(c.importe),
+        biPct: c.bi_porcentaje === null ? 19 : Number(c.bi_porcentaje),
+        ivaPct: c.iva_porcentaje === null ? 10 : Number(c.iva_porcentaje),
+      })),
+    papeles: {
+      // De los escaneos que cuelgan de esta viabilidad, sin repetir. Vacio si
+      // el correo venia del propio Polycam y no de una persona.
+      visitaron: [...new Set(escaneos.map((e) => e.visito?.nombre).filter((x): x is string => Boolean(x)))],
+      redacta: v.redacta?.nombre ?? null,
+      remata: v.remata?.nombre ?? null,
+      firma: v.firma?.nombre ?? null,
+    },
     paraJuntar: sueltos.map((e) => ({
       id: e.id,
       texto: `${direccionDe(accesosDe(e))}${escalerasDe(accesosDe(e)) ? " · " + escalerasDe(accesosDe(e)) : ""}${e.fecha_escaneo ? " · " + e.fecha_escaneo.split("-").reverse().join("/") : ""}`,
@@ -434,6 +485,18 @@ export async function mesa(id: string): Promise<Mesa | null> {
 }
 
 /** Lo que escribe Alex. Se guarda entero cada vez: es un borrador. */
+/** Una linea de dinero de la viabilidad. `grupo` dice de cual de los cuatro
+ *  bloques es; aqui solo se tocan los dos que pone Alex. */
+export type Linea = {
+  grupo: "obra" | "tasas";
+  concepto: string;
+  importe: number | null;
+  /** Beneficio industrial, 19% de serie. Solo tiene sentido en la obra. */
+  biPct: number;
+  /** Obra 10%, tasas 0: las del ayuntamiento no llevan IVA. */
+  ivaPct: number;
+};
+
 export type DatosMesa = {
   fechaVisita: string | null;
   objeto: string;
@@ -445,6 +508,7 @@ export type DatosMesa = {
   modeloId: string | null;
   especifico: boolean;
   escaleras: { accesoId: string; texto: string }[];
+  lineas: Linea[];
 };
 
 export async function guardar(id: string, d: DatosMesa): Promise<void> {
@@ -465,6 +529,34 @@ export async function guardar(id: string, d: DatosMesa): Promise<void> {
     },
     "return=minimal",
   );
+  // LAS LINEAS SE REEMPLAZAN, no se actualizan una a una: son pocas y asi
+  // quitar una es quitarla de verdad, sin restos. Solo se tocan las de Alex;
+  // las de honorarios y subvencion las pone el comercial y no se pisan.
+  await escribir(
+    "DELETE",
+    `viabilidad_conceptos?viabilidad_id=eq.${id}&grupo=in.(obra,tasas)`,
+    undefined,
+    "return=minimal",
+  );
+  const utiles = d.lineas.filter((l) => l.concepto.trim() || l.importe !== null);
+  if (utiles.length) {
+    await escribir(
+      "POST",
+      "viabilidad_conceptos",
+      utiles.map((l, n) => ({
+        viabilidad_id: id,
+        grupo: l.grupo,
+        concepto: l.concepto.trim() || null,
+        importe: l.importe,
+        bi_porcentaje: l.grupo === "obra" ? l.biPct : null,
+        iva_porcentaje: l.ivaPct,
+        seleccionado: true,
+        orden: n,
+      })),
+      "return=minimal",
+    );
+  }
+
   if (d.escaleras.length) {
     await escribir(
       "POST",
