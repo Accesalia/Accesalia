@@ -47,11 +47,28 @@ for p in parejas:
 
 usos = collections.Counter(e for _, dec, el, _ in filas if dec == 'pareja' for e in el)
 
+
+# Quien GENERO la hoja segun el Excel de las automaticas (columna W de seleccion_encargos).
+# Monica, 6-oct: "poco fiable"; CG Carlos Garcia, CS Carlos Sepulveda, Alejandra por
+# Daniel, Alvaro ni lo pone. SOLO sirve de cotejo con el comercial asignado de la opp.
+def _quien_genero():
+    import openpyxl, re
+    out = {}
+    try:
+        ws = openpyxl.load_workbook('seleccion_encargos.xlsx', read_only=True, data_only=True)['seleccion_encargos']
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            m = re.search(r'id=([\w-]+)', str(r[21] or ''))
+            if m and r[22]: out[m.group(1)] = str(r[22]).strip()
+    except Exception:
+        pass
+    return out
+QUIEN = _quien_genero()
+
 wb = Workbook(); ws = wb.active; ws.title = 'Cruce'
 cols = ['N', 'Estado propuesto', 'Por qué', 'Fecha recibida (firmada)', 'Fecha de la hoja (enviada)',
         'Dirección (en la hoja)', 'A quién', 'Qué se hace', 'Sin casar (qué se hace)', 'Conceptos',
         'Total base (sin IVA)', 'Forma de pago', 'Firmada (fichero)', 'Enviada (documento)', 'Enviada: carpeta',
-        'Enviada: última modificación', 'Cómo se emparejó', 'Notas de la lectura', 'Código HE', 'Opp', 'TU DECISIÓN']
+        'Enviada: última modificación', 'Cómo se emparejó', 'Notas de la lectura', 'Generada por (Excel, solo cotejo)', 'Código HE', 'Opp', 'TU DECISIÓN']
 ws.append(cols)
 wc = wb.create_sheet('Conceptos')
 wc.append(['N', 'Dirección', 'Concepto (texto de la hoja)', 'Bloque del catálogo', 'Importe base', '% a éxito', 'Incluido (no se cobra aparte)', 'Forma de pago'])
@@ -66,7 +83,7 @@ def fila(N, estado, motivos, frec, d, firm, env, como, nota_extra=None):
                ', '.join(d.get('que_se_hace') or []), ', '.join(d.get('que_se_hace_sin_casar') or []), txt,
                d.get('total_base'), d.get('forma_pago_general'), firm.split('/')[-1],
                (cab.get('TITULO') or (env or '').split('/')[-1]), (env or '').split('/')[0], cab.get('MODIFICADO', '')[:10],
-               como, notas or None, 'se asigna al final, con todas', '', ''])
+               como, notas or None, QUIEN.get(cab.get('DRIVE_ID','')), 'se asigna al final, con todas', '', ''])
     for c in conc:
         wc.append([N, d.get('direccion'), c.get('texto'), c.get('bloque'), c.get('importe'), c.get('pct_exito'), 'sí' if c.get('incluido') else '', c.get('forma_pago')])
     cuenta[estado] += 1
@@ -111,7 +128,7 @@ for k, (p, dec, el, dd) in enumerate(filas):
         fila(N, estado, motivos, frec, d, firm, env, como)
 
 color = {'OK': 'DCEFC8', 'REVISAR': 'FFF2CC', 'PREGUNTA': 'FFD966', 'APARTAR': 'F4CCCC', 'ANULADA': 'D9D9D9'}
-for hoja, anchos in ((ws, [7, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45, 22, 14, 45, 50, 14, 10, 30]),
+for hoja, anchos in ((ws, [7, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45, 22, 14, 45, 50, 12, 14, 10, 30]),
                      (wc, [7, 30, 45, 30, 12, 9, 12, 45])):
     for j, a in enumerate(anchos, 1): hoja.column_dimensions[get_column_letter(j)].width = a
     for c in hoja[1]:
@@ -121,6 +138,6 @@ for hoja, anchos in ((ws, [7, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45
     for f in hoja.iter_rows(min_row=2):
         for c in f: c.alignment = Alignment(wrap_text=True, vertical='top')
 for f in ws.iter_rows(min_row=2):
-    f[1].fill = PatternFill('solid', fgColor=color[f[1].value]); f[20].fill = PatternFill('solid', fgColor='EAF4FF')
+    f[1].fill = PatternFill('solid', fgColor=color[f[1].value]); f[21].fill = PatternFill('solid', fgColor='EAF4FF')
 wb.save('../docs/cruce_hojas_tanda2.xlsx')
 print(dict(cuenta), 'filas', ws.max_row - 1, 'extraidas', len(ext))

@@ -100,13 +100,30 @@ def codigo_previo(n):
 def eur(x):
     return None if x is None else float(x)
 
+
+# Quien GENERO la hoja segun el Excel de las automaticas (columna W de seleccion_encargos).
+# Monica, 6-oct: "poco fiable"; CG Carlos Garcia, CS Carlos Sepulveda, Alejandra por
+# Daniel, Alvaro ni lo pone. SOLO sirve de cotejo con el comercial asignado de la opp.
+def _quien_genero():
+    import openpyxl, re
+    out = {}
+    try:
+        ws = openpyxl.load_workbook('seleccion_encargos.xlsx', read_only=True, data_only=True)['seleccion_encargos']
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            m = re.search(r'id=([\w-]+)', str(r[21] or ''))
+            if m and r[22]: out[m.group(1)] = str(r[22]).strip()
+    except Exception:
+        pass
+    return out
+QUIEN = _quien_genero()
+
 wb = Workbook()
 ws = wb.active; ws.title = 'Cruce'
 cols = ['N', 'Estado propuesto', 'Por qué', 'Fecha recibida (firmada)', 'Fecha de la hoja (enviada)',
         'Dirección (en la hoja)', 'A quién', 'Qué se hace', 'Sin casar (qué se hace)', 'Conceptos',
         'Total base (sin IVA)', 'Forma de pago',
         'Firmada (fichero)', 'Enviada (documento)', 'Enviada: carpeta', 'Enviada: última modificación',
-        'Otras versiones en la carpeta', 'Notas de la lectura', 'Código HE', 'Opp', 'TU DECISIÓN']
+        'Otras versiones en la carpeta', 'Notas de la lectura', 'Generada por (Excel, solo cotejo)', 'Código HE', 'Opp', 'TU DECISIÓN']
 ws.append(cols)
 wc = wb.create_sheet('Conceptos')
 wc.append(['N', 'Dirección', 'Concepto (texto de la hoja)', 'Bloque del catálogo', 'Importe base', '% a éxito', 'Incluido (no se cobra aparte)', 'Forma de pago'])
@@ -153,14 +170,14 @@ for i, (frec, firm, env) in enumerate(tanda):
     ws.append([n, estado, '; '.join(motivos), frec, fh, d.get('direccion'), d.get('a_quien'),
                ', '.join(d.get('que_se_hace') or []), ', '.join(d.get('que_se_hace_sin_casar') or []),
                txt_conc, eur(d.get('total_base')), d.get('forma_pago_general'),
-               firm_nom, env_nom, env.split('/')[0], mod, '\n'.join(ov), d.get('rarezas'),
+               firm_nom, env_nom, env.split('/')[0], mod, '\n'.join(ov), d.get('rarezas'), QUIEN.get(cab.get('DRIVE_ID','')),
                'se asigna al final, con todas', '', ''])
     for c in conc:
         wc.append([n, d.get('direccion'), c.get('texto'), c.get('bloque'), eur(c.get('importe')), c.get('pct_exito'), 'sí' if c.get('incluido') else '', c.get('forma_pago')])
 
 # formato
 color = {'OK': 'DCEFC8', 'REVISAR': 'FFF2CC', 'PREGUNTA': 'FFD966', 'APARTAR': 'F4CCCC', 'ANULADA': 'D9D9D9'}
-for hoja, anchos in ((ws, [5, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45, 22, 14, 35, 50, 14, 10, 30]),
+for hoja, anchos in ((ws, [5, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45, 22, 14, 35, 50, 12, 14, 10, 30]),
                      (wc, [5, 30, 45, 30, 12, 9, 12, 45])):
     for j, a in enumerate(anchos, 1):
         hoja.column_dimensions[get_column_letter(j)].width = a
@@ -172,7 +189,7 @@ for hoja, anchos in ((ws, [5, 11, 40, 12, 12, 30, 18, 20, 18, 42, 12, 40, 45, 45
         for c in fila: c.alignment = Alignment(wrap_text=True, vertical='top')
 for fila in ws.iter_rows(min_row=2):
     fila[1].fill = PatternFill('solid', fgColor=color[fila[1].value])
-    fila[20].fill = PatternFill('solid', fgColor='EAF4FF')
+    fila[21].fill = PatternFill('solid', fgColor='EAF4FF')
 salida = '../docs/cruce_hojas_tanda1.xlsx'
 wb.save(salida)
 print(dict(cuenta), 'extraidas', len(ext), '->', salida)
