@@ -205,7 +205,8 @@ export function Acciones({ grabarEntrada }: { grabarEntrada?: () => void }) {
     <div className="grid grid-cols-3 gap-2">
       <Accion icono="🎤" rotulo="Grabar entrada" alPulsar={grabarEntrada} />
       <Accion icono="▤" rotulo="Informe de viabilidad" />
-      <Accion icono="✎" rotulo="Hoja de encargo" />
+      {/* Sin comunidad elegida: arriba de la pantalla hay un selector (Monica, 3-oct-2026). */}
+      <Accion icono="✎" rotulo="Hoja de encargo" donde="/comercial/hoja-encargo" />
     </div>
   );
 }
