@@ -67,6 +67,9 @@ export function leerHtml(html: string): Nodo[] {
 const s = StyleSheet.create({
   pagina: { paddingTop: 34, paddingBottom: 34, paddingHorizontal: 46, fontSize: 9, fontFamily: "Helvetica", color: "#222", lineHeight: 1.4 },
   membrete: { fontSize: 7, color: "#888", textAlign: "right" },
+  // El codigo, en TODAS las paginas: la firmada que vuelva dice que hoja y que
+  // version es, y una pagina suelta tambien.
+  codigo: { position: "absolute", top: 16, right: 46, fontSize: 7, color: "#888" },
   h3: { fontSize: 10.5, fontFamily: "Helvetica-Bold", textAlign: "center", marginBottom: 6 },
   p: { marginBottom: 4 },
   centro: { textAlign: "center" },
@@ -222,17 +225,19 @@ function bloque(n: Exclude<Nodo, string>, m: Marca, k: string): ReactNode {
   );
 }
 
-export function HojaDoc({ html, titulo }: { html: string; titulo: string }) {
+export function HojaDoc({ html, titulo, codigo }: { html: string; titulo: string; codigo: string }) {
   return (
     <Document title={titulo} author="Accesalia" creator="Accesalia">
       <Page size="A4" style={s.pagina}>
+        <Text style={s.codigo} fixed>{codigo}</Text>
         {hijos(leerHtml(html), {}, "h")}
       </Page>
     </Document>
   );
 }
 
-/** El PDF ya hecho, en bytes: para guardarlo en el almacen y para servirlo. */
-export async function pdfDeHoja(html: string, titulo: string): Promise<Buffer> {
-  return renderToBuffer(<HojaDoc html={html} titulo={titulo} />);
+/** El PDF ya hecho, en bytes: para guardarlo en el almacen y para servirlo.
+ *  `codigo` es el de la hoja con su version: "HE-2026-0142 v2". */
+export async function pdfDeHoja(html: string, titulo: string, codigo: string): Promise<Buffer> {
+  return renderToBuffer(<HojaDoc html={html} titulo={titulo} codigo={codigo} />);
 }

@@ -382,6 +382,24 @@ async function marcarViabilidadesSuperadas(hojaId: string, versionNueva: string)
   });
 }
 
+/** El codigo de la hoja (HE-2026-0142). Si aun no lo tiene, se le da ahora:
+ *  el siguiente de la serie del año, de un golpe en la base, para que dos que
+ *  generen a la vez nunca reciban el mismo. Solo se llama al generar el PDF. */
+async function codigoDeHoja(hojaId: string): Promise<string> {
+  const [h] = await leer<{ numero_hoja: string | null }[]>(`hojas_encargo?select=numero_hoja&id=eq.${hojaId}`);
+  if (h?.numero_hoja) return h.numero_hoja;
+  const r = await pedir("rpc/siguiente_codigo", {
+    method: "POST",
+    body: JSON.stringify({ p_tipo: "HE", p_anio: Number(hoy().slice(0, 4)) }),
+  });
+  const codigo = (await r.json()) as string;
+  await pedir(`hojas_encargo?id=eq.${hojaId}&numero_hoja=is.null`, {
+    method: "PATCH",
+    body: JSON.stringify({ numero_hoja: codigo }),
+  });
+  return codigo;
+}
+
 export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string; versionId: string }> {
   // Un borrador puede llevar actuaciones a medias, sin tipo todavia.
   const actuaciones = g.actuaciones.filter((a) => a.tipoId);
@@ -433,9 +451,25 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   // 2 · el PDF, ANTES de apuntar nada: si la hoja no se puede convertir, que
   //     no quede una version sin su documento.
   const html = limpiarHtml(g.html);
+
+  //     UN BORRADOR NO APILA VERSIONES. Si la ultima es un borrador (sin PDF),
+  //     se reescribe esa misma: guardar diez veces no son diez versiones, y al
+  //     generar, ese borrador ES la version que sale. Una version con PDF no se
+  //     toca nunca: es lo que se envio.
+  //     Se mira ANTES del PDF, porque el PDF lleva impresa su version.
+  const [previa] = await leer<{ id: string; numero_version: number; url_pdf_hoja: string | null; contenido_html: string | null }[]>(
+    `versiones_hoja?select=id,numero_version,url_pdf_hoja,contenido_html&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
+  );
+  const reusar = previa && !previa.url_pdf_hoja && !!previa.contenido_html;
+  const numero = reusar ? previa.numero_version : (previa?.numero_version ?? 0) + 1;
+
   // En borrador NO se hace: el PDF es lo que congela, y un borrador no esta
   // congelado. Asi tampoco se paga el coste de convertirlo cada vez que guarda.
-  const pdf = g.borrador ? null : await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`);
+  // Tampoco gasta numero: el codigo HE-año-numero se da la PRIMERA vez que la
+  // hoja se genera, y las versiones siguientes solo suben la v (Monica, 6-oct).
+  const pdf = g.borrador
+    ? null
+    : await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`, `${await codigoDeHoja(hojaId!)} v${numero}`);
 
   // 3 · la version, con la hoja tal cual.
   //
@@ -452,24 +486,13 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     iva_porcentaje: 21,
     importe_total: Math.round(base * 121) / 100,
   };
-  //     UN BORRADOR NO APILA VERSIONES. Si la ultima es un borrador (sin PDF),
-  //     se reescribe esa misma: guardar diez veces no son diez versiones, y al
-  //     generar, ese borrador ES la version que sale. Una version con PDF no se
-  //     toca nunca: es lo que se envio.
-  const [previa] = await leer<{ id: string; numero_version: number; url_pdf_hoja: string | null; contenido_html: string | null }[]>(
-    `versiones_hoja?select=id,numero_version,url_pdf_hoja,contenido_html&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
-  );
-  const reusar = previa && !previa.url_pdf_hoja && !!previa.contenido_html;
   let v: { id: string };
-  let numero: number;
   if (reusar) {
-    numero = previa.numero_version;
     v = { id: previa.id };
     await pedir(`versiones_hoja?id=eq.${previa.id}`, { method: "PATCH", body: JSON.stringify(filaVersion) });
     // Sus conceptos se rehacen: un borrador no tiene facturacion colgando.
     await pedir(`conceptos_hoja?version_hoja_id=eq.${previa.id}`, { method: "DELETE" });
   } else {
-    numero = (previa?.numero_version ?? 0) + 1;
     [v] = await crear<{ id: string }>("versiones_hoja", { hoja_encargo_id: hojaId, numero_version: numero, ...filaVersion });
   }
 
