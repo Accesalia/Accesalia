@@ -54,6 +54,26 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
   }
 }
 
+/** GUARDAR COMO BORRADOR (Monica, 6-oct-2026): "para no perder los datos NI
+ *  generar el PDF". Guarda igual que generar pero sin el documento, asi que la
+ *  hoja sigue viva y editable: es la excepcion a "si hay PDF, esta congelado".
+ *
+ *  Y por eso NO se exigen los importes: un borrador es justo lo que esta a
+ *  medias. Lo que no se puede guardar vacio es a quien va y donde. */
+export async function accionBorrador(g: Generar): Promise<Resultado<{ versionId: string; hojaId: string }>> {
+  try {
+    const yo = await permiso(g.comunidadId);
+    if (g.hojaId && (await comunidadDeHoja(g.hojaId)) !== g.comunidadId) throw new Error("La hoja no es de esta comunidad.");
+    if (!g.oportunidadId) return { ok: false, error: "Elige de qué oportunidad es la hoja." };
+    if (g.aQuien.tipo === "contrata" && !g.aQuien.id) return { ok: false, error: "Elige la contrata." };
+    const r = await generarHoja({ ...g, borrador: true }, yo);
+    revalidatePath("/comercial/hoja-encargo");
+    return { ok: true, ...r };
+  } catch (e) {
+    return { ok: false, error: "No se ha podido guardar: " + (e as Error).message };
+  }
+}
+
 export async function accionEnviada(hojaId: string): Promise<Resultado> {
   try {
     await permiso(await comunidadDeHoja(hojaId));

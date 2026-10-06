@@ -330,6 +330,11 @@ export type Generar = {
    *  y otras se desglosa; solo el comercial sabe cual es cada caso". */
   conjunto: { texto: string | null; importe: number } | null;
   html: string;
+  /** GUARDAR COMO BORRADOR: se guarda todo pero NO se genera el PDF (Monica,
+   *  6-oct-2026). Es la excepcion a "si hay PDF, esta congelado": un borrador
+   *  conserva los datos para no perderlos y sigue vivo, porque no ha salido de
+   *  Accesalia. */
+  borrador?: boolean;
 };
 
 /** La foto se guarda limpia: el papel se edita a mano en el navegador, y lo
@@ -345,6 +350,22 @@ function limpiarHtml(html: string): string {
 /** Guarda una version nueva de la hoja (y la hoja, si es nueva). Devuelve el
  *  id de la version, para abrirla e imprimirla. Las versiones anteriores y sus
  *  conceptos NO se tocan: son lo que se envio. */
+/** Marca las viabilidades que habian cogido sus honorarios de una version
+ *  anterior de ESTA hoja. Solo las que no estuvieran ya marcadas: la primera que
+ *  las dejo atras es la que cuenta. */
+async function marcarViabilidadesSuperadas(hojaId: string, versionNueva: string): Promise<void> {
+  const usaban = await leer<{ viabilidad_id: string; version: { hoja_encargo_id: string } | null }[]>(
+    `relacion_viabilidad_hojas?select=viabilidad_id,version:version_hoja_id(hoja_encargo_id)` +
+      `&version.hoja_encargo_id=eq.${hojaId}`,
+  );
+  const ids = [...new Set(usaban.filter((u) => u.version).map((u) => u.viabilidad_id))];
+  if (!ids.length) return;
+  await pedir(`viabilidades?id=in.(${ids.join(",")})&superada_por_version_id=is.null`, {
+    method: "PATCH",
+    body: JSON.stringify({ superada_por_version_id: versionNueva, superada_en: new Date().toISOString() }),
+  });
+}
+
 export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string; versionId: string }> {
   const tipos = await leer<{ id: string; nombre: string }[]>(
     `tipos_proyecto?select=id,nombre&id=in.(${g.actuaciones.map((a) => a.tipoId).join(",")})`,
@@ -388,7 +409,9 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   // 2 · el PDF, ANTES de apuntar nada: si la hoja no se puede convertir, que
   //     no quede una version sin su documento.
   const html = limpiarHtml(g.html);
-  const pdf = await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`);
+  // En borrador NO se hace: el PDF es lo que congela, y un borrador no esta
+  // congelado. Asi tampoco se paga el coste de convertirlo cada vez que guarda.
+  const pdf = g.borrador ? null : await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`);
 
   // 3 · la version, con la hoja tal cual
   const previas = await leer<{ numero_version: number }[]>(
@@ -406,19 +429,23 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     importe_total: Math.round(base * 121) / 100,
   });
 
-  // 4 · el PDF al almacen, junto a la version
-  const ruta = `hojas-encargo/${hojaId}/hoja-v${numero}-${v.id.slice(0, 8)}.pdf`;
-  const sube = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
-    method: "POST",
-    headers: { ...CAB, "Content-Type": "application/pdf", "x-upsert": "true" },
-    body: new Uint8Array(pdf),
-    cache: "no-store",
-  });
-  if (!sube.ok) throw new Error(`Storage ${sube.status}: ${await sube.text()}`);
-  await pedir(`versiones_hoja?id=eq.${v.id}`, {
-    method: "PATCH",
-    body: JSON.stringify({ url_pdf_hoja: `almacen:${ALMACEN}/${ruta}` }),
-  });
+  // 4 · el PDF al almacen, junto a la version. En borrador no hay PDF, y eso ES
+  //     la marca: "si es PDF, ya esta congelado; si aun es editable, es que no
+  //     se ha generado y por tanto no se ha enviado".
+  if (pdf) {
+    const ruta = `hojas-encargo/${hojaId}/hoja-v${numero}-${v.id.slice(0, 8)}.pdf`;
+    const sube = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+      method: "POST",
+      headers: { ...CAB, "Content-Type": "application/pdf", "x-upsert": "true" },
+      body: new Uint8Array(pdf),
+      cache: "no-store",
+    });
+    if (!sube.ok) throw new Error(`Storage ${sube.status}: ${await sube.text()}`);
+    await pedir(`versiones_hoja?id=eq.${v.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ url_pdf_hoja: `almacen:${ALMACEN}/${ruta}` }),
+    });
+  }
 
   // 5 · los conceptos de ESTA version
   if (g.conceptos.length) {
@@ -463,6 +490,19 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   );
   const filas = acts.flatMap((a, i) => g.actuaciones[i].accesoIds.map((acceso_id) => ({ actuacion_id: a.id, acceso_id })));
   if (filas.length) await crear("actuacion_accesos", filas);
+
+  // 7 · LAS VIABILIDADES QUE ESTA HOJA DEJA ATRAS (Monica, 6-oct-2026).
+  //
+  //     "Si hay una hoja de encargo posterior y no se regenera la viabilidad,
+  //      debe marcarse la viabilidad como 'modificada en hoja de encargo numero
+  //      tal', para que nadie la vea y piense que es la correcta."
+  //
+  //     Se pone SOLA: ella lo pidio automatico, "desde luego". El documento que
+  //     salio no se toca -se conserva fiel-; lo que cambia es que ya no se puede
+  //     leer como vigente.
+  //
+  //     Un borrador no deja atras a nadie: no ha salido de Accesalia.
+  if (!g.borrador) await marcarViabilidadesSuperadas(hojaId!, v.id);
 
   return { hojaId: hojaId!, versionId: v.id };
 }

@@ -6,7 +6,7 @@ import { Elegir } from "../../components/Elegir";
 import type { Desglose } from "../../../lib/catalogoBloques";
 import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionComunidad } from "../../../lib/hojaEncargo";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
-import { accionApuntarFirmada, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
+import { accionApuntarFirmada, accionBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 
 // LA PESTAÑA HOJA DE ENCARGO, tal cual la maqueta que Monica aprobo el 2-oct-2026
 // (docs/figma/hoja-de-encargo.html):
@@ -81,6 +81,8 @@ const TARJETA = "rounded-2xl border border-[#cfcfcf] bg-white p-4 shadow-[0_1px_
 const TITULO = "text-xs font-bold uppercase tracking-[.08em] text-carbon/70";
 const BTN = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13px] font-semibold text-carbon/80 transition hover:border-carbon disabled:opacity-50";
 const BTN_PRIM = "rounded-xl border border-lima bg-lima px-3.5 py-[7px] text-[13px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50";
+/** El secundario es un borde, como manda la guia de estilo. */
+const BTN_SEC = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13px] font-semibold text-carbon/70 transition hover:border-carbon/40 disabled:opacity-50";
 const CHIP = "inline-flex items-center gap-1.5 rounded-full border px-3 py-[5px] text-[13px] font-semibold";
 const DOC = "cursor-pointer rounded-lg border px-[9px] py-1 text-xs font-semibold";
 
@@ -551,7 +553,7 @@ function Generador({
         : "";
   });
 
-  const generar = () =>
+  const generar = (borrador = false) =>
     empezar(async () => {
       setError(null);
       const p = papel.current;
@@ -559,7 +561,7 @@ function Generador({
       const copia = p.cloneNode(true) as HTMLElement;
       copia.querySelectorAll("[contenteditable]").forEach((x) => x.removeAttribute("contenteditable"));
       copia.querySelectorAll("[title]").forEach((x) => x.removeAttribute("title"));
-      const r = await accionGenerar({
+      const r = await (borrador ? accionBorrador : accionGenerar)({
         hojaId: st.hojaId,
         comunidadId: datos.comunidad.id,
         oportunidadId: st.oppId,
@@ -605,7 +607,19 @@ function Generador({
           <button type="button" className={BTN} disabled={ocupado} onClick={alCerrar}>
             Cancelar
           </button>
-          <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={generar}>
+          {/* GUARDAR COMO BORRADOR: guarda sin generar el PDF, "para no perder
+              los datos NI generar el pdf". Mientras no hay PDF, la hoja sigue
+              viva y no ha salido de Accesalia. */}
+          <button
+            type="button"
+            className={BTN_SEC}
+            disabled={ocupado}
+            title="Guarda lo que llevas sin generar el documento"
+            onClick={() => generar(true)}
+          >
+            Guardar como borrador
+          </button>
+          <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={() => generar()}>
             {ocupado ? "Generando…" : "Generar hoja (PDF)"}
           </button>
         </div>
