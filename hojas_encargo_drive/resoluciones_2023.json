@@ -101,8 +101,49 @@
   "nota": "Segundo PDF firmado ('_v2') de la misma hoja que Y23_042: se guardan los dos."
  },
  "Y23_044": {
-  "estado": "PREGUNTA",
-  "grupo": "colegiales",
-  "nota": "Informe pericial (RABAT 10): cobra 300 € de 'gastos colegiales' (visado) en línea aparte. ¿Qué bloque? ¿O va dentro del informe?"
+  "estado": "OK",
+  "conceptos": [
+   {
+    "texto": "Toma de datos y estudio pormenorizado de la situación",
+    "bloque": "TOMA DE DATOS Y MODELADO 3D",
+    "importe": 400,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Gastos colegiales (visado) — excepción escrita a mano",
+    "bloque": "INFORME PERICIAL",
+    "importe": 300,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Elaboración de informe pericial que incluye detalle sobre las consecuencias de las patologías y solución a las mismas",
+    "bloque": "INFORME PERICIAL",
+    "importe": 2000,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Solicitud al ayuntamiento de la declaración responsable y cartas de pago de las tasas",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Supervisión de las obras para solventar las patologías detectadas",
+    "bloque": "DF",
+    "importe": 400,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ],
+  "nota": "Los gastos de visado NUNCA se cobran (Mónica): aquí se cobraron 300 € como excepción escrita a mano en la hoja; van como línea del informe, comentada."
  }
 }

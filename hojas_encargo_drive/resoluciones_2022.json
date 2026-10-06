@@ -1,0 +1,82 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (6-oct-2026) en las firmadas de 2022.",
+ "Y22_009": {
+  "estado": "APARTAR",
+  "nota": "'(convertido).gdoc': copia en Google Docs de la firmada Y22_053."
+ },
+ "Y22_053": {
+  "estado": "OK",
+  "nota": "Subvención + IEE 1.500 (la forma de pago habla de 'entrega de proyecto': plantilla)."
+ },
+ "Y22_011": {
+  "estado": "OK",
+  "nota": "Mal emparejada y sin enviada de proyecto en la carpeta: datos de la propia firmada. Proyecto de SATE (proyecto, visado y licencia, DO y CFO) 7.800 + IVA, 31-01-2022. La plantilla venía de MANRESA 56: el número está tachado y corregido a mano a 25-27 (solo la dirección, no el precio).",
+  "fecha_hoja": "2022-01-31",
+  "total_base": 7800,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "SATE fachada"
+  ],
+  "que_se_hace_sin_casar": [],
+  "forma_pago_general": "100% a la entrega del proyecto, mediante cargo en cuenta.",
+  "conceptos": [
+   {
+    "texto": "Proyecto básico y de ejecución de SATE",
+    "bloque": "REDACCION PROYECTO",
+    "importe": 7800,
+    "pct_exito": null,
+    "forma_pago": "100% a la entrega del proyecto",
+    "incluido": false
+   },
+   {
+    "texto": "Visado y tramitación de la licencia",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Dirección de obra",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Certificación fin de obra",
+    "bloque": "CERTIFICADO FIN DE OBRA",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ]
+ },
+ "Y22_039": {
+  "estado": "APARTAR",
+  "nota": "No es una hoja: correo de FAIN (10-01-2022) encargando proyecto y CSS (2.500 + 600) para sustitución de ascensor. Facturación."
+ },
+ "Y22_062": {
+  "estado": "APARTAR",
+  "nota": "No es una hoja: correo de FAIN con los códigos de pedido (CSS 500). Facturación."
+ },
+ "Y22_016": {
+  "estado": "OK",
+  "nota": "Proyecto y licencia 'sin coste'; el precio va en requerimientos, inicio de obra (600, hito de la DF), DF, CFO y CSS: total 4.700."
+ },
+ "Y22_021": {
+  "estado": "OK",
+  "nota": "Proyecto+licencia+DF+CFO+doc técnica Next Generation 4.900 conjunto + CSS 800 + subvención 1.500 = 7.200.",
+  "total_base": 7200
+ },
+ "Y22_024": {
+  "estado": "OK",
+  "nota": "Proyecto SATE 4.700 + 1,5% del PEM, + 3% a éxito; memoria y mediciones sin coste inicial."
+ },
+ "Y22_049b": {
+  "estado": "OK",
+  "nota": "Las páginas firmadas no llevan importes (tampoco la enviada): hoja sin precio."
+ }
+}

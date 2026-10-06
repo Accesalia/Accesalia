@@ -78,7 +78,8 @@ def normalizar(d):
     for c in conc:
         if c.get('bloque') != 'SIN CASAR': continue
         t = c.get('texto') or ''
-        if re.search(r'libro del edificio', t, re.I): c['bloque'] = 'LEE'   # 'Libro del Edificio + IEE' con precio: el LEE (IEE dentro)
+        if re.search(r'inicio de obra', t, re.I): c['bloque'] = 'DF'   # hito de la DF con precio propio
+        elif re.search(r'libro del edificio', t, re.I): c['bloque'] = 'LEE'   # 'Libro del Edificio + IEE' con precio: el LEE (IEE dentro)
         elif re.search(r'(?<![A-Za-z])LEE(?![A-Za-z])', t): c['bloque'] = 'LEE'   # 'LEE + IEE' con un precio: el LEE
         elif re.search(r'(?<![A-Za-z])IEE(?![A-Za-z])', t): c['bloque'] = 'IEE'   # 'CEE e IEE' con un precio
         elif re.search(r'(?<![A-Za-z])DF(?![A-Za-z])|DIRECCI', t, re.I): c['bloque'] = 'DF'   # 'DF + CSS' con un precio

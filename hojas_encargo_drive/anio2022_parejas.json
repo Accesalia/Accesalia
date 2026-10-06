@@ -1,0 +1,682 @@
+[
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/RAFAEL CALVO 9 MADRID PROYECTO 4 ASCENSORES 11-07-2022.pdf",
+  "recibida": "2022-07-11",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL CALVO 9 MADRID PROYECTO 4 ASCENSORES.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL CALVO 9 MADRID PROYECTO ASCENSOR.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL CALVO 9 MADRID PROYECTO 4 ASCENSORES.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL CALVO 9 MADRID SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO RAFAEL CALVO 9 MADRID PROYECTO ASCENSOR firmada.pdf"
+  ],
+  "d": "Y22_000"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PASEO SAN ANTONIO 3 FUENLABRADA 12-01-2022.pdf",
+  "recibida": "2022-01-12",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PASEO SAN ANTONIO 3 FUENLABRADA solo CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANTONIO 3 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PASEO SAN ANTONIO 3 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PASEO DE SAN ANTONIO 3 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y22_001"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/SAN ANDRES 2 FUENLABRADA 03-08-2022 ASCENSOR Y SUBVENCION (1).pdf",
+  "recibida": "2022-08-03",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO SAN ANDRES 2 LEGANES rehab SUBVENCION fijo pry propio (1).docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 2 LEGANES SATE (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO SAN ANDRES 2 LEGANES rehab SUBVENCION fijo pry propio (1).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 2 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN ANDRES 2 FUENLABRADA SUBVENCION.docx"
+  ],
+  "d": "Y22_002"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/HOJA DE ENCARGO TOLEDO 2 ALCORCON 10-11-2022.pdf",
+  "recibida": "2022-11-10",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TOLEDO 2 ALCORCON.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TOLEDO 2 ALCORCON SUBV.docx"
+  ],
+  "d": "Y22_003"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PELAYOS 11 FUENLABRADA 13-01-2022.pdf",
+  "recibida": "2022-01-13",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PELAYOS 11 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PELAYOS 11 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PELAYOS 11 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y22_004"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/FRAY MELCHOR CANO 22 LEGANES firmada 27-09-2022.pdf",
+  "recibida": "2022-09-27",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FRAY MELCHOR CANO 22 LEGANES SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO fray melchor el cano 22 leganes.docx",
+   "HOJAS DE ENCARGO NO ENVIADAS POR CAMBIOS ETC/HOJA DE ENCARGO FRAY MELCHOR EL CANO 22 LEGANES (no enviada).docx"
+  ],
+  "d": "Y22_005"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES SUBV 15-12-2022.pdf",
+  "recibida": "2022-12-15",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES ascensor solo CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES SUBV.docx"
+  ],
+  "d": "Y22_006"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ANGELES 12 FUENLABRADA SUBV 09-12-2022.pdf",
+  "recibida": "2022-12-09",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO angeles 12 fuenlabrada SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO ANGELES 12 FUENLABRADA CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO angeles 12 fuenlabrada SUBVENCION.docx"
+  ],
+  "d": "Y22_007"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES 15-12-2022.pdf",
+  "recibida": "2022-12-15",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES ascensor solo CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA DOS DE MAYO 5 MOSTOLES SUBV.docx"
+  ],
+  "d": "Y22_008"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GUADARRAMA 26 MADRID subvencion 25-05-2022.pdf (convertido).gdoc",
+  "recibida": "2022-05-25",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO guadarrama 26 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO guadarrama 26 madrid RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO guadarrama 26 madrid SUBVENCION.docx"
+  ],
+  "d": "Y22_009"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Manresa 25-27 subvenciones 18-02-2022.pdf",
+  "recibida": "2022-02-18",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 25-27 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO SUBVENCION MANRESA 25 27 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 25-27 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "d": "Y22_010"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Manresa 25-27 proyecto 18-02-2022.pdf",
+  "recibida": "2022-02-18",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 25-27 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO SUBVENCION MANRESA 25 27 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO manresa 25-27 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "d": "Y22_011"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ALEMANIA 11 FUENLABRADA 07-04-2022.pdf",
+  "recibida": "2022-04-07",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ALEMANIA 11 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/Alemania 11 Fuenlabrada solo proyecto.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ALEMANIA 11 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ALEMANIA 11 FUENLABRADA SUBVENCION.docx"
+  ],
+  "d": "Y22_012"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GALICIA 8 PINTO - ARQUITECTURA + CSS + SUBVENCION 17-02-2022.pdf",
+  "recibida": "2022-02-17",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO GALICIA 8 PINTO PRY CSS SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO GALICIA 8 PINTO PRY CSS SUBV.docx"
+  ],
+  "d": "Y22_013"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PAULAR 5 FUENLABRADA 15-07-2022.pdf",
+  "recibida": "2022-07-15",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA PAULAR 5 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO paular 5 fuenlabrada ascensor solo CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO PAULAR 5 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PAULAR 5 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO paular 5 fuenlabrada SUBVENCION fijo.docx"
+  ],
+  "d": "Y22_014"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CASTILLEJOS 23 FUENLABRADA SUBV 19-12-2022.pdf",
+  "recibida": "2022-12-19",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_015"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MIGUEL DE LA ROCA 18 MADRID pry df y css 21-09-2022.pdf",
+  "recibida": "2022-09-21",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO miguel de la roca 18 MADRID.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO miguel de la roca 18 MADRID.docx"
+  ],
+  "d": "Y22_016"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Huerta de Villaverde 9 Madrid subvencion firmado 10-02-22.pdf",
+  "recibida": "2022-02-10",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SUBVENCION huerta de villaverde 9.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO HUERTA VILLAVERDE 9 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SUBVENCION huerta de villaverde 9.docx"
+  ],
+  "d": "Y22_017"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ENCOMIENDA DE PALACIOS 49 MADRID subvencion + iee 24-02-2022.pdf",
+  "recibida": "2022-02-24",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SUBVENCION encomienda palacios 49.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SUBVENCION encomienda palacios 49.docx"
+  ],
+  "d": "Y22_018"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CAMINO DE LAS CRUCES 28 MADRID PRY CSS Y SUBV A EXITO 18-05-2022.PDF",
+  "recibida": "2022-05-18",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID PRY SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CAMINO DE LAS CRUCES 28 MADRID PRY SUBV.docx"
+  ],
+  "d": "Y22_019"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/Paseo Granada 3 Fuenlabrada mail confirmación 24-05-2022.pdf",
+  "recibida": "2022-05-24",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_020"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/tenerife 8 madrid sate + css + subvencion 26-10-2022.pdf",
+  "recibida": "2022-10-26",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TENERIFE 8 MADRID.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO TENERIFE 8 MADRID.docx"
+  ],
+  "d": "Y22_021"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/pablo casals 26 parla subvenciones 02-11-2022.pdf",
+  "recibida": "2022-11-02",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO  PABLO CASALS 26 PARLA.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO  PABLO CASALS 26 PARLA.docx"
+  ],
+  "d": "Y22_022"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/plaza nicaragua 3 fuenlabrada proyecto y subvencion 15-11-2022.pdf",
+  "recibida": "2022-11-15",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza nicaragua 3 fuenlabrada SUBVENCION fijo.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA NICARAGUA 3 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO plaza nicaragua 3 fuenlabrada SUBVENCION fijo.docx"
+  ],
+  "d": "Y22_023"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/italia 35 fuenlabrada - antigua 22-12-2022.pdf",
+  "recibida": "2022-12-22",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ITALIA 35 FUENLABRADA v2.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO italia 35 fuenlabrada SUBVENCION variable.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SATE ITALIA 35 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ITALIA 35 FUENLABRADA.docx"
+  ],
+  "d": "Y22_024"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/VALENTINA GARCIA LOPEZ, 1 AJALVIR CODIGOS DE PEDIDO ARQUITECTO 09-03-2022.pdf",
+  "recibida": "2022-03-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_025"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/VALENTINA GARCIA LOPEZ, 3 AJALVIR CODIGOS DE PEDIDO ARQUITECTO 09-03-2022.pdf",
+  "recibida": "2022-03-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_026"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MUELLE, 6 ALCALÁ DE HENARES CODIGOS DE PEDIDO ARQUITECTO 09-03-2022.pdf",
+  "recibida": "2022-03-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_027"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CIUDADES 1 PARLA CODIGOS DE PEDIDO ARQUITECTO 31-01-2022.pdf",
+  "recibida": "2022-01-31",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_028"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/polvoranca 23 fuenlabrada 02-11-2022 subvenciones.pdf",
+  "recibida": "2022-11-02",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO POLVORANCA 23 FUENLABRADA SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/Polvoranca 23 Fuenlabrada solo proyecto.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO POLVORANCA 23 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO POLVORANCA 23 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/POLVORANCA 23 FUENLABRADA - aceptado.pdf"
+  ],
+  "d": "Y22_029"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ERAS 9 FUENLABRADA PROYECTO Y CSS 07-03-2022.pdf",
+  "recibida": "2022-03-07",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO ERAS 9 FUENLABRADA PROYECTO y css.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA DE ENCARGO ERAS 9 FUENLABRADA PROYECTO y css.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO eras 9 fuenlabrada IEE .docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PROYECTO.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PRY CSS SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ERAS 9 FUENLABRADA PRY.pdf"
+  ],
+  "d": "Y22_030"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/san jose 9 fuenlabrada - sate 21-11-2022.pdf",
+  "recibida": "2022-11-21",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA solo CSS SATE.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA .docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA solo CSS SATE.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SATE SAN JOSE 9 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA SUBVENCION NEXT GENERATION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO SAN JOSE 9 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y22_031"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CARTAGENA 4 portal 4 ALCALÁ DE HENARES CODIGOS DE PEDIDO ARQUITECTO 02-11-2022.pdf",
+  "recibida": "2022-11-02",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_032"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PUERTO DE ALAZORES 11 MADRID CODIGOS DE PEDIDO ARQUITECTO 04-10-2022.pdf",
+  "recibida": "2022-10-04",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_033"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ENCOMIENDA DE PALACIOS 49 MADRID CODIGOS DE PEDIDO ARQUITECTO 04-04-2022.pdf",
+  "recibida": "2022-04-04",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_034"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/san clemente 2 leganes codigos pedido arquitecto 23-06-2022.pdf",
+  "recibida": "2022-06-23",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_035"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/NUESTRA SEÑORA ESPERANZA 3 LEGANES CODIGOS PEDIDO 01-07-2022.pdf",
+  "recibida": "2022-07-01",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_036"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GLORIETA DE TAMARINDO 4 ARANJUEZ CODIGOS DE PEDIDO 28-04-2022.pdf",
+  "recibida": "2022-04-28",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_037"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/VIRGEN DE LAS NIEVES 40 ARANJUEZ CODIGOS DE PEDIDO 28-04-2022.pdf",
+  "recibida": "2022-04-28",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_038"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/FRAY JUAN GIL 3 ALCALA DE HENARES SOLICITUD 10-01-2022.pdf",
+  "recibida": "2022-01-10",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FRAY JUAN GIL 3 ALCALA SUBV.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FRAY JUAN GIL 3 ALCALA SUBV.docx"
+  ],
+  "d": "Y22_039"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV CARABANCHEL ALTO 16 MADRID CODIGOS DE PEDIDO 02-09-2022.pdf",
+  "recibida": "2022-09-02",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_040"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PLAZA PARIS 5 FUENLABRADA CODIGOS DE PEDIDO 05-04-2022.pdf",
+  "recibida": "2022-04-05",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_041"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PLAZA PARVILLAS 1 MADRID ascensor + subv 18-05-2022.pdf",
+  "recibida": "2022-05-18",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pz parvillas 1 madrid PROYECTO + CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pz parvillas 1 madrid SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pz parvillas 1 madrid SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO pz parvillas 1 madrid PROYECTO + CSS.docx"
+  ],
+  "d": "Y22_042"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GUADARRAMA 26 MADRID CODIGOS DE PEDIDO ARQUITECTO 05-04-2022.pdf",
+  "recibida": "2022-04-05",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_043"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/paseo san illan 5 ascensor css y subvencion 14-09-2022.pdf",
+  "recibida": "2022-09-14",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/PROPUESTA DE HONORARIOS PROYECTO ASCENSOR PASEO SAN ILLAN 5 MADRID.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/PROPUESTA DE HONORARIOS PROYECTO ASCENSOR PASEO SAN ILLAN 5 MADRID.docx",
+   "PRESUPUESTOS ENVIADOS/PROPUESTA DE HONORARIOS PASEO SAN ILLAN 5 MADRID.docx"
+  ],
+  "d": "Y22_044"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MANRESA 56 MADRID CODIGOS DE PEDIDO ARQUITECTO 29-09-2022.pdf",
+  "recibida": "2022-09-29",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_045"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/corral de cantos 19 madrid SATE 21-03-2022.pdf",
+  "recibida": "2022-03-21",
+  "caso": "dudosa",
+  "elegidas": [],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/ya firmados/HOJA ENCARGO corral de cantos 19 madrid RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO CORRAL DE CANTOS 19 MADRID.docx"
+  ],
+  "d": "Y22_046"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/FUENTEBELLA 45 PARLA CODIGOS DE PEDIDO ARQUITECTO 19-05-2022.pdf",
+  "recibida": "2022-05-19",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_047"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PARVILLAS ALTAS 27 MADRID CODIGOS DE PEDIDO ARQUITECTO 02-09-2022.pdf",
+  "recibida": "2022-09-02",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_048"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/natalio tortuero 6 azuqueca de henares proyecto y subvencion 28-11-2022.pdf",
+  "recibida": "2022-11-28",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NATALIO TORTUERO 6 AZUQUECA SUBVENCION.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NATALIO TORTUERO 6 AZUQUECA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NATALIO TORTUERO 6 AZUQUECA (2).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NATALIO TORTUERO 6 AZUQUECA SUBVENCION (2).docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO NATALIO TORTUERO 6 AZUQUECA.docx"
+  ],
+  "d": "Y22_049"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/ESTADOS 1 FUENLABRADA CODIGOS DE PEDIDO ARQUITECTO 05-04-2022.pdf",
+  "recibida": "2022-04-05",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_050"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/REINA 5 MADRID CODIGOS DE PEDIDO ARQUITECTO 15-12-2022.pdf",
+  "recibida": "2022-12-15",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_051"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/RIOJANOS 4 MADRID CODIGOS DE PEDIDO ARQUITECTO 04-10-2022.pdf",
+  "recibida": "2022-10-04",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_052"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GUADARRAMA 26 MADRID subvencion 25-05-2022.pdf",
+  "recibida": "2022-05-25",
+  "caso": "dudosa",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO guadarrama 26 madrid RENOVACION SUBV fijo pry propio.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA ENCARGO guadarrama 26 madrid RENOVACION SUBV fijo pry propio.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO guadarrama 26 madrid SUBVENCION.docx"
+  ],
+  "d": "Y22_053"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/CADALSO DE LOS VIDRIOS, 2 - cardenal herrera oria 260 madrid MADRID CODIGOS DE PEDIDO ARQUITECTO 09-09-2022.pdf",
+  "recibida": "2022-09-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_054"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/PEZ 11 MADRID CODIGOS PEDIDO ARQUITECTO 02-09-2022.pdf",
+  "recibida": "2022-09-02",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_055"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV ESPAÑA 27 GETAFE CODIGOS DE PEDIDO ARQUITECTO 19-05-2022.pdf",
+  "recibida": "2022-05-19",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_056"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/AV QUINTA 26 MADRID FAIN CODIGOS PEDIDO ARQUITECTO 28-06-2022.pdf",
+  "recibida": "2022-06-28",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_057"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/SANTA TECLA 46 MADRID CODIGOS DE PEDIDO ARQUITECTO fain 18-10-2022.pdf",
+  "recibida": "2022-10-18",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_058"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/GALICIA 8 PINTO CODIGOS PEDIDO ARQUITECTO 08-06-2022.pdf",
+  "recibida": "2022-06-08",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_059"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COLIBRI, 5 GETAFE CODIGOS DE PEDIDO ARQUITECTO 09-02-2022.pdf",
+  "recibida": "2022-02-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_060"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/COLIBRI 5 GETAFE CODIGOS PEDIDO 09-02-2022.pdf",
+  "recibida": "2022-02-09",
+  "caso": "no_es_hoja",
+  "elegidas": [],
+  "candidatas": [],
+  "d": "Y22_061"
+ },
+ {
+  "firmada": "PRESUPUESTOS FIRMADOS/MOSTOLES 3 PORTAL 2 FUENLABRADA CSS FAIN 06-07-2022.pdf",
+  "recibida": "2022-07-06",
+  "caso": "clara",
+  "elegidas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO mostoles 3 portal 8 fuenlabrada CSS.docx"
+  ],
+  "candidatas": [
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 4 FUENLABRADA PRY Y DF.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 2 FUENLABRADA.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO mostoles 3 portal 8 fuenlabrada CSS.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 7 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 2 FUENLABRADA SUBVENCION.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 5 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 8 FUENLABRADA SUBV.docx",
+   "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO MOSTOLES 3 PORTAL 2 FUENLABRADA SUBV.docx"
+  ],
+  "d": "Y22_062"
+ }
+]
