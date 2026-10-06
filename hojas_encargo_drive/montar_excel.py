@@ -28,6 +28,29 @@ def otras_versiones(k, elegido):
             out.append(nom)
     return out
 
+
+# REGLAS DE MONICA (6-oct-2026), aplicadas al montar; lo extraido en bruto no se toca:
+#  1. Subvenciones de accesibilidad y de eficiencia energetica son "subvenciones sin mas".
+#  2. La "Documentacion Tecnica Anexa" (IEE, CEE, LEE, comparativa...) es lo que ahora se
+#     llama doc tecnica: el importe FIJO de la linea de subvencion (el % es lo de a exito).
+SUBV = 'TRAMITACION SUBVENCIONES'
+ES_DOC = re.compile(r'doc(umentaci[oó]n)?\.?\s*t[eé]cnica', re.I)
+def normalizar(d):
+    conc = [dict(c) for c in d.get('conceptos') or []]
+    for c in conc:
+        if c.get('bloque', '').startswith(SUBV): c['bloque'] = SUBV
+    docs = [c for c in conc if c.get('bloque') == 'SIN CASAR' and ES_DOC.search(c.get('texto') or '')]
+    subv = next((c for c in conc if c.get('bloque') == SUBV), None)
+    for c in docs:
+        if subv is not None:
+            if c.get('importe') is not None and subv.get('importe') is None:
+                subv['importe'] = c['importe']
+            conc.remove(c)          # su contenido va dentro de la subvencion
+        else:
+            c['bloque'] = SUBV; subv = c
+    d = dict(d); d['conceptos'] = conc
+    return d
+
 def cabecera(n):
     p = f'textos/{n}.txt'
     if not os.path.exists(p): return {}
@@ -58,7 +81,7 @@ wc.append(['N', 'Dirección', 'Concepto (texto de la hoja)', 'Bloque del catálo
 cuenta = collections.Counter()
 usos = collections.Counter(e for _, _, e in tanda)
 for i, (frec, firm, env) in enumerate(tanda):
-    n = f'{i:03d}'; d = ext.get(n, {}); cab = cabecera(n)
+    n = f'{i:03d}'; d = normalizar(ext[n]) if n in ext else {}; cab = cabecera(n)
     firm_nom = firm.split('/')[-1]; env_nom = cab.get('TITULO') or env.split('/')[-1]
     k = clave(firm_nom)
     motivos = []
