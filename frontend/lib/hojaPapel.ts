@@ -84,14 +84,3 @@ export const FORMAS_PAGO = [
   "100% a la contratación",
   "1.980 € a la contratación · 3% de lo concedido a la concesión",
 ];
-
-/** Una version guardada, como pagina entera: para el visor y para imprimir. */
-export function paginaHoja(contenido: string, titulo: string, imprimir: boolean): string {
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(titulo)}</title>
-<style>${ESTILO_PAPEL}
-@page{size:A4;margin:18mm 16mm}
-body{margin:0;background:#e9e9e6}
-.hoja-papel{max-width:780px;margin:20px auto;padding:38px 46px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-@media print{body{background:#fff}.hoja-papel{margin:0;padding:0;box-shadow:none;max-width:none}}
-</style></head><body><div class="hoja-papel">${contenido}</div>${imprimir ? "<script>window.onload=()=>setTimeout(()=>window.print(),200)</script>" : ""}</body></html>`;
-}

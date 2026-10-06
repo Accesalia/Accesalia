@@ -381,7 +381,7 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
           alCerrar={cerrar}
           alGenerar={(versionId) => {
             setSt(null);
-            window.open(`/comercial/hoja-encargo/ver/${versionId}?imprimir=1`, "_blank");
+            window.open(`/comercial/hoja-encargo/pdf/${versionId}`, "_blank");
             router.refresh();
           }}
         />

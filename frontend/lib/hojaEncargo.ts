@@ -25,6 +25,7 @@ import "server-only";
 import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
+import { pdfDeHoja } from "./pdf/HojaDoc";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -243,7 +244,14 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
           documentos.push({
             tipo: "generada",
             etiqueta: `Generada v${v.numero_version}`,
-            enlace: v.contenido_html ? `/comercial/hoja-encargo/ver/${v.id}` : v.url_pdf_hoja ? enlaceDoc(v.url_pdf_hoja) : null,
+            // Las de la app tienen su PDF (o se hace al pedirlo); las antiguas,
+            // su enlace de Drive.
+            enlace:
+              v.contenido_html || v.url_pdf_hoja?.startsWith("almacen:")
+                ? `/comercial/hoja-encargo/pdf/${v.id}`
+                : v.url_pdf_hoja
+                  ? enlaceDoc(v.url_pdf_hoja)
+                  : null,
             versionId: v.id,
             indice: 0,
           });
@@ -356,22 +364,42 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     });
   }
 
-  // 2 · la version, con la hoja tal cual
+  // 2 · el PDF, ANTES de apuntar nada: si la hoja no se puede convertir, que
+  //     no quede una version sin su documento.
+  const html = limpiarHtml(g.html);
+  const pdf = await pdfDeHoja(html, `Hoja de encargo · ${descripcion}`);
+
+  // 3 · la version, con la hoja tal cual
   const previas = await leer<{ numero_version: number }[]>(
     `versiones_hoja?select=numero_version&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,
   );
   const base = g.conceptos.filter((k) => k.desglose === "se_cobra").reduce((s, k) => s + (k.importe ?? 0), 0);
+  const numero = (previas[0]?.numero_version ?? 0) + 1;
   const [v] = await crear<{ id: string }>("versiones_hoja", {
     hoja_encargo_id: hojaId,
-    numero_version: (previas[0]?.numero_version ?? 0) + 1,
+    numero_version: numero,
     fecha_generada: hoy(),
-    contenido_html: limpiarHtml(g.html),
+    contenido_html: html,
     importe_base: base,
     iva_porcentaje: 21,
     importe_total: Math.round(base * 121) / 100,
   });
 
-  // 3 · los conceptos de ESTA version
+  // 4 · el PDF al almacen, junto a la version
+  const ruta = `hojas-encargo/${hojaId}/hoja-v${numero}-${v.id.slice(0, 8)}.pdf`;
+  const sube = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+    method: "POST",
+    headers: { ...CAB, "Content-Type": "application/pdf", "x-upsert": "true" },
+    body: new Uint8Array(pdf),
+    cache: "no-store",
+  });
+  if (!sube.ok) throw new Error(`Storage ${sube.status}: ${await sube.text()}`);
+  await pedir(`versiones_hoja?id=eq.${v.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ url_pdf_hoja: `almacen:${ALMACEN}/${ruta}` }),
+  });
+
+  // 5 · los conceptos de ESTA version
   if (g.conceptos.length)
     await crear(
       "conceptos_hoja",
@@ -386,7 +414,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
       })),
     );
 
-  // 4 · el que + donde: es de la hoja, se rehace entero
+  // 6 · el que + donde: es de la hoja, se rehace entero
   await pedir(`actuaciones_hoja?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });
   const acts = await crear<{ id: string }>(
     "actuaciones_hoja",
@@ -469,12 +497,24 @@ export async function enlaceFirmada(hojaId: string, versionId: string, n: number
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${signedURL}`;
 }
 
-// ------------------------------------------------- la version, para verla
+// ------------------------------------------------- la version, en PDF
 
-export async function versionParaVer(versionId: string): Promise<{ html: string; comunidadId: string; titulo: string } | null> {
-  const [v] = await leer<{ contenido_html: string | null; numero_version: number; hoja: { comunidad_id: string; descripcion: string | null } | null }[]>(
-    `versiones_hoja?select=contenido_html,numero_version,hoja:hoja_encargo_id(comunidad_id,descripcion)&id=eq.${versionId}`,
-  );
-  if (!v?.contenido_html || !v.hoja) return null;
-  return { html: v.contenido_html, comunidadId: v.hoja.comunidad_id, titulo: `${v.hoja.descripcion ?? "Hoja de encargo"} · v${v.numero_version}` };
+/** El PDF de una version: el guardado en el almacen, o (si es de antes de que
+ *  la app los guardara) hecho al momento con su hoja. */
+export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array; comunidadId: string; nombre: string } | null> {
+  const [v] = await leer<{
+    contenido_html: string | null;
+    url_pdf_hoja: string | null;
+    numero_version: number;
+    hoja: { comunidad_id: string; descripcion: string | null } | null;
+  }[]>(`versiones_hoja?select=contenido_html,url_pdf_hoja,numero_version,hoja:hoja_encargo_id(comunidad_id,descripcion)&id=eq.${versionId}`);
+  if (!v?.hoja) return null;
+  const nombre = `Hoja de encargo ${v.hoja.descripcion ?? ""} v${v.numero_version}.pdf`.replace(/\s+/g, " ");
+  if (v.url_pdf_hoja?.startsWith("almacen:")) {
+    const resto = v.url_pdf_hoja.slice("almacen:".length);
+    const r = await fetch(`${URL_BASE}/storage/v1/object/${resto}`, { headers: CAB, cache: "no-store" });
+    if (r.ok) return { pdf: new Uint8Array(await r.arrayBuffer()), comunidadId: v.hoja.comunidad_id, nombre };
+  }
+  if (!v.contenido_html) return null;
+  return { pdf: new Uint8Array(await pdfDeHoja(v.contenido_html, nombre)), comunidadId: v.hoja.comunidad_id, nombre };
 }
