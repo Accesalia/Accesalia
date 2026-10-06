@@ -91,12 +91,15 @@ function Tabla({ filas, cabecera }: { filas: LineaAyuda[]; cabecera: boolean }) 
   );
 }
 
-export function AnexoDoc({ a, croquis, aerea }: { a: Anexo; croquis: Buffer | null; aerea: Buffer | null }) {
+export type ImagenesAnexo = { croquis: Buffer | null; aerea: Buffer | null };
+
+/** La pagina sola: va suelta (el anexo por su cuenta) o detras de la
+ *  viabilidad, dentro de su mismo PDF. */
+export function AnexoPagina({ a, croquis, aerea }: { a: Anexo } & ImagenesAnexo) {
   let n = 0;
   const num = () => ++n;
   const iee = a.iee;
   return (
-    <Document title={`Ficha del edificio · ${a.direccion}`} author="Accesalia" creator="Accesalia">
       <Page size="A4" style={s.pagina}>
         <View style={s.membrete}>
           <Text style={s.logo}>
@@ -276,6 +279,13 @@ export function AnexoDoc({ a, croquis, aerea }: { a: Anexo; croquis: Buffer | nu
           <Text>Accesalia · B86374055</Text>
         </View>
       </Page>
+  );
+}
+
+export function AnexoDoc({ a, croquis, aerea }: { a: Anexo } & ImagenesAnexo) {
+  return (
+    <Document title={`Ficha del edificio · ${a.direccion}`} author="Accesalia" creator="Accesalia">
+      <AnexoPagina a={a} croquis={croquis} aerea={aerea} />
     </Document>
   );
 }
@@ -293,7 +303,11 @@ async function imagen(url: string | null): Promise<Buffer | null> {
   }
 }
 
-export async function pdfDelAnexo(a: Anexo): Promise<Buffer> {
+export async function imagenesDelAnexo(a: Anexo): Promise<ImagenesAnexo> {
   const [croquis, aerea] = await Promise.all([imagen(a.croquis), imagen(a.aerea)]);
-  return renderToBuffer(<AnexoDoc a={a} croquis={croquis} aerea={aerea} />);
+  return { croquis, aerea };
+}
+
+export async function pdfDelAnexo(a: Anexo): Promise<Buffer> {
+  return renderToBuffer(<AnexoDoc a={a} {...await imagenesDelAnexo(a)} />);
 }

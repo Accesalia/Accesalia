@@ -136,7 +136,7 @@ export async function accionEnviar(id: string, d: DatosMesa): Promise<string[]> 
     `${yo.nombre} ha terminado su parte de la viabilidad de ${donde}.\n\n` +
       `Ahora te toca completarla (tus precios, las tasas e ICIO, y retocar el texto a gusto del cliente) ` +
       `y mandarla con la hoja de encargo.\n\n` +
-      `La oportunidad: ${APP}/comercial/oportunidades/${v!.oportunidad_id}\n`,
+      `Tu viabilidad: ${APP}/comercial/viabilidad/${id}\n`,
     yo.email,
   );
   revalidatePath("/viabilidades");

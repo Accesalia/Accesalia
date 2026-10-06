@@ -20,11 +20,17 @@ const ALMACEN = "documentos-comerciales";
 
 /** Genera el anexo de una viabilidad y lo deja guardado junto a ella. */
 export async function guardarAnexo(viabilidadId: string): Promise<boolean> {
-  const r = await fetch(`${URL_BASE}/rest/v1/viabilidades?select=oportunidad_id,pem_estimado&id=eq.${viabilidadId}`, { headers: CAB, cache: "no-store" });
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/viabilidades?select=oportunidad_id,pem_estimado,obra:viabilidad_conceptos(importe)&obra.grupo=eq.obra&id=eq.${viabilidadId}`,
+    { headers: CAB, cache: "no-store" },
+  );
   if (!r.ok) return false;
-  const [v] = (await r.json()) as { oportunidad_id: string | null; pem_estimado: number | null }[];
+  const [v] = (await r.json()) as { oportunidad_id: string | null; pem_estimado: number | null; obra: { importe: number | null }[] }[];
   if (!v?.oportunidad_id) return false;
-  const anexo = await anexoDeOportunidad(v.oportunidad_id, { pem: v.pem_estimado });
+  // El coste de obra son las lineas de Alex (una o varias); la cifra suelta de
+  // antes solo vale si aun no hay lineas.
+  const pem = v.obra.reduce((s, l) => s + (Number(l.importe) || 0), 0) || v.pem_estimado;
+  const anexo = await anexoDeOportunidad(v.oportunidad_id, { pem });
   if (!anexo) return false;
   const pdf = await pdfDelAnexo(anexo);
   const ruta = `anexos/${viabilidadId}/anexo-ficha-edificio.pdf`;

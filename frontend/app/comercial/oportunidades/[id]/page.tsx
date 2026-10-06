@@ -20,6 +20,7 @@ import { AZUL, Carril, bloquesDe } from "./Carril";
 import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { distritoDe } from "../../../../lib/informeEdificio";
+import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -80,9 +81,10 @@ export default async function GestionOportunidad({
   const quieren = tipos.filter((t) => g.tiposElegidos.includes(t.id)).map((t) => t.nombre);
   // El bloque por el que va, para el "Por donde vamos" de la cabecera.
   const bloqueAhora = bloquesDe(g.hitos).find((b) => b.activo) ?? null;
-  const [contactos, distrito] = await Promise.all([
+  const [contactos, distrito, viabilidad] = await Promise.all([
     g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
     g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
+    viabilidadDeOpp(id),
   ]);
 
   return (
@@ -135,9 +137,9 @@ export default async function GestionOportunidad({
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
-        {g.referenciaCatastral && (
-          <div className="mb-[10px] flex gap-1">
-            {VISTAS.map((v) => (
+        {(g.referenciaCatastral || viabilidad) && (
+          <div className="mb-[10px] flex items-center gap-1">
+            {g.referenciaCatastral && VISTAS.map((v) => (
               <Link
                 key={v.clave}
                 href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
@@ -151,6 +153,16 @@ export default async function GestionOportunidad({
                 {v.rotulo}
               </Link>
             ))}
+            {/* La viabilidad, cuando la hay: Alex la empezo y el comercial la
+                remata aqui (Monica, 6-oct-2026). */}
+            {viabilidad && (
+              <Link
+                href={`/comercial/viabilidad/${viabilidad.id}`}
+                className="ml-auto rounded-full border border-lima/60 bg-lima-soft px-3 py-1 text-[12px] font-semibold text-lima-dark transition hover:border-lima-dark"
+              >
+                📄 Viabilidad{viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"} →
+              </Link>
+            )}
           </div>
         )}
         <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
