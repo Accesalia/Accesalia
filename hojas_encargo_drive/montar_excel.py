@@ -49,7 +49,18 @@ def normalizar(d):
             conc.remove(c)          # su contenido va dentro de la subvencion
         else:
             c['bloque'] = SUBV; subv = c
-    d = dict(d); d['conceptos'] = conc
+    # 3. (Monica, 6-oct) "mediciones y presupuesto ciego" es el bloque MEDICIONES Y CIEGO.
+    for c in conc:
+        if c.get('bloque') == 'SIN CASAR' and re.search(r'medici', c.get('texto') or '', re.I) and re.search(r'ciego', c.get('texto') or '', re.I):
+            c['bloque'] = 'MEDICIONES Y CIEGO'
+    # 4. Que se hace: elevador = plataforma elevadora = Plataforma; portal = Accesibilidad portal.
+    que = list(d.get('que_se_hace') or []); sin = []
+    for t in d.get('que_se_hace_sin_casar') or []:
+        if re.search(r'elevador', t, re.I): que.append('Plataforma')
+        elif re.search(r'portal', t, re.I): que.append('Accesibilidad portal')
+        elif re.search(r'medici.*ciego', t, re.I): pass
+        else: sin.append(t)
+    d = dict(d); d['conceptos'] = conc; d['que_se_hace'] = list(dict.fromkeys(que)); d['que_se_hace_sin_casar'] = sin
     return d
 
 def cabecera(n):

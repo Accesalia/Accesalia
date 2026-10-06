@@ -70,6 +70,7 @@ Para cada fichero, saca UN objeto JSON en UNA línea con esta forma exacta:
 | TRAMITACION SUBVENCIONES EFICIENCIA ENERGETICA | subvenciones de eficiencia energética, rehabilitación energética, Next Generation |
 | SATE CON CESION DE CAES | SATE con cesión de CAEs |
 | SATE + ASCENSOR CON CESION DE CAES | SATE + ascensor con CAEs |
+| MEDICIONES Y CIEGO | mediciones y presupuesto ciego |
 
 "Documentación Técnica Anexa" (IEE+CEE+... para la subvención) → si lleva precio propio y no
 encaja en uno solo, "SIN CASAR" con su importe y explícalo en rarezas.
@@ -79,12 +80,18 @@ encaja en uno solo, "SIN CASAR" con su importe y explícalo en rarezas.
 3 Presupuestos · Accesibilidad · Aerotermia · Añadir parada · Arreglo cubierta · Arreglo fachada ·
 Ascensor · CAES · Cambio de cabina · Cambio de puertas · CEE · CFO · Consulta urbanística ·
 Cota cero · CSS · DF · Doc técnica subv (IEE+CEE+LEE) · Eficiencia energética · Financiación ·
-Fotovoltaica · IEE · Informe pericial · Informe técnico · Intervenciones exterior · LEE · Licencia ·
+Fotovoltaica · IEE · Accesibilidad portal · Informe pericial · Informe técnico · Intervenciones exterior · LEE · Licencia ·
 Memoria técnica valorada · Modificación asc. · Otros · Plataforma · Rampa · SATE cubierta ·
 SATE envolvente completa · SATE fachada · Subvenciones · Toma de datos y Modelado 3D ·
 Visado Colegio
 
 "que_se_hace" es la OBRA o el servicio principal del encargo ("Proyecto para instalación de
 ascensor" → Ascensor; "sustitución ascensores" → Modificación asc. si es cambio del existente,
-y explícalo en rarezas si dudas; "tramitación de subvenciones" → Subvenciones). Puede haber
+y explícalo en rarezas si dudas; "tramitación de subvenciones" → Subvenciones; "elevador" o
+"plataforma elevadora" → Plataforma; remodelación de portal → Accesibilidad portal). Puede haber
 varios.
+
+Subvenciones de accesibilidad o de eficiencia energética → TRAMITACION SUBVENCIONES. La
+"Documentación Técnica Anexa" (IEE, CEE, LEE, comparativa) es la doc técnica: el importe FIJO de la
+línea de subvención. Descuento por cesión de CAES → bloque SATE (+ ASCENSOR) CON CESION DE CAES con
+el importe ya descontado.
