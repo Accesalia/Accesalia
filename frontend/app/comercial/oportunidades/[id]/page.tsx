@@ -142,6 +142,7 @@ export default async function GestionOportunidad({
                 key={v.clave}
                 href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
                 scroll={false}
+                replace
                 className={
                   "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
                   (vista === v.clave ? "border-carbon bg-carbon text-white" : "border-carbon/25 bg-white text-carbon/70 hover:border-carbon/50")
