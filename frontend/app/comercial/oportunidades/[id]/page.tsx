@@ -187,10 +187,7 @@ export default async function GestionOportunidad({
             style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px", ...(bloque === 2 ? { background: AZUL } : {}) }}
             className={"min-w-0 flex-1 border " + (bloque === 2 ? "p-[11px]" : "bg-white/40 p-4")}
           >
-        {bloque === 2 && documentacion ? (
-          <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} />
-        ) : (
-        <>
+
         {/* SUS CUATRO ANCHOS FIJOS, del esqueleto del 30-sep: 262 · 330 · 190 ·
             282. "Sus anchos son el diseno": no se redondean ni se reparten en
             fracciones. Las tres primeras las llena el informe del edificio; la
@@ -228,7 +225,14 @@ export default async function GestionOportunidad({
           </div>
         )}
         <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
-          {g.referenciaCatastral && vista === "informe" ? (
+          {bloque === 2 && documentacion ? (
+            // El bloque 2 ocupa el sitio del edificio: las tres primeras
+            // columnas. El diario y el trabajo de abajo son de toda la
+            // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
+            <div className="min-w-0 xl:col-span-3">
+              <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} />
+            </div>
+          ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.
             <div className="xl:col-span-3">
               <iframe
@@ -259,7 +263,8 @@ export default async function GestionOportunidad({
             <QueContratan tipos={tipos} elegidos={g.tiposElegidos} guardar={accionTipos.bind(null, id)} />
 
             {/* ----------------- 4 · qué vendemos y por cuánto ----------------- */}
-            {trato(false)}
+            {/* En el bloque 2 va dentro de "El trato": no se repite. */}
+            {bloque === 1 && trato(false)}
 
             <div className="flex flex-col gap-5">
               {/* ------------------------- 5 · el 3D ------------------------- */}
@@ -418,8 +423,6 @@ export default async function GestionOportunidad({
             </section>
           </div>
         </div>
-        </>
-        )}
           </div>
         </div>
       </main>

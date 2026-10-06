@@ -120,9 +120,9 @@ export function Bloque2({ id, g, d, trato }: { id: string; g: Gestion; d: Docume
             )
           }
         >
-          <Link href={`/comercial/oportunidades/${id}#el-3d`} className={ENLACE}>
+          <a href="#el-3d" className={ENLACE}>
             cambiar
-          </Link>
+          </a>
         </Tarjeta>
 
         <Tarjeta
