@@ -1,0 +1,233 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (6-oct-2026) en la tanda 2. estado: OK | APARTAR | ANULADA | PREGUNTA. 'enviada' corrige la pareja.",
+ "F001": {
+  "estado": "OK",
+  "nota": "Precio conjunto 1.800; los dos pagos del 50% dicen 950 (errata de la hoja). Escalera E; la D es otra hoja igual."
+ },
+ "F002": {
+  "estado": "OK",
+  "nota": "Precio conjunto 1.800; los dos pagos del 50% dicen 950 (errata de la hoja). Escalera D; la E es otra hoja igual."
+ },
+ "F005": {
+  "estado": "APARTAR",
+  "nota": "'(convertido).gdoc': copia en Google Docs de la firmada F072. Duplicado."
+ },
+ "F072": {
+  "estado": "OK",
+  "nota": "Firmada de la SUBVENCIÓN (13-02). El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas. Proyecto conjunto con 12% de descuento: 12.909,60."
+ },
+ "F085": {
+  "estado": "OK",
+  "nota": "Firmada del PROYECTO conjunto SATE + ascensor (17-01). El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas."
+ },
+ "F006": {
+  "estado": "APARTAR",
+  "nota": "la firmada es la copia en Google Docs de otra firmada (duplicado)"
+ },
+ "F064": {
+  "estado": "OK",
+  "nota": "Hoja de SATE con cesión de CAES (proyecto gratis a cambio de los CAES + 3% subvención). Firmada el 30-01; el 11-02 se firmó además el documento de CAES (F071): se guardan los dos."
+ },
+ "F071": {
+  "estado": "OK",
+  "nota": "Segundo PDF firmado de la misma hoja (CAES firmado, 11-02): se guarda junto al de F064."
+ },
+ "F007": {
+  "estado": "APARTAR",
+  "nota": "la firmada es la copia en Google Docs de otra firmada (duplicado)"
+ },
+ "F050": {
+  "estado": "OK",
+  "nota": "Subvención 1.980 (el título habla de cubierta con desamiantado, el contenido es subvención)."
+ },
+ "F068": {
+  "estado": "OK"
+ },
+ "F069": {
+  "estado": "APARTAR",
+  "nota": "la firmada es la copia en Google Docs de otra firmada (duplicado)"
+ },
+ "F229": {
+  "estado": "OK"
+ },
+ "F230": {
+  "estado": "APARTAR",
+  "nota": "la firmada es la copia en Google Docs de otra firmada (duplicado)"
+ },
+ "F043": {
+  "estado": "OK",
+  "nota": "El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas."
+ },
+ "F045": {
+  "estado": "OK",
+  "nota": "Segundo PDF firmado de la misma hoja ('con pago fraccionado'): se guarda junto al de F043."
+ },
+ "F047": {
+  "estado": "OK",
+  "nota": "El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas. Con adenda de subvención."
+ },
+ "F063": {
+  "estado": "OK",
+  "nota": "El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas."
+ },
+ "F080": {
+  "estado": "OK",
+  "nota": "El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas."
+ },
+ "F181": {
+  "estado": "OK",
+  "nota": "El fichero tiene DOS hojas (proyecto y subvención), firmadas juntas: se vuelcan como dos hojas. Proyecto 6.000 POR ASCENSOR (dos ascensores: 12.000) + subvención 1.980 única.",
+  "total_base": 13980
+ },
+ "F052": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO FELIPE CASTRO 6 MADRID.docx",
+  "nota": "Mal emparejada: la firmada de PROYECTO va con la hoja de proyecto, no con la de subvención."
+ },
+ "F053": {
+  "estado": "OK"
+ },
+ "F089": {
+  "estado": "OK"
+ },
+ "F091": {
+  "estado": "OK"
+ },
+ "F093": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA PAULAR 1 MADRID.docx",
+  "nota": "Mal emparejada: la firmada de ASCENSOR va con la hoja de ascensor, no con la de subvención."
+ },
+ "F094": {
+  "estado": "OK",
+  "enviada": "PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO PLAZA PAULAR 2 MADRID.docx",
+  "nota": "Mal emparejada: la firmada de ASCENSOR va con la hoja de ascensor, no con la de subvención."
+ },
+ "F184": {
+  "estado": "OK",
+  "enviada": "HOJAS ENCARGO AUTOMATICAS/LOS PEÑASCALES 17 MADRID - 31 10 2025 - PRY ELEV.gdoc",
+  "nota": "Mal emparejada: la firmada 'PRY ASC' es la del proyecto de elevador (Plataforma), no la de subvención."
+ },
+ "F215": {
+  "estado": "OK"
+ },
+ "F199": {
+  "estado": "OK",
+  "nota": "Informe pericial 1.500; se descuenta del último pago si encargan el SATE."
+ },
+ "F206": {
+  "estado": "OK",
+  "enviada": "HOJAS ENCARGO AUTOMATICAS/GIRASOL 21 MADRID - 03 11 2025 - SATE CAES.gdoc",
+  "nota": "Mal emparejada: la firmada de SATE va con la hoja de SATE con CAES, no con la del informe pericial."
+ },
+ "F186a": {
+  "estado": "APARTAR",
+  "nota": "Esa enviada (cota cero, 2024) es de otra firmada (29-05-2024). La firmada de SATE va con F186b."
+ },
+ "F186b": {
+  "estado": "OK"
+ },
+ "F154b": {
+  "estado": "APARTAR",
+  "nota": "La firmada de PROYECTO va con la hoja de FAIN (F154a); la hoja 'PRY+SUBV' es la de la firmada de subvención (F155)."
+ },
+ "F155": {
+  "estado": "OK",
+  "nota": "Hoja PRY+SUBV: proyecto 2.500 + CSS 800 + subvención 1.980."
+ },
+ "F070a": {
+  "estado": "OK",
+  "nota": "Versión anterior (29-01, 8.850, sin CAES): v1 enviada, no firmada."
+ },
+ "F070b": {
+  "estado": "OK",
+  "nota": "La firmada (06-02) es la versión con cesión de CAES (31-01): v2, 8.500 + 3% subvención."
+ },
+ "F088b": {
+  "estado": "OK",
+  "nota": "SATE con cesión de CAES 9.930 + subvención 1.980 = 11.910 (la tabla le suma mal el IVA). Va con la hoja de ascensor F088a en la misma firmada."
+ },
+ "F135a": {
+  "estado": "OK",
+  "nota": "Con cesión de CAES el proyecto queda sin coste (11.300 tachado); solo 3,5% de subvenciones nuevas. Va con F135b en la misma firmada."
+ },
+ "F147": {
+  "estado": "OK",
+  "nota": "Precio único con descuento 8.265 + IVA (≈10.000 IVA incluido)."
+ },
+ "F179": {
+  "estado": "OK",
+  "nota": "Fecha escrita '04/07/0225' en la hoja: es 04/07/2025."
+ },
+ "F182a": {
+  "estado": "OK",
+  "nota": "La consulta urbanística (800) ya pagada se descuenta: total 5.100. Va con F182b en la misma firmada."
+ },
+ "F054": {
+  "estado": "OK",
+  "nota": "Precio conjunto 12.950; el % a éxito va en un anexo que no está."
+ },
+ "F132": {
+  "estado": "OK",
+  "nota": "El texto de la enviada empieza cortado (sin cabecera); la dirección y la fecha salen del nombre (03-07-2025).",
+  "fecha_hoja": "2025-07-03"
+ },
+ "F205": {
+  "estado": "OK",
+  "nota": "'Gestión de CAES' sin precio: va dentro de la subvención."
+ },
+ "F223": {
+  "estado": "OK",
+  "nota": "Doc técnica anexa = importe fijo de la subvención (regla)."
+ },
+ "F176": {
+  "estado": "PREGUNTA",
+  "grupo": "tipo",
+  "nota": "'Rehabilitación parcial' (BRUNO AYLLON 3, REV2 4.000; la firmada lleva sello LUXOR): no hay tipo de obra."
+ },
+ "F187": {
+  "estado": "PREGUNTA",
+  "grupo": "tipo",
+  "nota": "'Rehabilitación parcial DR' (CASTILLO DE SIMANCAS 7, 3.500): no hay tipo de obra."
+ },
+ "F042": {
+  "estado": "PREGUNTA",
+  "grupo": "tipo",
+  "nota": "Solución de humedades en sótanos y trasteros (ISABEL DE FARNESIO 6, 1.800): no hay tipo de obra."
+ },
+ "F245": {
+  "estado": "PREGUNTA",
+  "grupo": "tipo",
+  "nota": "Reestructuración del techo del cuarto de máquinas (MAGDALENA 3, 3.500): no hay tipo de obra."
+ },
+ "F133": {
+  "estado": "PREGUNTA",
+  "grupo": "modif",
+  "nota": "Modificación de un proyecto existente (HERNÁN CORTÉS 13, 1.200)."
+ },
+ "F238": {
+  "estado": "PREGUNTA",
+  "grupo": "modif",
+  "nota": "División de un proyecto existente (BRUNETE 3, 1.500)."
+ },
+ "F240": {
+  "estado": "PREGUNTA",
+  "grupo": "modif",
+  "nota": "Modificado de proyecto visado para licencia y Next Generation (VILLAMANÍN 37, 2.500)."
+ },
+ "F159": {
+  "estado": "PREGUNTA",
+  "grupo": "modif",
+  "nota": "Nueva DR de una obra ya contratada: proyecto y DF a 0, cobra 650 por visado + seguro RC + DR (VIRGEN DE ICIAR 17)."
+ },
+ "F128": {
+  "estado": "PREGUNTA",
+  "grupo": "caes",
+  "nota": "'Tramitación de CAES' cobrada APARTE, 632 € (RÍO ARAGÓN 6, de ROEN): no es descuento por cesión."
+ },
+ "F129": {
+  "estado": "PREGUNTA",
+  "grupo": "caes",
+  "nota": "'Gestión de CAES' cobrada APARTE, 408 € (SONSOLES 4, de ROEN): no es descuento por cesión."
+ }
+}

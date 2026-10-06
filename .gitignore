@@ -27,3 +27,6 @@ supabase/.temp/
 # Python (cache de los scripts de migracion)
 __pycache__/
 *.pyc
+
+# Imagenes de hojas firmadas escaneadas (firmas, CIF, IBAN): solo para leer, nunca al repo
+hojas_encargo_drive/rev2/
