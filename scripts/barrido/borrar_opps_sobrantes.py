@@ -17,6 +17,12 @@ SOBRAN = {
     # tanda I-J-L (Monica, 7-oct-2026)
     'f68eb0c7-58ef-4653-8607-5a8556f5f2f0': 'JULIAN BESTEIRO 13 15: mismo encargo de 2025 que el ascensor de 15G (se le enlazan sus portales).',
     'a2b47242-2d54-44f3-94f6-b2d6ae50049a': 'LOPEZ DE HOYOS 342B: es el mismo edificio que la carpeta 342C (perdida, en la clon).',
+    # tanda M-N (Monica, 7-oct-2026: 'estas en concreto, dejemoslas bien; es ok UNA opp')
+    'b56e8f7e-fc3f-4eea-850e-a66ed4756cd0': 'MONCADA 101: segunda opp vacia de la misma comunidad y el mismo portal (la buena es e7dd40e4).',
+    '4b9f4666-b567-44be-8aad-5bf012a9d5cc': 'NECTAR 31 PORTAL 1-2-3: segunda opp vacia de la misma comunidad (la buena es 204aa181, con los tres portales).',
+    '863cac65-cb11-4a8a-b485-7d5cf0b5eaf6': 'NECTAR 31 PORTAL 1 (comunidad sin municipio): el encargo es UNO, en la opp 204aa181.',
+    '84f6d201-247c-4f09-b9f1-a76fe392b5b5': 'NECTAR 31 PORTAL 2 (comunidad sin municipio): idem.',
+    '3fc67242-0789-4d7f-92f9-f5d593a93c96': 'NECTAR 31 PORTAL3 (comunidad sin municipio): idem.',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
