@@ -306,5 +306,65 @@
  "F110a": {
   "estado": "APARTAR",
   "nota": "Sobra: la firmada de 2025 es solo la de subvención y ya va con su hoja (F110b). La hoja de proyecto de 2024 es de otra firmada (2024, Y24_060)."
+ },
+ "F233": {
+  "estado": "OK",
+  "nota": "Datos de la propia firmada (sin enviada en la carpeta): DF y CSS 2.500 + IVA, 23-03-2026, paga URVIAL SL.",
+  "fecha_hoja": "2026-03-23",
+  "total_base": 2500,
+  "a_quien": "contrata: URVIAL SL",
+  "que_se_hace": [
+   "DF",
+   "CSS"
+  ],
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Dirección facultativa",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Coordinación de seguridad y salud",
+    "bloque": "CSS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ]
+ },
+ "F235": {
+  "estado": "OK",
+  "nota": "Datos de la propia firmada (sin enviada en la carpeta): DF y CSS 2.500 + IVA, 23-03-2026, paga URVAU SL.",
+  "fecha_hoja": "2026-03-23",
+  "total_base": 2500,
+  "a_quien": "contrata: URVAU SL",
+  "que_se_hace": [
+   "DF",
+   "CSS"
+  ],
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Dirección facultativa",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Coordinación de seguridad y salud",
+    "bloque": "CSS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ]
  }
 }

@@ -100,7 +100,12 @@ for k, (p, dec, el, dd) in enumerate(filas):
     if dec == 'datos de la firmada':
         d = {'fecha_hoja': dd.get('fecha_emision_firmada'), 'a_quien': dd.get('a_quien'), 'conceptos': [],
              'rarezas': None}
-        fila(base, 'OK', [], frec, d, firm, None, como, 'Importes en la firmada: ' + (dd.get('importes_firmada') or '?')); continue
+        r = res.get(base)   # lo leido a mano (importes en conceptos) manda
+        if r:
+            for campo in ('fecha_hoja', 'total_base', 'a_quien', 'que_se_hace', 'conceptos', 'que_se_hace_sin_casar', 'forma_pago_general'):
+                if campo in r: d[campo] = r[campo]
+        fila(base, r['estado'] if r else 'OK', ['RESUELTO LEYENDO: ' + r['nota']] if r and r.get('nota') else [], frec, d, firm, None, como,
+             'Importes en la firmada: ' + (dd.get('importes_firmada') or '?')); continue
     for j, env in enumerate(el):
         N = base + (chr(97 + j) if len(el) > 1 else '')
         if res.get(N, {}).get('enviada'): env = res[N]['enviada']

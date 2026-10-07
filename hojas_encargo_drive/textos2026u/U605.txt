@@ -1,0 +1,175 @@
+#DRIVE_ID=1EfiWbO4o18bjSgnwfqXXmVfBbSgtQiFeSdhwcu5CACQ	#TITULO=CALDERÓN DE LA BARCA 12 LEGANÉS - 14/09/2026 - PROYECTO SATE CUBIERTA Y FACHADA
+c/ Alhambra 24. 28047 Madrid B86374055
+
+**HOJA DE ENCARGO DE SERVICIOS PROFESIONALES DE ARQUITECTURA**
+
+Presupuesto del arquitecto D. Daniel de Soto Martin-Caro colegiado nº 24.103 del COAM para la realización de los siguientes trabajos profesionales de arquitectura:
+
+Proyecto para ENVOLVENTE TÉRMICA (SATE ) PARA FACHADA Y CUBIERTA en edificio residencial existente en:
+
+**CALDERÓN DE LA BARCA 12 LEGANÉS**
+
+**IMPORTE HONORARIOS ARQUITECTURA**
+
+**Desglose de Importes:**
+
+TOMA DE DATOS Y MODELADO 3D
+• Visita a la Comunidad para toma de datos
+• Medición y modelado tridimensional de los elementos comunes
+• Realización de fotografías    
+────────────────────────────────────────────────────────────────────  
+REDACCIÓN DEL PROYECTO BÁSICO Y DE EJECUCIÓN
+• Redacción del Proyecto conforme al CTE y normativa aplicable
+• Justificación del cumplimiento de exigencias básicas
+• Planos, mediciones y presupuesto
+• Estudio de Gestión de Residuos  
+────────────────────────────────────────────────────────────────────  
+TRAMITACIÓN DE LICENCIAS Y PERMISOS
+• Gestión de Licencia: Obtención de la licencia urbanística o Declaración Responsable (DR) ante el Ayuntamiento Competente, incluyendo la preparación y presentación de la documentación requerida.
+• Resolución de cualquier requerimiento solicitado por los organismos competentes.
+• Tramitación de Tasas: Asesoramiento y gestión en el pago de las tasas correspondientes a la gestión de residuos de construcción y demolición, así como del Impuesto sobre Construcciones, Instalaciones y Obras (ICIO), incluyendo la gestión para la obtención de posibles bonificaciones en las tasas municipales aplicables, conforme a la normativa vigente del Ayuntamiento Competente.  
+────────────────────────────────────────────────────────────────────  
+SOLICITUD Y ANÁLISIS DE PRESUPUESTOS
+• Colaboración con la Comunidad de Propietarios para la obtención de tres presupuestos.
+• Solicitud de al menos tres presupuestos a contratas especializadas, presupuestados sobre las mediciones específicas del Proyecto (sin perjuicio de que la comunidad pueda aportar por su cuenta otros presupuestos de contratas de su confianza).
+• Análisis de los importes recibidos, comprobando el ajuste a proyecto de todos ellos.
+• Asesoramiento a la Comunidad para elegir el que más se ajuste a sus intereses.
+\* Accesalia podrá delegar en terceros la recopilación de presupuestos, para facilitar a la comunidad opciones de ejecución comparables, sin que ello condicione en ningún caso la decisión de la comunidad ni suponga coste adicional alguno para la misma.  
+────────────────────────────────────────────────────────────────────  
+FIN DE OBRA
+• Revisión de la ejecución de los trabajos para comprobar su conformidad con el proyecto técnico aprobado.
+• Emisión del Certificado Final de Obra.
+• Firma de Fin de Obra por la Dirección Facultativa.  
+────────────────────────────────────────────────────────────────────  
+DIRECCIÓN FACULTATIVA
+• Dirección de la obra durante su ejecución por parte de los técnicos competentes del Estudio de Arquitectura.
+• Supervisión del cumplimiento del Proyecto Técnico aprobado, así como del control de calidad de los trabajos realizados.
+• Coordinación con la empresa contratista para resolver incidencias, adaptar soluciones y garantizar la correcta ejecución de los trabajos conforme a la normativa vigente.
+• Firma del Certificado Final de Obra una vez finalizados los trabajos.  
+────────────────────────────────────────────────────────────────────  
+COORDINACIÓN DE SEGURIDAD Y SALUD
+• Redacción del Estudio de Seguridad y Salud.
+• Coordinación de Seguridad y Salud durante la ejecución de las obras, incluyendo visitas de seguimiento y control documental.
+• Asesoramiento a la Comunidad y a la empresa contratista en materia de seguridad y salud durante la obra.  
+────────────────────────────────────────────────────────────────────
+
+|  |  |
+| :-: | :-: |
+| \*\*Honorarios Profesionales:\*\*  |  |
+|      \*\*Proyecto\*\* | \*\*8.480 + 1.780,80 IVA = 10.260,80 €\*\* |
+|      Incluye:          Proyecto         Tramitación de Licencia          Dirección Facultativa  |   |
+|           \*\*Coordinación de Seguridad y Salud\*\*  |  \*\*920 + 193,20 IVA = 1.113,20€\*\*  |
+
+*Nota:* Los importes mencionados no incluyen tasas administrativas, que serán abonadas por la Comunidad de Propietarios.
+
+\*\* Cláusula de Responsabilidad sobre la Bonificación del ICIO
+
+El arquitecto se compromete a gestionar la solicitud de bonificación del Impuesto sobre Construcciones, Instalaciones y Obras (ICIO) ante el Ayuntamiento correspondiente. No obstante, la concesión de dicha bonificación queda exclusivamente sujeta a los criterios y resoluciones de la administración municipal.
+
+En caso de que la bonificación no sea concedida, ya sea por razones imputables o no al arquitecto, incluyendo la declaración de ineficacia de la Declaración Responsable (DR) que implicaría el pago íntegro de la tasa del ICIO incluso si la obra no llegase a ejecutarse, la Comunidad de Propietarios asumirá íntegramente el abono de dicho impuesto, exonerando al arquitecto de cualquier responsabilidad derivada de esta circunstancia.
+
+# **SATE**
+
+## **1. OBJETO DEL ESTUDIO**
+
+El presente documento tiene por objeto la **mejora de la eficiencia energética del edificio mediante la rehabilitación de su envolvente térmica y la renovación de la cubierta**, con el fin de reducir la demanda energética de calefacción y refrigeración, mejorar el confort térmico interior y aumentar la durabilidad de los elementos constructivos.
+
+La actuación permitirá asimismo mejorar las condiciones generales de conservación del inmueble y favorecer, en su caso, el cumplimiento de los requisitos técnicos exigidos en posibles programas de ayudas o subvenciones para rehabilitación energética.
+
+-----
+
+## **2. DESCRIPCIÓN DE LOS TRABAJOS PROPUESTOS**
+
+### **2.1. MEJORA DE LA ENVOLVENTE TÉRMICA – SISTEMA SATE**
+
+Se prevé la instalación de un **Sistema de Aislamiento Térmico por el Exterior (SATE)** sobre las fachadas del edificio, incluyendo fachada principal, fachada posterior, fachadas interiores y paramentos de patios interiores.
+
+La superficie aproximada de fachada objeto de intervención, pendiente de medición definitiva, es de:
+
+**825 m² aproximadamente.**
+
+Los sistemas habitualmente empleados corresponden a fabricantes especializados como **Baumit, Weber o Danosa**, seleccionándose finalmente el sistema completo homologado que resulte más adecuado a las características del edificio.
+
+Como solución habitual se contempla:
+
+  - **EPS grafito de 8 cm de espesor**, o
+  - **EPS blanco de 10 cm de espesor**,
+
+quedando la solución definitiva condicionada a los cálculos energéticos, características del soporte y prestaciones exigibles.
+
+Las actuaciones comprenderán:
+
+1.  **Preparación y saneado de fachadas**, mediante limpieza, reparación de fisuras, eliminación de revestimientos deteriorados y regularización del soporte.
+2.  **Colocación del aislamiento térmico**, mediante placas de EPS adheridas y fijadas mecánicamente al soporte.
+3.  **Ejecución de capa base armada**, con mortero específico y malla de fibra de vidrio.
+4.  **Tratamiento de puntos singulares**, incluyendo huecos, jambas, dinteles, petos, encuentros con forjados, esquinas y elementos salientes.
+5.  **Aplicación del revestimiento final**, mediante acabado continuo impermeable al agua de lluvia y permeable al vapor.
+6.  **Adaptación o sustitución de vierteaguas, albardillas y remates metálicos** afectados por el incremento de espesor de fachada.
+7.  **Adecuación de barandillas, instalaciones y elementos existentes** cuando interfieran con la ejecución del sistema.
+
+-----
+
+### **2.2. MEJORA DE LA CUBIERTA**
+
+Se contempla igualmente la rehabilitación y mejora térmica de la cubierta del edificio.
+
+La superficie aproximada de cubierta, pendiente de comprobación mediante mediciones definitivas, es de:
+
+**240 m² aproximadamente.**
+
+La actuación comprenderá la revisión del estado actual de la cubierta y, según la solución constructiva existente:
+
+  - Mejora o incorporación del aislamiento térmico.
+  - Revisión y renovación de la impermeabilización cuando resulte necesario.
+  - Tratamiento de encuentros con petos, chimeneas, casetones y pasos de instalaciones.
+  - Adecuación de sumideros y sistemas de evacuación de aguas.
+  - Reposición de elementos de acabado afectados.
+  - Garantía de continuidad entre el aislamiento de fachada y el de cubierta para reducir puentes térmicos.
+
+-----
+
+## **3. SUPERFICIES ESTIMADAS**
+
+|  |  |
+| :-: | :-: |
+| \*\*Elemento\*\* | \*\*Superficie aproximada\*\* |
+| Fachadas principal, posterior, interiores y patios | \*\*825 m²\*\* |
+| Cubierta | \*\*240 m²\*\* |
+| \*\*Superficie total aproximada de actuación\*\* | \*\*1.065 m²\*\* |
+
+Las superficies indicadas son **orientativas y previas a la realización de mediciones reales**, por lo que podrán sufrir modificaciones durante la redacción del proyecto y elaboración del presupuesto definitivo.
+
+-----
+
+## **4. PRESUPUESTO ESTIMADO**
+
+**Coste aproximado de la actuación: 185.945,00 € IVA incluido.**
+
+El importe indicado tiene carácter estimativo y deberá ajustarse una vez realizadas las mediciones definitivas, comprobado el estado real de los soportes y definida la solución constructiva completa de fachada y cubierta.
+
+**Forma de Pago de Honorarios de Arquitectura:**
+
+  - A la contratación, en concepto de provisión de fondos: 50% del total de los honorarios.
+  - A la entrega del Proyecto: 50% restante.
+
+**Forma de Pago de Honorarios de CSS:**
+
+      ● A la firma del Plan de Seguridad y Salud: 100% de los honorarios
+
+En Madrid, a 14/09/2026
+
+Daniel de Soto
+
+Conforme:
+
+|  |  |
+| :-: | :-: |
+| Razón Social |   |
+| Dirección |   |
+| CIF |   |
+| Firma |   |
+| Fecha firma |   |
+| Nombre (Representante) |   |
+| Nº cuenta para el cargo |   |
+
+(\*) Importes válidos durante los 3 meses siguientes a la fecha de emisión.

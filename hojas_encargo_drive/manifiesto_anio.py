@@ -193,10 +193,22 @@ for g in filas:
         mismas = [h for h in g if h['fecha'] == str(d['fecha_hoja'])]
         (mismas[0] if mismas else g[0])['firmadas'].append(d)   # misma fecha: el original (leido en Castellon 15 e Isaac Peral 5)
 
+# 6b · datos de las SIN firmar: extraidos leyendo (sinfirmar_<A>.json -> extraido<A>u_*.jsonl),
+#      con las mismas reglas que las firmadas (normalizar de montar_excel.py)
+_src = open('montar_excel.py', encoding='utf-8').read()
+exec(_src[_src.index('# REGLAS DE MONICA'):_src.index('def cabecera(n):')])
+n_por_tit = {u['titulo']: u['n'] for u in json.load(open(f'sinfirmar_{A}.json', encoding='utf-8'))} if _glob.glob(f'sinfirmar_{A}.json') else {}
+ext_u = {}
+for f in _glob.glob(f'extraido{A}u_*.jsonl'):
+    for l in open(f, encoding='utf-8'):
+        if l.strip(): e = json.loads(l); ext_u[e['n']] = normalizar(e)
+def txt_conceptos(conc):
+    return '\n'.join(f"{c['bloque']}: " + (f"{c['importe']:g} €" if c.get('importe') is not None else f"{c['pct_exito']:g}% a éxito" if c.get('pct_exito') else 'incluido' if c.get('incluido') else 'sin precio propio') for c in conc or [])
+
 # 7 · el Excel
 wb = openpyxl.Workbook(); ws = wb.active; ws.title = 'Hojas ' + A
 cols = ['Código provisional', 'Estado', 'Fecha (v1)', 'Dirección', 'Tipo (Excel automáticas)', 'Bloques marcados (Excel)',
-        'Versiones', 'Ficheros ENVIADOS', 'Ficheros FIRMADOS', 'Fecha recibida', 'Total base (firmada)', 'Conceptos (firmada)',
+        'Versiones', 'Ficheros ENVIADOS', 'Ficheros FIRMADOS', 'Fecha recibida', 'Total base (sin IVA)', 'Conceptos',
         'Forma de pago', 'A quién', 'Generada por (solo cotejo)', 'Id Drive (última versión)', 'Notas', 'Opp', 'TU DECISIÓN']
 ws.append(cols); cuenta = collections.Counter()
 codigo = {id(h): f'HE-{A}-{i:04d}' for i, g in enumerate(filas, 1) for h in g}
@@ -214,6 +226,15 @@ for i, g in enumerate(filas, 1):
     firmados = '\n'.join(d['firmada'] for d in firm)
     x = ult['xl'] or next((h['xl'] for h in reversed(g) if h['xl']), None)
     d0 = firm[0] if firm else {}
+    if not firm:   # sin firmar: los datos de su ULTIMA version, leidos del documento
+        e = ext_u.get(n_por_tit.get(ult['titulo']))
+        if e:
+            d0 = {'dir': e.get('direccion'), 'total': e.get('total_base'), 'conceptos': txt_conceptos(e.get('conceptos')),
+                  'forma_pago': e.get('forma_pago_general'), 'a_quien': e.get('a_quien')}
+            if e.get('rarezas'): ult['notas'].append('lectura: ' + e['rarezas'])
+            kt, kd = clave(ult['titulo']), clave(e.get('direccion') or '')
+            if kt and kd and kt[1] != kd[1]:
+                ult['notas'].append(f"OJO: el título dice {ult['titulo'].split(' - ')[0]} pero DENTRO de la hoja (lo que recibió el cliente) pone {e.get('direccion')}: plantilla sin cambiar")
     notas = [n for h in g for n in h['notas']] + [f"{d['tabla']} {d['n']}: {d['nota']}" for d in firm if d.get('nota')]
     if x and x.get('dudoso'):
         notas.append(f"id de Drive POR CONFIRMAR: ese día hay {x['dudoso']} hojas de esta dirección en el Excel y el título no casó")
