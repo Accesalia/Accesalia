@@ -31,6 +31,8 @@ SOBRAN = {
     # tanda R-S (Monica, 7-oct-2026: 'una opp, correcto, borrar las vacias')
     '4e8a5bce-18c6-4471-a4a3-3c315d74994c': 'SANTA CRUZ DE MARCENADO 1 ESC D: Edificio Princesa (esc C, D y E) = UNA opp (la de la esc C, con los tres portales).',
     '6e94e49c-796d-4532-ab10-d457df7b92c0': 'SANTA CRUZ DE MARCENADO 1 ESC E: idem.',
+    # tanda T-V (Monica, 7-oct-2026)
+    '80dc96f6-9c8b-4888-afd4-3654221bb4f1': 'TRAVESIA DE SANTIAGO ALIO 2: segunda opp vacia de la misma comunidad (la buena es 249d9a74).',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
