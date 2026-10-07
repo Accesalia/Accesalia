@@ -92,7 +92,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 
 // ---------------------------------------------------------- lo que se elige
 
-export type OpcionSimple = { id: string; nombre: string; pista?: string };
+export type OpcionSimple = { id: string; nombre: string; pista?: string; usos?: number };
 
 export type OpcionesOportunidad = {
   comerciales: OpcionSimple[];
@@ -136,8 +136,10 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     // el fin de obra o los tres presupuestos acompañan a un proyecto y aqui solo
     // serian ruido. Y los agrupadores tampoco: si se pudieran elegir, en seis
     // meses habria oportunidades marcadas "Accesibilidad" a secas.
-    leer<{ id: string; nombre: string; padre: { nombre: string } | null }[]>(
-      "tipos_proyecto?select=id,nombre,padre:parent_id(nombre)" +
+    // Con cuantas oportunidades lo tienen: el desplegable ordena por lo mas
+    // pedido (Monica, 7-oct-2026).
+    leer<{ id: string; nombre: string; padre: { nombre: string } | null; usos: { count: number }[] }[]>(
+      "tipos_proyecto?select=id,nombre,padre:parent_id(nombre),usos:oportunidad_tipos(count)" +
         "&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
     leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
@@ -189,7 +191,7 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     codigoDe,
     canales,
     quienes,
-    tipos: tipos.map((t) => ({ id: t.id, nombre: t.nombre, pista: t.padre?.nombre ?? undefined })),
+    tipos: tipos.map((t) => ({ id: t.id, nombre: t.nombre, pista: t.padre?.nombre ?? undefined, usos: t.usos?.[0]?.count ?? 0 })),
     administradores: Object.values(
       Object.fromEntries(
         puestos

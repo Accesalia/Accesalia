@@ -7,6 +7,7 @@ import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
+import { columnasDeInteres } from "../../../../lib/columnasInteres";
 
 // DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma.
 //
@@ -552,6 +553,7 @@ export function Formulario({
                 ancho="w-[300px]"
                 marco="border-black"
                 debajo
+                grupos={columnasDeInteres(opciones.tipos)}
               />
             </div>
           </div>

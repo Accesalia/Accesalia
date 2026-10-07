@@ -29,6 +29,7 @@ export function Marcar({
   ancho = "w-[237px]",
   marco = "border-carbon/70",
   debajo = false,
+  grupos,
 }: {
   id: string;
   opciones: Marca[];
@@ -40,6 +41,9 @@ export function Marcar({
   /** Lo marcado DEBAJO del selector y no a su derecha, y algo mas grande (la
    *  pantalla de crear oportunidad, 7-oct-2026). */
   debajo?: boolean;
+  /** El panel en COLUMNAS, cada una con su titulo y sus valores en orden (la
+   *  pantalla de crear oportunidad, 7-oct-2026). Sin esto, una sola lista. */
+  grupos?: { titulo: string; valores: string[] }[];
 }) {
   const [puestos, setPuestos] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
@@ -52,6 +56,10 @@ export function Marcar({
   const q = limpio(busca.trim());
   const libres = opciones.filter((o) => !puestos.includes(o.valor));
   const salen = q === "" ? libres : libres.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
+  const porValor = new Map(salen.map((o) => [o.valor, o]));
+  const columnas = grupos?.map((g) => ({ titulo: g.titulo, opciones: g.valores.map((v) => porValor.get(v)).filter((o): o is Marca => !!o) }));
+  // Con columnas, Enter marca la primera que se vea, columna a columna.
+  const primera = columnas ? columnas.flatMap((c) => c.opciones)[0] : salen[0];
 
   useLayoutEffect(() => {
     if (!abierto) return;
@@ -124,7 +132,8 @@ export function Marcar({
         {abierto && (
           <div
             className={
-              "absolute left-0 right-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+              "absolute left-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+              (columnas ? "w-[860px] " : "right-0 ") +
               (arriba ? "bottom-full mb-1" : "top-full mt-1")
             }
           >
@@ -136,11 +145,31 @@ export function Marcar({
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 e.preventDefault();
-                if (salen[0]) marcar(salen[0].valor);
+                if (primera) marcar(primera.valor);
               }}
               placeholder="Escribe para buscar…"
               className="w-full border-b border-black/10 px-3 py-2 text-sm text-carbon outline-none placeholder:text-carbon/55"
             />
+            {columnas ? (
+              <div className="grid grid-cols-4 divide-x divide-black/10">
+                {columnas.map((c) => (
+                  <div key={c.titulo} className="min-w-0 py-2">
+                    <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{c.titulo}</div>
+                    {c.opciones.length === 0 && <p className="px-3 py-1 text-[12px] text-carbon/50">—</p>}
+                    {c.opciones.map((o) => (
+                      <button
+                        key={o.valor}
+                        type="button"
+                        onClick={() => marcar(o.valor)}
+                        className="block w-full cursor-pointer px-3 py-1.5 text-left text-sm text-carbon hover:bg-lima-soft"
+                      >
+                        {o.texto}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
             <ul className="max-h-60 overflow-auto py-1">
               {salen.length === 0 && <li className="px-3 py-2 text-sm text-carbon/65">No queda ninguna por marcar.</li>}
               {salen.map((o) => (
@@ -156,6 +185,7 @@ export function Marcar({
                 </li>
               ))}
             </ul>
+            )}
           </div>
         )}
       </div>
