@@ -168,7 +168,7 @@ for sx in sus:
     for t in sx['antiguas'] + sx['nuevas']:
         h = por_titulo.get(t)
         if h:
-            h['notas'] = [n for n in h['notas'] if 'versión' not in n and 'versiones' not in n]
+            h['notas'] = [n for n in h['notas'] if 'versión' not in n and 'versiones' not in n and not n.startswith('PARA TI')]
             if h in nuevas and h.get('version_de') and h['version_de']['titulo'] in sx['antiguas']: h.pop('version_de')
     for t in sx['antiguas']:
         h = por_titulo.get(t)
