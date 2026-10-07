@@ -143,6 +143,8 @@ def pc(cid, nombre, rol='presidente', tel=None, doc=None, email=None, notas_=Non
         cambios = {k: v for k, v in (('telefono', tel), ('documento', doc), ('email', email)) if v and not ex[0][k]}
         if cambios: act('personas_comunidad?id=eq.' + ex[0]['id'], cambios)
         return ex[0]['id']
+    if rol != 'presidente' and ESCRIBIR and b.leer('personas_comunidad?select=id&comunidad_id=eq.%s&rol=eq.%s&nombre=eq.%s' % (cid, rol, quote(nombre))):
+        return b.leer('personas_comunidad?select=id&comunidad_id=eq.%s&rol=eq.%s&nombre=eq.%s' % (cid, rol, quote(nombre)))[0]['id']
     i = nuevo_id()
     ins('personas_comunidad', [{'id': i, 'comunidad_id': cid, 'nombre': nombre, 'rol': rol, 'telefono': tel, 'email': email, 'documento': doc,
                                 'es_contacto_principal': rol != 'presidente', 'notas': notas_}])
@@ -263,6 +265,8 @@ def mania(texto, dep, fecha, carp, clave=None, trozo=None, cita=None, tecnico=No
         oid = OPP[clave][1]; nid, cita = nota_de(clave, fecha, trozo)
     else:
         cid = CLON.get(carp) or (b.leer(T + '?select=id&municipio=eq.MADRID&carpeta=eq.' + quote(carp)) or [{'id': None}])[0]['id']
+    if ESCRIBIR and b.leer('manias_organismos?select=id&mania=eq.%s&ruta_dropbox=eq.%s' % (quote(texto), quote(ruta or R(carp)))):
+        print('mania ya escrita, se salta:', texto[:50]); return
     ins('manias_organismos', [{'municipio_id': MUN, 'departamento': dep, 'tecnico': tecnico, 'mania': texto, 'cita': cita, 'fecha': fecha, 'oportunidad_id': oid,
                                'nota_oportunidad_id': nid, 'clon_id': cid, 'ruta_dropbox': ruta or R(carp), 'origen': 'ficha_dropbox'}])
 
