@@ -14,6 +14,9 @@ SOBRAN = {
     '85f5eae1-3198-4365-83cf-02f8e79b9eeb': 'GENERAL RICADOS 238 (errata): duplicada de General Ricardos 238.',
     '780e73b4-151f-4c85-9f51-c7a526157405': 'EPOCA 23: misma parcela que Epoca 25; el encargo (2 ascensores) es la opp de Epoca 25.',
     '3e1c5f9b-a60f-4e2b-ae96-e202607e664b': 'CAMINO GANAPANES 31: segunda opp; Ganapanes 31-33-35 es una sola opp con los tres portales.',
+    # tanda I-J-L (Monica, 7-oct-2026)
+    'f68eb0c7-58ef-4653-8607-5a8556f5f2f0': 'JULIAN BESTEIRO 13 15: mismo encargo de 2025 que el ascensor de 15G (se le enlazan sus portales).',
+    'a2b47242-2d54-44f3-94f6-b2d6ae50049a': 'LOPEZ DE HOYOS 342B: es el mismo edificio que la carpeta 342C (perdida, en la clon).',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
@@ -33,7 +36,7 @@ for oid, motivo in SOBRAN.items():
                   'relacion_oportunidad_accesos': b.leer('relacion_oportunidad_accesos?select=*&opp_id=eq.' + oid)}
     print('%s  %s' % (oid[:8], motivo))
 if copia:
-    f = os.path.join(os.path.expanduser('~'), 'Downloads', 'copia_opps_sobrantes_borradas_7oct.json')
+    f = os.path.join(os.path.expanduser('~'), 'Downloads', 'copia_opps_sobrantes_borradas_7oct_%s.json' % __import__('time').strftime('%H%M'))
     if BORRAR:
         json.dump(copia, open(f, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, default=str)
         print('copia en', f)
