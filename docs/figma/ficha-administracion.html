@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ficha de administración de fincas — maqueta para corregir</title>
+<style>
+/* FICHA DE UNA ADMINISTRACION DE FINCAS — maqueta para corregir (7-oct-2026).
+   Parte de la ficha que se archivo el 11-sep (archivo/pantallas-hasta-2026-09-11/
+   app/administraciones/[id]) y la pone al dia:
+     - el ORDEN es el que puso Monica, por frecuencia de uso: "si entro a la
+       ficha de una administracion es porque busco algo de ellos, sobre todo su
+       contacto". 1 quien es y como se le llama · 2 su gente · 3 el diario ·
+       4 lo que tenemos abierto;
+     - los COLORES, los de su maqueta del bloque 1 (cajas de borde #d9d9d9,
+       rotulos grises, el azul #104269 y las bandas de titulo);
+     - las CIFRAS, las del listado de administradores de Consultar: generadas,
+       vivas, ultimo contacto;
+     - lo abierto, con "en que punto esta" (el bloque), como el listado.
+   PARA FIGMA: sin codigo, todo el estilo aqui dentro, no pide nada a internet.
+   Datos INVENTADOS. Las notas de colores del margen no van en la pantalla. */
+:root{--carbon:#2b2b2b;--azul:#104269;--lima:#7ac943;--lima-dark:#3f7a1c;--gris:#8a8a8a;
+      --opp:#5680a1;--base:#7a4fa0;--nuevo:#b26a00;--fijo:#8a8a8a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e4e4e0;color:#1c1c1c;font:13px/1.45 ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif}
+.mesa{width:1640px;margin:0 auto;padding:24px 24px 80px}
+h1.hoja{font-size:22px;font-weight:800}
+.intro{font-size:13px;color:rgba(43,43,43,.75);margin-top:6px;max-width:980px}
+.leyenda{display:flex;gap:8px;margin-top:10px}
+.tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:2px 9px;color:#fff}
+.t-base{background:var(--base)}.t-nuevo{background:var(--nuevo)}.t-fijo{background:var(--fijo)}
+.fila-pag{display:flex;gap:22px;align-items:flex-start;margin-top:22px}
+.margen{flex:1;display:flex;flex-direction:column;gap:8px;padding-top:6px}
+.nota{font-size:12px;line-height:1.45;color:rgba(43,43,43,.8);background:#fff;border-radius:10px;padding:8px 10px;border:1px solid #d8d8d4}
+.nota b{color:var(--carbon)}
+
+/* ---- la pantalla, 1300 ---- */
+.pantalla{width:1300px;flex:none;background:#f7f7f5;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.barra{height:56px;background:var(--carbon);display:flex;align-items:center;padding:0 24px;gap:16px;color:#fff}
+.barra .logo{background:#fff;color:var(--carbon);font-weight:800;padding:4px 10px;border-radius:3px}
+.barra .busca{margin-left:auto;border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:6px 14px;color:rgba(255,255,255,.55);width:260px}
+.barra .menu{background:var(--lima);color:var(--carbon);font-weight:700;border-radius:99px;padding:7px 16px}
+.cuerpo{padding:20px 24px 40px}
+.volver{font-size:14px;font-weight:600;color:rgba(43,43,43,.65)}
+.rot{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gris)}
+.rot.azul{font-size:12px;color:var(--azul);text-decoration:underline;letter-spacing:.05em}
+.caja{border:1px solid #d9d9d9;border-radius:10px;background:#fff;padding:13px 15px}
+.banda{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;background:#E3EAF0;border:1px solid var(--azul);border-radius:5px;padding:3px 7px;margin-bottom:7px}
+.rejilla{display:grid;grid-template-columns:1fr 1fr 360px;gap:10px;margin-top:12px;align-items:start}
+
+/* cabecera */
+.cab{grid-column:1 / span 2}
+.cab h1{font-size:25px;font-weight:700;line-height:1.15}
+.sub{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12.5px;color:#4a4a4a}
+.estado{background:#E9F3EC;color:#0C8124;border:1px solid #0C8124;border-radius:99px;padding:1px 8px;font-weight:700;font-size:11px}
+.contacto{display:grid;grid-template-columns:200px 1fr 1fr;gap:14px;border-top:1px solid #eee;margin-top:12px;padding-top:10px}
+.contacto .v{font-size:14px;font-weight:600;margin-top:2px}
+.cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cifra{background:#f4f8ef;border-radius:8px;text-align:center;padding:9px 4px}
+.cifra b{display:block;font-size:20px}
+.cifra span{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#555}
+
+/* gente */
+.gente{grid-column:1 / span 2}
+.gente ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;margin-top:6px}
+.gente li{padding:8px 10px;border-bottom:1px solid #f0f0f0}
+.gente li:nth-child(odd){border-right:1px solid #f0f0f0}
+.gente .n{font-weight:700;font-size:14px;display:flex;justify-content:space-between}
+.gente .c{color:#6e6e6e;font-size:12px}
+.gente .t{font-size:12.5px;margin-top:2px;display:flex;gap:14px}
+.titular{background:#E3EAF0;color:var(--azul);font-size:10px;font-weight:700;border-radius:3px;padding:0 5px;text-transform:uppercase}
+.mas{font-size:11.5px;color:var(--lima-dark);font-weight:700}
+
+/* abierto */
+.abierto{grid-column:1 / span 2}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#6e6e6e;text-align:left;border-bottom:1px solid #d9d9d9;padding:5px 8px}
+td{border-bottom:1px solid #f0f0f0;padding:5px 8px}
+tr:nth-child(even) td{background:#fafaf8}
+.punto{border-radius:5px;padding:1px 7px;font-size:11.5px}
+.p1{background:#E3EAF0;color:var(--azul)}.p2{background:#E9F3EC;color:#0C8124}.p3{background:#fdf6e3;color:#8a5a00}.p4{background:#F7EAEA;color:#820707}
+u{text-underline-offset:2px}
+
+/* derecha */
+.dcha{grid-column:3;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px}
+.ent{border-bottom:1px solid #eee;padding:7px 0}
+.ent .c{font-size:11px;color:var(--gris)}
+.ent p{font-size:12.5px;margin-top:2px}
+.grabar{border:1px dashed #cfcfcf;border-radius:10px;background:#fafafa;color:#a0a0a0;text-align:center;padding:12px;font-size:11.5px;margin-top:8px}
+.dato{padding:6px 0;border-bottom:1px solid #f0f0f0}
+.dato:last-child{border:0}
+.dato .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#6e6e6e}
+.dato .v{font-size:13.5px;margin-top:1px}
+.vacio{color:var(--gris);font-style:italic}
+.pactado{font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="mesa">
+<h1 class="hoja">Ficha de administración de fincas <span style="font-weight:400;color:rgba(43,43,43,.6)">— maqueta para corregir</span></h1>
+<p class="intro">La que se archivó el 11-sep, puesta al día: tu orden por frecuencia de uso (contacto → su gente → diario → lo abierto),
+los colores del bloque 1 y las cifras de los listados de Consultar. Se llega desde el buscador y desde el listado de administradores.
+Datos inventados. Las notas del margen dicen de dónde sale cada pieza y no van en la pantalla.</p>
+<div class="leyenda"><span class="tag t-base">Ya está en la base</span><span class="tag t-nuevo">Nuevo / por decidir</span><span class="tag t-fijo">Fijo</span></div>
+
+<div class="fila-pag">
+ <div class="pantalla">
+  <div class="barra"><span class="logo">accesalia</span><span class="busca">🔍 Buscar una comunidad…</span><span class="menu">☰ MENÚ</span></div>
+  <div class="cuerpo">
+   <div class="volver">← Volver</div>
+
+   <div class="rejilla">
+    <!-- 1 · quién es y cómo se le llama -->
+    <section class="caja cab">
+     <div class="rot">Administración de fincas</div>
+     <h1>ADMINISTRACIONES EJEMPLO, S.L.</h1>
+     <div class="sub"><span class="estado">Cliente</span><span>Getafe</span><span>· lleva la cartera <b>Daniel Pérez</b></span></div>
+     <div class="contacto">
+      <div><div class="rot">Teléfono</div><div class="v">916 000 000</div></div>
+      <div><div class="rot">Correo</div><div class="v">oficina@ejemplo-fincas.es</div></div>
+      <div><div class="rot">Dirección</div><div class="v" style="font-weight:400">C/ Madrid 12, 1º · 28901 Getafe</div></div>
+     </div>
+     <div class="cifras" style="margin-top:12px">
+      <div class="cifra"><b>23</b><span>oportunidades generadas</span></div>
+      <div class="cifra"><b>18</b><span>vivas ahora</span></div>
+      <div class="cifra"><b>05/10/2026</b><span>último contacto</span></div>
+     </div>
+    </section>
+
+    <!-- derecha: el diario, datos, lo pactado -->
+    <div class="dcha">
+     <section class="caja">
+      <div class="rot" style="margin-bottom:4px">Lo que va pasando</div>
+      <div class="ent"><div class="c">05/10 · llamada · Lucía Gómez</div><p>Nos pasa tres comunidades nuevas de Getafe para ascensor. Quiere precio antes del 20.</p></div>
+      <div class="ent"><div class="c">28/09 · correo · Pedro Sanz</div><p>Manda el acta de la junta de Toledo 4: aprueban pedir la subvención.</p></div>
+      <div class="ent"><div class="c">12/09 · visita · Daniel Pérez</div><p>Café con Pedro. Están contentos con la obra de Leganés y nos van a meter en dos más.</p></div>
+      <div class="grabar">Grabar una entrada</div>
+     </section>
+     <section class="caja">
+      <div class="rot" style="margin-bottom:4px">Datos</div>
+      <div class="dato"><div class="k">Titular</div><div class="v">Pedro Sanz</div></div>
+      <div class="dato"><div class="k">Razón legal</div><div class="v">Administraciones Ejemplo, S.L.</div></div>
+      <div class="dato"><div class="k">CIF</div><div class="v vacio">No consta</div></div>
+      <div class="dato"><div class="k">Notas</div><div class="v">Prefieren que se les llame por la mañana.</div></div>
+     </section>
+     <section class="caja">
+      <div class="rot" style="margin-bottom:4px">Lo pactado</div>
+      <div class="pactado">3 % del PEM</div>
+      <div style="font-size:12px;color:#4a4a4a">Lo paga la contrata · pactado con la administración, no con una persona</div>
+     </section>
+    </div>
+
+    <!-- 2 · su gente -->
+    <section class="caja gente">
+     <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="rot azul">Su gente</div><span class="mas">+ Añadir persona</span></div>
+     <ul>
+      <li><div class="n">Pedro Sanz <span><span class="titular">titular</span> 9 com.</span></div><div class="c">Gerente</div><div class="t"><span>✉ pedro@ejemplo-fincas.es</span><span>☎ 600 000 001</span></div></li>
+      <li><div class="n">Lucía Gómez <span style="font-weight:400;color:#6e6e6e;font-size:12px">7 com.</span></div><div class="c">Administradora</div><div class="t"><span>✉ lucia@ejemplo-fincas.es</span><span>☎ 600 000 002</span></div></li>
+      <li><div class="n">Marta Ruiz <span style="font-weight:400;color:#6e6e6e;font-size:12px">4 com.</span></div><div class="c">Administradora</div><div class="t"><span>✉ marta@ejemplo-fincas.es</span></div></li>
+      <li><div class="n">Javier León</div><div class="c">Oficial administrativo</div><div class="t"><span class="vacio">sin contacto</span></div></li>
+     </ul>
+    </section>
+
+    <!-- 4 · lo que tenemos abierto -->
+    <section class="caja abierto">
+     <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="rot azul">Lo que tenemos abierto en sus comunidades</div><span style="font-size:12px;color:#6e6e6e">18 vivas · <u>ver todas en el listado</u></span></div>
+     <table>
+      <tr><th>Oportunidad</th><th>En qué punto está</th><th>Comercial</th><th style="text-align:right">Último contacto</th></tr>
+      <tr><td><u><b>TOLEDO 4 GETAFE</b></u></td><td><span class="punto p3">3 · Decisión de los vecinos — junta el 20/10</span></td><td>Daniel Pérez</td><td style="text-align:right">28/09/2026</td></tr>
+      <tr><td><u><b>MADRID 31 GETAFE</b></u></td><td><span class="punto p2">2 · Documentación — falta enviarla</span></td><td>Daniel Pérez</td><td style="text-align:right">05/10/2026</td></tr>
+      <tr><td><u><b>LEGANÉS 8 LEGANÉS</b></u></td><td><span class="punto p4">4 · Cierre — falta cobrar</span></td><td>Alejandra Mora</td><td style="text-align:right">12/09/2026</td></tr>
+      <tr><td><u><b>RAMÓN Y CAJAL 15 GETAFE</b></u></td><td><span class="punto p1">1 · Toma de datos — falta el Polycam</span></td><td>Daniel Pérez</td><td style="text-align:right">05/10/2026</td></tr>
+      <tr><td colspan="4" style="color:#6e6e6e">y 14 más ›</td></tr>
+     </table>
+    </section>
+   </div>
+  </div>
+ </div>
+
+ <div class="margen">
+  <div class="nota"><span class="tag t-base">Ya está</span><br><b>Nombre, teléfono, correo, dirección, estado</b>: de la ficha de la empresa. «Lleva la cartera»: su comercial (hoy solo 80 de 337 lo tienen).</div>
+  <div class="nota"><span class="tag t-nuevo">Nuevo</span><br><b>Las tres cifras</b>, las mismas que el listado de administradores: generadas, vivas y último contacto (lo más reciente del diario de sus oportunidades).</div>
+  <div class="nota"><span class="tag t-base">Ya está</span><br><b>Su gente</b>: las personas con puesto en la administración, con su teléfono y correo a la vista. «9 com.»: de cuántas comunidades es el contacto.</div>
+  <div class="nota"><span class="tag t-base">Ya está</span><br><b>El diario</b>: las notas de la administración (notas_administracion_fincas). En la archivada iba arriba a la derecha, «a la altura del nombre»: es lo que cambia cada día.</div>
+  <div class="nota"><span class="tag t-nuevo">Por decidir</span><br><b>Lo abierto</b>: antes eran obras y proyectos; ahora, sus oportunidades vivas con «en qué punto está», como el listado. Pinchar una abre la ficha de su comunidad. ¿Las cerradas también, plegadas?</div>
+  <div class="nota"><span class="tag t-base">Ya está</span><br><b>Datos y lo pactado</b>: razón legal, CIF, notas, y el acuerdo de comisión (acuerdos_comision). El aviso de «pactado con la administración, no con una persona» venía de la archivada.</div>
+  <div class="nota"><span class="tag t-nuevo">Por decidir</span><br><b>Editar</b>: la archivada tenía «Editar» y «+ Añadir persona». Si esta ficha es de toda la casa (como el buscador), ¿quién puede tocar?</div>
+ </div>
+</div>
+</div>
+</body>
+</html>
