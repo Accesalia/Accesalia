@@ -9,8 +9,8 @@ import { salir } from "../entrar/acciones";
 // EL BUSCADOR VIVE AQUI (Monica, 12-sep-2026): "buscar una comunidad no deberia
 // estar en fila con el resto de botones; aislado, en la fila de arriba y a la
 // derecha, siempre en el mismo sitio para no estar buscandolo en cada pagina".
-// Aun no busca: la ficha de comunidad que abria esta archivada, asi que el campo
-// se ve, ocupa su sitio y dice "Próximamente".
+// Y YA BUSCA (7-oct-2026): lo escrito va a Consultar, que encuentra la
+// direccion y lleva a la ficha de la comunidad.
 export async function BarraSuperior() {
   const yo = await quienSoy().catch(() => null);
 
@@ -31,19 +31,23 @@ export async function BarraSuperior() {
         <div className="flex-1" />
 
         {yo && (
-          <div
-            title="Todavía no busca: la ficha de la comunidad está por montar"
-            className="hidden cursor-not-allowed items-center gap-2 rounded-full border border-dashed border-white/25 bg-white/5 px-3.5 py-1.5 md:flex"
+          <form
+            action="/consulta"
+            role="search"
+            className="hidden items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 transition focus-within:border-lima md:flex"
           >
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/45">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/60">
               <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.6" />
               <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
-            <span className="w-52 text-sm text-white/45">Buscar una comunidad…</span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">
-              Próximamente
-            </span>
-          </div>
+            <input type="hidden" name="que" value="direccion" />
+            <input
+              name="q"
+              aria-label="Buscar una comunidad"
+              placeholder="Buscar una comunidad…"
+              className="w-56 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
+            />
+          </form>
         )}
 
         {yo && (

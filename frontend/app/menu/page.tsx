@@ -34,6 +34,14 @@ const AREAS: Area[] = [
   },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, ve: () => true },
   {
+    // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
+    // y llega a su ficha (Monica, 7-oct-2026).
+    nombre: "Buscar y consultar",
+    desc: "Buscar una dirección o un administrador, y los listados de oportunidades y administradores de un vistazo",
+    href: "/consulta",
+    ve: () => true,
+  },
+  {
     nombre: "RRHH",
     desc: "Tus días y tus solicitudes. Para RRHH y dirección, además: vacaciones del equipo y fichas",
     href: "/rrhh",

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { fichaComunidad, type FichaComunidad } from "../../../../lib/administracion";
-import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { quienSoy } from "../../../../lib/sesion";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +97,9 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const yo = await quienSoy();
   if (!yo) redirect(`/entrar?volver=/administracion/comunidades/${id}`);
-  if (!puedeEntrar(yo, "administracion")) redirect("/menu");
+  // Solo se mira (no tiene nada que guardar), asi que la abre cualquiera que
+  // haya entrado: es el destino del buscador y de los listados, que son de
+  // toda la casa (Monica, 7-oct-2026).
 
   const f = await fichaComunidad(id);
   if (!f) notFound();
