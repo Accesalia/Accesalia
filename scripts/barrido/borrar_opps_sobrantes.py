@@ -33,6 +33,12 @@ SOBRAN = {
     '6e94e49c-796d-4532-ab10-d457df7b92c0': 'SANTA CRUZ DE MARCENADO 1 ESC E: idem.',
     # tanda T-V (Monica, 7-oct-2026)
     '80dc96f6-9c8b-4888-afd4-3654221bb4f1': 'TRAVESIA DE SANTIAGO ALIO 2: segunda opp vacia de la misma comunidad (la buena es 249d9a74).',
+    # limpieza de duplicadas por portal compartido (Monica, 7-oct-2026)
+    'dde7a361-7701-45dd-9fcc-5df91a2d8c19': 'NIÑO GOMEZ 16 (errata de NUÑO GOMEZ 16, que esta rellena).',
+    'a960c11e-daf8-4700-8ea6-2625f403bf63': 'PEDRO UNANUME 22 (errata de PEDRO UNANUE 22, que esta rellena).',
+    'bf9fe5df-6b2b-49fa-a943-b19e493d94b7': 'ESPARTA 5 MOSTOLES: se queda ESPARTA 5-7 (mismo portal).',
+    '52f83208-3363-473f-8f5d-dae60f579c48': 'CARLOS V 47, 49 Y VIENA 2, 4, 6 MOSTOLES: se queda CARLOS V 47-49 (mismo portal).',
+    'ade55782-c170-4427-a76c-618a3e01fe5e': 'PARLA 30 GETAFE: errata de PARLA 20 (mismo portal).',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
