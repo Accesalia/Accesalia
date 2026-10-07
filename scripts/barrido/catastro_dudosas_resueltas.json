@@ -1,0 +1,1216 @@
+{
+"CAR-2025-037": {
+"codigo": "CAR-2025-037",
+"carpeta": "europa22",
+"resuelta": "7665102VK2676N",
+"opp": "103e1153-60ab-45f8-893b-2ff8cb261d4b",
+"accion": "enlazar",
+"parcelas": {
+"7665102VK2676N": {
+"portales": [
+"AV EUROPA 22 esc T"
+],
+"aviso": "",
+"numeros": [
+"22"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-348": {
+"codigo": "DAN-2025-348",
+"carpeta": "ter25",
+"resuelta": "9514106VK5791S",
+"opp": "bd7f9c20-0ff2-47ae-b7b7-d47b374cc0ae",
+"accion": "enlazar",
+"parcelas": {
+"9514106VK5791S": {
+"portales": [
+"CL TER 25 esc T"
+],
+"aviso": "",
+"numeros": [
+"25"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-362": {
+"codigo": "DAN-2025-362",
+"carpeta": "avdelosrobles22",
+"resuelta": "1832803VK2913S0027YU Â",
+"opp": "1be8cb58-dd03-421e-a840-fe872ef8a38c",
+"accion": "enlazar",
+"parcelas": {
+"1832803VK2913S": {
+"portales": [
+"AV ROBLES DE LOS 22 esc 27"
+],
+"aviso": "",
+"numeros": [
+"22"
+],
+"escaleras": [
+"27"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-342": {
+"codigo": "DAN-2025-342",
+"carpeta": "castillodemalpica32",
+"resuelta": "0114007VK2801S",
+"opp": "d2ec1603-c916-4722-bf4c-f558b4b25875",
+"accion": "enlazar",
+"parcelas": {
+"0114007VK2801S": {
+"portales": [
+"CL CASTILLO MALPICA 32 esc T"
+],
+"aviso": "",
+"numeros": [
+"32"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-262": {
+"codigo": "DAN-2025-262",
+"carpeta": "riansares7",
+"resuelta": "1711505VK2711S",
+"opp": "4c3238ab-61e8-4a2f-852a-91000380ed6a",
+"accion": "enlazar",
+"parcelas": {
+"1711505VK2711S": {
+"portales": [
+"CL RIANSARES 7 esc T"
+],
+"aviso": "",
+"numeros": [
+"7"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-049": {
+"codigo": "DAN-2025-049",
+"carpeta": "castilla1",
+"resuelta": "la opp son ambos accesos",
+"opp": "b075ce9a-9bdd-4dca-b011-e71a668bbdae",
+"accion": "enlazar",
+"parcelas": {
+"0216301VK7801N": {
+"portales": [
+"AV CASTILLA DE 1 esc 1",
+"AV CASTILLA DE 1 esc 2"
+],
+"aviso": "",
+"numeros": [
+"1"
+],
+"escaleras": [
+"1",
+"2"
+]
+},
+"0217704VK7801N": {
+"portales": [
+"AV CASTILLA DE 1(B) esc T"
+],
+"aviso": "la parcela no tiene el numero 1: TODOS sus portales",
+"numeros": [
+"1(B)"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-062": {
+"codigo": "DAN-2025-062",
+"carpeta": "principedonjuancarlos2",
+"resuelta": "la opp son ambos accesos",
+"opp": "1d209cb4-858a-4eab-bb9e-47d4607bdd93",
+"accion": "enlazar",
+"parcelas": {
+"0572603VK3607S": {
+"portales": [
+"CL PRINCIPE D JUAN CARLOS 2 esc C",
+"CL PRINCIPE D JUAN CARLOS 2 esc D",
+"CL PRINCIPE D JUAN CARLOS 2 esc E",
+"CL PRINCIPE D JUAN CARLOS 2 esc I"
+],
+"aviso": "",
+"numeros": [
+"2"
+],
+"escaleras": [
+"C",
+"D",
+"E",
+"I"
+]
+},
+"0573804VK3607S": {
+"portales": [
+"CL PRINCIPE D JUAN CARLOS 2(V) esc S"
+],
+"aviso": "la parcela no tiene el numero 2: TODOS sus portales",
+"numeros": [
+"2(V)"
+],
+"escaleras": [
+"S"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-183": {
+"codigo": "DAN-2025-183",
+"carpeta": "avregiones4",
+"resuelta": "la opp son ambos accesos",
+"opp": "0ec20817-0292-4764-9af6-5a4cce4cf6cf",
+"accion": "enlazar",
+"parcelas": {
+"2204404VK3620S": {
+"portales": [
+"AV REGIONES 4 esc 1"
+],
+"aviso": "",
+"numeros": [
+"4"
+],
+"escaleras": [
+"1"
+]
+},
+"2204412VK3620S": {
+"portales": [
+"AV REGIONES 4(A)"
+],
+"aviso": "la parcela no tiene el numero 4: TODOS sus portales",
+"numeros": [
+"4(A)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-091": {
+"codigo": "DAN-2025-091",
+"carpeta": "avmarquesdecorbera26B",
+"resuelta": "la opp son ambos accesos",
+"opp": "52d79990-3832-499a-b769-e69c8612f33d",
+"accion": "enlazar",
+"parcelas": {
+"4752304VK4745D": {
+"portales": [
+"AV MARQUES DE CORBERA 26(C)"
+],
+"aviso": "la parcela no tiene el numero 26: TODOS sus portales",
+"numeros": [
+"26(C)"
+],
+"escaleras": [
+""
+]
+},
+"4752329VK4745D": {
+"portales": [
+"AV MARQUES DE CORBERA 26(B)"
+],
+"aviso": "",
+"numeros": [
+"26(B)"
+],
+"escaleras": [
+""
+]
+},
+"4752330VK4745D": {
+"portales": [
+"AV MARQUES DE CORBERA 26(A)"
+],
+"aviso": "la parcela no tiene el numero 26: TODOS sus portales",
+"numeros": [
+"26(A)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-051": {
+"codigo": "DAN-2025-051",
+"carpeta": "avsanluis95",
+"resuelta": "la opp son ambos accesos",
+"opp": "e0717fce-764a-4140-9fa9-a8d793c5637e",
+"accion": "enlazar",
+"parcelas": {
+"3112203VK4831A": {
+"portales": [
+"AV SAN LUIS 95(B)"
+],
+"aviso": "la parcela no tiene el numero 95: TODOS sus portales",
+"numeros": [
+"95(B)"
+],
+"escaleras": [
+""
+]
+},
+"3112204VK4831A": {
+"portales": [
+"AV SAN LUIS 95",
+"AV SAN LUIS 95 esc D"
+],
+"aviso": "",
+"numeros": [
+"95"
+],
+"escaleras": [
+"",
+"D"
+]
+}
+},
+"hecha": true
+},
+"DAN-2026-079": {
+"codigo": "DAN-2026-079",
+"carpeta": "camarena256",
+"resuelta": "la opp son ambos accesos",
+"opp": "bdfe74d9-6379-4c7e-a3fe-518bf2f19e81",
+"accion": "enlazar",
+"parcelas": {
+"5812913VK3751B": {
+"portales": [
+"CL CAMARENA 256 esc 1"
+],
+"aviso": "",
+"numeros": [
+"256"
+],
+"escaleras": [
+"1"
+]
+},
+"5812925VK3751B": {
+"portales": [
+"CL CAMARENA 256(B)"
+],
+"aviso": "la parcela no tiene el numero 256: TODOS sus portales",
+"numeros": [
+"256(B)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-046": {
+"codigo": "DAN-2025-046",
+"carpeta": "fernandoelcatolico47",
+"resuelta": "la opp son ambos accesos",
+"opp": "8604e028-9cd9-44fd-9f8d-6578989c6ba5",
+"accion": "enlazar",
+"parcelas": {
+"9663602VK3796D": {
+"portales": [
+"CL FERNANDO EL CATOLICO 47(A)"
+],
+"aviso": "la parcela no tiene el numero 47: TODOS sus portales",
+"numeros": [
+"47(A)"
+],
+"escaleras": [
+""
+]
+},
+"9663603VK3796D": {
+"portales": [
+"CL FERNANDO EL CATOLICO 47 esc 1",
+"CL FERNANDO EL CATOLICO 47 esc 2"
+],
+"aviso": "",
+"numeros": [
+"47"
+],
+"escaleras": [
+"1",
+"2"
+]
+}
+},
+"hecha": true
+},
+"CAR-2025-020": {
+"codigo": "CAR-2025-020",
+"carpeta": "illescas24",
+"resuelta": "la opp son ambos accesos",
+"opp": "37311799-1736-43ae-8b9c-2a0af8370239",
+"accion": "enlazar",
+"parcelas": {
+"5220604VK3752A": {
+"portales": [
+"CL ILLESCAS 24(B) esc T"
+],
+"aviso": "la parcela no tiene el numero 24: TODOS sus portales",
+"numeros": [
+"24(B)"
+],
+"escaleras": [
+"T"
+]
+},
+"5220605VK3752A": {
+"portales": [
+"CL ILLESCAS 24(C) esc T"
+],
+"aviso": "la parcela no tiene el numero 24: TODOS sus portales",
+"numeros": [
+"24(C)"
+],
+"escaleras": [
+"T"
+]
+},
+"5220606VK3752A": {
+"portales": [
+"CL ILLESCAS 24(D) esc T"
+],
+"aviso": "la parcela no tiene el numero 24: TODOS sus portales",
+"numeros": [
+"24(D)"
+],
+"escaleras": [
+"T"
+]
+},
+"5220607VK3752A": {
+"portales": [
+"CL ILLESCAS 24(E) esc T"
+],
+"aviso": "la parcela no tiene el numero 24: TODOS sus portales",
+"numeros": [
+"24(E)"
+],
+"escaleras": [
+"T"
+]
+},
+"5220608VK3752A": {
+"portales": [
+"CL ILLESCAS 24 esc 1"
+],
+"aviso": "",
+"numeros": [
+"24"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-244": {
+"codigo": "DAN-2025-244",
+"carpeta": "marcosdeorueta15",
+"resuelta": "la opp son ambos accesos",
+"opp": "f25613e3-0dc3-45d0-aef2-36ad7a7a6f37",
+"accion": "enlazar",
+"parcelas": {
+"1820821VK4812B": {
+"portales": [
+"CL MARCOS DE ORUETA 15"
+],
+"aviso": "",
+"numeros": [
+"15"
+],
+"escaleras": [
+""
+]
+},
+"1820843VK4811H": {
+"portales": [
+"CL MARCOS DE ORUETA 15(C) esc T"
+],
+"aviso": "la parcela no tiene el numero 15: TODOS sus portales",
+"numeros": [
+"15(C)"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"ALV-2026-175": {
+"codigo": "ALV-2026-175",
+"carpeta": "mercedesizquierdo3",
+"resuelta": "es de san sebastian de los reyes, era un error el municipio",
+"opp": "0962dc96-2b48-445c-b52c-c2f45b02ebe6",
+"municipio_nuevo": "SAN SEBASTIAN DE LOS REYES",
+"calle": "CL MERCEDES IZQUIERDO",
+"accion": "enlazar",
+"parcelas": {
+"7091107VK4879S": {
+"portales": [
+"CL MERCEDES IZQUIERDO 3"
+],
+"aviso": "",
+"numeros": [
+"3"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"CAR-2026-024": {
+"codigo": "CAR-2026-024",
+"carpeta": "cuentasaltas1",
+"resuelta": "cuestas altas 1 7721220VK3672S",
+"opp": "515afd9b-5bdf-4a64-a36b-2c55fece0e3b",
+"accion": "enlazar",
+"parcelas": {
+"7721220VK3672S": {
+"portales": [
+"CL CUESTAS ALTAS 1 esc E"
+],
+"aviso": "",
+"numeros": [
+"1"
+],
+"escaleras": [
+"E"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-246": {
+"codigo": "DAN-2025-246",
+"carpeta": "nuestraseÃ±oradelaalmudena5",
+"resuelta": "4746104VK3644N",
+"opp": "2158e925-7ee1-49ef-827e-0893761a66d8",
+"accion": "enlazar",
+"parcelas": {
+"4746104VK3644N": {
+"portales": [
+"CL NTRA SRA D L ALMUDENA 5"
+],
+"aviso": "",
+"numeros": [
+"5"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"CAR-2025-069": {
+"codigo": "CAR-2025-069",
+"carpeta": "viejodeleganes237",
+"resuelta": "inviable, no hay datos, eliminar como opp (cerrar o dar de baja como prdida)",
+"opp": "618e33fd-cf0f-45ee-be64-371eb506f735",
+"accion": "cerrar",
+"hecha": true
+},
+"ALV-2026-080": {
+"codigo": "ALV-2026-080",
+"carpeta": "campodepaloma34",
+"resuelta": "5207112VK4750E",
+"opp": "4eb0d178-3bef-4360-bfbe-00ca10c92bf9",
+"accion": "enlazar",
+"parcelas": {
+"5207112VK4750E": {
+"portales": [
+"CL CAMPO DE LA PALOMA 34"
+],
+"aviso": "",
+"numeros": [
+"34"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-388": {
+"codigo": "DAN-2025-388",
+"carpeta": "corregidordiegocabezadevaca20",
+"resuelta": "4535910VK4743F",
+"opp": "269bea05-cd2f-4a7f-9d35-e9cf004e1bc0",
+"accion": "enlazar",
+"parcelas": {
+"4535910VK4743F": {
+"portales": [
+"CL CGDOR DIEGO CABEZA VACA 20"
+],
+"aviso": "",
+"numeros": [
+"20"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-043": {
+"codigo": "DAN-2025-043",
+"carpeta": "indias16",
+"resuelta": "error en minuciopio, s leganes 4642601VK3644S",
+"opp": "a87bf9e5-0d5e-415b-8a1e-4194e454c848",
+"municipio_nuevo": "LEGANES",
+"accion": "enlazar",
+"parcelas": {
+"4642601VK3644S": {
+"portales": [
+"CL INDIAS DE LAS 16"
+],
+"aviso": "",
+"numeros": [
+"16"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"ALV-2026-006": {
+"codigo": "ALV-2026-006",
+"carpeta": "riosegura8",
+"resuelta": "9290332VK3699A",
+"opp": "555b4682-b6d1-4588-830a-b79ff1786c0d",
+"accion": "enlazar",
+"parcelas": {
+"9290332VK3699A": {
+"portales": [
+"CL SEGURA 8"
+],
+"aviso": "",
+"numeros": [
+"8"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-321": {
+"codigo": "DAN-2025-321",
+"carpeta": "parquecomercialalcoraplaza",
+"resuelta": "es europa 22 alcorcon, y creo que ya esta, debe estar diuplicado",
+"opp": "4716a5a3-136c-440b-a979-f5697a28d388",
+"accion": "aparte",
+"motivo": "Europa 22 Alcorcon: hay TRES opps del mismo edificio; se pregunta antes de tocar"
+},
+"DAN-2025-023": {
+"codigo": "DAN-2025-023",
+"carpeta": "generalcabrera25",
+"resuelta": "1087316VK4718G",
+"opp": "27fe8935-b37b-43fe-8c6e-c5bb920b1687",
+"accion": "enlazar",
+"parcelas": {
+"1087316VK4718G": {
+"portales": [
+"CL GENERAL CABRERA 25(A)",
+"CL GENERAL CABRERA 25(B)"
+],
+"aviso": "la parcela no tiene el numero 25: TODOS sus portales",
+"numeros": [
+"25(A)",
+"25(B)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2026-205": {
+"codigo": "DAN-2026-205",
+"carpeta": "sanasturioserrano1bis",
+"resuelta": "CL",
+"opp": "57f689fd-45c4-42dc-babc-2c981d4b2e74",
+"calle": "CL SAN ASTURIO SERRANO",
+"accion": "enlazar",
+"parcelas": {
+"7906801VK6870N": {
+"portales": [
+"CL SAN ASTURIO SERRANO 1(B) esc 1",
+"CL SAN ASTURIO SERRANO 1(B) esc D",
+"CL SAN ASTURIO SERRANO 1(B) esc I"
+],
+"aviso": "",
+"numeros": [
+"1(B)"
+],
+"escaleras": [
+"1",
+"D",
+"I"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-172": {
+"codigo": "DAN-2025-172",
+"carpeta": "polvoranca40",
+"resuelta": "CL",
+"opp": "8686e35e-ca27-4e56-9f59-725f5bbb85ac",
+"calle": "CL POLVORANCA",
+"accion": "enlazar",
+"parcelas": {
+"0068301VK3606N": {
+"portales": [
+"CL POLVORANCA 40 esc A",
+"CL POLVORANCA 40 esc B",
+"CL POLVORANCA 40 esc E"
+],
+"aviso": "",
+"numeros": [
+"40"
+],
+"escaleras": [
+"A",
+"B",
+"E"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-198": {
+"codigo": "DAN-2025-198",
+"carpeta": "valdeserrano3",
+"resuelta": "cm; Catastro: 2190603VK3528N (PZ VALDESERRANO 3: en CM no existe el numero)",
+"opp": "4a1e1e8c-6411-42cf-82cd-eeda4f996055",
+"accion": "enlazar",
+"parcelas": {
+"2190603VK3528N": {
+"portales": [
+"PZ VALDESERRANO 3 esc 1"
+],
+"aviso": "",
+"numeros": [
+"3"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-177": {
+"codigo": "DAN-2025-177",
+"carpeta": "juandelacierva27escE",
+"resuelta": "AV",
+"opp": "2e46eb33-4631-4c7e-a798-6c9970ba1d63",
+"calle": "AV JUAN DE LA CIERVA",
+"accion": "enlazar",
+"parcelas": {
+"8524803VK3682S": {
+"portales": [
+"AV JUAN DE LA CIERVA 27 esc 1",
+"AV JUAN DE LA CIERVA 27 esc 2"
+],
+"aviso": "",
+"numeros": [
+"27"
+],
+"escaleras": [
+"1",
+"2"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-012": {
+"codigo": "DAN-2025-012",
+"carpeta": "madrid4",
+"resuelta": "CL",
+"opp": "48244e2e-74b1-45df-b35f-3c24c051c6e1",
+"calle": "CL MADRID",
+"accion": "enlazar",
+"parcelas": {
+"5047512VK3654N": {
+"portales": [
+"CL MADRID 4",
+"CL MADRID 4 esc T"
+],
+"aviso": "",
+"numeros": [
+"4"
+],
+"escaleras": [
+"",
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-187": {
+"codigo": "DAN-2025-187",
+"carpeta": "arturosoria54-56",
+"resuelta": "CL",
+"opp": "f6162e9e-f2db-4f1f-908d-5b257176fb7a",
+"calle": "CL ARTURO SORIA",
+"accion": "enlazar",
+"parcelas": {
+"5773909VK4757D": {
+"portales": [
+"CL ARTURO SORIA 54",
+"CL ARTURO SORIA 56"
+],
+"aviso": "",
+"numeros": [
+"54",
+"56"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-058": {
+"codigo": "DAN-2025-058",
+"carpeta": "biosca8",
+"resuelta": "CL",
+"opp": "ec9b3e5e-8445-427d-989c-f4b16aa2aada",
+"calle": "CL BIOSCA",
+"accion": "enlazar",
+"parcelas": {
+"5003412VK4850C": {
+"portales": [
+"CL BIOSCA 8 esc 1"
+],
+"aviso": "",
+"numeros": [
+"8"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+},
+"CAR-2025-017": {
+"codigo": "CAR-2025-017",
+"carpeta": "blascodegaray14",
+"resuelta": "CL",
+"opp": "e0d80b6a-bda3-4900-b74a-5f7dee5572f4",
+"calle": "CL BLASCO DE GARAY",
+"accion": "enlazar",
+"parcelas": {
+"9760620VK3796B": {
+"portales": [
+"CL BLASCO DE GARAY 14"
+],
+"aviso": "",
+"numeros": [
+"14"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2026-211": {
+"codigo": "DAN-2026-211",
+"carpeta": "blascogaray7",
+"resuelta": "CL",
+"opp": "49673d67-210a-4658-9377-3e5931532d6c",
+"calle": "CL BLASCO DE GARAY",
+"accion": "enlazar",
+"parcelas": {
+"9660810VK3796B": {
+"portales": [
+"CL BLASCO DE GARAY 7"
+],
+"aviso": "",
+"numeros": [
+"7"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2026-167": {
+"codigo": "DAN-2026-167",
+"carpeta": "canillas11",
+"resuelta": "CR; Catastro: 2771205VK4727B (CL CANILLAS 11: en CR no existe el numero)",
+"opp": "105bf054-2690-4aa5-81c7-5c48acb9f177",
+"accion": "enlazar",
+"parcelas": {
+"2771205VK4727B": {
+"portales": [
+"CL CANILLAS 11 esc 1",
+"CL CANILLAS 11 esc S"
+],
+"aviso": "",
+"numeros": [
+"11"
+],
+"escaleras": [
+"1",
+"S"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-128": {
+"codigo": "DAN-2025-128",
+"carpeta": "carlosmartinalvarez65bis",
+"resuelta": "CL; Catastro: 3510721VK4731B (la carpeta dice 65bis: CL CARLOS MARTIN ALVAREZ 65(B))",
+"opp": "92b6a5d3-8fd8-4e2e-832b-77545a757877",
+"accion": "enlazar",
+"parcelas": {
+"3510721VK4731B": {
+"portales": [
+"CL CARLOS MARTIN ALVAREZ 65(B)"
+],
+"aviso": "",
+"numeros": [
+"65(B)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"CAR-2025-013": {
+"codigo": "CAR-2025-013",
+"carpeta": "gallo22",
+"resuelta": "CL GALLO; Catastro: 8030321VK4783A (CL GALLO 22, no el 22(B))",
+"opp": "df41687f-998a-488f-88f4-28786e30c94f",
+"accion": "enlazar",
+"parcelas": {
+"8030321VK4783A": {
+"portales": [
+"CL GALLO 22"
+],
+"aviso": "",
+"numeros": [
+"22"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-166": {
+"codigo": "DAN-2025-166",
+"carpeta": "laguna38 casimiroescudero2",
+"resuelta": "7015605VK3771E",
+"opp": "f3166824-fd5e-4c2c-849b-c7e041d02e46",
+"accion": "enlazar",
+"parcelas": {
+"7015605VK3771E": {
+"portales": [
+"CL LAGUNA 38"
+],
+"aviso": "",
+"numeros": [
+"38"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-038": {
+"codigo": "DAN-2025-038",
+"carpeta": "lavapies51",
+"resuelta": "CL",
+"opp": "5d8f282a-824b-4f85-8f5b-2143fa1b0592",
+"calle": "CL LAVAPIES",
+"accion": "enlazar",
+"parcelas": {
+"0536414VK4703F": {
+"portales": [
+"CL LAVAPIES 51"
+],
+"aviso": "",
+"numeros": [
+"51"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"CAR-2025-051": {
+"codigo": "CAR-2025-051",
+"carpeta": "lopezdehoyos342c",
+"resuelta": "CL",
+"opp": "8cf3ff3a-e26b-42e3-b25a-f4545b9df666",
+"calle": "CL LOPEZ DE HOYOS",
+"accion": "enlazar",
+"parcelas": {
+"4189008VK4848G": {
+"portales": [
+"CL LOPEZ DE HOYOS 342(C)"
+],
+"aviso": "",
+"numeros": [
+"342(C)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"ALV-2026-187": {
+"codigo": "ALV-2026-187",
+"carpeta": "palomeras17",
+"resuelta": "AV",
+"opp": "e24ff9ec-a6a7-477f-b340-25f116986f21",
+"calle": "AV PALOMERAS",
+"accion": "enlazar",
+"parcelas": {
+"4214726VK4741C": {
+"portales": [
+"AV PALOMERAS 17"
+],
+"aviso": "",
+"numeros": [
+"17"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-385": {
+"codigo": "DAN-2025-385",
+"carpeta": "sanchezpreciado38",
+"resuelta": "CL; Catastro: 9993229VK3799D (CL SANCHEZ PRECIADO 38, no el 38(B))",
+"opp": "a18bceac-f72f-49ca-8a00-94c0ffd16857",
+"accion": "enlazar",
+"parcelas": {
+"9993229VK3799D": {
+"portales": [
+"CL SANCHEZ PRECIADO 38"
+],
+"aviso": "",
+"numeros": [
+"38"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-137": {
+"codigo": "DAN-2025-137",
+"carpeta": "vicalvaro68",
+"resuelta": "CL; Catastro: 8259209VK4785G (Monica: mal escrita, es avenida de Canillejas a Vicalvaro 68)",
+"opp": "65cb1603-6928-4f3a-bc29-573bbfa7fcb1",
+"accion": "enlazar",
+"parcelas": {
+"8259209VK4785G": {
+"portales": [
+"AV CANILLEJAS A VICALVARO 68(B)"
+],
+"aviso": "la parcela no tiene el numero 68: TODOS sus portales",
+"numeros": [
+"68(B)"
+],
+"escaleras": [
+""
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-004": {
+"codigo": "DAN-2025-004",
+"carpeta": "avportugal43-45",
+"resuelta": "AV PORTUGAL DE",
+"opp": "cb45415a-fe4e-4e27-9426-be007aaeceff",
+"calle": "AV PORTUGAL DE",
+"accion": "enlazar",
+"parcelas": {
+"6444401VK2664S": {
+"portales": [
+"AV PORTUGAL DE 43 esc D",
+"AV PORTUGAL DE 43 esc I",
+"AV PORTUGAL DE 45 esc D",
+"AV PORTUGAL DE 45 esc I"
+],
+"aviso": "",
+"numeros": [
+"43",
+"45"
+],
+"escaleras": [
+"D",
+"I"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-157": {
+"codigo": "DAN-2025-157",
+"carpeta": "avportugal46",
+"resuelta": "AV PORTUGAL DE; Catastro: 6345401VK2664N (AV PORTUGAL DE 46, no el 46(D))",
+"opp": "d1e4d177-86b3-4557-8929-b111e95ba5dd",
+"accion": "enlazar",
+"parcelas": {
+"6345401VK2664N": {
+"portales": [
+"AV PORTUGAL DE 46 esc T"
+],
+"aviso": "",
+"numeros": [
+"46"
+],
+"escaleras": [
+"T"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-263": {
+"codigo": "DAN-2025-263",
+"carpeta": "carcavilla1",
+"resuelta": "CL; Catastro: 6346602VK2664N (CL CARCAVILLA 1, no el 1(D))",
+"opp": "2debffa3-6570-431a-969d-01c7beb50530",
+"accion": "enlazar",
+"parcelas": {
+"6346602VK2664N": {
+"portales": [
+"CL CARCAVILLA 1 esc 1"
+],
+"aviso": "",
+"numeros": [
+"1"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+},
+"DAN-2026-048": {
+"codigo": "DAN-2026-048",
+"carpeta": "empecinado17",
+"resuelta": "DEL",
+"opp": "f1437483-0d2a-46dc-bc3d-fdb554e609b8",
+"calle": "CL EMPECINADO DEL",
+"accion": "enlazar",
+"parcelas": {
+"7141307VK2674S": {
+"portales": [
+"CL EMPECINADO DEL 17 esc 1"
+],
+"aviso": "",
+"numeros": [
+"17"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+},
+"DAN-2025-097": {
+"codigo": "DAN-2025-097",
+"carpeta": "costarica9",
+"resuelta": "CL",
+"opp": "090c02b9-650a-41ed-aaa6-5add7e20c46b",
+"calle": "CL COSTA RICA",
+"accion": "enlazar",
+"parcelas": {
+"0648802VK4504N": {
+"portales": [
+"CL COSTA RICA 9 esc 1"
+],
+"aviso": "",
+"numeros": [
+"9"
+],
+"escaleras": [
+"1"
+]
+}
+},
+"hecha": true
+}
+}
