@@ -1,0 +1,453 @@
+[
+ {
+  "g": "PV00",
+  "hojas": [
+   {
+    "titulo": "POLVORANCA 26 LEGANES - 16 01 2026 - ASC.gdoc",
+    "fecha": "2026-01-16",
+    "id": "1BphLC-sLkLjGEZLzaD25V9CZxRSuwIzlrVoKDnmhLWc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/POLVORANCA 26 LEGANES - 16 01 2026 - ASC.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "POLVORANCA 26 LEGANES - 23 01 2026 - CONSASC.gdoc",
+    "fecha": "2026-01-23",
+    "id": "1gckfRd2u5Q5deTu1Zs8bdWrow6iYGLEuC1OYpkQnW74",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/POLVORANCA 26 LEGANES - 23 01 2026 - CONSASC.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV01",
+  "hojas": [
+   {
+    "titulo": "ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA TOLEDO - 20 01 2026 - PRY ASC+SUBV.gdoc",
+    "fecha": "2026-01-20",
+    "id": "12S1CkZjUUWXDvVBOc-Vff3wTTEXumtKxsZ_xZXW-SAw",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA TOLEDO - 20 01 2026 - PRY ASC+SUBV.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "fecha": "2026-09-25",
+    "id": "1Uhqt1XveY5a0tZN7wyMhjU1ml3Tzketwr_sNfxn_bSU",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV02",
+  "hojas": [
+   {
+    "titulo": "SIETE OJOS 6 ALCORCON  - 28 01 2026 - INFORME PERICIAL.gdoc",
+    "fecha": "2026-01-28",
+    "id": "1l53sGFGFZRErkej-SyUX8n6RXPfYa70QkDRgZf01GJU",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/SIETE OJOS 6 ALCORCON  - 28 01 2026 - INFORME PERICIAL.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "SIETE OJOS 6 (PARKING) ALCORCON - 01 10 2026 - INFORME PERICIAL.gdoc",
+    "fecha": "2026-10-01",
+    "id": "1S9b6Udp06kvzTT8qD-_yXO4f5qqute5453NAWq_-cj0",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/SIETE OJOS 6 (PARKING) ALCORCON - 01 10 2026 - INFORME PERICIAL.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV03",
+  "hojas": [
+   {
+    "titulo": "ALAMEDA 4 MADRID - 11 02 2026 - ASC.gdoc",
+    "fecha": "2026-02-11",
+    "id": "1u22GQ-eWRLjDSasg6hzEE9EXJvQJcE1azMEzNN3FWgs",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALAMEDA 4 MADRID - 11 02 2026 - ASC.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ALAMEDA 4 MADRID - 10 03 2026 - INST2ASC.gdoc",
+    "fecha": "2026-03-10",
+    "id": "1SPbp8LSwWI05FemBKkhUyJjYU6gSkdYliq6BzqHXP5g",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALAMEDA 4 MADRID - 10 03 2026 - INST2ASC.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV04",
+  "hojas": [
+   {
+    "titulo": "AYAMONTE 2 A-B MADRID - 10 02 2026 - SATECONCAES.gdoc",
+    "fecha": "2026-02-10",
+    "id": "1SLfiAtqtS61i2AyzfagwhamKeGz135oUeSynfMi3_xo",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/AYAMONTE 2 A-B MADRID - 10 02 2026 - SATECONCAES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "AYAMONTE 2 A-B MADRID - 16 02 2026 - cub.gdoc",
+    "fecha": "2026-02-16",
+    "id": "1YNjX1W4R6kzHHe-Vcl0s6Od6tYyzjHJyzhYLl_W6XEc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/AYAMONTE 2 A-B MADRID - 16 02 2026 - cub.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV05",
+  "hojas": [
+   {
+    "titulo": "EZEQUIEL SOLANA 105 MADRID - 09 02 2026 - ASCPROYEXTERNO.gdoc",
+    "fecha": "2026-02-09",
+    "id": null,
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/EZEQUIEL SOLANA 105 MADRID - 09 02 2026 - ASCPROYEXTERNO.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "EZEQUIEL SOLANA 105 MADRID - 20 02 2026 - ascsub.gdoc",
+    "fecha": "2026-02-20",
+    "id": "13g5jyBPsjbe2qkdQZza3t0IAnyBKjep7da2O82oDp5k",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/EZEQUIEL SOLANA 105 MADRID - 20 02 2026 - ascsub.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV06",
+  "hojas": [
+   {
+    "titulo": "ZULOAGA 7 PARLA - 04 02 2026 - ASC.gdoc",
+    "fecha": "2026-02-04",
+    "id": null,
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ZULOAGA 7 PARLA - 04 02 2026 - ASC.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ZULOAGA 7 PARLA - 04 03 2026 - INSASC.gdoc",
+    "fecha": "2026-03-04",
+    "id": "1UyzOFmlXJqu4Vl2OFlgvFo8gjk-18viDuxvXOqAee6E",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ZULOAGA 7 PARLA - 04 03 2026 - INSASC.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV07",
+  "hojas": [
+   {
+    "titulo": "PILAR 17 SAN SEBASTIAN DE LOS REYES - 20 03 2026 - PROY ASCE + SUBV.gdoc",
+    "fecha": "2026-03-20",
+    "id": "1ixkWO-gy9pHvuXhtP41dmBEE7cR7IFR8x5BnHcL3vj0",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PILAR 17 SAN SEBASTIAN DE LOS REYES - 20 03 2026 - PROY ASCE + SUBV.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "HE PILAR 17 SSR -OK  24 04 2026 - ASCENSOR + SUBVENCIONES.gdoc",
+    "fecha": "2026-04-24",
+    "id": "1hvYoBwskPf0yeSs3QkCu1mVP94KxzB41-hApIXZ_Ip0",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/HE PILAR 17 SSR -OK  24 04 2026 - ASCENSOR + SUBVENCIONES.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV08",
+  "hojas": [
+   {
+    "titulo": "RAMON GOMEZ DE LA SERNA 45 MADRID - 09 04 2026 - SUSTICIONDUPLEXASCENSORES.gdoc",
+    "fecha": "2026-04-09",
+    "id": "10zaxl0CMCUWFu8zT0WCeXd6jrYDQI5eMaKgNKOwzU7I",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/RAMON GOMEZ DE LA SERNA 45 MADRID - 09 04 2026 - SUSTICIONDUPLEXASCENSORES.gdoc",
+    "firmada": true
+   },
+   {
+    "titulo": "RAMON GOMEZ DE LA SERNA 45 MADRID - 22 07 2026 - SUSTITUCIÓN ASCENSORES.gdoc",
+    "fecha": "2026-07-22",
+    "id": "1sCtBuvmp5CF338-ovEr1RQXQaVCVIrDTy8JKZtKYeQ4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/RAMON GOMEZ DE LA SERNA 45 MADRID - 22 07 2026 - SUSTITUCIÓN ASCENSORES.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV09",
+  "hojas": [
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 04 2026 - INSTALACIÓN ASCENSOR.gdoc",
+    "fecha": "2026-04-13",
+    "id": "1-hMKMSU6Lbm1SLJGLUafdi6j157h_nNy1UwoQ50PPM4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 04 2026 - INSTALACIÓN ASCENSOR.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 05 2026 - PROY 2 ASCENSORES.gdoc",
+    "fecha": "2026-05-13",
+    "id": "1YH_qPcPTJNLNZUwZz9BD7fdCUWdRjOiAceo2svSDWtA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 05 2026 - PROY 2 ASCENSORES.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV10",
+  "hojas": [
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 04 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "fecha": "2026-04-13",
+    "id": "1-c3eImK-FHGgXMQ8AMxBsASeFXBCVysitDi1o6dPT9g",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 04 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 05 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "fecha": "2026-05-13",
+    "id": "15d-g-UBNzlAmhoJBa-MJ9JmEACGOxkWw9zNzkmPlLxk",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 05 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV11",
+  "hojas": [
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 04 2026 - SATE.gdoc",
+    "fecha": "2026-04-13",
+    "id": "1ZV2NfZYJpSITGc5vYMggwrLD5HWJ_XYOfxelNjwzEnE",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 04 2026 - SATE.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "BRAVO MURILLO 177 MADRID - 13 05 2026 - ENVOLVENTE TÉRMICA.gdoc",
+    "fecha": "2026-05-13",
+    "id": "1QfMqUSfUdpSYHDI1T-aFE0zs6SOvYR71m1emGMZpWV8",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/BRAVO MURILLO 177 MADRID - 13 05 2026 - ENVOLVENTE TÉRMICA.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV12",
+  "hojas": [
+   {
+    "titulo": "URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR + SUBVENCIONES.gdoc",
+    "fecha": "2026-04-25",
+    "id": "1MJZT8AMgNv4fxUUT_8g0IJjQDnJCNLKF33wHQLEkf6w",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR + SUBVENCIONES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR Y TRAMITACIÓN SUBVENCIONES.gdoc",
+    "fecha": "2026-04-25",
+    "id": "1MJZT8AMgNv4fxUUT_8g0IJjQDnJCNLKF33wHQLEkf6w",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR Y TRAMITACIÓN SUBVENCIONES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "URB.NUEVO GRIÑON 1 GRIÑON - 18 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "fecha": "2026-09-18",
+    "id": "1Df_67SwxMa7KAeiJw8IXkPq5xLJgzyrMo37el5Z-dvk",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/URB.NUEVO GRIÑON 1 GRIÑON - 18 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV13",
+  "hojas": [
+   {
+    "titulo": "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 05 05 2026 - PRY ASC + SUBV.gdoc",
+    "fecha": "2026-05-05",
+    "id": "1LpjJ9fHkYIjesCPsTxua6vuSdNrUFETM6Q0eD0y1pH4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 05 05 2026 - PRY ASC + SUBV.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD Y EFICIENCIA ENERGÉTICA.gdoc",
+    "fecha": "2026-09-25",
+    "id": "1E0-oE6wjX2yVoGK30KLy94puS7HtV1xwqV7rfotpepA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD Y EFICIENCIA ENERGÉTICA.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "fecha": "2026-09-25",
+    "id": "1cLr-94vGsEsfyJyVEwnTBN_WdOaDSR9V4VxQXtRNieo",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV14",
+  "hojas": [
+   {
+    "titulo": "ARMENTEROS 51 MADRID - 18 05 2026 - SUBVENCIONES.gdoc",
+    "fecha": "2026-05-18",
+    "id": "1C1ItTh2hQsrq7hZ6sGLMkvWS0xiPT8v5dU8TgRIYbH4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ARMENTEROS 51 MADRID - 18 05 2026 - SUBVENCIONES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ARMENTEROS 51 MADRID - 19 05 2026 - SUBV EFICIENCIA ENERGÉTICA.gdoc",
+    "fecha": "2026-05-19",
+    "id": "1dP2cvB9ErUrk6Z_SwZd7wgZ0yiytBh-lyFPrQou8fT0",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ARMENTEROS 51 MADRID - 19 05 2026 - SUBV EFICIENCIA ENERGÉTICA.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV15",
+  "hojas": [
+   {
+    "titulo": "ALFONSO XIII 8 PARLA MADRID - 21 05 2026 - PRY ASCENSOR + SUBVENCIONES.gdoc",
+    "fecha": "2026-05-21",
+    "id": "1NEJ5L1lR-yLSGPvH2LDt7jKtEloFHBG3e2bYR2knOv8",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALFONSO XIII 8 PARLA MADRID - 21 05 2026 - PRY ASCENSOR + SUBVENCIONES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ALFONSO XIII 8 PARLA MADRID - 22 05 2026 - PRY ASCENSOR + SUBVENCION.gdoc",
+    "fecha": "2026-05-22",
+    "id": "1m8lH2j9V1s1mZ0Z-Q7PZLDlEkvaY_uYa18EzFXoJCkE",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALFONSO XIII 8 PARLA MADRID - 22 05 2026 - PRY ASCENSOR + SUBVENCION.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV16",
+  "hojas": [
+   {
+    "titulo": "QUINCE DE AGOSTO 5 MADRID - 21 05 2026 - PRY ENVOLVENTE TÉRMICA.gdoc",
+    "fecha": "2026-05-21",
+    "id": "1IzeNPKhCfAqMC29Rg5UO-FJGzVBpXICCzfZUrKR7RAs",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/QUINCE DE AGOSTO 5 MADRID - 21 05 2026 - PRY ENVOLVENTE TÉRMICA.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "QUINCE DE AGOSTO 5 MADRID - 22 05 2026 - PRY ASCENSOR + ENVOLVENTE TÉRMICA.gdoc",
+    "fecha": "2026-05-22",
+    "id": "1Yl0kEWuOxGA0tyzTphRmF-Raqdv80NRU5iYN4S7vkNY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/QUINCE DE AGOSTO 5 MADRID - 22 05 2026 - PRY ASCENSOR + ENVOLVENTE TÉRMICA.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV17",
+  "hojas": [
+   {
+    "titulo": "LA PRENSA 11 SSR  - 21 05 2026 - SUBVENCIONES.gdoc",
+    "fecha": "2026-05-21",
+    "id": "1F0e44pQSYHKzmWxOa216sNZxoi9hppBJ3QrLpyy_zfs",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/LA PRENSA 11 SSR  - 21 05 2026 - SUBVENCIONES.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "LA PRENSA 11 SSR  - 22 05 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "fecha": "2026-05-22",
+    "id": "1aPbBs728tX76FpJprG3RntzuJWA2JaWNT6i3tNZHdcI",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/LA PRENSA 11 SSR  - 22 05 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV18",
+  "hojas": [
+   {
+    "titulo": "FELIPE ALVAREZ 28 MADRID - 26 05 2026 - SUBVENCIONES EXTERNO.gdoc",
+    "fecha": "2026-05-26",
+    "id": "1cA34aQbkg5l3-oSbYyY00MeAYCZzmxKZhTWJ8fHLqQE",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/FELIPE ALVAREZ 28 MADRID - 26 05 2026 - SUBVENCIONES EXTERNO.gdoc",
+    "firmada": true
+   },
+   {
+    "titulo": "FELIPE ALVAREZ 28 MADRID - 09 07 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "fecha": "2026-07-09",
+    "id": "1dTyN3hwbJiMTM3AzC5iZ_VpgaWzPdwpyW2H3QE8_rsM",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/FELIPE ALVAREZ 28 MADRID - 09 07 2026 - TRAMITACIÓN SUBVENCIONES.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV19",
+  "hojas": [
+   {
+    "titulo": "PEÑA DE LA ATALAYA 110 MADRID - 02 07 2026 - INSTALACIÓN ASCENSOR.gdoc",
+    "fecha": "2026-07-02",
+    "id": "1m1FR5aMnI40bsdKA6LN5zegbdq-6hr4P9-ILalHrNwQ",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PEÑA DE LA ATALAYA 110 MADRID - 02 07 2026 - INSTALACIÓN ASCENSOR.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "PEÑA DE LA ATALAYA 110 MADRID - 30 07 2026 - PROYECTO ELEVADOR Y PLATAFORMA.gdoc",
+    "fecha": "2026-07-30",
+    "id": "1TWwI5utwKmtwKk7igjS8t_I2gUspxOCWowjrBxIftXc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PEÑA DE LA ATALAYA 110 MADRID - 30 07 2026 - PROYECTO ELEVADOR Y PLATAFORMA.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV20",
+  "hojas": [
+   {
+    "titulo": "ALZINA 11 MADRID - 21 07 2026 - SUBV PRY PROP.gdoc",
+    "fecha": "2026-07-21",
+    "id": "1IZ3R38MYPAZYxOtAuqwpn9LlOXpQHDJjPuGruOr8mtA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALZINA 11 MADRID - 21 07 2026 - SUBV PRY PROP.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "ALZINA 11 MADRID - 10 09 2026 - SUBV ACC.gdoc",
+    "fecha": "2026-09-10",
+    "id": "1Vk2hdC-NB8h7fi_3yPbHCVY64jFZj2hAzrCHOeA_hd4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/ALZINA 11 MADRID - 10 09 2026 - SUBV ACC.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV21",
+  "hojas": [
+   {
+    "titulo": "PALOMERAS 17 MADRID  - 11 09 2026 - PROYECTO PARA ENVOLVENTE TÉRMICA (SATE).gdoc",
+    "fecha": "2026-09-11",
+    "id": "1uvD0olkOnLK5vYYZD5qEgjCa9_I4BF2wOkbMEYW7LVA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PALOMERAS 17 MADRID  - 11 09 2026 - PROYECTO PARA ENVOLVENTE TÉRMICA (SATE).gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "AVENIDA PALOMERAS 17 MADRID - 17 09 2026 - PROYECTO SATE FACHADA Y CUBIERTA.gdoc",
+    "fecha": "2026-09-17",
+    "id": "1ngQKWIh52j4t3ukO2loWnBbCY5gSVVZ2rPI7etTc_j4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/AVENIDA PALOMERAS 17 MADRID - 17 09 2026 - PROYECTO SATE FACHADA Y CUBIERTA.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV22",
+  "hojas": [
+   {
+    "titulo": "PALOMERAS 17 MADRID  - 11 09 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "fecha": "2026-09-11",
+    "id": "17U-FhE6s6ONZDikw1qlRqSB0dw-LgPnUroxjJRfoLxY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PALOMERAS 17 MADRID  - 11 09 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "AVENIDA PALOMERAS 17 MADRID - 17 09 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "fecha": "2026-09-17",
+    "id": "1ngQKWIh52j4t3ukO2loWnBbCY5gSVVZ2rPI7etTc_j4",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/AVENIDA PALOMERAS 17 MADRID - 17 09 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc",
+    "firmada": false
+   }
+  ]
+ }
+]

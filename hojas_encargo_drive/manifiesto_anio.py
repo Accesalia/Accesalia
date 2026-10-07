@@ -114,6 +114,30 @@ for h in hojas:   # parecido SIN señal: mismo portal y concepto, fechas distint
     gem = [g for g in hojas if g is not h and g['k'] and g['k'][1] == h['k'][1] and g['k'][0] == h['k'][0] and g['et'] and g['et'] == h['et'] and g['fecha'] != h['fecha'] and not g.get('version_de')]
     if gem: h['notas'].append('posible versión de/con: ' + '; '.join(sorted({g['titulo'][:60] for g in gem})))
 
+# 5b · lo decidido LEYENDO las "posibles versiones" (pv_resueltas_*.jsonl, instrucciones_versiones.md)
+import glob as _glob
+por_titulo = {h['titulo']: h for h in hojas}
+pv = json.load(open(f'posibles_versiones_{A}.json', encoding='utf-8')) if _glob.glob(f'posibles_versiones_{A}.json') else []
+pv_tit = {g['g']: [x['titulo'] for x in g['hojas']] for g in pv}
+for f in _glob.glob('pv_resueltas_*.jsonl'):
+    for l in open(f, encoding='utf-8'):
+        r = json.loads(l); tits = pv_tit.get(r['g'], [])
+        for t in tits:
+            if t in por_titulo: por_titulo[t]['notas'] = [n for n in por_titulo[t]['notas'] if not n.startswith('posible')]
+        if r['decision'] in ('versiones', 'mixto') and r.get('orden'):
+            cad = [por_titulo[t] for t in r['orden'] if t in por_titulo]
+            for a, b in zip(cad, cad[1:]): b['version_de'] = a
+            for h in cad: h['notas'].append('versiones (leído): ' + r['motivo'])
+            if r['decision'] == 'mixto':
+                for t in tits:
+                    if t not in r['orden'] and t in por_titulo: por_titulo[t]['notas'].append('aparte de sus versiones (leído): ' + r['motivo'])
+        elif r['decision'] == 'distintas':
+            for t in tits:
+                if t in por_titulo: por_titulo[t]['notas'].append('hoja distinta, no versión (leído): ' + r['motivo'])
+        else:
+            for t in tits:
+                if t in por_titulo: por_titulo[t]['notas'].append('PARA TI · ¿versión o distinta?: ' + r['motivo'])
+
 # 6 · cadenas de versiones -> una HOJA con v1..vn
 raiz = lambda h: raiz(h['version_de']) if h.get('version_de') else h
 grupos = collections.defaultdict(list)
