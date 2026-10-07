@@ -28,6 +28,9 @@ SOBRAN = {
     'fcecc28a-87cb-46b3-bf42-192c0c6ea0cd': 'PLAZA DEL PAULAR 2: Paular 1 y 2 = UNA opp (la de Paular 1, con los dos portales).',
     '7ff9d6a0-03ed-428e-a415-21c06678d910': 'PLAZA GEOLOGOS 2: Geologos 1 y 2 = UNA opp (la de Geologos 1, con los dos portales).',
     '94fe59d0-7d6e-46ea-bb65-41a82016164b': 'PUERTO DEL MONASTERIO 20: segunda opp vacia de la misma comunidad (la buena es eda3efe3).',
+    # tanda R-S (Monica, 7-oct-2026: 'una opp, correcto, borrar las vacias')
+    '4e8a5bce-18c6-4471-a4a3-3c315d74994c': 'SANTA CRUZ DE MARCENADO 1 ESC D: Edificio Princesa (esc C, D y E) = UNA opp (la de la esc C, con los tres portales).',
+    '6e94e49c-796d-4532-ab10-d457df7b92c0': 'SANTA CRUZ DE MARCENADO 1 ESC E: idem.',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
