@@ -55,7 +55,11 @@ if ESCRIBIR:
             if r['acceso_id'] not in ya:
                 b.insertar('relacion_oportunidad_accesos', [{'opp_id': q['id'], 'acceso_id': r['acceso_id'], 'de_donde': r['de_donde'] + ' (pasado desde ' + cod + ')'}])
                 ya.add(r['acceso_id'])
-    b.actualizar('oportunidades?id=eq.' + q['id'], {'origen_notas': '\n\n'.join(x for x in origen if x.strip()), 'referencia_catastral': ref})
+    cambio = {'origen_notas': '\n\n'.join(x for x in origen if x.strip()), 'referencia_catastral': ref}
+    com = next((c['oportunidad']['comunidad_id'] for c in copia.values() if c['oportunidad']['comunidad_id']), None)
+    if not q['comunidad_id'] and com:   # la que queda no tenia comunidad y la que sobra si: se la queda (y deja de ser provisional)
+        cambio.update({'comunidad_id': com, 'comunidad_provisional': None}); print('se queda la comunidad', com)
+    b.actualizar('oportunidades?id=eq.' + q['id'], cambio)
     for cod, c in copia.items():
         b.borrar('oportunidades?id=eq.' + c['oportunidad']['id'])
         if SIN_ACCESOS:
