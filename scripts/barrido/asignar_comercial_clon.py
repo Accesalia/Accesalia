@@ -8,8 +8,9 @@ ESCRIBIR = '--escribir' in sys.argv
 b = arrancar(); T = 'comunidades_fuera_de_lista_provisional_hasta_revisar_una_a_una'
 def regla(c, f):
     c = (c or '').strip(); de2026 = f >= '2026-01-01'
+    if c == 'Carlos (lleva Alvaro)' and f < '2025-01-01': return 'Daniel (lleva Alvaro)'   # Carlos no capta antes de 2025 (Monica, 7-oct)
     if c in ('Daniel', 'Alvaro', 'Daniel (lleva Alvaro)', 'Carlos (lleva Alvaro)'): return c   # ya normalizado
-    if c.startswith('Carlos') or 'capto Carlos' in c or c.startswith('VARIOS: CARLOS'): return 'Carlos (lleva Alvaro)'
+    if c.startswith('Carlos') or 'capto Carlos' in c or c.startswith('VARIOS: CARLOS'): return 'Carlos (lleva Alvaro)' if f >= '2025-01-01' else 'Daniel (lleva Alvaro)'
     if c.startswith('Alvaro'): return 'Alvaro' if de2026 else 'Daniel (lleva Alvaro)'
     return 'Daniel'
 cuenta = collections.Counter(); cambios = []

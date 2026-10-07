@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Parte a) antes de numerar: captador y responsable de TODAS las oportunidades de produccion (Monica, 7-oct-2026).
 # Reglas:
-#  - Captada por Carlos (o sin captador y la lleva Carlos): captador Carlos, la lleva Alvaro (Carlos ya no esta). Se respeta aunque sea anterior a abril-2025.
+#  - Captada por Carlos (o sin captador y la lleva Carlos): captador Carlos, la lleva Alvaro (Carlos ya no esta).
+#    PERO Carlos no puede ser captador antes de 2025: entonces capta Daniel y la lleva Alvaro (Monica, 7-oct-2026).
 #  - En el Excel de Alvaro (HOJAS DE ENCARGO alvaro.xlsx, 26-ene a 27-jul-2026; cruce en cruce_excel_alvaro.json):
 #      "prestado"  -> captador Daniel, la lleva Alvaro (solo esa opp; la administracion sigue siendo de Daniel).
 #      "suyo" / "contrata, no admin" -> Alvaro/Alvaro si la apertura es de 2026; si es anterior, captador Daniel y la lleva Alvaro.
@@ -29,7 +30,9 @@ cuenta, cambia = collections.Counter(), []
 for o in b.leer('oportunidades?select=id,fecha_apertura,comercial_captador_id,comercial_id'):
     f = o['fecha_apertura']; cap0, lle0 = nom.get(o['comercial_captador_id']), nom.get(o['comercial_id'])
     de2026 = f >= '2026-01-01'
-    if cap0 == 'Carlos' or (cap0 is None and lle0 == 'Carlos'):
+    if (cap0 == 'Carlos' or (cap0 is None and lle0 == 'Carlos')) and f < '2025-01-01':
+        nuevo, por = ('Daniel', 'Alvaro'), 'Carlos antes de 2025: capta Daniel (Monica, 7-oct)'
+    elif cap0 == 'Carlos' or (cap0 is None and lle0 == 'Carlos'):
         nuevo, por = ('Carlos', 'Alvaro'), 'Carlos'
     elif o['id'] in EXCEL:
         notas = EXCEL[o['id']]
