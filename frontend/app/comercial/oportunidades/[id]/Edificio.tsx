@@ -131,7 +131,7 @@ const BOT = (on: boolean) =>
 
 const EUR = new Intl.NumberFormat("es-ES");
 
-/** Devuelve las TRES primeras columnas de su rejilla: 262 · 330 · 190. La cuarta
+/** Devuelve las TRES primeras columnas de su rejilla: 278 · 346 · 190. La cuarta
  *  -el diario- la pone la pantalla. */
 export async function Edificio({ referencia, id }: { referencia: string; id: string }) {
   const [i, asc, iee] = await Promise.all([
@@ -163,7 +163,7 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
 
   return (
     <>
-      {/* ---------------- 262 · lo que dice el Catastro ---------------- */}
+      {/* ---------------- 278 · lo que dice el Catastro ---------------- */}
       <section className={CAJA}>
         <div className={ROT + " mb-[7px] text-[#104269]"}>Lo que dice el Catastro</div>
         <div className="mb-2.5">
@@ -227,7 +227,7 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
         </div>
       </section>
 
-      {/* ------------- 330 · lo que puedo hacer y lo que puedo pedir ------------- */}
+      {/* ------------- 346 · lo que puedo hacer y lo que puedo pedir ------------- */}
       <div className="flex flex-col gap-[10px]">
         <section className={CARD + " border-[#820707]"}>
           <div className={ROT + " mb-[9px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>

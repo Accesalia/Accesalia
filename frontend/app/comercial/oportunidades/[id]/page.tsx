@@ -149,8 +149,10 @@ export default async function GestionOportunidad({
     <div className="min-h-screen" style={{ background: "#8EB180" }}>
       <BarraSuperior />
       {/* El lienzo es el suyo: 1300, el ancho real de su pantalla. Lo que se
-          dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep). */}
-      <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
+          dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep).
+          Y TODO es contenido, como en la maqueta: en cuanto cabe, sin margenes
+          a los lados (Monica, 7-oct-2026: "me parece un desperdicio"). */}
+      <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6 min-[1300px]:px-0">
         <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
           ← Oportunidades abiertas
         </Link>
@@ -190,11 +192,15 @@ export default async function GestionOportunidad({
             className="min-w-0 flex-1 border p-[11px]"
           >
 
-        {/* SUS CUATRO ANCHOS FIJOS, del esqueleto del 30-sep: 262 · 330 · 190 ·
-            282. "Sus anchos son el diseno": no se redondean ni se reparten en
-            fracciones. Las tres primeras las llena el informe del edificio; la
-            cuarta, el diario. Y el trabajo que todavia no tiene bloque asignado
-            va en una segunda fila, a lo ancho.
+        {/* SUS CUATRO ANCHOS FIJOS: 278 · 346 · 190 · 246. Salen del esqueleto
+            del 30-sep (262 · 330 · 190 · 282) y de su reparto del 7-oct: al
+            quitar los margenes de los lados sobraban 48 px, y "no se lo daria
+            todo al diario": van a partes iguales al Catastro, a los
+            condicionantes y al diario; el carril y las fotos "no necesitan
+            crecer". "Sus anchos son el diseno": no se reparten en fracciones.
+            Las tres primeras las llena el informe del edificio; la cuarta, el
+            diario. Y el trabajo que todavia no tiene bloque asignado va en una
+            segunda fila, a lo ancho.
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
@@ -226,7 +232,7 @@ export default async function GestionOportunidad({
             )}
           </div>
         )}
-        <div className="grid items-start gap-[10px] xl:grid-cols-[262px_330px_190px_minmax(0,282px)]">
+        <div className="grid items-start gap-[10px] xl:grid-cols-[278px_346px_190px_minmax(0,246px)]">
           {bloque === 2 && documentacion ? (
             // El bloque 2 ocupa el sitio del edificio: las tres primeras
             // columnas. El diario y el trabajo de abajo son de toda la
