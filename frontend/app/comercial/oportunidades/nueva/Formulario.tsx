@@ -8,13 +8,23 @@ import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 
-// DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma (28-sep-2026).
+// DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma.
 //
-// LAS MEDIDAS SON SUYAS y se copian tal cual. Sobre 1252 de pagina:
-//   · cabecera: titulo · numero 190 · fecha 128 · comercial 180
-//   · tarjetas: 528 el diario, 707 los datos, 28 de separacion
-//   · cada fila: rotulo 128 · campo 362 · texto azul 75 · boton 83, 10 de hueco.
-//     Esos 10 son el MINIMO y marcan donde empieza todo lo demas;
+// SEGUNDA VERSION (7-oct-2026): "la he testeado con los comerciales y me dicen
+// que se pierden; veamos si este nuevo orden les aclara. Es casi lo mismo, pero
+// colocado de otra manera". Los MISMOS datos y la misma logica; cambia donde va
+// cada cosa: una sola tarjeta de arriba abajo —lo que me cuentan, los datos que
+// tenemos (con "con quien hablo" a su derecha) y lo que tengo que hacer—.
+//
+// LAS MEDIDAS SON SUYAS y se copian tal cual (su Figma, 1252 de pagina):
+//   · cabecera: titulo · numero 190 · fecha 123 · comercial 230
+//   · el diario: rotulo 228, campo 752 x 139
+//   · la banda de los datos, gris, entre dos rayas negras; a su derecha la caja
+//     de "con quien hablo", 360 de ancho
+//   · direccion: rotulo 132 · campo 472 x 40 · texto azul 67 · boton 83
+//   · quien contacta: el administrador 229 | "otra persona", caja de 406
+//   · que quieren: selector 300 y lo marcado debajo
+//   · abajo: "que tengo que hacer" 482 x 118 y los datos extra, 320
 //   · el modal de crear contacto: 770 · nombre 238 · telefono 149 · correo 296.
 //
 // Lo que decidio ella:
@@ -29,10 +39,15 @@ import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 //   · y UN SOLO SITIO para crear una persona, se llegue por donde se llegue:
 //     lo que se marca en "que es" decide donde acaba guardada.
 
-const rotulo = "text-[10px] font-bold uppercase leading-[1.3] tracking-[0.05em] text-[#237812]";
+// El rotulo de cada fila, verde y grande (14), con su segunda linea pequeña.
+const rotulo = "block text-[14px] font-bold uppercase leading-[1.31] tracking-[0.5px] text-[#237812]";
+const rotuloSub = "block text-[9px] font-bold uppercase tracking-[0.5px] text-[#237812]";
+// Lo que encabeza un grupo de dentro ("El administrador", "Otra persona").
+const titulito = "block text-[14px] font-bold uppercase leading-[13px] tracking-[0.44px] text-[#213A61]";
+const enlaceAzul = "text-[12px] font-bold leading-[1.33] text-accion";
 const etiqueta = "block text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/70";
 const etiquetaClara = "block text-[10px] font-bold uppercase tracking-[0.05em] text-[#fff4c6]/85";
-const apoyo = "block text-[11px] font-bold leading-[1.3] text-accion";
+const apoyo = "block text-[11px] font-bold leading-[1.33] text-accion";
 const campo =
   "w-full rounded-lg border border-carbon/70 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
 const accion =
@@ -52,20 +67,6 @@ export type Persona = {
   contrataId: string;
 };
 const VACIA: Persona = { nombre: "", telefono: "", correo: "", que: "", otro: "", contrataId: "" };
-
-function Fila({ nombre, primera, children }: { nombre: string; primera?: boolean; children: React.ReactNode }) {
-  return (
-    <div
-      className={
-        "grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] py-[14px] " +
-        (primera ? "" : "border-t border-raya")
-      }
-    >
-      <span className={rotulo}>{nombre}</span>
-      {children}
-    </div>
-  );
-}
 
 /** Lo que se marca. El color dice DE QUE habla. */
 function Casilla({
@@ -103,7 +104,15 @@ function Casilla({
         clase
       }
     >
-      <span className="whitespace-pre-line text-[11px] font-bold uppercase leading-[1.2] tracking-[0.04em]">{texto}</span>
+      <span
+        className={
+          "whitespace-pre-line uppercase tracking-[0.44px] " +
+          // La elegida, mas grande y mas negra: es la que manda (su maqueta).
+          (marcado && tono === "marino" ? "text-[14px] font-extrabold leading-[13px]" : "text-[11px] font-bold leading-[13px]")
+        }
+      >
+        {texto}
+      </span>
       <input
         type="checkbox"
         name={nombre}
@@ -111,6 +120,50 @@ function Casilla({
         onChange={(e) => alMarcar(e.target.checked)}
         className={conCuadro ? "size-5 shrink-0 " + (marcado ? "accent-white" : "accent-accion") : "sr-only"}
       />
+    </label>
+  );
+}
+
+/** "CON QUIEN HABLO": una fila por opcion, el texto a la izquierda y el cuadro
+ *  a la derecha. La marcada, en marron con su X. */
+function CasillaHablo({
+  texto,
+  nombre,
+  marcado,
+  alMarcar,
+  extra,
+  clase = "",
+}: {
+  texto: string;
+  nombre?: string;
+  marcado: boolean;
+  alMarcar: (v: boolean) => void;
+  /** En vez del cuadro, lo que se pulsa (el "+ crear" de otra persona). */
+  extra?: React.ReactNode;
+  clase?: string;
+}) {
+  return (
+    <label
+      className={
+        "flex w-[236px] cursor-pointer items-center justify-between gap-3 rounded-lg border px-6 transition " +
+        (marcado ? "border-marcado-hablo bg-marcado-hablo text-[#fff5cc]" : "border-marco bg-white text-carbon/80 hover:border-accion") +
+        " " +
+        clase
+      }
+    >
+      <span className="text-[11px] font-bold uppercase leading-[13px] tracking-[0.44px]">{texto}</span>
+      <input type="checkbox" name={nombre} checked={marcado} onChange={(e) => alMarcar(e.target.checked)} className="sr-only" />
+      {extra ?? (
+        <span
+          aria-hidden
+          className={
+            "grid size-5 shrink-0 place-items-center border text-[13px] font-bold leading-none " +
+            (marcado ? "border-[#fff4c6] text-[#fff4c6]" : "border-black")
+          }
+        >
+          {marcado ? "X" : ""}
+        </span>
+      )}
     </label>
   );
 }
@@ -154,7 +207,6 @@ export function Formulario({
   const [provisionalAdrede, setProvisionalAdrede] = useState(false);
 
   const [admin, setAdmin] = useState("");
-  const [quienEsAdmin, setQuienEsAdmin] = useState(false);
   const [quien, setQuien] = useState("");
 
   const [hablaLlamo, setHablaLlamo] = useState(false);
@@ -168,6 +220,10 @@ export function Formulario({
   const [creando, setCreando] = useState<null | "admin" | "quien" | "otro">(null);
 
   const [paso, setPaso] = useState("");
+  // "Fue el mismo administrador" (7-oct-2026): ya no es una casilla. Si solo
+  // se ha puesto el administrador, es que llamo el; si hay otra persona, llamo
+  // ella.
+  const quienEsAdmin = (admin !== "" || adminNuevo !== null) && quien === "" && quienNuevo === null;
   const [enviando, setEnviando] = useState(false);
 
   const codigo = comercial === "" ? "elige comercial" : opciones.codigoDe[comercial] ?? "sin iniciales";
@@ -257,15 +313,15 @@ export function Formulario({
       }}
     >
       {/* ===================== la cabecera ===================== */}
-      <div className="flex items-end gap-8">
-        <h1 className="min-w-0 flex-1 text-[26px] font-extrabold uppercase leading-[1.05] tracking-tight text-white">
+      <div className="flex items-end gap-[36px]">
+        <h1 className="min-w-0 flex-1 text-[26px] font-extrabold uppercase leading-[26px] text-white">
           Estás creando una nueva oportunidad
         </h1>
         <label className="block w-[190px] shrink-0">
           <span className={etiquetaClara}>Número de orden</span>
-          <span className={campo + " mt-1 block"}>{codigo}</span>
+          <span className={campo + " mt-1 block text-carbon/60"}>{codigo}</span>
         </label>
-        <label className="block w-[128px] shrink-0">
+        <label className="block w-[123px] shrink-0">
           <span className={etiquetaClara}>Fecha del contacto</span>
           <input id="fecha_llamada" name="fecha_llamada" type="date" defaultValue={hoy} className={campo + " mt-1"} />
         </label>
@@ -276,9 +332,9 @@ export function Formulario({
           valor={comercial}
           alElegir={setComercial}
           desactivado={!eligeComercial}
-          clase="w-[180px] shrink-0"
+          clase="w-[230px] shrink-0"
           tinta="text-[#fff4c6]/85"
-          marco="border-carbon/70"
+          marco="border-black/10"
         />
       </div>
 
@@ -288,38 +344,262 @@ export function Formulario({
           {soyComercial ? "" : " y a qué comercial le toca"}. El resto, se puede completar después.
         </p>
         <div className="flex shrink-0 items-center gap-3">
-          <Link href={volver} className="rounded-lg bg-white px-5 py-2 text-sm text-carbon/80 transition hover:text-carbon">
+          <Link href={volver} className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:text-carbon">
             Cancelar
           </Link>
           <button
             type="submit"
             disabled={!puedeGuardar || enviando}
-            className="rounded-lg bg-lima px-7 py-2 text-sm font-bold text-white transition hover:bg-lima-dark disabled:cursor-not-allowed disabled:bg-white/25 disabled:text-white/50"
+            className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:cursor-not-allowed disabled:bg-white/25 disabled:text-white/50"
           >
             {enviando ? "Guardando…" : "Guardar"}
           </button>
         </div>
       </div>
 
-      <div className="mt-4 grid items-start gap-7 lg:grid-cols-[minmax(0,528fr)_minmax(0,707fr)]">
-        {/* ============ lo que me cuentan, y lo que hago ============ */}
-        <section className="min-w-0 rounded-[14px] border border-[#baa208] bg-papel p-4 shadow-sm">
-          <h2 className="text-[19px] font-bold uppercase leading-tight tracking-[0.03em] text-carbon">Qué te han contado</h2>
+      {/* ===================== la tarjeta, de arriba abajo ===================== */}
+      <section className="mt-[37px] overflow-hidden rounded-[14px] border border-[#baa208] bg-papel shadow-sm">
+        {/* ---- lo que me cuentan ---- */}
+        <div className="flex items-start gap-3 pl-[49px] pr-6 pt-[21px]">
+          <h2 className="w-[228px] shrink-0 text-[19px] font-bold uppercase leading-[22px] tracking-[0.57px] text-carbon underline underline-offset-2">
+            Qué te han contado
+          </h2>
           <textarea
             id="nota"
             name="nota"
-            rows={7}
             value={nota}
             onChange={(e) => setNota(e.target.value)}
             placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
-            className={campo + " mt-3 min-h-[180px] resize-y"}
+            className={campo.replace("w-full", "w-[752px]") + " h-[139px] max-w-full resize-y border-marco leading-[17px]"}
           />
+        </div>
+        <h2 className="mt-[23px] pl-[41px] text-[19px] font-bold uppercase leading-[22px] tracking-[0.57px] text-carbon">Qué datos tenemos</h2>
 
-          <section className="mt-4 rounded-[14px] border-[3px] border-obligatorio bg-obligatorio-fondo p-3">
-            <h3 className="mb-2.5 text-center text-[13px] font-bold uppercase tracking-[0.06em] text-carbon">
-              <span className="text-[11px] text-obligatorio">Qué tengo que hacer:</span> Siguiente paso inmediato
+        {/* ---- la banda de los datos, entre dos rayas ---- */}
+        <div className="flex items-start gap-[29px] border-y border-black bg-[#d9d9d9]/50 pb-[18px] pl-[39px] pr-[21px] pt-[24px]">
+          <div className="min-w-0 w-[798px] shrink-0">
+            {/* ---- la dirección ---- */}
+            <div className="flex items-center">
+              <div className="w-[140px] shrink-0">
+                <span className={rotulo}>Dirección</span>
+                <span className={rotuloSub}>del edificio</span>
+              </div>
+              <div className="w-[472px] shrink-0">
+                {buscarDireccion ? (
+                  <Elegir
+                    id="comunidad"
+                    nombre=""
+                    opciones={comunidades}
+                    valor={comunidad}
+                    alElegir={setComunidad}
+                    vacio="busca la que ya tenemos"
+                    marco="border-black"
+                    abrirAlMontar
+                  />
+                ) : resuelta ? (
+                  // Ya buscada: se ve con el nombre y se puede deshacer, como lo
+                  // que se crea nuevo en esta misma pantalla.
+                  <div className="flex h-[40px] items-center gap-2 rounded-lg border border-accion bg-[#eef3f8] px-3 text-[15px]">
+                    <span className="min-w-0 flex-1 truncate font-semibold text-accion-marco" title={resuelta.nombre}>
+                      ✓ {resuelta.nombre}
+                      <span className="font-normal opacity-70">
+                        {" "}
+                        · {resuelta.pendiente ? "pendiente de la visita" : `${resuelta.portalIds.length} ${resuelta.portalIds.length === 1 ? "acceso" : "accesos"}`}
+                      </span>
+                    </span>
+                    <button type="button" onClick={() => setResuelta(null)} aria-label="Deshacer" className="text-accion-marco/70 hover:text-accion-marco">
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <input
+                      id="direccion_provisional"
+                      type="text"
+                      data-direccion
+                      value={direccion}
+                      onChange={(e) => {
+                        setDireccion(e.target.value);
+                        setProvisionalAdrede(false);
+                      }}
+                      placeholder="dirección del edificio"
+                      className="h-[40px] w-full rounded-lg border-[0.5px] border-black bg-white px-3 pr-10 text-[15px] text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => direccion.trim() && setVentana(true)}
+                      aria-label="Buscar la dirección en Catastro"
+                      title="Buscar en Catastro (o pulsa Intro)"
+                      className="absolute right-1.5 top-1/2 flex h-[28px] w-[30px] -translate-y-1/2 items-center justify-center rounded-md border border-accion-marco bg-accion text-white transition hover:bg-accion-hover"
+                    >
+                      <svg viewBox="0 0 20 20" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
+                        <circle cx="8.5" cy="8.5" r="5.5" />
+                        <path d="M13 13l4.5 4.5" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                {!buscarDireccion && <input type="hidden" name="direccion_provisional" value={direccion} />}
+                <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
+                <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
+                <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
+              </div>
+              <span className={apoyo + " ml-[15px] w-[67px] shrink-0 text-right"}>
+                {buscarDireccion
+                  ? "Mejor la escribo"
+                  : sinBuscar && provisionalAdrede
+                    ? "Sin buscar: provisional"
+                    : "Si ya existe, selecciónala"}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (buscarDireccion) {
+                    setComunidad("");
+                    setBuscarDireccion(false);
+                  } else {
+                    setDireccion("");
+                    setResuelta(null);
+                    setBuscarDireccion(true);
+                  }
+                }}
+                className={accion + " ml-[8px] w-[83px] text-[12px]"}
+              >
+                {buscarDireccion ? "Aquí" : "Aquí ▾"}
+              </button>
+            </div>
+
+            <div className="my-[30px] ml-[10px] border-t border-raya" />
+
+            {/* ---- quién contacta para pedirlo ----
+                "El administrador" a la izquierda y "otra persona" en su caja.
+                Si solo hay administrador, es que llamo el; si hay otra persona,
+                llamo ella (y el administrador sigue siendo el de la comunidad). */}
+            <div className="flex items-start">
+              <div className="w-[137px] shrink-0 pt-[5px]">
+                <span className={rotulo}>Quién contacta</span>
+                <span className={rotuloSub}>para pedirlo</span>
+              </div>
+              <div className="w-[229px] shrink-0 pt-[7px]">
+                <span className={titulito + " pl-[5px]"}>El administrador</span>
+                <div className="mt-[6px]">
+                  {adminNuevo ? (
+                    fichaNueva(adminNuevo, () => setAdminNuevo(null))
+                  ) : (
+                    <Elegir
+                      id="administrador"
+                      nombre=""
+                      opciones={administradores}
+                      valor={admin}
+                      alElegir={setAdmin}
+                      vacio="selecciona de la lista"
+                      marco="border-black"
+                      conPista
+                    />
+                  )}
+                </div>
+                <div className="mt-[8px] flex items-center justify-end gap-2">
+                  <span className={enlaceAzul}>{adminNuevo ? "Lo estás creando" : "Es un admin nuevo"}</span>
+                  <button type="button" onClick={() => setCreando("admin")} className={accion + " h-[30px] w-[105px] text-[12px]"}>
+                    {adminNuevo ? "Cambiar" : "+ Crearlo"}
+                  </button>
+                </div>
+                {ocultos("admin_nuevo", adminNuevo)}
+              </div>
+
+              <div className="ml-[26px] min-w-0 flex-1 rounded-lg border border-[#0f1558] bg-[#cfd3c7] px-[17px] pb-[14px] pt-[10px]">
+                <span className={titulito}>Otra persona</span>
+                <div className="mt-[8px] flex items-center justify-between">
+                  <span className={enlaceAzul}>Alguien conocido</span>
+                  <span className={enlaceAzul}>Es un nuevo contacto</span>
+                </div>
+                <div className="mt-[4px] flex items-center justify-between gap-3">
+                  <div className="w-[230px] shrink-0">
+                    {quienNuevo ? (
+                      fichaNueva(quienNuevo, () => setQuienNuevo(null))
+                    ) : (
+                      <Elegir
+                        id="quien"
+                        nombre=""
+                        opciones={opciones.quienes}
+                        valor={quien}
+                        alElegir={setQuien}
+                        vacio="Selecciona quién"
+                        marco="border-black"
+                        conPista
+                      />
+                    )}
+                  </div>
+                  <button type="button" onClick={() => setCreando("quien")} className={accion + " h-[30px] w-[93px] text-[12px]"}>
+                    {quienNuevo ? "Cambiar" : "+ Crearlo"}
+                  </button>
+                </div>
+                {ocultos("quien_nuevo", quienNuevo)}
+              </div>
+            </div>
+            {/* "Fue el mismo administrador" ya no se marca: se deduce. */}
+            <input type="hidden" name="quien_es_admin" value={quienEsAdmin ? "on" : ""} />
+
+            <div className="my-[17px] ml-[10px] border-t border-raya" />
+
+            {/* ---- qué quieren ---- */}
+            <div className="flex items-start">
+              <span className={rotulo + " w-[292px] shrink-0 pt-[6px]"}>De lo que vendemos, qué quieren</span>
+              <Marcar
+                id="tipos"
+                opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
+                vacio="Interesados en (selecciona)"
+                ancho="w-[300px]"
+                marco="border-black"
+                debajo
+              />
+            </div>
+          </div>
+
+          {/* ---- con quién hablo a partir de ahora ---- */}
+          <section className="w-[360px] shrink-0 rounded-[14px] border-[3px] border-white bg-[#ecefec] px-[56px] pb-[25px] pt-[16px]">
+            <h3 className="text-center text-[14px] font-bold uppercase leading-[1.35] tracking-[0.88px] text-[#0c1a64]">
+              {!hayContacto && <span className="block text-[11px] text-obligatorio">Obligatorio</span>}
+              Con quién hablo
+              <span className="block text-[11px]">de esto a partir de ahora</span>
             </h3>
-            <div className="grid grid-cols-3 gap-[15px]">
+            <p className="mt-[6px] text-center text-[14px] leading-[1.35] text-carbon/60">
+              (quien va a ser mi contacto para ir a verlo, enviar la hoja de encargo, etc.)
+            </p>
+            <div className="mt-[15px] flex flex-col items-center gap-[8px]">
+              <CasillaHablo
+                texto="La persona que me llamó"
+                nombre="habla_llamo"
+                marcado={hablaLlamo}
+                alMarcar={setHablaLlamo}
+                clase={"h-[55px] " + (hablaLlamo ? "" : "border-[#3f7a1c]")}
+              />
+              <CasillaHablo texto="El administrador" nombre="habla_admin" marcado={hablaAdmin} alMarcar={setHablaAdmin} clase="h-[48px]" />
+              <CasillaHablo
+                texto={otroNuevo ? otroNuevo.nombre : "Otra persona"}
+                marcado={otroNuevo !== null}
+                alMarcar={(v) => (v ? setCreando("otro") : setOtroNuevo(null))}
+                clase="h-[44px]"
+                extra={
+                  otroNuevo ? undefined : (
+                    <span className="flex h-[20px] w-[76px] shrink-0 items-center justify-center rounded-lg border border-black text-[11px] font-bold uppercase tracking-[0.44px] text-carbon/80">
+                      + Crear
+                    </span>
+                  )
+                }
+              />
+            </div>
+            {ocultos("otro_nuevo", otroNuevo)}
+          </section>
+        </div>
+
+        {/* ---- lo que tengo que hacer, y los datos extra ---- */}
+        <div className="flex items-start pb-[40px] pt-[20px]">
+          <section className="ml-[217px] w-[482px] shrink-0 rounded-[14px] border-[3px] border-obligatorio bg-obligatorio-fondo px-[13px] pb-[13px] pt-[11px]">
+            <h3 className="mb-[10px] text-center text-[13px] font-bold uppercase tracking-[0.88px] text-obligatorio">
+              <span className="text-[11px] text-[#237812]">Qué tengo que hacer:</span> Siguiente paso inmediato
+            </h3>
+            <div className="grid grid-cols-3 gap-[12px]">
               {PASOS_DE_ARRANQUE.map((p) => (
                 <Casilla
                   key={p.clave}
@@ -334,237 +614,16 @@ export function Formulario({
             </div>
             <input type="hidden" name="paso" value={paso} />
           </section>
-        </section>
 
-        {/* ============ qué datos tenemos ============ */}
-        <section className="min-w-0 rounded-[14px] border border-[#237812] bg-papel p-4 shadow-sm">
-          <div className="flex flex-wrap items-baseline gap-3">
-            <h2 className="text-[19px] font-bold uppercase leading-tight tracking-[0.03em] text-carbon">Qué datos tenemos</h2>
-            <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/60">
-              Apunta lo que ya sepas, cuanto más mejor
-            </span>
+          <span className="ml-[71px] shrink-0 pt-[5px] text-[11px] font-bold uppercase leading-[1.35] tracking-[0.88px] text-[#237812]">
+            Datos extra
+          </span>
+          <div className="ml-[11px] w-[320px] shrink-0">
+            <span className={etiqueta}>Cómo nos conocieron</span>
+            <Elegir id="canal" nombre="" opciones={canales} vacio="—" clase="mt-1" marco="border-black/10" />
           </div>
-          <div className="mt-2.5 border-t border-carbon" />
-
-          {/* ---- la dirección ---- */}
-          <Fila nombre="Dirección de la comunidad" primera>
-            {buscarDireccion ? (
-              <Elegir
-                id="comunidad"
-                nombre=""
-                opciones={comunidades}
-                valor={comunidad}
-                alElegir={setComunidad}
-                vacio="busca la que ya tenemos"
-                marco="border-carbon/70"
-                abrirAlMontar
-              />
-            ) : resuelta ? (
-              // Ya buscada: se ve con el nombre y se puede deshacer, como lo
-              // que se crea nuevo en esta misma pantalla.
-              <div className="flex h-[32px] items-center gap-2 rounded-lg border border-accion bg-[#eef3f8] px-3 text-sm">
-                <span className="min-w-0 flex-1 truncate font-semibold text-accion-marco" title={resuelta.nombre}>
-                  ✓ {resuelta.nombre}
-                  <span className="font-normal opacity-70">
-                    {" "}
-                    · {resuelta.pendiente ? "pendiente de la visita" : `${resuelta.portalIds.length} ${resuelta.portalIds.length === 1 ? "acceso" : "accesos"}`}
-                  </span>
-                </span>
-                <button type="button" onClick={() => setResuelta(null)} aria-label="Deshacer" className="text-accion-marco/70 hover:text-accion-marco">
-                  ×
-                </button>
-              </div>
-            ) : (
-              <div className="relative">
-                <input
-                  id="direccion_provisional"
-                  type="text"
-                  data-direccion
-                  value={direccion}
-                  onChange={(e) => {
-                    setDireccion(e.target.value);
-                    setProvisionalAdrede(false);
-                  }}
-                  placeholder="dirección del edificio"
-                  className={campo + " pr-10"}
-                />
-                <button
-                  type="button"
-                  onClick={() => direccion.trim() && setVentana(true)}
-                  aria-label="Buscar la dirección en Catastro"
-                  title="Buscar en Catastro (o pulsa Intro)"
-                  className="absolute right-1 top-1/2 flex h-[26px] w-[28px] -translate-y-1/2 items-center justify-center rounded-md border border-accion-marco bg-accion text-white transition hover:bg-accion-hover"
-                >
-                  <svg viewBox="0 0 20 20" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
-                    <circle cx="8.5" cy="8.5" r="5.5" />
-                    <path d="M13 13l4.5 4.5" strokeLinecap="round" />
-                  </svg>
-                </button>
-              </div>
-            )}
-            {!buscarDireccion && <input type="hidden" name="direccion_provisional" value={direccion} />}
-            <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
-            <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
-            <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
-            <span className={apoyo + " text-right"}>
-              {buscarDireccion
-                ? "Mejor la escribo"
-                : sinBuscar && provisionalAdrede
-                  ? "Sin buscar en Catastro: se guarda provisional"
-                  : "Si ya existe, selecciónala"}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                if (buscarDireccion) {
-                  setComunidad("");
-                  setBuscarDireccion(false);
-                } else {
-                  setDireccion("");
-                  setResuelta(null);
-                  setBuscarDireccion(true);
-                }
-              }}
-              className={accion}
-            >
-              {buscarDireccion ? "Aquí" : "Aquí ▾"}
-            </button>
-          </Fila>
-
-          {/* ---- el administrador ---- */}
-          <Fila nombre="¿Quién es su administrador?">
-            {adminNuevo ? (
-              fichaNueva(adminNuevo, () => setAdminNuevo(null))
-            ) : (
-              <Elegir
-                id="administrador"
-                nombre=""
-                opciones={administradores}
-                valor={admin}
-                alElegir={setAdmin}
-                vacio="selecciona de la lista"
-                marco="border-carbon/70"
-                conPista
-              />
-            )}
-            <span className={apoyo + " text-right"}>{adminNuevo ? "Lo estás creando" : "Es un nuevo administrador"}</span>
-            <button type="button" onClick={() => setCreando("admin")} className={accion}>
-              {adminNuevo ? "Cambiar" : "+ Crearlo"}
-            </button>
-            {ocultos("admin_nuevo", adminNuevo)}
-          </Fila>
-
-          {/* ---- quién ha contactado ---- */}
-          <div className="grid grid-cols-[128px_minmax(0,362fr)_75px_83px] items-center gap-x-[10px] border-t border-raya py-[14px]">
-            <span className={rotulo}>Quién ha contactado para pedirlo</span>
-            <div className="flex items-center gap-3">
-              <Casilla
-                texto={"Fue el mismo\nadministrador"}
-                nombre="quien_es_admin"
-                marcado={quienEsAdmin}
-                alMarcar={(v) => {
-                  setQuienEsAdmin(v);
-                  if (v) {
-                    setQuien("");
-                    setQuienNuevo(null);
-                  }
-                }}
-                tono="marron"
-                enLinea
-                clase="h-[52px] w-[150px] shrink-0"
-              />
-              <div className="min-w-0 flex-1">
-                <span className={apoyo + " mb-1 whitespace-nowrap text-center"}>Fue otra persona conocida</span>
-                {quienNuevo ? (
-                  fichaNueva(quienNuevo, () => setQuienNuevo(null))
-                ) : (
-                  <Elegir
-                    id="quien"
-                    nombre=""
-                    opciones={opciones.quienes}
-                    valor={quien}
-                    alElegir={(v) => {
-                      setQuien(v);
-                      if (v) setQuienEsAdmin(false);
-                    }}
-                    vacio="selecciona quién"
-                    desactivado={quienEsAdmin}
-                    marco="border-carbon/70"
-                    conPista
-                    dosLineas
-                  />
-                )}
-              </div>
-            </div>
-            <div className="col-span-2 flex flex-col items-center">
-              <span className={apoyo + " mb-1 whitespace-nowrap"}>Fue un nuevo contacto</span>
-              <button type="button" onClick={() => setCreando("quien")} className={accion + " w-[83px]"}>
-                {quienNuevo ? "Cambiar" : "+ Crearlo"}
-              </button>
-            </div>
-            {ocultos("quien_nuevo", quienNuevo)}
-          </div>
-
-          {/* ---- qué quieren ---- */}
-          <div className="grid grid-cols-[128px_minmax(0,1fr)] items-center gap-x-[10px] border-t border-raya py-[14px]">
-            <span className={rotulo}>En qué dicen que están interesados</span>
-            <Marcar
-              id="tipos"
-              opciones={opciones.tipos.map((t) => ({ valor: t.id, texto: t.nombre, pista: t.pista }))}
-              vacio="De lo que vendemos, qué quieren"
-              ancho="w-[290px]"
-            />
-          </div>
-
-          {/* ---- la tercera persona ---- */}
-          <div className="border-t border-raya py-[14px]">
-            <section className="mx-auto max-w-[572px] rounded-[14px] border border-marco bg-[#ecefec] px-4 py-3">
-              <h3 className="text-center text-[13px] font-bold uppercase tracking-[0.07em] text-[#0c1a64]">
-                {!hayContacto && <span className="text-[11px] text-obligatorio">Obligatorio: </span>}
-                Con quién hablo de esto a partir de ahora
-              </h3>
-              <p className="mb-3 mt-0.5 text-center text-sm text-carbon/60">
-                (quien va a ser mi contacto para ir a verlo, enviar la hoja de encargo, etc.)
-              </p>
-              <div className="grid grid-cols-3 gap-6 px-[45px]">
-                <Casilla
-                  texto="La persona que me llamó"
-                  nombre="habla_llamo"
-                  marcado={hablaLlamo}
-                  alMarcar={setHablaLlamo}
-                  tono="marron"
-                  clase="h-[75px]"
-                />
-                <Casilla
-                  texto="El administrador"
-                  nombre="habla_admin"
-                  marcado={hablaAdmin}
-                  alMarcar={setHablaAdmin}
-                  tono="marron"
-                  clase="h-[75px]"
-                />
-                <Casilla
-                  texto={otroNuevo ? otroNuevo.nombre : "Otro (crear)"}
-                  marcado={otroNuevo !== null}
-                  alMarcar={(v) => (v ? setCreando("otro") : setOtroNuevo(null))}
-                  tono="marron"
-                  clase="h-[75px]"
-                />
-              </div>
-              {ocultos("otro_nuevo", otroNuevo)}
-            </section>
-          </div>
-
-          {/* ---- datos extra ---- */}
-          <div className="grid grid-cols-[128px_minmax(0,1fr)] items-start gap-x-[10px] border-t border-raya py-[14px]">
-            <span className={rotulo}>Datos extra</span>
-            <div className="w-[320px]">
-              <span className={etiqueta}>Cómo nos conocieron</span>
-              <Elegir id="canal" nombre="" opciones={canales} vacio="—" clase="mt-1" marco="border-carbon/70" />
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       {ventana && (
         <VentanaDireccion

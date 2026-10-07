@@ -28,6 +28,7 @@ export function Marcar({
   vacio = "elige de la lista",
   ancho = "w-[237px]",
   marco = "border-carbon/70",
+  debajo = false,
 }: {
   id: string;
   opciones: Marca[];
@@ -36,6 +37,9 @@ export function Marcar({
   /** Lo que mide el selector; lo marcado crece a su derecha. */
   ancho?: string;
   marco?: string;
+  /** Lo marcado DEBAJO del selector y no a su derecha, y algo mas grande (la
+   *  pantalla de crear oportunidad, 7-oct-2026). */
+  debajo?: boolean;
 }) {
   const [puestos, setPuestos] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
@@ -85,7 +89,7 @@ export function Marcar({
   };
 
   return (
-    <div className="flex min-w-0 items-start gap-3">
+    <div className={debajo ? "flex min-w-0 flex-col items-start gap-[10px]" : "flex min-w-0 items-start gap-3"}>
       {puestos.map((v) => (
         <input key={v} type="hidden" name={id} value={v} />
       ))}
@@ -157,9 +161,15 @@ export function Marcar({
       </div>
 
       {/* Sobre el fondo, sin marco: esto no se rellena, se mira. */}
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5 pt-1">
+      <div className={"flex min-w-0 flex-wrap items-center " + (debajo ? "gap-x-[20px] gap-y-2" : "gap-1.5 pt-1")}>
         {puestos.map((v) => (
-          <span key={v} className="inline-flex items-center gap-1.5 rounded-lg bg-lima/25 px-2 py-0.5 text-xs text-carbon">
+          <span
+            key={v}
+            className={
+              "inline-flex items-center gap-1.5 bg-lima/25 text-carbon " +
+              (debajo ? "rounded-[9.6px] px-[9.6px] py-[2.4px] text-[14.4px] leading-[1.33]" : "rounded-lg px-2 py-0.5 text-xs")
+            }
+          >
             {texto(v)}
             <button
               type="button"
