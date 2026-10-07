@@ -15,7 +15,7 @@ ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
 QUEDA, SOBRAN = ARGS[0], ARGS[1:]
 SIN_ACCESOS = '--sin-accesos' in sys.argv
 TABLAS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
-          'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad', 'manias_organismos']
+          'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad']
 
 q = b.leer('oportunidades?select=*&codigo=eq.' + QUEDA)[0]
 origen = [q['origen_notas'] or '']
@@ -28,10 +28,11 @@ for cod in SOBRAN:
     notas = b.leer('notas_oportunidad?select=*&oportunidad_id=eq.' + o['id'])
     subv = b.leer('notas_subvencion?select=*&oportunidad_id=eq.' + o['id'])
     rel = b.leer('relacion_oportunidad_accesos?select=*&opp_id=eq.' + o['id'])
-    copia[cod] = {'oportunidad': o, 'notas_oportunidad': notas, 'notas_subvencion': subv, 'relacion_oportunidad_accesos': rel,
+    manias = b.leer('manias_organismos?select=*&oportunidad_id=eq.' + o['id'])
+    copia[cod] = {'oportunidad': o, 'manias_organismos': manias, 'notas_oportunidad': notas, 'notas_subvencion': subv, 'relacion_oportunidad_accesos': rel,
                   'hitos_oportunidad': b.leer('hitos_oportunidad?select=*&oportunidad_id=eq.' + o['id'])}
     origen.append('--- Unida desde %s (%s), mismo encargo (Monica, %s) ---\n%s' % (cod, o['comunidad_provisional'], time.strftime('%d-%m-%Y'), o['origen_notas'] or ''))
-    print('%s: %d notas, %d de subvencion, %d enlaces a accesos -> pasan a %s' % (cod, len(notas), len(subv), len(rel), QUEDA))
+    print('%s: %d notas, %d de subvencion, %d enlaces a accesos -> pasan a %s (las notas iguales no)' % (cod, len(notas), len(subv), len(rel), QUEDA))
 ya = {r['acceso_id'] for r in b.leer('relacion_oportunidad_accesos?select=acceso_id&opp_id=eq.' + q['id'])}
 ref = q['referencia_catastral'] if SIN_ACCESOS else q['referencia_catastral'] or next((c['oportunidad']['referencia_catastral'] for c in copia.values() if c['oportunidad']['referencia_catastral']), None)
 print('referencia catastral de %s: %s -> %s' % (QUEDA, q['referencia_catastral'], ref))
@@ -41,8 +42,15 @@ if ESCRIBIR:
     print('copia en', f)
     for cod, c in copia.items():
         oid = c['oportunidad']['id']
-        b.actualizar('notas_oportunidad?oportunidad_id=eq.' + oid, {'oportunidad_id': q['id']})
-        if c['notas_subvencion']: b.actualizar('notas_subvencion?oportunidad_id=eq.' + oid, {'oportunidad_id': q['id']})
+        tiene = {(m['mania'], m['cita']) for m in b.leer('manias_organismos?select=mania,cita&oportunidad_id=eq.' + q['id'])}
+        for m in c['manias_organismos']:   # la mania IGUAL se borra (esta en la copia); la distinta pasa
+            if (m['mania'], m['cita']) in tiene: b.borrar('manias_organismos?id=eq.' + m['id'])
+            else: b.actualizar('manias_organismos?id=eq.' + m['id'], {'oportunidad_id': q['id']}); tiene.add((m['mania'], m['cita']))
+        for t in ('notas_oportunidad', 'notas_subvencion'):   # la nota IGUAL (fecha y texto) que ya tiene la que queda no se pasa: se va con la borrada
+            tiene = {(n['fecha'], (n['texto'] or '').strip()) for n in b.leer('%s?select=fecha,texto&oportunidad_id=eq.%s' % (t, q['id']))}
+            for n in c[t]:
+                if (n['fecha'], (n['texto'] or '').strip()) not in tiene:
+                    b.actualizar('%s?id=eq.%s' % (t, n['id']), {'oportunidad_id': q['id']}); tiene.add((n['fecha'], (n['texto'] or '').strip()))
         for r in ([] if SIN_ACCESOS else c['relacion_oportunidad_accesos']):
             if r['acceso_id'] not in ya:
                 b.insertar('relacion_oportunidad_accesos', [{'opp_id': q['id'], 'acceso_id': r['acceso_id'], 'de_donde': r['de_donde'] + ' (pasado desde ' + cod + ')'}])
