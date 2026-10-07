@@ -1,0 +1,2313 @@
+[
+{
+"num": 1,
+"fecha_he": "2026-01-26",
+"dir": "JOAQUINA SANTANDER 33-35-37 TALAVERA DE LA REINA TOLEDO",
+"nota": "prestado",
+"prod": [
+[
+"67b14d06-28c5-4bbe-ac5c-3a917ea4730b",
+"JOAQUINA SANTANDER 33-35-37 TALAVERA DE LA REINA TOLEDO",
+"2026-01-26",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 2,
+"fecha_he": "2026-01-26",
+"dir": "CAPITAN DAOIZ 2 TALAVERA DE LA REINA.TOLEDO",
+"nota": "suyo",
+"prod": [
+[
+"43f5b92c-abce-4aab-9767-d18f2f02913f",
+"CAPITAN DAOIZ 2 TALAVERA DE LA REINA.TOLEDO",
+"2026-01-26",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 3,
+"fecha_he": "2026-01-27",
+"dir": "SEPULVEDA160 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"44415780-9c29-4574-95bb-f2a24afa0278",
+"SEPULVEDA160 MADRID",
+"2026-01-22",
+"Daniel",
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 4,
+"fecha_he": "2026-01-30",
+"dir": "RIOCABADO 10 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"a99572c4-b95d-47eb-bbb0-3c1faea131bf",
+"RIOCABADO 10 MADRID",
+"2026-01-30",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 5,
+"fecha_he": "2026-02-03",
+"dir": "ALHELI 2 LEGANES",
+"nota": "prestado",
+"prod": [
+[
+"00c23269-e714-4e63-a2e4-b14f628e8c37",
+"ALHELI 2 LEGANES",
+"2026-01-01",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 6,
+"fecha_he": "2026-02-04",
+"dir": "AV BADAJOZ 18 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"78879af0-b912-4092-bf5f-12b39e8f4650",
+"AV BADAJOZ 18 MADRID",
+"2026-01-29",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 7,
+"fecha_he": "2026-02-06",
+"dir": "SEPULVEDA 49 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"469091f6-3df3-4af6-a7d3-b3b3b7f495a1",
+"SEPULVEDA 49 MADRID",
+"2026-02-05",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 8,
+"fecha_he": "2026-02-06",
+"dir": "CARLOS FUENTES 61 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"e30ee4f2-4e34-46ed-b055-0f26d3d2e2e4",
+"CARLOS FUENTES 61 MADRID",
+"2026-02-04",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 9,
+"fecha_he": "2026-02-08",
+"dir": "PALOMARES 75 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"f9e1ac5a-3330-4940-a6b1-e0e4869c0913",
+"PALOMARES 75-77-79 MADRID",
+"2022-09-29",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 10,
+"fecha_he": "2026-02-08",
+"dir": "PALOMARES 77 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"2e00e663-dda5-45ad-827c-bdddd2606e20",
+"PALOMARES 77 MADRID",
+"2026-02-06",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 11,
+"fecha_he": "2026-02-08",
+"dir": "PALOMARES 79 MADRID",
+"nota": "prestado",
+"prod": [],
+"clon": []
+},
+{
+"num": 12,
+"fecha_he": "2026-02-08",
+"dir": "PALOMARES 75,77,79 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"f9e1ac5a-3330-4940-a6b1-e0e4869c0913",
+"PALOMARES 75-77-79 MADRID",
+"2022-09-29",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 13,
+"fecha_he": "2026-02-08",
+"dir": "PASEO DE LOS FERROVIARIOS 9 MADRID",
+"nota": "prestado",
+"prod": [],
+"clon": []
+},
+{
+"num": 14,
+"fecha_he": "2026-02-08",
+"dir": "PASEO DE LOS FERROVIARIOS 9 MADRID",
+"nota": "prestado",
+"prod": [],
+"clon": []
+},
+{
+"num": 15,
+"fecha_he": "2026-02-12",
+"dir": "FERNANDO PESSOA 4 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"3a070ebb-e5bf-46e9-877f-b97964ad8ab9",
+"FERNANDO PESSOA 4 MADRID",
+"2026-02-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 16,
+"fecha_he": "2026-02-12",
+"dir": "VELEZ MALAGA 20 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"42fa4a06-ed98-4e64-9ce0-c84c763c019c",
+"VELEZ MALAGA 20 MADRID",
+"2026-01-26",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 17,
+"fecha_he": "2026-02-16",
+"dir": "AVDA MONTE IGUELDO 123 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f14987a0-4d49-46f6-a737-e8a211258400",
+"AVDA MONTE IGUELDO 123 MADRID",
+"2026-02-12",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 18,
+"fecha_he": "2026-02-19",
+"dir": "CAMPO DE LA PALOMA 46 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"d382df16-10a1-4486-b113-a5533d334922",
+"CAMPO DE LA PALOMA 46 MADRID",
+"2026-02-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 19,
+"fecha_he": "2026-02-23",
+"dir": "ADORATRICES 7 GUADALAJARA",
+"nota": "suyo",
+"prod": [
+[
+"038a4858-db88-4b18-a2d5-61b80aa005c0",
+"ADORATRICES 7 GUADALAJARA",
+"2026-02-23",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 20,
+"fecha_he": "2026-02-23",
+"dir": "FERIAL 25 GUADALAJARA",
+"nota": "suyo",
+"prod": [
+[
+"c6f71131-a62b-437e-8008-f29cf35c9ed8",
+"FERIAL 25 GUADALAJARA",
+"2026-02-23",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 21,
+"fecha_he": "2026-02-23",
+"dir": "GREGORIO IZQUIERDO 53 SSR",
+"nota": "suyo",
+"prod": [
+[
+"39d0831e-d757-46a6-8cd5-2891d526e3bc",
+"GREGORIO IZQUIERDO 53 SSR",
+"2025-03-14",
+"Daniel",
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 22,
+"fecha_he": "2026-03-02",
+"dir": "PINTOR SOROLLA 3 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"bed93be8-ff6e-46dd-abff-053392df6915",
+"PINTOR SOROLLA 3 MADRID",
+"2026-02-19",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 23,
+"fecha_he": "2026-03-02",
+"dir": "CARLOTA O`NEILL 40 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"96fd5c39-5cd4-407e-bc90-e3063341f372",
+"CARLOTA O`NEILL 40 MADRID",
+"2026-02-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 24,
+"fecha_he": "2026-03-05",
+"dir": "MEZQUITA 1 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"db6e289b-8309-4309-9fda-a258640a81aa",
+"MEZQUITA 1 MADRID",
+"2026-02-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 25,
+"fecha_he": "2026-03-05",
+"dir": "TENIENTE MUÑOZ DIAZ 27 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"cf0e1b62-9aa7-4dc6-a44a-266a50c4c4b4",
+"TENIENTE MUÑOZ DIAZ 27 MADRID",
+"2026-02-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 26,
+"fecha_he": "2026-03-09",
+"dir": "GUARNICIONEROS 6 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"9f51f7cf-2b5e-4ae3-b8e0-cd2fa0abc08e",
+"GUARNICIONEROS 6 MADRID",
+"2026-03-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 27,
+"fecha_he": "2026-03-11",
+"dir": "ISAAC PERAL 8 GETAFE",
+"nota": "suyo",
+"prod": [
+[
+"688a144d-94ae-4986-ab2e-f56872aacd4d",
+"ISAAC PERAL 8 GETAFE",
+"2026-01-01",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 28,
+"fecha_he": "2026-03-11",
+"dir": "LUCERO 10 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"744d81b1-8963-4d4d-9c3f-30d00a61e1fe",
+"LUCERO 10 MADRID",
+"2026-03-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 29,
+"fecha_he": "2026-03-12",
+"dir": "JORGE LUIS BORGES 5 GUADALAJARA",
+"nota": "suyo",
+"prod": [
+[
+"a707b413-84d7-4cd9-a163-e17aa8ca50a8",
+"JORGE LUIS BORGES 5 GUADALAJARA",
+"2026-03-12",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 30,
+"fecha_he": "2026-03-16",
+"dir": "ANTONIO DURAN TOVAR 2 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"87526f5c-eff4-467c-bbe1-be0b1f9d52b4",
+"ANTONIO DURAN TOVAR 2 MADRID",
+"2026-03-11",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 31,
+"fecha_he": "2026-03-16",
+"dir": "PASEO DE LA RAMBLA 13 VALDEMORO",
+"nota": "suyo",
+"prod": [
+[
+"d3201aa9-9a4c-4105-b765-ab2f3d14be9b",
+"PASEO DE LA RAMBLA 13 VALDEMORO",
+"2026-03-12",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 32,
+"fecha_he": "2026-03-19",
+"dir": "NUESTRA SEÑORA DE LORETO 1 COSLADA",
+"nota": "suyo",
+"prod": [
+[
+"8785794e-10ae-4b25-b329-e3dc69325585",
+"NUESTRA SEÑORA DE LORETO 1 COSLADA",
+"2026-03-17",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 33,
+"fecha_he": "2026-03-20",
+"dir": "PILAR 17 SAN SEBASTIAN DE LOS REYES",
+"nota": "suyo",
+"prod": [
+[
+"7770851d-5e52-4536-ad76-a684e9e7e1fd",
+"PILAR 17 SAN SEBASTIAN DE LOS REYES",
+"2016-09-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 34,
+"fecha_he": "2026-03-26",
+"dir": "GARCIA LLAMAS 45 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"9c6bf65f-3cec-4718-a8c6-d2f507e1e7e8",
+"GARCIA LLAMAS 45 MADRID",
+"2026-03-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 35,
+"fecha_he": "2026-03-26",
+"dir": "TRAVESIA PALOMERAS 7 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"ce2a49b8-06b9-4488-8f59-c30e6739996b",
+"TRAVESIA PALOMERAS 7 MADRID",
+"2026-03-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 36,
+"fecha_he": "2026-04-07",
+"dir": "MARTELL 40 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"386b1719-c547-43d5-b12a-70cc8da97d70",
+"MARTELL 40 MADRID",
+"2026-04-07",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 37,
+"fecha_he": "2026-04-11",
+"dir": "AVDA SAN DIEGO 110 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"5b8b88d1-8028-4c75-8764-0554e40bd888",
+"AVDA SAN DIEGO 110 MADRID",
+"2026-04-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 38,
+"fecha_he": "2026-04-11",
+"dir": "AVDA SAN DIEGO 110 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"5b8b88d1-8028-4c75-8764-0554e40bd888",
+"AVDA SAN DIEGO 110 MADRID",
+"2026-04-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 39,
+"fecha_he": "2026-04-11",
+"dir": "CORREGIDOR ALONSO DE TOBAR 16 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"9031b2cd-8a31-4d62-8867-c4ec3d342a9c",
+"CORREGIDOR ALONSO DE TOBAR 16 MADRID",
+"2026-04-08",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 40,
+"fecha_he": "2026-04-13",
+"dir": "LOPEZ GRASS 60 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"6b07f531-44db-484c-a00b-965e96c577b1",
+"LOPEZ GRASS 60 MADRID",
+"2026-04-13",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 41,
+"fecha_he": "2026-04-13",
+"dir": "BRAVO MURILLO 177 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f5eb1f1b-c0f5-4d88-9b46-886692aefb15",
+"BRAVO MURILLO 177 MADRID",
+"2026-06-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 42,
+"fecha_he": "2026-04-13",
+"dir": "BRAVO MURILLO 177 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f5eb1f1b-c0f5-4d88-9b46-886692aefb15",
+"BRAVO MURILLO 177 MADRID",
+"2026-06-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 43,
+"fecha_he": "2026-04-13",
+"dir": "EMILIO GASTESI FERNANDEZ 40 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"883771fe-ec7d-4912-9eee-73b60de8fcb3",
+"EMILIO GASTESI FERNANDEZ 40 MADRID",
+"2024-10-07",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 44,
+"fecha_he": "2026-04-14",
+"dir": "ENRIQUE FUENTES 27 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"372f62fe-1d40-4691-9edc-b1793c6b6eda",
+"ENRIQUE FUENTES 27 MADRID",
+"2024-02-27",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 45,
+"fecha_he": "2026-04-17",
+"dir": "ALORA 25 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"077beb46-96e1-4af4-af13-f7b332392fcc",
+"ALORA 25 MADRID",
+"2026-04-17",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 46,
+"fecha_he": "2026-04-24",
+"dir": "PILAR 17 SAN SEBASTIAN DE LOS REYES",
+"nota": "suyo",
+"prod": [
+[
+"7770851d-5e52-4536-ad76-a684e9e7e1fd",
+"PILAR 17 SAN SEBASTIAN DE LOS REYES",
+"2016-09-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 47,
+"fecha_he": "2026-04-21",
+"dir": "CASABERMEJA 4 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f67eda6a-897c-4932-87d7-df188b4a04da",
+"CASABERMEJA 4 MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 48,
+"fecha_he": "2026-04-25",
+"dir": "SERENA 23 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"2de0f106-9f81-48a6-91ae-cc4f8be36273",
+"SERENA 23 MADRID",
+"2026-04-22",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 49,
+"fecha_he": "2026-04-25",
+"dir": "SANCHEZ BARCAIZTEGUI 14 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"a1c6c000-3961-4123-8596-be0f8fb3df0a",
+"SANCHEZ BARCAIZTEGUI 14 MADRID",
+"2026-04-22",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 50,
+"fecha_he": "2026-04-25",
+"dir": "MATARÓ 13 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"899d9778-f633-4b31-94e9-c368d06a2351",
+"MATARÓ 13 MADRID",
+"2026-04-25",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 51,
+"fecha_he": "2026-04-25",
+"dir": "GOMEZNARRO 10 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"d737ae51-66e3-4baf-947a-380627f8fdc5",
+"GOMEZNARRO 10 MADRID",
+"2025-09-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 52,
+"fecha_he": "2026-04-25",
+"dir": "URB.NUEVO GRIÑON 1 GRIÑON",
+"nota": "suyo",
+"prod": [
+[
+"ee4c2b0f-ad95-4f81-b19a-6c70d1fe0ac5",
+"URB.NUEVO GRIÑON 1 GRIÑON",
+"2026-04-23",
+"Daniel",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 53,
+"fecha_he": "2026-04-25",
+"dir": "MONCADA 101 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"e7dd40e4-1334-4192-89d1-64c69b051b33",
+"MONCADA 101 MADRID",
+"2026-03-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 54,
+"fecha_he": "2026-04-25",
+"dir": "MONCADA 102 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"cec44aa1-6b15-4ca4-b87d-a9589f73037d",
+"MONCADA 102 MADRID",
+"2026-04-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 55,
+"fecha_he": "2026-04-25",
+"dir": "ENTREARROYOS 74 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"d8100dfe-5cbc-4c17-86d5-b95832cec4e9",
+"ENTREARROYOS 74 MADRID",
+"2026-04-25",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 56,
+"fecha_he": "2026-04-25",
+"dir": "ENTREARROYOS 74 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"d8100dfe-5cbc-4c17-86d5-b95832cec4e9",
+"ENTREARROYOS 74 MADRID",
+"2026-04-25",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 57,
+"fecha_he": "2026-04-27",
+"dir": "ALCALÁ DE GUADAIRA 38 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"c5c23762-4188-47c7-924a-190bc3056a16",
+"ALCALÁ DE GUADAIRA 38 MADRID",
+"2025-07-01",
+"Daniel",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 58,
+"fecha_he": "2026-04-28",
+"dir": "LLANOS DE ESCUDERO 6 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"e8a3020c-4200-4fcb-977e-612dae4c6f0b",
+"LLANOS DE ESCUDERO 6 MADRID",
+"2026-04-17",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 59,
+"fecha_he": "2026-04-28",
+"dir": "RIO TAJO 18 LEGANES",
+"nota": "suyo",
+"prod": [
+[
+"91d41f95-ea4e-43aa-bd23-b6943aecdd88",
+"RIO TAJO 18 LEGANES",
+"2026-04-28",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 60,
+"fecha_he": "2026-04-29",
+"dir": "JOSE PAULETE 5 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"c03cc06f-592c-439a-8689-0459b6641440",
+"JOSE PAULETE 5 MADRID",
+"2026-04-26",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 61,
+"fecha_he": "2026-04-29",
+"dir": "WITERICO 20 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"7e13ce66-0c91-49ff-bed6-8fc70caea715",
+"WITERICO 20 MADRID",
+"2026-04-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 62,
+"fecha_he": "2026-04-29",
+"dir": "BARBERÁN Y COLLAR 13 ALCALÁ DE HENARES",
+"nota": "suyo",
+"prod": [
+[
+"a6ce69bc-63ae-417c-9629-7ef88982b44d",
+"BARBERÁN Y COLLAR 13 ALCALÁ DE HENARES",
+"2026-04-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 63,
+"fecha_he": "2026-04-29",
+"dir": "BARBERÁN Y COLLAR 15 ALCALÁ DE HENARES",
+"nota": "suyo",
+"prod": [
+[
+"23b0b7bc-5891-4d75-b2bd-ca331d849787",
+"BARBERÁN Y COLLAR 15 ALCALÁ DE HENARES",
+"2026-04-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 64,
+"fecha_he": "2026-04-29",
+"dir": "BARBERÁN Y COLLAR 17 ALCALÁ DE HENARES",
+"nota": "suyo",
+"prod": [
+[
+"58c8848e-3a36-47e4-8fae-83bf298b0a04",
+"BARBERÁN Y COLLAR 17 ALCALÁ DE HENARES",
+"2026-04-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 65,
+"fecha_he": "2026-04-29",
+"dir": "OSIRIS 17 HUMANES DE MADRID",
+"nota": "suyo",
+"prod": [
+[
+"2589a51c-7433-421c-ab17-a32a611297c8",
+"OSIRIS 17 HUMANES DE MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 66,
+"fecha_he": "2026-04-29",
+"dir": "OSIRIS 19 HUMANES DE MADRID",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 67,
+"fecha_he": "2026-05-01",
+"dir": "SAN CLAUDIO 55",
+"nota": "suyo",
+"prod": [
+[
+"eaaf1f40-44e9-4ede-ae07-f0cbabec22c0",
+"SAN CLAUDIO 55",
+"2024-12-03",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 68,
+"fecha_he": "2026-05-05",
+"dir": "PICO CEJO 9 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"613fed76-1acc-4a72-975e-62cf90e6b333",
+"PICO CEJO 9 MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 69,
+"fecha_he": "2026-05-05",
+"dir": "ISTURIZ 9 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"be35d4bf-36e0-409e-b45c-71302a143f19",
+"ISTURIZ 9 MADRID",
+"2026-05-05",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 70,
+"fecha_he": "2026-05-05",
+"dir": "MOCHUELO 1 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"8e42e027-dbc6-4a86-9c9a-a4dea7e2f6fa",
+"MOCHUELO 1 MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 71,
+"fecha_he": "2026-05-05",
+"dir": "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA",
+"nota": "prestado",
+"prod": [
+[
+"8e356830-930e-47bf-aeb1-45ae89d87b8e",
+"JOAQUINA SANTANDER 37 TALAVERA DE LA REINA",
+"2026-05-05",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 72,
+"fecha_he": "2026-05-12",
+"dir": "BANDERAS DE CASTILLA 25 TALAVERA DE LA REINA",
+"nota": "prestado",
+"prod": [
+[
+"ce323386-295e-4347-8793-865bc10ef55a",
+"BANDERAS DE CASTILLA 25 TALAVERA DE LA REINA",
+"2026-05-12",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 73,
+"fecha_he": "2026-05-16",
+"dir": "TOMAS APARICIO 3 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"6a241199-871e-426b-bc06-f1745b2a6c50",
+"TOMAS APARICIO 3 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 74,
+"fecha_he": "2026-05-16",
+"dir": "SEO DE URGEL 13 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"978cd3df-66b6-471b-911e-d0d2fda108f6",
+"SEO DE URGEL 13 MADRID",
+"2024-11-28",
+"Daniel",
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 75,
+"fecha_he": "2026-05-16",
+"dir": "SEO DE URGEL 15 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"85110d87-2d23-4d4a-a599-2c5307400144",
+"SEO DE URGEL 15 MADRID",
+"2024-11-28",
+"Daniel",
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 76,
+"fecha_he": "2026-05-16",
+"dir": "HUERTAS 55 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"6a2919dc-13f7-4e9e-92aa-6330ab7089b7",
+"HUERTAS 55 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 77,
+"fecha_he": "2026-05-16",
+"dir": "PUERTO DE COTOS 11 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"40b48084-dc33-40d4-a37f-0db2407994d2",
+"PUERTO DE COTOS 11 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 78,
+"fecha_he": "2026-05-16",
+"dir": "PUERTO DE COTOS 11 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"40b48084-dc33-40d4-a37f-0db2407994d2",
+"PUERTO DE COTOS 11 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 79,
+"fecha_he": "2026-05-16",
+"dir": "GENERAL SERRANO ORIVE 1 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"66371745-8de4-4a42-a841-9cfb25e9b781",
+"GENERAL SERRANO ORIVE 1 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 80,
+"fecha_he": "2026-05-17",
+"dir": "VILLAFUERTE 17 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"21da2ed5-2c9d-423a-bf2f-f6ce7f15b25f",
+"VILLAFUERTE 17 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 81,
+"fecha_he": "2026-05-17",
+"dir": "AVDA MARQUES DE CORBERA 34 B MADRID",
+"nota": "suyo",
+"prod": [
+[
+"ad59bfa9-489d-4eef-9b58-cd0189b34753",
+"AVDA MARQUES DE CORBERA 34 B MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 82,
+"fecha_he": "2026-05-17",
+"dir": "SANTA COLOMA 9 MADRID",
+"nota": "contrata, no admin",
+"prod": [
+[
+"1b131411-8b2a-4a96-a65e-840ab71af235",
+"SANTA COLOMA 9 MADRID",
+"2026-05-27",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 83,
+"fecha_he": "2026-05-17",
+"dir": "COMANDANTE FORTEA 28 MADRID",
+"nota": "contrata, no admin",
+"prod": [
+[
+"649091d4-e980-4802-b1c5-78ccd4cc744e",
+"COMANDANTE FORTEA 28 MADRID",
+"2026-05-17",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 84,
+"fecha_he": "2026-05-17",
+"dir": "CONRADO DEL CAMPO 4 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"da166a4b-94b5-4315-8d47-804c2d40da82",
+"CONRADO DEL CAMPO 4 MADRID",
+"2026-05-27",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 85,
+"fecha_he": "2026-05-17",
+"dir": "ALFONSO XII MADRID ",
+"nota": "suyo",
+"prod": [
+[
+"05eacd91-c602-4e80-b9f8-b4ac74c643cf",
+"ALFONSO XII MADRID",
+"2026-05-17",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 86,
+"fecha_he": "2026-05-18",
+"dir": "HUMERA 23 FUENLABRADA",
+"nota": "suyo",
+"prod": [
+[
+"cdd02526-e4f1-47c7-8419-ddac056b7c5a",
+"CDAD PROP CL HUMERA N 23 FUENLABRADA",
+"2018-03-12",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 87,
+"fecha_he": "2026-05-18",
+"dir": "ARMENTEROS 51 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"627476df-593c-4614-8aaa-cdc839120004",
+"ARMENTEROS 51 MADRID",
+"2024-09-27",
+"Daniel",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 88,
+"fecha_he": "2026-05-18",
+"dir": "ARMENTEROS 51 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"627476df-593c-4614-8aaa-cdc839120004",
+"ARMENTEROS 51 MADRID",
+"2024-09-27",
+"Daniel",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 89,
+"fecha_he": "2026-05-19",
+"dir": "VALDEMORO 8 FUENLABRADA",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 90,
+"fecha_he": "2026-05-21",
+"dir": "ALFONSO XIII 8 PARLA MADRID",
+"nota": "suyo",
+"prod": [
+[
+"39fa6a6d-473e-4097-a9af-f0ebc492c008",
+"ALFONSO XIII 8 PARLA MADRID",
+"2026-05-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 91,
+"fecha_he": "2026-05-21",
+"dir": "BOLSA 3 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"9af0cbe6-16cc-4306-af07-be718bf2d5a1",
+"BOLSA 3 MADRID",
+"2026-05-21",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 92,
+"fecha_he": "2026-05-21",
+"dir": "GABRIEL USERA 56 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"8613c057-60a7-45d9-b2da-ad3cd2dc8afe",
+"GABRIEL USERA 56 MADRID",
+"2026-05-21",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 93,
+"fecha_he": "2026-05-21",
+"dir": "GABRIEL USERA 56 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"8613c057-60a7-45d9-b2da-ad3cd2dc8afe",
+"GABRIEL USERA 56 MADRID",
+"2026-05-21",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 94,
+"fecha_he": "2026-05-21",
+"dir": "QUINCE DE AGOSTO 5 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"631c7097-dcb1-4ce4-8daa-15af3b6b07a8",
+"QUINCE DE AGOSTO 5 MADRID",
+"2026-05-21",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 95,
+"fecha_he": "2026-05-21",
+"dir": "QUINCE DE AGOSTO 5 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"631c7097-dcb1-4ce4-8daa-15af3b6b07a8",
+"QUINCE DE AGOSTO 5 MADRID",
+"2026-05-21",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 96,
+"fecha_he": "2026-05-21",
+"dir": "LA PRENSA 11 SSR ",
+"nota": "suyo",
+"prod": [
+[
+"24ac59b9-d0b8-4e75-8712-e69c5b51cb4b",
+"LA PRENSA 11 SSR",
+"2026-05-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 97,
+"fecha_he": "2026-05-22",
+"dir": "AVDA PORTUGAL 23 LEGANES",
+"nota": "suyo",
+"prod": [
+[
+"b66985ab-8308-4b4b-b2bf-f889ddb4a902",
+"AV PORTUGAL 23 LEGANES",
+"2025-02-13",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 98,
+"fecha_he": "2026-05-22",
+"dir": "TRAVESIA SANTIAGO ALIO 2 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"249d9a74-a1ca-4b96-be7d-90eee810ee3f",
+"TRAVESÍA DE SANTIAGO ALIO 2 MADRID",
+"2025-06-05",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 99,
+"fecha_he": "2026-05-22",
+"dir": "GALLEGOS 12 ALCALA DE HENARES",
+"nota": "suyo",
+"prod": [
+[
+"5277186d-74d3-4380-8040-d2ff9fb21886",
+"GALLEGOS 12 ALCALA DE HENARES",
+"2026-02-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 100,
+"fecha_he": "2026-05-22",
+"dir": "SAMBARA 146 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f3a837e7-97b7-4c01-bddd-1420f5aa4eee",
+"SAMBARA 146 MADRID",
+"2025-09-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 101,
+"fecha_he": "2026-05-26",
+"dir": "RIO MANZANARES 33  LEGANÉS",
+"nota": "contrata, no admin",
+"prod": [
+[
+"b010e0bc-8604-4a92-990d-139f70c75a1c",
+"RIO MANZANARES 33  LEGANÉS",
+"2026-05-26",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 102,
+"fecha_he": "2026-05-26",
+"dir": "HERMENEGILDO BIELSA 27 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"6bc90ab4-4beb-4e2d-accb-eef048d0e0d3",
+"HERMENEGILDO BIELSA 27 MADRID",
+"2025-06-04",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 103,
+"fecha_he": "2026-05-29",
+"dir": "DR FLEMING 44 MADRID",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 104,
+"fecha_he": "2026-06-02",
+"dir": "FEDERICO GARCIA LORCA 42 PINTO",
+"nota": "suyo",
+"prod": [
+[
+"12a46e83-9301-4684-943a-4249f5f80e9f",
+"FEDERICO GARCIA LORCA 42 PINTO",
+"2025-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 105,
+"fecha_he": "2026-06-02",
+"dir": "RAMON GOMEZ DE LA SERNA 91 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f06b28c2-dc1d-4e9d-8fde-85ad1c7020c3",
+"RAMON GOMEZ DE LA SERNA 91 MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 106,
+"fecha_he": "2026-06-03",
+"dir": "VALLADOLID 13 FUENLABRADA",
+"nota": "suyo",
+"prod": [
+[
+"97d373cf-333e-41f9-8375-a53bd201284b",
+"VALLADOLID 13 FUENLABRADA",
+"2026-06-08",
+null,
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 107,
+"fecha_he": "2026-06-04",
+"dir": "CAÑADA 16 ALCORCÓN",
+"nota": "suyo",
+"prod": [
+[
+"ba3aa084-684e-45da-a583-d1d144d141e2",
+"CAÑADA 16 ALCORCÓN",
+"2026-06-02",
+null,
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 108,
+"fecha_he": "2026-06-04",
+"dir": "HERMANDAD DE DONANTES DE SANGRE 27 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f7b4d9ae-f50f-42de-a7d1-453defd51cec",
+"HERMANDAD DE DONANTES DE SANGRE 27 MADRID",
+"2026-06-04",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 109,
+"fecha_he": "2026-06-04",
+"dir": "HERMANOS DE PABLO 45 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"14fe38ba-f496-49a3-8867-baf583f657a1",
+"HERMANOS DE PABLO 45 MADRID",
+"2026-05-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 110,
+"fecha_he": "2026-06-04",
+"dir": "GUTENBERG 16 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"2b01b916-10e7-46e9-ab05-eaf5e6160c6d",
+"GUTENBERG 16 MADRID",
+"2026-05-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 111,
+"fecha_he": "2026-06-05",
+"dir": "PASEO DE SAN ILLAN 3 MADRID ",
+"nota": "prestado",
+"prod": [
+[
+"921cc3bd-0695-4ecb-8c16-45fa05e5f904",
+"PASEO DE SAN ILLAN 3 MADRID",
+"2025-06-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 112,
+"fecha_he": "2026-06-05",
+"dir": "PASEO DE SAN ILLAN 7 MADRID ",
+"nota": "prestado",
+"prod": [
+[
+"28b3d8b4-b487-4171-8625-8de8dbe7f722",
+"PASEO DE SAN ILLAN 7 MADRID",
+"2025-06-10",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 113,
+"fecha_he": "2026-06-09",
+"dir": "ALPES 4 ALCORCÓN ",
+"nota": "suyo",
+"prod": [
+[
+"65e4f02f-f0be-4da7-a3d7-b290501fe942",
+"ALPES 4 ALCORCÓN",
+"2026-06-09",
+null,
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 114,
+"fecha_he": "2026-06-09",
+"dir": "LILOS 6 BIS PORTAL 1, 2  ALCORCON",
+"nota": "suyo",
+"prod": [
+[
+"dab38b4e-c569-4386-9a10-5e234b1b2c3d",
+"LILOS 6 BIS PORTAL 1, 2",
+"2026-06-09",
+null,
+"Alvaro"
+],
+[
+"d65753b0-6600-4416-95ac-f4dae54e0cc6",
+"LOS LILOS 6 ALCORCÓN",
+"2026-06-10",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 115,
+"fecha_he": "2026-06-09",
+"dir": "AVDA FUENLABRADA 95 LEGANES",
+"nota": "prestado",
+"prod": [],
+"clon": []
+},
+{
+"num": 116,
+"fecha_he": "2026-06-10",
+"dir": "IMAGEN 9 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"8e685fd6-5ccf-4c1a-b907-a0fc3d3c1038",
+"IMAGEN 9 MADRID",
+"2026-06-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 117,
+"fecha_he": "2026-06-10",
+"dir": "TERCIO 1 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"f4b1f8c7-3c47-40ab-9390-56c34aab0f74",
+"TERCIO 1 MADRID",
+"2026-06-09",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 118,
+"fecha_he": "2026-06-10",
+"dir": "MALAGA 4 ALCORCÓN",
+"nota": "suyo",
+"prod": [
+[
+"5adbbf07-4ac7-44c4-917d-2b54a2f4f131",
+"MALAGA 4 ALCORCON",
+"2024-11-05",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 119,
+"fecha_he": "2026-06-16",
+"dir": "CINE 13 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"bd79c268-837a-4e1b-a2bd-8cb741c73a91",
+"CINE 13 MADRID",
+"2026-06-16",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 120,
+"fecha_he": "2026-06-17",
+"dir": "LAGARTERA 194 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"da3e5494-95b7-41ae-b36c-0f4023dde5d0",
+"LAGARTERA 194 MADRID",
+"2026-06-17",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 121,
+"fecha_he": "2026-06-20",
+"dir": "MAR DE ARAL 11 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"9b90e415-512a-4669-b1b3-5284895729f8",
+"MAR DE ARAL 11 MADRID",
+"2026-06-18",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 122,
+"fecha_he": "2026-06-20",
+"dir": "CARLOS MARTIN ALVAREZ 67 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"45c601ae-7311-4657-a2a0-e448070801f4",
+"CARLOS MARTIN ALVAREZ 67 MADRID",
+"2026-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 123,
+"fecha_he": "2026-06-20",
+"dir": "CARRERO JUAN RAMON 6 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"62ac6d2b-329d-4399-9aab-4932b4803ae4",
+"CARRERO JUAN RAMON 6 MADRID",
+"2026-03-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 124,
+"fecha_he": "2026-06-20",
+"dir": "PUENTE NUEVO 7 TALAVERA DE LA REINA",
+"nota": "prestado",
+"prod": [
+[
+"30963eae-5ffe-49ca-9694-13ab4b1735bc",
+"PUENTE NUEVO 7 TALAVERA DE LA REINA",
+"2026-06-20",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 125,
+"fecha_he": "2026-06-23",
+"dir": "ANSAR 62 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"90dbfe06-47cb-41d6-9480-93d20555d07e",
+"ANSAR 62 MADRID",
+"2026-06-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 126,
+"fecha_he": "2026-06-23",
+"dir": "PRINCIPE 18 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"5575f1ed-2dd5-4844-8100-146b824d81aa",
+"PRINCIPE 18 MADRID",
+"2026-06-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 127,
+"fecha_he": "2026-06-23",
+"dir": "SAN PANCRACIO 1 ELPARDO MADRID",
+"nota": "suyo",
+"prod": [
+[
+"50609dce-f9f7-47cc-b7fe-d319c2f76e19",
+"SAN PANCRACIO 1 ELPARDO MADRID",
+"2026-06-23",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 128,
+"fecha_he": "2026-06-23",
+"dir": "ALBACETE 3 COSLADA",
+"nota": "suyo",
+"prod": [
+[
+"09a0b830-421f-4e76-abb3-62463fdc91c1",
+"ALBACETE 3 COSLADA",
+"2026-01-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 129,
+"fecha_he": "2026-06-24",
+"dir": "URB.NUEVO GRIÑON 1 GRIÑON",
+"nota": "suyo",
+"prod": [
+[
+"ee4c2b0f-ad95-4f81-b19a-6c70d1fe0ac5",
+"URB.NUEVO GRIÑON 1 GRIÑON",
+"2026-04-23",
+"Daniel",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 130,
+"fecha_he": "2026-07-02",
+"dir": "CINE 15 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"4f195ef4-414c-4a19-8c50-be26a78fd0af",
+"CINE 15 MADRID",
+"2025-11-28",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 131,
+"fecha_he": "2026-07-02",
+"dir": "CINE 21 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"b9d709e6-9caf-4529-b1ae-1d7f8aac2911",
+"CINE 21 MADRID",
+"2026-07-02",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 132,
+"fecha_he": "2026-07-02",
+"dir": "JESUS 3 ARANJUEZ",
+"nota": "suyo",
+"prod": [
+[
+"d1fa7594-ed20-4973-a69e-bb3377478ec6",
+"JESUS 3 ARANJUEZ",
+"2026-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 133,
+"fecha_he": "2026-07-02",
+"dir": "MODESTO LAFUENTE 42 MADRID",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 134,
+"fecha_he": "2026-07-02",
+"dir": "QUINCE DE AGOSTO 8 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"bc8e5eb6-d699-4a86-97fe-cb4dfb052559",
+"QUINCE DE AGOSTO 8 MADRID",
+"2026-06-29",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 135,
+"fecha_he": "2026-07-02",
+"dir": "PEÑA DE LA ATALAYA 110 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"7f0aff47-8bbc-4246-928b-e2dd3aac5285",
+"PEÑA DE LA ATALAYA 110 MADRID",
+"2026-06-29",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 136,
+"fecha_he": "2026-07-02",
+"dir": "MARCOS DE ORUETA 16 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"f7b9a140-a2e7-474d-9c2f-25bec25c0bea",
+"MARCOS DE ORUETA 16 MADRID",
+"2026-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 137,
+"fecha_he": "2026-07-02",
+"dir": "VIRGEN DE ARANZAZU 21 MADRID",
+"nota": "prestado",
+"prod": [
+[
+"68647cd4-60d5-4951-9f0f-30de584a713b",
+"VIRGEN DE ARANZAZU 21 MADRID",
+"2026-07-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 138,
+"fecha_he": "2026-07-09",
+"dir": "CARBALLINO 9 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"bd860093-7a8d-4a30-b337-3d8ab46c9abc",
+"CARBALLINO 9 MADRID",
+"2026-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 139,
+"fecha_he": "2026-07-09",
+"dir": "SAN EUSEBIO 6 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"67bc0e05-1b32-4ae9-b9d2-ad958ff889d8",
+"SAN EUSEBIO 6 MADRID",
+"2026-06-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 140,
+"fecha_he": "2026-07-09",
+"dir": "MERCEDES IZQUIERDO 3 ALCOBENDAS",
+"nota": "suyo",
+"prod": [
+[
+"9409a50d-c303-4684-a2c4-16b29f8e4dfe",
+"MERCEDES IZQUIERDO 3 SAN SEBASTIAN DE LOS REYES",
+"2026-07-09",
+null,
+"Daniel"
+]
+],
+"clon": []
+},
+{
+"num": 141,
+"fecha_he": "2026-07-09",
+"dir": "FRANCISCO BAENA VALDEMORO 9 ALCOBENDAS",
+"nota": "prestado",
+"prod": [
+[
+"d31a302d-78a2-4f6d-a073-ec71bf05afec",
+"FRANCISCO BAENA VALDEMORO 9 ALCOBENDAS",
+"2026-07-06",
+null,
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 142,
+"fecha_he": "2026-07-10",
+"dir": "GENERAL SERRANO ORIVE 1 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"66371745-8de4-4a42-a841-9cfb25e9b781",
+"GENERAL SERRANO ORIVE 1 MADRID",
+"2026-05-14",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 143,
+"fecha_he": "2026-07-10",
+"dir": "ANTONIO DE LEYVA 13 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"54814706-16d6-4721-a47d-9017d9c5f2e3",
+"ANTONIO DE LEYVA 13 MADRID",
+"2026-09-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 144,
+"fecha_he": "2026-07-15",
+"dir": "LIMA 33 FUENLABRADA",
+"nota": "suyo",
+"prod": [
+[
+"c099d0c9-86de-4cc7-85c2-4522ced361ca",
+"LIMA 33 FUENLABRADA",
+"2026-07-14",
+null,
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 145,
+"fecha_he": "2026-07-15",
+"dir": "RAMON GOMEZ DE LA SERNA 45 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"af27ffbd-042a-4057-8cdd-fbe68aa157f6",
+"RAMON GOMEZ DE LA SERNA 45 MADRID",
+"2026-04-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 146,
+"fecha_he": "2026-07-23",
+"dir": "MONTES DE TOLEDO 3 MADRID",
+"nota": "suyo",
+"prod": [
+[
+"c1b46361-5eb4-4dfc-a13b-9399a0dd6080",
+"MONTES DE TOLEDO 3 MADRID",
+"2024-12-01",
+"Alvaro",
+"Alvaro"
+]
+],
+"clon": []
+},
+{
+"num": 147,
+"fecha_he": "2026-07-23",
+"dir": "HACHERO 33 MADRID",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 148,
+"fecha_he": "2026-07-27",
+"dir": "PLAZA SALVADOR 8 LEGANÉS",
+"nota": "suyo",
+"prod": [],
+"clon": []
+},
+{
+"num": 149,
+"fecha_he": "2026-07-27",
+"dir": "MIGUEL DE UNAMUNO 24 FUENLABRADA",
+"nota": "suyo",
+"prod": [],
+"clon": [
+[
+"cf0d4f0f-fb62-42c1-971b-9735cd4c9698",
+"migueldeunamuno24",
+"FUENLABRADA",
+"2026-07-22",
+"Alvaro"
+]
+]
+}
+]
