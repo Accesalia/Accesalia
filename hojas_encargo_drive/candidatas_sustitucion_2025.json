@@ -1,0 +1,123 @@
+[
+ {
+  "g": "SU00",
+  "antigua": {
+   "titulo": "JARAMA 24 MADRID HE ASCENSOR Y PLATAFORMA 06-03-2025.docx",
+   "fecha": "2025-03-06",
+   "id": null,
+   "ruta": "PRESUPUESTOS ENVIADOS/JARAMA 24 MADRID HE ASCENSOR Y PLATAFORMA 06-03-2025.docx",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "HOJA DE ENCARGO JARAMA 24 ALCOBENDAS  pry y df (3) (1).gdoc",
+    "fecha": "2025-03-21",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/LISTADO PRESUPUESTOS ENVIADOS Y NO FIRMADOS A 12-06-2024/HOJA DE ENCARGO JARAMA 24 ALCOBENDAS  pry y df (3) (1).gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "SU01",
+  "antigua": {
+   "titulo": "GRANADA 2 FUENLABRADA COTA CERO 28-03-2025 .docx",
+   "fecha": "2025-03-28",
+   "id": null,
+   "ruta": "PRESUPUESTOS ENVIADOS/GRANADA 2 FUENLABRADA COTA CERO 28-03-2025 .docx",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "PASEO GRANADA 2 FUENLABRADA - 16 07 2025 - PRY+ SUBV.gdoc",
+    "fecha": "2025-07-16",
+    "id": "1mTWuzGqauuAF-lCntfwk-7oErAMx4p5o4xcdz5E5BMc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PASEO GRANADA 2 FUENLABRADA - 16 07 2025 - PRY+ SUBV.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "SU02",
+  "antigua": {
+   "titulo": "JULIAN BESTEIRO 13 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025 - 12 unidades.pdf",
+   "fecha": "2025-05-27",
+   "id": null,
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 13 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025 - 12 unidades.pdf",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "JULIAN BESTEIRO 13 15 MADRID - 05 06 2025 - TRA SUBVENCION.gdoc",
+    "fecha": "2025-06-05",
+    "id": "1E56H11B6qHg_igLXxuK06sOvJtAMYfBv7MKedDX6nnY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 13 15 MADRID - 05 06 2025 - TRA SUBVENCION.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "JULIAN BESTEIRO 13-15 MADRID - 12 08 2025 - ANTEPROYECTO.gdoc",
+    "fecha": "2025-08-12",
+    "id": "1alFaZBWnjg2iCKyut5wMMpSivqZcNpdWZF5qARaq_eQ",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 13-15 MADRID - 12 08 2025 - ANTEPROYECTO.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "SU03",
+  "antigua": {
+   "titulo": "JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+   "fecha": "2025-06-20",
+   "id": "1W27dHX7zFluSWRlnm2vIBgd0CyJbOT7WEKtpLdcL-AQ",
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "JULIAN BESTEIRO 15 G MADRID - 31 07 2025 - INFORME PERICIAL ASCENSOR.gdoc",
+    "fecha": "2025-07-31",
+    "id": "1i4ZPqr-YNg_UiRa30vpklJqHQHBr0h3cQZnpfXK4OlA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 15 G MADRID - 31 07 2025 - INFORME PERICIAL ASCENSOR.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "SU04",
+  "antigua": {
+   "titulo": "CAMINO DE LAS CRUCES 27 MADRID - 08 10 2025 - ASC.gdoc",
+   "fecha": "2025-10-08",
+   "id": "1h1ZtxTXbEuDZh2RuSpbe0SbszYN3gwfqwIn4LYy17cw",
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/CAMINO DE LAS CRUCES 27 MADRID - 08 10 2025 - ASC.gdoc",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "CAMINO DE LAS CRUCES 27 MADRID - 19 11 2025 - INS ASCENSOR SATE SUB.gdoc",
+    "fecha": "2025-11-19",
+    "id": "1V7XOJ_Msniorl5x7cMsm9V4dtpMx_z32-ourtosh2SY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/CAMINO DE LAS CRUCES 27 MADRID - 19 11 2025 - INS ASCENSOR SATE SUB.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "SU05",
+  "antigua": {
+   "titulo": "O'DONNELL 41 MADRID - 04 11 2025 - PRY ASC.gdoc",
+   "fecha": "2025-11-04",
+   "id": "1s4uQ1M8wwB4G7xSHSEmBZMANPVq8ph1B8-twHfLkG3M",
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/O'DONNELL 41 MADRID - 04 11 2025 - PRY ASC.gdoc",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "O'DONNELL 41 MADRID - 15 12 2025 - SUBV ACCES PRY PROPIO.gdoc",
+    "fecha": "2025-12-15",
+    "id": "1C5kChBm_gljUvapV2Tu9v1fnubiD6Qu_7O3QS_t7cus",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/O'DONNELL 41 MADRID - 15 12 2025 - SUBV ACCES PRY PROPIO.gdoc",
+    "firmada": false
+   }
+  ]
+ }
+]

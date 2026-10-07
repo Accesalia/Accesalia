@@ -31,6 +31,8 @@ def fecha_nom(nom):
     m = re.search(r'(\d{1,2})[ ./-](\d{1,2})[ ./-](20\d)\d(\d)(?!\d)', nom)
     if m: return f"{m.group(3)}{m.group(4)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
     return fecha(nom)
+import glob as _g0
+_no_hojas = {key_nom(t) for t in json.load(open(f'no_son_hojas_{A}.json', encoding='utf-8'))['titulos']} if _g0.glob(f'no_son_hojas_{A}.json') else set()
 docs = []; todos = {}
 for row in csv.reader(open('fuentes.tsv', encoding='utf-8'), delimiter='\t'):
     ruta = row[2][2:] if row[2].startswith('./') else row[2]; nom = ruta.split('/')[-1]
@@ -38,7 +40,7 @@ for row in csv.reader(open('fuentes.tsv', encoding='utf-8'), delimiter='\t'):
     f = fecha_nom(nom)
     d = {'ruta': ruta, 'nom': nom, 'fecha': f, 'k': clave(nom), 'et': etiquetas(nom), 'key': key_nom(nom)}
     todos[d['key']] = d     # TODAS las carpetas, para las firmadas cuya enviada se llama con otro año
-    if f and f.startswith(A): docs.append(d)
+    if f and f.startswith(A) and key_nom(nom) not in _no_hojas: docs.append(d)
 
 # 2 · el Excel de las automaticas: id de Drive, tipo, bloques, quien
 ws = openpyxl.load_workbook('seleccion_encargos.xlsx', read_only=True, data_only=True)['seleccion_encargos']
@@ -131,7 +133,7 @@ import glob as _glob
 por_titulo = {h['titulo']: h for h in hojas}
 pv = json.load(open(f'posibles_versiones_{A}.json', encoding='utf-8')) if _glob.glob(f'posibles_versiones_{A}.json') else []
 pv_tit = {g['g']: [x['titulo'] for x in g['hojas']] for g in pv}
-for f in _glob.glob('pv_resueltas_*.jsonl'):
+for f in _glob.glob(f'pv_resueltas_{A}_*.jsonl'):
     for l in open(f, encoding='utf-8'):
         r = json.loads(l); tits = pv_tit.get(r['g'], [])
         for t in tits:
@@ -155,7 +157,7 @@ for f in _glob.glob('pv_resueltas_*.jsonl'):
 sus = json.load(open(f'sustituciones_{A}.json', encoding='utf-8'))['sustituciones'] if _glob.glob(f'sustituciones_{A}.json') else []
 # + las leidas por los agentes (candidatas_sustitucion_<A>.json -> su_resueltas_*.jsonl)
 _cand = {c['g']: c for c in json.load(open(f'candidatas_sustitucion_{A}.json', encoding='utf-8'))} if _glob.glob(f'candidatas_sustitucion_{A}.json') else {}
-for f in _glob.glob('su_resueltas_*.jsonl'):
+for f in _glob.glob(f'su_resueltas_{A}_*.jsonl'):
     for l in open(f, encoding='utf-8'):
         r = json.loads(l); c = _cand.get(r['g'])
         if not c: continue

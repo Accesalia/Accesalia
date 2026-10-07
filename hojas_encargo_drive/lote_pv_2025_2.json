@@ -1,0 +1,104 @@
+[
+ {
+  "g": "PV02",
+  "hojas": [
+   {
+    "titulo": "TRAVESIA VILLAESCUSA 2 - 4  MADRID SATE SUBV CON CESION CAES 24-02-2025.docx",
+    "fecha": "2025-02-24",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/TRAVESIA VILLAESCUSA 2 - 4  MADRID SATE SUBV CON CESION CAES 24-02-2025.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "TRAVESIA VILLAESCUSA 2-4 MADRID SATE Y SUBV 14-03-2025.docx",
+    "fecha": "2025-03-14",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/TRAVESIA VILLAESCUSA 2-4 MADRID SATE Y SUBV 14-03-2025.docx",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV05",
+  "hojas": [
+   {
+    "titulo": "PINGUINO 9 MADRID HE ASCENSOR 18-03-2025.docx",
+    "fecha": "2025-03-18",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/PINGUINO 9 MADRID HE ASCENSOR 18-03-2025.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "Pinguino, 9 Madrid - 30 05 2025 - PRY.gdoc",
+    "fecha": "2025-05-30",
+    "id": "1cOnhoUJ9Y9xFeV8i0Xn1MzrFAvdLnFAunSHqceSl3Mk",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/Pinguino, 9 Madrid - 30 05 2025 - PRY.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "Pinguino, 9 Madrid - 30 05 2025 - PRY ACCESIBILIDAD.gdoc",
+    "fecha": "2025-05-30",
+    "id": "1Q-VJ7h4eYRLNlBBpf0Z5mVswmx8A4ZgQNSiUSn9ViTY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/Pinguino, 9 Madrid - 30 05 2025 - PRY ACCESIBILIDAD.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV08",
+  "hojas": [
+   {
+    "titulo": "CARDENAL HERRERA ORIA 297 MADRID HOJA ENCARGO SUBVENCION fijo pry propio 01-04-2025.gdoc",
+    "fecha": "2025-04-01",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/CARDENAL HERRERA ORIA 297 MADRID HOJA ENCARGO SUBVENCION fijo pry propio 01-04-2025.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "CARDENAL HERRERA ORIA 297 MADRID HOJA ENCARGO SUBVENCION fijo pry propio 09-04-2025.pdf",
+    "fecha": "2025-04-09",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/CARDENAL HERRERA ORIA 297 MADRID HOJA ENCARGO SUBVENCION fijo pry propio 09-04-2025.pdf",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV11",
+  "hojas": [
+   {
+    "titulo": "SEPULVEDA 26 MADRID HOJA DE ENCARGO PROYECTO  28-05-2025.docx",
+    "fecha": "2025-05-28",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/SEPULVEDA 26 MADRID HOJA DE ENCARGO PROYECTO  28-05-2025.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "SEPULVEDA 26 MADRID - 02 06 2025 - ASCENSOR.gdoc",
+    "fecha": "2025-06-02",
+    "id": "1_D-1tnq_a6jSsbqwfj1OHGdUZXGz5VCYMQdzr1c4RNA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/SEPULVEDA 26 MADRID - 02 06 2025 - ASCENSOR.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV14",
+  "hojas": [
+   {
+    "titulo": "POETA VILLAESPESA 2 PINTO - 17 06 2025 - PRY + SUBV.gdoc",
+    "fecha": "2025-06-17",
+    "id": "1Sg6p_Og8o5xFwjAMj5QwJX9NBSiLne1TabzsamDKHBs",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/POETA VILLAESPESA 2 PINTO - 17 06 2025 - PRY + SUBV.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "POETA VILLAESPESA 2 PINTO - 18 06 2025 -PRESUPUESTO MODIFICADO- PRY + SUBV.gdoc",
+    "fecha": "2025-06-18",
+    "id": "1dbGxCkyejLDgoosAHoRhR2YQz2YLLHS5hnZnlnq4p3M",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/POETA VILLAESPESA 2 PINTO - 18 06 2025 -PRESUPUESTO MODIFICADO- PRY + SUBV.gdoc",
+    "firmada": true
+   }
+  ]
+ }
+]

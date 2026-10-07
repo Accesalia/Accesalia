@@ -20,3 +20,9 @@ Salida, una línea JSON por grupo:
  "por":["<titulo de cada posterior que la sustituye>"],   // solo si sustituida
  "motivo":"<una frase>"}
 Solo lees.
+
+## Hojas en Word o PDF (años anteriores)
+Si la "ruta" de una hoja termina en .docx o .pdf, NO está en Google Drive: léela del disco, en
+`G:\Mi unidad\MONICA ACCESALIA\PRESUPUESTOS\` + ruta (Word con python-docx, párrafos y tablas;
+PDF con `pdftotext -layout`). Si es .gdoc, por Drive como arriba.
+Tus scripts auxiliares, SOLO en una subcarpeta propia `tmp_<tu lote>\` de la carpeta de trabajo.

@@ -1,0 +1,40 @@
+[
+ {
+  "g": "SU00",
+  "antigua": {
+   "titulo": "JARAMA 24 MADRID HE ASCENSOR Y PLATAFORMA 06-03-2025.docx",
+   "fecha": "2025-03-06",
+   "id": null,
+   "ruta": "PRESUPUESTOS ENVIADOS/JARAMA 24 MADRID HE ASCENSOR Y PLATAFORMA 06-03-2025.docx",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "HOJA DE ENCARGO JARAMA 24 ALCOBENDAS  pry y df (3) (1).gdoc",
+    "fecha": "2025-03-21",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/LISTADO PRESUPUESTOS ENVIADOS Y NO FIRMADOS A 12-06-2024/HOJA DE ENCARGO JARAMA 24 ALCOBENDAS  pry y df (3) (1).gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "SU03",
+  "antigua": {
+   "titulo": "JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+   "fecha": "2025-06-20",
+   "id": "1W27dHX7zFluSWRlnm2vIBgd0CyJbOT7WEKtpLdcL-AQ",
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "JULIAN BESTEIRO 15 G MADRID - 31 07 2025 - INFORME PERICIAL ASCENSOR.gdoc",
+    "fecha": "2025-07-31",
+    "id": "1i4ZPqr-YNg_UiRa30vpklJqHQHBr0h3cQZnpfXK4OlA",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 15 G MADRID - 31 07 2025 - INFORME PERICIAL ASCENSOR.gdoc",
+    "firmada": false
+   }
+  ]
+ }
+]

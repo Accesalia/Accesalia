@@ -1,0 +1,116 @@
+[
+ {
+  "g": "PV01",
+  "hojas": [
+   {
+    "titulo": "PRINCIPE 7 SAN SEBASTIAN DE LOS REYES ASCENSOR 30-01-2025.docx",
+    "fecha": "2025-01-30",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/PRINCIPE 7 SAN SEBASTIAN DE LOS REYES ASCENSOR 30-01-2025.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "PRINCIPE 7 SAN SEBASTIAN DE LOS REYES HOJA DE ENCARGO ASCENSOR 18-02-2025.docx",
+    "fecha": "2025-02-18",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/PRINCIPE 7 SAN SEBASTIAN DE LOS REYES HOJA DE ENCARGO ASCENSOR 18-02-2025.docx",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV04",
+  "hojas": [
+   {
+    "titulo": "RIO ARAGON 6 LEGANES HE SATE + POCERIA  24-02-2025 ROEN.docx",
+    "fecha": "2025-02-24",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/RIO ARAGON 6 LEGANES HE SATE + POCERIA  24-02-2025 ROEN.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "RIO ARAGON 6 LEGANES HE SATE + POCERIA  24-03-2025 ROEN.docx",
+    "fecha": "2025-03-24",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/RIO ARAGON 6 LEGANES HE SATE + POCERIA  24-03-2025 ROEN.docx",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV07",
+  "hojas": [
+   {
+    "titulo": "SANTA MARIA DE LA CABEZA 27 MADRID HE RAMPA 20-03-2025.docx",
+    "fecha": "2025-03-20",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/SANTA MARIA DE LA CABEZA 27 MADRID HE RAMPA 20-03-2025.docx",
+    "firmada": false
+   },
+   {
+    "titulo": "SANTA MARIA DE LA CABEZA 27 MADRID - 05 06 2025 - ACCESIBILIDAD PORTAL.gdoc",
+    "fecha": "2025-06-05",
+    "id": "1qz4eO_iFvJ7JrVmGBalcart92xWyk9J5vwWDv19UaMc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/SANTA MARIA DE LA CABEZA 27 MADRID - 05 06 2025 - ACCESIBILIDAD PORTAL.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "PV10",
+  "hojas": [
+   {
+    "titulo": "JULIAN BESTEIRO 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025.gdoc",
+    "fecha": "2025-05-27",
+    "id": null,
+    "ruta": "PRESUPUESTOS ENVIADOS/JULIAN BESTEIRO 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+    "fecha": "2025-06-20",
+    "id": "1W27dHX7zFluSWRlnm2vIBgd0CyJbOT7WEKtpLdcL-AQ",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 15 G MADRID - 20 06 2025 - PROYECTO DE ACCESIBILIDAD.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV13",
+  "hojas": [
+   {
+    "titulo": "JULIAN BESTEIRO 13 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025 - 12 unidades.pdf",
+    "fecha": "2025-05-27",
+    "id": null,
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 13 15 HOJA DE ENCARGO DE PROYECYO 27-05-2025 - 12 unidades.pdf",
+    "firmada": false
+   },
+   {
+    "titulo": "JULIAN BESTEIRO 13-15 MADRID - 12 08 2025 - ANTEPROYECTO.gdoc",
+    "fecha": "2025-08-12",
+    "id": "1alFaZBWnjg2iCKyut5wMMpSivqZcNpdWZF5qARaq_eQ",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/JULIAN BESTEIRO 13-15 MADRID - 12 08 2025 - ANTEPROYECTO.gdoc",
+    "firmada": false
+   }
+  ]
+ },
+ {
+  "g": "PV16",
+  "hojas": [
+   {
+    "titulo": "AV CARLOS V 47- 49 MOSTOLES - 29 10 2025 - CONSULTA URBANISTICA VINCULANTE.gdoc",
+    "fecha": "2025-10-29",
+    "id": "13wd67cjq68xS0VdM-zwdNeou4cBsvhQyu09EuEmuNsQ",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/AV CARLOS V 47- 49 MOSTOLES - 29 10 2025 - CONSULTA URBANISTICA VINCULANTE.gdoc",
+    "firmada": false
+   },
+   {
+    "titulo": "CARLOS V 47, 49  Y VIENA 2, 4 ,6 MOSTOLES - 31 10 2025 - CONSULTA URBANISTICA.gdoc",
+    "fecha": "2025-10-31",
+    "id": "1_JsAgFq_po5VAHBy_a9RsNWLyjlb2y97xMSbuNSXUxM",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/CARLOS V 47, 49  Y VIENA 2, 4 ,6 MOSTOLES - 31 10 2025 - CONSULTA URBANISTICA.gdoc",
+    "firmada": false
+   }
+  ]
+ }
+]

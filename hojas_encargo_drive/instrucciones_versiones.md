@@ -29,3 +29,9 @@ En "mixto" (3+ hojas donde unas son versiones y otras no) pon en "orden" solo la
 y en el motivo cuáles quedan aparte.
 
 Solo lees: no escribas en Drive ni en la base.
+
+## Hojas en Word o PDF (años anteriores)
+Si la "ruta" de una hoja termina en .docx o .pdf, NO está en Google Drive: léela del disco, en
+`G:\Mi unidad\MONICA ACCESALIA\PRESUPUESTOS\` + ruta (Word con python-docx, párrafos y tablas;
+PDF con `pdftotext -layout`). Si es .gdoc, por Drive como arriba.
+Tus scripts auxiliares, SOLO en una subcarpeta propia `tmp_<tu lote>\` de la carpeta de trabajo.

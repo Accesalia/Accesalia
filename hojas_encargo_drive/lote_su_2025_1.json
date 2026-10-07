@@ -1,0 +1,40 @@
+[
+ {
+  "g": "SU01",
+  "antigua": {
+   "titulo": "GRANADA 2 FUENLABRADA COTA CERO 28-03-2025 .docx",
+   "fecha": "2025-03-28",
+   "id": null,
+   "ruta": "PRESUPUESTOS ENVIADOS/GRANADA 2 FUENLABRADA COTA CERO 28-03-2025 .docx",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "PASEO GRANADA 2 FUENLABRADA - 16 07 2025 - PRY+ SUBV.gdoc",
+    "fecha": "2025-07-16",
+    "id": "1mTWuzGqauuAF-lCntfwk-7oErAMx4p5o4xcdz5E5BMc",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/PASEO GRANADA 2 FUENLABRADA - 16 07 2025 - PRY+ SUBV.gdoc",
+    "firmada": true
+   }
+  ]
+ },
+ {
+  "g": "SU04",
+  "antigua": {
+   "titulo": "CAMINO DE LAS CRUCES 27 MADRID - 08 10 2025 - ASC.gdoc",
+   "fecha": "2025-10-08",
+   "id": "1h1ZtxTXbEuDZh2RuSpbe0SbszYN3gwfqwIn4LYy17cw",
+   "ruta": "HOJAS ENCARGO AUTOMATICAS/CAMINO DE LAS CRUCES 27 MADRID - 08 10 2025 - ASC.gdoc",
+   "firmada": false
+  },
+  "posteriores": [
+   {
+    "titulo": "CAMINO DE LAS CRUCES 27 MADRID - 19 11 2025 - INS ASCENSOR SATE SUB.gdoc",
+    "fecha": "2025-11-19",
+    "id": "1V7XOJ_Msniorl5x7cMsm9V4dtpMx_z32-ourtosh2SY",
+    "ruta": "HOJAS ENCARGO AUTOMATICAS/CAMINO DE LAS CRUCES 27 MADRID - 19 11 2025 - INS ASCENSOR SATE SUB.gdoc",
+    "firmada": false
+   }
+  ]
+ }
+]
