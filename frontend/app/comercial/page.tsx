@@ -187,6 +187,17 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 <IconoNuevoAdmin />
                 + Alta nuevo Administrador
               </Link>
+              {/* El cuadro de mando de la gestion: asignar comerciales, ver lo
+                  que se abre... Solo Alejandra, Daniel y Monica (7-oct-2026). */}
+              {direccion && (
+                <Link
+                  href="/comercial/gestion"
+                  className="flex w-[100px] flex-col items-center justify-center gap-0.5 rounded-[10px] bg-[#104269] px-1.5 text-center text-[11px] font-bold leading-[1.15] text-[#FCEDA1] transition hover:bg-[#0c3352]"
+                >
+                  <IconoGestion />
+                  Gestión Oportunidades
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -435,6 +446,16 @@ function IconoNuevaOportunidad() {
       <rect x="3" y="3" width="18" height="15" rx="2" />
       <path d="M12 18v3" />
       <path d="m7 14 3-4 2.5 2.5L17 7" />
+    </svg>
+  );
+}
+function IconoGestion() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-[19px]" {...trazo}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <path d="M14 17.5h7M17.5 14v7" />
     </svg>
   );
 }

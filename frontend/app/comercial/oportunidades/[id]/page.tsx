@@ -3,7 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import {
   catalogoTipos,
-  comercialesActivos,
   contactosDeComunidad,
   equipoOpciones,
   gestionOportunidad,
@@ -75,9 +74,7 @@ export default async function GestionOportunidad({
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const [g, tipos, equipo, comerciales] = await Promise.all([gestionOportunidad(id), catalogoTipos(), equipoOpciones(), comercialesActivos()]);
-  // Elegir el comercial: quien supervisa el area comercial. Los demas lo leen.
-  const eligeComercial = puedeEntrar(yo, "comercial", "supervisar");
+  const [g, tipos, equipo] = await Promise.all([gestionOportunidad(id), catalogoTipos(), equipoOpciones()]);
   if (!g) notFound();
 
   const pausada = g.estado === "pausada";
@@ -161,8 +158,6 @@ export default async function GestionOportunidad({
         <Cabecera
           id={id}
           g={g}
-          comerciales={comerciales}
-          eligeComercial={eligeComercial}
           hechos={hechos}
           aplican={aplican}
           ahora={ahora}

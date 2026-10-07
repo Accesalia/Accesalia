@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
-import { accionComercial, accionPausar, accionReactivar } from "./acciones";
+import { accionPausar, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import type { EstadoBloque } from "./Carril";
 import type { ContactoComunidad, Gestion, HitoGestion } from "../../../../lib/gestionOportunidad";
@@ -20,8 +20,6 @@ function fechaCorta(v: string): string {
 export function Cabecera({
   id,
   g,
-  comerciales,
-  eligeComercial,
   hechos,
   aplican,
   ahora,
@@ -32,8 +30,6 @@ export function Cabecera({
 }: {
   id: string;
   g: Gestion;
-  comerciales: { id: string; nombre: string }[];
-  eligeComercial: boolean;
   hechos: number;
   aplican: number;
   ahora: HitoGestion | undefined;
@@ -66,7 +62,6 @@ export function Cabecera({
             </div>
             <p className="mt-1 text-[12px] text-carbon/55">
               {g.codigo && <b className="text-carbon/75">{g.codigo}</b>}
-              {!eligeComercial && g.comercial && <> · {g.comercial}</>}
               {distrito && <> &nbsp;·&nbsp; {distrito}</>}
               {g.referenciaCatastral && <> &nbsp;·&nbsp; <span className="font-mono">{g.referenciaCatastral}</span></>}
             </p>
@@ -121,27 +116,6 @@ export function Cabecera({
                 )}
               </p>
             </div>
-            {eligeComercial && (
-              <form action={accionComercial.bind(null, id)} className="mt-2 flex items-center gap-2">
-                <span className={ROTULO}>Comercial que la lleva</span>
-                <select
-                  name="comercial"
-                  defaultValue={g.comercialId ?? ""}
-                  className={
-                    "rounded-[8px] border px-2.5 py-1 text-[13px] " +
-                    (g.comercialId ? "border-carbon/25 bg-white text-carbon" : "border-amber-300 bg-amber-50 text-amber-900")
-                  }
-                >
-                  <option value="">sin asignar</option>
-                  {comerciales.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-                <button className={BOTON + " !py-1"}>Guardar</button>
-              </form>
-            )}
           </div>
           {/* ---------------- por dónde vamos ---------------- */}
           <div className={CAJA + " p-4"}>

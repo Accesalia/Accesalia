@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
-  cambiarComercial,
   pausar,
   guardarJunta,
   guardarNegociacion,
@@ -114,16 +113,6 @@ export async function accionEntrada(id: string, fd: FormData) {
     puestoId: texto(fd, "con"),
     autorId: yo.id,
   });
-  refrescar(id);
-}
-
-/** Elegir o cambiar el comercial que lleva la opp. Lo hace quien SUPERVISA el
- *  area comercial (Monica, Daniel, Alejandra), igual que repartir las alertas:
- *  un comercial no se reasigna opps. */
-export async function accionComercial(id: string, fd: FormData) {
-  const yo = await permiso(id);
-  if (!puedeEntrar(yo, "comercial", "supervisar")) return;
-  await cambiarComercial(id, texto(fd, "comercial"));
   refrescar(id);
 }
 
