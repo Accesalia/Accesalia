@@ -1,0 +1,15 @@
+{"_que_es": "Hojas SUSTITUIDAS por otras (Monica, 7-oct-2026): pidieron las hojas renovadas y se mandaron con el formato actual, que separa proyecto y subvencion. La antigua se conserva (historico) pero no se persigue. Mismo administrador; candidatos a 'marea'.",
+ "sustituciones": [
+  {"antiguas": ["ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA TOLEDO - 20 01 2026 - PRY ASC+SUBV.gdoc"],
+   "nuevas": ["ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA - 25 09 2026 - PROYECTO ASCENSOR.gdoc", "ANGEL DE ALCAZAR 10 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc"],
+   "motivo": "En enero pidieron precio y se mandó todo junto; en septiembre retomaron y pidieron las hojas renovadas (Mónica)."},
+  {"antiguas": ["URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR + SUBVENCIONES.gdoc", "URB.NUEVO GRIÑON 1 GRIÑON - 25 04 2026 - INSTALACIÓN ASCENSOR Y TRAMITACIÓN SUBVENCIONES.gdoc"],
+   "nuevas": ["URB.NUEVO GRIÑON 1 GRIÑON - 18 09 2026 - PROYECTO INSTALACIÓN ASCENSOR.gdoc", "URB.NUEVO GRIÑON 1 GRIÑON - 18 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc"],
+   "motivo": "Mismo caso: renovadas en septiembre en el formato actual (Mónica)."},
+  {"antiguas": ["JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 05 05 2026 - PRY ASC + SUBV.gdoc"],
+   "nuevas": ["JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - PROYECTO INSTALACIÓN ASCENSOR.gdoc", "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - PROYECTO SATE.gdoc", "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - PROYECTO CONJUNTO ASCENSOR Y SATE.gdoc", "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc", "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES EFICIENCIA ENERGÉTICA.gdoc", "JOAQUINA SANTANDER 37 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD Y EFICIENCIA ENERGÉTICA.gdoc"],
+   "motivo": "Mismo caso: renovadas en septiembre, con alternativas (ascensor, SATE o conjunto; y sus subvenciones) (Mónica)."},
+  {"antiguas": ["JOAQUINA SANTANDER 39 TALAVERA DE LA REINA.TOLEDO - 21 01 2026 - PRY ACC+CSS.gdoc"],
+   "nuevas": ["JOAQUINA SANTANDER 39 TALAVERA DE LA REINA - 25 09 2026 - PROYECTO PARA ACCESIBILIDAD.gdoc", "JOAQUINA SANTANDER 39 TALAVERA DE LA REINA - 25 09 2026 - SUBVENCIONES ACCESIBILIDAD.gdoc"],
+   "motivo": "Mismo patrón y mismo administrador que Joaquina Santander 37 (aplicado por analogía; confirmar)."}
+ ]}

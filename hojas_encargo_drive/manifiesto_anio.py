@@ -138,6 +138,21 @@ for f in _glob.glob('pv_resueltas_*.jsonl'):
             for t in tits:
                 if t in por_titulo: por_titulo[t]['notas'].append('PARA TI · ¿versión o distinta?: ' + r['motivo'])
 
+# 5c · SUSTITUCIONES (Monica, 7-oct): una hoja (o sus versiones) reemplazada por OTRA(S) hoja(s),
+#      p. ej. la combinada de enero por el juego proyecto + subvencion de septiembre.
+sus = json.load(open(f'sustituciones_{A}.json', encoding='utf-8'))['sustituciones'] if _glob.glob(f'sustituciones_{A}.json') else []
+for sx in sus:
+    nuevas = [por_titulo[t] for t in sx['nuevas'] if t in por_titulo]
+    for t in sx['antiguas'] + sx['nuevas']:
+        h = por_titulo.get(t)
+        if h:
+            h['notas'] = [n for n in h['notas'] if 'versión' not in n and 'versiones' not in n]
+            if h in nuevas and h.get('version_de') and h['version_de']['titulo'] in sx['antiguas']: h.pop('version_de')
+    for t in sx['antiguas']:
+        h = por_titulo.get(t)
+        if h: h['sustituida_por'] = nuevas; h['notas'].append('SUSTITUIDA: ' + sx['motivo'])
+    for h in nuevas: h['notas'].append('sustituye a la(s) hoja(s) anterior(es): ' + sx['motivo'])
+
 # 6 · cadenas de versiones -> una HOJA con v1..vn
 raiz = lambda h: raiz(h['version_de']) if h.get('version_de') else h
 grupos = collections.defaultdict(list)
@@ -162,10 +177,15 @@ cols = ['Código provisional', 'Estado', 'Fecha (v1)', 'Dirección', 'Tipo (Exce
         'Versiones', 'Ficheros ENVIADOS', 'Ficheros FIRMADOS', 'Fecha recibida', 'Total base (firmada)', 'Conceptos (firmada)',
         'Forma de pago', 'A quién', 'Generada por (solo cotejo)', 'Id Drive (última versión)', 'Notas', 'Opp', 'TU DECISIÓN']
 ws.append(cols); cuenta = collections.Counter()
+codigo = {id(h): f'HE-{A}-{i:04d}' for i, g in enumerate(filas, 1) for h in g}
 for i, g in enumerate(filas, 1):
     ult = g[-1]; firm = [d for h in g for d in h['firmadas']]
     anulada = any(d['estado'] == 'ANULADA' for d in firm)
     estado = 'ANULADA' if anulada else 'FIRMADA' if firm else 'ENVIADA SIN FIRMAR'
+    sp = next((h['sustituida_por'] for h in g if h.get('sustituida_por')), None)
+    if sp and not firm:
+        estado = 'SUSTITUIDA'
+        g[-1]['notas'].append('sustituida por: ' + ', '.join(sorted({codigo[id(n)] for n in sp})))
     cuenta[estado] += 1
     versiones = '\n'.join(f"v{j} {h['fecha']} · {h['titulo'][:70]}" + ('  ← FIRMADA' if h['firmadas'] else '') for j, h in enumerate(g, 1)) if len(g) > 1 else ''
     enviados = '\n'.join((f"v{j}: " if len(g) > 1 else '') + e for j, h in enumerate(g, 1) for e in h['enviados'])
@@ -177,7 +197,7 @@ for i, g in enumerate(filas, 1):
                (x or {}).get('tipo'), ', '.join((x or {}).get('bloques') or []), versiones, enviados, firmados,
                ', '.join(sorted({str(d['recibida']) for d in firm if d['recibida']})), d0.get('total'), d0.get('conceptos'),
                d0.get('forma_pago'), d0.get('a_quien'), (x or {}).get('quien'), (x or {}).get('id'), '\n'.join(notas)[:1500], '', ''])
-color = {'FIRMADA': 'DCEFC8', 'ENVIADA SIN FIRMAR': 'FFF2CC', 'ANULADA': 'D9D9D9'}
+color = {'FIRMADA': 'DCEFC8', 'ENVIADA SIN FIRMAR': 'FFF2CC', 'ANULADA': 'D9D9D9', 'SUSTITUIDA': 'E8E0F0'}
 for j, a in enumerate([16, 18, 11, 30, 26, 34, 50, 60, 55, 12, 12, 40, 40, 18, 12, 22, 60, 10, 30], 1):
     ws.column_dimensions[get_column_letter(j)].width = a
 for c in ws[1]:
