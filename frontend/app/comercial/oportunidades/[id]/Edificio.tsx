@@ -19,8 +19,29 @@ import { accionPatios } from "./acciones";
 // vive sin oportunidad -"dime una direccion tuya y te digo como esta", delante
 // del administrador-. Un mismo informe, dos puertas.
 
+// LOS COLORES DE SU MAQUETA (docs/figma/bloque1-toma-de-datos.html), con sus
+// valores tal cual (Monica, 7-oct-2026: "lo que se creo se aleja mucho de la
+// maqueta").
 const ROT = "text-[12px] font-bold uppercase tracking-[0.05em] underline underline-offset-2";
-const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white p-[11px_13px] px-[13px] py-[11px]";
+const ROT_GRIS = "text-[10px] font-bold uppercase tracking-[0.09em] text-[#8a8a8a]";
+const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white px-[13px] py-[11px]";
+// Las dos cards del centro llevan el borde de SU color, y algo mas de aire.
+const CARD = "rounded-[10px] bg-white px-[15px] py-[13px] border";
+// "La banda del titulo": cada subtitulo con el color de SU tarjeta -azul lo del
+// Catastro, rojo lo que condiciona, verde lo que se puede pedir-, tinte flojo y
+// borde a todo color. Asi se sabe de que familia es sin leerlo.
+const BANDA = {
+  catastro: "border-[#104269] bg-[#E3EAF0] text-[10px] uppercase tracking-[0.09em]",
+  hacer: "border-[#820707] bg-[#F7EAEA] text-[11.5px]",
+  pedir: "border-[#0C8124] bg-[#E9F3EC] text-[11.5px]",
+};
+type Familia = keyof typeof BANDA;
+function Banda({ familia, children }: { familia: Familia; children: React.ReactNode }) {
+  return <div className={`mb-1.5 rounded-[5px] border px-[7px] py-[3px] font-bold text-[#1c1c1c] ${BANDA[familia]}`}>{children}</div>;
+}
+const ENLACE = "text-[11.5px] text-[#1c1c1c] underline underline-offset-2 hover:text-[#104269]";
+// Lo que no se ha podido traer: el hueco gris punteado de la maqueta.
+const HUECO = "grid aspect-square w-full place-items-center rounded-[10px] border border-dashed border-[#cfcfcf] bg-[#fafafa] px-2 text-center text-[11px] text-[#9a9a9a]";
 
 /** Un dato del informe: etiqueta a la izquierda, valor a la derecha, y debajo su
  *  traduccion, que es lo que lo hace util ("con ese porcentaje entrais en
@@ -33,12 +54,24 @@ const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white p-[11px_13px] px-[
  *  que el Catastro no da. */
 function Dato({ que, valor, significa, falta }: { que: string; valor: string; significa?: string; falta?: boolean }) {
   return (
-    <div className="border-t border-black/5 py-[5px] first:border-t-0 first:pt-0">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-        <span className="text-[11px] text-carbon/65">{que}</span>
-        <span className={"text-[12px] font-semibold " + (falta ? "text-[#8a8a8a]" : "text-carbon")}>{valor}</span>
+    <div className="py-px">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2 text-[12px]">
+        <span className="text-[#6e6e6e]">{que}</span>
+        <span className={"font-semibold " + (falta ? "text-[#8a8a8a]" : "text-[#1c1c1c]")}>{valor}</span>
       </div>
       {significa && <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">{significa}</p>}
+    </div>
+  );
+}
+
+/** Un dato de las cards del centro, como en la maqueta: su nombre en la banda
+ *  de la familia y debajo el valor. */
+function Sub({ familia, que, valor, significa, falta }: { familia: Familia; que: string; valor: string; significa?: string; falta?: boolean }) {
+  return (
+    <div className="mb-[11px] last:mb-0">
+      <Banda familia={familia}>{que}</Banda>
+      <div className={"pl-0.5 text-[12px] leading-[1.4] " + (falta ? "text-[#8a8a8a]" : "text-[#1c1c1c]")}>{valor}</div>
+      {significa && <p className="mt-0.5 pl-[13px] text-[11px] leading-snug text-[#2B6CB0]">{significa}</p>}
     </div>
   );
 }
@@ -62,14 +95,12 @@ function Visto({
   quien?: string | null;
   cuando?: string | null;
 }) {
-  const marca = (v: boolean) =>
-    hay === v ? "font-bold text-carbon" : "text-[#8a8a8a]";
   return (
     <div>
-      <div className="text-[11px] text-carbon/65">{que}</div>
-      <div className="mt-0.5 flex items-baseline gap-3 text-[12px]">
-        <span className={marca(true)}>Sí</span>
-        <span className={marca(false)}>No</span>
+      <div className="mb-1 text-[12px] font-bold text-[#14781E]">{que}</div>
+      <div className="flex items-baseline gap-[5px] text-[12px]">
+        <span className={BOT(hay === true)}>Sí</span>
+        <span className={BOT(hay === false)}>No</span>
         {cuantos !== undefined && (
           <span className="flex items-baseline gap-1.5">
             <span className="text-[11px] text-carbon/50">¿cuántos?</span>
@@ -79,7 +110,7 @@ function Visto({
           </span>
         )}
       </div>
-      <p className="mt-0.5 text-[11px] text-[#8a8a8a]">
+      <p className="mt-[5px] text-[11px] leading-[1.3] text-[#8a8a8a]">
         {quien ? (
           <>
             lo vio {quien}
@@ -92,6 +123,11 @@ function Visto({
     </div>
   );
 }
+
+/** El boton Si / No de la maqueta: el que esta puesto, oscuro. */
+const BOT = (on: boolean) =>
+  "rounded-[5px] border px-2 py-px text-[11.5px] " +
+  (on ? "border-[#2b2b2b] bg-[#2b2b2b] font-bold text-white" : "border-[#bdbdbd] bg-white text-[#5a5a5a]");
 
 const EUR = new Intl.NumberFormat("es-ES");
 
@@ -129,14 +165,16 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
     <>
       {/* ---------------- 262 · lo que dice el Catastro ---------------- */}
       <section className={CAJA}>
-        <div className={ROT + " text-[#104269]"}>Lo que dice el Catastro</div>
-        <div className="mt-2">
+        <div className={ROT + " mb-[7px] text-[#104269]"}>Lo que dice el Catastro</div>
+        <div className="mb-2.5">
+          <Banda familia="catastro">El edificio</Banda>
           {edificio.map((d) => (
             <Dato key={d.que} {...d} />
           ))}
         </div>
         {usos.length > 0 && (
-          <div className="mt-3 border-t border-black/10 pt-2">
+          <div className="mb-2.5">
+            <Banda familia="catastro">Usos</Banda>
             {usos.map((d) => (
               <Dato key={d.que} {...d} />
             ))}
@@ -145,8 +183,8 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
 
         {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va
             firmado con quien y cuando. */}
-        <div className="mt-3 border-t border-black/10 pt-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/55">Lo que hemos visto nosotros</div>
+        <div className="rounded-[8px] bg-[#E4EED9] px-[9px] py-[7px]">
+          <div className="text-[12px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline underline-offset-2">Lo que hemos visto nosotros</div>
           <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
             <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} />
             <div className="bg-[#438538]" />
@@ -156,11 +194,13 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
                 no viene de fuera. Un numero, no un si/no -su maqueta pregunta
                 "¿cuantos?"-, y se guarda firmado. */}
             <form action={accionPatios.bind(null, referencia, id)}>
-              <div className="text-[11px] text-carbon/65">Patios</div>
-              <div className="mt-0.5 flex items-baseline gap-2 text-[12px]">
-                <span className={asc.patios === null ? "text-[#8a8a8a]" : asc.patios > 0 ? "font-bold text-carbon" : "text-[#8a8a8a]"}>Sí</span>
-                <span className={asc.patios === 0 ? "font-bold text-carbon" : "text-[#8a8a8a]"}>No</span>
-                <span className="text-[11px] text-carbon/50">¿cuántos?</span>
+              <div className="mb-1 text-[12px] font-bold text-[#14781E]">Patios</div>
+              <div className="flex items-baseline gap-[5px] text-[12px]">
+                <span className={BOT(asc.patios !== null && asc.patios > 0)}>Sí</span>
+                <span className={BOT(asc.patios === 0)}>No</span>
+              </div>
+              <div className="mt-[5px] flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-[11.5px]">
+                <span className="text-[#8a8a8a]">¿cuántos?</span>
                 <input
                   name="patios"
                   type="number"
@@ -168,11 +208,11 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
                   max={99}
                   defaultValue={asc.patios ?? ""}
                   aria-label="Cuántos patios tiene"
-                  className="w-[44px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
+                  className="w-[38px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
                 />
-                <button className="text-[11px] font-semibold text-[#2B6CB0] hover:underline">guardar</button>
+                <button className="text-[11px] font-semibold text-[#14781E] hover:underline">guardar</button>
               </div>
-              <p className="mt-0.5 text-[11px] text-[#8a8a8a]">
+              <p className="mt-[5px] text-[11px] leading-[1.3] text-[#8a8a8a]">
                 {asc.patiosQuien ? (
                   <>
                     los contó {asc.patiosQuien}
@@ -189,29 +229,27 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
 
       {/* ------------- 330 · lo que puedo hacer y lo que puedo pedir ------------- */}
       <div className="flex flex-col gap-[10px]">
-        <section className={CAJA}>
-          <div className={ROT + " text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>
-          <div className="mt-2">
-            {hacer.length === 0 ? (
-              <p className="text-[11px] text-carbon/50">Nada que lo ate, o no se ha podido consultar.</p>
-            ) : (
-              hacer.map((d) => <Dato key={d.que} {...d} />)
-            )}
-          </div>
+        <section className={CARD + " border-[#820707]"}>
+          <div className={ROT + " mb-[9px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>
+          {hacer.length === 0 ? (
+            <p className="text-[11px] text-[#8a8a8a]">Nada que lo ate, o no se ha podido consultar.</p>
+          ) : (
+            hacer.map((d) => <Sub key={d.que} familia="hacer" {...d} />)
+          )}
         </section>
 
-        <section className={CAJA}>
-          <div className={ROT + " text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
+        <section className={CARD + " border-[#0C8124]"}>
+          <div className={ROT + " mb-[9px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
 
           {/* EL IEE, primero, porque es lo que mas vende. Dos lecturas suyas:
               el filon son las FAVORABLES pendientes de accesibilidad -"al estar
               su informe favorable, nadie les esta mirando"-, y "ajustes
               razonables = NO es la senal de compra", porque significa que la
               obra pasa de tres veces la cuota. */}
-          <div className="mt-2 border-b border-black/10 pb-2">
-            <div className="flex items-baseline justify-between gap-x-2">
-              <span className="text-[11px] text-carbon/65">IEE</span>
-              <span className="text-[12px] font-semibold text-carbon">
+          <div className="mb-[11px]">
+            <Banda familia="pedir">IEE</Banda>
+            <div className="pl-0.5">
+              <span className="text-[12px] font-semibold text-[#1c1c1c]">
                 {!iee ? (
                   <span className="text-[#8a8a8a]">no nos consta</span>
                 ) : (
@@ -234,20 +272,15 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
               </p>
             ) : (
               <>
-                <div className="mt-1 flex items-baseline justify-between gap-x-2">
-                  <span className="text-[11px] text-carbon/65">Accesibilidad</span>
-                  <span className="text-[12px] font-semibold text-carbon">
+                <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
+                  <span className="text-[#6e6e6e]">Accesibilidad</span>
+                  <span className="text-[#4a4a4a]">
                     {iee.accesibilidadCumple === null ? "—" : iee.accesibilidadCumple ? "cumple" : "no cumple"}
                   </span>
                 </div>
-                <div className="flex items-baseline justify-between gap-x-2 pl-5">
-                  <span className="text-[11px] text-carbon/55">ajustes razonables</span>
-                  <span
-                    className={
-                      "text-[12px] font-semibold " +
-                      (iee.admiteAjustes === false ? "text-[#0C8124]" : "text-carbon")
-                    }
-                  >
+                <div className="flex items-baseline gap-x-1.5 pl-6 text-[11.5px]">
+                  <span className="text-[#6e6e6e]">ajustes razonables</span>
+                  <span className={iee.admiteAjustes === false ? "font-bold text-[#0C8124]" : "text-[#4a4a4a]"}>
                     {iee.admiteAjustes === null ? "—" : iee.admiteAjustes ? "los admite" : "NO los admite"}
                   </span>
                 </div>
@@ -262,9 +295,9 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
                     Informe favorable con la accesibilidad sin resolver: nadie les está mirando.
                   </p>
                 )}
-                <div className="mt-1 flex items-baseline justify-between gap-x-2">
-                  <span className="text-[11px] text-carbon/65">Calificación energética</span>
-                  <span className="text-[12px] font-semibold text-carbon">{iee.energetica ?? "—"}</span>
+                <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
+                  <span className="text-[#6e6e6e]">Calificación energética</span>
+                  <span className="text-[#4a4a4a]">{iee.energetica ?? "—"}</span>
                 </div>
               </>
             )}
@@ -272,27 +305,38 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
           {/* El IEE sale aqui dentro, en su fila "¿Tiene IEE registrada?", que hoy
               dice "—" y "consulta pendiente de montar". No se le pone un aviso
               encima: el informe ya lo dice en su sitio. */}
-          <div className="mt-2">{pedir.map((d) => <Dato key={d.que} {...d} />)}</div>
+          {pedir.map((d) => (
+            <Sub key={d.que} familia="pedir" {...d} />
+          ))}
         </section>
 
         {/* Lo que han cobrado los de al lado: es el argumento de venta, no un
             adorno. "Sus vecinos han accedido a subvencion de tal y ellos solo a X." */}
         {i.subvencionesCerca.length > 0 && (
           <section className={CAJA}>
-            <div className={ROT + " text-[#0C8124]"}>Subvenciones concedidas a menos de 800 m</div>
-            <p className="mt-1 text-[12px] font-bold text-carbon">
-              {EUR.format(Math.round(i.subvencionesCerca.reduce((t, s) => t + (s.importe ?? 0), 0)))} €
-              <span className="font-normal text-carbon/55"> en {i.subvencionesCerca.length} obras</span>
-            </p>
-            <table className="mt-1.5 w-full border-collapse text-[11px]">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+              <div className={ROT_GRIS}>Subvenciones ya concedidas a menos de 800 m</div>
+              <div className="text-[13px]">
+                <b>{EUR.format(Math.round(i.subvencionesCerca.reduce((t, s) => t + (s.importe ?? 0), 0)))} €</b>
+                <span className="text-[11px] text-[#8a8a8a]"> en {i.subvencionesCerca.length} obras</span>
+              </div>
+            </div>
+            <table className="mt-1.5 w-full border-collapse text-[11.5px]">
+              <thead>
+                <tr className="text-[10px] uppercase tracking-[0.07em] text-[#8a8a8a]">
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-left font-bold">Dirección</th>
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Concedido</th>
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Viv.</th>
+                </tr>
+              </thead>
               <tbody>
                 {i.subvencionesCerca.slice(0, 8).map((s, n) => (
-                  <tr key={n} className="border-t border-black/5">
-                    <td className="py-1 pr-2 text-carbon/75">{s.direccion}</td>
-                    <td className="py-1 pr-2 text-right font-semibold tabular-nums text-carbon">
+                  <tr key={n}>
+                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px]">{s.direccion}</td>
+                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">
                       {s.importe === null ? "—" : `${EUR.format(Math.round(s.importe))} €`}
                     </td>
-                    <td className="py-1 text-right text-carbon/50">{s.viviendas ? `${s.viviendas} viv.` : ""}</td>
+                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">{s.viviendas ?? ""}</td>
                   </tr>
                 ))}
               </tbody>
@@ -303,40 +347,35 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
 
       {/* ---------------------- 190 · las imágenes ---------------------- */}
       <section className={CAJA}>
-        <div className={ROT + " text-carbon/55 no-underline"}>Las imágenes</div>
+        <div className={ROT_GRIS}>Las imágenes</div>
         <div className="mt-2 flex flex-col gap-2.5">
           {[
             { que: "Croquis catastral", src: i.croquis },
             { que: "Vista aérea", src: i.aerea },
           ].map((x) => (
             <div key={x.que}>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-carbon/45">{x.que}</div>
               {x.src ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={x.src} alt={x.que} className="mt-1 aspect-square w-full rounded-[10px] border border-black/10 object-cover" />
+                <img src={x.src} alt={x.que} className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover" />
               ) : (
-                <div className="mt-1 grid aspect-square w-full place-items-center rounded-[10px] border border-dashed border-amber-200 bg-amber-50/60 px-2 text-center text-[11px] text-amber-900/70">
-                  no se ha podido traer
-                </div>
+                <div className={HUECO}>no se ha podido traer</div>
               )}
+              <div className="mt-0.5 text-center text-[10px] text-[#9a9a9a]">{x.que}</div>
             </div>
           ))}
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-carbon/45">Polycam</div>
-            <div className="mt-1 grid aspect-square w-full place-items-center rounded-[10px] border border-dashed border-amber-200 bg-amber-50/60 px-2 text-center text-[11px] text-amber-900/70">
-              llega solo por el buzón
-            </div>
+            <div className={HUECO}>Polycam · llega solo por el buzón</div>
           </div>
           <a
             href={i.visorCatastro}
             target="_blank"
             rel="noreferrer"
-            className="text-[11px] font-semibold text-[#2B6CB0] hover:underline"
+            className={ENLACE}
           >
-            Visor oficial del Catastro →
+            Visor oficial del Catastro
           </a>
           {i.pdfs.slice(0, 4).map((p) => (
-            <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className="text-[11px] font-semibold text-[#2B6CB0] hover:underline">
+            <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className={ENLACE}>
               {p.que} (PDF)
             </a>
           ))}

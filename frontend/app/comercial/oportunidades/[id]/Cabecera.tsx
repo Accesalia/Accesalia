@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
 import { accionComercial, accionPausar, accionReactivar } from "./acciones";
-import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
+import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import type { EstadoBloque } from "./Carril";
 import type { ContactoComunidad, Gestion, HitoGestion } from "../../../../lib/gestionOportunidad";
 
@@ -54,7 +54,7 @@ export function Cabecera({
             que "invita a llamar, y eso es bueno". */}
         <div className="mt-3 grid items-start gap-[10px] xl:grid-cols-[1.15fr_1fr_310px]">
           <div className={CAJA + " min-w-0 p-4"}>
-            <div className={ROTULO}>Dirección</div>
+            <div className={ROT_CAJA}>Dirección</div>
             <h1 className="mt-0.5 text-[25px] font-bold leading-tight text-carbon">{g.direccion}</h1>
             <div className="mt-1.5 flex flex-wrap items-center">
               {g.aviso && (
@@ -145,7 +145,7 @@ export function Cabecera({
           </div>
           {/* ---------------- por dónde vamos ---------------- */}
           <div className={CAJA + " p-4"}>
-            <div className={ROTULO}>Por dónde vamos</div>
+            <div className={ROT_CAJA}>Por dónde vamos</div>
             <div className="mt-1.5 text-[12.5px] text-carbon">
               {bloqueAhora ? (
                 <>
@@ -192,7 +192,7 @@ export function Cabecera({
               para el del ascensor y para el de la subvencion. Con el telefono a
               la vista, que "invita a llamar, y eso es bueno". */}
           <div className={CAJA + " p-4"}>
-            <div className={ROTULO}>Contactos de la comunidad</div>
+            <div className={ROT_CAJA}>Contactos de la comunidad</div>
             {contactos.length === 0 ? (
               <p className="mt-1.5 text-[12px] text-carbon/50">
                 {g.comunidadId

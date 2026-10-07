@@ -23,7 +23,7 @@ import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
-import { BOTON, CAJA, CAMPO, ROTULO } from "./estilo";
+import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale a Catastro y al geoportal de Madrid: tarda.
@@ -144,14 +144,14 @@ export default async function GestionOportunidad({
   );
 
   return (
-    // El verde de su maqueta del bloque 1 (#8EB180). De momento solo en el
-    // bloque 2: lo montado del bloque 1 se afina aparte (Monica, 6-oct-2026).
-    <div className="min-h-screen" style={bloque === 2 ? { background: "#8EB180" } : undefined}>
+    // El verde de su maqueta del bloque 1 (#8EB180), en todos los bloques
+    // (Monica, 7-oct-2026).
+    <div className="min-h-screen" style={{ background: "#8EB180" }}>
       <BarraSuperior />
       {/* El lienzo es el suyo: 1300, el ancho real de su pantalla. Lo que se
           dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep). */}
       <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
           ← Oportunidades abiertas
         </Link>
 
@@ -184,8 +184,10 @@ export default async function GestionOportunidad({
         <div className="mt-6 flex items-stretch gap-[14px]">
           <Carril hitos={g.hitos} visto={bloque} id={id} />
           <div
-            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px", ...(bloque === 2 ? { background: AZUL } : {}) }}
-            className={"min-w-0 flex-1 border " + (bloque === 2 ? "p-[11px]" : "bg-white/40 p-4")}
+            // El panel azul relleno de la maqueta: "el fondo tiene que decir
+            // esto que estas viendo ES el bloque 1".
+            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px", background: AZUL }}
+            className="min-w-0 flex-1 border p-[11px]"
           >
 
         {/* SUS CUATRO ANCHOS FIJOS, del esqueleto del 30-sep: 262 · 330 · 190 ·
@@ -332,7 +334,7 @@ export default async function GestionOportunidad({
           {/* ============ cuarta columna: 7 · el diario de esta opp ============ */}
           <div className="flex min-w-0 flex-col gap-5 xl:col-start-4 xl:row-start-1">
             <form action={accionEntrada.bind(null, id)} className={CAJA + " p-4"}>
-              <Titulo>Grabar aquí</Titulo>
+              <div className={ROT_CAJA + " mb-2"}>Grabar aquí</div>
               <textarea
                 name="texto"
                 rows={4}
@@ -359,7 +361,7 @@ export default async function GestionOportunidad({
 
             <section className={CAJA + " overflow-hidden"}>
               <div className="px-4 pt-4">
-                <Titulo>Lo que va pasando</Titulo>
+                <div className={ROT_CAJA + " mb-2"}>Lo que va pasando</div>
               </div>
               {g.diario.length === 0 ? (
                 <p className="px-4 pb-6 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>

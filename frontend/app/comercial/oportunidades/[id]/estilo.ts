@@ -11,7 +11,11 @@
 //   25 el titulo de la pantalla · 15 titulo de tarjeta y rotulo de boton ·
 //   14 texto principal · 12 secundario · 11 etiquetas.
 
-export const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
+// La caja de su maqueta del bloque 1: esquina de 10, borde que se ve, sin sombra.
+export const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white";
+// El rotulo de una caja ("Direccion", "Por donde vamos"): gris, pequeño, en
+// versalitas. El verde de ROTULO se queda para las etiquetas de los campos.
+export const ROT_CAJA = "block text-[10px] font-bold uppercase tracking-[0.09em] text-[#8a8a8a]";
 export const ROTULO = "block text-[10px] font-bold uppercase tracking-[0.05em] text-[#237812]";
 export const CAMPO =
   "w-full rounded-lg border border-carbon/40 bg-white px-2.5 py-1.5 text-[13px] text-carbon outline-none transition placeholder:text-carbon/45 focus:border-lima";
