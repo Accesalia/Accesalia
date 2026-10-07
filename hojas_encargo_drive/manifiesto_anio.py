@@ -50,11 +50,23 @@ for r in ws.iter_rows(values_only=True):
         xl.append({'dir': r[0], 'fecha': r[1].strftime('%Y-%m-%d'), 'tipo': r[2], 'id': m.group(1) if m else None,
                    'bloques': [str(H[3 + i]).strip() for i, v in enumerate(r[3:21]) if v is True], 'quien': r[22],
                    'k': clave(str(r[0]))})
+# El id de Drive de cada documento, por su TITULO exacto (drive_automaticas.tsv = listado de la
+# carpeta en Drive). Antes se adivinaba por fecha y direccion y fallaba cuando ese dia habia
+# varias hojas de la misma direccion (proyecto y subvencion, portales...): 375 de 795 en 2026.
+import os as _os
+id_por_titulo = {}
+if _os.path.exists('drive_automaticas.tsv'):
+    for r in csv.DictReader(open('drive_automaticas.tsv', encoding='utf-8'), delimiter='\t'):
+        if 'document' in (r.get('mimeType') or ''): id_por_titulo.setdefault(key_nom(r['title']), r['id'])
+xl_por_id = {x['id']: x for x in xl if x['id']}
 def del_excel(d):
+    i = id_por_titulo.get(d['key'])
+    if i: return xl_por_id.get(i) or {'id': i, 'dir': None, 'tipo': None, 'bloques': [], 'quien': None}
     c = [x for x in xl if x['fecha'] == d['fecha'] and x['k'] and d['k'] and x['k'][1] == d['k'][1] and (x['k'][0] <= d['k'][0] or d['k'][0] <= x['k'][0])]
-    if len(c) > 1:  # mismo dia y portal: el de tipo mas parecido al nombre
-        c.sort(key=lambda x: -len(set(norm(str(x['tipo'] or '')).split()) & set(d['key'].split())))
-    return c[0] if c else None
+    if len(c) == 1: return c[0]
+    if len(c) > 1:   # varias hojas ese dia en esa direccion: NO se adivina
+        return {'id': None, 'dir': c[0]['dir'], 'tipo': None, 'bloques': [], 'quien': None, 'dudoso': len(c)}
+    return None
 
 # 3 · un PDF con el mismo nombre que un Google Doc es su exportacion: va con el.
 por_key = collections.defaultdict(list)
@@ -141,6 +153,16 @@ for f in _glob.glob('pv_resueltas_*.jsonl'):
 # 5c · SUSTITUCIONES (Monica, 7-oct): una hoja (o sus versiones) reemplazada por OTRA(S) hoja(s),
 #      p. ej. la combinada de enero por el juego proyecto + subvencion de septiembre.
 sus = json.load(open(f'sustituciones_{A}.json', encoding='utf-8'))['sustituciones'] if _glob.glob(f'sustituciones_{A}.json') else []
+# + las leidas por los agentes (candidatas_sustitucion_<A>.json -> su_resueltas_*.jsonl)
+_cand = {c['g']: c for c in json.load(open(f'candidatas_sustitucion_{A}.json', encoding='utf-8'))} if _glob.glob(f'candidatas_sustitucion_{A}.json') else {}
+for f in _glob.glob('su_resueltas_*.jsonl'):
+    for l in open(f, encoding='utf-8'):
+        r = json.loads(l); c = _cand.get(r['g'])
+        if not c: continue
+        if r['decision'] == 'sustituida' and r.get('por'):
+            sus.append({'antiguas': [c['antigua']['titulo']], 'nuevas': r['por'], 'motivo': '(leído) ' + r['motivo']})
+        elif r['decision'] == 'no se sabe' and c['antigua']['titulo'] in por_titulo:
+            por_titulo[c['antigua']['titulo']]['notas'].append('PARA TI · ¿sustituida por una posterior?: ' + r['motivo'])
 for sx in sus:
     nuevas = [por_titulo[t] for t in sx['nuevas'] if t in por_titulo]
     for t in sx['antiguas'] + sx['nuevas']:
@@ -193,6 +215,8 @@ for i, g in enumerate(filas, 1):
     x = ult['xl'] or next((h['xl'] for h in reversed(g) if h['xl']), None)
     d0 = firm[0] if firm else {}
     notas = [n for h in g for n in h['notas']] + [f"{d['tabla']} {d['n']}: {d['nota']}" for d in firm if d.get('nota')]
+    if x and x.get('dudoso'):
+        notas.append(f"id de Drive POR CONFIRMAR: ese día hay {x['dudoso']} hojas de esta dirección en el Excel y el título no casó")
     ws.append([f'HE-{A}-{i:04d}', estado, g[0]['fecha'], (d0.get('dir') or (x or {}).get('dir') or ''),
                (x or {}).get('tipo'), ', '.join((x or {}).get('bloques') or []), versiones, enviados, firmados,
                ', '.join(sorted({str(d['recibida']) for d in firm if d['recibida']})), d0.get('total'), d0.get('conceptos'),
