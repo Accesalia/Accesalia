@@ -13,7 +13,7 @@ MUNIS = {'LEGANES', 'MOSTOLES', 'GETAFE', 'FUENLABRADA', 'ALCORCON'}
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 CSVF = {r['comunidad_id']: r for r in csv.DictReader(open(os.path.join(RAIZ, 'fechas_opps_sin_fecha.csv'), encoding='utf-8'), delimiter='|')}
 opps = [o for o in b.leer('oportunidades?select=id,comunidad_id,origen_notas,comunidad:comunidades(nombre,municipio)&fecha_apertura=is.null')
-        if o['comunidad'] and o['comunidad']['municipio'] in MUNIS]
+        if o['comunidad'] and ('--todos' in sys.argv or o['comunidad']['municipio'] in MUNIS)]   # --todos: el resto de municipios (fuera de la CAM y sueltas), 7-oct-2026
 hechas, sin = 0, []
 for o in opps:
     cands = []
