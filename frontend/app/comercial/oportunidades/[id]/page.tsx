@@ -145,11 +145,13 @@ export default async function GestionOportunidad({
     // (Monica, 7-oct-2026).
     <div className="min-h-screen" style={{ background: "#8EB180" }}>
       <BarraSuperior />
-      {/* El lienzo es el suyo: 1300, el ancho real de su pantalla. Lo que se
-          dibuje aqui mide lo que va a medir de verdad (esqueleto del 30-sep).
-          Y TODO es contenido, como en la maqueta: en cuanto cabe, sin margenes
-          a los lados (Monica, 7-oct-2026: "me parece un desperdicio"). */}
-      <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6 min-[1300px]:px-0">
+      {/* EL LIENZO CRECE CON LA VENTANA, HASTA UN TOPE (Monica, 7-oct-2026).
+          Parte de su esqueleto de 1300 y crece con la pantalla, con su margen
+          de 24 a cada lado siempre puesto. A partir de 1600 de contenido se
+          queda quieto y centrado: "centrado y con aire a los lados antes de
+          estirarlo como una goma y que quede ilegible". Lo de pantallas
+          grandes de verdad (el 27") se mira cuando se vea en ellas. */}
+      <main className="mx-auto w-full max-w-[1648px] px-4 pb-16 pt-5 sm:px-6">
         <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
           ← Oportunidades abiertas
         </Link>
@@ -187,12 +189,13 @@ export default async function GestionOportunidad({
             className="min-w-0 flex-1 border p-[11px]"
           >
 
-        {/* SUS CUATRO ANCHOS FIJOS: 278 · 346 · 190 · 246. Salen del esqueleto
-            del 30-sep (262 · 330 · 190 · 282) y de su reparto del 7-oct: al
-            quitar los margenes de los lados sobraban 48 px, y "no se lo daria
-            todo al diario": van a partes iguales al Catastro, a los
-            condicionantes y al diario; el carril y las fotos "no necesitan
-            crecer". "Sus anchos son el diseno": no se reparten en fracciones.
+        {/* SUS ANCHOS: 278 · 346 · 190 · 246 en el lienzo de 1300, que salen
+            del esqueleto del 30-sep (262 · 330 · 190 · 282) y de su reparto del
+            7-oct. Cuando el lienzo crece, LO QUE SOBRA SE REPARTE A PARTES
+            IGUALES entre el Catastro, los condicionantes y el diario: "no se lo
+            daria todo al diario". Las fotos (190) "no necesitan crecer", y el
+            carril va fuera de la rejilla. Por eso cada columna es su medida mas
+            un tercio de lo que sobre: 1090 = 1060 de columnas + 30 de huecos.
             Las tres primeras las llena el informe del edificio; la cuarta, el
             diario. Y el trabajo que todavia no tiene bloque asignado va en una
             segunda fila, a lo ancho.
@@ -227,7 +230,7 @@ export default async function GestionOportunidad({
             )}
           </div>
         )}
-        <div className="grid items-start gap-[10px] xl:grid-cols-[278px_346px_190px_minmax(0,246px)]">
+        <div className="grid items-start gap-[10px] xl:grid-cols-[calc(278px+(100%-1090px)/3)_calc(346px+(100%-1090px)/3)_190px_calc(246px+(100%-1090px)/3)]">
           {bloque === 2 && documentacion ? (
             // El bloque 2 ocupa el sitio del edificio: las tres primeras
             // columnas. El diario y el trabajo de abajo son de toda la
