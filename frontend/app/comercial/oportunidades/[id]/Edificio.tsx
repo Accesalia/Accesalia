@@ -96,9 +96,9 @@ function Visto({
   cuando?: string | null;
 }) {
   return (
-    <div>
+    <div className="text-center">
       <div className="mb-1 text-[12px] font-bold text-[#14781E]">{que}</div>
-      <div className="flex items-baseline gap-[5px] text-[12px]">
+      <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
         <span className={BOT(hay === true)}>Sí</span>
         <span className={BOT(hay === false)}>No</span>
         {cuantos !== undefined && (
@@ -153,7 +153,17 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
 
   const de = (titulo: string) => i.secciones.find((s) => s.titulo === titulo)?.datos ?? [];
 
-  const edificio = de("El edificio");
+  // LOS PATIOS, EN LOS DATOS DEL EDIFICIO, con lo que se apunto abajo en "lo
+  // que hemos visto nosotros" (Monica, 7-oct-2026): "deberia reflejar el
+  // resultado, aunque no venga de Catastro". Catastro no los da; el informe
+  // solo decia "miralos en el croquis".
+  const patios = (d: (typeof i.secciones)[number]["datos"][number]) =>
+    d.que !== "Patios"
+      ? d
+      : asc.patios === null
+        ? { ...d, valor: "Pendiente de ver", falta: true }
+        : { que: d.que, valor: asc.patios === 0 ? "No" : String(asc.patios) };
+  const edificio = de("El edificio").map(patios);
   const usos = de("Los usos");
   const hacer = [...de("Restricciones"), ...de("Protección")];
   // La fila "¿Tiene IEE registrada?" del informe era un hueco con la nota
@@ -193,13 +203,13 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
             {/* Los patios SE RELLENAN aqui: es el unico dato de esta columna que
                 no viene de fuera. Un numero, no un si/no -su maqueta pregunta
                 "¿cuantos?"-, y se guarda firmado. */}
-            <form action={accionPatios.bind(null, referencia, id)}>
+            <form action={accionPatios.bind(null, referencia, id)} className="text-center">
               <div className="mb-1 text-[12px] font-bold text-[#14781E]">Patios</div>
-              <div className="flex items-baseline gap-[5px] text-[12px]">
+              <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
                 <span className={BOT(asc.patios !== null && asc.patios > 0)}>Sí</span>
                 <span className={BOT(asc.patios === 0)}>No</span>
               </div>
-              <div className="mt-[5px] flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-[11.5px]">
+              <div className="mt-[5px] flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0.5 text-[11.5px]">
                 <span className="text-[#8a8a8a]">¿cuántos?</span>
                 <input
                   name="patios"
