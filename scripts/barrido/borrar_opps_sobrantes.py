@@ -23,6 +23,11 @@ SOBRAN = {
     '863cac65-cb11-4a8a-b485-7d5cf0b5eaf6': 'NECTAR 31 PORTAL 1 (comunidad sin municipio): el encargo es UNO, en la opp 204aa181.',
     '84f6d201-247c-4f09-b9f1-a76fe392b5b5': 'NECTAR 31 PORTAL 2 (comunidad sin municipio): idem.',
     '3fc67242-0789-4d7f-92f9-f5d593a93c96': 'NECTAR 31 PORTAL3 (comunidad sin municipio): idem.',
+    # tanda O-Q-P (Monica, 7-oct-2026: 'correcto el borrado')
+    '4548b0b2-253c-4920-8ad8-d25d8fba49a7': 'PASEO DE LOS FERROVIARIOS 9: conjunto Palomares 75-77-79 / Ferroviarios 9-11 = UNA opp (Palomares 77) con los cinco portales.',
+    'fcecc28a-87cb-46b3-bf42-192c0c6ea0cd': 'PLAZA DEL PAULAR 2: Paular 1 y 2 = UNA opp (la de Paular 1, con los dos portales).',
+    '7ff9d6a0-03ed-428e-a415-21c06678d910': 'PLAZA GEOLOGOS 2: Geologos 1 y 2 = UNA opp (la de Geologos 1, con los dos portales).',
+    '94fe59d0-7d6e-46ea-bb65-41a82016164b': 'PUERTO DEL MONASTERIO 20: segunda opp vacia de la misma comunidad (la buena es eda3efe3).',
 }
 TABLAS_CON_DATOS = ['documentos', 'hojas_encargo', 'motivo_cierre_oportunidad', 'juntas', 'modelos_3d_venta', 'interacciones', 'tareas_seguimiento',
                     'negociacion_oportunidad', 'viabilidades', 'oportunidad_tipos', 'avisos', 'iee_registrado', 'historial_pausas_oportunidad',
