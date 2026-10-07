@@ -1,0 +1,160 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (7-oct-2026): firmadas SIN fecha en el nombre, de 2023.",
+ "Y2023_007": {
+  "estado": "OK",
+  "nota": "Next Generation: total condicionado a la subvención; si no se concede, 7.500 adelantados. Las cuentas del propio papel no cuadran: se guarda lo que dice la hoja."
+ },
+ "Y2023_008": {
+  "estado": "OK",
+  "nota": "Next Generation, precio conjunto; si no se concede, 3.600 adelantados."
+ },
+ "Y2023_014": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_008: se guardan las dos."
+ },
+ "Y2023_019": {
+  "estado": "APARTAR",
+  "nota": "No es una hoja de encargo nuestra: es la aceptación, por Accesalia, del presupuesto de honorarios de NATURAL HOME (24-08-2023); aquí paga Accesalia. Facturación / proveedores."
+ },
+ "Y2023_035": {
+  "estado": "OK",
+  "nota": "El título dice ascensor y plataforma pero el contenido es envolvente térmica (Programa 3): plantilla mezclada. Precio conjunto 9.650."
+ },
+ "Y2023_036": {
+  "estado": "OK",
+  "nota": "Next Generation: 6.500 adelanto + 6.450 si se concede."
+ },
+ "Y2023_064": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_036: se guardan las dos."
+ },
+ "Y2023_048": {
+  "estado": "OK",
+  "nota": "Precio conjunto 5.500. En FIRMADOS hay dos Word de esta hoja (uno 'firmado'): se guardan los dos."
+ },
+ "Y2023_069": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_048: se guardan las dos."
+ },
+ "Y2023_050": {
+  "estado": "OK",
+  "nota": "Tres portales (4, 6 y 8) en una hoja, 19.000 conjunto."
+ },
+ "Y2023_088": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_050: se guardan las dos. (el nombre menciona a Elecnor)."
+ },
+ "Y2023_053": {
+  "estado": "OK",
+  "nota": "Next Generation; el papel no cuadra (adelanto 6.500 pero dice '7.500 ya abonados' si no se concede): se guarda lo que dice."
+ },
+ "Y2023_054": {
+  "estado": "OK",
+  "nota": "Next Generation, 25.170 condicionado; si no se concede, 7.500 adelantados."
+ },
+ "Y2023_067": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_054: se guardan las dos."
+ },
+ "Y2023_079": {
+  "estado": "OK",
+  "nota": "Propuesta de honorarios con precios por línea (LEE+IEE 2.240, DO+CSS 2.600). Y2023_080 es otra copia firmada (esta, 'falta núm. cuenta')."
+ },
+ "Y2023_080": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_079: se guardan las dos."
+ },
+ "Y2023_081": {
+  "estado": "OK",
+  "nota": "Next Generation: 26.970 condicionado; si no se concede, 6.500 adelantados."
+ },
+ "Y2023_084": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la misma hoja que Y2023_081: se guardan las dos."
+ },
+ "Y2023_016": {
+  "estado": "OK",
+  "nota": "OJO: LA CASILLA DE FIRMA ESTÁ VACÍA (el conforme trae CIF, representante e IBAN, pero sin firma). Mal emparejada (iba con la de ascensor): datos de la propia hoja: subvención de accesibilidad 1.800, 25-07-2023, IEE si hace falta.",
+  "fecha_hoja": "2023-07-25",
+  "total_base": 1800,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "forma_pago_general": "100% del importe en el momento del encargo mediante cargo en cuenta.",
+  "conceptos": [
+   {
+    "texto": "Tramitación de subvención de accesibilidad",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": 1800,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "IEE (si hace falta)",
+    "bloque": "IEE",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ]
+ },
+ "Y2023_027": {
+  "estado": "OK",
+  "nota": "Es OTRA hoja (Next Generation, 31-05-2023), no la de SATE de 30-03: adelanto 6.500 de un total de 26.610 (proyecto 22.800 + LEE e IEE 3.810). Aprobada en junta extraordinaria 28-03-2023; firma el administrador (Álvarez Asesores) p.o. Datos de la propia firmada.",
+  "fecha_hoja": "2023-05-31",
+  "total_base": 26610,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "SATE envolvente completa",
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "forma_pago_general": "Adelanto a cuenta 6.500 € + IVA: 50% al encargo y 50% a la entrega del proyecto visado; el resto, solo si se concede la subvención del Programa 5.",
+  "conceptos": [
+   {
+    "texto": "Proyecto básico y de ejecución de mejora de envolvente",
+    "bloque": "REDACCION PROYECTO",
+    "importe": 22800,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Libro del Edificio + IEE",
+    "bloque": "LEE",
+    "importe": 3810,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Certificado energético",
+    "bloque": "CEE",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Tramitación de subvención Next Generation (programas 3 y 5)",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Tramitación de licencia",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   }
+  ]
+ }
+}

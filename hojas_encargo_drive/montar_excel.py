@@ -87,6 +87,8 @@ def normalizar(d):
         elif re.search(r'inspecci', t, re.I): c['bloque'] = 'INFORME PERICIAL'
         elif re.search(r'asesoramiento.*(ayuda|subvenc)', t, re.I): c['bloque'] = 'TRAMITACION SUBVENCIONES'; c['incluido'] = True
         elif re.search(r'consulta urban', t, re.I): c['bloque'] = 'CONSULTA URBANISTICA'
+        elif re.search(r'licencia', t, re.I): c['bloque'] = 'TRAMITACION LICENCIAS'
+        elif re.search(r'visado|canal de isabel|alta de(l)? agua', t, re.I): c['incluido'] = True; c['bloque'] = 'TRAMITACION LICENCIAS'   # tramites sin bloque propio
     # 4. Que se hace: elevador = plataforma elevadora = Plataforma; portal = Accesibilidad portal.
     que = list(d.get('que_se_hace') or []); sin = []
     for t in d.get('que_se_hace_sin_casar') or []:

@@ -97,6 +97,8 @@ for k, (p, dec, el, dd) in enumerate(filas):
             'no es hoja': 'no es una hoja de encargo: ' + (dd or {}).get('motivo', ''), 'no se puede': (dd or {}).get('motivo', '')}[dec]
     if dec == 'no es hoja':
         fila(base, 'APARTAR', ['no es una hoja: documento de facturación o similar'], frec, {}, firm, None, como); continue
+    if dec in ('no se puede', 'no es hoja') and res.get(base, {}).get('estado') in ('APARTAR', 'ANULADA'):
+        fila(base, res[base]['estado'], ['RESUELTO LEYENDO: ' + res[base].get('nota', '')], frec, {}, firm, None, como); continue
     if dec == 'no se puede':
         fila(base, 'PREGUNTA', ['PARA TI: ' + dd['motivo']], frec, {}, firm, None, como); continue
     if dec == 'datos de la firmada':

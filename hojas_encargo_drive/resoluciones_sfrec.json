@@ -1,0 +1,19 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (7-oct-2026): firmadas SIN fecha en el nombre, recientes.",
+ "Yrec_004": {
+  "estado": "OK",
+  "nota": "IEE 850; el documento se tocó después pero el importe es el firmado."
+ },
+ "Yrec_020": {
+  "estado": "ANULADA",
+  "nota": "La firmada se llama 'GESTIÓN DOCUMENTAL - QUEDA SIN EFECTO'."
+ },
+ "Yrec_028": {
+  "estado": "OK",
+  "nota": "Hoja REV1: proyecto 6.900 conjunto + subvención 1.980 fijo y 3,5% a éxito."
+ },
+ "Yrec_030": {
+  "estado": "APARTAR",
+  "nota": "'.docx.pdf': es la enviada exportada a PDF, no una firmada; la firmada es la de la tanda 2 (F091)."
+ }
+}

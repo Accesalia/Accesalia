@@ -1,0 +1,69 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (7-oct-2026): firmadas SIN fecha en el nombre, de 2024.",
+ "Y2024_015": {
+  "estado": "OK",
+  "nota": "Cambio de agente tramitador Next Generation, sin importes propios (remite al encargo previo). Y2022_064 es otra copia firmada de esta hoja."
+ },
+ "Y2024_019": {
+  "estado": "APARTAR",
+  "nota": "Es un modelo 'no enviado', sin firma ni comunidad: no es una hoja firmada."
+ },
+ "Y2024_020": {
+  "estado": "OK"
+ },
+ "Y2024_029": {
+  "estado": "OK",
+  "nota": "Mal emparejada (iba con la de subvención) y sin enviada de proyecto en la carpeta: datos de la propia firmada. Proyecto de ascensor 4.900 + CSS 960 = 5.860, 09-01-2024; firma la comunidad el 10-01-2024.",
+  "fecha_hoja": "2024-01-09",
+  "total_base": 5860,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Ascensor",
+   "CSS"
+  ],
+  "que_se_hace_sin_casar": [],
+  "forma_pago_general": "De los 4.900: 50% al encargo y 50% a la entrega del proyecto. CSS: a la firma del acta de aprobación del plan de seguridad y salud.",
+  "conceptos": [
+   {
+    "texto": "Proyecto básico y de ejecución",
+    "bloque": "REDACCION PROYECTO",
+    "importe": 4900,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Visado y licencia",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Dirección de obra",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Coordinación de seguridad y salud",
+    "bloque": "CSS",
+    "importe": 960,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
+ },
+ "Y2024_023": {
+  "estado": "OK",
+  "que_se_hace": [
+   "Otros - proyecto técnico"
+  ],
+  "que_se_hace_sin_casar": [],
+  "nota": "Local comercial, no comunidad. Memoria + licencia 1.000 conjunto; incluye tramitar el alta del agua en el Canal (sin precio aparte)."
+ }
+}

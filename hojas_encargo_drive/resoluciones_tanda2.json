@@ -279,5 +279,32 @@
  "F129": {
   "estado": "OK",
   "nota": "Gestión de CAES cobrada aparte (408): línea que se cobra."
+ },
+ "F016": {
+  "estado": "OK",
+  "enviada": null,
+  "nota": "No es la hoja de 2022: es una RENOVACIÓN consecutiva de subvenciones (oferta especial) de 23-05-2024, firmada el 17-10-2024. Datos de la propia firmada; su enviada no está en la carpeta.",
+  "fecha_hoja": "2024-05-23",
+  "total_base": 1690,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "forma_pago_general": "100% del importe en el momento del encargo mediante cargo en cuenta.",
+  "conceptos": [
+   {
+    "texto": "Renovación de la tramitación de subvenciones de accesibilidad",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": 1690,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ]
+ },
+ "F110a": {
+  "estado": "APARTAR",
+  "nota": "Sobra: la firmada de 2025 es solo la de subvención y ya va con su hoja (F110b). La hoja de proyecto de 2024 es de otra firmada (2024, Y24_060)."
  }
 }

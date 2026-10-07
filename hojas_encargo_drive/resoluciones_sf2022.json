@@ -1,0 +1,186 @@
+{
+ "_que_es": "Lo resuelto LEYENDO (7-oct-2026): firmadas SIN fecha en el nombre, de 2022.",
+ "Y2022_002": {
+  "estado": "OK"
+ },
+ "Y2022_019": {
+  "estado": "OK",
+  "nota": "Segundo PDF firmado de la misma hoja que Y2022_002: se guardan los dos."
+ },
+ "Y2022_009": {
+  "estado": "APARTAR",
+  "nota": "'.docx.pdf': es la enviada exportada a PDF, no una firmada; la firmada es Y2022_023."
+ },
+ "Y2022_023": {
+  "estado": "OK",
+  "nota": "Subvención: tramo fijo 1.331,34 + 3% a éxito, dos años de convocatorias."
+ },
+ "Y2022_025": {
+  "estado": "OK",
+  "nota": "9 ascensores y rehabilitación de fachadas en 9 portales, una sola hoja (38.500). Hay tres PDF firmados de esta hoja (Y2022_025, _026, _084): se guardan los tres."
+ },
+ "Y2022_026": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la hoja de Y2022_025 (corregida, con nuevo número de cuenta)."
+ },
+ "Y2022_084": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la hoja de Y2022_025."
+ },
+ "Y2022_029": {
+  "fecha_hoja": "2022-06-01",
+  "total_base": 6000,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Ascensor",
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Proyecto básico y de ejecución",
+    "bloque": "REDACCION PROYECTO",
+    "importe": 4500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Visado y licencia",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Dirección de obra",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Certificación fin de obra",
+    "bloque": "CERTIFICADO FIN DE OBRA",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Coordinación de seguridad y salud",
+    "bloque": "CSS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Solicitud de subvenciones",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": 1500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ],
+  "estado": "OK",
+  "nota": "Mal emparejada (la enviada era de BATALLA DE BRUNETE 11 LEGANÉS). Datos de la propia firmada: CP BRUNETE 11 GETAFE, 01-06-2022, proyecto+licencia+DO+CFO+CSS 4.500 + subvención 1.500 = 6.000; firmada el 19-01-2023."
+ },
+ "Y2022_058": {
+  "fecha_hoja": "2022-06-01",
+  "total_base": 6000,
+  "a_quien": "comunidad",
+  "que_se_hace": [
+   "Ascensor",
+   "Subvenciones"
+  ],
+  "que_se_hace_sin_casar": [],
+  "conceptos": [
+   {
+    "texto": "Proyecto básico y de ejecución",
+    "bloque": "REDACCION PROYECTO",
+    "importe": 4500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   },
+   {
+    "texto": "Visado y licencia",
+    "bloque": "TRAMITACION LICENCIAS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Dirección de obra",
+    "bloque": "DF",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Certificación fin de obra",
+    "bloque": "CERTIFICADO FIN DE OBRA",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Coordinación de seguridad y salud",
+    "bloque": "CSS",
+    "importe": null,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": true
+   },
+   {
+    "texto": "Solicitud de subvenciones",
+    "bloque": "TRAMITACION SUBVENCIONES",
+    "importe": 1500,
+    "pct_exito": null,
+    "forma_pago": null,
+    "incluido": false
+   }
+  ],
+  "estado": "OK",
+  "nota": "Segunda copia firmada de la hoja de BRUNETE 11 GETAFE (Y2022_029)."
+ },
+ "Y2022_031": {
+  "estado": "OK",
+  "nota": "Dos intervenciones: bajada a cota cero y modificación de ascendentes y bajantes (Otros - proyecto técnico). Proyecto + DO 1.750 conjunto + CSS 450."
+ },
+ "Y2022_032": {
+  "estado": "OK",
+  "nota": "Los importes de la hoja no cuadran (desglose 7.440, total 8.090, pagos 2 × 4.095 = 8.190): se guarda el total que pone la hoja. 'Licencia y subvenciones' sin precio propio: incluido."
+ },
+ "Y2022_039": {
+  "estado": "OK",
+  "nota": "Proyecto de envolvente 4.100 conjunto (con licencia, DO, CFO y CEE). Y2022_059 es otra copia firmada: se guardan las dos."
+ },
+ "Y2022_059": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la hoja de Y2022_039."
+ },
+ "Y2022_064": {
+  "estado": "OK",
+  "nota": "Cambio de agente tramitador de una subvención Next Generation ya pedida; sin importes (remite al encargo previo). La hoja es de 2024: es la misma que Y2024_015 (otra copia firmada)."
+ },
+ "Y2022_075": {
+  "estado": "ANULADA",
+  "nota": "La firmada se llama 'cancelado no lo hacemos'."
+ },
+ "Y2022_078": {
+  "estado": "OK",
+  "nota": "Y2022_079 es otra copia firmada de la misma hoja: se guardan las dos."
+ },
+ "Y2022_079": {
+  "estado": "OK",
+  "nota": "Otra copia firmada de la hoja de Y2022_078."
+ }
+}
