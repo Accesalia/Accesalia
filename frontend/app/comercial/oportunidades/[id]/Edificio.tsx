@@ -1,5 +1,6 @@
 import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdificio";
-import { accionPatios } from "./acciones";
+import { accionAscensor } from "./acciones";
+import { Patios } from "./Patios";
 
 // EL EDIFICIO, DENTRO DEL BLOQUE 1 (Monica, 5-oct-2026).
 //
@@ -85,30 +86,27 @@ function Sub({ familia, que, valor, significa, falta }: { familia: Familia; que:
 function Visto({
   que,
   hay,
-  cuantos,
   quien,
   cuando,
+  marcar,
 }: {
   que: string;
   hay: boolean | null;
-  cuantos?: number | null;
   quien?: string | null;
   cuando?: string | null;
+  /** Al pulsar Si o No se guarda; pulsar el que ya esta puesto lo quita. */
+  marcar: (fd: FormData) => Promise<void>;
 }) {
   return (
-    <div className="text-center">
+    <form action={marcar} className="text-center">
       <div className="mb-1 text-[12px] font-bold text-[#14781E]">{que}</div>
       <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
-        <span className={BOT(hay === true)}>Sí</span>
-        <span className={BOT(hay === false)}>No</span>
-        {cuantos !== undefined && (
-          <span className="flex items-baseline gap-1.5">
-            <span className="text-[11px] text-carbon/50">¿cuántos?</span>
-            <span className="inline-block min-w-[34px] rounded-[5px] border border-[#bdbdbd] px-1.5 py-px text-center text-[11.5px] text-carbon">
-              {cuantos ?? ""}
-            </span>
-          </span>
-        )}
+        <button name="ascensor" value={hay === true ? "" : "si"} className={BOT(hay === true) + " hover:border-[#2b2b2b]"}>
+          Sí
+        </button>
+        <button name="ascensor" value={hay === false ? "" : "no"} className={BOT(hay === false) + " hover:border-[#2b2b2b]"}>
+          No
+        </button>
       </div>
       <p className="mt-[5px] text-[11px] leading-[1.3] text-[#8a8a8a]">
         {quien ? (
@@ -120,7 +118,7 @@ function Visto({
           "sin mirar"
         )}
       </p>
-    </div>
+    </form>
   );
 }
 
@@ -196,43 +194,14 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
         <div className="rounded-[8px] bg-[#E4EED9] px-[9px] py-[7px]">
           <div className="text-[12px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline underline-offset-2">Lo que hemos visto nosotros</div>
           <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
-            <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} />
+            <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
             <div className="bg-[#438538]" />
             {/* Los patios son un NUMERO, no un si/no: su maqueta pregunta
                 "¿cuantos?". El 0 es un dato -no tiene- y el nulo es otro. */}
             {/* Los patios SE RELLENAN aqui: es el unico dato de esta columna que
                 no viene de fuera. Un numero, no un si/no -su maqueta pregunta
                 "¿cuantos?"-, y se guarda firmado. */}
-            <form action={accionPatios.bind(null, referencia, id)} className="text-center">
-              <div className="mb-1 text-[12px] font-bold text-[#14781E]">Patios</div>
-              <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
-                <span className={BOT(asc.patios !== null && asc.patios > 0)}>Sí</span>
-                <span className={BOT(asc.patios === 0)}>No</span>
-              </div>
-              <div className="mt-[5px] flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0.5 text-[11.5px]">
-                <span className="text-[#8a8a8a]">¿cuántos?</span>
-                <input
-                  name="patios"
-                  type="number"
-                  min={0}
-                  max={99}
-                  defaultValue={asc.patios ?? ""}
-                  aria-label="Cuántos patios tiene"
-                  className="w-[38px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
-                />
-                <button className="text-[11px] font-semibold text-[#14781E] hover:underline">guardar</button>
-              </div>
-              <p className="mt-[5px] text-[11px] leading-[1.3] text-[#8a8a8a]">
-                {asc.patiosQuien ? (
-                  <>
-                    los contó {asc.patiosQuien}
-                    {asc.patiosCuando && <> el {asc.patiosCuando.slice(8, 10)}/{asc.patiosCuando.slice(5, 7)}</>}
-                  </>
-                ) : (
-                  "sin mirar"
-                )}
-              </p>
-            </form>
+            <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
           </div>
         </div>
       </section>

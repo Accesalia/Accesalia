@@ -12,6 +12,7 @@ import {
   tocarHito,
 } from "../../../../lib/gestionOportunidad";
 import { crearEntrada } from "../../../../lib/entradaDiario";
+import { marcarAscensor } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
@@ -136,6 +137,15 @@ export async function accionDireccion(
 // Por eso va firmado, igual que el ascensor: un dato que pone una persona vale
 // lo que valga quien lo puso y cuando lo miro. Y por eso el 0 es un dato -no
 // tiene patios- y el vacio es otro: nadie los ha contado.
+/** ¿Hay ascensor? Lo marca quien lo ve (en la foto aerea o en el portal), y va
+ *  firmado. Es la misma marca que la de la pantalla del edificio; pulsar otra
+ *  vez la que esta puesta la quita. */
+export async function accionAscensor(referencia: string, id: string, fd: FormData) {
+  const v = String(fd.get("ascensor") ?? "");
+  await marcarAscensor(referencia, v === "si" ? true : v === "no" ? false : null);
+  revalidatePath(`/comercial/oportunidades/${id}`);
+}
+
 export async function accionPatios(referencia: string, id: string, fd: FormData) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
