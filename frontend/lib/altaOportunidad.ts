@@ -405,6 +405,12 @@ export async function crearOportunidad(
     ? { nombre: d.otroNuevo.nombre, telefono: d.otroNuevo.telefono, correo: d.otroNuevo.correo }
     : null;
 
+  // El administrador ES DE LA OPORTUNIDAD (Monica, 8-oct-2026): su puesto
+  // vigente, si lo tiene. No bloquea nada; es un dato de la opp.
+  const [adminPuesto] = administradorId
+    ? await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`)
+    : [];
+
   // 4 · el codigo y la oportunidad
   const codigo = await siguienteCodigo(d.comercialId);
   const op = await crear<{ id: string }>("oportunidades", {
@@ -425,6 +431,10 @@ export async function crearOportunidad(
     telefono_provisional: prov?.telefono ?? null,
     correo_provisional: prov?.correo ?? null,
     ...columnasQuien(quien),
+    administrador_puesto_id: adminPuesto?.id ?? null,
+    // Lo siguiente que hay que hacer: antes se usaba y se perdia; cuenta para
+    // que la oportunidad este completa (8-oct-2026).
+    siguiente_paso: ["primer_contacto", "visita", "envio_documentos"].includes(d.pasoArranque ?? "") ? d.pasoArranque : null,
   });
 
   // 5 · de lo que vendemos, que quieren. Una fila por cada cosa.
