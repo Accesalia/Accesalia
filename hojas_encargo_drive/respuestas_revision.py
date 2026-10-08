@@ -53,9 +53,23 @@ for c in ['HE-2025-0403', 'HE-2025-0742', 'HE-2026-0056', 'HE-2026-0341', 'HE-20
 # 2 · Rafael Calvo 9: "un marron de Dani que al final lo hizo GRATIS para evitar problemas mayores"
 nota('HE-2022-0001', 'Encargo hecho GRATIS por Daniel para evitar problemas mayores (Monica, 8-oct). La "firmada" es el correo.',
      total_base=0, revision='pendiente')
-#     Sin firma: Monica revisa si hay facturas antes de decidir
-for c in ['HE-2024-0002', 'HE-2025-0050', 'HE-2025-0073', 'HE-2025-0256', 'HE-2025-0409', 'HE-2025-0736', 'HE-2026-0059', 'HE-2026-0203']:
-    nota(c, 'PENDIENTE DE MONICA: sin firma; revisa si hay facturas (8-oct).', revision='duda')
+#     Sin firma (Monica, 8-oct, tras mirar facturas):
+#     a) su PDF es la firmada de OTRA version: no se firmaron -> enviada sin firmar, sustituida por la buena
+SUSTITUIDAS = {'HE-2025-0050': 'HE-2025-0055', 'HE-2025-0073': 'HE-2025-0077', 'HE-2025-0256': 'HE-2025-0261'}
+for c, nueva in SUSTITUIDAS.items():
+    nota(c, f'NO FIRMADA: su PDF es la firmada de {nueva}. Pasa a ENVIADA SIN FIRMAR, sustituida por {nueva} (Monica, 8-oct).',
+         firma_presente=False, revision='corregido')
+#     b) sin firma en el papel pero COBRADAS: valen como firmadas
+for c in ['HE-2024-0002', 'HE-2025-0409', 'HE-2025-0736']:
+    nota(c, 'Sin firma en el papel, pero COBRADA y pagada por la comunidad (Monica, 8-oct): vale como firmada.',
+         firma_presente=True, pagador_tipo='comunidad', revision='pendiente')
+nota('HE-2026-0203', 'Sin firma en el papel, pero FACTURADA: pagaba FAIN, por eso no la firma la comunidad (Monica, 8-oct).',
+     firma_presente=True, pagador_tipo='empresa', contrata_id=con['FAIN'], comunidad_id=None,
+     pagador_razon_social='FAIN ASCENSORES S.A.', pagador_cif='A28303485', pagador_hay_que_crear=False, revision='pendiente')
+nota('HE-2026-0059', 'Sin firma; NO cobrada (Monica, 8-oct). PREGUNTADO: ¿no se firmo, o se encargo y no han pagado? '
+                     '(el archivo se llama "PENDIENTE DE PAGO").', revision='duda')
+json.dump({c: {'estado': 'enviada_comunidad', 'sustituida_por': n} for c, n in SUSTITUIDAS.items()},
+          open('a_enviada_sin_firmar.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
 # 5 · Casos sueltos
 nota('HE-2025-0388', 'Queda FIRMADA (Monica, 8-oct). El correo de ALSER (firmaron la subvencion por error; en pausa) '
