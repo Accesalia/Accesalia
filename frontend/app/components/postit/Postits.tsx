@@ -214,7 +214,8 @@ function UnPostit({
   actualizar: (n: Nota) => void;
 }) {
   const { nota, x, y, z, plegado } = ventana;
-  const soloLeer = !nota.mia;
+  // Lo descartado no se toca: lo lee direccion tal cual quedo.
+  const soloLeer = !nota.mia || nota.estado === "descartada";
   const [guardado, setGuardado] = useState<"" | "guardando" | "guardado" | "error">("");
   const [aviso, setAviso] = useState("");
   const [ocupado, setOcupado] = useState(false);
@@ -282,7 +283,7 @@ function UnPostit({
   };
 
   const abierta = nota.estado === "abierta";
-  const sePuedeGuardar = nota.mia && (abierta || nota.estado === "descartada");
+  const sePuedeGuardar = nota.mia && abierta;
   const resumen = nota.que_dicen.trim().split("\n")[0].slice(0, 40) || nota.quien_texto || nota.donde_texto || "Llamada";
 
   return (
@@ -313,7 +314,7 @@ function UnPostit({
         </button>
         {/* Uno sin guardar no se cierra: se queda hasta Guardar o Descartar.
             Salvo que este en blanco, que no hay nada que perder. */}
-        {(!abierta || !nota.mia || vacio) && (
+        {(!abierta || soloLeer || vacio) && (
           <button
             type="button"
             onClick={cerrar}

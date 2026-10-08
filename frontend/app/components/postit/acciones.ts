@@ -41,7 +41,7 @@ export async function guardarDeVerdad(d: DatosPostit): Promise<{ ok: true } | { 
   await guardarPostit(d, yo.id);
   if (!d.que_dicen.trim()) return { error: "Falta lo que te dicen." };
   if (!d.quien && !d.donde) return { error: "Elige una persona o una dirección: la nota tiene que colgar de algún sitio." };
-  await cambiarEstado(d.id, yo.id, ["abierta", "descartada"], "por_colocar");
+  await cambiarEstado(d.id, yo.id, ["abierta"], "por_colocar");
   return { ok: true };
 }
 

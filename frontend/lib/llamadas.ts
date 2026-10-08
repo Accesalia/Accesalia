@@ -262,10 +262,12 @@ async function pedir(path: string, init: RequestInit = {}) {
   return r.json() as Promise<{ id: string; estado: string }[]>;
 }
 
-/** Guarda lo escrito. Solo el autor toca su postit. */
+/** Guarda lo escrito. Solo el autor toca su postit, y nunca uno descartado:
+ *  el descartado lo lee direccion y no se puede vaciar para no dejar rastro
+ *  (Monica, 8-oct-2026). */
 export async function guardarPostit(d: DatosPostit, autor: string): Promise<string> {
   const id = encodeURIComponent(d.id);
-  const hechas = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&select=id,estado`, {
+  const hechas = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&estado=neq.descartada&select=id,estado`, {
     method: "PATCH",
     body: JSON.stringify(fila(d)),
   });
@@ -278,11 +280,11 @@ export async function guardarPostit(d: DatosPostit, autor: string): Promise<stri
     body: JSON.stringify({ id: d.id, apuntada_por: autor, ...fila(d) }),
   });
   if (nueva) return nueva.estado;
-  const [otra] = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&select=id,estado`, {
+  const [otra] = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&estado=neq.descartada&select=id,estado`, {
     method: "PATCH",
     body: JSON.stringify(fila(d)),
   });
-  if (!otra) throw new Error("Esta llamada no es tuya");
+  if (!otra) throw new Error("Esta llamada no se puede tocar");
   return otra.estado;
 }
 
@@ -313,13 +315,15 @@ type FilaLlamada = {
   equipo: { nombre: string; apellidos: string | null } | null;
 };
 
-/** Los postits de alguien (o todos), los mas nuevos primero. */
+/** Los postits de alguien (o todos), los mas nuevos primero. Cada uno ve los
+ *  suyos SIN los descartados; los descartados solo salen en "todas", que es de
+ *  direccion. */
 export async function listarPostits(
   yo: string,
   opciones: { todas?: boolean; soloAbiertas?: boolean } = {},
 ): Promise<Postit[]> {
   const filtros = [
-    opciones.todas ? "" : `apuntada_por=eq.${yo}`,
+    opciones.todas ? "" : `apuntada_por=eq.${yo}&estado=neq.descartada`,
     opciones.soloAbiertas ? "estado=eq.abierta" : "",
   ].filter(Boolean);
   const r = await fetch(
