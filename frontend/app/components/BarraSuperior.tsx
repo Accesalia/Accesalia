@@ -3,6 +3,7 @@ import Image from "next/image";
 import { quienSoy } from "../../lib/sesion";
 import { salir } from "../entrar/acciones";
 import { BotonLlamada } from "./postit/BotonLlamada";
+import { cuantosPendientes } from "../../lib/misPendientes";
 
 // Cabecera de toda la app: logo, el buscador, quien ha entrado (con su boton de
 // salir) y el boton MENU. Montada de cero el 11-sep-2026.
@@ -14,6 +15,8 @@ import { BotonLlamada } from "./postit/BotonLlamada";
 // direccion y lleva a la ficha de la comunidad.
 export async function BarraSuperior() {
   const yo = await quienSoy().catch(() => null);
+  // El numero del boton PENDIENTES. Si falla, 0: nunca tumba la barra.
+  const pendientes = yo ? await cuantosPendientes(yo) : 0;
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-carbon text-white">
@@ -71,6 +74,27 @@ export async function BarraSuperior() {
         {/* LLAMADA (Monica, 8-oct-2026): pone un postit delante, sin salir de
             la pantalla. El postit vive en el layout (components/postit). */}
         {yo && <BotonLlamada />}
+
+        {/* PENDIENTES (8-oct-2026): junto a LLAMADA, con el numero de cosas a
+            medias -notas, oportunidades, llamadas- y la pantalla que las junta. */}
+        {yo && (
+          <Link
+            href="/pendientes"
+            className={
+              "inline-flex shrink-0 items-center gap-2 rounded-full border-2 px-4 py-2 text-base font-bold tracking-wide transition " +
+              (pendientes > 0 ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100" : "border-white/25 text-white/80 hover:border-lima")
+            }
+          >
+            PENDIENTES
+            <span
+              className={
+                "rounded-full px-2 py-0.5 text-[13px] font-extrabold " + (pendientes > 0 ? "bg-amber-900 text-white" : "bg-white/15 text-white/80")
+              }
+            >
+              {pendientes}
+            </span>
+          </Link>
+        )}
 
         <Link
           href="/menu"
