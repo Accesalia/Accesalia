@@ -65,6 +65,11 @@ type Estado = {
    *  suma. La hoja enseña las tres; la viabilidad, solo la suma. */
   junto: Record<string, boolean>;
   html: string | null;
+  /** La version que saldra al generar. De la 2 en adelante pide el porque. */
+  versionQueSale: number;
+  /** POR QUE CAMBIA (Monica, 8-oct-2026): obligatorio de la version 2 en
+   *  adelante. "Si no se pide, ¿como se va a poner?" */
+  motivo: string;
 };
 
 const ETQ = "mb-[3px] block text-[10px] font-bold uppercase tracking-[.06em] text-carbon/70";
@@ -224,6 +229,9 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
       ),
       junto,
       html: h?.version?.html ?? null,
+      versionQueSale: h ? (h.version?.borrador ? h.version.numero : (h.version?.numero ?? 0) + 1) : 1,
+      // Si se sigue un borrador, el porque que ya se escribio vuelve.
+      motivo: h?.version?.borrador ? h.version.motivo ?? "" : "",
     });
     setTimeout(() => document.getElementById("generador")?.scrollIntoView({ behavior: "smooth" }), 50);
   };
@@ -362,6 +370,16 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
                     </button>
                   )}
                 </div>
+                {/* Por que cambio cada version (Monica, 8-oct-2026). */}
+                {h.cambios.length > 0 && (
+                  <div className="col-span-2 flex flex-col gap-0.5 border-t border-black/[0.06] pt-1.5 text-xs text-carbon/75">
+                    {h.cambios.map((c) => (
+                      <p key={c.numero}>
+                        <b className="text-carbon/85">Cambio v{c.numero}:</b> {c.motivo}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -618,6 +636,7 @@ function Generador({
         // veces el proyecto conjunto tiene un precio unico, y otras se desglosa".
         conjunto: hayConjunto ? { texto: (st.texto.CONJUNTO ?? "").trim() || null, importe: importeConjunto } : null,
         html: copia.innerHTML,
+        motivoCambio: st.versionQueSale > 1 ? st.motivo.trim() || null : null,
       });
       if (!r.ok) return setError(r.error);
       alGenerar(r.versionId);
@@ -651,7 +670,13 @@ function Generador({
           >
             Guardar como borrador
           </button>
-          <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={() => generar()}>
+          <button
+            type="button"
+            className={BTN_PRIM}
+            disabled={ocupado || (st.versionQueSale > 1 && !st.motivo.trim())}
+            title={st.versionQueSale > 1 && !st.motivo.trim() ? "Escribe por qué cambia esta versión" : undefined}
+            onClick={() => generar()}
+          >
             {ocupado ? "Generando…" : "Generar hoja (PDF)"}
           </button>
         </div>
@@ -659,6 +684,23 @@ function Generador({
 
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(430px,40%)_1fr]">
         <div className="flex flex-col gap-3">
+          {/* ---------- por que cambia: de la version 2 en adelante ---------- */}
+          {st.versionQueSale > 1 && (
+            <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
+              <label htmlFor="motivo" className={TITULO + " mb-1.5 block text-amber-900"}>
+                Por qué cambia · versión {st.versionQueSale}
+              </label>
+              <textarea
+                id="motivo"
+                rows={2}
+                value={st.motivo}
+                onChange={(e) => poner({ motivo: e.target.value })}
+                placeholder="El administrador pide quitar el estudio de seguridad…"
+                className="w-full resize-y rounded-[10px] border border-carbon/25 bg-white px-3 py-2 text-[14px] text-carbon outline-none focus:border-lima-dark focus:ring-2 focus:ring-lima/40"
+              />
+              <p className="mt-1 text-[11px] text-amber-900/80">Obligatorio para generar. Queda en la hoja y en el diario de la oportunidad.</p>
+            </div>
+          )}
           {/* ---------- cabecera ---------- */}
           <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
             <div className={TITULO + " mb-2.5"}>Cabecera</div>

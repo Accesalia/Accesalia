@@ -122,7 +122,10 @@ export type Hoja = {
   contrataId: string | null;
   /** La ultima version. `borrador` = se guardo sin PDF: sigue viva y no ha
    *  salido de Accesalia ("si es PDF, ya esta congelado"). */
-  version: { id: string; numero: number; html: string | null; borrador: boolean } | null;
+  version: { id: string; numero: number; html: string | null; borrador: boolean; motivo: string | null } | null;
+  /** POR QUE CAMBIO cada version, de la 2 en adelante (Monica, 8-oct-2026):
+   *  obligatorio al generarla, y se enseña en la fila de la hoja. */
+  cambios: { numero: number; motivo: string }[];
   conceptos: ConceptoHoja[];
   actuaciones: { tipoId: string; accesoIds: string[] }[];
   importe: number;
@@ -193,13 +196,13 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       pagador_contrata_id: string | null;
       contrata: { nombre: string } | null;
       version_firmada_id: string | null;
-      versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null }[];
+      versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null; motivo_cambio: string | null }[];
       conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
       `hojas_encargo?select=id,oportunidad_id,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
         `contrata:pagador_contrata_id(nombre),version_firmada_id,` +
-        `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html),` +
+        `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html,motivo_cambio),` +
         `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
         `&comunidad_id=eq.${comunidadId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
@@ -295,8 +298,13 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
               numero: ultima.numero_version,
               html: ultima.contenido_html,
               borrador: !!ultima.contenido_html && !ultima.url_pdf_hoja,
+              motivo: ultima.motivo_cambio,
             }
           : null,
+        // Solo las generadas: el motivo de un borrador aun no ha salido de casa.
+        cambios: versiones
+          .filter((v) => v.url_pdf_hoja && v.numero_version > 1 && v.motivo_cambio?.trim())
+          .map((v) => ({ numero: v.numero_version, motivo: v.motivo_cambio!.trim() })),
         conceptos,
         actuaciones: tipos.filter((t) => t.tipo).map((t) => ({ tipoId: t.tipo!.id, accesoIds: t.accesos.map((a) => a.acceso_id) })),
         importe,
@@ -345,6 +353,10 @@ export type Generar = {
    *  y otras se desglosa; solo el comercial sabe cual es cada caso". */
   conjunto: { texto: string | null; importe: number } | null;
   html: string;
+  /** POR QUE CAMBIA, de la version 2 en adelante. Obligatorio al generar
+   *  (Monica, 8-oct-2026): es lo que el comercial necesita recordar meses
+   *  despues, y Sali lo añade a su nota de la version. */
+  motivoCambio?: string | null;
   /** GUARDAR COMO BORRADOR: se guarda todo pero NO se genera el PDF (Monica,
    *  6-oct-2026). Es la excepcion a "si hay PDF, esta congelado": un borrador
    *  conserva los datos para no perderlos y sigue vivo, porque no ha salido de
@@ -463,6 +475,10 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   const reusar = previa && !previa.url_pdf_hoja && !!previa.contenido_html;
   const numero = reusar ? previa.numero_version : (previa?.numero_version ?? 0) + 1;
 
+  // De la version 2 en adelante, sin el porque no se genera (Monica, 8-oct).
+  const motivo = (g.motivoCambio ?? "").trim() || null;
+  if (!g.borrador && numero > 1 && !motivo) throw new Error("Escribe por qué cambia esta versión.");
+
   // En borrador NO se hace: el PDF es lo que congela, y un borrador no esta
   // congelado. Asi tampoco se paga el coste de convertirlo cada vez que guarda.
   // Tampoco gasta numero: el codigo HE-año-numero se da la PRIMERA vez que la
@@ -485,6 +501,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     importe_base: base,
     iva_porcentaje: 21,
     importe_total: Math.round(base * 121) / 100,
+    motivo_cambio: numero > 1 ? motivo : null,
   };
   let v: { id: string };
   if (reusar) {
@@ -496,25 +513,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     [v] = await crear<{ id: string }>("versiones_hoja", { hoja_encargo_id: hojaId, numero_version: numero, ...filaVersion });
   }
 
-  // 4 · el PDF al almacen, junto a la version. En borrador no hay PDF, y eso ES
-  //     la marca: "si es PDF, ya esta congelado; si aun es editable, es que no
-  //     se ha generado y por tanto no se ha enviado".
-  if (pdf) {
-    const ruta = `hojas-encargo/${hojaId}/hoja-v${numero}-${v.id.slice(0, 8)}.pdf`;
-    const sube = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
-      method: "POST",
-      headers: { ...CAB, "Content-Type": "application/pdf", "x-upsert": "true" },
-      body: new Uint8Array(pdf),
-      cache: "no-store",
-    });
-    if (!sube.ok) throw new Error(`Storage ${sube.status}: ${await sube.text()}`);
-    await pedir(`versiones_hoja?id=eq.${v.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ url_pdf_hoja: `almacen:${ALMACEN}/${ruta}` }),
-    });
-  }
-
-  // 5 · los conceptos de ESTA version
+  // 4 · los conceptos de ESTA version
   if (g.conceptos.length) {
     // EL PROYECTO CONJUNTO VA PRIMERO, porque las lineas que lo componen apuntan
     // a el. La hoja enseña las tres -el conjunto y cada cosa con su precio- y la
@@ -551,7 +550,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     );
   }
 
-  // 6 · el que + donde: es de la hoja, se rehace entero
+  // 5 · el que + donde: es de la hoja, se rehace entero
   await pedir(`actuaciones_hoja?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });
   const acts = actuaciones.length ? await crear<{ id: string }>(
     "actuaciones_hoja",
@@ -560,7 +559,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   const filas = acts.flatMap((a, i) => actuaciones[i].accesoIds.map((acceso_id) => ({ actuacion_id: a.id, acceso_id })));
   if (filas.length) await crear("actuacion_accesos", filas);
 
-  // 7 · LAS VIABILIDADES QUE ESTA HOJA DEJA ATRAS (Monica, 6-oct-2026).
+  // 6 · LAS VIABILIDADES QUE ESTA HOJA DEJA ATRAS (Monica, 6-oct-2026).
   //
   //     "Si hay una hoja de encargo posterior y no se regenera la viabilidad,
   //      debe marcarse la viabilidad como 'modificada en hoja de encargo numero
@@ -572,6 +571,30 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   //
   //     Un borrador no deja atras a nadie: no ha salido de Accesalia.
   if (!g.borrador) await marcarViabilidadesSuperadas(hojaId!, v.id);
+
+  // 7 · Y LO ULTIMO, EL PDF: al almacen y apuntado en la version. En borrador
+  //     no hay PDF, y eso ES la marca: "si es PDF, ya esta congelado; si aun es
+  //     editable, es que no se ha generado y por tanto no se ha enviado".
+  //
+  //     Va AL FINAL a proposito (Monica, 8-oct-2026). Apuntar el PDF es lo que
+  //     convierte la version en generada, y en ese momento Sali escribe su nota
+  //     comparando con la anterior: tiene que estar ya todo guardado. Y si algo
+  //     fallara antes, la version se queda como borrador, sin PDF, y el
+  //     siguiente "generar" la rehace entera en vez de dejarla coja.
+  if (pdf) {
+    const ruta = `hojas-encargo/${hojaId}/hoja-v${numero}-${v.id.slice(0, 8)}.pdf`;
+    const sube = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+      method: "POST",
+      headers: { ...CAB, "Content-Type": "application/pdf", "x-upsert": "true" },
+      body: new Uint8Array(pdf),
+      cache: "no-store",
+    });
+    if (!sube.ok) throw new Error(`Storage ${sube.status}: ${await sube.text()}`);
+    await pedir(`versiones_hoja?id=eq.${v.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ url_pdf_hoja: `almacen:${ALMACEN}/${ruta}` }),
+    });
+  }
 
   return { hojaId: hojaId!, versionId: v.id };
 }
