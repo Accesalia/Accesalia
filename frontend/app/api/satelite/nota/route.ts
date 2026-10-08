@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crearEntrada } from "../../../../lib/entradaDiario";
+import { crearOportunidadDesdeMovil, type NuevaDesdeMovil } from "../../../../lib/oportunidadMovil";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // GUARDAR UNA NOTA QUE LLEGA DEL SATELITE (8-oct-2026). Es la misma nota que
@@ -32,6 +33,8 @@ type Cuerpo = {
   persona?: string | null;
   dondeTexto?: string | null;
   fotos?: string[];
+  /** "Es nueva": la oportunidad que nace con esta nota (8-oct-2026). */
+  nueva?: Omit<NuevaDesdeMovil, "direccion" | "fecha"> | null;
 };
 
 export async function POST(req: Request) {
@@ -44,14 +47,26 @@ export async function POST(req: Request) {
   if (id && (await yaEsta(id))) return NextResponse.json({ ok: true, repetida: true });
 
   try {
+    // ES NUEVA: primero nace la oportunidad (coja), y la nota va a ella.
+    let oportunidadId = c.oportunidadId || null;
+    let dondeTexto = c.dondeTexto || null;
+    if (c.nueva && c.dondeTexto) {
+      oportunidadId = await crearOportunidadDesdeMovil(yo, {
+        ...c.nueva,
+        direccion: c.dondeTexto,
+        fecha: c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : new Date().toISOString().slice(0, 10),
+        tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
+      });
+      dondeTexto = null;
+    }
     const destino = await crearEntrada({
       id,
       texto: c.texto ?? "",
       canal: c.canal ?? "",
       fecha: c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : null,
-      oportunidadId: c.oportunidadId || null,
+      oportunidadId,
       persona: c.persona || null,
-      dondeTexto: c.dondeTexto || null,
+      dondeTexto,
       autorId: yo.id,
       autorNombre: yo.nombre,
       fotos: Array.isArray(c.fotos) ? c.fotos.map(String) : [],

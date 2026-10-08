@@ -297,7 +297,7 @@ export type ResultadoOportunidad = { id: string; codigo: string | null; notaId: 
  *  luego la herede otro: es el DNI que despues viaja al proyecto y al servicio,
  *  y permite trazar de donde viene una subvencion que se cobra dos años mas
  *  tarde. El correlativo es por comercial y año. */
-async function siguienteCodigo(comercialId: string): Promise<string | null> {
+export async function siguienteCodigo(comercialId: string): Promise<string | null> {
   const [c] = await leer<{ iniciales: string | null }[]>(
     `comerciales?select=iniciales&id=eq.${comercialId}&limit=1`,
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { opcionesEntrada } from "../../../../lib/entradaDiario";
+import { tiposParaMovil } from "../../../../lib/oportunidadMovil";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // EL SATELITE SE LLEVA LAS LISTAS (Monica, 8-oct-2026): todas las oportunidades
@@ -12,6 +13,11 @@ export async function GET() {
   if (!yo) return NextResponse.json({ error: "Sin sesión" }, { status: 401 });
   if (!puedeEntrar(yo, "comercial", "trabajar")) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
   const supervisa = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar");
-  const [listas, mio] = await Promise.all([opcionesEntrada(), supervisa ? Promise.resolve(null) : comercialDe(yo.id)]);
-  return NextResponse.json({ ...listas, miComercialId: mio?.id ?? null, quien: yo.nombre, cuando: new Date().toISOString() });
+  const [listas, mio, tipos] = await Promise.all([
+    opcionesEntrada(),
+    supervisa ? Promise.resolve(null) : comercialDe(yo.id),
+    // Lo que quieren, para "Es nueva" (8-oct-2026).
+    tiposParaMovil().catch(() => []),
+  ]);
+  return NextResponse.json({ ...listas, tipos, miComercialId: mio?.id ?? null, quien: yo.nombre, cuando: new Date().toISOString() });
 }

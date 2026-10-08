@@ -14,7 +14,27 @@
 import type { Opcion } from "../app/components/Elegir";
 
 export type OppSat = Opcion & { comercialId: string | null; comercial: string | null };
-export type Listas = { oportunidades: OppSat[]; personas: Opcion[]; miComercialId: string | null; quien: string; cuando: string };
+export type Listas = {
+  oportunidades: OppSat[];
+  personas: Opcion[];
+  /** Lo que quieren, para "Es nueva" (puede faltar en listas guardadas antes). */
+  tipos?: Opcion[];
+  miComercialId: string | null;
+  quien: string;
+  cuando: string;
+};
+
+/** "ES NUEVA" (8-oct-2026): la oportunidad que nace con la nota, con lo que se
+ *  pudo poner. Todo opcional: "Ahora no, lo relleno luego". */
+export type NuevaSat = {
+  id: string;
+  administrador: string | null;
+  contacto: string | null;
+  contactoNombre: string | null;
+  contactoTelefono: string | null;
+  tipos: string[];
+  paso: string | null;
+};
 
 export type NotaEnCola = {
   id: string;
@@ -25,6 +45,8 @@ export type NotaEnCola = {
   oportunidadId: string | null;
   persona: string | null;
   dondeTexto: string | null;
+  /** Si la direccion no estaba y se dijo "Es nueva". */
+  nueva?: NuevaSat | null;
   /** Para enseñarla en la lista de "esperando" sin buscar en las listas. */
   resumen: string;
   fotos: { foto: Blob; mini: Blob }[];
@@ -115,6 +137,7 @@ export async function enviarCola(): Promise<ResultadoEnvio> {
           oportunidadId: n.oportunidadId,
           persona: n.persona,
           dondeTexto: n.dondeTexto,
+          nueva: n.nueva ?? null,
           fotos: n.rutas ?? [],
         }),
       });

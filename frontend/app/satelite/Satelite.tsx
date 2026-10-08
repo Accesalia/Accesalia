@@ -23,9 +23,15 @@ import {
 //   · direccion y persona, buscando en listas que viven en el movil;
 //   · fotos con la camara;
 //   · y SIN CONEXION: la nota espera en el movil y sale sola cuando hay red.
-// Si la direccion no esta, de momento se marca "revisar despues" y se coloca
-// desde la bandeja del PC, que ya sabe darla de alta como nueva.
+// Si la direccion no esta: "¿Es nueva o la marco para revisar despues?". Es
+// nueva = la oportunidad nace aqui, coja, con lo que se pueda poner, y se
+// completa en el PC. Revisar = va a la bandeja de pendientes.
 
+const PASOS = [
+  { clave: "primer_contacto", texto: "Llamar para que me cuenten" },
+  { clave: "visita", texto: "Ir a verlo" },
+  { clave: "envio_documentos", texto: "Enviar Hoja de Encargo" },
+];
 const hoyISO = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
 const ETQ = "block text-[11px] font-bold uppercase tracking-[0.05em] text-[#5c4208]/75";
 const CAMPO =
@@ -44,6 +50,16 @@ export function Satelite() {
   const [fecha, setFecha] = useState(hoyISO());
   const [opp, setOpp] = useState("");
   const [escrita, setEscrita] = useState("");
+  // Si la direccion no esta: null = aun no se ha contestado la pregunta.
+  const [decision, setDecision] = useState<null | "nueva" | "revisar">(null);
+  // "ES NUEVA" (8-oct-2026): lo que se pueda poner de la oportunidad que nace.
+  const [nAbierta, setNAbierta] = useState(false);
+  const [nAdmin, setNAdmin] = useState("");
+  const [nContacto, setNContacto] = useState("");
+  const [nNombre, setNNombre] = useState("");
+  const [nTel, setNTel] = useState("");
+  const [nTipos, setNTipos] = useState<string[]>([]);
+  const [nPaso, setNPaso] = useState("");
   const [con, setCon] = useState("");
   const [fotos, setFotos] = useState<{ foto: Blob; mini: Blob; vista: string }[]>([]);
   const [preparando, setPreparando] = useState(false);
@@ -97,7 +113,18 @@ export function Satelite() {
   const deOtro =
     oppElegida && listas?.miComercialId && oppElegida.comercialId && oppElegida.comercialId !== listas.miComercialId ? oppElegida.comercial : null;
   const lista = con.split(":")[0];
-  const haySitio = opp !== "" || escrita !== "" || lista === "puesto" || lista === "persona";
+  const haySitio = opp !== "" || (escrita !== "" && decision !== null) || lista === "puesto" || lista === "persona";
+  const limpiarDireccion = () => {
+    setEscrita("");
+    setDecision(null);
+    setNAbierta(false);
+    setNAdmin("");
+    setNContacto("");
+    setNNombre("");
+    setNTel("");
+    setNTipos([]);
+    setNPaso("");
+  };
   const puede = texto.trim() !== "" && canal !== "" && haySitio && !preparando;
 
   const añadirFotos = async (files: FileList | null) => {
@@ -130,7 +157,22 @@ export function Satelite() {
       oportunidadId: opp || null,
       persona: con || null,
       dondeTexto: opp ? null : escrita || null,
-      resumen: [oppElegida?.texto ?? (escrita ? `${escrita} (revisar)` : null), personaTexto].filter(Boolean).join(" · ") || "nota",
+      nueva:
+        !opp && escrita && decision === "nueva"
+          ? {
+              id: crypto.randomUUID(),
+              administrador: nAdmin || null,
+              contacto: nContacto || null,
+              contactoNombre: nContacto ? null : nNombre.trim() || null,
+              contactoTelefono: nContacto ? null : nTel.trim() || null,
+              tipos: nTipos,
+              paso: nPaso || null,
+            }
+          : null,
+      resumen:
+        [oppElegida?.texto ?? (escrita ? `${escrita} (${decision === "nueva" ? "nueva" : "revisar"})` : null), personaTexto]
+          .filter(Boolean)
+          .join(" · ") || "nota",
       fotos: fotos.map(({ foto, mini }) => ({ foto, mini })),
     };
     await meterEnCola(nota);
@@ -139,7 +181,7 @@ export function Satelite() {
     setCanal("visita");
     setFecha(hoyISO());
     setOpp("");
-    setEscrita("");
+    limpiarDireccion();
     setCon("");
     setFotos([]);
     setAviso(navigator.onLine ? "Guardada. Enviándola…" : "Guardada en el móvil. Saldrá sola en cuanto haya cobertura.");
@@ -154,6 +196,13 @@ export function Satelite() {
     setFecha(n.fecha);
     setOpp(n.oportunidadId ?? "");
     setEscrita(n.dondeTexto ?? "");
+    setDecision(n.dondeTexto ? (n.nueva ? "nueva" : "revisar") : null);
+    setNAdmin(n.nueva?.administrador ?? "");
+    setNContacto(n.nueva?.contacto ?? "");
+    setNNombre(n.nueva?.contactoNombre ?? "");
+    setNTel(n.nueva?.contactoTelefono ?? "");
+    setNTipos(n.nueva?.tipos ?? []);
+    setNPaso(n.nueva?.paso ?? "");
     setCon(n.persona ?? "");
     setFotos(n.fotos.map((f) => ({ ...f, vista: URL.createObjectURL(f.mini) })));
     await sacarDeCola(n.id);
@@ -221,9 +270,12 @@ export function Satelite() {
         {escrita && !opp ? (
           <div className="mt-1 flex items-center gap-2 rounded-xl border border-[#8a6410] bg-form-nuevo px-3 py-2.5 text-[15px]">
             <span className="min-w-0 flex-1 font-semibold text-[#5c4208]">
-              {escrita} <span className="font-normal opacity-70">· se revisa después</span>
+              {escrita}{" "}
+              <span className="font-normal opacity-70">
+                {decision === "nueva" ? "· oportunidad nueva" : decision === "revisar" ? "· se revisa después" : "· no está en la lista"}
+              </span>
             </span>
-            <button type="button" aria-label="Quitar" onClick={() => setEscrita("")} className="px-1 text-lg text-[#5c4208]/70">
+            <button type="button" aria-label="Quitar" onClick={limpiarDireccion} className="px-1 text-lg text-[#5c4208]/70">
               ×
             </button>
           </div>
@@ -241,11 +293,135 @@ export function Satelite() {
             noEsta={(q) => {
               setOpp("");
               setEscrita(q);
+              setDecision(null);
             }}
           />
         )}
-        {escrita && !opp && (
-          <p className="mt-1 text-[12px] text-carbon/60">No está en la lista: la colocas desde «Notas pendientes» en el PC, y allí puedes darla de alta como nueva.</p>
+
+        {/* La direccion no esta: puede ser una oportunidad nueva o una errata. */}
+        {escrita && !opp && decision === null && (
+          <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
+            <p className="text-[14px] text-amber-900">No la encuentro. ¿Es nueva o la marco para revisar después?</p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDecision("nueva");
+                  setNAbierta(true);
+                }}
+                className="rounded-xl border border-[#5c4208] bg-[#5c4208] py-2.5 text-[14px] font-bold text-white"
+              >
+                Es nueva
+              </button>
+              <button
+                type="button"
+                onClick={() => setDecision("revisar")}
+                className="rounded-xl border border-carbon/30 bg-white py-2.5 text-[14px] font-bold text-carbon/75"
+              >
+                Revisar después
+              </button>
+            </div>
+          </div>
+        )}
+        {escrita && !opp && decision === "revisar" && (
+          <p className="mt-1 text-[12px] text-carbon/60">Se coloca desde «Pendientes» en el PC.</p>
+        )}
+
+        {/* ES NUEVA: la oportunidad nace con la nota; lo que no se ponga aqui
+            se completa en el PC (8-oct-2026). Todo opcional. */}
+        {escrita && !opp && decision === "nueva" && (
+          <div className="mt-2 rounded-xl border border-[#8a6410] bg-white p-3">
+            {nAbierta ? (
+              <>
+                <p className="text-[13px] text-carbon/70">Lo que sepas ahora. Lo demás lo completas en el PC.</p>
+                <span className={ETQ + " mt-2.5"}>Administrador</span>
+                <Elegir
+                  id="sat_n_admin"
+                  nombre=""
+                  opciones={(listas?.personas ?? []).filter((p) => p.valor.startsWith("puesto:"))}
+                  valor={nAdmin}
+                  alElegir={setNAdmin}
+                  vacio="de la lista…"
+                  marco="border-carbon/40"
+                  conPista
+                  clase="mt-1"
+                />
+                <span className={ETQ + " mt-2.5"}>Persona de contacto en la comunidad</span>
+                <Elegir
+                  id="sat_n_contacto"
+                  nombre=""
+                  opciones={(listas?.personas ?? []).filter((p) => p.valor.startsWith("puesto:") || p.valor.startsWith("pc:"))}
+                  valor={nContacto}
+                  alElegir={setNContacto}
+                  vacio="de la lista…"
+                  marco="border-carbon/40"
+                  conPista
+                  clase="mt-1"
+                />
+                {!nContacto && (
+                  <div className="mt-1.5 grid grid-cols-[1fr_130px] gap-1.5">
+                    <input value={nNombre} onChange={(e) => setNNombre(e.target.value)} placeholder="o escríbelo: nombre" className={CAMPO} />
+                    <input value={nTel} onChange={(e) => setNTel(e.target.value)} placeholder="teléfono" inputMode="tel" className={CAMPO} />
+                  </div>
+                )}
+                <span className={ETQ + " mt-2.5"}>Qué quieren</span>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {(listas?.tipos ?? []).map((t) => {
+                    const on = nTipos.includes(t.valor);
+                    return (
+                      <button
+                        key={t.valor}
+                        type="button"
+                        onClick={() => setNTipos((a) => (on ? a.filter((x) => x !== t.valor) : [...a, t.valor]))}
+                        className={
+                          "rounded-full border px-3 py-1.5 text-[13px] font-semibold " +
+                          (on ? "border-[#5c4208] bg-[#5c4208] text-white" : "border-carbon/25 bg-white text-carbon/75")
+                        }
+                      >
+                        {t.texto}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span className={ETQ + " mt-2.5"}>Siguiente paso</span>
+                <div className="mt-1 grid gap-1.5">
+                  {PASOS.map((p) => (
+                    <button
+                      key={p.clave}
+                      type="button"
+                      onClick={() => setNPaso(nPaso === p.clave ? "" : p.clave)}
+                      className={
+                        "rounded-xl border py-2 text-[14px] font-semibold " +
+                        (nPaso === p.clave ? "border-[#5c4208] bg-[#5c4208] text-white" : "border-carbon/25 bg-white text-carbon/75")
+                      }
+                    >
+                      {p.texto}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNAbierta(false)}
+                  className="mt-3 w-full rounded-xl border border-carbon/25 bg-hueso py-2 text-[13px] font-semibold text-carbon/70"
+                >
+                  {nAdmin || nContacto || nNombre.trim() || nTipos.length || nPaso ? "Listo" : "Ahora no, lo relleno luego"}
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setNAbierta(true)} className="w-full text-left text-[13px] text-[#5c4208]">
+                <b>Oportunidad nueva.</b>{" "}
+                {[
+                  nAdmin && "administrador",
+                  (nContacto || nNombre.trim()) && "contacto",
+                  nTipos.length > 0 && "qué quieren",
+                  nPaso && "siguiente paso",
+                ]
+                  .filter(Boolean)
+                  .join(", ") || "Sin más datos: se completa en el PC."}{" "}
+                <span className="underline">Cambiar</span>
+              </button>
+            )}
+          </div>
         )}
         {deOtro && (
           <p className="mt-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-[13px] text-amber-900">
@@ -351,7 +527,13 @@ export function Satelite() {
       </button>
       {!puede && texto.trim() !== "" && (
         <p className="mt-1.5 text-center text-[12px] text-carbon/55">
-          {!haySitio ? "Falta la dirección o la persona." : canal === "" ? "Falta cómo te has enterado." : ""}
+          {escrita && !opp && decision === null
+            ? "Contesta arriba: ¿es nueva o se revisa después?"
+            : !haySitio
+              ? "Falta la dirección o la persona."
+              : canal === ""
+                ? "Falta cómo te has enterado."
+                : ""}
         </p>
       )}
       {aviso && <p className="mt-3 rounded-xl bg-lima-soft px-3 py-2 text-center text-[14px] font-semibold text-lima-dark">{aviso}</p>}
