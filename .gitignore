@@ -31,3 +31,4 @@ __pycache__/
 # Imagenes de hojas firmadas escaneadas (firmas, CIF, IBAN): solo para leer, nunca al repo
 hojas_encargo_drive/rev2/
 hojas_encargo_drive/tmp_*/
+hojas_encargo_drive/pdf_convertidos/
