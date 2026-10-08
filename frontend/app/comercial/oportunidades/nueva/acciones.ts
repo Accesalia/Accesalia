@@ -33,6 +33,8 @@ export async function guardarOportunidad(fd: FormData) {
   if (!puedeEntrar(yo, "comercial", "trabajar") && !puedeEntrar(yo, "administracion", "trabajar")) redirect("/menu");
 
   const nota = texto(fd, "nota");
+  // Como se entero: lo lleva toda nota del diario, y esta es la primera.
+  const canalNota = texto(fd, "canal_nota");
   // El comercial con cartera propia no elige: la oportunidad es suya, diga lo
   // que diga el formulario.
   const { elige, mio } = await eligeComercialAlDarDeAlta(yo);
@@ -64,13 +66,15 @@ export async function guardarOportunidad(fd: FormData) {
     (fd.get("habla_llamo") === "on" && quienLlama) ||
     (fd.get("habla_admin") === "on" && Boolean(administradorPersonaId || administradorNuevo)) ||
     Boolean(otroNuevo);
-  if (!nota || !comercialId || !hayHilo || !pasoArranque || !hayContacto) redirect(VOLVER + "?falta=1");
+  if (!nota || !canalNota || !comercialId || !hayHilo || !pasoArranque || !hayContacto) redirect(VOLVER + "?falta=1");
 
   const marcado = fd.get("nuevo_marcado") === "1";
   const nuevoNombre = texto(fd, "nuevo_nombre");
 
   const datos: DatosOportunidad = {
     nota,
+    canalNota,
+    autorNombre: yo.nombre,
     fechaLlamada: texto(fd, "fecha_llamada"),
     comercialId,
     comunidadId,

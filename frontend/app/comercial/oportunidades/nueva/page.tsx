@@ -17,13 +17,18 @@ export const dynamic = "force-dynamic";
 export default async function NuevaOportunidad({
   searchParams,
 }: {
-  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string }>;
+  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string }>;
 }) {
-  const { falta, nota, direccion, fecha } = await searchParams;
+  const { falta, nota, direccion, fecha, canal } = await searchParams;
   // Desde "Grabar entrada", con la direccion que no estaba en la lista.
   const inicial =
     nota || direccion
-      ? { nota: nota ?? "", direccion: direccion ?? "", fecha: fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : null }
+      ? {
+          nota: nota ?? "",
+          direccion: direccion ?? "",
+          fecha: fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : null,
+          canal: canal && ["visita", "llamada", "mail", "escrito"].includes(canal) ? canal : null,
+        }
       : undefined;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/nueva");
@@ -42,7 +47,7 @@ export default async function NuevaOportunidad({
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-            No se ha guardado: hacían falta qué te han contado, un comercial, el siguiente paso, con quién hablas a
+            No se ha guardado: hacían falta qué te han contado y cómo te has enterado, un comercial, el siguiente paso, con quién hablas a
             partir de ahora, y al menos una de estas — dirección, administrador, teléfono o correo.
           </p>
         )}

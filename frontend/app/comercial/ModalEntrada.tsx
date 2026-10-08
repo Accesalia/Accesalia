@@ -121,7 +121,7 @@ export function ModalEntrada({
   // Es nueva: al alta de oportunidad, con lo escrito ya puesto. En el PC no hace
   // falta otra ventana: la del alta es la que pide los datos para seguir.
   const esNueva = () => {
-    const q = new URLSearchParams({ direccion: escrita, nota: texto, fecha });
+    const q = new URLSearchParams({ direccion: escrita, nota: texto, fecha, canal });
     router.push("/comercial/oportunidades/nueva?" + q.toString());
   };
 

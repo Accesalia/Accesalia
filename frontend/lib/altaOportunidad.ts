@@ -248,6 +248,10 @@ export type PersonaNueva = {
 export type DatosOportunidad = {
   /** Obligatorio: sin entrada del diario no hay oportunidad. */
   nota: string;
+  /** Como se entero: visita, llamada, mail, escrito. Obligatorio (8-oct-2026). */
+  canalNota: string;
+  /** Quien la escribe, para el texto historico de la nota; manda autor_id. */
+  autorNombre: string;
   /** La fecha del CONTACTO, no la de hoy. */
   fechaLlamada: string | null;
   /** Obligatorio: una oportunidad sin comercial es una nota que se pierde. */
@@ -428,14 +432,20 @@ export async function crearOportunidad(
     await crear("oportunidad_tipos", { oportunidad_id: op.id, tipo_id: tipoId });
   }
 
-  // 6 · la entrada del diario, con la fecha de la LLAMADA y quien la escribio.
-  await crear("interacciones", {
+  // 6 · la primera nota del diario, con la fecha del CONTACTO, quien la escribio
+  //     y como se entero. Va al diario de la oportunidad (8-oct-2026: el de la
+  //     app es notas_oportunidad; interacciones se congelo). La persona con la
+  //     que se habla a partir de ahora va como dato de la nota.
+  await crear("notas_oportunidad", {
     oportunidad_id: op.id,
-    comercial_id: d.comercialId,
-    transcripcion: d.nota,
-    origen: "manual",
-    fecha_evento: d.fechaLlamada ?? hoy(),
+    texto: d.nota,
+    fecha: d.fechaLlamada ?? hoy(),
+    origen: "persona",
+    canal: d.canalNota,
     autor_id: autorId,
+    autor: d.autorNombre,
+    quien_puesto_id: contactoPuesto,
+    quien_persona_comunidad_id: contactoPuesto ? null : contactoVecino,
   });
 
   // 7 · por donde entramos en el flujo. Los pasos de ANTES no quedan como

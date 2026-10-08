@@ -20,6 +20,7 @@
 // programa: se dicta con el del teclado.
 
 import "server-only";
+import { CANALES } from "./tipoDeNota";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -49,15 +50,7 @@ async function crear(tabla: string, fila: Record<string, unknown>): Promise<stri
   return creada.id;
 }
 
-/** EL CANAL: como nos enteramos (Monica, 8-oct-2026). "Me lo dijo en la
- *  comida" no es lo mismo que "me lo envio por email". En el PC no viene
- *  ninguno marcado: lo elige quien esta sentado en la oficina. */
-export const CANALES = [
-  { valor: "visita", texto: "Visita" },
-  { valor: "llamada", texto: "Llamada" },
-  { valor: "mail", texto: "Correo" },
-  { valor: "escrito", texto: "Escrito" },
-] as const;
+export { CANALES };
 
 export type OpcionEntrada = { valor: string; texto: string; pista?: string };
 /** Una oportunidad del buscador, con su comercial: si es de otro, se avisa. */

@@ -4,6 +4,17 @@
 // Lo que la escribio una persona dice como nos enteramos (visita, llamada...);
 // lo de Sali dice que es de Sali; lo migrado dice de donde vino.
 
+/** EL CANAL: como nos enteramos (Monica, 8-oct-2026). "Me lo dijo en la
+ *  comida" no es lo mismo que "me lo envio por email". En el PC no viene
+ *  ninguno marcado: lo elige quien esta sentado en la oficina. Vive aqui, y no
+ *  en entradaDiario, porque tambien lo usan las pantallas del navegador. */
+export const CANALES = [
+  { valor: "visita", texto: "Visita" },
+  { valor: "llamada", texto: "Llamada" },
+  { valor: "mail", texto: "Correo" },
+  { valor: "escrito", texto: "Escrito" },
+] as const;
+
 const CANAL: Record<string, string> = {
   visita: "visita",
   llamada: "llamada",

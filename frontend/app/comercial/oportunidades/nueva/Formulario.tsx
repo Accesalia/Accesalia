@@ -8,6 +8,7 @@ import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 import { columnasDeInteres } from "../../../../lib/columnasInteres";
+import { CANALES } from "../../../../lib/tipoDeNota";
 
 // DAR DE ALTA UNA OPORTUNIDAD — SU DISEÑO, hecho por ella en Figma.
 //
@@ -184,7 +185,7 @@ export function Formulario({
   /** Lo que llega de "Grabar entrada" cuando la direccion no estaba en la
    *  lista y se dijo "Es nueva" (Monica, 8-oct-2026): la nota, la direccion
    *  escrita y cuando paso, ya puestas. */
-  inicial?: { nota: string; direccion: string; fecha: string | null };
+  inicial?: { nota: string; direccion: string; fecha: string | null; canal: string | null };
 }) {
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
@@ -198,6 +199,8 @@ export function Formulario({
 
   const [comercial, setComercial] = useState(opciones.miComercial ?? "");
   const [nota, setNota] = useState(inicial?.nota ?? "");
+  // Como se entero: la primera nota del diario lo lleva, como todas (8-oct).
+  const [canalNota, setCanalNota] = useState(inicial?.canal ?? "");
 
   const [comunidad, setComunidad] = useState("");
   const [direccion, setDireccion] = useState(inicial?.direccion ?? "");
@@ -248,7 +251,7 @@ export function Formulario({
     (hablaLlamo && (quien !== "" || quienNuevo !== null || quienEsAdmin)) ||
     (hablaAdmin && (admin !== "" || adminNuevo !== null)) ||
     otroNuevo !== null;
-  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayHilo && paso !== "" && hayContacto;
+  const puedeGuardar = nota.trim() !== "" && canalNota !== "" && comercial !== "" && hayHilo && paso !== "" && hayContacto;
   const sinBuscar = !buscarDireccion && !resuelta && direccion.trim() !== "";
 
   const guardarPersona = (p: Persona) => {
@@ -370,14 +373,33 @@ export function Formulario({
           <h2 className="w-[228px] shrink-0 text-[19px] font-bold uppercase leading-[22px] tracking-[0.57px] text-carbon underline underline-offset-2">
             Qué te han contado
           </h2>
-          <textarea
-            id="nota"
-            name="nota"
-            value={nota}
-            onChange={(e) => setNota(e.target.value)}
-            placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
-            className={campo.replace("w-full", "w-[752px]") + " h-[139px] max-w-full resize-y border-marco leading-[17px]"}
-          />
+          <div className="min-w-0">
+            <textarea
+              id="nota"
+              name="nota"
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+              placeholder="Me llama Adolfo, que en Carretas 28 quieren poner el SATE. Como es zona ZBE le voy a contar que si no arreglan la accesibilidad del portal no van a poder acceder a subvenciones. Me pasa el teléfono del presi, Alejandro."
+              className={campo.replace("w-full", "w-[752px]") + " h-[139px] max-w-full resize-y border-marco leading-[17px]"}
+            />
+            {/* Como te has enterado: lo lleva toda nota del diario, y esta es la
+                primera (Monica, 8-oct-2026). Ninguno marcado de salida. */}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className={etiqueta + " mr-1"}>Cómo te has enterado</span>
+              {CANALES.map((c) => (
+                <Casilla
+                  key={c.valor}
+                  texto={c.texto}
+                  marcado={canalNota === c.valor}
+                  alMarcar={() => setCanalNota(c.valor)}
+                  tono="marino"
+                  enLinea
+                  clase="h-[30px]"
+                />
+              ))}
+              <input type="hidden" name="canal_nota" value={canalNota} />
+            </div>
+          </div>
         </div>
         <h2 className="mt-[23px] pl-[41px] text-[19px] font-bold uppercase leading-[22px] tracking-[0.57px] text-carbon">Qué datos tenemos</h2>
 
