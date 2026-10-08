@@ -546,22 +546,33 @@ async function colocar(
     });
   }
 
-  // 2 · el cuerpo, al diario. `origen` solo admite cinco valores y polycam no es
-  //     uno: llego por correo, asi que 'mail' es lo honesto, y el texto dice de
-  //     donde sale.
+  // 2 · la nota de Sali en el diario de la oportunidad, canal mail: llego por
+  //     correo (Monica, 8-oct-2026). La frase sale de su plantilla
+  //     (plantillas_sali, 'polycam_recibido'); lo que escribio quien lo mando
+  //     va dentro, que a veces trae avisos ("el portal B no se pudo").
   const cuerpo = (correo.text ?? "").trim();
-  await crear("interacciones", {
-    oportunidad_id: d.oportunidadId,
-    transcripcion:
-      `[Escaneo Polycam recibido por correo · ${adjuntos.length} ${adjuntos.length === 1 ? "fichero" : "ficheros"}]` +
-      (cuerpo ? `\n\n${cuerpo}` : ""),
-    origen: "mail",
-    fecha_evento: (correo.date ?? new Date()).toISOString().slice(0, 10),
-    autor_id: d.autorId,
-    extraccion_estado: "sin_procesar",
-    requiere_humano: false,
-    pendiente_vincular: false,
+  const [quien] = d.autorId
+    ? await leer<{ nombre: string }[]>(`equipo?select=nombre&id=eq.${d.autorId}&limit=1`)
+    : [];
+  const r = await fetch(`${URL_BASE}/rest/v1/rpc/nota_sali`, {
+    method: "POST",
+    headers: { ...cab, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      p_opp: d.oportunidadId,
+      p_fecha: (correo.date ?? new Date()).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }),
+      p_clave: "polycam_recibido",
+      p_datos: {
+        // "esa dirección" es el relleno de los avisos cuando la opp no tiene
+        // comunidad: en la nota, mejor que ese trozo no salga.
+        donde: d.comunidadNombre === "esa dirección" ? null : d.comunidadNombre,
+        ficheros: `${adjuntos.length} ${adjuntos.length === 1 ? "fichero" : "ficheros"}`,
+        quien: quien?.nombre ?? null,
+        mensaje: cuerpo ? cuerpo.slice(0, 1000) : null,
+      },
+      p_canal: "mail",
+    }),
   });
+  if (!r.ok) throw new Error(`Supabase RPC nota_sali ${r.status}: ${await r.text()}`);
 
   // 3 · y que se entere quien lo revisa. Con la direccion POR VALIDAR: el cotejo
   //     automatico es lo mas fragil de todo esto, y quien abre el fichero puede
