@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { intentarAnexo } from "../../lib/anexoGuardado";
-import { enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, type DatosMesa } from "../../lib/mesaViabilidades";
+import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { enviarCorreo } from "../../lib/correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
@@ -91,22 +91,23 @@ export async function accionJuntar(id: string, escaneoId: string) {
   revalidatePath(`/viabilidades/${id}`);
 }
 
-/** "Me he atascado": queda apuntado cuando y le escribe a quien tenga HOY la
- *  funcion de responsable tecnico (Daniel). La viabilidad sale en la lista con
- *  "Daniel avisado", que el tambien la ve. */
-export async function accionAvisarDaniel(id: string, d: DatosMesa): Promise<string[]> {
+/** "Me he atascado": queda apuntado cuando Y POR QUE, y le escribe a quien
+ *  tenga HOY la funcion de responsable tecnico (Daniel). Monica, 8-oct-2026:
+ *  el porque es obligatorio y es el cuerpo del correo; el asunto, la direccion
+ *  del escaneo. La base deja la nota de Sali en el diario de la opp, para que
+ *  el comercial sepa que hay retraso y por que. */
+export async function accionAvisarDaniel(id: string, d: DatosMesa, motivo: string): Promise<string[]> {
   const yo = await haceViabilidades();
+  const porque = motivo.trim();
+  if (!porque) throw new Error("Sin el porqué no se avisa a Daniel");
   await guardar(id, d);
-  await marcar(id, "daniel_avisado_en");
-  const v = await deQueVa(id);
+  const direccion = await avisarDaniel(id, porque);
   const quien = await quienTieneLaFuncion("responsable_tecnico");
-  const donde = v?.oportunidades?.nombre ?? v?.oportunidades?.codigo ?? "una viabilidad";
   const fallos = quien.length
     ? await escribirA(
         quien,
-        `Viabilidad atascada: ${donde}`,
-        `${yo.nombre} se ha atascado con la viabilidad de ${donde} y te pide que la mires.\n\n` +
-          `Ábrela aquí: ${APP}/viabilidades/${id}\n`,
+        direccion,
+        `${porque}\n\n— ${yo.nombre}\n\nÁbrela aquí: ${APP}/viabilidades/${id}\n`,
         yo.email,
       )
     : ["nadie tiene hoy la función de responsable técnico"];

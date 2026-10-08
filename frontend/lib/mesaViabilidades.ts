@@ -325,6 +325,8 @@ export type Mesa = {
   id: string;
   enviada: boolean;
   danielAvisado: boolean;
+  /** Por que se atasco, escrito por Alex al avisar a Daniel. */
+  motivoAtasco: string | null;
   actualizada: string;
   opp: { id: string; codigo: string | null; nombre: string | null; comercial: string | null; proyecto: string | null } | null;
   direccion: string;
@@ -373,6 +375,7 @@ export async function mesa(id: string): Promise<Mesa | null> {
     actualizado_en: string;
     enviada_en: string | null;
     daniel_avisado_en: string | null;
+    motivo_atasco: string | null;
     fecha_visita: string | null;
     objeto: string | null;
     descripcion_intervenciones: string | null;
@@ -392,7 +395,7 @@ export async function mesa(id: string): Promise<Mesa | null> {
     firma: { nombre: string } | null;
   };
   const [v] = await leer<V[]>(
-    `viabilidades?select=id,actualizado_en,enviada_en,daniel_avisado_en,fecha_visita,objeto,descripcion_intervenciones,conclusion,` +
+    `viabilidades?select=id,actualizado_en,enviada_en,daniel_avisado_en,motivo_atasco,fecha_visita,objeto,descripcion_intervenciones,conclusion,` +
       `pem_estimado,beneficio_industrial_pct,iva_obra_pct,modelo_escalera_id,necesita_3d_especifico,captura,` +
       `viabilidad_conceptos(grupo,concepto,importe,bi_porcentaje,iva_porcentaje,orden),` +
       `oportunidades(${SEL_OPP}),relacion_viabilidad_accesos(acceso_id,descripcion),` +
@@ -422,6 +425,7 @@ export async function mesa(id: string): Promise<Mesa | null> {
     id: v.id,
     enviada: !!v.enviada_en,
     danielAvisado: !!v.daniel_avisado_en,
+    motivoAtasco: v.motivo_atasco,
     actualizada: v.actualizado_en,
     opp: v.oportunidades
       ? {
@@ -580,6 +584,20 @@ export async function juntar(id: string, escaneoId: string): Promise<void> {
   await escribir("PATCH", `escaneados_polycam?id=eq.${escaneoId}&viabilidad_id=is.null`, { viabilidad_id: id }, "return=minimal");
 }
 
-export async function marcar(id: string, que: "enviada_en" | "daniel_avisado_en"): Promise<void> {
+export async function marcar(id: string, que: "enviada_en"): Promise<void> {
   await escribir("PATCH", `viabilidades?id=eq.${id}`, { [que]: new Date().toISOString() }, "return=minimal");
+}
+
+/** "Me he atascado": la hora y EL PORQUE, juntos (la base no deja una sin el
+ *  otro). La nota de Sali en el diario de la opp la escribe la base sola.
+ *  Devuelve la direccion del escaneo: es el asunto del correo a Daniel. */
+export async function avisarDaniel(id: string, motivo: string): Promise<string> {
+  await escribir(
+    "PATCH",
+    `viabilidades?id=eq.${id}`,
+    { daniel_avisado_en: new Date().toISOString(), motivo_atasco: motivo },
+    "return=minimal",
+  );
+  const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=eq.${id}`);
+  return direccionDe(escaneos.flatMap(accesosDe));
 }

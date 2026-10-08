@@ -61,6 +61,8 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
   const [guardadoEn, setGuardadoEn] = useState(m.actualizada);
   const [sucio, setSucio] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // "Me he atascado": null = cerrado; texto = la caja abierta con el porque.
+  const [atasco, setAtasco] = useState<string | null>(null);
 
   // ---- el visor
   const [activo, setActivo] = useState(m.escaneos[0]?.id ?? null);
@@ -193,6 +195,7 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
       {m.danielAvisado && (
         <div className="mt-3 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
           <b>Daniel está avisado</b> de que esta viabilidad se ha atascado.
+          {m.motivoAtasco && <p className="mt-1 whitespace-pre-line">«{m.motivoAtasco}»</p>}
         </div>
       )}
       {error && <div className="mt-3 rounded-[10px] border border-alerta/40 bg-[#fbeeee] px-4 py-2.5 text-[13px] text-alerta">{error}</div>}
@@ -525,18 +528,53 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
             </div>
           </div>
 
+          {atasco !== null && (
+            <div className="mt-4 rounded-[10px] border border-amber-300 bg-amber-50 p-3">
+              <label className="block text-[12px] font-bold text-amber-900">
+                ¿Por qué no sale? <span className="font-normal">Le llega a Daniel tal cual, y el comercial lo ve en su diario.</span>
+              </label>
+              <textarea
+                rows={3}
+                autoFocus
+                value={atasco}
+                onChange={(x) => setAtasco(x.target.value)}
+                placeholder="El ancho es de 1,98 en planta baja y solo cabría una cabina de 32…"
+                className={campo + " mt-1.5 resize-y"}
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={pendiente}
+                  onClick={() => setAtasco(null)}
+                  className="rounded-xl border border-black/10 bg-white px-3.5 py-2 text-[13px] font-semibold text-carbon/75 transition hover:text-carbon disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={pendiente || !atasco.trim()}
+                  onClick={() =>
+                    empezar(async () => {
+                      const fallos = await accionAvisarDaniel(m.id, datos(), atasco);
+                      setSucio(false);
+                      setAtasco(null);
+                      if (fallos.length) setError(`Apuntado, pero el correo no ha salido: ${fallos.join(" · ")}`);
+                      router.refresh();
+                    })
+                  }
+                  className="rounded-xl border border-amber-400 bg-amber-100 px-3.5 py-2 text-[13px] font-bold text-amber-900 transition hover:bg-amber-200 disabled:opacity-50"
+                >
+                  Avisar a Daniel
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-3.5">
             <button
               type="button"
-              disabled={pendiente || m.danielAvisado}
-              onClick={() =>
-                empezar(async () => {
-                  const fallos = await accionAvisarDaniel(m.id, datos());
-                  setSucio(false);
-                  if (fallos.length) setError(`Apuntado, pero el correo no ha salido: ${fallos.join(" · ")}`);
-                  router.refresh();
-                })
-              }
+              disabled={pendiente || m.danielAvisado || atasco !== null}
+              onClick={() => setAtasco("")}
               className="whitespace-nowrap rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
             >
               {m.danielAvisado ? "Daniel ya está avisado" : "Me he atascado: avisar a Daniel"}
