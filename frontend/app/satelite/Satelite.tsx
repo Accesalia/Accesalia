@@ -49,6 +49,7 @@ export function Satelite() {
   const [preparando, setPreparando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const camara = useRef<HTMLInputElement>(null);
+  const galeria = useRef<HTMLInputElement>(null);
 
   const refrescarCola = useCallback(async () => setCola(await leerCola()), []);
 
@@ -289,16 +290,38 @@ export function Satelite() {
               </button>
             </div>
           ))}
+          {/* DOS BOTONES (Monica, 8-oct-2026: "no abre la camara, sino la
+              galeria"). Los Android de ahora, si no se pide la camara
+              expresamente, abren directamente la galeria. */}
           <button
             type="button"
             disabled={preparando}
             onClick={() => camara.current?.click()}
             className="rounded-xl border border-[#8a6410] bg-form-nuevo px-4 py-2.5 text-[14px] font-bold text-[#5c4208] disabled:opacity-50"
           >
-            {preparando ? "Preparando…" : "📷 Hacer o elegir foto"}
+            {preparando ? "Preparando…" : "📷 Hacer foto"}
+          </button>
+          <button
+            type="button"
+            disabled={preparando}
+            onClick={() => galeria.current?.click()}
+            className="rounded-xl border border-carbon/30 bg-white px-4 py-2.5 text-[14px] font-semibold text-carbon/75 disabled:opacity-50"
+          >
+            🖼️ De la galería
           </button>
           <input
             ref={camara}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => {
+              añadirFotos(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <input
+            ref={galeria}
             type="file"
             accept="image/*"
             multiple
