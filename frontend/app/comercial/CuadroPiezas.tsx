@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Cobro, FichaDesplegada } from "./FichaDesplegada";
+import { Miniaturas } from "../components/Miniaturas";
 import type {
   AgregadoFase,
   CarteraCuadro,
@@ -238,6 +239,7 @@ export function Diario({ entradas }: { entradas: EntradaCuadro[] }) {
                     )}
                   </div>
                   <p className="mt-1 line-clamp-2 text-[14px] leading-snug text-carbon/80">{e.texto}</p>
+                  <Miniaturas fotos={e.fotos} lado={44} />
                 </>
               );
               return (

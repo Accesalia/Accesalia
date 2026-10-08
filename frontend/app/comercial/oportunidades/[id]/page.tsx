@@ -22,6 +22,7 @@ import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
+import { Miniaturas } from "../../../components/Miniaturas";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -409,6 +410,7 @@ export default async function GestionOportunidad({
                         <li key={e.id} className="px-4 py-3">
                           {cabecera}
                           <p className={TEXTO}>{e.texto}</p>
+                          <Miniaturas fotos={e.fotos} />
                         </li>
                       );
                     }
@@ -424,6 +426,9 @@ export default async function GestionOportunidad({
                           </summary>
                           <p className={TEXTO}>{e.texto}</p>
                         </details>
+                        <div className="-mt-2 px-4 pb-3">
+                          <Miniaturas fotos={e.fotos} />
+                        </div>
                       </li>
                     );
                   })}

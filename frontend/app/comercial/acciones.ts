@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { crearEntrada, type Destino } from "../../lib/entradaDiario";
 import { extractoDeOportunidad } from "../../lib/cuadroComercial";
+import { permisosFotos } from "../../lib/fotos";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
 
 const texto = (fd: FormData, k: string) => {
@@ -31,12 +32,20 @@ export async function guardarEntrada(fd: FormData): Promise<GuardadoEntrada> {
       dondeTexto: texto(fd, "donde_texto"),
       autorId: yo.id,
       autorNombre: yo.nombre,
+      fotos: fd.getAll("fotos").map(String),
     });
     revalidatePath("/comercial");
     return { ok: true, donde: destino.donde };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** Permisos para subir las fotos de una nota directamente al almacen. */
+export async function accionPermisosFotos(n: number) {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial", "trabajar")) throw new Error("Sin permiso para subir fotos.");
+  return permisosFotos(n);
 }
 
 /** Lo que se carga al DESPLEGAR una oportunidad en la lista: su diario y a

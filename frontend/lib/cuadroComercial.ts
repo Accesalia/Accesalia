@@ -10,6 +10,7 @@
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
+import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
 import { datosMapa, type DatosMapa, type ComunidadEnMapa } from "./mapaComunidades";
 
@@ -132,6 +133,8 @@ export type EntradaCuadro = {
   texto: string;
   revisar: boolean;
   href: string | null;
+  /** Sus fotos, en miniatura (8-oct-2026). */
+  fotos?: Foto[];
 };
 
 /** Una cifra de "Cómo voy". Sin valor = el dato aun no existe, y el pie dice cual falta. */
@@ -446,7 +449,11 @@ async function diario(comercialId: string | null): Promise<EntradaCuadro[]> {
     `notas_oportunidad?select=${SEL_NOTA},oportunidad_id,op:oportunidad_id!inner(comercial_id)` +
       `&origen=in.(persona,sali)${f}&order=creado_en.desc&limit=12`,
   );
+  const fotos = await fotosDeNotas("nota_oportunidad_id", filas.filter((n) => n.origen === "persona").map((n) => n.id)).catch(
+    () => new Map<string, Foto[]>(),
+  );
   return filas.map((n) => ({
+    fotos: fotos.get(n.id),
     id: n.id,
     fecha: n.fecha ?? n.creado_en.slice(0, 10),
     tipo: tipoDeNota(n.origen, n.canal),
@@ -559,6 +566,9 @@ export async function extractoDeOportunidad(
     rest<NotaLeida[]>(`notas_oportunidad?select=${SEL_NOTA}&oportunidad_id=eq.${id}&order=fecha.desc.nullslast,creado_en.desc&limit=60`),
   ]);
   const op = ops[0];
+  const fotos = await fotosDeNotas("nota_oportunidad_id", notas.filter((n) => n.origen === "persona").map((n) => n.id)).catch(
+    () => new Map<string, Foto[]>(),
+  );
 
   // El diario: lo grabado en la app y lo rescatado de Dropbox, juntos y por
   // fecha. Las notas sin fecha, al final: no se les inventa una.
@@ -580,6 +590,7 @@ export async function extractoDeOportunidad(
       texto: n.texto,
       revisar: false,
       href: null,
+      fotos: fotos.get(n.id),
     })),
   ].sort((a, b) => (b.fecha || "0").localeCompare(a.fecha || "0"));
 

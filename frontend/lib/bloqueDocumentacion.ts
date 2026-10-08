@@ -11,6 +11,7 @@
 
 import "server-only";
 import { datosHoja, type Documento } from "./hojaEncargo";
+import { fotosDeOportunidad, type Foto } from "./fotos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -52,10 +53,13 @@ export type HojaResumen = {
 export type Documentacion = {
   viabilidad: ViabilidadResumen | null;
   hojas: HojaResumen[];
+  /** Las fotografias de la oportunidad: las de las notas del comercial, que
+   *  son del repositorio comun y las ven tecnicos y administrativas (8-oct). */
+  fotos: (Foto & { fecha: string })[];
 };
 
 export async function documentacionDe(oppId: string, comunidadId: string | null): Promise<Documentacion> {
-  const [viabs, datos, presupuestos] = await Promise.all([
+  const [viabs, datos, presupuestos, fotos] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
       necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
@@ -72,6 +76,8 @@ export async function documentacionDe(oppId: string, comunidadId: string | null)
       `hojas_encargo?select=id,numero_hoja,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,numero_presupuesto,url_pdf_presupuesto)` +
         `&oportunidad_id=eq.${oppId}&estado=neq.anulada`,
     ),
+    // Si las fotos fallan, la documentacion se sigue viendo.
+    fotosDeOportunidad(oppId).catch(() => []),
   ]);
 
   const v = viabs[0];
@@ -114,5 +120,5 @@ export async function documentacionDe(oppId: string, comunidadId: string | null)
       };
     });
 
-  return { viabilidad, hojas };
+  return { viabilidad, hojas, fotos };
 }

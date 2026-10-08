@@ -4,6 +4,7 @@ import type { Documentacion } from "../../../../lib/bloqueDocumentacion";
 import type { Gestion } from "../../../../lib/gestionOportunidad";
 import { ESTADOS_3D, TIPOS_3D } from "../../../../lib/gestionOportunidad";
 import { estadoDeHoja } from "../../../../lib/estadoHoja";
+import { Miniaturas } from "../../../components/Miniaturas";
 
 // BLOQUE 2 · DOCUMENTACION (Monica, 6-oct-2026). La ESTRUCTURA es la del
 // esqueleto gris del 29-sep (docs/figma/gestion-oportunidad-gris.html): Sali
@@ -188,6 +189,23 @@ export function Bloque2({ id, g, d, trato }: { id: string; g: Gestion; d: Docume
           </Link>
         ) : (
           <p className="mt-2 text-[12px] text-amber-900/80">Sin comunidad no hay a quién hacerle la hoja: fija la dirección.</p>
+        )}
+      </div>
+
+      {/* ------------------------------ las fotografias (8-oct-2026)
+          Las de las notas del comercial: humedades, un escalon, una grieta.
+          La nota es privada; las fotos, no: aqui las encuentran todos. */}
+      <div className={CAJA + " mt-2.5"}>
+        <div className={BANDA}>Fotografías</div>
+        {d.fotos.length === 0 ? (
+          <p className="mt-2 text-[12px] text-[#8a8a8a]">Todavía no hay fotos. Se añaden al grabar una nota del diario.</p>
+        ) : (
+          <>
+            <p className="mt-1.5 text-[12px] text-[#4a4a4a]">
+              {d.fotos.length} {d.fotos.length === 1 ? "foto" : "fotos"} · pincha para verla entera
+            </p>
+            <Miniaturas fotos={d.fotos} lado={72} />
+          </>
         )}
       </div>
 

@@ -21,6 +21,7 @@
 
 import "server-only";
 import { CANALES } from "./tipoDeNota";
+import { apuntarFotos } from "./fotos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -116,12 +117,35 @@ export type DatosEntrada = {
   /** Quien la escribe: sale de la sesion, no del formulario. */
   autorId: string;
   autorNombre: string;
+  /** Las fotos ya subidas al almacen (fotos/<uuid>.jpg), si las hay. */
+  fotos?: string[];
 };
 
 export type Destino = { donde: "oportunidad" | "administrador" | "pendientes"; id: string };
 
-/** Graba la nota en su sitio y dice cual fue. */
+/** Graba la nota en su sitio, le engancha sus fotos y dice donde fue. */
 export async function crearEntrada(d: DatosEntrada): Promise<Destino> {
+  const destino = await grabarNota(d);
+  if (d.fotos?.length) {
+    const [lista, id] = (d.persona ?? "").split(":");
+    if (destino.donde === "oportunidad") {
+      const [op] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${d.oportunidadId}&limit=1`);
+      await apuntarFotos(d.fotos, { nota: "oportunidad", notaId: destino.id, oportunidadId: d.oportunidadId!, comunidadId: op?.comunidad_id ?? null });
+    } else if (destino.donde === "administrador") {
+      await apuntarFotos(d.fotos, {
+        nota: "administracion",
+        notaId: destino.id,
+        puestoId: lista === "puesto" ? id : null,
+        personaId: lista === "persona" ? id : null,
+      });
+    } else {
+      await apuntarFotos(d.fotos, { nota: "pendiente", notaId: destino.id });
+    }
+  }
+  return destino;
+}
+
+async function grabarNota(d: DatosEntrada): Promise<Destino> {
   const texto = d.texto.trim();
   if (texto === "") throw new Error("Una nota sin texto no cuenta nada.");
   if (!CANALES.some((c) => c.valor === d.canal)) throw new Error("Falta cómo te has enterado: visita, llamada, correo o escrito.");

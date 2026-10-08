@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { FichaExtracto, EntradaCuadro } from "../../lib/cuadroComercial";
 import { extractoOportunidad } from "./acciones";
+import { Miniaturas } from "../components/Miniaturas";
 
 // LA FICHA COMERCIAL, DESPLEGADA EN LA PROPIA LISTA (Monica, 12-sep-2026, con
 // su boceto en docs/EJEMPLO FICHA COMERCIAL DESPLEGADA.png):
@@ -201,6 +202,7 @@ function Historia({ entradas }: { entradas: EntradaCuadro[] }) {
                 )}
               </div>
               <p className="mt-1 line-clamp-2 text-base leading-snug text-carbon/80">{e.texto}</p>
+              <Miniaturas fotos={e.fotos} lado={48} />
             </li>
           ))}
         </ul>

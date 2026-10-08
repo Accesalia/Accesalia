@@ -24,6 +24,7 @@
 // conversaciones siguen funcionando sin traducir nada.
 
 import "server-only";
+import { fotosDeNotas, type Foto } from "./fotos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -971,6 +972,9 @@ export type NotaAdmin = {
   // despues tiene derecho a saberlo.
   editadoEn: string | null;
   sobre: string | null;
+  /** Las fotos de la nota (8-oct-2026): un presupuesto de la competencia, un
+   *  contrato... Cuelgan de la persona y se ven aqui en miniatura. */
+  fotos?: Foto[];
 };
 
 export async function notasDeAdministracion(empresaId: string, puestoIds: string[]): Promise<NotaAdmin[]> {
@@ -984,7 +988,13 @@ export async function notasDeAdministracion(empresaId: string, puestoIds: string
     "notas_administracion_fincas?select=id,texto,autor,origen,creado_en,actualizado_en,puesto(persona(nombre))" +
       `&or=(${trozos.join(",")})&order=creado_en.desc`,
   );
+  // Las fotos solo pueden estar en las notas escritas en la app.
+  const fotos = await fotosDeNotas(
+    "nota_administracion_id",
+    filas.filter((f) => f.origen === "persona").map((f) => f.id),
+  ).catch(() => new Map<string, Foto[]>());
   return filas.map((f) => ({
+    fotos: fotos.get(f.id),
     id: f.id, texto: f.texto, autor: f.autor, origen: f.origen, creadoEn: f.creado_en,
     // Un par de segundos de margen: el trigger toca actualizado_en al insertar.
     editadoEn:

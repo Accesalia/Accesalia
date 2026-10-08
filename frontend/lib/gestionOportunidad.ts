@@ -17,6 +17,7 @@
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
+import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -117,6 +118,8 @@ export type EntradaOportunidad = {
   texto: string;
   con: string | null;
   enlazable: boolean;
+  /** Sus fotos, en miniatura (8-oct-2026). */
+  fotos?: Foto[];
 };
 
 export type Gestion = {
@@ -279,6 +282,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
 
   const puesto = hitos.reduce<Record<string, (typeof hitos)[number]>>((a, h) => ({ ...a, [h.hito]: h }), {});
   let n = 0;
+  // Las fotos solo pueden estar en las notas escritas en la app.
+  const fotos = await fotosDeNotas("nota_oportunidad_id", notas.filter((x) => x.origen === "persona").map((x) => x.id));
 
   return {
     id: op.id,
@@ -366,6 +371,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
         texto: n.texto,
         con: quienDeNota(n),
         enlazable: false,
+        fotos: fotos.get(n.id),
       })),
     ].sort((a, b) => (b.fecha || "0").localeCompare(a.fecha || "0")),
   };
