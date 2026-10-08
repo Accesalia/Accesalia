@@ -7,6 +7,7 @@ import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import { guardarEntrada } from "./acciones";
 import { Grabar } from "./Grabar";
+import { BuscarOportunidad } from "./BuscarOportunidad";
 import { CANALES, opcionesEntrada } from "../../lib/entradaDiario";
 import { cuantasPendientes } from "../../lib/pendientes";
 import {
@@ -289,8 +290,10 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                   <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} />
                 </div>
                 <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-                  <div className="px-4 pt-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3.5">
                     <Titulo>Oportunidades abiertas · {cuadro.oportunidades.length}</Titulo>
+                    {/* Ir a una concreta, entre TODAS las abiertas (8-oct-2026). */}
+                    {!esDemo && <BuscarOportunidad oportunidades={paraGrabar.oportunidades} />}
                   </div>
                   <div className="overflow-x-auto">
                     <div className="min-w-[760px]">
