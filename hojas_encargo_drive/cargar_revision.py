@@ -18,6 +18,12 @@ leidas = [json.loads(l) for l in open(f'{T}/{LOTE}_leidas.jsonl', encoding='utf-
 # Resuelto a mano tras leer (Monica, 8-oct): empresa que acepta con sello = firmada
 A_MANO = {'HE-2025-0507': {'pagador_tipo': 'empresa', 'razon_social': 'FAIN ASCENSORES S.A', 'firma_presente': True}}
 
+import os, glob as _g
+FIRMAS = {}   # firmas digitales por PDF (<hoja>-<k>): los nombres de quien firma
+for f in _g.glob(f'{T}/pdf/*.pdf'):
+    b_ = open(f, 'rb').read()
+    if b'/ByteRange' in b_:
+        FIRMAS[os.path.basename(f)[:-4]] = sorted({m.decode('latin-1') for m in re.findall(rb'/Name\s*\(([^)]{3,80})\)', b_)})
 bl = {b['codigo']: b['id'] for b in base.leer('bloques?select=id,codigo')}
 norm = lambda s: re.sub(r'[^A-Z0-9?]', '', (s or '').upper())
 com_cif = collections.defaultdict(list)
@@ -51,6 +57,11 @@ for L in leidas:
     firma = L.get('firma_presente')
     if L.get('pagador_tipo') == 'empresa' and firma is False:
         firma = True; notas.append('Empresa: acepta sin firma manuscrita (sello/codigos/casilla), vale como firmada.')
+    # FIRMA DIGITAL (8-oct): no sale en las imagenes; se detecta en el propio PDF. La de Daniel no cuenta.
+    dig = [s for k in range(1, len(P['pdfs']) + 1) for s in FIRMAS.get(f'{cod}-{k}', []) if 'DE SOTO' not in s.upper()]
+    if dig:
+        notas.append('Firma digital del cliente: ' + '; '.join(dig).replace('\\', '') + '.')
+        if firma is False: firma = True
     if firma is False: notas.append('SIN FIRMA DEL CLIENTE: no esta firmada.'); duda = True
     # --- pagador
     tipo = L.get('pagador_tipo'); cif = norm(L.get('cif')); com_id = con_id = None; crear = None

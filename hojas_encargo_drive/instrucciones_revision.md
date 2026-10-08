@@ -66,6 +66,11 @@ Qué extraer (todo tal cual dice el papel; NO inventes ni completes):
   `pagador_tipo: "empresa"`, la empresa en `razon_social` (aunque solo se vea en el sello) y en
   `nota` cómo aceptó ("sello FAIN fuera de la casilla", "códigos de pedido 95003878…").
   Copia los códigos de pedido en `nota`. Para una COMUNIDAD sigue valiendo: sin firma, no firmada.
+- **FIRMA DIGITAL: NO SE VE EN LAS IMÁGENES.** Antes de dar una hoja por "sin firma", mira
+  `C:\Users\mfavi\ACCESALIA\hojas_encargo_drive\tmp_revision\firmas_digitales.json` (clave
+  `<numero_hoja>-<k>`): si firma alguien que no es DE SOTO MARTIN CARO DANIEL, está firmada
+  (`firma_presente: true`, y en `nota` "firma digital de X"). "(R: H79191615)" es el CIF de quien
+  representa el firmante: úsalo como `cif` si la casilla no lo trae (y dilo en `nota`).
 - **Sin total general**: `total_base` = la SUMA de los importes fijos de las líneas (no los %), y
   en `nota` "total sumado".
 - **Otro documento firmado dentro del PDF** (presupuesto, adenda, condiciones): NO va como líneas

@@ -53,5 +53,6 @@ hoja(wb.create_sheet('Plazos de cobro'), ['Hoja', 'Concepto', 'Importe de la lin
        p['porcentaje'], p['importe'], p['texto']]
       for p in sorted(P, key=lambda p: (num[lin[p['linea_id']]['firmada_id']], lin[p['linea_id']]['orden'] or 99, p['orden']))],
      [13, 40, 11, 14, 6, 9, 10, 60], 99)
-wb.save('../docs/revision_firmadas.xlsx')
-print('docs/revision_firmadas.xlsx:', len(F), 'firmadas,', len(L), 'lineas,', len(P), 'plazos')
+SALIDA = sys.argv[1] if len(sys.argv) > 1 else '../docs/revision_firmadas.xlsx'
+wb.save(SALIDA)
+print(SALIDA + ':', len(F), 'firmadas,', len(L), 'lineas,', len(P), 'plazos')
