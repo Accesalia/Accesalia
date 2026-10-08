@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { OpcionesAlta } from "../../../../lib/alta";
 import { Elegir, type Opcion } from "../../../components/Elegir";
+import { CANALES } from "../../../../lib/tipoDeNota";
 
 // EL FORMULARIO DE ALTA DE UNA COMUNIDAD, con la colocacion que monto Monica en
 // el taller el 26-sep-2026 ("FORMULARIO ALTA COMUNIDAD MONICA"). Vale de
@@ -141,6 +142,10 @@ export function Formulario({
   const [personaSuelta, setPersonaSuelta] = useState(false);
   const [direccion, setDireccion] = useState("");
   const [enviando, setEnviando] = useState(false);
+  // La primera nota y como se entero (8-oct-2026): si se escribe nota, se dice
+  // como llego, igual que en cualquier nota del diario.
+  const [nota, setNota] = useState("");
+  const [canalNota, setCanalNota] = useState("");
   // Las filas que se anaden a mano llevan un id ESTABLE, no su posicion: si se
   // quita la de en medio, las demas conservan lo escrito.
   const [personas, setPersonas] = useState<Fila[]>([nuevaFila()]);
@@ -255,9 +260,30 @@ export function Formulario({
             id="nota"
             name="nota"
             rows={4}
+            value={nota}
+            onChange={(e) => setNota(e.target.value)}
             placeholder="Quién lo pide, por qué se crea, de dónde nos llega… anota aquí los datos relevantes que sepamos."
             className={campo + " min-h-24 flex-1 resize-y placeholder:text-carbon/55"}
           />
+          {/* Como te has enterado: toda nota del diario lo lleva (8-oct-2026).
+              Ninguno marcado de salida; obligatorio si hay nota. */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/70">Cómo te has enterado</span>
+            {CANALES.map((c) => (
+              <label key={c.valor} className="flex cursor-pointer items-center gap-1.5 text-[12px] font-semibold text-carbon/80">
+                <input
+                  type="radio"
+                  name="canal_nota"
+                  value={c.valor}
+                  checked={canalNota === c.valor}
+                  onChange={() => setCanalNota(c.valor)}
+                  required={nota.trim() !== ""}
+                  className="size-4 accent-carbon"
+                />
+                {c.texto}
+              </label>
+            ))}
+          </div>
         </Caja>
       </div>
 

@@ -31,7 +31,7 @@ export default async function NuevaComunidad({ searchParams }: { searchParams: P
 
         {falta && (
           <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
-            No se ha guardado: hacía falta la dirección, el administrador o la nota.
+            No se ha guardado: hacía falta la dirección, el administrador o la nota (y, si hay nota, cómo te has enterado).
           </p>
         )}
 

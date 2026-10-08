@@ -120,6 +120,10 @@ export type DatosComunidad = {
   /** Como ha llegado: el canal del catalogo unico (ver lib/canales.ts). */
   canalId: string | null;
   nota: string | null;
+  /** Como se entero quien escribe la nota: visita, llamada, mail, escrito. */
+  canalNota: string | null;
+  /** Quien la escribe, para el texto historico de la nota; manda autor_id. */
+  autorNombre: string;
   // el edificio
   anio: number | null;
   viviendas: number | null;
@@ -135,7 +139,7 @@ export type DatosComunidad = {
   contactos: { nombre: string; rol: string; telefono: string | null; email: string | null }[];
 };
 
-export type ResultadoComunidad = { comunidadId: string; oportunidadId: string; interaccionId: string | null };
+export type ResultadoComunidad = { comunidadId: string; oportunidadId: string; notaId: string | null };
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 
@@ -264,25 +268,24 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     origen_notas: d.nota,
   });
 
-  // 5 · la primera entrada del diario, con su fecha y quien la escribio.
-  let interaccionId: string | null = null;
+  // 5 · la primera nota del diario de su oportunidad, con su fecha, quien la
+  //     escribio y como se entero (8-oct-2026: el diario de la app es
+  //     notas_oportunidad; interacciones se congelo). Si la nota es solo el
+  //     aviso del IBAN, la pone la app: canal interno.
+  let notaId: string | null = null;
   if (d.nota) {
-    const i = await crear<{ id: string }>("interacciones", {
+    const n = await crear<{ id: string }>("notas_oportunidad", {
       oportunidad_id: op.id,
-      comercial_id: d.comercialId,
-      puesto_id: puestoId,
-      transcripcion: d.nota,
-      origen: "manual",
-      fecha_evento: hoy(),
+      texto: d.nota,
+      fecha: hoy(),
+      origen: "persona",
+      canal: d.canalNota ?? "interno",
       autor_id: autorId,
+      autor: d.autorNombre,
+      quien_puesto_id: puestoId,
     });
-    interaccionId = i.id;
-    await crear("interaccion_comunidad", {
-      interaccion_id: i.id,
-      comunidad_id: comunidadId,
-      origen: "alta",
-    });
+    notaId = n.id;
   }
 
-  return { comunidadId, oportunidadId: op.id, interaccionId };
+  return { comunidadId, oportunidadId: op.id, notaId };
 }

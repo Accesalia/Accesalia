@@ -56,6 +56,8 @@ export async function guardarAlta(fd: FormData) {
   const direccion = texto(fd, "direccion");
   // La direccion ES la comunidad: sin ella no hay nada que dar de alta.
   if (!direccion) redirect("/administracion/comunidades/nueva?falta=1");
+  // Con nota, como se entero (8-oct-2026): toda nota del diario lo lleva.
+  if (texto(fd, "nota") && !texto(fd, "canal_nota")) redirect("/administracion/comunidades/nueva?falta=1");
 
   // "__nueva__" en el desplegable = la administracion se crea aqui mismo.
   const elegida = texto(fd, "administracion");
@@ -77,6 +79,8 @@ export async function guardarAlta(fd: FormData) {
     comercialId: texto(fd, "comercial"),
     canalId: texto(fd, "origen"),
     nota: texto(fd, "nota"),
+    canalNota: texto(fd, "canal_nota"),
+    autorNombre: yo.nombre,
     anio: entero(fd, "anio"),
     viviendas: entero(fd, "viviendas"),
     catastro: texto(fd, "catastro"),
