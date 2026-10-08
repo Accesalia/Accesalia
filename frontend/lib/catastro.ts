@@ -55,6 +55,8 @@ export type FichaCatastro = {
 
 type Inmueble = {
   rc?: { pc1?: string; pc2?: string };
+  // Un solo inmueble (bico.bi): la referencia viene aqui, no en `rc` (8-oct-2026).
+  idbi?: { rc?: { pc1?: string; pc2?: string } };
   dt?: {
     np?: string;
     nm?: string;
@@ -202,7 +204,8 @@ export async function porDireccion(a: {
   const lista = r?.lrcdnp?.rcdnp ?? (r?.bico?.bi ? [r.bico.bi] : []);
   const fincas = new Map<string, { referencia: string; direccion: string; cp: string | null }>();
   for (const i of lista) {
-    const rc = `${i.rc?.pc1 ?? ""}${i.rc?.pc2 ?? ""}`;
+    const r0 = i.rc ?? i.idbi?.rc;
+    const rc = `${r0?.pc1 ?? ""}${r0?.pc2 ?? ""}`;
     if (rc.length < 14 || fincas.has(rc)) continue;
     const urb = i.dt?.locs?.lous?.lourb;
     fincas.set(rc, {

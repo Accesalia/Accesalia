@@ -81,8 +81,13 @@ async function pedir(url: string): Promise<string> {
   throw new Error(`Catastro no contesta: ${ultimo}`);
 }
 
+type Rc = { pc1?: string; pc2?: string; car?: string; cc1?: string; cc2?: string };
 type Finca = {
-  rc?: { pc1?: string; pc2?: string; car?: string; cc1?: string; cc2?: string };
+  rc?: Rc;
+  // Cuando el numero es UN SOLO inmueble, Catastro contesta con `bico.bi` y la
+  // referencia viene aqui, no en `rc` (Soledad 9, Parla; 8-oct-2026). Igual que
+  // en lib/informeEdificio.ts.
+  idbi?: { rc?: Rc };
   dt?: {
     np?: string;
     nm?: string;
@@ -101,9 +106,12 @@ type Finca = {
   debi?: { luso?: string; sfc?: string; cpt?: string; ant?: string };
 };
 
-const parcelaDe = (f: Finca) => `${f.rc?.pc1 ?? ""}${f.rc?.pc2 ?? ""}`;
-const referenciaDe = (f: Finca) =>
-  `${f.rc?.pc1 ?? ""}${f.rc?.pc2 ?? ""}${f.rc?.car ?? ""}${f.rc?.cc1 ?? ""}${f.rc?.cc2 ?? ""}`;
+const rcDe = (f: Finca): Rc => f.rc ?? f.idbi?.rc ?? {};
+const parcelaDe = (f: Finca) => `${rcDe(f).pc1 ?? ""}${rcDe(f).pc2 ?? ""}`;
+const referenciaDe = (f: Finca) => {
+  const rc = rcDe(f);
+  return `${rc.pc1 ?? ""}${rc.pc2 ?? ""}${rc.car ?? ""}${rc.cc1 ?? ""}${rc.cc2 ?? ""}`;
+};
 
 function sitio(f: Finca) {
   const lo = f.dt?.locs?.lous?.lourb ?? {};
