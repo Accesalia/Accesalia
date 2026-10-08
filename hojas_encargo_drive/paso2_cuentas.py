@@ -28,6 +28,11 @@ for f in F:
             else ('contrata', f['contrata_id']) if f['pagador_tipo'] == 'empresa' else (None, None))
     if t and i and valido(f['pagador_iban']): de_hoja.setdefault((t, i, limpio(f['pagador_iban'])), (f['numero_hoja'], f['fecha_firma']))
 
+# Fuera (8-oct): la cuenta de la hoja no es de ESA comunidad (la del garaje de Portugal 23; la del 17 en la
+# comunidad 'Principes de España 17 y 19'). Mismo criterio que grupo1_comunidades.py.
+NO_TOCAR = {'AV PORTUGAL 23 LEGANES', 'AV LOS PRINCIPES DE ESPAÑA 17 Y 19 COSLADA', 'SALAMANCA 1-3-5-7 Y EMPECINADO 23 MOSTOLES'}
+nombre_com = {c['id']: c['nombre'] for c in base.leer('comunidades?select=id,nombre')}
+de_hoja = {k: v for k, v in de_hoja.items() if not (k[0] == 'comunidad' and nombre_com.get(k[1]) in NO_TOCAR)}
 nuevas, malas = [], []
 for c in base.leer('comunidades?iban=not.is.null&select=id,nombre,iban'):
     k = ('comunidad', c['id'], limpio(c['iban']))
@@ -35,7 +40,7 @@ for c in base.leer('comunidades?iban=not.is.null&select=id,nombre,iban'):
     if not valido(c['iban']): malas.append((c['nombre'], c['iban'])); continue
     h = de_hoja.get(k)
     nuevas.append({'titular_tipo': 'comunidad', 'titular_id': c['id'], 'iban': bonito(c['iban']), 'vigente': True,
-                   'origen': f'hoja {h[0]}' if h else 'ficha de la comunidad'})
+                   'origen': f'hoja {h[0]}' if h else 'ficha de la comunidad', 'notas': None})
     ya.add(k); vigente.add(k[:2])
 for (t, i, iban), (hoja, fecha) in sorted(de_hoja.items(), key=lambda x: x[1][1] or '', reverse=True):
     if (t, i, iban) in ya: continue
