@@ -158,14 +158,14 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
   const [comunidad] = await rest<
     { id: string; nombre: string; municipio: string | null; cp: string | null; provincia: string | null;
       anio_construccion: number | null; num_viviendas: number | null; referencia_catastral: string | null;
-      cif_comunidad: string | null; iban: string | null }[]
+      cif_comunidad: string | null }[]
   >(
     "comunidades?select=id,nombre,municipio,cp,provincia,anio_construccion,num_viviendas," +
-      `referencia_catastral,cif_comunidad,iban&id=eq.${id}`,
+      `referencia_catastral,cif_comunidad&id=eq.${id}`,
   );
   if (!comunidad) return null;
 
-  const [admins, contactos, encargos, proyectos] = await Promise.all([
+  const [admins, contactos, encargos, proyectos, cuentas] = await Promise.all([
     intenta(
       rest<
         { vigente: boolean; desde: string | null; hasta: string | null; notas: string | null;
@@ -204,6 +204,13 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
     intenta(
       rest<{ id: string; tipo: string | null }[]>(`proyectos?select=id,tipo&comunidad_id=eq.${id}`),
       "los proyectos",
+    ),
+    // La cuenta vive en `cuentas_bancarias` (8-oct-2026): se ensena la vigente.
+    intenta(
+      rest<{ iban: string }[]>(
+        `cuentas_bancarias?select=iban&titular_tipo=eq.comunidad&titular_id=eq.${id}&vigente=is.true&order=desde.desc.nullslast&limit=1`,
+      ),
+      "la cuenta",
     ),
   ]);
 
@@ -254,7 +261,7 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
         firmados: v?.pdfs_firmados?.length ?? 0,
       };
     }),
-    iban: comunidad.iban,
+    iban: cuentas[0]?.iban ?? null,
     tipos: [...new Set(proyectos.map((p) => p.tipo).filter((x): x is string => !!x))],
     conProyecto: proyectos.length > 0,
     avisos,

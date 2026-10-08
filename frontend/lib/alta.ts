@@ -20,6 +20,7 @@
 import "server-only";
 
 import { canalesDe, type Canal } from "./canales";
+import { ibanLimpio, ibanValido } from "./sepa";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -149,7 +150,6 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     num_viviendas: d.viviendas,
     referencia_catastral: d.catastro,
     cif_comunidad: d.cif,
-    iban: d.iban,
     num_residentes_mayores_70: d.mayores70,
     num_residentes_discapacidad: d.discapacidad,
     // Si ha contado el censo, la foto es de hoy.
@@ -157,6 +157,25 @@ export async function crearComunidad(d: DatosComunidad, autorId: string | null):
     activa: true,
   });
   const comunidadId = c.id;
+
+  // 1b · su cuenta. Las cuentas viven en `cuentas_bancarias` (Monica, 8-oct-2026: un titular puede tener
+  //      varias a lo largo del tiempo). Solo entra si cumple el digito de control; si no, se apunta en la
+  //      nota del alta para que no se pierda lo que ha escrito.
+  if (d.iban) {
+    if (ibanValido(d.iban)) {
+      const i = ibanLimpio(d.iban);
+      await crear("cuentas_bancarias", {
+        titular_tipo: "comunidad",
+        titular_id: comunidadId,
+        iban: i.replace(/(.{4})(?=.)/g, "$1 "),
+        vigente: true,
+        desde: hoy(),
+        origen: "alta de la comunidad",
+      });
+    } else {
+      d = { ...d, nota: [d.nota, `IBAN escrito en el alta que NO cumple el digito de control: ${d.iban} (no se ha guardado como cuenta).`].filter(Boolean).join("\n") };
+    }
+  }
 
   // 2 · su gente
   if (d.presidente) {

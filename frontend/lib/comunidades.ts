@@ -49,7 +49,6 @@ export type Comunidad = {
   cif_comunidad: string | null;
   referencia_catastral: string | null;
   anio_construccion: number | null;
-  iban: string | null;
   num_viviendas: number | null;
   num_residentes_mayores_70: number | null;
   num_residentes_discapacidad: number | null;
@@ -118,7 +117,7 @@ export const ROLES: Record<RolPersona, string> = {
 
 const SEL_COMUNIDAD =
   "id,nombre,direccion,cp,municipio,provincia,comunidad_autonoma,cif_comunidad," +
-  "referencia_catastral,anio_construccion,iban,num_viviendas,num_residentes_mayores_70," +
+  "referencia_catastral,anio_construccion,num_viviendas,num_residentes_mayores_70," +
   "num_residentes_discapacidad,fecha_actualizacion_censo,activa";
 
 // El vinculo con quien la administra, con la persona y la casa colgando.

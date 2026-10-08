@@ -1,0 +1,151 @@
+{
+ "HE-2024-0003": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "4011142"
+   ],
+   [
+    "Pedido",
+    "95003878"
+   ],
+   [
+    "Grafo/Orden",
+    "4011142"
+   ],
+   [
+    "Pedido de compra",
+    "383380"
+   ]
+  ]
+ },
+ "HE-2024-0007": {
+  "paga": "SCHINDLER",
+  "codigos": [
+   [
+    "Orden de compra",
+    "4547739734/E41"
+   ],
+   [
+    "Pedido",
+    "20131432"
+   ]
+  ]
+ },
+ "HE-2025-0017": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800187649"
+   ],
+   [
+    "Supervisor",
+    "RD7"
+   ],
+   [
+    "Pedido",
+    "368245"
+   ]
+  ]
+ },
+ "HE-2025-0126": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800188785"
+   ],
+   [
+    "Supervisor",
+    "RD7"
+   ],
+   [
+    "Pedido",
+    "365584"
+   ]
+  ]
+ },
+ "HE-2025-0144": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800188589"
+   ],
+   [
+    "Supervisor",
+    "R43"
+   ],
+   [
+    "Pedido",
+    "368460"
+   ]
+  ]
+ },
+ "HE-2025-0267": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800180674"
+   ],
+   [
+    "Supervisor",
+    "RD7"
+   ],
+   [
+    "Pedido",
+    "375277"
+   ]
+  ]
+ },
+ "HE-2025-0436": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800188589"
+   ],
+   [
+    "Pedido",
+    "368460-20"
+   ]
+  ]
+ },
+ "HE-2025-0450": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "4011142"
+   ],
+   [
+    "Pedido",
+    "95003878"
+   ],
+   [
+    "Grafo/Orden",
+    "4011142"
+   ],
+   [
+    "Pedido de compra",
+    "383381"
+   ]
+  ]
+ },
+ "HE-2026-0282": {
+  "paga": "SCHINDLER",
+  "codigos": [
+   [
+    "Ordenes",
+    "20146918"
+   ],
+   [
+    "Ordenes",
+    "20146919"
+   ]
+  ]
+ }
+}
