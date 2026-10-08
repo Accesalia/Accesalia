@@ -82,6 +82,12 @@ nota('HE-2026-0059', 'PLAZA PARIS 7 (Monica, 8-oct): el proyecto lo encargo FAIN
 #     Hipermercado Charly: propietario-empresa (figura "Propietario Empresa"), como un propietario particular
 nota('HE-2025-0684', 'Paga un PROPIETARIO-EMPRESA (figura legal "Propietario Empresa"), no una contrata (Monica, 8-oct).',
      pagador_tipo='particular', contrata_id=None, pagador_hay_que_crear=True)
+#     Genil 5: firma el PRESIDENTE como representante de la comunidad; en la casilla va su DNI (comunidad GENIL 5 creada)
+gen = base.leer('comunidades?nombre=eq.GENIL%205%20MADRID&select=id')
+nota('HE-2026-0706', 'Firma el PRESIDENTE, Gonzalo Lopez-Oleaga Arrospide, como representante de la comunidad (Monica, 8-oct); '
+     'el documento de la casilla es su DNI (05320110A), no el CIF. Comunidad GENIL 5 creada sin CIF.',
+     pagador_tipo='comunidad', pagador_cif=None, comunidad_id=gen[0]['id'] if gen else None, pagador_hay_que_crear=False,
+     revision='pendiente')
 json.dump({c: {'estado': 'enviada_comunidad', 'sustituida_por': n} for c, n in SUSTITUIDAS.items()},
           open('a_enviada_sin_firmar.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
