@@ -1,0 +1,16 @@
+{
+  "name": "Accesalia · Nota rápida",
+  "short_name": "Nota rápida",
+  "description": "Apuntar al vuelo lo que pasa en una visita: texto, dirección, persona y fotos. Funciona sin cobertura.",
+  "id": "/satelite",
+  "start_url": "/satelite",
+  "scope": "/satelite",
+  "display": "standalone",
+  "background_color": "#fcf8e7",
+  "theme_color": "#fcf8e7",
+  "lang": "es",
+  "icons": [
+    { "src": "/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icono-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

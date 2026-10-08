@@ -119,6 +119,9 @@ export type DatosEntrada = {
   autorNombre: string;
   /** Las fotos ya subidas al almacen (fotos/<uuid>.jpg), si las hay. */
   fotos?: string[];
+  /** El id que le da el movil a la nota: si la reenvia (se corto la
+   *  cobertura al enviar), no se duplica. */
+  id?: string;
 };
 
 export type Destino = { donde: "oportunidad" | "administrador" | "pendientes"; id: string };
@@ -158,7 +161,7 @@ async function grabarNota(d: DatosEntrada): Promise<Destino> {
   };
   // Cuando paso: si no se dice, hoy.
   const fecha = d.fecha ?? new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
-  const comun = { texto, fecha, canal: d.canal, origen: "persona", autor_id: d.autorId, autor: d.autorNombre };
+  const comun = { ...(d.id ? { id: d.id } : {}), texto, fecha, canal: d.canal, origen: "persona", autor_id: d.autorId, autor: d.autorNombre };
 
   // 1 · con oportunidad: gana la oportunidad, que es lo mas concreto.
   if (d.oportunidadId) {
@@ -170,6 +173,7 @@ async function grabarNota(d: DatosEntrada): Promise<Destino> {
     return {
       donde: "pendientes",
       id: await crear("notas_pendientes", {
+        ...(d.id ? { id: d.id } : {}),
         autor_id: d.autorId,
         texto,
         fecha,
