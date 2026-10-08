@@ -19,12 +19,12 @@ n = collections.Counter()
 
 F = base.leer('revision_firmadas?select=*&order=numero_hoja')
 L = collections.defaultdict(list)
-for l in base.leer('revision_firmadas_lineas?select=*&order=orden'): L[l['firmada_id']].append(l)
+for l in base.leer('revision_firmadas_lineas?select=*&order=orden,id'): L[l['firmada_id']].append(l)
 P = collections.defaultdict(list)
-for p in base.leer('revision_firmadas_plazos?select=*&order=orden'): P[p['linea_id']].append(p)
+for p in base.leer('revision_firmadas_plazos?select=*&order=orden,id'): P[p['linea_id']].append(p)
 H = {h['id']: h for h in base.leer('hojas_encargo?select=id,numero_hoja,fecha_creacion,fecha_firma,pagador_tipo,'
-                                   'pagador_contrata_id,version_firmada_id,estado')}
-V = {v['id']: v for v in base.leer('versiones_hoja?select=id,importe_base,forma_pago,fecha_generada,fecha_enviada,notas,pdfs_firmados')}
+                                   'pagador_contrata_id,version_firmada_id,estado&order=id')}
+V = {v['id']: v for v in base.leer('versiones_hoja?select=id,importe_base,forma_pago,fecha_generada,fecha_enviada,notas,pdfs_firmados&order=id')}
 HITO = {'firma': 'a la firma', 'encargo': 'al encargo', 'entrega': 'a la entrega', 'licencia': 'a la licencia',
         'cfo': 'al fin de obra', 'concesion': 'a la concesion', 'otro': 'otro'}
 def fp_linea(l):

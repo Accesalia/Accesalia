@@ -3,12 +3,15 @@
 # plazos, pagadores, codigos) y lo que se dijo al releer el papel (tabla de trabajo). Origen 'lectura_hoja'.
 # Reanudable: no repite en las hojas que ya tienen su nota de lectura.
 #   python notas_facturacion_iniciales.py [--escribir] [--ver HE-2026-0781 ...]
+#   --rehacer: recalcula las ya escritas y corrige SOLO las que salen distintas y nadie ha editado a mano
+#              (8-oct: las primeras se leyeron con un orden no unico y PostgREST salto y repitio filas)
 import sys, re, collections
 sys.path.insert(0, '../scripts')
 import produccion
 base = produccion.arrancar() or produccion.base
 ESCRIBIR = '--escribir' in sys.argv
 VER = [a for a in sys.argv[1:] if a.startswith('HE-')]
+REHACER = '--rehacer' in sys.argv
 
 def eur(x):
     x = float(x); s = f'{x:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
@@ -23,25 +26,25 @@ HITO = {'firma': 'a la firma', 'encargo': 'al encargo', 'entrega': 'a la entrega
 FORMA = {'cargo_cuenta': 'cargo en cuenta', 'transferencia': 'transferencia', 'confirming': 'confirming'}
 
 nombre = {}
-for c in base.leer('comunidades?select=id,nombre,razon_social'): nombre[('comunidad', c['id'])] = c['razon_social'] or f"la comunidad ({c['nombre']})"
+for c in base.leer('comunidades?select=id,nombre,razon_social&order=id'): nombre[('comunidad', c['id'])] = c['razon_social'] or f"la comunidad ({c['nombre']})"
 for c in base.leer('contratas?select=id,nombre,razon_social'): nombre[('contrata', c['id'])] = c['razon_social'] or c['nombre']
 for e in base.leer('empresas_propietarias?select=id,nombre_legal,nombre_accesalia'): nombre[('empresa_propietaria', e['id'])] = e['nombre_legal'] or e['nombre_accesalia']
-for p in base.leer('persona?select=id,nombre,apellidos'): nombre[('persona', p['id'])] = ' '.join(x for x in (p['nombre'], p['apellidos']) if x)
+for p in base.leer('persona?select=id,nombre,apellidos&order=id'): nombre[('persona', p['id'])] = ' '.join(x for x in (p['nombre'], p['apellidos']) if x)
 cuenta = {}
-for c in base.leer('cuentas_bancarias?vigente=is.true&select=titular_tipo,titular_id,iban'): cuenta[(c['titular_tipo'], c['titular_id'])] = c['iban']
+for c in base.leer('cuentas_bancarias?vigente=is.true&select=titular_tipo,titular_id,iban&order=id'): cuenta[(c['titular_tipo'], c['titular_id'])] = c['iban']
 
-H = {h['id']: h for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,numero_hoja,fecha_firma,fecha_creacion,descripcion,version_firmada_id')}
+H = {h['id']: h for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,numero_hoja,fecha_firma,fecha_creacion,descripcion,version_firmada_id&order=id')}
 L = collections.defaultdict(list)
-for l in base.leer('lineas_facturacion?select=*'): L[l['hoja_encargo_id']].append(l)
+for l in base.leer('lineas_facturacion?select=*&order=creado_en,id'): L[l['hoja_encargo_id']].append(l)
 P = collections.defaultdict(list)
-for p in base.leer('hitos_cobro?select=linea_facturacion_id,hito,orden,porcentaje,importe,notas&order=orden'): P[p['linea_facturacion_id']].append(p)
+for p in base.leer('hitos_cobro?select=linea_facturacion_id,hito,orden,porcentaje,importe,notas&order=orden,id'): P[p['linea_facturacion_id']].append(p)
 C = collections.defaultdict(list)
-for c in base.leer('codigos_cliente_linea?select=linea_facturacion_id,etiqueta,valor&order=orden'): C[c['linea_facturacion_id']].append(c)
+for c in base.leer('codigos_cliente_linea?select=linea_facturacion_id,etiqueta,valor&order=orden,id'): C[c['linea_facturacion_id']].append(c)
 INC = collections.defaultdict(list)
-for c in base.leer('conceptos_hoja?desglose=eq.incluido&select=version_hoja_id,descripcion,bloque:bloque_id(nombre_corto,codigo)'):
+for c in base.leer('conceptos_hoja?desglose=eq.incluido&select=version_hoja_id,descripcion,bloque:bloque_id(nombre_corto,codigo)&order=id'):
     INC[c['version_hoja_id']].append((c['bloque'] or {}).get('nombre_corto') or (c['bloque'] or {}).get('codigo') or c['descripcion'])
-R = {f['hoja_encargo_id']: f for f in base.leer('revision_firmadas?select=hoja_encargo_id,nota,fecha_emision')}
-ya = {n['hoja_encargo_id'] for n in base.leer('notas_facturacion?origen=eq.lectura_hoja&select=hoja_encargo_id')}
+R = {f['hoja_encargo_id']: f for f in base.leer('revision_firmadas?select=hoja_encargo_id,nota,fecha_emision&order=id')}
+ya = {n['hoja_encargo_id'] for n in base.leer('notas_facturacion?origen=eq.lectura_hoja&select=hoja_encargo_id&order=id')}
 
 # De lo dicho al releer (Monica y la lectura) solo pasa a facturacion lo que toca al cobro
 CLAVE = re.compile(r'COBR|PAG[OAÓ]|FACTUR|ABONAD|NEGOCI|DEVOLV|DEVUEL|IBAN|CUENTA|PEDIDO|GRATIS|PAUSA|PENDIENTE|CERRAD', re.I)
@@ -61,9 +64,9 @@ def plazo_txt(p):
     return f"{cuanto} {q}".strip() if q else (p['notas'] or cuanto or 'otro').strip()
 
 notas = []
-pasadas = {f['hoja_encargo_id'] for f in base.leer('revision_firmadas?revision=eq.corregido&select=hoja_encargo_id')}
+pasadas = {f['hoja_encargo_id'] for f in base.leer('revision_firmadas?revision=eq.corregido&select=hoja_encargo_id&order=id')}
 for hid, h in H.items():
-    if hid in ya: continue
+    if hid in ya and not REHACER: continue
     if hid not in pasadas: continue          # solo hojas ya pasadas a la app (8-oct: se adelanto con las de 2024 sin lineas)
     ls = L.get(hid, [])
     pags = list(dict.fromkeys((l['pagador_tipo'], l['pagador_id']) for l in ls if l['pagador_tipo']))
@@ -100,6 +103,17 @@ for hid, h in H.items():
 
 for n in notas:
     if n['_cod'] in VER: print(f"\n===== {n['_cod']}\n{n['texto']}")
+if REHACER:
+    guardadas = {g['hoja_encargo_id']: g for g in base.leer('notas_facturacion?origen=eq.lectura_hoja&select=id,hoja_encargo_id,texto,creado_en,actualizado_en&order=id')}
+    distintas = [n for n in notas if n['hoja_encargo_id'] in guardadas and guardadas[n['hoja_encargo_id']]['texto'] != n['texto']]
+    for n in distintas:
+        g = guardadas[n['hoja_encargo_id']]
+        tocada = g['actualizado_en'] and g['creado_en'] and g['actualizado_en'][:19] != g['creado_en'][:19]
+        print('DISTINTA', n['_cod'], '(EDITADA A MANO: no se toca)' if tocada else '')
+        if n['_cod'] in VER: print('--- antes\n' + g['texto'] + '\n--- ahora\n' + n['texto'])
+        if ESCRIBIR and not tocada: base.actualizar(f"notas_facturacion?id=eq.{g['id']}", {'texto': n['texto']})
+    notas = [n for n in notas if n['hoja_encargo_id'] not in guardadas]
+    print('distintas:', len(distintas))
 print('\nnotas a escribir:', len(notas))
 if not ESCRIBIR: sys.exit('PRUEBA: no se ha escrito nada')
 base.insertar('notas_facturacion', [{k: v for k, v in n.items() if k != '_cod'} for n in notas])

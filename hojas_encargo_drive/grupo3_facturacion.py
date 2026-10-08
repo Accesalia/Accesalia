@@ -16,16 +16,16 @@ ESCRIBIR = '--escribir' in sys.argv
 n, avisos = collections.Counter(), collections.defaultdict(list)
 
 F = base.leer('revision_firmadas?select=*,opp:oportunidad_id(comunidad_id)&order=numero_hoja')
-H = {h['id']: h for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,numero_hoja,version_firmada_id,comunidad_id')}
-ya = {l['hoja_encargo_id'] for l in base.leer('lineas_facturacion?select=hoja_encargo_id')}
+H = {h['id']: h for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,numero_hoja,version_firmada_id,comunidad_id&order=id')}
+ya = {l['hoja_encargo_id'] for l in base.leer('lineas_facturacion?select=hoja_encargo_id&order=id')}
 CL = collections.defaultdict(list)                       # concepto_hoja_id -> linea de la tabla de trabajo
-for l in base.leer('revision_firmadas_lineas?concepto_hoja_id=not.is.null&select=id,concepto_hoja_id,nota'): CL[l['concepto_hoja_id']] = l
+for l in base.leer('revision_firmadas_lineas?concepto_hoja_id=not.is.null&select=id,concepto_hoja_id,nota&order=id'): CL[l['concepto_hoja_id']] = l
 P = collections.defaultdict(list)
-for p in base.leer('revision_firmadas_plazos?select=*&order=orden'): P[p['linea_id']].append(p)
+for p in base.leer('revision_firmadas_plazos?select=*&order=orden,id'): P[p['linea_id']].append(p)
 bl_sub = {b['id'] for b in base.leer('bloques?select=id,codigo&codigo=like.TRAMITACION%20SUBVENCIONES*')}
 CHARLY = '513a7753-0ce9-492e-b0ec-64b16a79593e'           # Hipermercado Charly: ya es "Propietario Empresa"
 PROP, PROP_CIF = {}, {}
-for e in base.leer('empresas_propietarias?select=id,nombre_accesalia,nombre_legal,cif'):
+for e in base.leer('empresas_propietarias?select=id,nombre_accesalia,nombre_legal,cif&order=id'):
     for k in (e['nombre_accesalia'], e['nombre_legal']):
         if k: PROP[k.upper()] = e['id']
     if e['cif']: PROP_CIF[e['cif']] = e['id']

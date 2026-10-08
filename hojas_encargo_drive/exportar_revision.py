@@ -9,8 +9,8 @@ base = produccion.arrancar() or produccion.base
 
 F = base.leer('revision_firmadas?select=*,opp:oportunidad_id(codigo,nombre,comunidad_provisional),'
               'contrata:contrata_id(nombre)&order=numero_hoja')
-L = base.leer('revision_firmadas_lineas?select=*,bloque:bloque_id(codigo)&order=orden')
-P = base.leer('revision_firmadas_plazos?select=*&order=orden')
+L = base.leer('revision_firmadas_lineas?select=*,bloque:bloque_id(codigo)&order=orden,id')
+P = base.leer('revision_firmadas_plazos?select=*&order=orden,id')
 num = {f['id']: f['numero_hoja'] for f in F}
 lin = {l['id']: l for l in L}
 COLOR = {'ok': 'D9EAD3', 'pendiente': 'FFF2CC', 'duda': 'F4CCCC', 'corregido': 'CFE2F3',
