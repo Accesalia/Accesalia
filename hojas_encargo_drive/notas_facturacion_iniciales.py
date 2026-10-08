@@ -93,7 +93,7 @@ for hid, h in H.items():
     if inc: lineas.append('Incluido sin cobrar aparte: ' + ', '.join(inc) + '.')
     lineas += de_la_revision(rev.get('nota'))
     texto = '\n'.join(lineas)
-    notas.append({'hoja_encargo_id': hid, 'fecha': h['fecha_firma'], 'texto': texto, 'autor': 'Claude (relectura de la hoja firmada)',
+    notas.append({'hoja_encargo_id': hid, 'fecha': h['fecha_firma'], 'texto': texto, 'autor': 'Relectura de la hoja firmada (8-oct-2026)',
                   'origen': 'lectura_hoja', '_cod': h['numero_hoja']})
 
 for n in notas:
