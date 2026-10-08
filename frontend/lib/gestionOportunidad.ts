@@ -16,6 +16,7 @@
 // `equipo` (20 personas de verdad). Cuando se unifiquen, se mueve.
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
+import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import "server-only";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -267,10 +268,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     >(
       `juntas?select=id,fecha_junta,celebrada,resultado,resultado_detalle,requiere_seguimiento&oportunidad_id=eq.${id}&order=fecha_junta.asc.nullslast,creado_en.asc`,
     ),
-    leer<{ id: string; fecha: string | null; texto: string; autor: string | null; origen: string }[]>(
-      `notas_oportunidad?select=id,fecha,texto,autor,origen&oportunidad_id=eq.${id}` +
-        `&order=fecha.desc.nullslast,creado_en.asc`,
-    ),
+    leer<NotaLeida[]>(`notas_oportunidad?select=${SEL_NOTA}&oportunidad_id=eq.${id}&order=fecha.desc.nullslast,creado_en.asc`),
     leer<
       { id: string; fecha_evento: string | null; creado_en: string; origen: string; transcripcion: string | null; puesto: { persona: { nombre: string } | null } | null }[]
     >(
@@ -364,9 +362,9 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       ...notas.map((n) => ({
         id: n.id,
         fecha: n.fecha ?? "",
-        comoFue: n.origen === "ficha_dropbox" ? "ficha de Dropbox" : (ORIGEN[n.origen] ?? n.origen),
+        comoFue: tipoDeNota(n.origen, n.canal),
         texto: n.texto,
-        con: n.autor,
+        con: quienDeNota(n),
         enlazable: false,
       })),
     ].sort((a, b) => (b.fecha || "0").localeCompare(a.fecha || "0")),

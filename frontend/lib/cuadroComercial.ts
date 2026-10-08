@@ -9,6 +9,7 @@
 // de cada una esta en app/comercial/page.tsx.
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
+import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import "server-only";
 import { datosMapa, type DatosMapa, type ComunidadEnMapa } from "./mapaComunidades";
 
@@ -435,28 +436,24 @@ const TIPO: Record<string, string> = {
   nota_voz: "nota de voz", manual: "escrito", mail: "correo", llamada: "llamada", visita: "visita",
 };
 
+/** Lo ultimo que ha pasado en las oportunidades de esta cartera: lo que
+ *  escriben las personas y lo que deja Sali (8-oct-2026: el diario de la app es
+ *  notas_oportunidad; interacciones se congelo). Lo migrado no sale aqui: es
+ *  historia, no lo reciente. */
 async function diario(comercialId: string | null): Promise<EntradaCuadro[]> {
-  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const filas = await rest<{
-    id: string;
-    fecha_evento: string | null;
-    creado_en: string;
-    origen: string;
-    transcripcion: string | null;
-    requiere_humano: boolean;
-    puesto: { persona: { nombre: string } | null } | null;
-  }[]>(
-    `interacciones?select=id,fecha_evento,creado_en,origen,transcripcion,requiere_humano,puesto:puesto_id(persona:persona_id(nombre))` +
-      `${f}&order=creado_en.desc&limit=12`,
+  const f = comercialId ? `&op.comercial_id=eq.${comercialId}` : "";
+  const filas = await rest<(NotaLeida & { oportunidad_id: string })[]>(
+    `notas_oportunidad?select=${SEL_NOTA},oportunidad_id,op:oportunidad_id!inner(comercial_id)` +
+      `&origen=in.(persona,sali)${f}&order=creado_en.desc&limit=12`,
   );
-  return filas.map((i) => ({
-    id: i.id,
-    fecha: i.fecha_evento ?? i.creado_en.slice(0, 10),
-    tipo: TIPO[i.origen] ?? i.origen,
-    con: i.puesto?.persona?.nombre ?? null,
-    texto: i.transcripcion ?? "",
-    revisar: i.requiere_humano,
-    href: `/comercial/interaccion/${i.id}`,
+  return filas.map((n) => ({
+    id: n.id,
+    fecha: n.fecha ?? n.creado_en.slice(0, 10),
+    tipo: tipoDeNota(n.origen, n.canal),
+    con: quienDeNota(n),
+    texto: n.texto,
+    revisar: false,
+    href: `/comercial/oportunidades/${n.oportunidad_id}`,
   }));
 }
 
@@ -559,9 +556,7 @@ export async function extractoDeOportunidad(
       `interacciones?select=id,fecha_evento,creado_en,origen,transcripcion,requiere_humano,puesto:puesto_id(persona:persona_id(nombre))` +
         `&oportunidad_id=eq.${id}&order=creado_en.desc&limit=40`,
     ),
-    rest<{ id: string; fecha: string | null; texto: string; autor: string | null }[]>(
-      `notas_oportunidad?select=id,fecha,texto,autor&oportunidad_id=eq.${id}&order=fecha.desc.nullslast,creado_en.asc&limit=60`,
-    ),
+    rest<NotaLeida[]>(`notas_oportunidad?select=${SEL_NOTA}&oportunidad_id=eq.${id}&order=fecha.desc.nullslast,creado_en.desc&limit=60`),
   ]);
   const op = ops[0];
 
@@ -580,8 +575,8 @@ export async function extractoDeOportunidad(
     ...notas.map((n) => ({
       id: n.id,
       fecha: n.fecha ?? "",
-      tipo: "ficha de Dropbox",
-      con: n.autor,
+      tipo: tipoDeNota(n.origen, n.canal),
+      con: quienDeNota(n),
       texto: n.texto,
       revisar: false,
       href: null,

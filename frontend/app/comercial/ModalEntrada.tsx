@@ -1,64 +1,80 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Elegir, type Opcion } from "../components/Elegir";
+import type { OppEntrada } from "../../lib/entradaDiario";
+import type { GuardadoEntrada } from "./acciones";
 
-// GRABAR UNA ENTRADA DEL DIARIO (Monica, 28-sep-2026).
+// GRABAR UNA ENTRADA DEL DIARIO (Monica, 28-sep-2026; rehecha el 8-oct-2026).
 //
 // Es la ventana crema de "crear un contacto nuevo", la misma pieza: lo que se
 // crea desde dentro de una pantalla se viste de crema, no del azul de "ir a
 // hacer algo". Asi el comercial no aprende dos ventanas distintas.
 //
 // EL MICRO NO SE PROGRAMA. El campo grande es un textarea normal y se dicta con
-// el microfono del propio teclado -movil y Windows lo llevan de serie-. No hay
-// permisos que pedir, no depende del navegador, y no hay nada que mantener.
+// el microfono del propio teclado.
 //
-// Lo unico obligatorio es QUE HA PASADO. Lo demas es opcional a proposito: una
-// nota suelta apuntada en el coche vale mas que una nota que no se apunta por no
-// tener a mano el dato.
+// Una nota es TEXTO + SITIO donde engancharla (8-oct-2026): la direccion o la
+// persona, al menos una, para que no haya notas huerfanas. El canal se elige
+// siempre: en el PC no viene ninguno marcado. Si la direccion no esta en la
+// lista, se pregunta: "¿Es nueva o la marco para revisar despues?". Nueva
+// lleva al alta de oportunidad con lo escrito ya puesto; revisar la deja en la
+// bandeja de pendientes de quien la escribe.
 
 const campo =
   "w-full rounded-lg border border-carbon/70 bg-white px-3 py-1.5 text-sm text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima";
 const botonCrema =
   "h-[31px] rounded-lg border border-[#8a6410] bg-form-nuevo px-5 text-sm font-semibold text-[#5c4208] transition hover:bg-[#ffeeb0]";
 const etiquetaOcre = "block text-[10px] font-bold uppercase tracking-[0.05em] text-[#5c4208]/70";
+const aviso = "mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[13px] text-amber-900";
 
 export function ModalEntrada({
   abierto,
   hoy,
-  comoFue,
+  canales,
   oportunidades,
   personas,
-  comercialId,
+  miComercialId,
   alCerrar,
   guardar,
 }: {
   abierto: boolean;
   hoy: string;
-  comoFue: readonly { valor: string; texto: string }[];
-  oportunidades: Opcion[];
+  canales: readonly { valor: string; texto: string }[];
+  oportunidades: OppEntrada[];
   personas: Opcion[];
-  comercialId: string | null;
+  /** La cartera de quien escribe: si la oportunidad es de otro, se avisa.
+   *  Vacio para quien ve todas las carteras (direccion): ahi no hay conflicto. */
+  miComercialId: string | null;
   alCerrar: () => void;
-  guardar: (fd: FormData) => Promise<void>;
+  guardar: (fd: FormData) => Promise<GuardadoEntrada>;
 }) {
+  const router = useRouter();
   const [texto, setTexto] = useState("");
-  const [como, setComo] = useState("visita");
+  const [canal, setCanal] = useState("");
   const [fecha, setFecha] = useState(hoy);
   const [oportunidad, setOportunidad] = useState("");
   const [con, setCon] = useState("");
+  // La direccion escrita que no estaba en la lista, y que se ha contestado.
+  const [escrita, setEscrita] = useState("");
+  const [revisar, setRevisar] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const caja = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!abierto) return;
     setTexto("");
-    setComo("visita");
+    setCanal("");
     setFecha(hoy);
     setOportunidad("");
     setCon("");
+    setEscrita("");
+    setRevisar(false);
     setGuardando(false);
-    // El cursor, ya dentro de lo unico que hay que escribir.
+    setError(null);
+    // El cursor, ya dentro de lo primero que hay que escribir.
     const t = setTimeout(() => caja.current?.focus(), 30);
     return () => clearTimeout(t);
   }, [abierto, hoy]);
@@ -74,22 +90,39 @@ export function ModalEntrada({
 
   if (!abierto) return null;
 
+  const opp = oportunidades.find((o) => o.valor === oportunidad) ?? null;
+  const deOtro = opp && miComercialId && opp.comercialId && opp.comercialId !== miComercialId ? opp.comercial : null;
+  const listaPersona = con.split(":")[0];
+  // El sitio de la nota: la oportunidad, la direccion apartada para revisar, o
+  // una persona de una administracion. Un presidente solo no es sitio.
+  const haySitio = oportunidad !== "" || revisar || listaPersona === "puesto" || listaPersona === "persona";
+  const preguntando = escrita !== "" && !revisar && oportunidad === "";
+  const puedeGuardar = texto.trim() !== "" && canal !== "" && haySitio && !guardando;
+
   const enviar = async () => {
-    if (texto.trim() === "" || guardando) return;
+    if (!puedeGuardar) return;
     setGuardando(true);
+    setError(null);
     const fd = new FormData();
     fd.set("texto", texto);
-    fd.set("como_fue", como);
+    fd.set("canal", canal);
     fd.set("fecha", fecha);
     fd.set("oportunidad", oportunidad);
     fd.set("con", con);
-    if (comercialId) fd.set("comercial", comercialId);
-    try {
-      await guardar(fd);
-      alCerrar();
-    } catch {
+    if (revisar && oportunidad === "") fd.set("donde_texto", escrita);
+    const r = await guardar(fd);
+    if (r.ok) alCerrar();
+    else {
+      setError(r.error);
       setGuardando(false);
     }
+  };
+
+  // Es nueva: al alta de oportunidad, con lo escrito ya puesto. En el PC no hace
+  // falta otra ventana: la del alta es la que pide los datos para seguir.
+  const esNueva = () => {
+    const q = new URLSearchParams({ direccion: escrita, nota: texto, fecha });
+    router.push("/comercial/oportunidades/nueva?" + q.toString());
   };
 
   return (
@@ -99,7 +132,7 @@ export function ModalEntrada({
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-alta-opp/70 p-4"
     >
-      <div className="relative w-full max-w-[770px] rounded-[14px] border border-[#8a6410] bg-[#fcf8e7] px-6 py-5">
+      <div className="relative max-h-[92vh] w-full max-w-[770px] overflow-y-auto rounded-[14px] border border-[#8a6410] bg-[#fcf8e7] px-6 py-5">
         <button
           type="button"
           onClick={alCerrar}
@@ -111,7 +144,7 @@ export function ModalEntrada({
 
         <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#5c4208]">Grabar una entrada</h3>
 
-        {/* Lo primero y lo unico obligatorio: que ha pasado. */}
+        {/* Lo primero: que ha pasado. */}
         <label className="mt-3 block">
           <span className={etiquetaOcre}>Qué ha pasado</span>
           <textarea
@@ -124,7 +157,7 @@ export function ModalEntrada({
           />
         </label>
 
-        {/* Y lo que lo coloca: cuando fue, como fue, de que y con quien. */}
+        {/* Cuando fue y como nos enteramos. */}
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <label className="block w-[140px]">
             <span className={etiquetaOcre}>Cuándo</span>
@@ -132,15 +165,15 @@ export function ModalEntrada({
           </label>
 
           <div className="min-w-0 flex-1">
-            <span className={etiquetaOcre}>Cómo fue</span>
+            <span className={etiquetaOcre}>Cómo te has enterado</span>
             <div className="mt-1 flex flex-wrap gap-x-6 gap-y-2">
-              {comoFue.map((c) => (
+              {canales.map((c) => (
                 <label key={c.valor} className="flex cursor-pointer items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-[0.04em] text-[#5c4208]/80">{c.texto}</span>
                   <input
                     type="checkbox"
-                    checked={como === c.valor}
-                    onChange={() => setComo(c.valor)}
+                    checked={canal === c.valor}
+                    onChange={() => setCanal(c.valor)}
                     className="size-5 shrink-0 accent-[#5c4208]"
                   />
                 </label>
@@ -149,21 +182,50 @@ export function ModalEntrada({
           </div>
         </div>
 
+        {/* El sitio de la nota: la direccion, la persona, o las dos. */}
         <div className="mt-4 flex flex-wrap gap-3">
-          <label className="block min-w-0 flex-1">
-            <span className={etiquetaOcre}>De qué oportunidad</span>
-            <Elegir
-              id="entrada_oportunidad"
-              nombre=""
-              opciones={oportunidades}
-              valor={oportunidad}
-              alElegir={setOportunidad}
-              vacio="de ninguna en concreto"
-              marco="border-carbon/70"
-              conPista
-              clase="mt-1"
-            />
-          </label>
+          <div className="block min-w-0 flex-1">
+            <span className={etiquetaOcre}>Dirección</span>
+            {revisar && oportunidad === "" ? (
+              <div className="mt-1 flex h-[34px] items-center gap-2 rounded-lg border border-[#8a6410] bg-form-nuevo px-3 text-sm">
+                <span className="min-w-0 flex-1 truncate font-semibold text-[#5c4208]">
+                  {escrita} <span className="font-normal opacity-70">· se revisa después</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRevisar(false);
+                    setEscrita("");
+                  }}
+                  aria-label="Quitar"
+                  className="text-[#5c4208]/70 hover:text-[#5c4208]"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <Elegir
+                id="entrada_oportunidad"
+                nombre=""
+                opciones={oportunidades}
+                valor={oportunidad}
+                alElegir={(v) => {
+                  setOportunidad(v);
+                  setEscrita("");
+                  setRevisar(false);
+                }}
+                vacio="busca la dirección…"
+                marco="border-carbon/70"
+                conPista
+                clase="mt-1"
+                noEsta={(q) => {
+                  setOportunidad("");
+                  setEscrita(q);
+                  setRevisar(false);
+                }}
+              />
+            )}
+          </div>
           <label className="block min-w-0 flex-1">
             <span className={etiquetaOcre}>Con quién</span>
             <Elegir
@@ -180,13 +242,43 @@ export function ModalEntrada({
           </label>
         </div>
 
-        <div className="mt-6 flex justify-center gap-6">
+        {preguntando && (
+          <div className={aviso}>
+            <p>
+              No encuentro <b>«{escrita}»</b> en la lista. ¿Es una oportunidad nueva o la marco para revisar después?
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button type="button" onClick={esNueva} className={botonCrema}>
+                Es nueva
+              </button>
+              <button type="button" onClick={() => setRevisar(true)} className={botonCrema}>
+                Revisar después
+              </button>
+            </div>
+          </div>
+        )}
+        {deOtro && <p className={aviso}>Esta oportunidad es de <b>{deOtro}</b>. Puedes guardar la nota igualmente.</p>}
+        {listaPersona === "pc" && oportunidad === "" && !revisar && (
+          <p className={aviso}>Con un presidente o un vecino, pon también la dirección: la nota va a su oportunidad.</p>
+        )}
+        {error && <p className="mt-2 text-[13px] font-semibold text-alerta">{error}</p>}
+
+        <div className="mt-6 flex items-center justify-center gap-6">
           <button type="button" onClick={alCerrar} className={botonCrema}>
             Descartar
           </button>
           <button
             type="button"
-            disabled={texto.trim() === "" || guardando}
+            disabled={!puedeGuardar}
+            title={
+              texto.trim() === ""
+                ? "Falta qué ha pasado"
+                : canal === ""
+                  ? "Falta cómo te has enterado"
+                  : !haySitio
+                    ? "Falta la dirección o la persona"
+                    : undefined
+            }
             onClick={enviar}
             className={
               botonCrema +

@@ -104,15 +104,15 @@ export async function accionReactivar(id: string) {
 /** Grabar una entrada del diario ya enganchada a esta oportunidad. */
 export async function accionEntrada(id: string, fd: FormData) {
   const yo = await permiso(id);
-  const mio = await comercialDe(yo.id);
   await crearEntrada({
     texto: String(fd.get("texto") ?? ""),
-    comoFue: String(fd.get("como_fue") ?? "manual"),
+    canal: String(fd.get("canal") ?? ""),
     fecha: texto(fd, "fecha"),
-    comercialId: mio?.id ?? texto(fd, "comercial"),
     oportunidadId: id,
-    puestoId: texto(fd, "con"),
+    persona: texto(fd, "con"),
+    dondeTexto: null,
     autorId: yo.id,
+    autorNombre: yo.nombre,
   });
   refrescar(id);
 }

@@ -174,14 +174,19 @@ export function Formulario({
   eligeComercial,
   accion: guardar,
   volver,
+  inicial,
 }: {
   opciones: OpcionesOportunidad;
   /** Fijo para el comercial con cartera propia; el resto elige. */
   eligeComercial: boolean;
   accion: (fd: FormData) => void | Promise<void>;
   volver: string;
+  /** Lo que llega de "Grabar entrada" cuando la direccion no estaba en la
+   *  lista y se dijo "Es nueva" (Monica, 8-oct-2026): la nota, la direccion
+   *  escrita y cuando paso, ya puestas. */
+  inicial?: { nota: string; direccion: string; fecha: string | null };
 }) {
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
   const comunidades: Opcion[] = opciones.comunidades.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
@@ -192,10 +197,10 @@ export function Formulario({
   const soyComercial = opciones.miComercial !== null;
 
   const [comercial, setComercial] = useState(opciones.miComercial ?? "");
-  const [nota, setNota] = useState("");
+  const [nota, setNota] = useState(inicial?.nota ?? "");
 
   const [comunidad, setComunidad] = useState("");
-  const [direccion, setDireccion] = useState("");
+  const [direccion, setDireccion] = useState(inicial?.direccion ?? "");
   const [buscarDireccion, setBuscarDireccion] = useState(false);
   // La ventana de Catastro (3-oct-2026): se abre con Intro o con la lupa, y si
   // se cierra sin terminar lo escrito se queda como provisional.

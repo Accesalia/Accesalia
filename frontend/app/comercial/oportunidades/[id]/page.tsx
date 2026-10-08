@@ -11,7 +11,7 @@ import {
   RESULTADOS_JUNTA,
   TIPOS_3D,
 } from "../../../../lib/gestionOportunidad";
-import { COMO_FUE } from "../../../../lib/entradaDiario";
+import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionEntrada, accionHito, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
@@ -351,10 +351,13 @@ export default async function GestionOportunidad({
                   <span className={ROTULO}>Cuándo</span>
                   <input type="date" name="fecha" className={CAMPO + " mt-1"} />
                 </label>
+                {/* En el PC no viene ninguno marcado: lo elige quien escribe
+                    (Monica, 8-oct-2026). */}
                 <label className="block min-w-0 flex-1">
-                  <span className={ROTULO}>Cómo fue</span>
-                  <select name="como_fue" defaultValue="visita" className={CAMPO + " mt-1"}>
-                    {COMO_FUE.map((c) => (
+                  <span className={ROTULO}>Cómo te has enterado</span>
+                  <select name="canal" required defaultValue="" className={CAMPO + " mt-1"}>
+                    <option value="" disabled>Elige…</option>
+                    {CANALES.map((c) => (
                       <option key={c.valor} value={c.valor}>{c.texto}</option>
                     ))}
                   </select>

@@ -17,9 +17,14 @@ export const dynamic = "force-dynamic";
 export default async function NuevaOportunidad({
   searchParams,
 }: {
-  searchParams: Promise<{ falta?: string }>;
+  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string }>;
 }) {
-  const { falta } = await searchParams;
+  const { falta, nota, direccion, fecha } = await searchParams;
+  // Desde "Grabar entrada", con la direccion que no estaba en la lista.
+  const inicial =
+    nota || direccion
+      ? { nota: nota ?? "", direccion: direccion ?? "", fecha: fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : null }
+      : undefined;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/nueva");
   if (!puedeEntrar(yo, "comercial") && !puedeEntrar(yo, "administracion")) redirect("/menu");
@@ -43,7 +48,7 @@ export default async function NuevaOportunidad({
         )}
 
         <div className="mt-3">
-          <Formulario opciones={opciones} eligeComercial={elige} accion={guardarOportunidad} volver="/comercial" />
+          <Formulario opciones={opciones} eligeComercial={elige} accion={guardarOportunidad} volver="/comercial" inicial={inicial} />
         </div>
       </main>
     </div>

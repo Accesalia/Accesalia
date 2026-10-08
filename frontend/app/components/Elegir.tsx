@@ -35,6 +35,7 @@ export function Elegir({
   abrirAlMontar,
   conPista,
   dosLineas,
+  noEsta,
 }: {
   id: string;
   nombre: string;
@@ -60,6 +61,10 @@ export function Elegir({
   /** El texto elegido puede ocupar dos lineas en vez de cortarse: para cuando
    *  ademas del nombre se enseña la empresa (Monica, 28-sep-2026). */
   dosLineas?: boolean;
+  /** Una ultima linea "No está en la lista: «lo escrito»", para quien necesita
+   *  saber que lo buscado no aparece (Monica, 8-oct-2026: la direccion que no
+   *  esta puede ser nueva o una errata, y se pregunta). Sin esto, no sale. */
+  noEsta?: (escrito: string) => void;
 }) {
   const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
@@ -215,6 +220,21 @@ export function Elegir({
                 </button>
               </li>
             ))}
+            {noEsta && busca.trim() !== "" && (
+              <li className="border-t border-black/5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    noEsta(busca.trim());
+                    setAbierto(false);
+                    setBusca("");
+                  }}
+                  className="block w-full px-3 py-1.5 text-left text-sm font-semibold text-[#5c4208] hover:bg-form-nuevo"
+                >
+                  No está en la lista: «{busca.trim()}»
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       )}
