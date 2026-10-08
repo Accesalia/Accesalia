@@ -23,6 +23,9 @@ import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
 import { Miniaturas } from "../../../components/Miniaturas";
+import { Completar } from "./Completar";
+import { completitud, TEXTO_FALTA, type Falta } from "../../../../lib/completa";
+import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 
 export const dynamic = "force-dynamic";
@@ -86,11 +89,16 @@ export default async function GestionOportunidad({
   const quieren = tipos.filter((t) => g.tiposElegidos.includes(t.id)).map((t) => t.nombre);
   // El bloque por el que va, para el "Por donde vamos" de la cabecera.
   const bloqueAhora = bloquesDe(g.hitos).find((b) => b.activo) ?? null;
-  const [contactos, distrito, viabilidad] = await Promise.all([
+  const [contactos, distrito, viabilidad, completa] = await Promise.all([
     g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
     g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
     viabilidadDeOpp(id),
+    // ¿Le falta algo de lo que exige el camino? (8-oct-2026). Si falla, la
+    // ficha sale igual, sin el aviso.
+    completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
   ]);
+  // Las listas para completar, solo si hace falta completar: son largas.
+  const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
   const documentacion = bloque === 2 ? await documentacionDe(id, g.comunidadId) : null;
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
@@ -230,6 +238,16 @@ export default async function GestionOportunidad({
               </Link>
             )}
           </div>
+        )}
+        {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
+            contacto y siguiente paso. Solo en las que se miran (2025 en
+            adelante y sin hoja enviada o firmada). */}
+        {completa.falta.length > 0 && (
+          <Completar
+            id={id}
+            falta={completa.falta.map((f) => ({ clave: f, texto: TEXTO_FALTA[f] }))}
+            personas={paraCompletar?.personas ?? []}
+          />
         )}
         <div className="grid items-start gap-[10px] xl:grid-cols-[calc(278px+(100%-1090px)/3)_calc(346px+(100%-1090px)/3)_190px_calc(246px+(100%-1090px)/3)]">
           {bloque === 2 && documentacion ? (

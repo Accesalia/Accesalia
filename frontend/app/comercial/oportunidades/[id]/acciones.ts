@@ -14,6 +14,7 @@ import {
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
+import { guardarCompletar, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 const texto = (fd: FormData, k: string) => {
@@ -174,4 +175,18 @@ export async function accionPatios(referencia: string, id: string, fd: FormData)
   });
 
   revalidatePath(`/comercial/oportunidades/${id}`);
+}
+
+/** COMPLETAR la oportunidad desde su ficha: contacto, siguiente paso y, si se
+ *  sabe, el administrador (8-oct-2026). La direccion se confirma con su boton
+ *  de Catastro, como siempre. */
+export async function accionCompletar(id: string, d: DatosCompletar): Promise<{ ok: true } | { ok: false; error: string }> {
+  await permiso(id);
+  try {
+    await guardarCompletar(id, d);
+    refrescar(id);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

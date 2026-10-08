@@ -15,6 +15,7 @@
 // 789.000, somos 20, tocamos a 39.450".
 
 import "server-only";
+import { exigirCompleta } from "./completa";
 import { mesa } from "./mesaViabilidades";
 import { anexoDeOportunidad } from "./anexoEdificio";
 import { pdfDeViabilidad } from "./pdf/ViabilidadDoc";
@@ -273,6 +274,8 @@ export async function generarViabilidad(id: string, yo: Yo): Promise<string> {
   if (!d) throw new Error("Esta viabilidad no existe o no tiene oportunidad.");
   const falta = loQueFalta(d);
   if (falta.length) throw new Error(`Falta ${falta.join(", ")}.`);
+  // Lo que va HACIA FUERA no sale de una oportunidad a medias (8-oct-2026).
+  if (d.oppId) await exigirCompleta(d.oppId, "generar la viabilidad");
 
   const numero =
     d.numero ??

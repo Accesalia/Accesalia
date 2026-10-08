@@ -22,6 +22,7 @@
 // propia hoja (Monica, 2-oct).
 
 import "server-only";
+import { exigirCompleta } from "./completa";
 import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
@@ -413,6 +414,9 @@ async function codigoDeHoja(hojaId: string): Promise<string> {
 }
 
 export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string; versionId: string }> {
+  // Lo que va HACIA FUERA no sale de una oportunidad a medias (8-oct-2026). El
+  // borrador si se puede guardar: no sale de Accesalia.
+  if (!g.borrador) await exigirCompleta(g.oportunidadId, "generar la hoja de encargo");
   // Un borrador puede llevar actuaciones a medias, sin tipo todavia.
   const actuaciones = g.actuaciones.filter((a) => a.tipoId);
   const tipos = actuaciones.length
