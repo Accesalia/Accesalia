@@ -13,7 +13,7 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionEntrada, accionHito, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
+import { accionAdminAComunidad, accionEntrada, accionHito, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { AZUL, Carril, bloquesDe } from "./Carril";
 import { Cabecera } from "./Cabecera";
@@ -24,7 +24,7 @@ import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
 import { Miniaturas } from "../../../components/Miniaturas";
 import { Completar } from "./Completar";
-import { completitud, TEXTO_FALTA, type Falta } from "../../../../lib/completa";
+import { completitud, propuestaAdminComunidad, TEXTO_FALTA, type Falta } from "../../../../lib/completa";
 import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 
@@ -97,6 +97,8 @@ export default async function GestionOportunidad({
     // ficha sale igual, sin el aviso.
     completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
   ]);
+  // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
+  const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
   // Las listas para completar, solo si hace falta completar: son largas.
   const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
   const documentacion = bloque === 2 ? await documentacionDe(id, g.comunidadId) : null;
@@ -242,6 +244,20 @@ export default async function GestionOportunidad({
         {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
             contacto y siguiente paso. Solo en las que se miran (2025 en
             adelante y sin hoja enviada o firmada). */}
+        {propuestaAdmin && (
+          <form
+            action={accionAdminAComunidad.bind(null, id)}
+            className="mb-[10px] flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-[#76749D]/40 bg-[#76749D]/10 px-4 py-2.5 text-[13px] text-carbon"
+          >
+            <span>
+              Su comunidad no tiene administración. El administrador de esta oportunidad es <b>{propuestaAdmin.quien}</b>. ¿Lo pongo
+              también como administración de la comunidad?
+            </span>
+            <button className="rounded-lg border border-[#76749D] bg-white px-4 py-1.5 text-[13px] font-bold text-[#4c4a73] transition hover:bg-[#76749D]/10">
+              Sí, ponerlo
+            </button>
+          </form>
+        )}
         {completa.falta.length > 0 && (
           <Completar
             id={id}

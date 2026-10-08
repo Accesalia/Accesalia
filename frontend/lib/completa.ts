@@ -116,3 +116,50 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
   });
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
 }
+
+/** EL ADMINISTRADOR DE LA OPP, A SU COMUNIDAD (Monica, 8-oct-2026): si la
+ *  oportunidad tiene administrador y su comunidad no tiene administracion
+ *  responsable, se PROPONE ponerle esa. No se pone sola: lo decide quien mira. */
+export async function propuestaAdminComunidad(
+  oppId: string,
+): Promise<{ comunidadId: string; puestoId: string; empresaId: string | null; quien: string } | null> {
+  const [o] = await leer<{
+    comunidad_id: string | null;
+    administrador_puesto_id: string | null;
+    adm: { empresa_id: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null } | null;
+  }[]>(
+    `oportunidades?select=comunidad_id,administrador_puesto_id,` +
+      `adm:administrador_puesto_id(empresa_id,persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia))&id=eq.${oppId}&limit=1`,
+  );
+  if (!o?.comunidad_id || !o.administrador_puesto_id) return null;
+  const tiene = await leer<{ id: string }[]>(
+    `comunidad_admin_responsable?select=id&comunidad_id=eq.${o.comunidad_id}&vigente=is.true&limit=1`,
+  );
+  if (tiene.length) return null;
+  const persona = [o.adm?.persona?.nombre, o.adm?.persona?.apellidos].filter(Boolean).join(" ");
+  return {
+    comunidadId: o.comunidad_id,
+    puestoId: o.administrador_puesto_id,
+    empresaId: o.adm?.empresa_id ?? null,
+    quien: [persona, o.adm?.empresa?.nombre_accesalia].filter(Boolean).join(" · ") || "el administrador de la oportunidad",
+  };
+}
+
+/** Aceptar la propuesta: la administracion de la comunidad pasa a ser esta. */
+export async function ponerAdminEnComunidad(oppId: string): Promise<void> {
+  const p = await propuestaAdminComunidad(oppId);
+  if (!p) return;
+  const r = await fetch(`${URL_BASE}/rest/v1/comunidad_admin_responsable`, {
+    method: "POST",
+    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({
+      comunidad_id: p.comunidadId,
+      puesto_id: p.puestoId,
+      empresa_id: p.empresaId,
+      vigente: true,
+      desde: new Date().toISOString().slice(0, 10),
+      notas: "Puesta desde la ficha de la oportunidad: era su administrador (8-oct-2026).",
+    }),
+  });
+  if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+}

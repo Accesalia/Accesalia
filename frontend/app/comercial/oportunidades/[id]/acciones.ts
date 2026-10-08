@@ -14,7 +14,7 @@ import {
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
-import { guardarCompletar, type DatosCompletar } from "../../../../lib/completa";
+import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 const texto = (fd: FormData, k: string) => {
@@ -189,4 +189,12 @@ export async function accionCompletar(id: string, d: DatosCompletar): Promise<{ 
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** Poner el administrador de la oportunidad como administracion de su
+ *  comunidad, cuando la comunidad no tiene ninguna (8-oct-2026). */
+export async function accionAdminAComunidad(id: string) {
+  await permiso(id);
+  await ponerAdminEnComunidad(id);
+  refrescar(id);
 }
