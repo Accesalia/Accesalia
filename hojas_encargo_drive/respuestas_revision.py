@@ -66,8 +66,8 @@ for c in ['HE-2024-0002', 'HE-2025-0409', 'HE-2025-0736']:
 nota('HE-2026-0203', 'Sin firma en el papel, pero FACTURADA: pagaba FAIN, por eso no la firma la comunidad (Monica, 8-oct).',
      firma_presente=True, pagador_tipo='empresa', contrata_id=con['FAIN'], comunidad_id=None,
      pagador_razon_social='FAIN ASCENSORES S.A.', pagador_cif='A28303485', pagador_hay_que_crear=False, revision='pendiente')
-nota('HE-2026-0059', 'Sin firma; NO cobrada (Monica, 8-oct). PREGUNTADO: ¿no se firmo, o se encargo y no han pagado? '
-                     '(el archivo se llama "PENDIENTE DE PAGO").', revision='duda')
+nota('HE-2026-0059', 'Sin firma en el papel, pero el proyecto SE HIZO: FIRMADA y PENDIENTE DE COBRO (Monica, 8-oct). '
+                     'Dato para facturacion.', firma_presente=True, revision='pendiente')
 json.dump({c: {'estado': 'enviada_comunidad', 'sustituida_por': n} for c, n in SUSTITUIDAS.items()},
           open('a_enviada_sin_firmar.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
