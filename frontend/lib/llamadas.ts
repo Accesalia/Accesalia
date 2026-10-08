@@ -194,39 +194,177 @@ export async function proponerDirecciones(q: string): Promise<PropuestaDireccion
   return mejores(q, await direcciones()).map(({ tipo, id, nombre, detalle }) => ({ tipo, id, nombre, detalle }));
 }
 
-// ------------------------------------------------------------ guardar
+// ------------------------------------------------------------ el postit
 
-export type NuevaLlamada = {
-  apuntadaPor: string;
-  queDicen: string;
-  quienTexto: string | null;
-  quien: { tipo: "puesto" | "persona" | "persona_comunidad" | "nuevo"; id: string | null } | null;
-  dondeTexto: string | null;
-  donde: { tipo: "comunidad" | "oportunidad" | "nueva"; id: string | null } | null;
+// LA LLAMADA ES UN POSTIT (Monica, 8-oct-2026). Se guarda SOLA a cada cambio,
+// desde la primera letra: nace 'abierta'. Guardar la pasa a 'por_colocar' y
+// exige persona o direccion elegida ("hay que poder colgar la nota en alguna
+// parte"). Descartar la deja 'descartada', pero la fila se queda siempre.
+// Cada uno ve y reabre los suyos; direccion, todos.
+
+export type Elegido = { tipo: string; id: string | null; etiqueta: string } | null;
+
+export type Postit = {
+  id: string;
+  estado: string;
+  recibida_en: string;
+  que_dicen: string;
+  quien_texto: string;
+  quien: Elegido;
+  donde_texto: string;
+  donde: Elegido;
+  area: string | null;
+  autor: string;
+  mia: boolean;
+};
+
+/** Lo que manda el postit a cada cambio. */
+export type DatosPostit = {
+  id: string;
+  que_dicen: string;
+  quien_texto: string;
+  quien: { tipo: string; id: string | null } | null;
+  donde_texto: string;
+  donde: { tipo: string; id: string | null } | null;
   area: string | null;
 };
 
-export async function guardarLlamada(l: NuevaLlamada): Promise<{ id: string; recibida_en: string }> {
-  const fila = {
-    apuntada_por: l.apuntadaPor,
-    que_dicen: l.queDicen,
-    quien_texto: l.quienTexto,
-    quien_puesto_id: l.quien?.tipo === "puesto" ? l.quien.id : null,
-    quien_persona_id: l.quien?.tipo === "persona" ? l.quien.id : null,
-    quien_persona_comunidad_id: l.quien?.tipo === "persona_comunidad" ? l.quien.id : null,
-    quien_nuevo: l.quien?.tipo === "nuevo",
-    donde_texto: l.dondeTexto,
-    donde_comunidad_id: l.donde?.tipo === "comunidad" ? l.donde.id : null,
-    donde_oportunidad_id: l.donde?.tipo === "oportunidad" ? l.donde.id : null,
-    donde_nueva: l.donde?.tipo === "nueva",
-    area: AREAS_LLAMADA.some((a) => a.clave === l.area) ? l.area : null,
+const TIPOS_QUIEN = ["puesto", "persona", "persona_comunidad", "nuevo"];
+const TIPOS_DONDE = ["comunidad", "oportunidad", "nueva"];
+
+function fila(d: DatosPostit) {
+  const quien = d.quien && TIPOS_QUIEN.includes(d.quien.tipo) ? d.quien : null;
+  const donde = d.donde && TIPOS_DONDE.includes(d.donde.tipo) ? d.donde : null;
+  const t = (x: string) => (x.trim() === "" ? null : x);
+  return {
+    que_dicen: d.que_dicen,
+    quien_texto: t(d.quien_texto),
+    quien_puesto_id: quien?.tipo === "puesto" ? quien.id : null,
+    quien_persona_id: quien?.tipo === "persona" ? quien.id : null,
+    quien_persona_comunidad_id: quien?.tipo === "persona_comunidad" ? quien.id : null,
+    quien_nuevo: quien?.tipo === "nuevo",
+    donde_texto: t(d.donde_texto),
+    donde_comunidad_id: donde?.tipo === "comunidad" ? donde.id : null,
+    donde_oportunidad_id: donde?.tipo === "oportunidad" ? donde.id : null,
+    donde_nueva: donde?.tipo === "nueva",
+    area: AREAS_LLAMADA.some((a) => a.clave === d.area) ? d.area : null,
+    actualizado_en: new Date().toISOString(),
   };
-  const r = await fetch(`${URL_BASE}/rest/v1/llamadas?select=id,recibida_en`, {
-    method: "POST",
-    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=representation" },
-    body: JSON.stringify(fila),
+}
+
+async function pedir(path: string, init: RequestInit = {}) {
+  const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
+    ...init,
+    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=representation", ...(init.headers ?? {}) },
+    cache: "no-store",
   });
   if (!r.ok) throw new Error(`Supabase llamadas ${r.status}: ${await r.text()}`);
-  const [hecha] = (await r.json()) as { id: string; recibida_en: string }[];
-  return hecha;
+  return r.json() as Promise<{ id: string; estado: string }[]>;
+}
+
+/** Guarda lo escrito. Solo el autor toca su postit. */
+export async function guardarPostit(d: DatosPostit, autor: string): Promise<string> {
+  const id = encodeURIComponent(d.id);
+  const hechas = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&select=id,estado`, {
+    method: "PATCH",
+    body: JSON.stringify(fila(d)),
+  });
+  if (hechas.length) return hechas[0].estado;
+  // Si dos guardados se cruzan (el automatico y Guardar), el segundo no choca:
+  // se ignora el alta repetida y se vuelve a escribir encima.
+  const [nueva] = await pedir("llamadas?select=id,estado&on_conflict=id", {
+    method: "POST",
+    headers: { Prefer: "return=representation,resolution=ignore-duplicates" },
+    body: JSON.stringify({ id: d.id, apuntada_por: autor, ...fila(d) }),
+  });
+  if (nueva) return nueva.estado;
+  const [otra] = await pedir(`llamadas?id=eq.${id}&apuntada_por=eq.${autor}&select=id,estado`, {
+    method: "PATCH",
+    body: JSON.stringify(fila(d)),
+  });
+  if (!otra) throw new Error("Esta llamada no es tuya");
+  return otra.estado;
+}
+
+/** Cambia el estado de un postit suyo, si esta en uno de los de partida. */
+export async function cambiarEstado(id: string, autor: string, desde: string[], a: string): Promise<void> {
+  await pedir(
+    `llamadas?id=eq.${encodeURIComponent(id)}&apuntada_por=eq.${autor}&estado=in.(${desde.join(",")})&select=id,estado`,
+    { method: "PATCH", body: JSON.stringify({ estado: a, actualizado_en: new Date().toISOString() }) },
+  );
+}
+
+type FilaLlamada = {
+  id: string;
+  estado: string;
+  recibida_en: string;
+  que_dicen: string;
+  quien_texto: string | null;
+  quien_puesto_id: string | null;
+  quien_persona_id: string | null;
+  quien_persona_comunidad_id: string | null;
+  quien_nuevo: boolean;
+  donde_texto: string | null;
+  donde_comunidad_id: string | null;
+  donde_oportunidad_id: string | null;
+  donde_nueva: boolean;
+  area: string | null;
+  apuntada_por: string;
+  equipo: { nombre: string; apellidos: string | null } | null;
+};
+
+/** Los postits de alguien (o todos), los mas nuevos primero. */
+export async function listarPostits(
+  yo: string,
+  opciones: { todas?: boolean; soloAbiertas?: boolean } = {},
+): Promise<Postit[]> {
+  const filtros = [
+    opciones.todas ? "" : `apuntada_por=eq.${yo}`,
+    opciones.soloAbiertas ? "estado=eq.abierta" : "",
+  ].filter(Boolean);
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/llamadas?select=*,equipo(nombre,apellidos)&order=recibida_en.desc&limit=80` +
+      filtros.map((f) => `&${f}`).join(""),
+    { headers: CAB, cache: "no-store" },
+  );
+  if (!r.ok) throw new Error(`Supabase llamadas ${r.status}: ${await r.text()}`);
+  const filas = (await r.json()) as FilaLlamada[];
+  if (!filas.length) return [];
+
+  const [gente, sitios] = await Promise.all([personas(), direcciones()]);
+  const etiquetaDe = <T extends { tipo: string; id: string; nombre: string; detalle: string }>(l: T[], tipo: string, id: string) => {
+    const x = l.find((p) => p.tipo === tipo && p.id === id);
+    return x ? [x.nombre, x.detalle].filter(Boolean).join(" · ") : "(ya no está)";
+  };
+
+  return filas.map((f) => {
+    let quien: Elegido = null;
+    if (f.quien_nuevo) quien = { tipo: "nuevo", id: null, etiqueta: "Nueva persona de contacto, por crear" };
+    for (const [tipo, id] of [
+      ["puesto", f.quien_puesto_id],
+      ["persona", f.quien_persona_id],
+      ["persona_comunidad", f.quien_persona_comunidad_id],
+    ] as const)
+      if (id) quien = { tipo, id, etiqueta: etiquetaDe(gente, tipo, id) };
+    let donde: Elegido = null;
+    if (f.donde_nueva) donde = { tipo: "nueva", id: null, etiqueta: "Nueva dirección, por crear" };
+    for (const [tipo, id] of [
+      ["comunidad", f.donde_comunidad_id],
+      ["oportunidad", f.donde_oportunidad_id],
+    ] as const)
+      if (id) donde = { tipo, id, etiqueta: etiquetaDe(sitios, tipo, id) };
+    return {
+      id: f.id,
+      estado: f.estado,
+      recibida_en: f.recibida_en,
+      que_dicen: f.que_dicen,
+      quien_texto: f.quien_texto ?? "",
+      quien,
+      donde_texto: f.donde_texto ?? "",
+      donde,
+      area: f.area,
+      autor: [f.equipo?.nombre, f.equipo?.apellidos].filter(Boolean).join(" "),
+      mia: f.apuntada_por === yo,
+    };
+  });
 }
