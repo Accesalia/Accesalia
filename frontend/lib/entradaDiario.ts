@@ -35,6 +35,24 @@ async function leer<T>(path: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+/** TRAERLO TODO, DE VERDAD. La base corta en 1.000 filas y `limit` no lo
+ *  cambia: con 2.004 oportunidades abiertas, el buscador solo veia las 1.000
+ *  mas nuevas (Monica, 8-oct-2026: "¿Albufera 250 no existe?"; es de 2022).
+ *  Se pide por tramos con la cabecera Range hasta que llega uno corto. */
+async function leerTodo<T>(path: string): Promise<T[]> {
+  const todo: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+    const trozo = (await r.json()) as T[];
+    todo.push(...trozo);
+    if (trozo.length < 1000) return todo;
+  }
+}
+
 async function crear(tabla: string, fila: Record<string, unknown>): Promise<string> {
   const r = await fetch(`${URL_BASE}/rest/v1/${tabla}`, {
     method: "POST",
@@ -62,19 +80,19 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
  *  Las personas llevan delante de que lista son: puesto:, persona:, pc:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
   const [ops, puestos, sueltas, comunidad] = await Promise.all([
-    leer<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null;
-           comunidad: { nombre: string } | null; comercial: { nombre: string } | null }[]>(
+    leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null;
+           comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
       `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
-        `&estado=eq.abierta&order=fecha_apertura.desc.nullslast&limit=5000`,
+        `&estado=eq.abierta&order=fecha_apertura.desc.nullslast,id.asc`,
     ),
-    leer<{ id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null }[]>(
-      `puesto?select=id,cargo,persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)&hasta=is.null&contrata_id=is.null&limit=5000`,
+    leerTodo<{ id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null }>(
+      `puesto?select=id,cargo,persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)&hasta=is.null&contrata_id=is.null&order=id.asc`,
     ),
-    leer<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }[]>(
-      `persona?select=id,nombre,apellidos,puesto(id)&limit=5000`,
+    leerTodo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
+      `persona?select=id,nombre,apellidos,puesto(id)&order=id.asc`,
     ),
-    leer<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }[]>(
-      `personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&limit=5000`,
+    leerTodo<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }>(
+      `personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=id.asc`,
     ),
   ]);
 
