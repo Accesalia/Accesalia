@@ -283,7 +283,10 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
   const puesto = hitos.reduce<Record<string, (typeof hitos)[number]>>((a, h) => ({ ...a, [h.hito]: h }), {});
   let n = 0;
   // Las fotos solo pueden estar en las notas escritas en la app.
-  const fotos = await fotosDeNotas("nota_oportunidad_id", notas.filter((x) => x.origen === "persona").map((x) => x.id));
+  // Si las fotos fallan, la ficha sale igual, sin miniaturas: nunca la tumban.
+  const fotos = await fotosDeNotas("nota_oportunidad_id", notas.filter((x) => x.origen === "persona").map((x) => x.id)).catch(
+    () => new Map<string, Foto[]>(),
+  );
 
   return {
     id: op.id,

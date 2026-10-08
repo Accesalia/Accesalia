@@ -154,14 +154,20 @@ export type Foto = { id: string; mini: string; grande: string };
 async function firmarVarias(rutas: string[]): Promise<Map<string, string>> {
   const salida = new Map<string, string>();
   if (!rutas.length) return salida;
-  const r = await fetch(`${URL_BASE}/storage/v1/object/sign/${ALMACEN}`, {
-    method: "POST",
-    headers: { ...CAB, "Content-Type": "application/json" },
-    body: JSON.stringify({ expiresIn: 3600, paths: rutas }),
-    cache: "no-store",
-  });
-  if (!r.ok) return salida;
-  const firmadas = (await r.json()) as { path: string; signedURL: string | null }[];
+  let firmadas: { path: string; signedURL: string | null }[] = [];
+  try {
+    const r = await fetch(`${URL_BASE}/storage/v1/object/sign/${ALMACEN}`, {
+      method: "POST",
+      headers: { ...CAB, "Content-Type": "application/json" },
+      body: JSON.stringify({ expiresIn: 3600, paths: rutas }),
+      cache: "no-store",
+    });
+    if (!r.ok) return salida;
+    firmadas = (await r.json()) as { path: string; signedURL: string | null }[];
+  } catch {
+    // Un corte de red al firmar: sin miniaturas, pero la pantalla sigue.
+    return salida;
+  }
   for (const f of firmadas) if (f.signedURL) salida.set(f.path, `${URL_BASE}/storage/v1${f.signedURL}`);
   return salida;
 }
