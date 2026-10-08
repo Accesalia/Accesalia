@@ -291,7 +291,7 @@ export type DatosOportunidad = {
   referenciaCatastral: string | null;
 };
 
-export type ResultadoOportunidad = { id: string; codigo: string | null };
+export type ResultadoOportunidad = { id: string; codigo: string | null; notaId: string };
 
 /** ALV-2026-032. Las tres letras son del comercial CAPTADOR y no cambian aunque
  *  luego la herede otro: es el DNI que despues viaja al proyecto y al servicio,
@@ -436,7 +436,7 @@ export async function crearOportunidad(
   //     y como se entero. Va al diario de la oportunidad (8-oct-2026: el de la
   //     app es notas_oportunidad; interacciones se congelo). La persona con la
   //     que se habla a partir de ahora va como dato de la nota.
-  await crear("notas_oportunidad", {
+  const nota = await crear<{ id: string }>("notas_oportunidad", {
     oportunidad_id: op.id,
     texto: d.nota,
     fecha: d.fechaLlamada ?? hoy(),
@@ -480,7 +480,7 @@ export async function crearOportunidad(
     "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
   );
 
-  return { id: op.id, codigo };
+  return { id: op.id, codigo, notaId: nota.id };
 }
 
 /** Los portales elegidos en la ventana de Catastro, como ACCESOS (el atomo:

@@ -82,31 +82,7 @@ export async function apuntarFotos(rutas: string[], d: DondeFotos): Promise<numb
   }
   if (!buenas.length) return 0;
 
-  const tipo = d.nota === "pendiente" ? null : await tipoFotografia();
-  const docs = buenas.map((ruta) => {
-    const id = crypto.randomUUID();
-    return {
-      ruta,
-      fila:
-        d.nota === "pendiente"
-          ? null
-          : {
-              id,
-              grupo_id: id,
-              n_version: 1,
-              tipo_documento_id: tipo,
-              naturaleza: "subido",
-              estado_firma: "no_aplica",
-              backend: "supabase",
-              storage_ref: ruta,
-              vigente: true,
-              oportunidad_id: d.nota === "oportunidad" ? d.oportunidadId : null,
-              comunidad_id: d.nota === "oportunidad" ? d.comunidadId : null,
-              puesto_id: d.nota === "administracion" ? d.puestoId : null,
-              persona_id: d.nota === "administracion" ? d.personaId : null,
-            },
-    };
-  });
+  const docs = d.nota === "pendiente" ? buenas.map((ruta) => ({ ruta, fila: null })) : await documentosDeFotos(buenas, d);
   const filasDoc = docs.map((x) => x.fila).filter(Boolean);
   if (filasDoc.length) await crear("documentos", filasDoc);
 
@@ -115,13 +91,61 @@ export async function apuntarFotos(rutas: string[], d: DondeFotos): Promise<numb
     docs.map((x, i) => ({
       storage_ref: x.ruta,
       documento_id: x.fila?.id ?? null,
-      nota_oportunidad_id: d.nota === "oportunidad" ? d.notaId : null,
-      nota_administracion_id: d.nota === "administracion" ? d.notaId : null,
-      nota_pendiente_id: d.nota === "pendiente" ? d.notaId : null,
+      ...notaDe(d),
       orden: i,
     })),
   );
   return buenas.length;
+}
+
+/** A que nota apunta la foto, en las tres columnas de fotos_nota. */
+const notaDe = (d: DondeFotos) => ({
+  nota_oportunidad_id: d.nota === "oportunidad" ? d.notaId : null,
+  nota_administracion_id: d.nota === "administracion" ? d.notaId : null,
+  nota_pendiente_id: d.nota === "pendiente" ? d.notaId : null,
+});
+
+/** Una fila de `documentos` por foto: de la oportunidad o de la persona. */
+async function documentosDeFotos(rutas: string[], d: Exclude<DondeFotos, { nota: "pendiente" }>) {
+  const tipo = await tipoFotografia();
+  return rutas.map((ruta) => {
+    const id = crypto.randomUUID();
+    return {
+      ruta,
+      fila: {
+        id,
+        grupo_id: id,
+        n_version: 1,
+        tipo_documento_id: tipo,
+        naturaleza: "subido",
+        estado_firma: "no_aplica",
+        backend: "supabase",
+        storage_ref: ruta,
+        vigente: true,
+        oportunidad_id: d.nota === "oportunidad" ? d.oportunidadId : null,
+        comunidad_id: d.nota === "oportunidad" ? d.comunidadId : null,
+        puesto_id: d.nota === "administracion" ? d.puestoId : null,
+        persona_id: d.nota === "administracion" ? d.personaId : null,
+      },
+    };
+  });
+}
+
+/** Al COLOCAR una nota pendiente, sus fotos dejan de esperar: pasan a ser
+ *  documentos de su sitio y apuntan a la nota ya colocada. */
+export async function moverFotosDePendiente(pendienteId: string, d: Exclude<DondeFotos, { nota: "pendiente" }>): Promise<void> {
+  const filas = await leer<{ id: string; storage_ref: string }[]>(`fotos_nota?select=id,storage_ref&nota_pendiente_id=eq.${pendienteId}`);
+  if (!filas.length) return;
+  const docs = await documentosDeFotos(filas.map((f) => f.storage_ref), d);
+  await crear("documentos", docs.map((x) => x.fila));
+  for (const [i, f] of filas.entries()) {
+    const r = await fetch(`${URL_BASE}/rest/v1/fotos_nota?id=eq.${f.id}`, {
+      method: "PATCH",
+      headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ ...notaDe(d), documento_id: docs[i].fila.id }),
+    });
+    if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+  }
 }
 
 export type Foto = { id: string; mini: string; grande: string };
@@ -150,7 +174,10 @@ async function comoFotos(filas: { id: string; storage_ref: string }[]): Promise<
 }
 
 /** Las fotos de varias notas, por nota: para las miniaturas del diario. */
-export async function fotosDeNotas(campo: "nota_oportunidad_id" | "nota_administracion_id", ids: string[]): Promise<Map<string, Foto[]>> {
+export async function fotosDeNotas(
+  campo: "nota_oportunidad_id" | "nota_administracion_id" | "nota_pendiente_id",
+  ids: string[],
+): Promise<Map<string, Foto[]>> {
   const salida = new Map<string, Foto[]>();
   if (!ids.length) return salida;
   const filas: { id: string; storage_ref: string; nota: string }[] = [];

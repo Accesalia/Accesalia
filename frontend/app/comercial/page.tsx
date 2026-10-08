@@ -8,6 +8,7 @@ import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import { guardarEntrada } from "./acciones";
 import { Grabar } from "./Grabar";
 import { CANALES, opcionesEntrada } from "../../lib/entradaDiario";
+import { cuantasPendientes } from "../../lib/pendientes";
 import {
   Agenda,
   Pestana,
@@ -110,7 +111,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   const hoyISO = new Date().toLocaleDateString("sv-SE");
   // Las listas de la ventana de grabar una entrada. En la demo no se ofrece
   // nada: lo que se ve ahi es inventado y no existe en la base.
-  const paraGrabar = esDemo ? { oportunidades: [], personas: [] } : await opcionesEntrada();
+  const [paraGrabar, pendientes] = esDemo
+    ? [{ oportunidades: [], personas: [] }, 0]
+    : await Promise.all([opcionesEntrada(), cuantasPendientes(yo).catch(() => 0)]);
   const pill = (activo: boolean) =>
     "rounded-full border px-3.5 py-1.5 text-sm transition " +
     (activo ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/65 hover:border-lima");
@@ -378,6 +381,17 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               miComercialId={direccion ? null : mio?.id ?? null}
               guardar={guardarEntrada}
             />
+            {/* Las notas que esperan en la bandeja (8-oct-2026): solo se ve si
+                hay alguna. */}
+            {pendientes > 0 && (
+              <Link
+                href="/comercial/pendientes"
+                className="flex items-center justify-between rounded-xl border border-[#8a6410] bg-form-nuevo px-3.5 py-2.5 text-[14px] font-semibold text-[#5c4208] transition hover:bg-[#ffeeb0]"
+              >
+                <span>📥 Notas pendientes de colocar</span>
+                <span className="rounded-full bg-[#5c4208] px-2 py-0.5 text-[12px] font-bold text-white">{pendientes}</span>
+              </Link>
+            )}
             <Diario entradas={cuadro.diario} />
           </div>
         </div>

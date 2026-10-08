@@ -185,7 +185,7 @@ export function Formulario({
   /** Lo que llega de "Grabar entrada" cuando la direccion no estaba en la
    *  lista y se dijo "Es nueva" (Monica, 8-oct-2026): la nota, la direccion
    *  escrita y cuando paso, ya puestas. */
-  inicial?: { nota: string; direccion: string; fecha: string | null; canal: string | null };
+  inicial?: { nota: string; direccion: string; fecha: string | null; canal: string | null; pendiente?: string | null };
 }) {
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
@@ -398,6 +398,7 @@ export function Formulario({
                 />
               ))}
               <input type="hidden" name="canal_nota" value={canalNota} />
+              {inicial?.pendiente && <input type="hidden" name="pendiente" value={inicial.pendiente} />}
             </div>
           </div>
         </div>

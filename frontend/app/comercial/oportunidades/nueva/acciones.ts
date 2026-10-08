@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { crearOportunidad, type DatosOportunidad } from "../../../../lib/altaOportunidad";
 import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { cerrarPendienteEnAlta } from "../../../../lib/pendientes";
 
 const VOLVER = "/comercial/oportunidades/nueva";
 
@@ -100,6 +101,11 @@ export async function guardarOportunidad(fd: FormData) {
   };
 
   const hecho = await crearOportunidad(datos, yo.id);
+
+  // Si viene de la bandeja ("Es nueva"), la pendiente queda colocada en la
+  // primera nota de esta oportunidad, y sus fotos pasan aqui (8-oct-2026).
+  const pendiente = texto(fd, "pendiente");
+  if (pendiente) await cerrarPendienteEnAlta(yo, pendiente, hecho.notaId, hecho.id);
 
   revalidatePath("/comercial");
   // AL CREARLA SE ATERRIZA EN SU GESTION, no en el cuadro (Monica, 5-oct-2026):

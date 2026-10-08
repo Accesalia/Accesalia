@@ -17,9 +17,9 @@ export const dynamic = "force-dynamic";
 export default async function NuevaOportunidad({
   searchParams,
 }: {
-  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string }>;
+  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string; pendiente?: string }>;
 }) {
-  const { falta, nota, direccion, fecha, canal } = await searchParams;
+  const { falta, nota, direccion, fecha, canal, pendiente } = await searchParams;
   // Desde "Grabar entrada", con la direccion que no estaba en la lista.
   const inicial =
     nota || direccion
@@ -28,6 +28,8 @@ export default async function NuevaOportunidad({
           direccion: direccion ?? "",
           fecha: fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : null,
           canal: canal && ["visita", "llamada", "mail", "escrito"].includes(canal) ? canal : null,
+          // Desde la bandeja: al guardar, esta pendiente queda colocada aqui.
+          pendiente: pendiente && /^[0-9a-f-]{36}$/.test(pendiente) ? pendiente : null,
         }
       : undefined;
   const yo = await quienSoy();
