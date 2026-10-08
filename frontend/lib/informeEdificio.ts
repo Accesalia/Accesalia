@@ -627,7 +627,15 @@ export async function informeEdificio(
     if (guardado) return componer(ref, guardado);
   }
 
-  const fuera = await traerDeFuera(ref);
+  // Si Catastro corta la conexion (pasa: 8-oct-2026, "ECONNRESET" en la ficha
+  // de Zamora 28 y en la de Albufera 250), la ficha NO se cae: sale el aviso de
+  // "no se ha podido traer el edificio" y la proxima vez se reintenta.
+  let fuera: Crudo | null = null;
+  try {
+    fuera = await traerDeFuera(ref);
+  } catch {
+    return null;
+  }
   if (!fuera) return null;
   try {
     await guardar(ref, fuera);
