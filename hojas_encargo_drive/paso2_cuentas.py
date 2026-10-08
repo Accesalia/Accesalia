@@ -34,7 +34,7 @@ NO_TOCAR = {'AV PORTUGAL 23 LEGANES', 'AV LOS PRINCIPES DE ESPAÑA 17 Y 19 COSLA
 nombre_com = {c['id']: c['nombre'] for c in base.leer('comunidades?select=id,nombre')}
 de_hoja = {k: v for k, v in de_hoja.items() if not (k[0] == 'comunidad' and nombre_com.get(k[1]) in NO_TOCAR)}
 nuevas, malas = [], []
-for c in base.leer('comunidades?iban=not.is.null&select=id,nombre,iban'):
+for c in []:   # (8-oct, tarde) comunidades.iban ya no existe; las cuentas nuevas salen de las hojas (abajo)
     k = ('comunidad', c['id'], limpio(c['iban']))
     if k in ya: continue
     if not valido(c['iban']): malas.append((c['nombre'], c['iban'])); continue

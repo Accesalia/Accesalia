@@ -58,6 +58,9 @@ Qué extraer (todo tal cual dice el papel; NO inventes ni completes):
     explica qué en `nota`).
 
 ## Reglas de Mónica (8-oct-2026, tras la prueba de 10)
+- **MANDA EL PAPEL.** Las reglas de abajo sirven para INTERPRETAR lo que el papel no dice claro, nunca para
+  cambiar lo que dice. Ej.: "la subvención se cobra al 100 % al contratar" vale si el papel no lo concreta; si
+  el papel reparte otra cosa (50/50 con el resto, mensualidades...), se pone lo del papel.
 - **Estamos LEYENDO para INTERPRETAR**, no para copiar a ciegas: si algo se entiende de verdad,
   ponlo interpretado (y lo literal en `texto`/`nota`).
 - **Empresas (FAIN, Schindler, Thyssen…)**: "nadie firma necesariamente; hay sellos, códigos…":

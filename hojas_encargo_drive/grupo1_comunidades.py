@@ -28,7 +28,8 @@ def iban_ok(i):
     return n % 97 == 1
 def iban_bonito(i): i = limpio(i); return ' '.join(i[k:k + 4] for k in range(0, 24, 4))
 
-C = {c['id']: c for c in base.leer('comunidades?select=id,nombre,cif_comunidad,iban')}
+# (8-oct, tarde) comunidades.iban ya no existe: las cuentas son de paso2_cuentas.py. Aqui solo el CIF.
+C = {c['id']: dict(c, iban='-') for c in base.leer('comunidades?select=id,nombre,cif_comunidad')}
 F = base.leer('revision_firmadas?pagador_tipo=eq.comunidad&select=numero_hoja,hoja_encargo_id,fecha_firma,pagador_cif,'
               'pagador_iban,comunidad_id,opp:oportunidad_id(id,comunidad_id)')
 cif_nuevo, iban_cand = {}, collections.defaultdict(list)
@@ -59,7 +60,7 @@ if not ESCRIBIR: sys.exit('PRUEBA: no se ha escrito nada')
 
 for cid, v in cif_nuevo.items(): base.actualizar(f'comunidades?id=eq.{cid}', {'cif_comunidad': v})
 for cid, v in cif_mal.items(): base.actualizar(f'comunidades?id=eq.{cid}', {'cif_comunidad': v})
-for cid, v in iban_cand.items(): base.actualizar(f'comunidades?id=eq.{cid}', {'iban': v[-1][1]})
+pass   # las cuentas: paso2_cuentas.py
 if not ferenc['comunidad_id']:
     base.insertar('comunidades', [{'nombre': 'FERENC PUSKAS 28 MADRID', 'municipio': 'MADRID', 'provincia': 'MADRID', 'cp': '28052',
                                    'cif_comunidad': 'H16775991', 'iban': 'ES47 0081 7118 5100 0177 8678', 'activa': True}])

@@ -33,7 +33,7 @@ bloque = {b['id']: b['codigo'] for b in base.leer('bloques?select=id,codigo')}
 por_tam = collections.defaultdict(list)
 for raiz, _, fs in os.walk(B):
     for f in fs:
-        if f.lower().endswith('.pdf'): p = os.path.join(raiz, f); por_tam[os.path.getsize(p)].append(p)
+        if f.lower().endswith(('.pdf', '.jpg', '.jpeg', '.png')): p = os.path.join(raiz, f); por_tam[os.path.getsize(p)].append(p)
 
 def fecha_pdf(doc):
     c = (doc.get_metadata_dict().get('CreationDate') or '').replace('D:', '')
@@ -54,6 +54,17 @@ for h in hojas:
     for k, ruta in enumerate(v['pdfs_firmados'] or [], 1):
         datos = bajar(ruta)
         local = f'{T}/pdf/{cod}-{k}.pdf'; open(local, 'wb').write(datos)
+        if datos[:4] != b'%PDF':                      # una FOTO guardada como firmada (jpeg/png): se mira tal cual
+            from PIL import Image
+            import io as _io
+            os.makedirs(f'{T}/img/{cod}', exist_ok=True)
+            png = f'{T}/img/{cod}/f{k}-p1.png'; Image.open(_io.BytesIO(datos)).convert('RGB').save(png)
+            cands = [p for p in por_tam.get(len(datos), []) if open(p, 'rb').read() == datos]
+            drive = cands[0] if len(cands) == 1 else None
+            pdfs.append({'ruta_almacen': ruta, 'archivo_drive': os.path.basename(drive) if drive else None, 'drive_ambiguo': None,
+                         'fecha_firma_pdf': None, 'fecha_archivo_drive': datetime.date.fromtimestamp(os.path.getctime(drive)).isoformat() if drive else None,
+                         'paginas': [os.path.abspath(png)], 'tiene_texto': False, 'texto': None})
+            continue
         doc = pdfium.PdfDocument(local)
         cands = [p for p in por_tam.get(len(datos), []) if open(p, 'rb').read() == datos]
         drive = cands[0] if len(cands) == 1 else None

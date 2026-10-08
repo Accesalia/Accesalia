@@ -61,8 +61,10 @@ def plazo_txt(p):
     return f"{cuanto} {q}".strip() if q else (p['notas'] or cuanto or 'otro').strip()
 
 notas = []
+pasadas = {f['hoja_encargo_id'] for f in base.leer('revision_firmadas?revision=eq.corregido&select=hoja_encargo_id')}
 for hid, h in H.items():
     if hid in ya: continue
+    if hid not in pasadas: continue          # solo hojas ya pasadas a la app (8-oct: se adelanto con las de 2024 sin lineas)
     ls = L.get(hid, [])
     pags = list(dict.fromkeys((l['pagador_tipo'], l['pagador_id']) for l in ls if l['pagador_tipo']))
     rev = R.get(hid, {})

@@ -24,6 +24,11 @@ P = collections.defaultdict(list)
 for p in base.leer('revision_firmadas_plazos?select=*&order=orden'): P[p['linea_id']].append(p)
 bl_sub = {b['id'] for b in base.leer('bloques?select=id,codigo&codigo=like.TRAMITACION%20SUBVENCIONES*')}
 CHARLY = '513a7753-0ce9-492e-b0ec-64b16a79593e'           # Hipermercado Charly: ya es "Propietario Empresa"
+PROP, PROP_CIF = {}, {}
+for e in base.leer('empresas_propietarias?select=id,nombre_accesalia,nombre_legal,cif'):
+    for k in (e['nombre_accesalia'], e['nombre_legal']):
+        if k: PROP[k.upper()] = e['id']
+    if e['cif']: PROP_CIF[e['cif']] = e['id']
 MARCOS = 'bd3e788a-4849-40ee-a000-0a553a689cf5'           # Marcos Ramos Lama: persona + cargo 'propietario' con su DNI (8-oct)
 COD = json.load(open('codigos_cliente_propuestos.json', encoding='utf-8'))
 #   limpieza de los codigos leidos (8-oct): en el formato antiguo de FAIN el "Orden" es el Grafo/Orden repetido;
@@ -49,6 +54,8 @@ for f in F:
     if t == 'comunidad': pag = ('comunidad', com) if com else None
     elif t == 'empresa': pag = ('contrata', f['contrata_id']) if f['contrata_id'] else None
     elif t == 'particular' and cod == 'HE-2025-0684': pag = ('empresa_propietaria', CHARLY)
+    elif t == 'particular' and (f['pagador_razon_social'] or '').upper() in PROP: pag = ('empresa_propietaria', PROP[(f['pagador_razon_social'] or '').upper()])
+    elif t == 'particular' and (f['pagador_cif'] or '') in PROP_CIF: pag = ('empresa_propietaria', PROP_CIF[f['pagador_cif']])
     elif t == 'particular' and cod == 'HE-2025-0394': pag = ('persona', MARCOS)
     else: pag = None
     if not pag: avisos['sin pagador'].append(f'{cod} ({t})')

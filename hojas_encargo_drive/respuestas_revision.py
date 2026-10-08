@@ -24,25 +24,8 @@ for c in SCHINDLER_MOYA:
     nota(c, 'Firma digital de Javier Gonzalez Moya, comercial de SCHINDLER (Monica, 8-oct): la acepta y paga Schindler.',
          firma_presente=True, pagador_tipo='empresa', contrata_id=con['SCHINDLER'], comunidad_id=None,
          pagador_razon_social='SCHINDLER S.A.', pagador_cif='A50001726', pagador_hay_que_crear=False)
-#     Matiz (Monica): "paga Schindler, no la comunidad (EL PROYECTO)": la SUBVENCION la paga la comunidad.
-#     Hoja solo de subvencion -> paga la comunidad; hoja mixta -> la linea de subvencion lleva nota.
-bl_sub = {x['id'] for x in base.leer('bloques?select=id,codigo&codigo=like.TRAMITACION%20SUBVENCIONES*')}
-hoja_com = {h['numero_hoja']: h['comunidad_id'] for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=numero_hoja,comunidad_id')}
-for c in SCHINDLER_MOYA:
-    L = base.leer(f'revision_firmadas_lineas?firmada_id=eq.{F[c]["id"]}&incluido=eq.false&comparacion=neq.sobra_en_base&select=id,bloque_id,nota')
-    sub = [l for l in L if l['bloque_id'] in bl_sub]
-    if sub and len(sub) == len(L):
-        base.actualizar(f'revision_firmadas?id=eq.{F[c]["id"]}', {
-            'pagador_tipo': 'comunidad', 'contrata_id': None, 'comunidad_id': hoja_com.get(c), 'pagador_razon_social': None,
-            'pagador_cif': None, 'pagador_hay_que_crear': None,
-            'nota': '\n'.join(x for x in (
-                'Hoja solo de SUBVENCION: aunque la firme el comercial de Schindler (firma digital de Javier Gonzalez Moya), '
-                'la paga la COMUNIDAD (Monica, 8-oct).',
-                '\n'.join(s for s in (F[c]['nota'] or '').split('\n') if 'SCHINDLER' not in s.upper())) if x)})
-    for l in sub if len(sub) < len(L) else []:
-        if 'COMUNIDAD' not in (l['nota'] or ''):
-            base.actualizar(f'revision_firmadas_lineas?id=eq.{l["id"]}',
-                            {'nota': 'Esta linea (subvencion) la paga la COMUNIDAD; el proyecto, Schindler (Monica, 8-oct).'})
+#     (8-oct, tarde) Monica: "si firma Moya, paga Schindler, tambien la subvencion: hubo una epoca en que Schindler
+#     incluia el pago de la subvencion en su oferta; ya no". Se quita el matiz anterior (subvencion = comunidad).
 #     Rosa Maria Radal = la chica de ROSERSESE, contrata que pone ascensores.
 for c in ['HE-2025-0403', 'HE-2025-0742', 'HE-2026-0056', 'HE-2026-0341', 'HE-2026-0470', 'HE-2025-0115']:
     nota(c, 'Firma digital de Rosa Maria Radal, de ROSERSESE (contrata de ascensores; Monica, 8-oct): paga Rosersese.',
