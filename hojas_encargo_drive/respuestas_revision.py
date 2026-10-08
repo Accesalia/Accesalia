@@ -68,6 +68,20 @@ nota('HE-2026-0203', 'Sin firma en el papel, pero FACTURADA: pagaba FAIN, por es
      pagador_razon_social='FAIN ASCENSORES S.A.', pagador_cif='A28303485', pagador_hay_que_crear=False, revision='pendiente')
 nota('HE-2026-0059', 'Sin firma en el papel, pero el proyecto SE HIZO: FIRMADA y PENDIENTE DE COBRO (Monica, 8-oct). '
                      'Dato para facturacion.', firma_presente=True, revision='pendiente')
+# Pagadores (Monica, 8-oct): Ginzo de Limia 55 y la 0267 (codigos ORDEN/SUPERVISOR RD7) son FAIN.
+for c in ['HE-2024-0015', 'HE-2025-0267']:
+    nota(c, 'Paga FAIN (Monica, 8-oct).', firma_presente=True, pagador_tipo='empresa', contrata_id=con['FAIN'], comunidad_id=None,
+         pagador_razon_social='FAIN ASCENSORES S.A.', pagador_cif='A28303485', pagador_hay_que_crear=False, revision='pendiente')
+#     Plaza Paris 7: lo encargo FAIN (la hoja dice que paga FAIN); la comunidad descarto a FAIN y paso el proyecto a
+#     Elecnor; nadie ha pagado. Se reclama a la comunidad: si quiere usar el proyecto, debe contratarnos (en negociacion).
+nota('HE-2026-0059', 'PLAZA PARIS 7 (Monica, 8-oct): el proyecto lo encargo FAIN (la hoja dice que paga FAIN). La comunidad descarto '
+     'a FAIN y paso el proyecto a Elecnor; NADIE HA PAGADO. Se reclama a la comunidad (correo: "La Comunidad de Propietarios '
+     'decidio traspasar el proyecto a Elecnor, por lo que es la Comunidad la que debe pagar dicho proyecto"): si quiere usar el '
+     'proyecto, debe volver a contratarnos. EN NEGOCIACION.', firma_presente=True, pagador_tipo='empresa', contrata_id=con['FAIN'],
+     pagador_razon_social='FAIN ASCENSORES S.A.', pagador_cif='A28303485', pagador_hay_que_crear=False, revision='duda')
+#     Hipermercado Charly: propietario-empresa (figura "Propietario Empresa"), como un propietario particular
+nota('HE-2025-0684', 'Paga un PROPIETARIO-EMPRESA (figura legal "Propietario Empresa"), no una contrata (Monica, 8-oct).',
+     pagador_tipo='particular', contrata_id=None, pagador_hay_que_crear=True)
 json.dump({c: {'estado': 'enviada_comunidad', 'sustituida_por': n} for c, n in SUSTITUIDAS.items()},
           open('a_enviada_sin_firmar.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
