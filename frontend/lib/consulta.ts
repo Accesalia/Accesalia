@@ -121,11 +121,12 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
   const vivas = opps.filter((o) => o.estado === "abierta" || o.estado === "pausada");
 
   // Los hitos de las vivas, por tandas de ids (la URL no admite miles).
-  const hitos = new Map<string, Map<string, { estado: string; aplicable: boolean; fecha: string | null }>>();
+  const hitos = new Map<string, Map<string, { estado: string; fecha: string | null }>>();
   const lotes = await Promise.all(
     pedazos(vivas.map((o) => o.id), 150).map((ids) =>
-      todo<{ oportunidad_id: string; hito: string; estado: string; aplicable: boolean; fecha: string | null }>(
-        `hitos_oportunidad?select=oportunidad_id,hito,estado,aplicable,fecha&oportunidad_id=in.(${ids.join(",")})`,
+      // Las fases se DEDUCEN de los datos (vista fases_oportunidad, 9-oct-2026).
+      todo<{ oportunidad_id: string; hito: string; estado: string; fecha: string | null }>(
+        `fases_oportunidad?select=oportunidad_id,hito,estado,fecha&oportunidad_id=in.(${ids.join(",")})`,
       ),
     ),
   );
@@ -138,7 +139,7 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
     const suyos = hitos.get(o.id) ?? new Map();
     const lista = catalogo.map((c) => {
       const h = suyos.get(c.clave);
-      return { clave: c.clave, nombre: c.nombre, estado: h?.estado ?? "pendiente", aplicable: h?.aplicable ?? true, fecha: h?.fecha ?? null } as HitoGestion;
+      return { clave: c.clave, nombre: c.nombre, estado: h?.estado ?? "pendiente", aplicable: h?.estado !== "saltado", fecha: h?.fecha ?? null } as HitoGestion;
     });
     const bloques = bloquesDe(lista);
     const ahora = bloques.find((b) => b.activo) ?? [...bloques].reverse().find((b) => b.pie.startsWith("Hecho")) ?? bloques[0];

@@ -4,16 +4,14 @@ import { BarraSuperior } from "../../../components/BarraSuperior";
 import {
   catalogoTipos,
   contactosDeComunidad,
-  equipoOpciones,
   gestionOportunidad,
-  ESTADOS_HITO,
   ESTADOS_3D,
   RESULTADOS_JUNTA,
   TIPOS_3D,
 } from "../../../../lib/gestionOportunidad";
 import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionAdminAComunidad, accionEntrada, accionHito, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
+import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
 import { AZUL, Carril, bloquesDe } from "./Carril";
 import { Cabecera } from "./Cabecera";
@@ -78,7 +76,7 @@ export default async function GestionOportunidad({
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const [g, tipos, equipo] = await Promise.all([gestionOportunidad(id), catalogoTipos(), equipoOpciones()]);
+  const [g, tipos] = await Promise.all([gestionOportunidad(id), catalogoTipos()]);
   if (!g) notFound();
 
   const pausada = g.estado === "pausada";
@@ -298,7 +296,7 @@ export default async function GestionOportunidad({
                 Una barra, y abierta solo la que toca. Antes eran diez filas con
                 cuatro botones cada una: dos pantallas de cosas que hoy no
                 aplican (Monica, 29-sep-2026). */}
-            <Fases hitos={g.hitos} estados={ESTADOS_HITO} equipo={equipo} guardar={accionHito.bind(null, id)} />
+            <Fases hitos={g.hitos} />
 
             {/* --------------------- 3 · qué contratan --------------------- */}
             <QueContratan tipos={tipos} elegidos={g.tiposElegidos} guardar={accionTipos.bind(null, id)} />

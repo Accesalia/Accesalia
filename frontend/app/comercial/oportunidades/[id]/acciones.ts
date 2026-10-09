@@ -9,7 +9,6 @@ import {
   guardarTipos,
   guardarTresD,
   reactivar,
-  tocarHito,
 } from "../../../../lib/gestionOportunidad";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor } from "../../edificio/[referencia]/acciones";
@@ -36,18 +35,6 @@ const refrescar = (id: string) => {
   revalidatePath(`/comercial/oportunidades/${id}`);
   revalidatePath("/comercial");
 };
-
-export async function accionHito(id: string, hito: string, fd: FormData) {
-  await permiso(id);
-  await tocarHito(id, hito, {
-    estado: String(fd.get("estado") ?? "pendiente"),
-    fecha: texto(fd, "fecha"),
-    responsableId: texto(fd, "responsable"),
-    enlace: texto(fd, "enlace"),
-    notas: texto(fd, "notas"),
-  });
-  refrescar(id);
-}
 
 export async function accionTipos(id: string, fd: FormData) {
   await permiso(id);

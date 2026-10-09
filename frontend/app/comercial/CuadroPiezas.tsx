@@ -298,6 +298,10 @@ export function Leyenda({ pasos }: { pasos: Paso[] }) {
 
 function Tramo({ estado, paso }: { estado: EstadoTramo; paso: Paso }) {
   const base = "rounded-full self-center ";
+  // Saltado: se paso de largo, pero sigue abierto (si llega, se hace). Mismo
+  // trazo discontinuo que "no aplica": no es una falta.
+  if (estado === "saltado")
+    return <span title={`${paso.corto.join(" ")}: saltado (sigue abierto)`} className={base + "h-2 border border-dashed border-black/15"} />;
   if (estado === "no_aplica")
     return <span title={`${paso.corto.join(" ")}: no aplica`} className={base + "h-2 border border-dashed border-black/15"} />;
   if (estado === "hecho") return <span title={`${paso.corto.join(" ")}: hecho`} className={base + "h-2 bg-lima"} />;

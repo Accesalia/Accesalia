@@ -80,12 +80,10 @@ export type HitoGestion = {
   ramal: boolean;
   /** Quien lo hace por oficio: comercial, arquitecto, tecnico de escaneo, 3D. */
   rolQuien: string | null;
+  /** hecho / saltado / pendiente: lo dice la base, no se toca. */
   estado: string;
   aplicable: boolean;
   fecha: string | null;
-  responsableId: string | null;
-  enlace: string | null;
-  notas: string | null;
 };
 
 export type TipoGestion = { id: string; clave: string; nombre: string; padre: string | null; contratable: boolean };
@@ -256,9 +254,11 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     leer<{ clave: string; nombre: string; orden: number; es_ramal: boolean; responsable_rol: string | null }[]>(
       "hitos_comerciales?select=clave,nombre,orden,es_ramal,responsable_rol&order=orden.asc",
     ),
-    leer<
-      { hito: string; estado: string; aplicable: boolean; fecha: string | null; responsable_id: string | null; enlace_url: string | null; notas: string | null }[]
-    >(`hitos_oportunidad?select=hito,estado,aplicable,fecha,responsable_id,enlace_url,notas&oportunidad_id=eq.${id}`),
+    // Las fases se DEDUCEN de los datos (vista fases_oportunidad): nada se marca
+    // a mano (Monica, 9-oct-2026).
+    leer<{ hito: string; estado: "hecho" | "saltado" | "pendiente"; fecha: string | null }[]>(
+      `fases_oportunidad?select=hito,estado,fecha&oportunidad_id=eq.${id}`,
+    ),
     leer<{ tipo_id: string }[]>(`oportunidad_tipos?select=tipo_id&oportunidad_id=eq.${id}`),
     leer<{ que_vendemos: string | null; precio: number | null; alcance: string | null; notas: string | null }[]>(
       `negociacion_oportunidad?select=que_vendemos,precio,alcance,notas&oportunidad_id=eq.${id}&order=creado_en.desc&limit=1`,
@@ -333,11 +333,9 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
         ramal: c.es_ramal,
         rolQuien: c.responsable_rol,
         estado: h?.estado ?? "pendiente",
-        aplicable: h?.aplicable ?? true,
+        // Lo saltado no cuenta como falta, pero sigue abierto.
+        aplicable: h?.estado !== "saltado",
         fecha: h?.fecha ?? null,
-        responsableId: h?.responsable_id ?? null,
-        enlace: h?.enlace_url ?? null,
-        notas: h?.notas ?? null,
       };
     }),
     tiposElegidos: tipos.map((t) => t.tipo_id),
@@ -383,28 +381,6 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
 // ---------------------------------------------------------------- escribir
 
 const oNulo = (v: string | null | undefined) => (v && v.trim() !== "" ? v.trim() : null);
-
-/** Mover una fase. Es LA operacion de esta pantalla: hasta hoy los diez hitos se
- *  creaban con la oportunidad y ahi se quedaban para siempre, porque no habia ni
- *  una pantalla que tocara `hitos_oportunidad.estado`.
- *
- *  Marcar "no aplica" pone tambien `aplicable = false`: son la misma cosa dicha
- *  dos veces, y si se separan acaban contradiciendose. */
-export async function tocarHito(
-  oportunidadId: string,
-  hito: string,
-  d: { estado: string; fecha: string | null; responsableId: string | null; enlace: string | null; notas: string | null },
-) {
-  const estado = ESTADOS_HITO.some((e) => e.valor === d.estado) ? d.estado : "pendiente";
-  await escribir("PATCH", `hitos_oportunidad?oportunidad_id=eq.${oportunidadId}&hito=eq.${hito}`, {
-    estado,
-    aplicable: estado !== "no_aplica",
-    fecha: oNulo(d.fecha),
-    responsable_id: oNulo(d.responsableId),
-    enlace_url: oNulo(d.enlace),
-    notas: oNulo(d.notas),
-  });
-}
 
 /** Que contratan. Se borra y se vuelve a poner: son pocas filas y asi no hay que
  *  calcular diferencias ni arrastrar restos de lo que se desmarco. */

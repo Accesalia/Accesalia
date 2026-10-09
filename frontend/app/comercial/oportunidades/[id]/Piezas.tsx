@@ -21,13 +21,6 @@ export function Titulo({ children, extra }: { children: React.ReactNode; extra?:
 
 // -------------------------------------------------------------- una fase
 
-const TINTA_ESTADO: Record<string, string> = {
-  pendiente: "border-carbon/20 bg-white text-carbon/60",
-  en_curso: "border-[#2B6CB0] bg-[#2B6CB0] text-white",
-  hecho: "border-[#237812] bg-[#237812] text-white",
-  no_aplica: "border-carbon/20 bg-carbon/10 text-carbon/45",
-};
-
 const QUIEN: Record<string, string> = {
   comercial: "lo haces tú",
   arquitecto: "lo hace el arquitecto",
@@ -43,32 +36,23 @@ const QUIEN: Record<string, string> = {
  *
  *  Arranca abierta por la que esta EN CURSO -o la primera pendiente-, que es la
  *  respuesta a "¿y ahora que hago?". */
-export function Fases({
-  hitos,
-  estados,
-  equipo,
-  guardar,
-}: {
-  hitos: HitoGestion[];
-  estados: readonly { valor: string; texto: string }[];
-  equipo: { valor: string; texto: string }[];
-  guardar: (clave: string, fd: FormData) => Promise<void>;
-}) {
-  const ahora =
-    hitos.find((h) => h.estado === "en_curso") ?? hitos.find((h) => h.estado === "pendiente" && h.aplicable) ?? hitos[0];
+export function Fases({ hitos }: { hitos: HitoGestion[] }) {
+  // Las fases NO se tocan: salen solas de los datos (Monica, 9-oct-2026). Aqui
+  // solo se ve por donde va, y al pulsar una, de donde sale.
+  const ahora = hitos.find((h) => h.estado === "pendiente" && !h.ramal) ?? hitos[0];
   const [abierta, setAbierta] = useState<string | null>(ahora?.clave ?? null);
   const h = hitos.find((x) => x.clave === abierta) ?? null;
 
   const tramo = (x: HitoGestion) => {
-    if (x.estado === "no_aplica") return "h-2 border border-dashed border-black/20 bg-transparent";
+    if (x.estado === "saltado") return "h-2 border border-dashed border-black/20 bg-transparent";
     if (x.estado === "hecho") return "h-2 bg-lima";
-    if (x.estado === "en_curso") return "h-3.5 bg-[#2B6CB0]";
+    if (x.clave === ahora?.clave) return "h-3.5 bg-[#2B6CB0]";
     return "h-2 bg-black/10";
   };
 
   return (
     <section className={CAJA + " p-4"}>
-      <Titulo extra={<span className="text-[11px] text-carbon/50">Pulsa una fase para tocarla</span>}>Por dónde va</Titulo>
+      <Titulo extra={<span className="text-[11px] text-carbon/50">Se marcan solas, con lo que va llegando</span>}>Por dónde va</Titulo>
 
       {/* La barra. Rejilla de columnas iguales, no flex: con flex cada tramo se
           ajusta a su texto y salen de distinto largo, que es lo que lo hacia
@@ -86,7 +70,7 @@ export function Fases({
             <span
               className={
                 "truncate text-[10px] leading-tight " +
-                (x.estado === "no_aplica" ? "text-carbon/30 line-through" : abierta === x.clave ? "font-bold text-carbon" : "text-carbon/55")
+                (x.estado === "saltado" ? "text-carbon/30" : abierta === x.clave ? "font-bold text-carbon" : "text-carbon/55")
               }
             >
               {x.numero ? x.numero + " · " : ""}
@@ -97,96 +81,41 @@ export function Fases({
       </div>
 
       {h && (
-        <div className="mt-4 border-t border-black/5 pt-3">
-          <Fase h={h} estados={estados} equipo={equipo} guardar={guardar.bind(null, h.clave)} />
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-black/5 pt-3">
+          <div className="text-[15px] font-bold text-carbon">
+            {h.numero ? h.numero + " · " : ""}
+            {h.nombre}
+          </div>
+          {h.rolQuien && h.rolQuien !== "comercial" && (
+            <div className="text-[11px] text-[#2B6CB0]">{QUIEN[h.rolQuien] ?? h.rolQuien}</div>
+          )}
+          <div className="text-[13px] text-carbon/70">
+            {h.estado === "hecho"
+              ? `Hecho${h.fecha ? " el " + new Date(h.fecha).toLocaleDateString("es-ES") : ""}.`
+              : h.estado === "saltado"
+                ? "Saltado: ya se pasó a una fase posterior. Sigue abierto: si llega, se marca solo."
+                : "Pendiente."}{" "}
+            <span className="text-carbon/45">{DE_DONDE[h.clave] ?? ""}</span>
+          </div>
         </div>
       )}
     </section>
   );
 }
 
-/** UNA FASE, abierta. Hasta hoy los diez hitos se creaban con la oportunidad y
- *  ahi se quedaban, porque no habia nada que los tocara. Pedir el 3D es esto:
- *  ponerlo EN CURSO y decir a quien se le pide. */
-function Fase({
-  h,
-  estados,
-  equipo,
-  guardar,
-}: {
-  h: HitoGestion;
-  estados: readonly { valor: string; texto: string }[];
-  equipo: { valor: string; texto: string }[];
-  guardar: (fd: FormData) => Promise<void>;
-}) {
-  const [estado, setEstado] = useState(h.estado);
-  const ajeno = !!h.rolQuien && h.rolQuien !== "comercial";
-
-  return (
-    <form action={guardar}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div className="min-w-[180px]">
-          <div className="text-[15px] font-bold text-carbon">
-            {h.numero ? h.numero + " · " : ""}
-            {h.nombre}
-          </div>
-          {ajeno && <div className="text-[11px] text-[#2B6CB0]">{QUIEN[h.rolQuien!] ?? h.rolQuien}</div>}
-        </div>
-
-        {/* Los cuatro estados a la vista: un desplegable esconde justo lo que hay
-            que ver de un vistazo. */}
-        <div className="flex flex-wrap gap-1">
-          {estados.map((e) => (
-            <label key={e.valor} className="cursor-pointer">
-              <input
-                type="radio"
-                name="estado"
-                value={e.valor}
-                checked={estado === e.valor}
-                onChange={() => setEstado(e.valor)}
-                className="peer sr-only"
-              />
-              <span
-                className={
-                  "inline-block rounded-full border px-2.5 py-1 text-[11px] font-semibold transition peer-focus-visible:ring-2 peer-focus-visible:ring-lima " +
-                  (estado === e.valor ? TINTA_ESTADO[e.valor] : "border-carbon/15 bg-white text-carbon/45 hover:border-carbon/35")
-                }
-              >
-                {e.texto}
-              </span>
-            </label>
-          ))}
-        </div>
-
-        <button type="submit" className={BOTON + " ml-auto"}>Guardar</button>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-3">
-        <label className="block w-[150px]">
-          <span className={ROTULO}>Cuándo</span>
-          <input type="date" name="fecha" defaultValue={h.fecha ?? ""} className={CAMPO + " mt-1"} />
-        </label>
-        <label className="block w-[210px]">
-          <span className={ROTULO}>Quién lo hace</span>
-          <select name="responsable" defaultValue={h.responsableId ?? ""} className={CAMPO + " mt-1"}>
-            <option value="">— sin asignar —</option>
-            {equipo.map((p) => (
-              <option key={p.valor} value={p.valor}>{p.texto}</option>
-            ))}
-          </select>
-        </label>
-        <label className="block min-w-[230px] flex-1">
-          <span className={ROTULO}>Enlace {h.clave === "polycam" ? "al escaneo / Polycam" : "al documento"}</span>
-          <input name="enlace" defaultValue={h.enlace ?? ""} placeholder="https://…" className={CAMPO + " mt-1"} />
-        </label>
-        <label className="block min-w-[230px] flex-1">
-          <span className={ROTULO}>Notas</span>
-          <input name="notas" defaultValue={h.notas ?? ""} className={CAMPO + " mt-1"} />
-        </label>
-      </div>
-    </form>
-  );
-}
+/** De donde sale cada fase: lo que la marca como hecha (fases_oportunidad). */
+const DE_DONDE: Record<string, string> = {
+  primer_contacto: "Sale de la primera nota del diario.",
+  visita: "Sale del Polycam: si se recibe el escaneo, hubo visita.",
+  polycam: "Sale del escaneo recibido y vinculado a sus portales.",
+  viabilidad_arquitecto: "Sale de la viabilidad con su PDF generado.",
+  preparacion_documentos: "Sale de la hoja de encargo generada en PDF.",
+  envio_documentos: "Sale de la hoja enviada a la comunidad.",
+  tresd: "Sale del 3D entregado.",
+  junta: "Sale de la junta celebrada.",
+  firma: "Sale de la hoja devuelta firmada.",
+  cobro: "Saldrá de facturación: cuando esté pagada.",
+};
 
 // --------------------------------------------------------- qué contratan
 

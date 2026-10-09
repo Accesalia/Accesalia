@@ -28,10 +28,10 @@ async function rest<T>(path: string): Promise<T> {
 
 // La base devuelve como mucho 1.000 filas por consulta. Para lo que puede pasar
 // de ahi (las comunidades ya son 1.228) se pide por paginas.
-async function restTodo<T>(path: string): Promise<T[]> {
+async function restTodo<T>(path: string, orden = "id"): Promise<T[]> {
   const todo: T[] = [];
   for (let desde = 0; ; desde += 1000) {
-    const pagina = await rest<T[]>(`${path}&order=id&limit=1000&offset=${desde}`);
+    const pagina = await rest<T[]>(`${path}&order=${orden}&limit=1000&offset=${desde}`);
     todo.push(...pagina);
     if (pagina.length < 1000) return todo;
   }
@@ -51,7 +51,9 @@ export type Paso = {
   ramal: boolean;
 };
 
-export type EstadoTramo = "hecho" | "actual" | "pendiente" | "no_aplica";
+// "saltado": no se hizo, pero ya se paso a una fase posterior. No es "falta",
+// y no se cierra: si el dato llega luego, pasa a hecho (Monica, 9-oct-2026).
+export type EstadoTramo = "hecho" | "actual" | "pendiente" | "saltado" | "no_aplica";
 
 export type OportunidadCuadro = {
   id: string;
@@ -248,7 +250,9 @@ export async function mapaDe(empresaIds: string[] | null): Promise<DatosMapa> {
 // El cuadro de verdad, desde la base
 // ---------------------------------------------------------------------------
 
-type HitoCrudo = { hito: string; aplicable: boolean; estado: string; fecha: string | null };
+/** Una fase, tal como la DEDUCE la base (vista `fases_oportunidad`): nada se
+ *  marca a mano (Monica, 9-oct-2026). */
+type HitoCrudo = { hito: string; estado: "hecho" | "saltado" | "pendiente"; fecha: string | null };
 
 type OportunidadCruda = {
   id: string;
@@ -260,7 +264,6 @@ type OportunidadCruda = {
   comunidad: { id: string; nombre: string } | null;
   puesto: { persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
   trajo: { nombre: string; apellidos: string | null } | null;
-  hitos_oportunidad: HitoCrudo[];
   negociacion_oportunidad: { que_vendemos: string | null; precio: number | null }[];
   referencia_catastral: string | null;
   vivos: { count: number }[];
@@ -275,46 +278,48 @@ const SEL_OPORTUNIDAD =
   // Quien nos lo trajo: una persona de la agenda (de una contrata, de una
   // administracion, un tecnico municipal...). Desde el 5-oct-2026.
   "trajo:quien_lo_trae(nombre,apellidos)," +
-  "hitos_oportunidad(hito,aplicable,estado,fecha)," +
   "negociacion_oportunidad(que_vendemos,precio,creado_en)";
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 const diasEntre = (desde: string, hasta = hoyISO()) =>
   Math.max(0, Math.round((new Date(hasta).getTime() - new Date(desde.slice(0, 10)).getTime()) / 86_400_000));
 
-/** De los hitos de una oportunidad a los tramos de la barra, el punto actual y cuanto lleva ahi. */
+/** De las fases de una oportunidad a los tramos de la barra, el punto actual y
+ *  cuanto lleva ahi. Las fases vienen DEDUCIDAS de la base (fases_oportunidad):
+ *  aqui solo se pintan. El punto actual es el primer paso de la linea principal
+ *  que sigue pendiente; lo que se paso de largo sale como "saltado". */
 export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
   const por = new Map(hitos.map((h) => [h.hito, h]));
-  const aplica = (clave: string) => {
-    const h = por.get(clave);
-    return !!h && h.aplicable && h.estado !== "no_aplica";
-  };
-  // El punto actual: el primer paso que aplica, no es desvio y no esta hecho.
-  const lineales = pasos.filter((p) => !p.ramal && aplica(p.clave));
-  const actual = lineales.find((p) => por.get(p.clave)!.estado !== "hecho") ?? null;
+  const actual = pasos.find((p) => !p.ramal && (por.get(p.clave)?.estado ?? "pendiente") === "pendiente") ?? null;
 
   const tramos: Record<string, EstadoTramo> = {};
   for (const p of pasos) {
-    const h = por.get(p.clave);
-    if (!aplica(p.clave)) tramos[p.clave] = "no_aplica";
-    else if (h!.estado === "hecho") tramos[p.clave] = "hecho";
-    else if (p.clave === actual?.clave || (p.ramal && h!.estado === "en_curso")) tramos[p.clave] = "actual";
-    else tramos[p.clave] = "pendiente";
+    const e = por.get(p.clave)?.estado ?? "pendiente";
+    tramos[p.clave] = e === "hecho" ? "hecho" : e === "saltado" ? "saltado" : p.clave === actual?.clave ? "actual" : "pendiente";
   }
 
-  // Cuanto lleva en este paso: desde que se cerro el anterior. Si es el primero,
-  // desde que se abrio la oportunidad. Si el anterior se cerro sin fecha, no se
-  // sabe, y no se inventa.
+  // Cuanto lleva en este paso: desde lo ultimo que se hizo. Si no se ha hecho
+  // nada, desde que se abrio la oportunidad.
   let diasAqui: number | null = null;
   if (actual) {
-    const previos = lineales.slice(0, lineales.indexOf(actual));
-    if (!previos.length) diasAqui = diasEntre(creadoEn);
-    else {
-      const fechas = previos.map((p) => por.get(p.clave)!.fecha).filter((f): f is string => !!f).sort();
-      diasAqui = fechas.length ? diasEntre(fechas[fechas.length - 1]) : null;
-    }
+    const fechas = hitos.filter((h) => h.estado === "hecho" && h.fecha).map((h) => h.fecha!).sort();
+    diasAqui = diasEntre(fechas.length ? fechas[fechas.length - 1] : creadoEn);
   }
   return { tramos, actual, diasAqui, junta: por.get("junta")?.fecha ?? null };
+}
+
+/** Las fases de unas cuantas oportunidades, de la vista. */
+async function fasesDe(ids: string[]): Promise<Map<string, HitoCrudo[]>> {
+  const m = new Map<string, HitoCrudo[]>();
+  if (!ids.length) return m;
+  const filas = await rest<(HitoCrudo & { oportunidad_id: string })[]>(
+    `fases_oportunidad?select=oportunidad_id,hito,estado,fecha&oportunidad_id=in.(${ids.join(",")})`,
+  );
+  for (const f of filas) {
+    if (!m.has(f.oportunidad_id)) m.set(f.oportunidad_id, []);
+    m.get(f.oportunidad_id)!.push(f);
+  }
+  return m;
 }
 
 /** EL RECUENTO POR FASES, sin tope.
@@ -330,18 +335,13 @@ export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
  *  numeros acabarian discrepando y nadie sabria cual creer. */
 async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  // restTodo y no un limit: la base no da mas de 1000 filas por peticion, y
-  // Daniel tiene mas (9-oct-2026).
-  const filas = await restTodo<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: HitoCrudo[] }>(
-    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.abierta${f}`,
+  // La fase actual ya viene calculada por la base: aqui solo se cuenta.
+  const filas = await restTodo<{ fase_actual: string | null }>(
+    `fase_actual_oportunidad?select=oportunidad_id,fase_actual&estado=eq.abierta&cobrada=is.false${f}`,
+    "oportunidad_id",
   );
   const cuenta = new Map<string, number>();
-  for (const o of filas) {
-    // Abierta hasta que el dinero esta en la cuenta, no hasta la firma.
-    if (o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado === "hecho") continue;
-    const { actual } = leerBarra(pasos, o.hitos_oportunidad, o.fecha_apertura ?? o.creado_en);
-    if (actual) cuenta.set(actual.clave, (cuenta.get(actual.clave) ?? 0) + 1);
-  }
+  for (const o of filas) if (o.fase_actual) cuenta.set(o.fase_actual, (cuenta.get(o.fase_actual) ?? 0) + 1);
   return pasos.map((p) => ({ clave: p.clave, cuantas: cuenta.get(p.clave) ?? 0 }));
 }
 
@@ -361,11 +361,14 @@ async function oportunidadesPendientes(
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
   // Primero TODAS, pero ligeras: solo para contarlas de verdad y saber cuales
   // caen en esta pagina. Luego, enteras, solo esas.
-  const ligeras = await restTodo<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: { hito: string; estado: string }[] }>(
-    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado)&estado=eq.abierta${f}`,
-  );
-  const vivas = ligeras
-    .filter((o) => o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado !== "hecho")
+  // Abierta hasta que esta COBRADA: eso lo dice la base (fase_actual_oportunidad).
+  const vivas = (
+    await restTodo<{ oportunidad_id: string; creado_en: string; fecha_apertura: string | null }>(
+      `fase_actual_oportunidad?select=oportunidad_id,creado_en,fecha_apertura&estado=eq.abierta&cobrada=is.false${f}`,
+      "oportunidad_id",
+    )
+  )
+    .map((o) => ({ ...o, id: o.oportunidad_id }))
     // Las mas recientes arriba; sin fecha de apertura, al final.
     .sort((a, b) =>
       a.fecha_apertura === b.fecha_apertura
@@ -382,6 +385,7 @@ async function oportunidadesPendientes(
         "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
     )
   ).sort((a, b) => orden.get(a.id)! - orden.get(b.id)!);
+  const fases = await fasesDe(ids);
 
   // UNA OPORTUNIDAD ESTA ABIERTA HASTA QUE EL DINERO ESTA EN LA CUENTA, no hasta
   // que se firma (Monica, 28-sep-2026, corrigiendome: aqui ponia "lo firmado ya
@@ -409,7 +413,7 @@ async function oportunidadesPendientes(
   }
 
   const lista = pendientes.map((o) => {
-    const b = leerBarra(pasos, o.hitos_oportunidad, o.fecha_apertura ?? o.creado_en);
+    const b = leerBarra(pasos, fases.get(o.id) ?? [], o.fecha_apertura ?? o.creado_en);
     const neg = o.negociacion_oportunidad[0];
     const nombre = o.comunidad?.nombre ?? o.comunidad_provisional ?? "Sin dirección todavía";
     const juntaProxima = b.actual?.clave === "junta" && b.junta && b.junta >= hoyISO();
