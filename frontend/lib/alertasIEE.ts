@@ -196,23 +196,40 @@ type LoNuestro = {
   fincas: Map<string, string>;
 };
 
+/** LA FINCA ES DEL EDIFICIO, NO DE LA COMUNIDAD (Monica, 9-oct-2026): la
+ *  referencia catastral se coteja contra los PORTALES (accesos), que es donde
+ *  vive. La de `comunidades` es un duplicado que se va a retirar, y las 1.965
+ *  que tiene estan tambien en sus portales. Del portal se saca el nombre que se
+ *  ensena: su comunidad si la tiene puesta; si no, la de su opp; y si tampoco,
+ *  la direccion del portal. */
 async function loNuestro(): Promise<LoNuestro> {
   const fincas = new Map<string, string>();
   try {
     const [comunidades, accesos] = await Promise.all([
-      porTramos<ComunidadNuestra>("comunidades?select=nombre,referencia_catastral&order=id"),
-      porTramos<{ ref_catastral: string | null; tipo_via: string | null; nombre_via: string | null; numero: string | null; municipio: string | null }>(
-        "accesos?select=ref_catastral,tipo_via,nombre_via,numero,municipio&ref_catastral=not.is.null&order=id",
+      porTramos<ComunidadNuestra & { id: string }>("comunidades?select=id,nombre&order=id"),
+      porTramos<{
+        ref_catastral: string | null;
+        tipo_via: string | null;
+        nombre_via: string | null;
+        numero: string | null;
+        municipio: string | null;
+        figura_legal_propietaria_id: string | null;
+        opps: { hasta: string | null; opp: { comunidad_id: string | null } | null }[];
+      }>(
+        "accesos?select=ref_catastral,tipo_via,nombre_via,numero,municipio,figura_legal_propietaria_id," +
+          "opps:relacion_oportunidad_accesos(hasta,opp:opp_id(comunidad_id))&ref_catastral=not.is.null&order=id",
       ),
     ]);
+    const nombre = new Map(comunidades.map((c) => [c.id, c.nombre]));
     for (const a of accesos) {
       const ref = (a.ref_catastral ?? "").replace(/\s/g, "").slice(0, 14).toUpperCase();
-      if (ref) fincas.set(ref, [a.tipo_via, a.nombre_via, a.numero, a.municipio].filter(Boolean).join(" "));
-    }
-    // La comunidad manda sobre el portal: su nombre es el que se reconoce.
-    for (const c of comunidades) {
-      const ref = (c.referencia_catastral ?? "").replace(/\s/g, "").slice(0, 14).toUpperCase();
-      if (ref) fincas.set(ref, c.nombre);
+      if (!ref) continue;
+      const deSuOpp = a.opps.find((o) => o.hasta === null && o.opp?.comunidad_id)?.opp?.comunidad_id ?? null;
+      const comunidad =
+        (a.figura_legal_propietaria_id && nombre.get(a.figura_legal_propietaria_id)) || (deSuOpp && nombre.get(deSuOpp));
+      // Si ya hay nombre de comunidad para esa finca, no se pisa con una direccion.
+      if (comunidad) fincas.set(ref, comunidad);
+      else if (!fincas.has(ref)) fincas.set(ref, [a.tipo_via, a.nombre_via, a.numero, a.municipio].filter(Boolean).join(" "));
     }
     return { comunidades, fincas };
   } catch {
