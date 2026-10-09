@@ -30,6 +30,8 @@ for e in base.leer('empresas_propietarias?select=id,nombre_accesalia,nombre_lega
         if k: PROP[k.upper()] = e['id']
     if e['cif']: PROP_CIF[e['cif']] = e['id']
 MARCOS = 'bd3e788a-4849-40ee-a000-0a553a689cf5'           # Marcos Ramos Lama: persona + cargo 'propietario' con su DNI (8-oct)
+# particulares (9-oct): persona con puesto 'propietario/a' y su DNI en documento -> paga esa persona
+PERS_DNI = {x['documento'].upper(): x['persona_id'] for x in base.leer('puesto?cargo=in.(propietario,propietaria)&documento=not.is.null&select=persona_id,documento&order=id')}
 COD = json.load(open('codigos_cliente_propuestos.json', encoding='utf-8'))
 #   limpieza de los codigos leidos (8-oct): en el formato antiguo de FAIN el "Orden" es el Grafo/Orden repetido;
 #   las dos ordenes de Schindler en la 0282 son "Orden de compra"
@@ -57,6 +59,7 @@ for f in F:
     elif t == 'particular' and (f['pagador_razon_social'] or '').upper() in PROP: pag = ('empresa_propietaria', PROP[(f['pagador_razon_social'] or '').upper()])
     elif t == 'particular' and (f['pagador_cif'] or '') in PROP_CIF: pag = ('empresa_propietaria', PROP_CIF[f['pagador_cif']])
     elif t == 'particular' and cod == 'HE-2025-0394': pag = ('persona', MARCOS)
+    elif t == 'particular' and (f['pagador_cif'] or '').upper() in PERS_DNI: pag = ('persona', PERS_DNI[f['pagador_cif'].upper()])
     else: pag = None
     if not pag: avisos['sin pagador'].append(f'{cod} ({t})')
     fc = forma_cobro(f)

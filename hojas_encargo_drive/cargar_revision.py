@@ -24,13 +24,13 @@ for f in _g.glob(f'{T}/pdf/*.pdf'):
     b_ = open(f, 'rb').read()
     if b'/ByteRange' in b_:
         FIRMAS[os.path.basename(f)[:-4]] = sorted({m.decode('latin-1') for m in re.findall(rb'/Name\s*\(([^)]{3,80})\)', b_)})
-bl = {b['codigo']: b['id'] for b in base.leer('bloques?select=id,codigo')}
+bl = {b['codigo']: b['id'] for b in base.leer('bloques?select=id,codigo&order=id')}
 norm = lambda s: re.sub(r'[^A-Z0-9?]', '', (s or '').upper())
 com_cif = collections.defaultdict(list)
-for c in base.leer('comunidades?select=id,cif_comunidad&cif_comunidad=not.is.null'): com_cif[norm(c['cif_comunidad'])].append(c['id'])
-contratas = base.leer('contratas?select=id,nombre,cif,razon_social')
+for c in base.leer('comunidades?select=id,cif_comunidad&cif_comunidad=not.is.null&order=id'): com_cif[norm(c['cif_comunidad'])].append(c['id'])
+contratas = base.leer('contratas?select=id,nombre,cif,razon_social&order=id')
 con_cif = {norm(c['cif']): c['id'] for c in contratas if c['cif']}
-hoja_com = {h['id']: h['comunidad_id'] for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,comunidad_id')}
+hoja_com = {h['id']: h['comunidad_id'] for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&select=id,comunidad_id&order=id')}
 HOY = datetime.date.today().isoformat()
 
 def contrata_por_nombre(t):

@@ -37,7 +37,7 @@ en_app |= {nn(f.split('/')[-1]) for h in ids.values() for v in h['versiones'] fo
 
 tp = {t['nombre']: t['id'] for t in base.leer('tipos_proyecto?select=id,nombre')}
 accesos_de = collections.defaultdict(list)
-for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id'): accesos_de[r['opp_id']].append(r['acceso_id'])
+for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id&order=opp_id,acceso_id'): accesos_de[r['opp_id']].append(r['acceso_id'])
 filas = []
 for f in sorted(glob.glob('../docs/cruce_hojas_*.xlsx')):
     t = f.split('_hojas_')[1][:-5]
@@ -61,7 +61,8 @@ for v in base.leer(f'versiones_hoja?notas=like.*Volcado%20de%20las%20firmadas%20
     m = re.search(r'cruce: (.*?)\. Lineas', v['notas'] or '')
     if m: ya_subidas.add(m.group(1))
 # a mano (Monica, 8-oct): la manzana Talco/Palomares/Puerto Lapice/Ferroviarios (firmada "Palomares 75 77 79 garajes")
-A_MANO_OPP = {'Y24_041': 'DAN-2022-240'}
+A_MANO_OPP = {'Y24_041': 'DAN-2022-240',                       # Palomares 75-79 (Monica, 8-oct)
+              'Y2023_029': 'DAN-2023-054', 'Y2023_092': 'DAN-2023-054'}   # Mancomunidad Castillos y Viñagrande (opp sin portales)
 por_cod = {o['codigo']: i for i, o in opps.items()}
 hojas, sin_opp, varias = [], [], []
 for (k, fe), g in grupos.items():
@@ -125,7 +126,7 @@ print('subidas', len(hechas))
 
 # --- renumerar todo el año por fecha (las de antes y las nuevas). Una hoja cuya fecha (corregida al releer el
 #     papel) es de OTRO año pasa a la serie de ese año, detras de la ultima (regla: el codigo va por la fecha).
-todas = base.leer(f'hojas_encargo?numero_hoja=like.HE-{A}-*&select=id,numero_hoja,fecha_creacion,creado_en&order=fecha_creacion,creado_en')
+todas = base.leer(f'hojas_encargo?numero_hoja=like.HE-{A}-*&select=id,numero_hoja,fecha_creacion,creado_en&order=fecha_creacion,creado_en,id')
 del_anio = [h for h in todas if (h['fecha_creacion'] or '').startswith(A)]
 de_otro = [h for h in todas if not (h['fecha_creacion'] or '').startswith(A)]
 for h in todas: base.actualizar(f'hojas_encargo?id=eq.{h["id"]}', {'numero_hoja': 'RENUM-' + h['id']})
@@ -137,12 +138,12 @@ def poner(h, nuevo):
 for i, h in enumerate(del_anio, 1): poner(h, f'HE-{A}-{i:04d}')
 for h in de_otro:
     Y = h['fecha_creacion'][:4]
-    ult = max([int(x['numero_hoja'][-4:]) for x in base.leer(f'hojas_encargo?numero_hoja=like.HE-{Y}-*&select=numero_hoja')
+    ult = max([int(x['numero_hoja'][-4:]) for x in base.leer(f'hojas_encargo?numero_hoja=like.HE-{Y}-*&select=numero_hoja&order=id')
                if re.fullmatch(rf'HE-{Y}-\d{{4}}', x['numero_hoja'])] or [0])
     poner(h, f'HE-{Y}-{ult + 1:04d}')
     s_ = base.leer(f'series_documento?tipo=eq.HE&anio=eq.{Y}&select=ultimo')
     if s_ and s_[0]['ultimo'] < ult + 1: base.actualizar(f'series_documento?tipo=eq.HE&anio=eq.{Y}', {'ultimo': ult + 1})
-for l in base.leer(f'lineas_facturacion?notas=like.*HE-*&select=id,notas'):
+for l in base.leer(f'lineas_facturacion?notas=like.*HE-*&select=id,notas&order=id'):
     t = l['notas']
     for v, nu in cambio.items(): t = t.replace(v + '.', nu + '.').replace(v + ' ', nu + ' ')
     if t != l['notas']: base.actualizar(f'lineas_facturacion?id=eq.{l["id"]}', {'notas': t})

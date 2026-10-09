@@ -12,6 +12,9 @@ base = produccion.arrancar() or produccion.base
 ESCRIBIR = '--escribir' in sys.argv
 VER = [a for a in sys.argv[1:] if a.startswith('HE-')]
 REHACER = '--rehacer' in sys.argv
+# --forzar (9-oct): reescribe tambien las 'editadas' (hasta la pantalla de facturacion nadie las edita a mano: el
+# actualizado_en lo mueven las propias reescrituras del --rehacer)
+FORZAR = '--forzar' in sys.argv
 
 def eur(x):
     x = float(x); s = f'{x:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
@@ -37,7 +40,7 @@ H = {h['id']: h for h in base.leer('hojas_encargo?estado=eq.devuelta_firmada&sel
 L = collections.defaultdict(list)
 for l in base.leer('lineas_facturacion?select=*&order=creado_en,id'): L[l['hoja_encargo_id']].append(l)
 P = collections.defaultdict(list)
-for p in base.leer('hitos_cobro?select=linea_facturacion_id,hito,orden,porcentaje,importe,notas&order=orden,id'): P[p['linea_facturacion_id']].append(p)
+for p in base.leer('hitos_cobro?select=linea_facturacion_id,hito,orden,porcentaje,importe,notas,estado&order=orden,id'): P[p['linea_facturacion_id']].append(p)
 C = collections.defaultdict(list)
 for c in base.leer('codigos_cliente_linea?select=linea_facturacion_id,etiqueta,valor&order=orden,id'): C[c['linea_facturacion_id']].append(c)
 INC = collections.defaultdict(list)
@@ -61,7 +64,8 @@ def de_la_revision(nota):
 def plazo_txt(p):
     q = HITO.get(p['hito'])
     cuanto = pct(p['porcentaje']) if p['porcentaje'] is not None else (eur(p['importe']) if p['importe'] is not None else '')
-    return f"{cuanto} {q}".strip() if q else (p['notas'] or cuanto or 'otro').strip()
+    t = f"{cuanto} {q}".strip() if q else ((p['notas'] or '').split(chr(10))[0] or cuanto or 'otro').strip()
+    return t + (' (ANULADO: no se cobrará)' if p.get('estado') == 'anulado' else '')   # (9-oct) Viñagrande, Herrera Oria 283
 
 notas = []
 pasadas = {f['hoja_encargo_id'] for f in base.leer('revision_firmadas?revision=eq.corregido&select=hoja_encargo_id&order=id')}
@@ -108,7 +112,7 @@ if REHACER:
     distintas = [n for n in notas if n['hoja_encargo_id'] in guardadas and guardadas[n['hoja_encargo_id']]['texto'] != n['texto']]
     for n in distintas:
         g = guardadas[n['hoja_encargo_id']]
-        tocada = g['actualizado_en'] and g['creado_en'] and g['actualizado_en'][:19] != g['creado_en'][:19]
+        tocada = not FORZAR and g['actualizado_en'] and g['creado_en'] and g['actualizado_en'][:19] != g['creado_en'][:19]
         print('DISTINTA', n['_cod'], '(EDITADA A MANO: no se toca)' if tocada else '')
         if n['_cod'] in VER: print('--- antes\n' + g['texto'] + '\n--- ahora\n' + n['texto'])
         if ESCRIBIR and not tocada: base.actualizar(f"notas_facturacion?id=eq.{g['id']}", {'texto': n['texto']})

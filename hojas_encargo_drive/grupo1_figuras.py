@@ -15,8 +15,8 @@ import produccion
 base = produccion.arrancar() or produccion.base
 ESCRIBIR = '--escribir' in sys.argv
 
-fig = {x['id_comodin'] for x in base.leer('figura_legal_propietaria?select=id_comodin')}
-C = {c['id']: c for c in base.leer('comunidades?select=id,nombre,cif_comunidad')}
+fig = {x['id_comodin'] for x in base.leer('figura_legal_propietaria?select=id_comodin&order=id_comodin')}
+C = {c['id']: c for c in base.leer('comunidades?select=id,nombre,cif_comunidad&order=id')}
 F = base.leer('revision_firmadas?pagador_tipo=eq.comunidad&select=pagador_razon_social,pagador_cif,comunidad_id,opp:oportunidad_id(comunidad_id)')
 nuevas = {}
 for f in F:
@@ -35,9 +35,9 @@ F2 = base.leer('revision_firmadas?pagador_tipo=eq.comunidad&select=pagador_cif,c
 opps = {f['opp']['id']: f['opp']['comunidad_id'] for f in F2
         if f['opp']['comunidad_id'] and C[f['opp']['comunidad_id']]['cif_comunidad']
         and lim(f['pagador_cif']) == lim(C[f['opp']['comunidad_id']]['cif_comunidad'])}
-acc = {a['id']: a for a in base.leer('accesos?select=id,figura_legal_propietaria_id,nombre_via,numero')}
+acc = {a['id']: a for a in base.leer('accesos?select=id,figura_legal_propietaria_id,nombre_via,numero&order=id')}
 enganche, choque = {}, []
-for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id'):
+for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id&order=opp_id,acceso_id'):
     cid = opps.get(r['opp_id'])
     if not cid or r['acceso_id'] not in acc or (cid not in fig and cid not in nuevas): continue
     actual = acc[r['acceso_id']]['figura_legal_propietaria_id']

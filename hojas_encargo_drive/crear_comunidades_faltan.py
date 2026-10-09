@@ -15,7 +15,8 @@ for cod in [a for a in sys.argv[1:] if a.startswith('HE-')]:
     acc = [r['a'] for r in base.leer(f'relacion_oportunidad_accesos?opp_id=eq.{o["id"]}&select=a:acceso_id(nombre_via,numero,municipio)')]
     if not acc: print(cod, 'SIN PORTAL: no se crea'); continue
     a = acc[0]
-    nombre = re.sub(r'\s+', ' ', f"{a['nombre_via']} {a['numero']} {a['municipio']}").strip().upper()
+    # (Monica, 9-oct) toda comunidad se llama "CP <texto>"
+    nombre = 'CP ' + re.sub(r'\s+', ' ', f"{a['nombre_via']} {a['numero']} {a['municipio']}").strip().upper()
     cif = f['pagador_cif'] if f['pagador_cif'] and re.fullmatch(r'[A-Z]\d{7}[0-9A-J]', f['pagador_cif']) else None
     print(cod, '->', nombre, '| CIF', cif)
     if not ESCRIBIR: continue

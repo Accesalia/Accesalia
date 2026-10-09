@@ -23,10 +23,10 @@ def clave(t, es_fichero=False):
     calle = [ABREV.get(w, w) for w in re.findall(r'[A-Z]+', m.group(1)) if w not in RUIDO]
     return (frozenset(calle), m.group(2)) if calle else None
 
-opps = {o['id']: o for o in base.leer('oportunidades?select=id,codigo,nombre,comunidad_provisional,fecha_apertura,estado,comunidad_id')}
-acc = {a['id']: a for a in base.leer('accesos?select=id,municipio,nombre_via,numero')}
+opps = {o['id']: o for o in base.leer('oportunidades?select=id,codigo,nombre,comunidad_provisional,fecha_apertura,estado,comunidad_id&order=id')}
+acc = {a['id']: a for a in base.leer('accesos?select=id,municipio,nombre_via,numero&order=id')}
 por_num = collections.defaultdict(list)          # numero -> [(palabras calle, municipio, opp_id)]
-for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id'):
+for r in base.leer('relacion_oportunidad_accesos?select=opp_id,acceso_id&order=opp_id,acceso_id'):
     a = acc.get(r['acceso_id'])
     if not a or not a['numero']: continue
     m = re.match(r'\d+', a['numero'].strip())

@@ -29,7 +29,8 @@ def iban_ok(i):
 def iban_bonito(i): i = limpio(i); return ' '.join(i[k:k + 4] for k in range(0, 24, 4))
 
 # (8-oct, tarde) comunidades.iban ya no existe: las cuentas son de paso2_cuentas.py. Aqui solo el CIF.
-C = {c['id']: dict(c, iban='-') for c in base.leer('comunidades?select=id,nombre,cif_comunidad')}
+C = {c['id']: dict(c, iban='-') for c in base.leer('comunidades?select=id,nombre,cif_comunidad&order=id')}
+sin_cp = lambda x: re.sub(r'^CP\s+', '', x or '')   # (9-oct) los nombres llevan ahora 'CP ' delante
 F = base.leer('revision_firmadas?pagador_tipo=eq.comunidad&select=numero_hoja,hoja_encargo_id,fecha_firma,pagador_cif,'
               'pagador_iban,comunidad_id,opp:oportunidad_id(id,comunidad_id)')
 cif_nuevo, iban_cand = {}, collections.defaultdict(list)
@@ -41,8 +42,8 @@ for f in sorted(F, key=lambda f: f['fecha_firma'] or ''):
 # Fuera (8-oct): el CIF de la hoja no es el de ESA comunidad: garaje de Portugal 23 (no el portal), solo el 17 de
 # Principes de España 17 y 19, solo Salamanca 1 de la comunidad conjunta Salamanca 1-3-5-7 y Empecinado 23.
 NO_TOCAR_CIF = {'AV PORTUGAL 23 LEGANES', 'AV LOS PRINCIPES DE ESPAÑA 17 Y 19 COSLADA', 'SALAMANCA 1-3-5-7 Y EMPECINADO 23 MOSTOLES'}
-cif_nuevo = {cid: v for cid, v in cif_nuevo.items() if C[cid]['nombre'] not in NO_TOCAR_CIF}
-iban_cand = {cid: v for cid, v in iban_cand.items() if C[cid]['nombre'] not in NO_TOCAR_CIF}   # tampoco su IBAN (8-oct)
+cif_nuevo = {cid: v for cid, v in cif_nuevo.items() if sin_cp(C[cid]['nombre']) not in NO_TOCAR_CIF}
+iban_cand = {cid: v for cid, v in iban_cand.items() if sin_cp(C[cid]['nombre']) not in NO_TOCAR_CIF}   # tampoco su IBAN (8-oct)
 CORREGIR = {'H79444115': 'H79444105', 'E78007324': 'E78007234'}   # Doctor Vallejo 39, Batalla de Clavijo 7
 cif_mal = {cid: CORREGIR[c['cif_comunidad']] for cid, c in C.items() if c['cif_comunidad'] in CORREGIR}
 

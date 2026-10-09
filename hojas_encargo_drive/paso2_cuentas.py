@@ -18,7 +18,7 @@ def valido(i):
     return int(''.join(str(int(c, 36)) for c in i[4:] + i[:4])) % 97 == 1
 def bonito(i): i = limpio(i); return ' '.join(i[k:k + 4] for k in range(0, len(i), 4))
 
-ya = {(c['titular_tipo'], c['titular_id'], limpio(c['iban'])) for c in base.leer('cuentas_bancarias?select=titular_tipo,titular_id,iban')}
+ya = {(c['titular_tipo'], c['titular_id'], limpio(c['iban'])) for c in base.leer('cuentas_bancarias?select=titular_tipo,titular_id,iban&order=id')}
 vigente = {(t, i) for t, i, _ in ya}
 F = base.leer('revision_firmadas?select=numero_hoja,fecha_firma,pagador_tipo,pagador_iban,comunidad_id,contrata_id,'
               'opp:oportunidad_id(comunidad_id)&order=fecha_firma.desc')
@@ -31,7 +31,7 @@ for f in F:
 # Fuera (8-oct): la cuenta de la hoja no es de ESA comunidad (la del garaje de Portugal 23; la del 17 en la
 # comunidad 'Principes de España 17 y 19'). Mismo criterio que grupo1_comunidades.py.
 NO_TOCAR = {'AV PORTUGAL 23 LEGANES', 'AV LOS PRINCIPES DE ESPAÑA 17 Y 19 COSLADA', 'SALAMANCA 1-3-5-7 Y EMPECINADO 23 MOSTOLES'}
-nombre_com = {c['id']: c['nombre'] for c in base.leer('comunidades?select=id,nombre')}
+nombre_com = {c['id']: re.sub(r'^CP\s+', '', c['nombre'] or '') for c in base.leer('comunidades?select=id,nombre&order=id')}   # (9-oct) sin el 'CP ' delante
 de_hoja = {k: v for k, v in de_hoja.items() if not (k[0] == 'comunidad' and nombre_com.get(k[1]) in NO_TOCAR)}
 nuevas, malas = [], []
 for c in []:   # (8-oct, tarde) comunidades.iban ya no existe; las cuentas nuevas salen de las hojas (abajo)

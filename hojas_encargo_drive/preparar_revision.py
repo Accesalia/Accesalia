@@ -54,6 +54,23 @@ for h in hojas:
     for k, ruta in enumerate(v['pdfs_firmados'] or [], 1):
         datos = bajar(ruta)
         local = f'{T}/pdf/{cod}-{k}.pdf'; open(local, 'wb').write(datos)
+        if datos[:2] == b'PK':                        # un WORD guardado como firmada (2023): Word lo pasa a PDF y se mira igual
+            import subprocess
+            docx = os.path.abspath(f'{T}/pdf/{cod}-{k}.docx'); open(docx, 'wb').write(datos); os.remove(local)
+            subprocess.run(['powershell', '-NoProfile', '-Command',
+                            f"$w = New-Object -ComObject Word.Application; $d = $w.Documents.Open('{docx}', $false, $true); "
+                            f"$d.SaveAs([ref] '{os.path.abspath(local)}', [ref] 17); $d.Close(); $w.Quit()"], check=True)
+            cands = [p for p in por_tam.get(len(datos), []) if open(p, 'rb').read() == datos]
+            drive = cands[0] if len(cands) == 1 else None
+            doc = pdfium.PdfDocument(local)
+            os.makedirs(f'{T}/img/{cod}', exist_ok=True)
+            paginas = []
+            for i in range(len(doc)):
+                png = f'{T}/img/{cod}/f{k}-p{i + 1}.png'; doc[i].render(scale=1.4).to_pil().save(png); paginas.append(os.path.abspath(png))
+            pdfs.append({'ruta_almacen': ruta, 'archivo_drive': os.path.basename(drive) if drive else None, 'drive_ambiguo': None,
+                         'fecha_firma_pdf': None, 'fecha_archivo_drive': datetime.date.fromtimestamp(os.path.getctime(drive)).isoformat() if drive else None,
+                         'paginas': paginas, 'tiene_texto': False, 'texto': None, 'es_word': True})
+            continue
         if datos[:4] != b'%PDF':                      # una FOTO guardada como firmada (jpeg/png): se mira tal cual
             from PIL import Image
             import io as _io
