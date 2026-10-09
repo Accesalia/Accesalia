@@ -74,6 +74,34 @@ MANUAL = {
     'CP CDAD PROP CL LA CAÑADA N 22 ALCORCON': [
         ('Hugo Manuel', None, None, '618155949', None, 'presidente', None, None, 'Ficha del ascensor 2026: "revisar cuando llegue"'),
         ('Paula', 'Herradón Jiménez', '02178744T', None, None, 'presidente', None, '2026-01-01', '1º D. Presidenta en la ficha de la rampa 2025')],
+    # Segunda tanda de enredadas, leidas el 9-oct-2026
+    'CP NUESTRA SEÑORA DE LA MACARENA 7 LEGANES': [
+        ('Dolores', 'Molis Ruiz', '24749063M', None, None, 'presidente', '2025-06-09', None, '"Nueva presidenta, datos pedidos 09/06/2025"'),
+        ('Cristina', 'Saiz Molina', None, '676807828', None, 'presidente', None, '2025-06-09', 'Tachada en la ficha. Hija de Miguela Santos'),
+        ('Miguela', 'Santos Romero', '04622161N', None, None, 'presidente', None, '2025-06-09', 'Tachada en la ficha')],
+    'CP CDAD PROP VIRGEN DE ICIAR 15, ESCALERA 4': [
+        ('Tamar', 'Gómez Vega', '46933351B', None, None, 'presidente', None, None, 'Ficha de la escalera 4 (marzo 2024), mismo CIF H82954199'),
+        ('María Concepción Isabel', 'Loa Barrientos', '22702949V', '678539352', None, 'presidente', None, '2024-03-21', 'Presidenta en la ficha de febrero 2024; tachada como contacto en la de marzo 2024')],
+    'CP CASTELLON 1 MOSTOLES': [
+        ('Sebastián', 'Cuevas Sánchez', None, None, None, 'presidente', None, None, None),
+        ('Eva María', 'Gómez Bezón', '46894360M', None, None, 'presidente', None, '2026-07-09', F)],
+    'CP CDAD PROP CL BRUNETE N 3 FUENLABRADA': [
+        ('Engracia', 'Calzado Jiménez', '02062137A', None, None, 'presidente', None, None, None),
+        ('Pedro', 'García Sánchez', '26475481C', None, None, 'presidente', None, '2026-06-09', F),
+        ('David', None, None, '635854745', None, 'presidente', None, '2026-06-09', '"David (anterior presidente)" en la ficha; fecha real desconocida')],
+    'CP ALFONSO XII 10 MOSTOLES': [
+        ('Andrés', 'Jimeno', None, '669694539', None, 'presidente', None, None, None),
+        ('Luis', None, None, '696787699', 'luis.lo.av@gmail.com', 'vicepresidente', None, None, None),
+        ('Nuria', 'Carbajo Sanz', '46932253V', None, None, 'presidente', None, '2024-07-03', F)],
+    'CP MADRID 79 HUMANES DE MADRID': [
+        ('María del Carmen', 'Martín Vicente', '70043192G', None, None, 'presidente', None, None, None),
+        ('Noura', 'Bouzizoua Lafriakh', None, None, None, 'presidente', None, '2025-06-10', 'DNI tachado e incompleto en la ficha (49450785). ' + F)],
+    'CP PADILLA 8 MOSTOLES': [
+        ('María Elena', 'Serrasilla Romero', '76111220B', '615017829', None, 'presidente', None, None, None),
+        ('Luis', None, None, None, None, 'vicepresidente', None, None, 'En la ficha: "603409736 Luis ADMIN GARAGE / JOSE PRESIDENTE GARAJE 665852125" (el garaje es otra comunidad)')],
+    'CP ARAGON 11 LEGANES': [
+        ('Carmen', None, None, '625408415', None, 'presidente', None, None, '"Nva Presidenta: CARMEN"'),
+        ('Victoriano', 'Bravo Iñigo', '16775165T', None, None, 'presidente', None, '2024-11-08', 'DNI sin tachar en la ficha: puede ser suyo o de Carmen. Su hija Olga hacia de contacto. ' + F)],
     'CP AV CARDENAL HERRERA ORIA 283 MADRID': [
         ('Vanessa', 'García Jiménez', '47023728K', '679145169', 'vanessagj80@hotmail.com', 'presidente', None, None, 'Firma como presidenta en el borrador de 2026'),
         ('Julia', 'Monero', None, None, None, 'presidente', '2023-12-14', '2026-07-01', '"desde 14/12/2023". ' + F),
