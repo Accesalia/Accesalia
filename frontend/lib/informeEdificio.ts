@@ -610,6 +610,7 @@ async function guardar(ref: string, c: Crudo) {
 
 type FilaFicha = {
   id: string;
+  referencia: string;
   bruto: Crudo | null;
   consultado_en: string;
   municipio: string | null;
@@ -687,6 +688,8 @@ async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
     };
   });
 
+  const geo = (f.municipio ?? "").toUpperCase() === "MADRID" ? await geoportalGuardado(f) : null;
+
   return {
     inmuebles,
     fincaLdt: "",
@@ -696,15 +699,88 @@ async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
     lng: f.lng,
     utmX: f.utm_x,
     utmY: f.utm_y,
-    protegido: null,
-    condiciones: null,
-    ascensor: null,
-    apiru: null,
-    arru: null,
-    cerca: [],
+    protegido: geo?.protegido ?? null,
+    condiciones: geo?.condiciones ?? null,
+    ascensor: geo?.ascensor ?? null,
+    apiru: geo?.apiru ?? null,
+    arru: geo?.arru ?? null,
+    cerca: geo?.cerca ?? [],
     fallos: [],
     consultadoEn: f.consultado_en,
-    geoportal: false,
+    geoportal: geo !== null,
+  };
+}
+
+/** Las cinco fuentes del geoportal que pide la ficha, en el orden de
+ *  scripts/barrido/geoportal_madrid.py, que es quien las baja (9-oct-2026). */
+const FUENTES_GEOPORTAL = ["edificio_protegido", "condiciones_proteccion", "modelo_ascensor", "apiru", "arru"] as const;
+
+/** Distancia en metros entre dos puntos en grados. A 800 m, la diferencia con
+ *  el calculo del geoportal (en UTM) es de centimetros. */
+function metros(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const r = Math.PI / 180;
+  const a =
+    Math.sin(((lat2 - lat1) * r) / 2) ** 2 +
+    Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(((lng2 - lng1) * r) / 2) ** 2;
+  return 6371000 * 2 * Math.asin(Math.sqrt(a));
+}
+
+/** LO DEL GEOPORTAL, DESDE LAS TABLAS (Monica, 9-oct-2026). Null si no estan
+ *  las cinco fuentes: una a medias no se da por consultada, y la ficha dice
+ *  "sin consultar" en vez de "No". Las subvenciones de alrededor salen del
+ *  censo entero (subvencion_concedida), con su posicion. */
+async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" | "condiciones" | "ascensor" | "apiru" | "arru" | "cerca"> | null> {
+  const r = await fetch(`${URL_BASE}/rest/v1/dato_urbanistico?select=fuente,hay,detalle&referencia=eq.${f.referencia}`, {
+    headers: cab,
+    cache: "no-store",
+  });
+  if (!r.ok) return null;
+  const filas = (await r.json()) as { fuente: string; hay: boolean | null; detalle: Record<string, unknown> | null }[];
+  const de = (fuente: string) => filas.find((x) => x.fuente === fuente);
+  if (!FUENTES_GEOPORTAL.every((x) => de(x)?.hay != null)) return null;
+  const si = (fuente: string) => (de(fuente)?.hay ? (de(fuente)?.detalle ?? null) : null);
+
+  let cerca: SubvencionCerca[] = [];
+  if (f.lat != null && f.lng != null) {
+    // Una caja algo mayor de 800 m, y luego la distancia de verdad.
+    const dLat = 0.0075;
+    const dLng = 0.0100;
+    const s = await fetch(
+      `${URL_BASE}/rest/v1/subvencion_concedida?select=direccion,importe,convocatoria,viviendas,ahorro_co2,lat,lng` +
+        `&lat=gte.${f.lat - dLat}&lat=lte.${f.lat + dLat}&lng=gte.${f.lng - dLng}&lng=lte.${f.lng + dLng}`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!s.ok) return null;
+    const lista = (await s.json()) as {
+      direccion: string;
+      importe: number | null;
+      convocatoria: string | null;
+      viviendas: number | null;
+      ahorro_co2: number | null;
+      lat: number;
+      lng: number;
+    }[];
+    cerca = lista
+      .map((x) => ({ x, m: metros(f.lat!, f.lng!, x.lat, x.lng) }))
+      .filter(({ m }) => m <= 800)
+      .map(({ x, m }) => ({
+        direccion: x.direccion.trim(),
+        importe: x.importe != null ? Number(x.importe) : null,
+        convocatoria: x.convocatoria,
+        viviendas: x.viviendas,
+        ahorroCo2: x.ahorro_co2 != null ? Number(x.ahorro_co2) : null,
+        aqui: m <= 35,
+      }))
+      .sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
+  }
+
+  return {
+    protegido: si("edificio_protegido"),
+    condiciones: si("condiciones_proteccion"),
+    ascensor: si("modelo_ascensor"),
+    apiru: si("apiru"),
+    arru: si("arru"),
+    cerca,
   };
 }
 
@@ -713,7 +789,7 @@ async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | nul
   if (!URL_BASE || !SECRETO) return null;
   try {
     const r = await fetch(
-      `${URL_BASE}/rest/v1/ficha_catastro?select=id,bruto,consultado_en,municipio,provincia,cp,distrito_municipal,` +
+      `${URL_BASE}/rest/v1/ficha_catastro?select=id,referencia,bruto,consultado_en,municipio,provincia,cp,distrito_municipal,` +
         `tipo_via,nombre_via,numero,anio,tipo_parcela,superficie_suelo,lat,lng,utm_x,utm_y&referencia=eq.${ref}&limit=1`,
       { headers: cab, cache: "no-store" },
     );

@@ -103,7 +103,12 @@ async function numerosDe(idCalle: number): Promise<{ idEdificio: string; numero:
 
 // ------------------------------------------------------------- lo nuestro
 
-type Direccion = { municipio: string; via: string; numero: string };
+export type Direccion = { municipio: string; via: string; numero: string };
+
+/** Una direccion tal como esta en `accesos`, a la forma con la que se coteja. */
+export function direccionDeAcceso(a: { municipio: string; tipo_via: string; nombre_via: string; numero: string }): Direccion {
+  return { municipio: a.municipio, via: aplanar(`${a.tipo_via} ${a.nombre_via}`), numero: aplanar(a.numero) };
+}
 
 /** PostgREST CORTA EN 1.000 FILAS Y NO LO DICE, y pedirle `Range: 0-9999` no
  *  sirve de nada: contesta 1.000 como si fuera todo. La primera noche (1-oct)
@@ -134,11 +139,7 @@ async function nuestrasDirecciones(): Promise<Direccion[]> {
   const vistas = new Set<string>();
   const salida: Direccion[] = [];
   for (const f of filas) {
-    const d = {
-      municipio: f.municipio,
-      via: aplanar(`${f.tipo_via} ${f.nombre_via}`),
-      numero: aplanar(f.numero),
-    };
+    const d = direccionDeAcceso(f);
     const clave = `${comoMunicipio(d.municipio)}|${d.via}|${d.numero}`;
     if (vistas.has(clave)) continue;
     vistas.add(clave);
@@ -198,7 +199,14 @@ export type ResultadoPorDireccion = {
 export async function barrerNuestrasDirecciones({
   desdeMunicipio = "",
   segundosMaximos = 240,
-}: { desdeMunicipio?: string; segundosMaximos?: number } = {}): Promise<ResultadoPorDireccion> {
+  soloEstas,
+}: {
+  desdeMunicipio?: string;
+  segundosMaximos?: number;
+  /** Preguntar solo por estas, no por todas las de `accesos`. Lo usa el barrido
+   *  por meses de apertura de las opps abiertas (Monica, 9-oct-2026). */
+  soloEstas?: Direccion[];
+} = {}): Promise<ResultadoPorDireccion> {
   const t0 = Date.now();
   const r: ResultadoPorDireccion = {
     municipiosMirados: 0, municipiosFuera: [], direcciones: 0, callesQueEncajan: 0,
@@ -206,7 +214,7 @@ export async function barrerNuestrasDirecciones({
   };
 
   const [direcciones, codigos] = await Promise.all([
-    nuestrasDirecciones(),
+    soloEstas ? Promise.resolve(soloEstas) : nuestrasDirecciones(),
     municipiosDelRegistro(),
   ]);
   r.direcciones = direcciones.length;

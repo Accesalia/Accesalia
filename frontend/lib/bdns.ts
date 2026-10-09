@@ -63,7 +63,7 @@ const sinTildes = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toUp
 // alojamientos turisticos y convenios de oficinas.
 const BUSCAR = ["accesibilidad", "ascensor", "rehabilitación", "eficiencia energética", "edificios", "residencial", "fotovoltaica", "regeneración", "NGEU-MRR"];
 const ES_LO_NUESTRO = /ACCESIB|ASCENSOR|REHABILIT|EFIC(IENCIA)? ?ENERG|EDIFIC|RESIDENCIAL|FOTOVOLT|SOLAR|REGENERA|ERRP|ARRU|ENTORNO/;
-const NO_ES = /ALQUILER|EMPRESA|PYME|TURIS|AGRO|AGRAR|INDUSTRIAL|PREMIO|TEATRO|CENTROS? DE D[IÍ]A|CONVENIO|OFICINA|ASOCIACI|COMERCI|DEPORT|CULTURA|MI PRIMERA VIVIENDA|ADQUISICI|CONSTRUCCI[OÓ]N VIVIENDAS/;
+const NO_ES = /TAXI|ADICCION|PERSPECTIVA DE GENERO|ALQUILER|EMPRESA|PYME|TURIS|AGRO|AGRAR|INDUSTRIAL|PREMIO|TEATRO|CENTROS? DE D[IÍ]A|CONVENIO|OFICINA|ASOCIACI|COMERCI|DEPORT|CULTURA|MI PRIMERA VIVIENDA|ADQUISICI|CONSTRUCCI[OÓ]N VIVIENDAS/;
 
 type Convocatoria = { numeroConvocatoria: string; descripcion: string; fechaRecepcion: string; nivel1: string | null; nivel2: string | null; nivel3: string | null };
 
@@ -77,7 +77,11 @@ async function municipiosNuestros(): Promise<Set<string>> {
 function esDeAqui(c: Convocatoria, municipios: Set<string>): boolean {
   const n2 = sinTildes(c.nivel2 ?? "");
   const n3 = sinTildes(c.nivel3 ?? "");
-  if (n2 === "COMUNIDAD DE MADRID") return n3.includes("VIVIENDA");
+  // No solo la de Vivienda (9-oct-2026): el ERRP de Fuenlabrada lo convoco
+  // Medio Ambiente, Agricultura e Interior y se quedaba fuera. De las demas
+  // consejerias, solo lo que habla claro de rehabilitar viviendas.
+  if (n2 === "COMUNIDAD DE MADRID")
+    return n3.includes("VIVIENDA") || /REHABILIT|ERRP|ARRU|ENTORNOS? RESIDENCIAL|ASCENSOR/.test(sinTildes(c.descripcion ?? ""));
   if (c.nivel1 === "LOCAL") {
     // "ROZAS DE MADRID, LAS" -> "LAS ROZAS DE MADRID"
     const m = n2.includes(", ") ? `${n2.split(", ")[1]} ${n2.split(", ")[0]}` : n2;
@@ -86,7 +90,7 @@ function esDeAqui(c: Convocatoria, municipios: Set<string>): boolean {
   return false;
 }
 
-async function buscarNuevas(desde: Date): Promise<Convocatoria[]> {
+export async function buscarNuevas(desde: Date): Promise<Convocatoria[]> {
   const municipios = await municipiosNuestros();
   const ya = new Set((await leer<{ numero: string }[]>("bdns_convocatorias?select=numero")).map((x) => x.numero));
   const fecha = (d: Date) => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
