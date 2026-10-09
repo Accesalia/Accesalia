@@ -1,0 +1,5577 @@
+{
+"d80a94bf-4018-42ef-bea8-3aa201d618a7": {
+"codigo": "DAN-2017-157",
+"carpeta": "AvEspaña35-4",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 35-4 MAJADAHONDA"
+},
+"f13d3f78-aa15-4385-8710-c9300745967f": {
+"codigo": "DAN-2017-158",
+"carpeta": "AvEspaña35-7",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 35-7 MAJADAHONDA"
+},
+"f4e002e3-9772-4753-b188-8bd42c11b256": {
+"codigo": "DAN-2022-249",
+"carpeta": "paseodelachopera85",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP PASEO CHOPERA 85 ALCOBENDAS"
+},
+"d6f0e681-7bb0-4433-a649-ebd7b280c51f": {
+"codigo": "DAN-2020-061",
+"carpeta": "angeles5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ANGELES 5 FUENLABRADA"
+},
+"cd144343-340d-468e-bc1c-6fdc60591ac3": {
+"codigo": "DAN-2017-159",
+"carpeta": "AvEspaña35-8",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 35-8 MAJADAHONDA"
+},
+"01caf3e0-35ea-4ccf-b7df-44f4a34e6bf1": {
+"codigo": "DAN-2017-166",
+"carpeta": "SantaBrigida1-2",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP SANTA BRIGIDA 1-2 MAJADAHONDA"
+},
+"50b0363d-f47b-4cea-b4fa-94a5011553c4": {
+"codigo": "DAN-2020-008",
+"carpeta": "alpujarras76",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ALPUJARRAS 76 LEGANES"
+},
+"d64e75b5-fd9d-4c0a-b845-19a747faa3e1": {
+"codigo": "DAN-2019-005",
+"carpeta": "avespaña18",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 18 FUENLABRADA"
+},
+"b35b57dd-e8d7-4716-a3fd-9190286eeabb": {
+"codigo": "DAN-2019-048",
+"carpeta": "berlin5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PASEO BERLIN 5 FUENLABRADA"
+},
+"a777d981-ce48-4805-8683-36f9dd6674bd": {
+"codigo": "DAN-2017-167",
+"carpeta": "SantaBrigida1-5",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP SANTA BRIGIDA 1-5 MAJADAHONDA"
+},
+"8623e75f-ffef-4c02-886e-efd7b0e70c49": {
+"codigo": "DAN-2017-013",
+"carpeta": "constitucion51",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CONSTITUCION 51 FUENLABRADA"
+},
+"4dc1d847-f46c-4273-9be7-64011d78ccec": {
+"codigo": "DAN-2022-205",
+"carpeta": "sanjose7",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SAN JOSE 7 ALCORCON"
+},
+"5ab178a0-c887-4569-ae22-82f98a70c2e4": {
+"codigo": "DAN-2021-069",
+"carpeta": "cañon9",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP CAÑON 9 ALCOBENDAS"
+},
+"1b6fef21-435b-431a-83b0-59ff3d798ef5": {
+"codigo": "DAN-2016-055",
+"carpeta": "sanblas6",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SAN BLAS 6 ALCORCON"
+},
+"a5a2dfe5-5a99-4e22-90e7-a9a4f9ca846e": {
+"codigo": "DAN-2016-068",
+"carpeta": "dinamarca 8,10,12,14",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP DINAMARCA 8 FUENLABRADA"
+},
+"facc0cb0-e612-412f-bbe3-9d0afa18f0e0": {
+"codigo": "DAN-2016-147",
+"carpeta": "colon35",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP COLON 35 ALCORCON"
+},
+"a17058c0-7b4d-4f20-bcf3-c71e2f88bb84": {
+"codigo": "DAN-2022-251",
+"carpeta": "soria1",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SORIA 1 FUENLABRADA"
+},
+"b6c234cb-06a1-4c4c-8f84-715b9e90dcb4": {
+"codigo": "DAN-2016-142",
+"carpeta": "eras 3 5 7 9 11 13",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ERAS 3 FUENLABRADA"
+},
+"c812af81-af75-42bd-a45f-47f16b49055a": {
+"codigo": "DAN-2022-067",
+"carpeta": "avestados5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ESTADOS 5 FUENLABRADA"
+},
+"9e40d99c-263f-4fb8-a772-5d89ac37f260": {
+"codigo": "DAN-2021-082",
+"carpeta": "espada29",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP ESPADA 29 ALCORCON"
+},
+"57191541-adda-40b7-9e26-ab4a2be12f24": {
+"codigo": "DAN-2022-058",
+"carpeta": "montoro8",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP MONTORO 8 ALCORCON"
+},
+"dac5f7d1-4cab-4829-8912-35c494bdd1d1": {
+"codigo": "DAN-2015-020",
+"carpeta": "guindales25",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP GUINDALES 25 ALCORCON"
+},
+"313ef703-96cd-4183-a56c-47d21e80e19a": {
+"codigo": "DAN-2017-043",
+"carpeta": "caceres25",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP CACERES 25 ALCORCON"
+},
+"280f17d4-d4d5-4a16-a564-c0b1222f002e": {
+"codigo": "DAN-2015-010",
+"carpeta": "calledelaestacion",
+"municipio": "FUENLABRADA",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP CALLEDELAESTACION FUENLABRADA"
+},
+"cb2e5def-8807-4a01-9662-42004640d60d": {
+"codigo": "DAN-2016-011",
+"carpeta": "lasvegas17",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP LAS VEGAS 17 ALCORCON"
+},
+"358cf811-0478-48f5-a7d5-b7d9cf0e7f6c": {
+"codigo": "DAN-2017-062",
+"carpeta": "infantas5",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP INFANTAS 5 ALCORCON"
+},
+"2af42c47-8a63-41dc-85c6-755222f87e72": {
+"codigo": "DAN-2021-008",
+"carpeta": "0-ORDENANZA",
+"municipio": "GETAFE",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP 0-ORDENANZA GETAFE"
+},
+"5027503f-4faa-4a2f-8641-cb166e2b9ac7": {
+"codigo": "DAN-2020-030",
+"carpeta": "Valencia 3 Esc.Dcha 6-B",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP VALENCIA 3 FUENLABRADA"
+},
+"7b7c8ed5-91b4-4466-b9c3-d01c60be7d84": {
+"codigo": "DAN-2018-071",
+"carpeta": "alvarodebazan23",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ALVARO DE BAZAN 23 GETAFE"
+},
+"24f52072-0a6a-4a52-bc7d-3c45c626aee0": {
+"codigo": "DAN-2021-049",
+"carpeta": "migueldeunamuno25",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PROP CL MIGUEL DE UNAMUNO 25 FUENLABRADA"
+},
+"20c77682-5017-4330-9357-86f2a869e490": {
+"codigo": "DAN-2020-057",
+"carpeta": "malaga26",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP DE PROP MALAGA 26 MADRID FUENLABRADA"
+},
+"cfba40fc-5675-4cd6-b212-10559424a961": {
+"codigo": "DAN-2021-134",
+"carpeta": "humera2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HUMERA 2 FUENLABRADA"
+},
+"febe8b76-34ed-4afc-83bd-700c905dee53": {
+"codigo": "DAN-2019-007",
+"carpeta": "nazaret10",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP NAZARET 10 FUENLABRADA"
+},
+"54ca3b56-f591-44e4-834b-e1a657ef7c1f": {
+"codigo": "DAN-2021-067",
+"carpeta": "portocolon10",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP PORTO COLON 10 ALCORCON"
+},
+"698033d7-7a41-4ab7-bc47-99afbe839fd8": {
+"codigo": "DAN-2021-051",
+"carpeta": "sannicolas7",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN NICOLAS 7 LEGANES"
+},
+"2b7d62a0-0674-40ad-8ca7-d113a3671acb": {
+"codigo": "DAN-2021-062",
+"carpeta": "trujillo3",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP TRUJILLO 3 ALCORCON"
+},
+"7087a556-cd2f-4ef4-9812-7b8d569f3459": {
+"codigo": "DAN-2018-100",
+"carpeta": "sanpedro6",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SAN PEDRO 6 ALCORCON"
+},
+"e3b8d573-6c88-4594-8534-e58e7414fe24": {
+"codigo": "DAN-2019-006",
+"carpeta": "fuego53",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP FUEGO 53 ALCOBENDAS"
+},
+"2a04267b-6ed0-4de4-b786-7dddb931aa2a": {
+"codigo": "DAN-2016-054",
+"carpeta": "infantas1",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP INFANTAS 1 ALCORCON"
+},
+"ea9eefa7-e14c-412f-b743-060d87e8b9f8": {
+"codigo": "DAN-2022-028",
+"carpeta": "nardos6",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP LOS NARDOS 6 ALCORCON"
+},
+"38f09733-5b07-43b3-adfc-f54b7d3cf9c7": {
+"codigo": "DAN-2016-182",
+"carpeta": "jaboneria4",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP JABONERIA 4 ALCORCON"
+},
+"13162c5f-a555-4835-b143-76aa0e039f6a": {
+"codigo": "DAN-2015-119",
+"carpeta": "badajoz7",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP BADAJOZ 7 ALCORCON"
+},
+"ca4bd67c-5a9f-48bb-aa35-2fe6ffeac5b1": {
+"codigo": "DAN-2015-008",
+"carpeta": "priorato17",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PRIORATO 17 LEGANES"
+},
+"d35ce83c-5b45-405f-b4f8-9dc00067ee43": {
+"codigo": "DAN-2015-022",
+"carpeta": "sierrapeñalara6",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SIERRA DE PEÑALARA 6 ALCORCON"
+},
+"a653866d-04fc-4b7e-9f57-701b6e0dc710": {
+"codigo": "DAN-2015-039",
+"carpeta": "rioalberche7",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO ALBERCHE 7 LEGANES"
+},
+"08e39c30-7938-47d5-8a68-ce5ab2036b76": {
+"codigo": "DAN-2016-102",
+"carpeta": "artica11",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP ARTICA11 LEGANES"
+},
+"4822031d-4186-4375-b8b5-d479b25ce192": {
+"codigo": "DAN-2021-010",
+"carpeta": "isladecordega20",
+"municipio": "ALCOBENDAS",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP ISLADECORDEGA20 ALCOBENDAS"
+},
+"fbacae03-6c23-460f-8769-c55924149c2b": {
+"codigo": "DAN-2017-106",
+"carpeta": "italia1",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ITALIA 1 FUENLABRADA"
+},
+"ff98d2fa-83da-42a1-b8e0-ab076f6b3421": {
+"codigo": "DAN-2018-064",
+"carpeta": "toledo6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TOLEDO 6 MADRID"
+},
+"8e459e0f-13c5-4a2a-9570-43fa3d96a4fe": {
+"codigo": "DAN-2021-090",
+"carpeta": "jardinillos15",
+"municipio": "EL MOLAR",
+"de": "callejero",
+"nombre": "CP URB LOS JARDINILLOS 15 EL MOLAR"
+},
+"614c51cb-e45d-4fe8-a04b-dd4c4c2c0332": {
+"codigo": "DAN-2019-018",
+"carpeta": "glorietamiraflores2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP GLORIETA MIRAFLORES 2 FUENLABRADA"
+},
+"dea6ce24-732a-4009-bbd2-2ef4457dbff8": {
+"codigo": "DAN-2016-143",
+"carpeta": "islandia6",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ISLANDIA 6 FUENLABRADA"
+},
+"206b5cf8-0851-455a-b09f-096f54820176": {
+"codigo": "DAN-2016-164",
+"carpeta": "lourdes5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP LOURDES 5 FUENLABRADA"
+},
+"517a1bd2-52eb-4f24-91ef-a2000a52df9f": {
+"codigo": "DAN-2017-065",
+"carpeta": "plazadelahispanidad9",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP PLAZA LA HISPANIDAD 9 ALCORCON"
+},
+"5aad758c-0cce-459d-8004-9181e09115aa": {
+"codigo": "DAN-2021-097",
+"carpeta": "alava14",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ALAVA 14 FUENLABRADA"
+},
+"88e31a7b-8a77-4a79-9241-3d4dba0af108": {
+"codigo": "DAN-2015-100",
+"carpeta": "chipre1",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CHIPRE 1 FUENLABRADA"
+},
+"0bebe411-573d-4237-9b65-6d7ed91633fb": {
+"codigo": "DAN-2016-045",
+"carpeta": "escandinavia1,2,3,4,5,6",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA ESCANDINAVIA 1 FUENLABRADA"
+},
+"99750d46-3f5d-4580-858d-365e7f45cbdd": {
+"codigo": "DAN-2022-063",
+"carpeta": "leganes18",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP LEGANES 18 FUENLABRADA"
+},
+"8716f29e-844c-4881-9be3-3be812b6410e": {
+"codigo": "DAN-2021-127",
+"carpeta": "avcerroprieto16",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AV CERRO PRIETO 16 MOSTOLES"
+},
+"4b7eca3f-ca64-40f8-b5f0-c9072856ec92": {
+"codigo": "DAN-2022-002",
+"carpeta": "alcarria9",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ALCARRIA 9 LEGANES"
+},
+"6ca3ac76-1cfa-4909-872b-bfa043382248": {
+"codigo": "DAN-2015-012",
+"carpeta": "migueldeunamuno17",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP MIGUEL DE UNAMUNO 17 FUENLABRADA"
+},
+"5eac6b61-1769-4ee3-977f-3914fd4f2ceb": {
+"codigo": "DAN-2022-019",
+"carpeta": "empecinado13",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP EMPECINADO 13 MOSTOLES"
+},
+"334cbe94-ded6-4c55-a44f-23b8084bee8f": {
+"codigo": "DAN-2022-025",
+"carpeta": "madrid18",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP MADRID 18 FUENLABRADA"
+},
+"bd5b230a-39ed-4916-b910-32f3a5006366": {
+"codigo": "DAN-2022-277",
+"carpeta": "andalucia2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ANDALUCIA 2 GETAFE"
+},
+"c705a7a1-5d89-4858-bafc-2e80cb965c22": {
+"codigo": "DAN-2022-031",
+"carpeta": "panades12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PANADES 12 LEGANES"
+},
+"f01eca37-605b-48b5-b572-3d8db00e6ec4": {
+"codigo": "DAN-2016-207",
+"carpeta": "arquitectos12",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ARQUITECTOS 12 GETAFE"
+},
+"dc3af905-cf86-44e5-b661-58a94064e4da": {
+"codigo": "DAN-2015-021",
+"carpeta": "fatima18",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP FATIMA 18 FUENLABRADA"
+},
+"7c040a20-a809-45ba-be8d-e7d926c0ca7f": {
+"codigo": "DAN-2016-204",
+"carpeta": "avandalucia26",
+"municipio": "GETAFE",
+"de": "dudosa: 3 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVANDALUCIA26 GETAFE"
+},
+"41d08ba2-8b20-4efb-ad30-2147d0e0afc0": {
+"codigo": "DAN-2016-008",
+"carpeta": "leganes8",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP LEGANES 8 PARLA"
+},
+"7afce639-01ad-4baa-b5a9-4d2895db19fe": {
+"codigo": "DAN-2016-048",
+"carpeta": "avangeles12",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ANGELES 12 GETAFE"
+},
+"5bbaeb39-d002-4758-a56e-66039d47377a": {
+"codigo": "DAN-2022-006",
+"carpeta": "avangeles55",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ANGELES 55 GETAFE"
+},
+"bbf48f2c-e43a-4346-8e10-0be2c8b6e54b": {
+"codigo": "DAN-2016-073",
+"carpeta": "estacion1",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ESTACION 1 FUENLABRADA"
+},
+"0fe49256-3a60-4454-bf67-4ef11319e4f6": {
+"codigo": "DAN-2018-023",
+"carpeta": "islandia2",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP ISLANDIA 2 FUENLABRADA"
+},
+"3ac99f01-cdc7-4f9d-bc29-2445798b76d5": {
+"codigo": "DAN-2016-067",
+"carpeta": "sanvicente34",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP SAN VICENTE 34 GETAFE"
+},
+"6447328c-dc29-42a1-a684-585bac0d9d67": {
+"codigo": "DAN-2016-167",
+"carpeta": "angeles11 18",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ANGELES 11 FUENLABRADA"
+},
+"4b87db0e-ccda-4478-a4c4-b8736788c6e7": {
+"codigo": "DAN-2019-027",
+"carpeta": "angeles4",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ANGELES 4 FUENLABRADA"
+},
+"b3bae08d-7830-410a-b7db-9f0c7ccb41c3": {
+"codigo": "DAN-2021-012",
+"carpeta": "avespaña20",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 20 FUENLABRADA"
+},
+"dc04ffc3-a0c8-4e0e-aab7-ecc377f43b5c": {
+"codigo": "DAN-2021-041",
+"carpeta": "avdrmartinveguejaudenes22",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVDRMARTINVEGUEJAUDENES22 LEGANES"
+},
+"d7ae5fe6-49ae-4f19-8f83-4cdcae4d2a5a": {
+"codigo": "DAN-2021-133",
+"carpeta": "lima73",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP LIMA 73 FUENLABRADA"
+},
+"734fe1ac-4a69-4ec1-9c79-ee2f3c1e00a2": {
+"codigo": "DAN-2023-109",
+"carpeta": "oriente9",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ORIENTE 9 FUENLABRADA"
+},
+"c16f739a-7678-4c9a-95b6-a76ee57b54b8": {
+"codigo": "DAN-2022-247",
+"carpeta": "habana27",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HABANA 27 FUENLABRADA"
+},
+"54a2e7ce-5602-46a8-944d-b7f618969c2c": {
+"codigo": "DAN-2016-018",
+"carpeta": "higueral12",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HIGUERAL 12 FUENLABRADA"
+},
+"7bcf4001-50af-460a-b54d-81e9f15b0be0": {
+"codigo": "DAN-2016-059",
+"carpeta": "nazaret9-11",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP NAZARET 9-11 FUENLABRADA"
+},
+"3b30234b-8f0d-4095-a4f2-b9f0178db176": {
+"codigo": "DAN-2016-097",
+"carpeta": "holanda5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HOLANDA 5 FUENLABRADA"
+},
+"f59853ba-f15c-4b3a-a7b2-c648b483992d": {
+"codigo": "DAN-2016-146",
+"carpeta": "colon22",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP COLON 22 ALCORCON"
+},
+"86043fe5-7e49-428e-8d1b-1701a9c891ea": {
+"codigo": "DAN-2017-055",
+"carpeta": "plazavaldehondillo3",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA VALDEHONDILLO 3 FUENLABRADA"
+},
+"f84f6884-742c-4842-983e-2dab79556acc": {
+"codigo": "DAN-2018-033",
+"carpeta": "islandia4",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ISLANDIA 4 FUENLABRADA"
+},
+"6030298b-17b4-415d-9595-4f020e64fa97": {
+"codigo": "DAN-2018-104",
+"carpeta": "plazaparis8",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PROP PLAZA PARIS 8 FUENLABRADA"
+},
+"011ea7a6-e8c9-4458-addf-7821800293fc": {
+"codigo": "DAN-2019-023",
+"carpeta": "lafontana-mancomunidad",
+"municipio": "FUENLABRADA",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP LAFONTANA-MANCOMUNIDAD FUENLABRADA"
+},
+"13b624e1-4d06-49bb-9cbf-34f555916236": {
+"codigo": "DAN-2020-041",
+"carpeta": "hispanidad12",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV HISPANIDAD 12 FUENLABRADA"
+},
+"1dc6acf8-3f06-4cf8-a29a-e9fc1e86df5c": {
+"codigo": "DAN-2021-038",
+"carpeta": "suecia3",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SUECIA 3 FUENLABRADA"
+},
+"da1bfbd3-dcfa-43e8-9ec6-4056c6db5afc": {
+"codigo": "DAN-2021-086",
+"carpeta": "plazadepanticosa5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA PANTICOSA 5 FUENLABRADA"
+},
+"6dcfbc05-0525-43d6-afcc-7248c6ec7137": {
+"codigo": "DAN-2021-116",
+"carpeta": "torrente51",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP TORRENTE 51 FUENLABRADA"
+},
+"6f2690d4-c92b-49cb-b82c-143731e06f67": {
+"codigo": "DAN-2021-129",
+"carpeta": "santaana8",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SANTA ANA 8 FUENLABRADA"
+},
+"e810fab4-7baf-482a-87ba-6a093dc51284": {
+"codigo": "DAN-2022-032",
+"carpeta": "paseodegranada3",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PASEO GRANADA 3 FUENLABRADA"
+},
+"a8cd75d4-2461-4060-a37a-3dfd2f088a9b": {
+"codigo": "DAN-2022-098",
+"carpeta": "pozuelo27",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP POZUELO 27 FUENLABRADA"
+},
+"4505cef8-ff47-4eb7-8666-b7408d895bb3": {
+"codigo": "DAN-2022-226",
+"carpeta": "paseodelahaya2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PASEO HAYA 2 FUENLABRADA"
+},
+"b2dd4a87-2389-490f-9789-e730db6bdaf1": {
+"codigo": "DAN-2016-137",
+"carpeta": "pelayo7",
+"municipio": "FUENLABRADA",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP PELAYO7 FUENLABRADA"
+},
+"09f88b5f-4fb6-4e88-a3f7-302cb29f528f": {
+"codigo": "DAN-2018-018",
+"carpeta": "villalba7",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP VILLALBA 7 FUENLABRADA"
+},
+"44770c8d-a115-41d1-b8c2-287eec1eac43": {
+"codigo": "DAN-2018-089",
+"carpeta": "plazaparis3",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA PARIS 3 FUENLABRADA"
+},
+"840f5e58-6554-4ce6-9a72-fc0a357fba68": {
+"codigo": "DAN-2020-042",
+"carpeta": "valencia 17 19 21 23",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP VALENCIA 17 FUENLABRADA"
+},
+"8bd3f614-268b-48ea-9af1-c62b6c5cc6d0": {
+"codigo": "DAN-2022-250",
+"carpeta": "portugal44",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PORTUGAL 44 FUENLABRADA"
+},
+"bbd20f47-f069-4f15-829a-c84edec7aa05": {
+"codigo": "DAN-2021-045",
+"carpeta": "cisneros24",
+"municipio": "ALCORCON",
+"de": "texto",
+"nombre": "CP PROP CL CISNEROS 24 ALCORCON"
+},
+"32617268-5ded-4a60-aeef-3f0f04952833": {
+"codigo": "DAN-2021-110",
+"carpeta": "malaga1618 20",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP MALAGA 1618 FUENLABRADA"
+},
+"fcecf583-e9fc-4d0b-acc6-45eb66822340": {
+"codigo": "DAN-2022-049",
+"carpeta": "callao21",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CALLAO 21 FUENLABRADA"
+},
+"3ebff8d2-7b0b-4812-ae4e-8914f4ea1ad7": {
+"codigo": "DAN-2017-088",
+"carpeta": "eras5",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP ERAS 5 FUENLABRADA"
+},
+"d97ea044-bf86-4c21-b4a7-f2cdf247c0c0": {
+"codigo": "DAN-2017-150",
+"carpeta": "rioduero25",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO DUERO 25 LEGANES"
+},
+"33a1a8fc-f8f0-4d17-91a4-d54dd4aa4709": {
+"codigo": "DAN-2018-019",
+"carpeta": "villalba3",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP VILLALBA 3 FUENLABRADA"
+},
+"684f254d-c24b-4528-8dbd-4f35ceece512": {
+"codigo": "DAN-2018-061",
+"carpeta": "venezuela2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP VENEZUELA 2 FUENLABRADA"
+},
+"ae5d405e-0ef3-491e-9d67-fd7db8f2c010": {
+"codigo": "DAN-2018-069",
+"carpeta": "austria7",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP AUSTRIA 7 FUENLABRADA"
+},
+"bd4038f4-2f82-4e89-9600-505709b91a17": {
+"codigo": "DAN-2018-096",
+"carpeta": "avenidadelaluz11",
+"municipio": "MECO",
+"de": "callejero",
+"nombre": "CP AV DE LA LUZ 11 MECO"
+},
+"b6348118-6375-4aa6-8694-36d693de02fe": {
+"codigo": "DAN-2018-098",
+"carpeta": "sanandres5",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP SAN ANDRES 5 FUENLABRADA"
+},
+"96510bab-b786-4156-99a0-d6bb91b0fdb5": {
+"codigo": "DAN-2021-035",
+"carpeta": "isladecorcega3",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP ISLA DE CORCEGA 3 ALCOBENDAS"
+},
+"a4db2d3a-c99e-4abc-aff6-67f9b49b9cf0": {
+"codigo": "DAN-2022-030",
+"carpeta": "olimpicoaureliogarcia",
+"municipio": "ALCORCON",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP OLIMPICOAURELIOGARCIA ALCORCON"
+},
+"9b9cbc6b-aef1-4e73-8a64-de80cf62ecb4": {
+"codigo": "DAN-2015-104",
+"carpeta": "sanandres12",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SAN ANDRES 12 FUENLABRADA"
+},
+"66a1f741-9bfd-4f94-b720-dc7d542cf092": {
+"codigo": "DAN-2022-012",
+"carpeta": "castillalanueva16",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CASTILLA LA NUEVA 16 FUENLABRADA"
+},
+"bde60828-1f5c-4e67-8cab-8edcb3ddf24d": {
+"codigo": "DAN-2022-021",
+"carpeta": "getafe17",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP GETAFE 17 FUENLABRADA"
+},
+"00b129d8-e77b-46c6-af11-9fd23ef86048": {
+"codigo": "DAN-2022-041",
+"carpeta": "sieteojos4",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SIETE OJOS 4 ALCORCON"
+},
+"55d9c955-0b0b-43cf-8705-ceed5204242f": {
+"codigo": "DAN-2022-288",
+"carpeta": "avfranciscojaviersauquillo2",
+"municipio": "FUENLABRADA",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVFRANCISCOJAVIERSAUQUILLO2 FUENLABRADA"
+},
+"78779c75-7af4-4c31-8def-6ca78996ad6a": {
+"codigo": "DAN-2022-292",
+"carpeta": "torrejon1",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP TORREJON 1 FUENLABRADA"
+},
+"94089d57-459d-4ab6-82e5-4d8083f926bb": {
+"codigo": "DAN-2015-004",
+"carpeta": "sanjuan16",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN JUAN 16 LEGANES"
+},
+"f9a0a3e4-8131-4431-b03f-8696990e5cd5": {
+"codigo": "DAN-2019-052",
+"carpeta": "sanlorenzo2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN LORENZO 2 LEGANES"
+},
+"5163bde6-efb9-41ac-9187-55bbac82473f": {
+"codigo": "DAN-2021-003",
+"carpeta": "avdrmartinveguejaudenes33-35-37",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVDRMARTINVEGUEJAUDENES33-35-37 LEGANES"
+},
+"03926a7e-3ce5-48ba-8fde-0a6de566a9a5": {
+"codigo": "DAN-2023-038",
+"carpeta": "constitucion11",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CONSTITUCION 11 FUENLABRADA"
+},
+"8ae44933-0234-4c77-b632-6a85caf64171": {
+"codigo": "DAN-2022-027",
+"carpeta": "marquesdevaldavia73",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP MARQUES VALDAVIA 73 ALCOBENDAS"
+},
+"2b6eaa0b-c47a-4eb3-819e-c9f21fd3cb30": {
+"codigo": "DAN-2016-162",
+"carpeta": "malaga4",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP MALAGA 4 FUENLABRADA"
+},
+"cdd0c5fe-ce55-4177-a1db-50eeadbff168": {
+"codigo": "DAN-2017-136",
+"carpeta": "jaboneria61",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP JABONERIA 61 ALCORCON"
+},
+"ad6cdda7-a004-4c88-ab1c-c18cd0af15b9": {
+"codigo": "DAN-2018-073",
+"carpeta": "cuartel 1",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PROP CL CUARTEL 1 FUENLABRADA"
+},
+"19c74557-4528-42fd-8779-d05de8c50823": {
+"codigo": "DAN-2019-015",
+"carpeta": "sanpablo10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN PABLO 10 LEGANES"
+},
+"32e4eb8d-7e6d-4d3a-aef6-578baa9795fe": {
+"codigo": "DAN-2022-020",
+"carpeta": "fatima8",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP FATIMA 8 FUENLABRADA"
+},
+"09f31161-a428-481d-89e8-0957975bc20e": {
+"codigo": "DAN-2016-051",
+"carpeta": "aranjuez4",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP ARANJUEZ 4 ALCORCON"
+},
+"abaf6283-1147-4b3d-8863-c70568fac20b": {
+"codigo": "DAN-2016-109",
+"carpeta": "plazadelasescuelas6",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP PLAZA LAS ESCUELAS 6 ALCORCON"
+},
+"bbda5b93-92f0-4850-b4e7-f262ecaa3f98": {
+"codigo": "DAN-2016-206",
+"carpeta": "colonialosalmendros9",
+"municipio": "ARGANDA DEL REY",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP COLONIALOSALMENDROS9 ARGANDA DEL REY"
+},
+"943854ea-8228-4648-817b-cdaa9c917860": {
+"codigo": "DAN-2018-066",
+"carpeta": "fuenlabrada13",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP FUENLABRADA 13 ALCORCON"
+},
+"7a05c3c4-0d7e-4646-b8a3-5b25aef6c21a": {
+"codigo": "DAN-2018-106",
+"carpeta": "paseosanantonio5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PASEO SAN ANTONIO 5 FUENLABRADA"
+},
+"89b01667-d3df-456b-8f35-ea74dd93ab87": {
+"codigo": "DAN-2024-265",
+"carpeta": "marquesdesantillana4",
+"municipio": "BUITRAGO DE LOZOYA",
+"de": "texto",
+"nombre": "CP MARQUES DE SANTILLANA 4, BUITRAGO DE LOZOYA"
+},
+"78b88f4e-0f2e-43cd-bcd8-232686c54111": {
+"codigo": "DAN-2016-201",
+"carpeta": "leganes27",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP LEGANES 27 FUENLABRADA"
+},
+"736c242a-b6c7-4e5d-bd5e-9afc5b27a4fc": {
+"codigo": "DAN-2017-028",
+"carpeta": "avestados28",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ESTADOS 28 FUENLABRADA"
+},
+"8d2b63b7-47cf-4b7a-a387-a8b86b0d9f0f": {
+"codigo": "DAN-2018-090",
+"carpeta": "villaviciosadeodon8",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP VILLAVICIOSA DE ODON 8 FUENLABRADA"
+},
+"1b5812a1-d14f-425d-b7aa-d049af7eec90": {
+"codigo": "DAN-2018-097",
+"carpeta": "sanjoaquin19",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP SAN JOAQUIN 19 FUENLABRADA"
+},
+"92724599-25dc-4cea-bb67-029f23764121": {
+"codigo": "DAN-2019-031",
+"carpeta": "torrejon7",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP TORREJON 7 FUENLABRADA"
+},
+"306db011-b1c8-4d03-90e2-1ae0dd9fa5c4": {
+"codigo": "DAN-2022-005",
+"carpeta": "avandes22",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ANDES 22 FUENLABRADA"
+},
+"5f7bcf62-67aa-494f-91c1-1cc33369fcdd": {
+"codigo": "DAN-2022-042",
+"carpeta": "torrejon9",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP TORREJON 9 FUENLABRADA"
+},
+"7bc3b064-d57b-4992-903a-ebc3cbd81f2e": {
+"codigo": "DAN-2022-106",
+"carpeta": "picodecotos63",
+"municipio": "COLLADO VILLALBA",
+"de": "callejero",
+"nombre": "CP PICO DE COTOS 63 COLLADO VILLALBA"
+},
+"8f92c95b-3b69-43c8-a076-2941b15cf91a": {
+"codigo": "DAN-2018-062",
+"carpeta": "enriquevelasco18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ENRIQUE VELASCO 18 MADRID"
+},
+"14b45f99-f260-4bb5-abaf-37cd97879f87": {
+"codigo": "DAN-2022-286",
+"carpeta": "holanda10",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HOLANDA 10 FUENLABRADA"
+},
+"499911e0-5844-4fdb-9202-499b1971d1ed": {
+"codigo": "DAN-2015-066",
+"carpeta": "santarosa7",
+"municipio": "LEGANES",
+"de": "texto",
+"nombre": "CP SANTA ROSA 7 LEGANES"
+},
+"5bd677bf-cdb9-4501-9b86-3e8b68136ef8": {
+"codigo": "DAN-2016-027",
+"carpeta": "santarosa5delante",
+"municipio": "LEGANES",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP SANTAROSA5DELANTE LEGANES"
+},
+"d337e95c-404a-4ee8-ba51-36e03b192af6": {
+"codigo": "DAN-2016-150",
+"carpeta": "avenidaroma 33, 35, 37",
+"municipio": "COSLADA",
+"de": "callejero",
+"nombre": "CP AV ROMA 33 COSLADA"
+},
+"8cf83334-4bb6-466f-84ff-abaa0c8ab0ae": {
+"codigo": "DAN-2018-024",
+"carpeta": "avenidalisboa28",
+"municipio": "COSLADA",
+"de": "callejero",
+"nombre": "CP AV LISBOA 28 COSLADA"
+},
+"1a16f6b6-21b7-49e1-aeea-cd8793575358": {
+"codigo": "DAN-2019-050",
+"carpeta": "fuencisla4",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP FUENCISLA 4 LEGANES"
+},
+"d6c81310-58c9-49ee-9bf8-33df0d4f8442": {
+"codigo": "DAN-2021-121",
+"carpeta": "guadalupe9",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP GUADALUPE9 LEGANES"
+},
+"1be8cb58-dd03-421e-a840-fe872ef8a38c": {
+"codigo": "DAN-2025-362",
+"carpeta": "avdelosrobles22",
+"municipio": "TORRELODONES",
+"de": "callejero",
+"nombre": "CP AV DE LOS ROBLES 22 TORRELODONES"
+},
+"9d13586e-ffd8-44d2-b96b-a0e52a77201d": {
+"codigo": "DAN-2016-116",
+"carpeta": "pelayos9",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PELAYOS 9 FUENLABRADA"
+},
+"b255e861-7d2b-407c-876c-869d84dfe417": {
+"codigo": "DAN-2018-092",
+"carpeta": "avnaciones22",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV NACIONES 22 FUENLABRADA"
+},
+"1ab6cc8c-5e9c-4df6-8bf2-4bea7129c922": {
+"codigo": "DAN-2016-126",
+"carpeta": "sevilla7",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SEVILLA 7 FUENLABRADA"
+},
+"2fd7e93f-5360-4745-8802-31e55ab86ec7": {
+"codigo": "DAN-2016-159",
+"carpeta": "pradodesanjuan46",
+"municipio": "GUADARRAMA",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP PRADODESANJUAN46 GUADARRAMA"
+},
+"a25249c7-595a-4183-aa43-7219c0c3c516": {
+"codigo": "DAN-2017-015",
+"carpeta": "hernancortes5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP HERNAN CORTES 5 LEGANES"
+},
+"1699c0cf-72c3-4528-94fd-1ddb497ef4ca": {
+"codigo": "DAN-2017-100",
+"carpeta": "plazavaldehondillo2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA VALDEHONDILLO 2 FUENLABRADA"
+},
+"07053731-6343-423d-8af9-a8dd9c05bdb6": {
+"codigo": "DAN-2018-070",
+"carpeta": "uruguay2",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP URUGUAY 2 FUENLABRADA"
+},
+"4e98f89a-245a-4b66-9696-6c93f1b80973": {
+"codigo": "DAN-2021-078",
+"carpeta": "paseoolimpo7",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PASEO OLIMPO 7 FUENLABRADA"
+},
+"95a5d9e2-5579-4285-ab7b-184f75b57048": {
+"codigo": "DAN-2021-096",
+"carpeta": "carreterradegalapagar",
+"municipio": "TORRELODONES",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP CARRETERRADEGALAPAGAR TORRELODONES"
+},
+"fdb1e991-7fb3-401a-a0b5-9cf6bea76c1a": {
+"codigo": "DAN-2015-079",
+"carpeta": "aguila1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP AGUILA 1 LEGANES"
+},
+"9719d493-7ca6-4ede-bd71-20150542c302": {
+"codigo": "DAN-2016-002",
+"carpeta": "lafuente9",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP FUENTE 9 LEGANES"
+},
+"6d7b5350-2e8d-42c6-80a4-9849327da698": {
+"codigo": "DAN-2016-014",
+"carpeta": "juandemariana5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP JUAN DE MARIANA 5 LEGANES"
+},
+"e3a2713e-de9b-4393-a760-d5c894480bfd": {
+"codigo": "DAN-2016-171",
+"carpeta": "mostoles3portal3",
+"municipio": "FUENLABRADA",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP MOSTOLES3PORTAL3 FUENLABRADA"
+},
+"c691f82d-4639-4505-aab6-a2e9527e478f": {
+"codigo": "DAN-2016-175",
+"carpeta": "mostoles3portal5",
+"municipio": "FUENLABRADA",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP MOSTOLES3PORTAL5 FUENLABRADA"
+},
+"545d15ab-3adb-4594-8752-2ca69c51a416": {
+"codigo": "DAN-2017-141",
+"carpeta": "sevilla19",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP SEVILLA 19 FUENLABRADA"
+},
+"7fceab8e-1a98-4a1e-8c41-d0bdee3dbfe6": {
+"codigo": "DAN-2020-028",
+"carpeta": "juandemariana3",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP JUAN DE MARIANA 3 LEGANES"
+},
+"41ec4bfa-0425-4db9-93cd-850f72454472": {
+"codigo": "DAN-2021-054",
+"carpeta": "cisneros31",
+"municipio": "ALCORCON",
+"de": "texto",
+"nombre": "CP PROP CL CISNEROS 31 ALCORCON"
+},
+"77fc8a47-408b-457a-951b-17b96adced81": {
+"codigo": "DAN-2016-138",
+"carpeta": "pozuelo19",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP POZUELO 19 FUENLABRADA"
+},
+"b5ad1558-6abe-4997-9d91-630294cb3857": {
+"codigo": "DAN-2016-202",
+"carpeta": "santamonica4",
+"municipio": "GUADARRAMA",
+"de": "callejero",
+"nombre": "CP SANTA MONICA 4 GUADARRAMA"
+},
+"777bdff5-86ef-48f7-b18a-9bab7f660bb2": {
+"codigo": "DAN-2017-131",
+"carpeta": "alcarria13",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ALCARRIA 13 LEGANES"
+},
+"21d5e9f5-025d-43b0-9571-7890020fa034": {
+"codigo": "DAN-2018-017",
+"carpeta": "avfuenlabrada18",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP AV FUENLABRADA 18 LEGANES"
+},
+"da873184-6260-4f31-b722-1d5551f2ee1d": {
+"codigo": "DAN-2019-017",
+"carpeta": "alameda11",
+"municipio": "ALCORCON",
+"de": "texto",
+"nombre": "CP DE ALAMEDA 11 ALCORCON"
+},
+"2b4a2759-f34b-4fae-8e2d-da124fd2d716": {
+"codigo": "DAN-2021-043",
+"carpeta": "avfuenlabrada92",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP AV FUENLABRADA 92 LEGANES"
+},
+"47bbbce0-9660-45f9-b2a0-67a4a4dad6f6": {
+"codigo": "DAN-2016-135",
+"carpeta": "holanda11",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP HOLANDA 11 FUENLABRADA"
+},
+"b6c17f9f-2c08-4485-9876-d6b6d4fec857": {
+"codigo": "DAN-2017-104",
+"carpeta": "austria9",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP AUSTRIA 9 FUENLABRADA"
+},
+"1f7bc827-aa00-48e4-abbd-2247c5b96f98": {
+"codigo": "DAN-2018-007",
+"carpeta": "villalba5",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP VILLALBA 5 FUENLABRADA"
+},
+"c6fd8e11-f4c2-49c1-8e75-361f800b7b2e": {
+"codigo": "DAN-2018-034",
+"carpeta": "avfranciscojaviersauquillo30",
+"municipio": "FUENLABRADA",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVFRANCISCOJAVIERSAUQUILLO30 FUENLABRADA"
+},
+"ff16c973-e70a-4579-97ab-04453539fcd3": {
+"codigo": "DAN-2018-035",
+"carpeta": "castillejos22",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP CASTILLEJOS 22 FUENLABRADA"
+},
+"bb46e8e2-188e-4fa7-a8ae-b7c7536d9fe1": {
+"codigo": "DAN-2018-102",
+"carpeta": "lima53",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP LIMA 53 FUENLABRADA"
+},
+"62222fe2-6ce2-43f2-be74-e3f56dcc159e": {
+"codigo": "DAN-2018-103",
+"carpeta": "nazaret1",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP NAZARET 1 FUENLABRADA"
+},
+"c6da2d01-bf53-4924-bcf9-edb1e90bfa9c": {
+"codigo": "DAN-2019-067",
+"carpeta": "1 RENDER",
+"municipio": "LEGANES",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP 1 RENDER LEGANES"
+},
+"f8076a67-203b-467a-b8d6-27457a3193a7": {
+"codigo": "DAN-2020-003",
+"carpeta": "1 MODELO TIPO LEGANES",
+"municipio": "LEGANES",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP 1 MODELO TIPO LEGANES LEGANES"
+},
+"3b0e9742-2066-43ab-8881-a0cae8576cc0": {
+"codigo": "DAN-2022-001",
+"carpeta": "alcarria62",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ALCARRIA 62 LEGANES"
+},
+"94104fd5-b791-4927-aa23-d46dfa248c59": {
+"codigo": "DAN-2015-085",
+"carpeta": "fraymelchorcano21",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP FRAY MELCHOR CANO 21 LEGANES"
+},
+"00b3c65a-a47c-4ff7-ae0b-8b74379c6642": {
+"codigo": "DAN-2017-170",
+"carpeta": "travesiasanmateo15",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP TRAVESIA SAN MATEO 15 MADRID"
+},
+"97a0b0dd-7055-4555-926c-d51f65ca5b93": {
+"codigo": "DAN-2018-032",
+"carpeta": "humera27",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP HUMERA 27 FUENLABRADA"
+},
+"0f2297c2-6fc4-40f9-91ea-d3ce76ae93fb": {
+"codigo": "DAN-2022-047",
+"carpeta": "virgendeiciar15",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP VIRGEN DE ICIAR 15 ALCORCON"
+},
+"26e6cc06-9e99-4446-b3de-ccccce024cd6": {
+"codigo": "DAN-2015-045",
+"carpeta": "ordoñez17",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ORDOÑEZ 17 LEGANES"
+},
+"9178f5ff-96c9-4052-8a9f-3f2e6cb935b0": {
+"codigo": "DAN-2015-051",
+"carpeta": "sanpablo18",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN PABLO 18 LEGANES"
+},
+"7c19e3dc-8217-4e8e-ad50-4219a103dc5d": {
+"codigo": "DAN-2016-013",
+"carpeta": "tercio5",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TERCIO 5 MADRID"
+},
+"06ee2e48-3288-4873-8531-e129be2a5b95": {
+"codigo": "DAN-2016-040",
+"carpeta": "sanpablo16",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN PABLO 16 LEGANES"
+},
+"1303ff60-3035-48d7-9f33-28b234ce20ff": {
+"codigo": "DAN-2017-111",
+"carpeta": "ordoño23",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP ORDOÑO23 LEGANES"
+},
+"c3528fb2-2bb1-4b96-a8ea-8df7349e9eff": {
+"codigo": "DAN-2018-065",
+"carpeta": "villalba9",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP VILLALBA 9 FUENLABRADA"
+},
+"31e7788d-dcd0-4cce-87b7-1c7686c3c1b9": {
+"codigo": "DAN-2019-022",
+"carpeta": "honduras4",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP HONDURAS 4 FUENLABRADA"
+},
+"0622f625-48eb-448d-a265-b2523bbabf67": {
+"codigo": "DAN-2016-006",
+"carpeta": "plazamiguelhernandez15",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA MIGUEL HERNANDEZ 15 LEGANES"
+},
+"e66c6272-d824-4a17-9c82-9e2da0d8a2f0": {
+"codigo": "DAN-2016-036",
+"carpeta": "plazahernancortes5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA HERNAN CORTES 5 LEGANES"
+},
+"519067b8-93ea-47c9-aea7-d6064cf0bf4e": {
+"codigo": "DAN-2019-028",
+"carpeta": "polvoranca39",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP POLVORANCA 39 LEGANES"
+},
+"8a398360-708c-4514-923e-75ba5328de4d": {
+"codigo": "DAN-2022-024",
+"carpeta": "leganes12",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP LEGANES 12 FUENLABRADA"
+},
+"92aefdca-fa93-44d4-a098-1f84b9497742": {
+"codigo": "DAN-2017-022",
+"carpeta": "thader16",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP THADER 16 MADRID"
+},
+"def599dc-5e59-49e4-81c0-1752d5afb47a": {
+"codigo": "DAN-2017-146",
+"carpeta": "zaida20",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ZAIDA 20 MADRID"
+},
+"3dab4699-4277-48bb-9764-97245f9e6c2b": {
+"codigo": "DAN-2022-078",
+"carpeta": "plazasauce4",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP PLAZA SAUCE 4 ALCOBENDAS"
+},
+"448a961a-95c4-4ffc-9cc3-f6d2a137684c": {
+"codigo": "DAN-2022-079",
+"carpeta": "angel8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ANGEL 8 MADRID"
+},
+"23d74aab-76e0-407d-86d1-62b6802bd934": {
+"codigo": "DAN-2017-101",
+"carpeta": "batallatrafalgar3",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP BATALLA DE TRAFALGAR 3 LEGANES"
+},
+"ff765c22-572e-4ca6-b737-7e0f684c2510": {
+"codigo": "DAN-2022-061",
+"carpeta": "baleares10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP BALEARES 10 LEGANES"
+},
+"0ae12320-2bb6-4b35-9f70-8c713b3a90cc": {
+"codigo": "DAN-2023-167",
+"carpeta": "paz5",
+"municipio": "ESTREMERA",
+"de": "callejero",
+"nombre": "CP DE LA PAZ 5 ESTREMERA"
+},
+"53cef5ee-cd00-4876-acb5-304b1bebb2d9": {
+"codigo": "DAN-2015-042",
+"carpeta": "timon22",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TIMON 22 MADRID"
+},
+"c75ed1b3-44b5-4073-99fa-1bf01a9ab48e": {
+"codigo": "DAN-2016-091",
+"carpeta": "tacona75",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TACONA 75 MADRID"
+},
+"4d443af2-277a-4f34-93c8-4b8b10311bf7": {
+"codigo": "DAN-2020-059",
+"carpeta": "baleares6",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP BALEARES 6 LEGANES"
+},
+"41ce87e6-ad31-40fe-b1b5-94904e4b97d9": {
+"codigo": "DAN-2022-208",
+"carpeta": "sanpablo8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN PABLO 8 LEGANES"
+},
+"7ad9a7db-48fe-454b-8573-4b89c89ec8be": {
+"codigo": "DAN-2015-109",
+"carpeta": "charco54",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CHARCO 54 LEGANES"
+},
+"c69ce0a8-2625-4ca1-b7fc-6116ff87a4bc": {
+"codigo": "DAN-2016-025",
+"carpeta": "charco48",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CHARCO 48 LEGANES"
+},
+"d399f07e-6dd1-486e-af51-08d5e3595efa": {
+"codigo": "DAN-2016-118",
+"carpeta": "frayluisdeleon1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP FRAY LUIS DE LEON 1 LEGANES"
+},
+"4c65e805-05f1-4744-96c2-4a779472e4ec": {
+"codigo": "DAN-2018-011",
+"carpeta": "estebon2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP ESTEBON 2 LEGANES"
+},
+"ddc812a7-beba-4b2f-a190-5458ffc1bd7f": {
+"codigo": "DAN-2018-085",
+"carpeta": "charco42",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CHARCO 42 LEGANES"
+},
+"33d48b4e-1f8b-4e52-9118-203c71cb73da": {
+"codigo": "DAN-2020-054",
+"carpeta": "condedebarcelona8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CONDE DE BARCELONA 8 LEGANES"
+},
+"5bb00537-8fdf-43d0-85eb-d5a494a7f043": {
+"codigo": "DAN-2021-017",
+"carpeta": "constitucion8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CONSTITUCION 8 LEGANES"
+},
+"9bffbafd-ce99-4fe6-b3db-617b22445c7e": {
+"codigo": "DAN-2016-195",
+"carpeta": "riojanos5bis",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RIOJANOS 5 BIS MADRID"
+},
+"c654afd1-f1d8-44f2-b84d-cb02d046639c": {
+"codigo": "DAN-2021-125",
+"carpeta": "monegros32",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MONEGROS 32 LEGANES"
+},
+"bd6c5324-4153-4f16-b394-7ab8a62680a9": {
+"codigo": "DAN-2022-026",
+"carpeta": "mallorca10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MALLORCA 10 LEGANES"
+},
+"6d2c9907-978a-425e-bf7a-4c8a2f7339bb": {
+"codigo": "DAN-2015-006",
+"carpeta": "napoles6",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP NAPOLES 6 LEGANES"
+},
+"f81e44b7-c3ba-4b5c-8ac5-574ad2ae4ac5": {
+"codigo": "DAN-2015-060",
+"carpeta": "madrid22",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MADRID 22 LEGANES"
+},
+"1721b11d-40f2-404a-8b10-1c555cffed35": {
+"codigo": "DAN-2018-015",
+"carpeta": "monegros71",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MONEGROS 71 LEGANES"
+},
+"d9c28128-0345-4862-86f5-013ca708e079": {
+"codigo": "DAN-2018-031",
+"carpeta": "moraña1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MORAÑA 1 LEGANES"
+},
+"97c108d4-0722-4e7f-94bd-f5ab5ec02cb6": {
+"codigo": "DAN-2020-037",
+"carpeta": "mallorca12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MALLORCA 12 LEGANES"
+},
+"a706a8ec-f60a-4d19-ab7b-59876357d7d9": {
+"codigo": "DAN-2020-038",
+"carpeta": "mallorca13",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MALLORCA 13 LEGANES"
+},
+"74b36a5d-9d0e-4182-8609-f9e66e217720": {
+"codigo": "DAN-2021-122",
+"carpeta": "nuestraseñoradelaalmudena2",
+"municipio": "LEGANES",
+"de": "texto",
+"nombre": "CP NUESTRA SEÑORA DE LA ALMUDENA 2 LEGANES"
+},
+"c63d4b0c-a13f-4f3e-a8f7-7efa1088d44f": {
+"codigo": "DAN-2022-029",
+"carpeta": "nuestraseñoradelamacarena5",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELAMACARENA5 LEGANES"
+},
+"0bd81094-7073-4aa7-b99d-e4854f4ed7f5": {
+"codigo": "DAN-2022-248",
+"carpeta": "nuestraseñoradelamerced1",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELAMERCED1 LEGANES"
+},
+"18ff69b9-0b6b-469f-9332-8b8d40957e21": {
+"codigo": "DAN-2021-037",
+"carpeta": "nicolasagomez91",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP NICOLASA GOMEZ 91 MADRID"
+},
+"ab4c399e-6c80-481f-ae25-c99a97b5a110": {
+"codigo": "DAN-2015-015",
+"carpeta": "nuestraseñoradelaesperanza5",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELAESPERANZA5 LEGANES"
+},
+"e4752107-5385-43a8-823e-1863065cb987": {
+"codigo": "DAN-2015-046",
+"carpeta": "riosegura6",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO SEGURA 6 LEGANES"
+},
+"a74078e4-0508-4c57-83f7-922788699def": {
+"codigo": "DAN-2016-123",
+"carpeta": "navarra5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP NAVARRA 5 LEGANES"
+},
+"1042cbc4-259d-4d57-b3bb-480221a4127f": {
+"codigo": "DAN-2020-073",
+"carpeta": "nuestraseñoradebegoña1",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADEBEGOÑA1 LEGANES"
+},
+"5e84e9aa-7d27-4fe9-90c5-0aec865a51c4": {
+"codigo": "DAN-2022-033",
+"carpeta": "pensamiento3",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PENSAMIENTO 3 LEGANES"
+},
+"d1407418-7c3d-4f18-9248-a07141490552": {
+"codigo": "DAN-2022-179",
+"carpeta": "nuestraseñoradelasangustias14",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELASANGUSTIAS14 LEGANES"
+},
+"8bafc7b7-af84-4f0a-bf9d-5beefb70a829": {
+"codigo": "DAN-2022-234",
+"carpeta": "nuestraseñoradelamerced11",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELAMERCED11 LEGANES"
+},
+"f68d1723-3b5d-437e-9867-b171e1f4e47d": {
+"codigo": "DAN-2022-283",
+"carpeta": "nuñezdearce4",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP NUÑEZ DE ARCE 4 LEGANES"
+},
+"0c73432c-af49-444e-90a3-c9cb79d45b6f": {
+"codigo": "DAN-2016-034",
+"carpeta": "pedroches36",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PEDROCHES 36 LEGANES"
+},
+"91d7d1f1-fb41-4987-ae8c-934f6f87e236": {
+"codigo": "DAN-2016-136",
+"carpeta": "nuestraseñoradelpilar2",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELPILAR2 LEGANES"
+},
+"e02ce082-7865-494d-99dc-d92e63d01c6a": {
+"codigo": "DAN-2019-051",
+"carpeta": "pedrodealvarado2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PEDRO DE ALVARADO 2 LEGANES"
+},
+"8008e9ee-96c8-410f-9048-91375f8859fe": {
+"codigo": "DAN-2022-086",
+"carpeta": "palencia12",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PALENCIA 12 FUENLABRADA"
+},
+"48aa73a9-5537-4cab-a3d4-830062e3e735": {
+"codigo": "DAN-2022-090",
+"carpeta": "sierradealbarracin17",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP SIERRA ALBARRACIN 17 ALCORCON"
+},
+"3d4c5758-a132-4d66-97e0-e78e9635c62f": {
+"codigo": "DAN-2016-035",
+"carpeta": "plazadelaflor12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA DE LA FLOR 12 LEGANES"
+},
+"5f44fd8c-a80b-4f54-ad4e-4766f8e22f5c": {
+"codigo": "DAN-2016-047",
+"carpeta": "alondra4",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP ALONDRA 4 ARANJUEZ"
+},
+"ba1599e9-e29b-49f2-b37b-23bd8a6077c2": {
+"codigo": "DAN-2017-046",
+"carpeta": "plazadelaflor13",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA DE LA FLOR 13 LEGANES"
+},
+"81ef6adc-cef1-4343-b57b-d6f04683522f": {
+"codigo": "DAN-2017-163",
+"carpeta": "LasNorias26",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP NORIAS 26 MAJADAHONDA"
+},
+"d23c1877-7aef-47c8-8284-b7f26db4110d": {
+"codigo": "DAN-2018-025",
+"carpeta": "plazaandalucia2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA ANDALUCIA 2 LEGANES"
+},
+"28e7400d-6f2d-43f8-8a1d-afab62bc7df0": {
+"codigo": "DAN-2018-028",
+"carpeta": "plazadelasfloras12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA FLORAS 12 LEGANES"
+},
+"ba14e5f7-c768-4ea4-a07c-7544b284435f": {
+"codigo": "DAN-2018-029",
+"carpeta": "plazadelasfloras6",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA FLORAS 6 LEGANES"
+},
+"80b4d411-7599-45f0-be6e-1270b76ef159": {
+"codigo": "DAN-2018-044",
+"carpeta": "riogenil4",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO GENIL 4 LEGANES"
+},
+"7f865c28-cdae-4dc4-a405-f3860dc852d5": {
+"codigo": "DAN-2020-006",
+"carpeta": "rioebro4",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO EBRO 4 LEGANES"
+},
+"7838f3ac-9d5f-4eed-acf3-bbd8556cf45a": {
+"codigo": "DAN-2021-023",
+"carpeta": "rionervion21",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO NERVION 21 LEGANES"
+},
+"deb05d35-354d-4983-8790-dad88d0f89cd": {
+"codigo": "DAN-2021-032",
+"carpeta": "riosegura16",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO SEGURA 16 LEGANES"
+},
+"049bb304-cb3c-45af-be01-6c62115d13a7": {
+"codigo": "DAN-2022-064",
+"carpeta": "riomanzanares12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO MANZANARES 12 LEGANES"
+},
+"569decef-3774-4736-ba7e-fbdcd60a7883": {
+"codigo": "DAN-2017-095",
+"carpeta": "rioja54",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIOJA 54 LEGANES"
+},
+"2bde72a1-1f3c-4db2-9508-823b4379f870": {
+"codigo": "DAN-2017-140",
+"carpeta": "riomanzanares35",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO MANZANARES 35 LEGANES"
+},
+"1f24b2bf-1985-461c-aeea-95f76d9694af": {
+"codigo": "DAN-2020-013",
+"carpeta": "riomanzanares25",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO MANZANARES 25 LEGANES"
+},
+"dcc1bcf6-95c4-4cdd-a4c6-c6b3a44223d3": {
+"codigo": "DAN-2020-014",
+"carpeta": "riomanzanares34",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO MANZANARES 34 LEGANES"
+},
+"2e51557e-7772-49e8-b50f-0337eea5b4ec": {
+"codigo": "DAN-2022-065",
+"carpeta": "riotormes2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO TORMES 2 LEGANES"
+},
+"3ab373db-6f4f-417b-8922-07422f95a42f": {
+"codigo": "DAN-2015-050",
+"carpeta": "saavedrafajardo4",
+"municipio": "LEGANES",
+"de": "texto",
+"nombre": "CP SAAVEDRA FAJARDO 4 LEGANES"
+},
+"b2874e75-e696-447c-b4ab-ac6b163e433c": {
+"codigo": "DAN-2015-111",
+"carpeta": "santarosa1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA ROSA 1 LEGANES"
+},
+"58301b1e-9b74-4005-ad1d-e8b56f678773": {
+"codigo": "DAN-2016-038",
+"carpeta": "sanclemente10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN CLEMENTE 10 LEGANES"
+},
+"361aeaa4-9e98-40bf-8e4a-2d3f5d7d883a": {
+"codigo": "DAN-2016-039",
+"carpeta": "sancristobal20",
+"municipio": "LEGANES",
+"de": "texto",
+"nombre": "CP SAN CRISTOBAL 20 LEGANES"
+},
+"f51d04df-3be9-46cb-833d-d96d52f57d86": {
+"codigo": "DAN-2016-100",
+"carpeta": "sandamian1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN DAMIAN 1 LEGANES"
+},
+"c08524a2-4469-40c4-8c21-121903a9a857": {
+"codigo": "DAN-2016-197",
+"carpeta": "sancristobal7",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN CRISTOBAL 7 LEGANES"
+},
+"57515d5f-f5d2-43e2-8c4c-9451f1aa1607": {
+"codigo": "DAN-2018-074",
+"carpeta": "riotormes27",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIO TORMES 27 LEGANES"
+},
+"d6e2f3f4-f695-4181-9c18-7884498b3d7a": {
+"codigo": "DAN-2015-047",
+"carpeta": "torrubia5 - antes tenientegeneralmuslera5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP TORRUBIA 5 LEGANES"
+},
+"c3088973-c175-4df2-96bf-293411d2983e": {
+"codigo": "DAN-2016-041",
+"carpeta": "santoangel5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTO ANGEL 5 LEGANES"
+},
+"098cca56-4774-46d7-a032-d068d4998320": {
+"codigo": "DAN-2019-016",
+"carpeta": "seminario26",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SEMINARIO 26 LEGANES"
+},
+"57ad5be6-af6f-42be-8319-771c9f31d0b7": {
+"codigo": "DAN-2019-024",
+"carpeta": "santateresa8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA TERESA 8 LEGANES"
+},
+"9964a1ed-eab1-4269-9e43-875a2bf9618d": {
+"codigo": "DAN-2015-040",
+"carpeta": "virgendelcamino10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP VIRGEN DEL CAMINO 10 LEGANES"
+},
+"1f502c9d-3bbc-4f25-865f-2e0b44608188": {
+"codigo": "DAN-2015-048",
+"carpeta": "travesiafuenlabrada2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP TRAVESIA FUENLABRADA 2 LEGANES"
+},
+"34886ad1-371a-46e0-8a19-0857d25d963c": {
+"codigo": "DAN-2019-026",
+"carpeta": "montealbillo5",
+"municipio": "ALGETE",
+"de": "callejero",
+"nombre": "CP MONTE ALBILLO 5 ALGETE"
+},
+"919fcfed-be38-431b-8452-a49234b13b51": {
+"codigo": "DAN-2020-069",
+"carpeta": "carlosruiz3",
+"municipio": "GRIÑON",
+"de": "callejero",
+"nombre": "CP CARLOS RUIZ 3 GRIÑON"
+},
+"0ce25033-0687-4eaf-8690-7bc1e1b7e823": {
+"codigo": "DAN-2022-159",
+"carpeta": "direccion pendiente concretar",
+"municipio": "ARROYOMOLINOS",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP DIRECCION PENDIENTE CONCRETAR ARROYOMOLINOS"
+},
+"3970e629-b3a3-4672-801a-8502a474fa5a": {
+"codigo": "DAN-2023-168",
+"carpeta": "urbjardindevillarejo",
+"municipio": "VILLAREJO DE SALVANES",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP URBJARDINDEVILLAREJO VILLAREJO DE SALVANES"
+},
+"f93f1655-734a-4c65-846d-cae81d08353c": {
+"codigo": "DAN-2023-289",
+"carpeta": "julioherrero6",
+"municipio": "TORRELODONES",
+"de": "callejero",
+"nombre": "CP JULIO HERRERO 6 TORRELODONES"
+},
+"4305aa7f-34ad-4ae4-b25f-0eab877925c2": {
+"codigo": "DAN-2017-113",
+"carpeta": "josemariamoreno8",
+"municipio": "TORRELODONES",
+"de": "callejero",
+"nombre": "CP JOSE MARIA MORENO 8 TORRELODONES"
+},
+"92a4327a-6896-42b0-a5db-a69fa9ddefdf": {
+"codigo": "DAN-2017-156",
+"carpeta": "AvEspaña35-1",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 35-1 MAJADAHONDA"
+},
+"6eaaf88a-45e4-4cc0-b63d-9b83f1ca1987": {
+"codigo": "DAN-2020-068",
+"carpeta": "carrefourmarket",
+"municipio": "SAN MARTIN DE VALDEIGLESIAS",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP CARREFOURMARKET SAN MARTIN DE VALDEIGLESIAS"
+},
+"43117a71-34d9-4005-b778-0ae9c9051864": {
+"codigo": "DAN-2022-104",
+"carpeta": "etruria26-28lucano65",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ETRURIA 26-28 LUCANO 65 MADRID",
+"existe": "e671f270-f9dc-416d-a378-39e68c5b2ff2"
+},
+"9d9acc1b-38a0-4caa-91ab-aa5e7f349d05": {
+"codigo": "DAN-2023-241",
+"carpeta": "elgreco13",
+"municipio": "MEJORADA DEL CAMPO",
+"de": "callejero",
+"nombre": "CP GRECO 13 MEJORADA DEL CAMPO"
+},
+"860b4fe6-308c-4084-826f-27202d02a42e": {
+"codigo": "DAN-2018-021",
+"carpeta": "sanjuandelacruz38",
+"municipio": "COLMENAR VIEJO",
+"de": "callejero",
+"nombre": "CP SAN JUAN DE LA CRUZ 38 COLMENAR VIEJO"
+},
+"9418f057-3c54-4b2a-a679-d697f2949437": {
+"codigo": "DAN-2019-046",
+"carpeta": "losolivos2",
+"municipio": "MEJORADA DEL CAMPO",
+"de": "texto",
+"nombre": "CP LOS OLIVOS 2 MEJORADA DEL CAMPO"
+},
+"bd7f9c20-0ff2-47ae-b7b7-d47b374cc0ae": {
+"codigo": "DAN-2025-348",
+"carpeta": "ter25",
+"municipio": "MEJORADA DEL CAMPO",
+"de": "callejero",
+"nombre": "CP TER 25 MEJORADA DEL CAMPO"
+},
+"c54b830d-9801-466c-a96c-f10396e9b5a4": {
+"codigo": "DAN-2022-105",
+"carpeta": "hilados12",
+"municipio": "TORREJON DE ARDOZ",
+"de": "texto",
+"nombre": "CP HILADOS 12 TORREJON DE ARDOZ"
+},
+"8d42324f-1bba-42a3-9e6a-d0783eb84bb5": {
+"codigo": "DAN-2016-066",
+"carpeta": "foresta17",
+"municipio": "TRES CANTOS",
+"de": "texto",
+"nombre": "CP FORESTA 17, TRES CANTOS"
+},
+"55692553-999b-4a2f-949a-fd8a35dc2fd4": {
+"codigo": "DAN-2016-081",
+"carpeta": "abastos78",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP ABASTOS 78 ARANJUEZ"
+},
+"1c4dddd2-06c5-4241-b4ba-6eb70dd54d39": {
+"codigo": "DAN-2016-117",
+"carpeta": "sectormusicos15",
+"municipio": "TRES CANTOS",
+"de": "texto",
+"nombre": "CP SECTOR MUSICOS 15 TRES CANTOS"
+},
+"2cfe5d36-cdf7-417f-8bf2-4d1e766f74fe": {
+"codigo": "DAN-2017-161",
+"carpeta": "LasNorias20",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP NORIAS 20 MAJADAHONDA"
+},
+"c7e76971-2b4c-4b90-9675-3604307d5603": {
+"codigo": "DAN-2017-162",
+"carpeta": "LasNorias22",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP NORIAS 22 MAJADAHONDA"
+},
+"859c3471-c7da-4b06-a77e-039eb439f19b": {
+"codigo": "DAN-2018-020",
+"carpeta": "literatos27",
+"municipio": "TRES CANTOS",
+"de": "texto",
+"nombre": "CP LITERATOS 27 TRES CANTOS"
+},
+"522aeec5-c85a-4c25-bfa5-27300e598b8c": {
+"codigo": "DAN-2025-338",
+"carpeta": "gaudi10",
+"municipio": "BOADILLA DEL MONTE",
+"de": "texto",
+"nombre": "CP GAUDI 10 BOADILLA DEL MONTE"
+},
+"fdd1425b-5101-4972-82ae-f71e132b351c": {
+"codigo": "DAN-2022-163",
+"carpeta": "juancarlosI31",
+"municipio": "BOADILLA DEL MONTE",
+"de": "texto",
+"nombre": "CP JUAN CARLOS I 31 BOADILLA DEL MONTE"
+},
+"82837fd0-3e87-4d69-802b-c26140b61a24": {
+"codigo": "DAN-2022-257",
+"carpeta": "realalta1",
+"municipio": "MAJADAHONDA",
+"de": "texto",
+"nombre": "CP REAL ALTA 1 MAJADAHONDA"
+},
+"81c4e4fa-78c0-4c4d-969f-7b470649e063": {
+"codigo": "DAN-2026-159",
+"carpeta": "viento5",
+"municipio": "MAJADAHONDA",
+"de": "texto",
+"nombre": "CP VIENTO 5 MAJADAHONDA"
+},
+"0ef68782-f242-47c0-a6b7-e9ae9c54aba4": {
+"codigo": "DAN-2023-185",
+"carpeta": "avespaña37-39-41",
+"municipio": "MAJADAHONDA",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 37-39-41 MAJADAHONDA"
+},
+"adbac729-0ed4-4d27-bfc4-864e2151bee3": {
+"codigo": "DAN-2016-183",
+"carpeta": "joseantonio38",
+"municipio": "BOADILLA DEL MONTE",
+"de": "texto",
+"nombre": "CP JOSE ANTONIO 38 BOADILLA DEL MONTE"
+},
+"92ab6369-78f4-429e-bcc4-8983e0f17533": {
+"codigo": "DAN-2016-184",
+"carpeta": "paseomadrid8",
+"municipio": "BOADILLA DEL MONTE",
+"de": "texto",
+"nombre": "CP PASEO MADRID 8 BOADILLA DEL MONTE"
+},
+"0e81a401-90f7-41f8-a19f-4307409b07b8": {
+"codigo": "DAN-2017-056",
+"carpeta": "valdecanillas17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALDECANILLAS 17 MADRID"
+},
+"efdd11c8-0e85-4787-b977-d66a44450bdd": {
+"codigo": "DAN-2017-060",
+"carpeta": "victormanuelIII5",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VICTOR MANUEL III 5 MADRID"
+},
+"0926eb04-9c05-4718-b22d-bee7c1ae2e13": {
+"codigo": "DAN-2018-080",
+"carpeta": "iglesia2",
+"municipio": "COSLADA",
+"de": "texto",
+"nombre": "CP IGLESIA 2 COSLADA"
+},
+"fa933e4f-ee48-4c92-b3fa-3547f54d7cef": {
+"codigo": "DAN-2023-182",
+"carpeta": "guadalajara22",
+"municipio": "VILLAVICIOSA DE ODON",
+"de": "texto",
+"nombre": "CP GUADALAJARA 22 VILLAVICIOSA DE ODON"
+},
+"0aaa49a1-55af-4a91-b808-689da9d21243": {
+"codigo": "DAN-2024-070",
+"carpeta": "guadarrama22",
+"municipio": "VILLAVICIOSA DE ODON",
+"de": "texto",
+"nombre": "CP GUADARRAMA 22 VILLAVICIOSA DE ODON"
+},
+"00ea78a9-842f-4eab-a919-dfc893a51482": {
+"codigo": "DAN-2016-046",
+"carpeta": "vallehermoso32",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALLEHERMOSO 32 MADRID"
+},
+"4a1baeef-5eb5-42c0-8c29-7ef1a42b19a9": {
+"codigo": "DAN-2016-092",
+"carpeta": "andresmartinez20",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP ANDRES MARTINEZ 20 ARANJUEZ"
+},
+"05555fd4-b9e6-4cc2-9ea5-cbceea7f7a45": {
+"codigo": "DAN-2016-093",
+"carpeta": "federicogarcialorca8",
+"municipio": "SAN FERNANDO DE HENARES",
+"de": "texto",
+"nombre": "CP FEDERICO GARCIA LORCA 8 SAN FERNANDO DE HENARES"
+},
+"d6495409-942a-4a19-b997-6457eb42a771": {
+"codigo": "DAN-2016-144",
+"carpeta": "sanjuan10 12 14",
+"municipio": "MAJADAHONDA",
+"de": "texto",
+"nombre": "CP SAN JUAN 10 12 14 Y SAN SEBASTIAN 2, MAJADAHONDA"
+},
+"029ba402-0cfd-40f2-bca6-a747320af85b": {
+"codigo": "DAN-2016-151",
+"carpeta": "nazariogalonge5-7",
+"municipio": "SAN FERNANDO DE HENARES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NAZARIOGALONGE5-7 SAN FERNANDO DE HENARES"
+},
+"4d0497ae-3f94-4a41-ad3e-60df3bd3b375": {
+"codigo": "DAN-2017-044",
+"carpeta": "delrey37",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP DEL REY 37 ARANJUEZ"
+},
+"ba47204e-a1a8-4d55-b492-88af0ba4d333": {
+"codigo": "DAN-2017-076",
+"carpeta": "federicolatorre1",
+"municipio": "VILLAVICIOSA DE ODON",
+"de": "texto",
+"nombre": "CP FEDERICO LA TORRE 1 VILLAVICIOSA DE ODON"
+},
+"2b33fe82-863e-48da-8a00-39d4fdba9807": {
+"codigo": "DAN-2016-139",
+"carpeta": "valleinclan33",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALLE INCLAN 33 MADRID"
+},
+"4a4afb63-d8d1-471b-9525-86cbe5246450": {
+"codigo": "DAN-2017-036",
+"carpeta": "costarica11",
+"municipio": "PINTO",
+"de": "texto",
+"nombre": "CP COSTA RICA 11 PINTO"
+},
+"401047a8-477e-4dd5-9a9f-55073986b30e": {
+"codigo": "DAN-2017-037",
+"carpeta": "delmolino8",
+"municipio": "PINTO",
+"de": "texto",
+"nombre": "CP DEL MOLINO 8 PINTO"
+},
+"29d3d16c-57f8-4099-9711-2a9275816ce3": {
+"codigo": "DAN-2017-039",
+"carpeta": "travesiadesanemilio2",
+"municipio": "PINTO",
+"de": "texto",
+"nombre": "CP TRAVESIA DE SAN EMILIO 2 PINTO"
+},
+"76522d1b-e047-4e78-a5e4-f00992c2dfc7": {
+"codigo": "DAN-2017-135",
+"carpeta": "islascanarias24",
+"municipio": "PINTO",
+"de": "texto",
+"nombre": "CP ISLAS CANARIAS 24 PINTO"
+},
+"469c53e0-98cb-40d8-b2da-e2846fada7d8": {
+"codigo": "DAN-2015-064",
+"carpeta": "foso104",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP FOSO 104 ARANJUEZ"
+},
+"909186d6-8592-4eb3-9d4c-bb4d75878208": {
+"codigo": "DAN-2015-065",
+"carpeta": "foso124",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP FOSO 124 ARANJUEZ"
+},
+"7eb72c34-8758-4456-845b-f5c55b758cb8": {
+"codigo": "DAN-2015-073",
+"carpeta": "valledeoro20",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALLE DE ORO 20 MADRID"
+},
+"0c33ee1e-3c6a-4248-b476-2f12d51608db": {
+"codigo": "DAN-2015-081",
+"carpeta": "hospital1",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP HOSPITAL 1 ARANJUEZ"
+},
+"8d2982ba-e7f9-439c-ae78-e4922485ec6e": {
+"codigo": "DAN-2015-083",
+"carpeta": "postas80",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP POSTAS 80 ARANJUEZ"
+},
+"96f9a577-d116-4bff-b78b-cdc335487a12": {
+"codigo": "DAN-2016-049",
+"carpeta": "sanpedro6",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP SAN PEDRO 6 ARANJUEZ"
+},
+"03b66592-84b6-4a84-bffb-af94f2f00c88": {
+"codigo": "DAN-2016-094",
+"carpeta": "manuelsaavedra11",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP MANUEL SAAVEDRA 11 ARANJUEZ"
+},
+"73e5d802-9911-4386-b2c2-fda04cd5d2ba": {
+"codigo": "DAN-2016-095",
+"carpeta": "santiagorusiñol12",
+"municipio": "ARANJUEZ",
+"de": "callejero",
+"nombre": "CP SANTIAGO RUSIÑOL 12 ARANJUEZ"
+},
+"be758864-4b13-4a66-a833-c74e1cf26a0d": {
+"codigo": "DAN-2016-096",
+"carpeta": "zorzales3",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP ZORZALES 3 ARANJUEZ"
+},
+"708fb573-2d8c-49b8-b214-4741d3a7f208": {
+"codigo": "DAN-2017-045",
+"carpeta": "inasa4",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP INASA 4 ARANJUEZ"
+},
+"1d1f8389-5d2d-422a-bda4-47de8da3f7ce": {
+"codigo": "DAN-2017-128",
+"carpeta": "moreras1",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP MORERAS 1 ARANJUEZ"
+},
+"c7be9414-1d10-4e97-990b-fab799cc11fa": {
+"codigo": "DAN-2018-076",
+"carpeta": "sanblas12",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP SAN BLAS 12 PARLA"
+},
+"1fc0659e-30e3-4afd-b02e-2dffc2087903": {
+"codigo": "DAN-2017-092",
+"carpeta": "fuentebella14",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP URBANIZACION FUENTEBELLA 14 PARLA"
+},
+"d1d1aa3c-7a1b-4c08-8ac8-e3ed0ce9cb6b": {
+"codigo": "DAN-2018-004",
+"carpeta": "fernandoIII26",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP FERNANDO III EL SANTO 26 PARLA"
+},
+"0332cc18-e750-4ae5-9b31-8a8b8eaeef10": {
+"codigo": "DAN-2021-011",
+"carpeta": "valverde28",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALVERDE 28 MADRID"
+},
+"6cdaab1d-b4b5-44fb-bfb8-410c7a20a315": {
+"codigo": "DAN-2019-008",
+"carpeta": "serranillos31",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP SERRANILLOS 31 GETAFE"
+},
+"a6da3760-0a6d-4b20-8ef1-ea8427285b8c": {
+"codigo": "DAN-2021-072",
+"carpeta": "avcolmenarviejo12",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"de": "texto",
+"nombre": "CP AV COLMENAR VIEJO 12 SAN SEBASTIAN DE LOS REYES"
+},
+"caad0180-dac2-47b3-bba2-380be05d9f27": {
+"codigo": "DAN-2017-151",
+"carpeta": "realvieja2",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"de": "texto",
+"nombre": "CP REAL VIEJA 2 SAN SEBASTIAN DE LOS REYES"
+},
+"7de34829-2618-4ba5-9f36-e37f08d5dbeb": {
+"codigo": "DAN-2017-152",
+"carpeta": "santateresadejesus2 4",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"de": "callejero",
+"nombre": "CP SANTA TERESA DE JESUS 2 SAN SEBASTIAN DE LOS REYES"
+},
+"45e7d745-92d8-48ef-924b-03f478350ceb": {
+"codigo": "DAN-2016-178",
+"carpeta": "viacarpetana180",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VIA CARPETANA 180 MADRID"
+},
+"372ddf19-f5a6-4a8a-bb56-e9e1c3613daa": {
+"codigo": "DAN-2019-064",
+"carpeta": "mariblanca12",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP MARIBLANCA 12 MOSTOLES"
+},
+"bbe11128-0607-4e7d-b9da-a22adf25fb0f": {
+"codigo": "DAN-2019-065",
+"carpeta": "avCarlosV39",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AV CARLOS V 39 MOSTOLES"
+},
+"15013b49-5242-4f69-9710-ffcba59bc672": {
+"codigo": "DAN-2022-118",
+"carpeta": "avcerroprieto7",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AV CERRO PRIETO 7 MOSTOLES"
+},
+"3a4ded81-ad0a-436d-a8ba-a26d8e8b189d": {
+"codigo": "DAN-2016-052",
+"carpeta": "avportugal41",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVPORTUGAL41 MOSTOLES"
+},
+"7a67b079-d79a-40f8-b107-c0bdee8f84af": {
+"codigo": "DAN-2017-078",
+"carpeta": "avportugal12",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVPORTUGAL12 MOSTOLES"
+},
+"4fc68f84-29c5-4ea1-b22e-472cc257ddf5": {
+"codigo": "DAN-2017-103",
+"carpeta": "avdosdemayo53",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AV DOS DE MAYO 53 MOSTOLES"
+},
+"6b1beb4c-2c8b-4fcb-ba0b-40e90a63dda6": {
+"codigo": "DAN-2018-008",
+"carpeta": "riogarona1",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO GARONA 1 MOSTOLES"
+},
+"f87fdc13-459e-49e2-a529-08f182ae1ad1": {
+"codigo": "DAN-2021-111",
+"carpeta": "riotormes4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO TORMES 4 MOSTOLES"
+},
+"e0f1f792-854f-42c0-a9b3-84ee29f90231": {
+"codigo": "DAN-2022-119",
+"carpeta": "cerroprieto7",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP CERRO PRIETO 7 MOSTOLES"
+},
+"a17a5f39-b634-4cc9-a8cb-7c6d22ca99c4": {
+"codigo": "DAN-2022-195",
+"carpeta": "caminodehumanes27",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP CAMINODEHUMANES27 MOSTOLES"
+},
+"84f8f01f-2820-4ae6-9c96-b03b24cb409e": {
+"codigo": "DAN-2022-207",
+"carpeta": "barcelona27",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP BARCELONA 27 MOSTOLES"
+},
+"dc7bfd4b-ab55-497f-909a-3dcd11d7d709": {
+"codigo": "DAN-2016-086",
+"carpeta": "castellon13",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP CASTELLON 13 MOSTOLES"
+},
+"046ec455-98bd-4c14-aec6-ce6ac901c2d2": {
+"codigo": "DAN-2018-088",
+"carpeta": "berardomartin12",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP BERARDO MARTIN 12 MOSTOLES"
+},
+"b3965665-2cce-49bb-a919-da4cc816230c": {
+"codigo": "DAN-2022-203",
+"carpeta": "guadalajara4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP GUADALAJARA 4 MOSTOLES"
+},
+"a3640c9a-9951-4404-8d6b-16d1f1f76b8d": {
+"codigo": "DAN-2016-053",
+"carpeta": "empecinado21",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP EMPECINADO 21 MOSTOLES"
+},
+"4c6f788c-06ad-4a0f-97fe-799623f6e373": {
+"codigo": "DAN-2017-007",
+"carpeta": "malasaña4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP MALASAÑA 4 MOSTOLES"
+},
+"6f6d5fc8-76d3-4e1d-b5e9-79548b6caf3d": {
+"codigo": "DAN-2018-043",
+"carpeta": "juandeocaña37",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP JUAN DE OCAÑA 37 MOSTOLES"
+},
+"dabd5c4d-9748-49a8-b921-65839f9d9132": {
+"codigo": "DAN-2021-103",
+"carpeta": "niza2",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP NIZA 2 MOSTOLES"
+},
+"3aeaacec-ad5a-472d-a3a3-97a1d8574978": {
+"codigo": "DAN-2022-087",
+"carpeta": "riogenil4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO GENIL 4 MOSTOLES"
+},
+"7dbcce60-c77b-4f87-9b28-9a8d118de529": {
+"codigo": "DAN-2022-088",
+"carpeta": "riollobregat10",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO LLOBREGAT 10 MOSTOLES"
+},
+"3f3992ab-e8aa-4958-b5d4-44a87a5870c7": {
+"codigo": "DAN-2022-089",
+"carpeta": "riotormes2",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO TORMES 2 MOSTOLES"
+},
+"aff4a522-745f-49fa-8af1-0441d532e35f": {
+"codigo": "DAN-2016-188",
+"carpeta": "plazadelafuensanta7",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP PLAZADELAFUENSANTA7 MOSTOLES"
+},
+"ff394588-3fa6-4084-9138-b4c0d6c842c3": {
+"codigo": "DAN-2016-189",
+"carpeta": "rejilla1",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP REJILLA 1 MOSTOLES"
+},
+"47427f77-1e20-4a78-853b-8f71950aacac": {
+"codigo": "DAN-2022-134",
+"carpeta": "oviedo9",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP OVIEDO 9 MOSTOLES"
+},
+"6fb838e2-d9b0-4489-893a-508696abf3db": {
+"codigo": "DAN-2022-166",
+"carpeta": "riogarona3",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP RIO GARONA 3 MOSTOLES"
+},
+"40a1b6ad-8646-40fe-abd0-d9e18210538f": {
+"codigo": "DAN-2025-047",
+"carpeta": "puenterialto1",
+"municipio": "ALCALA DE HENARES",
+"de": "texto",
+"nombre": "CP PUENTE RIALTO 1 ALCALA DE HENARES"
+},
+"e63a8295-cdc3-4b20-ba61-76da6e62e931": {
+"codigo": "DAN-2022-010",
+"carpeta": "caceres10",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CACERES 10 GETAFE"
+},
+"7adc45f2-24a3-4ede-8b9b-0c2c906ea088": {
+"codigo": "DAN-2022-199",
+"carpeta": "veracruz26",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP VERACRUZ 26 MOSTOLES"
+},
+"8571f629-7ee8-486b-b992-2df44bfeb278": {
+"codigo": "DAN-2016-168",
+"carpeta": "capellanes20",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CAPELLANES 20 GETAFE"
+},
+"bbcc5f3a-07a9-467f-b177-311c9f1bbb2d": {
+"codigo": "DAN-2017-009",
+"carpeta": "zamora4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP ZAMORA 4 MOSTOLES"
+},
+"7444626e-b596-42b4-b315-47327886240a": {
+"codigo": "DAN-2019-058",
+"carpeta": "brunete9",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP BRUNETE 9 GETAFE"
+},
+"6da0c30f-4a9f-44fb-855c-5bd6317f9884": {
+"codigo": "DAN-2021-089",
+"carpeta": "avreyescatólicos29",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV REYES CATOLICOS 29 GETAFE"
+},
+"bbb69b5e-4cdd-4fb5-8a87-6a5dcecc5621": {
+"codigo": "DAN-2022-007",
+"carpeta": "avangeles75",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ANGELES 75 GETAFE"
+},
+"4b0eac16-f663-42f4-9990-00ab2ff4572c": {
+"codigo": "DAN-2022-008",
+"carpeta": "avespaña51",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 51 GETAFE"
+},
+"48708006-48c5-485e-8843-9e933e9d0f8b": {
+"codigo": "DAN-2022-140",
+"carpeta": "brunete11",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP BRUNETE 11 GETAFE"
+},
+"318a2344-53d4-4d9b-8aba-d445e36941b2": {
+"codigo": "DAN-2017-035",
+"carpeta": "avaragon2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ARAGON 2 GETAFE"
+},
+"d260c0a1-3461-45cf-b5dc-4d759421851a": {
+"codigo": "DAN-2017-052",
+"carpeta": "avfuerzasarmadas33",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV FUERZAS ARMADAS 33 GETAFE"
+},
+"7c33b5e8-60d9-4ac5-aac1-3c24e190d2c9": {
+"codigo": "DAN-2017-107",
+"carpeta": "badajoz4",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP BADAJOZ 4 GETAFE"
+},
+"3438c392-995f-49d8-84b8-85143630b51e": {
+"codigo": "DAN-2018-053",
+"carpeta": "avespaña34",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV ESPAÑA 34 GETAFE"
+},
+"80be205d-eb39-4f1a-95fe-60f9689fad8c": {
+"codigo": "DAN-2018-054",
+"carpeta": "brunete1",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP BRUNETE 1 GETAFE"
+},
+"499d29c6-cf12-45a0-a363-988e5508b01c": {
+"codigo": "DAN-2016-042",
+"carpeta": "escaño29",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ESCAÑO 29 GETAFE"
+},
+"fc439576-7570-4d79-80a4-46470f74325f": {
+"codigo": "DAN-2016-103",
+"carpeta": "doctorbarraquer14",
+"municipio": "GETAFE",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP DOCTORBARRAQUER14 GETAFE"
+},
+"703cadae-b3b9-44ca-bd0c-8aed86b0c4cb": {
+"codigo": "DAN-2016-208",
+"carpeta": "capellanes9",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CAPELLANES 9 GETAFE"
+},
+"61d49fc3-10f7-44da-b96f-b5c072085a0c": {
+"codigo": "DAN-2016-209",
+"carpeta": "castro2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CASTRO 2 GETAFE"
+},
+"f32a63f8-d232-4542-8e03-7148160939a1": {
+"codigo": "DAN-2016-213",
+"carpeta": "castro4",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CASTRO 4 GETAFE"
+},
+"bcb7cd1b-5912-451c-bf10-d81ae95cdd0f": {
+"codigo": "DAN-2018-027",
+"carpeta": "escaño42",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ESCAÑO 42 GETAFE"
+},
+"9ef96859-ff74-4df0-bcab-cdfe06d8ca6f": {
+"codigo": "DAN-2018-055",
+"carpeta": "flordelis6",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP FLOR DE LIS 6 GETAFE"
+},
+"6558c6ea-98f9-4880-8d9d-4c60c4e07c28": {
+"codigo": "DAN-2018-057",
+"carpeta": "rosa3",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ROSA 3 GETAFE"
+},
+"076dabc6-1f60-4a3f-a0a6-3dbaa66b07f9": {
+"codigo": "DAN-2018-068",
+"carpeta": "cuenca4",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CUENCA 4 GETAFE"
+},
+"33425537-4835-4a36-b920-0108837840fc": {
+"codigo": "DAN-2019-044",
+"carpeta": "capitancarloshaya8",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CAPITAN CARLOS HAYA 8 GETAFE"
+},
+"fc29a9f3-0123-41ed-ba55-249aa0c040e7": {
+"codigo": "DAN-2021-126",
+"carpeta": "plazadepinto1",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP PLAZA PINTO 1 GETAFE"
+},
+"4ae4d12e-20a8-4236-a832-f1bf43d443f2": {
+"codigo": "DAN-2022-224",
+"carpeta": "maestroturina6",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP MAESTRO TURINA 6 GETAFE"
+},
+"0f8a2cb2-ca71-4f9c-ac3a-e1e24d2fe08c": {
+"codigo": "DAN-2017-073",
+"carpeta": "montfrisa",
+"municipio": "GETAFE",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP MONTFRISA GETAFE"
+},
+"682d4194-0e31-4d66-9def-12c3aed78167": {
+"codigo": "DAN-2017-164",
+"carpeta": "pensamiento5",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP PENSAMIENTO 5 GETAFE"
+},
+"667e0006-edce-4f70-9b3e-687417cc2639": {
+"codigo": "DAN-2018-107",
+"carpeta": "fuenlabrada63",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP FUENLABRADA 63 GETAFE"
+},
+"e40fa366-a7c7-4794-b662-ff70a26bb3ff": {
+"codigo": "DAN-2019-001",
+"carpeta": "generalpalacio6",
+"municipio": "GETAFE",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP GENERALPALACIO6 GETAFE"
+},
+"f2f0482b-c992-4760-b767-6ab46fd9d91f": {
+"codigo": "DAN-2019-055",
+"carpeta": "generalcastaños4",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP GENERAL CASTAÑO 4 GETAFE"
+},
+"489d5649-1056-48b3-84d4-410a6b8b4e0e": {
+"codigo": "DAN-2019-060",
+"carpeta": "gladiolo6",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP GLADIOLO 6 GETAFE"
+},
+"2f6dbf68-493e-4453-9ee1-8784bee6187e": {
+"codigo": "DAN-2022-040",
+"carpeta": "serranillos43",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP SERRANILLOS 43 GETAFE"
+},
+"51dd7254-9e53-4de0-a925-a8d0f699202e": {
+"codigo": "DAN-2022-252",
+"carpeta": "toledo5",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP TOLEDO 5 GETAFE"
+},
+"b328d48c-cead-4274-8904-6cf781375bce": {
+"codigo": "DAN-2016-212",
+"carpeta": "travesiadecastro2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP TRAVESIA CASTRO 2 GETAFE"
+},
+"bebfca43-f782-4e32-9f94-e7e72b7f09d2": {
+"codigo": "DAN-2017-068",
+"carpeta": "avpabloneruda29",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV PABLO NERUDA 29 MADRID"
+},
+"12774055-f647-40ab-abbe-e6f5f2894537": {
+"codigo": "DAN-2017-110",
+"carpeta": "travesiadelpaular2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP PAULAR 2 GETAFE"
+},
+"e048caaa-ad05-4989-80a7-1738ffcf3d21": {
+"codigo": "DAN-2018-059",
+"carpeta": "luistorres8",
+"municipio": "ALCALA DE HENARES",
+"de": "texto",
+"nombre": "CP LUIS TORRES 8 ALCALA DE HENARES"
+},
+"2ab2570d-41a5-4ef6-a644-38b563f0257a": {
+"codigo": "DAN-2018-084",
+"carpeta": "Plaza de Toros 11",
+"municipio": "ALCALA DE HENARES",
+"de": "texto",
+"nombre": "CP PLAZA DE TOROS 11 ALCALA DE HENARES"
+},
+"44bbe906-07a4-40fb-8afc-aa511e5a5c42": {
+"codigo": "DAN-2019-009",
+"carpeta": "serranillos47",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP SERRANILLOS 47 GETAFE"
+},
+"7e539ccd-fba0-404c-b9ce-ac2bc63b6201": {
+"codigo": "DAN-2020-010",
+"carpeta": "avmarquesdecorbera40",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV MARQUES DE CORBERA 40 MADRID"
+},
+"512db10b-e25b-4f70-be7f-02efdf88f73e": {
+"codigo": "DAN-2016-098",
+"carpeta": "bustillodeloro18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BUSTILLO DEL ORO 18 MADRID"
+},
+"75423121-471c-4956-8229-eeba36aacded": {
+"codigo": "DAN-2023-164",
+"carpeta": "lopedevega2",
+"municipio": "VILLAREJO DE SALVANES",
+"de": "texto",
+"nombre": "CP LOPE DE VEGA 2 VILLAREJO DE SALVANES"
+},
+"8e11d742-67fd-4f27-ba39-2e854a7a7f46": {
+"codigo": "DAN-2023-165",
+"carpeta": "lopedevega4",
+"municipio": "VILLAREJO DE SALVANES",
+"de": "callejero",
+"nombre": "CP LOPE DE VEGA 4 VILLAREJO DE SALVANES"
+},
+"97733615-c2fd-4bbd-99bd-27c62e653206": {
+"codigo": "DAN-2016-130",
+"carpeta": "losbrezos14-2",
+"municipio": "CUBAS DE LA SAGRA",
+"de": "callejero",
+"nombre": "CP LOS BREZOS 14-2 CUBAS DE LA SAGRA"
+},
+"5871bf05-c5cb-4d81-9aee-60ba502ff062": {
+"codigo": "DAN-2018-045",
+"carpeta": "biosca12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BIOSCA 12 MADRID"
+},
+"b381ee7c-5432-4e4d-8cdf-a2be7b6e314f": {
+"codigo": "DAN-2017-120",
+"carpeta": "villaamil38",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VILLAAMIL 38 MADRID"
+},
+"618e33fd-cf0f-45ee-be64-371eb506f735": {
+"codigo": "CAR-2025-069",
+"carpeta": "viejodeleganes237",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP VIEJODELEGANES237 LEGANES"
+},
+"664751d7-da6c-4046-bf72-9c3dfbb89542": {
+"codigo": "DAN-2015-016",
+"carpeta": "azcoitia16",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AZCOITIA 16 MADRID"
+},
+"ca2cd911-5776-4c3b-b7de-8f899382abdf": {
+"codigo": "DAN-2023-283",
+"carpeta": "bravomurillo213bis",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BRAVO MURILLO 213 BIS MADRID"
+},
+"98e16cf0-01e6-4bae-8c49-8e92fc2382e2": {
+"codigo": "DAN-2017-114",
+"carpeta": "berenisa38",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BERENISA 38 MADRID"
+},
+"ac8b00e8-2760-4fe2-a906-85552471e887": {
+"codigo": "DAN-2018-072",
+"carpeta": "batalladetorrijos15",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BATALLA DE TORRIJOS 15 MADRID"
+},
+"1b23da5b-9ffc-4f43-96d7-3bfcace3966c": {
+"codigo": "DAN-2022-158",
+"carpeta": "paloma5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PALOMA 5 LEGANES"
+},
+"e15f7c00-0f73-4e59-8178-f6c015857030": {
+"codigo": "DAN-2017-023",
+"carpeta": "alcala612",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALCALA 612 MADRID"
+},
+"fc35ede6-df31-4c24-9b7c-6aab1404dc25": {
+"codigo": "DAN-2021-059",
+"carpeta": "altamirano10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALTAMIRANO 10 MADRID"
+},
+"ccda523c-73ea-4fa8-9f67-5c7d6238bfeb": {
+"codigo": "DAN-2021-081",
+"carpeta": "alfonso XIII, 111",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALFONSO XIII 111 MADRID"
+},
+"6807d8f2-42e1-4dc8-86a3-021ea142997b": {
+"codigo": "DAN-2022-210",
+"carpeta": "ampostas34",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AMPOSTA 34 MADRID"
+},
+"d51e6b3f-817c-4ecf-a3b4-db442e242177": {
+"codigo": "DAN-2022-146",
+"carpeta": "amadeogomez45",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AMADEO GOMEZ 45 MADRID"
+},
+"1d2e6bb0-fb06-47d9-b6e2-0ae7f652fb8b": {
+"codigo": "DAN-2015-053",
+"carpeta": "alfonsomartinez11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALFONSO MARTINEZ 11 MADRID"
+},
+"6c06ea88-34c3-47ba-9490-d1160085f1e5": {
+"codigo": "DAN-2016-069",
+"carpeta": "alondra10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALONDRA 10 MADRID"
+},
+"a78592a4-b3a6-4c85-9854-1f008b9ad293": {
+"codigo": "DAN-2016-120",
+"carpeta": "alondra12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALONDRA 12 MADRID"
+},
+"e8e91f5d-a24e-4e28-8949-c76eec2bbc5d": {
+"codigo": "DAN-2017-001",
+"carpeta": "alfonsofernandez6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALFONSO FERNANDEZ 6 MADRID"
+},
+"cc9e8099-7c75-4709-8ed9-892095496654": {
+"codigo": "DAN-2017-025",
+"carpeta": "algaba17A",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP ALGABA 17 A MADRID"
+},
+"4f74e425-74c9-4db6-8471-2893707e9995": {
+"codigo": "DAN-2017-034",
+"carpeta": "allariz6a",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP ALLARIZ 6 A MADRID"
+},
+"17c0082a-8e32-4c29-9f11-9192f721755a": {
+"codigo": "DAN-2017-096",
+"carpeta": "algaba34",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALGABA 34 MADRID"
+},
+"f4ff541e-f2af-41c0-971d-2f15bc67c494": {
+"codigo": "DAN-2017-124",
+"carpeta": "alejandromoran14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALEJANDRO MORAN 14 MADRID"
+},
+"370aa483-335e-4858-86e7-5f24f824beb5": {
+"codigo": "DAN-2017-132",
+"carpeta": "algaba26",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALGABA 26 MADRID"
+},
+"8cf3ff3a-e26b-42e3-b25a-f4545b9df666": {
+"codigo": "CAR-2025-051",
+"carpeta": "lopezdehoyos342c",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP LOPEZ DE HOYOS 342 C MADRID"
+},
+"85719678-56c0-4e16-93d8-fc0e3f826576": {
+"codigo": "DAN-2023-245",
+"carpeta": "apostolsantiago25",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP APOSTOL SANTIAGO 25 MADRID"
+},
+"791d2c51-c1c0-4ff5-bba6-4258c838b2c7": {
+"codigo": "DAN-2017-012",
+"carpeta": "anis10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ANIS 10 MADRID"
+},
+"bf548c8c-05c0-4dd6-a6a0-c7ffd705c9b2": {
+"codigo": "DAN-2017-049",
+"carpeta": "antoniovelascozazo29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ANTONIO VELASCO ZAZO 29 MADRID"
+},
+"2ced96c7-d554-40fc-9f57-7d3aef211bb0": {
+"codigo": "DAN-2018-082",
+"carpeta": "argos35",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARGOS 35 MADRID"
+},
+"3a8b099a-e33a-4231-8b6b-240253b8ddf3": {
+"codigo": "DAN-2022-116",
+"carpeta": "aravaca24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARAVACA 24 MADRID"
+},
+"cfbca8ae-c176-4ac2-a1c9-3763d2872a87": {
+"codigo": "DAN-2016-153",
+"carpeta": "avemaria45",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AVE MARIA 45 MADRID"
+},
+"933dda0f-06ff-4c3f-9de0-d5844d9b093c": {
+"codigo": "DAN-2019-070",
+"carpeta": "avburgos16.A",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV BURGOS 16 MADRID"
+},
+"6823d2da-1239-4cd1-b683-c49fbced0ebe": {
+"codigo": "DAN-2016-127",
+"carpeta": "ayala61",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AYALA 61 MADRID"
+},
+"22c35a8b-c952-4ecc-bb94-e9a7dff90258": {
+"codigo": "DAN-2016-181",
+"carpeta": "ascensionbielsa19",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ASCENSION BIELSA 19 MADRID"
+},
+"df48c347-69fd-4654-ac27-dafea49d8f52": {
+"codigo": "DAN-2017-074",
+"carpeta": "arzua16",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARZUA 16 MADRID"
+},
+"452fc2d3-def3-4f67-9105-576eef5ada81": {
+"codigo": "DAN-2017-082",
+"carpeta": "aventrevias82",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AV ENTREVIAS 82 MADRID"
+},
+"5362fdbe-f185-4462-b2dc-a36a598eeb87": {
+"codigo": "DAN-2017-121",
+"carpeta": "ayala27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AYALA 27 MADRID"
+},
+"fc91817f-4daa-4347-81ac-447f9ac7776b": {
+"codigo": "DAN-2020-017",
+"carpeta": "arroyodelolivar180",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARROYO DEL OLIVAR 180 MADRID"
+},
+"1883b774-eead-47c9-8215-ca0934bdd5b5": {
+"codigo": "DAN-2023-156",
+"carpeta": "avcardenalherreraoria293",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AV CARDENAL HERRERA ORIA 293 MADRID"
+},
+"cfdbbeaa-4d2f-40f7-983b-e7bf981b8a55": {
+"codigo": "DAN-2016-163",
+"carpeta": "avelinofernandezdelapoza35",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AVELINO FERNANDEZ DE LA POZA 35 MADRID"
+},
+"f9136bec-18a3-436b-9407-57bf10a6256e": {
+"codigo": "DAN-2016-205",
+"carpeta": "avcardenalherreraoria2",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV CARDENAL HERRERA ORIA 2 MADRID"
+},
+"1d17e21d-9224-4bf4-b325-b331b2bc0fee": {
+"codigo": "DAN-2018-067",
+"carpeta": "avaguilas87",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV LAS AGUILAS 87 MADRID"
+},
+"39e057cc-b09b-4fa5-b22a-ba065157370e": {
+"codigo": "DAN-2017-087",
+"carpeta": "avnuestraseñoradevalvanera111",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV NTRA SEÑORA DE VALVANERA 111 MADRID"
+},
+"d2b328e9-14a5-4eb3-9f0e-e33ac9a6120b": {
+"codigo": "DAN-2022-194",
+"carpeta": "avmarquesdecorbera38C",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV MARQUES DE CORBERA 38 C MADRID"
+},
+"7978c2fb-e827-4344-b50f-05a875ce39d9": {
+"codigo": "DAN-2015-033",
+"carpeta": "viacarpetana83",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VIA CARPETANA 83 MADRID"
+},
+"fa499349-1780-42ae-9984-86ec2c23bb24": {
+"codigo": "DAN-2015-075",
+"carpeta": "cadetejuliollopart26",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CADETE JULIO LLOPART 26 MADRID"
+},
+"e2dc4e76-9133-438f-9357-33a43dee151b": {
+"codigo": "DAN-2015-098",
+"carpeta": "camarena262",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMARENA 262 MADRID"
+},
+"a7b8f6ed-517b-4e9a-a9c3-8a6e1222ae84": {
+"codigo": "DAN-2016-124",
+"carpeta": "campodelapaloma22",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMPO DE LA PALOMA 22 MADRID"
+},
+"6747baac-869b-410a-85f0-7e89f9844b66": {
+"codigo": "DAN-2016-179",
+"carpeta": "cadarso9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CADARSO 9 MADRID"
+},
+"5dd70bf9-9eee-4ea1-a977-f597f4777503": {
+"codigo": "DAN-2016-190",
+"carpeta": "caceres17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CACERES 17 MADRID"
+},
+"2d1804b0-e163-4b9d-8cea-d2b5f81becb7": {
+"codigo": "DAN-2021-130",
+"carpeta": "cadalsodelosvidrios10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CADALSO DE LOS VIDRIOS 10 MADRID"
+},
+"c1d7446b-5916-4b6e-8fa8-bd2d0ff98b5a": {
+"codigo": "DAN-2022-193",
+"carpeta": "avCarlosV51-65",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AV CARLOS V 51-65 MOSTOLES"
+},
+"0e3908da-e697-4e86-97d1-6144d07838c8": {
+"codigo": "DAN-2015-043",
+"carpeta": "camarena236",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMARENA 236 MADRID"
+},
+"37cea390-711b-4951-9456-bf0c52a7f79d": {
+"codigo": "DAN-2015-099",
+"carpeta": "camarena284",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMARENA 284 MADRID"
+},
+"87a0b73c-9d97-4dc7-b7dc-44893acb4e45": {
+"codigo": "DAN-2022-198",
+"carpeta": "plazadeparis3",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA PARIS 3 LEGANES"
+},
+"f5c97c58-533a-4111-8e6e-dfd428602fa6": {
+"codigo": "DAN-2016-101",
+"carpeta": "capellanes20",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAPELLANES 20 MADRID"
+},
+"1eb9fc2c-ba5c-4781-a93c-8a4f2fc29472": {
+"codigo": "DAN-2016-217",
+"carpeta": "carmenportones13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CARMEN PORTONES 13 MADRID"
+},
+"7822f41b-11b0-4e8b-8b39-8d9e25c86ecd": {
+"codigo": "DAN-2017-070",
+"carpeta": "carracedo21",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CARRACEDO 21 MADRID"
+},
+"a7423fbd-e54e-4496-b9e3-450b145a6a87": {
+"codigo": "DAN-2017-115",
+"carpeta": "caroli7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAROLI 7 MADRID"
+},
+"7f28078c-7093-4198-9d31-c4c2d6802fd7": {
+"codigo": "DAN-2017-125",
+"carpeta": "carlina4",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CARLINA 4 MADRID"
+},
+"87441555-6894-4033-9bf1-6acf7bd66016": {
+"codigo": "DAN-2017-130",
+"carpeta": "velarde16",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VELARDE 16 MADRID"
+},
+"3e9be365-3cb1-43b2-ac97-4cdbe6e6ab89": {
+"codigo": "DAN-2018-046",
+"carpeta": "viacarpetana",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP VIACARPETANA MADRID"
+},
+"bc41710c-d019-4abf-a66d-d56b29e31b59": {
+"codigo": "DAN-2019-032",
+"carpeta": "cardeñosa63",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CARDEÑOSA 63 MADRID"
+},
+"cf9ffc4c-8120-4ad7-8670-d1626b2e6db1": {
+"codigo": "DAN-2020-012",
+"carpeta": "cangas de onis 32",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CANGAS DE ONIS 32 MADRID"
+},
+"bc4b2269-4992-4d84-9b60-1c01bbb15e8c": {
+"codigo": "DAN-2024-176",
+"carpeta": "cerrodelcarrasco2",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CERRO DEL CARRASCO 2 MADRID"
+},
+"09f0f115-f26d-400d-87dc-05e7df8aa0aa": {
+"codigo": "DAN-2021-117",
+"carpeta": "ciudaddebarcelona39",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV CIUDAD DE BARCELONA 39 MADRID"
+},
+"81dd6019-4dbf-4e55-b8a1-d595338cabaa": {
+"codigo": "DAN-2023-120",
+"carpeta": "claracampoamor15",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CLARA CAMPOAMOR 15 MADRID"
+},
+"653bce8a-d82e-4297-bb41-1c4be7fae16f": {
+"codigo": "DAN-2017-142",
+"carpeta": "cebreros112",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CEBREROS 112 MADRID"
+},
+"e09de650-36e0-4390-b36c-7e96ff438364": {
+"codigo": "DAN-2020-065",
+"carpeta": "fermincaballero24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FERMIN CABALLERO 24 MADRID"
+},
+"13f818a7-ea45-4e2d-bc8e-8044211c28f8": {
+"codigo": "DAN-2016-174",
+"carpeta": "claracampoamor7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CLARA CAMPOAMOR 7 MADRID"
+},
+"2f0631df-8dd4-4b78-b886-3ca3a2ed4304": {
+"codigo": "DAN-2017-029",
+"carpeta": "viacarpetana143",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VIA CARPETANA 143 MADRID"
+},
+"b32e175f-3f10-4bbb-a516-3b770ec1f321": {
+"codigo": "DAN-2024-223",
+"carpeta": "coslada7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP COSLADA 7 MADRID"
+},
+"a990c824-26a2-4d60-a539-1fd785730e01": {
+"codigo": "DAN-2017-086",
+"carpeta": "fuencarral26",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FUENCARRAL 26 MADRID"
+},
+"a1b918cb-c658-4e97-a02c-afbf22d3e2d0": {
+"codigo": "DAN-2018-002",
+"carpeta": "condevistahermosa32",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CONDE VISTAHERMOSA 32 MADRID"
+},
+"6efff384-3ab0-4186-bab4-bb8389a0daf3": {
+"codigo": "DAN-2018-003",
+"carpeta": "cristodelavictoria177",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CRISTO DE LA VICTORIA 177 MADRID"
+},
+"7857d6c0-1992-460c-8bff-b7a985a75259": {
+"codigo": "DAN-2019-029",
+"carpeta": "corregidorjuandeboadilla37",
+"municipio": "MADRID",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP CORREGIDORJUANDEBOADILLA37 MADRID"
+},
+"7560c572-cc0a-4182-9b0e-7dde35d0856b": {
+"codigo": "DAN-2016-192",
+"carpeta": "venanciomartin36",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VENANCIO MARTIN 36 MADRID"
+},
+"cfcd9bfe-5e4d-411b-8351-d282efc19c0b": {
+"codigo": "DAN-2017-171",
+"carpeta": "cruzdelsur17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CRUZ DEL SUR 17 MADRID"
+},
+"54e61896-d0ca-4c06-b039-47da45ddb44e": {
+"codigo": "DAN-2018-010",
+"carpeta": "consueloguzman1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CONSUELO GUZMAN 1 MADRID"
+},
+"31dc63d4-bdeb-4118-bd80-b494dbdf0dc8": {
+"codigo": "DAN-2018-041",
+"carpeta": "cortedelfaraon24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CORTE DEL FARAON 24 MADRID"
+},
+"cda62318-4f66-4c73-bed4-944b55adc6f8": {
+"codigo": "DAN-2019-012",
+"carpeta": "comandantefontanes11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP COMANDANTE FONTANES 11 MADRID"
+},
+"38914bbe-2f26-4030-a906-bed0e729a751": {
+"codigo": "DAN-2020-011",
+"carpeta": "corregidorjuandebobadilla18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CORREGIDOR JUAN DE BOBADILLA 18 MADRID"
+},
+"33c84b60-ea42-42bf-beb7-3e3860972e1e": {
+"codigo": "DAN-2016-131",
+"carpeta": "doloresbarranco57",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DOLORES BARRANCO 57 MADRID"
+},
+"cb23ff35-da57-4a00-bb38-15be52780744": {
+"codigo": "DAN-2018-042",
+"carpeta": "dolorosa12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DOLOROSA 12 MADRID"
+},
+"d0278ee4-33a9-4876-aab2-c8c9cdbecb93": {
+"codigo": "DAN-2022-069",
+"carpeta": "nuñezmorgado11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP NUÑEZ MORGADO 11 MADRID"
+},
+"f6bd897c-44d1-4553-afcc-752357f788f3": {
+"codigo": "DAN-2016-177",
+"carpeta": "nuestraseñoradelaluz52",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP NUESTRA SEÑORA DE LA LUZ 52 MADRID"
+},
+"6b693dd8-1259-477d-8fc6-10f50fa9dcff": {
+"codigo": "DAN-2017-061",
+"carpeta": "eusebiomoran10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP EUSEBIO MORAN 10 MADRID"
+},
+"17a895ce-5c8d-48f2-8216-ca2a74dbf664": {
+"codigo": "DAN-2018-050",
+"carpeta": "elche3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ELCHE 3 MADRID"
+},
+"fd328a2d-c91e-4250-aeeb-2515ba5de951": {
+"codigo": "DAN-2016-121",
+"carpeta": "encomiendadepalacios38",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ENCOMIENDA DE PALACIOS 38 MADRID"
+},
+"0179d1eb-44ae-4a4e-9349-3be89b1d0773": {
+"codigo": "DAN-2016-154",
+"carpeta": "etruria38",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ETRURIA 38 MADRID"
+},
+"25f53f15-1a67-4475-85e3-86df3678e633": {
+"codigo": "DAN-2017-066",
+"carpeta": "fernandoelcatolico29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FERNANDO EL CATOLICO 29 MADRID"
+},
+"4e462c2a-b27e-4dc0-9fa5-9dbadde54f2a": {
+"codigo": "DAN-2015-116",
+"carpeta": "gregoriovacas14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GREGORIO VACAS 14 MADRID"
+},
+"667abd39-7da0-46e3-84e1-55ee27211892": {
+"codigo": "DAN-2016-031",
+"carpeta": "franciscodemadariaga27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FRANCISCO DE MADARIAGA 27 MADRID"
+},
+"58ddaaab-9911-418a-bf82-b09afe5cfff4": {
+"codigo": "DAN-2016-062",
+"carpeta": "generalprim19",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL PRIM 19 MADRID"
+},
+"264d5d18-2860-42bd-bfa9-74d7eb9b6914": {
+"codigo": "DAN-2017-005",
+"carpeta": "paravicinos14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PARAVICINOS 14 MADRID"
+},
+"f3d15f36-d993-41ca-91ee-d47d7664a648": {
+"codigo": "DAN-2017-126",
+"carpeta": "galvez1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GALVEZ 1 MADRID"
+},
+"c66e6305-5bcd-4fa7-94b9-252f962a7505": {
+"codigo": "DAN-2017-134",
+"carpeta": "fernandoelcatolico73",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FERNANDO EL CATOLICO 73 MADRID"
+},
+"a65bb661-1e7e-4375-9bc1-86f3e34646c9": {
+"codigo": "DAN-2021-025",
+"carpeta": "faro2",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FARO 2 MADRID"
+},
+"df7b1059-d569-41af-a1fd-12c346312794": {
+"codigo": "DAN-2022-191",
+"carpeta": "gandhi11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GANDHI 11 MADRID"
+},
+"2874f490-6abb-4389-a508-4263ceb9c872": {
+"codigo": "DAN-2015-103",
+"carpeta": "generalricardo210",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL RICARDOS 210 MADRID"
+},
+"59be72ab-314c-42ad-a38d-c84c24db454f": {
+"codigo": "DAN-2016-134",
+"carpeta": "franciscopaino33",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FRANCISCO PAINO 33 MADRID"
+},
+"9cab22d8-0ea9-4571-b929-f996683eab4f": {
+"codigo": "DAN-2019-033",
+"carpeta": "IGLESIA4",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP IGLESIA 4 MADRID"
+},
+"5b157461-e513-4371-8071-2c0bee687031": {
+"codigo": "DAN-2017-148",
+"carpeta": "grafito49",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GRAFITO 49 MADRID"
+},
+"e3433251-a2b3-467d-959a-c06b45b193ce": {
+"codigo": "DAN-2020-022",
+"carpeta": "gaztambide 29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GAZTAMBIDE 29 MADRID"
+},
+"6e941a14-8281-4dec-8002-a6ed84adb971": {
+"codigo": "DAN-2021-015",
+"carpeta": "generalprim19",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP GENERAL PRIM 19 MADRID"
+},
+"ef7b05f6-962c-42b5-8215-0d2b6c035f7d": {
+"codigo": "DAN-2017-098",
+"carpeta": "generalvarela 13 15",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL VARELA 13 Y 15 MADRID"
+},
+"8591fb73-ffa5-4040-956d-2ff6a3701514": {
+"codigo": "DAN-2017-172",
+"carpeta": "guadalix3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GUADALIX 3 MADRID"
+},
+"e9ab67b4-1556-43c7-a5d8-02b89e9eec15": {
+"codigo": "DAN-2020-056",
+"carpeta": "hacienda22",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP HACIENDA 22 MADRID"
+},
+"8dfbd22f-8f9f-46cf-8211-510890823f9d": {
+"codigo": "DAN-2022-110",
+"carpeta": "gomeznarro64",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GOMEZNARRO 64 MADRID"
+},
+"4da6dbe1-4568-48fc-adf1-03be9b67dce3": {
+"codigo": "DAN-2018-022",
+"carpeta": "generalvarela3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL VARELA 3 MADRID"
+},
+"07bc9b4e-4e79-44fe-819b-c07d646e9232": {
+"codigo": "DAN-2017-122",
+"carpeta": "generalfanjul24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL FANJUL 24 MADRID"
+},
+"31bae34e-a00e-4fcd-a82d-561b03b15a7a": {
+"codigo": "DAN-2017-143",
+"carpeta": "gorrion55",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GORRION 55 MADRID"
+},
+"ab70c132-ffbc-407c-b811-2d219686365e": {
+"codigo": "DAN-2016-107",
+"carpeta": "guadaira9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GUADAIRA 9 MADRID"
+},
+"1844e422-589c-40cf-93dd-ca75209e33cd": {
+"codigo": "DAN-2017-058",
+"carpeta": "lasaguas6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LAS AGUAS 6 MADRID"
+},
+"5e6b9039-01a4-41bf-b8cb-c95124cac697": {
+"codigo": "DAN-2017-089",
+"carpeta": "hermosilla71",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP HERMOSILLA 71 MADRID"
+},
+"f91748f1-efc7-44ec-9846-50d39b0224d8": {
+"codigo": "DAN-2016-155",
+"carpeta": "haciendadepavones308",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP HACIENDA DE PAVONES 308 MADRID"
+},
+"81c6dbc8-cdf8-4b38-92af-b0b36206931e": {
+"codigo": "DAN-2021-027",
+"carpeta": "hermanosgomez45",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP HERMANOS GOMEZ 45 MADRID"
+},
+"7bbf7b10-7fb4-4975-be63-58b57bc81799": {
+"codigo": "DAN-2017-083",
+"carpeta": "huertadelbayo4",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP HUERTA DEL BAYO 4 MADRID"
+},
+"057e35d8-09b8-4d11-9681-ee480e0279de": {
+"codigo": "DAN-2017-071",
+"carpeta": "hospitaldelafuenfria",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP HOSPITALDELAFUENFRIA MADRID"
+},
+"013c6df4-71b3-4f21-b28e-e50290ff5850": {
+"codigo": "DAN-2022-282",
+"carpeta": "inmaculada13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DE LA INMACULADA 13 MADRID"
+},
+"9c706674-db72-4dd8-b244-1c765b75ad99": {
+"codigo": "DAN-2022-108",
+"carpeta": "jacintocamarero8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JACINTO CAMARERO 8 MADRID"
+},
+"d2230d67-0b87-45ec-9fa6-cb93e19b2997": {
+"codigo": "DAN-2017-119",
+"carpeta": "juandedios3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JUAN DE DIOS 3 MADRID"
+},
+"76478aad-0738-444e-8eb9-86fecdb8ba0e": {
+"codigo": "DAN-2022-196",
+"carpeta": "iliada5",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ILIADA 5 MADRID"
+},
+"924c803a-43ae-4226-a4c2-0d78fe80d2fb": {
+"codigo": "DAN-2016-017",
+"carpeta": "juansalas28",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JUAN SALAS 28 MADRID"
+},
+"031d88a8-2f11-4997-a4c0-e10e3095b5e8": {
+"codigo": "DAN-2017-129",
+"carpeta": "JERONIMO HISTORIAS rehabilitacion",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP JERONIMO HISTORIAS REHABILITACION MADRID"
+},
+"e04a1244-a8e4-4a49-a100-e1fbee05d1ea": {
+"codigo": "DAN-2021-028",
+"carpeta": "laespañola1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LA ESPAÑOLA 1 MADRID"
+},
+"4d6d68ad-94a9-4c8e-b59f-20e8278e102d": {
+"codigo": "DAN-2015-026",
+"carpeta": "luisruiz84",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP LUIS RUIZ 84 MADRID"
+},
+"2907961b-3a4c-4b7c-bdaa-8683b619fe93": {
+"codigo": "DAN-2016-110",
+"carpeta": "josefentanes89",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JOSE FENTANES 89 MADRID"
+},
+"d0bc85fc-03a0-4a5b-bf3f-07bdbcb07d4e": {
+"codigo": "DAN-2017-105",
+"carpeta": "illescas72",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ILLESCAS 72 MADRID"
+},
+"f548b9c8-46ad-4216-aa0e-288ae411d87b": {
+"codigo": "DAN-2017-168",
+"carpeta": "lapaz9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LA PAZ 9 MADRID"
+},
+"14512508-6140-4117-a9e6-910d886494ea": {
+"codigo": "DAN-2015-095",
+"carpeta": "laserena7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LA SERENA 7 MADRID"
+},
+"d183b16e-6ec6-4de7-bf01-fe8f86670193": {
+"codigo": "DAN-2017-144",
+"carpeta": "jacobinia58",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JACOBINIA 58 MADRID"
+},
+"0cf31927-f8a0-4b62-8ca8-fd27803dd8a3": {
+"codigo": "DAN-2015-052",
+"carpeta": "paseodeextremadura242",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO EXTREMADURA 242 MADRID"
+},
+"08b1c46b-2ddb-4340-ab8e-cb874a549d35": {
+"codigo": "DAN-2016-191",
+"carpeta": "lopezgrass21",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LOPEZ GRASS 21 MADRID"
+},
+"071410e2-ba4c-4198-b0b3-54199fdf00ca": {
+"codigo": "DAN-2017-027",
+"carpeta": "juliamediavilla34",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JULIA MEDIAVILLA 34 MADRID"
+},
+"199226f0-c361-454e-ab91-923103a1c0d3": {
+"codigo": "DAN-2018-048",
+"carpeta": "luisgomez7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LUIS GOMEZ 7 MADRID"
+},
+"e78b912d-d45f-47d7-98ea-d0a5d1eb1afb": {
+"codigo": "DAN-2021-020",
+"carpeta": "jilguero6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JILGUERO 6 MADRID"
+},
+"eab62485-f0a9-4f43-bcd6-8d3f88e989a0": {
+"codigo": "DAN-2016-029",
+"carpeta": "josemaurelo29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JOSE MAURELO 29 MADRID"
+},
+"dc0da5c5-7e60-45e0-964f-0220d29ff29d": {
+"codigo": "DAN-2019-039",
+"carpeta": "lumbreras 5",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP LUMBRERAS 5 MADRID"
+},
+"8c2fe4d0-6cf7-41eb-83ab-b88b35c7f44e": {
+"codigo": "DAN-2023-124",
+"carpeta": "manresa21",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MANRESA 21 MADRID"
+},
+"77078316-f5e6-4e9d-b60d-ddae614ec238": {
+"codigo": "DAN-2016-080",
+"carpeta": "leganitos29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LEGANITOS 29 MADRID"
+},
+"3ec3e43f-8ff9-4993-80b4-ba20b99c49bf": {
+"codigo": "DAN-2017-117",
+"carpeta": "joseortegaygasset96",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JOSE ORTEGA Y GASSET 96 MADRID"
+},
+"fb4ed446-711b-4dc6-b395-05263c928fec": {
+"codigo": "DAN-2017-169",
+"carpeta": "luisafernanda17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LUISA FERNANDA 17 MADRID"
+},
+"fb6d01a1-4907-4833-b2bc-f93541152fcc": {
+"codigo": "DAN-2022-270",
+"carpeta": "manuellaborda11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MANUEL LABORDA 11 MADRID"
+},
+"d6e2bdf7-cd04-4ece-b736-7fb207abbc4e": {
+"codigo": "DAN-2017-020",
+"carpeta": "mediodiagrande12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MEDIODIA GRANDE 12 MADRID"
+},
+"b5a730ca-6a3b-4e22-9818-f572b98f01fa": {
+"codigo": "DAN-2017-040",
+"carpeta": "mascaraque32",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MASCARAQUE 32 MADRID"
+},
+"06532cb0-b4d8-462b-98e8-50d301b146fd": {
+"codigo": "DAN-2020-035",
+"carpeta": "martinezvillergas12",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MARTINEZ VILLERGAS 12 MADRID"
+},
+"bc63bd10-1651-480d-8b31-0908faf1cdf5": {
+"codigo": "DAN-2022-115",
+"carpeta": "marmenor28-38",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MAR MENOR 28-38 MADRID"
+},
+"cec77a6d-d9e4-4975-8ff9-3585922daff9": {
+"codigo": "DAN-2022-261",
+"carpeta": "millanastray21a37",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP MILLANASTRAY21A37 MADRID"
+},
+"c09e587b-be3c-46c5-9478-a116c37c92e0": {
+"codigo": "DAN-2023-125",
+"carpeta": "manresa23",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MANRESA 23 MADRID"
+},
+"6caf6027-9bc1-4e47-95e4-8a8e12b32b42": {
+"codigo": "DAN-2022-260",
+"carpeta": "maricara17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MARICARA 17 MADRID"
+},
+"aee51439-d01d-44f4-82d8-af5316fbdbd8": {
+"codigo": "DAN-2017-041",
+"carpeta": "mascaraque52",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MASCARAQUE 52 MADRID"
+},
+"edc82559-46cd-48fc-a9cf-e2160068bb8f": {
+"codigo": "DAN-2017-072",
+"carpeta": "mascaraque36",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MASCARAQUE 36 MADRID"
+},
+"ab4a5707-4aa8-4a42-8a16-03361df3252b": {
+"codigo": "DAN-2017-108",
+"carpeta": "mariscalgutierrezotero9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MARISCAL GUTIERREZ OTERO 9 MADRID"
+},
+"575a15a1-8fd7-42d4-9b4d-d2165f5dc8b9": {
+"codigo": "DAN-2018-087",
+"carpeta": "Mazarrado12",
+"municipio": "MADRID",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP MAZARRADO12 MADRID"
+},
+"bd2fa5fd-0673-4d4b-b057-3215a92390c6": {
+"codigo": "DAN-2020-023",
+"carpeta": "nicaragua6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP NICARAGUA 6 MADRID"
+},
+"0dd1dead-b715-4898-987c-c185dd647ce9": {
+"codigo": "DAN-2017-011",
+"carpeta": "margarita41",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MARGARITA 41 MADRID"
+},
+"a68b514d-f019-49b5-864d-444fefb9da67": {
+"codigo": "DAN-2016-009",
+"carpeta": "martinezoviol43",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MARTINEZ OVIOL 43 MADRID"
+},
+"30495eb5-30bb-4ef8-a8df-9aa0653553ed": {
+"codigo": "DAN-2016-089",
+"carpeta": "monteleon18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MONTE LEON 18 MADRID"
+},
+"7094758a-336b-44eb-900a-bfa48c2898ed": {
+"codigo": "DAN-2016-196",
+"carpeta": "mejorana7",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MEJORANA 7 MADRID"
+},
+"dcdc9d34-57b7-498d-bb3f-78eb04519adf": {
+"codigo": "DAN-2017-038",
+"carpeta": "marquesviudodepontejos3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MARQUES VIUDO DE PONTEJOS 3 MADRID"
+},
+"10d0f320-9d0f-4cf6-9aea-c901b56eec79": {
+"codigo": "DAN-2017-042",
+"carpeta": "mascaraque60",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MASCARAQUE 60 MADRID"
+},
+"2e9d9a21-6ee6-4713-bf73-126905c3a03a": {
+"codigo": "DAN-2017-137",
+"carpeta": "mascaraque38",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MASCARAQUE 38 MADRID"
+},
+"eb017562-f3d6-4941-9df3-6fc4e243e356": {
+"codigo": "DAN-2017-127",
+"carpeta": "miraelrioalta13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MIRA EL RIO ALTA 13 MADRID"
+},
+"66482890-ef1f-473e-823f-94750db4496a": {
+"codigo": "DAN-2020-024",
+"carpeta": "mesejo9",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MESEJO 9 MADRID"
+},
+"fee60cba-e45c-4c70-82a9-41f8360ecbdf": {
+"codigo": "DAN-2017-059",
+"carpeta": "miralsol8",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MIRA EL SOL 8 MADRID"
+},
+"fb1a5865-f61e-4f1a-8a9a-e30cd796ed05": {
+"codigo": "DAN-2020-026",
+"carpeta": "plazavalencia8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PLAZA VALENCIA 8 MADRID"
+},
+"ad8186c0-537a-4cb0-b39e-afb50fd1fa41": {
+"codigo": "DAN-2022-227",
+"carpeta": "nuestraseñoradelasangustias14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP NUESTRA SEÑORA DE LAS ANGUSTIAS 14 MADRID"
+},
+"caeb3d51-2107-4d71-9d45-88602b69d11e": {
+"codigo": "DAN-2019-063",
+"carpeta": "nicolas",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP NICOLAS MADRID"
+},
+"f6ef7826-ed4c-4899-9848-03fc9db1d275": {
+"codigo": "DAN-2015-105",
+"carpeta": "paseomelancolicos8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO MELANCOLICOS 8 MADRID"
+},
+"aa51675f-4952-4d6c-b2e3-36252a0a3b20": {
+"codigo": "DAN-2016-030",
+"carpeta": "oca95",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DE LA OCA 95 MADRID"
+},
+"113cf1af-d19e-45ca-b831-e2e2ca7a9a9f": {
+"codigo": "DAN-2016-119",
+"carpeta": "ofelianieto7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OFELIA NIETO 7 MADRID"
+},
+"08999f81-1066-45e2-b5d8-c8bea4cb4249": {
+"codigo": "DAN-2016-125",
+"carpeta": "ocaña129",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OCAÑA 129 MADRID"
+},
+"0fe7433a-d044-46cc-a2c5-2fd31f3f7014": {
+"codigo": "DAN-2017-021",
+"carpeta": "oporto13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OPORTO 13 MADRID"
+},
+"3044cd8f-d472-4c64-809f-7a7558b8a094": {
+"codigo": "DAN-2017-138",
+"carpeta": "olmo27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OLMO 27 MADRID"
+},
+"dc366f1a-9308-4a47-bcf8-094ff2566243": {
+"codigo": "DAN-2018-063",
+"carpeta": "oneca4",
+"municipio": "COSLADA",
+"de": "texto",
+"nombre": "CP ONECA 4, COSLADA"
+},
+"30413bcd-4045-4e5b-a351-6241c7b48877": {
+"codigo": "DAN-2016-193",
+"carpeta": "paseodeextremadura244",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO EXTREMADURA 244 MADRID"
+},
+"8ccbf5a7-1afb-4e13-af52-b4a1703988fc": {
+"codigo": "DAN-2022-178",
+"carpeta": "paloma9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LA PALOMA 9 MADRID"
+},
+"5bd2b9c2-bb1b-46b5-baf0-a770b5040de7": {
+"codigo": "DAN-2024-113",
+"carpeta": "paseodelahabana17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO DE LA HABANA 17 MADRID"
+},
+"e38c1541-f999-4d08-9f80-2fe576d7b2eb": {
+"codigo": "DAN-2021-066",
+"carpeta": "paseomelancolicos51",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO MELANCOLICOS 51 MADRID"
+},
+"2be2e16e-295e-406e-aaf2-5003392f40d5": {
+"codigo": "DAN-2016-021",
+"carpeta": "paseosantamariadelacabeza125",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 125 MADRID"
+},
+"5930be8d-32f5-49aa-bbd4-08e0744d9ac9": {
+"codigo": "DAN-2016-022",
+"carpeta": "paseosantamariadelacabeza127",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 127 MADRID"
+},
+"9d8f24ec-0c23-4066-b2fb-b67c3bf03b85": {
+"codigo": "DAN-2016-026",
+"carpeta": "paseoesperanza37",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO ESPERANZA 37 MADRID"
+},
+"1508c51c-9bf4-48e6-afa0-721d41547222": {
+"codigo": "DAN-2016-149",
+"carpeta": "paseodeloscastellanos41",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO DE LOS CASTELLANOS 41 MADRID"
+},
+"cf5b80b5-20d3-4c13-985a-c24709e74dac": {
+"codigo": "DAN-2016-157",
+"carpeta": "paseodeloscastellanos17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO DE LOS CASTELLANOS 17 MADRID"
+},
+"a868225c-3173-43d2-86df-94df7963a78a": {
+"codigo": "DAN-2016-160",
+"carpeta": "sanjuandelamata42",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN JUAN DE LA MATA 42 MADRID"
+},
+"dec0009a-51e2-432b-a7c8-563dcaa75586": {
+"codigo": "DAN-2018-083",
+"carpeta": "paseodelosJesuitas16",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO JESUITAS 16 MADRID"
+},
+"2d5f3a91-a6ba-451a-8241-a508672f619f": {
+"codigo": "DAN-2020-067",
+"carpeta": "paseodelahabana15",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO LA HABANA 15 MADRID"
+},
+"f71c79dd-6a2a-4670-8bd6-a6ceb91f8621": {
+"codigo": "DAN-2017-010",
+"carpeta": "sanroberto12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN ROBERTO 12 MADRID"
+},
+"b5244c7f-1998-42e0-880b-8903fcdc447c": {
+"codigo": "DAN-2016-023",
+"carpeta": "paseosantamariadelacabeza129",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 129 MADRID"
+},
+"80169b5c-6216-4844-8ac5-5fcc4d6214b4": {
+"codigo": "DAN-2017-112",
+"carpeta": "sanpoldemar13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN POL DE MAR 13 MADRID"
+},
+"bd032931-4dd3-4a93-984d-841af5b123de": {
+"codigo": "DAN-2015-078",
+"carpeta": "paseosantamariadelacabeza149",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 149 MADRID"
+},
+"0188c75e-9427-48f3-a14c-330032a47651": {
+"codigo": "DAN-2015-106",
+"carpeta": "pedrounanue16",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PEDRO UNANUE 16 MADRID"
+},
+"26d4bf83-6a81-4e9e-803c-5edc5ab31f73": {
+"codigo": "DAN-2016-113",
+"carpeta": "plazadecascorro1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PLAZA DE CASCORRO 1 MADRID"
+},
+"c068e2f7-8d64-4084-b4e7-0f304820bd11": {
+"codigo": "DAN-2016-172",
+"carpeta": "pelayo51",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PELAYO 51 MADRID"
+},
+"c1f95f99-4001-451e-94d4-4fb474c4027b": {
+"codigo": "DAN-2017-030",
+"carpeta": "sandoval13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANDOVAL 13 MADRID"
+},
+"f85a40da-5cf0-4ac9-ad5d-e4e9bb3d3d9a": {
+"codigo": "DAN-2016-104",
+"carpeta": "puertodelmonasterio20",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PUERTO DEL MONASTERIO 20 MADRID",
+"existe": "3bf8a3a0-52a8-40e2-ac85-c12a1178e696"
+},
+"1ef5a906-3a3c-414e-9bd3-91f569aa21fd": {
+"codigo": "DAN-2017-149",
+"carpeta": "RAMPAS",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP RAMPAS MADRID"
+},
+"740941d2-9ca1-4416-ac52-99423a6ffbfa": {
+"codigo": "DAN-2024-153",
+"carpeta": "plazasierradeayllon2",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PLAZA SIERRA DE AYLLON 2 MADRID"
+},
+"c2c63586-403e-4d57-9582-dfa9e8cec6fc": {
+"codigo": "DAN-2023-199",
+"carpeta": "pzarteijo14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PZ ARTEIJO 14 MADRID"
+},
+"b8ab0909-6388-4256-8ffe-739d13bb264f": {
+"codigo": "DAN-2015-096",
+"carpeta": "realdepinto30",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP REAL DE PINTO 30 MADRID"
+},
+"cc897a93-abd8-4f0b-b039-ab831cb69d4e": {
+"codigo": "DAN-2016-132",
+"carpeta": "plazasolidaridad10",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PLAZA SOLIDARIDAD 10 MADRID"
+},
+"755c1ee6-408d-433e-bbbc-a403585a80fd": {
+"codigo": "DAN-2017-004",
+"carpeta": "princesa31",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PRINCESA 31 MADRID"
+},
+"0d1ef18c-f7a6-458c-a5fb-79d3efce5659": {
+"codigo": "DAN-2017-048",
+"carpeta": "provencio33",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PROVENCIO 33 MADRID"
+},
+"0c41b2cd-5bdf-4f30-8822-fbb8a1f1aeab": {
+"codigo": "DAN-2017-123",
+"carpeta": "plazanuestraseñoradelpilar9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PLAZA NUESTRA SEÑORA DEL PILAR 9 MADRID"
+},
+"d4e6daf1-92d8-445d-9a17-4863c2ad597f": {
+"codigo": "DAN-2020-066",
+"carpeta": "ponzano51",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PONZANO 51 MADRID"
+},
+"7c707784-3bfd-449c-9a09-91c210c7f354": {
+"codigo": "DAN-2022-284",
+"carpeta": "recalde9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RECALDE 9 MADRID"
+},
+"c2c3f7f6-c8ea-4c43-a85a-6a4791c22436": {
+"codigo": "DAN-2021-131",
+"carpeta": "ramongomezdelaserna101",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RAMON GOMEZ DE LA SERNA 101 MADRID"
+},
+"f5848dc8-2869-4b69-932e-2e58d3b27368": {
+"codigo": "DAN-2016-105",
+"carpeta": "ramonsainz29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RAMON SAINZ 29 MADRID"
+},
+"8f33213e-de3c-4cc9-962b-2c6025d9fd42": {
+"codigo": "DAN-2022-113",
+"carpeta": "riomiño4",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RIO MIÑO 4 MADRID"
+},
+"5aeb2f1c-f85b-4998-9707-580d6b31302b": {
+"codigo": "DAN-2016-111",
+"carpeta": "riocabado12",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RIO CABADO 12 MADRID"
+},
+"9bfd5b9b-0219-458a-bd89-8b01bfd3a50e": {
+"codigo": "DAN-2017-033",
+"carpeta": "santaeduvigis29",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA EDUVIGIS 29 MADRID"
+},
+"075aa306-0fd1-4a34-8628-d9804761f07c": {
+"codigo": "DAN-2025-060",
+"carpeta": "sanchabarca8",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP SANCHA BARCA 8, PARLA"
+},
+"e5bba558-acc8-4e46-94a9-cb60cf51480c": {
+"codigo": "DAN-2019-061",
+"carpeta": "sandacio22",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN DACIO 22 MADRID"
+},
+"1713c57c-cb3e-4121-9f21-ad8e03d58a82": {
+"codigo": "DAN-2020-021",
+"carpeta": "sandacio62",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN DACIO 62 MADRID"
+},
+"abe825d0-f68c-493a-9c43-b8477c0216a6": {
+"codigo": "DAN-2017-081",
+"carpeta": "sanpoldemar7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN POL DE MAR 7 MADRID"
+},
+"ce09bf50-5b21-4368-878e-74020d9c3c14": {
+"codigo": "DAN-2016-169",
+"carpeta": "santafe7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA FE 7 MADRID"
+},
+"6bb6c64c-11f7-4228-9f89-200f9d4f9564": {
+"codigo": "DAN-2017-016",
+"carpeta": "santafe3",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA FE 3 MADRID"
+},
+"0571b5e6-2fd5-4b78-bf70-a592ccbe731b": {
+"codigo": "DAN-2021-088",
+"carpeta": "sangenjo19-21-23",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANGENJO 19-21-23 MADRID"
+},
+"2db6ebb8-e2e9-4e82-a1ba-89266634f45c": {
+"codigo": "DAN-2021-113",
+"carpeta": "sanluis7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN LUIS 7 MADRID"
+},
+"8e0f7348-6b59-4aed-8c1a-610d44c23648": {
+"codigo": "DAN-2015-009",
+"carpeta": "santatecla56",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA TECLA 56 MADRID"
+},
+"d681412e-31db-4276-a732-18c45a9ab263": {
+"codigo": "DAN-2024-229",
+"carpeta": "aragon-cerrolaza",
+"municipio": "POZUELO DE ALARCON",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP ARAGON-CERROLAZA POZUELO DE ALARCON"
+},
+"8172b090-6489-4315-be90-42ca005d4e87": {
+"codigo": "DAN-2021-033",
+"carpeta": "santelesforo11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN TELESFORO 11 MADRID"
+},
+"f61d55f9-4445-4467-9211-5c5110b3663c": {
+"codigo": "DAN-2022-293",
+"carpeta": "soria1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SORIA 1 MADRID"
+},
+"d505cb0d-35cc-4094-bb5e-10dd0f177649": {
+"codigo": "DAN-2015-087",
+"carpeta": "sierracarbonera77",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SIERRA CARBONERA 77 MADRID"
+},
+"2bcc28be-a65d-4ad4-83e4-e86150a4a13c": {
+"codigo": "DAN-2016-028",
+"carpeta": "santodomingo10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTO DOMINGO 10 MADRID"
+},
+"cdfa90ef-a85d-4458-b5de-5b45874b3230": {
+"codigo": "DAN-2016-128",
+"carpeta": "santovenia11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTOVENIA 11 MADRID"
+},
+"3e49ffc6-3253-4cc0-a2a4-f6fbd9ec2857": {
+"codigo": "DAN-2017-047",
+"carpeta": "santoña56",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP SANTOÑA 56 MADRID"
+},
+"41a0e066-66d9-463e-b235-bf1ff743f65a": {
+"codigo": "DAN-2018-030",
+"carpeta": "sargentobarriga18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SARGENTO BARRIGA 18 MADRID"
+},
+"611f6a07-37fc-414d-811e-327f20919013": {
+"codigo": "DAN-2023-163",
+"carpeta": "juandeaustria9",
+"municipio": "VILLAREJO DE SALVANES",
+"de": "callejero",
+"nombre": "CP JUAN DE AUSTRIA 9 VILLAREJO DE SALVANES"
+},
+"9d749fc1-6fba-420f-8dfc-ed8cdec9f05f": {
+"codigo": "DAN-2012-001",
+"carpeta": "blascodegaray48",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BLASCO DE GARAY 48 MADRID"
+},
+"ff935568-3b11-4a8f-b7ed-414235bb9fd4": {
+"codigo": "DAN-2014-001",
+"carpeta": "cardenalcisneros9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CARDENAL CISNEROS 9 MADRID"
+},
+"f30c72b1-e6be-446a-9450-dddbb5c109f3": {
+"codigo": "DAN-2014-002",
+"carpeta": "pub irlandes",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP PUB IRLANDES MADRID"
+},
+"47ade9e8-7cfe-46c0-bc2f-4939850cf155": {
+"codigo": "DAN-2014-003",
+"carpeta": "sanfelipe15",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN FELIPE 15 LEGANES"
+},
+"2923f0fb-7caf-4fbc-afa1-9e5d5482edd6": {
+"codigo": "DAN-2014-005",
+"carpeta": "guzmanelbueno56",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GUZMAN EL BUENO 56 MADRID"
+},
+"0dde98df-e63f-4fb6-ac91-578e835e0f64": {
+"codigo": "DAN-2014-006",
+"carpeta": "alfonsoxii6",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP ALFONSO XII 6 MOSTOLES"
+},
+"2b9b1916-fe1f-4577-ace5-b1dc73fa400f": {
+"codigo": "DAN-2014-007",
+"carpeta": "sanquintin10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN QUINTIN 10 MADRID"
+},
+"1d5939a0-a653-46ed-a363-1d5d34807d5f": {
+"codigo": "DAN-2014-008",
+"carpeta": "camarena",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP CAMARENA MADRID"
+},
+"a8678f83-aeb9-479c-b757-1a7278a721b1": {
+"codigo": "DAN-2014-009",
+"carpeta": "ferial7",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP FERIAL 7 FUENLABRADA"
+},
+"0664d87a-d9d9-4c91-a2cd-ef01f5c5c92c": {
+"codigo": "DAN-2014-010",
+"carpeta": "lasnieves5",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP LAS NIEVES 5 FUENLABRADA"
+},
+"8c41965b-114d-4563-8573-237bc4be32a1": {
+"codigo": "DAN-2014-012",
+"carpeta": "magincalvo5",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MAGIN CALVO 5 MADRID"
+},
+"9122de5a-17b5-437b-9f9e-301d953c7639": {
+"codigo": "DAN-2015-002",
+"carpeta": "lopedevega24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LOPE DE VEGA 24 MADRID"
+},
+"3b72d747-6629-4965-bd94-1d3f2c619727": {
+"codigo": "DAN-2015-003",
+"carpeta": "paseosantamariadelacabeza7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 7 MADRID"
+},
+"081b7cbb-15c0-46c5-98ed-728a34a84ba6": {
+"codigo": "DAN-2015-005",
+"carpeta": "napoles11",
+"municipio": "LEGANES",
+"de": "texto",
+"nombre": "CP NAPOLES 11 LEGANES"
+},
+"0e045a92-1104-4d91-80d1-3f8275d1e185": {
+"codigo": "DAN-2015-007",
+"carpeta": "napoles8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP NAPOLES 8 LEGANES"
+},
+"c120a065-8a3c-4968-bbd8-7e60cb8b0e2c": {
+"codigo": "DAN-2015-011",
+"carpeta": "plazadelasfloras8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA FLORAS 8 LEGANES"
+},
+"d6671e0b-1430-4cf1-bd9d-be31cdf1eaa1": {
+"codigo": "DAN-2015-014",
+"carpeta": "navalcarnero9",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP NAVALCARNERO 9 ALCORCON"
+},
+"6b656f45-839d-4a48-a5f9-b4d29cb6b9ca": {
+"codigo": "DAN-2015-032",
+"carpeta": "paseosantamariadelacabeza129-131",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP PASEO SANTA MARIA DE LA CABEZA 129-131 MADRID"
+},
+"b8bf83f8-ca73-40f5-8b35-2f934071a938": {
+"codigo": "DAN-2015-017",
+"carpeta": "frayjosecerdeiriña66",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP FRAY JOSE CERDEIRIÑA 66 MADRID",
+"existe": "744cbd7c-9017-4a6b-a17d-da2352b4d9a8"
+},
+"ade7c2bb-5a84-403d-b855-c97d0d3d270f": {
+"codigo": "DAN-2015-018",
+"carpeta": "nuestraseñoradelasangustias18",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELASANGUSTIAS18 LEGANES"
+},
+"61495ce2-66ee-4bba-8fac-49a3d9930b3d": {
+"codigo": "DAN-2015-019",
+"carpeta": "torrubia7 - antes tenientegeneralmuslera7",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP TORRUBIA 7 LEGANES"
+},
+"d67e66e1-0236-4c69-a65c-a0087f8695a4": {
+"codigo": "DAN-2015-023",
+"carpeta": "camarena330",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMARENA 330 MADRID"
+},
+"fbe29ac3-7f7d-47ca-8fb4-5d7c1cd72f4c": {
+"codigo": "DAN-2015-025",
+"carpeta": "cervantes2",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CERVANTES 2 GETAFE"
+},
+"40adc6cc-eafd-4365-b234-8ab8b4815823": {
+"codigo": "DAN-2015-027",
+"carpeta": "sancarlosborromeo1",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SAN CARLOS BORROMEO 1 LEGANES"
+},
+"b35c985d-d257-4734-9a59-1fd5c6553d63": {
+"codigo": "DAN-2015-029",
+"carpeta": "fuentesauco30",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FUENTESAUCO 30 MADRID"
+},
+"1a80a385-c034-45c8-b8c7-c2758a19e4a6": {
+"codigo": "DAN-2015-030",
+"carpeta": "carabanchel10",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP CARABANCHEL 10 GETAFE"
+},
+"00ce5d3c-b3a1-4e05-954e-5dd318acaf1b": {
+"codigo": "DAN-2015-031",
+"carpeta": "algaba10",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALGABA 10 MADRID"
+},
+"e8da3f59-82db-4835-bc65-3ee236046345": {
+"codigo": "DAN-2015-034",
+"carpeta": "valladolid5",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP VALLADOLID 5 ALCORCON"
+},
+"32610b41-fc55-4835-9a61-8a1bb169b0fc": {
+"codigo": "DAN-2015-036",
+"carpeta": "espiritusanto18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ESPIRITU SANTO 18 MADRID"
+},
+"a7557a27-0cce-4628-a8d0-9ea9e771fd41": {
+"codigo": "DAN-2015-037",
+"carpeta": "garcilaso13",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GARCILASO 13 MADRID"
+},
+"cc024195-9c2e-4f4e-94ab-23561cc9a8dc": {
+"codigo": "DAN-2015-038",
+"carpeta": "avrosales99",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AV ROSALES 99 MADRID"
+},
+"6e6dda78-6bf5-4a74-9218-7a83c7a3e415": {
+"codigo": "DAN-2015-041",
+"carpeta": "charco55",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP CHARCO 55 LEGANES"
+},
+"e7d138d1-8b5e-499d-bab5-a2ea93132331": {
+"codigo": "DAN-2015-044",
+"carpeta": "lafuente8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP FUENTE 8 LEGANES"
+},
+"752c648d-1091-4f8a-aa76-e49af44b680f": {
+"codigo": "DAN-2015-054",
+"carpeta": "oporto8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OPORTO 8 MADRID"
+},
+"9d0eafad-103c-45ec-b2c0-8c99c0b8d5f9": {
+"codigo": "DAN-2015-055",
+"carpeta": "real82",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP REAL 82 PARLA"
+},
+"6caa6825-5f2d-41d2-82cf-2c24f0765037": {
+"codigo": "DAN-2015-056",
+"carpeta": "santotomásdeaquino37",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP SANTO TOMAS DE AQUINO 37 PARLA"
+},
+"0d3146d9-4d10-472d-96d1-1846c2874180": {
+"codigo": "DAN-2015-057",
+"carpeta": "zaragoza2",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP ZARAGOZA 2 MOSTOLES"
+},
+"1298d759-6043-43d8-8054-6f6cda1f3efb": {
+"codigo": "DAN-2015-058",
+"carpeta": "santarosa3",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA ROSA 3 LEGANES"
+},
+"7c93f782-b5fd-43b9-aea7-1bc1a2dbca89": {
+"codigo": "DAN-2015-059",
+"carpeta": "ocaña139",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP OCAÑA 139 MADRID"
+},
+"e07d95ba-2c75-428b-9967-40aa3991e016": {
+"codigo": "DAN-2015-061",
+"carpeta": "caminoviejodeleganes39",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMINO VIEJO DE LEGANES 39 MADRID"
+},
+"90c5c517-e6f8-4fac-a6ce-a9ed5772ae45": {
+"codigo": "DAN-2015-063",
+"carpeta": "santarosa5",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA ROSA 5 LEGANES"
+},
+"7225a72e-6f1b-424b-8fab-4a5c121ed5fe": {
+"codigo": "DAN-2015-101",
+"carpeta": "corregidorjuandebobadilla11",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CORREGIDOR JUAN DE BOBADILLA 11 MADRID"
+},
+"d76fc508-9bdb-4ea9-9ac7-d2b30916013d": {
+"codigo": "DAN-2015-067",
+"carpeta": "sectordescubridores46",
+"municipio": "TRES CANTOS",
+"de": "callejero",
+"nombre": "CP PL SECTOR DESCUBRIDORES 46 TRES CANTOS"
+},
+"57b91ede-9138-4ea4-83bc-48485769a6cf": {
+"codigo": "DAN-2015-068",
+"carpeta": "legazpi2",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP LEGAZPI 2 LEGANES"
+},
+"12e034bf-82b3-478a-a9b7-106047d1e5ad": {
+"codigo": "DAN-2015-069",
+"carpeta": "avfuenlabrada17",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP AV FUENLABRADA 17 LEGANES"
+},
+"49f2b3b0-773a-466d-8939-736bb9b9cdac": {
+"codigo": "DAN-2015-070",
+"carpeta": "juanmontoya9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP JUAN MONTOYA 9 MADRID"
+},
+"39d29aea-4cfb-45c5-8ba3-64c1c971068d": {
+"codigo": "DAN-2015-071",
+"carpeta": "castrodeoro8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CASTRO DE ORO 8 MADRID"
+},
+"00e048ba-a52c-4c75-aa08-e8d40faa3a7b": {
+"codigo": "DAN-2015-072",
+"carpeta": "huesca1",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP HUESCA 1 MOSTOLES"
+},
+"eec7dfdd-61cb-4f8d-b7cb-08f71b33ca2b": {
+"codigo": "DAN-2015-076",
+"carpeta": "doloresarmengot27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DOLORES ARMENGOT 27 MADRID"
+},
+"377e8819-0bef-40f1-b22b-67f4cb56dabd": {
+"codigo": "DAN-2015-077",
+"carpeta": "doloresarmengot6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DOLORES ARMENGOT 6 MADRID"
+},
+"c5ef4d05-eed7-4698-b916-3f8a1b6988fc": {
+"codigo": "DAN-2015-080",
+"carpeta": "antoniarodriguezsacristan31",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ANTONIA RODRIGUEZ SACRISTAN 31 MADRID"
+},
+"dc057b7c-0601-44f8-906f-62e8e181aab6": {
+"codigo": "DAN-2015-082",
+"carpeta": "mezquita18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MEZQUITA 18 MADRID"
+},
+"c7da8b9b-cdf2-432c-8fa9-012cf2eb3a8b": {
+"codigo": "DAN-2015-088",
+"carpeta": "laarena45",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP ARENA 45 FUENLABRADA"
+},
+"ed76049a-860a-418e-ae3d-522848e4bd81": {
+"codigo": "DAN-2015-089",
+"carpeta": "legazpi4",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP LEGAZPI 4 LEGANES"
+},
+"04b1935c-8078-431a-8fa7-9e8ac41fa3da": {
+"codigo": "DAN-2015-090",
+"carpeta": "losbarros12",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP BARROS 12 MADRID"
+},
+"91b5d12c-7af2-4d0e-a9be-719fdd5752fa": {
+"codigo": "DAN-2015-091",
+"carpeta": "paseodecolon10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PASEO COLON 10 LEGANES"
+},
+"774f261c-5ba3-4d0a-ba02-cc7c0dcea601": {
+"codigo": "DAN-2015-092",
+"carpeta": "plazaparis2",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP PLAZA PARIS 2 FUENLABRADA"
+},
+"4e2edac4-392c-4b68-8493-e3a7e8774123": {
+"codigo": "DAN-2015-093",
+"carpeta": "galicia6",
+"municipio": "PINTO",
+"de": "texto",
+"nombre": "CP GALICIA 6 PINTO"
+},
+"95cc0a19-6c13-4457-ba22-f5f90808ed94": {
+"codigo": "DAN-2015-097",
+"carpeta": "camarena210",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CAMARENA 210 MADRID"
+},
+"acd942f1-ee72-4d40-bec9-1d6772dbda74": {
+"codigo": "DAN-2015-107",
+"carpeta": "sanchezpreciado59",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANCHEZ PRECIADOS 59 MADRID"
+},
+"af887a72-11f6-4a5c-91f6-bfbead7f4929": {
+"codigo": "DAN-2015-108",
+"carpeta": "abubilla14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ABUBILLA 14 MADRID"
+},
+"6db09304-ed5d-4ead-85d8-e4e6f8cf208d": {
+"codigo": "DAN-2015-110",
+"carpeta": "rioja27",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIOJA 27 LEGANES"
+},
+"5c08cce2-7a35-474b-ac62-7ffd1e323e82": {
+"codigo": "DAN-2015-112",
+"carpeta": "santateresa15",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA TERESA 15 LEGANES"
+},
+"37273fb1-d8bc-4fae-8766-5716ff6a754b": {
+"codigo": "DAN-2015-113",
+"carpeta": "berenguela23",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BERENGUELA 23 MADRID"
+},
+"f7cdd404-f8ec-40bd-803f-150b894ebad7": {
+"codigo": "DAN-2015-114",
+"carpeta": "concha18",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP CONCHA 18 ARANJUEZ"
+},
+"c80a90ad-af66-4d97-bb59-0a1e3c400fd4": {
+"codigo": "DAN-2015-115",
+"carpeta": "eras3",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP ERAS 3 A Y B ARANJUEZ"
+},
+"18f8e5fa-76f8-4858-baf1-068aade1a10c": {
+"codigo": "DAN-2015-117",
+"carpeta": "santarosa6",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP SANTA ROSA 6 LEGANES"
+},
+"030dcd38-1337-4556-a70d-6d0a7ee2bcde": {
+"codigo": "DAN-2015-120",
+"carpeta": "avportugal15",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP AVPORTUGAL15 MOSTOLES"
+},
+"67f54b36-a863-4426-801b-4d1b0c94c604": {
+"codigo": "DAN-2016-001",
+"carpeta": "alférezluismartíndevidales2",
+"municipio": "VILLAVICIOSA DE ODON",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP ALFEREZLUISMARTINDEVIDALES2 VILLAVICIOSA DE ODON"
+},
+"10fd4aef-c945-4176-8a9e-1c42a06ce29f": {
+"codigo": "DAN-2016-004",
+"carpeta": "avnuestraseñoradevalvanera108",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP AV NTRA SEÑORA DE VALVANERA 108 MADRID"
+},
+"9f6cfeea-6f67-4f3c-ba0b-9b14829df7b2": {
+"codigo": "DAN-2016-007",
+"carpeta": "sectordescubridores2",
+"municipio": "TRES CANTOS",
+"de": "callejero",
+"nombre": "CP PL SECTOR DESCUBRIDORES 2 TRES CANTOS"
+},
+"5d7eae92-75cf-4325-b5e4-fbd7f7dabdfe": {
+"codigo": "DAN-2016-012",
+"carpeta": "nardos4",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP NARDOS 4 FUENLABRADA"
+},
+"5026a6e3-9ae0-4aca-b29a-928ab47cf6b0": {
+"codigo": "DAN-2016-019",
+"carpeta": "lapaz24",
+"municipio": "MOSTOLES",
+"de": "texto",
+"nombre": "CP LA PAZ 24 MOSTOLES"
+},
+"cf318b2e-e041-4f7f-8869-da35534d65e0": {
+"codigo": "DAN-2016-024",
+"carpeta": "plazadelasfloras10",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA FLORAS 10 LEGANES"
+},
+"b857a2b4-3f22-4b08-8fd6-4b428fad177e": {
+"codigo": "DAN-2016-032",
+"carpeta": "indias12",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP DE LAS INDIAS 12 LEGANES"
+},
+"692318cd-8215-41b9-b428-3200c09ed6e6": {
+"codigo": "DAN-2016-043",
+"carpeta": "avreyescatolicos3",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP AV REYES CATOLICOS 3 GETAFE"
+},
+"b856671e-5439-4556-bf56-acfc87c27f02": {
+"codigo": "DAN-2016-056",
+"carpeta": "bembibre24",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP BEMBIBRE 24 MADRID"
+},
+"d1d44ae8-5f86-4660-8194-85300deacb8e": {
+"codigo": "DAN-2016-057",
+"carpeta": "constitucion49",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP CONSTITUCION 49 FUENLABRADA"
+},
+"dc1a4cc9-b053-4c21-bd40-e3d598963acd": {
+"codigo": "DAN-2016-058",
+"carpeta": "ferrocarril 1-B",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP FERROCARRIL 1-B FUENLABRADA"
+},
+"8295ea03-d487-4659-a98e-00332a7029a2": {
+"codigo": "DAN-2016-087",
+"carpeta": "sanisidrolabrador8",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN ISIDRO LABRADOR 8 MADRID"
+},
+"79f3ecb7-2207-4a63-9f26-cd4bee67d836": {
+"codigo": "DAN-2016-060",
+"carpeta": "pozuelo21",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PROP POZUELO 21 FUENLABRADA"
+},
+"d29f5ef6-514d-408a-bd99-1f8daf7203f1": {
+"codigo": "DAN-2016-061",
+"carpeta": "pozuelo23",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP POZUELO 23 FUENLABRADA"
+},
+"6c4b4e40-3ecb-4ce0-acbc-c8c639d7d66c": {
+"codigo": "DAN-2016-065",
+"carpeta": "travesiaantonialancha1",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TRAVESIA ANTONIA LANCHA 1 MADRID"
+},
+"b0c88703-4d4d-48c9-86ae-edab3ff27898": {
+"codigo": "DAN-2016-070",
+"carpeta": "italia15",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP ITALIA 15 FUENLABRADA"
+},
+"63b47574-5c9b-4903-9230-2b877c5e8762": {
+"codigo": "DAN-2016-071",
+"carpeta": "riohenares3",
+"municipio": "GETAFE",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP RIOHENARES3 GETAFE"
+},
+"30268bea-af03-4548-aaf1-788e2c4cee96": {
+"codigo": "DAN-2016-075",
+"carpeta": "carcavilla7",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP CARCAVILLA 7 MOSTOLES"
+},
+"e6364e71-487d-4fa2-84b1-74457f389fe4": {
+"codigo": "DAN-2016-076",
+"carpeta": "luissauquillo59",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP LUIS SAUQUILLO 59 FUENLABRADA"
+},
+"346e6757-bbba-4266-9c40-4f56449ba9dc": {
+"codigo": "DAN-2016-077",
+"carpeta": "sagunto6",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAGUNTO 6 MADRID"
+},
+"9f5ddba8-5c21-4451-adc5-0baffe31c1e5": {
+"codigo": "DAN-2016-079",
+"carpeta": "viacarpetana199",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VIA CARPETANA 199 MADRID"
+},
+"26286837-4b96-4afe-a418-a97828a030fe": {
+"codigo": "DAN-2016-082",
+"carpeta": "villagarcia5",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VILLA GARCIA 5 MADRID"
+},
+"25ff2482-f6a1-4610-a9ac-639b4cc2a7a8": {
+"codigo": "DAN-2016-083",
+"carpeta": "arroyofontarron165",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARROYO FONTARRON 165 MADRID"
+},
+"11e50aae-8386-42d5-ae9e-0605e2fdff79": {
+"codigo": "DAN-2016-090",
+"carpeta": "riberadelmanzanares85",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP RIBERA DEL MANZANARES 85 MADRID"
+},
+"1ccb9e65-48d2-41e1-bb4d-701f270dd9ea": {
+"codigo": "DAN-2016-099",
+"carpeta": "encarnacionoviol45",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ENCARNACION OVIOL 45 MADRID"
+},
+"ea0377b1-7e24-47f3-9083-4318e696fe26": {
+"codigo": "DAN-2016-106",
+"carpeta": "arapiles17",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ARAPILES 17 MADRID"
+},
+"d9f48f93-eb0a-4280-9f6b-c613c4b78967": {
+"codigo": "DAN-2016-114",
+"carpeta": "manresa17-19",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MANRESA 17 MADRID"
+},
+"f67437e6-935b-488f-8a8c-e3232b48bd60": {
+"codigo": "DAN-2016-088",
+"carpeta": "sanonofre7",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN ONOFRE 7 MADRID"
+},
+"51004430-a74d-406c-b549-999adc2a23b4": {
+"codigo": "DAN-2016-152",
+"carpeta": "avemaria27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP AVE MARIA 27 MADRID"
+},
+"6fa94daa-4de3-49bb-9e69-abc8e611c1aa": {
+"codigo": "DAN-2016-161",
+"carpeta": "malaga2",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP MALAGA 2 FUENLABRADA"
+},
+"c79f35cd-aed2-4915-a862-10de28ea59c3": {
+"codigo": "DAN-2016-165",
+"carpeta": "santafe14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA FE 14 MADRID"
+},
+"65eee6cc-1fb6-4a1f-b065-7bd13bac970c": {
+"codigo": "DAN-2016-176",
+"carpeta": "tiscar9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP TISCAR 9 MADRID"
+},
+"f46955c1-0afa-414f-b2eb-9ee803e2c6ec": {
+"codigo": "DAN-2016-186",
+"carpeta": "america16",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP AMERICA 16 MOSTOLES"
+},
+"86fbf461-c113-4604-aa8f-d712a37c8eca": {
+"codigo": "DAN-2016-187",
+"carpeta": "plazadelafuensanta4",
+"municipio": "MOSTOLES",
+"de": "dudosa: 2 calles en el callejero -> carpeta tal cual",
+"nombre": "CP PLAZADELAFUENSANTA4 MOSTOLES"
+},
+"31a28edd-8e90-444b-a2ed-5c490890ad7e": {
+"codigo": "DAN-2016-148",
+"carpeta": "paseodeextremadura244duplicado",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP PASEODEEXTREMADURA244DUPLICADO MADRID"
+},
+"c4f63291-4bb8-47d2-8b93-fe738981eb76": {
+"codigo": "DAN-2016-198",
+"carpeta": "santelesforo21",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN TELESFORO 21 MADRID"
+},
+"ac9f26b9-3d38-4b71-b50a-435feb58a1b6": {
+"codigo": "DAN-2016-203",
+"carpeta": "vizcaya26",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP VIZCAYA 26 ALCORCON"
+},
+"71dbc03c-6e95-4bfd-8dd6-5fc74be041a8": {
+"codigo": "DAN-2016-211",
+"carpeta": "leonorgongora40",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP LEONOR GONGORA 40 MADRID"
+},
+"1c4db2c3-75de-4b15-9627-2421d54b4076": {
+"codigo": "DAN-2016-216",
+"carpeta": "manuelcaldeiro18",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP MANUEL CALDEIRO 18 MADRID"
+},
+"001351be-4fa1-4243-9407-5ba52c29dcde": {
+"codigo": "DAN-2017-006",
+"carpeta": "sanmodesto16",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SAN MODESTO 16 MADRID"
+},
+"70ae1c3e-5dd4-4964-9e59-eb88216465e8": {
+"codigo": "DAN-2017-008",
+"carpeta": "alcaldesainzdebaranda82",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP ALCALDE SAINZ DE BARANDA 82 MADRID"
+},
+"f6208f85-8c62-47fa-9ed4-7b1f6d053878": {
+"codigo": "DAN-2017-014",
+"carpeta": "honda18",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP HONDA 18 FUENLABRADA"
+},
+"41e2d890-3a16-4868-be48-b48ddc61ddc5": {
+"codigo": "DAN-2017-019",
+"carpeta": "mascaraque48",
+"municipio": "MADRID",
+"de": "callejero",
+"nombre": "CP MASCARAQUE 48 MADRID"
+},
+"1f833ad7-8502-49d8-8e44-44da39331503": {
+"codigo": "DAN-2017-032",
+"carpeta": "santaeduvigis27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SANTA EDUVIGIS 27 MADRID"
+},
+"6976b03a-3451-4b6a-b694-8b75ee476d85": {
+"codigo": "DAN-2017-018",
+"carpeta": "generalcabrera27",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP GENERAL CABRERA 27 MADRID"
+},
+"716588b7-f87d-4654-bc29-8cd89bd56f7b": {
+"codigo": "DAN-2017-063",
+"carpeta": "losresidenciales10",
+"municipio": "COLMENAR VIEJO",
+"de": "dudosa: 3 calles en el callejero -> carpeta tal cual",
+"nombre": "CP LOSRESIDENCIALES10 COLMENAR VIEJO"
+},
+"65a1200a-8095-4fc7-b959-b3ed187c8186": {
+"codigo": "DAN-2017-064",
+"carpeta": "planetas5",
+"municipio": "TRES CANTOS",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP PLANETAS5 TRES CANTOS"
+},
+"ce5ad8e2-021f-4663-8444-1de9cd1a7d34": {
+"codigo": "DAN-2017-094",
+"carpeta": "hermanosdelcristo36",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"de": "texto",
+"nombre": "CP HERMANOS DEL CRISTO 36 SAN SEBASTIAN DE LOS REYES"
+},
+"2936952e-d35f-42c7-b6b1-347d313f5baf": {
+"codigo": "DAN-2017-077",
+"carpeta": "lavega14",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP CO DE LA VEGA 14 FUENLABRADA"
+},
+"9466fd51-1cfc-45bf-af59-e6283ae21558": {
+"codigo": "DAN-2017-079",
+"carpeta": "castillalanueva18",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP CASTILLA LA NUEVA 18 FUENLABRADA"
+},
+"68e91a0b-f0ae-41fa-8d1b-4e3052b1f31d": {
+"codigo": "DAN-2017-090",
+"carpeta": "paseosanantonio6",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PASEO SAN ANTONIO 6 FUENLABRADA"
+},
+"ee63b9d9-8ff7-4b4d-bcc3-1685e2ed3333": {
+"codigo": "DAN-2017-091",
+"carpeta": "fernandoIII27",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP FERNANDO III 27 PARLA"
+},
+"782f6423-6b58-428d-908d-65f25747cacb": {
+"codigo": "DAN-2017-173",
+"carpeta": "alfonsoxii8",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP ALFONSO XII 8 MOSTOLES"
+},
+"855843d4-d387-498b-a6fb-af72b1e027b6": {
+"codigo": "DAN-2017-102",
+"carpeta": "oriente19",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP ORIENTE 19 GETAFE"
+},
+"626ac8e8-717a-48ef-9c10-5dd2ebfd1f3c": {
+"codigo": "DAN-2017-116",
+"carpeta": "claudiocoello93",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CLAUDIO COELLO 93 MADRID"
+},
+"62b2df2f-0ae4-4649-b133-d400b392d875": {
+"codigo": "DAN-2017-145",
+"carpeta": "sierracarbonera79",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP SIERRA CARBONERA 79 MADRID"
+},
+"95cc6013-3536-4573-aab8-a7e381123384": {
+"codigo": "DAN-2017-153",
+"carpeta": "aleli4",
+"municipio": "GETAFE",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP ALELI4 GETAFE"
+},
+"7327cd99-e662-4093-a30c-ca77dfdd40cc": {
+"codigo": "DAN-2017-175",
+"carpeta": "juandeaustria4",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP JUAN DE AUSTRIA 4 PARLA"
+},
+"ca8d3b76-9069-4f6a-8f40-dd9bec316a9e": {
+"codigo": "DAN-2018-006",
+"carpeta": "espada21",
+"municipio": "ALCORCON",
+"de": "callejero",
+"nombre": "CP ESPADA 21 ALCORCON"
+},
+"99e83cbc-8af1-4031-871d-bf65b2aae847": {
+"codigo": "DAN-2018-036",
+"carpeta": "sanjoaquin24",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP SAN JOAQUIN 24 FUENLABRADA"
+},
+"ee415e8b-a0a8-4d55-806a-27f4dd3cf970": {
+"codigo": "DAN-2018-047",
+"carpeta": "constitucion50",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP CONSTITUCION 50 FUENLABRADA"
+},
+"8bb118f8-9fa7-42da-a20c-0e26fe514731": {
+"codigo": "DAN-2018-095",
+"carpeta": "parqueamerica4",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP PARQUE AMERICA 4 MOSTOLES"
+},
+"49307c72-7b80-4e52-b4b5-07bfb487a8e0": {
+"codigo": "DAN-2018-051",
+"carpeta": "miguelmoncada4",
+"municipio": "ALCALA DE HENARES",
+"de": "callejero",
+"nombre": "CP MIGUEL DE MONCADA 4 ALCALA DE HENARES"
+},
+"2cc4b2ff-9928-4e29-bf53-6035913a6301": {
+"codigo": "DAN-2018-056",
+"carpeta": "loto1",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP LOTO 1 GETAFE"
+},
+"56272dc1-5e1f-46c2-a526-34a9ff316d98": {
+"codigo": "DAN-2018-060",
+"carpeta": "callejón Felipe González 1",
+"municipio": "POZUELO DE ALARCON",
+"de": "texto",
+"nombre": "CP CALLEJON FELIPE GONZALEZ 1 POZUELO DE ALARCON"
+},
+"e5551ea0-4b55-4c27-ab28-2f67177e7ae7": {
+"codigo": "DAN-2018-075",
+"carpeta": "mariblanca8",
+"municipio": "ARANJUEZ",
+"de": "texto",
+"nombre": "CP MARIBLANCA 8 ARANJUEZ"
+},
+"b059d5aa-45b9-462c-8956-0f43293cec9c": {
+"codigo": "DAN-2018-078",
+"carpeta": "veza",
+"municipio": "MADRID",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP VEZA MADRID"
+},
+"4de18464-dfe4-4d39-882d-f009b00da3d3": {
+"codigo": "DAN-2018-081",
+"carpeta": "iglesia4",
+"municipio": "COSLADA",
+"de": "texto",
+"nombre": "CP IGLESIA 4 COSLADA"
+},
+"f50ad4de-b176-4f89-9453-44b8c7f2712f": {
+"codigo": "DAN-2018-091",
+"carpeta": "jacintobenavente24",
+"municipio": "GETAFE",
+"de": "callejero",
+"nombre": "CP JACINTO BENAVENTE 24 GETAFE"
+},
+"b0142d86-4a04-4607-a720-c21b297bcf35": {
+"codigo": "DAN-2018-094",
+"carpeta": "castellon19",
+"municipio": "MOSTOLES",
+"de": "callejero",
+"nombre": "CP CASTELLON 19 MOSTOLES"
+},
+"e40a193e-c076-4060-a09c-8c40ee3e9cdf": {
+"codigo": "DAN-2018-099",
+"carpeta": "pozuelo17",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP PROP POZUELO 17 FUENLABRADA"
+},
+"e7a8f2c8-c4dc-45ff-bf2a-76a6e2d96cc6": {
+"codigo": "DAN-2018-101",
+"carpeta": "avandes13",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV ANDES 13 FUENLABRADA"
+},
+"9c79eb5f-2bb1-4c81-bf77-ae0a9f102cea": {
+"codigo": "DAN-2019-002",
+"carpeta": "fuenlabrada63",
+"municipio": "PARLA",
+"de": "texto",
+"nombre": "CP FUENLABRADA 63 PARLA"
+},
+"82c3a237-a133-46ef-8701-ab5de2885be4": {
+"codigo": "DAN-2019-003",
+"carpeta": "mallorca15",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP MALLORCA 15 LEGANES"
+},
+"1b3357b5-7337-43a8-bded-91496bd6f30f": {
+"codigo": "DAN-2019-014",
+"carpeta": "hispanidad3",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP AV HISPANIDAD 3 FUENLABRADA"
+},
+"acecc547-08f6-42e3-9554-6011d43d9f9d": {
+"codigo": "DAN-2019-020",
+"carpeta": "francia15",
+"municipio": "FUENLABRADA",
+"de": "texto",
+"nombre": "CP FRANCIA 15 FUENLABRADA"
+},
+"fdef5a45-9712-4c83-b6e6-0a986c977c8d": {
+"codigo": "DAN-2019-035",
+"carpeta": "nuestraseñoradelamacarena11",
+"municipio": "LEGANES",
+"de": "dudosa: 0 calles en el callejero -> carpeta tal cual",
+"nombre": "CP NUESTRASEÑORADELAMACARENA11 LEGANES"
+},
+"1a4cfe4c-1b26-44e9-ae55-43be26c6c486": {
+"codigo": "DAN-2019-036",
+"carpeta": "plazadelaflor8",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP PLAZA DE LA FLOR 8 LEGANES"
+},
+"55225bab-736a-485c-8008-8cc391dc79cb": {
+"codigo": "DAN-2019-066",
+"carpeta": "elgreco5",
+"municipio": "MEJORADA DEL CAMPO",
+"de": "texto",
+"nombre": "CP GRECO 5 MEJORADA DEL CAMPO"
+},
+"4623bdf5-34d4-4177-a408-7d3a9ac35b1a": {
+"codigo": "DAN-2019-068",
+"carpeta": "zulema12",
+"municipio": "ALCALA DE HENARES",
+"de": "texto",
+"nombre": "CP ZULEMA 12 ALCALA DE HENARES"
+},
+"8f62e70e-7ccc-4670-9d90-0e0b2f4ef8d7": {
+"codigo": "DAN-2023-166",
+"carpeta": "mesones3",
+"municipio": "VILLAREJO DE SALVANES",
+"de": "texto",
+"nombre": "CP MESONES 3 VILLAREJO DE SALVANES"
+},
+"0c15ab0c-ab21-4f5f-83c4-47351ebcf6b7": {
+"codigo": "DAN-2021-004",
+"carpeta": "humilladero5",
+"municipio": "FUENLABRADA",
+"de": "callejero",
+"nombre": "CP HUMILLADERO 5 FUENLABRADA"
+},
+"3b1d6e76-4550-4d66-81c3-d2758a3a915f": {
+"codigo": "DAN-2021-005",
+"carpeta": "miraflores6-8",
+"municipio": "ALCOBENDAS",
+"de": "callejero",
+"nombre": "CP MIRAFLORES 6-8 ALCOBENDAS"
+},
+"facbfd7d-fa14-4692-94e0-8f591dd78e20": {
+"codigo": "DAN-2021-006",
+"carpeta": "sanclemente",
+"municipio": "GETAFE",
+"de": "dudosa: sin numero en la carpeta -> carpeta tal cual",
+"nombre": "CP SANCLEMENTE GETAFE"
+},
+"a444d00a-410d-41d0-9375-fc0578b9b44c": {
+"codigo": "DAN-2022-291",
+"carpeta": "rioja57",
+"municipio": "LEGANES",
+"de": "callejero",
+"nombre": "CP RIOJA 57 LEGANES"
+},
+"47182d93-6c1f-4d57-8b3a-8336cd0d7844": {
+"codigo": "DAN-2023-134",
+"carpeta": "valdecanillas61",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP VALDECANILLAS 61 MADRID"
+},
+"6722ee35-055a-4368-9e68-ac66ed330723": {
+"codigo": "DAN-2023-138",
+"carpeta": "ferrovial9",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP FERROVIAL 9 MADRID"
+},
+"bac9fe3c-bf96-4284-af96-98cb3b11f303": {
+"codigo": "DAN-2023-311",
+"carpeta": "claudiocoello14",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CLAUDIO COELLO 14 MADRID"
+},
+"5f88d02d-8fe5-4aa2-8f15-35a4a9d9cc30": {
+"codigo": "DAN-2023-313",
+"carpeta": "doctorbellido41",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP DOCTOR BELLIDO 41 MADRID"
+},
+"233cf20c-a868-4957-b780-3ec0a8e08526": {
+"codigo": "DAN-2024-111",
+"carpeta": "canillas97",
+"municipio": "MADRID",
+"de": "texto",
+"nombre": "CP CANILLAS 97 MADRID"
+}
+}

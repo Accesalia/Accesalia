@@ -454,7 +454,9 @@ def escribir():
     print('enlazadas: %d' % hechas)
 
 
-REPASO = sys.argv[1] == 'reconsultar'
-SIN_MARCA = 'sinmarca' in sys.argv[2:]
-CON_COMUNIDAD = 'concomunidad' in sys.argv[2:]
-{'consultar': consultar, 'reconsultar': consultar, 'escribir': escribir}[sys.argv[1]]()
+REPASO = SIN_MARCA = CON_COMUNIDAD = False
+if __name__ == '__main__':
+    REPASO = sys.argv[1] == 'reconsultar'
+    SIN_MARCA = 'sinmarca' in sys.argv[2:]
+    CON_COMUNIDAD = 'concomunidad' in sys.argv[2:]
+    {'consultar': consultar, 'reconsultar': consultar, 'escribir': escribir}[sys.argv[1]]()
