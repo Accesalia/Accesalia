@@ -5716,18 +5716,24 @@
 },
 "e4f78d8f-130f-42c7-882e-4f61df30eda4": {
 "codigo": "DAN-2024-204",
-"carpeta": "lopezdehoyos384bis",
-"municipio": "MADRID",
+"carpeta": "lopezdehoyos384bis (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "4292101VK4849A",
 "numeros": [
-"384"
-],
-"calle": "CL LOPEZ DE HOYOS",
-"numero": "384",
-"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
-"parcelas": [
-"4292101VK4849A",
-"4292119VK4849A"
+"*"
 ]
+}
+],
+"parcela": "4292101VK4849A",
+"numero": "*",
+"numeros": [
+"*"
+],
+"enlazada": true,
+"portales": 3
 },
 "f37f4e26-29d2-4195-91c9-9d9ecc632419": {
 "codigo": "DAN-2022-233",
@@ -9121,18 +9127,24 @@
 },
 "30ac7568-1ada-459c-956f-82a58b4dda8d": {
 "codigo": "DAN-2024-152",
-"carpeta": "rodriguezsanpedro13duplicado",
-"municipio": "MADRID",
+"carpeta": "rodriguezsanpedro13duplicado (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "9960303VK3796B",
 "numeros": [
-"13"
-],
-"calle": "CL RODRIGUEZ SAN PEDRO",
-"numero": "13",
-"estado": "dudosa: 2 parcelas en ese numero",
-"parcelas": [
-"9960303VK3796B",
-"9960304VK3796B"
+"*"
 ]
+}
+],
+"parcela": "9960303VK3796B",
+"numero": "*",
+"numeros": [
+"*"
+],
+"enlazada": true,
+"portales": 1
 },
 "9a134a1f-5096-4718-9444-d6f3212609ed": {
 "codigo": "DAN-2024-169",
