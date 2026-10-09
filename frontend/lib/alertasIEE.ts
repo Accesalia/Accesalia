@@ -145,8 +145,10 @@ const vestir = (f: Fila): AlertaIEE => ({
 // contrario: "CL RIOJA 81" tiene IEE desfavorable y nosotros hicimos "RIOJA 19"
 // de esa misma calle. El comercial llama y dice que ya ha trabajado en el 19.
 //
-// Por eso hay dos respuestas y no una, y por eso NO SE ESCONDE NADA: se marca.
-// Un lead que desaparece de la lista no se puede repescar; uno marcado, si.
+// Por eso hay dos respuestas y no una, y por eso aqui NO SE ESCONDE NADA: se
+// marca. Un lead que desaparece de la lista no se puede repescar; uno marcado, si.
+// La pantalla (9-oct-2026) aparta las de la misma finca por defecto, pero detras
+// de un "mostrar las nuestras": se ven a un clic, no se pierden.
 //
 // EL COTEJO BUENO ES LA REFERENCIA CATASTRAL, que la nota informativa nos da.
 // Hoy la tienen 518 de las 1.228 comunidades, asi que para el resto hay que
@@ -169,21 +171,60 @@ function calleYNumero(direccion: string | null): { calle: string; numero: string
   return { calle: (calle ?? "").trim(), numero: (resto ?? "").trim().split(/\s/)[0] ?? "" };
 }
 
-async function loNuestro(): Promise<ComunidadNuestra[]> {
-  try {
-    return await leer<ComunidadNuestra>("comunidades?select=nombre,referencia_catastral");
-  } catch {
-    return [];
+/** PostgREST corta en 1.000 filas y no lo dice: hay que pedir por tramos, con
+ *  un orden fijo. Hasta el 9-oct-2026 esto leia de una vez, y con 2.002
+ *  comunidades la mitad no se cotejaba nunca. */
+async function porTramos<T>(consulta: string): Promise<T[]> {
+  const todo: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${consulta}`, {
+      headers: { ...cab, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
+    const trozo = (await r.json()) as T[];
+    todo.push(...trozo);
+    if (trozo.length < 1000) return todo;
   }
 }
 
-function cotejar(a: AlertaIEE, nuestras: ComunidadNuestra[]): Nuestra {
+type LoNuestro = {
+  comunidades: ComunidadNuestra[];
+  /** Referencia de parcela (14) -> como se llama. De la comunidad y de cada
+   *  uno de sus portales: una comunidad de varias parcelas solo guarda una en
+   *  su ficha, y la IEE puede ser de otra (9-oct-2026). */
+  fincas: Map<string, string>;
+};
+
+async function loNuestro(): Promise<LoNuestro> {
+  const fincas = new Map<string, string>();
+  try {
+    const [comunidades, accesos] = await Promise.all([
+      porTramos<ComunidadNuestra>("comunidades?select=nombre,referencia_catastral&order=id"),
+      porTramos<{ ref_catastral: string | null; tipo_via: string | null; nombre_via: string | null; numero: string | null; municipio: string | null }>(
+        "accesos?select=ref_catastral,tipo_via,nombre_via,numero,municipio&ref_catastral=not.is.null&order=id",
+      ),
+    ]);
+    for (const a of accesos) {
+      const ref = (a.ref_catastral ?? "").replace(/\s/g, "").slice(0, 14).toUpperCase();
+      if (ref) fincas.set(ref, [a.tipo_via, a.nombre_via, a.numero, a.municipio].filter(Boolean).join(" "));
+    }
+    // La comunidad manda sobre el portal: su nombre es el que se reconoce.
+    for (const c of comunidades) {
+      const ref = (c.referencia_catastral ?? "").replace(/\s/g, "").slice(0, 14).toUpperCase();
+      if (ref) fincas.set(ref, c.nombre);
+    }
+    return { comunidades, fincas };
+  } catch {
+    return { comunidades: [], fincas };
+  }
+}
+
+function cotejar(a: AlertaIEE, { comunidades: nuestras, fincas }: LoNuestro): Nuestra {
   // 1. La referencia catastral. Si coincide, no hay duda posible.
   if (a.referenciaParcela) {
-    const igual = nuestras.find(
-      (c) => (c.referencia_catastral ?? "").slice(0, 14).toUpperCase() === a.referenciaParcela,
-    );
-    if (igual) return { tipo: "misma_finca", comunidad: igual.nombre };
+    const igual = fincas.get(a.referenciaParcela.toUpperCase());
+    if (igual) return { tipo: "misma_finca", comunidad: igual };
   }
 
   const { calle, numero } = calleYNumero(a.direccion);

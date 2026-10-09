@@ -60,21 +60,37 @@ const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().joi
 export default async function AlertasIEE({
   searchParams,
 }: {
-  searchParams: Promise<{ comercial?: string }>;
+  searchParams: Promise<{ comercial?: string; nuestras?: string }>;
 }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
   if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
 
-  const { comercial: filtro } = await searchParams;
+  const { comercial: filtro, nuestras } = await searchParams;
+  const verNuestras = nuestras === "1";
 
-  const [dias, comerciales, lista, meses, plazo] = await Promise.all([
+  const [todos, comerciales, lista, meses, plazo] = await Promise.all([
     radarPorDias(14),
     comercialesActivos(),
     repartidas(filtro),
     agregadoPorMes(),
     diasParaAbrirOportunidad(),
   ]);
+
+  // SOLO LAS DE FUERA (Monica, 9-oct-2026): "la pantalla deberia mostrar SOLO
+  // las que no son nuestras. Como mucho, un filtro arriba de 'mostrar las
+  // nuestras'". Las de la misma finca se apartan; las de la misma calle se
+  // quedan, porque son de fuera y son el mejor argumento para llamar.
+  const esNuestra = (a: (typeof todos)[number]["alertas"][number]) => a.nuestra?.tipo === "misma_finca";
+  const cuantasNuestras = todos.flatMap((d) => d.alertas).filter(esNuestra).length;
+  const dias = verNuestras ? todos : todos.map((d) => ({ ...d, alertas: d.alertas.filter((a) => !esNuestra(a)) }));
+  const enlace = (ver: boolean) => {
+    const q = new URLSearchParams();
+    if (filtro) q.set("comercial", filtro);
+    if (ver) q.set("nuestras", "1");
+    const s = q.toString();
+    return `/comercial/alertas-iee${s ? `?${s}` : ""}`;
+  };
 
   const hoy = dias[0]?.dia;
   // Las que ya son nuestras no cuentan como trabajo pendiente: no hay nada que
@@ -147,7 +163,20 @@ export default async function AlertasIEE({
             el enlace. Aqui solo hace falta decidir a quien se le pasa y ver
             quien no ha hecho nada. */}
         <section className="mt-6">
-          <h2 className={ROTULO + " mb-2"}>El parte de cada día</h2>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h2 className={ROTULO}>
+              El parte de cada día{verNuestras ? " · con las nuestras" : " · solo las de fuera"}
+            </h2>
+            {cuantasNuestras > 0 && (
+              <Link
+                href={enlace(!verNuestras)}
+                scroll={false}
+                className="rounded-full border border-carbon/25 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/70 transition hover:border-carbon/50"
+              >
+                {verNuestras ? "Ocultar las nuestras" : `Mostrar las nuestras (${cuantasNuestras})`}
+              </Link>
+            )}
+          </div>
 
           <div className={CAJA + " overflow-hidden"}>
             <table className="w-full text-[13px]">
