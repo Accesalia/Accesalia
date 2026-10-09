@@ -62,7 +62,13 @@ for v in base.leer(f'versiones_hoja?notas=like.*Volcado%20de%20las%20firmadas%20
     if m: ya_subidas.add(m.group(1))
 # a mano (Monica, 8-oct): la manzana Talco/Palomares/Puerto Lapice/Ferroviarios (firmada "Palomares 75 77 79 garajes")
 A_MANO_OPP = {'Y24_041': 'DAN-2022-240',                       # Palomares 75-79 (Monica, 8-oct)
-              'Y2023_029': 'DAN-2023-054', 'Y2023_092': 'DAN-2023-054'}   # Mancomunidad Castillos y Viñagrande (opp sin portales)
+              'Y2023_029': 'DAN-2023-054', 'Y2023_092': 'DAN-2023-054',   # Mancomunidad Castillos y Viñagrande (opp sin portales)
+              'Y2022_003': 'DAN-2022-105', 'Y2022_011': 'DAN-2022-202'}   # Hilados 12 Torrejon; Entre Arroyos 56 (9-oct)
+# FIRMADAS QUE ESTAN EN "PRESUPUESTOS ENVIADOS" (no en FIRMADOS), con factura que lo prueba (9-oct): por año
+EXTRA = {'2022': [{'fe': '2022-02-22', 'opp': 'DAN-2019-049', 'que': ['Ascensor'], 'dir': 'ETRURIA 26-28 Y LUCANO 65 MADRID',
+                   'firmadas': ['PRESUPUESTOS ENVIADOS/HOJA DE ENCARGO ETRURIA 26 Y 28 Y LUCANO 65 MADRID  PROYECTO_signed.pdf'],
+                   'enviada': 'HOJA DE ENCARGO ETRURIA 26 Y 28 Y LUCANO 65 MADRID  PROYECTO.pdf', 'carpeta': None,
+                   'cruce': 'ENVIADOS etruria proyecto signed'}]}
 por_cod = {o['codigo']: i for i, o in opps.items()}
 hojas, sin_opp, varias = [], [], []
 for (k, fe), g in grupos.items():
@@ -80,6 +86,9 @@ for (k, fe), g in grupos.items():
     hojas.append({'fe': fe, 'fr': fr[0] if fr else fe, 'opp': oid, 'firmadas': firmadas, 'que': que,
                   'enviada': str(d0['Enviada (documento)'] or '').split('\n')[0], 'carpeta': d0['Enviada: carpeta'],
                   'cruce': ', '.join(f"{d['_t']} {d['N']}" for d in g), 'dir': d0['Dirección (en la hoja)']})
+for x in EXTRA.get(A, []):
+    if x['cruce'] in ya_subidas: continue
+    hojas.append(dict(x, fr=x['fe'], opp=por_cod[x['opp']], que=[q for q in x['que'] if q in tp]))
 print('hojas a subir:', len(hojas), '| sin opp:', len(sin_opp), '| con varias opps posibles:', len(varias))
 for s in sin_opp: print('   SIN OPP', s)
 for v in varias[:30]: print('   VARIAS', v)
@@ -99,7 +108,7 @@ for i, h in enumerate(hojas, 1):
     cod = f'HE-{A}-T{i:04d}'                                  # provisional hasta renumerar
     pdfs = []
     for k, x in enumerate(h['firmadas'], 1):
-        p = B + 'PRESUPUESTOS FIRMADOS/' + x.split('PRESUPUESTOS FIRMADOS/')[-1]
+        p = B + x if x.startswith('PRESUPUESTOS ENVIADOS/') else B + 'PRESUPUESTOS FIRMADOS/' + x.split('PRESUPUESTOS FIRMADOS/')[-1]
         if not os.path.exists(p): print('   NO ESTA EL PDF', p); continue
         ruta = f'hojas-encargo/{hid}/firmada-v1-{k}-{vid[:8]}.pdf'
         base.subir(ALMACEN, ruta, open(p, 'rb').read(), reemplazar=True); pdfs.append(f'almacen:{ALMACEN}/{ruta}')

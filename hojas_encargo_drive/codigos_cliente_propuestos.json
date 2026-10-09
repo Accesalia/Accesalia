@@ -280,5 +280,90 @@
     "20113779"
    ]
   ]
+ },
+ "HE-2022-0006": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Orden",
+    "800137682"
+   ],
+   [
+    "Pedido",
+    "240910"
+   ]
+  ]
+ },
+ "HE-2022-0013": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Pedido FAIN",
+    "95002869"
+   ],
+   [
+    "Grafo/Orden",
+    "4009704"
+   ],
+   [
+    "Pedido de compra",
+    "252767"
+   ]
+  ]
+ },
+ "HE-2022-0020": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Referencia",
+    "7150465"
+   ],
+   [
+    "Referencia",
+    "75163817"
+   ],
+   [
+    "Orden",
+    "800139527"
+   ],
+   [
+    "Pedido de compras",
+    "250783"
+   ]
+  ]
+ },
+ "HE-2022-0047": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Pedido",
+    "253210"
+   ],
+   [
+    "Orden",
+    "800143024"
+   ]
+  ]
+ },
+ "HE-2022-0085": {
+  "paga": "FAIN",
+  "codigos": [
+   [
+    "Referencia",
+    "7201318"
+   ],
+   [
+    "Referencia",
+    "75169884"
+   ],
+   [
+    "Orden",
+    "800147187"
+   ],
+   [
+    "Pedido de compras",
+    "262893"
+   ]
+  ]
  }
 }
