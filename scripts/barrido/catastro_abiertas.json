@@ -3636,40 +3636,162 @@
 },
 "a30efb3f-c3ef-4cb1-ada1-b2253f5f9197": {
 "codigo": "DAN-2023-169",
-"carpeta": "vedra22",
-"municipio": "MADRID",
+"carpeta": "vedra22 (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "3699901VK4639H",
 "numeros": [
-"22"
-],
-"calle": "CL VEDRA",
-"numero": "22",
-"estado": "dudosa: 24 parcelas en ese numero",
-"parcelas": [
-"3699901VK4639H",
-"3699902VK4639H",
-"3699903VK4639H",
-"3699904VK4639H",
-"3699905VK4639H",
-"3699906VK4639H",
-"3699907VK4639H",
-"3699908VK4639H",
-"3699909VK4639H",
-"3699910VK4639H",
-"3699911VK4639H",
-"3699912VK4639H",
-"3699913VK4639H",
-"3699914VK4639H",
-"3699915VK4639H",
-"3699916VK4639H",
-"3699917VK4639H",
-"3699918VK4639H",
-"3699919VK4639H",
-"3699920VK4639H",
-"3699921VK4639H",
-"3699922VK4639H",
-"3699923VK4639H",
-"3699924VK4639H"
+"*"
 ]
+},
+{
+"parcela": "3699902VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699903VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699904VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699905VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699906VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699907VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699908VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699909VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699910VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699911VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699912VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699913VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699914VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699915VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699916VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699917VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699918VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699919VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699920VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699921VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699922VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699923VK4639H",
+"numeros": [
+"*"
+]
+},
+{
+"parcela": "3699924VK4639H",
+"numeros": [
+"*"
+]
+}
+],
+"parcela": "3699901VK4639H",
+"numero": "*",
+"numeros": [
+"*"
+],
+"enlazada": true,
+"portales": 24
 },
 "25318860-8480-44d1-9724-a42ae39eaccf": {
 "codigo": "DAN-2023-294",
@@ -4567,19 +4689,24 @@
 },
 "3c0852cf-1e1b-4103-a879-01b16a4ae55b": {
 "codigo": "DAN-2023-075",
-"carpeta": "comandantefortea9bis",
-"municipio": "MADRID",
+"carpeta": "comandantefortea9bis (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "8055133VK3785C",
 "numeros": [
-"9"
-],
-"calle": "PS COMANDANTE FORTEA",
-"numero": "9",
-"estado": "dudosa: 3 parcelas en ese numero, 2 con viviendas",
-"parcelas": [
-"8055133VK3785C",
-"8055136VK3785E",
-"8253801VK3785C"
+"9(B)"
 ]
+}
+],
+"parcela": "8055133VK3785C",
+"numero": "9(B)",
+"numeros": [
+"9(B)"
+],
+"enlazada": true,
+"portales": 1
 },
 "4d94002f-5184-4135-8584-d97feb712c63": {
 "codigo": "DAN-2023-090",
@@ -7390,15 +7517,24 @@
 },
 "4c192763-8cc2-4782-a123-a4c53e0f143f": {
 "codigo": "DAN-2023-159",
-"carpeta": "sanonofre7",
-"municipio": "MADRID",
+"carpeta": "sanonofre7 (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "6894901VK4869S",
+"numeros": [
+"7"
+]
+}
+],
+"parcela": "6894901VK4869S",
+"numero": "7",
 "numeros": [
 "7"
 ],
-"calle": "CL SAN ONOFRE",
-"numero": "7",
-"estado": "dudosa: Catastro no encuentra ese numero",
-"parcelas": []
+"enlazada": true,
+"portales": 1
 },
 "d87d83dd-d2a4-48c0-81d4-84eeac1df062": {
 "codigo": "DAN-2023-269",

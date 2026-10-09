@@ -48,6 +48,14 @@ PARCELAS = {
     'DAN-2022-124': [('4749701VK3544N', ['8'])],
     # Azuqueca es de GUADALAJARA: no esta en el callejero guardado (solo Madrid). Mirada a mano en Catastro (9-oct).
     'DAN-2025-440': [('7907308VK7970N', ['17'])],
+    # "todos los bis son B: Catastro renumero digitalmente las calles" (Monica, 9-oct-2026). El portal 9(B) del
+    # conjunto de Comandante Fortea 9 (C, D... J son otros portales de la misma parcela).
+    'DAN-2023-075': [('8055133VK3785C', ['9(B)'])],
+    # "esta mal ubicado: es Travesia de San Onofre 7, San Sebastian de los Reyes"
+    'DAN-2023-159': [('6894901VK4869S', ['7'])],
+    # "Vedra es una mancomunidad: todos los 22 se incluyen agrupados bajo la figura mancomunidad". '*' = todos los
+    # portales de cada parcela.
+    'DAN-2023-169': [('36999%02dVK4639H' % n, ['*']) for n in range(1, 25)],
     # Av. Olimpica 18: un portal partido en dos parcelas (41 y 40 viviendas). "si, correcto": a las dos.
     'DAN-2023-184': [('5048806VK2654N', ['18']), ('5048807VK2654N', ['18'])],
     # "salen las dos solo con el 99"
@@ -402,9 +410,13 @@ def escribir():
             print('  ... bloque hecho (%d/%d), pausa %d s' % (k, len(claras), PAUSA_BLOQUE)); time.sleep(PAUSA_BLOQUE)
         destinos = r.get('destinos') or [{'parcela': r['parcela'], 'numeros': r.get('numeros') or [r['numero']]}]
         del_numero = []
+        fallo = None
         for dz in destinos:
-            muni, portales = guardar_ficha(dz['parcela'])
-            del_numero += [(muni, p, dz['parcela']) for p in portales if p['numero'] in dz['numeros']]
+            try:
+                muni, portales = guardar_ficha(dz['parcela'])
+            except Exception as e:
+                fallo = '%s: %s' % (dz['parcela'], e); print('  ', r['codigo'], fallo); continue
+            del_numero += [(muni, p, dz['parcela']) for p in portales if '*' in dz['numeros'] or p['numero'] in dz['numeros']]
         if not del_numero:
             r['estado'] = 'dudosa: la parcela no tiene portales con el numero %s' % r['numero']; continue
         for muni, p, parcela in del_numero:
