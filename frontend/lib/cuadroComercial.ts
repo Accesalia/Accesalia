@@ -162,7 +162,8 @@ export type CuadroComercial = {
   agregado: AgregadoFase[];
   agenda: TareaCuadro[];
   diario: EntradaCuadro[];
-  oportunidades: OportunidadCuadro[];
+  oportunidades: OportunidadCuadro[]; // solo la pagina que se ve
+  totalOportunidades: number; // todas las abiertas, el numero real
   firmadas: FirmadaCuadro[]; // la segunda lista: firmadas, pendientes de cobro
   cifras: CifraCuadro[];
   cartera: CarteraCuadro;
@@ -329,8 +330,10 @@ export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
  *  numeros acabarian discrepando y nadie sabria cual creer. */
 async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const filas = await rest<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: HitoCrudo[] }[]>(
-    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.abierta${f}&limit=5000`,
+  // restTodo y no un limit: la base no da mas de 1000 filas por peticion, y
+  // Daniel tiene mas (9-oct-2026).
+  const filas = await restTodo<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: HitoCrudo[] }>(
+    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado,aplicable,fecha)&estado=eq.abierta${f}`,
   );
   const cuenta = new Map<string, number>();
   for (const o of filas) {
@@ -344,12 +347,41 @@ async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise
 
 const DIA = new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric" });
 
-async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]): Promise<OportunidadCuadro[]> {
+/** Oportunidades por pagina de la lista. Lo de Google con los correos: 50 y
+ *  pasar a la siguiente (Monica, 9-oct-2026). Antes era un tope fijo de 200
+ *  puesto en septiembre, cuando no habia casi nada, y la pestaña decia "200"
+ *  aunque Alvaro tuviera 354. */
+export const POR_PAGINA = 50;
+
+async function oportunidadesPendientes(
+  comercialId: string | null,
+  pasos: Paso[],
+  pagina: number,
+): Promise<{ lista: OportunidadCuadro[]; total: number }> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const filas = await rest<OportunidadCruda[]>(
-    `oportunidades?select=${SEL_OPORTUNIDAD}&estado=eq.abierta${f}&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=200` +
-      "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
+  // Primero TODAS, pero ligeras: solo para contarlas de verdad y saber cuales
+  // caen en esta pagina. Luego, enteras, solo esas.
+  const ligeras = await restTodo<{ id: string; creado_en: string; fecha_apertura: string | null; hitos_oportunidad: { hito: string; estado: string }[] }>(
+    `oportunidades?select=id,creado_en,fecha_apertura,hitos_oportunidad(hito,estado)&estado=eq.abierta${f}`,
   );
+  const vivas = ligeras
+    .filter((o) => o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado !== "hecho")
+    // Las mas recientes arriba; sin fecha de apertura, al final.
+    .sort((a, b) =>
+      a.fecha_apertura === b.fecha_apertura
+        ? b.creado_en.localeCompare(a.creado_en)
+        : !a.fecha_apertura ? 1 : !b.fecha_apertura ? -1 : b.fecha_apertura.localeCompare(a.fecha_apertura),
+    );
+  const total = vivas.length;
+  const ids = vivas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map((o) => o.id);
+  if (!ids.length) return { lista: [], total };
+  const orden = new Map(ids.map((id, i) => [id, i]));
+  const filas = (
+    await rest<OportunidadCruda[]>(
+      `oportunidades?select=${SEL_OPORTUNIDAD}&id=in.(${ids.join(",")})` +
+        "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
+    )
+  ).sort((a, b) => orden.get(a.id)! - orden.get(b.id)!);
 
   // UNA OPORTUNIDAD ESTA ABIERTA HASTA QUE EL DINERO ESTA EN LA CUENTA, no hasta
   // que se firma (Monica, 28-sep-2026, corrigiendome: aqui ponia "lo firmado ya
@@ -362,13 +394,13 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
   // cliente no paga es como si no hubiera firmado, y por experiencia saben que
   // quien mejor persigue a su cliente es su comercial. Por eso cobra el cuando
   // entra el primer pago, y no antes: son horas suyas.
-  const pendientes = filas.filter((o) => o.hitos_oportunidad.find((h) => h.hito === "cobro")?.estado !== "hecho");
+  const pendientes = filas;
 
-  const ids = pendientes.map((o) => o.comunidad?.id).filter((x): x is string => !!x);
+  const comunidades = pendientes.map((o) => o.comunidad?.id).filter((x): x is string => !!x);
   const ultimo: Record<string, string> = {};
-  if (ids.length) {
+  if (comunidades.length) {
     const puente = await rest<{ comunidad_id: string; interacciones: { fecha_evento: string | null; creado_en: string } | null }[]>(
-      `interaccion_comunidad?select=comunidad_id,interacciones(fecha_evento,creado_en)&comunidad_id=in.(${ids.join(",")})`,
+      `interaccion_comunidad?select=comunidad_id,interacciones(fecha_evento,creado_en)&comunidad_id=in.(${comunidades.join(",")})`,
     );
     for (const r of puente) {
       const d = r.interacciones?.fecha_evento ?? r.interacciones?.creado_en?.slice(0, 10);
@@ -376,7 +408,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
     }
   }
 
-  return pendientes.map((o) => {
+  const lista = pendientes.map((o) => {
     const b = leerBarra(pasos, o.hitos_oportunidad, o.fecha_apertura ?? o.creado_en);
     const neg = o.negociacion_oportunidad[0];
     const nombre = o.comunidad?.nombre ?? o.comunidad_provisional ?? "Sin dirección todavía";
@@ -407,6 +439,7 @@ async function oportunidadesPendientes(comercialId: string | null, pasos: Paso[]
       ficha: null,
     };
   });
+  return { lista, total };
 }
 
 async function agenda(comercialId: string | null): Promise<TareaCuadro[]> {
@@ -504,14 +537,14 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
 }
 
 /** El cuadro de un comercial (o de todos, si no se dice cual). */
-export async function cuadroComercial(comercialId: string | null): Promise<CuadroComercial> {
+export async function cuadroComercial(comercialId: string | null, pagina = 1): Promise<CuadroComercial> {
   const [pasos, u, { cartera, empresaIds }] = await Promise.all([
     pasosComerciales(),
     umbrales(),
     carteraDe(comercialId),
   ]);
   const [oportunidades, agregado, tareas, entradas, mapa] = await Promise.all([
-    oportunidadesPendientes(comercialId, pasos),
+    oportunidadesPendientes(comercialId, pasos, pagina),
     agregadoFases(comercialId, pasos),
     agenda(comercialId),
     diario(comercialId),
@@ -523,7 +556,8 @@ export async function cuadroComercial(comercialId: string | null): Promise<Cuadr
     agregado,
     agenda: tareas,
     diario: entradas,
-    oportunidades,
+    oportunidades: oportunidades.lista,
+    totalOportunidades: oportunidades.total,
     // Los hitos de facturacion de una hoja aun no viven en la app.
     firmadas: [],
     cifras: CIFRAS_SIN_DATO,

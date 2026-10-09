@@ -111,6 +111,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
     ],
 
     oportunidades: oportunidadesDemo(),
+    totalOportunidades: oportunidadesDemo().length,
 
     // LA SEGUNDA VIDA COMERCIAL: ya firmadas, ahora hay que cobrarlas. Tres
     // casos distintos a proposito: 50/50 al dia, tres plazos a medias, y el

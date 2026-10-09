@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { listarComerciales } from "../../lib/comercial";
-import { cuadroComercial } from "../../lib/cuadroComercial";
+import { cuadroComercial, POR_PAGINA } from "../../lib/cuadroComercial";
 import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import { guardarEntrada } from "./acciones";
@@ -67,8 +67,9 @@ function Proximamente({ texto }: { texto: string }) {
 type Seccion = "agenda" | "oportunidades" | "administradores" | "cobros" | "comovoy";
 const SECCIONES: Seccion[] = ["agenda", "oportunidades", "administradores", "cobros", "comovoy"];
 
-export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string }> }) {
-  const { c, ver, vista } = await searchParams;
+export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string }> }) {
+  const { c, ver, vista, pag } = await searchParams;
+  const pagina = Math.max(1, parseInt(pag ?? "1", 10) || 1);
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial");
 
@@ -105,7 +106,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     );
   }
 
-  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null);
+  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina);
   const nombre = esDemo ? "Fantasma" : elegido && direccion ? elegido.nombre : yo.nombre;
 
   const hoy = FECHA_LARGA.format(new Date());
@@ -127,6 +128,17 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     q.set("ver", v);
     return "/comercial?" + q.toString();
   };
+  // Las paginas de la lista de oportunidades: 50 cada una (Monica, 9-oct-2026).
+  const paginas = Math.max(1, Math.ceil(cuadro.totalOportunidades / POR_PAGINA));
+  const enPagina = (n: number) => {
+    const q = new URLSearchParams();
+    if (c) q.set("c", c);
+    q.set("ver", "oportunidades");
+    if (n > 1) q.set("pag", String(n));
+    return "/comercial?" + q.toString();
+  };
+  const desde = (pagina - 1) * POR_PAGINA + 1;
+  const hasta = desde + cuadro.oportunidades.length - 1;
   // Las dos vistas de la agenda: modo agenda y modo calendario (suyas).
   const enAgenda = (v: string) => {
     const q = new URLSearchParams();
@@ -232,7 +244,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             />
             <Pestana
               texto="Oportunidades abiertas"
-              cuantas={cuadro.oportunidades.length}
+              cuantas={cuadro.totalOportunidades}
               activo={seccion === "oportunidades"}
               donde={aqui("oportunidades")}
               clase="w-[180px]"
@@ -291,7 +303,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 </div>
                 <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3.5">
-                    <Titulo>Oportunidades abiertas · {cuadro.oportunidades.length}</Titulo>
+                    <Titulo>Oportunidades abiertas · {cuadro.totalOportunidades}</Titulo>
                     {/* Ir a una concreta, entre TODAS las abiertas (8-oct-2026). */}
                     {!esDemo && <BuscarOportunidad oportunidades={paraGrabar.oportunidades} />}
                   </div>
@@ -326,6 +338,27 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                       )}
                     </div>
                   </div>
+                  {paginas > 1 && (
+                    <div className="flex items-center justify-between gap-3 border-t border-black/5 px-4 py-3 text-sm">
+                      {pagina > 1 ? (
+                        <Link href={enPagina(pagina - 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
+                          ← Anteriores
+                        </Link>
+                      ) : (
+                        <span />
+                      )}
+                      <span className="text-carbon/55">
+                        {cuadro.oportunidades.length ? <>{desde}–{hasta} de {cuadro.totalOportunidades}</> : <>No hay tantas: son {cuadro.totalOportunidades}</>}
+                      </span>
+                      {pagina < paginas ? (
+                        <Link href={enPagina(pagina + 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
+                          Siguientes →
+                        </Link>
+                      ) : (
+                        <span />
+                      )}
+                    </div>
+                  )}
                 </section>
               </>
             )}
