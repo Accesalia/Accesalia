@@ -9348,18 +9348,24 @@
 },
 "89f9198b-0fd5-4298-b0cd-663759a1e939": {
 "codigo": "DAN-2025-441",
-"carpeta": "Cadalso de los Vidrios 2",
-"municipio": "MADRID",
+"carpeta": "Cadalso de los Vidrios 2 (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "8816815VK3881F",
+"numeros": [
+"2"
+]
+}
+],
+"parcela": "8816815VK3881F",
+"numero": "2",
 "numeros": [
 "2"
 ],
-"calle": "CL CADALSO DE LOS VIDRIOS",
-"numero": "2",
-"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
-"parcelas": [
-"8816814VK3881F",
-"8816815VK3881F"
-]
+"enlazada": true,
+"portales": 1
 },
 "d5958711-ae68-4cfb-bd3d-647b66eb6f4d": {
 "codigo": "DAN-2025-442",
@@ -9405,15 +9411,24 @@
 },
 "35f6037b-8654-47fc-934a-29cdd517f72d": {
 "codigo": "DAN-2025-445",
-"carpeta": "Málaga 8",
-"municipio": "ALCORCON",
+"carpeta": "Málaga 8 (ALCORCON)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "9763402VK2696S",
 "numeros": [
-"8"
+"4"
+]
+}
 ],
-"calle": "CL MALAGA",
-"numero": "8",
-"estado": "dudosa: Catastro no encuentra ese numero",
-"parcelas": []
+"parcela": "9763402VK2696S",
+"numero": "4",
+"numeros": [
+"4"
+],
+"enlazada": true,
+"portales": 1
 },
 "8c609481-3fbb-4bc8-a738-3f4a0a3cc503": {
 "codigo": "DAN-2026-221",
@@ -9445,13 +9460,24 @@
 },
 "b249841b-3559-4fa0-b49f-750ee519639d": {
 "codigo": "DAN-2026-222",
-"carpeta": "Castilla 3 Torre 5",
-"municipio": "AZUQUECA DE HENARES",
+"carpeta": "Castilla 3 Torre 5 (AZUQUECA DE HENARES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "7907803VK7970N",
 "numeros": [
-"3",
-"5"
+"3"
+]
+}
 ],
-"estado": "dudosa: municipio \"AZUQUECA DE HENARES\" no esta en el callejero"
+"parcela": "7907803VK7970N",
+"numero": "3",
+"numeros": [
+"3"
+],
+"enlazada": true,
+"portales": 2
 },
 "7e00540d-6acb-43d5-b220-9ca8bfcb0dae": {
 "codigo": "DAN-2026-223",

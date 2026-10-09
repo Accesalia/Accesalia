@@ -56,6 +56,10 @@ PARCELAS = {
     # "Vedra es una mancomunidad: todos los 22 se incluyen agrupados bajo la figura mancomunidad". '*' = todos los
     # portales de cada parcela.
     'DAN-2023-169': [('36999%02dVK4639H' % n, ['*']) for n in range(1, 25)],
+    # Lista de Alvaro, resuelta por Monica (9-oct-2026)
+    'DAN-2025-445': [('9763402VK2696S', ['4'])],     # "Malaga 8" es el 4 (la hoja ya lo decia dentro)
+    'DAN-2026-222': [('7907803VK7970N', ['3'])],     # Castilla 3 Torre 5 = Plaza de Castilla 3, Azuqueca
+    'DAN-2025-441': [('8816815VK3881F', ['2'])],     # Cadalso de los Vidrios 2: la parcela de las 10 viviendas
     # Av. Olimpica 18: un portal partido en dos parcelas (41 y 40 viviendas). "si, correcto": a las dos.
     'DAN-2023-184': [('5048806VK2654N', ['18']), ('5048807VK2654N', ['18'])],
     # "salen las dos solo con el 99"
