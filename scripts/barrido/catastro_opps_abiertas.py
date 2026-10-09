@@ -33,7 +33,7 @@ SALIDA = os.path.join(AQUI, 'catastro_abiertas.json')
 PAUSA, BLOQUE, PAUSA_BLOQUE = 2, 20, 30
 MARCA = 'Creada desde la clon: '
 # El nombre de la carpeta frente al de Catastro.
-ALIAS_MUNICIPIO = {'LAS ROZAS': 'LAS ROZAS DE MADRID'}
+ALIAS_MUNICIPIO = {'LAS ROZAS': 'LAS ROZAS DE MADRID', 'ALCALA DE HNRES': 'ALCALA DE HENARES'}
 
 # RESUELTAS CON MONICA (8-oct-2026). La carpeta va pegada y el callejero de Catastro abrevia ("FCO", "NTRA SRA D",
 # "CGDOR"), asi que no casan solas. codigo -> [(municipio, sigla, calle del callejero, numeros)]. Varias filas = una
@@ -63,6 +63,9 @@ PARCELAS = {
     # Parcelas dadas por Monica (9-oct-2026): el "bis" de la carpeta era el 384(A) y el 13(D) de Catastro.
     'DAN-2024-204': [('4292101VK4849A', ['*'])],     # Lopez de Hoyos 384 bis
     'DAN-2024-152': [('9960303VK3796B', ['*'])],     # Rodriguez San Pedro 13 B
+    # Urb. Las Anclas, calle Galeon (Pareja, Guadalajara): "la parcela se baja completa y agrupamos por escalera 2,
+    # como siempre". Tercer elemento = escalera.
+    'DAN-2026-231': [('5405001WK2950N', ['*'], '2')],
     # Av. Olimpica 18: un portal partido en dos parcelas (41 y 40 viviendas). "si, correcto": a las dos.
     'DAN-2023-184': [('5048806VK2654N', ['18']), ('5048807VK2654N', ['18'])],
     # "salen las dos solo con el 99"
@@ -249,7 +252,19 @@ def num(x):
 def opps_a_mirar():
     # 'sinmarca' (Monica, 9-oct-2026): las abiertas sin comunidad que NO salieron de la clon (las 23 recientes,
     # casi todas de Alvaro). Su comunidad_provisional ya va escrita normal: "Extremadura 13 (FUENLABRADA)".
-    if SIN_MARCA:
+    if CON_COMUNIDAD:
+        fuera = {'ALV-2026-168', 'DAN-2025-436', 'DAN-2025-424', 'DAN-2025-415', 'ALV-2026-134'}  # al comercial / sin Catastro
+        filas = b.leer('oportunidades?select=id,codigo,fecha_apertura,notas,referencia_catastral,'
+                       'comunidades(nombre,municipio,referencia_catastral)&estado=eq.abierta&comunidad_id=not.is.null')
+        ops = []
+        for o in filas:
+            c = o.pop('comunidades') or {}
+            if o['codigo'] in fuera: continue
+            nombre = re.sub(r'\s+%s$' % re.escape(c.get('municipio') or ''), '', c.get('nombre') or '').strip()
+            o['comunidad_provisional'] = '%s (%s)' % (nombre, c.get('municipio') or '')
+            o['referencia_catastral'] = o.get('referencia_catastral') or c.get('referencia_catastral')
+            ops.append(o)
+    elif SIN_MARCA:
         ops = [o for o in b.leer('oportunidades?select=id,codigo,comunidad_provisional,fecha_apertura,notas,referencia_catastral'
                                  '&estado=eq.abierta&comunidad_id=is.null') if MARCA not in (o.get('notas') or '')]
     else:
@@ -271,7 +286,7 @@ def consultar():
             json.dump(res, open(SALIDA, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
             print('  ... bloque hecho (%d/%d), pausa %d s' % (k, len(pend), PAUSA_BLOQUE)); time.sleep(PAUSA_BLOQUE)
         if o['codigo'] in PARCELAS:
-            ds = [{'parcela': p, 'numeros': n} for p, n in PARCELAS[o['codigo']]]
+            ds = [{'parcela': t[0], 'numeros': t[1], 'escalera': t[2] if len(t) > 2 else None} for t in PARCELAS[o['codigo']]]
             res[o['id']] = {'codigo': o['codigo'], 'carpeta': o['comunidad_provisional'], 'estado': 'clara', 'forzada': True,
                             'destinos': ds, 'parcela': ds[0]['parcela'], 'numero': ds[0]['numeros'][0], 'numeros': ds[0]['numeros']}
             continue
@@ -423,7 +438,8 @@ def escribir():
                 muni, portales = guardar_ficha(dz['parcela'])
             except Exception as e:
                 fallo = '%s: %s' % (dz['parcela'], e); print('  ', r['codigo'], fallo); continue
-            del_numero += [(muni, p, dz['parcela']) for p in portales if '*' in dz['numeros'] or p['numero'] in dz['numeros']]
+            del_numero += [(muni, p, dz['parcela']) for p in portales if ('*' in dz['numeros'] or p['numero'] in dz['numeros'])
+                           and (not dz.get('escalera') or (p['escalera'] or '') == dz['escalera'])]
         if not del_numero:
             r['estado'] = 'dudosa: la parcela no tiene portales con el numero %s' % r['numero']; continue
         for muni, p, parcela in del_numero:
@@ -440,4 +456,5 @@ def escribir():
 
 REPASO = sys.argv[1] == 'reconsultar'
 SIN_MARCA = 'sinmarca' in sys.argv[2:]
+CON_COMUNIDAD = 'concomunidad' in sys.argv[2:]
 {'consultar': consultar, 'reconsultar': consultar, 'escribir': escribir}[sys.argv[1]]()

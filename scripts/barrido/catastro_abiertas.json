@@ -9607,9 +9607,25 @@
 },
 "4d1d4569-24b9-4d6c-a683-b08608ed861c": {
 "codigo": "DAN-2026-231",
-"carpeta": "Urb. Las Anclas, calle Galeón",
-"municipio": "PAREJA",
-"estado": "dudosa: la carpeta no trae numero"
+"carpeta": "Urb. Las Anclas, calle Galeón (PAREJA)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "5405001WK2950N",
+"numeros": [
+"*"
+],
+"escalera": "2"
+}
+],
+"parcela": "5405001WK2950N",
+"numero": "*",
+"numeros": [
+"*"
+],
+"enlazada": true,
+"portales": 1
 },
 "2927d72a-d448-4fea-aca1-4bbe456904b5": {
 "codigo": "DAN-2026-232",
@@ -9638,5 +9654,65 @@
 "parcela": "0308202VK4700G",
 "enlazada": true,
 "portales": 1
+},
+"c0e38ec5-4d0c-4218-a885-5573f09664d8": {
+"codigo": "DAN-2026-164",
+"carpeta": "ANTONIO GRILO 7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL ANTONIO GRILO",
+"numero": "7",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"58d9f24f-8494-4a0b-8479-3b3bb513571f": {
+"codigo": "DAN-2025-291",
+"carpeta": "MIRADOR DEL PARDO 7",
+"municipio": "LAS ROZAS",
+"numeros": [
+"7"
+],
+"estado": "dudosa: 0 calles en el callejero para \"MIRADOR DEL PARDO\"",
+"calles": []
+},
+"9d529ed4-98a3-4950-9b23-2a3059b9e9ec": {
+"codigo": "ALV-2026-137",
+"carpeta": "POLVORANCA 6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL POLVORANCA",
+"numero": "6",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"755055c8-8b44-4189-9ea5-f6c22441fece": {
+"codigo": "DAN-2024-221",
+"carpeta": "FERNANDEZ DE LOS RIOS 38",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"parcela": "0065618VK4706E",
+"numero": "38",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 3
+},
+"6cc50b39-0038-4bae-809c-4d54e216dc5a": {
+"codigo": "ALV-2026-046",
+"carpeta": "LOPEZ DE HOYOS 163",
+"municipio": "MADRID",
+"numeros": [
+"163"
+],
+"parcela": "3580310VK4738B",
+"numero": "163",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 163"
 }
 }
