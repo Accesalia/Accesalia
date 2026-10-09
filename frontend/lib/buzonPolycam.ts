@@ -172,9 +172,13 @@ const TIPOS_VIA = new Set([
 /** Particulas y muletillas del numero: no distinguen nada en ningun sitio. */
 const PARTICULAS = new Set(["DE", "DEL", "LA", "EL", "LOS", "LAS", "Y", "NUM", "NO"]);
 
+/** Desde el 9-oct-2026 todas las comunidades se llaman "CP ..." (Monica). Esa
+ *  "CP" de delante no nombra la direccion: nadie la escribe en un asunto. */
+const sinCp = (s: string) => s.replace(/^\s*CP\s+/i, "");
+
 /** Las palabras que de verdad nombran la direccion, en orden. */
 function significativas(s: string): string[] {
-  const t = aplanar(s).split(" ").filter(Boolean);
+  const t = aplanar(sinCp(s)).split(" ").filter(Boolean);
   while (t.length && REENVIO.has(t[0])) t.shift();
   if (t.length && TIPOS_VIA.has(t[0])) t.shift();
   return t.filter((p) => !PARTICULAS.has(p));
@@ -202,7 +206,7 @@ export function cotejar(
   const a = aplanar(asunto);
   if (a.length < 6) return null;
 
-  const exactas = comunidades.filter((c) => aplanar(c.nombre) === a);
+  const exactas = comunidades.filter((c) => aplanar(sinCp(c.nombre)) === a);
   if (exactas.length === 1) return exactas[0];
   if (exactas.length > 1) return null;
 

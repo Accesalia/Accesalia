@@ -144,9 +144,10 @@ export type ResultadoComunidad = { comunidadId: string; oportunidadId: string; n
 const hoy = () => new Date().toISOString().slice(0, 10);
 
 export async function crearComunidad(d: DatosComunidad, autorId: string | null): Promise<ResultadoComunidad> {
-  // 1 · la comunidad. `nombre` ES la direccion.
+  // 1 · la comunidad. `nombre` ES la direccion, con "CP" delante: "a TODAS le
+  // ponemos delante CP" (Monica, 9-oct-2026).
   const c = await crear<{ id: string }>("comunidades", {
-    nombre: d.direccion,
+    nombre: /^CP\s/i.test(d.direccion.trim()) ? d.direccion.trim() : `CP ${d.direccion.trim()}`,
     cp: d.cp,
     municipio: d.municipio,
     provincia: d.provincia,
