@@ -114,7 +114,8 @@ export async function anexoDeOportunidad(oppId: string, opciones: { pem?: number
   if (!ref) return null;
 
   const [i, asc, iee, distrito, pedido, catalogo] = await Promise.all([
-    informeEdificio(ref),
+    // Lo ve el cliente: aqui no vale un "sin consultar" (9-oct-2026).
+    informeEdificio(ref, { completo: true }),
     ascensorDe(ref),
     ieeDe(ref),
     distritoDe(ref),

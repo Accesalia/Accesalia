@@ -27,7 +27,8 @@ import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 
 export const dynamic = "force-dynamic";
-// El informe del edificio sale a Catastro y al geoportal de Madrid: tarda.
+// El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
+// y al geoportal de Madrid, y eso tarda.
 export const maxDuration = 60;
 
 // GESTIONAR UNA OPORTUNIDAD (Monica, 28-sep-2026).

@@ -174,6 +174,10 @@ export type Crudo = {
   cerca: SubvencionCerca[];
   fallos: string[];
   consultadoEn: string;
+  /** False cuando el informe sale de las tablas extraidas y el geoportal de
+   *  Madrid no se ha consultado: entonces no se sabe, y no se dice "No". Sin el
+   *  campo (lo guardado por la propia pantalla) es que si se consulto. */
+  geoportal?: boolean;
 };
 
 // ------------------------------------------------------------------ el informe
@@ -220,10 +224,14 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
   const pctSuperficie = supTotal ? Math.round((supVivienda / supTotal) * 100) : 0;
 
   const esMadrid = (municipio ?? "").toUpperCase() === "MADRID";
+  // Madrid capital sin geoportal consultado: un hueco no es un "No" (9-oct-2026).
+  const sinGeo = esMadrid && c.geoportal === false;
+  const sinConsultar = (que: string) =>
+    d(que, "Sin consultar todavía", "Es un dato del geoportal de Madrid y aún no se ha bajado.", true);
 
   // ZETU y ZIRE no son capas: se calculan. El Plan Rehabilita absorbio APIRU y
   // ARRU dentro de ZETU, y creo ZIRE para el resto de Madrid capital.
-  const zona = !esMadrid ? null : apiru || arru ? "ZETU" : "ZIRE";
+  const zona = !esMadrid || sinGeo ? null : apiru || arru ? "ZETU" : "ZIRE";
 
   if (condiciones?.PLANO_AE) pdfs.push({ que: "Plano de análisis de la edificación", url: String(condiciones.PLANO_AE) });
   if (ascensor?.INFORME) pdfs.push({ que: "Informe del modelo de ascensor", url: String(ascensor.INFORME) });
@@ -287,6 +295,8 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
       titulo: "Protección",
       datos: !esMadrid
         ? [d("Protección", "No se puede consultar fuera de Madrid capital", undefined, true)]
+        : sinGeo
+        ? [sinConsultar("¿Está protegido?")]
         : [
             d("¿Está protegido?", protegido ? `Sí · ${protegido.CEP_TX_PROTECCION ?? "protegido"}` : "No",
               protegido
@@ -303,6 +313,8 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
       titulo: "Dinero: a qué ayudas entra",
       datos: !esMadrid
         ? [d("Zona de subvención", "Fuera de Madrid capital: las ayudas son otras (Comunidad de Madrid)", undefined, true)]
+        : sinGeo
+        ? [sinConsultar("Zona de subvención"), sinConsultar("Subvenciones concedidas a 800 m")]
         : [
             d("Zona", zona ?? "—",
               zona === "ZETU"
@@ -338,6 +350,8 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
       titulo: "Restricciones",
       datos: !esMadrid
         ? [d("Modelo de ascensor", "No se puede consultar fuera de Madrid capital", undefined, true)]
+        : sinGeo
+        ? [sinConsultar("¿Modelo de ascensor obligatorio?")]
         : [
             d("¿Hay ascensor ya?", "—",
               "No lo dice ningún dato. Se ve en la foto aérea de aquí arriba: el casetón de la azotea. Si no hay casetón, no hay ascensor.", true),
@@ -594,21 +608,127 @@ async function guardar(ref: string, c: Crudo) {
   });
 }
 
+type FilaFicha = {
+  id: string;
+  bruto: Crudo | null;
+  consultado_en: string;
+  municipio: string | null;
+  provincia: string | null;
+  cp: string | null;
+  distrito_municipal: string | null;
+  tipo_via: string | null;
+  nombre_via: string | null;
+  numero: string | null;
+  anio: number | null;
+  tipo_parcela: string | null;
+  superficie_suelo: number | null;
+  lat: number | null;
+  lng: number | null;
+  utm_x: number | null;
+  utm_y: number | null;
+};
+
+type FilaInmueble = {
+  referencia: string | null;
+  numero: string | null;
+  escalera: string | null;
+  planta: string | null;
+  puerta: string | null;
+  uso: string | null;
+  superficie: number | null;
+  coeficiente: number | string | null;
+};
+
+/** EL EDIFICIO DESDE LAS TABLAS EXTRAIDAS (Monica, 9-oct-2026).
+ *
+ *  El barrido de las opps abiertas (scripts/barrido/catastro_opps_abiertas.py)
+ *  dejo cada ficha repartida en ficha_catastro y ficha_catastro_inmueble, y en
+ *  `bruto` la respuesta de Catastro tal cual, que no es el formato de esta
+ *  pantalla. Sin esto, la ficha no reconocia nada y volvia a Catastro en cada
+ *  apertura: 15 segundos. Aqui se monta lo crudo con lo extraido, en el mismo
+ *  formato que usa Catastro, y el informe sale igual que siempre.
+ *
+ *  El geoportal de Madrid no se bajo: se marca, y el informe dice "sin
+ *  consultar" en vez de "No". */
+async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/ficha_catastro_inmueble?select=referencia,numero,escalera,planta,puerta,uso,superficie,coeficiente` +
+      `&ficha_id=eq.${f.id}&order=referencia.asc&limit=5000`,
+    { headers: cab, cache: "no-store" },
+  );
+  if (!r.ok) return null;
+  const filas = (await r.json()) as FilaInmueble[];
+  if (filas.length === 0) return null;
+
+  const inmuebles: Inm[] = filas.map((i) => {
+    const rc = i.referencia ?? "";
+    return {
+      rc: { pc1: rc.slice(0, 7), pc2: rc.slice(7, 14), car: rc.slice(14, 18), cc1: rc.slice(18, 19), cc2: rc.slice(19, 20) },
+      dt: {
+        np: f.provincia ?? undefined,
+        nm: f.municipio ?? undefined,
+        locs: {
+          lous: {
+            lourb: {
+              dir: { tv: f.tipo_via ?? undefined, nv: f.nombre_via ?? undefined, pnp: i.numero ?? f.numero ?? undefined },
+              dp: f.cp ?? undefined,
+              dm: f.distrito_municipal ?? undefined,
+              loint: { es: i.escalera ?? undefined, pt: i.planta ?? undefined, pu: i.puerta ?? undefined },
+            },
+          },
+        },
+      },
+      debi: {
+        luso: i.uso ?? undefined,
+        sfc: i.superficie != null ? String(i.superficie) : undefined,
+        cpt: i.coeficiente != null ? String(i.coeficiente) : undefined,
+        ant: f.anio != null ? String(f.anio) : undefined,
+      },
+    };
+  });
+
+  return {
+    inmuebles,
+    fincaLdt: "",
+    tipoParcela: f.tipo_parcela ?? "",
+    suelo: f.superficie_suelo,
+    lat: f.lat,
+    lng: f.lng,
+    utmX: f.utm_x,
+    utmY: f.utm_y,
+    protegido: null,
+    condiciones: null,
+    ascensor: null,
+    apiru: null,
+    arru: null,
+    cerca: [],
+    fallos: [],
+    consultadoEn: f.consultado_en,
+    geoportal: false,
+  };
+}
+
 /** Lo guardado. Null si no hay nada o si esta pasado de fecha. */
 async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | null> {
   if (!URL_BASE || !SECRETO) return null;
   try {
-    const r = await fetch(`${URL_BASE}/rest/v1/ficha_catastro?select=bruto,consultado_en&referencia=eq.${ref}&limit=1`, {
-      headers: cab,
-      cache: "no-store",
-    });
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/ficha_catastro?select=id,bruto,consultado_en,municipio,provincia,cp,distrito_municipal,` +
+        `tipo_via,nombre_via,numero,anio,tipo_parcela,superficie_suelo,lat,lng,utm_x,utm_y&referencia=eq.${ref}&limit=1`,
+      { headers: cab, cache: "no-store" },
+    );
     if (!r.ok) return null;
-    const [f] = (await r.json()) as { bruto: Crudo | null; consultado_en: string }[];
-    if (!f?.bruto?.inmuebles?.length) return null;
-    // Una guardada a medias se trata como si no existiera: asi se cura sola.
-    if (f.bruto.lat === null || f.bruto.lng === null || (f.bruto.fallos?.length ?? 0) > 0) return null;
-    const dias = (Date.now() - new Date(f.consultado_en).getTime()) / 86400000;
-    return dias > diasBueno ? null : f.bruto;
+    const [f] = (await r.json()) as FilaFicha[];
+    if (!f) return null;
+    // Lo guardado por esta misma pantalla, con el geoportal dentro.
+    if (f.bruto?.inmuebles?.length) {
+      // Una guardada a medias se trata como si no existiera: asi se cura sola.
+      const bueno = f.bruto.lat !== null && f.bruto.lng !== null && (f.bruto.fallos?.length ?? 0) === 0;
+      const dias = (Date.now() - new Date(f.consultado_en).getTime()) / 86400000;
+      if (bueno && dias <= diasBueno) return f.bruto;
+    }
+    // Si no, lo extraido por el barrido.
+    return await desdeLasTablas(f);
   } catch {
     return null;
   }
@@ -617,15 +737,17 @@ async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | nul
 /** La puerta: primero lo guardado, y solo si no hay se sale fuera. */
 export async function informeEdificio(
   referenciaBruta: string,
-  opciones: { refrescar?: boolean; diasBueno?: number } = {},
+  // `completo`: para lo que se entrega al cliente. Si lo guardado no lleva el
+  // geoportal, se sale a por el y queda guardado para la proxima.
+  opciones: { refrescar?: boolean; diasBueno?: number; completo?: boolean } = {},
 ): Promise<InformeEdificio | null> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
   if (ref.length < 14) return null;
 
-  if (!opciones.refrescar) {
-    const guardado = await leerDeLaBase(ref, opciones.diasBueno ?? 120);
-    if (guardado) return componer(ref, guardado);
-  }
+  const guardado = opciones.refrescar ? null : await leerDeLaBase(ref, opciones.diasBueno ?? 120);
+  if (guardado && !(opciones.completo && guardado.geoportal === false)) return componer(ref, guardado);
+  // Si fuera falla, mejor lo guardado que nada.
+  const loQueHay = () => (guardado ? componer(ref, guardado) : null);
 
   // Si Catastro corta la conexion (pasa: 8-oct-2026, "ECONNRESET" en la ficha
   // de Zamora 28 y en la de Albufera 250), la ficha NO se cae: sale el aviso de
@@ -634,9 +756,9 @@ export async function informeEdificio(
   try {
     fuera = await traerDeFuera(ref);
   } catch {
-    return null;
+    return loQueHay();
   }
-  if (!fuera) return null;
+  if (!fuera) return loQueHay();
   try {
     await guardar(ref, fuera);
   } catch {
