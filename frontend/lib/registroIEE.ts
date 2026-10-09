@@ -349,8 +349,11 @@ export async function guardarNota(nota: NotaIEE, motivo?: MotivoIEE | null, vist
  *  existen: ahi se acaba lo publicado. El tope es por seguridad, para que una
  *  pasada nunca se eternice. */
 export async function barrer({
-  maximo = 60,
-  huecosParaParar = 8,
+  maximo = 150,
+  // 40 y no 8 (Monica, 9-oct-2026): despues del 33558 el registro tiene un
+  // hueco de mas de 8 numeros y el radar se paro ahi una semana entera, con IEE
+  // de verdad detras (33580, 33600, 33650...). Cada numero cuesta 0,25 s.
+  huecosParaParar = 40,
   pausaMs = 250,
   atras = 0,
 }: {

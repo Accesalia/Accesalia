@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   // un dia el registro publica una tanda grande de golpe.
   const q = new URL(req.url).searchParams;
   const pedido = Number(q.get("maximo"));
-  const maximo = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 400) : 60;
+  const maximo = Number.isFinite(pedido) && pedido > 0 ? Math.min(pedido, 400) : 150;
 
   // ?atras=12 recoge los 12 informes ANTERIORES a la marca. Es una excepcion a
   // mano -la regla es mirar solo hacia delante- y esta para poder ver la
