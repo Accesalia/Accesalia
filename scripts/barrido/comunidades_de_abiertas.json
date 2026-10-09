@@ -1,0 +1,10512 @@
+[
+{
+"opps": [
+"DAN-2024-270"
+],
+"ids": [
+"1ad65957-2170-48c1-8b8f-a9eb7afa6f11"
+],
+"nombre": "CP ESTEBAN CARROS 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4195107VK4649E"
+]
+},
+{
+"opps": [
+"DAN-2023-176"
+],
+"ids": [
+"5d2541bc-6c1e-44ee-a15a-e73feb5fce60"
+],
+"nombre": "CP BELGICA 3 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"7545801VK3674N"
+]
+},
+{
+"opps": [
+"DAN-2023-172"
+],
+"ids": [
+"7a03b68d-5e40-40a5-b97e-49d6cd184ff5"
+],
+"nombre": "CP MILAN 19 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"0598112VK6709N"
+]
+},
+{
+"opps": [
+"DAN-2024-243"
+],
+"ids": [
+"b6ec6c82-42e9-4ad8-a4a8-5b674f56d823"
+],
+"nombre": "CP PLAZA SAN JOSE 2 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"8324301VK6882S"
+]
+},
+{
+"opps": [
+"DAN-2024-203"
+],
+"ids": [
+"bd20052d-3923-45cf-b2e9-0484179aa1ee"
+],
+"nombre": "CP ARROYO FONTARRON 91 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"52287J5VK4752G"
+]
+},
+{
+"opps": [
+"DAN-2023-003"
+],
+"ids": [
+"65fda29c-23fb-4816-99b1-2761753e9015"
+],
+"nombre": "CP ALCARRIA 25 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5948703VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2024-201"
+],
+"ids": [
+"5243baa7-0847-458e-af49-5c58dee97192"
+],
+"nombre": "CP VELEZ BLANCO 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3812717VK4831D"
+]
+},
+{
+"opps": [
+"DAN-2023-089"
+],
+"ids": [
+"7f0b4d8d-74ff-43cd-8e44-2bf9f88f31fc"
+],
+"nombre": "CP ALPUJARRAS 72 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6552603VK3665S"
+]
+},
+{
+"opps": [
+"DAN-2024-040"
+],
+"ids": [
+"70896d63-ec76-4673-95a6-60f64b91fd3a"
+],
+"nombre": "CP SAN GREGORIO 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5550901VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-177"
+],
+"ids": [
+"0e1101e8-058a-457d-93e2-2d2d3e7d4962"
+],
+"nombre": "CP MEDELLIN 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0766813VK4706F"
+]
+},
+{
+"opps": [
+"DAN-2023-140"
+],
+"ids": [
+"6d90996c-df44-4b26-82dc-d704efeddf47"
+],
+"nombre": "CP ARTE 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3318226VK4831G"
+]
+},
+{
+"opps": [
+"DAN-2023-143"
+],
+"ids": [
+"577eee32-0f62-4419-90bb-8dcdce676557"
+],
+"existe": "07dca3e5-b8dc-4f34-a5e3-8202b178e24a",
+"nombre": "CP CARDENAL HERRERA ORIA 291"
+},
+{
+"opps": [
+"DAN-2021-071"
+],
+"ids": [
+"6fbba91e-aad3-4ce2-9669-f084ae70621c"
+],
+"nombre": "CP ENCOMIENDA DE PALACIOS 60 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5524827VK4752D"
+]
+},
+{
+"opps": [
+"DAN-2017-097"
+],
+"ids": [
+"d4fafe34-56b5-4377-afa8-c902e364c23b"
+],
+"nombre": "CP ESPALTER 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1540609VK4714B"
+]
+},
+{
+"opps": [
+"DAN-2023-128"
+],
+"ids": [
+"c9820993-425d-40da-9934-851d90fe97bc"
+],
+"nombre": "CP GINZO DE LIMIA 29 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0212976VK4801A"
+]
+},
+{
+"opps": [
+"DAN-2025-142"
+],
+"ids": [
+"261259c4-8075-4250-8413-41d7b25c0e2a"
+],
+"nombre": "CP PEÑA DE LA MIEL 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3508203VK4730H"
+]
+},
+{
+"opps": [
+"DAN-2022-294"
+],
+"ids": [
+"cf1a8174-ab39-4e9d-a5e9-0db2d0ae7448"
+],
+"nombre": "CP GUTIERRE DE CETINA 71 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5759210VK4755H"
+]
+},
+{
+"opps": [
+"DAN-2021-031"
+],
+"ids": [
+"bd0dbbea-77a4-467f-8b3e-6a007a1e9850"
+],
+"nombre": "CP PORTUGALETE 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6256706VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2022-120"
+],
+"ids": [
+"553c1465-8fa8-4e56-84d3-01de3e18ab2d"
+],
+"nombre": "CP HERMANOS DEL MORAL 75 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8815701VK3781F"
+]
+},
+{
+"opps": [
+"DAN-2023-282"
+],
+"ids": [
+"f7a79119-7286-4582-b25d-96ad9f10bd40"
+],
+"nombre": "CP HUERTA DEL CONVENTO 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8726513VK4782F"
+]
+},
+{
+"opps": [
+"DAN-2024-186"
+],
+"ids": [
+"e7591e60-bbe5-4054-be0f-a9060ae56708"
+],
+"nombre": "CP GENERAL RICARDOS 62 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8719504VK3781H"
+]
+},
+{
+"opps": [
+"DAN-2021-034"
+],
+"ids": [
+"8a45182a-f272-4d93-87ff-80b5650593cd"
+],
+"nombre": "CP SAN TELESFORO 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6253403VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2022-154"
+],
+"ids": [
+"f870196c-49ce-4e16-bb20-998a132fb3bd"
+],
+"nombre": "CP JACINTO CAMARERO 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9222106VK3792A"
+]
+},
+{
+"opps": [
+"DAN-2022-132"
+],
+"ids": [
+"9503cc30-50a9-4832-82c2-9c8c333b53ff"
+],
+"nombre": "CP JOSE ARCONES GIL 108 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6256702VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2023-110"
+],
+"ids": [
+"3af8ea87-8a39-4744-973e-da129789296d"
+],
+"nombre": "CP JUAN BOSCAN 74 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6056101VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2021-061"
+],
+"ids": [
+"fbb6e456-e6eb-4d34-a658-c2bb4360d45a"
+],
+"nombre": "CP JUAN PRADILLO 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9984914VK3798D"
+]
+},
+{
+"opps": [
+"DAN-2017-084"
+],
+"ids": [
+"a5488c75-1fb6-42f6-ac90-fb9bd44d921b"
+],
+"nombre": "CP JOSE ABASCAL 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0768703VK4706H"
+]
+},
+{
+"opps": [
+"DAN-2022-211"
+],
+"ids": [
+"3acd2496-afb3-462f-8708-9378af873908"
+],
+"nombre": "CP ESTEBAN COLLANTES 33 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5761711VK4756B"
+]
+},
+{
+"opps": [
+"DAN-2015-001"
+],
+"ids": [
+"386c4240-8684-4e03-b35f-9ccce6bc7b14"
+],
+"nombre": "CP RAFAEL FINAT 87 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4702728VK3740B"
+]
+},
+{
+"opps": [
+"DAN-2015-074"
+],
+"ids": [
+"7628e3b3-2720-4aeb-9f21-c60dd3b9243e"
+],
+"nombre": "CP TUCURINCA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6007041VK4850H"
+]
+},
+{
+"opps": [
+"DAN-2015-084"
+],
+"ids": [
+"cb30e7a5-f8d8-42c3-8086-585da9d321c9"
+],
+"nombre": "CP DIAMANTE 29 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1871410VK4617B"
+]
+},
+{
+"opps": [
+"DAN-2015-086"
+],
+"ids": [
+"891f94d0-6e5a-4e28-9b52-199710e6355d"
+],
+"nombre": "CP PASEO IMPERIAL 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9335127VK3793E"
+]
+},
+{
+"opps": [
+"DAN-2016-050"
+],
+"ids": [
+"1add05db-a744-42e1-be71-72b90058409e"
+],
+"nombre": "CP GENSERICO 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7634902VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2016-064"
+],
+"ids": [
+"010dc6dd-f050-4545-8182-f59e58ea672e"
+],
+"nombre": "CP JACOBINIA 86 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6202660VK3760A"
+]
+},
+{
+"opps": [
+"DAN-2016-072"
+],
+"ids": [
+"c20cf570-4a78-4cdb-be8f-bfdd30484de2"
+],
+"nombre": "CP GANDHI 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6252216VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2016-074"
+],
+"ids": [
+"df1c7898-b625-40b9-9bb3-dcbd4fed3f1d"
+],
+"nombre": "CP MORANDO 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0901514VK4800B"
+]
+},
+{
+"opps": [
+"DAN-2023-201"
+],
+"ids": [
+"cf50682b-fc65-459f-9bde-84aed8b9601a"
+],
+"nombre": "CP LOS CANTOS 7-9 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"9465504VK2696S"
+]
+},
+{
+"opps": [
+"DAN-2016-078"
+],
+"ids": [
+"0a85b4fc-64b0-4c90-a9c3-50aba273af04"
+],
+"nombre": "CP VALMOJADO 283 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5712106VK3751B"
+]
+},
+{
+"opps": [
+"DAN-2023-060"
+],
+"ids": [
+"2e852988-39e3-4438-aa4a-79201f43ea71"
+],
+"nombre": "CP PLAZA FLORAS 3 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5444703VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2016-108"
+],
+"ids": [
+"87b3a9b4-502a-46f0-a1bb-49746392a567"
+],
+"nombre": "CP ABEJUELA 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6716711VK3761F"
+]
+},
+{
+"opps": [
+"DAN-2016-140"
+],
+"ids": [
+"547299b0-c0db-45d7-bf7a-852088d3979c"
+],
+"nombre": "CP TOBOSO 136 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7418520VK3771G"
+]
+},
+{
+"opps": [
+"DAN-2017-003"
+],
+"ids": [
+"90a1a668-135b-45c5-bd9e-dd0fb5ef7fad"
+],
+"nombre": "CP FEDERICO GUTIERREZ 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5366108VK4756E"
+]
+},
+{
+"opps": [
+"DAN-2023-077"
+],
+"ids": [
+"e3e25eb8-b926-4cec-b118-0672b93e5f79"
+],
+"nombre": "CP PASEO ERMITA DEL SANTO 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8633615VK3783D"
+]
+},
+{
+"opps": [
+"DAN-2017-085"
+],
+"ids": [
+"5cf96674-e8b2-4588-a47f-97a8db722cce"
+],
+"nombre": "CP MOLINA 63 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0604401VK4800D"
+]
+},
+{
+"opps": [
+"DAN-2021-083"
+],
+"ids": [
+"f5935412-1a55-4c85-b4f7-74006cb2ed59"
+],
+"nombre": "CP MARTIN DE LOS HEROS 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9455908VK3795E"
+]
+},
+{
+"opps": [
+"DAN-2023-078"
+],
+"ids": [
+"c3c131c5-f595-4c62-913b-dac2cfd2335e"
+],
+"nombre": "CP PLAZA ALMUÑECAR 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8355404VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2023-080"
+],
+"ids": [
+"363d42d1-c1f2-4e00-9503-32d675ac7244"
+],
+"nombre": "CP RIBERA DEL MANZANARES 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8551329VK3785B"
+]
+},
+{
+"opps": [
+"DAN-2017-118"
+],
+"ids": [
+"c86ed3a0-1d99-4b87-9b6d-bab08cf6d2ce"
+],
+"nombre": "CP ALMONACID 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4122806VK4742A"
+]
+},
+{
+"opps": [
+"DAN-2021-085"
+],
+"ids": [
+"8c7ff34b-f741-4ad5-b0df-3b3e20295128"
+],
+"nombre": "CP PEDRO JIMENEZ 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9863604VK3696E"
+]
+},
+{
+"opps": [
+"DAN-2022-080"
+],
+"ids": [
+"a43cee82-87ff-403e-9711-f8b61363e4f1"
+],
+"nombre": "CP TRAVESIA VILLAESCUSA 2-4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6648107VK4764H"
+]
+},
+{
+"opps": [
+"DAN-2022-169"
+],
+"ids": [
+"ab654148-ea99-4a69-a867-366b9d40555e"
+],
+"nombre": "CP TACONA 83 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"55248A9VK4752D"
+]
+},
+{
+"opps": [
+"DAN-2019-004"
+],
+"ids": [
+"b0ad5f05-3f81-4eb8-87e2-c5e98adcb284"
+],
+"nombre": "CP CARABELOS 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1499410VK4619G"
+]
+},
+{
+"opps": [
+"DAN-2021-104"
+],
+"ids": [
+"b8bd51bc-c3a9-4714-9362-80ed93f29117"
+],
+"nombre": "CP PERALES 11 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0755701VK4505N"
+]
+},
+{
+"opps": [
+"DAN-2021-118"
+],
+"ids": [
+"0f1445f2-84a2-43fb-81da-a3b324c3317c"
+],
+"nombre": "CP SAN JAIME 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6600501VK4760B"
+]
+},
+{
+"opps": [
+"DAN-2026-110"
+],
+"ids": [
+"b2948b46-ba76-4e49-bdbc-da66f26f6852"
+],
+"existe": "0e43bfb0-5c3e-44ae-a77c-f94aeb452308",
+"nombre": "CP ESTEBAN COLLANATES 44 MADRID"
+},
+{
+"opps": [
+"DAN-2026-162"
+],
+"ids": [
+"773c72fc-2285-4242-8393-280f40c1aa20"
+],
+"nombre": "CP REDENTOR 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6096337VK3669E"
+]
+},
+{
+"opps": [
+"DAN-2024-269"
+],
+"ids": [
+"c8ac4330-14df-4b14-b7c7-53253f34ee6a"
+],
+"nombre": "CP SEVERINO AZNAR EMBID 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7534201VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2019-075"
+],
+"ids": [
+"3b68245c-09de-44e4-bf80-efdf2cc1eecf"
+],
+"nombre": "CP MANUEL LABORDA 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1972814VK4617B"
+]
+},
+{
+"opps": [
+"DAN-2024-199"
+],
+"ids": [
+"2ad86e6b-881a-4503-83b1-658f9e824c0d"
+],
+"nombre": "CP BOLAÑOS 91 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2806794VK4720F"
+]
+},
+{
+"opps": [
+"DAN-2023-014"
+],
+"ids": [
+"6a769722-68bd-413e-a25a-35221d86189e"
+],
+"nombre": "CP AV ESPAÑA 10 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1906404VK3610N"
+]
+},
+{
+"opps": [
+"DAN-2023-044"
+],
+"ids": [
+"53d13344-c6f7-4ad1-b9bb-05be56278b47"
+],
+"nombre": "CP GRECIA 18 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1796605VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2024-245"
+],
+"ids": [
+"6e15db10-701e-432f-bdc9-8d6de3438644"
+],
+"nombre": "CP HONDA 2 - TELEFONICA 2 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2694501VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2023-115"
+],
+"ids": [
+"f5b8a384-072e-4317-ae7c-ee560c8e62af"
+],
+"nombre": "CP SORIA 3 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5839604VK2653N"
+]
+},
+{
+"opps": [
+"DAN-2026-183"
+],
+"ids": [
+"56b524ab-294e-4349-b6be-8af47a2a7464"
+],
+"nombre": "CP PIZARRO 4 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"1996608VK6719N"
+]
+},
+{
+"opps": [
+"DAN-2023-212"
+],
+"ids": [
+"c6fba8ba-9b5e-4900-b377-52e615a7ad55"
+],
+"existe": "4f539122-fb8e-415d-96e0-8297421fbf3d",
+"nombre": "CP VELEZ BLANCO 46 MADRID"
+},
+{
+"opps": [
+"DAN-2023-244"
+],
+"ids": [
+"e8a70077-a6b9-458c-bcb9-fbad8e1022d9"
+],
+"nombre": "CP FERNANDO EL CATOLICO 73 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9363602VK3796C"
+]
+},
+{
+"opps": [
+"DAN-2026-202"
+],
+"ids": [
+"9c7e7545-bfad-47e7-a76a-95d643eb6dfe"
+],
+"nombre": "CP ENRIQUE GRANADOS 7 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4237701VK3543N"
+]
+},
+{
+"opps": [
+"DAN-2023-050"
+],
+"ids": [
+"3d9d9127-5070-4b06-a0f1-6abe43ca7648"
+],
+"nombre": "CP HUMERA 14 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2501001VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2024-289"
+],
+"ids": [
+"52d0b761-6bf5-4455-9ce0-a293fa01edd7"
+],
+"nombre": "CP CUARTELES 130 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"9917103VK4391N"
+]
+},
+{
+"opps": [
+"DAN-2023-295"
+],
+"ids": [
+"cfc07b32-1969-4b3b-b1e7-2f3f6d843178"
+],
+"nombre": "CP ARTE 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3318227VK4831G"
+]
+},
+{
+"opps": [
+"DAN-2024-041"
+],
+"ids": [
+"70cccb2b-0c84-44cc-bb80-d5882e545a46"
+],
+"nombre": "CP SAN IGNACIO 10 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5550302VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-236"
+],
+"ids": [
+"620058f0-d9e0-4597-a81a-2b676f876d87"
+],
+"nombre": "CP MODESTO LAFUENTE 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1166119VK4716E"
+]
+},
+{
+"opps": [
+"DAN-2024-080"
+],
+"ids": [
+"b3898342-5d04-49dc-833d-2a21f2211753"
+],
+"nombre": "CP PITAGORAS 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8566604VK4786F"
+]
+},
+{
+"opps": [
+"DAN-2023-249"
+],
+"ids": [
+"ed00545d-eacd-48d6-acc0-679cb2fd10dc"
+],
+"nombre": "CP CGDOR JOSE DE PASAMONTE 5-7-9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5037437VK4753G"
+]
+},
+{
+"opps": [
+"DAN-2025-228"
+],
+"ids": [
+"7d021eb1-1196-480a-88f9-341f1980c404"
+],
+"existe": "61e8283a-5d32-4942-8784-6e814c2411d8",
+"nombre": "CP VIRGEN DE LA FUENCISLA 8 PARLA"
+},
+{
+"opps": [
+"DAN-2025-132"
+],
+"ids": [
+"a53d9210-e0fe-44db-a340-20a833aebf8b"
+],
+"nombre": "CP ALCALA 308 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5061406VK4756A"
+]
+},
+{
+"opps": [
+"DAN-2025-189"
+],
+"ids": [
+"724e4aab-c5d7-449f-b4e3-7f03a08c8bfe"
+],
+"nombre": "CP CAVA ALTA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9939404VK3793H"
+]
+},
+{
+"opps": [
+"DAN-2025-224"
+],
+"ids": [
+"ee44b4a7-55f1-4cd6-be83-e08f8079eb39"
+],
+"nombre": "CP SAN JOAQUIN 26 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2000111VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2026-166"
+],
+"ids": [
+"cce40209-bdd9-45dd-bb41-98ee48accb56"
+],
+"nombre": "CP SAN FRANCISCO 2 SAN LORENZO DE EL ESCORIAL",
+"municipio": "SAN LORENZO DE EL ESCORIAL",
+"parcelas": [
+"3242401VK0934S"
+]
+},
+{
+"opps": [
+"DAN-2026-200"
+],
+"ids": [
+"29305b4a-83ef-4d26-a66c-d00f147e99c3"
+],
+"nombre": "CP BADALONA 58 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1528322VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2026-208"
+],
+"ids": [
+"d09b6267-95d9-49fc-88c0-f32c567dbaa6"
+],
+"nombre": "CP SEVILLA 7 POZUELO DE ALARCON",
+"municipio": "POZUELO DE ALARCON",
+"parcelas": [
+"1467408VK3716N"
+]
+},
+{
+"opps": [
+"DAN-2023-005"
+],
+"ids": [
+"a7ec56b1-c7ef-4d56-9948-de8fa2f9b9a2"
+],
+"nombre": "CP LOS ALPES 8 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"9368704VK2696N"
+]
+},
+{
+"opps": [
+"DAN-2026-212"
+],
+"ids": [
+"c99dd494-323c-46fd-9895-6f55d5d1372c"
+],
+"nombre": "CP PINTOR VELAZQUEZ 75 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5339602VK2653N"
+]
+},
+{
+"opps": [
+"DAN-2025-198"
+],
+"ids": [
+"4a1e1e8c-6411-42cf-82cd-eeda4f996055"
+],
+"nombre": "CP PLAZA VALDESERRANO 3 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2190603VK3528N"
+]
+},
+{
+"opps": [
+"DAN-2023-309"
+],
+"ids": [
+"9e2ada81-712d-4bad-bb48-96d1913fe420"
+],
+"nombre": "CP AV DOCTOR MARTIN VEGUE 31 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5647101VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2025-099"
+],
+"ids": [
+"dcc8d2ff-b3d7-4722-b714-aa3fea04a2d8"
+],
+"nombre": "CP RIO DUERO 22 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5054301VK3655N"
+]
+},
+{
+"opps": [
+"DAN-2024-118"
+],
+"ids": [
+"5841ed50-8cf3-4a32-ae17-0402652411db"
+],
+"nombre": "CP RIO DUERO 17 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4954801VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2024-170",
+"DAN-2023-290"
+],
+"ids": [
+"7214c800-8fcf-4f71-bb1b-8aef1524d63b",
+"ffcf47ae-2582-41d8-bc2d-398275b5eed1"
+],
+"nombre": "CP ORIENTE 8 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2599301VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2023-011"
+],
+"ids": [
+"c62ba715-ef7d-49cd-af33-69f968be434e"
+],
+"nombre": "CP AV DOCTOR MARTIN VEGUE 26 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5546502VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2025-153"
+],
+"ids": [
+"1c33f959-0c88-4eed-9824-a63336dd478e"
+],
+"nombre": "CP TRIUNFO 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7835606VK3773F"
+]
+},
+{
+"opps": [
+"DAN-2024-310"
+],
+"ids": [
+"70fc634f-69ad-48df-bc22-0f6a9ef9e218"
+],
+"nombre": "CP URGEL 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8518106VK3781H"
+]
+},
+{
+"opps": [
+"DAN-2018-014"
+],
+"ids": [
+"827d6824-a962-4372-8ad4-3de253e8b32e"
+],
+"nombre": "CP TAJUYA 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6260919VK4766A"
+]
+},
+{
+"opps": [
+"DAN-2023-020"
+],
+"ids": [
+"8208b4f0-2cfb-4d6a-bd0b-0f125166d18f"
+],
+"nombre": "CP CALLAO 4 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3102802VK3630S"
+]
+},
+{
+"opps": [
+"DAN-2023-021"
+],
+"ids": [
+"1af72114-100e-4c2a-977a-fb521d7657bd"
+],
+"nombre": "CP CALLAO 68 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3410202VK3631S"
+]
+},
+{
+"opps": [
+"DAN-2023-085"
+],
+"ids": [
+"e7844f1a-1ba0-43a8-962c-d71c37d149b8"
+],
+"nombre": "CP SAN POL DE MAR 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8551302VK3785B"
+]
+},
+{
+"opps": [
+"DAN-2023-022"
+],
+"ids": [
+"c1da4dda-30fd-4963-8828-8a25594cec3d"
+],
+"nombre": "CP CAPITAN FCO SANCHEZ 34 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6580805VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2024-032"
+],
+"ids": [
+"c230664d-18ab-4067-a2fa-9ac238b819b9"
+],
+"nombre": "CP NAZARET 8 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2301604VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2026-214"
+],
+"ids": [
+"d30e40e5-8b8a-45f3-b996-2959ca8714b9"
+],
+"nombre": "CP FRANCIA 25 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1799401VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2025-067"
+],
+"ids": [
+"6390804e-d273-49b1-8d2b-e0b6e01a9f06"
+],
+"nombre": "CP RIO DUERO 53 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4654806VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2024-150"
+],
+"ids": [
+"459f7247-a2e9-42fe-9655-86b6cffa1b77"
+],
+"nombre": "CP RIO DUERO 7 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5054801VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-053"
+],
+"ids": [
+"95beb94e-e1e2-46b6-a6d1-99560bf076d1"
+],
+"nombre": "CP LERIDA 6 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6882103VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2023-066"
+],
+"ids": [
+"40ccea66-3ac2-4eef-95ab-3346e79f1993"
+],
+"nombre": "CP SAN JOAQUIN 14 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2000106VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2023-067"
+],
+"ids": [
+"e5f26290-d23a-4bc1-825d-d4bb001e0a60"
+],
+"nombre": "CP SAN VICENTE 13 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6684403VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2024-031"
+],
+"ids": [
+"eda00ad5-77bf-4553-8cb6-44300dbec22f"
+],
+"nombre": "CP AV NACIONES 37 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1796203VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2024-042"
+],
+"ids": [
+"fd0759bd-4fe3-4137-b379-5e50fcd204e9"
+],
+"nombre": "CP SAN JOSE 26 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2000712VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2026-051"
+],
+"ids": [
+"f48ffef9-53b7-452b-8d66-6c70aa35e880"
+],
+"nombre": "CP VIRGEN DE LA OLIVA 57 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7060515VK4776A"
+]
+},
+{
+"opps": [
+"DAN-2023-049"
+],
+"ids": [
+"5dda450e-927e-47fd-a430-03ac79eac5b2"
+],
+"nombre": "CP HOLANDA 3 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1600802VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2023-139"
+],
+"ids": [
+"56f77b4a-809b-42d5-a2de-999a72f328c0"
+],
+"nombre": "CP FRANCIA 14 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2000715VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2024-027"
+],
+"ids": [
+"01c21ec6-d3c0-4413-8e1d-e40fbfd3add1"
+],
+"nombre": "CP PAZ 66 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2799301VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2024-096"
+],
+"ids": [
+"551e8913-58f4-4e4b-a3a6-da85916947e2"
+],
+"nombre": "CP CALLAO 41 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3207701VK3630N"
+]
+},
+{
+"opps": [
+"DAN-2025-083"
+],
+"ids": [
+"c4a5ddbf-cfca-4dcc-8858-1d863dcda83a"
+],
+"nombre": "CP MIRLO 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4724120VK3742D"
+]
+},
+{
+"opps": [
+"DAN-2023-013",
+"DAN-2023-012"
+],
+"ids": [
+"0b3463ed-59d4-471a-aa6f-baee1aefd29a",
+"fdaeeb1f-1252-420f-828a-32acf3a52f6f"
+],
+"nombre": "CP AV DR MENDIGUCHIA CARRICHE 25 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4451302VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2023-157"
+],
+"ids": [
+"9b1a98e3-048b-4b80-a6de-0b70e57684da"
+],
+"nombre": "CP AV DR MENDIGUCHIA CARRICHE 11 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4650101VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2023-158"
+],
+"ids": [
+"62b62523-1bb6-40f4-b274-6feffd3f270e"
+],
+"nombre": "CP AV DR MENDIGUCHIA CARRICHE 29 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4351401VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2024-044"
+],
+"ids": [
+"df3fb96f-2319-4ab4-9d9c-92c2c8765d8f"
+],
+"nombre": "CP URB NUEVO VERSALLES 2 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"9308102VK2690N"
+]
+},
+{
+"opps": [
+"ALV-2026-004"
+],
+"ids": [
+"30aa4121-d1fb-4024-840c-29183c645fcb"
+],
+"nombre": "CP LISBOA 8 SAN FERNANDO DE HENARES",
+"municipio": "SAN FERNANDO DE HENARES",
+"parcelas": [
+"5553102VK5755S"
+]
+},
+{
+"opps": [
+"DAN-2024-196"
+],
+"ids": [
+"078499b3-1804-41ab-9f36-79d6d0115056"
+],
+"nombre": "CP PLAZA PANTICOSA 7 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2512501VK3621S"
+]
+},
+{
+"opps": [
+"DAN-2022-059"
+],
+"ids": [
+"1941c7b4-53a2-4a20-84f4-809ff190075b"
+],
+"nombre": "CP ARTURO SORIA 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5968201VK4756H"
+]
+},
+{
+"opps": [
+"ALV-2026-011"
+],
+"ids": [
+"9fde6731-3613-4dcb-acd8-ee8c18865f5f"
+],
+"nombre": "CP PASEO VIRGEN DEL PUERTO 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8938403VK3783H"
+]
+},
+{
+"opps": [
+"DAN-2023-057"
+],
+"ids": [
+"087247ca-3493-478a-8914-9570cef55e16"
+],
+"nombre": "CP NAVARRA 2 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"9566405VK2696N"
+]
+},
+{
+"opps": [
+"DAN-2024-013"
+],
+"ids": [
+"2477f0a6-fe36-4443-a723-87dca3c4330a"
+],
+"nombre": "CP CASTILLA LA VIEJA 12 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2007801VK3610N"
+]
+},
+{
+"opps": [
+"DAN-2026-210"
+],
+"ids": [
+"bdc604b1-2770-43c9-91fd-403a495d7fc7"
+],
+"nombre": "CP PASEO DE LA ESTACION 2 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9321304VK6892S"
+]
+},
+{
+"opps": [
+"DAN-2024-251"
+],
+"ids": [
+"7ee19106-b850-45ad-97e5-7dfa996a7d94"
+],
+"nombre": "CP MALAGA 6 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"9763403VK2696S"
+]
+},
+{
+"opps": [
+"DAN-2025-174"
+],
+"ids": [
+"076b037e-1ac6-431b-9ccd-6651d41ec416"
+],
+"nombre": "CP AV ESTADOS 10 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3200801VK3630S"
+]
+},
+{
+"opps": [
+"DAN-2026-217"
+],
+"ids": [
+"97d7b7c9-ce17-4396-81a6-51ee625502ed"
+],
+"nombre": "CP SAN VICENTE 18 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6685602VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2025-071"
+],
+"ids": [
+"705e4b70-1096-4fa2-a22a-7d2369d6f068"
+],
+"nombre": "CP GARCILASO 8 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5242801VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2025-342"
+],
+"ids": [
+"d2ec1603-c916-4722-bf4c-f558b4b25875"
+],
+"nombre": "CP CASTILLO MALPICA 32 VILLANUEVA DE LA CAÑADA",
+"municipio": "VILLANUEVA DE LA CAÑADA",
+"parcelas": [
+"0114007VK2801S"
+]
+},
+{
+"opps": [
+"DAN-2025-062"
+],
+"ids": [
+"1d209cb4-858a-4eab-bb9e-47d4607bdd93"
+],
+"nombre": "CP PRINCIPE D JUAN CARLOS 2-2 V ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"0572603VK3607S",
+"0573804VK3607S"
+]
+},
+{
+"opps": [
+"DAN-2024-202"
+],
+"ids": [
+"d05d03f7-0441-4cec-8885-14cae87394d9"
+],
+"nombre": "CP SANTIAGO APOSTOL 16 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6684409VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2023-055"
+],
+"ids": [
+"1d457f26-d3f3-4f39-b576-58bd4d158502"
+],
+"nombre": "CP MATADERO 18 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"0167701VK3606N"
+]
+},
+{
+"opps": [
+"DAN-2023-043"
+],
+"ids": [
+"eac74797-ae70-4178-b78a-7006c67706d6"
+],
+"nombre": "CP ESTACION 9 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2396101VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2023-061"
+],
+"ids": [
+"2f7f79d0-7ff7-4451-97b1-80c040e5b7f7"
+],
+"nombre": "CP POLVORANCA 25 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"0169801VK3606N"
+]
+},
+{
+"opps": [
+"DAN-2023-099"
+],
+"ids": [
+"75f3ef08-564c-466a-9c47-cb007faed479"
+],
+"nombre": "CP CARRIL CHARCAS 18 SEVILLA LA NUEVA",
+"municipio": "SEVILLA LA NUEVA",
+"parcelas": [
+"0274009VK1607S"
+]
+},
+{
+"opps": [
+"DAN-2025-191"
+],
+"ids": [
+"ed598311-1740-4d0f-b543-51aefd62b110"
+],
+"nombre": "CP CALLAO 44 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3308302VK3630N"
+]
+},
+{
+"opps": [
+"DAN-2026-219"
+],
+"ids": [
+"14ff27af-6e29-429d-8da7-4a11331441ae"
+],
+"nombre": "CP ZAMORA 28 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2112203VK3621S"
+]
+},
+{
+"opps": [
+"DAN-2025-178"
+],
+"ids": [
+"0302a452-fe56-46a5-86a0-4f574db16e99"
+],
+"nombre": "CP DE LAS INDIAS 10 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4642604VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2024-008"
+],
+"ids": [
+"3b336a2b-9f6a-48dc-9974-52c477f8f600"
+],
+"nombre": "CP BEGONIA 60 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"5358904VK4855N"
+]
+},
+{
+"opps": [
+"DAN-2024-024"
+],
+"ids": [
+"4ce6a8c2-0b31-46c8-8311-c348b0b5f858"
+],
+"nombre": "CP GRANADA 9 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"5883202VK4858S"
+]
+},
+{
+"opps": [
+"DAN-2024-025"
+],
+"ids": [
+"1c87b64c-9770-44eb-88bc-5ee61283b4ab"
+],
+"nombre": "CP PLAZA HERMANOS PINZON 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4941803VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2025-161"
+],
+"ids": [
+"8012e66d-a770-45be-9bbc-07a04d0776a1"
+],
+"nombre": "CP MALAGA 16 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2603503VK3620S"
+]
+},
+{
+"opps": [
+"ALV-2026-039"
+],
+"ids": [
+"1db55533-ef86-4064-a335-336167951f42"
+],
+"nombre": "CP NARDO 6 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"8610801VK6881S"
+]
+},
+{
+"opps": [
+"ALV-2026-050"
+],
+"ids": [
+"9af18726-62c1-4c8a-b034-a6978de4df5f"
+],
+"existe": "ea3bdd2e-c430-49ef-ba9f-72e0625f2651",
+"nombre": "CP GREGORIO IZQUIERDO 53 SSR"
+},
+{
+"opps": [
+"DAN-2026-022"
+],
+"ids": [
+"54d70eb3-9266-4b88-92cf-477a7ac1abf6"
+],
+"nombre": "CP SUIZA 19 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1899601VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2023-093",
+"DAN-2019-054",
+"DAN-2022-269"
+],
+"ids": [
+"7804b86e-6934-4d02-be7a-2f6a54fe6f87",
+"f0ba0b67-d1d8-4434-a0c5-55b4cc72cbaa",
+"a5161bbd-191b-4581-af0b-c8bd3ab8a9df"
+],
+"nombre": "CP DOCTOR ESQUERDO 59 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3347623VK4734G"
+]
+},
+{
+"opps": [
+"ALV-2026-056"
+],
+"ids": [
+"63bcb8e0-3ad2-4e83-9b2a-67b5f86dda8b"
+],
+"existe": "c99a04bc-e500-4233-bb2e-9e7dbab930da",
+"nombre": "CP TENERIFE 8 MADRID"
+},
+{
+"opps": [
+"ALV-2026-075"
+],
+"ids": [
+"e90df5a3-137b-4296-a48f-961735e08a4a"
+],
+"nombre": "CP LOPEZ SILVA 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0037113VK4703E"
+]
+},
+{
+"opps": [
+"DAN-2023-001"
+],
+"ids": [
+"7839f65c-5bb9-4e1a-a0be-c5086c69d151"
+],
+"nombre": "CP ALAVA 10 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2209504VK3620N"
+]
+},
+{
+"opps": [
+"DAN-2023-004"
+],
+"ids": [
+"3e713859-e7ec-4724-bb8f-6ef57d22c670"
+],
+"nombre": "CP ALCARRIA 64 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5748704VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2023-222"
+],
+"ids": [
+"4e97cdee-05f8-45f4-b284-c3c7cc07796c"
+],
+"nombre": "CP TOTANA 36 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4807049VK4840H"
+]
+},
+{
+"opps": [
+"DAN-2024-259"
+],
+"ids": [
+"6e269b18-dba3-4c16-8571-300170f9cf94"
+],
+"nombre": "CP TERUEL 1 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6884407VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2024-028"
+],
+"ids": [
+"7d592c94-6e45-4942-8cd6-6ecc522e7529"
+],
+"nombre": "CP MAESTRO BARBIERI 2-4-6-8 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"5896208VK4859S"
+]
+},
+{
+"opps": [
+"DAN-2023-145"
+],
+"ids": [
+"11827372-8ff9-4519-b4ee-7db8d6e700ca"
+],
+"nombre": "CP FRANCIA 34 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1600602VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2024-146"
+],
+"ids": [
+"73e04bf6-0a70-4d97-9bf5-28f5b9938f29"
+],
+"nombre": "CP PALOMA 7 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4544703VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2024-057"
+],
+"ids": [
+"e177b3fe-144f-4d68-a146-71adc86abf6a"
+],
+"nombre": "CP NUÑEZ DE BALBOA 8 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4741904VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2024-165"
+],
+"ids": [
+"9cf834c2-b5ac-4ffe-b0fe-de8c9a7a2764"
+],
+"nombre": "CP TORRE ARIAS 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8275601VK4787E"
+]
+},
+{
+"opps": [
+"DAN-2023-019"
+],
+"ids": [
+"70b4e944-08fb-46fd-bed0-2b22cf8ea6c8"
+],
+"nombre": "CP CALLAO 29 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3106403VK3630N"
+]
+},
+{
+"opps": [
+"DAN-2024-001"
+],
+"ids": [
+"1350a480-9048-4d5d-ab98-7dfeafc1d571"
+],
+"nombre": "CP ALEMANIA 2 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1601304VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2024-084"
+],
+"ids": [
+"c085e049-850d-4901-9045-9b37fb68cc36"
+],
+"nombre": "CP AVILA 8 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2701214VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2024-003"
+],
+"ids": [
+"8d11e8cb-c5e4-47c3-b93a-492fc19a8601"
+],
+"nombre": "CP AV FCO JAVIER SAUQUILLO 10 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3396701VK3539N"
+]
+},
+{
+"opps": [
+"DAN-2023-233"
+],
+"ids": [
+"21e76b79-cefd-4fb4-9ee3-c3c7fccd8bdf"
+],
+"nombre": "CP JUAN DEL ROSAL 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7982303VK3778D"
+]
+},
+{
+"opps": [
+"DAN-2022-073"
+],
+"ids": [
+"019a70c0-0e4c-473f-8631-6ba8336f452d"
+],
+"existe": "0c39d8a1-54f6-43c1-8413-559d1f4174a2",
+"nombre": "CP MALDONADO 33 MADRID"
+},
+{
+"opps": [
+"DAN-2025-190"
+],
+"ids": [
+"c11df47e-0871-40b0-a9ae-5f2122ebf776"
+],
+"nombre": "CP VALLADOLID 11 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6484522VK4868S"
+]
+},
+{
+"opps": [
+"DAN-2023-006"
+],
+"ids": [
+"43981204-11f7-4056-9455-1a81315e9d5e"
+],
+"nombre": "CP ALPUJARRAS 30 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6447302VK3664N"
+]
+},
+{
+"opps": [
+"DAN-2024-036"
+],
+"ids": [
+"efef48ff-e407-422c-b51a-9dd314762d71"
+],
+"nombre": "CP PLAZA ROMA 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5048501VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2024-094"
+],
+"ids": [
+"dadb276b-9dcc-41ce-bbdb-0374c04efd31"
+],
+"nombre": "CP PLAZA HERMANOS PINZON 1 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4941808VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2021-099"
+],
+"ids": [
+"4a803ac9-5b76-4f84-ae5f-1566cc616176"
+],
+"nombre": "CP RAMON GOMEZ DE LA SERNA 103 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8618960VK3881G"
+]
+},
+{
+"opps": [
+"DAN-2023-065"
+],
+"ids": [
+"fb37093c-d388-4d1b-8b96-cef0ca47428a"
+],
+"nombre": "CP RIOJA 57 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6049803VK3664N"
+]
+},
+{
+"opps": [
+"DAN-2026-215"
+],
+"ids": [
+"7fe323e6-0a2c-4296-91d8-1f0163f7efae"
+],
+"nombre": "CP SAN FRANCISCO JAVIER 3 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1998101VK3519N"
+]
+},
+{
+"opps": [
+"DAN-2025-072"
+],
+"ids": [
+"d66d2812-da0f-4272-8df8-bd4e44e5650b"
+],
+"nombre": "CP PASEO CHILE 10 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3102201VK3630S"
+]
+},
+{
+"opps": [
+"DAN-2025-114"
+],
+"ids": [
+"e97f3272-f212-45cf-b3d1-da81ac01903f"
+],
+"nombre": "CP VALLADOLID 7 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1808802VK3610N"
+]
+},
+{
+"opps": [
+"DAN-2025-172"
+],
+"ids": [
+"8686e35e-ca27-4e56-9f59-725f5bbb85ac"
+],
+"nombre": "CP POLVORANCA 40 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"0068301VK3606N"
+]
+},
+{
+"opps": [
+"DAN-2024-227"
+],
+"ids": [
+"f1f9747b-70a9-424b-90c9-69899110e40c"
+],
+"nombre": "CP CONSTITUCION 59-61 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"6184101VK4867N"
+]
+},
+{
+"opps": [
+"DAN-2023-062"
+],
+"ids": [
+"d28fabcd-780e-45e8-b605-b9c147db3ba0"
+],
+"nombre": "CP PORTUGAL 4 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1491302VK3519S"
+]
+},
+{
+"opps": [
+"DAN-2023-071"
+],
+"ids": [
+"82687b6f-e20a-4ffb-a8f8-6ed8a6d52bf9"
+],
+"nombre": "CP VIENA 5 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1802603VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2023-133"
+],
+"ids": [
+"8b3f76e1-c03e-4f61-abb3-d19c22f0b7db"
+],
+"nombre": "CP VALLADOLID 2 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1809502VK3610N"
+]
+},
+{
+"opps": [
+"DAN-2024-023"
+],
+"ids": [
+"bbaec160-4d1a-4236-ac01-bc78b1a65c1d"
+],
+"nombre": "CP FRANCIA 12 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2099212VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2024-029"
+],
+"ids": [
+"190b5275-c910-4605-947b-95f4ba8064a7"
+],
+"nombre": "CP MALAGA 28 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2603601VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2024-035"
+],
+"ids": [
+"d785768f-2e5a-4bfc-890e-b5eac2195a36"
+],
+"nombre": "CP PASEO COLONIA 5 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"1700803VK3610S"
+]
+},
+{
+"opps": [
+"DAN-2015-028"
+],
+"ids": [
+"2c26287f-91c8-492d-a2a8-1f9ab60db1e5"
+],
+"nombre": "CP DOS DE MAYO 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0354507VK4705C"
+]
+},
+{
+"opps": [
+"ALV-2026-130"
+],
+"ids": [
+"0239753c-6c83-4e65-abc3-a102b0d4c79b"
+],
+"existe": "c53d11ae-7635-473e-a909-eee9f43eb49b",
+"nombre": "CP SEO DE URGEL 13 MADRID"
+},
+{
+"opps": [
+"DAN-2024-030"
+],
+"ids": [
+"afaf9970-baa1-4a32-ba1a-06b9c7972fdb"
+],
+"nombre": "CP MALAGA 40 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2402201VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2024-074"
+],
+"ids": [
+"d3892ce9-8cda-478b-8f83-122c61e1148f"
+],
+"nombre": "CP TRAVESIA GERARDO CORDON 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4754321VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2023-202"
+],
+"ids": [
+"9acf939e-feb9-4dbb-ba4c-d8b5211a8ee5"
+],
+"nombre": "CP ALPUJARRAS 23 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6549101VK3664N"
+]
+},
+{
+"opps": [
+"DAN-2023-007"
+],
+"ids": [
+"3207fac1-49e2-4372-8629-25bbe4450b38"
+],
+"nombre": "CP AMPURDAN 9 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5955402VK3655N"
+]
+},
+{
+"opps": [
+"DAN-2021-080"
+],
+"ids": [
+"f9a28f86-b0e9-472d-be4c-cd79c77ff3d0"
+],
+"nombre": "CP TRAVESIA INFANTA MERCEDES 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0886506VK4708F"
+]
+},
+{
+"opps": [
+"DAN-2023-254"
+],
+"ids": [
+"be23caf2-9b35-4ae0-bedf-527a679cfcc5"
+],
+"nombre": "CP AV MACHUPICHU 43 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6890501VK4769B"
+]
+},
+{
+"opps": [
+"DAN-2024-004"
+],
+"ids": [
+"0acce464-d1c9-460a-9847-8820460172db"
+],
+"nombre": "CP AV FCO JAVIER SAUQUILLO 34 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2998102VK3529N"
+]
+},
+{
+"opps": [
+"DAN-2025-176"
+],
+"ids": [
+"af04b377-49e4-40ed-8ae0-f4c021bac859"
+],
+"nombre": "CP BUREBA 25 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6349504VK3664N"
+]
+},
+{
+"opps": [
+"DAN-2023-234"
+],
+"ids": [
+"5822049a-95f7-4027-a233-beb159b044bd"
+],
+"nombre": "CP VALENCIA DE DON JUAN 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0320208VK4802A"
+]
+},
+{
+"opps": [
+"DAN-2025-181"
+],
+"ids": [
+"f460593d-ab3f-45c7-a5ad-49bbbac650d5"
+],
+"nombre": "CP BATALLA NAVAS DE TOLOSA 8 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5353501VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-280"
+],
+"ids": [
+"5fe8ea3f-a7a4-4831-9c06-696c027b4da7"
+],
+"nombre": "CP AV LA SALLE 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3801519VK3830B"
+]
+},
+{
+"opps": [
+"DAN-2025-162"
+],
+"ids": [
+"250e935f-b3d2-4b0f-add8-a0e773f74375"
+],
+"nombre": "CP BALEARES 4 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4252903VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2025-175"
+],
+"ids": [
+"db6ceed1-657c-4069-876c-0b8bcd44567b"
+],
+"nombre": "CP AV REY JUAN CARLOS I 33 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6254805VK3665S"
+]
+},
+{
+"opps": [
+"DAN-2025-372"
+],
+"ids": [
+"2c7895db-c415-4c72-8859-c4a36fb519c8"
+],
+"nombre": "CP BATALLA DE CLAVIJO 1 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5351305VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-129"
+],
+"ids": [
+"c4b6b3d0-f438-40b7-8c88-adfee86d23e5"
+],
+"nombre": "CP BATALLA DE BRUNETE 12 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5352401VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2024-007"
+],
+"ids": [
+"183effd8-b075-400f-8121-1cc109e51a99"
+],
+"nombre": "CP BATALLA DE BRUNETE 16 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5352401VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-037"
+],
+"ids": [
+"e117c63a-e9f2-46da-a4f6-083b00589cc0"
+],
+"nombre": "CP CHARCO 20 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4847629VK3644N"
+]
+},
+{
+"opps": [
+"ALV-2026-131"
+],
+"ids": [
+"1a3814dd-9527-4b1d-bbf3-903b68eb1462"
+],
+"existe": "bc133e7a-fddd-44b7-bf18-61dfee11dd3e",
+"nombre": "CP SEO DE URGEL 15 MADRID"
+},
+{
+"opps": [
+"DAN-2023-270"
+],
+"ids": [
+"715d309c-ab27-442f-8925-53b71a5ec7fe"
+],
+"nombre": "CP CHARCO 24 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4847630VK3644N"
+]
+},
+{
+"opps": [
+"DAN-2024-021"
+],
+"ids": [
+"f871d107-6cbb-43d1-81de-304ecd10dc5a"
+],
+"nombre": "CP COVADONGA 28 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4643304VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2025-076"
+],
+"ids": [
+"e4e45f36-aab5-4418-b5ca-7da69d02a8d0"
+],
+"nombre": "CP LOPE DE VEGA 7 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5142901VK3654S"
+]
+},
+{
+"opps": [
+"ALV-2026-171"
+],
+"ids": [
+"70f1052a-47cd-450b-8bcb-03f5afe71ebf"
+],
+"nombre": "CP GENERAL ARANAZ 42 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6072403VK4767C"
+]
+},
+{
+"opps": [
+"DAN-2024-159"
+],
+"ids": [
+"3b04aadc-504a-443f-8956-b00ef2db7223"
+],
+"nombre": "CP MARGARITA 14 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5545601VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2024-147"
+],
+"ids": [
+"b22a0c5e-6404-42a1-a8d1-fbb19827cff7"
+],
+"nombre": "CP NTRA SRA D GUADALUPE 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4543104VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2023-127"
+],
+"ids": [
+"7ccaf939-f49c-401b-bda5-b006e513569b"
+],
+"nombre": "CP NTRA SRA MACARENA 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4343501VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2024-059"
+],
+"ids": [
+"0cbb1967-7d41-4e70-9e48-cebcd703da69"
+],
+"nombre": "CP NTRA SRA D GUADALUPE 7 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4543103VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2024-157"
+],
+"ids": [
+"8b8fa83e-7742-4ecb-ae3a-7e85e825f011"
+],
+"nombre": "CP SAN FIDEL 99 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5957804VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2024-093"
+],
+"ids": [
+"dfc3ec51-5483-4c1a-af8a-85391d52bf1b"
+],
+"nombre": "CP PEDRO DE VALDIVIA 9 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4841703VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2026-155"
+],
+"ids": [
+"73a92156-e862-4c89-a6a2-3f5c0a007bb1"
+],
+"nombre": "CP RIO HENARES 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4955102VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2025-078"
+],
+"ids": [
+"0f6532fa-c22e-43f8-bd28-1e5e1a9e93f8"
+],
+"nombre": "CP RIO NERVION 12 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4353708VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2023-314"
+],
+"ids": [
+"84a04797-de69-41a2-b67c-500a76fe21a7"
+],
+"nombre": "CP RIOJA 50 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5850904VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2024-089"
+],
+"ids": [
+"b5f39b11-1608-43f9-ae21-ae6986b88e3c"
+],
+"nombre": "CP RIO MANZANARES 19 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4752901VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2025-120"
+],
+"ids": [
+"2af6721b-c07b-484d-acfc-2c843e7aff8d"
+],
+"nombre": "CP RIO TURIA 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4853101VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2025-044"
+],
+"ids": [
+"060a176f-84a5-40d3-bd6e-4dff19094bfd"
+],
+"nombre": "CP RIO TAJO 20 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4653102VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2024-039"
+],
+"ids": [
+"bfde4bad-c61e-40ba-9b12-d44a81abdf23"
+],
+"nombre": "CP SAAVEDRA FAJARDO 3 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4940502VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2024-248"
+],
+"ids": [
+"048c9b8c-2de9-44a8-a693-9f071f88d8bc"
+],
+"nombre": "CP SAN ANDRES 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5549901VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2024-049"
+],
+"ids": [
+"d71777dd-e717-409b-a435-f0955c044ee9"
+],
+"nombre": "CP SAN CESAREO 3 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5648102VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2025-093"
+],
+"ids": [
+"fb61a8af-b1b3-47ff-a843-58edbb67e34e"
+],
+"nombre": "CP TIRSO DE MOLINA 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5343903VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2025-106"
+],
+"ids": [
+"e561a7bb-cc3f-426c-acc5-9d06a5b12330"
+],
+"nombre": "CP SAN IGNACIO 8 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5550301VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2025-118"
+],
+"ids": [
+"c0adc2f8-941e-44e8-beac-5f9b3d77fd66"
+],
+"nombre": "CP SANTA TERESA 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4647504VK3644N"
+]
+},
+{
+"opps": [
+"DAN-2024-071"
+],
+"ids": [
+"0a45bcf6-9c3f-4d95-887e-99cfe944e270"
+],
+"nombre": "CP SERENA 1 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5950907VK3655S"
+]
+},
+{
+"opps": [
+"DAN-2023-118"
+],
+"ids": [
+"77d5fa76-1769-4547-8095-5326a75f5264"
+],
+"nombre": "CP DEL VALLES 9 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"6057202VK3655N"
+]
+},
+{
+"opps": [
+"DAN-2025-084"
+],
+"ids": [
+"dfa234c4-17a5-4fba-8404-8db053e4748f"
+],
+"nombre": "CP VELASCO 19 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5044603VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2025-131"
+],
+"ids": [
+"beb39f21-294d-481a-b327-f504c15edb6a"
+],
+"nombre": "CP ZURBANO 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1259206VK4715G"
+]
+},
+{
+"opps": [
+"DAN-2025-094"
+],
+"ids": [
+"0e0b9860-0952-4790-ae0e-1c47c7a787be"
+],
+"nombre": "CP TULIPAN 14 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5345209VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2025-095"
+],
+"ids": [
+"b8af7e51-ecab-4d52-9e20-d6b34c2ad05c"
+],
+"nombre": "CP VASCO DE GAMA 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4841201VK3644S"
+]
+},
+{
+"opps": [
+"ALV-2026-188"
+],
+"ids": [
+"9c5893f4-371f-4a51-a887-eb08e77778c8"
+],
+"nombre": "CP VILLAFUERTE 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1476710VK4617E"
+]
+},
+{
+"opps": [
+"DAN-2023-137"
+],
+"ids": [
+"97bc55ef-5cc2-48cc-8b64-a51e01d05980"
+],
+"nombre": "CP TAJO 8 LAS ROZAS DE MADRID",
+"municipio": "LAS ROZAS DE MADRID",
+"parcelas": [
+"5829501VK2852N"
+]
+},
+{
+"opps": [
+"DAN-2023-257"
+],
+"ids": [
+"0eb29576-8697-4a9f-8356-d6ae0712fbf2"
+],
+"nombre": "CP RONDA DE LA PLAZUELA 9 LAS ROZAS DE MADRID",
+"municipio": "LAS ROZAS DE MADRID",
+"parcelas": [
+"5829501VK2852N"
+]
+},
+{
+"opps": [
+"DAN-2024-292"
+],
+"ids": [
+"64889b6c-02e2-466f-adec-07a56d8e7c3a"
+],
+"nombre": "CP VALDECANILLAS 59 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7262401VK4776C"
+]
+},
+{
+"opps": [
+"DAN-2023-178"
+],
+"ids": [
+"8f4400f0-cb93-441f-8041-82002920d4f3"
+],
+"nombre": "CP VALDETORRES DE JARAMA 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5306709VK4850E"
+]
+},
+{
+"opps": [
+"DAN-2026-156"
+],
+"ids": [
+"625d2ece-10bd-4dea-b285-ebead0953aa0"
+],
+"nombre": "CP EUGENIA MONTIJO 4 SAN FERNANDO DE HENARES",
+"municipio": "SAN FERNANDO DE HENARES",
+"parcelas": [
+"5355701VK5755N"
+]
+},
+{
+"opps": [
+"DAN-2022-264"
+],
+"ids": [
+"da10b20c-4d5e-4303-b1aa-86ef7740b439"
+],
+"nombre": "CP VALVERDE 36 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0651131VK4705B"
+]
+},
+{
+"opps": [
+"DAN-2023-161"
+],
+"ids": [
+"97bda1d3-df5a-484e-a374-a57147494add"
+],
+"nombre": "CP VALLE DE TOBALINA 46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9458301VK3695G"
+]
+},
+{
+"opps": [
+"DAN-2026-181"
+],
+"ids": [
+"c9dffaa2-8914-41d4-9a83-d1a69421ca06"
+],
+"nombre": "CP HONDURAS 20 COSLADA",
+"municipio": "COSLADA",
+"parcelas": [
+"4151105VK5745S"
+]
+},
+{
+"opps": [
+"DAN-2025-031"
+],
+"ids": [
+"cb4877c8-4519-48dd-8d25-5f4c8f52a2f9"
+],
+"nombre": "CP VILLAJIMENA 109 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8732209VK4783D"
+]
+},
+{
+"opps": [
+"DAN-2023-136"
+],
+"ids": [
+"c61f25c4-2e32-46ab-8fcc-6779eb8ebae1"
+],
+"nombre": "CP CACERES 2 COSLADA",
+"municipio": "COSLADA",
+"parcelas": [
+"2051703VK5715S"
+]
+},
+{
+"opps": [
+"DAN-2024-236"
+],
+"ids": [
+"ebc3417a-82af-440d-afa8-995905046e0b"
+],
+"nombre": "CP VALLEGUERRA 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6456207VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2023-103"
+],
+"ids": [
+"ac659d2b-3f09-426f-b131-d6eecd51eaae"
+],
+"nombre": "CP GLORIETA TAMARINDO 2 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"7411802VK4371S"
+]
+},
+{
+"opps": [
+"DAN-2024-222"
+],
+"ids": [
+"b28119e4-9a80-4b63-8f3e-223c0daf6e66"
+],
+"nombre": "CP BUENA MADRE 6 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0750703VK4505S"
+]
+},
+{
+"opps": [
+"DAN-2022-066"
+],
+"ids": [
+"d596d0a6-c775-47d7-931b-207538be16d2"
+],
+"nombre": "CP SILICIO 23 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"0978703VK6707N"
+]
+},
+{
+"opps": [
+"DAN-2025-096"
+],
+"ids": [
+"2b20e8ad-c857-458f-934f-b5e3f5136153"
+],
+"nombre": "CP AV ESPAÑA 27 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0749104VK4504N"
+]
+},
+{
+"opps": [
+"DAN-2025-098"
+],
+"ids": [
+"f3ccf2b6-d2ba-419b-94d6-786b53b95680"
+],
+"nombre": "CP DARRO 8 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0649504VK4504N"
+]
+},
+{
+"opps": [
+"DAN-2025-097"
+],
+"ids": [
+"090c02b9-650a-41ed-aaa6-5add7e20c46b"
+],
+"nombre": "CP COSTA RICA 9 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0648802VK4504N"
+]
+},
+{
+"opps": [
+"DAN-2024-247"
+],
+"ids": [
+"64db8bcb-ee41-48e5-993c-2cf469b30755"
+],
+"nombre": "CP PLAZA EGIDO DE LA FUENTE 13 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0652804VK4505S"
+]
+},
+{
+"opps": [
+"DAN-2024-214"
+],
+"ids": [
+"8e363c83-fbab-4dfb-a9ec-a3cd74c4b173"
+],
+"nombre": "CP SAN FELIPE 4 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9588801VK5798N"
+]
+},
+{
+"opps": [
+"DAN-2022-062"
+],
+"ids": [
+"fdf96be0-5b21-4724-aeb1-6ae10839b0cf"
+],
+"nombre": "CP CHILE 5 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"0797216VK6709N"
+]
+},
+{
+"opps": [
+"DAN-2022-300"
+],
+"ids": [
+"6d3b6eb4-cc5e-4688-9e6c-4b22de6988f7"
+],
+"nombre": "CP CIUDAD REAL 11 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9592619VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2023-264"
+],
+"ids": [
+"b335ecca-2214-4fa5-b74f-0e8bd40d976b"
+],
+"nombre": "CP LAS FUENTES 3 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9193902VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2023-286"
+],
+"ids": [
+"8cfc5d68-54d4-4f17-9d5e-d7e59845f1e1"
+],
+"nombre": "CP IGLESIA 4 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9690901VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2023-256"
+],
+"ids": [
+"d0c2e630-4bc8-437c-a70d-45c24ac0db2e"
+],
+"nombre": "CP ALFONSO XII 7 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5737802VK2653N"
+]
+},
+{
+"opps": [
+"DAN-2026-131"
+],
+"ids": [
+"33711fae-5b59-40ce-a2f0-f360ab58e60a"
+],
+"nombre": "CP PRINCIPE 34 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"8820906VK4382S"
+]
+},
+{
+"opps": [
+"DAN-2019-037",
+"DAN-2016-185"
+],
+"ids": [
+"84e9aa0f-50c1-4e12-85df-63a26cea7db6",
+"5bed59bf-b557-424f-a779-89c6a0195fef"
+],
+"nombre": "CP SAN PASCUAL 17 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"8416602VK4381N"
+]
+},
+{
+"opps": [
+"DAN-2019-041"
+],
+"ids": [
+"0f7ed370-cef7-40b9-960b-6b951485a6a7"
+],
+"nombre": "CP VALLEHERMOSO 94 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0169319VK4706G"
+]
+},
+{
+"opps": [
+"DAN-2022-109"
+],
+"ids": [
+"d9d09f1c-ca27-49e8-92fd-2147ef3f7280"
+],
+"nombre": "CP ALFONSO X EL SABIO 44 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4839101VK3543N"
+]
+},
+{
+"opps": [
+"DAN-2025-033"
+],
+"ids": [
+"3e482896-ba5a-434f-ba4e-c92d02f8a64d"
+],
+"nombre": "CP FUENTE 22 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4147303VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2022-130"
+],
+"ids": [
+"24e92779-26b0-4ab6-98af-d35c72dee329"
+],
+"nombre": "CP ALCORCON 7 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4250601VK3545S"
+]
+},
+{
+"opps": [
+"DAN-2023-187"
+],
+"ids": [
+"c042c1dc-f152-44c2-bb54-ba729e28b8be"
+],
+"nombre": "CP ALFONSO X EL SABIO 39 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4840401VK3544S"
+]
+},
+{
+"opps": [
+"DAN-2022-124"
+],
+"ids": [
+"8fab6c72-61a2-4b76-9970-9fc7d2c5be1d"
+],
+"nombre": "CP DE LAS CIUDADES 8 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4749701VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2022-222"
+],
+"ids": [
+"1c4ffd93-b636-4f06-a73d-65ce36413173"
+],
+"nombre": "CP RIO JARAMA 1 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4651501VK3545S"
+]
+},
+{
+"opps": [
+"DAN-2022-254"
+],
+"ids": [
+"c70cb06d-aa9b-48d6-9d73-11d31f67fde5"
+],
+"nombre": "CP SAN BLAS 26 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4250202VK3545S"
+]
+},
+{
+"opps": [
+"DAN-2023-211"
+],
+"ids": [
+"d6fdaf20-ce06-406d-a42e-b8d4ab28a3ed"
+],
+"nombre": "CP ARANJUEZ 2 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4048501VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2023-191"
+],
+"ids": [
+"9b0051af-0c38-44da-b484-b6680abb3478"
+],
+"nombre": "CP JAIME I EL CONQUISTADOR 39 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4843804VK3544S"
+]
+},
+{
+"opps": [
+"DAN-2024-163"
+],
+"ids": [
+"ca14be83-554a-4633-90a2-911d679dba3e"
+],
+"nombre": "CP ASTURIAS 14 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6590905VK4869S"
+]
+},
+{
+"opps": [
+"DAN-2022-184"
+],
+"ids": [
+"084d4f95-a8cb-4b87-9c11-d0bfdb931b28"
+],
+"nombre": "CP LEGANES 12 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4551102VK3545S"
+]
+},
+{
+"opps": [
+"DAN-2024-242"
+],
+"ids": [
+"935c63ca-4e48-4cea-9c25-be5f3333bc9c"
+],
+"nombre": "CP OLVIDO 4 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4845611VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2024-172"
+],
+"ids": [
+"2377ff75-98fd-4fee-a247-28a5a2037db3"
+],
+"nombre": "CP FUENTEBELLA 55 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4239201VK3543N"
+]
+},
+{
+"opps": [
+"DAN-2022-232"
+],
+"ids": [
+"c6934bfe-8140-4e94-abb0-2e2c5709dd90"
+],
+"nombre": "CP SOLEDAD 9 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4447109VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2024-253"
+],
+"ids": [
+"cfba9f7b-9f5b-41f9-a451-82680d1dedbc"
+],
+"nombre": "CP FUENTEBELLA 73 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4137201VK3543N"
+]
+},
+{
+"opps": [
+"DAN-2020-001"
+],
+"ids": [
+"cea6fd39-ef41-436b-aa39-cb8e5e161cd3"
+],
+"nombre": "CP LEOPOLDO GIMENO 16 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"7389601VK4878N"
+]
+},
+{
+"opps": [
+"DAN-2023-308"
+],
+"ids": [
+"4a2f62a1-2695-485d-b4f4-51bee69d2d3f"
+],
+"nombre": "CP PASEO DE ARROYOMOLINOS 9 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6336505VK2663N"
+]
+},
+{
+"opps": [
+"DAN-2024-121"
+],
+"ids": [
+"adf45a44-5b18-4b21-a880-09cadfa90bf4"
+],
+"nombre": "CP AV SIERRA 21 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6591401VK4869S"
+]
+},
+{
+"opps": [
+"DAN-2024-134"
+],
+"ids": [
+"49cd0141-80c8-4705-a16a-ce2637a13c00"
+],
+"nombre": "CP AV SIERRA 51 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6488104VK4868N"
+]
+},
+{
+"opps": [
+"DAN-2023-112"
+],
+"ids": [
+"1b06f75c-e3ba-4f2b-bdd4-cc8c585a11bc"
+],
+"nombre": "CP RECREO 3 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"7191901VK4879S"
+]
+},
+{
+"opps": [
+"DAN-2023-219"
+],
+"ids": [
+"ead92816-71dc-484e-9899-e7475f21d981"
+],
+"nombre": "CP AV ANDALUCIA 4 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6896901VK4869N"
+]
+},
+{
+"opps": [
+"DAN-2025-135"
+],
+"ids": [
+"bf178d1b-db5b-4814-9cad-8881aa77942b"
+],
+"nombre": "CP AV COLMENAR VIEJO 17 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6787201VK4868N"
+]
+},
+{
+"opps": [
+"DAN-2026-218"
+],
+"ids": [
+"6f1b71b4-8895-415f-b454-14ada44c4acf"
+],
+"nombre": "CP AV COLMENAR VIEJO 29 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6588304VK4868N"
+]
+},
+{
+"opps": [
+"DAN-2026-024"
+],
+"ids": [
+"eaed4e22-0c2a-4cf1-8313-cc679664d1c1"
+],
+"existe": "3bfa011e-d482-48e9-b4d0-fe622c69bf60",
+"nombre": "CP AV LOS PRINCIPES DE ESPAÑA 17 Y 19 COSLADA"
+},
+{
+"opps": [
+"DAN-2022-265"
+],
+"ids": [
+"d6aac318-f866-4ef2-bd3e-203502262faa"
+],
+"nombre": "CP VIZCAYA 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1131608VK4713A"
+]
+},
+{
+"opps": [
+"DAN-2018-016"
+],
+"ids": [
+"80e24e1a-381f-4b80-a36f-5547ad5c2766"
+],
+"nombre": "CP VILLA DE CHURRIANA 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5297603VK4759G"
+]
+},
+{
+"opps": [
+"DAN-2023-260"
+],
+"ids": [
+"cc481ad8-ad20-425e-9ece-930589c7c962"
+],
+"nombre": "CP CRISTO REMEDIOS 18 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"7288710VK4878N"
+]
+},
+{
+"opps": [
+"DAN-2023-015"
+],
+"ids": [
+"b22ea5f2-b9ae-4325-adbb-b72c68999a5e"
+],
+"nombre": "CP AV OLIMPICA 2 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5045401VK2654N"
+]
+},
+{
+"opps": [
+"DAN-2024-105"
+],
+"ids": [
+"ab47309f-9fdc-4a44-9f47-4c57851a0fc5"
+],
+"nombre": "CP MONTEVIDEO 3 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7236101VK2673N"
+]
+},
+{
+"opps": [
+"DAN-2023-240"
+],
+"ids": [
+"40139691-efa2-460c-b7bb-dc9d2de809f6"
+],
+"nombre": "CP DE LAS MERCEDES 3 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7145903VK2674N"
+]
+},
+{
+"opps": [
+"DAN-2024-233"
+],
+"ids": [
+"1180e11c-0976-44eb-b7a2-be3be5006088"
+],
+"nombre": "CP BADAJOZ 35 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7247402VK2674N"
+]
+},
+{
+"opps": [
+"DAN-2024-092"
+],
+"ids": [
+"acd60156-8d01-4a98-b8ce-f1befb08df44"
+],
+"nombre": "CP BURGOS 4 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7045602VK2674N"
+]
+},
+{
+"opps": [
+"DAN-2023-122"
+],
+"ids": [
+"5a6decf5-43b0-4d7d-970f-2ceee45dc2c3"
+],
+"nombre": "CP CAMINO DE LEGANES 58 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7842204VK2674S"
+]
+},
+{
+"opps": [
+"DAN-2025-059"
+],
+"ids": [
+"398acce2-6818-4d11-bd64-c93488579308"
+],
+"nombre": "CP BOLIVIA 10 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7335705VK2673N"
+]
+},
+{
+"opps": [
+"DAN-2025-157"
+],
+"ids": [
+"d1e4d177-86b3-4557-8929-b111e95ba5dd"
+],
+"nombre": "CP AV DE PORTUGAL 46 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6345401VK2664N"
+]
+},
+{
+"opps": [
+"DAN-2025-263"
+],
+"ids": [
+"2debffa3-6570-431a-969d-01c7beb50530"
+],
+"nombre": "CP CARCAVILLA 1 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6346602VK2664N"
+]
+},
+{
+"opps": [
+"DAN-2024-088"
+],
+"ids": [
+"cf4ed88c-8523-47c0-afc7-80063dfc3996"
+],
+"nombre": "CP CAMINO DE LEGANES 5 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7142417VK2674S"
+]
+},
+{
+"opps": [
+"DAN-2023-275"
+],
+"ids": [
+"7b5ac3ab-828e-40bd-8166-405e77c0b3c7"
+],
+"nombre": "CP JUAN RAMON JIMENEZ 7 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7151703VK2675S"
+]
+},
+{
+"opps": [
+"DAN-2023-288"
+],
+"ids": [
+"61dfa6e4-f326-4906-87f8-835d3c6dae24"
+],
+"nombre": "CP GINEBRA 2 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7431104VK2673S"
+]
+},
+{
+"opps": [
+"DAN-2026-048"
+],
+"ids": [
+"f1437483-0d2a-46dc-bc3d-fdb554e609b8"
+],
+"nombre": "CP DEL EMPECINADO 17 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7141307VK2674S"
+]
+},
+{
+"opps": [
+"DAN-2024-309"
+],
+"ids": [
+"8bce0afd-c820-4acd-9e13-37a20ce6db5e"
+],
+"nombre": "CP PINTOR JULIO ROMERO 1 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6550902VK2665S"
+]
+},
+{
+"opps": [
+"DAN-2023-041"
+],
+"ids": [
+"2a7798f1-affe-475f-b136-bc12613a0250"
+],
+"nombre": "CP DEL EMPECINADO 6 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6941701VK2664S"
+]
+},
+{
+"opps": [
+"DAN-2023-045"
+],
+"ids": [
+"3a984238-4317-427d-ab20-6ecc659e0f42"
+],
+"nombre": "CP DE GUADALUPE 3 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7145403VK2674N"
+]
+},
+{
+"opps": [
+"DAN-2023-132"
+],
+"ids": [
+"a8ac5561-f334-4699-9ac1-0725d1ea25f3"
+],
+"nombre": "CP DE GUADALUPE 6 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7146102VK2674N"
+]
+},
+{
+"opps": [
+"DAN-2023-042"
+],
+"ids": [
+"ecc250b1-2890-477a-8e24-ebbec7488bda"
+],
+"nombre": "CP ESPAÑOLETO 5 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6752701VK2665S"
+]
+},
+{
+"opps": [
+"DAN-2025-026"
+],
+"ids": [
+"1064263d-afd4-422a-a28f-f18b1b6ad75e"
+],
+"nombre": "CP FRANCISCO SUAREZ 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2297803VK4729E"
+]
+},
+{
+"opps": [
+"DAN-2023-147"
+],
+"ids": [
+"b5e29611-6035-4db4-84f4-9ee48bc7c8f4"
+],
+"nombre": "CP RIO SELLA 2 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5933903VK2653S"
+]
+},
+{
+"opps": [
+"DAN-2023-310"
+],
+"ids": [
+"5d338dcc-ce93-407b-892b-0fcd12e1336c"
+],
+"nombre": "CP RIO EBRO 32 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5432707VK2653S"
+]
+},
+{
+"opps": [
+"DAN-2023-292"
+],
+"ids": [
+"74d96085-0ac1-4704-a2a7-b462b58a1e60"
+],
+"nombre": "CP SIMON HERNANDEZ 29 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7040801VK2674S"
+]
+},
+{
+"opps": [
+"DAN-2025-167"
+],
+"ids": [
+"2305e7b3-4fce-4a3f-9aeb-54e20a8d2b5d"
+],
+"nombre": "CP AV FUENLABRADA 109 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5042801VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2024-075"
+],
+"ids": [
+"e47eaaee-b740-4bc4-aab7-bbb424e4167f"
+],
+"nombre": "CP TENIENTE RUIZ 2 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6540507VK2664S"
+]
+},
+{
+"opps": [
+"DAN-2023-209"
+],
+"ids": [
+"f2ce135a-8823-4cdb-9764-348b365a3f2c"
+],
+"nombre": "CP SIMON HERNANDEZ 70-72 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"7437901VK2673N",
+"7437903VK2673N"
+]
+},
+{
+"opps": [
+"DAN-2023-184"
+],
+"ids": [
+"0cb908d4-823c-4c02-b38e-510fd7897eca"
+],
+"nombre": "CP AV OLIMPICA 18 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"5048806VK2654N"
+]
+},
+{
+"opps": [
+"DAN-2026-203"
+],
+"ids": [
+"1ebc27ed-1853-4f0f-9c63-56d869d6c8aa"
+],
+"nombre": "CP SABADELL 62 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"12298V2VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2025-054"
+],
+"ids": [
+"4dcf7af5-05ed-482a-b2c7-5130ff575e34"
+],
+"nombre": "CP SANTA ADELA 15-17-19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4811901VK4841B"
+]
+},
+{
+"opps": [
+"DAN-2024-005"
+],
+"ids": [
+"6e584acc-4a82-4bae-86c0-db1680f12d43"
+],
+"nombre": "CP AV JUAN CARLOS I 28 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"6799603VK3569N"
+]
+},
+{
+"opps": [
+"DAN-2024-054"
+],
+"ids": [
+"dc96fc1e-9e9c-403e-a645-afeac0a8836f"
+],
+"nombre": "CP AV ESPAÑA 24-26-28-30 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"8828101VK3682N"
+]
+},
+{
+"opps": [
+"DAN-2022-150"
+],
+"ids": [
+"984413f0-e3de-4c3f-bbe5-9df22b5ad3e0"
+],
+"nombre": "CP ISLA MALAITA 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8808801VK3880H"
+]
+},
+{
+"opps": [
+"DAN-2025-081"
+],
+"ids": [
+"770f1675-0296-4db6-9ed9-e122a344d198"
+],
+"nombre": "CP CASTELLON DE LA PLANA 12 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"9128101VK3692N"
+]
+},
+{
+"opps": [
+"DAN-2023-024"
+],
+"ids": [
+"7ce70a9c-c985-4db8-a113-2794c2b28d86"
+],
+"nombre": "CP CATALUÑA 32 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"8931803VK3683S"
+]
+},
+{
+"opps": [
+"DAN-2024-011"
+],
+"ids": [
+"f0d1da7c-fd11-45c3-afc5-3146f063705d"
+],
+"nombre": "CP CASTELLON DE LA PLANA 10 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"9128101VK3692N"
+]
+},
+{
+"opps": [
+"DAN-2025-156"
+],
+"ids": [
+"8ecb2fd0-231c-40e0-9268-d601048ecb01"
+],
+"nombre": "CP NTRA SEÑORA DEL ROSARIO 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6199516VK3669G"
+]
+},
+{
+"opps": [
+"DAN-2025-080"
+],
+"ids": [
+"bf1b69f6-25cb-436b-a6fc-9de902ec24da"
+],
+"nombre": "CP VALDEMORO 10 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"7916801VK3671N"
+]
+},
+{
+"opps": [
+"DAN-2023-068"
+],
+"ids": [
+"660cec7e-4be3-4c92-91d3-f2fe994eada5"
+],
+"nombre": "CP SIERRA 4 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"7918703VK3671N"
+]
+},
+{
+"opps": [
+"DAN-2024-043"
+],
+"ids": [
+"ccf56009-9446-4527-aaca-57e97ab00941"
+],
+"nombre": "CP TRAVESIA DE LOS DEPOSITOS 2 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"8429811VK3682N"
+]
+},
+{
+"opps": [
+"DAN-2019-073"
+],
+"ids": [
+"df4eda3b-d9fb-4282-b5ab-1054429ace9b"
+],
+"nombre": "CP MIGUEL DE MONCADA 5 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"0019402VK7801N"
+]
+},
+{
+"opps": [
+"DAN-2022-213"
+],
+"ids": [
+"76f04133-29b3-4fe1-8bf2-66baa24f8367"
+],
+"nombre": "CP AZUCENA 7 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9517716VK6891N"
+]
+},
+{
+"opps": [
+"DAN-2026-209"
+],
+"ids": [
+"0a4c2018-e30f-4bed-80e0-57c8ef58ce24"
+],
+"nombre": "CP DOCTORA DE ALCALA 3 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9422208VK6892S"
+]
+},
+{
+"opps": [
+"DAN-2025-050"
+],
+"ids": [
+"120efe78-3770-4920-b89b-96f58311bcf7"
+],
+"nombre": "CP RONDA SUR 179 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3298726VK4639G"
+]
+},
+{
+"opps": [
+"DAN-2026-205"
+],
+"ids": [
+"57f689fd-45c4-42dc-babc-2c981d4b2e74"
+],
+"nombre": "CP SAN ASTURIO SERRANO 1 B ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"7906801VK6870N"
+]
+},
+{
+"opps": [
+"DAN-2022-214"
+],
+"ids": [
+"83b8b787-532d-4136-91ef-36830f1da05c"
+],
+"nombre": "CP CERVANTES 2 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9117715VK6891N"
+]
+},
+{
+"opps": [
+"DAN-2025-058"
+],
+"ids": [
+"ec9b3e5e-8445-427d-989c-f4b16aa2aada"
+],
+"nombre": "CP BIOSCA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5003412VK4850C"
+]
+},
+{
+"opps": [
+"DAN-2023-076"
+],
+"ids": [
+"67c45bf4-fc55-46fb-8f30-ab72068d46a4"
+],
+"nombre": "CP DOCTORA DE ALCALA 5 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9422207VK6892S"
+]
+},
+{
+"opps": [
+"DAN-2022-107"
+],
+"ids": [
+"fcee8c95-9ebf-496d-9d46-6562aa9dd72c"
+],
+"nombre": "CP TORRELAGUNA 6 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"8821201VK6882S"
+]
+},
+{
+"opps": [
+"DAN-2023-160",
+"DAN-2023-159"
+],
+"ids": [
+"36f884f0-7132-421e-b778-dbae9e56705d",
+"4c192763-8cc2-4782-a123-a4c53e0f143f"
+],
+"nombre": "CP TRAVESIA SAN ONOFRE 7 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6894901VK4869S"
+]
+},
+{
+"opps": [
+"DAN-2026-220"
+],
+"ids": [
+"dadb43f4-b6db-4d1e-9966-67bdec785633"
+],
+"nombre": "CP AV BRASILIA 39 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4072302VK4747C"
+]
+},
+{
+"opps": [
+"DAN-2025-262"
+],
+"ids": [
+"4c3238ab-61e8-4a2f-852a-91000380ed6a"
+],
+"nombre": "CP RIANSARES 7 VILLAVICIOSA DE ODON",
+"municipio": "VILLAVICIOSA DE ODON",
+"parcelas": [
+"1711505VK2711S"
+]
+},
+{
+"opps": [
+"DAN-2024-072"
+],
+"ids": [
+"7749cace-fb2e-4975-a976-c9d18b832709"
+],
+"nombre": "CP SANTANDER 8 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"0520502VK7802S"
+]
+},
+{
+"opps": [
+"DAN-2018-049"
+],
+"ids": [
+"76f12113-826a-4d5e-8805-4135236436d6"
+],
+"nombre": "CP ARROYO DEL OPAÑEL 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9012601VK3791C"
+]
+},
+{
+"opps": [
+"DAN-2023-262"
+],
+"ids": [
+"7f514cae-714f-4d78-a577-faced4f2091f"
+],
+"nombre": "CP JOSE MARIA PEREDA 41 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9035411VK6893N"
+]
+},
+{
+"opps": [
+"DAN-2019-025"
+],
+"ids": [
+"4dd21a52-b61e-4584-b433-f7a042d49aa3"
+],
+"nombre": "CP JERUSALEN 16 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4245201VK3544N"
+]
+},
+{
+"opps": [
+"DAN-2020-045"
+],
+"ids": [
+"e8b56f09-a718-4ce2-bff8-0af35b2d69db"
+],
+"nombre": "CP BRAULIO GUTIERREZ 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6158315VK4765G"
+]
+},
+{
+"opps": [
+"DAN-2026-047"
+],
+"ids": [
+"5075491c-6591-4f97-b153-26452cb77ae3"
+],
+"existe": "46969e74-00ab-4b70-869c-b8ce122e2cfe",
+"nombre": "CP SANTA BARBARA 20 TORRELAGUNA"
+},
+{
+"opps": [
+"DAN-2026-180"
+],
+"ids": [
+"c1e7f3a3-f5e6-4437-be2e-aef8791c5ecd"
+],
+"nombre": "CP CAMINO GRANJA SAN ANTONIO 7 FRESNEDILLAS DE LA OLIVA",
+"municipio": "FRESNEDILLAS DE LA OLIVA",
+"parcelas": [
+"0829264VK0802N"
+]
+},
+{
+"opps": [
+"DAN-2025-183"
+],
+"ids": [
+"0ec20817-0292-4764-9af6-5a4cce4cf6cf"
+],
+"nombre": "CP AV REGIONES 4-4 A FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2204404VK3620S",
+"2204412VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2021-013"
+],
+"ids": [
+"488c8cc5-5ca8-49b4-8ab4-e9544818ad79"
+],
+"nombre": "CP GRANADOS 2 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"8222402VK6882S"
+]
+},
+{
+"opps": [
+"DAN-2023-131"
+],
+"ids": [
+"4dd88ab2-bfdb-4f97-bf3c-6157a22b374d"
+],
+"nombre": "CP ARTAJONA 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9397937VK3799E"
+]
+},
+{
+"opps": [
+"DAN-2026-079"
+],
+"ids": [
+"bdfe74d9-6379-4c7e-a3fe-518bf2f19e81"
+],
+"nombre": "CP CAMARENA 256-256 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5812913VK3751B",
+"5812925VK3751B"
+]
+},
+{
+"opps": [
+"DAN-2023-247"
+],
+"ids": [
+"9a69d37c-9789-4f64-b780-c2cffb6f7fb1"
+],
+"nombre": "CP AV SAN PABLO 55 COSLADA",
+"municipio": "COSLADA",
+"parcelas": [
+"4959003VK5745N"
+]
+},
+{
+"opps": [
+"DAN-2020-007"
+],
+"ids": [
+"119c7153-80a9-4b54-a4ca-c480ac8df4c4"
+],
+"nombre": "CP MORERAS 19 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"9121706VK4392S"
+]
+},
+{
+"opps": [
+"DAN-2020-034"
+],
+"ids": [
+"26a2a958-ee5f-4325-a449-a6160fa78931"
+],
+"nombre": "CP BELGRADO 1 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9892705VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2026-201"
+],
+"ids": [
+"6ba5ff89-08a2-454f-9e06-2415d8e27e96"
+],
+"nombre": "CP BADALONA 60 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1528321VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2025-246"
+],
+"ids": [
+"2158e925-7ee1-49ef-827e-0893761a66d8"
+],
+"nombre": "CP NTRA SRA D L ALMUDENA 5 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4746104VK3644N"
+]
+},
+{
+"opps": [
+"DAN-2020-009"
+],
+"ids": [
+"c030c37e-b99c-44da-a055-96192a66cd22"
+],
+"nombre": "CP BUENA MADRE 9 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"0650202VK4505S"
+]
+},
+{
+"opps": [
+"DAN-2026-204"
+],
+"ids": [
+"ea7f8c3a-5f8a-4864-92fa-934dd786bee2"
+],
+"nombre": "CP BLAS CABRERA 64 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4700309VK3740B"
+]
+},
+{
+"opps": [
+"DAN-2023-213"
+],
+"ids": [
+"68dece43-893c-463e-b1a4-0269e6e46b50"
+],
+"nombre": "CP AINSA 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8360908VK4786A"
+]
+},
+{
+"opps": [
+"DAN-2026-211"
+],
+"ids": [
+"49673d67-210a-4658-9377-3e5931532d6c"
+],
+"nombre": "CP BLASCO DE GARAY 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9660810VK3796B"
+]
+},
+{
+"opps": [
+"DAN-2018-005"
+],
+"ids": [
+"0ecc2421-d4bf-4359-9595-2492e3e5a276"
+],
+"nombre": "CP BIOSCA 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5003405VK4850C"
+]
+},
+{
+"opps": [
+"DAN-2021-074"
+],
+"ids": [
+"dd479439-d1d9-4811-9f84-fbdcfc7db987"
+],
+"nombre": "CP BELZUNEGUI 52 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7299716VK3679G"
+]
+},
+{
+"opps": [
+"DAN-2025-177"
+],
+"ids": [
+"2e46eb33-4631-4c7e-a798-6c9970ba1d63"
+],
+"nombre": "CP AV JUAN DE LA CIERVA 27 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"8524803VK3682S"
+]
+},
+{
+"opps": [
+"DAN-2024-132"
+],
+"ids": [
+"5c3f66bc-65fb-4dc6-a1f4-94a8d167ff69"
+],
+"nombre": "CP ANDALUCES 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6013401VK4761C"
+]
+},
+{
+"opps": [
+"DAN-2018-040"
+],
+"ids": [
+"14687a13-06cf-4bc3-ad8e-9306cb03b74c"
+],
+"nombre": "CP BAILEN 43 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9538901VK3793H"
+]
+},
+{
+"opps": [
+"DAN-2022-148"
+],
+"ids": [
+"45a37689-b476-42e9-93c6-e8a658dc41aa"
+],
+"nombre": "CP BADALONA 28 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1528338VK4812H"
+]
+},
+{
+"opps": [
+"DAN-2017-133"
+],
+"ids": [
+"b2037928-6239-4cd3-b937-ccaf9756100c"
+],
+"nombre": "CP BRAVO MURILLO 28 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0466920VK4706E"
+]
+},
+{
+"opps": [
+"DAN-2018-052"
+],
+"ids": [
+"af52b22d-0d7e-4151-b414-b403d904e216"
+],
+"nombre": "CP BARBARA DE BRAGANZA 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1351102VK4715A"
+]
+},
+{
+"opps": [
+"DAN-2022-068"
+],
+"ids": [
+"e20333b1-0a44-483b-8195-ff4b09c387d0"
+],
+"nombre": "CP AGUSTIN DE FOXA 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1801301VK4810B"
+]
+},
+{
+"opps": [
+"DAN-2025-248"
+],
+"ids": [
+"a6b42e6f-894e-4ffa-8a73-d400aef84e4b"
+],
+"nombre": "CP CAVA DE SAN MIGUEL 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0043102VK4704C"
+]
+},
+{
+"opps": [
+"DAN-2025-301"
+],
+"ids": [
+"5cff0ead-8bcd-443e-93c9-190b8e811973"
+],
+"nombre": "CP AFECTO 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1481501VK4618A"
+]
+},
+{
+"opps": [
+"DAN-2023-294"
+],
+"ids": [
+"25318860-8480-44d1-9724-a42ae39eaccf"
+],
+"nombre": "CP CUESTABLANCA 2 ALCOBENDAS",
+"municipio": "ALCOBENDAS",
+"parcelas": [
+"4965806VK4846S"
+]
+},
+{
+"opps": [
+"DAN-2026-213"
+],
+"ids": [
+"413320a5-afab-4ef9-b2a6-b6cb19452058"
+],
+"nombre": "CP ALONSO CANO 63 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0871510VK4707B"
+]
+},
+{
+"opps": [
+"DAN-2023-169"
+],
+"ids": [
+"a30efb3f-c3ef-4cb1-ada1-b2253f5f9197"
+],
+"nombre": "CP VEDRA 22 A-22 B-22 C-22 D-22 E-22 F-22 G-22 H-22 I-22 J-22 K-22 L-22 M-22 N-22 O-22 P-22 Q-22 R-22 S-22 T-22 U-22 V-22 X-22 Y MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3699901VK4639H",
+"3699902VK4639H",
+"3699903VK4639H",
+"3699904VK4639H",
+"3699905VK4639H",
+"3699906VK4639H",
+"3699907VK4639H",
+"3699908VK4639H",
+"3699909VK4639H",
+"3699910VK4639H",
+"3699911VK4639H",
+"3699912VK4639H",
+"3699913VK4639H",
+"3699914VK4639H",
+"3699915VK4639H",
+"3699916VK4639H",
+"3699917VK4639H",
+"3699918VK4639H",
+"3699919VK4639H",
+"3699920VK4639H",
+"3699921VK4639H",
+"3699922VK4639H",
+"3699923VK4639H",
+"3699924VK4639H"
+]
+},
+{
+"opps": [
+"DAN-2024-167"
+],
+"ids": [
+"a3697e3c-e29e-4c6c-8c42-fe1c25b95207"
+],
+"nombre": "CP ALCALA 462 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6368209VK4766G"
+]
+},
+{
+"opps": [
+"DAN-2022-245"
+],
+"ids": [
+"1f4683f0-bc16-481f-b6dd-80107af74ee4"
+],
+"nombre": "CP AV FILIPINAS 28 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0070309VK4707A"
+]
+},
+{
+"opps": [
+"DAN-2025-130"
+],
+"ids": [
+"3931b92c-a24e-4f3a-8adb-890e4d39042a"
+],
+"nombre": "CP ALCALDE LOPEZ CASERO 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4461901VK4746A"
+]
+},
+{
+"opps": [
+"DAN-2021-108"
+],
+"ids": [
+"b1030867-46fd-48ea-9082-1dcdff83caa2"
+],
+"nombre": "CP AV AVIACION 71 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4299412VK3649G"
+]
+},
+{
+"opps": [
+"DAN-2025-110"
+],
+"ids": [
+"36d2a9c3-9cef-4133-bac7-656bfd77bfa6"
+],
+"nombre": "CP AV FELIPE II 30 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2951403VK4725B"
+]
+},
+{
+"opps": [
+"DAN-2026-167"
+],
+"ids": [
+"105bf054-2690-4aa5-81c7-5c48acb9f177"
+],
+"nombre": "CP CANILLAS 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2771205VK4727B"
+]
+},
+{
+"opps": [
+"DAN-2023-116"
+],
+"ids": [
+"37f32d51-7f55-4d83-b9b6-e3a645e92613"
+],
+"nombre": "CP ALCALA 213 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3558908VK4735H"
+]
+},
+{
+"opps": [
+"DAN-2022-273"
+],
+"ids": [
+"85491130-df4d-4b36-a945-9edc5c2531c0"
+],
+"nombre": "CP ANDARRIOS 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6487232VK4768G"
+]
+},
+{
+"opps": [
+"CAR-2025-013"
+],
+"ids": [
+"df41687f-998a-488f-88f4-28786e30c94f"
+],
+"nombre": "CP GALLO 22 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8030321VK4783A"
+]
+},
+{
+"opps": [
+"DAN-2022-177"
+],
+"ids": [
+"4138cd09-23f4-4bfc-b791-aef3f9373649"
+],
+"nombre": "CP ALORA 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5710625VK4751B"
+]
+},
+{
+"opps": [
+"DAN-2023-155"
+],
+"ids": [
+"db2f3021-face-4320-823e-09e1c6ca80ae"
+],
+"nombre": "CP ALMONACID 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4121911VK4742A"
+]
+},
+{
+"opps": [
+"DAN-2022-160"
+],
+"ids": [
+"4528b3e4-7091-4034-a2ac-fddb3db7a648"
+],
+"nombre": "CP ASCAO 53 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5961709VK4756B"
+]
+},
+{
+"opps": [
+"DAN-2017-024"
+],
+"ids": [
+"f12553b2-a856-44b2-a3b0-f13d0f3e80d8"
+],
+"nombre": "CP ALCAUDON 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7719501VK3771H"
+]
+},
+{
+"opps": [
+"DAN-2024-137"
+],
+"ids": [
+"667971f9-2df0-4ac6-addf-213087b6aa06"
+],
+"nombre": "CP AMPELIDO 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7832607VK3773B"
+]
+},
+{
+"opps": [
+"DAN-2024-158"
+],
+"ids": [
+"559ab069-1e43-4168-bccb-a72a475d7e83"
+],
+"nombre": "CP AMPARO 45 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0437823VK4703E"
+]
+},
+{
+"opps": [
+"DAN-2020-002"
+],
+"ids": [
+"5d0a44eb-fb06-45a8-bd60-a4b99d67b3a3"
+],
+"nombre": "CP ANTONIO CASERO 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3547101VK4734F"
+]
+},
+{
+"opps": [
+"DAN-2024-138"
+],
+"ids": [
+"0042bf50-561b-44b8-a25e-848ed7f3b9aa"
+],
+"nombre": "CP ANDEVALO 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3396408VK4639E"
+]
+},
+{
+"opps": [
+"DAN-2024-174"
+],
+"ids": [
+"50e3ee61-f5ef-4a2c-a3e4-3c4186eafd53"
+],
+"nombre": "CP ANGUITA 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1105426VK5810E"
+]
+},
+{
+"opps": [
+"DAN-2021-079"
+],
+"ids": [
+"97cb543a-d4b3-4b66-a147-5c20da810e8c"
+],
+"existe": "eb63a88f-26f8-4a67-a41e-64f3e183b059",
+"nombre": "CP ANGEL MUGICA, 35 MADRID"
+},
+{
+"opps": [
+"DAN-2024-252"
+],
+"ids": [
+"181fbcb6-df63-4fc8-9f53-e1c664850373"
+],
+"nombre": "CP ANTONIA CALVO 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6727501VK3762H"
+]
+},
+{
+"opps": [
+"DAN-2023-299",
+"DAN-2022-180"
+],
+"ids": [
+"d556a955-80c4-4106-ba6b-5453491fb0b8",
+"e739e0be-c507-4449-9b0a-ac8eb052ed84"
+],
+"nombre": "CP ANDARRIOS 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6487231VK4768G"
+]
+},
+{
+"opps": [
+"DAN-2023-072"
+],
+"ids": [
+"b4ba1b62-d25d-460a-aacd-6a628d8df273"
+],
+"nombre": "CP ANICETO MARINAS 112 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7862812VK3776B"
+]
+},
+{
+"opps": [
+"DAN-2021-120"
+],
+"ids": [
+"a37f03f8-633d-4d32-9a56-2bfc6f995e9d"
+],
+"nombre": "CP ARROYO FONTARRON 121 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"55248N4VK4752D"
+]
+},
+{
+"opps": [
+"DAN-2023-248"
+],
+"ids": [
+"d89b3c93-b706-49b2-994c-faa1b1d80d42"
+],
+"nombre": "CP ANTONIO CUMELLA 3-5-7-9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6037807VK4763E"
+]
+},
+{
+"opps": [
+"DAN-2025-179"
+],
+"ids": [
+"a451af53-f159-411a-a5d8-364f97b294a6"
+],
+"nombre": "CP ARGANDA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0025619VK4702E"
+]
+},
+{
+"opps": [
+"DAN-2025-035"
+],
+"ids": [
+"31e1a7ee-55fe-4812-8f38-9de7d8775956"
+],
+"nombre": "CP ARCOS DE JALON 48 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7850404VK4775B"
+]
+},
+{
+"opps": [
+"DAN-2025-036"
+],
+"ids": [
+"0517c689-f62f-46d7-9e3f-f417bd528a2b"
+],
+"nombre": "CP ARCOS DE JALON 62 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7750401VK4775B"
+]
+},
+{
+"opps": [
+"DAN-2025-090"
+],
+"ids": [
+"cc7a0a36-d545-4ac3-9955-d845a45bbf4b"
+],
+"nombre": "CP ANTONIO GRILO 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0052819VK4705A"
+]
+},
+{
+"opps": [
+"DAN-2025-385"
+],
+"ids": [
+"a18bceac-f72f-49ca-8a00-94c0ffd16857"
+],
+"nombre": "CP SANCHEZ PRECIADO 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9993229VK3799D"
+]
+},
+{
+"opps": [
+"DAN-2016-173"
+],
+"ids": [
+"d1f68bbf-7e2f-46e4-b31f-492fe46673f1"
+],
+"nombre": "CP APOSTOL SANTIAGO 49 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4556801VK4745F"
+]
+},
+{
+"opps": [
+"DAN-2022-176"
+],
+"ids": [
+"c1814602-153d-4ea9-a354-c82d5f7c97d3"
+],
+"nombre": "CP ALMOGIA 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5807701VK4750H"
+]
+},
+{
+"opps": [
+"DAN-2025-187"
+],
+"ids": [
+"f6162e9e-f2db-4f1f-908d-5b257176fb7a"
+],
+"nombre": "CP ARTURO SORIA 54-56 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5773909VK4757D"
+]
+},
+{
+"opps": [
+"DAN-2025-137"
+],
+"ids": [
+"65cb1603-6928-4f3a-bc29-573bbfa7fcb1"
+],
+"nombre": "CP AV CANILLEJAS A VICALVARO 68 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8259209VK4785G"
+]
+},
+{
+"opps": [
+"DAN-2023-204"
+],
+"ids": [
+"26a87f49-12a7-4b9c-b26e-9a75904f614a"
+],
+"nombre": "CP ARROYO BELINCOSO 30 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4835749VK4743F"
+]
+},
+{
+"opps": [
+"DAN-2019-059"
+],
+"ids": [
+"5cb8d0f5-eb4e-44df-bc29-683ed02c46c1"
+],
+"nombre": "CP ARTURO SORIA 244 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3799409VK4839H"
+]
+},
+{
+"opps": [
+"DAN-2022-274"
+],
+"ids": [
+"5428edbc-4147-4eec-81bc-bf0ddeca9161"
+],
+"nombre": "CP AV BETANZOS 77 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9515305VK3891F"
+]
+},
+{
+"opps": [
+"DAN-2023-272"
+],
+"ids": [
+"bd01f938-65fb-4d44-93ad-cf10fa853b41"
+],
+"nombre": "CP AV BETANZOS 60 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9716203VK3891F"
+]
+},
+{
+"opps": [
+"DAN-2022-278"
+],
+"ids": [
+"7d3864ad-bb1d-4bbe-98c1-e8d2d8d41dff"
+],
+"nombre": "CP AV CARDENAL HERRERA ORIA 116 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1126903VK4812E"
+]
+},
+{
+"opps": [
+"DAN-2024-087"
+],
+"ids": [
+"aba9619a-2874-4a6b-93a2-7bc0430739eb"
+],
+"nombre": "CP AV BONN 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3469911VK4736G"
+]
+},
+{
+"opps": [
+"DAN-2024-288"
+],
+"ids": [
+"a599b586-d1bf-4d1f-93ac-ee0ce9084f07"
+],
+"nombre": "CP AV CANILLEJAS A VICALVARO 65 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8264311VK4786C"
+]
+},
+{
+"opps": [
+"DAN-2024-109"
+],
+"ids": [
+"d4aee72c-11c3-4142-9b68-70c942a31b78"
+],
+"nombre": "CP AV CARDENAL HERRERA ORIA 295 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8613205VK3881D"
+]
+},
+{
+"opps": [
+"DAN-2023-141"
+],
+"ids": [
+"95814d26-9a61-4cb8-bb2f-6fbff5c6ed3c"
+],
+"nombre": "CP AV CARDENAL HERRERA ORIA 297 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8613204VK3881D"
+]
+},
+{
+"opps": [
+"DAN-2024-117"
+],
+"ids": [
+"7631a9b4-6b3e-470f-ba8d-d3abe4e4247f"
+],
+"existe": "4ec18b9b-cdb8-43b8-b1db-24bf17146304",
+"nombre": "CP ISTURIZ 11 MADRID"
+},
+{
+"opps": [
+"DAN-2023-279"
+],
+"ids": [
+"b1595461-c7f6-4151-8368-cf3cfae553e7"
+],
+"nombre": "CP AV CARDENAL HERRERA ORIA 301 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8613202VK3881D"
+]
+},
+{
+"opps": [
+"DAN-2022-060"
+],
+"ids": [
+"2efeb92a-4d54-4e43-9e6e-4f9168ad6294"
+],
+"nombre": "CP AV HELLIN 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7958401VK4775H"
+]
+},
+{
+"opps": [
+"DAN-2025-091"
+],
+"ids": [
+"52d79990-3832-499a-b769-e69c8612f33d"
+],
+"nombre": "CP AV MARQUES DE CORBERA 26 A-26 B-26 C MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4752304VK4745D",
+"4752329VK4745D",
+"4752330VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2021-073"
+],
+"ids": [
+"ba73f59d-86c7-43d8-a1f2-cfe4aaa3e14c"
+],
+"nombre": "CP AV LOGROÑO 156 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0708704VK5800H"
+]
+},
+{
+"opps": [
+"DAN-2023-297"
+],
+"ids": [
+"22d8e1b9-4673-4ff1-b370-8e25cda60aa2"
+],
+"nombre": "CP CANCION DEL OLVIDO 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0881822VK4608B"
+]
+},
+{
+"opps": [
+"DAN-2016-145"
+],
+"ids": [
+"e7fd00fc-4e93-45c9-95e1-777389f108b6"
+],
+"nombre": "CP AV NTRA SEÑORA DE VALVANERA 112 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7317501VK3771G"
+]
+},
+{
+"opps": [
+"DAN-2025-437"
+],
+"ids": [
+"8641b661-af32-4c88-82de-11ad94286049"
+],
+"nombre": "CP EXTREMADURA 13 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2494601VK3529S"
+]
+},
+{
+"opps": [
+"DAN-2025-438"
+],
+"ids": [
+"0af2c4f7-081b-4341-a3cb-baa733da700f"
+],
+"nombre": "CP AV ORELLANA 18 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4442805VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2025-439"
+],
+"ids": [
+"616e009e-e8c5-47a2-ad93-8ff05de7aa50"
+],
+"nombre": "CP GETAFE 9 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5345207VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2024-198"
+],
+"ids": [
+"ce69aee2-3855-4920-bb15-872f82c4c265"
+],
+"nombre": "CP AV TOREROS 51 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3662309VK4736D"
+]
+},
+{
+"opps": [
+"DAN-2025-051"
+],
+"ids": [
+"e0717fce-764a-4140-9fa9-a8d793c5637e"
+],
+"nombre": "CP AV SAN LUIS 95-95 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3112203VK4831A",
+"3112204VK4831A"
+]
+},
+{
+"opps": [
+"DAN-2022-287"
+],
+"ids": [
+"d8d84740-66db-4736-99c8-a1bb2b7c6c97"
+],
+"nombre": "CP AV SAN DIEGO 94 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3310402VK4731A"
+]
+},
+{
+"opps": [
+"DAN-2023-073"
+],
+"ids": [
+"fcba82ba-579a-4846-8daa-000a77d80590"
+],
+"nombre": "CP AV VALLADOLID 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8355409VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2023-207"
+],
+"ids": [
+"3a4616f0-95f8-40d2-ba1a-c7e5a62dc105"
+],
+"nombre": "CP AV PEÑA PRIETA 53 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3627502VK4732H"
+]
+},
+{
+"opps": [
+"DAN-2025-442"
+],
+"ids": [
+"d5958711-ae68-4cfb-bd3d-647b66eb6f4d"
+],
+"nombre": "CP CARRERO JUAN RAMON 35 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8003401VK3780C"
+]
+},
+{
+"opps": [
+"DAN-2025-440"
+],
+"ids": [
+"ad1ce834-fb67-4794-84a8-6b9f1f0d0a28"
+],
+"nombre": "CP AV FERROCARRIL 17 AZUQUECA DE HENARES",
+"municipio": "AZUQUECA DE HENARES",
+"parcelas": [
+"7907308VK7970N"
+]
+},
+{
+"opps": [
+"DAN-2025-441"
+],
+"ids": [
+"89f9198b-0fd5-4298-b0cd-663759a1e939"
+],
+"nombre": "CP CADALSO DE LOS VIDRIOS 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8816815VK3881F"
+]
+},
+{
+"opps": [
+"DAN-2026-078"
+],
+"ids": [
+"2ad509cf-0b27-4518-8367-9d6f26d36166"
+],
+"nombre": "CP CAMARENA 134 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5816625VK3751F"
+]
+},
+{
+"opps": [
+"DAN-2024-209"
+],
+"ids": [
+"f76d0d05-813d-4992-b5e4-e5c6653d4186"
+],
+"nombre": "CP CAMARENA 190 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5914203VK3751D"
+]
+},
+{
+"opps": [
+"DAN-2022-102"
+],
+"ids": [
+"f7776f98-ca8e-4949-be1b-26d074d8fd33"
+],
+"nombre": "CP CAMINO VALDERRIBAS 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3725403VK4732F"
+]
+},
+{
+"opps": [
+"DAN-2023-273"
+],
+"ids": [
+"dbd42b9e-e1a5-4003-9338-0e1f9a86a5e8"
+],
+"nombre": "CP CAMARENA 136 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5816613VK3751F"
+]
+},
+{
+"opps": [
+"DAN-2025-443"
+],
+"ids": [
+"e9f324b9-2524-4ece-8a03-cfc2f006d645"
+],
+"nombre": "CP FUENTEBELLA 27 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4340101VK3544S"
+]
+},
+{
+"opps": [
+"DAN-2025-444"
+],
+"ids": [
+"bdcf17b5-5d93-45da-8155-7517245fd6f7"
+],
+"nombre": "CP VIRGEN DEL CAMINO 2 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4445601VK3644N"
+]
+},
+{
+"opps": [
+"DAN-2026-221"
+],
+"ids": [
+"8c609481-3fbb-4bc8-a738-3f4a0a3cc503"
+],
+"nombre": "CP AV MOSTOLES 3 MORALEJA DE ENMEDIO",
+"municipio": "MORALEJA DE ENMEDIO",
+"parcelas": [
+"6575601VK2567N"
+]
+},
+{
+"opps": [
+"ALV-2026-195"
+],
+"ids": [
+"e406fad8-341a-4329-a122-7a21dfd02798"
+],
+"nombre": "CP HACHERO 33 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3415316VK4731E"
+]
+},
+{
+"opps": [
+"DAN-2025-445"
+],
+"ids": [
+"35f6037b-8654-47fc-934a-29cdd517f72d"
+],
+"existe": "db6eff5c-6418-43b3-987c-493868228b72",
+"nombre": "CP MALAGA 4 ALCORCON"
+},
+{
+"opps": [
+"DAN-2026-222"
+],
+"ids": [
+"b249841b-3559-4fa0-b49f-750ee519639d"
+],
+"nombre": "CP PLAZA CASTILLA 3 AZUQUECA DE HENARES",
+"municipio": "AZUQUECA DE HENARES",
+"parcelas": [
+"7907803VK7970N"
+]
+},
+{
+"opps": [
+"DAN-2026-223"
+],
+"ids": [
+"7e00540d-6acb-43d5-b220-9ca8bfcb0dae"
+],
+"nombre": "CP SAN GERARDO 51-53 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8505603VK3880F"
+]
+},
+{
+"opps": [
+"DAN-2026-224"
+],
+"ids": [
+"81ec9afb-19cf-4aad-93a0-0679bf236cc1"
+],
+"nombre": "CP ABEJUELA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6816705VK3761F"
+]
+},
+{
+"opps": [
+"DAN-2026-225"
+],
+"ids": [
+"fb62975c-3ece-42ef-86f2-ca942cd6e77f"
+],
+"nombre": "CP RIO SEGURA 4 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4852501VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2026-226"
+],
+"ids": [
+"4b0270cd-8f0f-4a54-bb97-04bbf54b5b59"
+],
+"nombre": "CP AV ALBUFERA 220-222 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4915201VK4741F"
+]
+},
+{
+"opps": [
+"DAN-2026-227"
+],
+"ids": [
+"d4b31e4f-9faf-4035-9500-5702789c6a75"
+],
+"nombre": "CP AV PABLO NERUDA 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5615202VK4751F"
+]
+},
+{
+"opps": [
+"DAN-2022-143"
+],
+"ids": [
+"bb3af7ca-c57a-4117-ab03-7df442efb89a"
+],
+"nombre": "CP CANTALEJOS 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7408403VK3870G"
+]
+},
+{
+"opps": [
+"DAN-2025-128"
+],
+"ids": [
+"92b6a5d3-8fd8-4e2e-832b-77545a757877"
+],
+"nombre": "CP CARLOS MARTIN ALVAREZ 65 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3510721VK4731B"
+]
+},
+{
+"opps": [
+"DAN-2023-181"
+],
+"ids": [
+"11a14ffb-5819-41b0-8f29-01d348ed9998"
+],
+"nombre": "CP CARLOS FUENTES 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7029421VK3772G"
+]
+},
+{
+"opps": [
+"DAN-2017-026"
+],
+"ids": [
+"e0b6bb9d-8246-4a07-a0c5-bb93b8bc3e9c"
+],
+"nombre": "CP CAROLINA CORONADO 37 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5560810VK4756B"
+]
+},
+{
+"opps": [
+"DAN-2026-228"
+],
+"ids": [
+"2e3fc2a9-c6ca-4728-a4a6-0382ccb8a0cc"
+],
+"nombre": "CP RIOJANOS 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5611409VK4751B"
+]
+},
+{
+"opps": [
+"DAN-2026-229"
+],
+"ids": [
+"e83fe780-7900-4028-80f8-73d5a31d6396"
+],
+"nombre": "CP AV PRINCIPE DE ASTURIAS 98 VILLAVICIOSA DE ODON",
+"municipio": "VILLAVICIOSA DE ODON",
+"parcelas": [
+"2984002VK2628S"
+]
+},
+{
+"opps": [
+"DAN-2026-230"
+],
+"ids": [
+"0d225372-52a3-4f16-a925-e50942f86032"
+],
+"nombre": "CP SANTA AUREA 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7733610VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2016-129"
+],
+"ids": [
+"6991d8a9-92e4-4c35-965f-fcb525516434"
+],
+"nombre": "CP CARRETERA BOADILLA DEL MONTE 55 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4625801VK3742F"
+]
+},
+{
+"opps": [
+"DAN-2026-232"
+],
+"ids": [
+"2927d72a-d448-4fea-aca1-4bbe456904b5"
+],
+"nombre": "CP ADELFAS 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3129219VK4732G"
+]
+},
+{
+"opps": [
+"DAN-2026-233"
+],
+"ids": [
+"e52f4ef1-cb79-4eb9-ad23-1f8ba9a6f5e6"
+],
+"nombre": "CP ANTONIO SALVADOR 81 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0308202VK4700G"
+]
+},
+{
+"opps": [
+"DAN-2026-231"
+],
+"ids": [
+"4d1d4569-24b9-4d6c-a683-b08608ed861c"
+],
+"nombre": "CP REGALA 354 PAREJA",
+"municipio": "PAREJA",
+"parcelas": [
+"5405001WK2950N"
+]
+},
+{
+"opps": [
+"DAN-2022-200"
+],
+"ids": [
+"8be8f8a2-15f0-4feb-b82d-f54985a52a9b"
+],
+"nombre": "CP VIA CARPETANA 191 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6914605VK3761D"
+]
+},
+{
+"opps": [
+"DAN-2025-021"
+],
+"ids": [
+"402b9345-1b35-44f1-a800-99dd527c44ba"
+],
+"nombre": "CP CAZORLA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3400604VK4730A"
+]
+},
+{
+"opps": [
+"DAN-2021-094",
+"DAN-2023-036"
+],
+"ids": [
+"f9e6c53d-0cda-42a6-bf06-65ebb247e23b",
+"c053aeb7-223e-45d6-9594-6d8ec55ca7a1"
+],
+"nombre": "CP CEFERINO RODRIGUEZ 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1099201VK4719G"
+]
+},
+{
+"opps": [
+"DAN-2020-004"
+],
+"ids": [
+"bcf806f3-733e-4646-bfc4-9374268c56e1"
+],
+"nombre": "CP CHUCURI 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6208042VK4850H"
+]
+},
+{
+"opps": [
+"DAN-2025-267"
+],
+"ids": [
+"728d7c13-0b39-4bf0-ad64-1e3d8760715f"
+],
+"nombre": "CP CLAVELINAS 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0702806VK4800B"
+]
+},
+{
+"opps": [
+"DAN-2025-064"
+],
+"ids": [
+"6cf04891-4909-4cfe-bc0d-c2f924890b95"
+],
+"nombre": "CP CEBREROS 31 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6931208VK3763B"
+]
+},
+{
+"opps": [
+"DAN-2025-043"
+],
+"ids": [
+"a87bf9e5-0d5e-415b-8a1e-4194e454c848"
+],
+"nombre": "CP DE LAS INDIAS 16 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4642601VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2021-114"
+],
+"ids": [
+"de647fec-daa7-4aa4-946b-4bfa219469e5"
+],
+"existe": "643d9173-b9c4-4239-b7e7-990bbe200130",
+"nombre": "CP CORRAL DE CANTOS 19 MADRID"
+},
+{
+"opps": [
+"DAN-2023-074"
+],
+"ids": [
+"74512480-9d53-45ea-97a9-09f2a0d183ea"
+],
+"nombre": "CP PASEO COMANDANTE FORTEA 48 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8056314VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2023-090"
+],
+"ids": [
+"4d94002f-5184-4135-8584-d97feb712c63"
+],
+"nombre": "CP PASEO COMANDANTE FORTEA 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8155212VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2023-174"
+],
+"ids": [
+"2e57dd44-69f0-49f9-b59c-d0de8acb74ea"
+],
+"nombre": "CP CONCEPCION 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4507201VK4740F"
+]
+},
+{
+"opps": [
+"DAN-2023-235"
+],
+"ids": [
+"7c76b901-a059-4ccf-8c7e-f98e9a217224"
+],
+"nombre": "CP CONDE DE TORRALBA 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2114103VK4821C"
+]
+},
+{
+"opps": [
+"DAN-2017-067"
+],
+"ids": [
+"316ab5aa-c02d-47b1-a9bf-6a62bcb30a4f"
+],
+"nombre": "CP CORDILLERA DE CUERA 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3412401VK4731C"
+]
+},
+{
+"opps": [
+"DAN-2023-075"
+],
+"ids": [
+"3c0852cf-1e1b-4103-a879-01b16a4ae55b"
+],
+"nombre": "CP PASEO COMANDANTE FORTEA 9 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8055133VK3785C"
+]
+},
+{
+"opps": [
+"DAN-2017-031"
+],
+"ids": [
+"ee7ded5d-6067-474c-b6f0-bd320e3f613b"
+],
+"nombre": "CP VEZA 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1099712VK4719G"
+]
+},
+{
+"opps": [
+"DAN-2024-274"
+],
+"ids": [
+"5655020b-e196-4b2e-9346-70607dfd3a0e"
+],
+"nombre": "CP CORDOVIN 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8237804VK4783E"
+]
+},
+{
+"opps": [
+"DAN-2023-263"
+],
+"ids": [
+"cfac38e0-341e-4b36-b328-fcd9ec2ca396"
+],
+"nombre": "CP COSTA BRAVA 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9734406VK3893F"
+]
+},
+{
+"opps": [
+"DAN-2025-388"
+],
+"ids": [
+"269bea05-cd2f-4a7f-9d35-e9cf004e1bc0"
+],
+"nombre": "CP CGDOR DIEGO CABEZA VACA 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4535910VK4743F"
+]
+},
+{
+"opps": [
+"DAN-2025-170"
+],
+"ids": [
+"07b34058-8bce-4459-baa8-343a5949364e"
+],
+"nombre": "CP VIEJA DE PINTO 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9968902VK3696H"
+]
+},
+{
+"opps": [
+"DAN-2016-166"
+],
+"ids": [
+"163ea390-c703-4a45-8347-0b5051fff276"
+],
+"nombre": "CP VILLASANDINO 22 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6333434VK3763C"
+]
+},
+{
+"opps": [
+"DAN-2021-039"
+],
+"ids": [
+"65177cdb-8125-41f5-9f3d-f818f1f38424"
+],
+"nombre": "CP DOLORES ARMENGOT 31 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7010102VK3771A"
+]
+},
+{
+"opps": [
+"DAN-2025-140"
+],
+"ids": [
+"a3675b6a-7e6c-47e8-a819-519ed7e12b1f"
+],
+"nombre": "CP DOCTOR CASAL 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8055106VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2022-256"
+],
+"ids": [
+"cab27632-a831-47c8-83e6-faae25c30181"
+],
+"nombre": "CP DIEZ 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9675107VK4797F"
+]
+},
+{
+"opps": [
+"DAN-2023-271"
+],
+"ids": [
+"b0b9f7ef-b9c9-4e1e-89aa-815ee2b12ae3"
+],
+"nombre": "CP DISCOBOLO 63 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8273314VK4787C"
+]
+},
+{
+"opps": [
+"DAN-2024-048"
+],
+"ids": [
+"8f94c4b9-2126-433e-8232-20167baff402"
+],
+"nombre": "CP DOCTOR BLANCO SOLER 26 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4806513VK3740F"
+]
+},
+{
+"opps": [
+"DAN-2025-112"
+],
+"ids": [
+"3a3d0aed-bd59-44b8-89e9-92cb3a2abd41"
+],
+"nombre": "CP DOLORES BARRANCO 72 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9907417VK3790H"
+]
+},
+{
+"opps": [
+"DAN-2025-154"
+],
+"ids": [
+"e3141c42-e71b-4396-8f24-0aed5fcd3844"
+],
+"nombre": "CP DURATON 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6932801VK3763B"
+]
+},
+{
+"opps": [
+"DAN-2022-172"
+],
+"ids": [
+"5db1ea67-b329-4891-b78e-24793aadde75"
+],
+"nombre": "CP ENCOMIENDA DE PALACIOS 107 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"58262C7VK4752F"
+]
+},
+{
+"opps": [
+"DAN-2025-145"
+],
+"ids": [
+"2efc13ca-fada-4f7f-a264-f236f10863fb"
+],
+"nombre": "CP EDUARDO UROSA 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7014212VK3771C"
+]
+},
+{
+"opps": [
+"DAN-2017-075"
+],
+"ids": [
+"548394c7-23db-4ffa-8ffe-22ad6f644d6c"
+],
+"nombre": "CP TOBOSO 134 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7418521VK3771G"
+]
+},
+{
+"opps": [
+"DAN-2023-183"
+],
+"ids": [
+"c68656a6-6c32-4247-82cf-fc059bf66611"
+],
+"nombre": "CP FRESNEDILLAS 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7011419VK3871C"
+]
+},
+{
+"opps": [
+"DAN-2016-010"
+],
+"ids": [
+"40f889b1-935a-4b17-882e-aced4720027f"
+],
+"nombre": "CP ENCARNACION OVIOL 50 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1770601VK4617B"
+]
+},
+{
+"opps": [
+"DAN-2020-015"
+],
+"ids": [
+"66386fa8-e1db-4f7a-a5d2-aad89fd614e7"
+],
+"nombre": "CP ENTREARROYOS 98 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4533950VK4743D"
+]
+},
+{
+"opps": [
+"DAN-2021-056"
+],
+"ids": [
+"a2f4547d-c14d-444a-9c28-56a91f3a2d1f"
+],
+"nombre": "CP EZEQUIEL SOLANA 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5261309VK4756A"
+]
+},
+{
+"opps": [
+"DAN-2024-123"
+],
+"ids": [
+"33b2b1da-9978-47a5-bc8d-427bcd048347"
+],
+"nombre": "CP ESTANISLAO FIGUERAS 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9250103VK3795A"
+]
+},
+{
+"opps": [
+"DAN-2024-211"
+],
+"ids": [
+"6a5a1da3-fdb8-4a7b-8b24-e1118b7b9a33"
+],
+"nombre": "CP FATIMA 3 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2101510VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2025-124"
+],
+"ids": [
+"95625713-1e83-4386-80d2-f6ae8b1b2399"
+],
+"nombre": "CP ESPADA 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0338205VK4703G"
+]
+},
+{
+"opps": [
+"DAN-2025-107"
+],
+"ids": [
+"cf0e74d3-3fcd-4aae-865e-fb519b658e27"
+],
+"nombre": "CP ESTEBAN CARROS 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4196705VK4649E"
+]
+},
+{
+"opps": [
+"DAN-2022-050"
+],
+"ids": [
+"2e28b34c-dedf-4c25-bc80-6afc9894a8b9"
+],
+"nombre": "CP ESCALONILLA 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7222208VK3772A"
+]
+},
+{
+"opps": [
+"DAN-2022-173"
+],
+"ids": [
+"b91c243c-9aa4-4cdf-94ac-0d4a48b57816"
+],
+"nombre": "CP ENCOMIENDA DE PALACIOS 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5524809VK4752D"
+]
+},
+{
+"opps": [
+"DAN-2022-263"
+],
+"ids": [
+"48aea548-66be-44eb-99f8-4ba2c7070314"
+],
+"nombre": "CP FERMIN CABALLERO 75 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9515311VK3891F"
+]
+},
+{
+"opps": [
+"DAN-2021-070"
+],
+"ids": [
+"14fd02e4-e197-42ec-a5e1-b9c0e71be8a5"
+],
+"nombre": "CP COPENHAGUE 14 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9892707VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2024-116"
+],
+"ids": [
+"8745072b-b4fc-4af5-a333-860e0b5d5a2e"
+],
+"nombre": "CP VIRGEN DE BELEN 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8715602VK3781F"
+]
+},
+{
+"opps": [
+"DAN-2019-069"
+],
+"ids": [
+"b0282d2c-433c-4505-af37-1de421ea6d11"
+],
+"nombre": "CP GENERAL RAMIREZ DE MADRID 22 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1087308VK4718G"
+]
+},
+{
+"opps": [
+"DAN-2024-119"
+],
+"ids": [
+"a6434e6c-bf95-4e6b-95a9-f2da27170b67"
+],
+"nombre": "CP FIDIAS 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8134910VK3783C"
+]
+},
+{
+"opps": [
+"DAN-2025-046"
+],
+"ids": [
+"8604e028-9cd9-44fd-9f8d-6578989c6ba5"
+],
+"nombre": "CP FERNANDO EL CATOLICO 47-47 A MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9663602VK3796D",
+"9663603VK3796D"
+]
+},
+{
+"opps": [
+"DAN-2022-171"
+],
+"ids": [
+"3cf827fa-99d8-4503-b4e3-47de25105af0"
+],
+"nombre": "CP GARELLANO 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0280314VK4708A"
+]
+},
+{
+"opps": [
+"DAN-2022-174"
+],
+"ids": [
+"bce8f84b-83de-4cdf-b498-f5221911075a"
+],
+"nombre": "CP FRANCISCO ORDOÑEZ 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0266605VK4606E"
+]
+},
+{
+"opps": [
+"DAN-2016-214"
+],
+"ids": [
+"6d042995-1842-484e-918b-2fe043b9222a"
+],
+"nombre": "CP FRANCISCO GUZMAN 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8110407VK3781A"
+]
+},
+{
+"opps": [
+"DAN-2023-152"
+],
+"ids": [
+"30afcd8e-0c7c-43ae-808c-57fe0a833ed1"
+],
+"nombre": "CP GALERIAS ROBLES 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0357803VK4705E"
+]
+},
+{
+"opps": [
+"DAN-2024-133"
+],
+"ids": [
+"01928030-5184-4160-8c8e-32e986f16026"
+],
+"nombre": "CP TISCAR 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3601925VK4730B"
+]
+},
+{
+"opps": [
+"DAN-2024-254"
+],
+"ids": [
+"008e5254-0b49-4907-a7bb-e80b72a842b4"
+],
+"nombre": "CP GENSERICO 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7634502VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2024-197"
+],
+"ids": [
+"11699d8c-2a59-488c-bf51-3db921905077"
+],
+"nombre": "CP MANUEL NOYA 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9709310VK3790H"
+]
+},
+{
+"opps": [
+"DAN-2017-057"
+],
+"ids": [
+"dac761d7-79f4-490f-be92-33eecab1ba1e"
+],
+"nombre": "CP GRAN VIA 62 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0050308VK4705A"
+]
+},
+{
+"opps": [
+"DAN-2025-136"
+],
+"ids": [
+"0b06c698-4e13-4075-b59f-bf52706c3b9d"
+],
+"nombre": "CP GERMAN PEREZ CARRASCO 58 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5666105VK4756F"
+]
+},
+{
+"opps": [
+"DAN-2022-054"
+],
+"ids": [
+"8fb655cc-8678-462a-828e-ecae59fe0aa8"
+],
+"nombre": "CP GOYA 55 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2354814VK4725C"
+]
+},
+{
+"opps": [
+"DAN-2022-220"
+],
+"ids": [
+"4788ab76-1cd4-4fd7-b0e9-90204567acc4"
+],
+"nombre": "CP GOIRI 33 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0385510VK4708E"
+]
+},
+{
+"opps": [
+"DAN-2025-028"
+],
+"ids": [
+"702c97dd-d4b3-48f8-9a28-d868c8379908"
+],
+"nombre": "CP HUERTAS 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0740901VK4704B"
+]
+},
+{
+"opps": [
+"DAN-2025-023"
+],
+"ids": [
+"27fe8935-b37b-43fe-8c6e-c5bb920b1687"
+],
+"nombre": "CP GENERAL CABRERA 25 A-25 B MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1087316VK4718G"
+]
+},
+{
+"opps": [
+"DAN-2021-124"
+],
+"ids": [
+"2568be3a-eed5-4c9d-8615-1f6dbab6417d"
+],
+"nombre": "CP CHANTADA 46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9108103VK3890G"
+]
+},
+{
+"opps": [
+"DAN-2022-167"
+],
+"ids": [
+"f744fe53-4724-4197-8f10-43b63cbbbf13"
+],
+"nombre": "CP HACIENDA DE PAVONES 164 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5826213VK4752F"
+]
+},
+{
+"opps": [
+"DAN-2025-129"
+],
+"ids": [
+"39fb6af7-7613-41b5-99e3-83d1ed0462fc"
+],
+"nombre": "CP GODELLA 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1664837VK4616D"
+]
+},
+{
+"opps": [
+"DAN-2023-186"
+],
+"ids": [
+"4b933356-f198-4c48-9443-0a3075954259"
+],
+"nombre": "CP SAN CLAUDIO 32 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5614804VK4751D"
+]
+},
+{
+"opps": [
+"DAN-2022-259"
+],
+"ids": [
+"ddc332b1-73fa-40b7-aba4-0d31b8e14ccd"
+],
+"nombre": "CP ISLA DE AROSA 8-10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9515309VK3891E",
+"9515310VK3891E"
+]
+},
+{
+"opps": [
+"DAN-2024-069"
+],
+"ids": [
+"598abc85-ab84-43db-9f95-4c7f35d71bf8"
+],
+"nombre": "CP AV ANDALUCIA 9-11 VALDEMORO",
+"municipio": "VALDEMORO",
+"parcelas": [
+"2793409VK4429S"
+]
+},
+{
+"opps": [
+"DAN-2025-092"
+],
+"ids": [
+"44ab9004-852e-4510-92ab-c0d143225d50"
+],
+"nombre": "CP GOMEZNARRO 82 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4992510VK4749D"
+]
+},
+{
+"opps": [
+"DAN-2021-098"
+],
+"ids": [
+"240cab90-cd7c-405b-b581-fee12fd52adc"
+],
+"nombre": "CP HERNANDEZ IGLESIAS 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5573716VK4757D"
+]
+},
+{
+"opps": [
+"DAN-2023-298"
+],
+"ids": [
+"cfe5a340-074c-489c-9955-ea6a5231437a"
+],
+"nombre": "CP HACIENDA DE PAVONES 51 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5231243VK4753A"
+]
+},
+{
+"opps": [
+"DAN-2023-048"
+],
+"ids": [
+"4fa009f9-199f-458a-b112-0b841bfcc30b"
+],
+"nombre": "CP HILARION ESLAVA 51-53 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9268504VK3796G"
+]
+},
+{
+"opps": [
+"DAN-2016-156"
+],
+"ids": [
+"122eb1bb-df5d-4099-88b0-06255ae6c827"
+],
+"nombre": "CP GENERAL DIAZ PORLIER 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2655207VK4725F"
+]
+},
+{
+"opps": [
+"DAN-2023-266"
+],
+"ids": [
+"4169eab4-d03f-49d6-b543-f29ed1a15144"
+],
+"nombre": "CP GIL IMON 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9333602VK3793C"
+]
+},
+{
+"opps": [
+"DAN-2022-077"
+],
+"ids": [
+"12dbb8f3-e4f1-48d6-9d43-0fddea0b170b"
+],
+"nombre": "CP HUERTA DE VILLAVERDE 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9868102VK3696H"
+]
+},
+{
+"opps": [
+"DAN-2022-280"
+],
+"ids": [
+"b7d7107a-7889-4ea9-aff2-494bb81d0a71"
+],
+"nombre": "CP HERNANI 33 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0679516VK4707H"
+]
+},
+{
+"opps": [
+"DAN-2025-394"
+],
+"ids": [
+"5a89b8d4-fff4-4547-98b9-6bd86164d96f"
+],
+"nombre": "CP GUTIERRE DE CETINA 123 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5955404VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2025-105"
+],
+"ids": [
+"197875bc-bfd2-4803-a815-0c8fa6fdb384"
+],
+"nombre": "CP HERMANOS GOMEZ 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4958401VK4745H"
+]
+},
+{
+"opps": [
+"DAN-2025-108"
+],
+"ids": [
+"149256d3-7649-4f80-80e2-10b3b267a0c4"
+],
+"nombre": "CP HORNACHOS 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3396420VK4639E"
+]
+},
+{
+"opps": [
+"DAN-2024-303"
+],
+"ids": [
+"c7a6ef1c-1baa-4101-b4e4-c3ca6732c1df"
+],
+"nombre": "CP SANGENJO 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0518416VK4801G"
+]
+},
+{
+"opps": [
+"DAN-2022-168"
+],
+"ids": [
+"66c4ff7b-8002-4da3-8268-3c3c9e840311"
+],
+"nombre": "CP HACIENDA DE PAVONES 252 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5826233VK4752F"
+]
+},
+{
+"opps": [
+"DAN-2025-159"
+],
+"ids": [
+"1bdbc07e-2ce9-4daa-b936-7313a3eab09b"
+],
+"nombre": "CP HINOJAL 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7959303VK4775H"
+]
+},
+{
+"opps": [
+"ALV-2026-181"
+],
+"ids": [
+"2a38eb92-da61-4d63-9283-9dc63e8f8dca"
+],
+"nombre": "CP HERMINIO PUERTAS 49 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7634511VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2025-029"
+],
+"ids": [
+"d27ba7bb-d79e-4811-9cd5-7201806b8d04"
+],
+"nombre": "CP HUERTAS 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0641402VK4704B"
+]
+},
+{
+"opps": [
+"DAN-2024-311"
+],
+"ids": [
+"f348fe23-4bf1-493c-900a-b1dde1fac049"
+],
+"nombre": "CP JOSE ARCONES GIL 100 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6257103VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2024-009"
+],
+"ids": [
+"e95d703f-4100-4be4-baa3-7657a22549ac"
+],
+"nombre": "CP CALLAO 33 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3206801VK3630N"
+]
+},
+{
+"opps": [
+"DAN-2022-279"
+],
+"ids": [
+"6fb134e0-fa1f-4f54-8212-498ef66ffc72"
+],
+"nombre": "CP HERNANI 29 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0679518VK4707H"
+]
+},
+{
+"opps": [
+"DAN-2024-140"
+],
+"ids": [
+"92005e0d-b0cf-45be-8146-4708bdf72760"
+],
+"nombre": "CP ALEJANDRINA MORAN 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6828216VK3762H"
+]
+},
+{
+"opps": [
+"DAN-2025-393"
+],
+"ids": [
+"6f2449a7-3040-47cb-9b40-fb5d7fdf6f69"
+],
+"nombre": "CP CAMINO VIEJO DE LEGANES 237 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8003423VK3780C"
+]
+},
+{
+"opps": [
+"DAN-2025-087"
+],
+"ids": [
+"fc0f90fd-d89e-4c16-944e-a3afd31b918a"
+],
+"nombre": "CP HERMINIO PUERTAS 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7536403VK3773F"
+]
+},
+{
+"opps": [
+"CAR-2025-024"
+],
+"ids": [
+"3ffa2e15-3c78-4578-8fd3-5c1d97d10c9d"
+],
+"existe": "2a01f0ef-697f-44a3-96a8-21616c630b7c",
+"nombre": "CP PZA JIMENEZ DIAZ 7 GETAFE"
+},
+{
+"opps": [
+"CAR-2025-082"
+],
+"ids": [
+"a74f239f-c23c-4a5f-9cff-1c7454253336"
+],
+"nombre": "CP LUIS DE TORRES 10 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9820601VK6892S"
+]
+},
+{
+"opps": [
+"CAR-2025-017"
+],
+"ids": [
+"e0d80b6a-bda3-4900-b74a-5f7dee5572f4"
+],
+"nombre": "CP BLASCO DE GARAY 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9760620VK3796B"
+]
+},
+{
+"opps": [
+"DAN-2024-038"
+],
+"ids": [
+"7cbcfc30-1492-44bb-9acc-6e5be308d85b"
+],
+"nombre": "CP RIO DUERO 29 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4854701VK3645S"
+]
+},
+{
+"opps": [
+"DAN-2021-026"
+],
+"ids": [
+"6f275f6b-a20a-44ae-aad3-f944e29bd546"
+],
+"existe": "6cae7c46-342b-4d26-8a83-cecc1642c0e9",
+"nombre": "CP HERMANOS DE PABLO 45 MADRID"
+},
+{
+"opps": [
+"DAN-2021-058"
+],
+"ids": [
+"d2481877-a86f-43e5-b3b8-4a4d7a4905a0"
+],
+"nombre": "CP HORNO LABRADORES 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8827804VK4782F"
+]
+},
+{
+"opps": [
+"DAN-2024-022"
+],
+"ids": [
+"45278854-ee90-4d8a-9146-c1a3ebbba22a"
+],
+"nombre": "CP CUZCO 1 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2905001VK3620S"
+]
+},
+{
+"opps": [
+"DAN-2024-241"
+],
+"ids": [
+"06b59383-a389-4833-bee1-b52e2801f3a4"
+],
+"nombre": "CP LAS GARDENIAS 21-23-25-27-29-31-33-35-37-39 ALCORCON",
+"municipio": "ALCORCON",
+"parcelas": [
+"1874701VK3617S"
+]
+},
+{
+"opps": [
+"DAN-2018-086"
+],
+"ids": [
+"cafb2b09-2ee6-43ed-b7ed-ac756a6eea6a"
+],
+"nombre": "CP IRIARTE 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3067804VK4736E"
+]
+},
+{
+"opps": [
+"DAN-2023-047"
+],
+"ids": [
+"84e6bc12-6d6e-4ca9-b237-1d2f27335f9d"
+],
+"nombre": "CP HERNANI 66 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1078902VK4717G"
+]
+},
+{
+"opps": [
+"DAN-2024-182"
+],
+"ids": [
+"7bf6b6d7-91d8-48b0-bd5e-59b5eb538cbd"
+],
+"nombre": "CP YEBENES 179 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6517246VK3761F"
+]
+},
+{
+"opps": [
+"DAN-2023-268"
+],
+"ids": [
+"6cfcdc6b-cb95-4b49-98d1-4a1520132c12"
+],
+"nombre": "CP JOSE ARCONES GIL 106 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6256701VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2021-065"
+],
+"ids": [
+"5b31efd3-eac7-46c1-945a-dd59ffe18715"
+],
+"nombre": "CP LLANOS DE ESCUDERO 37 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5855903VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2021-022"
+],
+"ids": [
+"bfdfe06c-55a2-4ef0-825f-d39fec0c5b5e"
+],
+"nombre": "CP JUAN BOSCAN 57 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5956104VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2022-233"
+],
+"ids": [
+"f37f4e26-29d2-4195-91c9-9d9ecc632419"
+],
+"nombre": "CP LUCANO 63 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8366513VK4786E"
+]
+},
+{
+"opps": [
+"DAN-2024-204"
+],
+"ids": [
+"e4f78d8f-130f-42c7-882e-4f61df30eda4"
+],
+"nombre": "CP LOPEZ DE HOYOS 384 A MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4292101VK4849A"
+]
+},
+{
+"opps": [
+"DAN-2025-155"
+],
+"ids": [
+"32972964-2277-4e45-829a-1888364e7de7"
+],
+"nombre": "CP JOSEFA ALONSO 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7330701VK3773A"
+]
+},
+{
+"opps": [
+"DAN-2025-166"
+],
+"ids": [
+"f3166824-fd5e-4c2c-849b-c7e041d02e46"
+],
+"nombre": "CP LAGUNA 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7015605VK3771E"
+]
+},
+{
+"opps": [
+"DAN-2022-074",
+"DAN-2017-139"
+],
+"ids": [
+"1c107ac6-5c46-41ff-b225-06aaeafe2a45",
+"e024bec4-435a-4db0-8ec6-9faeccc76e65"
+],
+"nombre": "CP PASEO ACACIAS 59 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9727204VK3792F"
+]
+},
+{
+"opps": [
+"DAN-2022-297"
+],
+"ids": [
+"72e1e084-2816-4e21-8505-f370af2f7a80"
+],
+"nombre": "CP JAZMIN 30-32 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3611023VK4831D"
+]
+},
+{
+"opps": [
+"DAN-2023-267"
+],
+"ids": [
+"c718e4c3-96ae-4085-bba4-fe23a8d8729f"
+],
+"nombre": "CP JOSE ORTEGA Y GASSET 34 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2358601VK4725G"
+]
+},
+{
+"opps": [
+"DAN-2024-091"
+],
+"ids": [
+"c05c2cdf-c599-4a1d-a22e-0db5aca68b71"
+],
+"nombre": "CP LAZCANO 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1172113VK4617A"
+]
+},
+{
+"opps": [
+"DAN-2016-194"
+],
+"ids": [
+"a6eb814a-09a5-42e2-8b71-7a05a05022a4"
+],
+"nombre": "CP LUIS RUIZ 82 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6252201VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2023-278"
+],
+"ids": [
+"64c05109-1720-4efc-b0f1-e9a39eeb2be1"
+],
+"nombre": "CP LUCANO 45 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8366501VK4786E"
+]
+},
+{
+"opps": [
+"DAN-2024-282"
+],
+"ids": [
+"c7572e9f-2ec0-423d-a4d6-cccba87c4dde"
+],
+"nombre": "CP LOPEZ DE HOYOS 365 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4904401VK4840D"
+]
+},
+{
+"opps": [
+"DAN-2021-029"
+],
+"ids": [
+"37851b2a-2b44-42af-92ec-5bad480c4027"
+],
+"nombre": "CP LUIS RUIZ 88 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6252225VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2025-165"
+],
+"ids": [
+"55ce7529-cc13-41fb-8068-9fb4d2cd6fa4"
+],
+"nombre": "CP LUIS DE HOYOS SAINZ 108 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5929346VK4752H"
+]
+},
+{
+"opps": [
+"DAN-2024-139"
+],
+"ids": [
+"8569a0e9-38f4-4c97-9508-214137060fd2"
+],
+"nombre": "CP VICENTE CAMARON 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7433719VK3773C"
+]
+},
+{
+"opps": [
+"DAN-2017-053"
+],
+"ids": [
+"ae94aafe-cffe-4e4f-8a99-e973261be80e"
+],
+"nombre": "CP LAGO DE CONSTANZA 46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5259902VK4755G"
+]
+},
+{
+"opps": [
+"DAN-2022-131"
+],
+"ids": [
+"b25c98a8-4735-4556-ab33-18358c009505"
+],
+"nombre": "CP LUIS RUIZ 111 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6352301VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2022-296"
+],
+"ids": [
+"37ff460a-76d3-441d-a9e9-f5f70c84cddc"
+],
+"nombre": "CP JAZMIN 16-18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3611020VK4831D"
+]
+},
+{
+"opps": [
+"CAR-2025-020"
+],
+"ids": [
+"37311799-1736-43ae-8b9c-2a0af8370239"
+],
+"nombre": "CP ILLESCAS 24-24 B-24 C-24 D-24 E MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5220604VK3752A",
+"5220605VK3752A",
+"5220606VK3752A",
+"5220607VK3752A",
+"5220608VK3752A"
+]
+},
+{
+"opps": [
+"DAN-2024-149"
+],
+"ids": [
+"a09f2046-f3f3-4312-8dfa-0152b1e36d33"
+],
+"nombre": "CP BADALONA 118 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1130715VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2024-294"
+],
+"ids": [
+"54db0222-c50b-41fc-a044-276dc56ec533"
+],
+"nombre": "CP JUANELO 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0138705VK4703G"
+]
+},
+{
+"opps": [
+"DAN-2018-037"
+],
+"ids": [
+"3ca5cea4-a74e-4fc5-98f1-9a8bd1399446"
+],
+"nombre": "CP JOSE NORIEGA 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4554408VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2024-281"
+],
+"ids": [
+"4a36b9b1-518c-419e-98e7-e8f8a19f52b5"
+],
+"nombre": "CP JOSE ORTEGA Y GASSET 86 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3058127VK4735G"
+]
+},
+{
+"opps": [
+"DAN-2025-077"
+],
+"ids": [
+"528c341a-623e-4580-893b-622f18288479"
+],
+"nombre": "CP LOPEZ GRASS 66 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4222604VK4742C"
+]
+},
+{
+"opps": [
+"DAN-2024-219"
+],
+"ids": [
+"20db7aad-7632-4e9e-936c-4a52af80cb5c"
+],
+"nombre": "CP LEGAZPI 3 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"4943103VK3644S"
+]
+},
+{
+"opps": [
+"DAN-2016-033"
+],
+"ids": [
+"cf3e423a-08b9-4b9e-859f-689a84086cdf"
+],
+"nombre": "CP LEÑEROS 44-46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9987428VK3798H"
+]
+},
+{
+"opps": [
+"DAN-2016-170"
+],
+"ids": [
+"2453b6f5-2013-46ba-97e8-6b3c53758f79"
+],
+"nombre": "CP LUIS RUIZ 86 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6252226VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2022-111"
+],
+"ids": [
+"56671c5d-3e0b-46cd-a02e-4072ccadde5f"
+],
+"nombre": "CP MARQUES DE CUBAS 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1045805VK4714E"
+]
+},
+{
+"opps": [
+"DAN-2025-160"
+],
+"ids": [
+"28ebe7e3-b93b-4c0c-8596-c570b25b395c"
+],
+"nombre": "CP LUIS PANDO 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6829601VK3762H"
+]
+},
+{
+"opps": [
+"DAN-2022-121"
+],
+"ids": [
+"817df786-4aff-4245-9195-07186db111c0"
+],
+"nombre": "CP LORCA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4506714VK4840F"
+]
+},
+{
+"opps": [
+"DAN-2026-138"
+],
+"ids": [
+"69eee653-bcbd-4989-a553-b091370ac8c3"
+],
+"nombre": "CP LUIS GOMEZ 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8211217VK3781A"
+]
+},
+{
+"opps": [
+"DAN-2022-255"
+],
+"ids": [
+"8f9f358d-9ef3-4604-bd48-8381efa20bd8"
+],
+"nombre": "CP LURUACO 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6206619VK4860E"
+]
+},
+{
+"opps": [
+"DAN-2023-265"
+],
+"ids": [
+"4e1e9518-6ddf-46f4-a090-094a522c0ef5"
+],
+"nombre": "CP FORTUNATA Y JACINTA 31 - ORENSE 43 - PEDRO TEIXEIRA 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1186604VK4718E",
+"1387310VK4718G"
+]
+},
+{
+"opps": [
+"DAN-2025-082"
+],
+"ids": [
+"db096200-829a-41c8-84bd-0900c5d5b917"
+],
+"nombre": "CP YEBENES 118 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6117725VK3761E"
+]
+},
+{
+"opps": [
+"DAN-2022-133"
+],
+"ids": [
+"71120764-1b37-4cdb-b295-9e36a2c1ee29"
+],
+"nombre": "CP JUAN TORNERO 64 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8238308VK3783G"
+]
+},
+{
+"opps": [
+"DAN-2021-135"
+],
+"ids": [
+"27b79c70-6de1-41a4-b803-1d13b451da6e"
+],
+"nombre": "CP LEON 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0742709VK4704B"
+]
+},
+{
+"opps": [
+"DAN-2015-118"
+],
+"ids": [
+"c0708ee0-5681-494e-b287-3cc3d47440db"
+],
+"nombre": "CP MALDONADO 75 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2963208VK4726D"
+]
+},
+{
+"opps": [
+"DAN-2021-040"
+],
+"ids": [
+"18452636-fb7a-4701-82f9-13b9370893d5"
+],
+"nombre": "CP MARIA DE GUZMAN 42 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0974205VK4707D"
+]
+},
+{
+"opps": [
+"DAN-2021-100"
+],
+"ids": [
+"5466b043-10a9-4137-bc55-bd982d9a74ab"
+],
+"nombre": "CP MANUEL MARIA IGLESIAS 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4682811VK4848B"
+]
+},
+{
+"opps": [
+"DAN-2022-151"
+],
+"ids": [
+"7ef7c50e-7bd9-41a4-97a6-a255cdaa9966"
+],
+"nombre": "CP MARBELLA 66 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0133314VK4803C"
+]
+},
+{
+"opps": [
+"DAN-2023-146"
+],
+"ids": [
+"37fca960-3d92-4d08-bb16-55b150075fde"
+],
+"nombre": "CP MANRESA 33 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1327501VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2024-226"
+],
+"ids": [
+"eddeaba5-fd98-47ed-8ede-0aedd4702d40"
+],
+"nombre": "CP MARIBLANCA 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0015401VK4701E"
+]
+},
+{
+"opps": [
+"DAN-2021-057"
+],
+"ids": [
+"5f5fc830-92df-43c0-a3aa-0ad45db86346"
+],
+"nombre": "CP LA DEL MANOJO DE ROSAS 57 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0975632VK4607F"
+]
+},
+{
+"opps": [
+"DAN-2022-057"
+],
+"ids": [
+"e632064e-1b81-4845-a7ae-a0361afebb47"
+],
+"existe": "d605815c-e2cc-4770-9582-7fc2e7aab6f9",
+"nombre": "CP MANRESA 56 MADRID"
+},
+{
+"opps": [
+"DAN-2022-156"
+],
+"ids": [
+"b368bd0d-dd7b-4294-b93c-e8cb420ca315"
+],
+"nombre": "CP MANRESA 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1427914VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2025-284"
+],
+"ids": [
+"3fb7abec-2613-4e03-bf40-7d96ed4d2552"
+],
+"nombre": "CP MARTINEZ IZQUIERDO 39 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3464804VK4736C"
+]
+},
+{
+"opps": [
+"DAN-2022-182"
+],
+"ids": [
+"c92676d0-5854-4406-bbed-e8b882a77af0"
+],
+"nombre": "CP MARBELLA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0729110VK4802H"
+]
+},
+{
+"opps": [
+"DAN-2022-212"
+],
+"ids": [
+"e25b79fd-4ea7-4304-a3ff-72555d805580"
+],
+"nombre": "CP VILLASTAR 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9664901VK3696D"
+]
+},
+{
+"opps": [
+"DAN-2024-065"
+],
+"ids": [
+"cf97693d-d729-407c-adb8-80a1627f82ae"
+],
+"nombre": "CP MARIA DOMINGO 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7909509VK3770H"
+]
+},
+{
+"opps": [
+"DAN-2018-058"
+],
+"ids": [
+"6313127f-19c7-42c6-ba25-b89489edc88b"
+],
+"nombre": "CP SAN MAXIMILIANO 31 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4653309VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2024-053"
+],
+"ids": [
+"83d53861-24cb-456a-beea-58e2bf8a0aab"
+],
+"nombre": "CP MATARO 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1229847VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2026-207"
+],
+"ids": [
+"fbfabba5-a8af-4d31-96c8-398f2b1f8a9d"
+],
+"nombre": "CP MARQUES DE VIANA 55 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0595207VK4709E"
+]
+},
+{
+"opps": [
+"DAN-2024-277"
+],
+"ids": [
+"2ad7da28-9288-4e7c-b7a8-50018dd95e75"
+],
+"nombre": "CP MAYOR 43 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0043203VK4704C"
+]
+},
+{
+"opps": [
+"DAN-2026-182"
+],
+"ids": [
+"f265a592-826d-4791-8914-b79deb096c3d"
+],
+"nombre": "CP MAR MENOR 21-23-25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5610041VK4851A"
+]
+},
+{
+"opps": [
+"DAN-2023-224"
+],
+"ids": [
+"603bc5bf-cfb2-4e7a-a8ae-bcfcf9cacd67"
+],
+"nombre": "CP MARIA ZURITA 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5890708VK3659B"
+]
+},
+{
+"opps": [
+"DAN-2025-100"
+],
+"ids": [
+"f5298f92-61b5-419e-8cfd-7ee0dd1211df"
+],
+"nombre": "CP MAQUEDA 105 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5415803VK3751E"
+]
+},
+{
+"opps": [
+"DAN-2025-244"
+],
+"ids": [
+"f25613e3-0dc3-45d0-aef2-36ad7a7a6f37"
+],
+"nombre": "CP MARCOS DE ORUETA 15-15 C MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1820821VK4812B",
+"1820843VK4811H"
+]
+},
+{
+"opps": [
+"DAN-2022-153"
+],
+"ids": [
+"4210f195-32ed-4dca-9534-9f6d465faf7f"
+],
+"nombre": "CP MAR MENOR 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5608307VK4850H"
+]
+},
+{
+"opps": [
+"DAN-2025-134"
+],
+"ids": [
+"b3ead134-5d49-4d41-9a95-705db5fc2444"
+],
+"nombre": "CP MATARO 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1229808VK4812G"
+]
+},
+{
+"opps": [
+"DAN-2023-243"
+],
+"ids": [
+"911d5aed-0fd2-48d0-8c7c-1868d5732146"
+],
+"nombre": "CP NICOLASA GOMEZ 104 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8364307VK4786C"
+]
+},
+{
+"opps": [
+"DAN-2024-066"
+],
+"ids": [
+"f1cd707c-a082-4b06-b92a-69a226fe21f4"
+],
+"nombre": "CP MODESTO LAFUENTE 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0966707VK4706F"
+]
+},
+{
+"opps": [
+"DAN-2018-013"
+],
+"ids": [
+"38917b6b-4774-4d0b-896e-0554f0d86024"
+],
+"nombre": "CP MONTEJURRA 13 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4453507VK4745C"
+]
+},
+{
+"opps": [
+"DAN-2021-055"
+],
+"ids": [
+"b5399513-a69e-4394-8a13-ed23bd75a473"
+],
+"nombre": "CP MULLER 31 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0797708VK4709F"
+]
+},
+{
+"opps": [
+"DAN-2025-014"
+],
+"ids": [
+"b4a17437-b856-47f0-a268-b144ddc02d66"
+],
+"nombre": "CP NICOLAS SANCHEZ 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0110307VK4701A"
+]
+},
+{
+"opps": [
+"DAN-2024-187"
+],
+"ids": [
+"95fcea14-0d23-49a4-954c-1c60f76aa275"
+],
+"nombre": "CP MESON DE PAREDES 90 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0532704VK4703B"
+]
+},
+{
+"opps": [
+"DAN-2025-027"
+],
+"ids": [
+"46a646e0-2a34-495c-803a-a3bc8539369b"
+],
+"nombre": "CP MORALZARZAL 100 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9731115VK3893B"
+]
+},
+{
+"opps": [
+"DAN-2025-073"
+],
+"ids": [
+"27aeccf4-9d20-4e6c-8584-1f9716cdee10"
+],
+"nombre": "CP NICOLAS GODOY 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0710104VK4701B"
+]
+},
+{
+"opps": [
+"DAN-2018-038"
+],
+"ids": [
+"4ef0791e-6542-4eff-99f3-909f15a33a12"
+],
+"nombre": "CP NUESTRA SEÑORA DEL VILLAR 55 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4852270VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2022-137"
+],
+"ids": [
+"4222ea5a-cafb-46de-9d5e-c05b86ed1756"
+],
+"nombre": "CP NECTAR 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7971528VK4777B"
+]
+},
+{
+"opps": [
+"DAN-2024-095"
+],
+"ids": [
+"16131616-811a-4a6a-b22a-e1f1e7151c3f"
+],
+"nombre": "CP MUSAS 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8566611VK4786F"
+]
+},
+{
+"opps": [
+"DAN-2025-391"
+],
+"ids": [
+"3579df49-81f5-42a8-bb94-d2ba99f6f754"
+],
+"nombre": "CP SAN MARIANO 82 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8366504VK4786E"
+]
+},
+{
+"opps": [
+"DAN-2022-216"
+],
+"ids": [
+"8a5332db-b316-4ae3-9abe-61ec51723a75"
+],
+"nombre": "CP SAN EMILIO 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4257923VK4745E"
+]
+},
+{
+"opps": [
+"DAN-2025-113"
+],
+"ids": [
+"f4af8b34-476a-456f-b286-68006d448c84"
+],
+"nombre": "CP NICOLAS SANCHEZ 102 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0105503VK4700E"
+]
+},
+{
+"opps": [
+"ALV-2026-100"
+],
+"ids": [
+"d88ea882-e1fa-495f-97e7-b8850eb91f80"
+],
+"nombre": "CP NUMANCIA 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9886314VK3798F"
+]
+},
+{
+"opps": [
+"DAN-2024-124"
+],
+"ids": [
+"2ddde980-730d-4e54-ab4f-0839ddab19db"
+],
+"nombre": "CP ORDEN 30 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0680525VK4708B"
+]
+},
+{
+"opps": [
+"DAN-2022-217"
+],
+"ids": [
+"8396518e-b3ba-4de3-8481-2e1d61cce4ca"
+],
+"nombre": "CP FUENTEBELLA 8 PARLA",
+"municipio": "PARLA",
+"parcelas": [
+"4340501VK3544S"
+]
+},
+{
+"opps": [
+"DAN-2022-218",
+"DAN-2015-024"
+],
+"ids": [
+"c649a1ac-6646-4235-8889-6dc4d98c5d66",
+"8c27dcd8-59ef-426a-be6b-1ada3e7bc480"
+],
+"nombre": "CP GENERAL RICARDOS 232 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7209809VK3770G"
+]
+},
+{
+"opps": [
+"DAN-2022-204"
+],
+"ids": [
+"7bad6c5c-5dc4-43b2-9209-7fa0ff707cfe"
+],
+"nombre": "CP PABLO SERRANO 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5303218VK4850C"
+]
+},
+{
+"opps": [
+"ALV-2026-187"
+],
+"ids": [
+"e24ff9ec-a6a7-477f-b340-25f116986f21"
+],
+"nombre": "CP AV PALOMERAS 17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4214726VK4741C"
+]
+},
+{
+"opps": [
+"DAN-2023-237"
+],
+"ids": [
+"1db2d867-9e3a-42ed-9403-f608e06e602b"
+],
+"nombre": "CP PABLO LUNA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2011603VK4821A"
+]
+},
+{
+"opps": [
+"DAN-2024-286"
+],
+"ids": [
+"10e613fe-28ca-4626-af15-37e0340e3d2f"
+],
+"existe": "3c582f41-8854-44c0-8bb0-ade539179d92",
+"nombre": "CP QUINTANA 9 MADRID"
+},
+{
+"opps": [
+"DAN-2023-255"
+],
+"ids": [
+"1c7c59d5-5152-433e-8c1a-f19e6fed368e"
+],
+"existe": "72d7c50f-8dea-4375-b7f1-af69ecc24ee7",
+"nombre": "CP PABLO SERRANO 9 MADRID"
+},
+{
+"opps": [
+"DAN-2024-100"
+],
+"ids": [
+"aaad321b-d850-4a8f-a4e8-3a1fa0e62029"
+],
+"nombre": "CP PABLO RICA 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3313509VK4731D"
+]
+},
+{
+"opps": [
+"DAN-2022-152"
+],
+"ids": [
+"26138fe7-831d-4d67-a8ad-3383215c345e"
+],
+"nombre": "CP HAYA 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6690204VK3669B"
+]
+},
+{
+"opps": [
+"DAN-2022-230"
+],
+"ids": [
+"92775db8-9e04-4ac7-8af4-ff8299142283"
+],
+"nombre": "CP AV COLMENAR VIEJO 10 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6986305VK4868N"
+]
+},
+{
+"opps": [
+"DAN-2023-091"
+],
+"ids": [
+"23d17e9b-17bb-467a-9282-cf348407e1fd"
+],
+"nombre": "CP PASEO FLORIDA 57 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8750502VK3785B"
+]
+},
+{
+"opps": [
+"DAN-2020-043"
+],
+"ids": [
+"a2191b2a-3922-44f8-ace0-b7d60df5f419"
+],
+"nombre": "CP PASAJE LINCE 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3536619VK4733F"
+]
+},
+{
+"opps": [
+"DAN-2023-210"
+],
+"ids": [
+"c43e395f-95fd-45ec-865f-4562c120dacd"
+],
+"nombre": "CP PASEO LA HABANA 109 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2291502VK4729A"
+]
+},
+{
+"opps": [
+"DAN-2023-095"
+],
+"ids": [
+"03e91eaf-d06a-4d5d-8353-7f46c5419c85"
+],
+"nombre": "CP PASEO REINA CRISTINA 15-17 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2334201VK4723C"
+]
+},
+{
+"opps": [
+"DAN-2023-096"
+],
+"ids": [
+"d7ed7890-4ae4-40f6-85ba-d2a0e25ce300"
+],
+"nombre": "CP PASEO REINA CRISTINA 19-21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2334201VK4723C"
+]
+},
+{
+"opps": [
+"DAN-2025-119"
+],
+"ids": [
+"bf0d39d3-3bef-4e3a-93e0-539bd9851a61"
+],
+"nombre": "CP PASEO MAESTRA MARIA SANCHEZ ARB 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9493302VK3799C"
+]
+},
+{
+"opps": [
+"DAN-2024-257"
+],
+"ids": [
+"19b115d5-9f78-4f27-a656-9e188a40ea9f"
+],
+"nombre": "CP PEAL 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3601915VK4730B"
+]
+},
+{
+"opps": [
+"DAN-2024-061"
+],
+"ids": [
+"ca2bf72d-d7cf-4ba9-90a7-81cd32ed9205"
+],
+"nombre": "CP PEDRO ROMERO 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5484010VK4758D"
+]
+},
+{
+"opps": [
+"DAN-2024-136"
+],
+"ids": [
+"f2784123-7023-41c9-aa93-9c112e26d561"
+],
+"nombre": "CP PENSAMIENTO 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0992110VK4709B"
+]
+},
+{
+"opps": [
+"DAN-2022-241"
+],
+"ids": [
+"94b354a4-e167-4483-959b-b980cb19ad9f"
+],
+"nombre": "CP PLAZA PICO SALVAGUARDIA 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9118114VK3891G"
+]
+},
+{
+"opps": [
+"DAN-2022-295"
+],
+"ids": [
+"6d115457-98c1-44e1-ad13-3e208b674376"
+],
+"nombre": "CP PINTOR JUAN GRIS 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1490506VK4719A"
+]
+},
+{
+"opps": [
+"DAN-2023-101"
+],
+"ids": [
+"649a5f54-ecfe-4346-8687-125ef593e241"
+],
+"nombre": "CP PEDRO UNANUE 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1129402VK4712G"
+]
+},
+{
+"opps": [
+"DAN-2023-252"
+],
+"ids": [
+"de3d4689-9671-40cb-8bec-0a05305bdd8b"
+],
+"nombre": "CP PICO ARTILLEROS 30 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5633411VK4753D"
+]
+},
+{
+"opps": [
+"DAN-2023-079"
+],
+"ids": [
+"337bcf78-b808-4097-b903-373a12d1bb39"
+],
+"nombre": "CP PLAZA ALMUÑECAR 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8355402VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2026-178"
+],
+"ids": [
+"c094402c-436b-412e-94f9-45d6fa12aa00"
+],
+"nombre": "CP PLAZA GABRIEL MIRO 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9539205VK3793H"
+]
+},
+{
+"opps": [
+"DAN-2023-198"
+],
+"ids": [
+"469523ff-bb49-43e3-84e3-b69288fcf540"
+],
+"nombre": "CP PLAZA ARTEIJO 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0212944VK4801A"
+]
+},
+{
+"opps": [
+"DAN-2023-214"
+],
+"ids": [
+"0f8502ef-9b96-4129-81fd-ee87161884c8"
+],
+"nombre": "CP PITAGORAS 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8566604VK4786F"
+]
+},
+{
+"opps": [
+"DAN-2023-225",
+"DAN-2023-227"
+],
+"ids": [
+"ed1c9bf2-a5a5-41d8-82c5-a3730d5983db",
+"5c92edf6-32ec-4310-9164-a4fe16cc7e43"
+],
+"nombre": "CP PLAZA ALMUÑECAR 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8157505VK3785G"
+]
+},
+{
+"opps": [
+"DAN-2022-235"
+],
+"ids": [
+"de5ceb92-9016-48d3-8c66-8755d23bc50d"
+],
+"nombre": "CP OLIVAR 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0539207VK4703G"
+]
+},
+{
+"opps": [
+"DAN-2022-095"
+],
+"ids": [
+"e6d9f808-47e1-4001-a482-3a27b21982b1"
+],
+"nombre": "CP PLAZA FONSAGRADA 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0212932VK4801A"
+]
+},
+{
+"opps": [
+"DAN-2018-077"
+],
+"ids": [
+"bb1fa266-81a9-41e1-8018-754248b2918a"
+],
+"nombre": "CP PENSAMIENTO 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1090301VK4719A"
+]
+},
+{
+"opps": [
+"DAN-2026-216"
+],
+"ids": [
+"e83a6322-ea15-4e59-abb4-411ad87ccf46"
+],
+"nombre": "CP PLAZA MALICIOSA 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4963505VK4746D"
+]
+},
+{
+"opps": [
+"DAN-2022-237"
+],
+"ids": [
+"abcdf580-6589-4a00-8b95-553394ae7b97"
+],
+"nombre": "CP PICO BALAITUS 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8919701VK3881H"
+]
+},
+{
+"opps": [
+"DAN-2025-144"
+],
+"ids": [
+"f1cf3a58-2079-409b-af08-6c0b20346052"
+],
+"nombre": "CP PRIETO UREÑA 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3397801VK4739G"
+]
+},
+{
+"opps": [
+"DAN-2023-226",
+"DAN-2019-013"
+],
+"ids": [
+"ead998f3-2046-4b32-9922-feea74fc5891",
+"7e568267-1024-477a-ab8e-99fc9a8a16c4"
+],
+"nombre": "CP PLAZA ALMUÑECAR 6-7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8157507VK3785G"
+]
+},
+{
+"opps": [
+"DAN-2024-230"
+],
+"ids": [
+"4e4eeae9-2ab1-40e0-9dee-4ed77fd4f879"
+],
+"nombre": "CP PUERTO DE SOMIEDO 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5013406VK4751C"
+]
+},
+{
+"opps": [
+"ALV-2026-043"
+],
+"ids": [
+"d1d3ca22-a298-4454-8287-0a60452c92ae"
+],
+"nombre": "CP PUERTO LAPICE 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9368601VK3696G"
+]
+},
+{
+"opps": [
+"DAN-2025-247"
+],
+"ids": [
+"c8d79407-e69f-4324-9c80-6512cb471508"
+],
+"nombre": "CP PUERTO BALBARAN 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3307411VK4730G"
+]
+},
+{
+"opps": [
+"DAN-2021-084"
+],
+"ids": [
+"2d798309-c738-426c-b5bd-623bc91ec35c"
+],
+"nombre": "CP PRINCIPE DE VERGARA 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2354808VK4725C"
+]
+},
+{
+"opps": [
+"DAN-2024-228"
+],
+"ids": [
+"e69b4db1-b3ad-44e6-82b4-94579f38d8c9"
+],
+"nombre": "CP RAMON AZORIN 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7029442VK3772G"
+]
+},
+{
+"opps": [
+"DAN-2023-130"
+],
+"ids": [
+"63cde043-790b-41f0-b1da-e0c2a54192aa"
+],
+"nombre": "CP RAMON GOMEZ DE LA SERNA 115 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8618957VK3881F"
+]
+},
+{
+"opps": [
+"DAN-2023-303"
+],
+"ids": [
+"d6fa3877-64fa-4212-b998-b71c8d796a4d"
+],
+"nombre": "CP RECALDE 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5657212VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2022-145"
+],
+"ids": [
+"afc9321b-3363-48bb-8c19-65a3b9765382"
+],
+"nombre": "CP RAMON GOMEZ DE LA SERNA 79-81-83 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8618901VK3881G"
+]
+},
+{
+"opps": [
+"DAN-2022-276"
+],
+"ids": [
+"4cf8763f-9404-4378-8059-115c782dfcb4"
+],
+"nombre": "CP RAMON GOMEZ DE LA SERNA 121 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8618937VK3881F"
+]
+},
+{
+"opps": [
+"DAN-2026-134"
+],
+"ids": [
+"6f4690dc-1dd5-4b8b-a7d7-95d1d2db88b3"
+],
+"nombre": "CP RIBADESELLA 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6657103VK4765F"
+]
+},
+{
+"opps": [
+"DAN-2022-243"
+],
+"ids": [
+"f033bfc7-94a0-451a-b816-63bbce383180"
+],
+"nombre": "CP MORERAS 7 ARANJUEZ",
+"municipio": "ARANJUEZ",
+"parcelas": [
+"9121708VK4392S"
+]
+},
+{
+"opps": [
+"DAN-2023-081"
+],
+"ids": [
+"86d9a68d-01d0-48b0-a971-350f8193baf5"
+],
+"nombre": "CP RIBERA DEL MANZANARES 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8551324VK3785B"
+]
+},
+{
+"opps": [
+"DAN-2023-082"
+],
+"ids": [
+"5cda7fb5-e713-4622-b45f-96e3f09ce964"
+],
+"nombre": "CP RIBERA DEL MANZANARES 67 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8354122VK3785C"
+]
+},
+{
+"opps": [
+"DAN-2023-083"
+],
+"ids": [
+"610a68ef-09bf-4676-8076-64e98f77117a"
+],
+"nombre": "CP RIBERA DEL MANZANARES 69 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8354123VK3785C"
+]
+},
+{
+"opps": [
+"DAN-2023-084"
+],
+"ids": [
+"9114f0cf-796f-44e6-88c9-1a7ffe9e92ab"
+],
+"nombre": "CP RIBERA DEL MANZANARES 85 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8354111VK3785C"
+]
+},
+{
+"opps": [
+"DAN-2023-285"
+],
+"ids": [
+"11a7d600-6e6b-4fbc-9ea4-830932a59243"
+],
+"nombre": "CP RIBERA DEL MANZANARES 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8551336VK3785B"
+]
+},
+{
+"opps": [
+"DAN-2022-114"
+],
+"ids": [
+"a0ca4734-da7e-4f90-8553-6434efff0072"
+],
+"nombre": "CP RUEZA 32 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5929718VK3752H"
+]
+},
+{
+"opps": [
+"DAN-2022-253"
+],
+"ids": [
+"4f51bfa1-5122-4ee9-844d-8d0ba344737c"
+],
+"nombre": "CP PASEO GUADALAJARA 55 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"5798801VK4859N"
+]
+},
+{
+"opps": [
+"DAN-2024-155"
+],
+"ids": [
+"4b56362f-7db7-443e-99c1-2f741a43262c"
+],
+"nombre": "CP RICARDO ORTIZ 44 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4252503VK4745C"
+]
+},
+{
+"opps": [
+"DAN-2022-289"
+],
+"ids": [
+"caf8a8b6-dcdf-4519-8c71-5773f0ed7b4f"
+],
+"nombre": "CP RIO SALADO 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4810105VK4741B"
+]
+},
+{
+"opps": [
+"DAN-2023-114"
+],
+"ids": [
+"25e9c220-9a73-432e-9642-6e5664ef6f8f"
+],
+"nombre": "CP SAN ANASTASIO 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0423205VK4702C"
+]
+},
+{
+"opps": [
+"DAN-2024-129"
+],
+"ids": [
+"80914c7c-177b-4de6-a531-88409aa86125"
+],
+"nombre": "CP SALVADOR MARTINEZ LOZANO 40 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3118507VK4731G"
+]
+},
+{
+"opps": [
+"DAN-2024-258"
+],
+"ids": [
+"e6ac6c63-319e-4e72-b354-908210769377"
+],
+"nombre": "CP SAN ANSELMO 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4410806VK4741A"
+]
+},
+{
+"opps": [
+"DAN-2024-267"
+],
+"ids": [
+"f21ab2d2-6cb9-4aa5-a3a4-54382a86d5fb"
+],
+"nombre": "CP SAGRADOS CORAZONES 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7433705VK3773C"
+]
+},
+{
+"opps": [
+"DAN-2025-030"
+],
+"ids": [
+"42015ab0-8cf7-4c8c-b369-99aaad3a4f1c"
+],
+"nombre": "CP SALITRE 43 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0734414VK4703D"
+]
+},
+{
+"opps": [
+"DAN-2025-063"
+],
+"ids": [
+"ed127a68-687a-4ab1-bdc6-3dd85e35d090"
+],
+"nombre": "CP SAN CLAUDIO 46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5614811VK4751D"
+]
+},
+{
+"opps": [
+"DAN-2024-063"
+],
+"ids": [
+"368275dc-a1b8-4776-ae95-463d15dd6294"
+],
+"nombre": "CP SAN CONRADO 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8623709VK3783B"
+]
+},
+{
+"opps": [
+"DAN-2025-109"
+],
+"ids": [
+"384b583a-9e6f-428c-a653-73830133b987"
+],
+"nombre": "CP SAN CLAUDIO 59 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5814902VK4751D"
+]
+},
+{
+"opps": [
+"DAN-2025-117"
+],
+"ids": [
+"58cbc8f0-f84f-4118-9732-f5dad3067f3a"
+],
+"nombre": "CP SAN DACIO 35 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1721221VK4812B"
+]
+},
+{
+"opps": [
+"DAN-2016-085"
+],
+"ids": [
+"5e037599-3376-4e6e-9a49-ab13ec99536f"
+],
+"nombre": "CP SAN DIMAS 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0056503VK4705E"
+]
+},
+{
+"opps": [
+"DAN-2021-009"
+],
+"ids": [
+"4c5e5781-7641-48c8-b0f7-d504ecda5f0d"
+],
+"nombre": "CP SAN DONATO 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4351507VK4745A"
+]
+},
+{
+"opps": [
+"DAN-2024-173"
+],
+"ids": [
+"d864d323-a1d1-4e18-8382-76eaeaa6c127"
+],
+"nombre": "CP SAN EMILIO 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4257922VK4745E"
+]
+},
+{
+"opps": [
+"DAN-2024-275"
+],
+"ids": [
+"2ff13de2-2e10-48cb-a4ec-ef26e8a58ecc"
+],
+"nombre": "CP SAN EUDALDO 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9131136VK4793A"
+]
+},
+{
+"opps": [
+"DAN-2025-303"
+],
+"ids": [
+"97b80fbb-af49-4be6-a874-f89b7c976740"
+],
+"nombre": "CP SANDOVAL 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0358503VK4705G"
+]
+},
+{
+"opps": [
+"DAN-2026-095"
+],
+"ids": [
+"a44268a1-a6f0-42e0-94c7-bc64e24af136"
+],
+"nombre": "CP SAN FIDEL 65 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5856106VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2025-040"
+],
+"ids": [
+"2669e39d-5f4c-4b3b-85c1-d8333f46e801"
+],
+"nombre": "CP SAN EMILIO 64 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4555808VK4745F"
+]
+},
+{
+"opps": [
+"DAN-2024-244"
+],
+"ids": [
+"0ab2973c-7e4e-46ae-a113-c7698b770a3f"
+],
+"nombre": "CP SANTA VIRGILIA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5610004VK4851A"
+]
+},
+{
+"opps": [
+"DAN-2025-111"
+],
+"ids": [
+"305f47f7-f2da-45aa-a56e-9d05595b54f6"
+],
+"nombre": "CP SEPULVEDA 57 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7230307VK3773A"
+]
+},
+{
+"opps": [
+"DAN-2022-272"
+],
+"ids": [
+"f80313cd-7a01-4ddc-ab76-336801f443fa"
+],
+"nombre": "CP SANTA MARIA 30 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0939403VK4703H"
+]
+},
+{
+"opps": [
+"DAN-2024-232"
+],
+"ids": [
+"1130dfbf-1630-4a0b-9db6-1a4b4ef2ffb7"
+],
+"nombre": "CP SANTA AUREA 36 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7732920VK3773D"
+]
+},
+{
+"opps": [
+"DAN-2023-269"
+],
+"ids": [
+"d87d83dd-d2a4-48c0-81d4-84eeac1df062"
+],
+"nombre": "CP SAN MARCELO 26 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4455906VK4745E"
+]
+},
+{
+"opps": [
+"DAN-2025-404"
+],
+"ids": [
+"58d73558-2295-41a7-9b57-9371d75f9620"
+],
+"nombre": "CP PLAZA SANTA CATALINA DONADOS 3 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0046408VK4704E"
+]
+},
+{
+"opps": [
+"DAN-2023-086"
+],
+"ids": [
+"96bf4e5a-9c4c-48f0-aeb1-4b3c1b596d9e"
+],
+"nombre": "CP SANTA COLOMA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8057201VK3785G"
+]
+},
+{
+"opps": [
+"DAN-2023-087"
+],
+"ids": [
+"2738dc98-2c17-4667-b459-c09096461c32"
+],
+"nombre": "CP SANTA FE 2 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7661602VK3776B"
+]
+},
+{
+"opps": [
+"DAN-2026-185"
+],
+"ids": [
+"147360f5-df75-4629-a8c9-0480a7516e74"
+],
+"nombre": "CP SANTA SUSANA 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5211303VK4851C"
+]
+},
+{
+"opps": [
+"DAN-2024-046"
+],
+"ids": [
+"aa039464-6182-4d55-9977-361abfaee557"
+],
+"nombre": "CP SANTA POLONIA 8 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0840710VK4704B"
+]
+},
+{
+"opps": [
+"DAN-2024-296"
+],
+"ids": [
+"7b4725d9-0c96-412e-a325-11f90e3f034b"
+],
+"nombre": "CP SANTIAGO DE COMPOSTELA 24-26 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0518402VK4801H"
+]
+},
+{
+"opps": [
+"DAN-2023-088"
+],
+"ids": [
+"908d55e1-b2ad-42c3-8e6b-63079c089672"
+],
+"nombre": "CP SANTOVENIA 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8155209VK3785E"
+]
+},
+{
+"opps": [
+"DAN-2023-092"
+],
+"ids": [
+"1663f757-eb62-4e23-8e18-98773c768556"
+],
+"nombre": "CP SANTURCE 63 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6256726VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2025-265"
+],
+"ids": [
+"8a210502-2a1d-49c2-a50d-f9344d31ce3e"
+],
+"nombre": "CP SOLDADO JOSE MARIA REY 41 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7921114VK3772B"
+]
+},
+{
+"opps": [
+"DAN-2025-400"
+],
+"ids": [
+"7e92452a-cd70-476f-bdb2-b0ad221ced2c"
+],
+"nombre": "CP SIRIO 60 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3536606VK4733F"
+]
+},
+{
+"opps": [
+"DAN-2020-064"
+],
+"ids": [
+"1bcda25f-d2fe-4d26-921a-9e33c14dd957"
+],
+"nombre": "CP SAN TELESFORO 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6253402VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2023-105"
+],
+"ids": [
+"7e5ac3fb-326d-4586-b5fe-9d6332a38be9"
+],
+"nombre": "CP SAN VENANCIO 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8578111VK4787H"
+]
+},
+{
+"opps": [
+"DAN-2025-020"
+],
+"ids": [
+"c9995de2-37dd-49c1-9661-8c8557494d82"
+],
+"nombre": "CP SECOYA 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6792136VK3669B"
+]
+},
+{
+"opps": [
+"DAN-2025-068"
+],
+"ids": [
+"d569bc26-dd01-49f6-bde2-7ea762fa680d"
+],
+"nombre": "CP SEPULVEDA 23 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7230320VK3773A"
+]
+},
+{
+"opps": [
+"DAN-2018-039"
+],
+"ids": [
+"e33ac8a7-5ecc-40c9-8688-16ca15ab4cb2"
+],
+"nombre": "CP SOR MARIA DE AGREDA 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5058914VK4755G"
+]
+},
+{
+"opps": [
+"DAN-2020-020"
+],
+"ids": [
+"f099456b-f873-4d2e-9af7-b59a73846647"
+],
+"nombre": "CP SIRIO 36 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3739411VK4733H"
+]
+},
+{
+"opps": [
+"DAN-2019-078"
+],
+"ids": [
+"0ac9d8d9-d7bc-4e92-bd3e-7da69020731d"
+],
+"nombre": "CP SIERRA MADRONA 34 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4023902VK4742C"
+]
+},
+{
+"opps": [
+"ALV-2026-042"
+],
+"ids": [
+"3333778c-c74a-48e3-bb6b-6368414c11a8"
+],
+"nombre": "CP PUERTO LAPICE 4 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9368601VK3696G"
+]
+},
+{
+"opps": [
+"ALV-2026-060"
+],
+"ids": [
+"10e41839-a70c-4373-a9c9-7a9ad2d368e9"
+],
+"nombre": "CP MARIANISTAS 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5592906VK3659D"
+]
+},
+{
+"opps": [
+"ALV-2026-058"
+],
+"ids": [
+"b8558b5d-71f7-4813-8977-15259090da5f"
+],
+"nombre": "CP CAMINO CRUCES 62 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5592905VK3659D"
+]
+},
+{
+"opps": [
+"ALV-2026-081"
+],
+"ids": [
+"c49014c7-c154-4c24-9d7f-7684f9be562e"
+],
+"nombre": "CP HIGUERAS 34 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6730701VK3763B"
+]
+},
+{
+"opps": [
+"ALV-2026-150"
+],
+"ids": [
+"6f35c512-d1e3-4b53-8ce3-7618be439a5c"
+],
+"nombre": "CP IMAGEN 18 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3408907VK4730G"
+]
+},
+{
+"opps": [
+"ALV-2026-179"
+],
+"ids": [
+"9ce3498f-7b54-4938-9307-bf702d2d7f19"
+],
+"nombre": "CP MIGUEL DE UNAMUNO 24 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"2998101VK3529N"
+]
+},
+{
+"opps": [
+"ALV-2026-183"
+],
+"ids": [
+"580a063e-9e48-4efe-9c19-3c5630e579b1"
+],
+"nombre": "CP ALCAUDON 32 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7821504VK3772B"
+]
+},
+{
+"opps": [
+"ALV-2026-185"
+],
+"ids": [
+"2bf89288-5a31-4e8d-847b-3a6f70eaddef"
+],
+"nombre": "CP NARVAEZ 69 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2743514VK4724D"
+]
+},
+{
+"opps": [
+"ALV-2026-182"
+],
+"ids": [
+"6c891a9d-3a2b-4ec1-8b55-2bfb631a0997"
+],
+"nombre": "CP PASEO OLIVOS 54 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7532602VK3773D"
+]
+},
+{
+"opps": [
+"ALV-2026-180"
+],
+"ids": [
+"ca2661e3-bce6-453d-8027-f8abcbd95f2b"
+],
+"nombre": "CP PLAZA EL SALVADOR 8 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5144302VK3654S"
+]
+},
+{
+"opps": [
+"ALV-2026-186"
+],
+"ids": [
+"a6b32cca-fabc-4487-ae9d-1c68564c604d"
+],
+"nombre": "CP AV PABLO NERUDA 29 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5412903VK4751A"
+]
+},
+{
+"opps": [
+"ALV-2026-189"
+],
+"ids": [
+"6352f21a-c39d-4ce9-b29a-e95850a56774"
+],
+"nombre": "CP CALDERON DE LA BARCA 12 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5243201VK3654S"
+]
+},
+{
+"opps": [
+"ALV-2026-190"
+],
+"ids": [
+"632f8d07-22c5-4d83-811e-a46372aa99b9"
+],
+"nombre": "CP VALLANDES 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0316903VK4701E"
+]
+},
+{
+"opps": [
+"ALV-2026-193"
+],
+"ids": [
+"da275c3a-2250-40e4-9a47-dc292ca9d612"
+],
+"nombre": "CP RAMON GOMEZ DE LA SERNA 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8512502VK3881F"
+]
+},
+{
+"opps": [
+"ALV-2026-194"
+],
+"ids": [
+"fcdc9173-d890-4c50-968b-9b4ca4c279b8"
+],
+"nombre": "CP SAN JUAN 10 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"3781105VK3638S"
+]
+},
+{
+"opps": [
+"ALV-2026-192"
+],
+"ids": [
+"d9a7ba7c-4564-490c-a99c-6e9f87117318"
+],
+"nombre": "CP PORVENIR 9-11-13-15-17-19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3652401VK4735D"
+]
+},
+{
+"opps": [
+"DAN-2014-004"
+],
+"ids": [
+"cde55000-01a2-42bd-8236-1b0a9363542f"
+],
+"nombre": "CP AV MONFORTE DE LEMOS 69 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0713909VK4801D"
+]
+},
+{
+"opps": [
+"DAN-2014-011"
+],
+"ids": [
+"b49dd78b-6531-4032-87a2-617824747df3"
+],
+"nombre": "CP ZAIDA 22 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7620209VK3772B"
+]
+},
+{
+"opps": [
+"DAN-2015-013"
+],
+"ids": [
+"c34ab0dc-c934-4028-8fbb-5bf7ada28790"
+],
+"nombre": "CP ESMERALDA 12 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9810105VK3791B"
+]
+},
+{
+"opps": [
+"DAN-2015-035"
+],
+"ids": [
+"5314bd88-1420-4ef0-93b5-cbe401d996c3"
+],
+"nombre": "CP VELEZ RUBIO 195 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4114906VK4841C"
+]
+},
+{
+"opps": [
+"DAN-2015-094"
+],
+"ids": [
+"ee87a843-5955-4f65-9ada-75d8ca783b16"
+],
+"nombre": "CP QUINCE DE AGOSTO 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9711609VK3791B"
+]
+},
+{
+"opps": [
+"DAN-2015-102"
+],
+"ids": [
+"b5b2b423-5775-4cec-95be-d53c1370acf5"
+],
+"nombre": "CP ETRURIA 43 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8466405VK4786E"
+]
+},
+{
+"opps": [
+"DAN-2016-005",
+"DAN-2024-273"
+],
+"ids": [
+"9993b5a8-497c-4915-985b-f46d8327bc5b",
+"0ad2fad7-63e8-44b7-9878-611f631418c3"
+],
+"nombre": "CP AV NTRA SEÑORA DE VALVANERA 80 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7616106VK3771F"
+]
+},
+{
+"opps": [
+"DAN-2016-015"
+],
+"ids": [
+"7c25e610-3527-45c3-ba00-8955fafd9a21"
+],
+"nombre": "CP LUCHANA 37 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0861412VK4706B"
+]
+},
+{
+"opps": [
+"DAN-2016-016"
+],
+"ids": [
+"5d98e6f9-52d3-402f-ae8a-6193d59a9a7b"
+],
+"nombre": "CP SIERRA CONTRAVIESA 54 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3006810VK4730E"
+]
+},
+{
+"opps": [
+"DAN-2016-020"
+],
+"ids": [
+"6897a796-c847-417e-a947-43ecbb0274d0"
+],
+"nombre": "CP JUAN ESPAÑOL 32 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9611707VK3791B"
+]
+},
+{
+"opps": [
+"DAN-2016-084"
+],
+"ids": [
+"9511f557-e6dc-40ca-9ca1-7476e457f094"
+],
+"nombre": "CP CERRO DE LA ALCAZABA 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3007514VK4730G"
+]
+},
+{
+"opps": [
+"DAN-2016-115"
+],
+"ids": [
+"d97c81a3-2603-4289-a689-d8e5c3e95efa"
+],
+"nombre": "CP AV MONFORTE DE LEMOS 151 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9511707VK3891B"
+]
+},
+{
+"opps": [
+"DAN-2016-133"
+],
+"ids": [
+"d7ad5e92-6656-46a5-bf5e-ae53d8ca35a5"
+],
+"nombre": "CP BLASCO DE GARAY 46 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9864218VK3796D"
+]
+},
+{
+"opps": [
+"DAN-2016-122"
+],
+"ids": [
+"04497882-c3b8-44a2-a63c-88ed223aac1e"
+],
+"nombre": "CP AV CONCHA ESPINA 19 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2284335VK4728C"
+]
+},
+{
+"opps": [
+"DAN-2016-180"
+],
+"ids": [
+"f7328b4f-bd8e-460b-bcae-7b08791a7880"
+],
+"nombre": "CP GALIANA 28 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7936205VK3773F"
+]
+},
+{
+"opps": [
+"DAN-2016-141"
+],
+"ids": [
+"51ab92cf-4f37-4cfe-84c8-861dd5f67a6d"
+],
+"nombre": "CP RAFAEL SALAZAR ALONSO 7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3442305VK4734C"
+]
+},
+{
+"opps": [
+"DAN-2016-200"
+],
+"ids": [
+"6331ae81-1d6f-4959-bf83-52b5086735a5"
+],
+"nombre": "CP BOLDANO 10 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5767407VK4756H"
+]
+},
+{
+"opps": [
+"DAN-2016-210"
+],
+"ids": [
+"2cd94fdb-4c78-4bd1-a9cf-92a3c4004b32"
+],
+"nombre": "CP JOSE ORTEGA Y GASSET 94 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3158810VK4735G"
+]
+},
+{
+"opps": [
+"DAN-2017-017"
+],
+"ids": [
+"780f2c3c-b781-48cc-992f-420c84e650d6"
+],
+"nombre": "CP ALCALDE SAINZ DE BARANDA 89 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3445306VK4734E"
+]
+},
+{
+"opps": [
+"DAN-2017-051"
+],
+"ids": [
+"f773e616-552c-4f30-b688-97883885f0e0"
+],
+"nombre": "CP JAIME HERMIDA 20 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6368810VK4766G"
+]
+},
+{
+"opps": [
+"DAN-2017-054"
+],
+"ids": [
+"a81920a4-896c-4cf5-809f-27c76c0953d9"
+],
+"nombre": "CP MERCEDES ARTEAGA 50 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8716213VK3781F"
+]
+},
+{
+"opps": [
+"DAN-2017-093"
+],
+"ids": [
+"c7b0158c-a26e-45da-a951-751a6a66237e"
+],
+"nombre": "CP GRANERO 9 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"7389602VK4878N"
+]
+},
+{
+"opps": [
+"DAN-2017-069"
+],
+"ids": [
+"60834a71-7a3e-4ebb-93f1-1fd248265d84"
+],
+"nombre": "CP ALBAIDA 76 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8062109VK4786A"
+]
+},
+{
+"opps": [
+"DAN-2017-099"
+],
+"ids": [
+"3a2d8f9a-0319-4459-ba82-0c91845e6e80"
+],
+"nombre": "CP POBLA DE SEGUR 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4500608VK4840B"
+]
+},
+{
+"opps": [
+"DAN-2017-147"
+],
+"ids": [
+"55f53e24-f47e-45d3-9e60-f9f364f7d24f"
+],
+"nombre": "CP PRINCESA 27 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9556101VK3795F"
+]
+},
+{
+"opps": [
+"DAN-2017-174"
+],
+"ids": [
+"7bad59b9-bdf3-4413-94ce-2e666aa1af27"
+],
+"nombre": "CP LUIS PIERNAS 34 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4754318VK4745D"
+]
+},
+{
+"opps": [
+"DAN-2017-176"
+],
+"ids": [
+"c931efd4-d00f-45f0-85ea-fa2440c2e6fd"
+],
+"nombre": "CP ANGEL RIPOLL 52 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7907819VK3770F"
+]
+},
+{
+"opps": [
+"DAN-2018-009"
+],
+"ids": [
+"b985e0e1-0967-4ef1-b9a8-f067000af61a"
+],
+"nombre": "CP FLORENCIO GARCIA 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5767405VK4756H"
+]
+},
+{
+"opps": [
+"DAN-2018-012"
+],
+"ids": [
+"34b9eace-4215-47bc-a64d-7d42c276c318"
+],
+"nombre": "CP SAN TELESFORO 15 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6253404VK4765C"
+]
+},
+{
+"opps": [
+"DAN-2019-010"
+],
+"ids": [
+"0abf8240-71e2-4f3f-ba92-7abf9013aa9f"
+],
+"nombre": "CP VALLEHERMOSO 112 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0171811VK4707A"
+]
+},
+{
+"opps": [
+"DAN-2019-011"
+],
+"ids": [
+"c1b9f4a9-5190-4cf0-b336-8a29e5fb5335"
+],
+"nombre": "CP SAN BASILIO 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9903505VK3790D"
+]
+},
+{
+"opps": [
+"DAN-2019-019"
+],
+"ids": [
+"f26e8667-92d8-4fa2-91aa-8e0fb92821c4"
+],
+"nombre": "CP SEGOVIA 18 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9592624VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2019-040"
+],
+"ids": [
+"6cf76879-526b-44bb-9513-67765fa8c35b"
+],
+"nombre": "CP QUILICHAO 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6206616VK4860E"
+]
+},
+{
+"opps": [
+"DAN-2019-042"
+],
+"ids": [
+"2fc84b2c-2be6-4a86-9628-b36635f5b321"
+],
+"nombre": "CP ESCUELAS PIAS 4 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"9122808VK6892S"
+]
+},
+{
+"opps": [
+"DAN-2020-052"
+],
+"ids": [
+"40a3c687-1132-4f86-a504-9b5ae39d685b"
+],
+"nombre": "CP VITORIA 1 ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"1125603VK7802S"
+]
+},
+{
+"opps": [
+"DAN-2019-071"
+],
+"ids": [
+"302e65be-7bfe-419d-a4a8-2c731d5f85bf"
+],
+"nombre": "CP MODESTO LAFUENTE 21 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1070204VK4717A"
+]
+},
+{
+"opps": [
+"DAN-2019-072"
+],
+"ids": [
+"580ce76a-621c-4484-a566-a87c1b4b3597"
+],
+"nombre": "CP PORTUGALETE 25 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6256707VK4765E"
+]
+},
+{
+"opps": [
+"DAN-2019-076"
+],
+"ids": [
+"b7f0ee02-5994-4677-a17d-bd09053ff077"
+],
+"nombre": "CP AV PABLO NERUDA 54 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5212705VK4751C"
+]
+},
+{
+"opps": [
+"DAN-2020-027"
+],
+"ids": [
+"b1fd82a8-4d82-48fe-9d89-6369ce002bee"
+],
+"nombre": "CP EMILIO FERRARI 101 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5957805VK4755F"
+]
+},
+{
+"opps": [
+"DAN-2020-029"
+],
+"ids": [
+"701a54e6-2e28-4dac-843a-bf0d8b813269"
+],
+"nombre": "CP PEDRO RUBIN DE CELIS 28 PINTO",
+"municipio": "PINTO",
+"parcelas": [
+"1054605VK4515S"
+]
+},
+{
+"opps": [
+"DAN-2022-299"
+],
+"ids": [
+"e2aa17b6-0e71-4439-873c-09f1cedd05d3"
+],
+"nombre": "CP SAN VENANCIO 1 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8377711VK4787E"
+]
+},
+{
+"opps": [
+"DAN-2023-023"
+],
+"ids": [
+"c1b2456e-b380-4015-91db-e1943e8b246f"
+],
+"nombre": "CP CATALUÑA 2 GETAFE",
+"municipio": "GETAFE",
+"parcelas": [
+"8729008VK3682N"
+]
+},
+{
+"opps": [
+"DAN-2023-126"
+],
+"ids": [
+"54c764a5-dba7-409f-b4ec-1e7cc5c0233b"
+],
+"nombre": "CP NORMAS 3-5-7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4084006VK4848C"
+]
+},
+{
+"opps": [
+"DAN-2023-190"
+],
+"ids": [
+"652b2991-30a7-4c15-84c4-af43056a7ec8"
+],
+"nombre": "CP RAFAEL FINAT 38 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4806516VK3740F"
+]
+},
+{
+"opps": [
+"DAN-2023-193"
+],
+"ids": [
+"ccf9f97f-418f-4ee1-ba66-ecd846c4901c"
+],
+"nombre": "CP CUATRO AMIGOS 5-7 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"1599201VK4719H"
+]
+},
+{
+"opps": [
+"DAN-2023-205"
+],
+"ids": [
+"737aca6f-f615-497c-afac-b419a743e9bd"
+],
+"existe": "3be0b3dc-ae36-48f4-a08b-adfc958c162c",
+"nombre": "CP AV ONU 76 MOSTOLES"
+},
+{
+"opps": [
+"DAN-2023-220"
+],
+"ids": [
+"bd2accde-eac1-4efc-8ca3-a72487ee4565"
+],
+"existe": "b76dde7a-c344-4531-9046-2b43f08c7a8c",
+"nombre": "CP DISCOBOLO 67 MADRID"
+},
+{
+"opps": [
+"DAN-2023-221"
+],
+"ids": [
+"738e81c1-353b-48dd-b5f3-a0f556ea149f"
+],
+"existe": "ee9df755-05ea-42bd-b82b-a58f2d520785",
+"nombre": "CP SANTA TECLA 46 MADRID"
+},
+{
+"opps": [
+"DAN-2023-229"
+],
+"ids": [
+"ea1d3f9e-a59c-4128-83ea-d8ef938b9ae4"
+],
+"nombre": "CP PRADILLO 26 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3079802VK4737G"
+]
+},
+{
+"opps": [
+"DAN-2023-230"
+],
+"ids": [
+"e464b45f-b520-4482-b9fb-0864625188e1"
+],
+"nombre": "CP CGDOR SEÑOR DE LA ELIPA 11 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5037421VK4753G"
+]
+},
+{
+"opps": [
+"DAN-2023-242"
+],
+"ids": [
+"3bf8b8d1-fe9c-4d02-ab7a-ba6f91ce59dd"
+],
+"nombre": "CP VALDECALERAS 6 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5396209VK4759E"
+]
+},
+{
+"opps": [
+"DAN-2024-077"
+],
+"ids": [
+"12971705-081a-484f-bfcd-b13b64148e34"
+],
+"nombre": "CP AV ENTREVIAS 78 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3402204VK4730C"
+]
+},
+{
+"opps": [
+"DAN-2024-010"
+],
+"ids": [
+"ce23fbda-52a0-4a7e-b00d-0c428276215e"
+],
+"nombre": "CP CALLAO 37 FUENLABRADA",
+"municipio": "FUENLABRADA",
+"parcelas": [
+"3206803VK3630N"
+]
+},
+{
+"opps": [
+"DAN-2024-050"
+],
+"ids": [
+"58e81d9b-d086-4037-b61f-a9a37b2870c3"
+],
+"existe": "6174c2f5-8f48-4541-b4d1-e090c629002c",
+"nombre": "CP EMILIO CASTELAR 4 ALCALA DE HENARES"
+},
+{
+"opps": [
+"DAN-2024-045"
+],
+"ids": [
+"23ca4554-8610-4e6b-b476-0574c91b5d93"
+],
+"nombre": "CP VALLADOLID 8 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6837509VK2663N"
+]
+},
+{
+"opps": [
+"DAN-2024-079"
+],
+"ids": [
+"ec775867-06b0-4170-95f8-59eb6d1dcf93"
+],
+"nombre": "CP ALHAMBRA 24 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"6828203VK3762H"
+]
+},
+{
+"opps": [
+"DAN-2024-085"
+],
+"ids": [
+"3179f4ca-9a71-43ea-938e-e3b148a86dad"
+],
+"nombre": "CP CRUZ 9 TORREJON DE ARDOZ",
+"municipio": "TORREJON DE ARDOZ",
+"parcelas": [
+"9290701VK5799S"
+]
+},
+{
+"opps": [
+"DAN-2024-097"
+],
+"ids": [
+"8d85ee18-8606-47f0-b1d1-1114fe628a37"
+],
+"nombre": "CP PADRE CLARET 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3782001VK4738B"
+]
+},
+{
+"opps": [
+"DAN-2024-266"
+],
+"ids": [
+"480552c5-624f-4631-ae70-84038f399cea"
+],
+"nombre": "CP SAGRADOS CORAZONES 14 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7433305VK3773C"
+]
+},
+{
+"opps": [
+"DAN-2024-185"
+],
+"ids": [
+"1b8abf73-77ec-45ae-9385-d6572fff2cef"
+],
+"nombre": "CP AV PABLO NERUDA 48 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5212702VK4751C"
+]
+},
+{
+"opps": [
+"DAN-2024-169"
+],
+"ids": [
+"9a134a1f-5096-4718-9444-d6f3212609ed"
+],
+"nombre": "CP AV DOCTOR FLEMING 30 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5242802VK3654S"
+]
+},
+{
+"opps": [
+"DAN-2024-171"
+],
+"ids": [
+"f5a5f007-e897-4b98-ad38-3e4edba5a5f7"
+],
+"nombre": "CP ANTONIO PIRALA 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"4259212VK4745G"
+]
+},
+{
+"opps": [
+"DAN-2024-152"
+],
+"ids": [
+"30ac7568-1ada-459c-956f-82a58b4dda8d"
+],
+"nombre": "CP RODRIGUEZ SAN PEDRO 13 D MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"9960303VK3796B"
+]
+},
+{
+"opps": [
+"DAN-2024-218"
+],
+"ids": [
+"3b005d01-b4ff-4539-96b3-22d21114a705"
+],
+"nombre": "CP FELIPE CASTRO 9 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0008904VK4700G"
+]
+},
+{
+"opps": [
+"DAN-2024-256"
+],
+"ids": [
+"8ef050f6-d890-4701-9d85-1e7bfc6fe4c9"
+],
+"nombre": "CP ANDORRA 91 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"5492615VK4759D"
+]
+},
+{
+"opps": [
+"DAN-2024-262"
+],
+"ids": [
+"5575297d-82c7-4d7a-b9ba-84e4b77a8fd7"
+],
+"nombre": "CP CALAHORRA 26 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"8234802VK4783C"
+]
+},
+{
+"opps": [
+"DAN-2024-261"
+],
+"ids": [
+"e7f302ed-da11-4d21-ba92-8873e570dacc"
+],
+"nombre": "CP GOYA 53 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"2254910VK4725C"
+]
+},
+{
+"opps": [
+"DAN-2024-290"
+],
+"ids": [
+"026780d8-8fa7-46f0-8376-9b734df49a7a"
+],
+"nombre": "CP MONTES DE BARBANZA 5 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"7698717VK4679H"
+]
+},
+{
+"opps": [
+"DAN-2024-300"
+],
+"ids": [
+"c4abea55-1f7f-458a-97b2-31e3e53b8b31"
+],
+"nombre": "CP HACHERO 16 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"3315308VK4731E"
+]
+},
+{
+"opps": [
+"DAN-2025-004"
+],
+"ids": [
+"cb45415a-fe4e-4e27-9426-be007aaeceff"
+],
+"nombre": "CP AV DE PORTUGAL 43-45 MOSTOLES",
+"municipio": "MOSTOLES",
+"parcelas": [
+"6444401VK2664S"
+]
+},
+{
+"opps": [
+"DAN-2025-012"
+],
+"ids": [
+"48244e2e-74b1-45df-b35f-3c24c051c6e1"
+],
+"nombre": "CP MADRID 4 LEGANES",
+"municipio": "LEGANES",
+"parcelas": [
+"5047512VK3654N"
+]
+},
+{
+"opps": [
+"DAN-2025-038"
+],
+"ids": [
+"5d8f282a-824b-4f85-8f5b-2143fa1b0592"
+],
+"nombre": "CP LAVAPIES 51 MADRID",
+"municipio": "MADRID",
+"parcelas": [
+"0536414VK4703F"
+]
+},
+{
+"opps": [
+"DAN-2025-061"
+],
+"ids": [
+"d7d1b166-538f-46d6-8a71-8885b15cc85c"
+],
+"nombre": "CP PRINCIPE 7 - DIEGO DE LEON 7 SAN SEBASTIAN DE LOS REYES",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"parcelas": [
+"6588310VK4868N"
+]
+},
+{
+"opps": [
+"DAN-2025-049"
+],
+"ids": [
+"b075ce9a-9bdd-4dca-b011-e71a668bbdae"
+],
+"nombre": "CP AV DE CASTILLA 1-1 B ALCALA DE HENARES",
+"municipio": "ALCALA DE HENARES",
+"parcelas": [
+"0216301VK7801N",
+"0217704VK7801N"
+]
+}
+]
