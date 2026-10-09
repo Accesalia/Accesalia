@@ -1,0 +1,9468 @@
+{
+"7a03b68d-5e40-40a5-b97e-49d6cd184ff5": {
+"codigo": "DAN-2023-172",
+"carpeta": "milan19-31 florencia19-21 avmadrid 19",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"19",
+"31",
+"19",
+"21",
+"19"
+],
+"calle": "CL MILAN",
+"numero": "19",
+"estado": "clara",
+"parcela": "0598112VK6709N",
+"enlazada": true,
+"portales": 1
+},
+"65fda29c-23fb-4816-99b1-2761753e9015": {
+"codigo": "DAN-2023-003",
+"carpeta": "alcarria25",
+"municipio": "LEGANES",
+"numeros": [
+"25"
+],
+"calle": "CL ALCARRIA",
+"numero": "25",
+"estado": "clara",
+"parcela": "5948703VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"7f0b4d8d-74ff-43cd-8e44-2bf9f88f31fc": {
+"codigo": "DAN-2023-089",
+"carpeta": "alpujarras72",
+"municipio": "LEGANES",
+"numeros": [
+"72"
+],
+"calle": "CL ALPUJARRAS",
+"numero": "72",
+"estado": "clara",
+"parcela": "6552603VK3665S",
+"enlazada": true,
+"portales": 1
+},
+"0e1101e8-058a-457d-93e2-2d2d3e7d4962": {
+"codigo": "DAN-2023-177",
+"carpeta": "medellin10",
+"municipio": "MADRID",
+"numeros": [
+"10"
+],
+"calle": "CL MEDELLIN",
+"numero": "10",
+"estado": "clara",
+"parcela": "0766813VK4706F",
+"enlazada": true,
+"portales": 1
+},
+"bd0dbbea-77a4-467f-8b3e-6a007a1e9850": {
+"codigo": "DAN-2021-031",
+"carpeta": "portugalete27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"parcela": "6256706VK4765E",
+"numero": "27",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"8a45182a-f272-4d93-87ff-80b5650593cd": {
+"codigo": "DAN-2021-034",
+"carpeta": "santelesforo17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"parcela": "6253403VK4765C",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"18ff69b9-0b6b-469f-9332-8b8d40957e21": {
+"codigo": "DAN-2021-037",
+"carpeta": "nicolasagomez91",
+"municipio": "MADRID",
+"numeros": [
+"91"
+],
+"calle": "CL NICOLASA GOMEZ",
+"numero": "91",
+"estado": "dudosa: la parcela no tiene portales con el numero 91",
+"parcela": "8366201VK4786E"
+},
+"cf50682b-fc65-459f-9bde-84aed8b9601a": {
+"codigo": "DAN-2023-201",
+"carpeta": "loscantos7-9",
+"municipio": "ALCORCON",
+"numeros": [
+"7",
+"9"
+],
+"calle": "CL CANTOS LOS",
+"numero": "7",
+"estado": "clara",
+"parcela": "9465504VK2696S",
+"enlazada": true,
+"portales": 2
+},
+"2e852988-39e3-4438-aa4a-79201f43ea71": {
+"codigo": "DAN-2023-060",
+"carpeta": "plazadelasfloras3",
+"municipio": "LEGANES",
+"numeros": [
+"3"
+],
+"parcela": "5444703VK3654S",
+"numero": "3",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"8745072b-b4fc-4af5-a333-860e0b5d5a2e": {
+"codigo": "DAN-2024-116",
+"carpeta": "virgendebelen20",
+"municipio": "MADRID",
+"numeros": [
+"20"
+],
+"calle": "CL VIRGEN DE BELEN",
+"numero": "20",
+"estado": "clara",
+"parcela": "8715602VK3781F",
+"enlazada": true,
+"portales": 1
+},
+"e3e25eb8-b926-4cec-b118-0672b93e5f79": {
+"codigo": "DAN-2023-077",
+"carpeta": "paseoermitadelsanto41-43",
+"municipio": "MADRID",
+"numeros": [
+"41",
+"43"
+],
+"calle": "PS ERMITA DEL SANTO",
+"numero": "41",
+"estado": "clara",
+"parcela": "8633615VK3783D",
+"enlazada": true,
+"portales": 1
+},
+"f5935412-1a55-4c85-b4f7-74006cb2ed59": {
+"codigo": "DAN-2021-083",
+"carpeta": "martin de los heros 38",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"parcela": "9455908VK3795E",
+"numero": "38",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 3
+},
+"c3c131c5-f595-4c62-913b-dac2cfd2335e": {
+"codigo": "DAN-2023-078",
+"carpeta": "plazadealmuñecar1-2",
+"municipio": "MADRID",
+"numeros": [
+"1",
+"2"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "1",
+"estado": "clara",
+"parcela": "8355404VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"363d42d1-c1f2-4e00-9503-32d675ac7244": {
+"codigo": "DAN-2023-080",
+"carpeta": "riberadelmanzanares11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "11",
+"estado": "clara",
+"parcela": "8551329VK3785B",
+"enlazada": true,
+"portales": 1
+},
+"e7844f1a-1ba0-43a8-962c-d71c37d149b8": {
+"codigo": "DAN-2023-085",
+"carpeta": "sanpoldemar1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL SAN POL DE MAR",
+"numero": "1",
+"estado": "clara",
+"parcelas": [
+"8551301VK3785B",
+"8551302VK3785B"
+],
+"parcela": "8551302VK3785B",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"8c7ff34b-f741-4ad5-b0df-3b3e20295128": {
+"codigo": "DAN-2021-085",
+"carpeta": "pedrojimenez8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL PEDRO JIMENEZ",
+"numero": "8",
+"estado": "clara",
+"parcela": "9863604VK3696E",
+"enlazada": true,
+"portales": 1
+},
+"01928030-5184-4160-8c8e-32e986f16026": {
+"codigo": "DAN-2024-133",
+"carpeta": "tiscar15",
+"municipio": "MADRID",
+"numeros": [
+"15"
+],
+"calle": "CL TISCAR",
+"numero": "15",
+"estado": "clara",
+"parcela": "3601925VK4730B",
+"enlazada": true,
+"portales": 1
+},
+"a43cee82-87ff-403e-9711-f8b61363e4f1": {
+"codigo": "DAN-2022-080",
+"carpeta": "travesiavillaescusa2-4",
+"municipio": "MADRID",
+"numeros": [
+"2",
+"4"
+],
+"calle": "TR VILLAESCUSA",
+"numero": "2",
+"estado": "clara",
+"parcela": "6648107VK4764H",
+"enlazada": true,
+"portales": 3
+},
+"ab654148-ea99-4a69-a867-366b9d40555e": {
+"codigo": "DAN-2022-169",
+"carpeta": "tacona83",
+"municipio": "MADRID",
+"numeros": [
+"83"
+],
+"calle": "CL TACONA",
+"numero": "83",
+"estado": "clara",
+"parcela": "55248A9VK4752D",
+"enlazada": true,
+"portales": 1
+},
+"8b8fa83e-7742-4ecb-ae3a-7e85e825f011": {
+"codigo": "DAN-2024-157",
+"carpeta": "sanfidel97-99 (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "5957804VK4755F",
+"numeros": [
+"97",
+"99"
+]
+}
+],
+"parcela": "5957804VK4755F",
+"numero": "97",
+"numeros": [
+"97",
+"99"
+],
+"enlazada": true,
+"portales": 1
+},
+"b8bd51bc-c3a9-4714-9362-80ed93f29117": {
+"codigo": "DAN-2021-104",
+"carpeta": "perales11",
+"municipio": "PINTO",
+"numeros": [
+"11"
+],
+"parcela": "0755701VK4505N",
+"numero": "11",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"0f1445f2-84a2-43fb-81da-a3b324c3317c": {
+"codigo": "DAN-2021-118",
+"carpeta": "sanjaime2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL SAN JAIME",
+"numero": "2",
+"estado": "clara",
+"parcela": "6600501VK4760B",
+"enlazada": true,
+"portales": 1
+},
+"c8ac4330-14df-4b14-b7c7-53253f34ee6a": {
+"codigo": "DAN-2024-269",
+"carpeta": "severinoaznarembid3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL SEVERINO AZNAR EMBID",
+"numero": "3",
+"estado": "clara",
+"parcela": "7534201VK3773D",
+"enlazada": true,
+"portales": 1
+},
+"11699d8c-2a59-488c-bf51-3db921905077": {
+"codigo": "DAN-2024-197",
+"carpeta": "manuelnoya27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"calle": "CL MANUEL NOYA",
+"numero": "27",
+"estado": "clara",
+"parcela": "9709310VK3790H",
+"enlazada": true,
+"portales": 1
+},
+"2ad86e6b-881a-4503-83b1-658f9e824c0d": {
+"codigo": "DAN-2024-199",
+"carpeta": "bolaños91",
+"municipio": "MADRID",
+"numeros": [
+"91"
+],
+"calle": "CL BOLAÑOS",
+"numero": "91",
+"estado": "clara",
+"parcela": "2806794VK4720F",
+"enlazada": true,
+"portales": 1
+},
+"2568be3a-eed5-4c9d-8615-1f6dbab6417d": {
+"codigo": "DAN-2021-124",
+"carpeta": "chantada46",
+"municipio": "MADRID",
+"numeros": [
+"46"
+],
+"calle": "CL CHANTADA",
+"numero": "46",
+"estado": "clara",
+"parcela": "9108103VK3890G",
+"enlazada": true,
+"portales": 1
+},
+"6e15db10-701e-432f-bdc9-8d6de3438644": {
+"codigo": "DAN-2024-245",
+"carpeta": "telefonica2",
+"municipio": "FUENLABRADA",
+"numeros": [
+"2"
+],
+"calle": "CL TELEFONICA",
+"numero": "2",
+"estado": "clara",
+"parcela": "2694501VK3529N",
+"enlazada": true,
+"portales": 3
+},
+"4b933356-f198-4c48-9443-0a3075954259": {
+"codigo": "DAN-2023-186",
+"carpeta": "sanclaudio32-34",
+"municipio": "MADRID",
+"numeros": [
+"32",
+"34"
+],
+"calle": "CL SAN CLAUDIO",
+"numero": "32",
+"estado": "clara",
+"parcela": "5614804VK4751D",
+"enlazada": true,
+"portales": 1
+},
+"3d9d9127-5070-4b06-a0f1-6abe43ca7648": {
+"codigo": "DAN-2023-050",
+"carpeta": "humera14",
+"municipio": "FUENLABRADA",
+"numeros": [
+"14"
+],
+"calle": "CL HUMERA",
+"numero": "14",
+"estado": "clara",
+"parcela": "2501001VK3620S",
+"enlazada": true,
+"portales": 1
+},
+"52d0b761-6bf5-4455-9ce0-a293fa01edd7": {
+"codigo": "DAN-2024-289",
+"carpeta": "cuarteles130",
+"municipio": "ARANJUEZ",
+"numeros": [
+"130"
+],
+"calle": "CL CUARTELES",
+"numero": "130",
+"estado": "clara",
+"parcela": "9917103VK4391N",
+"enlazada": true,
+"portales": 1
+},
+"c7a6ef1c-1baa-4101-b4e4-c3ca6732c1df": {
+"codigo": "DAN-2024-303",
+"carpeta": "sangenjo6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL SANGENJO",
+"numero": "6",
+"estado": "clara",
+"parcela": "0518416VK4801G",
+"enlazada": true,
+"portales": 1
+},
+"620058f0-d9e0-4597-a81a-2b676f876d87": {
+"codigo": "DAN-2023-236",
+"carpeta": "modestolafuente2 (MADRID)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "1166119VK4716E",
+"numeros": [
+"2",
+"3",
+"4"
+]
+}
+],
+"parcela": "1166119VK4716E",
+"numero": "2",
+"numeros": [
+"2",
+"3",
+"4"
+],
+"enlazada": true,
+"portales": 1
+},
+"f348fe23-4bf1-493c-900a-b1dde1fac049": {
+"codigo": "DAN-2024-311",
+"carpeta": "josearconesgil100",
+"municipio": "MADRID",
+"numeros": [
+"100"
+],
+"calle": "CL JOSE ARCONES GIL",
+"numero": "100",
+"estado": "clara",
+"parcela": "6257103VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"ed00545d-eacd-48d6-acc0-679cb2fd10dc": {
+"codigo": "DAN-2023-249",
+"carpeta": "corregidorjosedepasamonte5-7-9",
+"municipio": "MADRID",
+"numeros": [
+"5",
+"7",
+"9"
+],
+"parcela": "5037437VK4753G",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 5
+},
+"a7ec56b1-c7ef-4d56-9948-de8fa2f9b9a2": {
+"codigo": "DAN-2023-005",
+"carpeta": "alpes8",
+"municipio": "ALCORCON",
+"numeros": [
+"8"
+],
+"parcela": "9368704VK2696N",
+"numero": "8",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5841ed50-8cf3-4a32-ae17-0402652411db": {
+"codigo": "DAN-2024-118",
+"carpeta": "rioduero17",
+"municipio": "LEGANES",
+"numeros": [
+"17"
+],
+"calle": "CL RIO DUERO",
+"numero": "17",
+"estado": "clara",
+"parcela": "4954801VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"7214c800-8fcf-4f71-bb1b-8aef1524d63b": {
+"codigo": "DAN-2024-170",
+"carpeta": "oriente8 - LOCAL 3",
+"municipio": "FUENLABRADA",
+"numeros": [
+"8",
+"3"
+],
+"calle": "CL ORIENTE",
+"numero": "8",
+"estado": "clara",
+"parcela": "2599301VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"c62ba715-ef7d-49cd-af33-69f968be434e": {
+"codigo": "DAN-2023-011",
+"carpeta": "avdrmartinveguejaudenes26",
+"municipio": "LEGANES",
+"numeros": [
+"26"
+],
+"parcela": "5546502VK3654N",
+"numero": "26",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"734fe1ac-4a69-4ec1-9c79-ee2f3c1e00a2": {
+"codigo": "DAN-2023-109",
+"carpeta": "oriente9",
+"municipio": "FUENLABRADA",
+"numeros": [
+"9"
+],
+"calle": "CL ORIENTE",
+"numero": "9",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"9e2ada81-712d-4bad-bb48-96d1913fe420": {
+"codigo": "DAN-2023-309",
+"carpeta": "avdrmartinveguejaudenes31 (LEGANES)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "5647101VK3654N",
+"numeros": [
+"31"
+],
+"calle": "AV DOCTOR MARTIN VEGUE"
+}
+],
+"estado": "clara",
+"parcela": "5647101VK3654N",
+"numero": "31",
+"numeros": [
+"31"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"70fc634f-69ad-48df-bc22-0f6a9ef9e218": {
+"codigo": "DAN-2024-310",
+"carpeta": "urgel25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"calle": "CL URGEL",
+"numero": "25",
+"estado": "clara",
+"parcela": "8518106VK3781H",
+"enlazada": true,
+"portales": 1
+},
+"827d6824-a962-4372-8ad4-3de253e8b32e": {
+"codigo": "DAN-2018-014",
+"carpeta": "tajuya2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL TAJUYA",
+"numero": "2",
+"estado": "clara",
+"parcela": "6260919VK4766A",
+"enlazada": true,
+"portales": 1
+},
+"8208b4f0-2cfb-4d6a-bd0b-0f125166d18f": {
+"codigo": "DAN-2023-020",
+"carpeta": "callao4",
+"municipio": "FUENLABRADA",
+"numeros": [
+"4"
+],
+"calle": "CL CALLAO",
+"numero": "4",
+"estado": "clara",
+"parcela": "3102802VK3630S",
+"enlazada": true,
+"portales": 1
+},
+"1af72114-100e-4c2a-977a-fb521d7657bd": {
+"codigo": "DAN-2023-021",
+"carpeta": "callao68",
+"municipio": "FUENLABRADA",
+"numeros": [
+"68"
+],
+"calle": "CL CALLAO",
+"numero": "68",
+"estado": "clara",
+"parcela": "3410202VK3631S",
+"enlazada": true,
+"portales": 1
+},
+"7cbcfc30-1492-44bb-9acc-6e5be308d85b": {
+"codigo": "DAN-2024-038",
+"carpeta": "rioduero29",
+"municipio": "LEGANES",
+"numeros": [
+"29"
+],
+"calle": "CL RIO DUERO",
+"numero": "29",
+"estado": "clara",
+"parcela": "4854701VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"459f7247-a2e9-42fe-9655-86b6cffa1b77": {
+"codigo": "DAN-2024-150",
+"carpeta": "rioduero7",
+"municipio": "LEGANES",
+"numeros": [
+"7"
+],
+"calle": "CL RIO DUERO",
+"numero": "7",
+"estado": "clara",
+"parcela": "5054801VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"c1da4dda-30fd-4963-8828-8a25594cec3d": {
+"codigo": "DAN-2023-022",
+"carpeta": "capitanfranciscosanchez34 (ALCOBENDAS)",
+"municipio": "ALCOBENDAS",
+"destinos": [
+{
+"parcela": "6580805VK4868S",
+"numeros": [
+"34"
+],
+"calle": "CL CAPITAN FCO SANCHEZ"
+}
+],
+"estado": "clara",
+"parcela": "6580805VK4868S",
+"numero": "34",
+"numeros": [
+"34"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 2
+},
+"95beb94e-e1e2-46b6-a6d1-99560bf076d1": {
+"codigo": "DAN-2023-053",
+"carpeta": "lerida6",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"6"
+],
+"calle": "CL LERIDA",
+"numero": "6",
+"estado": "clara",
+"parcela": "6882103VK4868S",
+"enlazada": true,
+"portales": 1
+},
+"40ccea66-3ac2-4eef-95ab-3346e79f1993": {
+"codigo": "DAN-2023-066",
+"carpeta": "sanjoaquin14",
+"municipio": "FUENLABRADA",
+"numeros": [
+"14"
+],
+"calle": "CL SAN JOAQUIN",
+"numero": "14",
+"estado": "clara",
+"parcela": "2000106VK3610S",
+"enlazada": true,
+"portales": 1
+},
+"e5f26290-d23a-4bc1-825d-d4bb001e0a60": {
+"codigo": "DAN-2023-067",
+"carpeta": "sanvicente13",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"13"
+],
+"calle": "CL SAN VICENTE",
+"numero": "13",
+"estado": "clara",
+"parcela": "6684403VK4868S",
+"enlazada": true,
+"portales": 1
+},
+"eda00ad5-77bf-4553-8cb6-44300dbec22f": {
+"codigo": "DAN-2024-031",
+"carpeta": "naciones37",
+"municipio": "FUENLABRADA",
+"numeros": [
+"37"
+],
+"calle": "AV NACIONES",
+"numero": "37",
+"estado": "clara",
+"parcela": "1796203VK3519N",
+"enlazada": true,
+"portales": 1
+},
+"c230664d-18ab-4067-a2fa-9ac238b819b9": {
+"codigo": "DAN-2024-032",
+"carpeta": "nazaret8",
+"municipio": "FUENLABRADA",
+"numeros": [
+"8"
+],
+"calle": "CL NAZARET",
+"numero": "8",
+"estado": "clara",
+"parcela": "2301604VK3620S",
+"enlazada": true,
+"portales": 1
+},
+"fd0759bd-4fe3-4137-b379-5e50fcd204e9": {
+"codigo": "DAN-2024-042",
+"carpeta": "sanjose26",
+"municipio": "FUENLABRADA",
+"numeros": [
+"26"
+],
+"calle": "CL SAN JOSE",
+"numero": "26",
+"estado": "clara",
+"parcela": "2000712VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"fdaeeb1f-1252-420f-828a-32acf3a52f6f": {
+"codigo": "DAN-2023-012",
+"carpeta": "avdrmediguchiacarriche25",
+"municipio": "LEGANES",
+"numeros": [
+"25"
+],
+"calle": "AV DR MENDIGUCHIA CARRICHE",
+"numero": "25",
+"estado": "clara",
+"parcela": "4451302VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"5dda450e-927e-47fd-a430-03ac79eac5b2": {
+"codigo": "DAN-2023-049",
+"carpeta": "holanda3",
+"municipio": "FUENLABRADA",
+"numeros": [
+"3"
+],
+"calle": "CL HOLANDA",
+"numero": "3",
+"estado": "clara",
+"parcela": "1600802VK3610S",
+"enlazada": true,
+"portales": 2
+},
+"56f77b4a-809b-42d5-a2de-999a72f328c0": {
+"codigo": "DAN-2023-139",
+"carpeta": "francia14",
+"municipio": "FUENLABRADA",
+"numeros": [
+"14"
+],
+"calle": "CL FRANCIA",
+"numero": "14",
+"estado": "clara",
+"parcela": "2000715VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"45278854-ee90-4d8a-9146-c1a3ebbba22a": {
+"codigo": "DAN-2024-022",
+"carpeta": "cuzco1",
+"municipio": "FUENLABRADA",
+"numeros": [
+"1"
+],
+"calle": "CL CUZCO",
+"numero": "1",
+"estado": "clara",
+"parcela": "2905001VK3620S",
+"enlazada": true,
+"portales": 1
+},
+"01c21ec6-d3c0-4413-8e1d-e40fbfd3add1": {
+"codigo": "DAN-2024-027",
+"carpeta": "lapaz66",
+"municipio": "FUENLABRADA",
+"numeros": [
+"66"
+],
+"calle": "CL PAZ",
+"numero": "66",
+"estado": "clara",
+"parcela": "2799301VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"551e8913-58f4-4e4b-a3a6-da85916947e2": {
+"codigo": "DAN-2024-096",
+"carpeta": "callao41 (FUENLABRADA)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "3207701VK3630N",
+"numeros": [
+"41"
+]
+}
+],
+"parcela": "3207701VK3630N",
+"numero": "41",
+"numeros": [
+"41"
+],
+"enlazada": true,
+"portales": 1
+},
+"0b3463ed-59d4-471a-aa6f-baee1aefd29a": {
+"codigo": "DAN-2023-013",
+"carpeta": "avdrmendiguchiacarriche25",
+"municipio": "LEGANES",
+"numeros": [
+"25"
+],
+"parcela": "4451302VK3645S",
+"numero": "25",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"03926a7e-3ce5-48ba-8fde-0a6de566a9a5": {
+"codigo": "DAN-2023-038",
+"carpeta": "constitucion11",
+"municipio": "FUENLABRADA",
+"numeros": [
+"11"
+],
+"parcela": "3096802VK3529N",
+"numero": "11",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 11"
+},
+"9b1a98e3-048b-4b80-a6de-0b70e57684da": {
+"codigo": "DAN-2023-157",
+"carpeta": "avdrmendiguchiacarriche11",
+"municipio": "LEGANES",
+"numeros": [
+"11"
+],
+"calle": "AV DR MENDIGUCHIA CARRICHE",
+"numero": "11",
+"estado": "clara",
+"parcela": "4650101VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"62b62523-1bb6-40f4-b274-6feffd3f270e": {
+"codigo": "DAN-2023-158",
+"carpeta": "avdrmendiguchiacarriche29",
+"municipio": "LEGANES",
+"numeros": [
+"29"
+],
+"calle": "AV DR MENDIGUCHIA CARRICHE",
+"numero": "29",
+"estado": "clara",
+"parcela": "4351401VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"e95d703f-4100-4be4-baa3-7657a22549ac": {
+"codigo": "DAN-2024-009",
+"carpeta": "callao33",
+"municipio": "FUENLABRADA",
+"numeros": [
+"33"
+],
+"calle": "CL CALLAO",
+"numero": "33",
+"estado": "clara",
+"parcela": "3206801VK3630N",
+"enlazada": true,
+"portales": 1
+},
+"cbfe65dc-51fe-45d2-93a6-43ca9da7ef65": {
+"codigo": "DAN-2023-218",
+"carpeta": "avandes11",
+"municipio": "FUENLABRADA",
+"numeros": [
+"11"
+],
+"parcela": "3211503VK3631S",
+"numero": "11",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"078499b3-1804-41ab-9f36-79d6d0115056": {
+"codigo": "DAN-2024-196",
+"carpeta": "plazadepanticosa7",
+"municipio": "FUENLABRADA",
+"numeros": [
+"7"
+],
+"calle": "PZ PANTICOSA",
+"numero": "7",
+"estado": "clara",
+"parcela": "2512501VK3621S",
+"enlazada": true,
+"portales": 2
+},
+"df3fb96f-2319-4ab4-9d9c-92c2c8765d8f": {
+"codigo": "DAN-2024-044",
+"carpeta": "urbnuevoversalles2 (FUENLABRADA)",
+"municipio": "FUENLABRADA",
+"destinos": [
+{
+"parcela": "9308102VK2690N",
+"numeros": [
+"2"
+],
+"calle": "UR NUEVO VERSALLES"
+}
+],
+"estado": "clara",
+"parcela": "9308102VK2690N",
+"numero": "2",
+"numeros": [
+"2"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"087247ca-3493-478a-8914-9570cef55e16": {
+"codigo": "DAN-2023-057",
+"carpeta": "navarra2",
+"municipio": "ALCORCON",
+"numeros": [
+"2"
+],
+"calle": "CL NAVARRA",
+"numero": "2",
+"estado": "clara",
+"parcela": "9566405VK2696N",
+"enlazada": true,
+"portales": 1
+},
+"2477f0a6-fe36-4443-a723-87dca3c4330a": {
+"codigo": "DAN-2024-013",
+"carpeta": "castillalavieja12",
+"municipio": "FUENLABRADA",
+"numeros": [
+"12"
+],
+"calle": "CL CASTILLA LA VIEJA",
+"numero": "12",
+"estado": "clara",
+"parcela": "2007801VK3610N",
+"enlazada": true,
+"portales": 1
+},
+"06b59383-a389-4833-bee1-b52e2801f3a4": {
+"codigo": "DAN-2024-241",
+"carpeta": "gardenias21-23-25-27-29-31-33-35-37-39",
+"municipio": "ALCORCON",
+"numeros": [
+"21",
+"23",
+"25",
+"27",
+"29",
+"31",
+"33",
+"35",
+"37",
+"39"
+],
+"calle": "CL GARDENIAS LAS",
+"numero": "21",
+"estado": "clara",
+"parcela": "1874701VK3617S",
+"enlazada": true,
+"portales": 11
+},
+"7ee19106-b850-45ad-97e5-7dfa996a7d94": {
+"codigo": "DAN-2024-251",
+"carpeta": "malaga6",
+"municipio": "ALCORCON",
+"numeros": [
+"6"
+],
+"calle": "CL MALAGA",
+"numero": "6",
+"estado": "clara",
+"parcela": "9763403VK2696S",
+"enlazada": true,
+"portales": 1
+},
+"d05d03f7-0441-4cec-8885-14cae87394d9": {
+"codigo": "DAN-2024-202",
+"carpeta": "santiagoapostol16",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"16"
+],
+"calle": "CL SANTIAGO APOSTOL",
+"numero": "16",
+"estado": "clara",
+"parcela": "6684409VK4868S",
+"enlazada": true,
+"portales": 2
+},
+"1d457f26-d3f3-4f39-b576-58bd4d158502": {
+"codigo": "DAN-2023-055",
+"carpeta": "matadero18",
+"municipio": "ALCORCON",
+"numeros": [
+"18"
+],
+"calle": "CL MATADERO",
+"numero": "18",
+"estado": "clara",
+"parcela": "0167701VK3606N",
+"enlazada": true,
+"portales": 1
+},
+"eac74797-ae70-4178-b78a-7006c67706d6": {
+"codigo": "DAN-2023-043",
+"carpeta": "estacion9",
+"municipio": "FUENLABRADA",
+"numeros": [
+"9"
+],
+"calle": "CL ESTACION",
+"numero": "9",
+"estado": "clara",
+"parcela": "2396101VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"2f7f79d0-7ff7-4451-97b1-80c040e5b7f7": {
+"codigo": "DAN-2023-061",
+"carpeta": "polvoranca25",
+"municipio": "ALCORCON",
+"numeros": [
+"25"
+],
+"calle": "CL POLVORANCA",
+"numero": "25",
+"estado": "clara",
+"parcela": "0169801VK3606N",
+"enlazada": true,
+"portales": 1
+},
+"75f3ef08-564c-466a-9c47-cb007faed479": {
+"codigo": "DAN-2023-099",
+"carpeta": "carrildelascharcas18 (SEVILLA LA NUEVA)",
+"municipio": "SEVILLA LA NUEVA",
+"destinos": [
+{
+"parcela": "0274009VK1607S",
+"numeros": [
+"18"
+],
+"calle": "CL CARRIL CHARCAS"
+}
+],
+"estado": "clara",
+"parcela": "0274009VK1607S",
+"numero": "18",
+"numeros": [
+"18"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"3b336a2b-9f6a-48dc-9974-52c477f8f600": {
+"codigo": "DAN-2024-008",
+"carpeta": "begonia60",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"60"
+],
+"calle": "CL BEGONIA",
+"numero": "60",
+"estado": "clara",
+"parcela": "5358904VK4855N",
+"enlazada": true,
+"portales": 1
+},
+"4ce6a8c2-0b31-46c8-8311-c348b0b5f858": {
+"codigo": "DAN-2024-024",
+"carpeta": "granada9",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"9"
+],
+"calle": "CL GRANADA",
+"numero": "9",
+"estado": "clara",
+"parcela": "5883202VK4858S",
+"enlazada": true,
+"portales": 1
+},
+"1c87b64c-9770-44eb-88bc-5ee61283b4ab": {
+"codigo": "DAN-2024-025",
+"carpeta": "hermanospinzon5",
+"municipio": "LEGANES",
+"numeros": [
+"5"
+],
+"calle": "PZ HERMANOS PINZON",
+"numero": "5",
+"estado": "clara",
+"parcela": "4941803VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"7839f65c-5bb9-4e1a-a0be-c5086c69d151": {
+"codigo": "DAN-2023-001",
+"carpeta": "alava10",
+"municipio": "FUENLABRADA",
+"numeros": [
+"10"
+],
+"calle": "CL ALAVA",
+"numero": "10",
+"estado": "clara",
+"parcela": "2209504VK3620N",
+"enlazada": true,
+"portales": 1
+},
+"3e713859-e7ec-4724-bb8f-6ef57d22c670": {
+"codigo": "DAN-2023-004",
+"carpeta": "alcarria64",
+"municipio": "LEGANES",
+"numeros": [
+"64"
+],
+"calle": "CL ALCARRIA",
+"numero": "64",
+"estado": "clara",
+"parcela": "5748704VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"4e97cdee-05f8-45f4-b284-c3c7cc07796c": {
+"codigo": "DAN-2023-222",
+"carpeta": "totana36",
+"municipio": "MADRID",
+"numeros": [
+"36"
+],
+"calle": "CL TOTANA",
+"numero": "36",
+"estado": "clara",
+"parcela": "4807049VK4840H",
+"enlazada": true,
+"portales": 1
+},
+"6e269b18-dba3-4c16-8571-300170f9cf94": {
+"codigo": "DAN-2024-259",
+"carpeta": "teruel1",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"1"
+],
+"calle": "CL TERUEL",
+"numero": "1",
+"estado": "clara",
+"parcela": "6884407VK4868S",
+"enlazada": true,
+"portales": 1
+},
+"7d592c94-6e45-4942-8cd6-6ecc522e7529": {
+"codigo": "DAN-2024-028",
+"carpeta": "maestrobarbieri2-4-6-8",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"2",
+"4",
+"6",
+"8"
+],
+"calle": "CL MAESTRO BARBIERI",
+"numero": "2",
+"estado": "clara",
+"parcela": "5896208VK4859S",
+"enlazada": true,
+"portales": 4
+},
+"11827372-8ff9-4519-b4ee-7db8d6e700ca": {
+"codigo": "DAN-2023-145",
+"carpeta": "francia34",
+"municipio": "FUENLABRADA",
+"numeros": [
+"34"
+],
+"calle": "CL FRANCIA",
+"numero": "34",
+"estado": "clara",
+"parcela": "1600602VK3519N",
+"enlazada": true,
+"portales": 1
+},
+"73e04bf6-0a70-4d97-9bf5-28f5b9938f29": {
+"codigo": "DAN-2024-146",
+"carpeta": "paloma7",
+"municipio": "LEGANES",
+"numeros": [
+"7"
+],
+"calle": "CL PALOMA",
+"numero": "7",
+"estado": "clara",
+"parcela": "4544703VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"e177b3fe-144f-4d68-a146-71adc86abf6a": {
+"codigo": "DAN-2024-057",
+"carpeta": "nuñezdebalboa8",
+"municipio": "LEGANES",
+"numeros": [
+"8"
+],
+"calle": "CL NUÑEZ DE BALBOA",
+"numero": "8",
+"estado": "clara",
+"parcela": "4741904VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"9cf834c2-b5ac-4ffe-b0fe-de8c9a7a2764": {
+"codigo": "DAN-2024-165",
+"carpeta": "torrearias25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"calle": "CL TORRE ARIAS",
+"numero": "25",
+"estado": "clara",
+"parcela": "8275601VK4787E",
+"enlazada": true,
+"portales": 1
+},
+"1941c7b4-53a2-4a20-84f4-809ff190075b": {
+"codigo": "DAN-2022-059",
+"carpeta": "arturosoria7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL ARTURO SORIA",
+"numero": "7",
+"estado": "clara",
+"parcela": "5968201VK4756H",
+"enlazada": true,
+"portales": 5
+},
+"70b4e944-08fb-46fd-bed0-2b22cf8ea6c8": {
+"codigo": "DAN-2023-019",
+"carpeta": "callao29",
+"municipio": "FUENLABRADA",
+"numeros": [
+"29"
+],
+"calle": "CL CALLAO",
+"numero": "29",
+"estado": "clara",
+"parcela": "3106403VK3630N",
+"enlazada": true,
+"portales": 1
+},
+"1350a480-9048-4d5d-ab98-7dfeafc1d571": {
+"codigo": "DAN-2024-001",
+"carpeta": "alemania2",
+"municipio": "FUENLABRADA",
+"numeros": [
+"2"
+],
+"calle": "CL ALEMANIA",
+"numero": "2",
+"estado": "clara",
+"parcela": "1601304VK3610S",
+"enlazada": true,
+"portales": 1
+},
+"8d11e8cb-c5e4-47c3-b93a-492fc19a8601": {
+"codigo": "DAN-2024-003",
+"carpeta": "avfranciscojaviersauquillo10 (FUENLABRADA)",
+"municipio": "FUENLABRADA",
+"destinos": [
+{
+"parcela": "3396701VK3539N",
+"numeros": [
+"10"
+],
+"calle": "AV FCO JAVIER SAUQUILLO"
+}
+],
+"estado": "clara",
+"parcela": "3396701VK3539N",
+"numero": "10",
+"numeros": [
+"10"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"c085e049-850d-4901-9045-9b37fb68cc36": {
+"codigo": "DAN-2024-084",
+"carpeta": "avila8",
+"municipio": "FUENLABRADA",
+"numeros": [
+"8"
+],
+"calle": "CL AVILA",
+"numero": "8",
+"estado": "clara",
+"parcela": "2701214VK3620S",
+"enlazada": true,
+"portales": 1
+},
+"019a70c0-0e4c-473f-8631-6ba8336f452d": {
+"codigo": "DAN-2022-073",
+"carpeta": "maldonado33",
+"municipio": "MADRID",
+"numeros": [
+"33"
+],
+"parcela": "2363309VK4726C",
+"numero": "33",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"1c107ac6-5c46-41ff-b225-06aaeafe2a45": {
+"codigo": "DAN-2022-074",
+"carpeta": "acacias59",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"calle": "PS ACACIAS",
+"numero": "59",
+"estado": "clara",
+"parcela": "9727204VK3792F",
+"enlazada": true,
+"portales": 3
+},
+"43981204-11f7-4056-9455-1a81315e9d5e": {
+"codigo": "DAN-2023-006",
+"carpeta": "alpujarras30",
+"municipio": "LEGANES",
+"numeros": [
+"30"
+],
+"calle": "CL ALPUJARRAS",
+"numero": "30",
+"estado": "clara",
+"parcela": "6447302VK3664N",
+"enlazada": true,
+"portales": 1
+},
+"efef48ff-e407-422c-b51a-9dd314762d71": {
+"codigo": "DAN-2024-036",
+"carpeta": "plazaroma2",
+"municipio": "LEGANES",
+"numeros": [
+"2"
+],
+"calle": "PZ ROMA",
+"numero": "2",
+"estado": "clara",
+"parcela": "5048501VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"dadb276b-9dcc-41ce-bbdb-0374c04efd31": {
+"codigo": "DAN-2024-094",
+"carpeta": "plazahermanospinzon1",
+"municipio": "LEGANES",
+"numeros": [
+"1"
+],
+"calle": "PZ HERMANOS PINZON",
+"numero": "1",
+"estado": "clara",
+"parcela": "4941808VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"f1f9747b-70a9-424b-90c9-69899110e40c": {
+"codigo": "DAN-2024-227",
+"carpeta": "constitucion59-61",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"59",
+"61"
+],
+"calle": "CL CONSTITUCION",
+"numero": "59",
+"estado": "clara",
+"parcela": "6184101VK4867N",
+"enlazada": true,
+"portales": 3
+},
+"d28fabcd-780e-45e8-b605-b9c147db3ba0": {
+"codigo": "DAN-2023-062",
+"carpeta": "portugal4",
+"municipio": "FUENLABRADA",
+"numeros": [
+"4"
+],
+"calle": "CL PORTUGAL",
+"numero": "4",
+"estado": "clara",
+"parcela": "1491302VK3519S",
+"enlazada": true,
+"portales": 1
+},
+"fb37093c-d388-4d1b-8b96-cef0ca47428a": {
+"codigo": "DAN-2023-065",
+"carpeta": "rioja57 (FUENLABRADA)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "6049803VK3664N",
+"numeros": [
+"57"
+],
+"calle": "CL RIOJA"
+}
+],
+"estado": "clara",
+"parcela": "6049803VK3664N",
+"numero": "57",
+"numeros": [
+"57"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"82687b6f-e20a-4ffb-a8f8-6ed8a6d52bf9": {
+"codigo": "DAN-2023-071",
+"carpeta": "viena5",
+"municipio": "FUENLABRADA",
+"numeros": [
+"5"
+],
+"calle": "CL VIENA",
+"numero": "5",
+"estado": "clara",
+"parcela": "1802603VK3610S",
+"enlazada": true,
+"portales": 1
+},
+"8b3f76e1-c03e-4f61-abb3-d19c22f0b7db": {
+"codigo": "DAN-2023-133",
+"carpeta": "valladolid2",
+"municipio": "FUENLABRADA",
+"numeros": [
+"2"
+],
+"calle": "CL VALLADOLID",
+"numero": "2",
+"estado": "clara",
+"parcela": "1809502VK3610N",
+"enlazada": true,
+"portales": 1
+},
+"ffcf47ae-2582-41d8-bc2d-398275b5eed1": {
+"codigo": "DAN-2023-290",
+"carpeta": "oriente8",
+"municipio": "FUENLABRADA",
+"numeros": [
+"8"
+],
+"calle": "CL ORIENTE",
+"numero": "8",
+"estado": "clara",
+"parcela": "2599301VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"bbaec160-4d1a-4236-ac01-bc78b1a65c1d": {
+"codigo": "DAN-2024-023",
+"carpeta": "francia12",
+"municipio": "FUENLABRADA",
+"numeros": [
+"12"
+],
+"calle": "CL FRANCIA",
+"numero": "12",
+"estado": "clara",
+"parcela": "2099212VK3529N",
+"enlazada": true,
+"portales": 1
+},
+"190b5275-c910-4605-947b-95f4ba8064a7": {
+"codigo": "DAN-2024-029",
+"carpeta": "malaga28",
+"municipio": "FUENLABRADA",
+"numeros": [
+"28"
+],
+"calle": "CL MALAGA",
+"numero": "28",
+"estado": "clara",
+"parcela": "2603601VK3620S",
+"enlazada": true,
+"portales": 1
+},
+"d785768f-2e5a-4bfc-890e-b5eac2195a36": {
+"codigo": "DAN-2024-035",
+"carpeta": "paseocolonia5",
+"municipio": "FUENLABRADA",
+"numeros": [
+"5"
+],
+"calle": "PS COLONIA",
+"numero": "5",
+"estado": "clara",
+"parcela": "1700803VK3610S",
+"enlazada": true,
+"portales": 1
+},
+"afaf9970-baa1-4a32-ba1a-06b9c7972fdb": {
+"codigo": "DAN-2024-030",
+"carpeta": "malaga40",
+"municipio": "FUENLABRADA",
+"numeros": [
+"40"
+],
+"calle": "CL MALAGA",
+"numero": "40",
+"estado": "clara",
+"parcela": "2402201VK3620S",
+"enlazada": true,
+"portales": 2
+},
+"d3892ce9-8cda-478b-8f83-122c61e1148f": {
+"codigo": "DAN-2024-074",
+"carpeta": "travesiagerardocordon3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "TR GERARDO CORDON",
+"numero": "3",
+"estado": "clara",
+"parcela": "4754321VK4745D",
+"enlazada": true,
+"portales": 1
+},
+"f9a28f86-b0e9-472d-be4c-cd79c77ff3d0": {
+"codigo": "DAN-2021-080",
+"carpeta": "travesiainfantamercedes4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"parcela": "0886506VK4708F",
+"numero": "4",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"3207fac1-49e2-4372-8629-25bbe4450b38": {
+"codigo": "DAN-2023-007",
+"carpeta": "ampurdan9",
+"municipio": "LEGANES",
+"numeros": [
+"9"
+],
+"calle": "CL AMPURDAN",
+"numero": "9",
+"estado": "clara",
+"parcela": "5955402VK3655N",
+"enlazada": true,
+"portales": 1
+},
+"be23caf2-9b35-4ae0-bedf-527a679cfcc5": {
+"codigo": "DAN-2023-254",
+"carpeta": "avmachupichu43",
+"municipio": "MADRID",
+"numeros": [
+"43"
+],
+"parcela": "6890501VK4769B",
+"numero": "43",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 2
+},
+"8569a0e9-38f4-4c97-9508-214137060fd2": {
+"codigo": "DAN-2024-139",
+"carpeta": "vicentecamaron16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL VICENTE CAMARON",
+"numero": "16",
+"estado": "clara",
+"parcela": "7433719VK3773C",
+"enlazada": true,
+"portales": 1
+},
+"5822049a-95f7-4027-a233-beb159b044bd": {
+"codigo": "DAN-2023-234",
+"carpeta": "valenciadedonjuan4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"parcela": "0320208VK4802A",
+"numero": "4",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c4b6b3d0-f438-40b7-8c88-adfee86d23e5": {
+"codigo": "DAN-2023-129",
+"carpeta": "batalladebrunete12",
+"municipio": "LEGANES",
+"numeros": [
+"12"
+],
+"calle": "CL BATALLA DE BRUNETE",
+"numero": "12",
+"estado": "clara",
+"parcela": "5352401VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"5fe8ea3f-a7a4-4831-9c06-696c027b4da7": {
+"codigo": "DAN-2023-280",
+"carpeta": "delasalle 12hospitalvithas",
+"municipio": "MADRID",
+"numeros": [
+"12"
+],
+"calle": "AV LA SALLE",
+"numero": "12",
+"estado": "clara",
+"parcela": "3801519VK3830B",
+"enlazada": true,
+"portales": 1
+},
+"183effd8-b075-400f-8121-1cc109e51a99": {
+"codigo": "DAN-2024-007",
+"carpeta": "batalladebrunete16",
+"municipio": "LEGANES",
+"numeros": [
+"16"
+],
+"calle": "CL BATALLA DE BRUNETE",
+"numero": "16",
+"estado": "clara",
+"parcela": "5352401VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"a09f2046-f3f3-4312-8dfa-0152b1e36d33": {
+"codigo": "DAN-2024-149",
+"carpeta": "badalona118",
+"municipio": "MADRID",
+"numeros": [
+"118"
+],
+"calle": "CL BADALONA",
+"numero": "118",
+"estado": "clara",
+"parcela": "1130715VK4812G",
+"enlazada": true,
+"portales": 1
+},
+"e117c63a-e9f2-46da-a4f6-083b00589cc0": {
+"codigo": "DAN-2023-037",
+"carpeta": "charco20",
+"municipio": "LEGANES",
+"numeros": [
+"20"
+],
+"parcela": "4847629VK3644N",
+"numero": "20",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"715d309c-ab27-442f-8925-53b71a5ec7fe": {
+"codigo": "DAN-2023-270",
+"carpeta": "charco24",
+"municipio": "LEGANES",
+"numeros": [
+"24"
+],
+"calle": "CL CHARCO",
+"numero": "24",
+"estado": "clara",
+"parcela": "4847630VK3644N",
+"enlazada": true,
+"portales": 1
+},
+"f871d107-6cbb-43d1-81de-304ecd10dc5a": {
+"codigo": "DAN-2024-021",
+"carpeta": "covadonga28",
+"municipio": "LEGANES",
+"numeros": [
+"28"
+],
+"calle": "CL COVADONGA",
+"numero": "28",
+"estado": "clara",
+"parcela": "4643304VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"3b04aadc-504a-443f-8956-b00ef2db7223": {
+"codigo": "DAN-2024-159",
+"carpeta": "margarita14",
+"municipio": "LEGANES",
+"numeros": [
+"14"
+],
+"calle": "CL MARGARITA",
+"numero": "14",
+"estado": "clara",
+"parcela": "5545601VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"b22a0c5e-6404-42a1-a8d1-fbb19827cff7": {
+"codigo": "DAN-2024-147",
+"carpeta": "nuestraseñoradeguadalupe5 (LEGANES)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "4543104VK3644S",
+"numeros": [
+"5"
+],
+"calle": "CL NTRA SRA D GUADALUPE"
+}
+],
+"estado": "clara",
+"parcela": "4543104VK3644S",
+"numero": "5",
+"numeros": [
+"5"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"7ccaf939-f49c-401b-bda5-b006e513569b": {
+"codigo": "DAN-2023-127",
+"carpeta": "nuestraseñoradelamacarena2 (LEGANES)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "4343501VK3644S",
+"numeros": [
+"2"
+],
+"calle": "CL NTRA SRA MACARENA"
+}
+],
+"estado": "clara",
+"parcela": "4343501VK3644S",
+"numero": "2",
+"numeros": [
+"2"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"0cbb1967-7d41-4e70-9e48-cebcd703da69": {
+"codigo": "DAN-2024-059",
+"carpeta": "nuestraseñoradeguadalupe7 (LEGANES)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "4543103VK3644S",
+"numeros": [
+"7"
+],
+"calle": "CL NTRA SRA D GUADALUPE"
+}
+],
+"estado": "clara",
+"parcela": "4543103VK3644S",
+"numero": "7",
+"numeros": [
+"7"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"91e55753-107a-43ae-bba3-5bf67f977898": {
+"codigo": "DAN-2023-059",
+"carpeta": "pensamiento5",
+"municipio": "LEGANES",
+"numeros": [
+"5"
+],
+"parcela": "5544303VK3654S",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"dfc3ec51-5483-4c1a-af8a-85391d52bf1b": {
+"codigo": "DAN-2024-093",
+"carpeta": "pedrodevaldivia9",
+"municipio": "LEGANES",
+"numeros": [
+"9"
+],
+"calle": "CL PEDRO DE VALDIVIA",
+"numero": "9",
+"estado": "clara",
+"parcela": "4841703VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"84a04797-de69-41a2-b67c-500a76fe21a7": {
+"codigo": "DAN-2023-314",
+"carpeta": "rioja50",
+"municipio": "LEGANES",
+"numeros": [
+"50"
+],
+"calle": "CL RIOJA",
+"numero": "50",
+"estado": "clara",
+"parcela": "5850904VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"b5f39b11-1608-43f9-ae21-ae6986b88e3c": {
+"codigo": "DAN-2024-089",
+"carpeta": "riomanzanares19",
+"municipio": "LEGANES",
+"numeros": [
+"19"
+],
+"calle": "CL RIO MANZANARES",
+"numero": "19",
+"estado": "clara",
+"parcela": "4752901VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"bfde4bad-c61e-40ba-9b12-d44a81abdf23": {
+"codigo": "DAN-2024-039",
+"carpeta": "saavedrafajardo3",
+"municipio": "LEGANES",
+"numeros": [
+"3"
+],
+"calle": "CL SAAVEDRA FAJARDO",
+"numero": "3",
+"estado": "clara",
+"parcela": "4940502VK3654S",
+"enlazada": true,
+"portales": 1
+},
+"048c9b8c-2de9-44a8-a693-9f071f88d8bc": {
+"codigo": "DAN-2024-248",
+"carpeta": "sanandres2",
+"municipio": "LEGANES",
+"numeros": [
+"2"
+],
+"calle": "CL SAN ANDRES",
+"numero": "2",
+"estado": "clara",
+"parcela": "5549901VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"d71777dd-e717-409b-a435-f0955c044ee9": {
+"codigo": "DAN-2024-049",
+"carpeta": "sancesareo3",
+"municipio": "LEGANES",
+"numeros": [
+"3"
+],
+"calle": "CL SAN CESAREO",
+"numero": "3",
+"estado": "clara",
+"parcela": "5648102VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"0a45bcf6-9c3f-4d95-887e-99cfe944e270": {
+"codigo": "DAN-2024-071",
+"carpeta": "serena1",
+"municipio": "LEGANES",
+"numeros": [
+"1"
+],
+"calle": "CL SERENA",
+"numero": "1",
+"estado": "clara",
+"parcela": "5950907VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"77d5fa76-1769-4547-8095-5326a75f5264": {
+"codigo": "DAN-2023-118",
+"carpeta": "valles9",
+"municipio": "LEGANES",
+"numeros": [
+"9"
+],
+"parcela": "6057202VK3655N",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"97bc55ef-5cc2-48cc-8b64-a51e01d05980": {
+"codigo": "DAN-2023-137",
+"carpeta": "tajo8",
+"municipio": "LAS ROZAS",
+"numeros": [
+"8"
+],
+"calle": "CL TAJO",
+"numero": "8",
+"estado": "clara",
+"parcela": "5829501VK2852N",
+"enlazada": true,
+"portales": 2
+},
+"0eb29576-8697-4a9f-8356-d6ae0712fbf2": {
+"codigo": "DAN-2023-257",
+"carpeta": "rondaplazuela9",
+"municipio": "LAS ROZAS",
+"numeros": [
+"9"
+],
+"calle": "RD DE LA PLAZUELA",
+"numero": "9",
+"estado": "clara",
+"parcelas": [
+"5829501VK2852N",
+"5829505VK2852N"
+],
+"parcela": "5829501VK2852N",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"20db7aad-7632-4e9e-936c-4a52af80cb5c": {
+"codigo": "DAN-2024-219",
+"carpeta": "legazpi3",
+"municipio": "LEGANES",
+"numeros": [
+"3"
+],
+"calle": "CL LEGAZPI",
+"numero": "3",
+"estado": "clara",
+"parcela": "4943103VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"64889b6c-02e2-466f-adec-07a56d8e7c3a": {
+"codigo": "DAN-2024-292",
+"carpeta": "valdecanillas59",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"calle": "CL VALDECANILLAS",
+"numero": "59",
+"estado": "clara",
+"parcela": "7262401VK4776C",
+"enlazada": true,
+"portales": 2
+},
+"8f4400f0-cb93-441f-8041-82002920d4f3": {
+"codigo": "DAN-2023-178",
+"carpeta": "valdetorresdejarama13-15-17-19-21",
+"municipio": "MADRID",
+"numeros": [
+"13",
+"15",
+"17",
+"19",
+"21"
+],
+"calle": "CL VALDETORRES DE JARAMA",
+"numero": "13",
+"estado": "clara",
+"parcelas": [
+"5306709VK4850E",
+"5306710VK4850E"
+],
+"parcela": "5306709VK4850E",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"da10b20c-4d5e-4303-b1aa-86ef7740b439": {
+"codigo": "DAN-2022-264",
+"carpeta": "valverde36",
+"municipio": "MADRID",
+"numeros": [
+"36"
+],
+"calle": "CL VALVERDE",
+"numero": "36",
+"estado": "clara",
+"parcela": "0651131VK4705B",
+"enlazada": true,
+"portales": 1
+},
+"c61f25c4-2e32-46ab-8fcc-6779eb8ebae1": {
+"codigo": "DAN-2023-136",
+"carpeta": "caceres2",
+"municipio": "COSLADA",
+"numeros": [
+"2"
+],
+"calle": "CL CACERES",
+"numero": "2",
+"estado": "clara",
+"parcela": "2051703VK5715S",
+"enlazada": true,
+"portales": 1
+},
+"97bda1d3-df5a-484e-a374-a57147494add": {
+"codigo": "DAN-2023-161",
+"carpeta": "valledetobalina46",
+"municipio": "MADRID",
+"numeros": [
+"46"
+],
+"calle": "CL VALLE DE TOBALINA",
+"numero": "46",
+"estado": "clara",
+"parcela": "9458301VK3695G",
+"enlazada": true,
+"portales": 1
+},
+"ebc3417a-82af-440d-afa8-995905046e0b": {
+"codigo": "DAN-2024-236",
+"carpeta": "valleguerra5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL VALLEGUERRA",
+"numero": "5",
+"estado": "clara",
+"parcela": "6456207VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"b28119e4-9a80-4b63-8f3e-223c0daf6e66": {
+"codigo": "DAN-2024-222",
+"carpeta": "buenamadre6",
+"municipio": "PINTO",
+"numeros": [
+"6"
+],
+"calle": "CL BUENA MADRE",
+"numero": "6",
+"estado": "clara",
+"parcelas": [
+"0750703VK4505S",
+"0750706VK4505S"
+],
+"parcela": "0750703VK4505S",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"64db8bcb-ee41-48e5-993c-2cf469b30755": {
+"codigo": "DAN-2024-247",
+"carpeta": "egidodelafuente13",
+"municipio": "PINTO",
+"numeros": [
+"13"
+],
+"calle": "PZ EGIDO DE LA FUENTE",
+"numero": "13",
+"estado": "clara",
+"parcela": "0652804VK4505S",
+"enlazada": true,
+"portales": 1
+},
+"d596d0a6-c775-47d7-931b-207538be16d2": {
+"codigo": "DAN-2022-066",
+"carpeta": "silicio23",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"23"
+],
+"calle": "CL SILICIO",
+"numero": "23",
+"estado": "clara",
+"parcela": "0978703VK6707N",
+"enlazada": true,
+"portales": 4
+},
+"ac659d2b-3f09-426f-b131-d6eecd51eaae": {
+"codigo": "DAN-2023-103",
+"carpeta": "glorietadetamarindo2",
+"municipio": "ARANJUEZ",
+"numeros": [
+"2"
+],
+"calle": "GL TAMARINDO",
+"numero": "2",
+"estado": "clara",
+"parcela": "7411802VK4371S",
+"enlazada": true,
+"portales": 1
+},
+"fdf96be0-5b21-4724-aeb1-6ae10839b0cf": {
+"codigo": "DAN-2022-062",
+"carpeta": "chile5",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"5"
+],
+"parcela": "0797216VK6709N",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"8e363c83-fbab-4dfb-a9ec-a3cd74c4b173": {
+"codigo": "DAN-2024-214",
+"carpeta": "sanfelipe4",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"4"
+],
+"calle": "CL SAN FELIPE",
+"numero": "4",
+"estado": "clara",
+"parcela": "9588801VK5798N",
+"enlazada": true,
+"portales": 1
+},
+"6d3b6eb4-cc5e-4688-9e6c-4b22de6988f7": {
+"codigo": "DAN-2022-300",
+"carpeta": "ciudadreal11",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"11"
+],
+"calle": "CL CIUDAD REAL",
+"numero": "11",
+"estado": "clara",
+"parcela": "9592619VK5799S",
+"enlazada": true,
+"portales": 1
+},
+"b335ecca-2214-4fa5-b74f-0e8bd40d976b": {
+"codigo": "DAN-2023-264",
+"carpeta": "delasfuentes3portal4",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"3",
+"4"
+],
+"calle": "CL FUENTES LAS",
+"numero": "3",
+"estado": "clara",
+"parcela": "9193902VK5799S",
+"enlazada": true,
+"portales": 2
+},
+"8cfc5d68-54d4-4f17-9d5e-d7e59845f1e1": {
+"codigo": "DAN-2023-286",
+"carpeta": "iglesia4",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"4"
+],
+"calle": "CL IGLESIA",
+"numero": "4",
+"estado": "clara",
+"parcela": "9690901VK5799S",
+"enlazada": true,
+"portales": 1
+},
+"d0c2e630-4bc8-437c-a70d-45c24ac0db2e": {
+"codigo": "DAN-2023-256",
+"carpeta": "alfonsoxii7",
+"municipio": "MOSTOLES",
+"numeros": [
+"7"
+],
+"parcela": "5737802VK2653N",
+"numero": "7",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"84e9aa0f-50c1-4e12-85df-63a26cea7db6": {
+"codigo": "DAN-2019-037",
+"carpeta": "San Pascual 17 rehabilitacion",
+"municipio": "ARANJUEZ",
+"numeros": [
+"17"
+],
+"parcela": "8416602VK4381N",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"0f7ed370-cef7-40b9-960b-6b951485a6a7": {
+"codigo": "DAN-2019-041",
+"carpeta": "vallehermoso94",
+"municipio": "MADRID",
+"numeros": [
+"94"
+],
+"parcela": "0169319VK4706G",
+"numero": "94",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"d9d09f1c-ca27-49e8-92fd-2147ef3f7280": {
+"codigo": "DAN-2022-109",
+"carpeta": "AlfonsoXelsabio44",
+"municipio": "PARLA",
+"numeros": [
+"44"
+],
+"calle": "CL ALFONSO X EL SABIO",
+"numero": "44",
+"estado": "clara",
+"parcela": "4839101VK3543N",
+"enlazada": true,
+"portales": 1
+},
+"8fab6c72-61a2-4b76-9970-9fc7d2c5be1d": {
+"codigo": "DAN-2022-124",
+"carpeta": "ciudades8 (PARLA)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "4749701VK3544N",
+"numeros": [
+"8"
+]
+}
+],
+"parcela": "4749701VK3544N",
+"numero": "8",
+"numeros": [
+"8"
+],
+"enlazada": true,
+"portales": 1
+},
+"24e92779-26b0-4ab6-98af-d35c72dee329": {
+"codigo": "DAN-2022-130",
+"carpeta": "alcorcon7",
+"municipio": "PARLA",
+"numeros": [
+"7"
+],
+"calle": "CL ALCORCON",
+"numero": "7",
+"estado": "clara",
+"parcela": "4250601VK3545S",
+"enlazada": true,
+"portales": 1
+},
+"1c4ffd93-b636-4f06-a73d-65ce36413173": {
+"codigo": "DAN-2022-222",
+"carpeta": "jarama1 (PARLA)",
+"municipio": "PARLA",
+"destinos": [
+{
+"parcela": "4651501VK3545S",
+"numeros": [
+"1"
+],
+"calle": "CL RIO JARAMA"
+}
+],
+"estado": "clara",
+"parcela": "4651501VK3545S",
+"numero": "1",
+"numeros": [
+"1"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"c70cb06d-aa9b-48d6-9d73-11d31f67fde5": {
+"codigo": "DAN-2022-254",
+"carpeta": "sanblas26",
+"municipio": "PARLA",
+"numeros": [
+"26"
+],
+"calle": "CL SAN BLAS",
+"numero": "26",
+"estado": "clara",
+"parcela": "4250202VK3545S",
+"enlazada": true,
+"portales": 1
+},
+"c042c1dc-f152-44c2-bb54-ba729e28b8be": {
+"codigo": "DAN-2023-187",
+"carpeta": "alfonsoXelsabio39",
+"municipio": "PARLA",
+"numeros": [
+"39"
+],
+"calle": "CL ALFONSO X EL SABIO",
+"numero": "39",
+"estado": "clara",
+"parcela": "4840401VK3544S",
+"enlazada": true,
+"portales": 1
+},
+"9b0051af-0c38-44da-b484-b6680abb3478": {
+"codigo": "DAN-2023-191",
+"carpeta": "jaimeIelconquistador39",
+"municipio": "PARLA",
+"numeros": [
+"39"
+],
+"parcela": "4843804VK3544S",
+"numero": "39",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"d6fdaf20-ce06-406d-a42e-b8d4ab28a3ed": {
+"codigo": "DAN-2023-211",
+"carpeta": "aranjuez2",
+"municipio": "PARLA",
+"numeros": [
+"2"
+],
+"calle": "CL ARANJUEZ",
+"numero": "2",
+"estado": "clara",
+"parcela": "4048501VK3544N",
+"enlazada": true,
+"portales": 1
+},
+"ca14be83-554a-4633-90a2-911d679dba3e": {
+"codigo": "DAN-2024-163",
+"carpeta": "asturias14",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"14"
+],
+"calle": "CL ASTURIAS",
+"numero": "14",
+"estado": "clara",
+"parcela": "6590905VK4869S",
+"enlazada": true,
+"portales": 1
+},
+"2377ff75-98fd-4fee-a247-28a5a2037db3": {
+"codigo": "DAN-2024-172",
+"carpeta": "fuentebella55",
+"municipio": "PARLA",
+"numeros": [
+"55"
+],
+"calle": "CL FUENTEBELLA",
+"numero": "55",
+"estado": "clara",
+"parcelas": [
+"4239201VK3543N",
+"4239301VK3544S"
+],
+"parcela": "4239201VK3543N",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"084d4f95-a8cb-4b87-9c11-d0bfdb931b28": {
+"codigo": "DAN-2022-184",
+"carpeta": "leganes12",
+"municipio": "PARLA",
+"numeros": [
+"12"
+],
+"calle": "CL LEGANES",
+"numero": "12",
+"estado": "clara",
+"parcela": "4551102VK3545S",
+"enlazada": true,
+"portales": 1
+},
+"c6934bfe-8140-4e94-abb0-2e2c5709dd90": {
+"codigo": "DAN-2022-232",
+"carpeta": "soledad9",
+"municipio": "PARLA",
+"numeros": [
+"9"
+],
+"calle": "CL SOLEDAD",
+"numero": "9",
+"estado": "clara",
+"parcela": "4447109VK3544N",
+"enlazada": true,
+"portales": 1
+},
+"935c63ca-4e48-4cea-9c25-be5f3333bc9c": {
+"codigo": "DAN-2024-242",
+"carpeta": "olvido4",
+"municipio": "PARLA",
+"numeros": [
+"4"
+],
+"calle": "CL OLVIDO",
+"numero": "4",
+"estado": "clara",
+"parcela": "4845611VK3544N",
+"enlazada": true,
+"portales": 1
+},
+"4a2f62a1-2695-485d-b4f4-51bee69d2d3f": {
+"codigo": "DAN-2023-308",
+"carpeta": "arroyomolinos9 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "6336505VK2663N",
+"numeros": [
+"9"
+],
+"calle": "PS ARROYOMOLINOS DE"
+}
+],
+"estado": "clara",
+"parcela": "6336505VK2663N",
+"numero": "9",
+"numeros": [
+"9"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"cfba9f7b-9f5b-41f9-a451-82680d1dedbc": {
+"codigo": "DAN-2024-253",
+"carpeta": "fuentebella73",
+"municipio": "PARLA",
+"numeros": [
+"73"
+],
+"calle": "CL FUENTEBELLA",
+"numero": "73",
+"estado": "clara",
+"parcela": "4137201VK3543N",
+"enlazada": true,
+"portales": 1
+},
+"cea6fd39-ef41-436b-aa39-cb8e5e161cd3": {
+"codigo": "DAN-2020-001",
+"carpeta": "leopoldogimeno16",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"16"
+],
+"parcela": "7389601VK4878N",
+"numero": "16",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"adf45a44-5b18-4b21-a880-09cadfa90bf4": {
+"codigo": "DAN-2024-121",
+"carpeta": "avsierra21",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"21"
+],
+"calle": "AV SIERRA",
+"numero": "21",
+"estado": "clara",
+"parcela": "6591401VK4869S",
+"enlazada": true,
+"portales": 2
+},
+"49cd0141-80c8-4705-a16a-ce2637a13c00": {
+"codigo": "DAN-2024-134",
+"carpeta": "avsierra51",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"51"
+],
+"calle": "AV SIERRA",
+"numero": "51",
+"estado": "clara",
+"parcela": "6488104VK4868N",
+"enlazada": true,
+"portales": 1
+},
+"1b06f75c-e3ba-4f2b-bdd4-cc8c585a11bc": {
+"codigo": "DAN-2023-112",
+"carpeta": "recreo3",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"3"
+],
+"calle": "CL RECREO",
+"numero": "3",
+"estado": "clara",
+"parcela": "7191901VK4879S",
+"enlazada": true,
+"portales": 2
+},
+"cc435e2f-9f86-42c9-8325-e8d352a32404": {
+"codigo": "DAN-2023-195",
+"carpeta": "_CALCULO DE FIANZA",
+"municipio": "MOSTOLES",
+"estado": "dudosa: la carpeta no trae numero"
+},
+"ead92816-71dc-484e-9899-e7475f21d981": {
+"codigo": "DAN-2023-219",
+"carpeta": "avandalucia 4-14 y extremadura 8-12",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"4",
+"14",
+"8",
+"12"
+],
+"calle": "AV ANDALUCIA",
+"numero": "4",
+"estado": "clara",
+"parcela": "6896901VK4869N",
+"enlazada": true,
+"portales": 1
+},
+"d6aac318-f866-4ef2-bd3e-203502262faa": {
+"codigo": "DAN-2022-265",
+"carpeta": "vizcaya11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL VIZCAYA",
+"numero": "11",
+"estado": "clara",
+"parcela": "1131608VK4713A",
+"enlazada": true,
+"portales": 1
+},
+"cc481ad8-ad20-425e-9ece-930589c7c962": {
+"codigo": "DAN-2023-260",
+"carpeta": "cristodelosremedios18-20 (SAN SEBASTIAN DE LOS REYES)",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"destinos": [
+{
+"parcela": "7288710VK4878N",
+"numeros": [
+"18",
+"20"
+],
+"calle": "CL CRISTO REMEDIOS"
+}
+],
+"estado": "clara",
+"parcela": "7288710VK4878N",
+"numero": "18",
+"numeros": [
+"18",
+"20"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"80e24e1a-381f-4b80-a36f-5547ad5c2766": {
+"codigo": "DAN-2018-016",
+"carpeta": "villachurriana13",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "CL VILLA DE CHURRIANA",
+"numero": "13",
+"estado": "clara",
+"parcela": "5297603VK4759G",
+"enlazada": true,
+"portales": 1
+},
+"b22ea5f2-b9ae-4325-adbb-b72c68999a5e": {
+"codigo": "DAN-2023-015",
+"carpeta": "avolimpica2",
+"municipio": "MOSTOLES",
+"numeros": [
+"2"
+],
+"calle": "AV OLIMPICA",
+"numero": "2",
+"estado": "clara",
+"parcela": "5045401VK2654N",
+"enlazada": true,
+"portales": 1
+},
+"ab47309f-9fdc-4a44-9f47-4c57851a0fc5": {
+"codigo": "DAN-2024-105",
+"carpeta": "montevideo3",
+"municipio": "MOSTOLES",
+"numeros": [
+"3"
+],
+"calle": "CL MONTEVIDEO",
+"numero": "3",
+"estado": "clara",
+"parcela": "7236101VK2673N",
+"enlazada": true,
+"portales": 1
+},
+"40139691-efa2-460c-b7bb-dc9d2de809f6": {
+"codigo": "DAN-2023-240",
+"carpeta": "mercedes3 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "7145903VK2674N",
+"numeros": [
+"3"
+],
+"calle": "CL MERCEDES DE LAS"
+}
+],
+"estado": "clara",
+"parcela": "7145903VK2674N",
+"numero": "3",
+"numeros": [
+"3"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"1ad65957-2170-48c1-8b8f-a9eb7afa6f11": {
+"codigo": "DAN-2024-270",
+"carpeta": "estebancarros20",
+"municipio": "MADRID",
+"numeros": [
+"20"
+],
+"calle": "CL ESTEBAN CARROS",
+"numero": "20",
+"estado": "clara",
+"parcela": "4195107VK4649E",
+"enlazada": true,
+"portales": 1
+},
+"1180e11c-0976-44eb-b7a2-be3be5006088": {
+"codigo": "DAN-2024-233",
+"carpeta": "badajoz35",
+"municipio": "MOSTOLES",
+"numeros": [
+"35"
+],
+"calle": "CL BADAJOZ",
+"numero": "35",
+"estado": "clara",
+"parcela": "7247402VK2674N",
+"enlazada": true,
+"portales": 1
+},
+"5a6decf5-43b0-4d7d-970f-2ceee45dc2c3": {
+"codigo": "DAN-2023-122",
+"carpeta": "caminodeleganes58 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "7842204VK2674S",
+"numeros": [
+"58"
+],
+"calle": "CL CAMINO DE LEGANES"
+}
+],
+"estado": "clara",
+"parcela": "7842204VK2674S",
+"numero": "58",
+"numeros": [
+"58"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"cf4ed88c-8523-47c0-afc7-80063dfc3996": {
+"codigo": "DAN-2024-088",
+"carpeta": "caminodeleganes5 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "7142417VK2674S",
+"numeros": [
+"5"
+],
+"calle": "CL CAMINO DE LEGANES"
+}
+],
+"estado": "clara",
+"parcela": "7142417VK2674S",
+"numero": "5",
+"numeros": [
+"5"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"acd60156-8d01-4a98-b8ce-f1befb08df44": {
+"codigo": "DAN-2024-092",
+"carpeta": "burgos4",
+"municipio": "MOSTOLES",
+"numeros": [
+"4"
+],
+"calle": "CL BURGOS",
+"numero": "4",
+"estado": "clara",
+"parcela": "7045602VK2674N",
+"enlazada": true,
+"portales": 1
+},
+"8bce0afd-c820-4acd-9e13-37a20ce6db5e": {
+"codigo": "DAN-2024-309",
+"carpeta": "julioromero1 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "6550902VK2665S",
+"numeros": [
+"1"
+],
+"calle": "CL PINTOR JULIO ROMERO"
+}
+],
+"estado": "clara",
+"parcela": "6550902VK2665S",
+"numero": "1",
+"numeros": [
+"1"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"2a7798f1-affe-475f-b136-bc12613a0250": {
+"codigo": "DAN-2023-041",
+"carpeta": "empecinado6 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "6941701VK2664S",
+"numeros": [
+"6"
+],
+"calle": "CL EMPECINADO DEL"
+}
+],
+"estado": "clara",
+"parcela": "6941701VK2664S",
+"numero": "6",
+"numeros": [
+"6"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"ecc250b1-2890-477a-8e24-ebbec7488bda": {
+"codigo": "DAN-2023-042",
+"carpeta": "españoleto5",
+"municipio": "MOSTOLES",
+"numeros": [
+"5"
+],
+"parcela": "6752701VK2665S",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 4
+},
+"3a984238-4317-427d-ab20-6ecc659e0f42": {
+"codigo": "DAN-2023-045",
+"carpeta": "guadalupe3 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "7145403VK2674N",
+"numeros": [
+"3"
+],
+"calle": "CL GUADALUPE DE"
+}
+],
+"estado": "clara",
+"parcela": "7145403VK2674N",
+"numero": "3",
+"numeros": [
+"3"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"a8ac5561-f334-4699-9ac1-0725d1ea25f3": {
+"codigo": "DAN-2023-132",
+"carpeta": "guadalupe6 (MOSTOLES)",
+"municipio": "MOSTOLES",
+"destinos": [
+{
+"parcela": "7146102VK2674N",
+"numeros": [
+"6"
+],
+"calle": "CL GUADALUPE DE"
+}
+],
+"estado": "clara",
+"parcela": "7146102VK2674N",
+"numero": "6",
+"numeros": [
+"6"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"7b5ac3ab-828e-40bd-8166-405e77c0b3c7": {
+"codigo": "DAN-2023-275",
+"carpeta": "juanramonjimenez7",
+"municipio": "MOSTOLES",
+"numeros": [
+"7"
+],
+"calle": "CL JUAN RAMON JIMENEZ",
+"numero": "7",
+"estado": "clara",
+"parcela": "7151703VK2675S",
+"enlazada": true,
+"portales": 2
+},
+"61dfa6e4-f326-4906-87f8-835d3c6dae24": {
+"codigo": "DAN-2023-288",
+"carpeta": "ginebra2",
+"municipio": "MOSTOLES",
+"numeros": [
+"2"
+],
+"calle": "CL GINEBRA",
+"numero": "2",
+"estado": "clara",
+"parcela": "7431104VK2673S",
+"enlazada": true,
+"portales": 1
+},
+"b5e29611-6035-4db4-84f4-9ee48bc7c8f4": {
+"codigo": "DAN-2023-147",
+"carpeta": "riosella2-4-6",
+"municipio": "MOSTOLES",
+"numeros": [
+"2",
+"4",
+"6"
+],
+"calle": "CL RIO SELLA",
+"numero": "2",
+"estado": "clara",
+"parcela": "5933903VK2653S",
+"enlazada": true,
+"portales": 2
+},
+"5d338dcc-ce93-407b-892b-0fcd12e1336c": {
+"codigo": "DAN-2023-310",
+"carpeta": "rioebro32",
+"municipio": "MOSTOLES",
+"numeros": [
+"32"
+],
+"calle": "CL RIO EBRO",
+"numero": "32",
+"estado": "clara",
+"parcela": "5432707VK2653S",
+"enlazada": true,
+"portales": 1
+},
+"0cb908d4-823c-4c02-b38e-510fd7897eca": {
+"codigo": "DAN-2023-184",
+"carpeta": "villaolimpica18 (MOSTOLES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "5048806VK2654N",
+"numeros": [
+"18"
+]
+},
+{
+"parcela": "5048807VK2654N",
+"numeros": [
+"18"
+]
+}
+],
+"parcela": "5048806VK2654N",
+"numero": "18",
+"numeros": [
+"18"
+],
+"enlazada": true,
+"portales": 1
+},
+"f2ce135a-8823-4cdb-9764-348b365a3f2c": {
+"codigo": "DAN-2023-209",
+"carpeta": "simonhernandez70-72 (MOSTOLES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "7437903VK2673N",
+"numeros": [
+"70"
+]
+},
+{
+"parcela": "7437901VK2673N",
+"numeros": [
+"72"
+]
+}
+],
+"parcela": "7437903VK2673N",
+"numero": "70",
+"numeros": [
+"70"
+],
+"enlazada": true,
+"portales": 2
+},
+"74d96085-0ac1-4704-a2a7-b462b58a1e60": {
+"codigo": "DAN-2023-292",
+"carpeta": "simonhernandez29",
+"municipio": "MOSTOLES",
+"numeros": [
+"29"
+],
+"calle": "CL SIMON HERNANDEZ",
+"numero": "29",
+"estado": "clara",
+"parcela": "7040801VK2674S",
+"enlazada": true,
+"portales": 1
+},
+"e47eaaee-b740-4bc4-aab7-bbb424e4167f": {
+"codigo": "DAN-2024-075",
+"carpeta": "tenienteruiz2",
+"municipio": "MOSTOLES",
+"numeros": [
+"2"
+],
+"calle": "CL TENIENTE RUIZ",
+"numero": "2",
+"estado": "clara",
+"parcela": "6540507VK2664S",
+"enlazada": true,
+"portales": 1
+},
+"5d2541bc-6c1e-44ee-a15a-e73feb5fce60": {
+"codigo": "DAN-2023-176",
+"carpeta": "belgica3",
+"municipio": "GETAFE",
+"numeros": [
+"3"
+],
+"calle": "CL BELGICA",
+"numero": "3",
+"estado": "clara",
+"parcela": "7545801VK3674N",
+"enlazada": true,
+"portales": 1
+},
+"6e584acc-4a82-4bae-86c0-db1680f12d43": {
+"codigo": "DAN-2024-005",
+"carpeta": "avjuancarlosi28",
+"municipio": "GETAFE",
+"numeros": [
+"28"
+],
+"calle": "AV JUAN CARLOS I",
+"numero": "28",
+"estado": "clara",
+"parcela": "6799603VK3569N",
+"enlazada": true,
+"portales": 1
+},
+"dc96fc1e-9e9c-403e-a645-afeac0a8836f": {
+"codigo": "DAN-2024-054",
+"carpeta": "avespaña24-30",
+"municipio": "GETAFE",
+"numeros": [
+"24",
+"26",
+"28",
+"30"
+],
+"calle": "AV ESPAÑA",
+"numero": "24",
+"estado": "clara",
+"parcela": "8828101VK3682N",
+"enlazada": true,
+"portales": 5
+},
+"984413f0-e3de-4c3f-bbe5-9df22b5ad3e0": {
+"codigo": "DAN-2022-150",
+"carpeta": "islamalaita5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"parcela": "8808801VK3880H",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7ce70a9c-c985-4db8-a113-2794c2b28d86": {
+"codigo": "DAN-2023-024",
+"carpeta": "cataluña32",
+"municipio": "GETAFE",
+"numeros": [
+"32"
+],
+"calle": "CL CATALUÑA",
+"numero": "32",
+"estado": "clara",
+"parcela": "8931803VK3683S",
+"enlazada": true,
+"portales": 1
+},
+"f0d1da7c-fd11-45c3-afc5-3146f063705d": {
+"codigo": "DAN-2024-011",
+"carpeta": "castellondelaplana10",
+"municipio": "GETAFE",
+"numeros": [
+"10"
+],
+"calle": "CL CASTELLON DE LA PLANA",
+"numero": "10",
+"estado": "clara",
+"parcela": "9128101VK3692N",
+"enlazada": true,
+"portales": 2
+},
+"660cec7e-4be3-4c92-91d3-f2fe994eada5": {
+"codigo": "DAN-2023-068",
+"carpeta": "sierra4",
+"municipio": "GETAFE",
+"numeros": [
+"4"
+],
+"calle": "CL SIERRA",
+"numero": "4",
+"estado": "clara",
+"parcela": "7918703VK3671N",
+"enlazada": true,
+"portales": 2
+},
+"ccf56009-9446-4527-aaca-57e97ab00941": {
+"codigo": "DAN-2024-043",
+"carpeta": "travesiadelosdepositos2",
+"municipio": "GETAFE",
+"numeros": [
+"2"
+],
+"calle": "TR DEPOSITOS DE LOS",
+"numero": "2",
+"estado": "clara",
+"parcela": "8429811VK3682N",
+"enlazada": true,
+"portales": 1
+},
+"df4eda3b-d9fb-4282-b5ab-1054429ace9b": {
+"codigo": "DAN-2019-073",
+"carpeta": "miguelmoncada5",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"5"
+],
+"parcela": "0019402VK7801N",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"76f04133-29b3-4fe1-8bf2-66baa24f8367": {
+"codigo": "DAN-2022-213",
+"carpeta": "azucena7",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"7"
+],
+"calle": "CL AZUCENA",
+"numero": "7",
+"estado": "clara",
+"parcela": "9517716VK6891N",
+"enlazada": true,
+"portales": 1
+},
+"83b8b787-532d-4136-91ef-36830f1da05c": {
+"codigo": "DAN-2022-214",
+"carpeta": "cervantes2",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"2"
+],
+"calle": "CL CERVANTES",
+"numero": "2",
+"estado": "clara",
+"parcela": "9117715VK6891N",
+"enlazada": true,
+"portales": 2
+},
+"67c45bf4-fc55-46fb-8f30-ab72068d46a4": {
+"codigo": "DAN-2023-076",
+"carpeta": "doctoradealcala5",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"5"
+],
+"parcela": "9422207VK6892S",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b6ec6c82-42e9-4ad8-a4a8-5b674f56d823": {
+"codigo": "DAN-2024-243",
+"carpeta": "plazasanjose2",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"2"
+],
+"calle": "PZ SAN JOSE",
+"numero": "2",
+"estado": "clara",
+"parcela": "8324301VK6882S",
+"enlazada": true,
+"portales": 3
+},
+"fcee8c95-9ebf-496d-9d46-6562aa9dd72c": {
+"codigo": "DAN-2022-107",
+"carpeta": "torrelaguna6",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"6"
+],
+"calle": "CL TORRELAGUNA",
+"numero": "6",
+"estado": "clara",
+"parcela": "8821201VK6882S",
+"enlazada": true,
+"portales": 1
+},
+"36f884f0-7132-421e-b778-dbae9e56705d": {
+"codigo": "DAN-2023-160",
+"carpeta": "travesiasanonofre7",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"7"
+],
+"calle": "TR SAN ONOFRE",
+"numero": "7",
+"estado": "clara",
+"parcela": "6894901VK4869S",
+"enlazada": true,
+"portales": 1
+},
+"7f514cae-714f-4d78-a577-faced4f2091f": {
+"codigo": "DAN-2023-262",
+"carpeta": "josemariapereda41 (ALCALA DE HENARES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "9035411VK6893N",
+"numeros": [
+"41"
+]
+}
+],
+"parcela": "9035411VK6893N",
+"numero": "41",
+"numeros": [
+"41"
+],
+"enlazada": true,
+"portales": 1
+},
+"7749cace-fb2e-4975-a976-c9d18b832709": {
+"codigo": "DAN-2024-072",
+"carpeta": "santander8",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"8"
+],
+"calle": "CL SANTANDER",
+"numero": "8",
+"estado": "clara",
+"parcela": "0520502VK7802S",
+"enlazada": true,
+"portales": 1
+},
+"76f12113-826a-4d5e-8805-4135236436d6": {
+"codigo": "DAN-2018-049",
+"carpeta": "arroyoopañiel9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL ARROYO DEL OPAÑEL",
+"numero": "9",
+"estado": "clara",
+"parcela": "9012601VK3791C",
+"enlazada": true,
+"portales": 1
+},
+"4dd21a52-b61e-4584-b433-f7a042d49aa3": {
+"codigo": "DAN-2019-025",
+"carpeta": "jerusalen16",
+"municipio": "PARLA",
+"numeros": [
+"16"
+],
+"parcela": "4245201VK3544N",
+"numero": "16",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"e8b56f09-a718-4ce2-bff8-0af35b2d69db": {
+"codigo": "DAN-2020-045",
+"carpeta": "brauliogutierrez7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"parcela": "6158315VK4765G",
+"numero": "7",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7804b86e-6934-4d02-be7a-2f6a54fe6f87": {
+"codigo": "DAN-2023-093",
+"carpeta": "doctoresquerdo59",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"calle": "CL DOCTOR ESQUERDO",
+"numero": "59",
+"estado": "clara",
+"parcela": "3347623VK4734G",
+"enlazada": true,
+"portales": 3
+},
+"488c8cc5-5ca8-49b4-8ab4-e9544818ad79": {
+"codigo": "DAN-2021-013",
+"carpeta": "granados2",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"2"
+],
+"parcela": "8222402VK6882S",
+"numero": "2",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"4dd88ab2-bfdb-4f97-bf3c-6157a22b374d": {
+"codigo": "DAN-2023-131",
+"carpeta": "artajona16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL ARTAJONA",
+"numero": "16",
+"estado": "clara",
+"parcela": "9397937VK3799E",
+"enlazada": true,
+"portales": 1
+},
+"9a69d37c-9789-4f64-b780-c2cffb6f7fb1": {
+"codigo": "DAN-2023-247",
+"carpeta": "avsanpablo55",
+"municipio": "COSLADA",
+"numeros": [
+"55"
+],
+"calle": "AV SAN PABLO",
+"numero": "55",
+"estado": "clara",
+"parcela": "4959003VK5745N",
+"enlazada": true,
+"portales": 4
+},
+"119c7153-80a9-4b54-a4ca-c480ac8df4c4": {
+"codigo": "DAN-2020-007",
+"carpeta": "moreras19",
+"municipio": "ARANJUEZ",
+"numeros": [
+"19"
+],
+"parcela": "9121706VK4392S",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"26a2a958-ee5f-4325-a449-a6160fa78931": {
+"codigo": "DAN-2020-034",
+"carpeta": "belgrado1",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"1"
+],
+"parcela": "9892705VK5799S",
+"numero": "1",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5bed59bf-b557-424f-a779-89c6a0195fef": {
+"codigo": "DAN-2016-185",
+"carpeta": "sanpascual17 ascensor",
+"municipio": "ARANJUEZ",
+"numeros": [
+"17"
+],
+"parcela": "8416602VK4381N",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c030c37e-b99c-44da-a055-96192a66cd22": {
+"codigo": "DAN-2020-009",
+"carpeta": "buenamadre9",
+"municipio": "PINTO",
+"numeros": [
+"9"
+],
+"parcela": "0650202VK4505S",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2ae84d55-26de-42af-a4e5-bab99496e123": {
+"codigo": "DAN-2022-138",
+"carpeta": "badalona48",
+"municipio": "MADRID",
+"numeros": [
+"48"
+],
+"parcela": "1528327VK4812H",
+"numero": "48",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"68dece43-893c-463e-b1a4-0269e6e46b50": {
+"codigo": "DAN-2023-213",
+"carpeta": "ainsa18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "CL AINSA",
+"numero": "18",
+"estado": "clara",
+"parcela": "8360908VK4786A",
+"enlazada": true,
+"portales": 1
+},
+"0ecc2421-d4bf-4359-9595-2492e3e5a276": {
+"codigo": "DAN-2018-005",
+"carpeta": "biosca16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"parcela": "5003405VK4850C",
+"numero": "16",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"dd479439-d1d9-4811-9f84-fbdcfc7db987": {
+"codigo": "DAN-2021-074",
+"carpeta": "belzunegui52",
+"municipio": "MADRID",
+"numeros": [
+"52"
+],
+"calle": "CL BELZUNEGUI",
+"numero": "52",
+"estado": "clara",
+"parcela": "7299716VK3679G",
+"enlazada": true,
+"portales": 1
+},
+"45a37689-b476-42e9-93c6-e8a658dc41aa": {
+"codigo": "DAN-2022-148",
+"carpeta": "badalona28",
+"municipio": "MADRID",
+"numeros": [
+"28"
+],
+"calle": "CL BADALONA",
+"numero": "28",
+"estado": "clara",
+"parcela": "1528338VK4812H",
+"enlazada": true,
+"portales": 1
+},
+"5c3f66bc-65fb-4dc6-a1f4-94a8d167ff69": {
+"codigo": "DAN-2024-132",
+"carpeta": "andaluces24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL ANDALUCES",
+"numero": "24",
+"estado": "clara",
+"parcela": "6013401VK4761C",
+"enlazada": true,
+"portales": 1
+},
+"b2037928-6239-4cd3-b937-ccaf9756100c": {
+"codigo": "DAN-2017-133",
+"carpeta": "bravomurillo28",
+"municipio": "MADRID",
+"numeros": [
+"28"
+],
+"calle": "CL BRAVO MURILLO",
+"numero": "28",
+"estado": "clara",
+"parcelas": [
+"0466920VK4706E",
+"0466921VK4706E"
+],
+"parcela": "0466920VK4706E",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"14687a13-06cf-4bc3-ad8e-9306cb03b74c": {
+"codigo": "DAN-2018-040",
+"carpeta": "bailen43",
+"municipio": "MADRID",
+"numeros": [
+"43"
+],
+"calle": "CL BAILEN",
+"numero": "43",
+"estado": "clara",
+"parcela": "9538901VK3793H",
+"enlazada": true,
+"portales": 1
+},
+"af52b22d-0d7e-4151-b414-b403d904e216": {
+"codigo": "DAN-2018-052",
+"carpeta": "barbaradebraganza (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "1351102VK4715A",
+"numeros": [
+"12"
+],
+"calle": "CL BARBARA DE BRAGANZA"
+}
+],
+"estado": "clara",
+"parcela": "1351102VK4715A",
+"numero": "12",
+"numeros": [
+"12"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 3
+},
+"e20333b1-0a44-483b-8195-ff4b09c387d0": {
+"codigo": "DAN-2022-068",
+"carpeta": "agustindefoxa19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"calle": "CL AGUSTIN DE FOXA",
+"numero": "19",
+"estado": "clara",
+"parcela": "1801301VK4810B",
+"enlazada": true,
+"portales": 1
+},
+"a30efb3f-c3ef-4cb1-ada1-b2253f5f9197": {
+"codigo": "DAN-2023-169",
+"carpeta": "vedra22",
+"municipio": "MADRID",
+"numeros": [
+"22"
+],
+"calle": "CL VEDRA",
+"numero": "22",
+"estado": "dudosa: 24 parcelas en ese numero",
+"parcelas": [
+"3699901VK4639H",
+"3699902VK4639H",
+"3699903VK4639H",
+"3699904VK4639H",
+"3699905VK4639H",
+"3699906VK4639H",
+"3699907VK4639H",
+"3699908VK4639H",
+"3699909VK4639H",
+"3699910VK4639H",
+"3699911VK4639H",
+"3699912VK4639H",
+"3699913VK4639H",
+"3699914VK4639H",
+"3699915VK4639H",
+"3699916VK4639H",
+"3699917VK4639H",
+"3699918VK4639H",
+"3699919VK4639H",
+"3699920VK4639H",
+"3699921VK4639H",
+"3699922VK4639H",
+"3699923VK4639H",
+"3699924VK4639H"
+]
+},
+"25318860-8480-44d1-9724-a42ae39eaccf": {
+"codigo": "DAN-2023-294",
+"carpeta": "cuestablanca2",
+"municipio": "ALCOBENDAS",
+"numeros": [
+"2"
+],
+"calle": "CL CUESTABLANCA",
+"numero": "2",
+"estado": "clara",
+"parcela": "4965806VK4846S",
+"enlazada": true,
+"portales": 2
+},
+"a3697e3c-e29e-4c6c-8c42-fe1c25b95207": {
+"codigo": "DAN-2024-167",
+"carpeta": "alcala462",
+"municipio": "MADRID",
+"numeros": [
+"462"
+],
+"calle": "CL ALCALA",
+"numero": "462",
+"estado": "clara",
+"parcela": "6368209VK4766G",
+"enlazada": true,
+"portales": 4
+},
+"b1030867-46fd-48ea-9082-1dcdff83caa2": {
+"codigo": "DAN-2021-108",
+"carpeta": "avaviacion71",
+"municipio": "MADRID",
+"numeros": [
+"71"
+],
+"parcela": "4299412VK3649G",
+"numero": "71",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"1f4683f0-bc16-481f-b6dd-80107af74ee4": {
+"codigo": "DAN-2022-245",
+"carpeta": "avfilipinas28",
+"municipio": "MADRID",
+"numeros": [
+"28"
+],
+"calle": "AV FILIPINAS",
+"numero": "28",
+"estado": "clara",
+"parcela": "0070309VK4707A",
+"enlazada": true,
+"portales": 1
+},
+"85491130-df4d-4b36-a945-9edc5c2531c0": {
+"codigo": "DAN-2022-273",
+"carpeta": "Andarrios5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"parcela": "6487232VK4768G",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"37f32d51-7f55-4d83-b9b6-e3a645e92613": {
+"codigo": "DAN-2023-116",
+"carpeta": "alcala213",
+"municipio": "MADRID",
+"numeros": [
+"213"
+],
+"calle": "CL ALCALA",
+"numero": "213",
+"estado": "clara",
+"parcela": "3558908VK4735H",
+"enlazada": true,
+"portales": 7
+},
+"4528b3e4-7091-4034-a2ac-fddb3db7a648": {
+"codigo": "DAN-2022-160",
+"carpeta": "ascao53",
+"municipio": "MADRID",
+"numeros": [
+"53"
+],
+"calle": "CL ASCAO",
+"numero": "53",
+"estado": "clara",
+"parcelas": [
+"5961708VK4756B",
+"5961709VK4756B"
+],
+"parcela": "5961709VK4756B",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"4138cd09-23f4-4bfc-b791-aef3f9373649": {
+"codigo": "DAN-2022-177",
+"carpeta": "alora11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL ALORA",
+"numero": "11",
+"estado": "clara",
+"parcela": "5710625VK4751B",
+"enlazada": true,
+"portales": 1
+},
+"db2f3021-face-4320-823e-09e1c6ca80ae": {
+"codigo": "DAN-2023-155",
+"carpeta": "almonacid7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL ALMONACID",
+"numero": "7",
+"estado": "clara",
+"parcela": "4121911VK4742A",
+"enlazada": true,
+"portales": 1
+},
+"f12553b2-a856-44b2-a3b0-f13d0f3e80d8": {
+"codigo": "DAN-2017-024",
+"carpeta": "alcaudon41",
+"municipio": "MADRID",
+"numeros": [
+"41"
+],
+"parcela": "7719501VK3771H",
+"numero": "41",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"d51e6b3f-817c-4ecf-a3b4-db442e242177": {
+"codigo": "DAN-2022-146",
+"carpeta": "amadeogomez45",
+"municipio": "MADRID",
+"numeros": [
+"45"
+],
+"calle": "CL AMADEO GOMEZ",
+"numero": "45",
+"estado": "dudosa: la parcela no tiene portales con el numero 45",
+"parcelas": [
+"8513802VK3881D",
+"8513803VK3881D"
+],
+"parcela": "8513802VK3881D",
+"por_viviendas": true
+},
+"667971f9-2df0-4ac6-addf-213087b6aa06": {
+"codigo": "DAN-2024-137",
+"carpeta": "ampelido25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"calle": "CL AMPELIDO",
+"numero": "25",
+"estado": "clara",
+"parcela": "7832607VK3773B",
+"enlazada": true,
+"portales": 1
+},
+"559ab069-1e43-4168-bccb-a72a475d7e83": {
+"codigo": "DAN-2024-158",
+"carpeta": "amparo45",
+"municipio": "MADRID",
+"numeros": [
+"45"
+],
+"calle": "CL AMPARO",
+"numero": "45",
+"estado": "clara",
+"parcela": "0437823VK4703E",
+"enlazada": true,
+"portales": 1
+},
+"5d0a44eb-fb06-45a8-bd60-a4b99d67b3a3": {
+"codigo": "DAN-2020-002",
+"carpeta": "antoniocasero16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL ANTONIO CASERO",
+"numero": "16",
+"estado": "clara",
+"parcela": "3547101VK4734F",
+"enlazada": true,
+"portales": 1
+},
+"0042bf50-561b-44b8-a25e-848ed7f3b9aa": {
+"codigo": "DAN-2024-138",
+"carpeta": "andevalo38",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"calle": "CL ANDEVALO",
+"numero": "38",
+"estado": "clara",
+"parcela": "3396408VK4639E",
+"enlazada": true,
+"portales": 1
+},
+"50e3ee61-f5ef-4a2c-a3e4-3c4186eafd53": {
+"codigo": "DAN-2024-174",
+"carpeta": "anguita17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"calle": "CL ANGUITA",
+"numero": "17",
+"estado": "clara",
+"parcela": "1105426VK5810E",
+"enlazada": true,
+"portales": 1
+},
+"97cb543a-d4b3-4b66-a147-5c20da810e8c": {
+"codigo": "DAN-2021-079",
+"carpeta": "angelmugica35",
+"municipio": "MADRID",
+"numeros": [
+"35"
+],
+"calle": "CL ANGEL MUGICA",
+"numero": "35",
+"estado": "clara",
+"parcela": "1721208VK4812B",
+"enlazada": true,
+"portales": 1
+},
+"181fbcb6-df63-4fc8-9f53-e1c664850373": {
+"codigo": "DAN-2024-252",
+"carpeta": "antoniacalvo11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL ANTONIA CALVO",
+"numero": "11",
+"estado": "clara",
+"parcela": "6727501VK3762H",
+"enlazada": true,
+"portales": 1
+},
+"b4ba1b62-d25d-460a-aacd-6a628d8df273": {
+"codigo": "DAN-2023-072",
+"carpeta": "anicetomarinas112",
+"municipio": "MADRID",
+"numeros": [
+"112"
+],
+"calle": "CL ANICETO MARINAS",
+"numero": "112",
+"estado": "clara",
+"parcela": "7862812VK3776B",
+"enlazada": true,
+"portales": 1
+},
+"d556a955-80c4-4106-ba6b-5453491fb0b8": {
+"codigo": "DAN-2023-299",
+"carpeta": "Andarrios9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"parcela": "6487231VK4768G",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"bd20052d-3923-45cf-b2e9-0484179aa1ee": {
+"codigo": "DAN-2024-203",
+"carpeta": "arroyofontarron91",
+"municipio": "MADRID",
+"numeros": [
+"91"
+],
+"calle": "CL ARROYO FONTARRON",
+"numero": "91",
+"estado": "clara",
+"parcela": "52287J5VK4752G",
+"enlazada": true,
+"portales": 1
+},
+"a37f03f8-633d-4d32-9a56-2bfc6f995e9d": {
+"codigo": "DAN-2021-120",
+"carpeta": "arroyofontarron121",
+"municipio": "MADRID",
+"numeros": [
+"121"
+],
+"calle": "CL ARROYO FONTARRON",
+"numero": "121",
+"estado": "clara",
+"parcela": "55248N4VK4752D",
+"enlazada": true,
+"portales": 1
+},
+"85719678-56c0-4e16-93d8-fc0e3f826576": {
+"codigo": "DAN-2023-245",
+"carpeta": "apostolsantiago25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"calle": "CL APOSTOL SANTIAGO",
+"numero": "25",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"d89b3c93-b706-49b2-994c-faa1b1d80d42": {
+"codigo": "DAN-2023-248",
+"carpeta": "antoniocumella3-5-7-9",
+"municipio": "MADRID",
+"numeros": [
+"3",
+"5",
+"7",
+"9"
+],
+"calle": "CL ANTONIO CUMELLA",
+"numero": "3",
+"estado": "clara",
+"parcela": "6037807VK4763E",
+"enlazada": true,
+"portales": 6
+},
+"d1f68bbf-7e2f-46e4-b31f-492fe46673f1": {
+"codigo": "DAN-2016-173",
+"carpeta": "apostolsantiago49",
+"municipio": "MADRID",
+"numeros": [
+"49"
+],
+"parcela": "4556801VK4745F",
+"numero": "49",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c1814602-153d-4ea9-a354-c82d5f7c97d3": {
+"codigo": "DAN-2022-176",
+"carpeta": "almogia2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL ALMOGIA",
+"numero": "2",
+"estado": "clara",
+"parcela": "5807701VK4750H",
+"enlazada": true,
+"portales": 1
+},
+"e739e0be-c507-4449-9b0a-ac8eb052ed84": {
+"codigo": "DAN-2022-180",
+"carpeta": "Andarrios9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"parcela": "6487231VK4768G",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5cb8d0f5-eb4e-44df-bc29-683ed02c46c1": {
+"codigo": "DAN-2019-059",
+"carpeta": "arturosoria244",
+"municipio": "MADRID",
+"numeros": [
+"244"
+],
+"calle": "CL ARTURO SORIA",
+"numero": "244",
+"estado": "clara",
+"parcela": "3799409VK4839H",
+"enlazada": true,
+"portales": 1
+},
+"26a87f49-12a7-4b9c-b26e-9a75904f614a": {
+"codigo": "DAN-2023-204",
+"carpeta": "arroyobelincoso30",
+"municipio": "MADRID",
+"numeros": [
+"30"
+],
+"calle": "CL ARROYO BELINCOSO",
+"numero": "30",
+"estado": "clara",
+"parcela": "4835749VK4743F",
+"enlazada": true,
+"portales": 1
+},
+"5428edbc-4147-4eec-81bc-bf0ddeca9161": {
+"codigo": "DAN-2022-274",
+"carpeta": "avbetanzos77",
+"municipio": "MADRID",
+"numeros": [
+"77"
+],
+"calle": "AV BETANZOS",
+"numero": "77",
+"estado": "clara",
+"parcela": "9515305VK3891F",
+"enlazada": true,
+"portales": 1
+},
+"7d3864ad-bb1d-4bbe-98c1-e8d2d8d41dff": {
+"codigo": "DAN-2022-278",
+"carpeta": "avcardenalherreraoria116",
+"municipio": "MADRID",
+"numeros": [
+"116"
+],
+"calle": "AV CARDENAL HERRERA ORIA",
+"numero": "116",
+"estado": "clara",
+"parcela": "1126903VK4812E",
+"enlazada": true,
+"portales": 1
+},
+"bd01f938-65fb-4d44-93ad-cf10fa853b41": {
+"codigo": "DAN-2023-272",
+"carpeta": "avbetanzos60",
+"municipio": "MADRID",
+"numeros": [
+"60"
+],
+"parcela": "9716203VK3891F",
+"numero": "60",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"aba9619a-2874-4a6b-93a2-7bc0430739eb": {
+"codigo": "DAN-2024-087",
+"carpeta": "avbonn13",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "AV BONN",
+"numero": "13",
+"estado": "clara",
+"parcela": "3469911VK4736G",
+"enlazada": true,
+"portales": 1
+},
+"a599b586-d1bf-4d1f-93ac-ee0ce9084f07": {
+"codigo": "DAN-2024-288",
+"carpeta": "avcanillejasavicalvaro65",
+"municipio": "MADRID",
+"numeros": [
+"65"
+],
+"calle": "AV CANILLEJAS A VICALVARO",
+"numero": "65",
+"estado": "clara",
+"parcela": "8264311VK4786C",
+"enlazada": true,
+"portales": 1
+},
+"933dda0f-06ff-4c3f-9de0-d5844d9b093c": {
+"codigo": "DAN-2019-070",
+"carpeta": "avburgos16.A",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"parcela": "2808909VK4820H",
+"numero": "16",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 16"
+},
+"d4aee72c-11c3-4142-9b68-70c942a31b78": {
+"codigo": "DAN-2024-109",
+"carpeta": "avcardenalherreraoria295",
+"municipio": "MADRID",
+"numeros": [
+"295"
+],
+"calle": "AV CARDENAL HERRERA ORIA",
+"numero": "295",
+"estado": "clara",
+"parcela": "8613205VK3881D",
+"enlazada": true,
+"portales": 1
+},
+"7631a9b4-6b3e-470f-ba8d-d3abe4e4247f": {
+"codigo": "DAN-2024-117",
+"carpeta": "isturiz11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"parcela": "0579208VK4707H",
+"numero": "11",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2efeb92a-4d54-4e43-9e6e-4f9168ad6294": {
+"codigo": "DAN-2022-060",
+"carpeta": "avhellin19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"parcela": "7958401VK4775H",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"95814d26-9a61-4cb8-bb2f-6fbff5c6ed3c": {
+"codigo": "DAN-2023-141",
+"carpeta": "avcardenalherreraoria297-299",
+"municipio": "MADRID",
+"numeros": [
+"297",
+"299"
+],
+"calle": "AV CARDENAL HERRERA ORIA",
+"numero": "297",
+"estado": "clara",
+"parcela": "8613204VK3881D",
+"enlazada": true,
+"portales": 1
+},
+"b1595461-c7f6-4151-8368-cf3cfae553e7": {
+"codigo": "DAN-2023-279",
+"carpeta": "avcardenalherreraoria301",
+"municipio": "MADRID",
+"numeros": [
+"301"
+],
+"calle": "AV CARDENAL HERRERA ORIA",
+"numero": "301",
+"estado": "clara",
+"parcela": "8613202VK3881D",
+"enlazada": true,
+"portales": 1
+},
+"ba73f59d-86c7-43d8-a1f2-cfe4aaa3e14c": {
+"codigo": "DAN-2021-073",
+"carpeta": "avlogroño156-162",
+"municipio": "MADRID",
+"numeros": [
+"156",
+"158",
+"160",
+"162"
+],
+"parcela": "0708704VK5800H",
+"numero": "156",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"d2b328e9-14a5-4eb3-9f0e-e33ac9a6120b": {
+"codigo": "DAN-2022-194",
+"carpeta": "avmarquesdecorbera38C",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"calle": "AV MARQUES DE CORBERA",
+"numero": "38",
+"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
+"parcelas": [
+"4752310VK4745D",
+"4752318VK4745D"
+]
+},
+"22d8e1b9-4673-4ff1-b370-8e25cda60aa2": {
+"codigo": "DAN-2023-297",
+"carpeta": "canciondelolvido23",
+"municipio": "MADRID",
+"numeros": [
+"23"
+],
+"calle": "CL CANCION DEL OLVIDO",
+"numero": "23",
+"estado": "clara",
+"parcela": "0881822VK4608B",
+"enlazada": true,
+"portales": 1
+},
+"e7fd00fc-4e93-45c9-95e1-777389f108b6": {
+"codigo": "DAN-2016-145",
+"carpeta": "avnuestraseñoradevalvanera112",
+"municipio": "MADRID",
+"numeros": [
+"112"
+],
+"parcela": "7317501VK3771G",
+"numero": "112",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"ce69aee2-3855-4920-bb15-872f82c4c265": {
+"codigo": "DAN-2024-198",
+"carpeta": "avtoreros51",
+"municipio": "MADRID",
+"numeros": [
+"51"
+],
+"calle": "AV TOREROS",
+"numero": "51",
+"estado": "clara",
+"parcela": "3662309VK4736D",
+"enlazada": true,
+"portales": 1
+},
+"d8d84740-66db-4736-99c8-a1bb2b7c6c97": {
+"codigo": "DAN-2022-287",
+"carpeta": "avsandiego94",
+"municipio": "MADRID",
+"numeros": [
+"94"
+],
+"calle": "AV SAN DIEGO",
+"numero": "94",
+"estado": "clara",
+"parcela": "3310402VK4731A",
+"enlazada": true,
+"portales": 1
+},
+"fcba82ba-579a-4846-8daa-000a77d80590": {
+"codigo": "DAN-2023-073",
+"carpeta": "avvalladolid21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "AV VALLADOLID",
+"numero": "21",
+"estado": "clara",
+"parcela": "8355409VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"3a4616f0-95f8-40d2-ba1a-c7e5a62dc105": {
+"codigo": "DAN-2023-207",
+"carpeta": "avpeñaprieta53",
+"municipio": "MADRID",
+"numeros": [
+"53"
+],
+"calle": "AV PEÑA PRIETA",
+"numero": "53",
+"estado": "clara",
+"parcela": "3627502VK4732H",
+"enlazada": true,
+"portales": 1
+},
+"f76d0d05-813d-4992-b5e4-e5c6653d4186": {
+"codigo": "DAN-2024-209",
+"carpeta": "camarena190",
+"municipio": "MADRID",
+"numeros": [
+"190"
+],
+"calle": "CL CAMARENA",
+"numero": "190",
+"estado": "clara",
+"parcela": "5914203VK3751D",
+"enlazada": true,
+"portales": 1
+},
+"f7776f98-ca8e-4949-be1b-26d074d8fd33": {
+"codigo": "DAN-2022-102",
+"carpeta": "caminodevalderribas38",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"calle": "CM VALDERRIBAS",
+"numero": "38",
+"estado": "clara",
+"parcela": "3725403VK4732F",
+"enlazada": true,
+"portales": 1
+},
+"dbd42b9e-e1a5-4003-9338-0e1f9a86a5e8": {
+"codigo": "DAN-2023-273",
+"carpeta": "camarena136",
+"municipio": "MADRID",
+"numeros": [
+"136"
+],
+"calle": "CL CAMARENA",
+"numero": "136",
+"estado": "clara",
+"parcela": "5816613VK3751F",
+"enlazada": true,
+"portales": 1
+},
+"5243baa7-0847-458e-af49-5c58dee97192": {
+"codigo": "DAN-2024-201",
+"carpeta": "velezblanco19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"calle": "CL VELEZ BLANCO",
+"numero": "19",
+"estado": "clara",
+"parcela": "3812717VK4831D",
+"enlazada": true,
+"portales": 1
+},
+"bb3af7ca-c57a-4117-ab03-7df442efb89a": {
+"codigo": "DAN-2022-143",
+"carpeta": "cantalejo6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL CANTALEJOS",
+"numero": "6",
+"estado": "clara",
+"parcela": "7408403VK3870G",
+"enlazada": true,
+"portales": 4
+},
+"11a14ffb-5819-41b0-8f29-01d348ed9998": {
+"codigo": "DAN-2023-181",
+"carpeta": "carlosfuentes21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "CL CARLOS FUENTES",
+"numero": "21",
+"estado": "clara",
+"parcela": "7029421VK3772G",
+"enlazada": true,
+"portales": 1
+},
+"e0b6bb9d-8246-4a07-a0c5-bb93b8bc3e9c": {
+"codigo": "DAN-2017-026",
+"carpeta": "carolinacoronado37",
+"municipio": "MADRID",
+"numeros": [
+"37"
+],
+"calle": "CL CAROLINA CORONADO",
+"numero": "37",
+"estado": "clara",
+"parcela": "5560810VK4756B",
+"enlazada": true,
+"portales": 1
+},
+"70896d63-ec76-4673-95a6-60f64b91fd3a": {
+"codigo": "DAN-2024-040",
+"carpeta": "sangregorio2",
+"municipio": "LEGANES",
+"numeros": [
+"2"
+],
+"calle": "CL SAN GREGORIO",
+"numero": "2",
+"estado": "clara",
+"parcela": "5550901VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"6991d8a9-92e4-4c35-965f-fcb525516434": {
+"codigo": "DAN-2016-129",
+"carpeta": "carreteradeboadilladelmonte55",
+"municipio": "MADRID",
+"numeros": [
+"55"
+],
+"calle": "CR BOADILLA DEL MONTE",
+"numero": "55",
+"estado": "clara",
+"parcela": "4625801VK3742F",
+"enlazada": true,
+"portales": 1
+},
+"f9e6c53d-0cda-42a6-bf06-65ebb247e23b": {
+"codigo": "DAN-2021-094",
+"carpeta": "ceferinorodriguez17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"parcela": "1099201VK4719G",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"8be8f8a2-15f0-4feb-b82d-f54985a52a9b": {
+"codigo": "DAN-2022-200",
+"carpeta": "viacarpetana191",
+"municipio": "MADRID",
+"numeros": [
+"191"
+],
+"calle": "CL VIA CARPETANA",
+"numero": "191",
+"estado": "clara",
+"parcela": "6914605VK3761D",
+"enlazada": true,
+"portales": 1
+},
+"bcf806f3-733e-4646-bfc4-9374268c56e1": {
+"codigo": "DAN-2020-004",
+"carpeta": "chucuri10",
+"municipio": "MADRID",
+"numeros": [
+"10"
+],
+"parcela": "6208042VK4850H",
+"numero": "10",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c053aeb7-223e-45d6-9594-6d8ec55ca7a1": {
+"codigo": "DAN-2023-036",
+"carpeta": "ceferinorodriguez17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"parcela": "1099201VK4719G",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"de647fec-daa7-4aa4-946b-4bfa219469e5": {
+"codigo": "DAN-2021-114",
+"carpeta": "corraldecantos19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"parcela": "3214806VK4731C",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"74512480-9d53-45ea-97a9-09f2a0d183ea": {
+"codigo": "DAN-2023-074",
+"carpeta": "comandantefortea48",
+"municipio": "MADRID",
+"numeros": [
+"48"
+],
+"calle": "PS COMANDANTE FORTEA",
+"numero": "48",
+"estado": "clara",
+"parcela": "8056314VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"3c0852cf-1e1b-4103-a879-01b16a4ae55b": {
+"codigo": "DAN-2023-075",
+"carpeta": "comandantefortea9bis",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "PS COMANDANTE FORTEA",
+"numero": "9",
+"estado": "dudosa: 3 parcelas en ese numero, 2 con viviendas",
+"parcelas": [
+"8055133VK3785C",
+"8055136VK3785E",
+"8253801VK3785C"
+]
+},
+"4d94002f-5184-4135-8584-d97feb712c63": {
+"codigo": "DAN-2023-090",
+"carpeta": "comandantefortea18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "PS COMANDANTE FORTEA",
+"numero": "18",
+"estado": "clara",
+"parcela": "8155212VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"2e57dd44-69f0-49f9-b59c-d0de8acb74ea": {
+"codigo": "DAN-2023-174",
+"carpeta": "concepcion8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL CONCEPCION",
+"numero": "8",
+"estado": "clara",
+"parcela": "4507201VK4740F",
+"enlazada": true,
+"portales": 1
+},
+"7c76b901-a059-4ccf-8c7e-f98e9a217224": {
+"codigo": "DAN-2023-235",
+"carpeta": "condedetorralba10",
+"municipio": "MADRID",
+"numeros": [
+"10"
+],
+"calle": "CL CONDE DE TORRALBA",
+"numero": "10",
+"estado": "clara",
+"parcela": "2114103VK4821C",
+"enlazada": true,
+"portales": 1
+},
+"ee7ded5d-6067-474c-b6f0-bd320e3f613b": {
+"codigo": "DAN-2017-031",
+"carpeta": "veza14",
+"municipio": "MADRID",
+"numeros": [
+"14"
+],
+"parcela": "1099712VK4719G",
+"numero": "14",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"316ab5aa-c02d-47b1-a9bf-6a62bcb30a4f": {
+"codigo": "DAN-2017-067",
+"carpeta": "cordilleradecuera3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL CORDILLERA DE CUERA",
+"numero": "3",
+"estado": "clara",
+"parcela": "3412401VK4731C",
+"enlazada": true,
+"portales": 2
+},
+"cfac38e0-341e-4b36-b328-fcd9ec2ca396": {
+"codigo": "DAN-2023-263",
+"carpeta": "costabrava18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"parcela": "9734406VK3893F",
+"numero": "18",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 7
+},
+"5655020b-e196-4b2e-9346-70607dfd3a0e": {
+"codigo": "DAN-2024-274",
+"carpeta": "cordovin6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL CORDOVIN",
+"numero": "6",
+"estado": "clara",
+"parcela": "8237804VK4783E",
+"enlazada": true,
+"portales": 1
+},
+"6d90996c-df44-4b26-82dc-d704efeddf47": {
+"codigo": "DAN-2023-140",
+"carpeta": "arte1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL ARTE",
+"numero": "1",
+"estado": "clara",
+"parcela": "3318226VK4831G",
+"enlazada": true,
+"portales": 1
+},
+"163ea390-c703-4a45-8347-0b5051fff276": {
+"codigo": "DAN-2016-166",
+"carpeta": "villasandino22",
+"municipio": "MADRID",
+"numeros": [
+"22"
+],
+"parcela": "6333434VK3763C",
+"numero": "22",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"65177cdb-8125-41f5-9f3d-f818f1f38424": {
+"codigo": "DAN-2021-039",
+"carpeta": "doloresarmengot31",
+"municipio": "MADRID",
+"numeros": [
+"31"
+],
+"calle": "CL DOLORES ARMENGOT",
+"numero": "31",
+"estado": "clara",
+"parcela": "7010102VK3771A",
+"enlazada": true,
+"portales": 1
+},
+"cab27632-a831-47c8-83e6-faae25c30181": {
+"codigo": "DAN-2022-256",
+"carpeta": "diez6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL DIEZ",
+"numero": "6",
+"estado": "clara",
+"parcela": "9675107VK4797F",
+"enlazada": true,
+"portales": 1
+},
+"f0ba0b67-d1d8-4434-a0c5-55b4cc72cbaa": {
+"codigo": "DAN-2019-054",
+"carpeta": "doctoresquerdo59 local FAIN",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"parcela": "3347623VK4734G",
+"numero": "59",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 3
+},
+"b0b9f7ef-b9c9-4e1e-89aa-815ee2b12ae3": {
+"codigo": "DAN-2023-271",
+"carpeta": "discobolo63",
+"municipio": "MADRID",
+"numeros": [
+"63"
+],
+"calle": "CL DISCOBOLO",
+"numero": "63",
+"estado": "clara",
+"parcela": "8273314VK4787C",
+"enlazada": true,
+"portales": 1
+},
+"8f94c4b9-2126-433e-8232-20167baff402": {
+"codigo": "DAN-2024-048",
+"carpeta": "doctorblancosoler26",
+"municipio": "MADRID",
+"numeros": [
+"26"
+],
+"calle": "CL DOCTOR BLANCO SOLER",
+"numero": "26",
+"estado": "clara",
+"parcela": "4806513VK3740F",
+"enlazada": true,
+"portales": 1
+},
+"a5161bbd-191b-4581-af0b-c8bd3ab8a9df": {
+"codigo": "DAN-2022-269",
+"carpeta": "doctoresquerdo59 local FAIN",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"calle": "CL DOCTOR ESQUERDO",
+"numero": "59",
+"estado": "clara",
+"parcela": "3347623VK4734G",
+"enlazada": true,
+"portales": 3
+},
+"577eee32-0f62-4419-90bb-8dcdce676557": {
+"codigo": "DAN-2023-143",
+"carpeta": "avcardenalherreraoria291",
+"municipio": "MADRID",
+"numeros": [
+"291"
+],
+"calle": "AV CARDENAL HERRERA ORIA",
+"numero": "291",
+"estado": "clara",
+"parcela": "8613213VK3881D",
+"enlazada": true,
+"portales": 1
+},
+"5db1ea67-b329-4891-b78e-24793aadde75": {
+"codigo": "DAN-2022-172",
+"carpeta": "encomiendadepalacios107",
+"municipio": "MADRID",
+"numeros": [
+"107"
+],
+"calle": "CL ENCOMIENDA DE PALACIOS",
+"numero": "107",
+"estado": "clara",
+"parcela": "58262C7VK4752F",
+"enlazada": true,
+"portales": 1
+},
+"548394c7-23db-4ffa-8ffe-22ad6f644d6c": {
+"codigo": "DAN-2017-075",
+"carpeta": "eltoboso134-140",
+"municipio": "MADRID",
+"numeros": [
+"134",
+"136",
+"138",
+"140"
+],
+"parcela": "7418521VK3771G",
+"numero": "134",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"6fbba91e-aad3-4ce2-9669-f084ae70621c": {
+"codigo": "DAN-2021-071",
+"carpeta": "encomiendadepalacios60",
+"municipio": "MADRID",
+"numeros": [
+"60"
+],
+"calle": "CL ENCOMIENDA DE PALACIOS",
+"numero": "60",
+"estado": "clara",
+"parcela": "5524827VK4752D",
+"enlazada": true,
+"portales": 1
+},
+"c68656a6-6c32-4247-82cf-fc059bf66611": {
+"codigo": "DAN-2023-183",
+"carpeta": "fresnedillas7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL FRESNEDILLAS",
+"numero": "7",
+"estado": "clara",
+"parcela": "7011419VK3871C",
+"enlazada": true,
+"portales": 1
+},
+"40f889b1-935a-4b17-882e-aced4720027f": {
+"codigo": "DAN-2016-010",
+"carpeta": "encarnacionoviol50",
+"municipio": "MADRID",
+"numeros": [
+"50"
+],
+"parcela": "1770601VK4617B",
+"numero": "50",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"d4fafe34-56b5-4377-afa8-c902e364c23b": {
+"codigo": "DAN-2017-097",
+"carpeta": "espalter13",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "CL ESPALTER",
+"numero": "13",
+"estado": "clara",
+"parcela": "1540609VK4714B",
+"enlazada": true,
+"portales": 1
+},
+"66386fa8-e1db-4f7a-a5d2-aad89fd614e7": {
+"codigo": "DAN-2020-015",
+"carpeta": "entrearroyos98",
+"municipio": "MADRID",
+"numeros": [
+"98"
+],
+"parcela": "4533950VK4743D",
+"numero": "98",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"a2f4547d-c14d-444a-9c28-56a91f3a2d1f": {
+"codigo": "DAN-2021-056",
+"carpeta": "ezequielsolana18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "CL EZEQUIEL SOLANA",
+"numero": "18",
+"estado": "clara",
+"parcela": "5261309VK4756A",
+"enlazada": true,
+"portales": 1
+},
+"33b2b1da-9978-47a5-bc8d-427bcd048347": {
+"codigo": "DAN-2024-123",
+"carpeta": "estanislaofigueras5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL ESTANISLAO FIGUERAS",
+"numero": "5",
+"estado": "clara",
+"parcela": "9250103VK3795A",
+"enlazada": true,
+"portales": 3
+},
+"6a5a1da3-fdb8-4a7b-8b24-e1118b7b9a33": {
+"codigo": "DAN-2024-211",
+"carpeta": "fatima3",
+"municipio": "FUENLABRADA",
+"numeros": [
+"3"
+],
+"calle": "CL FATIMA",
+"numero": "3",
+"estado": "clara",
+"parcela": "2101510VK3620S",
+"enlazada": true,
+"portales": 2
+},
+"2e28b34c-dedf-4c25-bc80-6afc9894a8b9": {
+"codigo": "DAN-2022-050",
+"carpeta": "escalonilla17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"parcela": "7222208VK3772A",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b91c243c-9aa4-4cdf-94ac-0d4a48b57816": {
+"codigo": "DAN-2022-173",
+"carpeta": "encomiendadepalacios18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "CL ENCOMIENDA DE PALACIOS",
+"numero": "18",
+"estado": "clara",
+"parcela": "5524809VK4752D",
+"enlazada": true,
+"portales": 1
+},
+"14fd02e4-e197-42ec-a5e1-b9c0e71be8a5": {
+"codigo": "DAN-2021-070",
+"carpeta": "copenhague14",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"14"
+],
+"parcela": "9892707VK5799S",
+"numero": "14",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"48aea548-66be-44eb-99f8-4ba2c7070314": {
+"codigo": "DAN-2022-263",
+"carpeta": "fermincaballero75",
+"municipio": "MADRID",
+"numeros": [
+"75"
+],
+"calle": "CL FERMIN CABALLERO",
+"numero": "75",
+"estado": "clara",
+"parcela": "9515311VK3891F",
+"enlazada": true,
+"portales": 1
+},
+"b0282d2c-433c-4505-af37-1de421ea6d11": {
+"codigo": "DAN-2019-069",
+"carpeta": "generalramirez22",
+"municipio": "MADRID",
+"numeros": [
+"22"
+],
+"parcela": "1087308VK4718G",
+"numero": "22",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"a6434e6c-bf95-4e6b-95a9-f2da27170b67": {
+"codigo": "DAN-2024-119",
+"carpeta": "fidias9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL FIDIAS",
+"numero": "9",
+"estado": "clara",
+"parcela": "8134910VK3783C",
+"enlazada": true,
+"portales": 1
+},
+"3cf827fa-99d8-4503-b4e3-47de25105af0": {
+"codigo": "DAN-2022-171",
+"carpeta": "garellano17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"calle": "CL GARELLANO",
+"numero": "17",
+"estado": "clara",
+"parcela": "0280314VK4708A",
+"enlazada": true,
+"portales": 1
+},
+"bce8f84b-83de-4cdf-b498-f5221911075a": {
+"codigo": "DAN-2022-174",
+"carpeta": "franciscoordoñez5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL FRANCISCO ORDOÑEZ",
+"numero": "5",
+"estado": "clara",
+"parcela": "0266605VK4606E",
+"enlazada": true,
+"portales": 1
+},
+"30afcd8e-0c7c-43ae-808c-57fe0a833ed1": {
+"codigo": "DAN-2023-152",
+"carpeta": "galeriadelosrobles5 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "0357803VK4705E",
+"numeros": [
+"5"
+],
+"calle": "CL GALERIAS ROBLES"
+}
+],
+"estado": "clara",
+"parcela": "0357803VK4705E",
+"numero": "5",
+"numeros": [
+"5"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 2
+},
+"6d042995-1842-484e-918b-2fe043b9222a": {
+"codigo": "DAN-2016-214",
+"carpeta": "franciscoguzman1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL FRANCISCO GUZMAN",
+"numero": "1",
+"estado": "clara",
+"parcela": "8110407VK3781A",
+"enlazada": true,
+"portales": 1
+},
+"008e5254-0b49-4907-a7bb-e80b72a842b4": {
+"codigo": "DAN-2024-254",
+"carpeta": "genserico3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL GENSERICO",
+"numero": "3",
+"estado": "clara",
+"parcela": "7634502VK3773D",
+"enlazada": true,
+"portales": 1
+},
+"c9820993-425d-40da-9934-851d90fe97bc": {
+"codigo": "DAN-2023-128",
+"carpeta": "ginzodelimia29",
+"municipio": "MADRID",
+"numeros": [
+"29"
+],
+"calle": "CL GINZO DE LIMIA",
+"numero": "29",
+"estado": "clara",
+"parcela": "0212976VK4801A",
+"enlazada": true,
+"portales": 1
+},
+"dac761d7-79f4-490f-be92-33eecab1ba1e": {
+"codigo": "DAN-2017-057",
+"carpeta": "granvia62",
+"municipio": "MADRID",
+"numeros": [
+"62"
+],
+"calle": "CL GRAN VIA",
+"numero": "62",
+"estado": "clara",
+"parcela": "0050308VK4705A",
+"enlazada": true,
+"portales": 1
+},
+"8fb655cc-8678-462a-828e-ecae59fe0aa8": {
+"codigo": "DAN-2022-054",
+"carpeta": "goya55",
+"municipio": "MADRID",
+"numeros": [
+"55"
+],
+"parcela": "2354814VK4725C",
+"numero": "55",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"4788ab76-1cd4-4fd7-b0e9-90204567acc4": {
+"codigo": "DAN-2022-220",
+"carpeta": "goiri33",
+"municipio": "MADRID",
+"numeros": [
+"33"
+],
+"parcela": "0385510VK4708E",
+"numero": "33",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"f744fe53-4724-4197-8f10-43b63cbbbf13": {
+"codigo": "DAN-2022-167",
+"carpeta": "haciendadepavones164",
+"municipio": "MADRID",
+"numeros": [
+"164"
+],
+"calle": "CL HACIENDA DE PAVONES",
+"numero": "164",
+"estado": "clara",
+"parcela": "5826213VK4752F",
+"enlazada": true,
+"portales": 1
+},
+"ddc332b1-73fa-40b7-aba4-0d31b8e14ccd": {
+"codigo": "DAN-2022-259",
+"carpeta": "isladearosa (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "9515309VK3891E",
+"numeros": [
+"8"
+],
+"calle": "CL ISLA DE AROSA"
+},
+{
+"parcela": "9515310VK3891E",
+"numeros": [
+"10"
+],
+"calle": "CL ISLA DE AROSA"
+}
+],
+"estado": "clara",
+"parcela": "9515309VK3891E",
+"numero": "8",
+"numeros": [
+"8"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 2
+},
+"cf1a8174-ab39-4e9d-a5e9-0db2d0ae7448": {
+"codigo": "DAN-2022-294",
+"carpeta": "gutierredecetina71",
+"municipio": "MADRID",
+"numeros": [
+"71"
+],
+"calle": "CL GUTIERRE DE CETINA",
+"numero": "71",
+"estado": "clara",
+"parcela": "5759210VK4755H",
+"enlazada": true,
+"portales": 1
+},
+"598abc85-ab84-43db-9f95-4c7f35d71bf8": {
+"codigo": "DAN-2024-069",
+"carpeta": "andalucia9-9b-11 (VALDEMORO)",
+"municipio": "VALDEMORO",
+"destinos": [
+{
+"parcela": "2793409VK4429S",
+"numeros": [
+"9",
+"11"
+],
+"calle": "AV ANDALUCIA"
+}
+],
+"estado": "clara",
+"parcela": "2793409VK4429S",
+"numero": "9",
+"numeros": [
+"9",
+"11"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 5
+},
+"240cab90-cd7c-405b-b581-fee12fd52adc": {
+"codigo": "DAN-2021-098",
+"carpeta": "hernandeziglesias5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL HERNANDEZ IGLESIAS",
+"numero": "5",
+"estado": "clara",
+"parcela": "5573716VK4757D",
+"enlazada": true,
+"portales": 1
+},
+"4fa009f9-199f-458a-b112-0b841bfcc30b": {
+"codigo": "DAN-2023-048",
+"carpeta": "hilarioneslava51y53",
+"municipio": "MADRID",
+"numeros": [
+"51",
+"53"
+],
+"calle": "CL HILARION ESLAVA",
+"numero": "51",
+"estado": "clara",
+"parcela": "9268504VK3796G",
+"enlazada": true,
+"portales": 2
+},
+"4169eab4-d03f-49d6-b543-f29ed1a15144": {
+"codigo": "DAN-2023-266",
+"carpeta": "gilimon5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL GIL IMON",
+"numero": "5",
+"estado": "clara",
+"parcela": "9333602VK3793C",
+"enlazada": true,
+"portales": 1
+},
+"cfe5a340-074c-489c-9955-ea6a5231437a": {
+"codigo": "DAN-2023-298",
+"carpeta": "haciendadepavones51",
+"municipio": "MADRID",
+"numeros": [
+"51"
+],
+"parcela": "5231243VK4753A",
+"numero": "51",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"122eb1bb-df5d-4099-88b0-06255ae6c827": {
+"codigo": "DAN-2016-156",
+"carpeta": "generaldiazporlier27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"calle": "CL GENERAL DIAZ PORLIER",
+"numero": "27",
+"estado": "clara",
+"parcela": "2655207VK4725F",
+"enlazada": true,
+"portales": 1
+},
+"4da6dbe1-4568-48fc-adf1-03be9b67dce3": {
+"codigo": "DAN-2018-022",
+"carpeta": "generalvarela3 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "1085605VK4718E",
+"numeros": [
+"3"
+],
+"calle": "CL JULIAN BESTEIRO"
+}
+],
+"estado": "dudosa: la parcela no tiene portales con el numero 3",
+"parcela": "1085605VK4718E",
+"numero": "3",
+"numeros": [
+"3"
+],
+"forzada": true
+},
+"12dbb8f3-e4f1-48d6-9d43-0fddea0b170b": {
+"codigo": "DAN-2022-077",
+"carpeta": "huertavillaverde9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"parcela": "9868102VK3696H",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 2
+},
+"b7d7107a-7889-4ea9-aff2-494bb81d0a71": {
+"codigo": "DAN-2022-280",
+"carpeta": "hernani33",
+"municipio": "MADRID",
+"numeros": [
+"33"
+],
+"calle": "CL HERNANI",
+"numero": "33",
+"estado": "clara",
+"parcela": "0679516VK4707H",
+"enlazada": true,
+"portales": 1
+},
+"553c1465-8fa8-4e56-84d3-01de3e18ab2d": {
+"codigo": "DAN-2022-120",
+"carpeta": "hermanosdelmoral75",
+"municipio": "MADRID",
+"numeros": [
+"75"
+],
+"calle": "CL HERMANOS DEL MORAL",
+"numero": "75",
+"estado": "clara",
+"parcela": "8815701VK3781F",
+"enlazada": true,
+"portales": 1
+},
+"66c4ff7b-8002-4da3-8268-3c3c9e840311": {
+"codigo": "DAN-2022-168",
+"carpeta": "haciendadepavones252",
+"municipio": "MADRID",
+"numeros": [
+"252"
+],
+"calle": "CL HACIENDA DE PAVONES",
+"numero": "252",
+"estado": "clara",
+"parcela": "5826233VK4752F",
+"enlazada": true,
+"portales": 1
+},
+"6fb134e0-fa1f-4f54-8212-498ef66ffc72": {
+"codigo": "DAN-2022-279",
+"carpeta": "hernani29",
+"municipio": "MADRID",
+"numeros": [
+"29"
+],
+"calle": "CL HERNANI",
+"numero": "29",
+"estado": "clara",
+"parcela": "0679518VK4707H",
+"enlazada": true,
+"portales": 1
+},
+"f7a79119-7286-4582-b25d-96ad9f10bd40": {
+"codigo": "DAN-2023-282",
+"carpeta": "huertadelconvento24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL HUERTA DEL CONVENTO",
+"numero": "24",
+"estado": "clara",
+"parcela": "8726513VK4782F",
+"enlazada": true,
+"portales": 1
+},
+"92005e0d-b0cf-45be-8146-4708bdf72760": {
+"codigo": "DAN-2024-140",
+"carpeta": "alejandrinamoran23",
+"municipio": "MADRID",
+"numeros": [
+"23"
+],
+"calle": "CL ALEJANDRINA MORAN",
+"numero": "23",
+"estado": "clara",
+"parcela": "6828216VK3762H",
+"enlazada": true,
+"portales": 1
+},
+"e7591e60-bbe5-4054-be0f-a9060ae56708": {
+"codigo": "DAN-2024-186",
+"carpeta": "generalricardos62",
+"municipio": "MADRID",
+"numeros": [
+"62"
+],
+"calle": "CL GENERAL RICARDOS",
+"numero": "62",
+"estado": "clara",
+"parcela": "8719504VK3781H",
+"enlazada": true,
+"portales": 1
+},
+"6f275f6b-a20a-44ae-aad3-f944e29bd546": {
+"codigo": "DAN-2021-026",
+"carpeta": "hermanosdepablo45",
+"municipio": "MADRID",
+"numeros": [
+"45"
+],
+"calle": "CL HERMANOS DE PABLO",
+"numero": "45",
+"estado": "clara",
+"parcela": "5267801VK4756E",
+"enlazada": true,
+"portales": 1
+},
+"d2481877-a86f-43e5-b3b8-4a4d7a4905a0": {
+"codigo": "DAN-2021-058",
+"carpeta": "hornolabradores13",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "CL HORNO LABRADORES",
+"numero": "13",
+"estado": "clara",
+"parcela": "8827804VK4782F",
+"enlazada": true,
+"portales": 1
+},
+"013c6df4-71b3-4f21-b28e-e50290ff5850": {
+"codigo": "DAN-2022-282",
+"carpeta": "inmaculada13 (MADRID)",
+"municipio": "MADRID",
+"destinos": [],
+"estado": "dudosa: CL INMACULADA CONCEPCION 13 -> 0 parcelas"
+},
+"cafb2b09-2ee6-43ed-b7ed-ac756a6eea6a": {
+"codigo": "DAN-2018-086",
+"carpeta": "Iriarte27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"calle": "CL IRIARTE",
+"numero": "27",
+"estado": "clara",
+"parcela": "3067804VK4736E",
+"enlazada": true,
+"portales": 1
+},
+"84e6bc12-6d6e-4ca9-b237-1d2f27335f9d": {
+"codigo": "DAN-2023-047",
+"carpeta": "hernani66",
+"municipio": "MADRID",
+"numeros": [
+"66"
+],
+"calle": "CL HERNANI",
+"numero": "66",
+"estado": "clara",
+"parcela": "1078902VK4717G",
+"enlazada": true,
+"portales": 1
+},
+"7bf6b6d7-91d8-48b0-bd5e-59b5eb538cbd": {
+"codigo": "DAN-2024-182",
+"carpeta": "losyebenes179",
+"municipio": "MADRID",
+"numeros": [
+"179"
+],
+"calle": "CL YEBENES",
+"numero": "179",
+"estado": "clara",
+"parcela": "6517246VK3761F",
+"enlazada": true,
+"portales": 1
+},
+"5b31efd3-eac7-46c1-945a-dd59ffe18715": {
+"codigo": "DAN-2021-065",
+"carpeta": "llanosdeescudero37",
+"municipio": "MADRID",
+"numeros": [
+"37"
+],
+"parcela": "5855903VK4755F",
+"numero": "37",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 3
+},
+"f870196c-49ce-4e16-bb20-998a132fb3bd": {
+"codigo": "DAN-2022-154",
+"carpeta": "jacintocamarero3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL JACINTO CAMARERO",
+"numero": "3",
+"estado": "clara",
+"parcela": "9222106VK3792A",
+"enlazada": true,
+"portales": 1
+},
+"bfdfe06c-55a2-4ef0-825f-d39fec0c5b5e": {
+"codigo": "DAN-2021-022",
+"carpeta": "juanboscan57",
+"municipio": "MADRID",
+"numeros": [
+"57"
+],
+"parcela": "5956104VK4755F",
+"numero": "57",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"6cfcdc6b-cb95-4b49-98d1-4a1520132c12": {
+"codigo": "DAN-2023-268",
+"carpeta": "josearconesgil106",
+"municipio": "MADRID",
+"numeros": [
+"106"
+],
+"calle": "CL JOSE ARCONES GIL",
+"numero": "106",
+"estado": "clara",
+"parcela": "6256701VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"e4f78d8f-130f-42c7-882e-4f61df30eda4": {
+"codigo": "DAN-2024-204",
+"carpeta": "lopezdehoyos384bis",
+"municipio": "MADRID",
+"numeros": [
+"384"
+],
+"calle": "CL LOPEZ DE HOYOS",
+"numero": "384",
+"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
+"parcelas": [
+"4292101VK4849A",
+"4292119VK4849A"
+]
+},
+"f37f4e26-29d2-4195-91c9-9d9ecc632419": {
+"codigo": "DAN-2022-233",
+"carpeta": "lucano63",
+"municipio": "MADRID",
+"numeros": [
+"63"
+],
+"calle": "CL LUCANO",
+"numero": "63",
+"estado": "clara",
+"parcela": "8366513VK4786E",
+"enlazada": true,
+"portales": 1
+},
+"21e76b79-cefd-4fb4-9ee3-c3c7fccd8bdf": {
+"codigo": "DAN-2023-233",
+"carpeta": "juandelrosal2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL JUAN DEL ROSAL",
+"numero": "2",
+"estado": "clara",
+"parcela": "7982303VK3778D",
+"enlazada": true,
+"portales": 1
+},
+"72e1e084-2816-4e21-8505-f370af2f7a80": {
+"codigo": "DAN-2022-297",
+"carpeta": "jazmin30-32",
+"municipio": "MADRID",
+"numeros": [
+"30",
+"32"
+],
+"calle": "CL JAZMIN",
+"numero": "30",
+"estado": "clara",
+"parcela": "3611023VK4831D",
+"enlazada": true,
+"portales": 2
+},
+"c718e4c3-96ae-4085-bba4-fe23a8d8729f": {
+"codigo": "DAN-2023-267",
+"carpeta": "joseortegaygasset34",
+"municipio": "MADRID",
+"numeros": [
+"34"
+],
+"calle": "CL JOSE ORTEGA Y GASSET",
+"numero": "34",
+"estado": "clara",
+"parcela": "2358601VK4725G",
+"enlazada": true,
+"portales": 1
+},
+"c05c2cdf-c599-4a1d-a22e-0db5aca68b71": {
+"codigo": "DAN-2024-091",
+"carpeta": "lazcano7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL LAZCANO",
+"numero": "7",
+"estado": "clara",
+"parcela": "1172113VK4617A",
+"enlazada": true,
+"portales": 1
+},
+"a6eb814a-09a5-42e2-8b71-7a05a05022a4": {
+"codigo": "DAN-2016-194",
+"carpeta": "luisruiz82",
+"municipio": "MADRID",
+"numeros": [
+"82"
+],
+"parcela": "6252201VK4765C",
+"numero": "82",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"37851b2a-2b44-42af-92ec-5bad480c4027": {
+"codigo": "DAN-2021-029",
+"carpeta": "luisruiz88",
+"municipio": "MADRID",
+"numeros": [
+"88"
+],
+"parcela": "6252225VK4765C",
+"numero": "88",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c7572e9f-2ec0-423d-a4d6-cccba87c4dde": {
+"codigo": "DAN-2024-282",
+"carpeta": "lopezdehoyos365",
+"municipio": "MADRID",
+"numeros": [
+"365"
+],
+"calle": "CL LOPEZ DE HOYOS",
+"numero": "365",
+"estado": "clara",
+"parcela": "4904401VK4840D",
+"enlazada": true,
+"portales": 1
+},
+"9503cc30-50a9-4832-82c2-9c8c333b53ff": {
+"codigo": "DAN-2022-132",
+"carpeta": "josearconesgil108",
+"municipio": "MADRID",
+"numeros": [
+"108"
+],
+"calle": "CL JOSE ARCONES GIL",
+"numero": "108",
+"estado": "clara",
+"parcela": "6256702VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"3af8ea87-8a39-4744-973e-da129789296d": {
+"codigo": "DAN-2023-110",
+"carpeta": "juanboscan74",
+"municipio": "MADRID",
+"numeros": [
+"74"
+],
+"calle": "CL JUAN BOSCAN",
+"numero": "74",
+"estado": "clara",
+"parcela": "6056101VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"64c05109-1720-4efc-b0f1-e9a39eeb2be1": {
+"codigo": "DAN-2023-278",
+"carpeta": "lucano45",
+"municipio": "MADRID",
+"numeros": [
+"45"
+],
+"calle": "CL LUCANO",
+"numero": "45",
+"estado": "clara",
+"parcela": "8366501VK4786E",
+"enlazada": true,
+"portales": 1
+},
+"ae94aafe-cffe-4e4f-8a99-e973261be80e": {
+"codigo": "DAN-2017-053",
+"carpeta": "lagoconstanza46",
+"municipio": "MADRID",
+"numeros": [
+"46"
+],
+"parcela": "5259902VK4755G",
+"numero": "46",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 3
+},
+"b25c98a8-4735-4556-ab33-18358c009505": {
+"codigo": "DAN-2022-131",
+"carpeta": "luisruiz111",
+"municipio": "MADRID",
+"numeros": [
+"111"
+],
+"calle": "CL LUIS RUIZ",
+"numero": "111",
+"estado": "clara",
+"parcela": "6352301VK4765C",
+"enlazada": true,
+"portales": 1
+},
+"37ff460a-76d3-441d-a9e9-f5f70c84cddc": {
+"codigo": "DAN-2022-296",
+"carpeta": "jazmin16-18",
+"municipio": "MADRID",
+"numeros": [
+"16",
+"18"
+],
+"calle": "CL JAZMIN",
+"numero": "16",
+"estado": "clara",
+"parcela": "3611020VK4831D",
+"enlazada": true,
+"portales": 2
+},
+"54db0222-c50b-41fc-a044-276dc56ec533": {
+"codigo": "DAN-2024-294",
+"carpeta": "juanelo19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"calle": "CL JUANELO",
+"numero": "19",
+"estado": "clara",
+"parcela": "0138705VK4703G",
+"enlazada": true,
+"portales": 1
+},
+"3ca5cea4-a74e-4fc5-98f1-9a8bd1399446": {
+"codigo": "DAN-2018-037",
+"carpeta": "josenoriega9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL JOSE NORIEGA",
+"numero": "9",
+"estado": "clara",
+"parcela": "4554408VK4745D",
+"enlazada": true,
+"portales": 1
+},
+"fbb6e456-e6eb-4d34-a658-c2bb4360d45a": {
+"codigo": "DAN-2021-061",
+"carpeta": "juanpradillo15",
+"municipio": "MADRID",
+"numeros": [
+"15"
+],
+"calle": "CL JUAN PRADILLO",
+"numero": "15",
+"estado": "clara",
+"parcela": "9984914VK3798D",
+"enlazada": true,
+"portales": 1
+},
+"4a36b9b1-518c-419e-98e7-e8f8a19f52b5": {
+"codigo": "DAN-2024-281",
+"carpeta": "joseortegaygasset86",
+"municipio": "MADRID",
+"numeros": [
+"86"
+],
+"calle": "CL JOSE ORTEGA Y GASSET",
+"numero": "86",
+"estado": "clara",
+"parcelas": [
+"3058127VK4735G",
+"3058128VK4735G"
+],
+"parcela": "3058127VK4735G",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"cf3e423a-08b9-4b9e-859f-689a84086cdf": {
+"codigo": "DAN-2016-033",
+"carpeta": "leñeros 44 y 46",
+"municipio": "MADRID",
+"numeros": [
+"44",
+"46"
+],
+"parcela": "9987428VK3798H",
+"numero": "44",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 2
+},
+"2453b6f5-2013-46ba-97e8-6b3c53758f79": {
+"codigo": "DAN-2016-170",
+"carpeta": "luisruiz86",
+"municipio": "MADRID",
+"numeros": [
+"86"
+],
+"parcela": "6252226VK4765C",
+"numero": "86",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"a5488c75-1fb6-42f6-ac90-fb9bd44d921b": {
+"codigo": "DAN-2017-084",
+"carpeta": "joseabascal16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL JOSE ABASCAL",
+"numero": "16",
+"estado": "clara",
+"parcela": "0768703VK4706H",
+"enlazada": true,
+"portales": 1
+},
+"56671c5d-3e0b-46cd-a02e-4072ccadde5f": {
+"codigo": "DAN-2022-111",
+"carpeta": "marquesdecubas6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL MARQUES DE CUBAS",
+"numero": "6",
+"estado": "clara",
+"parcela": "1045805VK4714E",
+"enlazada": true,
+"portales": 3
+},
+"817df786-4aff-4245-9195-07186db111c0": {
+"codigo": "DAN-2022-121",
+"carpeta": "lorca8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL LORCA",
+"numero": "8",
+"estado": "clara",
+"parcela": "4506714VK4840F",
+"enlazada": true,
+"portales": 1
+},
+"8f9f358d-9ef3-4604-bd48-8381efa20bd8": {
+"codigo": "DAN-2022-255",
+"carpeta": "luruaco1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL LURUACO",
+"numero": "1",
+"estado": "clara",
+"parcela": "6206619VK4860E",
+"enlazada": true,
+"portales": 1
+},
+"4e1e9518-6ddf-46f4-a090-094a522c0ef5": {
+"codigo": "DAN-2023-265",
+"carpeta": "mancomunidad fortunata y jacinta31-orense43-pedroteixeira5 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "1186604VK4718E",
+"numeros": [
+"31"
+],
+"calle": "CL FORTUNATA Y JACINTA"
+},
+{
+"parcela": "1186604VK4718E",
+"numeros": [
+"43"
+],
+"calle": "CL ORENSE"
+},
+{
+"parcela": "1387310VK4718G",
+"numeros": [
+"5"
+],
+"calle": "CL PEDRO TEIXEIRA"
+}
+],
+"estado": "clara",
+"parcela": "1186604VK4718E",
+"numero": "31",
+"numeros": [
+"31"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 9
+},
+"27b79c70-6de1-41a4-b803-1d13b451da6e": {
+"codigo": "DAN-2021-135",
+"carpeta": "leon8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL LEON",
+"numero": "8",
+"estado": "clara",
+"parcela": "0742709VK4704B",
+"enlazada": true,
+"portales": 1
+},
+"71120764-1b37-4cdb-b295-9e36a2c1ee29": {
+"codigo": "DAN-2022-133",
+"carpeta": "juantornero64",
+"municipio": "MADRID",
+"numeros": [
+"64"
+],
+"calle": "CL JUAN TORNERO",
+"numero": "64",
+"estado": "clara",
+"parcela": "8238308VK3783G",
+"enlazada": true,
+"portales": 1
+},
+"c0708ee0-5681-494e-b287-3cc3d47440db": {
+"codigo": "DAN-2015-118",
+"carpeta": "maldonado75",
+"municipio": "MADRID",
+"numeros": [
+"75"
+],
+"parcela": "2963208VK4726D",
+"numero": "75",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"eddeaba5-fd98-47ed-8ede-0aedd4702d40": {
+"codigo": "DAN-2024-226",
+"carpeta": "mariblanca23",
+"municipio": "MADRID",
+"numeros": [
+"23"
+],
+"calle": "CL MARIBLANCA",
+"numero": "23",
+"estado": "clara",
+"parcelas": [
+"0015401VK4701E",
+"0015427VK4701E"
+],
+"parcela": "0015401VK4701E",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"18452636-fb7a-4701-82f9-13b9370893d5": {
+"codigo": "DAN-2021-040",
+"carpeta": "mariadeguzman42",
+"municipio": "MADRID",
+"numeros": [
+"42"
+],
+"calle": "CL MARIA DE GUZMAN",
+"numero": "42",
+"estado": "clara",
+"parcela": "0974205VK4707D",
+"enlazada": true,
+"portales": 1
+},
+"5f5fc830-92df-43c0-a3aa-0ad45db86346": {
+"codigo": "DAN-2021-057",
+"carpeta": "manojoderosas57 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "0975632VK4607F",
+"numeros": [
+"57"
+],
+"calle": "CL LA DEL MANOJO DE ROSAS"
+}
+],
+"estado": "clara",
+"parcela": "0975632VK4607F",
+"numero": "57",
+"numeros": [
+"57"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"5466b043-10a9-4137-bc55-bd982d9a74ab": {
+"codigo": "DAN-2021-100",
+"carpeta": "manuelmariaiglesias2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL MANUEL MARIA IGLESIAS",
+"numero": "2",
+"estado": "clara",
+"parcela": "4682811VK4848B",
+"enlazada": true,
+"portales": 4
+},
+"e632064e-1b81-4845-a7ae-a0361afebb47": {
+"codigo": "DAN-2022-057",
+"carpeta": "manresa56",
+"municipio": "MADRID",
+"numeros": [
+"56"
+],
+"parcela": "12298K9VK4812G",
+"numero": "56",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7ef7c50e-7bd9-41a4-97a6-a255cdaa9966": {
+"codigo": "DAN-2022-151",
+"carpeta": "marbella66",
+"municipio": "MADRID",
+"numeros": [
+"66"
+],
+"calle": "CL MARBELLA",
+"numero": "66",
+"estado": "clara",
+"parcela": "0133314VK4803C",
+"enlazada": true,
+"portales": 2
+},
+"b368bd0d-dd7b-4294-b93c-e8cb420ca315": {
+"codigo": "DAN-2022-156",
+"carpeta": "manresa17-19",
+"municipio": "MADRID",
+"numeros": [
+"17",
+"19"
+],
+"parcela": "1427914VK4812G",
+"numero": "17",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"3acd2496-afb3-462f-8708-9378af873908": {
+"codigo": "DAN-2022-211",
+"carpeta": "estebancollantes33",
+"municipio": "MADRID",
+"numeros": [
+"33"
+],
+"calle": "CL ESTEBAN COLLANTES",
+"numero": "33",
+"estado": "clara",
+"parcela": "5761711VK4756B",
+"enlazada": true,
+"portales": 1
+},
+"fb6d01a1-4907-4833-b2bc-f93541152fcc": {
+"codigo": "DAN-2022-270",
+"carpeta": "manuellaborda11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL MANUEL LABORDA",
+"numero": "11",
+"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
+"parcelas": [
+"1972816VK4617B",
+"1972817VK4617B"
+]
+},
+"37fca960-3d92-4d08-bb16-55b150075fde": {
+"codigo": "DAN-2023-146",
+"carpeta": "manresa33-35",
+"municipio": "MADRID",
+"numeros": [
+"33",
+"35"
+],
+"calle": "CL MANRESA",
+"numero": "33",
+"estado": "clara",
+"parcela": "1327501VK4812G",
+"enlazada": true,
+"portales": 1
+},
+"c92676d0-5854-4406-bbed-e8b882a77af0": {
+"codigo": "DAN-2022-182",
+"carpeta": "marbella8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL MARBELLA",
+"numero": "8",
+"estado": "clara",
+"parcela": "0729110VK4802H",
+"enlazada": true,
+"portales": 2
+},
+"e25b79fd-4ea7-4304-a3ff-72555d805580": {
+"codigo": "DAN-2022-212",
+"carpeta": "villastar4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL VILLASTAR",
+"numero": "4",
+"estado": "clara",
+"parcela": "9664901VK3696D",
+"enlazada": true,
+"portales": 1
+},
+"cf97693d-d729-407c-adb8-80a1627f82ae": {
+"codigo": "DAN-2024-065",
+"carpeta": "mariadomingo6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "CL MARIA DOMINGO",
+"numero": "6",
+"estado": "clara",
+"parcela": "7909509VK3770H",
+"enlazada": true,
+"portales": 1
+},
+"6313127f-19c7-42c6-ba25-b89489edc88b": {
+"codigo": "DAN-2018-058",
+"carpeta": "maximiliano31",
+"municipio": "MADRID",
+"numeros": [
+"31"
+],
+"parcela": "4653309VK4745D",
+"numero": "31",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2ad7da28-9288-4e7c-b7a8-50018dd95e75": {
+"codigo": "DAN-2024-277",
+"carpeta": "mayor43",
+"municipio": "MADRID",
+"numeros": [
+"43"
+],
+"calle": "CL MAYOR",
+"numero": "43",
+"estado": "clara",
+"parcela": "0043203VK4704C",
+"enlazada": true,
+"portales": 1
+},
+"6caf6027-9bc1-4e47-95e4-8a8e12b32b42": {
+"codigo": "DAN-2022-260",
+"carpeta": "maricara17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"calle": "CL MARICARA",
+"numero": "17",
+"estado": "dudosa: la parcela no tiene portales con el numero 17",
+"parcela": "2458905VK4625G"
+},
+"cec77a6d-d9e4-4975-8ff9-3585922daff9": {
+"codigo": "DAN-2022-261",
+"carpeta": "millanastray21a37 (MADRID)",
+"municipio": "MADRID",
+"destinos": [],
+"estado": "dudosa: CL GENERAL MILLAN ASTRAY 21 -> 2 parcelas"
+},
+"83d53861-24cb-456a-beea-58e2bf8a0aab": {
+"codigo": "DAN-2024-053",
+"carpeta": "mataro17-19-21-23",
+"municipio": "MADRID",
+"numeros": [
+"17",
+"19",
+"21",
+"23"
+],
+"calle": "CL MATARO",
+"numero": "17",
+"estado": "clara",
+"parcela": "1229847VK4812G",
+"enlazada": true,
+"portales": 1
+},
+"4210f195-32ed-4dca-9534-9f6d465faf7f": {
+"codigo": "DAN-2022-153",
+"carpeta": "marmenor24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"parcela": "5608307VK4850H",
+"numero": "24",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"603bc5bf-cfb2-4e7a-a8ae-bcfcf9cacd67": {
+"codigo": "DAN-2023-224",
+"carpeta": "mariazurita10",
+"municipio": "MADRID",
+"numeros": [
+"10"
+],
+"calle": "CL MARIA ZURITA",
+"numero": "10",
+"estado": "clara",
+"parcela": "5890708VK3659B",
+"enlazada": true,
+"portales": 1
+},
+"911d5aed-0fd2-48d0-8c7c-1868d5732146": {
+"codigo": "DAN-2023-243",
+"carpeta": "nicolasagomez104",
+"municipio": "MADRID",
+"numeros": [
+"104"
+],
+"calle": "CL NICOLASA GOMEZ",
+"numero": "104",
+"estado": "clara",
+"parcela": "8364307VK4786C",
+"enlazada": true,
+"portales": 1
+},
+"f1cd707c-a082-4b06-b92a-69a226fe21f4": {
+"codigo": "DAN-2024-066",
+"carpeta": "modestolafuente5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL MODESTO LAFUENTE",
+"numero": "5",
+"estado": "clara",
+"parcela": "0966707VK4706F",
+"enlazada": true,
+"portales": 1
+},
+"38917b6b-4774-4d0b-896e-0554f0d86024": {
+"codigo": "DAN-2018-013",
+"carpeta": "montejurra13",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "CL MONTEJURRA",
+"numero": "13",
+"estado": "clara",
+"parcela": "4453507VK4745C",
+"enlazada": true,
+"portales": 1
+},
+"b5399513-a69e-4394-8a13-ed23bd75a473": {
+"codigo": "DAN-2021-055",
+"carpeta": "muller31",
+"municipio": "MADRID",
+"numeros": [
+"31"
+],
+"calle": "CL MULLER",
+"numero": "31",
+"estado": "clara",
+"parcela": "0797708VK4709F",
+"enlazada": true,
+"portales": 1
+},
+"95fcea14-0d23-49a4-954c-1c60f76aa275": {
+"codigo": "DAN-2024-187",
+"carpeta": "mesondeparedes90",
+"municipio": "MADRID",
+"numeros": [
+"90"
+],
+"calle": "CL MESON DE PAREDES",
+"numero": "90",
+"estado": "clara",
+"parcela": "0532704VK4703B",
+"enlazada": true,
+"portales": 1
+},
+"4222ea5a-cafb-46de-9d5e-c05b86ed1756": {
+"codigo": "DAN-2022-137",
+"carpeta": "nectar5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL NECTAR",
+"numero": "5",
+"estado": "clara",
+"parcela": "7971528VK4777B",
+"enlazada": true,
+"portales": 1
+},
+"16131616-811a-4a6a-b22a-e1f1e7151c3f": {
+"codigo": "DAN-2024-095",
+"carpeta": "musas21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "CL MUSAS",
+"numero": "21",
+"estado": "clara",
+"parcela": "8566611VK4786F",
+"enlazada": true,
+"portales": 2
+},
+"4ef0791e-6542-4eff-99f3-909f15a33a12": {
+"codigo": "DAN-2018-038",
+"carpeta": "nuestraseñoradelvillar55",
+"municipio": "MADRID",
+"numeros": [
+"55"
+],
+"calle": "CL NUESTRA SEÑORA DEL VILLAR",
+"numero": "55",
+"estado": "clara",
+"parcela": "4852270VK4745D",
+"enlazada": true,
+"portales": 1
+},
+"8a5332db-b316-4ae3-9abe-61ec51723a75": {
+"codigo": "DAN-2022-216",
+"carpeta": "sanemilio19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"parcela": "4257923VK4745E",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"ad8186c0-537a-4cb0-b39e-afb50fd1fa41": {
+"codigo": "DAN-2022-227",
+"carpeta": "nuestraseñoradelasangustias14 (MADRID)",
+"municipio": "MADRID",
+"destinos": [],
+"estado": "dudosa: CL NTRA SRA DE LAS ANGUSTIAS 14 -> 0 parcelas"
+},
+"2ddde980-730d-4e54-ab4f-0839ddab19db": {
+"codigo": "DAN-2024-124",
+"carpeta": "orden30",
+"municipio": "MADRID",
+"numeros": [
+"30"
+],
+"calle": "CL ORDEN",
+"numero": "30",
+"estado": "clara",
+"parcela": "0680525VK4708B",
+"enlazada": true,
+"portales": 1
+},
+"8396518e-b3ba-4de3-8481-2e1d61cce4ca": {
+"codigo": "DAN-2022-217",
+"carpeta": "fuentebella8",
+"municipio": "PARLA",
+"numeros": [
+"8"
+],
+"parcela": "4340501VK3544S",
+"numero": "8",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c649a1ac-6646-4235-8889-6dc4d98c5d66": {
+"codigo": "DAN-2022-218",
+"carpeta": "generalricardos232",
+"municipio": "MADRID",
+"numeros": [
+"232"
+],
+"parcela": "7209809VK3770G",
+"numero": "232",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7bad6c5c-5dc4-43b2-9209-7fa0ff707cfe": {
+"codigo": "DAN-2022-204",
+"carpeta": "pabloserrano7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL PABLO SERRANO",
+"numero": "7",
+"estado": "clara",
+"parcela": "5303218VK4850C",
+"enlazada": true,
+"portales": 1
+},
+"10e613fe-28ca-4626-af15-37e0340e3d2f": {
+"codigo": "DAN-2024-286",
+"carpeta": "quintana9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL QUINTANA",
+"numero": "9",
+"estado": "clara",
+"parcela": "9356201VK3795E",
+"enlazada": true,
+"portales": 1
+},
+"1db2d867-9e3a-42ed-9403-f608e06e602b": {
+"codigo": "DAN-2023-237",
+"carpeta": "pabloluna4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL PABLO LUNA",
+"numero": "4",
+"estado": "clara",
+"parcela": "2011603VK4821A",
+"enlazada": true,
+"portales": 1
+},
+"1c7c59d5-5152-433e-8c1a-f19e6fed368e": {
+"codigo": "DAN-2023-255",
+"carpeta": "pabloserrano9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"parcela": "5303217VK4850C",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"aaad321b-d850-4a8f-a4e8-3a1fa0e62029": {
+"codigo": "DAN-2024-100",
+"carpeta": "pablorica25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"parcela": "3313509VK4731D",
+"numero": "25",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"26138fe7-831d-4d67-a8ad-3383215c345e": {
+"codigo": "DAN-2022-152",
+"carpeta": "paseodelahaya2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL HAYA",
+"numero": "2",
+"estado": "clara",
+"parcela": "6690204VK3669B",
+"enlazada": true,
+"portales": 1
+},
+"92775db8-9e04-4ac7-8af4-ff8299142283": {
+"codigo": "DAN-2022-230",
+"carpeta": "avcolmenarviejo10",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"10"
+],
+"calle": "AV COLMENAR VIEJO",
+"numero": "10",
+"estado": "clara",
+"parcela": "6986305VK4868N",
+"enlazada": true,
+"portales": 1
+},
+"23d17e9b-17bb-467a-9282-cf348407e1fd": {
+"codigo": "DAN-2023-091",
+"carpeta": "paseodelaflorida57",
+"municipio": "MADRID",
+"numeros": [
+"57"
+],
+"calle": "PS FLORIDA",
+"numero": "57",
+"estado": "clara",
+"parcela": "8750502VK3785B",
+"enlazada": true,
+"portales": 3
+},
+"e024bec4-435a-4db0-8ec6-9faeccc76e65": {
+"codigo": "DAN-2017-139",
+"carpeta": "paseodelasacacias59",
+"municipio": "MADRID",
+"numeros": [
+"59"
+],
+"calle": "PS ACACIAS",
+"numero": "59",
+"estado": "clara",
+"parcela": "9727204VK3792F",
+"enlazada": true,
+"portales": 3
+},
+"a2191b2a-3922-44f8-ace0-b7d60df5f419": {
+"codigo": "DAN-2020-043",
+"carpeta": "pasajedellince 8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"parcela": "3536619VK4733F",
+"numero": "8",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c43e395f-95fd-45ec-865f-4562c120dacd": {
+"codigo": "DAN-2023-210",
+"carpeta": "paseodelahabana109",
+"municipio": "MADRID",
+"numeros": [
+"109"
+],
+"calle": "PS LA HABANA",
+"numero": "109",
+"estado": "clara",
+"parcela": "2291502VK4729A",
+"enlazada": true,
+"portales": 2
+},
+"e38c1541-f999-4d08-9f80-2fe576d7b2eb": {
+"codigo": "DAN-2021-066",
+"carpeta": "paseomelancolicos51",
+"municipio": "MADRID",
+"numeros": [
+"51"
+],
+"parcela": "9029401VK3792G",
+"numero": "51",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 51"
+},
+"03e91eaf-d06a-4d5d-8353-7f46c5419c85": {
+"codigo": "DAN-2023-095",
+"carpeta": "paseoreinacristina15-17",
+"municipio": "MADRID",
+"numeros": [
+"15",
+"17"
+],
+"calle": "PS REINA CRISTINA",
+"numero": "15",
+"estado": "clara",
+"parcela": "2334201VK4723C",
+"enlazada": true,
+"portales": 4
+},
+"d7ed7890-4ae4-40f6-85ba-d2a0e25ce300": {
+"codigo": "DAN-2023-096",
+"carpeta": "paseoreinacristina19 y tentativo21",
+"municipio": "MADRID",
+"numeros": [
+"19",
+"21"
+],
+"calle": "PS REINA CRISTINA",
+"numero": "19",
+"estado": "clara",
+"parcela": "2334201VK4723C",
+"enlazada": true,
+"portales": 4
+},
+"ca2bf72d-d7cf-4ba9-90a7-81cd32ed9205": {
+"codigo": "DAN-2024-061",
+"carpeta": "pedroromero1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL PEDRO ROMERO",
+"numero": "1",
+"estado": "clara",
+"parcela": "5484010VK4758D",
+"enlazada": true,
+"portales": 1
+},
+"19b115d5-9f78-4f27-a656-9e188a40ea9f": {
+"codigo": "DAN-2024-257",
+"carpeta": "peal20",
+"municipio": "MADRID",
+"numeros": [
+"20"
+],
+"calle": "CL PEAL",
+"numero": "20",
+"estado": "clara",
+"parcela": "3601915VK4730B",
+"enlazada": true,
+"portales": 1
+},
+"f2784123-7023-41c9-aa93-9c112e26d561": {
+"codigo": "DAN-2024-136",
+"carpeta": "pensamiento9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL PENSAMIENTO",
+"numero": "9",
+"estado": "clara",
+"parcela": "0992110VK4709B",
+"enlazada": true,
+"portales": 1
+},
+"94b354a4-e167-4483-959b-b980cb19ad9f": {
+"codigo": "DAN-2022-241",
+"carpeta": "picodesalvaguardia6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"calle": "PZ PICO SALVAGUARDIA",
+"numero": "6",
+"estado": "clara",
+"parcela": "9118114VK3891G",
+"enlazada": true,
+"portales": 1
+},
+"6d115457-98c1-44e1-ad13-3e208b674376": {
+"codigo": "DAN-2022-295",
+"carpeta": "pintorjuangris4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL PINTOR JUAN GRIS",
+"numero": "4",
+"estado": "clara",
+"parcela": "1490506VK4719A",
+"enlazada": true,
+"portales": 1
+},
+"649a5f54-ecfe-4346-8687-125ef593e241": {
+"codigo": "DAN-2023-101",
+"carpeta": "pedrounanue8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL PEDRO UNANUE",
+"numero": "8",
+"estado": "clara",
+"parcela": "1129402VK4712G",
+"enlazada": true,
+"portales": 1
+},
+"de3d4689-9671-40cb-8bec-0a05305bdd8b": {
+"codigo": "DAN-2023-252",
+"carpeta": "picodeartilleros30",
+"municipio": "MADRID",
+"numeros": [
+"30"
+],
+"calle": "CL PICO ARTILLEROS",
+"numero": "30",
+"estado": "clara",
+"parcela": "5633411VK4753D",
+"enlazada": true,
+"portales": 1
+},
+"de5ceb92-9016-48d3-8c66-8755d23bc50d": {
+"codigo": "DAN-2022-235",
+"carpeta": "olivar2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL OLIVAR",
+"numero": "2",
+"estado": "clara",
+"parcela": "0539207VK4703G",
+"enlazada": true,
+"portales": 1
+},
+"337bcf78-b808-4097-b903-373a12d1bb39": {
+"codigo": "DAN-2023-079",
+"carpeta": "plazadealmuñecar3-4",
+"municipio": "MADRID",
+"numeros": [
+"3",
+"4"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "3",
+"estado": "clara",
+"parcela": "8355402VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"469523ff-bb49-43e3-84e3-b69288fcf540": {
+"codigo": "DAN-2023-198",
+"carpeta": "plazaarteijo14",
+"municipio": "MADRID",
+"numeros": [
+"14"
+],
+"calle": "PZ ARTEIJO",
+"numero": "14",
+"estado": "clara",
+"parcela": "0212944VK4801A",
+"enlazada": true,
+"portales": 1
+},
+"0f8502ef-9b96-4129-81fd-ee87161884c8": {
+"codigo": "DAN-2023-214",
+"carpeta": "pitagoras3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL PITAGORAS",
+"numero": "3",
+"estado": "clara",
+"parcela": "8566604VK4786F",
+"enlazada": true,
+"portales": 1
+},
+"ed1c9bf2-a5a5-41d8-82c5-a3730d5983db": {
+"codigo": "DAN-2023-225",
+"carpeta": "plazadealmuñecar9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "9",
+"estado": "clara",
+"parcela": "8157505VK3785G",
+"enlazada": true,
+"portales": 1
+},
+"e6d9f808-47e1-4001-a482-3a27b21982b1": {
+"codigo": "DAN-2022-095",
+"carpeta": "plazafonsagrada9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"parcela": "0212932VK4801A",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"bb1fa266-81a9-41e1-8018-754248b2918a": {
+"codigo": "DAN-2018-077",
+"carpeta": "pensamiento24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL PENSAMIENTO",
+"numero": "24",
+"estado": "clara",
+"parcela": "1090301VK4719A",
+"enlazada": true,
+"portales": 1
+},
+"abcdf580-6589-4a00-8b95-553394ae7b97": {
+"codigo": "DAN-2022-237",
+"carpeta": "picobalaitus41",
+"municipio": "MADRID",
+"numeros": [
+"41"
+],
+"calle": "CL PICO BALAITUS",
+"numero": "41",
+"estado": "clara",
+"parcela": "8919701VK3881H",
+"enlazada": true,
+"portales": 1
+},
+"282c190b-c42f-4c11-81b6-c177c02a8aed": {
+"codigo": "DAN-2023-111",
+"carpeta": "pradolonguillo6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"parcela": "9890903VK3699B",
+"numero": "6",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5c92edf6-32ec-4310-9164-a4fe16cc7e43": {
+"codigo": "DAN-2023-227",
+"carpeta": "pzalmuñecar9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "9",
+"estado": "clara",
+"parcela": "8157505VK3785G",
+"enlazada": true,
+"portales": 1
+},
+"2d798309-c738-426c-b5bd-623bc91ec35c": {
+"codigo": "DAN-2021-084",
+"carpeta": "principedevergara25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"calle": "CL PRINCIPE DE VERGARA",
+"numero": "25",
+"estado": "clara",
+"parcela": "2354808VK4725C",
+"enlazada": true,
+"portales": 1
+},
+"ead998f3-2046-4b32-9922-feea74fc5891": {
+"codigo": "DAN-2023-226",
+"carpeta": "pzalmuñecar7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "7",
+"estado": "clara",
+"parcela": "8157507VK3785G",
+"enlazada": true,
+"portales": 1
+},
+"4e4eeae9-2ab1-40e0-9dee-4ed77fd4f879": {
+"codigo": "DAN-2024-230",
+"carpeta": "puertodesomiedo14",
+"municipio": "MADRID",
+"numeros": [
+"14"
+],
+"calle": "CL PUERTO DE SOMIEDO",
+"numero": "14",
+"estado": "clara",
+"parcela": "5013406VK4751C",
+"enlazada": true,
+"portales": 1
+},
+"4a803ac9-5b76-4f84-ae5f-1566cc616176": {
+"codigo": "DAN-2021-099",
+"carpeta": "ramongomezdelaserna103",
+"municipio": "MADRID",
+"numeros": [
+"103"
+],
+"calle": "CL RAMON GOMEZ DE LA SERNA",
+"numero": "103",
+"estado": "clara",
+"parcela": "8618960VK3881G",
+"enlazada": true,
+"portales": 1
+},
+"afc9321b-3363-48bb-8c19-65a3b9765382": {
+"codigo": "DAN-2022-145",
+"carpeta": "ramongomezdelaserna79-81-83",
+"municipio": "MADRID",
+"numeros": [
+"79",
+"81",
+"83"
+],
+"calle": "CL RAMON GOMEZ DE LA SERNA",
+"numero": "79",
+"estado": "clara",
+"parcelas": [
+"8618901VK3881G",
+"8618975VK3881G"
+],
+"parcela": "8618901VK3881G",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 6
+},
+"e69b4db1-b3ad-44e6-82b4-94579f38d8c9": {
+"codigo": "DAN-2024-228",
+"carpeta": "ramonazorin41",
+"municipio": "MADRID",
+"numeros": [
+"41"
+],
+"calle": "CL RAMON AZORIN",
+"numero": "41",
+"estado": "clara",
+"parcela": "7029442VK3772G",
+"enlazada": true,
+"portales": 1
+},
+"4cf8763f-9404-4378-8059-115c782dfcb4": {
+"codigo": "DAN-2022-276",
+"carpeta": "ramongomezdelaserna121",
+"municipio": "MADRID",
+"numeros": [
+"121"
+],
+"parcela": "8618937VK3881F",
+"numero": "121",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7c707784-3bfd-449c-9a09-91c210c7f354": {
+"codigo": "DAN-2022-284",
+"carpeta": "recalde9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL RECALDE",
+"numero": "9",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"63cde043-790b-41f0-b1da-e0c2a54192aa": {
+"codigo": "DAN-2023-130",
+"carpeta": "ramongomezdelaserna115-117-119",
+"municipio": "MADRID",
+"numeros": [
+"115",
+"117",
+"119"
+],
+"calle": "CL RAMON GOMEZ DE LA SERNA",
+"numero": "115",
+"estado": "clara",
+"parcela": "8618957VK3881F",
+"enlazada": true,
+"portales": 1
+},
+"d6fa3877-64fa-4212-b998-b71c8d796a4d": {
+"codigo": "DAN-2023-303",
+"carpeta": "recalde4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL RECALDE",
+"numero": "4",
+"estado": "clara",
+"parcela": "5657212VK4755F",
+"enlazada": true,
+"portales": 1
+},
+"f033bfc7-94a0-451a-b816-63bbce383180": {
+"codigo": "DAN-2022-243",
+"carpeta": "moreras7",
+"municipio": "ARANJUEZ",
+"numeros": [
+"7"
+],
+"calle": "CL MORERAS",
+"numero": "7",
+"estado": "clara",
+"parcela": "9121708VK4392S",
+"enlazada": true,
+"portales": 1
+},
+"86d9a68d-01d0-48b0-a971-350f8193baf5": {
+"codigo": "DAN-2023-081",
+"carpeta": "riberadelmanzanares21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "21",
+"estado": "clara",
+"parcela": "8551324VK3785B",
+"enlazada": true,
+"portales": 1
+},
+"5cda7fb5-e713-4622-b45f-96e3f09ce964": {
+"codigo": "DAN-2023-082",
+"carpeta": "riberadelmanzanares67",
+"municipio": "MADRID",
+"numeros": [
+"67"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "67",
+"estado": "clara",
+"parcela": "8354122VK3785C",
+"enlazada": true,
+"portales": 1
+},
+"610a68ef-09bf-4676-8076-64e98f77117a": {
+"codigo": "DAN-2023-083",
+"carpeta": "riberadelmanzanares69",
+"municipio": "MADRID",
+"numeros": [
+"69"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "69",
+"estado": "clara",
+"parcela": "8354123VK3785C",
+"enlazada": true,
+"portales": 1
+},
+"9114f0cf-796f-44e6-88c9-1a7ffe9e92ab": {
+"codigo": "DAN-2023-084",
+"carpeta": "riberadelmanzanares85",
+"municipio": "MADRID",
+"numeros": [
+"85"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "85",
+"estado": "clara",
+"parcela": "8354111VK3785C",
+"enlazada": true,
+"portales": 1
+},
+"11a7d600-6e6b-4fbc-9ea4-830932a59243": {
+"codigo": "DAN-2023-285",
+"carpeta": "riberadelmanzanares5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL RIBERA DEL MANZANARES",
+"numero": "5",
+"estado": "clara",
+"parcela": "8551336VK3785B",
+"enlazada": true,
+"portales": 1
+},
+"4b56362f-7db7-443e-99c1-2f741a43262c": {
+"codigo": "DAN-2024-155",
+"carpeta": "ricardoortiz44",
+"municipio": "MADRID",
+"numeros": [
+"44"
+],
+"calle": "CL RICARDO ORTIZ",
+"numero": "44",
+"estado": "clara",
+"parcelas": [
+"4252503VK4745C",
+"4254601VK4745C"
+],
+"parcela": "4252503VK4745C",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 1
+},
+"a0ca4734-da7e-4f90-8553-6434efff0072": {
+"codigo": "DAN-2022-114",
+"carpeta": "rueza32",
+"municipio": "MADRID",
+"numeros": [
+"32"
+],
+"calle": "CL RUEZA",
+"numero": "32",
+"estado": "clara",
+"parcela": "5929718VK3752H",
+"enlazada": true,
+"portales": 1
+},
+"4f51bfa1-5122-4ee9-844d-8d0ba344737c": {
+"codigo": "DAN-2022-253",
+"carpeta": "paseodeguadalajara55",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"55"
+],
+"calle": "PS GUADALAJARA",
+"numero": "55",
+"estado": "clara",
+"parcela": "5798801VK4859N",
+"enlazada": true,
+"portales": 1
+},
+"caf8a8b6-dcdf-4519-8c71-5773f0ed7b4f": {
+"codigo": "DAN-2022-289",
+"carpeta": "riosalado6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"parcela": "4810105VK4741B",
+"numero": "6",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"25e9c220-9a73-432e-9642-6e5664ef6f8f": {
+"codigo": "DAN-2023-114",
+"carpeta": "sananastasio2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL SAN ANASTASIO",
+"numero": "2",
+"estado": "clara",
+"parcela": "0423205VK4702C",
+"enlazada": true,
+"portales": 1
+},
+"80914c7c-177b-4de6-a531-88409aa86125": {
+"codigo": "DAN-2024-129",
+"carpeta": "salvadormartinezlozano40",
+"municipio": "MADRID",
+"numeros": [
+"40"
+],
+"calle": "CL SALVADOR MARTINEZ LOZANO",
+"numero": "40",
+"estado": "clara",
+"parcela": "3118507VK4731G",
+"enlazada": true,
+"portales": 1
+},
+"e6ac6c63-319e-4e72-b354-908210769377": {
+"codigo": "DAN-2024-258",
+"carpeta": "sananselmo11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"calle": "CL SAN ANSELMO",
+"numero": "11",
+"estado": "clara",
+"parcela": "4410806VK4741A",
+"enlazada": true,
+"portales": 1
+},
+"f21ab2d2-6cb9-4aa5-a3a4-54382a86d5fb": {
+"codigo": "DAN-2024-267",
+"carpeta": "sagradoscorazones7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL SAGRADOS CORAZONES",
+"numero": "7",
+"estado": "clara",
+"parcela": "7433705VK3773C",
+"enlazada": true,
+"portales": 1
+},
+"368275dc-a1b8-4776-ae95-463d15dd6294": {
+"codigo": "DAN-2024-063",
+"carpeta": "sanconrado5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL SAN CONRADO",
+"numero": "5",
+"estado": "clara",
+"parcela": "8623709VK3783B",
+"enlazada": true,
+"portales": 1
+},
+"5e037599-3376-4e6e-9a49-ab13ec99536f": {
+"codigo": "DAN-2016-085",
+"carpeta": "sandimas15",
+"municipio": "MADRID",
+"numeros": [
+"15"
+],
+"calle": "CL SAN DIMAS",
+"numero": "15",
+"estado": "clara",
+"parcela": "0056503VK4705E",
+"enlazada": true,
+"portales": 1
+},
+"4c5e5781-7641-48c8-b0f7-d504ecda5f0d": {
+"codigo": "DAN-2021-009",
+"carpeta": "sandonato1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL SAN DONATO",
+"numero": "1",
+"estado": "clara",
+"parcela": "4351507VK4745A",
+"enlazada": true,
+"portales": 1
+},
+"d864d323-a1d1-4e18-8382-76eaeaa6c127": {
+"codigo": "DAN-2024-173",
+"carpeta": "sanemilio21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "CL SAN EMILIO",
+"numero": "21",
+"estado": "clara",
+"parcela": "4257922VK4745E",
+"enlazada": true,
+"portales": 1
+},
+"2ff13de2-2e10-48cb-a4ec-ef26e8a58ecc": {
+"codigo": "DAN-2024-275",
+"carpeta": "saneudaldo8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL SAN EUDALDO",
+"numero": "8",
+"estado": "clara",
+"parcela": "9131136VK4793A",
+"enlazada": true,
+"portales": 1
+},
+"f80313cd-7a01-4ddc-ab76-336801f443fa": {
+"codigo": "DAN-2022-272",
+"carpeta": "santamaria30",
+"municipio": "MADRID",
+"numeros": [
+"30"
+],
+"calle": "CL SANTA MARIA",
+"numero": "30",
+"estado": "clara",
+"parcela": "0939403VK4703H",
+"enlazada": true,
+"portales": 1
+},
+"0ab2973c-7e4e-46ae-a113-c7698b770a3f": {
+"codigo": "DAN-2024-244",
+"carpeta": "santavirgilia8-10-12",
+"municipio": "MADRID",
+"numeros": [
+"8",
+"10",
+"12"
+],
+"calle": "CL SANTA VIRGILIA",
+"numero": "8",
+"estado": "clara",
+"parcela": "5610004VK4851A",
+"enlazada": true,
+"portales": 2
+},
+"1130dfbf-1630-4a0b-9db6-1a4b4ef2ffb7": {
+"codigo": "DAN-2024-232",
+"carpeta": "santaaurea36",
+"municipio": "MADRID",
+"numeros": [
+"36"
+],
+"calle": "CL SANTA AUREA",
+"numero": "36",
+"estado": "clara",
+"parcela": "7732920VK3773D",
+"enlazada": true,
+"portales": 1
+},
+"4c192763-8cc2-4782-a123-a4c53e0f143f": {
+"codigo": "DAN-2023-159",
+"carpeta": "sanonofre7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL SAN ONOFRE",
+"numero": "7",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"d87d83dd-d2a4-48c0-81d4-84eeac1df062": {
+"codigo": "DAN-2023-269",
+"carpeta": "sanmarcelo26",
+"municipio": "MADRID",
+"numeros": [
+"26"
+],
+"calle": "CL SAN MARCELO",
+"numero": "26",
+"estado": "clara",
+"parcela": "4455906VK4745E",
+"enlazada": true,
+"portales": 1
+},
+"96bf4e5a-9c4c-48f0-aeb1-4b3c1b596d9e": {
+"codigo": "DAN-2023-086",
+"carpeta": "santacoloma8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL SANTA COLOMA",
+"numero": "8",
+"estado": "clara",
+"parcela": "8057201VK3785G",
+"enlazada": true,
+"portales": 1
+},
+"2738dc98-2c17-4667-b459-c09096461c32": {
+"codigo": "DAN-2023-087",
+"carpeta": "santafe2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL SANTA FE",
+"numero": "2",
+"estado": "clara",
+"parcela": "7661602VK3776B",
+"enlazada": true,
+"portales": 1
+},
+"aa039464-6182-4d55-9977-361abfaee557": {
+"codigo": "DAN-2024-046",
+"carpeta": "santapolonia8",
+"municipio": "MADRID",
+"numeros": [
+"8"
+],
+"calle": "CL SANTA POLONIA",
+"numero": "8",
+"estado": "clara",
+"parcela": "0840710VK4704B",
+"enlazada": true,
+"portales": 1
+},
+"7b4725d9-0c96-412e-a325-11f90e3f034b": {
+"codigo": "DAN-2024-296",
+"carpeta": "santiagodecompostela24-26",
+"municipio": "MADRID",
+"numeros": [
+"24",
+"26"
+],
+"calle": "CL SANTIAGO DE COMPOSTELA",
+"numero": "24",
+"estado": "clara",
+"parcela": "0518402VK4801H",
+"enlazada": true,
+"portales": 4
+},
+"908d55e1-b2ad-42c3-8e6b-63079c089672": {
+"codigo": "DAN-2023-088",
+"carpeta": "santovenia5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL SANTOVENIA",
+"numero": "5",
+"estado": "clara",
+"parcela": "8155209VK3785E",
+"enlazada": true,
+"portales": 1
+},
+"1bcda25f-d2fe-4d26-921a-9e33c14dd957": {
+"codigo": "DAN-2020-064",
+"carpeta": "santelesforo19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"parcela": "6253402VK4765C",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"1663f757-eb62-4e23-8e18-98773c768556": {
+"codigo": "DAN-2023-092",
+"carpeta": "santurce63",
+"municipio": "MADRID",
+"numeros": [
+"63"
+],
+"calle": "CL SANTURCE",
+"numero": "63",
+"estado": "clara",
+"parcela": "6256726VK4765E",
+"enlazada": true,
+"portales": 1
+},
+"7e5ac3fb-326d-4586-b5fe-9d6332a38be9": {
+"codigo": "DAN-2023-105",
+"carpeta": "sanvenancio21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"calle": "CL SAN VENANCIO",
+"numero": "21",
+"estado": "clara",
+"parcela": "8578111VK4787H",
+"enlazada": true,
+"portales": 1
+},
+"f61d55f9-4445-4467-9211-5c5110b3663c": {
+"codigo": "DAN-2022-293",
+"carpeta": "soria1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"calle": "CL SORIA",
+"numero": "1",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"e33ac8a7-5ecc-40c9-8688-16ca15ab4cb2": {
+"codigo": "DAN-2018-039",
+"carpeta": "sormariadeagreda24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL SOR MARIA DE AGREDA",
+"numero": "24",
+"estado": "clara",
+"parcela": "5058914VK4755G",
+"enlazada": true,
+"portales": 2
+},
+"0ac9d8d9-d7bc-4e92-bd3e-7da69020731d": {
+"codigo": "DAN-2019-078",
+"carpeta": "sierramadrona34",
+"municipio": "MADRID",
+"numeros": [
+"34"
+],
+"parcela": "4023902VK4742C",
+"numero": "34",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"f099456b-f873-4d2e-9af7-b59a73846647": {
+"codigo": "DAN-2020-020",
+"carpeta": "sirio36",
+"municipio": "MADRID",
+"numeros": [
+"36"
+],
+"calle": "CL SIRIO",
+"numero": "36",
+"estado": "clara",
+"parcela": "3739411VK4733H",
+"enlazada": true,
+"portales": 1
+},
+"cde55000-01a2-42bd-8236-1b0a9363542f": {
+"codigo": "DAN-2014-004",
+"carpeta": "avmonfortedelemos69",
+"municipio": "MADRID",
+"numeros": [
+"69"
+],
+"calle": "AV MONFORTE DE LEMOS",
+"numero": "69",
+"estado": "clara",
+"parcela": "0713909VK4801D",
+"enlazada": true,
+"portales": 1
+},
+"b49dd78b-6531-4032-87a2-617824747df3": {
+"codigo": "DAN-2014-011",
+"carpeta": "zaida22",
+"municipio": "MADRID",
+"numeros": [
+"22"
+],
+"parcela": "7620209VK3772B",
+"numero": "22",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"386c4240-8684-4e03-b35f-9ccce6bc7b14": {
+"codigo": "DAN-2015-001",
+"carpeta": "rafaelfinat87",
+"municipio": "MADRID",
+"numeros": [
+"87"
+],
+"calle": "CL RAFAEL FINAT",
+"numero": "87",
+"estado": "clara",
+"parcela": "4702728VK3740B",
+"enlazada": true,
+"portales": 1
+},
+"c34ab0dc-c934-4028-8fbb-5bf7ada28790": {
+"codigo": "DAN-2015-013",
+"carpeta": "esmeralda12",
+"municipio": "MADRID",
+"numeros": [
+"12"
+],
+"calle": "CL ESMERALDA",
+"numero": "12",
+"estado": "clara",
+"parcela": "9810105VK3791B",
+"enlazada": true,
+"portales": 1
+},
+"8c27dcd8-59ef-426a-be6b-1ada3e7bc480": {
+"codigo": "DAN-2015-024",
+"carpeta": "generalricardos232",
+"municipio": "MADRID",
+"numeros": [
+"232"
+],
+"parcela": "7209809VK3770G",
+"numero": "232",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2c26287f-91c8-492d-a2a8-1f9ab60db1e5": {
+"codigo": "DAN-2015-028",
+"carpeta": "2demayo6 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "0354507VK4705C",
+"numeros": [
+"6"
+],
+"calle": "CL DOS DE MAYO"
+}
+],
+"estado": "clara",
+"parcela": "0354507VK4705C",
+"numero": "6",
+"numeros": [
+"6"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"5314bd88-1420-4ef0-93b5-cbe401d996c3": {
+"codigo": "DAN-2015-035",
+"carpeta": "velezrubio195",
+"municipio": "MADRID",
+"numeros": [
+"195"
+],
+"parcela": "4114906VK4841C",
+"numero": "195",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7628e3b3-2720-4aeb-9f21-c60dd3b9243e": {
+"codigo": "DAN-2015-074",
+"carpeta": "tucurinca4",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL TUCURINCA",
+"numero": "4",
+"estado": "clara",
+"parcela": "6007041VK4850H",
+"enlazada": true,
+"portales": 1
+},
+"cb30e7a5-f8d8-42c3-8086-585da9d321c9": {
+"codigo": "DAN-2015-084",
+"carpeta": "diamante29",
+"municipio": "MADRID",
+"numeros": [
+"29"
+],
+"calle": "CL DIAMANTE",
+"numero": "29",
+"estado": "clara",
+"parcela": "1871410VK4617B",
+"enlazada": true,
+"portales": 1
+},
+"891f94d0-6e5a-4e28-9b52-199710e6355d": {
+"codigo": "DAN-2015-086",
+"carpeta": "paseoimperial23",
+"municipio": "MADRID",
+"numeros": [
+"23"
+],
+"calle": "PS IMPERIAL",
+"numero": "23",
+"estado": "clara",
+"parcela": "9335127VK3793E",
+"enlazada": true,
+"portales": 2
+},
+"ee87a843-5955-4f65-9ada-75d8ca783b16": {
+"codigo": "DAN-2015-094",
+"carpeta": "quincedeagosto7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"parcela": "9711609VK3791B",
+"numero": "7",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b5b2b423-5775-4cec-95be-d53c1370acf5": {
+"codigo": "DAN-2015-102",
+"carpeta": "etruria43",
+"municipio": "MADRID",
+"numeros": [
+"43"
+],
+"parcela": "8466405VK4786E",
+"numero": "43",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"9993b5a8-497c-4915-985b-f46d8327bc5b": {
+"codigo": "DAN-2016-005",
+"carpeta": "avnuestraseñoradevalvanera80",
+"municipio": "MADRID",
+"numeros": [
+"80"
+],
+"parcela": "7616106VK3771F",
+"numero": "80",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7c25e610-3527-45c3-ba00-8955fafd9a21": {
+"codigo": "DAN-2016-015",
+"carpeta": "luchana37",
+"municipio": "MADRID",
+"numeros": [
+"37"
+],
+"parcela": "0861412VK4706B",
+"numero": "37",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5d98e6f9-52d3-402f-ae8a-6193d59a9a7b": {
+"codigo": "DAN-2016-016",
+"carpeta": "sierradecontraviesa54",
+"municipio": "MADRID",
+"numeros": [
+"54"
+],
+"parcela": "3006810VK4730E",
+"numero": "54",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"6897a796-c847-417e-a947-43ecbb0274d0": {
+"codigo": "DAN-2016-020",
+"carpeta": "juanespañol32",
+"municipio": "MADRID",
+"numeros": [
+"32"
+],
+"parcela": "9611707VK3791B",
+"numero": "32",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"1add05db-a744-42e1-be71-72b90058409e": {
+"codigo": "DAN-2016-050",
+"carpeta": "genserico7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL GENSERICO",
+"numero": "7",
+"estado": "clara",
+"parcela": "7634902VK3773D",
+"enlazada": true,
+"portales": 1
+},
+"010dc6dd-f050-4545-8182-f59e58ea672e": {
+"codigo": "DAN-2016-064",
+"carpeta": "jacobinia86",
+"municipio": "MADRID",
+"numeros": [
+"86"
+],
+"calle": "CL JACOBINIA",
+"numero": "86",
+"estado": "clara",
+"parcela": "6202660VK3760A",
+"enlazada": true,
+"portales": 1
+},
+"c20cf570-4a78-4cdb-be8f-bfdd30484de2": {
+"codigo": "DAN-2016-072",
+"carpeta": "gandhi5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL GANDHI",
+"numero": "5",
+"estado": "clara",
+"parcela": "6252216VK4765C",
+"enlazada": true,
+"portales": 1
+},
+"df1c7898-b625-40b9-9bb3-dcbd4fed3f1d": {
+"codigo": "DAN-2016-074",
+"carpeta": "morando2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL MORANDO",
+"numero": "2",
+"estado": "clara",
+"parcela": "0901514VK4800B",
+"enlazada": true,
+"portales": 1
+},
+"0a85b4fc-64b0-4c90-a9c3-50aba273af04": {
+"codigo": "DAN-2016-078",
+"carpeta": "valmojado283",
+"municipio": "MADRID",
+"numeros": [
+"283"
+],
+"calle": "CL VALMOJADO",
+"numero": "283",
+"estado": "clara",
+"parcela": "5712106VK3751B",
+"enlazada": true,
+"portales": 1
+},
+"9511f557-e6dc-40ca-9ca1-7476e457f094": {
+"codigo": "DAN-2016-084",
+"carpeta": "cerrodelaalcazaba19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"parcela": "3007514VK4730G",
+"numero": "19",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"f67437e6-935b-488f-8a8c-e3232b48bd60": {
+"codigo": "DAN-2016-088",
+"carpeta": "sanonofre7",
+"municipio": "MADRID",
+"numeros": [
+"7"
+],
+"calle": "CL SAN ONOFRE",
+"numero": "7",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"87b3a9b4-502a-46f0-a1bb-49746392a567": {
+"codigo": "DAN-2016-108",
+"carpeta": "abejuela17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"calle": "CL ABEJUELA",
+"numero": "17",
+"estado": "clara",
+"parcela": "6716711VK3761F",
+"enlazada": true,
+"portales": 2
+},
+"d97c81a3-2603-4289-a689-d8e5c3e95efa": {
+"codigo": "DAN-2016-115",
+"carpeta": "monfortedelemos151",
+"municipio": "MADRID",
+"numeros": [
+"151"
+],
+"parcela": "9511707VK3891B",
+"numero": "151",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"04497882-c3b8-44a2-a63c-88ed223aac1e": {
+"codigo": "DAN-2016-122",
+"carpeta": "conchaespina19",
+"municipio": "MADRID",
+"numeros": [
+"19"
+],
+"calle": "AV CONCHA ESPINA",
+"numero": "19",
+"estado": "clara",
+"parcela": "2284335VK4728C",
+"enlazada": true,
+"portales": 1
+},
+"d7ad5e92-6656-46a5-bf5e-ae53d8ca35a5": {
+"codigo": "DAN-2016-133",
+"carpeta": "BlascodeGaray46",
+"municipio": "MADRID",
+"numeros": [
+"46"
+],
+"parcela": "9864218VK3796D",
+"numero": "46",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"547299b0-c0db-45d7-bf7a-852088d3979c": {
+"codigo": "DAN-2016-140",
+"carpeta": "eltoboso136",
+"municipio": "MADRID",
+"numeros": [
+"136"
+],
+"calle": "CL TOBOSO",
+"numero": "136",
+"estado": "clara",
+"parcela": "7418520VK3771G",
+"enlazada": true,
+"portales": 1
+},
+"51ab92cf-4f37-4cfe-84c8-861dd5f67a6d": {
+"codigo": "DAN-2016-141",
+"carpeta": "rafaelsalazaralonso (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "3442305VK4734C",
+"numeros": [
+"7"
+],
+"calle": "CL RAFAEL SALAZAR ALONSO"
+}
+],
+"estado": "clara",
+"parcela": "3442305VK4734C",
+"numero": "7",
+"numeros": [
+"7"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"31a28edd-8e90-444b-a2ed-5c490890ad7e": {
+"codigo": "DAN-2016-148",
+"carpeta": "paseodeextremadura244duplicado",
+"municipio": "MADRID",
+"numeros": [
+"244"
+],
+"parcela": "6433810VK3763C",
+"numero": "244",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 244"
+},
+"f7328b4f-bd8e-460b-bcae-7b08791a7880": {
+"codigo": "DAN-2016-180",
+"carpeta": "galiana28",
+"municipio": "MADRID",
+"numeros": [
+"28"
+],
+"parcela": "7936205VK3773F",
+"numero": "28",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"9bffbafd-ce99-4fe6-b3db-617b22445c7e": {
+"codigo": "DAN-2016-195",
+"carpeta": "riojanos5bis",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"parcela": "5412902VK4751A",
+"numero": "5",
+"por_referencia": true,
+"estado": "dudosa: la parcela no tiene portales con el numero 5"
+},
+"6331ae81-1d6f-4959-bf83-52b5086735a5": {
+"codigo": "DAN-2016-200",
+"carpeta": "boldano10",
+"municipio": "MADRID",
+"numeros": [
+"10"
+],
+"parcela": "5767407VK4756H",
+"numero": "10",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2cd94fdb-4c78-4bd1-a9cf-92a3c4004b32": {
+"codigo": "DAN-2016-210",
+"carpeta": "joseortegaygasset94",
+"municipio": "MADRID",
+"numeros": [
+"94"
+],
+"parcela": "3158810VK4735G",
+"numero": "94",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"90a1a668-135b-45c5-bd9e-dd0fb5ef7fad": {
+"codigo": "DAN-2017-003",
+"carpeta": "federicogutierrez24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL FEDERICO GUTIERREZ",
+"numero": "24",
+"estado": "clara",
+"parcela": "5366108VK4756E",
+"enlazada": true,
+"portales": 1
+},
+"780f2c3c-b781-48cc-992f-420c84e650d6": {
+"codigo": "DAN-2017-017",
+"carpeta": "alcaldesainzdebaranda89",
+"municipio": "MADRID",
+"numeros": [
+"89"
+],
+"calle": "CL ALCALDE SAINZ DE BARANDA",
+"numero": "89",
+"estado": "clara",
+"parcela": "3445306VK4734E",
+"enlazada": true,
+"portales": 1
+},
+"6976b03a-3451-4b6a-b694-8b75ee476d85": {
+"codigo": "DAN-2017-018",
+"carpeta": "generalcabrera27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"calle": "CL GENERAL CABRERA",
+"numero": "27",
+"estado": "dudosa: la parcela no tiene portales con el numero 27",
+"parcela": "1087315VK4718G"
+},
+"f773e616-552c-4f30-b688-97883885f0e0": {
+"codigo": "DAN-2017-051",
+"carpeta": "jaimehermida20",
+"municipio": "MADRID",
+"numeros": [
+"20"
+],
+"parcela": "6368810VK4766G",
+"numero": "20",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"a81920a4-896c-4cf5-809f-27c76c0953d9": {
+"codigo": "DAN-2017-054",
+"carpeta": "mercedesarteaga50",
+"municipio": "MADRID",
+"numeros": [
+"50"
+],
+"parcela": "8716213VK3781F",
+"numero": "50",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c7b0158c-a26e-45da-a951-751a6a66237e": {
+"codigo": "DAN-2017-093",
+"carpeta": "graneros9",
+"municipio": "SAN SEBASTIAN DE LOS REYES",
+"numeros": [
+"9"
+],
+"parcela": "7389602VK4878N",
+"numero": "9",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"60834a71-7a3e-4ebb-93f1-1fd248265d84": {
+"codigo": "DAN-2017-069",
+"carpeta": "albaida76",
+"municipio": "MADRID",
+"numeros": [
+"76"
+],
+"parcela": "8062109VK4786A",
+"numero": "76",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"5cf96674-e8b2-4588-a47f-97a8db722cce": {
+"codigo": "DAN-2017-085",
+"carpeta": "molina63",
+"municipio": "MADRID",
+"numeros": [
+"63"
+],
+"calle": "CL MOLINA",
+"numero": "63",
+"estado": "clara",
+"parcela": "0604401VK4800D",
+"enlazada": true,
+"portales": 1
+},
+"3a2d8f9a-0319-4459-ba82-0c91845e6e80": {
+"codigo": "DAN-2017-099",
+"carpeta": "pobladesegur11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"parcela": "4500608VK4840B",
+"numero": "11",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c86ed3a0-1d99-4b87-9b6d-bab08cf6d2ce": {
+"codigo": "DAN-2017-118",
+"carpeta": "almonacid24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL ALMONACID",
+"numero": "24",
+"estado": "clara",
+"parcela": "4122806VK4742A",
+"enlazada": true,
+"portales": 1
+},
+"55f53e24-f47e-45d3-9e60-f9f364f7d24f": {
+"codigo": "DAN-2017-147",
+"carpeta": "princesa27",
+"municipio": "MADRID",
+"numeros": [
+"27"
+],
+"parcela": "9556101VK3795F",
+"numero": "27",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"7bad59b9-bdf3-4413-94ce-2e666aa1af27": {
+"codigo": "DAN-2017-174",
+"carpeta": "luispiernas34",
+"municipio": "MADRID",
+"numeros": [
+"34"
+],
+"parcela": "4754318VK4745D",
+"numero": "34",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c931efd4-d00f-45f0-85ea-fa2440c2e6fd": {
+"codigo": "DAN-2017-176",
+"carpeta": "angelripoll52",
+"municipio": "MADRID",
+"numeros": [
+"52"
+],
+"parcela": "7907819VK3770F",
+"numero": "52",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b985e0e1-0967-4ef1-b9a8-f067000af61a": {
+"codigo": "DAN-2018-009",
+"carpeta": "florenciogarcia11",
+"municipio": "MADRID",
+"numeros": [
+"11"
+],
+"parcela": "5767405VK4756H",
+"numero": "11",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"34b9eace-4215-47bc-a64d-7d42c276c318": {
+"codigo": "DAN-2018-012",
+"carpeta": "santelesforo15",
+"municipio": "MADRID",
+"numeros": [
+"15"
+],
+"parcela": "6253404VK4765C",
+"numero": "15",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"8f92c95b-3b69-43c8-a076-2941b15cf91a": {
+"codigo": "DAN-2018-062",
+"carpeta": "enriquevelasco18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "CL ENRIQUE VELASCO",
+"numero": "18",
+"estado": "dudosa: 3 parcelas en ese numero, 3 con viviendas",
+"parcelas": [
+"3920310VK4732B",
+"3920324VK4732B",
+"3920325VK4732B"
+]
+},
+"b0ad5f05-3f81-4eb8-87e2-c5e98adcb284": {
+"codigo": "DAN-2019-004",
+"carpeta": "carabelos41",
+"municipio": "MADRID",
+"numeros": [
+"41"
+],
+"calle": "CL CARABELOS",
+"numero": "41",
+"estado": "clara",
+"parcela": "1499410VK4619G",
+"enlazada": true,
+"portales": 1
+},
+"0abf8240-71e2-4f3f-ba92-7abf9013aa9f": {
+"codigo": "DAN-2019-010",
+"carpeta": "vallehermoso112",
+"municipio": "MADRID",
+"numeros": [
+"112"
+],
+"parcela": "0171811VK4707A",
+"numero": "112",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c1b9f4a9-5190-4cf0-b336-8a29e5fb5335": {
+"codigo": "DAN-2019-011",
+"carpeta": "sanbasilio24",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"calle": "CL SAN BASILIO",
+"numero": "24",
+"estado": "clara",
+"parcela": "9903505VK3790D",
+"enlazada": true,
+"portales": 1
+},
+"7e568267-1024-477a-ab8e-99fc9a8a16c4": {
+"codigo": "DAN-2019-013",
+"carpeta": "plazadealmuñecar6-7",
+"municipio": "MADRID",
+"numeros": [
+"6",
+"7"
+],
+"calle": "PZ ALMUÑECAR",
+"numero": "6",
+"estado": "clara",
+"parcela": "8157507VK3785G",
+"enlazada": true,
+"portales": 2
+},
+"f26e8667-92d8-4fa2-91aa-8e0fb92821c4": {
+"codigo": "DAN-2019-019",
+"carpeta": "segovia18",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"18"
+],
+"parcela": "9592624VK5799S",
+"numero": "18",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"6cf76879-526b-44bb-9513-67765fa8c35b": {
+"codigo": "DAN-2019-040",
+"carpeta": "quilichao6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"parcela": "6206616VK4860E",
+"numero": "6",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"2fc84b2c-2be6-4a86-9628-b36635f5b321": {
+"codigo": "DAN-2019-042",
+"carpeta": "escuelaspias4",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"4"
+],
+"parcela": "9122808VK6892S",
+"numero": "4",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"40a3c687-1132-4f86-a504-9b5ae39d685b": {
+"codigo": "DAN-2020-052",
+"carpeta": "vitoria1",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"1"
+],
+"parcela": "1125603VK7802S",
+"numero": "1",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"302e65be-7bfe-419d-a4a8-2c731d5f85bf": {
+"codigo": "DAN-2019-071",
+"carpeta": "modestolafuente21",
+"municipio": "MADRID",
+"numeros": [
+"21"
+],
+"parcela": "1070204VK4717A",
+"numero": "21",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"580ce76a-621c-4484-a566-a87c1b4b3597": {
+"codigo": "DAN-2019-072",
+"carpeta": "portugalete25",
+"municipio": "MADRID",
+"numeros": [
+"25"
+],
+"parcela": "6256707VK4765E",
+"numero": "25",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"3b68245c-09de-44e4-bf80-efdf2cc1eecf": {
+"codigo": "DAN-2019-075",
+"carpeta": "ManuelLaborda15-Carmelitas22",
+"municipio": "MADRID",
+"numeros": [
+"15",
+"22"
+],
+"calle": "CL MANUEL LABORDA",
+"numero": "15",
+"estado": "clara",
+"parcela": "1972814VK4617B",
+"enlazada": true,
+"portales": 1
+},
+"b7f0ee02-5994-4677-a17d-bd09053ff077": {
+"codigo": "DAN-2019-076",
+"carpeta": "avpabloneruda54",
+"municipio": "MADRID",
+"numeros": [
+"54"
+],
+"parcela": "5212705VK4751C",
+"numero": "54",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b1fd82a8-4d82-48fe-9d89-6369ce002bee": {
+"codigo": "DAN-2020-027",
+"carpeta": "emilioferrari101",
+"municipio": "MADRID",
+"numeros": [
+"101"
+],
+"parcela": "5957805VK4755F",
+"numero": "101",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"701a54e6-2e28-4dac-843a-bf0d8b813269": {
+"codigo": "DAN-2020-029",
+"carpeta": "PedroRubindeCelis28",
+"municipio": "PINTO",
+"numeros": [
+"28"
+],
+"parcela": "1054605VK4515S",
+"numero": "28",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 2
+},
+"877697a1-5b57-4a82-ba45-e7ecd1485c59": {
+"codigo": "DAN-2020-031",
+"carpeta": "parvillasaltas12",
+"municipio": "MADRID",
+"numeros": [
+"12"
+],
+"parcela": "9965109VK3696F",
+"numero": "12",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"e2aa17b6-0e71-4439-873c-09f1cedd05d3": {
+"codigo": "DAN-2022-299",
+"carpeta": "sanvenancio1",
+"municipio": "MADRID",
+"numeros": [
+"1"
+],
+"parcela": "8377711VK4787E",
+"numero": "1",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"94148e20-8f77-422e-851c-2cbba8499898": {
+"codigo": "DAN-2023-010",
+"carpeta": "avaragon14",
+"municipio": "GETAFE",
+"numeros": [
+"14"
+],
+"parcela": "9027301VK3692N",
+"numero": "14",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"6a769722-68bd-413e-a25a-35221d86189e": {
+"codigo": "DAN-2023-014",
+"carpeta": "avespaña10",
+"municipio": "FUENLABRADA",
+"numeros": [
+"10"
+],
+"calle": "AV ESPAÑA",
+"numero": "10",
+"estado": "clara",
+"parcela": "1906404VK3610N",
+"enlazada": true,
+"portales": 3
+},
+"c1b2456e-b380-4015-91db-e1943e8b246f": {
+"codigo": "DAN-2023-023",
+"carpeta": "cataluña2",
+"municipio": "GETAFE",
+"numeros": [
+"2"
+],
+"calle": "CL CATALUÑA",
+"numero": "2",
+"estado": "clara",
+"parcela": "8729008VK3682N",
+"enlazada": true,
+"portales": 1
+},
+"53d13344-c6f7-4ad1-b9bb-05be56278b47": {
+"codigo": "DAN-2023-044",
+"carpeta": "grecia18",
+"municipio": "FUENLABRADA",
+"numeros": [
+"18"
+],
+"calle": "CL GRECIA",
+"numero": "18",
+"estado": "clara",
+"parcela": "1796605VK3519N",
+"enlazada": true,
+"portales": 1
+},
+"f5b8a384-072e-4317-ae7c-ee560c8e62af": {
+"codigo": "DAN-2023-115",
+"carpeta": "soria3",
+"municipio": "MOSTOLES",
+"numeros": [
+"3"
+],
+"calle": "CL SORIA",
+"numero": "3",
+"estado": "clara",
+"parcela": "5839604VK2653N",
+"enlazada": true,
+"portales": 1
+},
+"54c764a5-dba7-409f-b4ec-1e7cc5c0233b": {
+"codigo": "DAN-2023-126",
+"carpeta": "normas3-5-7",
+"municipio": "MADRID",
+"numeros": [
+"3",
+"5",
+"7"
+],
+"calle": "CL NORMAS",
+"numero": "3",
+"estado": "clara",
+"parcela": "4084006VK4848C",
+"enlazada": true,
+"portales": 4
+},
+"6722ee35-055a-4368-9e68-ac66ed330723": {
+"codigo": "DAN-2023-138",
+"carpeta": "ferrovial9 (MADRID)",
+"municipio": "MADRID",
+"destinos": [],
+"estado": "dudosa: CL FERROCARRIL 9 -> 0 parcelas"
+},
+"652b2991-30a7-4c15-84c4-af43056a7ec8": {
+"codigo": "DAN-2023-190",
+"carpeta": "rafaelfinat38",
+"municipio": "MADRID",
+"numeros": [
+"38"
+],
+"parcela": "4806516VK3740F",
+"numero": "38",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 2
+},
+"ccf9f97f-418f-4ee1-ba66-ecd846c4901c": {
+"codigo": "DAN-2023-193",
+"carpeta": "cuatroamigos5-7",
+"municipio": "MADRID",
+"numeros": [
+"5",
+"7"
+],
+"parcela": "1599201VK4719H",
+"numero": "5",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 6
+},
+"9acf939e-feb9-4dbb-ba4c-d8b5211a8ee5": {
+"codigo": "DAN-2023-202",
+"carpeta": "alpujarras23 (LEGANES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "6549101VK3664N",
+"numeros": [
+"23"
+]
+}
+],
+"parcela": "6549101VK3664N",
+"numero": "23",
+"numeros": [
+"23"
+],
+"enlazada": true,
+"portales": 1
+},
+"737aca6f-f615-497c-afac-b419a743e9bd": {
+"codigo": "DAN-2023-205",
+"carpeta": "avonu76",
+"municipio": "MOSTOLES",
+"numeros": [
+"76"
+],
+"parcela": "7734803VK2673S",
+"numero": "76",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"c6fba8ba-9b5e-4900-b377-52e615a7ad55": {
+"codigo": "DAN-2023-212",
+"carpeta": "velezblanco46",
+"municipio": "MADRID",
+"numeros": [
+"46"
+],
+"calle": "CL VELEZ BLANCO",
+"numero": "46",
+"estado": "clara",
+"parcela": "4012997VK4831D",
+"enlazada": true,
+"portales": 1
+},
+"bd2accde-eac1-4efc-8ca3-a72487ee4565": {
+"codigo": "DAN-2023-220",
+"carpeta": "discobolo63-67",
+"municipio": "MADRID",
+"numeros": [
+"63",
+"65",
+"67"
+],
+"parcela": "8273312VK4787C",
+"numero": "63",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"738e81c1-353b-48dd-b5f3-a0f556ea149f": {
+"codigo": "DAN-2023-221",
+"carpeta": "santatecla44 - 48",
+"municipio": "MADRID",
+"numeros": [
+"44",
+"46",
+"48"
+],
+"calle": "CL SANTA TECLA",
+"numero": "44",
+"estado": "clara",
+"parcelas": [
+"8273303VK4787C",
+"8273319VK4787C"
+],
+"parcela": "8273303VK4787C",
+"por_viviendas": true,
+"enlazada": true,
+"portales": 5
+},
+"ea1d3f9e-a59c-4128-83ea-d8ef938b9ae4": {
+"codigo": "DAN-2023-229",
+"carpeta": "pradillo26",
+"municipio": "MADRID",
+"numeros": [
+"26"
+],
+"calle": "CL PRADILLO",
+"numero": "26",
+"estado": "clara",
+"parcela": "3079802VK4737G",
+"enlazada": true,
+"portales": 2
+},
+"e464b45f-b520-4482-b9fb-0864625188e1": {
+"codigo": "DAN-2023-230",
+"carpeta": "corregidorseñordelaelipa11 (MADRID)",
+"municipio": "MADRID",
+"destinos": [
+{
+"parcela": "5037421VK4753G",
+"numeros": [
+"11"
+],
+"calle": "CL CGDOR SEÑOR DE LA ELIPA"
+}
+],
+"estado": "clara",
+"parcela": "5037421VK4753G",
+"numero": "11",
+"numeros": [
+"11"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"8a56dc62-fb2d-4e2e-9ddf-ddd5183b08a4": {
+"codigo": "DAN-2023-238",
+"carpeta": "avangeles6",
+"municipio": "GETAFE",
+"numeros": [
+"6"
+],
+"parcela": "8625203VK3682N",
+"numero": "6",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"3bf8b8d1-fe9c-4d02-ab7a-ba6f91ce59dd": {
+"codigo": "DAN-2023-242",
+"carpeta": "valdecaleras6",
+"municipio": "MADRID",
+"numeros": [
+"6"
+],
+"parcela": "5396209VK4759E",
+"numero": "6",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"e8a70077-a6b9-458c-bcb9-fbad8e1022d9": {
+"codigo": "DAN-2023-244",
+"carpeta": "fernandoelcatolico73",
+"municipio": "MADRID",
+"numeros": [
+"73"
+],
+"calle": "CL FERNANDO EL CATOLICO",
+"numero": "73",
+"estado": "clara",
+"parcela": "9363602VK3796C",
+"enlazada": true,
+"portales": 1
+},
+"12971705-081a-484f-bfcd-b13b64148e34": {
+"codigo": "DAN-2024-077",
+"carpeta": "aventrevias78",
+"municipio": "MADRID",
+"numeros": [
+"78"
+],
+"calle": "AV ENTREVIAS",
+"numero": "78",
+"estado": "clara",
+"parcela": "3402204VK4730C",
+"enlazada": true,
+"portales": 1
+},
+"cfc07b32-1969-4b3b-b1e7-2f3f6d843178": {
+"codigo": "DAN-2023-295",
+"carpeta": "arte3",
+"municipio": "MADRID",
+"numeros": [
+"3"
+],
+"calle": "CL ARTE",
+"numero": "3",
+"estado": "clara",
+"parcela": "3318227VK4831G",
+"enlazada": true,
+"portales": 1
+},
+"0acce464-d1c9-460a-9847-8820460172db": {
+"codigo": "DAN-2024-004",
+"carpeta": "avfranciscojaviersauquillo34 (FUENLABRADA)",
+"municipio": "FUENLABRADA",
+"destinos": [
+{
+"parcela": "2998102VK3529N",
+"numeros": [
+"34"
+],
+"calle": "AV FCO JAVIER SAUQUILLO"
+}
+],
+"estado": "clara",
+"parcela": "2998102VK3529N",
+"numero": "34",
+"numeros": [
+"34"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 4
+},
+"ce23fbda-52a0-4a7e-b00d-0c428276215e": {
+"codigo": "DAN-2024-010",
+"carpeta": "callao37",
+"municipio": "FUENLABRADA",
+"numeros": [
+"37"
+],
+"calle": "CL CALLAO",
+"numero": "37",
+"estado": "clara",
+"parcela": "3206803VK3630N",
+"enlazada": true,
+"portales": 1
+},
+"70cccb2b-0c84-44cc-bb80-d5882e545a46": {
+"codigo": "DAN-2024-041",
+"carpeta": "sanignacio10",
+"municipio": "LEGANES",
+"numeros": [
+"10"
+],
+"calle": "CL SAN IGNACIO",
+"numero": "10",
+"estado": "clara",
+"parcela": "5550302VK3655S",
+"enlazada": true,
+"portales": 1
+},
+"23ca4554-8610-4e6b-b476-0574c91b5d93": {
+"codigo": "DAN-2024-045",
+"carpeta": "valladolid8",
+"municipio": "MOSTOLES",
+"numeros": [
+"8"
+],
+"calle": "CL VALLADOLID",
+"numero": "8",
+"estado": "clara",
+"parcela": "6837509VK2663N",
+"enlazada": true,
+"portales": 1
+},
+"58e81d9b-d086-4037-b61f-a9a37b2870c3": {
+"codigo": "DAN-2024-050",
+"carpeta": "emiliocastelar4",
+"municipio": "ALCALA DE HENARES",
+"numeros": [
+"4"
+],
+"parcela": "9121601VK6892S",
+"numero": "4",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"ec775867-06b0-4170-95f8-59eb6d1dcf93": {
+"codigo": "DAN-2024-079",
+"carpeta": "alhambra24 - LOCAL",
+"municipio": "MADRID",
+"numeros": [
+"24"
+],
+"parcela": "6828203VK3762H",
+"numero": "24",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"b3898342-5d04-49dc-833d-2a21f2211753": {
+"codigo": "DAN-2024-080",
+"carpeta": "pitagoras2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL PITAGORAS",
+"numero": "2",
+"estado": "clara",
+"parcela": "8566604VK4786F",
+"enlazada": true,
+"portales": 1
+},
+"3179f4ca-9a71-43ea-938e-e3b148a86dad": {
+"codigo": "DAN-2024-085",
+"carpeta": "delacruz9",
+"municipio": "TORREJON DE ARDOZ",
+"numeros": [
+"9"
+],
+"calle": "CL CRUZ",
+"numero": "9",
+"estado": "clara",
+"parcela": "9290701VK5799S",
+"enlazada": true,
+"portales": 1
+},
+"8d85ee18-8606-47f0-b1d1-1114fe628a37": {
+"codigo": "DAN-2024-097",
+"carpeta": "padreclaret16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL PADRE CLARET",
+"numero": "16",
+"estado": "clara",
+"parcela": "3782001VK4738B",
+"enlazada": true,
+"portales": 4
+},
+"480552c5-624f-4631-ae70-84038f399cea": {
+"codigo": "DAN-2024-266",
+"carpeta": "sagradoscorazones14",
+"municipio": "MADRID",
+"numeros": [
+"14"
+],
+"calle": "CL SAGRADOS CORAZONES",
+"numero": "14",
+"estado": "clara",
+"parcela": "7433305VK3773C",
+"enlazada": true,
+"portales": 1
+},
+"30ac7568-1ada-459c-956f-82a58b4dda8d": {
+"codigo": "DAN-2024-152",
+"carpeta": "rodriguezsanpedro13duplicado",
+"municipio": "MADRID",
+"numeros": [
+"13"
+],
+"calle": "CL RODRIGUEZ SAN PEDRO",
+"numero": "13",
+"estado": "dudosa: 2 parcelas en ese numero",
+"parcelas": [
+"9960303VK3796B",
+"9960304VK3796B"
+]
+},
+"9a134a1f-5096-4718-9444-d6f3212609ed": {
+"codigo": "DAN-2024-169",
+"carpeta": "avdrfleming30 (LEGANES)",
+"municipio": "LEGANES",
+"destinos": [
+{
+"parcela": "5242802VK3654S",
+"numeros": [
+"30"
+],
+"calle": "AV DOCTOR FLEMING"
+}
+],
+"estado": "clara",
+"parcela": "5242802VK3654S",
+"numero": "30",
+"numeros": [
+"30"
+],
+"forzada": true,
+"enlazada": true,
+"portales": 1
+},
+"f5a5f007-e897-4b98-ad38-3e4edba5a5f7": {
+"codigo": "DAN-2024-171",
+"carpeta": "antoniopirala9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL ANTONIO PIRALA",
+"numero": "9",
+"estado": "clara",
+"parcela": "4259212VK4745G",
+"enlazada": true,
+"portales": 1
+},
+"1b8abf73-77ec-45ae-9385-d6572fff2cef": {
+"codigo": "DAN-2024-185",
+"carpeta": "avpabloneruda48",
+"municipio": "MADRID",
+"numeros": [
+"48"
+],
+"calle": "AV PABLO NERUDA",
+"numero": "48",
+"estado": "clara",
+"parcela": "5212702VK4751C",
+"enlazada": true,
+"portales": 1
+},
+"3b005d01-b4ff-4539-96b3-22d21114a705": {
+"codigo": "DAN-2024-218",
+"carpeta": "felipecastro9",
+"municipio": "MADRID",
+"numeros": [
+"9"
+],
+"calle": "CL FELIPE CASTRO",
+"numero": "9",
+"estado": "clara",
+"parcela": "0008904VK4700G",
+"enlazada": true,
+"portales": 1
+},
+"8ef050f6-d890-4701-9d85-1e7bfc6fe4c9": {
+"codigo": "DAN-2024-256",
+"carpeta": "andorra91",
+"municipio": "MADRID",
+"numeros": [
+"91"
+],
+"calle": "CL ANDORRA",
+"numero": "91",
+"estado": "clara",
+"parcela": "5492615VK4759D",
+"enlazada": true,
+"portales": 1
+},
+"e7f302ed-da11-4d21-ba92-8873e570dacc": {
+"codigo": "DAN-2024-261",
+"carpeta": "goya53",
+"municipio": "MADRID",
+"numeros": [
+"53"
+],
+"calle": "CL GOYA",
+"numero": "53",
+"estado": "clara",
+"parcela": "2254910VK4725C",
+"enlazada": true,
+"portales": 1
+},
+"5575297d-82c7-4d7a-b9ba-84e4b77a8fd7": {
+"codigo": "DAN-2024-262",
+"carpeta": "calahorra26",
+"municipio": "MADRID",
+"numeros": [
+"26"
+],
+"calle": "CL CALAHORRA",
+"numero": "26",
+"estado": "clara",
+"parcela": "8234802VK4783C",
+"enlazada": true,
+"portales": 1
+},
+"0ad2fad7-63e8-44b7-9878-611f631418c3": {
+"codigo": "DAN-2024-273",
+"carpeta": "avnuestraseñoradevalvanera80",
+"municipio": "MADRID",
+"numeros": [
+"80"
+],
+"parcela": "7616106VK3771F",
+"numero": "80",
+"por_referencia": true,
+"estado": "clara",
+"enlazada": true,
+"portales": 1
+},
+"026780d8-8fa7-46f0-8376-9b734df49a7a": {
+"codigo": "DAN-2024-290",
+"carpeta": "montesdebarbanza5",
+"municipio": "MADRID",
+"numeros": [
+"5"
+],
+"calle": "CL MONTES DE BARBANZA",
+"numero": "5",
+"estado": "clara",
+"parcela": "7698717VK4679H",
+"enlazada": true,
+"portales": 1
+},
+"c4abea55-1f7f-458a-97b2-31e3e53b8b31": {
+"codigo": "DAN-2024-300",
+"carpeta": "hachero16",
+"municipio": "MADRID",
+"numeros": [
+"16"
+],
+"calle": "CL HACHERO",
+"numero": "16",
+"estado": "clara",
+"parcela": "3315308VK4731E",
+"enlazada": true,
+"portales": 1
+},
+"8641b661-af32-4c88-82de-11ad94286049": {
+"codigo": "DAN-2025-437",
+"carpeta": "Extremadura 13",
+"municipio": "FUENLABRADA",
+"numeros": [
+"13"
+],
+"calle": "CL EXTREMADURA",
+"numero": "13",
+"estado": "clara",
+"parcela": "2494601VK3529S",
+"enlazada": true,
+"portales": 1
+},
+"0af2c4f7-081b-4341-a3cb-baa733da700f": {
+"codigo": "DAN-2025-438",
+"carpeta": "Orellana 18",
+"municipio": "LEGANES",
+"numeros": [
+"18"
+],
+"calle": "AV ORELLANA",
+"numero": "18",
+"estado": "clara",
+"parcela": "4442805VK3644S",
+"enlazada": true,
+"portales": 1
+},
+"616e009e-e8c5-47a2-ad93-8ff05de7aa50": {
+"codigo": "DAN-2025-439",
+"carpeta": "Getafe 9",
+"municipio": "LEGANES",
+"numeros": [
+"9"
+],
+"calle": "CL GETAFE",
+"numero": "9",
+"estado": "clara",
+"parcela": "5345207VK3654N",
+"enlazada": true,
+"portales": 1
+},
+"ad1ce834-fb67-4794-84a8-6b9f1f0d0a28": {
+"codigo": "DAN-2025-440",
+"carpeta": "Av. Ferrocarril 17 (AZUQUECA DE HENARES)",
+"estado": "clara",
+"forzada": true,
+"destinos": [
+{
+"parcela": "7907308VK7970N",
+"numeros": [
+"17"
+]
+}
+],
+"parcela": "7907308VK7970N",
+"numero": "17",
+"numeros": [
+"17"
+],
+"enlazada": true,
+"portales": 2
+},
+"89f9198b-0fd5-4298-b0cd-663759a1e939": {
+"codigo": "DAN-2025-441",
+"carpeta": "Cadalso de los Vidrios 2",
+"municipio": "MADRID",
+"numeros": [
+"2"
+],
+"calle": "CL CADALSO DE LOS VIDRIOS",
+"numero": "2",
+"estado": "dudosa: 2 parcelas en ese numero, 2 con viviendas",
+"parcelas": [
+"8816814VK3881F",
+"8816815VK3881F"
+]
+},
+"d5958711-ae68-4cfb-bd3d-647b66eb6f4d": {
+"codigo": "DAN-2025-442",
+"carpeta": "Carrero Juan Ramón 35",
+"municipio": "MADRID",
+"numeros": [
+"35"
+],
+"calle": "CL CARRERO JUAN RAMON",
+"numero": "35",
+"estado": "clara",
+"parcela": "8003401VK3780C",
+"enlazada": true,
+"portales": 1
+},
+"e9f324b9-2524-4ece-8a03-cfc2f006d645": {
+"codigo": "DAN-2025-443",
+"carpeta": "Fuentebella 27",
+"municipio": "PARLA",
+"numeros": [
+"27"
+],
+"calle": "CL FUENTEBELLA",
+"numero": "27",
+"estado": "clara",
+"parcela": "4340101VK3544S",
+"enlazada": true,
+"portales": 1
+},
+"bdcf17b5-5d93-45da-8155-7517245fd6f7": {
+"codigo": "DAN-2025-444",
+"carpeta": "Virgen del Camino 2",
+"municipio": "LEGANES",
+"numeros": [
+"2"
+],
+"calle": "CL VIRGEN DEL CAMINO",
+"numero": "2",
+"estado": "clara",
+"parcela": "4445601VK3644N",
+"enlazada": true,
+"portales": 1
+},
+"35f6037b-8654-47fc-934a-29cdd517f72d": {
+"codigo": "DAN-2025-445",
+"carpeta": "Málaga 8",
+"municipio": "ALCORCON",
+"numeros": [
+"8"
+],
+"calle": "CL MALAGA",
+"numero": "8",
+"estado": "dudosa: Catastro no encuentra ese numero",
+"parcelas": []
+},
+"8c609481-3fbb-4bc8-a738-3f4a0a3cc503": {
+"codigo": "DAN-2026-221",
+"carpeta": "Móstoles 3",
+"municipio": "MORALEJA DE ENMEDIO",
+"numeros": [
+"3"
+],
+"calle": "AV MOSTOLES",
+"numero": "3",
+"estado": "clara",
+"parcela": "6575601VK2567N",
+"enlazada": true,
+"portales": 2
+},
+"e406fad8-341a-4329-a122-7a21dfd02798": {
+"codigo": "ALV-2026-195",
+"carpeta": "Hachero 33",
+"municipio": "MADRID",
+"numeros": [
+"33"
+],
+"calle": "CL HACHERO",
+"numero": "33",
+"estado": "clara",
+"parcela": "3415316VK4731E",
+"enlazada": true,
+"portales": 1
+},
+"b249841b-3559-4fa0-b49f-750ee519639d": {
+"codigo": "DAN-2026-222",
+"carpeta": "Castilla 3 Torre 5",
+"municipio": "AZUQUECA DE HENARES",
+"numeros": [
+"3",
+"5"
+],
+"estado": "dudosa: municipio \"AZUQUECA DE HENARES\" no esta en el callejero"
+},
+"7e00540d-6acb-43d5-b220-9ca8bfcb0dae": {
+"codigo": "DAN-2026-223",
+"carpeta": "San Gerardo 51-53",
+"municipio": "MADRID",
+"numeros": [
+"51",
+"53"
+],
+"calle": "CL SAN GERARDO",
+"numero": "51",
+"estado": "clara",
+"parcela": "8505603VK3880F",
+"enlazada": true,
+"portales": 3
+},
+"81ec9afb-19cf-4aad-93a0-0679bf236cc1": {
+"codigo": "DAN-2026-224",
+"carpeta": "Abejuela 4, Carabanchel",
+"municipio": "MADRID",
+"numeros": [
+"4"
+],
+"calle": "CL ABEJUELA",
+"numero": "4",
+"estado": "clara",
+"parcela": "6816705VK3761F",
+"enlazada": true,
+"portales": 1
+},
+"fb62975c-3ece-42ef-86f2-ca942cd6e77f": {
+"codigo": "DAN-2026-225",
+"carpeta": "Río Segura 4",
+"municipio": "LEGANES",
+"numeros": [
+"4"
+],
+"calle": "CL RIO SEGURA",
+"numero": "4",
+"estado": "clara",
+"parcela": "4852501VK3645S",
+"enlazada": true,
+"portales": 1
+},
+"4b0270cd-8f0f-4a54-bb97-04bbf54b5b59": {
+"codigo": "DAN-2026-226",
+"carpeta": "Av. Albufera 220-222",
+"municipio": "MADRID",
+"numeros": [
+"220",
+"222"
+],
+"calle": "AV ALBUFERA",
+"numero": "220",
+"estado": "clara",
+"parcela": "4915201VK4741F",
+"enlazada": true,
+"portales": 3
+},
+"d4b31e4f-9faf-4035-9500-5702789c6a75": {
+"codigo": "DAN-2026-227",
+"carpeta": "Pablo Neruda 15",
+"municipio": "MADRID",
+"numeros": [
+"15"
+],
+"calle": "AV PABLO NERUDA",
+"numero": "15",
+"estado": "clara",
+"parcela": "5615202VK4751F",
+"enlazada": true,
+"portales": 1
+},
+"2e3fc2a9-c6ca-4728-a4a6-0382ccb8a0cc": {
+"codigo": "DAN-2026-228",
+"carpeta": "Riojanos 23",
+"municipio": "MADRID",
+"numeros": [
+"23"
+],
+"calle": "CL RIOJANOS",
+"numero": "23",
+"estado": "clara",
+"parcela": "5611409VK4751B",
+"enlazada": true,
+"portales": 1
+},
+"e83fe780-7900-4028-80f8-73d5a31d6396": {
+"codigo": "DAN-2026-229",
+"carpeta": "Av. Príncipe de Asturias 98",
+"municipio": "VILLAVICIOSA DE ODON",
+"numeros": [
+"98"
+],
+"calle": "AV PRINCIPE DE ASTURIAS",
+"numero": "98",
+"estado": "clara",
+"parcela": "2984002VK2628S",
+"enlazada": true,
+"portales": 2
+},
+"0d225372-52a3-4f16-a925-e50942f86032": {
+"codigo": "DAN-2026-230",
+"carpeta": "Santa Áurea 17",
+"municipio": "MADRID",
+"numeros": [
+"17"
+],
+"calle": "CL SANTA AUREA",
+"numero": "17",
+"estado": "clara",
+"parcela": "7733610VK3773D",
+"enlazada": true,
+"portales": 1
+},
+"4d1d4569-24b9-4d6c-a683-b08608ed861c": {
+"codigo": "DAN-2026-231",
+"carpeta": "Urb. Las Anclas, calle Galeón",
+"municipio": "PAREJA",
+"estado": "dudosa: la carpeta no trae numero"
+},
+"2927d72a-d448-4fea-aca1-4bbe456904b5": {
+"codigo": "DAN-2026-232",
+"carpeta": "Adelfas 18",
+"municipio": "MADRID",
+"numeros": [
+"18"
+],
+"calle": "CL ADELFAS",
+"numero": "18",
+"estado": "clara",
+"parcela": "3129219VK4732G",
+"enlazada": true,
+"portales": 1
+},
+"e52f4ef1-cb79-4eb9-ad23-1f8ba9a6f5e6": {
+"codigo": "DAN-2026-233",
+"carpeta": "Antonio Salvador 81",
+"municipio": "MADRID",
+"numeros": [
+"81"
+],
+"calle": "CL ANTONIO SALVADOR",
+"numero": "81",
+"estado": "clara",
+"parcela": "0308202VK4700G",
+"enlazada": true,
+"portales": 1
+}
+}
