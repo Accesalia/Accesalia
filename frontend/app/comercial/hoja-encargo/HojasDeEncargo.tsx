@@ -87,11 +87,13 @@ export function HojasDeEncargo({
   datos,
   oppElegida,
   aviso,
+  abrirNueva,
 }: {
   comunidades: OpcionComunidad[];
   datos: DatosHoja | null;
   oppElegida: string | null;
   aviso: string | null;
+  abrirNueva?: boolean;
 }) {
   const router = useRouter();
 
@@ -124,10 +126,22 @@ export function HojasDeEncargo({
         )}
       </>
     );
-  return <ConComunidad datos={datos} oppElegida={oppElegida} selector={selector} />;
+  return <ConComunidad datos={datos} oppElegida={oppElegida} selector={selector} abrirNueva={abrirNueva} />;
 }
 
-function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppElegida: string | null; selector: React.ReactNode }) {
+function ConComunidad({
+  datos,
+  oppElegida,
+  selector,
+  abrirNueva,
+}: {
+  datos: DatosHoja;
+  oppElegida: string | null;
+  selector: React.ReactNode;
+  /** Se llega desde el boton "Hoja de encargo" del area comercial: el
+   *  generador ya abierto, para esa oportunidad (9-oct-2026). */
+  abrirNueva?: boolean;
+}) {
   const router = useRouter();
   const [ocupado, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -235,6 +249,11 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
     });
     setTimeout(() => document.getElementById("generador")?.scrollIntoView({ behavior: "smooth" }), 50);
   };
+  // Desde el boton "Hoja de encargo": el generador, abierto de salida.
+  useEffect(() => {
+    if (abrirNueva && oppId) abrir(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const cerrar = () => {
     if (!confirm("¿Cierras sin generar? Lo que hayas cambiado en esta hoja se pierde.")) return;
     setSt(null);

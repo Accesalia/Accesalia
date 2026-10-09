@@ -73,16 +73,16 @@ export { CANALES };
 
 export type OpcionEntrada = { valor: string; texto: string; pista?: string };
 /** Una oportunidad del buscador, con su comercial: si es de otro, se avisa. */
-export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial: string | null };
+export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial: string | null; comunidadId?: string | null };
 
 /** TODAS las oportunidades abiertas (no solo las suyas: puede ir a ver una de
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
  *  Las personas llevan delante de que lista son: puesto:, persona:, pc:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
   const [ops, puestos, sueltas, comunidad] = await Promise.all([
-    leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null;
+    leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
            comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
-      `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
+      `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
         `&estado=eq.abierta&order=fecha_apertura.desc.nullslast,id.asc`,
     ),
     leerTodo<{ id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null }>(
@@ -104,6 +104,8 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
       pista: [o.codigo, o.comercial?.nombre].filter(Boolean).join(" · ") || undefined,
       comercialId: o.comercial_id,
       comercial: o.comercial?.nombre ?? null,
+      // Para ir a su hoja de encargo, que trabaja por comunidad (9-oct-2026).
+      comunidadId: o.comunidad_id,
     })),
     // Una persona suelta puede ser una docena de Jose Luises: la pista dice de
     // donde es (Monica, 28-sep-2026).

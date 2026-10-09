@@ -15,8 +15,8 @@ export const dynamic = "force-dynamic";
 // selector con buscador. Pueden entrar comercial, secretaria comercial y
 // direccion; un comercial solo ve las comunidades de su cartera.
 
-export default async function PaginaHojas({ searchParams }: { searchParams: Promise<{ comunidad?: string; opp?: string }> }) {
-  const { comunidad, opp } = await searchParams;
+export default async function PaginaHojas({ searchParams }: { searchParams: Promise<{ comunidad?: string; opp?: string; nueva?: string }> }) {
+  const { comunidad, opp, nueva } = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/hoja-encargo" + (comunidad ? `?comunidad=${comunidad}` : ""));
   if (!puedeHacerHojas(yo)) redirect("/comercial");
@@ -36,6 +36,7 @@ export default async function PaginaHojas({ searchParams }: { searchParams: Prom
           datos={datos}
           oppElegida={opp ?? null}
           aviso={comunidad && !datos ? (permitida ? "Esa comunidad no existe." : "Esa comunidad no es de tu cartera.") : null}
+          abrirNueva={nueva === "1"}
         />
       </main>
     </div>
