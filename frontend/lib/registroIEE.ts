@@ -29,6 +29,7 @@
 // ============================================================================
 
 import { enviarCorreo } from "./correo";
+import { deFueraSinAsignar } from "./alertasIEE";
 
 const RAIZ = "https://www.rieecm.es/portal/home/nota_informativa_codigo_iee";
 const ENLACE_PANTALLA =
@@ -267,6 +268,13 @@ async function aQuienSeAvisa(): Promise<QuienReparte[]> {
 /** Cuantas desfavorables siguen sin repartir, de cualquier dia. Es lo que
  *  convierte el aviso en un recordatorio: mientras quede una, vuelve a sonar. */
 async function cuantasSinAsignar(): Promise<number> {
+  // Solo las de fuera: las nuestras no se reparten (9-oct-2026). Si el cotejo
+  // falla, se cae a contarlas todas, que es lo de antes.
+  try {
+    return await deFueraSinAsignar();
+  } catch {
+    /* sigue abajo */
+  }
   const r = await fetch(
     `${URL_BASE}/rest/v1/iee_registrado?select=codigo&estado=eq.nueva&limit=1`,
     { headers: { ...cab, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" },

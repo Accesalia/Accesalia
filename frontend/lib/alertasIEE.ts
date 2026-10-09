@@ -248,6 +248,18 @@ function cotejar(a: AlertaIEE, { comunidades: nuestras, fincas }: LoNuestro): Nu
   return null;
 }
 
+/** LAS DE FUERA SIN ASIGNAR, para el aviso diario del radar (Monica,
+ *  9-oct-2026). Contaba TODAS las "nuevas", tambien las nuestras -que nunca hay
+ *  que repartir-, y el correo decia "336 sin asignar". Cuenta lo mismo que
+ *  aparta la pantalla: fuera las de la misma finca; las de la misma calle, dentro. */
+export async function deFueraSinAsignar(): Promise<number> {
+  const [filas, nuestras] = await Promise.all([
+    porTramos<Fila>(`iee_registrado?select=${CAMPOS}&estado=eq.nueva&order=codigo`),
+    loNuestro(),
+  ]);
+  return filas.map(vestir).filter((a) => cotejar(a, nuestras)?.tipo !== "misma_finca").length;
+}
+
 /** El dia en Madrid, en formato ISO. La fecha del barrido tiene que ser la del
  *  reloj de la oficina, no la del servidor, que esta en otro sitio. */
 export const diaEnMadrid = (d: Date = new Date()): string =>
