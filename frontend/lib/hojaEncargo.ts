@@ -113,6 +113,9 @@ export type Documento = { tipo: "generada" | "firmada"; etiqueta: string; enlace
 export type Hoja = {
   id: string;
   numero: number;
+  /** El codigo de la hoja (HE-2026-0782), el que sirve para seguirla. Vacio
+   *  mientras no se ha generado nunca (9-oct-2026). */
+  codigo: string | null;
   oportunidadId: string | null;
   estado: string;
   /** Que se hace, para el titulo de la fila: "Ascensor", "Subvenciones". */
@@ -190,6 +193,7 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
     leer<{
       id: string;
       oportunidad_id: string | null;
+      numero_hoja: string | null;
       estado: string;
       descripcion: string | null;
       fecha_creacion: string | null;
@@ -201,7 +205,7 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
-      `hojas_encargo?select=id,oportunidad_id,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
+      `hojas_encargo?select=id,oportunidad_id,numero_hoja,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
         `contrata:pagador_contrata_id(nombre),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html,motivo_cambio),` +
         `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
@@ -286,6 +290,7 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       return {
         id: h.id,
         numero: i + 1,
+        codigo: h.numero_hoja,
         oportunidadId: h.oportunidad_id,
         estado: h.estado,
         titulo: tipos.map((t) => t.tipo?.nombre).filter(Boolean).join(" + ") || (h.descripcion ?? "").trim() || "Hoja de encargo",

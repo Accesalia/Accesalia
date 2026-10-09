@@ -4,6 +4,7 @@ import { BarraSuperior } from "../components/BarraSuperior";
 import { Volver } from "../components/Volver";
 import { misPendientes, type ItemPendiente } from "../../lib/misPendientes";
 import { quienSoy } from "../../lib/sesion";
+import { accionLlamadaHecha } from "./acciones";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const fecha = (f: string | null) => (f ? f.split("-").reverse().join("/") : "");
 
-function Grupo({ titulo, pie, items }: { titulo: string; pie: string; items: ItemPendiente[] }) {
+function Grupo({ titulo, pie, items, hecha }: { titulo: string; pie: string; items: ItemPendiente[]; hecha?: boolean }) {
   if (!items.length) return null;
   return (
     <section className="mt-6">
@@ -43,6 +44,17 @@ function Grupo({ titulo, pie, items }: { titulo: string; pie: string; items: Ite
                 <Link href={it.href} className="block transition hover:bg-lima-soft/50">
                   {cuerpo}
                 </Link>
+              ) : hecha ? (
+                // LLAMADAS: "Hecha" la saca de la lista cuando lo que se derivaba
+                // de ella ya esta gestionado (Alejandra, 9-oct-2026).
+                <div className="flex items-center">
+                  <div className="min-w-0 flex-1">{cuerpo}</div>
+                  <form action={accionLlamadaHecha.bind(null, it.id)} className="pr-4">
+                    <button className="rounded-lg border border-lima bg-lima px-3 py-1 text-[13px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white">
+                      Hecha
+                    </button>
+                  </form>
+                </div>
               ) : (
                 cuerpo
               )}
@@ -82,7 +94,12 @@ export default async function Pendientes() {
           pie="Sin dirección, contacto o siguiente paso no se puede generar viabilidad ni hoja"
           items={opps}
         />
-        <Grupo titulo="Llamadas por colocar" pie="La pantalla de colocarlas está por montar: de momento, para leerlas" items={llamadas} />
+        <Grupo
+          titulo="Llamadas por colocar"
+          pie="Cuando lo que se derivaba de ella esté gestionado, márcala como hecha"
+          items={llamadas}
+          hecha
+        />
       </main>
     </div>
   );

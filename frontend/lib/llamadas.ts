@@ -322,9 +322,12 @@ export async function listarPostits(
   yo: string,
   opciones: { todas?: boolean; soloAbiertas?: boolean } = {},
 ): Promise<Postit[]> {
+  // LA LISTA VISIBLE (Monica, 9-oct-2026): solo las GUARDADAS que aun no estan
+  // hechas. Ni borradores, ni descartadas, ni hechas, tampoco para direccion.
+  // Los borradores vuelven solos como postits (soloAbiertas), no en la lista.
   const filtros = [
-    opciones.todas ? "" : `apuntada_por=eq.${yo}&estado=neq.descartada`,
-    opciones.soloAbiertas ? "estado=eq.abierta" : "",
+    opciones.todas ? "" : `apuntada_por=eq.${yo}`,
+    opciones.soloAbiertas ? "estado=eq.abierta" : "estado=eq.por_colocar",
   ].filter(Boolean);
   const r = await fetch(
     `${URL_BASE}/rest/v1/llamadas?select=*,equipo(nombre,apellidos)&order=recibida_en.desc&limit=80` +
@@ -371,4 +374,16 @@ export async function listarPostits(
       mia: f.apuntada_por === yo,
     };
   });
+}
+
+/** MARCAR UNA LLAMADA COMO HECHA (Monica y Alejandra, 9-oct-2026): lo que se
+ *  derivaba de ella ya esta gestionado, y sale de la lista de pendientes. No se
+ *  borra: queda con quien y cuando. Solo las guardadas pueden pasar a hechas. */
+export async function marcarHecha(id: string, quien: string): Promise<void> {
+  const r = await fetch(`${URL_BASE}/rest/v1/llamadas?id=eq.${encodeURIComponent(id)}&estado=eq.por_colocar`, {
+    method: "PATCH",
+    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ estado: "hecha", hecha_en: new Date().toISOString(), hecha_por: quien }),
+  });
+  if (!r.ok) throw new Error(`Supabase llamadas ${r.status}: ${await r.text()}`);
 }

@@ -212,8 +212,8 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
       // Si la ultima es un borrador, se sigue ESE: no sale una version mas.
       titulo: h
         ? h.version?.borrador
-          ? `Seguir el borrador · hoja ${h.numero} · ${h.titulo} (versión ${h.version.numero})`
-          : `Modificar hoja ${h.numero} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})`
+          ? `Seguir el borrador · hoja ${h.numero}${h.codigo ? ` (${h.codigo})` : ""} · ${h.titulo} (versión ${h.version.numero})`
+          : `Modificar hoja ${h.numero}${h.codigo ? ` (${h.codigo})` : ""} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})`
         : "Nueva hoja de encargo",
       oppId: oppDeHoja,
       aQuien: h?.pagadorTipo === "contrata" && h.contrataId ? h.contrataId : "comunidad",
@@ -317,7 +317,11 @@ function ConComunidad({ datos, oppElegida, selector }: { datos: DatosHoja; oppEl
               <div key={h.id} className={"mb-2 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-xl border px-3 py-2.5 " + (abierta ? "border-lima bg-lima-soft" : "border-[#e4e4e4]")}>
                 <div>
                   <span className="font-bold">
-                    Hoja {h.numero} · {h.titulo}
+                    Hoja {h.numero}
+                    {/* El codigo, para seguirla (9-oct-2026). */}
+                    {h.codigo && <span className="ml-1.5 rounded-md bg-carbon/[0.06] px-1.5 py-px font-mono text-[12px] text-carbon/80">{h.codigo}</span>}
+                    {" · "}
+                    {h.titulo}
                   </span>{" "}
                   <span className={"rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] " + e.clase}>{e.texto}</span>
                   {enBorrador && h.estado !== "borrador" && (

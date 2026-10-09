@@ -129,7 +129,7 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
       clase: "llamada",
       titulo: [l.quien_texto, l.donde_texto].filter(Boolean).join(" · ") || "Llamada",
       detalle: [l.area, (l.que_dicen ?? "").slice(0, 140)].filter(Boolean).join(" · "),
-      falta: "colocarla",
+      falta: "gestionarla",
       fecha: l.recibida_en.slice(0, 10),
       href: null,
     })),
