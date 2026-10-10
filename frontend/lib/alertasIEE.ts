@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 // ============================================================================
 // EL RADAR: LO QUE SE VE Y LO QUE SE MIDE (Monica, 29-sep-2026)
@@ -213,9 +214,9 @@ type LoNuestro = {
  *  que tiene estan tambien en sus portales. Del portal se saca el nombre que se
  *  ensena: su comunidad si la tiene puesta; si no, la de su opp; y si tampoco,
  *  la direccion del portal. */
-async function loNuestro(): Promise<LoNuestro> {
+async function calcularLoNuestro(): Promise<{ comunidades: ComunidadNuestra[]; fincas: [string, string][] }> {
   const fincas = new Map<string, string>();
-  try {
+  {
     const [comunidades, accesos] = await Promise.all([
       porTramos<ComunidadNuestra & { id: string }>("comunidades?select=id,nombre&order=id"),
       porTramos<{
@@ -242,9 +243,29 @@ async function loNuestro(): Promise<LoNuestro> {
       if (comunidad) fincas.set(ref, comunidad);
       else if (!fincas.has(ref)) fincas.set(ref, [a.tipo_via, a.nombre_via, a.numero, a.municipio].filter(Boolean).join(" "));
     }
-    return { comunidades, fincas };
+    // Solo lo que hace falta para cotejar: cabe en la cache y viaja poco.
+    return { comunidades: comunidades.map((c) => ({ nombre: c.nombre, referencia_catastral: null })), fincas: [...fincas] };
+  }
+}
+
+/** EN CACHE 5 MINUTOS (Monica, 10-oct-2026): que comunidades y portales son
+ *  nuestros cambia poco, y releerlo -2.786 comunidades y 3.603 portales- en cada
+ *  clic del radar era lo que lo hacia lento. Lo peor que pasa: un portal recien
+ *  dado de alta tarda hasta cinco minutos en contar como nuestro. */
+const loNuestroEnCache = unstable_cache(calcularLoNuestro, ["radar-lo-nuestro-v1"], { revalidate: 300 });
+
+async function loNuestro(): Promise<LoNuestro> {
+  try {
+    let d: Awaited<ReturnType<typeof calcularLoNuestro>>;
+    try {
+      d = await loNuestroEnCache();
+    } catch {
+      // Fuera de Next (los scripts) no hay cache: se calcula sin ella.
+      d = await calcularLoNuestro();
+    }
+    return { comunidades: d.comunidades, fincas: new Map(d.fincas) };
   } catch {
-    return { comunidades: [], fincas };
+    return { comunidades: [], fincas: new Map() };
   }
 }
 
@@ -638,6 +659,54 @@ export type CarteraEnMunicipio = {
  *  probabilidad de que el administrador que lleve la comunidad sea YA SUYO".
  *  No decide nada: "no para condicionar, sino para tener mas info". El
  *  municipio de la opp es el de su comunidad; las que no tienen no cuentan aqui. */
+/** TODOS LOS MUNICIPIOS DE UNA VEZ (Monica, 10-oct-2026), para que cambiar de
+ *  municipio en el radar sea instantaneo: se calcula una vez y el navegador
+ *  elige. La clave es el municipio sin tildes y en mayusculas, como
+ *  `municipioLimpio`. En cache 5 minutos, como lo nuestro. */
+async function calcularCarteraPorMunicipio(): Promise<Record<string, CarteraEnMunicipio[]>> {
+  type Fila = { estado: string; comercial_id: string | null; comunidades: { municipio: string | null } | null };
+  const filas: Fila[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?select=estado,comercial_id,comunidades(municipio)&order=id`, {
+      headers: { ...cab, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
+    const tramo = (await r.json()) as Fila[];
+    filas.push(...tramo);
+    if (tramo.length < 1000) break;
+  }
+  const viva = (estado: string) => estado === "abierta" || estado === "pausada";
+  const comerciales = await comercialesActivos();
+  const municipios = new Set(filas.map((f) => f.comunidades?.municipio).filter((m): m is string => !!m).map(mismoMunicipio));
+  const salida: Record<string, CarteraEnMunicipio[]> = {};
+  for (const m of municipios) {
+    salida[m] = comerciales.map((c) => {
+      const suyas = filas.filter((f) => f.comercial_id === c.id);
+      const enEl = suyas.filter((f) => f.comunidades?.municipio && mismoMunicipio(f.comunidades.municipio) === m);
+      return {
+        comercialId: c.id,
+        nombre: c.nombre,
+        abiertasAqui: enEl.filter((f) => viva(f.estado)).length,
+        cerradasAqui: enEl.filter((f) => f.estado === "cerrada").length,
+        abiertasTotal: suyas.filter((f) => viva(f.estado)).length,
+        cerradasTotal: suyas.filter((f) => f.estado === "cerrada").length,
+      };
+    });
+  }
+  return salida;
+}
+
+const carteraEnCache = unstable_cache(calcularCarteraPorMunicipio, ["radar-cartera-municipio-v1"], { revalidate: 300 });
+
+export async function carteraPorMunicipio(): Promise<Record<string, CarteraEnMunicipio[]>> {
+  try {
+    return await carteraEnCache();
+  } catch {
+    return await calcularCarteraPorMunicipio();
+  }
+}
+
 export async function carteraEnMunicipio(municipio: string): Promise<CarteraEnMunicipio[]> {
   type Fila = { estado: string; comercial_id: string | null; comunidades: { municipio: string | null } | null };
   const filas: Fila[] = [];

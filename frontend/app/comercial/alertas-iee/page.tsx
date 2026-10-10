@@ -4,7 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import {
   agregadoPorMes,
-  carteraEnMunicipio,
+  carteraPorMunicipio,
   comercialesActivos,
   diasParaAbrirOportunidad,
   grado,
@@ -15,7 +15,7 @@ import {
   repartidas,
 } from "../../../lib/alertasIEE";
 import { buzonListo } from "../../../lib/correo";
-import { Asignador, Descartar, Recuperar, VolverAlMonton } from "./Piezas";
+import { ListaPendientes, type DiaPendiente } from "./ListaPendientes";
 
 export const dynamic = "force-dynamic";
 
@@ -48,19 +48,6 @@ export const dynamic = "force-dynamic";
 
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 const ROTULO = "text-[11px] font-bold uppercase tracking-wider text-carbon/45";
-const MUNI =
-  "rounded-full border border-black/10 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/60 transition hover:text-carbon";
-const MUNI_ACTIVO = "rounded-full border border-[#104269] bg-[#104269] px-3 py-1 text-[12px] font-semibold text-white";
-
-const DIA_LARGO = new Intl.DateTimeFormat("es-ES", {
-  weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid",
-});
-
-function comoSeDice(iso: string): string {
-  const [a, m, d] = iso.split("-").map(Number);
-  return DIA_LARGO.format(new Date(Date.UTC(a, m - 1, d, 12)));
-}
-
 const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().join("/") : "—");
 
 export default async function AlertasIEE({
@@ -80,64 +67,39 @@ export default async function AlertasIEE({
   const verNuestras = nuestras === "1";
   const verDescartadas = descartadas === "1";
 
-  const [todos, comerciales, lista, meses, plazo] = await Promise.all([
+  const [todos, comerciales, lista, meses, plazo, cartera] = await Promise.all([
     pendientesPorDia(true),
     comercialesActivos(),
     repartidas(filtro),
     agregadoPorMes(),
     diasParaAbrirOportunidad(),
+    carteraPorMunicipio(),
   ]);
 
-  // SOLO LAS DE FUERA (Monica, 9-oct-2026): "la pantalla deberia mostrar SOLO
-  // las que no son nuestras. Como mucho, un filtro arriba de 'mostrar las
-  // nuestras'". Las de la misma finca se apartan; las de la misma calle se
-  // quedan, porque son de fuera y son el mejor argumento para llamar.
-  const esNuestra = (a: (typeof todos)[number]["alertas"][number]) => a.nuestra?.tipo === "misma_finca";
-  // LAS DESCARTADAS (Monica, 10-oct-2026): salen de la lista, pero se pueden
-  // revisar: "se pueden revisar mas adelante, pero salen de la pantalla de
-  // tareas pendientes".
-  const esDescartada = (a: (typeof todos)[number]["alertas"][number]) => a.estado === "descartada";
-  const cuantasNuestras = todos.flatMap((d) => d.alertas).filter(esNuestra).length;
-  const cuantasDescartadas = todos.flatMap((d) => d.alertas).filter((a) => esDescartada(a) && !esNuestra(a)).length;
-  // En pendientes no salen los dias que se quedan vacios al apartar las nuestras
-  // y las descartadas: "ese dia no habia nada" seria falso (Monica, 10-oct-2026).
-  const sinFiltrar = todos
-    .map((d) => ({
-      ...d,
-      alertas: d.alertas.filter((a) => (verNuestras || !esNuestra(a)) && (verDescartadas || !esDescartada(a))),
-    }))
-    .filter((d) => d.alertas.length > 0);
-  // POR MUNICIPIO (Monica, 10-oct-2026): ver juntas las de un mismo sitio para
-  // repartir con cabeza. Se sigue asignando una a una. Filtrando, los dias sin
-  // ninguna de ese municipio no salen: "ese dia no habia nada" seria mentira.
-  const cuantasPorMunicipio = new Map<string, number>();
-  for (const a of sinFiltrar.flatMap((d) => d.alertas)) {
-    const m = municipioLimpio(a.municipio);
-    if (m) cuantasPorMunicipio.set(m, (cuantasPorMunicipio.get(m) ?? 0) + 1);
-  }
-  const municipios = Array.from(cuantasPorMunicipio).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
-  // SI EN ESE MUNICIPIO YA NO QUEDA NADA, A TODOS (Monica, 10-oct-2026): al
-  // asignar o descartar la ultima de un municipio, la pantalla se quedaba en el,
-  // vacia, y parecia que habian desaparecido todas.
-  const municipio = municipioPedido && cuantasPorMunicipio.has(municipioPedido) ? municipioPedido : undefined;
-  const cartera = municipio ? await carteraEnMunicipio(municipio) : [];
-  const dias = municipio
-    ? sinFiltrar
-        .map((d) => ({ ...d, alertas: d.alertas.filter((a) => municipioLimpio(a.municipio) === municipio) }))
-        .filter((d) => d.alertas.length > 0)
-    : sinFiltrar;
-  // `null` = todos los municipios. No vale `undefined`: con undefined JavaScript
-  // pone el valor por defecto -el municipio elegido- y "Todos los municipios" te
-  // dejaba donde estabas (10-oct-2026).
-  const enlace = (ver: boolean, verD: boolean = verDescartadas, muni: string | null = municipio ?? null) => {
-    const q = new URLSearchParams();
-    if (filtro) q.set("comercial", filtro);
-    if (ver) q.set("nuestras", "1");
-    if (verD) q.set("descartadas", "1");
-    if (muni) q.set("municipio", muni);
-    const s = q.toString();
-    return `/comercial/alertas-iee${s ? `?${s}` : ""}`;
-  };
+  // LO JUSTO PARA PINTAR CADA FILA (10-oct-2026): la lista se filtra en el
+  // navegador, asi que viaja entera, pero sin la nota del IEE en bruto.
+  const diasLigeros: DiaPendiente[] = todos.map((d) => ({
+    dia: d.dia,
+    alertas: d.alertas.map((a) => {
+      const g = grado(a)!;
+      return {
+        codigo: a.codigo,
+        direccion: a.direccion,
+        municipio: municipioLimpio(a.municipio),
+        municipioTexto: a.municipio ? a.municipio.replace(/\s*\(MADRID\)\s*$/i, "").trim() : null,
+        nuestra: a.nuestra,
+        estado: a.estado,
+        motivo: porQue[g],
+        buena: g <= 2,
+        descartadaPor: a.descartadaPor,
+        motivoDescarte: a.motivoDescarte,
+      };
+    }),
+  }));
+  // Solo los municipios que salen en la lista: el resto no hace falta mandarlo.
+  const enLaLista = new Set(diasLigeros.flatMap((d) => d.alertas.map((a) => a.municipio)).filter((m): m is string => !!m));
+  const carteraQueHace = Object.fromEntries(Object.entries(cartera).filter(([m]) => enLaLista.has(m)));
+
   const conOpp = lista.filter((a) => a.oportunidadId);
   const sinOpp = lista.filter((a) => !a.oportunidadId);
   const vistaAsignadas = (comercial: string | undefined = filtro, conO: boolean = verConOpp) => {
@@ -148,12 +110,11 @@ export default async function AlertasIEE({
   };
   const BOTON_VISTA =
     "rounded-full border border-[#104269] bg-white px-3.5 py-1.5 text-[12px] font-bold text-[#104269] transition hover:bg-[#104269] hover:text-white";
-  const bonito = (m: string) => m.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()).replace(/ (De|Del|La|Las|Los|El|Y) /g, (x) => x.toLowerCase());
 
   const hoy = diaEnMadrid();
   // Las que ya son nuestras no cuentan como trabajo pendiente: no hay nada que
   // repartir, ya estan dentro.
-  const sinAsignar = dias
+  const sinAsignar = todos
     .flatMap((d) => d.alertas)
     .filter((a) => a.estado === "nueva" && a.nuestra?.tipo !== "misma_finca").length;
   const sinCorreo = comerciales.filter((c) => !c.correo).map((c) => c.nombre);
@@ -233,219 +194,13 @@ export default async function AlertasIEE({
             el enlace. Aqui solo hace falta decidir a quien se le pasa y ver
             quien no ha hecho nada. */}
         {!verAsignadas && (
-        <section className="mt-6">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 className={ROTULO}>
-              Pendientes de asignar{verNuestras ? " · con las nuestras" : " · solo las de fuera"}
-            </h2>
-            <div className="flex flex-wrap items-center gap-2">
-            {cuantasDescartadas > 0 && (
-              <Link
-                href={enlace(verNuestras, !verDescartadas)}
-                scroll={false}
-                className="rounded-full border border-carbon/25 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/70 transition hover:border-carbon/50"
-              >
-                {verDescartadas ? "Ocultar las descartadas" : `Mostrar las descartadas (${cuantasDescartadas})`}
-              </Link>
-            )}
-            {cuantasNuestras > 0 && (
-              <Link
-                href={enlace(!verNuestras)}
-                scroll={false}
-                className="rounded-full border border-carbon/25 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/70 transition hover:border-carbon/50"
-              >
-                {verNuestras ? "Ocultar las nuestras" : `Mostrar las nuestras (${cuantasNuestras})`}
-              </Link>
-            )}
-            </div>
-          </div>
-
-          {municipios.length > 1 && (
-            <div className="mb-2.5 flex flex-wrap gap-1.5">
-              <Link href={enlace(verNuestras, verDescartadas, null)} scroll={false} className={municipio ? MUNI : MUNI_ACTIVO}>
-                Todos los municipios
-              </Link>
-              {municipios.map(([m, n]) => (
-                <Link key={m} href={enlace(verNuestras, verDescartadas, m)} scroll={false} className={municipio === m ? MUNI_ACTIVO : MUNI}>
-                  {bonito(m)} <span className="opacity-60">{n}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* QUIEN TIENE QUE AHI (Monica, 10-oct-2026): contexto para repartir,
-              "no para condicionar". Al mismo porque esta cerca, o a otro para
-              no tener todos los huevos en la misma cesta: eso lo decide quien
-              reparte. Abiertas y cerradas por separado. */}
-          {municipio && cartera.length > 0 && (
-            <div className={CAJA + " mb-3 overflow-hidden"}>
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
-                    <th className="px-4 py-2 font-bold">Comercial</th>
-                    <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en {bonito(municipio)}</th>
-                    <th className="px-3 py-2 text-right font-bold">Cerradas en {bonito(municipio)}</th>
-                    <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en total</th>
-                    <th className="px-4 py-2 text-right font-bold">Cerradas en total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cartera.map((c) => (
-                    <tr key={c.comercialId} className="border-b border-black/5 last:border-b-0 tabular-nums">
-                      <td className="px-4 py-1.5 font-bold text-carbon">{c.nombre}</td>
-                      <td className={"px-3 py-1.5 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-carbon/35")}>{c.abiertasAqui}</td>
-                      <td className={"px-3 py-1.5 text-right " + (c.cerradasAqui ? "font-semibold text-carbon/70" : "text-carbon/35")}>{c.cerradasAqui}</td>
-                      <td className="px-3 py-1.5 text-right text-carbon/60">{c.abiertasTotal}</td>
-                      <td className="px-4 py-1.5 text-right text-carbon/60">{c.cerradasTotal}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className={CAJA + " overflow-hidden"}>
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
-                  <th className="px-4 py-2 font-bold">Dirección</th>
-                  <th className="px-3 py-2 font-bold">Por qué está aquí</th>
-                  <th className="px-3 py-2 font-bold">El informe</th>
-                  <th className="px-3 py-2 font-bold">Comercial</th>
-                </tr>
-              </thead>
-
-              {dias.length === 0 && (
-                <tbody>
-                  <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-[13px] text-carbon/50">
-                      No queda ninguna por asignar{municipio ? ` en ${bonito(municipio)}` : ""}. Todo repartido.
-                    </td>
-                  </tr>
-                </tbody>
-              )}
-              {dias.map((d) => (
-                <tbody key={d.dia}>
-                  <tr className="border-y border-black/5 bg-hueso/60">
-                    <td colSpan={4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
-                      {d.dia === hoy ? "Hoy · " : ""}
-                      {comoSeDice(d.dia)}
-                    </td>
-                  </tr>
-
-                  {d.alertas.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
-                        — {d.dia === hoy ? "hoy" : "ese día"} no había nada —
-                      </td>
-                    </tr>
-                  ) : (
-                    d.alertas.map((a) => {
-                      return (
-                        <tr key={a.codigo} className="border-b border-black/5">
-                          <td className="px-4 py-2">
-                            <div className="font-bold text-carbon">
-                              {a.direccion ?? "Sin dirección"}
-                              {/* EL MUNICIPIO (Monica, 10-oct-2026): sin el, "Principe de
-                                  Vergara 48" no se sabe donde cae. El registro lo escribe
-                                  con la provincia detras -"FUENLABRADA (MADRID)"-, que
-                                  aqui sobra. */}
-                              {a.municipio && (
-                                <span className="font-semibold text-carbon/60">
-                                  {" · "}
-                                  {a.municipio.replace(/\s*\(MADRID\)\s*$/i, "").trim()}
-                                </span>
-                              )}
-                            </div>
-                            {/* Las dos respuestas del cotejo, y dicen cosas
-                                opuestas: la misma finca es un cliente que ya
-                                tenemos; la misma calle es el mejor argumento
-                                que hay para llamar. */}
-                            {a.nuestra && (
-                              <div
-                                className={
-                                  "mt-0.5 text-[11px] " +
-                                  (a.nuestra.tipo === "misma_finca"
-                                    ? "text-carbon/45"
-                                    : "text-lima-dark")
-                                }
-                              >
-                                {a.nuestra.tipo === "misma_finca"
-                                  ? `Ya la tenemos: ${a.nuestra.comunidad}`
-                                  : `Misma calle que ${a.nuestra.comunidad}`}
-                              </div>
-                            )}
-                          </td>
-                          {/* POR QUE ESTA AQUI. La tabla tenia 4 columnas por
-                              encargo suyo -"sin mas complejidad"-, y esta quinta
-                              entra porque ella lo abrio al cambiar el criterio:
-                              "el criterio cambia, porque los datos que se
-                              muestran tambien. Demos la info que necesita".
-                              Y hace falta: con dos motivos distintos, quien
-                              reparte no puede saber cual es cada uno sin abrir
-                              el informe. Las dos primeras en negro, que son las
-                              buenas; las demas en gris. */}
-                          <td className="px-3 py-2">
-                            <span
-                              className={
-                                "text-[12px] " +
-                                (grado(a)! <= 2 ? "font-semibold text-carbon/80" : "text-carbon/45")
-                              }
-                            >
-                              {porQue[grado(a)!]}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2">
-                            <Link
-                              href={`/comercial/alertas-iee/${a.codigo}`}
-                              className="font-semibold text-[#2B6CB0] hover:underline"
-                            >
-                              Ver el IEE
-                            </Link>
-                          </td>
-                          <td className="px-3 py-2">
-                            {/* SI YA ES NUESTRA, NO SE ASIGNA (Monica): "que las
-                                que salgan en la lista a asignar no sean de las
-                                de nuestra bd". No se le regala a un comercial
-                                un cliente que ya tenemos. Pero NO se esconde:
-                                una fila que desaparece no se puede repescar, y
-                                ademas asi se ve que el cotejo funciona. */}
-                            {a.nuestra?.tipo === "misma_finca" && !a.asignadaA ? (
-                              <span className="text-[12px] text-carbon/45">
-                                Ya es nuestra
-                              </span>
-                            ) : a.asignadaA ? (
-                              <span className="flex items-center gap-2 text-[12px] text-carbon/60">
-                                <b className="text-[13px] text-carbon">{a.comercial}</b>
-                                {a.asignadaEmailFallo ? (
-                                  <span className="text-amber-700">· el correo no salió</span>
-                                ) : null}
-                                <VolverAlMonton codigo={a.codigo} />
-                              </span>
-                            ) : a.estado === "descartada" ? (
-                              <span className="flex flex-wrap items-center gap-x-2 text-[12px] text-carbon/50">
-                                <span>
-                                  Descartada{a.descartadaPor ? ` por ${a.descartadaPor}` : ""}
-                                  {a.motivoDescarte ? ` · ${a.motivoDescarte}` : ""}
-                                </span>
-                                <Recuperar codigo={a.codigo} />
-                              </span>
-                            ) : (
-                              <span className="flex flex-wrap items-center gap-2">
-                                <Asignador codigo={a.codigo} comerciales={comerciales} />
-                                <Descartar codigo={a.codigo} />
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              ))}
-            </table>
-          </div>
-        </section>
+          <ListaPendientes
+            dias={diasLigeros}
+            comerciales={comerciales}
+            cartera={carteraQueHace}
+            hoy={hoy}
+            inicial={{ municipio: municipioPedido ?? null, nuestras: verNuestras, descartadas: verDescartadas }}
+          />
         )}
 
         {/* ================== QUE PASO CON LAS YA ASIGNADAS ==================
