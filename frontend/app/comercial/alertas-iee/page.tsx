@@ -244,9 +244,9 @@ export default async function AlertasIEE({
                 <thead>
                   <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
                     <th className="px-4 py-2 font-bold">Comercial</th>
-                    <th className="px-3 py-2 text-right font-bold">Abiertas en {bonito(municipio)}</th>
+                    <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en {bonito(municipio)}</th>
                     <th className="px-3 py-2 text-right font-bold">Cerradas en {bonito(municipio)}</th>
-                    <th className="px-3 py-2 text-right font-bold">Abiertas en total</th>
+                    <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en total</th>
                     <th className="px-4 py-2 text-right font-bold">Cerradas en total</th>
                   </tr>
                 </thead>

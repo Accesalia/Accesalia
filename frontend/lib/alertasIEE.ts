@@ -626,15 +626,18 @@ export async function carteraEnMunicipio(municipio: string): Promise<CarteraEnMu
     if (tramo.length < 1000) break;
   }
   const aqui = mismoMunicipio(municipio);
+  // LAS PAUSADAS CUENTAN COMO ABIERTAS (Monica, 10-oct-2026): "lo que cuenta es
+  // el admin". Una pausada sigue siendo una relacion viva con su administrador.
+  const viva = (estado: string) => estado === "abierta" || estado === "pausada";
   return (await comercialesActivos()).map((c) => {
     const suyas = filas.filter((f) => f.comercial_id === c.id);
     const enEl = suyas.filter((f) => f.comunidades?.municipio && mismoMunicipio(f.comunidades.municipio) === aqui);
     return {
       comercialId: c.id,
       nombre: c.nombre,
-      abiertasAqui: enEl.filter((f) => f.estado === "abierta").length,
+      abiertasAqui: enEl.filter((f) => viva(f.estado)).length,
       cerradasAqui: enEl.filter((f) => f.estado === "cerrada").length,
-      abiertasTotal: suyas.filter((f) => f.estado === "abierta").length,
+      abiertasTotal: suyas.filter((f) => viva(f.estado)).length,
       cerradasTotal: suyas.filter((f) => f.estado === "cerrada").length,
     };
   });
