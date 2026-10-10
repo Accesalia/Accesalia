@@ -386,7 +386,7 @@ export type ComercialAlQueAsignar = { id: string; nombre: string; correo: string
  *  PUEDE ESCRIBIR, y eso hay que decirlo antes de asignar, no despues. */
 export async function comercialesActivos(): Promise<ComercialAlQueAsignar[]> {
   const filas = await leer<{ id: string; nombre: string; equipo: { email: string | null } | null }>(
-    "comerciales?select=id,nombre,equipo(email)&activo=is.true&order=nombre",
+    "comerciales?select=id,nombre,equipo:equipo!comerciales_equipo_id_fkey(email)&activo=is.true&order=nombre",
   );
   return filas.map((f) => ({ id: f.id, nombre: f.nombre, correo: f.equipo?.email ?? null }));
 }

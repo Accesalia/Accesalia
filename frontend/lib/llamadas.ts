@@ -330,7 +330,7 @@ export async function listarPostits(
     opciones.soloAbiertas ? "estado=eq.abierta" : "estado=eq.por_colocar",
   ].filter(Boolean);
   const r = await fetch(
-    `${URL_BASE}/rest/v1/llamadas?select=*,equipo(nombre,apellidos)&order=recibida_en.desc&limit=80` +
+    `${URL_BASE}/rest/v1/llamadas?select=*,equipo:equipo!llamadas_apuntada_por_fkey(nombre,apellidos)&order=recibida_en.desc&limit=80` +
       filtros.map((f) => `&${f}`).join(""),
     { headers: CAB, cache: "no-store" },
   );
