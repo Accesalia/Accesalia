@@ -35,6 +35,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import openpyxl  # noqa: E402
 
 DROPBOX = r"C:\accesalia Dropbox\D SM\Ascensores y rehabilitaciones"
+# Las que ella ha dicho que no entran (10-oct-2026), con el porque.
+DESCARTADAS = {
+    "virgendelafuencisla8": "antigua (2022), su presupuesto es de 2019: descartada por Mónica",
+    "Andarrios9": "de un particular (Nicolás Mediavilla): fuera por decisión de Mónica",
+}
 MESES = {m: i for i, m in enumerate(
     ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO",
      "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"], 1)}
@@ -281,37 +286,66 @@ def leer_presupuesto(ruta):
 
 
 # ------------------------------------------------------------- el enlace
-def enlazar(base, campos, tipo_obra):
+def _calle_numero(campos):
+    """'PONTEVEDRA 1' de la hoja, sin tipo de via ni articulos, para desempatar."""
+    calle = llano(campo(campos, "PROY_Dirección_Calle") or "")
+    calle = re.sub(r"^(DE LA|DE LOS|DE LAS|DEL|DE|LA|EL|LOS|LAS)\s+", "", calle)
+    num = str(campo(campos, "PROY_Dirección_Nº") or "").strip()
+    return calle, num
+
+
+def _carpeta(ruta_obra):
+    """El nombre de la carpeta de la direccion (la de debajo del municipio)."""
+    partes = [p for p in ruta_obra.replace("\\", "/").split("/") if p]
+    for p in reversed(partes):
+        if not re.match(r"^\d\s", p):  # "1 SATE", "1 Cambio de..." son subproyectos
+            return p
+    return partes[-1]
+
+
+def enlazar(base, campos, tipo_obra, ruta_obra):
+    """Dos caminos. 1) La referencia catastral de la hoja -> portales ->
+    oportunidad; si la finca tiene varias (un portal por oportunidad), desempata
+    la direccion de la hoja. 2) Las oportunidades que vienen de la clon guardan
+    el nombre de la carpeta de Dropbox en comunidad_provisional ("carpeta
+    (MUNICIPIO)"): Martin Vegue 22 no tenia portales y se encuentra asi."""
+    motivo = "sin referencia catastral en la hoja"
     ref = campo(campos, "PROY_Referencia_Catastral")
-    if not ref:
-        return None, "sin referencia catastral en la hoja"
-    ref = re.sub(r"\s", "", str(ref)).upper()[:14]
-    accesos = base.leer("accesos?select=id&ref_catastral=like.%s*" % ref)
-    if not accesos:
-        return None, "refcat %s: ningún portal" % ref
-    ids = ",".join(a["id"] for a in accesos)
-    rel = base.leer("relacion_oportunidad_accesos?select=opp_id&hasta=is.null&acceso_id=in.(%s)" % ids)
-    oids = sorted({r["opp_id"] for r in rel})
-    unicas = {}
-    if oids:
-        lista = ",".join(oids)
-        claves = {t["id"]: t["clave"] for t in base.leer("tipos_proyecto?select=id,clave")}
-        tipos = base.leer("oportunidad_tipos?select=oportunidad_id,tipo_id&oportunidad_id=in.(%s)" % lista)
-        for o in base.leer("oportunidades?select=id,codigo&id=in.(%s)" % lista):
-            o["tipos"] = [{"tipo": {"clave": claves.get(t["tipo_id"])}} for t in tipos if t["oportunidad_id"] == o["id"]]
-            unicas[o["id"]] = o
-    if not unicas:
-        return None, "refcat %s: portal sin oportunidad" % ref
-    if len(unicas) == 1:
-        o = next(iter(unicas.values()))
-        return o["id"], "refcat %s" % ref
-    es_asc = "ASC" in llano(tipo_obra or "")
-    familia = {"ascensor", "accesibilidad", "rampa", "plataforma", "accesibilidad_portal"} if es_asc else \
-              {"sate", "sate_fachada", "cubierta", "eficiencia_energetica", "arreglo_fachada", "arreglo_cubierta"}
-    buenas = [o for o in unicas.values() if any((t.get("tipo") or {}).get("clave") in familia for t in o.get("tipos") or [])]
-    if len(buenas) == 1:
-        return buenas[0]["id"], "refcat %s + tipo de obra" % ref
-    return None, "refcat %s: varias oportunidades (%s)" % (ref, ", ".join(sorted(o["codigo"] or "?" for o in unicas.values())))
+    if ref:
+        ref = re.sub(r"\s", "", str(ref)).upper()[:14]
+        accesos = base.leer("accesos?select=id&ref_catastral=like.%s*" % ref)
+        motivo = "refcat %s: ningún portal" % ref
+        if accesos:
+            ids = ",".join(a["id"] for a in accesos)
+            rel = base.leer("relacion_oportunidad_accesos?select=opp_id,acceso_id&hasta=is.null&acceso_id=in.(%s)" % ids)
+            oids = sorted({r["opp_id"] for r in rel})
+            motivo = "refcat %s: portal sin oportunidad" % ref
+            if len(oids) == 1:
+                return oids[0], "refcat %s" % ref
+            if len(oids) > 1:
+                calle, num = _calle_numero(campos)
+                opps = base.leer("oportunidades?select=id,codigo,nombre&id=in.(%s)" % ",".join(oids))
+                port = {a["id"]: a for a in base.leer("accesos?select=id,nombre_via,numero&id=in.(%s)" % ids)}
+                buenas = set()
+                for r in rel:
+                    a = port.get(r["acceso_id"]) or {}
+                    if calle and calle in llano(a.get("nombre_via") or "") and num and re.match(r"^%s\b" % re.escape(num), str(a.get("numero") or "")):
+                        buenas.add(r["opp_id"])
+                if len(buenas) != 1 and calle and num:
+                    n = llano(num)
+                    buenas = {o["id"] for o in opps
+                              if calle in llano(o.get("nombre") or "") and re.search(r"\b%s\b" % re.escape(n), llano(o.get("nombre") or ""))}
+                if len(buenas) == 1:
+                    return buenas.pop(), "refcat %s + dirección" % ref
+                motivo = "refcat %s: varias oportunidades (%s)" % (ref, ", ".join(sorted(o["codigo"] or "?" for o in opps)))
+    carpeta = _carpeta(ruta_obra)
+    por_carpeta = base.leer("oportunidades?select=id,codigo&comunidad_provisional=ilike.%s" %
+                            __import__("urllib.parse").parse.quote(carpeta.replace("*", "") + " (*"))
+    if len(por_carpeta) == 1:
+        return por_carpeta[0]["id"], "carpeta %s" % carpeta
+    if len(por_carpeta) > 1:
+        motivo += " · carpeta %s: varias (%s)" % (carpeta, ", ".join(sorted(o["codigo"] or "?" for o in por_carpeta)))
+    return None, motivo
 
 
 # ------------------------------------------------------------- la obra
@@ -327,7 +361,8 @@ def obras_con_hoja():
     """Una hoja por obra: la de 2.PROYECTO/1.ESCRITOS si existe, la mas reciente."""
     por_obra = {}
     for raiz, _, ficheros in os.walk(DROPBOX):
-        if os.path.basename(raiz).startswith("_"):
+        # Las carpetas "_..." (documentos utiles, formatos) y "PROYECTO X" son plantillas, no obras.
+        if os.path.basename(raiz).startswith("_") or "PROYECTO X" in raiz.upper() or "\_" in raiz:
             continue
         for f in ficheros:
             if f.lower().startswith("datos del proyecto") and f.lower().endswith(".xlsx") and not f.startswith("~$"):
@@ -353,6 +388,11 @@ def main():
         obras = list(dict.fromkeys(elegidas))[:11]
     else:
         obras = sorted(todas)
+        # Por tandas: --tanda 1 = las 100 primeras, --tanda 2 = las 100 siguientes...
+        if "--tanda" in sys.argv:
+            n = int(sys.argv[sys.argv.index("--tanda") + 1])
+            obras = obras[(n - 1) * 100: n * 100]
+            print("Tanda %d: obras %d a %d de %d" % (n, (n - 1) * 100 + 1, (n - 1) * 100 + len(obras), len(todas)))
 
     base = None
     if escribir or True:
@@ -369,7 +409,15 @@ def main():
             print("\n✗ %s: no se puede leer (%s)" % (rel, e))
             continue
         d = datos(campos, caso, sate)
-        opp, enlace = enlazar(base, campos, d["tipo_obra"])
+        fuera = next((m for c, m in DESCARTADAS.items() if c.lower() in o.lower()), None)
+        if fuera:
+            print("\n· %s: descartada (%s)" % (os.path.relpath(o, DROPBOX), fuera))
+            continue
+        # Una memoria valorada no es un proyecto completo (Monica, 10-oct): fuera.
+        if "MEMORIA VALORADA" in llano(d["fase"] or ""):
+            print("\n· %s: memoria valorada, no se vuelca" % os.path.relpath(o, DROPBOX))
+            continue
+        opp, enlace = enlazar(base, campos, d["tipo_obra"], o)
         # De los presupuestos de la carpeta, el que da el PEM de la hoja; si
         # ninguno (o la hoja trae el de plantilla), el de fecha mas reciente.
         leidos = []
@@ -429,8 +477,15 @@ def main():
                     "hoja": json.loads(json.dumps(campos, default=str)),
                     "avisos": avisos + ([] if pres else ["presupuesto del colegio no localizado"]) + (["los capítulos no suman el total del presupuesto"] if pres and pres["cuadra"] is False else []) or None}
             fila.update(d)
-            if base.leer("datos_proyecto?select=id&ruta=eq.%s" % __import__("urllib.parse").parse.quote(rel)):
-                print("  (ya estaba guardada: no se toca)")
+            ya = base.leer("datos_proyecto?select=id,oportunidad_id&ruta=eq.%s" % __import__("urllib.parse").parse.quote(rel))
+            if ya:
+                # Ya guardada: no se toca, salvo para completarle el enlace.
+                if not ya[0]["oportunidad_id"] and opp:
+                    base.actualizar("datos_proyecto?id=eq.%s" % ya[0]["id"], {"oportunidad_id": opp, "enlace": enlace})
+                    base.actualizar("presupuestos_proyecto?datos_proyecto_id=eq.%s" % ya[0]["id"], {"oportunidad_id": opp})
+                    print("  ✓ ya estaba guardada: enlace completado (%s)" % enlace)
+                else:
+                    print("  (ya estaba guardada: no se toca)")
                 continue
             base.insertar("datos_proyecto", [fila])
             if pres:
