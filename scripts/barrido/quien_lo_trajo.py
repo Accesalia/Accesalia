@@ -32,6 +32,8 @@ JEFE = {
     'ROEN': '064f54e2-ac39-47f2-b14a-724ac667a290',               # Jose Luis Jimenez
     'ENVOLTERMIA': '6f8751f5-b45f-496c-9e5a-7baebc6927b2',        # Julio Garcia
     'MATEDECON': '12657d8a-008f-4e78-999a-604278c1cbca',          # Roberto Perez Gil
+    # 10-oct: Trebol = Maribel, ALSER = Javier (Hernandez), AEA Fuenlabrada = Vanesa, Luxor = Sonia (Guillen),
+    # PBM = Pedro (Barrios). Admin Atocha y MP Madrid: vacias. Escritas a mano el 10-oct (8 opps).
 }
 # "Cuenta, si: esa persona de esa contrata" (la contrata que sale como contacto en la ficha vieja).
 CONTRATA_CONTACTO = {
