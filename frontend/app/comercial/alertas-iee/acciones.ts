@@ -151,6 +151,28 @@ export async function devolverAlMonton(formulario: FormData) {
   const codigo = String(formulario.get("codigo") ?? "");
   if (!codigo) return;
 
+  // A QUIEN LA TENIA SE LE AVISA (Monica, 10-oct-2026): ya le llego el correo
+  // de "te la paso", y sin esto la seguiria trabajando. Se mira antes de
+  // quitarla, porque despues ya no se sabe de quien era. Si el aviso falla, se
+  // devuelve igual: lo importante es que vuelva a pendientes.
+  const alerta = await alertaIEE(codigo);
+  const tenia = alerta?.asignadaA ? (await comercialesActivos()).find((c) => c.id === alerta.asignadaA) : null;
+  if (alerta && tenia?.correo) {
+    const municipio = (alerta.municipio ?? "").replace(/\s*\(MADRID\)\s*$/i, "").trim();
+    const donde = [alerta.direccion, municipio].filter(Boolean).join(" · ") || "sin dirección";
+    const cuerpo =
+      `la IEE de ${donde} que te pasaron ya no es tuya: ${yo.nombre} la ha devuelto para repartirla de nuevo. ` +
+      `No hace falta que hagas nada con ella.`;
+    await enviarCorreo({
+      desde: "comercial",
+      para: tenia.correo,
+      responderA: yo.email,
+      asunto: `${donde} · ya no es tuya`,
+      texto: `Hola ${tenia.nombre},\n\n${cuerpo}\n\nTe lo dice ${yo.nombre}.\n`,
+      html: `<p>Hola ${tenia.nombre},</p><p>${cuerpo}</p><p>Te lo dice ${yo.nombre}.</p>`,
+    }).catch(() => null);
+  }
+
   await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(codigo)}`, {
     method: "PATCH",
     headers: { ...cab, Prefer: "return=minimal" },
