@@ -308,6 +308,15 @@ export default async function AlertasIEE({
                 </tr>
               </thead>
 
+              {dias.length === 0 && (
+                <tbody>
+                  <tr>
+                    <td colSpan={4} className="px-4 py-6 text-center text-[13px] text-carbon/50">
+                      No queda ninguna por asignar{municipio ? ` en ${bonito(municipio)}` : ""}. Todo repartido.
+                    </td>
+                  </tr>
+                </tbody>
+              )}
               {dias.map((d) => (
                 <tbody key={d.dia}>
                   <tr className="border-y border-black/5 bg-hueso/60">
