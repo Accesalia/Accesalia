@@ -24,7 +24,11 @@ const ACCESOS: Acceso[] = [
   },
   { nombre: "Documentación de marketing", desc: "Folletos, tarifas de precios…", href: null },
   { nombre: "Tasas de ayuntamiento", desc: "Lo que sabemos calcular, por ayuntamiento y por tipo de tasa", href: null },
-  { nombre: "Manías detectadas", desc: "La tabla de manías, por persona o por entidad", href: null },
+  {
+    nombre: "Manías detectadas",
+    desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
+    href: "/referencia/manias",
+  },
 ];
 
 export default async function Referencia() {
