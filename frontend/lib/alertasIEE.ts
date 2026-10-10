@@ -580,3 +580,59 @@ async function aQuienReparte(): Promise<string[]> {
     return [];
   }
 }
+
+// ------------------------------------------------- quien tiene que en el municipio
+
+/** "COLLADO VILLALBA (MADRID)", "Collado Villalba" y "COLLADO VILLALBA" son el
+ *  mismo sitio: el registro le pone la provincia detras y no siempre escribe
+ *  igual que nuestras comunidades. */
+export const municipioLimpio = (m: string | null): string | null => {
+  if (!m) return null;
+  const s = m.replace(/\s*\(MADRID\)\s*$/i, "").trim();
+  return s ? s.toUpperCase() : null;
+};
+const mismoMunicipio = (m: string) => m.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
+
+export type CarteraEnMunicipio = {
+  comercialId: string;
+  nombre: string;
+  abiertasAqui: number;
+  cerradasAqui: number;
+  abiertasTotal: number;
+  cerradasTotal: number;
+};
+
+/** CONTEXTO PARA REPARTIR (Monica, 10-oct-2026): al filtrar el radar por un
+ *  municipio, cuantas opps tiene ya cada comercial ahi y en total, abiertas y
+ *  cerradas por separado. "Lo que cuenta no es el numero de opps, sino la
+ *  probabilidad de que el administrador que lleve la comunidad sea YA SUYO".
+ *  No decide nada: "no para condicionar, sino para tener mas info". El
+ *  municipio de la opp es el de su comunidad; las que no tienen no cuentan aqui. */
+export async function carteraEnMunicipio(municipio: string): Promise<CarteraEnMunicipio[]> {
+  type Fila = { estado: string; comercial_id: string | null; comunidades: { municipio: string | null } | null };
+  const filas: Fila[] = [];
+  // PostgREST da como mucho 1.000 por peticion: se pide por tramos.
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?select=estado,comercial_id,comunidades(municipio)&order=id`, {
+      headers: { ...cab, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
+    const tramo = (await r.json()) as Fila[];
+    filas.push(...tramo);
+    if (tramo.length < 1000) break;
+  }
+  const aqui = mismoMunicipio(municipio);
+  return (await comercialesActivos()).map((c) => {
+    const suyas = filas.filter((f) => f.comercial_id === c.id);
+    const enEl = suyas.filter((f) => f.comunidades?.municipio && mismoMunicipio(f.comunidades.municipio) === aqui);
+    return {
+      comercialId: c.id,
+      nombre: c.nombre,
+      abiertasAqui: enEl.filter((f) => f.estado === "abierta").length,
+      cerradasAqui: enEl.filter((f) => f.estado === "cerrada").length,
+      abiertasTotal: suyas.filter((f) => f.estado === "abierta").length,
+      cerradasTotal: suyas.filter((f) => f.estado === "cerrada").length,
+    };
+  });
+}

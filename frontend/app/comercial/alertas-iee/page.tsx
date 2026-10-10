@@ -4,9 +4,11 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import {
   agregadoPorMes,
+  carteraEnMunicipio,
   comercialesActivos,
   diasParaAbrirOportunidad,
   grado,
+  municipioLimpio,
   porQue,
   radarPorDias,
   repartidas,
@@ -45,6 +47,9 @@ export const dynamic = "force-dynamic";
 
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 const ROTULO = "text-[11px] font-bold uppercase tracking-wider text-carbon/45";
+const MUNI =
+  "rounded-full border border-black/10 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/60 transition hover:text-carbon";
+const MUNI_ACTIVO = "rounded-full border border-[#104269] bg-[#104269] px-3 py-1 text-[12px] font-semibold text-white";
 
 const DIA_LARGO = new Intl.DateTimeFormat("es-ES", {
   weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid",
@@ -60,13 +65,13 @@ const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().joi
 export default async function AlertasIEE({
   searchParams,
 }: {
-  searchParams: Promise<{ comercial?: string; nuestras?: string; descartadas?: string }>;
+  searchParams: Promise<{ comercial?: string; nuestras?: string; descartadas?: string; municipio?: string }>;
 }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
   if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
 
-  const { comercial: filtro, nuestras, descartadas } = await searchParams;
+  const { comercial: filtro, nuestras, descartadas, municipio } = await searchParams;
   const verNuestras = nuestras === "1";
   const verDescartadas = descartadas === "1";
 
@@ -77,6 +82,7 @@ export default async function AlertasIEE({
     agregadoPorMes(),
     diasParaAbrirOportunidad(),
   ]);
+  const cartera = municipio ? await carteraEnMunicipio(municipio) : [];
 
   // SOLO LAS DE FUERA (Monica, 9-oct-2026): "la pantalla deberia mostrar SOLO
   // las que no son nuestras. Como mucho, un filtro arriba de 'mostrar las
@@ -89,18 +95,34 @@ export default async function AlertasIEE({
   const esDescartada = (a: (typeof todos)[number]["alertas"][number]) => a.estado === "descartada";
   const cuantasNuestras = todos.flatMap((d) => d.alertas).filter(esNuestra).length;
   const cuantasDescartadas = todos.flatMap((d) => d.alertas).filter((a) => esDescartada(a) && !esNuestra(a)).length;
-  const dias = todos.map((d) => ({
+  const sinFiltrar = todos.map((d) => ({
     ...d,
     alertas: d.alertas.filter((a) => (verNuestras || !esNuestra(a)) && (verDescartadas || !esDescartada(a))),
   }));
-  const enlace = (ver: boolean, verD: boolean = verDescartadas) => {
+  // POR MUNICIPIO (Monica, 10-oct-2026): ver juntas las de un mismo sitio para
+  // repartir con cabeza. Se sigue asignando una a una. Filtrando, los dias sin
+  // ninguna de ese municipio no salen: "ese dia no habia nada" seria mentira.
+  const cuantasPorMunicipio = new Map<string, number>();
+  for (const a of sinFiltrar.flatMap((d) => d.alertas)) {
+    const m = municipioLimpio(a.municipio);
+    if (m) cuantasPorMunicipio.set(m, (cuantasPorMunicipio.get(m) ?? 0) + 1);
+  }
+  const municipios = Array.from(cuantasPorMunicipio).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+  const dias = municipio
+    ? sinFiltrar
+        .map((d) => ({ ...d, alertas: d.alertas.filter((a) => municipioLimpio(a.municipio) === municipio) }))
+        .filter((d) => d.alertas.length > 0)
+    : sinFiltrar;
+  const enlace = (ver: boolean, verD: boolean = verDescartadas, muni: string | undefined = municipio) => {
     const q = new URLSearchParams();
     if (filtro) q.set("comercial", filtro);
     if (ver) q.set("nuestras", "1");
     if (verD) q.set("descartadas", "1");
+    if (muni) q.set("municipio", muni);
     const s = q.toString();
     return `/comercial/alertas-iee${s ? `?${s}` : ""}`;
   };
+  const bonito = (m: string) => m.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()).replace(/ (De|Del|La|Las|Los|El|Y) /g, (x) => x.toLowerCase());
 
   const hoy = dias[0]?.dia;
   // Las que ya son nuestras no cuentan como trabajo pendiente: no hay nada que
@@ -198,6 +220,50 @@ export default async function AlertasIEE({
             )}
             </div>
           </div>
+
+          {municipios.length > 1 && (
+            <div className="mb-2.5 flex flex-wrap gap-1.5">
+              <Link href={enlace(verNuestras, verDescartadas, undefined)} scroll={false} className={municipio ? MUNI : MUNI_ACTIVO}>
+                Todos los municipios
+              </Link>
+              {municipios.map(([m, n]) => (
+                <Link key={m} href={enlace(verNuestras, verDescartadas, m)} scroll={false} className={municipio === m ? MUNI_ACTIVO : MUNI}>
+                  {bonito(m)} <span className="opacity-60">{n}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* QUIEN TIENE QUE AHI (Monica, 10-oct-2026): contexto para repartir,
+              "no para condicionar". Al mismo porque esta cerca, o a otro para
+              no tener todos los huevos en la misma cesta: eso lo decide quien
+              reparte. Abiertas y cerradas por separado. */}
+          {municipio && cartera.length > 0 && (
+            <div className={CAJA + " mb-3 overflow-hidden"}>
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+                    <th className="px-4 py-2 font-bold">Comercial</th>
+                    <th className="px-3 py-2 text-right font-bold">Abiertas en {bonito(municipio)}</th>
+                    <th className="px-3 py-2 text-right font-bold">Cerradas en {bonito(municipio)}</th>
+                    <th className="px-3 py-2 text-right font-bold">Abiertas en total</th>
+                    <th className="px-4 py-2 text-right font-bold">Cerradas en total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cartera.map((c) => (
+                    <tr key={c.comercialId} className="border-b border-black/5 last:border-b-0 tabular-nums">
+                      <td className="px-4 py-1.5 font-bold text-carbon">{c.nombre}</td>
+                      <td className={"px-3 py-1.5 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-carbon/35")}>{c.abiertasAqui}</td>
+                      <td className={"px-3 py-1.5 text-right " + (c.cerradasAqui ? "font-semibold text-carbon/70" : "text-carbon/35")}>{c.cerradasAqui}</td>
+                      <td className="px-3 py-1.5 text-right text-carbon/60">{c.abiertasTotal}</td>
+                      <td className="px-4 py-1.5 text-right text-carbon/60">{c.cerradasTotal}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           <div className={CAJA + " overflow-hidden"}>
             <table className="w-full text-[13px]">
