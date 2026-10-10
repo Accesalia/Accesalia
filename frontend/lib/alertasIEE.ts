@@ -285,7 +285,9 @@ export async function deFueraSinAsignar(): Promise<number> {
     porTramos<Fila>(`iee_registrado?select=${CAMPOS}&estado=eq.nueva&order=codigo`),
     loNuestro(),
   ]);
-  return filas.map(vestir).filter((a) => cotejar(a, nuestras)?.tipo !== "misma_finca").length;
+  // Las mismas que ensena la lista de pendientes: con un motivo (grado) y de
+  // fuera. Sin el grado, el aviso decia 90 y la lista ensenaba 77 (10-oct-2026).
+  return filas.map(vestir).filter((a) => grado(a) !== null && cotejar(a, nuestras)?.tipo !== "misma_finca").length;
 }
 
 /** El dia en Madrid, en formato ISO. La fecha del barrido tiene que ser la del
@@ -345,6 +347,31 @@ export const porQue: Record<Grado, string> = {
   4: "Desfavorable · pueden pagarla",
   5: "Desfavorable por conservación",
 };
+
+/** LO QUE HAY POR HACER (Monica, 10-oct-2026): las que estan SIN ASIGNAR, de
+ *  cuando sean -no solo de los ultimos 14 dias: una de hace tres semanas sin
+ *  repartir sigue siendo trabajo-. Por dia, y solo los dias que tienen algo:
+ *  aqui un dia vacio no dice nada. Con `descartadas`, tambien esas, para
+ *  revisarlas. "Dentro de 3 meses, con el volumen que va a acumular, deberiamos
+ *  prevenirlo": las asignadas van en su propia vista. */
+export async function pendientesPorDia(descartadas = false): Promise<DiaDeRadar[]> {
+  const estados = descartadas ? "in.(nueva,descartada)" : "eq.nueva";
+  const [filas, nuestras] = await Promise.all([
+    porTramos<Fila>(`iee_registrado?select=${CAMPOS}&estado=${estados}&order=visto_en.desc,codigo`),
+    loNuestro(),
+  ]);
+  const porDia = new Map<string, AlertaIEE[]>();
+  for (const f of filas) {
+    const a = vestir(f);
+    if (grado(a) === null) continue;
+    const d = diaEnMadrid(new Date(f.visto_en));
+    if (!porDia.has(d)) porDia.set(d, []);
+    porDia.get(d)!.push({ ...a, nuestra: cotejar(a, nuestras) });
+  }
+  return [...porDia.entries()]
+    .sort((x, y) => y[0].localeCompare(x[0]))
+    .map(([dia, alertas]) => ({ dia, alertas: alertas.sort((x, y) => grado(x)! - grado(y)!) }));
+}
 
 /** Las desfavorables de los ultimos `dias` dias, AGRUPADAS POR DIA Y SIN SALTAR
  *  NINGUNO: los dias vacios tambien salen, porque "si no ha habido, que lo diga

@@ -9,8 +9,9 @@ import {
   diasParaAbrirOportunidad,
   grado,
   municipioLimpio,
+  diaEnMadrid,
+  pendientesPorDia,
   porQue,
-  radarPorDias,
   repartidas,
 } from "../../../lib/alertasIEE";
 import { buzonListo } from "../../../lib/correo";
@@ -65,18 +66,22 @@ const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().joi
 export default async function AlertasIEE({
   searchParams,
 }: {
-  searchParams: Promise<{ comercial?: string; nuestras?: string; descartadas?: string; municipio?: string }>;
+  searchParams: Promise<{ comercial?: string; nuestras?: string; descartadas?: string; municipio?: string; vista?: string; conopp?: string }>;
 }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
   if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
 
-  const { comercial: filtro, nuestras, descartadas, municipio } = await searchParams;
+  const { comercial: filtro, nuestras, descartadas, municipio, vista, conopp } = await searchParams;
+  // DOS VISTAS (Monica, 10-oct-2026): por defecto, lo que hay POR HACER; lo ya
+  // repartido, en su propia vista. "Se ve lo que hay por hacer, no todo mezclado".
+  const verAsignadas = vista === "asignadas";
+  const verConOpp = conopp === "1";
   const verNuestras = nuestras === "1";
   const verDescartadas = descartadas === "1";
 
   const [todos, comerciales, lista, meses, plazo] = await Promise.all([
-    radarPorDias(14),
+    pendientesPorDia(true),
     comercialesActivos(),
     repartidas(filtro),
     agregadoPorMes(),
@@ -122,9 +127,19 @@ export default async function AlertasIEE({
     const s = q.toString();
     return `/comercial/alertas-iee${s ? `?${s}` : ""}`;
   };
+  const conOpp = lista.filter((a) => a.oportunidadId);
+  const sinOpp = lista.filter((a) => !a.oportunidadId);
+  const vistaAsignadas = (comercial: string | undefined = filtro, conO: boolean = verConOpp) => {
+    const q = new URLSearchParams({ vista: "asignadas" });
+    if (comercial) q.set("comercial", comercial);
+    if (conO) q.set("conopp", "1");
+    return `/comercial/alertas-iee?${q}`;
+  };
+  const BOTON_VISTA =
+    "rounded-full border border-[#104269] bg-white px-3.5 py-1.5 text-[12px] font-bold text-[#104269] transition hover:bg-[#104269] hover:text-white";
   const bonito = (m: string) => m.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()).replace(/ (De|Del|La|Las|Los|El|Y) /g, (x) => x.toLowerCase());
 
-  const hoy = dias[0]?.dia;
+  const hoy = diaEnMadrid();
   // Las que ya son nuestras no cuentan como trabajo pendiente: no hay nada que
   // repartir, ya estan dentro.
   const sinAsignar = dias
@@ -165,6 +180,18 @@ export default async function AlertasIEE({
           )}
         </div>
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          {verAsignadas ? (
+            <Link href="/comercial/alertas-iee" className={BOTON_VISTA}>
+              ← Pendientes de asignar{sinAsignar > 0 ? ` (${sinAsignar})` : ""}
+            </Link>
+          ) : (
+            <Link href={vistaAsignadas(undefined, false)} className={BOTON_VISTA}>
+              Ver qué pasó con las ya asignadas ({lista.length}) →
+            </Link>
+          )}
+        </div>
+
         {/* Lo que no funciona se dice antes de que alguien lo descubra fallando. */}
         {(!buzonListo("comercial") || sinCorreo.length > 0) && (
           <div className="mt-4 rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
@@ -194,10 +221,11 @@ export default async function AlertasIEE({
             edificio no se pone ni año ni energetica ni municipio: para eso esta
             el enlace. Aqui solo hace falta decidir a quien se le pasa y ver
             quien no ha hecho nada. */}
+        {!verAsignadas && (
         <section className="mt-6">
           <div className="mb-2 flex items-center justify-between gap-3">
             <h2 className={ROTULO}>
-              El parte de cada día{verNuestras ? " · con las nuestras" : " · solo las de fuera"}
+              Pendientes de asignar{verNuestras ? " · con las nuestras" : " · solo las de fuera"}
             </h2>
             <div className="flex flex-wrap items-center gap-2">
             {cuantasDescartadas > 0 && (
@@ -273,14 +301,13 @@ export default async function AlertasIEE({
                   <th className="px-3 py-2 font-bold">Por qué está aquí</th>
                   <th className="px-3 py-2 font-bold">El informe</th>
                   <th className="px-3 py-2 font-bold">Comercial</th>
-                  <th className="px-4 py-2 font-bold">¿Oportunidad abierta?</th>
                 </tr>
               </thead>
 
               {dias.map((d) => (
                 <tbody key={d.dia}>
                   <tr className="border-y border-black/5 bg-hueso/60">
-                    <td colSpan={5} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
+                    <td colSpan={4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
                       {d.dia === hoy ? "Hoy · " : ""}
                       {comoSeDice(d.dia)}
                     </td>
@@ -288,19 +315,12 @@ export default async function AlertasIEE({
 
                   {d.alertas.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
+                      <td colSpan={4} className="px-4 py-1.5 text-[12px] italic text-carbon/35">
                         — {d.dia === hoy ? "hoy" : "ese día"} no había nada —
                       </td>
                     </tr>
                   ) : (
                     d.alertas.map((a) => {
-                      const tarde =
-                        !a.oportunidadId &&
-                        a.asignadaEn &&
-                        Math.floor((Date.now() - new Date(a.asignadaEn).getTime()) / 864e5) >= plazo;
-                      const dias = a.asignadaEn
-                        ? Math.floor((Date.now() - new Date(a.asignadaEn).getTime()) / 864e5)
-                        : 0;
                       return (
                         <tr key={a.codigo} className="border-b border-black/5">
                           <td className="px-4 py-2">
@@ -397,30 +417,6 @@ export default async function AlertasIEE({
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2">
-                            {a.oportunidadId ? (
-                              // Resuelto: check verde y punto. PENDIENTE (v2, suyo):
-                              // "deberiamos dar una opcion de 'llame y no quieren
-                              // verme' o algo asi" -cerrar sin oportunidad, pero
-                              // habiendolo trabajado, que no es lo mismo que ignorarlo-.
-                              <Link
-                                href={`/comercial/oportunidades/${a.oportunidadId}`}
-                                className="inline-flex items-center gap-1.5 font-bold text-lima-dark hover:underline"
-                              >
-                                <span aria-hidden className="text-[15px] leading-none">✓</span> Sí
-                              </Link>
-                            ) : a.estado === "descartada" ? (
-                              <span className="text-carbon/35">—</span>
-                            ) : !a.asignadaA ? (
-                              <span className="text-carbon/35">Sin asignar</span>
-                            ) : tarde ? (
-                              <span className="font-bold text-[#B91C1C]">
-                                No · hace {dias} {dias === 1 ? "día" : "días"} que se le pasó
-                              </span>
-                            ) : (
-                              <span className="text-carbon/45">Todavía no</span>
-                            )}
-                          </td>
                         </tr>
                       );
                     })
@@ -430,12 +426,62 @@ export default async function AlertasIEE({
             </table>
           </div>
         </section>
+        )}
 
+        {/* ================== QUE PASO CON LAS YA ASIGNADAS ==================
+            (Monica, 10-oct-2026) En dos columnas: a la izquierda, 1/3, la vision
+            general mes a mes, "a mano arriba a la izquierda"; a la derecha, 2/3,
+            las asignadas que aun no tienen oportunidad. */}
+        {verAsignadas && (
+          <div className="mt-6 grid items-start gap-6 lg:grid-cols-3">
+            <div className="min-w-0 lg:col-span-1">
+        {/* ======================= EL RECUENTO POR MES ======================= */}
+        <section>
+          <h2 className={ROTULO}>Pasadas y creadas, mes a mes</h2>
+          <p className="mt-1 max-w-[70ch] text-[13px] text-carbon/60">
+            Por meses cerrados, para que dé tiempo a ir a verlos. Se cuenta por el mes en que se le
+            pasó, no por el mes en que abrió la oportunidad: lo que se mide es qué hizo con lo que
+            se le dio.
+          </p>
+
+          <div className={CAJA + " mt-3 overflow-hidden"}>
+            {meses.length === 0 ? (
+              <p className="p-4 text-[13px] text-carbon/45">Todavía no hay nada que contar.</p>
+            ) : (
+              <table className="w-full text-[13px]">
+                <thead>
+                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+                    <th className="px-2.5 py-1.5 font-bold">Mes</th>
+                    <th className="px-2.5 py-1.5 font-bold">Comercial</th>
+                    <th className="px-2.5 py-1.5 font-bold">Pasadas</th>
+                    <th className="px-2.5 py-1.5 font-bold">Creadas</th>
+                    <th className="px-2.5 py-1.5 font-bold">De cada diez</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meses.map((m) => (
+                    <tr key={m.mes + m.comercialId} className="border-b border-black/5 last:border-b-0">
+                      <td className="px-2.5 py-1.5 tabular-nums text-carbon/70">{m.mes}</td>
+                      <td className="px-2.5 py-1.5 font-semibold">{m.comercial}</td>
+                      <td className="px-2.5 py-1.5 tabular-nums">{m.pasadas}</td>
+                      <td className="px-2.5 py-1.5 tabular-nums font-bold">{m.creadas}</td>
+                      <td className="px-2.5 py-1.5 tabular-nums text-carbon/70">
+                        {m.pasadas ? (Math.round((m.creadas / m.pasadas) * 100) / 10).toFixed(1) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+            </div>
+            <div className="min-w-0 lg:col-span-2">
         {/* ======================= QUE SE HIZO CON ELLAS ======================= */}
-        <section className="mt-8">
+        <section>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className={ROTULO}>Qué se hizo con las que se pasaron</h2>
+              <h2 className={ROTULO}>Asignadas que aún no tienen oportunidad · {sinOpp.length}</h2>
               <p className="mt-1 text-[13px] text-carbon/60">
                 Se comprueba solo: si aparece una oportunidad con esa misma finca, se engancha sin
                 que nadie marque nada. Pasados <b className="text-carbon/80">{plazo} días</b> sin
@@ -444,7 +490,7 @@ export default async function AlertasIEE({
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Link
-                href="/comercial/alertas-iee"
+                href={vistaAsignadas(undefined)}
                 className={
                   "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
                   (!filtro
@@ -457,7 +503,7 @@ export default async function AlertasIEE({
               {comerciales.map((c) => (
                 <Link
                   key={c.id}
-                  href={`/comercial/alertas-iee?comercial=${c.id}`}
+                  href={vistaAsignadas(c.id)}
                   className={
                     "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
                     (filtro === c.id
@@ -472,9 +518,9 @@ export default async function AlertasIEE({
           </div>
 
           <div className={CAJA + " mt-3 overflow-hidden"}>
-            {lista.length === 0 ? (
+            {sinOpp.length === 0 ? (
               <p className="p-4 text-[13px] text-carbon/45">
-                Todavía no se ha pasado ninguna{filtro ? " a este comercial" : ""}.
+                {lista.length === 0 ? "Todavía no se ha pasado ninguna" : "Todas las asignadas tienen ya oportunidad"}{filtro ? " de este comercial" : ""}.
               </p>
             ) : (
               <table className="w-full text-[13px]">
@@ -488,7 +534,7 @@ export default async function AlertasIEE({
                   </tr>
                 </thead>
                 <tbody>
-                  {lista.map((a) => {
+                  {sinOpp.map((a) => {
                     const tarde = !a.oportunidadId && a.diasDesdeAsignacion >= plazo;
                     return (
                       <tr key={a.codigo} className="border-b border-black/5 last:border-b-0">
@@ -531,48 +577,37 @@ export default async function AlertasIEE({
               </table>
             )}
           </div>
-        </section>
-
-        {/* ======================= EL RECUENTO POR MES ======================= */}
-        <section className="mt-8">
-          <h2 className={ROTULO}>Pasadas y creadas, mes a mes</h2>
-          <p className="mt-1 max-w-[70ch] text-[13px] text-carbon/60">
-            Por meses cerrados, para que dé tiempo a ir a verlos. Se cuenta por el mes en que se le
-            pasó, no por el mes en que abrió la oportunidad: lo que se mide es qué hizo con lo que
-            se le dio.
-          </p>
-
-          <div className={CAJA + " mt-3 overflow-hidden"}>
-            {meses.length === 0 ? (
-              <p className="p-4 text-[13px] text-carbon/45">Todavía no hay nada que contar.</p>
-            ) : (
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
-                    <th className="px-4 py-2.5 font-bold">Mes</th>
-                    <th className="px-4 py-2.5 font-bold">Comercial</th>
-                    <th className="px-4 py-2.5 font-bold">Pasadas</th>
-                    <th className="px-4 py-2.5 font-bold">Creadas</th>
-                    <th className="px-4 py-2.5 font-bold">De cada diez</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {meses.map((m) => (
-                    <tr key={m.mes + m.comercialId} className="border-b border-black/5 last:border-b-0">
-                      <td className="px-4 py-2.5 tabular-nums text-carbon/70">{m.mes}</td>
-                      <td className="px-4 py-2.5 font-semibold">{m.comercial}</td>
-                      <td className="px-4 py-2.5 tabular-nums">{m.pasadas}</td>
-                      <td className="px-4 py-2.5 tabular-nums font-bold">{m.creadas}</td>
-                      <td className="px-4 py-2.5 tabular-nums text-carbon/70">
-                        {m.pasadas ? (Math.round((m.creadas / m.pasadas) * 100) / 10).toFixed(1) : "—"}
-                      </td>
-                    </tr>
+        
+          {/* LAS QUE YA TIENEN OPORTUNIDAD (Monica, 10-oct-2026): "ya se pueden
+              quitar de la cabeza". Breve, y a demanda: con el volumen de dentro
+              de tres meses no pueden salir por defecto. */}
+          {conOpp.length > 0 && (
+            <div className="mt-4">
+              <Link href={vistaAsignadas(filtro, !verConOpp)} scroll={false} className="text-[12px] font-semibold text-carbon/55 underline hover:text-carbon">
+                {verConOpp ? "Ocultar las que ya tienen oportunidad" : `Ver las que ya tienen oportunidad (${conOpp.length})`}
+              </Link>
+              {verConOpp && (
+                <ul className={CAJA + " mt-2 divide-y divide-black/5 overflow-hidden text-[13px]"}>
+                  {conOpp.map((a) => (
+                    <li key={a.codigo} className="flex flex-wrap items-baseline gap-x-3 px-4 py-2">
+                      <span className="min-w-0 flex-1">
+                        <b className="text-carbon">{a.direccion ?? "Sin dirección"}</b>
+                        {a.municipio && <span className="text-carbon/50"> · {a.municipio}</span>}
+                      </span>
+                      <span className="font-semibold text-carbon/70">{a.comercial ?? "—"}</span>
+                      <Link href={`/comercial/oportunidades/${a.oportunidadId}`} className="font-bold text-lima-dark hover:underline">
+                        Ver la oportunidad →
+                      </Link>
+                    </li>
                   ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                </ul>
+              )}
+            </div>
+          )}
         </section>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
