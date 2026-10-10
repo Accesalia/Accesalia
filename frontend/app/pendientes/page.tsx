@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { Volver } from "../components/Volver";
 import { misPendientes, type ItemPendiente } from "../../lib/misPendientes";
-import { quienSoy } from "../../lib/sesion";
+import { puedeEntrar, quienSoy } from "../../lib/sesion";
+import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { accionLlamadaHecha } from "./acciones";
 
 export const dynamic = "force-dynamic";
@@ -69,8 +70,16 @@ function Grupo({ titulo, pie, items, hecha }: { titulo: string; pie: string; ite
 export default async function Pendientes() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/pendientes");
-  const { notas, opps, llamadas } = await misPendientes(yo);
-  const total = notas.length + opps.length + llamadas.length;
+  // EL RADAR, COMO UN PENDIENTE MAS (Monica, 10-oct-2026): "no tiene sentido
+  // tener el radar si no podemos revisarlo". Lo ve quien entra al radar -quien
+  // supervisa el area comercial, y direccion-. Cuenta lo mismo que el aviso
+  // diario: las de fuera sin asignar.
+  const veRadar = puedeEntrar(yo, "comercial", "supervisar");
+  const [{ notas, opps, llamadas }, radar] = await Promise.all([
+    misPendientes(yo),
+    veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
+  ]);
+  const total = notas.length + opps.length + llamadas.length + (radar ?? 0);
 
   return (
     <div className="min-h-screen">
@@ -86,6 +95,30 @@ export default async function Pendientes() {
           <p className="mt-8 rounded-2xl border border-black/5 bg-white px-5 py-10 text-center text-[14px] text-carbon/55">
             No tienes nada pendiente. Todo está en su sitio.
           </p>
+        )}
+
+        {veRadar && (
+          <section className="mt-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-[13px] font-bold uppercase tracking-[0.06em] text-carbon/75">
+                Radar de IEE{radar ? ` · ${radar}` : ""}
+              </h2>
+              <span className="text-[12px] text-carbon/50">Edificios de fuera con IEE nueva: asignar a un comercial o descartar</span>
+            </div>
+            <Link
+              href="/comercial/alertas-iee"
+              className="mt-2 flex flex-wrap items-baseline gap-x-3 rounded-2xl border border-black/10 bg-white px-4 py-2.5 transition hover:bg-lima-soft/50"
+            >
+              <b className="min-w-0 flex-1 text-[14px] text-carbon">
+                {radar === null
+                  ? "Abrir el radar"
+                  : radar === 0
+                    ? "Nada sin asignar"
+                    : `${radar} ${radar === 1 ? "IEE sin asignar" : "IEE sin asignar"}`}
+              </b>
+              <span className="text-[13px] font-semibold text-lima-dark">Ir al radar →</span>
+            </Link>
+          </section>
         )}
 
         <Grupo titulo="Notas por colocar" pie="La dirección que se escribió no estaba en la lista" items={notas} />
