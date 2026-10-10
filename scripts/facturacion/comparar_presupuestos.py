@@ -11,7 +11,7 @@ import sys, os, re, json, unicodedata, collections, datetime
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from produccion import arrancar  # noqa: E402
 
-VACIAS = {'CP', 'CDAD', 'PROP', 'COMUNIDAD', 'PROPIETARIOS', 'DE', 'DEL', 'LA', 'LAS', 'LOS', 'EL', 'Y', 'CL', 'CALLE', 'C',
+VACIAS = {'CP', 'CDAD', 'CADAD', 'CMDA', 'CDA', 'P', 'PROP', 'EDIFICIO', 'RESIDENCIAL', 'EXISTENTE', 'EN', 'COMUNIDAD', 'PROPIETARIOS', 'DE', 'DEL', 'LA', 'LAS', 'LOS', 'EL', 'Y', 'CL', 'CALLE', 'C',
           'AV', 'AVDA', 'AVENIDA', 'PZ', 'PLAZA', 'PS', 'PASEO', 'N', 'NO', 'MADRID', 'SL', 'SA', 'SLU'}
 
 
@@ -24,9 +24,11 @@ def main():
     out = sys.argv[1] if len(sys.argv) > 1 else '.'
     b = arrancar()
     ps = b.leer('presupuestos?select=id,origen,empresa_emisora,anio,numero,fecha,estado,pagador_nombre,pagador_nif,base,total,'
-                'oportunidad_id,notas,presupuesto_lineas(id)')
+                'oportunidad_id,notas,presupuesto_lineas(id,concepto)')
     fac = [p for p in ps if p['origen'] == 'factusol']
     app = [p for p in ps if p['origen'] == 'app']
+    coms = {c['id']: pal(c['nombre']) for c in b.leer('comunidades?select=id,nombre')}
+    opp_com = {o['id']: o['comunidad_id'] for o in b.leer('oportunidades?select=id,comunidad_id')}
     por_nif = collections.defaultdict(list)
     for a in app:
         if a['pagador_nif']: por_nif[a['pagador_nif'].upper().replace('-', '')].append(a)
@@ -39,6 +41,16 @@ def main():
             if letras and nums:
                 cand = [a for a in app if all(x in pal(a['pagador_nombre']) for x in letras) and nums[0] in pal(a['pagador_nombre'])]
             como = 'nombre'
+        if not cand:
+            # por la DIRECCION: del nombre del cliente o del texto de las lineas -> comunidad -> sus presupuestos de la app
+            textos = [f['pagador_nombre'] or ''] + [m.group(1) for l in f.get('presupuesto_lineas', []) for m in
+                      [re.search(r'existente en:?\s*(.{4,80}?)(?:\s+El total|\s+Incluye|[.]|$)', ' '.join((l.get('concepto') or '').split()), re.I)] if m]
+            for t in textos:
+                pt = pal(t); nums = [x for x in pt if x.isdigit()]; letras = [x for x in pt if not x.isdigit()][:3]
+                if not (letras and nums): continue
+                cs = {cid for cid, cp in coms.items() if all(x in cp for x in letras) and nums[0] in cp}
+                cand = [a for a in app if opp_com.get(a['oportunidad_id']) in cs]
+                if cand: como = 'direccion'; break
         if len(cand) > 1:
             # entre los del mismo cliente: primero el de MISMO total, luego el de fecha mas cercana
             fd = datetime.date.fromisoformat(f['fecha']) if f['fecha'] else None

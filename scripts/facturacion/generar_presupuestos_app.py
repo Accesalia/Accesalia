@@ -83,7 +83,10 @@ def main():
                          for c in cs if aparece(c) == 'se_cobra']
             incluidos = [c['descripcion'] for c in cs if aparece(c) == 'incluido' and not c['incluido_en_concepto_id']]
             con_precio = [x for x in cobra if x['importe']]
-            a_exito = ['%s (a éxito%s)' % (x['nombre'], ', %s %%' % x['pct'] if x['pct'] else '') for x in cobra if not x['importe']]
+            # A exito: lo que solo tiene %, y tambien el % de un concepto que ademas tiene parte fija (la documentacion
+            # tecnica 1.980 EUR + tramitacion 3,5 % a exito): la parte fija es linea con precio y el % se menciona.
+            a_exito = ['%s (a éxito%s)' % (x['nombre'], ', %s %%' % x['pct'] if x['pct'] else '') for x in cobra
+                       if not x['importe'] or x['pct']]
             for k, x in enumerate(con_precio):
                 if k == 0:
                     txt = ('Según hoja de encargo de fecha %s, honorarios a la contratación por %s en edificio residencial '
