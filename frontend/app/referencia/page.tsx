@@ -27,7 +27,11 @@ const ACCESOS: Acceso[] = [
     desc: "Dossieres en español e inglés, tríptico, dossier SATE y las presentaciones de la subvención",
     href: "/referencia/marketing",
   },
-  { nombre: "Tasas de ayuntamiento", desc: "Lo que sabemos calcular, por ayuntamiento y por tipo de tasa", href: null },
+  {
+    nombre: "Tasas de ayuntamiento",
+    desc: "Cuánto se paga en cada municipio y cómo se pide la licencia; calculadora y ficha para los vecinos",
+    href: "/referencia/tasas",
+  },
   {
     nombre: "Manías detectadas",
     desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
