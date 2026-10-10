@@ -5,6 +5,7 @@ import { Volver } from "../components/Volver";
 import { misPendientes, tarjetasQueVeo } from "../../lib/misPendientes";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
+import { solicitudesPendientes } from "../../lib/rrhh";
 
 export const dynamic = "force-dynamic";
 
@@ -49,10 +50,17 @@ export default async function Pendientes() {
   // El radar lo ve quien entra al radar: quien supervisa el area comercial, y
   // direccion. Cuenta lo mismo que el aviso diario: las de fuera sin asignar.
   const veRadar = puedeEntrar(yo, "comercial", "supervisar");
-  const [{ notas, opps, llamadas }, radar] = await Promise.all([
+  // LAS VACACIONES (Monica, 10-oct-2026): "alguien las solicita, nos sale a
+  // Alexandra y a mi como pendiente". Las resuelve quien gestiona RRHH
+  // -Alexandra- y direccion, que es la misma regla de la pantalla de RRHH. Lo
+  // propio no cuenta: nadie se aprueba a si mismo.
+  const resuelveRrhh = puedeEntrar(yo, "rrhh", "trabajar");
+  const [{ notas, opps, llamadas }, radar, ausencias] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
+    resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
   ]);
+  const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
 
   const tarjetas: Tarjeta[] = [
     ...(veRadar
@@ -67,6 +75,9 @@ export default async function Pendientes() {
       href: "/pendientes/oportunidades",
       ver: "Ver",
     },
+    ...(resuelveRrhh
+      ? [{ clave: "ausencias", titulo: "Vacaciones y permisos", numero: ausenciasAjenas, pie: "Solicitudes por aprobar o rechazar.", href: "/rrhh#por-resolver", ver: "Resolverlas" }]
+      : []),
     ...(veo.llamadas
       ? [{ clave: "llamadas", titulo: "Llamadas por colocar", numero: llamadas.length, pie: "Cuando lo que se derivaba de ella esté gestionado, márcala como hecha.", href: "/pendientes/llamadas", ver: "Ver" }]
       : []),

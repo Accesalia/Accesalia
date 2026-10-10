@@ -235,7 +235,8 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
       </NotaAcceso>
 
       {/* ---------- por resolver ---------- */}
-      <section className="mt-9">
+      {/* El ancla es a donde lleva la tarjeta de Pendientes (10-oct-2026). */}
+      <section id="por-resolver" className="mt-9 scroll-mt-24">
         <Titulo extra="Aprueba cualquiera de RRHH o dirección, salvo lo suyo.">
           Por resolver <Cuenta n={pendientes.length} />
         </Titulo>

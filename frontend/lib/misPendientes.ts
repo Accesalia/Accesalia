@@ -63,12 +63,18 @@ export function tarjetasQueVeo(yo: Yo) {
 export async function cuantosPendientes(yo: Yo): Promise<number> {
   try {
     const f = await filtros(yo);
-    const [n, o, l] = await Promise.all([
+    // Las vacaciones por resolver, a quien las resuelve (RRHH y direccion), sin
+    // las suyas (10-oct-2026).
+    const ausencias = puedeEntrar(yo, "rrhh", "trabajar")
+      ? leer(`rrhh_ausencias?select=id&estado=eq.solicitada&persona_id=neq.${yo.id}&limit=1`, true)
+      : Promise.resolve({ total: 0 });
+    const [n, o, l, a] = await Promise.all([
       leer(`notas_pendientes?select=id&estado=eq.pendiente${f.notas}&limit=1`, true),
       f.opps === null ? Promise.resolve({ total: 0 }) : leer(`oportunidades_por_completar?select=id${f.opps}&limit=1`, true),
       f.llamadas ? leer(`llamadas?select=id&estado=eq.por_colocar&limit=1`, true) : Promise.resolve({ total: 0 }),
+      ausencias,
     ]);
-    return n.total + o.total + l.total;
+    return n.total + o.total + l.total + a.total;
   } catch {
     return 0;
   }
