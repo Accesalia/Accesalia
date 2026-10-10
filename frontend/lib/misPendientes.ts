@@ -49,6 +49,16 @@ async function filtros(yo: Yo) {
   };
 }
 
+/** QUE TARJETAS LE TOCAN A CADA UNO en la pizarra de Pendientes (Monica,
+ *  10-oct-2026). Una tarjeta sale aunque este a cero si es suya: "nada
+ *  pendiente" tambien es un dato. */
+export function tarjetasQueVeo(yo: Yo) {
+  return {
+    supervisa: veTodo(yo),
+    llamadas: colocaLlamadas(yo),
+  };
+}
+
 /** El numero del boton. Si algo falla, 0: el boton nunca tumba la barra. */
 export async function cuantosPendientes(yo: Yo): Promise<number> {
   try {
@@ -73,6 +83,8 @@ export type ItemPendiente = {
   falta: string;
   fecha: string | null;
   href: string | null;
+  /** De quien es (las oportunidades), para filtrar por comercial. */
+  comercial?: string | null;
 };
 
 export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; opps: ItemPendiente[]; llamadas: ItemPendiente[] }> {
@@ -122,6 +134,7 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
         falta: falta.map((x) => TEXTO_FALTA[x]).join(" · "),
         fecha: o.desde,
         href: `/comercial/oportunidades/${o.id}`,
+        comercial: o.comercial_id ? (nombreDe.get(o.comercial_id) ?? null) : null,
       };
     }),
     llamadas: (llamadas.filas as { id: string; recibida_en: string; que_dicen: string | null; quien_texto: string | null; donde_texto: string | null; area: string | null }[]).map((l) => ({

@@ -13,4 +13,5 @@ export async function accionLlamadaHecha(id: string) {
   if (!(yo.veTodo || yo.funciones.some((f) => f.clave === "secretaria"))) throw new Error("Sin permiso para marcar llamadas.");
   await marcarHecha(id, yo.id);
   revalidatePath("/pendientes");
+  revalidatePath("/pendientes/llamadas");
 }
