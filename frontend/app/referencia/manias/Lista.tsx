@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
+import { Filtros, type Criterios, type Opcion } from "./Filtros";
 
 // EL BUSCADOR (Monica, 10-oct-2026): "si busco 'amianto' tiene que encontrarse,
 // aunque no recuerde quien lo pide o como. Igual si busco Luis Enrique o
@@ -76,12 +77,35 @@ function Resaltar({ texto, palabras }: { texto: string; palabras: string[] }) {
   return <>{trozos}</>;
 }
 
-/** `children`: los filtros, que van justo debajo de la caja de busqueda. */
-export function Lista({ manias, total, children }: { manias: ManiaVista[]; total: number; children?: ReactNode }) {
+const sinCriterios: Criterios = { municipio: "", entidad: "", persona: "" };
+
+/** Cuantas de cada valor, ordenadas por nombre. */
+function contar(lista: ManiaVista[], campo: (m: ManiaVista) => string | null): Opcion[] {
+  const n = new Map<string, number>();
+  for (const m of lista) {
+    const v = campo(m);
+    if (v) n.set(v, (n.get(v) ?? 0) + 1);
+  }
+  return Array.from(n, ([valor, k]) => ({ valor, n: k })).sort((a, b) => a.valor.localeCompare(b.valor, "es"));
+}
+
+const CAMPO: Record<keyof Criterios, (m: ManiaVista) => string | null> = {
+  municipio: (m) => m.municipio,
+  entidad: (m) => m.entidad,
+  persona: (m) => m.tecnico,
+};
+
+// BUSQUEDA Y FILTROS, JUNTOS Y EN EL NAVEGADOR (Monica, 10-oct-2026): "se
+// pueden ejecutar filtros sobre la busqueda, no?". Si: cada cosa restringe lo
+// que deja la otra, y encima de la lista se dice con palabras que se esta
+// viendo, con una × en cada criterio. Los numeros de cada filtro cuentan
+// dentro de lo buscado y de los OTROS filtros, no de toda la tabla.
+export function Lista({ manias }: { manias: ManiaVista[] }) {
   const [busco, setBusco] = useState("");
+  const [criterios, setCriterios] = useState<Criterios>(sinCriterios);
   const palabras = useMemo(() => llano(busco).split(/\s+/).filter((p) => p.length > 0), [busco]);
 
-  const vistas = useMemo(() => {
+  const buscadas = useMemo(() => {
     if (!palabras.length) return manias;
     return manias.filter((m) => {
       const todo = llano(
@@ -93,29 +117,105 @@ export function Lista({ manias, total, children }: { manias: ManiaVista[]; total
     });
   }, [manias, palabras]);
 
+  const pasa = (m: ManiaVista, salvo?: keyof Criterios) =>
+    (Object.keys(CAMPO) as (keyof Criterios)[]).every((k) => k === salvo || !criterios[k] || CAMPO[k](m) === criterios[k]);
+  const vistas = buscadas.filter((m) => pasa(m));
+  const opciones = (k: keyof Criterios) => contar(buscadas.filter((m) => pasa(m, k)), CAMPO[k]);
+
+  const cambiar = (k: keyof Criterios, v: string) => setCriterios((c) => ({ ...c, [k]: v }));
+  const hayAlgo = !!busco.trim() || Object.values(criterios).some(Boolean);
+
   const R = ({ t }: { t: string }) => <Resaltar texto={t} palabras={palabras} />;
+  const etiqueta = (texto: string, quitar: () => void) => (
+    <span className="inline-flex items-center gap-1 rounded-full border border-lima-dark/40 bg-lima-soft py-0.5 pl-2.5 pr-1 text-[12.5px] font-semibold text-carbon">
+      {texto}
+      <button
+        type="button"
+        onClick={quitar}
+        title="Quitar"
+        className="flex h-5 w-5 items-center justify-center rounded-full text-[14px] leading-none text-carbon/60 transition hover:bg-carbon hover:text-white"
+      >
+        ×
+      </button>
+    </span>
+  );
 
   return (
     <>
       <div className="relative mt-5">
+        <svg
+          aria-hidden
+          viewBox="0 0 24 24"
+          className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-carbon/45"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
         <input
-          type="search"
+          type="text"
           value={busco}
           onChange={(e) => setBusco(e.target.value)}
           placeholder="Buscar: amianto, Leganés, un técnico, una calle…"
+          aria-label="Buscar en las manías"
           autoFocus
-          className="h-[44px] w-full rounded-2xl border border-carbon/25 bg-white px-4 text-[15px] text-carbon shadow-sm outline-none transition focus:border-lima-dark focus:ring-2 focus:ring-lima/40"
+          className="h-[46px] w-full rounded-2xl border border-carbon/25 bg-white pl-12 pr-11 text-[15px] text-carbon shadow-sm outline-none transition focus:border-lima-dark focus:ring-2 focus:ring-lima/40"
+        />
+        {busco && (
+          <button
+            type="button"
+            onClick={() => setBusco("")}
+            title="Vaciar la búsqueda"
+            className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-[18px] leading-none text-carbon/55 transition hover:bg-carbon hover:text-white"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-black/5 bg-white p-4 shadow-sm">
+        <Filtros
+          actual={criterios}
+          cambiar={cambiar}
+          municipios={opciones("municipio")}
+          entidades={opciones("entidad")}
+          personas={opciones("persona")}
         />
       </div>
-      {children}
-      <p className="mt-3 text-[12.5px] text-carbon/55">
-        {vistas.length === total ? `${total} manías` : `${vistas.length} de ${total} manías`}
-      </p>
+
+      {/* QUE SE ESTA VIENDO, dicho con palabras: asi se ve que la lista de
+          abajo ya es la busqueda, sin boton de "buscar". */}
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-black/10 pb-2.5">
+        <span className="text-[14px] font-bold text-carbon">
+          {hayAlgo
+            ? `${vistas.length} ${vistas.length === 1 ? "manía" : "manías"} de ${manias.length}`
+            : `Todas las manías · ${manias.length}`}
+        </span>
+        {busco.trim() && etiqueta(`con «${busco.trim()}»`, () => setBusco(""))}
+        {criterios.municipio && etiqueta(`en ${criterios.municipio}`, () => cambiar("municipio", ""))}
+        {criterios.entidad && etiqueta(criterios.entidad, () => cambiar("entidad", ""))}
+        {criterios.persona && etiqueta(criterios.persona, () => cambiar("persona", ""))}
+        {hayAlgo && (
+          <button
+            type="button"
+            onClick={() => {
+              setBusco("");
+              setCriterios(sinCriterios);
+            }}
+            className="ml-auto text-[12.5px] font-semibold text-[#2B6CB0] hover:underline"
+          >
+            Quitar todo
+          </button>
+        )}
+      </div>
 
       <div className="mt-2 space-y-3">
         {vistas.length === 0 ? (
           <p className={CAJA + " p-5 text-[13px] text-carbon/55"}>
-            Ninguna manía {busco ? `con «${busco}»` : "con esos filtros"}.
+            Ninguna manía con eso. Quita algún criterio de arriba.
           </p>
         ) : (
           vistas.map((m) => (

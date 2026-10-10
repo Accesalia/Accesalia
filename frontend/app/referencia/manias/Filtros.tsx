@@ -1,46 +1,62 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-type Opcion = { valor: string; n: number };
+export type Opcion = { valor: string; n: number };
+export type Criterios = { municipio: string; entidad: string; persona: string };
 
 const sel =
-  "h-[34px] w-full rounded-[10px] border border-carbon/25 bg-white px-2.5 text-[13.5px] text-carbon outline-none focus:border-lima-dark";
+  "h-[34px] w-full rounded-[10px] border border-carbon/25 bg-white pl-2.5 pr-8 text-[13.5px] text-carbon outline-none focus:border-lima-dark";
 
-/** Los tres filtros: al cambiar uno, se recarga con el nuevo en la direccion. */
+/** Los tres filtros. Cada uno con su × para quitar SOLO ese (Monica, 10-oct-2026:
+ *  "para quitar un filtro, solo uno, deberia ser mas sencillo: una crucecita").
+ *  Los numeros cuentan dentro de lo que ya se ha buscado y filtrado. */
 export function Filtros({
   actual,
+  cambiar,
   municipios,
   entidades,
   personas,
 }: {
-  actual: { municipio?: string; entidad?: string; persona?: string };
+  actual: Criterios;
+  cambiar: (clave: keyof Criterios, valor: string) => void;
   municipios: Opcion[];
   entidades: Opcion[];
   personas: Opcion[];
 }) {
-  const router = useRouter();
-  const ir = (clave: "municipio" | "entidad" | "persona", valor: string) => {
-    const q = new URLSearchParams();
-    const nuevo = { ...actual, [clave]: valor || undefined };
-    for (const [k, v] of Object.entries(nuevo)) if (v) q.set(k, v);
-    const s = q.toString();
-    router.push(`/referencia/manias${s ? `?${s}` : ""}`, { scroll: false });
+  const caja = (clave: keyof Criterios, rotulo: string, todas: string, opciones: Opcion[]) => {
+    const puesto = actual[clave];
+    // El elegido sigue en la lista aunque con lo buscado no quede ninguna suya.
+    const lista = puesto && !opciones.some((o) => o.valor === puesto) ? [{ valor: puesto, n: 0 }, ...opciones] : opciones;
+    return (
+      <label className="block">
+        <span className="text-[10.5px] font-bold uppercase tracking-[0.06em] text-carbon/60">{rotulo}</span>
+        <div className="relative mt-1">
+          <select
+            value={puesto}
+            onChange={(e) => cambiar(clave, e.target.value)}
+            className={sel + (puesto ? " border-lima-dark bg-lima-soft font-semibold" : "")}
+          >
+            <option value="">{todas}</option>
+            {lista.map((o) => (
+              <option key={o.valor} value={o.valor}>
+                {o.valor} ({o.n})
+              </option>
+            ))}
+          </select>
+          {puesto && (
+            <button
+              type="button"
+              onClick={() => cambiar(clave, "")}
+              aria-label={`Quitar el filtro de ${rotulo.toLowerCase()}`}
+              title="Quitar este filtro"
+              className="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[15px] font-bold leading-none text-carbon/60 shadow-sm transition hover:bg-carbon hover:text-white"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </label>
+    );
   };
-
-  const caja = (clave: "municipio" | "entidad" | "persona", rotulo: string, todas: string, opciones: Opcion[]) => (
-    <label className="block">
-      <span className="text-[10.5px] font-bold uppercase tracking-[0.06em] text-carbon/60">{rotulo}</span>
-      <select value={actual[clave] ?? ""} onChange={(e) => ir(clave, e.target.value)} className={sel + " mt-1"}>
-        <option value="">{todas}</option>
-        {opciones.map((o) => (
-          <option key={o.valor} value={o.valor}>
-            {o.valor} ({o.n})
-          </option>
-        ))}
-      </select>
-    </label>
-  );
 
   return (
     <div className="grid gap-3 sm:grid-cols-3">
