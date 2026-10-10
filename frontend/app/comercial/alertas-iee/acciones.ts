@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
-import { alertaIEE, comercialesActivos } from "../../../lib/alertasIEE";
+import { alertaIEE, comercialesActivos, grado, porQue } from "../../../lib/alertasIEE";
 import { enviarCorreo } from "../../../lib/correo";
 
 // ASIGNAR UNA ALERTA A UN COMERCIAL.
@@ -27,7 +27,15 @@ const enCastellano = (iso: string | null): string =>
  *  para que el comercial no tenga que entrar a ningun sitio para saber si le
  *  interesa: lo que necesita para coger el telefono esta en el propio correo. */
 function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof alertaIEE>>>) {
-  const donde = [a.direccion, a.municipio].filter(Boolean).join(", ") || "sin dirección";
+  // "CL JUAN DE VERGARA, 7 · ALCALA DE HENARES": la provincia que pone el
+  // registro detras del municipio sobra.
+  const municipio = (a.municipio ?? "").replace(/\s*\(MADRID\)\s*$/i, "").trim();
+  const donde = [a.direccion, municipio].filter(Boolean).join(" · ") || "sin dirección";
+  // EL MOTIVO DE VERDAD (Monica, 10-oct-2026). Decia siempre "IEE desfavorable"
+  // y desde el 1-oct el radar recoge tambien las favorables que no cumplen
+  // accesibilidad, que son las mejores. Es el mismo texto que la pantalla.
+  const g = grado(a);
+  const motivo = g ? porQue[g] : (a.valoracion ?? "IEE registrada");
 
   const datos: [string, string][] = [
     ["Dirección", donde],
@@ -44,7 +52,7 @@ function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof aler
 
   const saludo = `Hola ${nombre},`;
   const cuerpo =
-    `nuestro radar dice que esta dirección ha registrado una IEE desfavorable. ` +
+    `nuestro radar ha encontrado una IEE en esta dirección: ${motivo.toLowerCase()}. ` +
     `Aquí tienes los datos:`;
   const cierre =
     `Te lo paso para que puedas hacerles una visita o llamar si quieres. ` +
@@ -67,7 +75,9 @@ function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof aler
       .join("") +
     `</table><p>${cierre}</p>`;
 
-  return { asunto: `IEE desfavorable: ${donde}`, texto, html };
+  // Primero la direccion y luego el motivo (Monica): "buscamos siempre cosas
+  // de una direccion".
+  return { asunto: `${donde} · ${motivo}`, texto, html };
 }
 
 export async function asignarAlerta(formulario: FormData) {
