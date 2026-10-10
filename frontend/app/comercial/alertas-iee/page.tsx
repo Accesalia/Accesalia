@@ -12,7 +12,7 @@ import {
   repartidas,
 } from "../../../lib/alertasIEE";
 import { buzonListo } from "../../../lib/correo";
-import { Asignador, VolverAlMonton } from "./Piezas";
+import { Asignador, Descartar, Recuperar, VolverAlMonton } from "./Piezas";
 
 export const dynamic = "force-dynamic";
 
@@ -60,14 +60,15 @@ const enCastellano = (iso: string | null) => (iso ? iso.split("-").reverse().joi
 export default async function AlertasIEE({
   searchParams,
 }: {
-  searchParams: Promise<{ comercial?: string; nuestras?: string }>;
+  searchParams: Promise<{ comercial?: string; nuestras?: string; descartadas?: string }>;
 }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
   if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
 
-  const { comercial: filtro, nuestras } = await searchParams;
+  const { comercial: filtro, nuestras, descartadas } = await searchParams;
   const verNuestras = nuestras === "1";
+  const verDescartadas = descartadas === "1";
 
   const [todos, comerciales, lista, meses, plazo] = await Promise.all([
     radarPorDias(14),
@@ -82,12 +83,21 @@ export default async function AlertasIEE({
   // nuestras'". Las de la misma finca se apartan; las de la misma calle se
   // quedan, porque son de fuera y son el mejor argumento para llamar.
   const esNuestra = (a: (typeof todos)[number]["alertas"][number]) => a.nuestra?.tipo === "misma_finca";
+  // LAS DESCARTADAS (Monica, 10-oct-2026): salen de la lista, pero se pueden
+  // revisar: "se pueden revisar mas adelante, pero salen de la pantalla de
+  // tareas pendientes".
+  const esDescartada = (a: (typeof todos)[number]["alertas"][number]) => a.estado === "descartada";
   const cuantasNuestras = todos.flatMap((d) => d.alertas).filter(esNuestra).length;
-  const dias = verNuestras ? todos : todos.map((d) => ({ ...d, alertas: d.alertas.filter((a) => !esNuestra(a)) }));
-  const enlace = (ver: boolean) => {
+  const cuantasDescartadas = todos.flatMap((d) => d.alertas).filter((a) => esDescartada(a) && !esNuestra(a)).length;
+  const dias = todos.map((d) => ({
+    ...d,
+    alertas: d.alertas.filter((a) => (verNuestras || !esNuestra(a)) && (verDescartadas || !esDescartada(a))),
+  }));
+  const enlace = (ver: boolean, verD: boolean = verDescartadas) => {
     const q = new URLSearchParams();
     if (filtro) q.set("comercial", filtro);
     if (ver) q.set("nuestras", "1");
+    if (verD) q.set("descartadas", "1");
     const s = q.toString();
     return `/comercial/alertas-iee${s ? `?${s}` : ""}`;
   };
@@ -167,6 +177,16 @@ export default async function AlertasIEE({
             <h2 className={ROTULO}>
               El parte de cada día{verNuestras ? " · con las nuestras" : " · solo las de fuera"}
             </h2>
+            <div className="flex flex-wrap items-center gap-2">
+            {cuantasDescartadas > 0 && (
+              <Link
+                href={enlace(verNuestras, !verDescartadas)}
+                scroll={false}
+                className="rounded-full border border-carbon/25 bg-white px-3 py-1 text-[12px] font-semibold text-carbon/70 transition hover:border-carbon/50"
+              >
+                {verDescartadas ? "Ocultar las descartadas" : `Mostrar las descartadas (${cuantasDescartadas})`}
+              </Link>
+            )}
             {cuantasNuestras > 0 && (
               <Link
                 href={enlace(!verNuestras)}
@@ -176,6 +196,7 @@ export default async function AlertasIEE({
                 {verNuestras ? "Ocultar las nuestras" : `Mostrar las nuestras (${cuantasNuestras})`}
               </Link>
             )}
+            </div>
           </div>
 
           <div className={CAJA + " overflow-hidden"}>
@@ -285,8 +306,19 @@ export default async function AlertasIEE({
                                 ) : null}
                                 <VolverAlMonton codigo={a.codigo} />
                               </span>
+                            ) : a.estado === "descartada" ? (
+                              <span className="flex flex-wrap items-center gap-x-2 text-[12px] text-carbon/50">
+                                <span>
+                                  Descartada{a.descartadaPor ? ` por ${a.descartadaPor}` : ""}
+                                  {a.motivoDescarte ? ` · ${a.motivoDescarte}` : ""}
+                                </span>
+                                <Recuperar codigo={a.codigo} />
+                              </span>
                             ) : (
-                              <Asignador codigo={a.codigo} comerciales={comerciales} />
+                              <span className="flex flex-wrap items-center gap-2">
+                                <Asignador codigo={a.codigo} comerciales={comerciales} />
+                                <Descartar codigo={a.codigo} />
+                              </span>
                             )}
                           </td>
                           <td className="px-4 py-2">
@@ -301,6 +333,8 @@ export default async function AlertasIEE({
                               >
                                 <span aria-hidden className="text-[15px] leading-none">✓</span> Sí
                               </Link>
+                            ) : a.estado === "descartada" ? (
+                              <span className="text-carbon/35">—</span>
                             ) : !a.asignadaA ? (
                               <span className="text-carbon/35">Sin asignar</span>
                             ) : tarde ? (

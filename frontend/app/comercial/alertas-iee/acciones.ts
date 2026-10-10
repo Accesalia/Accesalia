@@ -154,3 +154,50 @@ export async function devolverAlMonton(formulario: FormData) {
 
   revalidatePath("/comercial/alertas-iee");
 }
+
+/** DESCARTAR (Monica, 10-oct-2026): "las opciones deberian ser vincular /
+ *  descartar, para que en epocas de mucho trabajo no se acumulen". Sale de los
+ *  pendientes y del aviso diario, pero no se borra: se puede revisar y recuperar.
+ *  Queda quien y cuando, como al asignar. El motivo es opcional. */
+export async function descartarAlerta(formulario: FormData) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
+  if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
+
+  const codigo = String(formulario.get("codigo") ?? "");
+  if (!codigo) return;
+  const motivo = String(formulario.get("motivo") ?? "").trim();
+
+  await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(codigo)}&estado=eq.nueva`, {
+    method: "PATCH",
+    headers: { ...cab, Prefer: "return=minimal" },
+    body: JSON.stringify({
+      estado: "descartada",
+      descartada_por: yo.id,
+      descartada_en: new Date().toISOString(),
+      motivo_descarte: motivo || null,
+    }),
+  });
+
+  revalidatePath("/comercial/alertas-iee");
+  revalidatePath("/pendientes");
+}
+
+/** La salida del descarte: vuelve a estar sin asignar. */
+export async function recuperarAlerta(formulario: FormData) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
+  if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
+
+  const codigo = String(formulario.get("codigo") ?? "");
+  if (!codigo) return;
+
+  await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(codigo)}&estado=eq.descartada`, {
+    method: "PATCH",
+    headers: { ...cab, Prefer: "return=minimal" },
+    body: JSON.stringify({ estado: "nueva", descartada_por: null, descartada_en: null, motivo_descarte: null }),
+  });
+
+  revalidatePath("/comercial/alertas-iee");
+  revalidatePath("/pendientes");
+}

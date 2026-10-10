@@ -55,6 +55,10 @@ export type AlertaIEE = {
   asignadaEmailFallo: string | null;
   oportunidadId: string | null;
   comercial: string | null;
+  /** Descartada en el radar (10-oct-2026): quien, cuando y por que (opcional). */
+  descartadaEn: string | null;
+  descartadaPor: string | null;
+  motivoDescarte: string | null;
   nuestra: Nuestra;
 };
 
@@ -97,13 +101,17 @@ type Fila = {
   asignada_email_fallo: string | null;
   oportunidad_id: string | null;
   comerciales: { nombre: string } | null;
+  descartada_en: string | null;
+  motivo_descarte: string | null;
+  descarto: { nombre: string } | null;
 };
 
 const CAMPOS =
   "codigo,referencia,referencia_parcela,direccion,municipio,cp,anio_construccion,fecha_emision," +
   "valoracion,deficiencias_subsanadas,calificacion_energetica,accesibilidad_satisface," +
   "accesibilidad_ajustes,estado_expediente,validez,bruto,visto_en,estado,asignada_a,asignada_en," +
-  "asignada_email_en,asignada_email_fallo,oportunidad_id,comerciales(nombre)";
+  "asignada_email_en,asignada_email_fallo,oportunidad_id,comerciales(nombre),descartada_en,motivo_descarte," +
+  "descarto:equipo!iee_registrado_descartada_por_fkey(nombre)";
 
 const vestir = (f: Fila): AlertaIEE => ({
   codigo: f.codigo,
@@ -130,6 +138,9 @@ const vestir = (f: Fila): AlertaIEE => ({
   asignadaEmailFallo: f.asignada_email_fallo,
   oportunidadId: f.oportunidad_id,
   comercial: f.comerciales?.nombre ?? null,
+  descartadaEn: f.descartada_en,
+  descartadaPor: f.descarto?.nombre ?? null,
+  motivoDescarte: f.motivo_descarte,
   nuestra: null,
 });
 

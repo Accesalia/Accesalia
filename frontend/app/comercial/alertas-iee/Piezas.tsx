@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { asignarAlerta, devolverAlMonton } from "./acciones";
+import { asignarAlerta, descartarAlerta, devolverAlMonton, recuperarAlerta } from "./acciones";
 import type { ComercialAlQueAsignar } from "../../../lib/alertasIEE";
 
 // LAS PIEZAS QUE NECESITAN RATON.
@@ -63,6 +63,58 @@ export function VolverAlMonton({ codigo }: { codigo: string }) {
         className="text-[12px] font-semibold text-carbon/45 underline transition hover:text-carbon"
       >
         deshacer
+      </button>
+    </form>
+  );
+}
+
+/** DESCARTAR (Monica, 10-oct-2026). Dos gestos: se abre, se escribe un motivo
+ *  si se quiere, y se confirma. Uno solo seria facil de pulsar sin querer. */
+export function Descartar({ codigo }: { codigo: string }) {
+  const [abierto, setAbierto] = useState(false);
+  if (!abierto)
+    return (
+      <button
+        type="button"
+        onClick={() => setAbierto(true)}
+        className="text-[12px] font-semibold text-carbon/45 underline transition hover:text-carbon"
+      >
+        descartar
+      </button>
+    );
+  return (
+    <form action={descartarAlerta} className="flex items-center gap-1.5">
+      <input type="hidden" name="codigo" value={codigo} />
+      <input
+        name="motivo"
+        placeholder="Motivo (opcional)"
+        autoFocus
+        className="h-[28px] w-[150px] rounded-[6px] border border-black/20 bg-white px-2 text-[12px] text-carbon"
+      />
+      <button
+        type="submit"
+        className="h-[28px] rounded-[6px] border border-carbon/30 bg-white px-2 text-[12px] font-semibold text-carbon transition hover:border-carbon"
+      >
+        Descartar
+      </button>
+      <button
+        type="button"
+        onClick={() => setAbierto(false)}
+        className="text-[12px] text-carbon/45 underline hover:text-carbon"
+      >
+        cancelar
+      </button>
+    </form>
+  );
+}
+
+/** La salida de un descarte. */
+export function Recuperar({ codigo }: { codigo: string }) {
+  return (
+    <form action={recuperarAlerta}>
+      <input type="hidden" name="codigo" value={codigo} />
+      <button type="submit" className="text-[12px] font-semibold text-carbon/45 underline transition hover:text-carbon">
+        recuperar
       </button>
     </form>
   );
