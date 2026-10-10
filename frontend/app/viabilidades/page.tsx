@@ -111,9 +111,9 @@ export default async function MesaDeViabilidades({ searchParams }: { searchParam
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   {e.enlaceFichero && (
-                    <a href={e.enlaceFichero} target="_blank" rel="noreferrer" className={ENLACE_AJENO}>
+                    <Link href={`/viabilidades/escaneo/${e.id}`} className={ENLACE_AJENO}>
                       Abrir el fichero
-                    </a>
+                    </Link>
                   )}
                   {e.rutaPolycam && (
                     <a href={e.rutaPolycam} target="_blank" rel="noreferrer" className={ENLACE_AJENO}>
