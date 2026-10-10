@@ -170,21 +170,22 @@ export function ListaPendientes({
           cuenta es el admin".
           UNA CHULETA, NO LA PRIMERA PARTE DEL LISTADO (Monica, 10-oct-2026):
           "mas pequeña y alineada a la derecha, con color de fondo tenue: que se
-          vea el dato, que se vea que es una chuleta". Un tercio del ancho. */}
+          vea el dato, que se vea que es una chuleta". Un tercio del ancho. Texto en verde oscuro y sin
+          transparencias: en gris claro sobre el verde no se leia (contraste AA). */}
       {municipio && suCartera.length > 0 && (
         <div className="mb-3 flex justify-end">
-          <div className="w-full rounded-xl border border-lima/25 bg-lima-soft/60 px-3 py-2 sm:w-auto sm:min-w-[340px] lg:w-1/3">
-            <div className="mb-1 text-[11px] font-semibold text-carbon/55">
+          <div className="w-full rounded-xl border border-lima bg-lima-soft px-3 py-2 sm:w-auto sm:min-w-[340px] lg:w-1/3">
+            <div className="mb-1 text-[11px] font-bold text-lima-dark">
               Quién tiene ya opps en {bonito(municipio)}
             </div>
             <table className="w-full text-[12px] tabular-nums">
               <thead>
-                <tr className="text-[10px] uppercase tracking-wider text-carbon/45">
+                <tr className="text-[10px] uppercase tracking-wider text-lima-dark">
                   <th className="pb-0.5 text-left font-semibold" rowSpan={2}></th>
                   <th className="pb-0.5 text-center font-semibold" colSpan={2}>Aquí</th>
                   <th className="pb-0.5 text-center font-semibold" colSpan={2}>En total</th>
                 </tr>
-                <tr className="text-[10px] text-carbon/45">
+                <tr className="text-[10px] text-lima-dark">
                   <th className="px-1 text-right font-normal">abiertas*</th>
                   <th className="px-1 text-right font-normal">cerradas</th>
                   <th className="px-1 text-right font-normal">abiertas*</th>
@@ -193,17 +194,17 @@ export function ListaPendientes({
               </thead>
               <tbody>
                 {suCartera.map((c) => (
-                  <tr key={c.comercialId} className="border-t border-lima/15">
+                  <tr key={c.comercialId} className="border-t border-lima/40">
                     <td className="py-0.5 pr-2 font-semibold text-carbon">{c.nombre}</td>
-                    <td className={"px-1 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-carbon/30")}>{c.abiertasAqui}</td>
-                    <td className={"px-1 text-right " + (c.cerradasAqui ? "text-carbon/70" : "text-carbon/30")}>{c.cerradasAqui}</td>
-                    <td className="px-1 text-right text-carbon/50">{c.abiertasTotal}</td>
-                    <td className="px-1 text-right text-carbon/50">{c.cerradasTotal}</td>
+                    <td className={"px-1 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-lima-dark")}>{c.abiertasAqui}</td>
+                    <td className={"px-1 text-right " + (c.cerradasAqui ? "font-bold text-carbon" : "text-lima-dark")}>{c.cerradasAqui}</td>
+                    <td className="px-1 text-right text-lima-dark">{c.abiertasTotal}</td>
+                    <td className="px-1 text-right text-lima-dark">{c.cerradasTotal}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div className="mt-1 text-[10px] text-carbon/40">* con las pausadas</div>
+            <div className="mt-1 text-[10px] text-lima-dark">* con las pausadas</div>
           </div>
         </div>
       )}
