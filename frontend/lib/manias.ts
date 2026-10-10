@@ -18,6 +18,8 @@ export type Mania = {
   mania: string;
   cita: string | null;
   fecha: string | null;
+  /** Quien la puso: "Volcado de Dropbox" o la persona, desde la app. */
+  autor: string | null;
   oportunidad: { id: string; codigo: string | null; nombre: string | null } | null;
 };
 
@@ -29,14 +31,15 @@ type Fila = {
   mania: string;
   cita: string | null;
   fecha: string | null;
+  autor: string | null;
   municipio: { nombre: string } | null;
   oportunidad: { id: string; codigo: string | null; nombre: string | null } | null;
 };
 
 export async function manias(): Promise<Mania[]> {
   const r = await fetch(
-    `${URL_BASE}/rest/v1/manias_organismos?select=id,entidad,departamento,tecnico,mania,cita,fecha,` +
-      `municipio:municipio_id(nombre),oportunidad:oportunidad_id(id,codigo,nombre)&order=fecha.desc.nullslast`,
+    `${URL_BASE}/rest/v1/manias_organismos?select=id,entidad,departamento,tecnico,mania,cita,fecha,autor,` +
+      `municipio:municipio_id(nombre),oportunidad:oportunidad_id(id,codigo,nombre)&order=fecha.desc.nullslast,creado_en.desc`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
   );
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -49,6 +52,17 @@ export async function manias(): Promise<Mania[]> {
     mania: f.mania,
     cita: f.cita,
     fecha: f.fecha,
+    autor: f.autor,
     oportunidad: f.oportunidad,
   }));
+}
+
+/** Los municipios, para elegir en el alta: el nombre de Catastro es la clave. */
+export async function municipiosCatastro(): Promise<string[]> {
+  const r = await fetch(`${URL_BASE}/rest/v1/municipios_catastro?select=nombre&order=nombre`, {
+    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`Supabase REST ${r.status}`);
+  return ((await r.json()) as { nombre: string }[]).map((m) => m.nombre);
 }

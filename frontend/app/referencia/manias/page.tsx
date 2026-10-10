@@ -2,10 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { quienSoy } from "../../../lib/sesion";
-import { manias, type Mania } from "../../../lib/manias";
+import { manias, municipiosCatastro, type Mania } from "../../../lib/manias";
 import { bonito } from "../../../lib/direccionNombre";
 import { Filtros } from "./Filtros";
 import { Lista } from "./Lista";
+import { Anadir, type EntidadConocida } from "./Anadir";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,10 @@ export const dynamic = "force-dynamic";
 // relevante como una del mes pasado, y puede incluso contradecirla". Por eso
 // van de la mas reciente a la mas antigua y cada una dice cuanto hace.
 // La cita literal de la nota va a la vista, debajo de la mania: es la prueba.
+//
+// ALCANCE (Monica, 10-oct-2026): solo manias que afectan a la EJECUCION
+// TECNICA, de organismos y sus tecnicos. Las de administradores de fincas van
+// aparte: son otro mundo.
 
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 
@@ -38,7 +43,17 @@ export default async function Manias({
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/referencia/manias");
   const filtro = await searchParams;
-  const todas = (await manias()).map((m) => ({ ...m, municipio: m.municipio ? bonito(m.municipio) : null }));
+  const [crudas, nombresMunicipio] = await Promise.all([manias(), municipiosCatastro()]);
+  const todas = crudas.map((m) => ({ ...m, municipio: m.municipio ? bonito(m.municipio) : null }));
+
+  // Para el alta: cada entidad con su municipio, si siempre es el mismo y es de
+  // un sitio (un ayuntamiento, una junta). Una ECU trabaja en muchos: ninguno.
+  const suyo = new Map<string, Set<string>>();
+  for (const m of crudas) if (m.entidad) suyo.set(m.entidad, (suyo.get(m.entidad) ?? new Set()).add(m.municipio ?? ""));
+  const entidades: EntidadConocida[] = Array.from(suyo, ([nombre, ms]) => ({
+    nombre,
+    municipio: ms.size === 1 && /^(Ayuntamiento|Junta) de /.test(nombre) ? [...ms][0] || null : null,
+  })).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
   const lista = todas.filter(
     (m) =>
@@ -59,6 +74,12 @@ export default async function Manias({
           Lo que cada ayuntamiento, junta, ECU o técnico pide o hace a su manera, sacado de las notas de las fichas.
           Las más recientes, arriba: una manía antigua puede haber cambiado.
         </p>
+
+        <Anadir
+          entidades={entidades}
+          municipios={nombresMunicipio.map((n) => ({ nombre: n, bonito: bonito(n) }))}
+          tecnicos={contar(todas, (m) => m.tecnico).map((t) => t.valor)}
+        />
 
         <Lista manias={lista} total={lista.length}>
           <div className={CAJA + " mt-3 p-4"}>

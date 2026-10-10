@@ -21,6 +21,7 @@ export type ManiaVista = {
   mania: string;
   cita: string | null;
   fecha: string | null;
+  autor: string | null;
   oportunidad: { id: string; codigo: string | null; nombre: string | null } | null;
 };
 
@@ -161,6 +162,11 @@ export function Lista({ manias, total, children }: { manias: ManiaVista[]; total
                 <blockquote className="mt-2 whitespace-pre-line border-l-2 border-black/10 pl-3 text-[12.5px] leading-relaxed text-carbon/55">
                   <R t={m.cita} />
                 </blockquote>
+              )}
+              {m.autor && m.autor !== "Volcado de Dropbox" && (
+                <div className="mt-2 text-[12px] text-carbon/50">
+                  La puso <b className="font-semibold text-carbon/70">{m.autor}</b>
+                </div>
               )}
               {m.oportunidad && (
                 <div className="mt-2 text-[12px] text-carbon/50">
