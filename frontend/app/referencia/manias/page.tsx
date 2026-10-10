@@ -29,7 +29,7 @@ function cuantoHace(iso: string): string {
   return `hace ${años} ${años === 1 ? "año" : "años"}`;
 }
 
-const sinTildes = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const sinTildes = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
 function contar(lista: Mania[], campo: (m: Mania) => string | null) {
   const n = new Map<string, number>();
