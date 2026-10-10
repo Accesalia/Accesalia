@@ -21,6 +21,15 @@ def pal(t):
     return [p for p in re.sub(r'[^A-Z0-9 ]', ' ', s).split() if p not in VACIAS]
 
 
+def calle(ps):
+    """Las palabras de la calle: las de ANTES del primer numero (detras van barrio, municipio, portal)."""
+    out = []
+    for w in ps:
+        if w.isdigit(): break
+        out.append(w)
+    return out[:3]
+
+
 def main():
     comp = json.load(open(sys.argv[1], encoding='utf-8'))
     sp = [x for x in comp if x['veredicto'] == 'sin pareja en la app']
@@ -42,7 +51,7 @@ def main():
                 m = re.search(r'existente en:?\s*(.{4,80}?)(?:\s+El total|\s+Incluye|[.]|$)', ' '.join((l['concepto'] or '').split()), re.I)
                 if m: fuente, ps = m.group(1), pal(m.group(1)); break
         nums = [w for w in ps if w.isdigit()]
-        letras = [w for w in ps if not w.isdigit()][:3]
+        letras = calle(ps)
         cand = [cid for cid, (n, cp) in coms.items() if letras and nums and all(w in cp for w in letras) and nums[0] in cp]
         r = {'presupuesto': x['factusol'], 'fecha': x['fecha_f'], 'cliente': p['pagador_nombre'], 'direccion_usada': fuente,
              'base': x['base_f'], 'comunidades': [coms[cid][0] for cid in cand]}

@@ -20,6 +20,15 @@ def pal(t):
     return [p for p in re.sub(r'[^A-Z0-9 ]', ' ', s).split() if p not in VACIAS]
 
 
+def calle(ps):
+    """Las palabras de la calle: las de ANTES del primer numero (detras van barrio, municipio, portal)."""
+    out = []
+    for w in ps:
+        if w.isdigit(): break
+        out.append(w)
+    return out[:3]
+
+
 def main():
     out = sys.argv[1] if len(sys.argv) > 1 else '.'
     b = arrancar()
@@ -37,7 +46,7 @@ def main():
         cand = por_nif.get((f['pagador_nif'] or '').upper().replace('-', ''), []) if f['pagador_nif'] else []
         como = 'nif'
         if not cand:
-            pf = pal(f['pagador_nombre']); nums = [x for x in pf if x.isdigit()]; letras = [x for x in pf if not x.isdigit()][:3]
+            pf = pal(f['pagador_nombre']); nums = [x for x in pf if x.isdigit()]; letras = calle(pf)
             if letras and nums:
                 cand = [a for a in app if all(x in pal(a['pagador_nombre']) for x in letras) and nums[0] in pal(a['pagador_nombre'])]
             como = 'nombre'
@@ -46,7 +55,7 @@ def main():
             textos = [f['pagador_nombre'] or ''] + [m.group(1) for l in f.get('presupuesto_lineas', []) for m in
                       [re.search(r'existente en:?\s*(.{4,80}?)(?:\s+El total|\s+Incluye|[.]|$)', ' '.join((l.get('concepto') or '').split()), re.I)] if m]
             for t in textos:
-                pt = pal(t); nums = [x for x in pt if x.isdigit()]; letras = [x for x in pt if not x.isdigit()][:3]
+                pt = pal(t); nums = [x for x in pt if x.isdigit()]; letras = calle(pt)
                 if not (letras and nums): continue
                 cs = {cid for cid, cp in coms.items() if all(x in cp for x in letras) and nums[0] in cp}
                 cand = [a for a in app if opp_com.get(a['oportunidad_id']) in cs]
