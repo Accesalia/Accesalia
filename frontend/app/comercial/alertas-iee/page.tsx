@@ -126,7 +126,10 @@ export default async function AlertasIEE({
         .map((d) => ({ ...d, alertas: d.alertas.filter((a) => municipioLimpio(a.municipio) === municipio) }))
         .filter((d) => d.alertas.length > 0)
     : sinFiltrar;
-  const enlace = (ver: boolean, verD: boolean = verDescartadas, muni: string | undefined = municipio) => {
+  // `null` = todos los municipios. No vale `undefined`: con undefined JavaScript
+  // pone el valor por defecto -el municipio elegido- y "Todos los municipios" te
+  // dejaba donde estabas (10-oct-2026).
+  const enlace = (ver: boolean, verD: boolean = verDescartadas, muni: string | null = municipio ?? null) => {
     const q = new URLSearchParams();
     if (filtro) q.set("comercial", filtro);
     if (ver) q.set("nuestras", "1");
@@ -259,7 +262,7 @@ export default async function AlertasIEE({
 
           {municipios.length > 1 && (
             <div className="mb-2.5 flex flex-wrap gap-1.5">
-              <Link href={enlace(verNuestras, verDescartadas, undefined)} scroll={false} className={municipio ? MUNI : MUNI_ACTIVO}>
+              <Link href={enlace(verNuestras, verDescartadas, null)} scroll={false} className={municipio ? MUNI : MUNI_ACTIVO}>
                 Todos los municipios
               </Link>
               {municipios.map(([m, n]) => (
