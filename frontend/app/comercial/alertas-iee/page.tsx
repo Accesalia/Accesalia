@@ -240,6 +240,16 @@ export default async function AlertasIEE({
                           <td className="px-4 py-2">
                             <div className="font-bold text-carbon">
                               {a.direccion ?? "Sin dirección"}
+                              {/* EL MUNICIPIO (Monica, 10-oct-2026): sin el, "Principe de
+                                  Vergara 48" no se sabe donde cae. El registro lo escribe
+                                  con la provincia detras -"FUENLABRADA (MADRID)"-, que
+                                  aqui sobra. */}
+                              {a.municipio && (
+                                <span className="font-semibold text-carbon/60">
+                                  {" · "}
+                                  {a.municipio.replace(/\s*\(MADRID\)\s*$/i, "").trim()}
+                                </span>
+                              )}
                             </div>
                             {/* Las dos respuestas del cotejo, y dicen cosas
                                 opuestas: la misma finca es un cliente que ya
