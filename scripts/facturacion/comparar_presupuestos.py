@@ -39,9 +39,11 @@ def main():
             if letras and nums:
                 cand = [a for a in app if all(x in pal(a['pagador_nombre']) for x in letras) and nums[0] in pal(a['pagador_nombre'])]
             como = 'nombre'
-        if len(cand) > 1 and f['fecha']:
-            fd = datetime.date.fromisoformat(f['fecha'])
-            cand.sort(key=lambda a: abs((datetime.date.fromisoformat(a['fecha']) - fd).days) if a['fecha'] else 9999)
+        if len(cand) > 1:
+            # entre los del mismo cliente: primero el de MISMO total, luego el de fecha mas cercana
+            fd = datetime.date.fromisoformat(f['fecha']) if f['fecha'] else None
+            cand.sort(key=lambda a: (abs(float(a['base'] or 0) - float(f['base'] or 0)) >= 1,
+                                     abs((datetime.date.fromisoformat(a['fecha']) - fd).days) if (a['fecha'] and fd) else 9999))
         a = cand[0] if cand else None
         r = {'factusol': '%s %s/%s' % (f['empresa_emisora'], f['anio'], f['numero']), 'fecha_f': f['fecha'], 'cliente': f['pagador_nombre'],
              'base_f': float(f['base'] or 0), 'lineas_f': len(f['presupuesto_lineas']), 'estado_f': f['estado']}
