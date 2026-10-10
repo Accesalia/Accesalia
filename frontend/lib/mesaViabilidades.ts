@@ -213,8 +213,6 @@ export type PorHacer = {
   viabilidadId: string | null;
   escaneoId: string | null;
   direccion: string;
-  /** Para filtrar en la mesa: las de un mismo sitio, juntas. */
-  municipio: string | null;
   escaleras: string;
   proyecto: string | null;
   comercial: string | null;
@@ -269,7 +267,6 @@ export async function porHacer(): Promise<PorHacer[]> {
       viabilidadId: id,
       escaneoId: null,
       direccion: direccionDe(accesos),
-      municipio: accesos[0] ? bonito(accesos[0].municipio) : null,
       escaleras: escalerasDe(accesos),
       proyecto: proyectoDe(v.oportunidades),
       comercial: v.oportunidades?.comercial?.nombre ?? null,
@@ -290,7 +287,6 @@ export async function porHacer(): Promise<PorHacer[]> {
       viabilidadId: null,
       escaneoId: e.id,
       direccion: direccionDe(accesos),
-      municipio: accesos[0] ? bonito(accesos[0].municipio) : null,
       escaleras: escalerasDe(accesos),
       proyecto: opps.length === 1 ? proyectoDe(opps[0]) : null,
       comercial: opps.length === 1 ? opps[0].comercial?.nombre ?? null : null,
