@@ -167,31 +167,44 @@ export function ListaPendientes({
 
       {/* QUIEN TIENE QUE AHI (Monica, 10-oct-2026): contexto para repartir, "no
           para condicionar". Las pausadas cuentan con las abiertas: "lo que
-          cuenta es el admin". */}
+          cuenta es el admin".
+          UNA CHULETA, NO LA PRIMERA PARTE DEL LISTADO (Monica, 10-oct-2026):
+          "mas pequeña y alineada a la derecha, con color de fondo tenue: que se
+          vea el dato, que se vea que es una chuleta". Un tercio del ancho. */}
       {municipio && suCartera.length > 0 && (
-        <div className={CAJA + " mb-3 overflow-hidden"}>
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
-                <th className="px-4 py-2 font-bold">Comercial</th>
-                <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en {bonito(municipio)}</th>
-                <th className="px-3 py-2 text-right font-bold">Cerradas en {bonito(municipio)}</th>
-                <th className="px-3 py-2 text-right font-bold">Abiertas o pausadas en total</th>
-                <th className="px-4 py-2 text-right font-bold">Cerradas en total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {suCartera.map((c) => (
-                <tr key={c.comercialId} className="border-b border-black/5 tabular-nums last:border-b-0">
-                  <td className="px-4 py-1.5 font-bold text-carbon">{c.nombre}</td>
-                  <td className={"px-3 py-1.5 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-carbon/35")}>{c.abiertasAqui}</td>
-                  <td className={"px-3 py-1.5 text-right " + (c.cerradasAqui ? "font-semibold text-carbon/70" : "text-carbon/35")}>{c.cerradasAqui}</td>
-                  <td className="px-3 py-1.5 text-right text-carbon/60">{c.abiertasTotal}</td>
-                  <td className="px-4 py-1.5 text-right text-carbon/60">{c.cerradasTotal}</td>
+        <div className="mb-3 flex justify-end">
+          <div className="w-full rounded-xl border border-lima/25 bg-lima-soft/60 px-3 py-2 sm:w-auto sm:min-w-[340px] lg:w-1/3">
+            <div className="mb-1 text-[11px] font-semibold text-carbon/55">
+              Quién tiene ya opps en {bonito(municipio)}
+            </div>
+            <table className="w-full text-[12px] tabular-nums">
+              <thead>
+                <tr className="text-[10px] uppercase tracking-wider text-carbon/45">
+                  <th className="pb-0.5 text-left font-semibold" rowSpan={2}></th>
+                  <th className="pb-0.5 text-center font-semibold" colSpan={2}>Aquí</th>
+                  <th className="pb-0.5 text-center font-semibold" colSpan={2}>En total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+                <tr className="text-[10px] text-carbon/45">
+                  <th className="px-1 text-right font-normal">abiertas*</th>
+                  <th className="px-1 text-right font-normal">cerradas</th>
+                  <th className="px-1 text-right font-normal">abiertas*</th>
+                  <th className="px-1 text-right font-normal">cerradas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {suCartera.map((c) => (
+                  <tr key={c.comercialId} className="border-t border-lima/15">
+                    <td className="py-0.5 pr-2 font-semibold text-carbon">{c.nombre}</td>
+                    <td className={"px-1 text-right " + (c.abiertasAqui ? "font-bold text-carbon" : "text-carbon/30")}>{c.abiertasAqui}</td>
+                    <td className={"px-1 text-right " + (c.cerradasAqui ? "text-carbon/70" : "text-carbon/30")}>{c.cerradasAqui}</td>
+                    <td className="px-1 text-right text-carbon/50">{c.abiertasTotal}</td>
+                    <td className="px-1 text-right text-carbon/50">{c.cerradasTotal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-1 text-[10px] text-carbon/40">* con las pausadas</div>
+          </div>
         </div>
       )}
 
