@@ -100,10 +100,14 @@ export default async function AlertasIEE({
   const esDescartada = (a: (typeof todos)[number]["alertas"][number]) => a.estado === "descartada";
   const cuantasNuestras = todos.flatMap((d) => d.alertas).filter(esNuestra).length;
   const cuantasDescartadas = todos.flatMap((d) => d.alertas).filter((a) => esDescartada(a) && !esNuestra(a)).length;
-  const sinFiltrar = todos.map((d) => ({
-    ...d,
-    alertas: d.alertas.filter((a) => (verNuestras || !esNuestra(a)) && (verDescartadas || !esDescartada(a))),
-  }));
+  // En pendientes no salen los dias que se quedan vacios al apartar las nuestras
+  // y las descartadas: "ese dia no habia nada" seria falso (Monica, 10-oct-2026).
+  const sinFiltrar = todos
+    .map((d) => ({
+      ...d,
+      alertas: d.alertas.filter((a) => (verNuestras || !esNuestra(a)) && (verDescartadas || !esDescartada(a))),
+    }))
+    .filter((d) => d.alertas.length > 0);
   // POR MUNICIPIO (Monica, 10-oct-2026): ver juntas las de un mismo sitio para
   // repartir con cabeza. Se sigue asignando una a una. Filtrando, los dias sin
   // ninguna de ese municipio no salen: "ese dia no habia nada" seria mentira.
