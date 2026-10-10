@@ -588,7 +588,10 @@ async function aQuienReparte(): Promise<string[]> {
  *  igual que nuestras comunidades. */
 export const municipioLimpio = (m: string | null): string | null => {
   if (!m) return null;
-  const s = m.replace(/\s*\(MADRID\)\s*$/i, "").trim();
+  // Sin tildes tambien: el registro escribe unas veces "LEGANES" y otras
+  // "LEGANÉS", y sin esto salian dos botones de Leganes y cada uno perdia las
+  // IEE del otro (10-oct-2026).
+  const s = m.replace(/\s*\(MADRID\)\s*$/i, "").normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
   return s ? s.toUpperCase() : null;
 };
 const mismoMunicipio = (m: string) => m.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
