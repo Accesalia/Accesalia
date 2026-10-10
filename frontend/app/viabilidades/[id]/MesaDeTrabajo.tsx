@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DatosMesa, Mesa } from "../../../lib/mesaViabilidades";
 import { accionAvisarDaniel, accionCaptura, accionEnviar, accionGuardar, accionJuntar, accionModelo } from "../acciones";
+import { ElegirCatalogo } from "./ElegirCatalogo";
 
 // La mesa de Alex. Lo que decidio Monica (3-oct-2026):
 //   · la captura del 3D va SIEMPRE, y sale de aqui con un boton;
@@ -340,14 +341,7 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               ))}
             </div>
             {!especifico && (
-              <select value={modelo} onChange={(x) => tocar(setModelo)(x.target.value)} className={campo + " mt-2"}>
-                <option value="">— elige cuál —</option>
-                {m.catalogo.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.codigo} · {c.nombre}
-                  </option>
-                ))}
-              </select>
+              <ElegirCatalogo catalogo={m.catalogo} valor={modelo} cambiar={tocar(setModelo)} />
             )}
           </div>
 

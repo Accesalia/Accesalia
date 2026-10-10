@@ -25,6 +25,7 @@ import "server-only";
 
 import { inflateRawSync } from "node:zlib";
 import { bonito, NOMBRE_TIPO } from "./direccionNombre";
+import { assetUrl, urlsRenders } from "./catalogo";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -343,7 +344,10 @@ export type Mesa = {
   capturaUrl: string | null;
   escaneos: { id: string; fecha: string | null; nombre: string | null; escaleras: string; rutaPolycam: string | null; descargar: string | null }[];
   escaleras: { accesoId: string; nombre: string; texto: string }[];
-  catalogo: { id: string; codigo: string; nombre: string }[];
+  /** El catalogo con lo que hay que ver para elegir (Monica, 10-oct-2026: "no
+   *  le basta el nombre, necesita ver el modelo"): miniatura, .glb, plano e
+   *  imagenes, en el almacen publico catalogo-venta (scripts/catalogo/). */
+  catalogo: { id: string; codigo: string; nombre: string; miniatura: string; modelo: string; plano: string | null; imagenes: string[] }[];
   /** Escaneos vinculados que aun no estan en ninguna viabilidad: los que se pueden juntar. */
   paraJuntar: { id: string; texto: string }[];
   /** LOS CUATRO PAPELES (Monica, 6-oct-2026): "trazabilidad de intervinientes:
@@ -408,7 +412,9 @@ export async function mesa(id: string): Promise<Mesa | null> {
     leer<(EscaneoFila & { visito: { nombre: string } | null })[]>(
       `escaneados_polycam?select=${SEL_ESC},visito:visito_id(nombre)&viabilidad_id=eq.${id}&order=fecha_escaneo.asc.nullslast`,
     ),
-    leer<{ id: string; codigo: string; nombre: string }[]>("modelos_escalera?select=id,codigo,nombre&activo=is.true&order=orden.asc.nullslast,codigo.asc"),
+    leer<{ id: string; codigo: string; nombre: string; tiene_plano: boolean; n_renders: number }[]>(
+      "modelos_escalera?select=id,codigo,nombre,tiene_plano,n_renders&activo=is.true&order=orden.asc.nullslast,codigo.asc",
+    ),
     leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&order=creado_en.asc`),
   ]);
 
@@ -460,7 +466,15 @@ export async function mesa(id: string): Promise<Mesa | null> {
     ),
     // Con varias escaleras, una caja por escalera. Con una sola, basta la general.
     escaleras: lista.length > 1 ? lista.map((a) => ({ accesoId: a.id, nombre: nombreDeEscalera(a, variosNumeros), texto: texto.get(a.id) ?? "" })) : [],
-    catalogo,
+    catalogo: catalogo.map((c) => ({
+      id: c.id,
+      codigo: c.codigo,
+      nombre: c.nombre,
+      miniatura: assetUrl(c.codigo, "thumb.webp"),
+      modelo: assetUrl(c.codigo, "modelo.glb"),
+      plano: c.tiene_plano ? assetUrl(c.codigo, "plano.pdf") : null,
+      imagenes: urlsRenders(c.codigo, c.n_renders),
+    })),
     // Solo las dos que pone Alex. Las de honorarios y subvencion vienen de la
     // hoja de encargo y las mete el comercial despues.
     lineas: (v.viabilidad_conceptos ?? [])
