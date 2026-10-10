@@ -111,9 +111,14 @@ export default async function MesaDeViabilidades({ searchParams }: { searchParam
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   {e.enlaceFichero && (
-                    <Link href={`/viabilidades/escaneo/${e.id}`} className={ENLACE_AJENO}>
-                      Abrir el fichero
-                    </Link>
+                    <>
+                      <Link href={`/viabilidades/escaneo/${e.id}`} className={ENLACE_AJENO}>
+                        Ver
+                      </Link>
+                      <a href={`${e.enlaceFichero}&download=${encodeURIComponent(e.nombreOriginal ?? "escaneo.zip")}`} className={ENLACE_AJENO}>
+                        Descargar
+                      </a>
+                    </>
                   )}
                   {e.rutaPolycam && (
                     <a href={e.rutaPolycam} target="_blank" rel="noreferrer" className={ENLACE_AJENO}>
