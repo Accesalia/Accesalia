@@ -209,7 +209,9 @@ export function ListaPendientes({
         </div>
       )}
 
-      <div className={CAJA + " overflow-hidden"}>
+      {/* Sin overflow-hidden: el desplegable de "Asignar a…" flota por encima y
+          en las ultimas filas se quedaba cortado. */}
+      <div className={CAJA}>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">

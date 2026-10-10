@@ -18,37 +18,63 @@ export function Asignador({
   comerciales: ComercialAlQueAsignar[];
 }) {
   const [mandando, setMandando] = useState(false);
+  const [abierto, setAbierto] = useState(false);
 
+  // UN DESPLEGABLE PROPIO Y NO EL DEL NAVEGADOR (Monica, 10-oct-2026): "la letra
+  // es tan pequeña que al darle a click se me va facil a otra linea". El
+  // <select> nativo no deja cambiar ni el tamaño ni la separacion de sus
+  // opciones (Chrome en Windows no hace caso), asi que cada comercial es un
+  // boton grande, con aire entre uno y otro.
   return (
     <form
       action={asignarAlerta}
-      onSubmit={() => setMandando(true)}
-      className="flex shrink-0 items-center gap-2"
+      onSubmit={() => {
+        setMandando(true);
+        setAbierto(false);
+      }}
+      className="relative flex shrink-0 items-center gap-2"
     >
       <input type="hidden" name="codigo" value={codigo} />
-      {/* Sin rotulo aparte: va dentro de una tabla y la etiqueta suelta
-          ensancharia la columna. La primera opcion dice lo que hace. */}
-      <select
-        id={`asignar-${codigo}`}
-        name="comercial"
-        aria-label="Asignar a un comercial"
-        required
+      <button
+        type="button"
         disabled={mandando}
-        defaultValue=""
-        className="h-[28px] rounded-[6px] border border-black/20 bg-white px-2 text-[12px] text-carbon"
-        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+        aria-haspopup="menu"
+        aria-expanded={abierto}
+        onClick={() => setAbierto(!abierto)}
+        className="h-[32px] rounded-[8px] border border-black/25 bg-white px-3 text-[14px] text-carbon transition hover:border-carbon/50 disabled:opacity-50"
       >
-        <option value="" disabled>
-          Asignar a…
-        </option>
-        {comerciales.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.nombre}
-            {c.correo ? "" : " (sin correo)"}
-          </option>
-        ))}
-      </select>
-      {mandando && <span className="text-[12px] text-carbon/45">Enviando…</span>}
+        Asignar a… <span aria-hidden className="ml-1 text-carbon/60">▾</span>
+      </button>
+      {mandando && <span className="text-[13px] text-carbon/60">Enviando…</span>}
+
+      {abierto && (
+        <>
+          {/* Pulsar fuera cierra, sin asignar nada. */}
+          <div className="fixed inset-0 z-10" onClick={() => setAbierto(false)} aria-hidden />
+          <div role="menu" className="absolute left-0 top-[36px] z-20 w-[220px] rounded-xl border border-black/15 bg-white p-1.5 shadow-lg">
+            {comerciales.map((c) => (
+              <button
+                key={c.id}
+                type="submit"
+                name="comercial"
+                value={c.id}
+                role="menuitem"
+                className="mb-1 block w-full rounded-lg px-3 py-2.5 text-left text-[15px] font-semibold text-carbon transition last:mb-0 hover:bg-lima-soft"
+              >
+                {c.nombre}
+                {c.correo ? "" : <span className="ml-1 text-[12px] font-normal text-carbon/60">(sin correo)</span>}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setAbierto(false)}
+              className="mt-1 block w-full rounded-lg border-t border-black/10 px-3 py-2 text-left text-[13px] text-carbon/60 hover:text-carbon"
+            >
+              cancelar
+            </button>
+          </div>
+        </>
+      )}
     </form>
   );
 }
