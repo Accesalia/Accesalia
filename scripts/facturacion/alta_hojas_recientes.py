@@ -107,7 +107,7 @@ def main():
                                     'url_pdf_hoja': DOC % doc, 'importe_base': base, 'iva_porcentaje': 21, 'forma_pago': pago,
                                     'notas': 'Alta el 10-oct-2026 desde el Google Doc de HOJAS ENCARGO AUTOMATICAS (no entro en el volcado).'})
         b.insertar('conceptos_hoja', [{'hoja_encargo_id': h['id'], 'version_hoja_id': v['id'], 'descripcion': d, 'importe': imp, 'porcentaje': pct,
-                                       'desglose': des, 'bloque_id': B[bl], 'incluido': des == 'incluido'} for d, imp, pct, des, bl in conceptos])
+                                       'desglose': des, 'bloque_id': B[bl], 'incluido': True} for d, imp, pct, des, bl in conceptos])
         print('hoja', codigo, o.get('codigo'), desc[:40], base)
 
 

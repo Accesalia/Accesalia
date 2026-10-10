@@ -201,14 +201,25 @@ function Accion({
 // Arriba lo que se HACE; abajo lo que genera documentos (Monica, 11-sep).
 // Y al lado, el quinto: "como voy de lo mio", que no crea nada —mira—, por eso
 // es de otro color y ocupa la altura de los cuatro (su maqueta, 28-sep-2026).
-export function Acciones({ grabarEntrada, hojaEncargo }: { grabarEntrada?: () => void; hojaEncargo?: () => void }) {
+export function Acciones({
+  grabarEntrada,
+  hojaEncargo,
+  presupuesto,
+}: {
+  grabarEntrada?: () => void;
+  hojaEncargo?: () => void;
+  presupuesto?: () => void;
+}) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       <Accion icono="🎤" rotulo="Grabar entrada" alPulsar={grabarEntrada} />
       <Accion icono="▤" rotulo="Informe de viabilidad" />
       {/* Se elige la OPORTUNIDAD y se va a su hoja con el generador abierto
           (Monica, 9-oct-2026). Sin ventana (la demo), a la pantalla de hojas. */}
       <Accion icono="✎" rotulo="Hoja de encargo" alPulsar={hojaEncargo} donde="/comercial/hoja-encargo" />
+      {/* El tercer documento (Monica, 10-oct-2026): tambien se elige primero la
+          oportunidad, y de ahi a construir su presupuesto. */}
+      <Accion icono="€" rotulo="Presupuesto" alPulsar={presupuesto} />
     </div>
   );
 }

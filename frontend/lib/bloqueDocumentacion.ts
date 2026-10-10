@@ -50,8 +50,12 @@ export type HojaResumen = {
   presupuesto: { numero: string | null; enlace: string | null } | null;
 };
 
+/** Los presupuestos hechos en la app (10-oct-2026): PR-año-numero o borrador. */
+export type PresupuestoApp = { id: string; codigo: string | null; fecha: string | null; base: number; generado: boolean };
+
 export type Documentacion = {
   viabilidad: ViabilidadResumen | null;
+  presupuestos: PresupuestoApp[];
   hojas: HojaResumen[];
   /** Las fotografias de la oportunidad: las de las notas del comercial, que
    *  son del repositorio comun y las ven tecnicos y administrativas (8-oct). */
@@ -59,7 +63,7 @@ export type Documentacion = {
 };
 
 export async function documentacionDe(oppId: string, comunidadId: string | null): Promise<Documentacion> {
-  const [viabs, datos, presupuestos, fotos] = await Promise.all([
+  const [viabs, datos, presupuestos, fotos, deLaApp] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
       necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
@@ -78,6 +82,11 @@ export async function documentacionDe(oppId: string, comunidadId: string | null)
     ),
     // Si las fotos fallan, la documentacion se sigue viendo.
     fotosDeOportunidad(oppId).catch(() => []),
+    // Los que se hacen ya en la app; los generados en retrospectiva para
+    // compararlos con Factusol no tienen codigo y no salen.
+    leer<{ id: string; codigo: string | null; fecha: string | null; base: number | null; url_pdf: string | null }[]>(
+      `presupuestos?select=id,codigo,fecha,base,url_pdf&oportunidad_id=eq.${oppId}&origen=eq.app&or=(codigo.not.is.null,estado.eq.borrador)&order=creado_en.desc`,
+    ).catch(() => []),
   ]);
 
   const v = viabs[0];
@@ -120,5 +129,6 @@ export async function documentacionDe(oppId: string, comunidadId: string | null)
       };
     });
 
-  return { viabilidad, hojas, fotos };
+  const presus = deLaApp.map((p) => ({ id: p.id, codigo: p.codigo, fecha: p.fecha, base: Number(p.base) || 0, generado: !!p.url_pdf }));
+  return { viabilidad, presupuestos: presus, hojas, fotos };
 }

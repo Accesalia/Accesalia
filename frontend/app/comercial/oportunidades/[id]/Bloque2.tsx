@@ -126,24 +126,29 @@ export function Bloque2({ id, g, d, trato }: { id: string; g: Gestion; d: Docume
           </a>
         </Tarjeta>
 
+        {/* EL PRESUPUESTO SE HACE EN LA APP (Monica, 10-oct-2026): PR-año-numero.
+            Los anteriores siguen en Factusol, con su numero. */}
         <Tarjeta
           titulo="Presupuesto"
           sub={
-            conPresupuesto.length
-              ? conPresupuesto.map((h) => `Nº ${h.presupuesto!.numero ?? "sin número"}`).join(" · ")
-              : "Sin generar · sale de Factusol"
+            d.presupuestos.length
+              ? d.presupuestos.map((p) => (p.generado ? `${p.codigo} · ${EUR.format(p.base)} €` : "Borrador")).join(" · ")
+              : conPresupuesto.length
+                ? conPresupuesto.map((h) => `Nº ${h.presupuesto!.numero ?? "sin número"} (Factusol)`).join(" · ")
+                : "Sin generar"
           }
         >
-          {conPresupuesto
-            .filter((h) => h.presupuesto!.enlace)
-            .map((h) => (
-              <a key={h.id} href={h.presupuesto!.enlace!} target="_blank" rel="noreferrer" className={ENLACE}>
-                ver
+          {d.presupuestos
+            .filter((p) => p.generado)
+            .slice(0, 2)
+            .map((p) => (
+              <a key={p.id} href={`/comercial/presupuesto/pdf/${p.id}`} target="_blank" rel="noreferrer" className={ENLACE}>
+                ver {p.codigo}
               </a>
             ))}
-          <span className={PRONTO} title="Subir el PDF de Factusol y apuntar su número, junto a la hoja a la que acompaña.">
-            Subir · próximamente
-          </span>
+          <Link href={`/comercial/presupuesto?opp=${id}`} className={ENLACE}>
+            {d.presupuestos.length ? "abrir · hacer otro" : "hacer presupuesto"}
+          </Link>
         </Tarjeta>
       </div>
 
