@@ -22,7 +22,11 @@ const ACCESOS: Acceso[] = [
     desc: "El catálogo AT1–AT16: cada modelo en 3D para girarlo, sus imágenes y su plano. Para enseñarlo en una junta",
     href: "/referencia/ascensores",
   },
-  { nombre: "Documentación de marketing", desc: "Folletos, tarifas de precios…", href: null },
+  {
+    nombre: "Documentación de marketing",
+    desc: "Dossieres en español e inglés, tríptico, dossier SATE y las presentaciones de la subvención",
+    href: "/referencia/marketing",
+  },
   { nombre: "Tasas de ayuntamiento", desc: "Lo que sabemos calcular, por ayuntamiento y por tipo de tasa", href: null },
   {
     nombre: "Manías detectadas",
