@@ -24,6 +24,9 @@ const ENLACE_AJENO =
   "inline-flex h-[30px] items-center justify-center rounded-[8px] border border-ajeno/40 bg-ajeno-soft px-3.5 text-[12px] font-bold uppercase tracking-wide text-[#3f5f80] transition hover:bg-[#dde7f1]";
 const ABRIR =
   "inline-flex items-center rounded-xl bg-lima px-5 py-2 text-[14px] font-extrabold text-carbon transition hover:bg-lima-dark hover:text-white";
+const FILTRO =
+  "rounded-full border border-black/10 bg-white px-3 py-1 text-[12.5px] font-semibold text-carbon/70 transition hover:border-lima-dark/50";
+const FILTRO_ACTIVO = "rounded-full border border-lima-dark bg-lima-soft px-3 py-1 text-[12.5px] font-bold text-lima-dark";
 const CHIP = "rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-amber-800";
 
 const CUANDO = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", timeZone: "Europe/Madrid" });
@@ -37,11 +40,17 @@ function espera(iso: string): string {
   return dias === 1 ? "esperando desde ayer" : `esperando hace ${dias} días`;
 }
 
-export default async function MesaDeViabilidades({ searchParams }: { searchParams: Promise<{ enviada?: string }> }) {
+export default async function MesaDeViabilidades({ searchParams }: { searchParams: Promise<{ enviada?: string; municipio?: string }> }) {
   await haceViabilidades();
-  const { enviada } = await searchParams;
+  const { enviada, municipio } = await searchParams;
   const [sinVincular, trabajo] = await Promise.all([pendientesDeRevisar(), porHacer()]);
   const lista = [...sinVincular].sort((a, b) => a.creadoEn.localeCompare(b.creadoEn));
+  // Filtro por municipio (Monica, 10-oct): para repartirlas por bloques, las
+  // de un mismo sitio juntas. Los que mas tienen, primero.
+  const cuantas = new Map<string, number>();
+  for (const t of trabajo) if (t.municipio) cuantas.set(t.municipio, (cuantas.get(t.municipio) ?? 0) + 1);
+  const municipios = Array.from(cuantas).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+  const visibles = municipio ? trabajo.filter((t) => t.municipio === municipio) : trabajo;
 
   return (
     <div className="min-h-screen">
@@ -139,10 +148,27 @@ export default async function MesaDeViabilidades({ searchParams }: { searchParam
             <span className="rounded-full bg-lima-dark px-2.5 text-[12px] font-bold text-white">{trabajo.length}</span>
           </h2>
           <p className="mt-0.5 text-[12.5px] text-carbon/60">Escaneos ya vinculados. Los que más esperan, arriba.</p>
+          {municipios.length > 1 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <Link href="/viabilidades" scroll={false} className={municipio ? FILTRO : FILTRO_ACTIVO}>
+                Todos <span className="opacity-60">{trabajo.length}</span>
+              </Link>
+              {municipios.map(([nombre, n]) => (
+                <Link
+                  key={nombre}
+                  href={`/viabilidades?municipio=${encodeURIComponent(nombre)}`}
+                  scroll={false}
+                  className={municipio === nombre ? FILTRO_ACTIVO : FILTRO}
+                >
+                  {nombre} <span className="opacity-60">{n}</span>
+                </Link>
+              ))}
+            </div>
+          )}
           {trabajo.length === 0 ? (
             <p className={`${CAJA} mt-2.5 px-5 py-4 text-[13px] text-carbon/55`}>Nada por hacer. Lo que se vincule aparecerá aquí.</p>
           ) : (
-            trabajo.map((t) => (
+            visibles.map((t) => (
               <div key={t.viabilidadId ?? t.escaneoId} className={`${CAJA} mt-2.5 flex flex-wrap items-center justify-between gap-4 px-5 py-3.5`}>
                 <div className="min-w-0">
                   <div className="text-[16px] font-bold text-carbon/90">{t.direccion}</div>
