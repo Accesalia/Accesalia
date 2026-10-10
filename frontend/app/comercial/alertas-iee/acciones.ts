@@ -26,7 +26,7 @@ const enCastellano = (iso: string | null): string =>
 /** El correo que pidio Monica, con sus palabras. Lleva la ficha entera dentro
  *  para que el comercial no tenga que entrar a ningun sitio para saber si le
  *  interesa: lo que necesita para coger el telefono esta en el propio correo. */
-function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof alertaIEE>>>) {
+function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof alertaIEE>>>, quienLaPasa: string) {
   // "CL JUAN DE VERGARA, 7 · ALCALA DE HENARES": la provincia que pone el
   // registro detras del municipio sobra.
   const municipio = (a.municipio ?? "").replace(/\s*\(MADRID\)\s*$/i, "").trim();
@@ -57,11 +57,14 @@ function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof aler
   const cierre =
     `Te lo paso para que puedas hacerles una visita o llamar si quieres. ` +
     `Van a necesitar un arquitecto.`;
+  // QUIEN SE LA PASA (Monica, 10-oct-2026): "para que sepan a quien preguntar".
+  // Al responder, la respuesta ya le llega a esa persona (responderA).
+  const firma = `Te la pasa ${quienLaPasa}.`;
 
   const texto =
     `${saludo}\n\n${cuerpo}\n\n` +
     datos.map(([q, v]) => `  ${q}: ${v}`).join("\n") +
-    `\n\n${cierre}\n`;
+    `\n\n${cierre}\n\n${firma}\n`;
 
   const html =
     `<p>${saludo}</p><p>${cuerpo}</p>` +
@@ -73,7 +76,7 @@ function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof aler
           `<td style="font-weight:600;border-bottom:1px solid #eee">${v}</td></tr>`,
       )
       .join("") +
-    `</table><p>${cierre}</p>`;
+    `</table><p>${cierre}</p><p>${firma}</p>`;
 
   // Primero la direccion y luego el motivo (Monica): "buscamos siempre cosas
   // de una direccion".
@@ -111,7 +114,7 @@ export async function asignarAlerta(formulario: FormData) {
     }),
   });
 
-  const { asunto, texto, html } = plantilla(comercial.nombre, alerta);
+  const { asunto, texto, html } = plantilla(comercial.nombre, alerta, yo.nombre);
   // Sale del buzon del AREA COMERCIAL, no del correo de nadie. Y las respuestas
   // vuelven a QUIEN HA REPARTIDO: el comercial lee "Accesalia - Comercial" y, si
   // contesta "esa ya es mia", le llega a ella. Ver docs/correos.md.
