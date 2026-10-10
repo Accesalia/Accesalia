@@ -72,7 +72,7 @@ export default async function AlertasIEE({
   if (!yo) redirect("/entrar?volver=/comercial/alertas-iee");
   if (!puedeEntrar(yo, "comercial", "supervisar")) redirect("/menu");
 
-  const { comercial: filtro, nuestras, descartadas, municipio, vista, conopp } = await searchParams;
+  const { comercial: filtro, nuestras, descartadas, municipio: municipioPedido, vista, conopp } = await searchParams;
   // DOS VISTAS (Monica, 10-oct-2026): por defecto, lo que hay POR HACER; lo ya
   // repartido, en su propia vista. "Se ve lo que hay por hacer, no todo mezclado".
   const verAsignadas = vista === "asignadas";
@@ -87,7 +87,6 @@ export default async function AlertasIEE({
     agregadoPorMes(),
     diasParaAbrirOportunidad(),
   ]);
-  const cartera = municipio ? await carteraEnMunicipio(municipio) : [];
 
   // SOLO LAS DE FUERA (Monica, 9-oct-2026): "la pantalla deberia mostrar SOLO
   // las que no son nuestras. Como mucho, un filtro arriba de 'mostrar las
@@ -117,6 +116,11 @@ export default async function AlertasIEE({
     if (m) cuantasPorMunicipio.set(m, (cuantasPorMunicipio.get(m) ?? 0) + 1);
   }
   const municipios = Array.from(cuantasPorMunicipio).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"));
+  // SI EN ESE MUNICIPIO YA NO QUEDA NADA, A TODOS (Monica, 10-oct-2026): al
+  // asignar o descartar la ultima de un municipio, la pantalla se quedaba en el,
+  // vacia, y parecia que habian desaparecido todas.
+  const municipio = municipioPedido && cuantasPorMunicipio.has(municipioPedido) ? municipioPedido : undefined;
+  const cartera = municipio ? await carteraEnMunicipio(municipio) : [];
   const dias = municipio
     ? sinFiltrar
         .map((d) => ({ ...d, alertas: d.alertas.filter((a) => municipioLimpio(a.municipio) === municipio) }))
