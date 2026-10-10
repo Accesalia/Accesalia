@@ -1,284 +1,2034 @@
 [
 {
 "pc": [
-"1856aaa4-b108-4ab4-bd08-5bfa3369ef93"
+"b83696d6-72b5-4c4b-9ec1-7629b0ea616c"
 ],
-"comunidad": "fd9429dd-589e-4e90-9e1d-80f090159582",
-"nombre": "Dolores",
-"apellidos": "Molis Ruiz",
-"dni": "24749063M",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": "2025-06-09",
-"hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026. \"Nueva presidenta, datos pedidos 09/06/2025\"",
-"persona_clave": "dni:24749063M"
-},
-{
-"pc": [],
-"comunidad": "fd9429dd-589e-4e90-9e1d-80f090159582",
-"nombre": "Cristina",
-"apellidos": "Saiz Molina",
+"comunidad": "7971d78e-0e2c-492b-8688-cc3852642a2e",
+"nombre": "DANIEL",
+"apellidos": "CARDENAS PORTILLO",
 "dni": null,
-"tel": "676807828",
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2025-06-09",
-"notas": "Leida en la ficha el 9-oct-2026. Tachada en la ficha. Hija de Miguela Santos",
-"persona_clave": "nom:cristina saiz molina"
-},
-{
-"pc": [],
-"comunidad": "fd9429dd-589e-4e90-9e1d-80f090159582",
-"nombre": "Miguela",
-"apellidos": "Santos Romero",
-"dni": "04622161N",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2025-06-09",
-"notas": "Leida en la ficha el 9-oct-2026. Tachada en la ficha",
-"persona_clave": "dni:04622161N"
-},
-{
-"pc": [
-"efdfc289-795e-4a95-a913-625a04c858f1"
-],
-"comunidad": "381331fa-5a7a-4aa8-b921-2de6b53354ca",
-"nombre": "Tamar",
-"apellidos": "Gómez Vega",
-"dni": "46933351B",
-"tel": null,
-"email": null,
-"cargo": "presidente",
+"tel": "687169727",
+"email": "d.cardenasportillo@gmail.com",
+"cargo": "vecino",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026. Ficha de la escalera 4 (marzo 2024), mismo CIF H82954199",
-"persona_clave": "dni:46933351B"
-},
-{
-"pc": [],
-"comunidad": "381331fa-5a7a-4aa8-b921-2de6b53354ca",
-"nombre": "María Concepción Isabel",
-"apellidos": "Loa Barrientos",
-"dni": "22702949V",
-"tel": "678539352",
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2024-03-21",
-"notas": "Leida en la ficha el 9-oct-2026. Presidenta en la ficha de febrero 2024; tachada como contacto en la de marzo 2024",
-"persona_clave": "dni:22702949V"
+"notas": "Vecino; trae la oportunidad (dic-2025).",
+"persona_clave": "nom:daniel cardenas portillo"
 },
 {
 "pc": [
-"be699e9b-f967-4b26-b2bc-54de919899af"
+"ee31578c-eff1-46bc-a28e-b2dfecc4b2a8"
 ],
-"comunidad": "2c965c29-6533-4a84-bbb4-b939a22fd605",
-"nombre": "Sebastián",
-"apellidos": "Cuevas Sánchez",
+"comunidad": "74039cf3-f660-4822-a7f4-5d1894d47052",
+"nombre": "MIGUEL ANGEL",
+"apellidos": "LOPEZ",
 "dni": null,
-"tel": null,
+"tel": "615847199",
 "email": null,
-"cargo": "presidente",
+"cargo": "otro",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "nom:sebastin cuevas snchez"
-},
-{
-"pc": [],
-"comunidad": "2c965c29-6533-4a84-bbb4-b939a22fd605",
-"nombre": "Eva María",
-"apellidos": "Gómez Bezón",
-"dni": "46894360M",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2026-07-09",
-"notas": "Leida en la ficha el 9-oct-2026. anterior: tachado en la ficha; fecha real desconocida, se pone la de la ficha",
-"persona_clave": "dni:46894360M"
+"notas": "Persona de contacto de la comunidad (ficha del SATE + cubierta, may-2026).",
+"persona_clave": "nom:miguel angel lopez"
 },
 {
 "pc": [
-"8d3233c0-7cb4-4295-866c-1d0e1810905f"
+"d6171857-da0c-44ab-a6de-4f7bdb46eda7"
 ],
-"comunidad": "92536a60-a776-4678-b6c5-9b1cdf1255fe",
-"nombre": "Engracia",
-"apellidos": "Calzado Jiménez",
-"dni": "02062137A",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "dni:02062137A"
-},
-{
-"pc": [],
-"comunidad": "92536a60-a776-4678-b6c5-9b1cdf1255fe",
-"nombre": "Pedro",
-"apellidos": "García Sánchez",
-"dni": "26475481C",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2026-06-09",
-"notas": "Leida en la ficha el 9-oct-2026. anterior: tachado en la ficha; fecha real desconocida, se pone la de la ficha",
-"persona_clave": "dni:26475481C"
-},
-{
-"pc": [],
-"comunidad": "92536a60-a776-4678-b6c5-9b1cdf1255fe",
-"nombre": "David",
+"comunidad": "86bb3b49-610a-470a-872c-89eea8dacb7e",
+"nombre": "TERESA",
 "apellidos": null,
 "dni": null,
-"tel": "635854745",
-"email": null,
-"cargo": "presidente",
+"tel": null,
+"email": "tere_sib@hotmail.com",
+"cargo": "vecino",
 "desde": null,
-"hasta": "2026-06-09",
-"notas": "Leida en la ficha el 9-oct-2026. \"David (anterior presidente)\" en la ficha; fecha real desconocida",
-"persona_clave": "solo:1546664290240"
+"hasta": null,
+"notas": "Propietaria; \"otra vecina interesada que ha cogido las riendas del asunto\" (ficha, 2025).",
+"persona_clave": "solo:2440646242496"
 },
 {
 "pc": [
-"314a65fe-0fe7-4b4e-8d22-a96d8757c979"
+"01fa2212-78b3-48ef-81f2-54ffa6b9a3e5"
 ],
-"comunidad": "b5df378f-5f22-4505-a46a-abed6415c252",
-"nombre": "Andrés",
-"apellidos": "Jimeno",
+"comunidad": "86bb3b49-610a-470a-872c-89eea8dacb7e",
+"nombre": "INMACULADA",
+"apellidos": null,
 "dni": null,
-"tel": "669694539",
+"tel": "696482828",
+"email": "benifer@movistar.es",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Propietaria; \"Datos Inmaculada\" (ficha, 2025).",
+"persona_clave": "solo:2440646242560"
+},
+{
+"pc": [
+"d6b5f80d-b948-424b-aead-2886496e24ec"
+],
+"comunidad": "fc495635-5397-4e7e-9aa0-065ce777703c",
+"nombre": "ANA",
+"apellidos": null,
+"dni": null,
+"tel": null,
 "email": null,
 "cargo": "presidente",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "nom:andrs jimeno"
+"notas": "En la ficha: \"Ana presidenta\" (quien contacta).",
+"persona_clave": "solo:2440646242688"
 },
 {
-"pc": [],
-"comunidad": "b5df378f-5f22-4505-a46a-abed6415c252",
-"nombre": "Luis",
+"pc": [
+"e26f1ac8-a667-4ec3-bbd1-2ef4f404952a"
+],
+"comunidad": "4bf9a121-e449-4933-b0ff-68fa0c233623",
+"nombre": "PILAR",
+"apellidos": "RODRIGUEZ",
+"dni": null,
+"tel": "629824071",
+"email": "prs22prs@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha, jun-2026); es quien contacta.",
+"persona_clave": "nom:pilar rodriguez"
+},
+{
+"pc": [
+"cf6b9381-9fc5-4c28-8a8b-183865d1a8a7"
+],
+"comunidad": "2a72663a-00a3-456d-99ee-daf9951aa86c",
+"nombre": "FRANCISCO",
 "apellidos": null,
 "dni": null,
-"tel": "696787699",
-"email": "luis.lo.av@gmail.com",
+"tel": "671156443",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En el correo de la administracion (23/03/2026): \"Franciso\" (errata: Francisco).",
+"persona_clave": "solo:2440646242880"
+},
+{
+"pc": [
+"7ddf48e0-4ba7-4da5-8606-b9e0634df74f"
+],
+"comunidad": "7ac971da-2a8a-40d6-8881-08bdc0518f9a",
+"nombre": "Ricardo",
+"apellidos": null,
+"dni": null,
+"tel": "639101782",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646243456"
+},
+{
+"pc": [
+"f74469df-9200-4716-b63e-ac14c46b23a5"
+],
+"comunidad": "69947dce-ee39-47c9-a041-635bcf687aaa",
+"nombre": "OSCAR",
+"apellidos": "BALLESTEROS",
+"dni": null,
+"tel": null,
+"email": "oskar77es@hotmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad; trae la oportunidad (may-2026).",
+"persona_clave": "nom:oscar ballesteros"
+},
+{
+"pc": [
+"ed697fc9-3ac4-436a-8ea4-daa3a0dc9f21"
+],
+"comunidad": "1772aefc-d4fc-479a-a0eb-ee738d98a7c7",
+"nombre": "JUAN",
+"apellidos": "CARLOS",
+"dni": null,
+"tel": "696290938",
+"email": "talaverajuancarlos@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"JUAN CARLOS (1º A)\"",
+"persona_clave": "nom:juan carlos"
+},
+{
+"pc": [
+"2520c09b-c99b-4863-bc36-9e1f7e0ed440"
+],
+"comunidad": "dc3ca770-9b82-4dc3-9a78-86abde5f88dc",
+"nombre": "RAFAEL",
+"apellidos": "ORTEGA",
+"dni": null,
+"tel": "675723936",
+"email": "gestor24@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto en la ficha (quien contacta; jun-2026).",
+"persona_clave": "nom:rafael ortega"
+},
+{
+"pc": [
+"5664c1c9-849f-4345-9499-9f197f855f8e"
+],
+"comunidad": "71bf6f2d-8c9f-415b-97ed-8e2e766901f7",
+"nombre": "MERCEDES",
+"apellidos": "CARABANTE",
+"dni": null,
+"tel": "690838911",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"MERCEDES CARABANTE (VECINA)\"\nVecina que cree protegida la puerta cortavientos (ficha, 2025).",
+"persona_clave": "nom:mercedes carabante"
+},
+{
+"pc": [
+"e4ebe16e-955b-4392-a3bc-976305ac2346"
+],
+"comunidad": "a5a8057a-80f9-4e0a-8dcf-9d5818a864c8",
+"nombre": "ISMAEL",
+"apellidos": "MARIN FERNANDEZ",
+"dni": null,
+"tel": "654956764",
+"email": "imarinfernandez@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "4o izquierda; contacto para la visita y miembro de la junta rectora (correo de Gestin, 15/10/2025).",
+"persona_clave": "nom:ismael marin fernandez"
+},
+{
+"pc": [
+"7e0c267c-64c7-4a26-a7c8-2954187d5f5e"
+],
+"comunidad": "1f899de6-2764-440b-9b22-302cd5f92561",
+"nombre": "JAVIER",
+"apellidos": null,
+"dni": null,
+"tel": null,
+"email": "javidavid85@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; es quien contacta (ficha, may-2026).",
+"persona_clave": "solo:2440646244736"
+},
+{
+"pc": [
+"a101b1f6-c442-42dc-939b-b50c2b24b369"
+],
+"comunidad": "b6f1381f-a250-4dd7-a479-6ef7e25145cc",
+"nombre": "IRENE",
+"apellidos": null,
+"dni": null,
+"tel": "660117742",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (correo de Grupo Trebol del 10/03/2026).",
+"persona_clave": "solo:2440646245696"
+},
+{
+"pc": [
+"c52cd4a8-2c15-46c6-af2d-5049caaeafe9"
+],
+"comunidad": "e745b8b3-3297-418e-a844-713b84967faf",
+"nombre": "MIGUEL ANGEL",
+"apellidos": "COJO GARCIA",
+"dni": null,
+"tel": "659949265",
+"email": "macojog@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad; escribe en nombre de la CP (oct-2025). Pide que pongan en copia a mruizcejudo31@gmail.com y gloria_sys@yahoo.es.",
+"persona_clave": "nom:miguel angel cojo garcia"
+},
+{
+"pc": [
+"898af7a8-cb58-4622-918c-f2e02fb02f76"
+],
+"comunidad": "c4563f39-50bb-4209-9794-fea65eb99c18",
+"nombre": "SUSANA",
+"apellidos": null,
+"dni": null,
+"tel": "616671099",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646246144"
+},
+{
+"pc": [
+"9e721d22-4ac3-4ac0-a73f-756868058fef"
+],
+"comunidad": "1c6b42a3-4465-41a0-9a67-af463b119f43",
+"nombre": "JAVIER",
+"apellidos": null,
+"dni": null,
+"tel": "635313400",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646246272"
+},
+{
+"pc": [
+"c563535e-53dc-432f-81c0-414174306933"
+],
+"comunidad": "2fb61702-c600-4a26-9123-0a74898558ee",
+"nombre": "MARINA",
+"apellidos": "ARRIBAS",
+"dni": null,
+"tel": "617374182",
+"email": "arribas.marina@hotmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Mujer de Marcos Ramos e hija de Jorge Arribas (jul-2025).",
+"persona_clave": "nom:marina arribas"
+},
+{
+"pc": [
+"d3149e99-2780-49ab-9445-6a8749c92e3a"
+],
+"comunidad": "2fb61702-c600-4a26-9123-0a74898558ee",
+"nombre": "ROSA",
+"apellidos": null,
+"dni": null,
+"tel": "620028255",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Familiar del vecino del 2o izq.; llamarla para las visitas de IEE y mediciones (ficha).",
+"persona_clave": "solo:2440646295616"
+},
+{
+"pc": [
+"643a2d72-fc99-447d-ba4a-707a252df656"
+],
+"comunidad": "ad5ee872-4da7-45a7-936b-051966db6825",
+"nombre": "PABLO",
+"apellidos": "GARCIA MARTIN",
+"dni": null,
+"tel": "686770457",
+"email": "pablogm1986@yahoo.es",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:pablo garcia martin"
+},
+{
+"pc": [
+"6be08e65-9f62-4c1b-a8b0-6ba74794cd72"
+],
+"comunidad": "ea3bdd2e-c430-49ef-ba9f-72e0625f2651",
+"nombre": "Román",
+"apellidos": null,
+"dni": null,
+"tel": "660525231",
+"email": "romany1962@hotmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Román (vecino)\"\nTrajo la oportunidad de 2025.",
+"persona_clave": "solo:2440646230336"
+},
+{
+"pc": [
+"56db2f5b-0d73-4bd7-9c28-4c0195df885d"
+],
+"comunidad": "2310e808-ee2d-4080-b735-100c3888c9fb",
+"nombre": "Manuel",
+"apellidos": null,
+"dni": null,
+"tel": null,
+"email": "manoloillera@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Manuel (4ºC)\"",
+"persona_clave": "solo:2440646230464"
+},
+{
+"pc": [
+"802f0356-cdfd-4efd-a540-54714f783d81"
+],
+"comunidad": "9e179758-54b1-4a79-a523-60e2a4c699a3",
+"nombre": "Mª",
+"apellidos": "JESUS",
+"dni": null,
+"tel": "625516108",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Mª JESUS (VECINA)\"\nVecina que pide el ascensor (ficha, nov-2025).",
+"persona_clave": "nom:m jesus"
+},
+{
+"pc": [
+"46507d37-070b-41c8-98cc-8e9d74bffb0b"
+],
+"comunidad": "bf0e8ef3-0363-4943-9414-60aa84f131e7",
+"nombre": "VICTORIA",
+"apellidos": "LOPEZ",
+"dni": null,
+"tel": "626509485",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha del ascensor, 2026).",
+"persona_clave": "nom:victoria lopez"
+},
+{
+"pc": [
+"72c7468d-2b70-4a50-a109-815653ea32f2"
+],
+"comunidad": "e745b8b3-3297-418e-a844-713b84967faf",
+"nombre": "GLORIA",
+"apellidos": null,
+"dni": null,
+"tel": "673089991",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha, en la casilla de la administracion (\"No tengo mas datos\"), como persona de contacto (oct-2025). No consta que sea la administradora.",
+"persona_clave": "solo:2440646231616"
+},
+{
+"pc": [
+"2ec1cd0d-14e9-423f-a08a-59cf09af6d69"
+],
+"comunidad": "b1b1ebe0-987d-45c2-9533-482558a8120a",
+"nombre": "LUIS",
+"apellidos": "ALVAREZ",
+"dni": null,
+"tel": "609056589",
+"email": "l.alvarez@telefonica.net",
 "cargo": "vicepresidente",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "solo:1546664290432"
-},
-{
-"pc": [],
-"comunidad": "b5df378f-5f22-4505-a46a-abed6415c252",
-"nombre": "Nuria",
-"apellidos": "Carbajo Sanz",
-"dni": "46932253V",
-"tel": null,
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": "2024-07-03",
-"notas": "Leida en la ficha el 9-oct-2026. anterior: tachado en la ficha; fecha real desconocida, se pone la de la ficha",
-"persona_clave": "dni:46932253V"
+"notas": "Vicepresidente (correo de Gestin del 03/12/2025).",
+"persona_clave": "nom:luis alvarez"
 },
 {
 "pc": [
-"66469e6b-809d-4071-a4ee-c78b5a11a136"
+"a7130a23-fd9b-4801-ac92-1162393fe6ab"
 ],
-"comunidad": "6691d374-51d9-492f-9e39-f144578998aa",
-"nombre": "María del Carmen",
-"apellidos": "Martín Vicente",
-"dni": "70043192G",
+"comunidad": "d59b87a4-11d8-4a6b-8404-3a30fd5f2c12",
+"nombre": "JOSE LUIS",
+"apellidos": "PEREZ",
+"dni": null,
 "tel": null,
+"email": "jose10861@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacta (quien contacta y persona de contacto en la ficha, mar-2026).",
+"persona_clave": "nom:jose luis perez"
+},
+{
+"pc": [
+"a3e9dcd2-4752-48b5-a838-dd49f325fd02"
+],
+"comunidad": "ec5827ca-c723-46b5-be6c-2aced30b85ee",
+"nombre": "ANTONIO",
+"apellidos": null,
+"dni": null,
+"tel": "649927218",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"ANTONIO (VECINO)\"\nVecino; contacta (ficha del 01/09/2025; en la ficha \"ANTONIO VECINIO\").",
+"persona_clave": "solo:2440646232704"
+},
+{
+"pc": [
+"a2cbea7e-ed6f-4254-bc30-7ecd409c871b"
+],
+"comunidad": "d9065093-68a7-4958-be8c-78afd0c10fc2",
+"nombre": "CRISTINA",
+"apellidos": null,
+"dni": null,
+"tel": "696078968",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Vecina que lleva el tramite de la rampa (correo de MC Gestion del 14/10/2025).",
+"persona_clave": "solo:2440646233216"
+},
+{
+"pc": [
+"3d6bffe1-f3ff-43f4-bf86-3cc212d80934"
+],
+"comunidad": "2e99f84f-a181-4c82-81d0-cad3e03afcc9",
+"nombre": "ADOLFO",
+"apellidos": "DORADO",
+"dni": null,
+"tel": "639141994",
+"email": "adolfodorado@hotmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; quien contacta (ficha de dic-2025).",
+"persona_clave": "nom:adolfo dorado"
+},
+{
+"pc": [
+"0b353a70-2bdf-436c-b566-540995856ec2"
+],
+"comunidad": "c4563f39-50bb-4209-9794-fea65eb99c18",
+"nombre": "JOSE",
+"apellidos": "RAMON",
+"dni": null,
+"tel": "607644754",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Propietario encargado del asunto del ascensor (correo de Vestalia del 26/03/2025).",
+"persona_clave": "nom:jose ramon"
+},
+{
+"pc": [
+"0f229c19-70e7-488f-9d23-812ca71c697f"
+],
+"comunidad": "f0818e90-97f1-44d0-b512-edd0db33fe50",
+"nombre": "DAVID",
+"apellidos": null,
+"dni": null,
+"tel": "639163332",
+"email": "david@novaes.es",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; quien contacta (ficha de dic-2025).",
+"persona_clave": "solo:2440646233856"
+},
+{
+"pc": [
+"0982072e-49d2-4b8e-9a8e-00a28ebc65b7"
+],
+"comunidad": "0b9f5102-7c5f-4a09-b894-a4515e1dd4bd",
+"nombre": "CRISTINA",
+"apellidos": null,
+"dni": null,
+"tel": "606665823",
+"email": "critinamaganlopez@yahoo.es",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646233920"
+},
+{
+"pc": [
+"74d46b6f-34e7-4190-a8cd-a62779903928"
+],
+"comunidad": "2fb61702-c600-4a26-9123-0a74898558ee",
+"nombre": "MARCOS",
+"apellidos": "RAMOS LAMA",
+"dni": "51086553B",
+"tel": "625884333",
+"email": "ramos.marcos.lama@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino del 2o izq. (con ELA): PROMOTOR del ascensor; firma la HE como particular el 08/07/2025 (la comunidad no quiere el ascensor).",
+"persona_clave": "dni:51086553B"
+},
+{
+"pc": [
+"ca7795ef-cac4-4b85-9b8a-20f74de68c54"
+],
+"comunidad": "2fb61702-c600-4a26-9123-0a74898558ee",
+"nombre": "JORGE",
+"apellidos": "ARRIBAS",
+"dni": null,
+"tel": "670531118",
+"email": "jarribas@arribasm.es",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Propietario; padre de Marina Arribas (jun-2025).",
+"persona_clave": "nom:jorge arribas"
+},
+{
+"pc": [
+"07e97cb9-93e9-4856-ad91-44afe861a058"
+],
+"comunidad": "b413b57b-f0d0-4060-9e66-fc4dd2bd8559",
+"nombre": "JOAQUIN",
+"apellidos": null,
+"dni": null,
+"tel": "651892758",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Contacto en la finca (correo de Aura, Del Brio y Blanco, 26/01/2026).",
+"persona_clave": "solo:2440646234624"
+},
+{
+"pc": [
+"aa35d28b-0ff7-41ea-9323-dd26d7dcda81"
+],
+"comunidad": "5c5e8927-6395-4a9a-8645-4c259ecb4bca",
+"nombre": "José",
+"apellidos": "Ramón",
+"dni": null,
+"tel": "690 61 94 50",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino del 3º A. Contacto según la ficha de Dropbox (feb-2026).",
+"persona_clave": "nom:jos ramn"
+},
+{
+"pc": [
+"610fed8a-9108-4d5d-b644-c7108ba3a3cb"
+],
+"comunidad": "9d40e0be-e2fb-4263-9d4d-9ba00aa25485",
+"nombre": "Ángel",
+"apellidos": null,
+"dni": null,
+"tel": "636453097",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Contacto de la ficha.",
+"persona_clave": "solo:2440646235392"
+},
+{
+"pc": [
+"d62e30c4-f2d8-47e1-b52d-a05592ce7c23"
+],
+"comunidad": "243129c6-3255-42d5-88a8-b17244cf9c32",
+"nombre": "Julio",
+"apellidos": "Muñoz",
+"dni": null,
+"tel": "616243806",
+"email": "Jmunoz1967@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:julio muoz"
+},
+{
+"pc": [
+"ebfb8653-e587-4726-b21f-8024dfc26bd4"
+],
+"comunidad": "fdce8fb2-b593-409f-9d1c-23c503a943fd",
+"nombre": "Remedios",
+"apellidos": null,
+"dni": null,
+"tel": "649165291",
 "email": null,
 "cargo": "presidente",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "dni:70043192G"
+"notas": "En la ficha venia asi: \"Remedios (vecina/presidenta)\"",
+"persona_clave": "solo:2440646235584"
 },
 {
-"pc": [],
-"comunidad": "6691d374-51d9-492f-9e39-f144578998aa",
-"nombre": "Noura",
-"apellidos": "Bouzizoua Lafriakh",
+"pc": [
+"f11119f2-650a-477c-bb3d-2937beb08f73"
+],
+"comunidad": "ecc92ad3-4cfc-4e34-b3d4-559a6dddfd10",
+"nombre": "PEDRO",
+"apellidos": null,
+"dni": null,
+"tel": "616642407",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; visita con Daniel el 08/10/2024.",
+"persona_clave": "solo:2440646236032"
+},
+{
+"pc": [
+"009110c1-9d77-4911-9134-2b0d49d6c559"
+],
+"comunidad": "d859aa90-ef01-4335-8da1-5f76b6900271",
+"nombre": "CANDIDO",
+"apellidos": null,
+"dni": null,
+"tel": "656803551",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino jubilado; puede atender a cualquier hora (correo de Acayma, 04/03/2026).",
+"persona_clave": "solo:2440646236672"
+},
+{
+"pc": [
+"5c10fb5e-2c63-4dfb-9e8c-ac7957777707"
+],
+"comunidad": "7c6f96cc-de6b-427a-9c8a-65024eba8285",
+"nombre": "FABIO",
+"apellidos": "ACETO",
+"dni": null,
+"tel": "622544709",
+"email": "tuttook@yahoo.it",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino de la escalera G; encarga el informe pericial (2022) y pide la HE del proyecto de la escalera G (may-2025).",
+"persona_clave": "nom:fabio aceto"
+},
+{
+"pc": [
+"e88febd7-dcf1-4edd-8031-e23d0f0f3945"
+],
+"comunidad": "c5c41176-6649-4033-b2ab-93b2666ffb13",
+"nombre": "AURELIO",
+"apellidos": null,
+"dni": null,
+"tel": "658040148",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"AURELIO (2º C)\"\nVecino; persona de contacto de la comunidad (ficha, 2024-2025).",
+"persona_clave": "solo:2440646236992"
+},
+{
+"pc": [
+"b4200366-4f0e-4c9f-bdee-a9e328094415"
+],
+"comunidad": "81299631-68f6-4b35-b9e4-1bf168da64d1",
+"nombre": "ANGELES",
+"apellidos": "MOLINA",
+"dni": null,
+"tel": "660938838",
+"email": "anyulina000@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad en la ficha (may-2026). En \"quien contacta\": \"PRESIDENTA DE FRANCISCO MADARIAGA 15 de Olivares\".",
+"persona_clave": "nom:angeles molina"
+},
+{
+"pc": [
+"64ac0247-06f2-49c5-af48-b9e4f6a2c3fb"
+],
+"comunidad": "9606d60a-96ad-4915-b976-bc1efa23c59c",
+"nombre": "María del Pilar",
+"apellidos": "López Ampuero",
+"dni": null,
+"tel": "652 204 347",
+"email": "pilarloam@hotmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vive en un cuarto piso sin ascensor. Contacto segun la ficha de Dropbox (mar-2026).",
+"persona_clave": "nom:mara del pilar lpez ampuero"
+},
+{
+"pc": [
+"19d13eb3-1437-4362-81c9-9533fa1eb781"
+],
+"comunidad": "28ae6104-a1ae-4838-bdf4-b610ef16ca66",
+"nombre": "JESUS",
+"apellidos": "MANILLA",
+"dni": null,
+"tel": null,
+"email": "jesus.manilla@yahoo.es",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto de la comunidad (2024).",
+"persona_clave": "nom:jesus manilla"
+},
+{
+"pc": [
+"f6fd6645-38b9-40d0-8d8c-f66a6031a831"
+],
+"comunidad": "8f04084a-6daa-4f9a-8b8a-e487439a48fd",
+"nombre": "ROSA",
+"apellidos": null,
+"dni": null,
+"tel": "676239596",
+"email": "rosanat1104@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha del ascensor, 2026).",
+"persona_clave": "solo:2440646239104"
+},
+{
+"pc": [
+"83984c8e-4e2b-4b61-8401-610c3d564524"
+],
+"comunidad": "bf0e8ef3-0363-4943-9414-60aa84f131e7",
+"nombre": "MALENA",
+"apellidos": "GOMEZ",
+"dni": null,
+"tel": "676933398",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha del ascensor, 2026).",
+"persona_clave": "nom:malena gomez"
+},
+{
+"pc": [
+"b4b3e9ff-5a5b-4c77-b4ff-ccd2c4e0d82d"
+],
+"comunidad": "bfbc4d0a-74eb-4170-9c10-c6a69d7af5e3",
+"nombre": "LETICIA",
+"apellidos": "BRAVO",
+"dni": null,
+"tel": "686014924",
+"email": "martinica_81@yahoo.es",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Contacta por la comunidad; viene de parte de Silvia (Arrialsi) (ficha, oct-2025).",
+"persona_clave": "nom:leticia bravo"
+},
+{
+"pc": [
+"40c5f8e8-7311-4205-af70-5005c38731ec"
+],
+"comunidad": "fed31823-795d-4368-8303-5dd884fbbdff",
+"nombre": "JORGE",
+"apellidos": "CORELLA",
+"dni": null,
+"tel": "687101830",
+"email": "jcorellaramos@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad; es quien contacta (ficha, feb-2026).",
+"persona_clave": "nom:jorge corella"
+},
+{
+"pc": [
+"c302bee1-b6fc-4874-8096-4b0d7a4a7bf1"
+],
+"comunidad": "05a77032-c583-49a9-98be-102d46285a15",
+"nombre": "IGNACIO",
+"apellidos": null,
+"dni": null,
+"tel": "639444183",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646242816"
+},
+{
+"pc": [
+"87684d19-73ba-4b1c-9e0d-ac1b34463374"
+],
+"comunidad": "8dea06dd-0834-43e6-8113-15017f2f8c73",
+"nombre": "JOSE",
+"apellidos": "ANTONIO",
+"dni": null,
+"tel": "669528609",
+"email": "joseantoniomaganwals@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha, oct-2025); la comunidad no tiene administracion.",
+"persona_clave": "nom:jose antonio"
+},
+{
+"pc": [
+"bee4c296-0dd7-42db-8046-7d25f89bcd0b"
+],
+"comunidad": "e9eb5240-29ca-4fff-ae24-810678b7a701",
+"nombre": "MIGUEL",
+"apellidos": "ROMERO",
+"dni": null,
+"tel": "616979108",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:miguel romero"
+},
+{
+"pc": [
+"854c218d-d1f3-4b4d-b4ec-f28405e6615d"
+],
+"comunidad": "54a1631d-f55e-4fd6-9ef8-9e0651fd469c",
+"nombre": "ANA",
+"apellidos": "VALERO",
+"dni": null,
+"tel": "619480949",
+"email": "joseluis.vera@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina que contacta con Daniel en la reunion de Pablo Serrano 9 (oct-2025). En la ficha: \"joseluis.vera@gmail.com (ese es l correo bueno)\"; tachado: fsvc@telefonica.net.",
+"persona_clave": "nom:ana valero"
+},
+{
+"pc": [
+"34640e43-a233-4b2b-8c8a-78582c6bd81b"
+],
+"comunidad": "87a5dcb7-b3ba-4f4a-b2c0-9fb49e610841",
+"nombre": "CAROLINA",
+"apellidos": "RODRIGUEZ",
+"dni": null,
+"tel": "680711271",
+"email": "mcarolinita53@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha, jun-2026).",
+"persona_clave": "nom:carolina rodriguez"
+},
+{
+"pc": [
+"f2b4f279-0147-489a-aa22-ae60bd25de13"
+],
+"comunidad": "7f94020f-8b31-4ce8-9cf9-37114df83fb2",
+"nombre": "GEMA",
+"apellidos": null,
+"dni": null,
+"tel": "687519293",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad en la ficha (ene-2026). En el correo de Grupo Trebol del 22/01/2026 el contacto es \"Teresa 687 51 92 95\".",
+"persona_clave": "solo:2440646392576"
+},
+{
+"pc": [
+"0e4dc83e-ca6e-4fee-8a30-f25b8fa2cb1e"
+],
+"comunidad": "3c2ce9c7-fb60-4f72-92c8-b5c8ed6aa5c5",
+"nombre": "JOSE",
+"apellidos": "MIGUEL",
+"dni": null,
+"tel": "616973095",
+"email": "jovigo92@yahoo.es",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose miguel"
+},
+{
+"pc": [
+"58404f61-e405-4a2e-910c-604316496c1c"
+],
+"comunidad": "68d37adc-79f2-4f3d-9516-71f256c3a18d",
+"nombre": "DAVID",
+"apellidos": null,
+"dni": null,
+"tel": "633152680",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (correo de Pedro Escalona, Del Brio y Blanco, 15/10/2025).",
+"persona_clave": "solo:2440646392832"
+},
+{
+"pc": [
+"5b2b2d33-fabf-4c1a-91ba-0f22883cd721"
+],
+"comunidad": "acc1c7e5-d0ec-4bec-800a-29d9c7359bd2",
+"nombre": "ESTELA",
+"apellidos": null,
+"dni": null,
+"tel": "605791432",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina; es quien contacta (ficha, oct-2025).",
+"persona_clave": "solo:2440646392960"
+},
+{
+"pc": [
+"ff9c7913-5ac7-4742-a361-20ebffd795f9"
+],
+"comunidad": "f03a11c4-c845-4b18-976f-8b1f545ffc53",
+"nombre": "José",
+"apellidos": "Ignacio",
+"dni": null,
+"tel": "655675432",
+"email": "natorito@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha: \"el vecino mas joven de la comunidad, ayuda a la presidenta\". Correo de la comunidad: libertad3sfh@gmail.com.",
+"persona_clave": "nom:jos ignacio"
+},
+{
+"pc": [
+"270ed96a-4379-4b7d-80aa-198f6712c12b"
+],
+"comunidad": "f3d5faed-485a-44e7-8b39-a13dcce659eb",
+"nombre": "JUAN CARLOS",
+"apellidos": "MUÑOZ CABELLO",
+"dni": null,
+"tel": "637215157",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:juan carlos muoz cabello"
+},
+{
+"pc": [
+"01ee9157-3a38-4bab-ba71-c932b2d572e3"
+],
+"comunidad": "c0ae21d2-e6c3-45c7-8e82-b68512185870",
+"nombre": "ANTONIO",
+"apellidos": null,
+"dni": null,
+"tel": "669279228",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646099904"
+},
+{
+"pc": [
+"cd6f4de3-a142-4cdc-a1a0-219d45be2feb"
+],
+"comunidad": "fac38036-a7de-46f5-9100-553c999a639d",
+"nombre": "SHEILA",
+"apellidos": null,
+"dni": null,
+"tel": "610710784",
+"email": "sheila.navamuel@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina; trae la oportunidad (ago-2025).",
+"persona_clave": "solo:2440646101056"
+},
+{
+"pc": [
+"576cbf74-8130-4ce3-b9d7-01c23fac6072"
+],
+"comunidad": "a0f1ff64-b89f-4820-ab1e-8bd41b3f2d68",
+"nombre": "ALBERTO",
+"apellidos": null,
+"dni": null,
+"tel": "655648812",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"ALBERTO (6º D)\"\nVecino del 6o D (may-2025).",
+"persona_clave": "solo:2440646101248"
+},
+{
+"pc": [
+"3ba65f16-d1fb-4d16-be83-1eda8f0cc3b7"
+],
+"comunidad": "b7b51bdc-71f4-446f-a965-2db4e7300c50",
+"nombre": "MIGUEL",
+"apellidos": null,
+"dni": null,
+"tel": "684011609",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; contacta (quien contacta en la ficha).",
+"persona_clave": "solo:2440646101504"
+},
+{
+"pc": [
+"066ed7a5-c2ad-4449-849b-9ec7a3b70d7a"
+],
+"comunidad": "fd1a747c-081b-4a41-b297-a8dd593625d7",
+"nombre": "FABIO",
+"apellidos": "ACETO",
+"dni": null,
+"tel": "622544709",
+"email": "tuttook@yahoo.it",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino de la escalera G; encarga el informe pericial (2022) y pide la HE del proyecto de la escalera G (may-2025).",
+"persona_clave": "nom:fabio aceto"
+},
+{
+"pc": [
+"b0dd6baf-71c8-41e8-8e57-6165dd845014"
+],
+"comunidad": "d23baeca-591b-4818-ae8d-2006aa8e923d",
+"nombre": "JESSICA",
+"apellidos": null,
+"dni": null,
+"tel": "625273399",
+"email": "jessicadelolmo@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina, la mas interesada en el ascensor (tiene mayor cuota). En la ficha estaba en la casilla del presidente (\"JESSICA vecina\") y el telefono en la del DNI.",
+"persona_clave": "solo:2440646103168"
+},
+{
+"pc": [
+"7a36b55c-9860-4092-b2b5-274af5f658c7"
+],
+"comunidad": "9904fc3e-79fd-4b4f-98dd-794e6abe2f14",
+"nombre": "GERARDO",
+"apellidos": null,
+"dni": null,
+"tel": "610485744",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (correo de Grupo Trebol, 05/02/2026).",
+"persona_clave": "solo:2440646104192"
+},
+{
+"pc": [
+"4d71725e-fc5f-4fc7-916e-6e9a48a4b371"
+],
+"comunidad": "30c5d969-a051-4e8d-ae66-17be7c41c332",
+"nombre": "Lucía",
+"apellidos": null,
+"dni": null,
+"tel": "699750300",
+"email": "cecalucia@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Lucía (2º A)\"\nPresidenta del portal 17 (correo de Javier Madruga, 13-ene-2026). En la ficha de la rampa: \"poner en copia de todo a cecalucia@hotmail.com, jolmedo@hotmail.es\".",
+"persona_clave": "solo:2440646104576"
+},
+{
+"pc": [
+"b4888222-0147-452e-ba23-2d00a1ccf752"
+],
+"comunidad": "78539010-15a6-46f4-92e8-6e20a7bff185",
+"nombre": "Beatriz",
+"apellidos": null,
+"dni": null,
+"tel": "699640133",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Beatriz (3º Izda.)\"\nVecina de contacto (correo de Gabino Leon Cuesta, 17-mar-2026).",
+"persona_clave": "solo:2440646104704"
+},
+{
+"pc": [
+"2d047135-1b45-4073-9233-ed72d03f6b35"
+],
+"comunidad": "1ec7055b-e329-49d6-94c6-a989201a6129",
+"nombre": "ANTONIA",
+"apellidos": null,
+"dni": null,
+"tel": "663618163",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto en el edificio (en la ficha \"pta Antonia\").",
+"persona_clave": "solo:2440646105280"
+},
+{
+"pc": [
+"e182958f-06db-4815-89ee-daa7ce69436c"
+],
+"comunidad": "e96a3e5f-fd5e-4bed-b672-c9f8a2347f38",
+"nombre": "BELKIS",
+"apellidos": "BETANCOURT",
+"dni": null,
+"tel": "641849244",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto de la comunidad para la visita de EFFIC (23/09/2025).",
+"persona_clave": "nom:belkis betancourt"
+},
+{
+"pc": [
+"8ab0000c-accc-47d6-8577-10c4ef8ee687"
+],
+"comunidad": "11b460e8-66fe-4a76-b7b7-fe1b1737d97e",
+"nombre": "RUBEN",
+"apellidos": null,
+"dni": null,
+"tel": "639470199",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646106240"
+},
+{
+"pc": [
+"c190f475-7ab8-4913-9240-1f29d33cd8e1"
+],
+"comunidad": "9c81eab6-1c5d-4046-949a-2c71c137d5f6",
+"nombre": "JOSE",
+"apellidos": "MANUEL",
+"dni": null,
+"tel": "639386989",
+"email": null,
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Conserje; contacto en el edificio.",
+"persona_clave": "nom:jose manuel"
+},
+{
+"pc": [
+"c0dbf15f-57e1-4c4c-9fb9-74fe61d64a01"
+],
+"comunidad": "b8b54252-d744-4a5a-8a99-35b43de3223e",
+"nombre": "PAULA",
+"apellidos": "MARTINEZ",
+"dni": null,
+"tel": "657091265",
+"email": "berbellstudio@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Persona de contacto de la comunidad (ficha, sep-2025).",
+"persona_clave": "nom:paula martinez"
+},
+{
+"pc": [
+"a9e0d266-0d15-40af-bf68-88308a302b2b"
+],
+"comunidad": "0ae26185-01a4-4293-98b6-6b01a71a909c",
+"nombre": "DANIEL",
+"apellidos": null,
+"dni": null,
+"tel": "687018542",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; es quien contacta (ficha, mar-2026).",
+"persona_clave": "solo:2440646107008"
+},
+{
+"pc": [
+"d7e23925-1a65-4d31-88ef-1eb4f9058d12"
+],
+"comunidad": "a7bb2e92-6724-4a89-ab1a-f3a138a1dbf5",
+"nombre": "FAUSTINO",
+"apellidos": "GARCIA",
+"dni": null,
+"tel": "606032183",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino del bajo C; es quien contacta (sep-2024). No quiere dar los datos del administrador (\"no se fia de el\"). Su hijo: 649 598 246.",
+"persona_clave": "nom:faustino garcia"
+},
+{
+"pc": [
+"223be523-9b57-497d-bee0-9ae926c31199"
+],
+"comunidad": "453124e7-6554-46d3-9f15-bd846aa96c0f",
+"nombre": "José Antonio",
+"apellidos": "González Fernández",
+"dni": "10529771A",
+"tel": "665815896",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"José Antonio González Fernández (3º Izda.)\"\nEn la ficha: \"José González (vecino)\".",
+"persona_clave": "dni:10529771A"
+},
+{
+"pc": [
+"68b77c69-087d-4f09-bb86-8f3c150cd6b5"
+],
+"comunidad": "8340b699-a6f9-45c8-8edd-5130d5889290",
+"nombre": "JOSE LUIS",
+"apellidos": "PEREZ",
+"dni": null,
+"tel": null,
+"email": "jose10861@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose luis perez"
+},
+{
+"pc": [
+"e8c15f43-5180-4b14-a2ea-b603aacb3810"
+],
+"comunidad": "6e80af37-0dbf-4203-ab19-51b7c66b5acd",
+"nombre": "HASSAN",
+"apellidos": "ELMORABET",
+"dni": null,
+"tel": "630559105",
+"email": "hassan.elmorabet@hotmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Contacto para la visita (correo de Del Brio, mar-2026).",
+"persona_clave": "nom:hassan elmorabet"
+},
+{
+"pc": [
+"c99f430c-ccd5-4f68-aade-730294acd2f3"
+],
+"comunidad": "e9d3d91f-e207-4b11-a963-3e0dd8c4e4c6",
+"nombre": "AGANTANGELO",
+"apellidos": "SOLER",
+"dni": null,
+"tel": "690086645",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; trajo la oportunidad.",
+"persona_clave": "nom:agantangelo soler"
+},
+{
+"pc": [
+"02b9e6dc-b72a-4810-b280-06aae2f9f4be"
+],
+"comunidad": "309291e1-fbe9-48f9-b684-241af01d860f",
+"nombre": "PEDRO",
+"apellidos": "MADRIGAL",
+"dni": null,
+"tel": "630011686",
+"email": "pmadmuga@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:pedro madrigal"
+},
+{
+"pc": [
+"7789e838-01f3-4806-8b56-1dff81009b87"
+],
+"comunidad": "a5f1572a-fbab-4f3e-863f-cc07f690c67d",
+"nombre": "ANGELES",
+"apellidos": "MOLINA",
+"dni": null,
+"tel": "660938838",
+"email": null,
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina del 2º B; contacto de la viabilidad (abr-2026).",
+"persona_clave": "nom:angeles molina"
+},
+{
+"pc": [
+"39e15043-f5e5-416c-8196-4f6a0868e12b"
+],
+"comunidad": "7860d808-0b3b-454d-b860-e3ff9198b219",
+"nombre": "SUSANA",
+"apellidos": null,
+"dni": null,
+"tel": "652123379",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646393920"
+},
+{
+"pc": [
+"8eb15cf8-ad03-4fb0-96a9-75c3a23903b6"
+],
+"comunidad": "0cbe0dba-9c07-4cf5-a63a-d6fe17fdccbf",
+"nombre": "Miriam",
+"apellidos": null,
+"dni": null,
+"tel": "663894422",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"Miriam 4ºA\"",
+"persona_clave": "solo:2440646446720"
+},
+{
+"pc": [
+"fd475119-8451-4141-bd05-e769c33d8503"
+],
+"comunidad": "f4aa501c-5bdc-4fb3-bca2-d82e2dbab1ce",
+"nombre": "JORGE LUIS",
+"apellidos": "MANCHA SANZ",
 "dni": null,
 "tel": null,
 "email": null,
 "cargo": "presidente",
 "desde": null,
-"hasta": "2025-06-10",
-"notas": "Leida en la ficha el 9-oct-2026. DNI tachado e incompleto en la ficha (49450785). anterior: tachado en la ficha; fecha real desconocida, se pone la de la ficha",
-"persona_clave": "nom:noura bouzizoua lafriakh"
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jorge luis mancha sanz"
 },
 {
 "pc": [
-"919dc612-821d-4b73-b2ab-d05c24830635"
+"5980f9d1-3745-4798-8ac2-695d126f8a27"
 ],
-"comunidad": "1ce9993a-a9e6-4dab-b649-9a062b9dc681",
-"nombre": "María Elena",
-"apellidos": "Serrasilla Romero",
-"dni": "76111220B",
-"tel": "615017829",
+"comunidad": "d3b014a2-39ef-4cb6-801b-241ca9179b22",
+"nombre": "TOMAS",
+"apellidos": "RAMIRES",
+"dni": null,
+"tel": "610609668",
 "email": null,
 "cargo": "presidente",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026.",
-"persona_clave": "dni:76111220B"
+"notas": "En la ficha venia asi: \"TOMAS RAMIRES /\"",
+"persona_clave": "nom:tomas ramires"
 },
 {
-"pc": [],
-"comunidad": "1ce9993a-a9e6-4dab-b649-9a062b9dc681",
-"nombre": "Luis",
+"pc": [
+"0deed537-554a-495e-a017-a4430336744f"
+],
+"comunidad": "17e9c1d4-8648-4d51-9e8f-8ea404afadcb",
+"nombre": "VERÓNICA",
 "apellidos": null,
 "dni": null,
 "tel": null,
 "email": null,
-"cargo": "vicepresidente",
+"cargo": "presidente",
 "desde": null,
 "hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026. En la ficha: \"603409736 Luis ADMIN GARAGE / JOSE PRESIDENTE GARAJE 665852125\" (el garaje es otra comunidad)",
-"persona_clave": "solo:1546664290944"
+"notas": null,
+"persona_clave": "solo:2440646550464"
 },
 {
 "pc": [
-"8225eee6-0371-4c7b-a0db-24411e2e686a"
+"3c275330-7b56-4607-9eaf-98acfc885d01"
 ],
-"comunidad": "aee2ebed-4594-40e4-af39-6ed9b7fab997",
+"comunidad": "95e877d4-0c2f-44f3-b5c7-5fcdfad01827",
 "nombre": "Carmen",
 "apellidos": null,
 "dni": null,
-"tel": "625408415",
-"email": null,
-"cargo": "presidente",
-"desde": null,
-"hasta": null,
-"notas": "Leida en la ficha el 9-oct-2026. \"Nva Presidenta: CARMEN\"",
-"persona_clave": "solo:1546664291072"
-},
-{
-"pc": [],
-"comunidad": "aee2ebed-4594-40e4-af39-6ed9b7fab997",
-"nombre": "Victoriano",
-"apellidos": "Bravo Iñigo",
-"dni": "16775165T",
 "tel": null,
 "email": null,
 "cargo": "presidente",
 "desde": null,
-"hasta": "2024-11-08",
-"notas": "Leida en la ficha el 9-oct-2026. DNI sin tachar en la ficha: puede ser suyo o de Carmen. Su hija Olga hacia de contacto. anterior: tachado en la ficha; fecha real desconocida, se pone la de la ficha",
-"persona_clave": "dni:16775165T"
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646550656"
+},
+{
+"pc": [
+"064e1644-9750-4dae-b6ca-edf6e011c52c"
+],
+"comunidad": "958d5840-8324-4812-9b54-7dc633ef3b83",
+"nombre": "ADRIAN",
+"apellidos": null,
+"dni": null,
+"tel": "605081438",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"ADRIAN /\"",
+"persona_clave": "solo:2440646550784"
+},
+{
+"pc": [
+"9658877c-18b8-469f-bb8e-8559b71809bc"
+],
+"comunidad": "645d3921-b3a6-4be6-89d8-00cf46ed61b0",
+"nombre": "GEMMA",
+"apellidos": null,
+"dni": null,
+"tel": null,
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"GEMMA 4º B\"",
+"persona_clave": "solo:2440646550912"
+},
+{
+"pc": [
+"b9f5772e-dfd9-4a1a-9517-aebb0818d607"
+],
+"comunidad": "99411614-faa3-4865-a665-2227fa410ee1",
+"nombre": "GONZALO",
+"apellidos": "GUINOT",
+"dni": null,
+"tel": null,
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha venia asi: \"GONZALO GUINOT (Se encarga su hija María del Mar)\"",
+"persona_clave": "nom:gonzalo guinot"
+},
+{
+"pc": [
+"5c633cbc-42f9-420e-adf8-f4e1a8bfc4f5"
+],
+"comunidad": "69947dce-ee39-47c9-a041-635bcf687aaa",
+"nombre": "LUCA",
+"apellidos": "NIZZARDO",
+"dni": null,
+"tel": null,
+"email": "l.nizzardo@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:luca nizzardo"
+},
+{
+"pc": [
+"875a9421-0317-4927-809b-0bb752211824"
+],
+"comunidad": "5552f040-8067-4548-8156-6b5ad06b49be",
+"nombre": "GONZALO",
+"apellidos": "MILLAN LOPEZ",
+"dni": null,
+"tel": "617270329",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:gonzalo millan lopez"
+},
+{
+"pc": [
+"bf596d30-6b16-4579-88e6-6b91b3afe779"
+],
+"comunidad": "db6eff5c-6418-43b3-987c-493868228b72",
+"nombre": "Felisa",
+"apellidos": null,
+"dni": null,
+"tel": "620257135",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646551808"
+},
+{
+"pc": [
+"5515c867-0c87-446a-972f-a7b4104405e3"
+],
+"comunidad": "3d862231-cb13-4cea-83b9-cb64d7b521d2",
+"nombre": "Constantino",
+"apellidos": null,
+"dni": null,
+"tel": "696 282 708",
+"email": "t.roman95@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646553984"
+},
+{
+"pc": [
+"3f3fa056-07af-4ecb-81fe-e1960ff8b2db"
+],
+"comunidad": "f48e2894-d0e6-4e0f-9ab3-afa6f791b635",
+"nombre": "Dina",
+"apellidos": null,
+"dni": null,
+"tel": "655 825 907",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646554112"
+},
+{
+"pc": [
+"67a86cb8-557a-4dbc-a0cf-85968f75974a"
+],
+"comunidad": "eb27f9d7-bd66-49e5-995a-d50e2fae1fde",
+"nombre": "Sofía",
+"apellidos": "Cano",
+"dni": null,
+"tel": "626 025 499",
+"email": "chofacano@yahoo.es",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:sofa cano"
+},
+{
+"pc": [
+"7bfc5dcf-3807-4c21-8d60-141514a1db88"
+],
+"comunidad": "e2cc83d7-3908-4a45-9794-2ce6c548fe7f",
+"nombre": "JOSE",
+"apellidos": "ANGEL",
+"dni": null,
+"tel": "630474161",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose angel"
+},
+{
+"pc": [
+"c0af20b8-f0c1-4516-990c-7e269bb123ca"
+],
+"comunidad": "28a0485c-562e-4ddd-a6b8-734c7f4b32a7",
+"nombre": "Mª",
+"apellidos": "ANGELES GOMEZ",
+"dni": null,
+"tel": "617089286",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:m angeles gomez"
+},
+{
+"pc": [
+"b87b37db-0c63-4f2d-8533-885fba054593"
+],
+"comunidad": "116ea13f-12a1-460c-8997-e7c75806a15e",
+"nombre": "JUAN",
+"apellidos": "CARLOS",
+"dni": null,
+"tel": "686716077",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:juan carlos"
+},
+{
+"pc": [
+"bb79ba9f-339d-42f1-b434-2d84bdb83648"
+],
+"comunidad": "40cd23dc-525a-428a-b3ec-7cc732a09527",
+"nombre": "JOSE",
+"apellidos": "GARCIA INES",
+"dni": null,
+"tel": "699967295",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose garcia ines"
+},
+{
+"pc": [
+"5678fb52-1b77-4fa9-a487-6215de235af4"
+],
+"comunidad": "bb6ee0a0-1afb-4189-b2aa-117c811b4dd4",
+"nombre": "ELENA",
+"apellidos": null,
+"dni": null,
+"tel": "665613389",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646555456"
+},
+{
+"pc": [
+"dca62bcd-34a6-4b05-9eb4-3d373503f521"
+],
+"comunidad": "a775e769-3944-4893-a313-db1a834485d7",
+"nombre": "oliwia",
+"apellidos": null,
+"dni": null,
+"tel": "666261929",
+"email": "joannaoliwiagornicka@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646555584"
+},
+{
+"pc": [
+"4dd750d4-ba1f-47c4-a23a-50895ad88e7e"
+],
+"comunidad": "d859aa90-ef01-4335-8da1-5f76b6900271",
+"nombre": "MARTA",
+"apellidos": null,
+"dni": null,
+"tel": "699199932",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646556416"
+},
+{
+"pc": [
+"f40f54e8-43ae-4a40-b3b1-70f3a32e19c3"
+],
+"comunidad": "dab55cda-40d4-40c0-841d-67b5fc62c3bd",
+"nombre": "CRISTINA",
+"apellidos": null,
+"dni": null,
+"tel": "651978594",
+"email": "cris7991@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646556544"
+},
+{
+"pc": [
+"e32232a9-1bb3-4672-82ed-f2fa4ee25c52"
+],
+"comunidad": "efa7db0b-10b3-447f-a623-139b997f9237",
+"nombre": "LARA",
+"apellidos": null,
+"dni": null,
+"tel": "652816337",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646557312"
+},
+{
+"pc": [
+"7f8f14a5-64cd-4bc4-ac44-41c963477b85"
+],
+"comunidad": "54a1631d-f55e-4fd6-9ef8-9e0651fd469c",
+"nombre": "FERNANDO",
+"apellidos": null,
+"dni": null,
+"tel": "635888707",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": "En la ficha, \"Fernando 635 888 707\" en la casilla del presidente; y \"FERNANDO VECINO 635888707\" en quien contacta.",
+"persona_clave": "solo:2440646557440"
+},
+{
+"pc": [
+"b6f18491-f87c-4f38-9d4c-9f0bba991e26"
+],
+"comunidad": "bd0424ca-000c-456e-8bdc-de6e4a68d694",
+"nombre": "Rosa",
+"apellidos": null,
+"dni": null,
+"tel": "667737619",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646557568"
+},
+{
+"pc": [
+"de99b1e0-8e4d-4458-a2ef-26300ede5efb"
+],
+"comunidad": "7fe6a3c3-56e5-41a7-8cae-f90a88406289",
+"nombre": "JOSE",
+"apellidos": "ANTONIO",
+"dni": null,
+"tel": "689588810",
+"email": "joseabrism@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose antonio"
+},
+{
+"pc": [
+"0bfc7e8e-6aba-4278-8790-baaef188c907"
+],
+"comunidad": "6c85f544-cb3a-4eed-942c-2410576512ba",
+"nombre": "JOSE",
+"apellidos": "ANTONIO",
+"dni": null,
+"tel": "689588810",
+"email": "joseabrism@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:jose antonio"
+},
+{
+"pc": [
+"d9fee929-3e10-427f-9f58-f6a9987c981c"
+],
+"comunidad": "fbfd81e3-b92f-44fe-bd83-493d1e8c7e36",
+"nombre": "MERCEDES",
+"apellidos": null,
+"dni": null,
+"tel": null,
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646593280"
+},
+{
+"pc": [
+"8ea87776-740f-4fe4-a3c6-e6871a3c5259"
+],
+"comunidad": "91e1d8a1-6481-4c73-bd77-9e040d09e969",
+"nombre": "Davinia",
+"apellidos": null,
+"dni": null,
+"tel": "646 381 440",
+"email": "davibenitez_3@hotmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646593408"
+},
+{
+"pc": [
+"386bc3e2-0d7c-4d47-845f-07837121ea1f"
+],
+"comunidad": "74eb5445-f73c-46d3-9ada-c62479253229",
+"nombre": "ROSELLA",
+"apellidos": "GENCO",
+"dni": null,
+"tel": "669288648",
+"email": "rosellagenco@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:rosella genco"
+},
+{
+"pc": [
+"93c86f18-7622-46ff-88c1-bdd5f0f0f594"
+],
+"comunidad": "a0f85ec0-a7e3-4e94-befa-a1fb71920bab",
+"nombre": "PEDRO",
+"apellidos": "OLIVARES",
+"dni": null,
+"tel": "655671424",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:pedro olivares"
+},
+{
+"pc": [
+"31ee6db1-95c2-4db3-82d9-11aab9f215a1"
+],
+"comunidad": "dee4c825-dbd2-492f-9dba-78742ef39e3f",
+"nombre": "Carlos",
+"apellidos": "Vasques",
+"dni": null,
+"tel": "633196120",
+"email": "cdvd15@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:carlos vasques"
+},
+{
+"pc": [
+"43d3ad0d-083e-4569-8e99-75eb34a03397"
+],
+"comunidad": "3629a7ac-9072-4b62-b83c-7273cf233e14",
+"nombre": "MARIA LUISA",
+"apellidos": "GARCIA RIVAS",
+"dni": null,
+"tel": "615362574",
+"email": "marialuisagarciarivas@yahoo.es",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecina; trajo la oportunidad.",
+"persona_clave": "nom:maria luisa garcia rivas"
+},
+{
+"pc": [
+"f0732885-26ab-4d48-b763-e50c6c57283d"
+],
+"comunidad": "219f3dfb-bda8-4ab7-8543-243988e4a697",
+"nombre": "JULIAN",
+"apellidos": "PARRALES MATEOS",
+"dni": null,
+"tel": "600324655",
+"email": "julianparrales@gmail.com",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "nom:julian parrales mateos"
+},
+{
+"pc": [
+"fa5f7d98-e92e-4965-b737-d4f0192a9417"
+],
+"comunidad": "2a4804e5-520e-4c77-83ca-e3bec5046e9f",
+"nombre": "ALVARO",
+"apellidos": null,
+"dni": null,
+"tel": "665784577",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646596800"
+},
+{
+"pc": [
+"1fe160cf-5575-4a07-9b0e-26ff6763ebb2"
+],
+"comunidad": "7fdf2ef8-2672-49d5-b8ad-29b0176001ac",
+"nombre": "FRANCISCO",
+"apellidos": null,
+"dni": null,
+"tel": "616490411",
+"email": "paco_fks1@telefonica.net",
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646596928"
+},
+{
+"pc": [
+"e975c891-c418-4ef1-86f5-2856d2de9022"
+],
+"comunidad": "ea43c3a9-648e-408c-81ad-80f95f8d0400",
+"nombre": "ANA",
+"apellidos": null,
+"dni": null,
+"tel": "675935777",
+"email": null,
+"cargo": "presidente",
+"desde": null,
+"hasta": null,
+"notas": null,
+"persona_clave": "solo:2440646597184"
+},
+{
+"pc": [
+"1da500f1-7cf7-4c46-8a05-b0ee44a97c0f"
+],
+"comunidad": "b9bc3230-49c4-4296-aa3e-2038ad68b217",
+"nombre": "BERNABÉ",
+"apellidos": null,
+"dni": null,
+"tel": "687753164",
+"email": "bergonmo@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; contacto de la oportunidad.",
+"persona_clave": "solo:2440646597376"
+},
+{
+"pc": [
+"fe823c59-88e1-45e6-941c-05957eea6c89"
+],
+"comunidad": "c49f0b58-c708-4fcd-80a6-5987bf6f0c37",
+"nombre": "MARÍA",
+"apellidos": "CARNICERO",
+"dni": null,
+"tel": "669795383",
+"email": "mcarnicerg@gmail.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto en el edificio (2026).",
+"persona_clave": "nom:mara carnicero"
+},
+{
+"pc": [
+"25f520fd-6022-4ef5-9fca-a3ed3ca9c6c4"
+],
+"comunidad": "28b77c0b-8558-475c-879e-ea02652cda7d",
+"nombre": "DIEGO",
+"apellidos": "GARCIA CUESTA",
+"dni": null,
+"tel": "918050382",
+"email": "dgarcia@hadoq.com",
+"cargo": "otro",
+"desde": null,
+"hasta": null,
+"notas": "Contacto en la ficha (jun-2026); ext. 202; de HADOQ.",
+"persona_clave": "nom:diego garcia cuesta"
+},
+{
+"pc": [
+"732a76cd-665f-4eca-8721-a11ed48466b4"
+],
+"comunidad": "79869390-1ef8-4b6a-8a63-8aca46b461fe",
+"nombre": "DANIEL",
+"apellidos": null,
+"dni": null,
+"tel": null,
+"email": "dani.izquierdo95@gmail.com",
+"cargo": "vecino",
+"desde": null,
+"hasta": null,
+"notas": "Vecino; es quien contacta (ficha, may-2026).",
+"persona_clave": "solo:2440646599232"
 }
 ]

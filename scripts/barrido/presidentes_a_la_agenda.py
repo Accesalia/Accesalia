@@ -128,7 +128,7 @@ def partir_nombre(t):
     if ps[i].lower() in PARTICULAS and ps[0].upper().rstrip('.') in ('MARIA', 'MARÍA', 'Mª', 'MA', 'M'):
         while i < len(ps) and ps[i].lower() in PARTICULAS: i += 1
         i += 1
-    elif ps[i].upper() in PILA and len(ps) >= 4:
+    elif ps[i].upper() in PILA and (len(ps) >= 4 or ps[0].upper() in PILA | {'MIGUEL', 'JUAN', 'JOSE', 'JOSÉ'}):
         i += 1
     i = min(i, len(ps) - 1)
     return ' '.join(ps[:i]), ' '.join(ps[i:]) or None
@@ -239,8 +239,15 @@ def main():
 
     mapa = {}
     personas = {}
+    # Quien ya esta en la agenda por ser "quien lo trajo" de una opp de esa misma comunidad (altas del 9-oct): se
+    # reutiliza, no se duplica.
+    previas = {}
+    for o in b.leer('oportunidades?select=comunidad_id,quien:quien_lo_trae(id,nombre,apellidos)&quien_lo_trae=not.is.null'):
+        q = o.get('quien')
+        if q: previas[(o['comunidad_id'], limpio(q['nombre'] + ' ' + (q['apellidos'] or '')))] = q
     for p in plan:
-        per = personas.get(p['persona_clave'])
+        per = personas.get(p['persona_clave']) or previas.get((p['comunidad'], limpio(p['nombre'] + ' ' + (p['apellidos'] or ''))))
+        if per: personas[p['persona_clave']] = per
         if not per:
             per = alta('persona', {'nombre': p['nombre'], 'apellidos': p['apellidos'], 'telefono_personal': p['tel'], 'activa': True})
             personas[p['persona_clave']] = per
@@ -250,15 +257,12 @@ def main():
             per['_correo'] = True
             alta('correo', {'persona_id': per['id'], 'email': p['email'], 'principal': True, 'etiqueta': 'personal'})
         for pc in p['pc']: mapa[pc] = (per['id'], pu['id'])
-    # las oportunidades: quien lo trajo -> la persona; con quien hablamos -> su puesto. Solo si estaban vacios.
+    # Las OPORTUNIDADES NO se tocan (Monica, 9-oct-2026: "que apunten al presidente en 'quien lo trajo' NO ES
+    # CORRECTO", y "con quien hablamos tampoco"). Solo se guarda el mapa fila vieja -> persona/puesto, SUMANDO.
+    ruta = os.path.join(AQUI, 'presidentes_mapa.json')
+    viejo = json.load(open(ruta)) if os.path.exists(ruta) else {}
+    viejo.update(mapa); json.dump(viejo, open(ruta, 'w'), indent=0)
     n1 = n2 = 0
-    for o in b.leer('oportunidades?select=id,persona_comunidad_id,quien_persona_comunidad_id,puesto_id,quien_lo_trae'
-                    '&or=(persona_comunidad_id.not.is.null,quien_persona_comunidad_id.not.is.null)'):
-        cambios = {}
-        if o['persona_comunidad_id'] in mapa and not o['puesto_id']: cambios['puesto_id'] = mapa[o['persona_comunidad_id']][1]; n1 += 1
-        if o['quien_persona_comunidad_id'] in mapa and not o['quien_lo_trae']: cambios['quien_lo_trae'] = mapa[o['quien_persona_comunidad_id']][0]; n2 += 1
-        if cambios: b.actualizar('oportunidades?id=eq.' + o['id'], cambios)
-    json.dump(mapa, open(os.path.join(AQUI, 'presidentes_mapa.json'), 'w'), indent=0)
     print('escritas %d personas y puestos | opps: con quien hablamos %d, quien lo trajo %d' % (len(plan), n1, n2))
 
 
