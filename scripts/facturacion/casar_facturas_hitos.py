@@ -17,7 +17,7 @@ SOLO LEE: escribe casado.json en la carpeta de trabajo. Con --escribir apunta fa
 
   python scripts/facturacion/casar_facturas_hitos.py <carpeta_extraido> [--escribir]
 """
-import sys, os, re, json, unicodedata, collections, glob
+import sys, os, re, json, unicodedata, collections, glob, urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from produccion import arrancar  # noqa: E402
 
@@ -101,7 +101,7 @@ def main():
         x = leidas.get(fl['id'], {})
         f = fl['factura']
         imp = float(fl['base'] or 0)
-        r = {'linea': fl['id'], 'factura': '%s %s %s/%s-%s' % (f['empresa_emisora'], f['tipo'], f['anio'], f['serie'], f['numero']),
+        r = {'estado_factura': f['estado'], 'fecha_factura': f['fecha'], 'linea': fl['id'], 'factura': '%s %s %s/%s-%s' % (f['empresa_emisora'], f['tipo'], f['anio'], f['serie'], f['numero']),
              'cliente': f['pagador_nombre'], 'importe': imp, 'concepto': x.get('concepto'), 'plazo': x.get('plazo'),
              'direccion': x.get('direccion'), 'fecha_hoja': x.get('fecha_hoja'), 'texto': ' '.join((fl['concepto'] or '').split())[:200]}
         fam = FAMILIA.get(x.get('concepto'), 'proyecto')
@@ -152,7 +152,7 @@ def main():
                 for tipo in {ht['hito'] for _, _, ht in todos}:
                     grupo = [o for o in todos if o[2]['hito'] == tipo and (not tipos or tipo in tipos)]
                     if len(grupo) > 1 and cerca(sum(float(o[2]['importe']) for o in grupo), imp, 2):
-                        r.update({'veredicto': 'exacto_suma', 'hoja': h['numero_hoja'], 'hito_tipo': tipo,
+                        r.update({'veredicto': 'exacto_suma', 'hoja': h['numero_hoja'], 'hoja_id': h['id'], 'hito_tipo': tipo,
                                   'hitos': [o[2]['id'] for o in grupo], 'hito_importe': [o[2]['importe'] for o in grupo]})
                         break
                 if r.get('veredicto'): break
@@ -173,7 +173,7 @@ def main():
         else:
             h, l, ht = opciones[0]; r['veredicto'] = 'dudoso'
             r['opciones'] = ['%s %s %s %s' % (o[0]['numero_hoja'], o[2]['hito'], o[2]['porcentaje'], o[2]['importe']) for o in opciones[:6]]
-        r.update({'hoja': h['numero_hoja'], 'linea_hoja': (l['descripcion'] or '')[:60], 'importe_linea_hoja': l['importe'],
+        r.update({'hoja': h['numero_hoja'], 'hoja_id': h['id'], 'linea_hoja': (l['descripcion'] or '')[:60], 'importe_linea_hoja': l['importe'],
                   'hito': ht['id'], 'hito_tipo': ht['hito'], 'hito_importe': ht['importe']})
         c[r['veredicto']] += 1; res.append(r)
 
@@ -181,6 +181,108 @@ def main():
     print('lineas de factura: %d' % len(res))
     for v, n in c.most_common(): print('   %-15s %d' % (v, n))
     if '--escribir' not in sys.argv: print('(marcha en seco)'); return
+    escribir(b, res)
+
+
+# Trozos de hito que NO son fraccionamiento sino otro precio que el de la hoja (o un abono dentro de una factura):
+# se quedan por casar, a mano (Monica, 10-oct-2026).
+NO_SUBHITO = {'HE-2023-0020', 'HE-2026-0080', 'HE-2025-0333', 'HE-2026-0114', 'HE-2025-0332', 'HE-2022-0119', 'HE-2024-0180'}
+
+
+def crear(b, tabla, fila):
+    cab = dict(b.cab); cab['Content-Type'] = 'application/json'; cab['Prefer'] = 'return=representation'
+    req = urllib.request.Request(b.url + '/rest/v1/' + tabla, data=json.dumps([fila], ensure_ascii=False).encode('utf-8'), headers=cab, method='POST')
+    with urllib.request.urlopen(req) as r: return json.loads(r.read().decode('utf-8'))[0]
+
+
+def escribir(b, res):
+    """Apunta lo que casa (Monica, 10-oct: "si, escribimos los 580"), crea los SUBHITOS de los fraccionamientos ("es
+    exactamente la razon por la que quise tener los subhitos... aprovecharia para CREARLOS porque muchos aun estan por
+    facturar") con el RESTO pendiente, pone los estados y pasa a firmadas las hojas que tienen factura ("si hay
+    factura, se firmo"), con una nota para buscar el papel firmado."""
+    hitos = {h['id']: h for h in b.leer('hitos_cobro?select=id,linea_facturacion_id,hito,importe,estado,hito_padre_id')}
+    ya = {(x['factura_linea_id'], x['hito_cobro_id']) for x in b.leer('factura_linea_hitos?select=factura_linea_id,hito_cobro_id')}
+    orden = sorted(res, key=lambda r: (r.get('estado_factura') == 'anulada', r.get('fecha_factura') or ''))
+    enlaces, usados, cobrados, hojas = [], set(), set(), {}
+
+    def enlazar(r, hid, imp):
+        enlaces.append({'factura_linea_id': r['linea'], 'hito_cobro_id': hid, 'importe': imp, 'como': 'automatico'})
+        if r.get('estado_factura') == 'cobrada': cobrados.add(hid)
+        # una factura anulada no prueba que la hoja se firmara
+        if r.get('estado_factura') != 'anulada': hojas.setdefault(r['hoja_id'], r)
+
+    for r in orden:
+        v = r['veredicto']
+        if v == 'exacto':
+            enlazar(r, r['hito'], r['importe'])
+            if r.get('estado_factura') != 'anulada': usados.add(r['hito'])
+        elif v == 'exacto_varios':
+            libres = [h for h in r['otros'] if h not in usados] or r['otros']
+            if r.get('estado_factura') != 'anulada': usados.add(libres[0])
+            enlazar(r, libres[0], r['importe'])
+        elif v == 'exacto_suma':
+            for hid, imp in zip(r['hitos'], r['hito_importe']): enlazar(r, hid, float(imp))
+
+    # LOS SUBHITOS: por hito, en orden de fecha, mientras quepan en el hito; y el resto, pendiente
+    trozos = collections.defaultdict(list)
+    for r in orden:
+        if r['veredicto'] == 'subhito' and r['hoja'] not in NO_SUBHITO and r.get('estado_factura') != 'anulada' and r['importe'] > 0:
+            trozos[r['hito']].append(r)
+    subhitos, notas, padres = 0, [], {}
+    for hid, rs in trozos.items():
+        p = hitos[hid]
+        if p['hito_padre_id'] or not p['importe']: continue
+        tope, suma, k = float(p['importe']), 0.0, 0
+        for r in sorted(rs, key=lambda r: r.get('fecha_factura') or ''):
+            if suma + r['importe'] > tope + 1: continue
+            k += 1; suma += r['importe']
+            s = crear(b, 'hitos_cobro', {
+                'linea_facturacion_id': p['linea_facturacion_id'], 'hito': p['hito'], 'orden': k, 'importe': r['importe'],
+                'estado': 'completado' if r.get('estado_factura') == 'cobrada' else 'pendiente', 'hito_padre_id': hid,
+                'notas': 'Subhito: factura %s (%s). %s' % (r['factura'], r.get('fecha_factura'), r['texto'][:160])})
+            enlaces.append({'factura_linea_id': r['linea'], 'hito_cobro_id': s['id'], 'importe': r['importe'], 'como': 'automatico'})
+            hojas.setdefault(r['hoja_id'], r); subhitos += 1
+        if not k: continue
+        if tope - suma > 1:
+            b.insertar('hitos_cobro', [{'linea_facturacion_id': p['linea_facturacion_id'], 'hito': p['hito'], 'orden': k + 1,
+                                        'importe': round(tope - suma, 2), 'estado': 'pendiente', 'hito_padre_id': hid,
+                                        'notas': 'Resto del hito, sin facturar todavia (al casar las facturas de Factusol, 10-oct-2026).'}])
+            subhitos += 1
+        padres[hid] = k
+        notas.append({'hoja_encargo_id': None, 'hito_cobro_id': hid, 'fecha': '2026-10-10', 'origen': 'factusol',
+                      'autor': 'Casado con Factusol (10-oct-2026)',
+                      'texto': 'Fraccionado al facturar en %d factura(s): lo dicen las facturas de Factusol; el porque no consta.' % k})
+
+    vistos, unicos = set(), []
+    for e in enlaces:
+        kk = (e['factura_linea_id'], e['hito_cobro_id'])
+        if kk not in vistos and kk not in ya: vistos.add(kk); unicos.append(e)
+    if unicos: b.insertar('factura_linea_hitos', unicos)
+
+    # ESTADOS: hito con factura cobrada = completado; el que tiene subhitos, segun ellos (parcial / completado)
+    for hid in cobrados - set(padres):
+        if hitos.get(hid, {}).get('estado') == 'pendiente':
+            b.actualizar('hitos_cobro?id=eq.%s&estado=eq.pendiente' % hid, {'estado': 'completado'})
+    for hid in padres:
+        subs = b.leer('hitos_cobro?select=estado&hito_padre_id=eq.' + hid)
+        hechos = sum(1 for x in subs if x['estado'] == 'completado')
+        est = 'completado' if hechos == len(subs) else ('parcial' if hechos else 'pendiente')
+        b.actualizar('hitos_cobro?id=eq.%s&estado=eq.pendiente' % hid, {'estado': est})
+
+    # LAS HOJAS CON FACTURA que no constaban como firmadas: a firmadas, y nota para buscar el papel
+    estados = {h['id']: h for h in b.leer('hojas_encargo?select=id,numero_hoja,estado&id=in.(%s)' % ','.join(hojas))}
+    pasar = [h for h in estados.values() if h['estado'] != 'devuelta_firmada']
+    for h in pasar:
+        r = hojas[h['id']]
+        b.actualizar('hojas_encargo?id=eq.' + h['id'], {'estado': 'devuelta_firmada', 'fecha_estado': '2026-10-10T00:00:00+00:00'})
+        notas.append({'hoja_encargo_id': h['id'], 'hito_cobro_id': None, 'fecha': '2026-10-10', 'origen': 'factusol',
+                      'autor': 'Casado con Factusol (10-oct-2026)',
+                      'texto': 'Hay factura de esta hoja (%s, %s): se firmo ("si hay factura, se firmo"). Estaba como %s. '
+                               'FALTA SUBIR LA HOJA FIRMADA: buscarla.' % (r['factura'], r.get('fecha_factura'), h['estado'])})
+    if notas: b.insertar('notas_facturacion', notas)
+    print('enlaces: %d | subhitos creados: %d (en %d hitos) | hitos completados: %d | hojas pasadas a firmadas: %d'
+          % (len(unicos), subhitos, len(padres), len(cobrados - set(padres)), len(pasar)))
+    for h in pasar: print('   firmada por factura:', h['numero_hoja'], '(era %s)' % h['estado'])
 
 
 if __name__ == '__main__':
