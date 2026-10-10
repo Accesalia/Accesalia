@@ -16,6 +16,7 @@ import {
 } from "../../../lib/alertasIEE";
 import { buzonListo } from "../../../lib/correo";
 import { ListaPendientes, type DiaPendiente } from "./ListaPendientes";
+import { VolverAlMonton } from "./Piezas";
 
 export const dynamic = "force-dynamic";
 
@@ -322,7 +323,15 @@ export default async function AlertasIEE({
                           </Link>
                           {a.municipio && <span className="text-carbon/50"> · {a.municipio}</span>}
                         </td>
-                        <td className="px-4 py-2.5 font-semibold">{a.comercial ?? "—"}</td>
+                        {/* DESHACER (Monica, 10-oct-2026): "asigne por error una a Alvaro
+                            y quiero enviarsela a Daniel". La devuelve a pendientes, y
+                            desde alli se asigna a quien era. */}
+                        <td className="px-4 py-2.5">
+                          <span className="flex flex-wrap items-center gap-x-2">
+                            <b>{a.comercial ?? "—"}</b>
+                            <VolverAlMonton codigo={a.codigo} />
+                          </span>
+                        </td>
                         <td className="px-4 py-2.5 tabular-nums text-carbon/70">
                           {a.asignadaEn ? enCastellano(a.asignadaEn.slice(0, 10)) : "—"}
                         </td>
