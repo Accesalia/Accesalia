@@ -42,6 +42,14 @@ const AREAS: Area[] = [
     ve: () => true,
   },
   {
+    // Para todo el mundo (Monica, 10-oct-2026): catalogos y tablas de consulta.
+    // El primero, los modelos de ascensor en 3D para enseñarlos en una junta.
+    nombre: "Documentación de referencia",
+    desc: "Catálogos para consultar: los modelos de ascensor en 3D, y más que vendrán",
+    href: "/referencia",
+    ve: () => true,
+  },
+  {
     nombre: "RRHH",
     desc: "Tus días y tus solicitudes. Para RRHH y dirección, además: vacaciones del equipo y fichas",
     href: "/rrhh",

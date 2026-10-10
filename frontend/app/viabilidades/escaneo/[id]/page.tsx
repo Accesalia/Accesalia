@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { enlaceAlModelo } from "../../../../lib/mesaViabilidades";
 import { haceViabilidades } from "../../revision-polycam/acciones";
-import { Visor3D } from "./Visor3D";
+import { Visor3D } from "../../../components/Visor3D";
 
 export const dynamic = "force-dynamic";
 

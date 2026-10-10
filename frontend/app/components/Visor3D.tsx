@@ -4,7 +4,8 @@ import { useEffect } from "react";
 
 const VISOR = "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js";
 
-/** El mismo visor de la mesa de trabajo, solo para mirar. */
+/** El visor de .glb para mirar: el escaneo antes de vincularlo y el catalogo
+ *  de ascensores. Va dentro de una caja con `relative` y alto fijo. */
 export function Visor3D({ url }: { url: string }) {
   useEffect(() => {
     if (document.querySelector(`script[src="${VISOR}"]`)) return;
