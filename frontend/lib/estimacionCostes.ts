@@ -26,39 +26,9 @@ import "server-only";
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 
-export type TipoObra = "ascensor" | "sate" | "cubierta" | "fachada" | "plataforma" | "rampa";
+import { cuantil, type DatosEstimacion, type TipoObra } from "./estimacionCalculo";
 
-export const TIPOS: { clave: TipoObra; nombre: string }[] = [
-  { clave: "ascensor", nombre: "Ascensor" },
-  { clave: "sate", nombre: "SATE completo" },
-  { clave: "cubierta", nombre: "Cubierta" },
-  { clave: "fachada", nombre: "Fachada" },
-  { clave: "plataforma", nombre: "Plataforma" },
-  { clave: "rampa", nombre: "Rampa" },
-];
-
-export const CASOS: Record<string, string> = {
-  A: "A · Se demuele la escalera",
-  B: "B · Se demuele y reconstruye la escalera",
-  C: "C · Se cajea la escalera",
-  D: "D · Solo ascensor, sin tocar la escalera",
-  E: "E · Mejora de accesibilidad en planta baja",
-  F: "F · Bajada de ascensor existente",
-};
-
-/** Lo que necesita la pantalla para estimar sin volver al servidor. */
-export type DatosEstimacion = {
-  hoy: string;
-  /** Subida anual de la tendencia y la minima de los ultimos tres años. */
-  subidaAnual: number;
-  subidaMinima: number;
-  /** Por semestre: como estaba el nivel de precios respecto a hoy (1 = hoy). */
-  semestres: { semestre: string; nivel: number; obras: number }[];
-  /** Ascensor: PEM por parada actualizado a hoy, por caso. */
-  ascensorPorCaso: Record<string, number[]>;
-  /** El resto: PEM actualizado a hoy, por tipo (sin medida de tamaño todavia). */
-  pemPorTipo: Record<Exclude<TipoObra, "ascensor">, number[]>;
-};
+export type { DatosEstimacion, TipoObra };
 
 type Fila = {
   tipo_obra: string | null;
@@ -88,13 +58,6 @@ const semestreDe = (iso: string) => `${iso.slice(0, 4)}-S${Number(iso.slice(5, 7
 const enAños = (iso: string) => Number(iso.slice(0, 4)) + (Number(iso.slice(5, 7)) - 0.5) / 12;
 const medioSemestre = (s: string) => Number(s.slice(0, 4)) + (s.endsWith("S1") ? 0.25 : 0.75);
 
-export function cuantil(xs: number[], q: number): number {
-  const a = [...xs].sort((x, y) => x - y);
-  if (!a.length) return NaN;
-  const p = (a.length - 1) * q;
-  const i = Math.floor(p);
-  return a[i] + (a[Math.min(i + 1, a.length - 1)] - a[i]) * (p - i);
-}
 
 export async function datosEstimacion(): Promise<DatosEstimacion> {
   const r = await fetch(

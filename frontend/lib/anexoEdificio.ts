@@ -36,7 +36,17 @@ const leer = async <T>(path: string): Promise<T> => {
 const sinTildes = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
 const eur = (n: number) => new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" }).format(n) + " €";
 
-export type LineaAyuda = { convocatoria: string; cubre: string; cuantoDa: string; estimacion: string | null; estado: string };
+export type LineaAyuda = {
+  convocatoria: string;
+  cubre: string;
+  cuantoDa: string;
+  estimacion: string | null;
+  estado: string;
+  /** entidad|programa del catalogo: para cruzarla con sus plazos (lib/plazosAyudas.ts). */
+  clave?: string;
+  /** Lo estimado en euros, si se pudo calcular. */
+  importe?: number | null;
+};
 export type Conseguida = { quien: string; detalle: string; importe: number | null };
 export type Anexo = {
   fecha: string;
@@ -191,7 +201,15 @@ export async function anexoDeOportunidad(oppId: string, opciones: { pem?: number
   const pem = opciones.pem ?? null;
   const linea = (c: Catalogo): LineaAyuda => {
     const e = estimar(c, pem, viviendas);
-    return { convocatoria: nombreConvocatoria(c), cubre: c.cubre ?? "", cuantoDa: c.cuanto_da, estimacion: e ? `unos ${eur(e)}` : null, estado: ESTADO[c.estado] ?? c.estado };
+    return {
+      convocatoria: nombreConvocatoria(c),
+      cubre: c.cubre ?? "",
+      cuantoDa: c.cuanto_da,
+      estimacion: e ? `unos ${eur(e)}` : null,
+      estado: ESTADO[c.estado] ?? c.estado,
+      clave: `${c.entidad}|${c.programa}`,
+      importe: e,
+    };
   };
   const candidatas = catalogo.filter(cabe);
   const pedidas = candidatas.filter((c) => c.tipos.some((t) => pedido.ids.has(t.tipo_proyecto_id)));

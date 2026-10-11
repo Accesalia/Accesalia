@@ -8,33 +8,7 @@ import { useMemo, useState } from "react";
 //      para ESE MISMO tipo de obra.
 // Y el informe para la comunidad. Los numeros salen de lib/estimacionCostes.ts.
 
-type Tipo = "ascensor" | "sate" | "cubierta" | "fachada" | "plataforma" | "rampa";
-type Datos = {
-  hoy: string;
-  subidaAnual: number;
-  subidaMinima: number;
-  semestres: { semestre: string; nivel: number; obras: number }[];
-  ascensorPorCaso: Record<string, number[]>;
-  pemPorTipo: Record<Exclude<Tipo, "ascensor">, number[]>;
-};
-
-const TIPOS: { clave: Tipo; nombre: string }[] = [
-  { clave: "ascensor", nombre: "Ascensor" },
-  { clave: "sate", nombre: "SATE completo" },
-  { clave: "cubierta", nombre: "Cubierta" },
-  { clave: "fachada", nombre: "Fachada" },
-  { clave: "plataforma", nombre: "Plataforma" },
-  { clave: "rampa", nombre: "Rampa" },
-];
-const CASOS: [string, string][] = [
-  ["A", "A · Se demuele la escalera"],
-  ["B", "B · Se demuele y reconstruye la escalera"],
-  ["C", "C · Se cajea la escalera"],
-  ["D", "D · Solo ascensor, sin tocar la escalera"],
-  ["E", "E · Mejora de accesibilidad en planta baja"],
-  ["F", "F · Bajada de ascensor existente"],
-];
-const MINIMO_OBRAS = 8;
+import { CASOS, estimar, TIPOS, type DatosEstimacion as Datos, type TipoObra as Tipo } from "../../../lib/estimacionCalculo";
 
 const eur = (n: number) => Math.round(n).toLocaleString("es-ES") + " €";
 const pct = (n: number) => (n * 100).toLocaleString("es-ES", { maximumFractionDigits: 1 }) + " %";
@@ -43,45 +17,15 @@ const campo =
   "mt-1 h-[40px] w-full rounded-[10px] border border-carbon/25 bg-white px-3 text-[14px] text-carbon outline-none focus:border-lima-dark focus:ring-2 focus:ring-lima/40";
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 
-function cuantil(xs: number[], q: number) {
-  const a = [...xs].sort((x, y) => x - y);
-  if (!a.length) return NaN;
-  const p = (a.length - 1) * q;
-  const i = Math.floor(p);
-  return a[i] + (a[Math.min(i + 1, a.length - 1)] - a[i]) * (p - i);
-}
 
 export function Estimador({ d }: { d: Datos }) {
   const [tipo, setTipo] = useState<Tipo>("ascensor");
   const [caso, setCaso] = useState("B");
   const [paradas, setParadas] = useState("6");
   const [comunidad, setComunidad] = useState("");
+  const [opp, setOpp] = useState("");
 
-  const est = useMemo(() => {
-    if (tipo === "ascensor") {
-      const n = Number(paradas.replace(",", "."));
-      let base = d.ascensorPorCaso[caso] ?? [];
-      let nota: string | null = null;
-      if (base.length < MINIMO_OBRAS) {
-        base = Object.values(d.ascensorPorCaso).flat();
-        nota = `Del caso ${caso} hay solo ${(d.ascensorPorCaso[caso] ?? []).length} obras: se estima con todos los ascensores.`;
-      }
-      if (!n || n < 1 || !base.length) return null;
-      return { hoy: cuantil(base, 0.5) * n, bajo: cuantil(base, 0.25) * n, alto: cuantil(base, 0.75) * n, obras: base.length, nota };
-    }
-    const base = d.pemPorTipo[tipo];
-    if (!base.length) return { hoy: NaN, bajo: NaN, alto: NaN, obras: 0, nota: "Todavía no hay obras de este tipo con datos suficientes." };
-    return {
-      hoy: cuantil(base, 0.5),
-      bajo: cuantil(base, 0.25),
-      alto: cuantil(base, 0.75),
-      obras: base.length,
-      nota:
-        base.length < MINIMO_OBRAS
-          ? `Solo ${base.length} obras de este tipo: es orientativo. Falta completar sus datos (los m² de las mediciones).`
-          : "Sin distinguir por tamaño: falta completar los m² de las mediciones.",
-    };
-  }, [tipo, caso, paradas, d]);
+  const est = useMemo(() => estimar(d, tipo, caso, Number(paradas.replace(",", "."))), [tipo, caso, paradas, d]);
 
   const valido = !!est && Number.isFinite(est.hoy);
   const nombreTipo = TIPOS.find((t) => t.clave === tipo)!.nombre;
@@ -198,8 +142,31 @@ export function Estimador({ d }: { d: Datos }) {
               Imprimir informe
             </button>
           </div>
+          {/* CON LAS AYUDAS: desde la oportunidad, que es donde se sabe a cuales
+              puede acceder el edificio. Sin paradas, salen de Catastro. */}
+          <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-black/5 pt-4">
+            <label className="block min-w-[260px] flex-1">
+              <span className={etq}>Con las ayudas: código de la oportunidad</span>
+              <input value={opp} onChange={(e) => setOpp(e.target.value)} placeholder="DAN-2025-277" className={campo} />
+            </label>
+            <a
+              href={
+                opp.trim()
+                  ? `/referencia/estimacion/informe?${new URLSearchParams({ opp: opp.trim(), tipo, caso, ...(tipo === "ascensor" && paradas ? { paradas } : {}) })}`
+                  : undefined
+              }
+              aria-disabled={!opp.trim()}
+              className={
+                "inline-flex h-[40px] items-center rounded-xl px-5 text-[14px] font-extrabold transition " +
+                (opp.trim() ? "bg-carbon text-white hover:bg-carbon/85" : "pointer-events-none bg-carbon/20 text-white")
+              }
+            >
+              Informe con ayudas
+            </a>
+          </div>
           <p className="mt-2 text-[12px] text-carbon/50">
-            Las subvenciones y sus plazos se añadirán al sacarlo desde la oportunidad, que es donde se sabe a cuáles puede acceder.
+            Con las ayudas a las que puede acceder ese edificio, lo que darían para esta obra, cuándo se convocan y cuánto tardan
+            en concederse, y lo que habrá subido la obra para entonces.
           </p>
         </section>
       )}
