@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Expediente 360 · esqueleto</title>
+<!--
+  ESQUELETO EN GRIS. Solo estructura, para discutir. Lienzo de 1300.
+  Propuesta de Claude, 11-oct-2026, a partir de lo decidido con Monica:
+   - El eje es la OPORTUNIDAD. Edificio y comunidad van arriba, de contexto.
+   - La cadena del proyecto en fila: proyecto tecnico > visado > licencia >
+     obra > fin de obra (requerimientos en varias fases).
+   - Las areas propias aparte: subvencion, CAES, 3 presupuestos,
+     financiacion, IEE, CSS. Solo se abren las que esta opp vendio; las
+     demas, plegadas en una linea (lo que aun se le puede vender).
+   - Bloqueos y pausas no son ventanita: son el ESTADO de cada una.
+   - Correos y diario, a la derecha, transversales; lo confidencial aparte.
+   - Facturacion: su propia ventanita.
+  Los datos son de mentira: es un inventario de huecos, no una opp real.
+-->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f7f7f5;color:#1c1c1c;font:13px/1.45 ui-sans-serif,system-ui,'Segoe UI',sans-serif}
+.todo{width:1300px;margin:0 auto;padding:16px 0 40px}
+.volver{font-size:13px;font-weight:600;color:#7a7a7a}
+.rot{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6e6e6e}
+.caja{border:1px solid #d4d4d4;border-radius:10px;padding:11px 13px;background:#fff}
+.mini{font-size:11.5px;color:#6e6e6e}
+.dato{font-size:12px;display:flex;gap:6px;margin-top:3px}
+.dato b{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a8a;min-width:78px;padding-top:2px}
+.abrir{font-size:11px;font-weight:700;color:#3f7a1c;margin-top:8px;display:inline-block}
+.pild{display:inline-block;border-radius:20px;padding:1px 9px;font-size:10.5px;font-weight:700;border:1px solid #cfcfcf;color:#4a4a4a;background:#f2f2f2}
+.pild.marcha{background:#eef7e4;border-color:#b9dd9c;color:#3f7a1c}
+.pild.pausa{background:#fdf6e3;border-color:#e7d39a;color:#8a6a10}
+.pild.bloq{background:#f7e9e8;border-color:#dcb1af;color:#9f3a38}
+.pild.hecho{background:#e9e9e9;border-color:#cfcfcf;color:#555}
+.pild.nada{background:transparent;border-style:dashed;color:#9a9a9a}
+
+/* cabecera sobre el fondo, sin tarjeta */
+.cab{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid #dcdcdc;padding-bottom:12px;margin:8px 0 12px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.3px;line-height:1.1}
+.cab .der{text-align:right;font-size:12px;color:#555}
+
+/* contexto: edificio y comunidad */
+.ctx{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ctx .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.aviso{margin-top:8px;font-size:11.5px;background:#fdf6e3;border:1px solid #ecdcae;border-radius:7px;padding:5px 8px;color:#7a5a10}
+
+/* la barra global */
+.barra{display:flex;gap:4px;margin-bottom:14px}
+.barra div{flex:1;text-align:center;font-size:11px;font-weight:700;padding:7px 4px;background:#e6e6e6;color:#777;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%)}
+.barra div:first-child{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%)}
+.barra .h{background:#c9e4b3;color:#2f5d14}
+.barra .a{background:#3f7a1c;color:#fff}
+
+.cuerpo{display:grid;grid-template-columns:1fr 330px;gap:14px}
+.sec{margin:14px 0 6px;display:flex;align-items:baseline;gap:10px}
+.sec:first-child{margin-top:0}
+
+/* ventanitas */
+.fila{display:grid;gap:8px}
+.f5{grid-template-columns:repeat(5,1fr)}
+.f3{grid-template-columns:repeat(3,1fr)}
+.v{border:1px solid #d4d4d4;border-radius:10px;background:#fff;padding:10px 11px;display:flex;flex-direction:column}
+.v .t{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+.v .t span:first-child{font-size:12.5px;font-weight:700}
+.v p{font-size:11.5px;color:#4a4a4a}
+.v .rq{margin-top:6px;font-size:10.5px;color:#9f3a38;font-weight:700}
+.v.apag{background:#fafafa;border-style:dashed}
+.v.apag p{color:#9a9a9a}
+.v.bloq{border-color:#dcb1af;box-shadow:inset 3px 0 0 #9f3a38}
+.v.pausa{box-shadow:inset 3px 0 0 #d9b44a}
+.flecha{position:relative}
+
+.comercial{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px}
+.plegadas{margin-top:8px;font-size:11.5px;color:#6e6e6e;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* columna derecha */
+.diario .n{border-top:1px solid #eee;padding:7px 0;font-size:12px}
+.diario .n:first-of-type{border-top:0}
+.diario .q{font-size:10.5px;color:#8a8a8a}
+.conf{background:#f3f1f8;border:1px dashed #bdb6d6;border-radius:7px;padding:6px 8px;font-size:11.5px;color:#5b5480;margin:6px 0}
+.tabs{display:flex;gap:4px;margin:6px 0 4px}
+.tabs span{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#eee;color:#666}
+.tabs span.on{background:#2b2b2b;color:#fff}
+</style>
+</head>
+<body>
+<div class="todo">
+
+  <div class="volver">← Ficha de la comunidad</div>
+
+  <!-- CABECERA: la oportunidad -->
+  <div class="cab">
+    <div>
+      <div class="rot">Oportunidad 2026-118</div>
+      <h1>Calle Ejemplo 12 · Ascensor + subvención</h1>
+      <div style="margin-top:6px;display:flex;gap:5px">
+        <span class="pild">Proyecto ascensor</span><span class="pild">Subvención</span><span class="pild">3 presupuestos</span><span class="pild">IEE</span>
+      </div>
+    </div>
+    <div class="der">
+      Comercial <b>Daniel</b> · captador <b>Álvaro</b><br>
+      Firmada el 12-mar-2026 · <span class="pild pausa">Proyecto en pausa</span>
+    </div>
+  </div>
+
+  <!-- CONTEXTO: edificio y comunidad -->
+  <div class="ctx">
+    <div class="caja">
+      <div class="rot">El edificio</div>
+      <div class="cols">
+        <div>
+          <div class="dato"><b>Catastro</b> 1968 · 24 viviendas · 6 plantas</div>
+          <div class="dato"><b>Protección</b> No</div>
+          <div class="dato"><b>Zona</b> APIRU · ZIRE</div>
+        </div>
+        <div>
+          <div class="dato"><b>Ascensor</b> No tiene · patio 2,1 × 1,8 (visto)</div>
+          <div class="dato"><b>IEE</b> desfavorable · 2023</div>
+          <div class="dato"><b>CEE</b> E</div>
+        </div>
+      </div>
+      <div class="aviso">Este edificio tiene otra comunidad: Calle Ejemplo 12, escalera B</div>
+    </div>
+    <div class="caja">
+      <div class="rot">La comunidad</div>
+      <div class="cols">
+        <div>
+          <div class="dato"><b>CIF</b> H-00000000</div>
+          <div class="dato"><b>Admin</b> Administraciones Ejemplo · Laura</div>
+          <div class="dato"><b>Presidente</b> Pedro · 600 000 000</div>
+        </div>
+        <div>
+          <div class="dato"><b>Censo</b> 7 mayores de 70 · 1 discapacidad</div>
+          <div class="dato"><b>Acta</b> vigente hasta jun-2027</div>
+          <div class="dato"><b>Cobradas</b> 2 subvenciones (2019, 2022)</div>
+        </div>
+      </div>
+      <div class="aviso">Tiene otras 2 oportunidades: <u>2025-074 SATE</u> (abierta) · <u>2021-033 IEE</u> (cerrada)</div>
+    </div>
+  </div>
+
+  <!-- BARRA GLOBAL: comercial + la cadena del proyecto -->
+  <div class="barra">
+    <div class="h">Comercial</div>
+    <div class="a">Proyecto técnico</div>
+    <div>Visado</div>
+    <div>Licencia</div>
+    <div>Obra</div>
+    <div>Fin de obra</div>
+  </div>
+
+  <div class="cuerpo">
+    <div>
+
+      <!-- COMERCIAL -->
+      <div class="sec"><span class="rot">Comercial</span><span class="pild hecho">Cerrada · firmada y cobrada</span></div>
+      <div class="caja comercial">
+        <div>
+          <div class="dato"><b>Vendido</b> Proyecto + subvención + 3 ppts + IEE</div>
+          <div class="dato"><b>Hoja</b> HE-2026-041 v2 · firmada 12-mar</div>
+          <div class="dato"><b>Viabilidad</b> PEM 180.000 € · Alex</div>
+        </div>
+        <div>
+          <div class="dato"><b>Juntas</b> 2 · aprobó el 28-feb</div>
+          <div class="dato"><b>Vecinos</b> 1 en contra (2ºB)</div>
+        </div>
+        <div>
+          <div class="dato"><b>Siguiente</b> —</div>
+          <div class="dato"><b>Posventa</b> ofrecer SATE (IEE desfav.)</div>
+          <span class="abrir">Abrir comercial →</span>
+        </div>
+      </div>
+
+      <!-- LA CADENA DEL PROYECTO -->
+      <div class="sec"><span class="rot">El proyecto</span><span class="mini">en fila; cada una se abre cuando acaba la anterior</span></div>
+      <div class="fila f5">
+        <div class="v pausa">
+          <div class="t"><span>Proyecto técnico</span><span class="pild pausa">Pausa</span></div>
+          <p>Revit en curso · falta el OK de Daniel</p>
+          <p>Pausa: esperan acta con nuevo presidente</p>
+          <span class="abrir">Abrir →</span>
+        </div>
+        <div class="v apag">
+          <div class="t"><span>Visado</span><span class="pild nada">Sin abrir</span></div>
+          <p>COAM</p>
+        </div>
+        <div class="v apag">
+          <div class="t"><span>Licencia</span><span class="pild nada">Sin abrir</span></div>
+          <p>Ayuntamiento / ECU</p>
+        </div>
+        <div class="v apag">
+          <div class="t"><span>Obra</span><span class="pild nada">Sin abrir</span></div>
+          <p>Contrata, DF, encargado</p>
+        </div>
+        <div class="v apag">
+          <div class="t"><span>Fin de obra</span><span class="pild nada">Sin abrir</span></div>
+          <p>Certificado final</p>
+        </div>
+      </div>
+      <div class="mini" style="margin-top:5px">Requerimientos: se ven dentro de la fase que los recibe (ej. «2 Rq · 1 sin contestar» en licencia).</div>
+
+      <!-- LAS AREAS PROPIAS -->
+      <div class="sec"><span class="rot">Servicios de esta opp</span><span class="mini">solo los que se vendieron</span></div>
+      <div class="fila f3">
+        <div class="v bloq">
+          <div class="t"><span>Subvención</span><span class="pild bloq">Bloqueada</span></div>
+          <p>Plan Rehabita 2026 · solicitada 20-mar</p>
+          <p>Bloqueada por: falta certificado de Hacienda</p>
+          <div class="rq">1 requerimiento sin contestar · vence 18-oct</div>
+          <span class="abrir">Abrir →</span>
+        </div>
+        <div class="v">
+          <div class="t"><span>3 presupuestos</span><span class="pild">Espera</span></div>
+          <p>Necesita el proyecto ciego</p>
+          <p>Se cobra por Ecobalance</p>
+          <span class="abrir">Abrir →</span>
+        </div>
+        <div class="v">
+          <div class="t"><span>IEE</span><span class="pild marcha">En marcha</span></div>
+          <p>Visita 22-oct · técnico de IEE</p>
+          <p>Enlazado a la subvención</p>
+          <span class="abrir">Abrir →</span>
+        </div>
+      </div>
+      <div class="plegadas">No vendidos: <span class="pild nada">CAES</span><span class="pild nada">Financiación</span><span class="pild nada">CSS</span></div>
+
+      <!-- FACTURACION -->
+      <div class="sec"><span class="rot">Facturación</span></div>
+      <div class="caja" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="dato"><b>Contratado</b> 14.500 €</div>
+        <div class="dato"><b>Facturado</b> 4.350 € (adelanto)</div>
+        <div class="dato"><b>Cobrado</b> 4.350 €</div>
+        <div class="dato"><b>Próximo</b> listo para visar</div>
+      </div>
+    </div>
+
+    <!-- DERECHA: transversal -->
+    <div class="caja diario">
+      <div class="rot">Diario y correos</div>
+      <div class="tabs"><span class="on">Todo</span><span>Diario</span><span>Correos</span><span>Esta opp</span></div>
+      <div class="n"><div class="q">10-oct · Daniel · proyecto</div>El presidente cambia en la junta de noviembre; hasta entonces no firman el acta.</div>
+      <div class="n"><div class="q">8-oct · correo · subvención</div>Requerimiento de la Comunidad: certificado de Hacienda.</div>
+      <div class="conf">🔒 Confidencial · 2 notas (solo dirección)</div>
+      <div class="n"><div class="q">2-oct · correo · comunidad</div>Acta de junta extraordinaria (habla también de la 2025-074).</div>
+      <div class="n"><div class="q">22-sep · técnico de IEE · IEE</div>Visita fijada con el presidente.</div>
+      <div class="mini" style="margin-top:6px">Ver todo →</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
