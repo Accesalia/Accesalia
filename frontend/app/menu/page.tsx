@@ -107,6 +107,15 @@ const PUERTAS: Puerta[] = [
     href: "/comercial/bloques",
     funciones: ["direccion", "secretaria"],
   },
+  {
+    // La facturacion (Monica, 11-oct-2026): lo que queda por cobrar, cada
+    // oportunidad con sus documentos firmados, hitos y facturas, y el
+    // cronograma de caja. Facturacion (Alexandra, Ana) y control de produccion.
+    nombre: "Facturación",
+    desc: "Lo que queda por cobrar, los hitos y facturas de cada oportunidad, y el cronograma de caja",
+    href: "/facturacion",
+    funciones: ["facturacion", "control_produccion"],
+  },
 ];
 
 export default async function Menu() {
