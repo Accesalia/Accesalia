@@ -67,6 +67,9 @@ function tipoDe(t: string | null): TipoObra | null {
   return null;
 }
 
+/** Por encima de este PEM, una rampa o plataforma es parte de una obra mayor. */
+const MAXIMO_ACCESIBILIDAD = 100000;
+
 const enAños = (iso: string) => Number(iso.slice(0, 4)) + (Number(iso.slice(5, 7)) - 0.5) / 12;
 const semestreDe = (iso: string) => `${iso.slice(0, 4)}-S${Number(iso.slice(5, 7)) <= 6 ? 1 : 2}`;
 const medioSemestre = (s: string) => Number(s.slice(0, 4)) + (s.endsWith("S1") ? 0.25 : 0.75);
@@ -105,17 +108,22 @@ function tendencia(valores: { x: number; v: number; s: string }[], xHoy: number,
 }
 
 export async function datosEstimacion(): Promise<DatosEstimacion> {
-  type Fila = { tipo_obra: string | null; caso_actuacion: string | null; asc_paradas: number | null; pem: number | null; fecha_documento: string | null; avisos: string[] | null };
+  type Fila = { oportunidad_id: string | null; tipo_obra: string | null; caso_actuacion: string | null; asc_paradas: number | null; pem: number | null; fecha_documento: string | null; avisos: string[] | null;
+    pp: { caps: { capitulo: string }[] }[] };
   type Ppto = {
     pem: number | null;
     datos: { fecha_documento: string | null; avisos: string[] | null } | null;
     caps: { capitulo: string; medicion: number | null; importe: number }[];
   };
-  const [filasTodas, pptos, params] = await Promise.all([
-    leer<Fila>("datos_proyecto?select=tipo_obra,caso_actuacion,asc_paradas,pem,fecha_documento,avisos&pem=gt.1000&fecha_documento=not.is.null"),
+  const [filasTodas, pptos, params, marcas] = await Promise.all([
+    leer<Fila>("datos_proyecto?select=oportunidad_id,tipo_obra,caso_actuacion,asc_paradas,pem,fecha_documento,avisos,pp:presupuestos_proyecto(caps:presupuesto_proyecto_capitulos(capitulo))&pem=gt.1000&fecha_documento=not.is.null"),
     leer<Ppto>("presupuestos_proyecto?select=pem,datos:datos_proyecto_id(fecha_documento,avisos),caps:presupuesto_proyecto_capitulos(capitulo,medicion,importe)&pem=gt.1000"),
     leer<{ clave: string; valor: number }>("parametros_economicos?select=clave,valor"),
+    leer<{ oportunidad_id: string; tipo: { clave: string } | null }>("oportunidad_tipos?select=oportunidad_id,tipo:tipo_id(clave)"),
   ]);
+  // Los tipos marcados en cada opp (catalogo tipos_proyecto).
+  const tiposOpp = new Map<string, Set<string>>();
+  for (const m of marcas) if (m.tipo) tiposOpp.set(m.oportunidad_id, (tiposOpp.get(m.oportunidad_id) ?? new Set()).add(m.tipo.clave));
   const copiada = (a: string[] | null) => (a ?? []).some((x) => x.startsWith("hoja copiada"));
   const filas = filasTodas.filter((f) => !copiada(f.avisos) && Number(f.pem) !== 100000);
   const hoy = new Date().toISOString().slice(0, 10);
@@ -169,10 +177,21 @@ export async function datosEstimacion(): Promise<DatosEstimacion> {
   const ascensorPorCaso: Record<string, number[]> = {};
   for (const a of asc) if (enAños(a.fecha) >= desde) (ascensorPorCaso[a.caso] ??= []).push(a.ppp * aHoyG(a.fecha));
   const satePorM2 = sate.filter((s) => enAños(s.fecha) >= desde).map((s) => s.v * Math.exp(indSate.pendiente * (xHoy - enAños(s.fecha))));
+  // Rampa y plataforma: por el tipo marcado en la opp (Monica, 11-oct-2026: la
+  // plataforma lleva la maquina en el presupuesto, la rampa es solo obra civil).
+  // Una opp puede tener varios proyectos (el ascensor y, aparte, la rampa), asi
+  // que lo mixto se mira en LA OBRA: fuera si es de ascensor (caso A-D o F, o
+  // tipo de obra), si trae SATE, o si pasa de MAXIMO_ACCESIBILIDAD de PEM (la
+  // rampa es entonces una parte de una obra mayor). Si la opp lleva rampa Y
+  // plataforma, no se sabe cual es esta obra: no cuenta.
   const pemPorTipo = { plataforma: [] as number[], rampa: [] as number[] };
   for (const f of filas) {
-    const t = tipoDe(f.tipo_obra);
-    if ((t === "plataforma" || t === "rampa") && enAños(f.fecha_documento!) >= desde) pemPorTipo[t].push(Number(f.pem) * aHoyG(f.fecha_documento!));
+    const m = tiposOpp.get(f.oportunidad_id ?? "");
+    if (!m || m.has("rampa") === m.has("plataforma")) continue;
+    const ascensor = tipoDe(f.tipo_obra) === "ascensor" || "ABCDF".includes(f.caso_actuacion || "-");
+    const conSate = f.pp.some((p) => p.caps.some((c) => c.capitulo.startsWith("sate")));
+    if (ascensor || conSate || Number(f.pem) > MAXIMO_ACCESIBILIDAD || enAños(f.fecha_documento!) < desde) continue;
+    pemPorTipo[m.has("plataforma") ? "plataforma" : "rampa"].push(Number(f.pem) * aHoyG(f.fecha_documento!));
   }
 
   const limpio = ({ pendiente: _p, ...i }: Indice & { pendiente: number }): Indice => i; // eslint-disable-line @typescript-eslint/no-unused-vars
