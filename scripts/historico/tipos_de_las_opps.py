@@ -15,6 +15,7 @@ presupuesto; nunca el nombre de la carpeta):
   ascensor     tipo de obra "instalacion de ascensor" / "nucleo ... con ascensor",
                o el presupuesto trae la partida del ascensor (y no es caso F)
   cota_cero    caso F (bajada de ascensor existente) o "cota cero" en el tipo
+  sustitucion_ascensor  "sustitucion de ascensor" en el tipo (tipo nuevo, 11-oct-2026)
   plataforma   el presupuesto trae la partida de la maquina (plataforma,
                salvaescaleras, silla), o el tipo de obra dice plataforma/salvaescaleras
   rampa        el tipo de obra dice rampa, o accesibilidad cuyo presupuesto
@@ -24,8 +25,7 @@ presupuesto; nunca el nombre de la carpeta):
   sate_fachada solo capitulo de SATE de fachada, o "rehabilitacion energetica de fachada"
   cubierta     solo capitulo de SATE de cubierta, o "envolvente termica en cubierta"
   aerotermia / fotovoltaica   dichas en el tipo de obra
-Sin tipo (se cuentan aparte): sustituciones de ascensor sin cota cero (no hay
-tipo en el catalogo) y lo que no es nada de lo anterior.
+Sin tipo (se cuentan aparte): lo que no es nada de lo anterior.
 
 Uso:  python tipos_de_las_opps.py            -> solo cuenta y deja un CSV
       python tipos_de_las_opps.py --escribir -> ademas inserta lo que falta
@@ -57,6 +57,8 @@ def tipos_de(d, caps, lectura):
         out.add("ascensor")
     elif lectura and lectura["partida_ascensor"] and "SUSTITUCI" not in t:
         out.add("ascensor")
+    if re.search(r"SUSTITUCI[OÓ]N DE (UN |DOS |LOS )?ASCENSOR", t):
+        out.add("sustitucion_ascensor")
     # Plataforma y rampa
     if (lectura and lectura["partida_maquina"]) or re.search(r"PLATAFORMA|SALVAESCALERA", t):
         out.add("plataforma")
