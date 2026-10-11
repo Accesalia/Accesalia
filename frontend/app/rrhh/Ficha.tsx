@@ -227,6 +227,7 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               <div className="grid grid-cols-2 gap-2">
                 <Campo label={`Días de ${anio}`}><input name="derecho" inputMode="decimal" required defaultValue={saldo.cargado ? saldo.derecho : 22} className={campo} /></Campo>
                 <Campo label={`Que trae de ${anio - 1}`}><input name="arrastrados" inputMode="decimal" defaultValue={saldo.cargado ? saldo.arrastrados : 0} className={campo} /></Campo>
+                <Campo label="Horas extra a compensar"><input name="compensacion" inputMode="decimal" defaultValue={saldo.cargado ? saldo.horasCompensacion : 0} className={campo} /></Campo>
               </div>
               <p className="text-xs text-carbon/50">22 según convenio; menos si entró a mitad de año.</p>
             </Form>
@@ -235,7 +236,11 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
           {saldo.cargado ? (
             <Pares
               filas={[
-                ["Le tocan", `${saldo.derecho}${saldo.arrastrados ? ` + ${saldo.arrastrados} de ${anio - 1}` : ""}`],
+                [
+                  "Le tocan",
+                  `${saldo.derecho}${saldo.arrastrados ? ` + ${saldo.arrastrados} de ${anio - 1}` : ""}` +
+                    (saldo.compensacion ? ` + ${saldo.compensacion} por ${saldo.horasCompensacion} h extra` : ""),
+                ],
                 ["Aprobados", diasTxt(saldo.disfrutados + saldo.cierres)],
                 ["Pedidos", diasTxt(saldo.pedidos)],
                 ["Le quedan", <b key="q">{diasTxt(saldo.quedan)}</b>],

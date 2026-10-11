@@ -60,6 +60,7 @@ export async function MiEspacio({ yo, hoy, gestor }: { yo: Yo; hoy: string; gest
                 <span>{saldo.pedidos} pedidos, sin aprobar</span>
                 <span className="text-carbon/45">
                   de {saldo.total}: {saldo.derecho} del año{saldo.arrastrados > 0 ? ` + ${saldo.arrastrados} que traes de ${anio - 1}` : ""}
+                  {saldo.compensacion > 0 ? ` + ${saldo.compensacion} por ${saldo.horasCompensacion} h extra` : ""}
                 </span>
               </div>
             </>

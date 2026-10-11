@@ -345,7 +345,7 @@ export async function guardarFicha(fd: FormData) {
     const anio = Number(fd.get("anio"));
     const derecho = numero(fd, "derecho");
     if (!anio || derecho == null) redirect(`${volver}&error=saldo#ficha`);
-    await guardarSaldo(personaId, anio, derecho, numero(fd, "arrastrados") ?? 0);
+    await guardarSaldo(personaId, anio, derecho, numero(fd, "arrastrados") ?? 0, numero(fd, "compensacion") ?? 0);
   } else if (parte === "salario") {
     if (!y.veTodo) redirect(volver);
     const bruto = numero(fd, "bruto");

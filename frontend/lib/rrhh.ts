@@ -492,27 +492,36 @@ export type Saldo = {
   cargado: boolean; // si RRHH ha puesto los dias de ese año
   derecho: number;
   arrastrados: number;
+  /** Horas extra que se devuelven en dias libres, y su equivalente en dias
+   *  con la jornada de la persona (11-oct-2026). */
+  horasCompensacion: number;
+  compensacion: number;
   total: number;
-  cierres: number; // dias de cierre obligatorio: descuentan a todos
+  cierres: number; // dias de cierre obligatorio: descuentan a todos los que ya estaban
   disfrutados: number; // aprobadas (pasadas o futuras)
   pedidos: number; // solicitadas sin resolver
   quedan: number;
 };
 
-type FilaSaldo = { persona_id: string; anio: number; dias_derecho: number; dias_arrastrados: number };
+type FilaSaldo = { persona_id: string; anio: number; dias_derecho: number; dias_arrastrados: number; horas_compensacion: number | null };
 
 /** Saldo del año para varias personas de una vez. */
 export async function saldos(anio: number, ids: string[]): Promise<Map<string, Saldo>> {
   if (ids.length === 0) return new Map();
   const lista = ids.join(",");
-  const [filas, aus, cal] = await Promise.all([
-    rest<FilaSaldo[]>(`rrhh_saldo_vacaciones?select=persona_id,anio,dias_derecho,dias_arrastrados&anio=eq.${anio}&persona_id=in.(${lista})`),
+  const [filas, aus, cal, contratos] = await Promise.all([
+    rest<FilaSaldo[]>(
+      `rrhh_saldo_vacaciones?select=persona_id,anio,dias_derecho,dias_arrastrados,horas_compensacion&anio=eq.${anio}&persona_id=in.(${lista})`,
+    ),
     rest<FilaAusencia[]>(
       `rrhh_ausencias?select=${SEL_AUS}&tipo=eq.vacaciones&a_cuenta_de=eq.${anio}&estado=in.(solicitada,aprobada)&persona_id=in.(${lista})`,
     ),
     calendarioEntre(`${anio}-01-01`, `${anio}-12-31`),
+    rest<{ persona_id: string; desde: string | null; horas_semana: number | null }[]>(
+      `rrhh_contratos?select=persona_id,desde,horas_semana&persona_id=in.(${lista})&order=desde.asc`,
+    ),
   ]);
-  const cierres = cal.filter((c) => c.tipo === "cierre_obligatorio" && !esFinde(c.fecha)).length;
+  const diasCierre = cal.filter((c) => c.tipo === "cierre_obligatorio" && !esFinde(c.fecha)).map((c) => c.fecha);
   const out = new Map<string, Saldo>();
   for (const id of ids) {
     const s = filas.find((f) => f.persona_id === id);
@@ -520,14 +529,26 @@ export async function saldos(anio: number, ids: string[]): Promise<Map<string, S
     const suma = (estado: EstadoAusencia) => mias.filter((a) => a.estado === estado).reduce((t, a) => t + Number(a.dias ?? 0), 0);
     const derecho = s ? Number(s.dias_derecho) : 0;
     const arrastrados = s ? Number(s.dias_arrastrados) : 0;
+    // EL CIERRE SOLO A QUIEN YA ESTABA (11-oct-2026): a quien entro despues del
+    // cierre de agosto no se le pueden descontar esos dias.
+    const suyos = contratos.filter((c) => c.persona_id === id);
+    const inicio = suyos.map((c) => c.desde).filter((d): d is string => !!d).sort()[0] ?? null;
+    const cierres = diasCierre.filter((f) => !inicio || f >= inicio).length;
+    // La compensacion, en dias con su jornada: 8 h si no consta.
+    const horasSemana = suyos.map((c) => c.horas_semana).filter((h): h is number => h != null).pop() ?? null;
+    const horasDia = horasSemana ? Number(horasSemana) / 5 : 8;
+    const horasCompensacion = s ? Number(s.horas_compensacion ?? 0) : 0;
+    const compensacion = Math.round((horasCompensacion / horasDia) * 10) / 10;
     const disfrutados = suma("aprobada");
     const pedidos = suma("solicitada");
-    const total = derecho + arrastrados;
+    const total = derecho + arrastrados + compensacion;
     out.set(id, {
       anio,
       cargado: !!s,
       derecho,
       arrastrados,
+      horasCompensacion,
+      compensacion,
       total,
       cierres,
       disfrutados,
@@ -538,11 +559,17 @@ export async function saldos(anio: number, ids: string[]): Promise<Map<string, S
   return out;
 }
 
-export function guardarSaldo(personaId: string, anio: number, derecho: number, arrastrados: number) {
+export function guardarSaldo(personaId: string, anio: number, derecho: number, arrastrados: number, horasCompensacion?: number) {
   return escribir(
     "rrhh_saldo_vacaciones?on_conflict=persona_id,anio",
     "POST",
-    { persona_id: personaId, anio, dias_derecho: derecho, dias_arrastrados: arrastrados },
+    {
+      persona_id: personaId,
+      anio,
+      dias_derecho: derecho,
+      dias_arrastrados: arrastrados,
+      ...(horasCompensacion != null ? { horas_compensacion: horasCompensacion } : {}),
+    },
     { Prefer: "return=minimal,resolution=merge-duplicates" },
   );
 }
