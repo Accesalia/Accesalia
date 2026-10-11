@@ -24,7 +24,7 @@ export default async function PaginaFacturacion() {
       <main className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-5 text-sm sm:px-6">
         <Volver siNoHay="/menu" />
         <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon">Facturación</h1>
+          <h1 className="text-3xl font-bold leading-tight text-carbon">Facturación y asignación</h1>
           <Link href="/facturacion/caja" className="rounded-xl border border-black/10 bg-white px-4 py-2 text-[13px] font-semibold text-carbon/75 hover:border-carbon/40">
             Cronograma y previsión de caja →
           </Link>

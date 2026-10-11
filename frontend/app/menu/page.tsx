@@ -32,6 +32,17 @@ const AREAS: Area[] = [
     href: "/administracion",
     ve: (yo) => !yo || yo.veTodo || puedeEntrar(yo, "administracion"),
   },
+  {
+    // FACTURACION Y ASIGNACION (Monica, 11-oct-2026): su propia ventanita del
+    // menu. Lo que queda por cobrar, cada oportunidad con sus documentos
+    // firmados, hitos y facturas, y el cronograma donde se asigna el trabajo de
+    // los tecnicos y se ve la caja. Direccion, facturacion (Alexandra, Ana) y
+    // control de produccion.
+    nombre: "Facturación y asignación",
+    desc: "Lo que queda por cobrar, los hitos y facturas de cada oportunidad, y el cronograma de trabajo y caja",
+    href: "/facturacion",
+    ve: (yo) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion"),
+  },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, ve: () => true },
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
@@ -106,15 +117,6 @@ const PUERTAS: Puerta[] = [
     desc: "Los bloques que se marcan al generar una hoja: sus textos, su orden y sus importes por defecto",
     href: "/comercial/bloques",
     funciones: ["direccion", "secretaria"],
-  },
-  {
-    // La facturacion (Monica, 11-oct-2026): lo que queda por cobrar, cada
-    // oportunidad con sus documentos firmados, hitos y facturas, y el
-    // cronograma de caja. Facturacion (Alexandra, Ana) y control de produccion.
-    nombre: "Facturación",
-    desc: "Lo que queda por cobrar, los hitos y facturas de cada oportunidad, y el cronograma de caja",
-    href: "/facturacion",
-    funciones: ["facturacion", "control_produccion"],
   },
 ];
 
