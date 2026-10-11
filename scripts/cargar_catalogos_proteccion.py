@@ -35,6 +35,18 @@ FUENTES = {
         "ssreyes": ("Normas de proteccion del Plan General de San Sebastian de los Reyes",
                     "catalogos-proteccion/san-sebastian-de-los-reyes/normas-proteccion.pdf"),
     },
+    # ALCALA (11-oct): los catalogos son escaneados; se leyeron como imagen, ficha a ficha.
+    # La pagina es la del fichero guardado (el 101-218 va partido en dos mitades).
+    "alcala_pgou.json": {"pgou1994": ("Catalogo de bienes protegidos del Plan General de Alcala (1994)",
+                                      "catalogos-proteccion/alcala-de-henares/catalogo-bienes-protegidos-1994.pdf")},
+    "alcala_casco_1.json": {"casco_1": ("Plan Especial del Casco Historico de Alcala (refundido 2024): catalogo, fichas 1-100",
+                                        "catalogos-proteccion/alcala-de-henares/casco-historico-catalogo-1-100.pdf")},
+    "alcala_casco_2a.json": {"casco_2a": ("Plan Especial del Casco Historico de Alcala (refundido 2024): catalogo, fichas 101-218 (1a mitad)",
+                                          "catalogos-proteccion/alcala-de-henares/casco-historico-catalogo-101-218-parte1.pdf")},
+    "alcala_casco_2b.json": {"casco_2b": ("Plan Especial del Casco Historico de Alcala (refundido 2024): catalogo, fichas 101-218 (2a mitad)",
+                                          "catalogos-proteccion/alcala-de-henares/casco-historico-catalogo-101-218-parte2.pdf")},
+    "alcala_arqueologia.json": {"nnuu2023": ("Normas urbanisticas del Plan General de Alcala (BOCM 20-11-2023), cap. 19: areas arqueologicas",
+                                             "catalogos-proteccion/alcala-de-henares/normas-urbanisticas-pgou-2023.pdf")},
 }
 
 CAMPOS = ("municipio", "tipo", "numero_ficha", "denominacion", "direccion",
@@ -44,7 +56,7 @@ CAMPOS = ("municipio", "tipo", "numero_ficha", "denominacion", "direccion",
 def filas():
     for fichero, fuentes in FUENTES.items():
         for r in json.load(open(os.path.join(DOCS, fichero), encoding="utf-8")):
-            fuente, ruta = fuentes[r.get("fuente") if len(fuentes) > 1 else None]
+            fuente, ruta = fuentes.get(r.get("fuente")) or fuentes[None]
             f = {c: r.get(c) for c in CAMPOS}
             f["fuente"], f["documento_ruta"] = fuente, ruta
             yield f
