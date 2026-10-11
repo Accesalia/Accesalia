@@ -367,6 +367,11 @@ export default async function Edificio({
                         </div>
                         {/* La traduccion: que permite, que impide, que hay que hacer. */}
                         {x.significa && <p className="mt-1 text-[12px] leading-snug text-[#2B6CB0]">{x.significa}</p>}
+                        {x.enlace && (
+                          <a href={x.enlace.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[12px] font-semibold text-lima-dark underline underline-offset-2">
+                            {x.enlace.texto} ↗
+                          </a>
+                        )}
                       </div>
                     ))}
                   </dl>

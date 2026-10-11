@@ -67,12 +67,32 @@ function Dato({ que, valor, significa, falta }: { que: string; valor: string; si
 
 /** Un dato de las cards del centro, como en la maqueta: su nombre en la banda
  *  de la familia y debajo el valor. */
-function Sub({ familia, que, valor, significa, falta }: { familia: Familia; que: string; valor: string; significa?: string; falta?: boolean }) {
+function Sub({
+  familia,
+  que,
+  valor,
+  significa,
+  falta,
+  enlace,
+}: {
+  familia: Familia;
+  que: string;
+  valor: string;
+  significa?: string;
+  falta?: boolean;
+  enlace?: { texto: string; url: string };
+}) {
   return (
     <div className="mb-[11px] last:mb-0">
       <Banda familia={familia}>{que}</Banda>
       <div className={"pl-0.5 text-[12px] leading-[1.4] " + (falta ? "text-[#8a8a8a]" : "text-[#1c1c1c]")}>{valor}</div>
       {significa && <p className="mt-0.5 pl-[13px] text-[11px] leading-snug text-[#2B6CB0]">{significa}</p>}
+      {/* La ficha del catalogo o la norma, para comprobarlo (11-oct-2026). */}
+      {enlace && (
+        <a href={enlace.url} target="_blank" rel="noreferrer" className="mt-0.5 inline-block pl-[13px] text-[11px] font-semibold text-[#820707] underline underline-offset-2">
+          {enlace.texto} ↗
+        </a>
+      )}
     </div>
   );
 }

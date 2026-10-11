@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { quienSoy } from "../../../lib/sesion";
 import { documentosDe, type DocumentoReferencia } from "../../../lib/documentosReferencia";
+import { nombreBonito } from "../../../lib/catalogoProteccion";
 
 export const dynamic = "force-dynamic";
 
@@ -19,15 +20,7 @@ const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 const BOTON =
   "inline-flex h-[34px] items-center justify-center rounded-[10px] px-4 text-[13px] font-bold transition";
 
-// Como se escribe el municipio para leerlo (en la base va en mayusculas y sin tildes).
-const NOMBRE: Record<string, string> = {
-  "ALCALA DE HENARES": "Alcalá de Henares",
-  LEGANES: "Leganés",
-  MOSTOLES: "Móstoles",
-  "SAN SEBASTIAN DE LOS REYES": "San Sebastián de los Reyes",
-};
-const bonito = (m: string) =>
-  NOMBRE[m] ?? m.toLowerCase().replace(/(^|\s)(\p{L})/gu, (_, a: string, b: string) => a + b.toUpperCase());
+const bonito = nombreBonito;
 
 const mb = (n: number | null) => (n ? `${(n / 1e6).toLocaleString("es-ES", { maximumFractionDigits: 1 })} MB` : null);
 const fecha = (d: string | null) =>

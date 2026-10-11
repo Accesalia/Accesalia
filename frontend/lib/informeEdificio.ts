@@ -16,6 +16,7 @@
 // detalle y las trampas, en docs/catastro-y-urbanismo-madrid.md
 
 import "server-only";
+import { enElCatalogo, enlaceFicha, nombreBonito, sinTildes, type EnElCatalogo } from "./catalogoProteccion";
 
 const CALL = "https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero/COVCCallejero.svc/json";
 const COOR = "https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx";
@@ -28,6 +29,8 @@ export type Dato = {
   significa?: string;
   /** Cuando el dato no se ha podido averiguar y hay que preguntarlo o ir a verlo. */
   falta?: boolean;
+  /** Un documento para comprobarlo: la ficha del catalogo, el plano... */
+  enlace?: { texto: string; url: string };
 };
 
 export type Seccion = { titulo: string; datos: Dato[] };
@@ -182,7 +185,7 @@ export type Crudo = {
 
 // ------------------------------------------------------------------ el informe
 
-function componer(ref: string, c: Crudo): InformeEdificio | null {
+function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdificio | null {
   const { inmuebles, fincaLdt, tipoParcela, suelo, lat, lng, utmX, utmY } = c;
   const { protegido, condiciones, ascensor, apiru, arru, cerca } = c;
   const fallos = [...c.fallos];
@@ -240,6 +243,49 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
   // --- 6 · las secciones, con la traduccion ---------------------------------
   const d = (que: string, valor: string, significa?: string, falta?: boolean): Dato => ({ que, valor, significa, falta });
 
+  // FUERA DE MADRID: el catalogo del municipio, si lo tenemos (Monica, 11-oct-2026).
+  // Madrid capital sigue con su geoportal, sin tocar.
+  const nombreMunicipio = nombreBonito(municipio);
+  const conCatalogo = !esMadrid && catalogo?.bajadoEl != null;
+  const fecha = (x: string) => (x ? new Date(x + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) : "");
+  const COMO = { referencia: "la referencia catastral", parcela: "la manzana y parcela catastral", direccion: "la calle y el número" } as const;
+  const datosCatalogo: Dato[] = !conCatalogo
+    ? []
+    : [
+        ...(catalogo!.casados.length
+          ? catalogo!.casados.map(({ fila, como }, n) => ({
+              ...d(
+                catalogo!.casados.length > 1 ? `Posible protección (${n + 1})` : "Posible protección",
+                `${fila.grado ?? "Grado sin leer"} · sin revisar`,
+                `${fila.denominacion}${fila.direccion ? ` (${fila.direccion})` : ""}. Sale en el catálogo municipal por ${COMO[como]}: ` +
+                  "hay que comprobarlo en la ficha antes de contarlo.",
+              ),
+              enlace: { texto: `Ver la ficha${fila.pagina ? ` (pág. ${fila.pagina})` : ""}`, url: enlaceFicha(fila) },
+            }))
+          : [
+              {
+                ...d(
+                  "¿Sale en el catálogo?",
+                  `No sale en el de ${nombreMunicipio}`,
+                  `Catálogo bajado${catalogo!.bajadoEl ? ` el ${fecha(catalogo!.bajadoEl)}` : ""}. Las zonas que se delimitan por calles no se cruzan solas: hay que mirar el plano.`,
+                ),
+                enlace: { texto: "Ver los documentos", url: "/referencia/proteccion" },
+              },
+            ]),
+        ...(sinTildes(municipio) === "ALCALA DE HENARES"
+          ? [
+              {
+                ...d(
+                  "Arqueología",
+                  "Todo el municipio (áreas A-D)",
+                  "Cualquier obra que toque el subsuelo pide, como poco, informe arqueológico; en área A, excavación antes de la licencia. El área exacta depende de un plano que no tenemos.",
+                ),
+                enlace: { texto: "Ver la norma (pág. 180)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/alcala-de-henares/normas-urbanisticas-pgou-2023.pdf", pagina: 180 }) },
+              },
+            ]
+          : []),
+      ];
+
   const secciones: Seccion[] = [
     {
       titulo: "Identidad",
@@ -294,7 +340,9 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
     {
       titulo: "Protección",
       datos: !esMadrid
-        ? [d("Protección", "No se puede consultar fuera de Madrid capital", undefined, true)]
+        ? conCatalogo
+          ? datosCatalogo
+          : [d("Protección", "No se puede consultar fuera de Madrid capital", undefined, true)]
         : sinGeo
         ? [sinConsultar("¿Está protegido?")]
         : [
@@ -395,6 +443,9 @@ function componer(ref: string, c: Crudo): InformeEdificio | null {
 
   if (protegido)
     mete("ojo", `Edificio protegido · ${protegido.CEP_TX_PROTECCION ?? ""}`, "La obra pasa por Patrimonio y el margen es mucho menor. Hay que contarlo desde el principio.");
+
+  if (conCatalogo && catalogo!.casados.length)
+    mete("ojo", "Posible protección: revisar", "Sale en el catálogo municipal, sin comprobar todavía. Si se confirma, la obra pasa por Patrimonio.");
 
   if (ascensor)
     mete("ojo", "Modelo de ascensor impuesto", "La junta de distrito exige un modelo concreto: hay que proyectarlo así desde el principio, no adaptarlo después.");
@@ -821,9 +872,9 @@ export async function informeEdificio(
   if (ref.length < 14) return null;
 
   const guardado = opciones.refrescar ? null : await leerDeLaBase(ref, opciones.diasBueno ?? 120);
-  if (guardado && !(opciones.completo && guardado.geoportal === false)) return componer(ref, guardado);
+  if (guardado && !(opciones.completo && guardado.geoportal === false)) return componerConCatalogo(ref, guardado);
   // Si fuera falla, mejor lo guardado que nada.
-  const loQueHay = () => (guardado ? componer(ref, guardado) : null);
+  const loQueHay = () => (guardado ? componerConCatalogo(ref, guardado) : null);
 
   // Si Catastro corta la conexion (pasa: 8-oct-2026, "ECONNRESET" en la ficha
   // de Zamora 28 y en la de Albufera 250), la ficha NO se cae: sale el aviso de
@@ -840,7 +891,19 @@ export async function informeEdificio(
   } catch {
     /* que no se guarde no impide enseñarlo */
   }
-  return componer(ref, fuera);
+  return componerConCatalogo(ref, fuera);
+}
+
+/** Fuera de Madrid, antes de componer se mira el catalogo del municipio con la
+ *  referencia y los portales del edificio. En Madrid no se pregunta nada nuevo. */
+async function componerConCatalogo(ref: string, c: Crudo): Promise<InformeEdificio | null> {
+  const municipio = c.inmuebles[0]?.dt?.nm ?? null;
+  if (!municipio || sinTildes(municipio) === "MADRID") return componer(ref, c);
+  const portales = c.inmuebles
+    .map((i) => urb(i)?.dir)
+    .filter((x): x is NonNullable<typeof x> => !!x?.nv && !!x?.pnp)
+    .map((x) => ({ via: x.nv!, numero: x.pnp! }));
+  return componer(ref, c, await enElCatalogo(ref, municipio, portales));
 }
 
 /** LOS 21 DISTRITOS DE MADRID CAPITAL.

@@ -31,7 +31,7 @@ export type DocumentoReferencia = {
   revisarEn: string | null;
 };
 
-async function firmar(ruta: string): Promise<string | null> {
+export async function firmar(ruta: string): Promise<string | null> {
   const r = await fetch(`${URL_BASE}/storage/v1/object/sign/${ALMACEN}/${ruta}`, {
     method: "POST",
     headers: { ...cab, "Content-Type": "application/json" },
