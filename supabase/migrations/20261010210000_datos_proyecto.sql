@@ -167,3 +167,11 @@ alter table presupuesto_proyecto_capitulos enable row level security;
 -- PEM de la hoja distinto del presupuesto, valores de plantilla, presupuesto
 -- no localizado, capitulos que no suman el total.
 alter table datos_proyecto add column avisos text[];
+
+-- (aplicado aparte, 11-oct) La partida principal de cada capitulo, de las
+-- mediciones del presupuesto: en el SATE, los m2 reales y el precio del m2.
+alter table presupuesto_proyecto_capitulos
+  add column partida_principal text,
+  add column unidad text,
+  add column medicion numeric(12,2),
+  add column precio_unitario numeric(12,2);
