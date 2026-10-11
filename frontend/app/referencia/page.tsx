@@ -33,6 +33,11 @@ const ACCESOS: Acceso[] = [
     href: "/referencia/tasas",
   },
   {
+    nombre: "Estimación de costes de obra",
+    desc: "Lo que cuesta hoy un ascensor, un SATE, una rampa… según nuestras obras; cómo sube y lo que se espera a 1 y 2 años",
+    href: "/referencia/estimacion",
+  },
+  {
     nombre: "Manías detectadas",
     desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
     href: "/referencia/manias",
