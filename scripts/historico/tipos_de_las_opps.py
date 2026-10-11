@@ -25,6 +25,7 @@ presupuesto; nunca el nombre de la carpeta):
   sate_fachada solo capitulo de SATE de fachada, o "rehabilitacion energetica de fachada"
   cubierta     solo capitulo de SATE de cubierta, o "envolvente termica en cubierta"
   aerotermia / fotovoltaica   dichas en el tipo de obra
+  arreglo_fachada / arreglo_cubierta   sin SATE, el tipo de obra dice fachada o cubierta
 Sin tipo (se cuentan aparte): lo que no es nada de lo anterior.
 
 Uso:  python tipos_de_las_opps.py            -> solo cuenta y deja un CSV
@@ -77,6 +78,15 @@ def tipos_de(d, caps, lectura):
         out.add("sate_fachada")
     elif envolvente:
         out.add("cubierta" if re.search(r"ENVOLVENTE T[EÉ]RMICA EN CUBIERTA", t + " " + ts) else "sate")
+    else:
+        # Sin SATE: arreglo de fachada o de cubierta (Monica, 11-oct-2026)
+        # (no la de un local: Doctor Esquerdo 55 "reforma de fachada" de una oficina)
+        dicho = t if t.strip("0 ") else ts
+        if "LOCAL" not in dicho:
+            if re.search(r"FACHADA", dicho):
+                out.add("arreglo_fachada")
+            if re.search(r"CUBIERTA", dicho):
+                out.add("arreglo_cubierta")
     for k in ("AEROTERMIA", "FOTOVOLTAICA"):
         if k in t or (envolvente and k in ts):
             out.add(k.lower())
