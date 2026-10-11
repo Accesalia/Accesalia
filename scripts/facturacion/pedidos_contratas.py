@@ -32,12 +32,16 @@ OPP_FIJA = {'AV ESPAÑA 27 GETAFE': 'DAN-2022-170', 'SANTA TECLA 46': 'DAN-2022-
             'SANTA MARIA LA BLANCA 5': 'DAN-2021-137', 'COLMENAR VIEJO 8 SSRR': 'ALV-2026-120', 'REPULLES Y VARGAS': 'CAR-2025-004'}
 # El papel no dice la empresa: es una hoja nuestra con el pedido de FAIN anotado ("ACEPTADO EUSEBIO")
 EMPRESA_FIJA = {'GINZO DE LIMIA 55': 'FAIN'}
-FUERA = {'EMIGDIO DE LA RIVA': 'Castilla y León: fuera (Mónica)', 'SAN ROQUE 18 GUADALAJARA': 'vale el contrato de Iberdrola (CT-2025-0001)'}
-# Pendientes de decidir con ella: que opp (o si se fusionan)
-APARTE = {'MALDONADO 33': '¿DAN-2022-073 o DAN-2026-025? (misma opp para los dos pedidos)',
-          'MANRESA 56': 'una sola opp con varias HE: ¿DAN-2022-139 o DAN-2022-057, se fusionan?',
-          'MOSTOLES 3 PORTAL 2': 'la opp de su portal (portal 2): no la identifico',
-          'IGLESIA 16 PORTAL': 'una opp por portal: casar a mano portal 1 y 4'}
+FUERA = {'EMIGDIO DE LA RIVA': 'Castilla y León: fuera (Mónica)', 'SAN ROQUE 18 GUADALAJARA': 'vale el contrato de Iberdrola (CT-2025-0001)',
+         'MALDONADO 33 MADRID FAIN CODIGO DE PEDIDOS - NO VALE': 'NO VALE: lo sustituye el CORRECTO (pedido 413703)',
+         'MENDIGUCHIA CARRICHE 27': 'correo de octubre de 2021: antes del corte de 2022'}
+APARTE = {}
+# Resueltas con datos y su OK (11-oct, segunda vuelta): (opp, grupo, año si el papel no lo trae)
+FIJO = {'IGLESIA 16 PORTAL 1': ('DAN-2022-022', 'B', None), 'IGLESIA 16 PORTAL 4': ('DAN-2022-023', 'B', None),
+        'MOSTOLES 3 PORTAL 2': ('DAN-2022-053', 'B', None), 'MALDONADO 33 MADRID - FAIN': ('DAN-2026-025', 'A', '2026'),
+        'FAISANES 25 ARANJUEZ': ('DAN-2024-062', 'B', '2024'),
+        'MANRESA 56 MADRID CODIGOS DE PEDIDO ARQUITECTO 29-09-2022': ('DAN-2022-057', 'B', None),   # el proyecto original
+        'MANRESA 56 MADRID CODIGOS DE PEDIDO ARQUITECTO 18-04-2023': ('DAN-2022-057', 'A', None)}   # el modificado: HE-2023-0012
 GRUPO_A_FORZADO = ('VALDEVARNES 24 MADRID - SUBV', 'valvanera 106 madrid 1a m', 'valvanera 106 madrid 2a m',
                    'odonnell 35', 'sahara 83', 'ELECNOR VALMOJADO 243', 'COLMENAR VIEJO 8 SSRR - OC')
 PAGA_COMUNIDAD = re.compile(r'abona el cliente|paga la comunidad|a la comunidad directamente|se ocupa la comunidad|no est. en los c.digos', re.I)
@@ -94,20 +98,23 @@ def main():
         if grupo.startswith('D') or not p.get('es_pedido'): continue
         if any(k in A for k in map(n, FUERA)): fuera.append((arch, next(v for k, v in FUERA.items() if n(k) in A))); continue
         if any(n(k) in A for k in APARTE): aparte.append((arch, next(v for k, v in APARTE.items() if n(k) in A))); continue
-        fija = next((v for k, v in OPP_FIJA.items() if n(k) in A), None)
+        fijo = next((v for k, v in FIJO.items() if n(k) in A), None)
+        if '--solo-fijos' in sys.argv and not fijo: continue
+        fija = fijo[0] if fijo else next((v for k, v in OPP_FIJA.items() if n(k) in A), None)
         cod = fija or (x['opps'][0]['opp'] if len(x['opps']) == 1 else None)
         if not cod: aparte.append((arch, 'sin opp clara')); continue
         # El municipio tiene que casar (Av. España 27 Getafe no es Av. España 27 Pinto)
         mun = re.split(r'\d+\S*', n(opps[cod]['nombre'] or ''))[-1].split() if not fija else []
         if mun and not any(w in A or w in n(p.get('direccion_obra')) for w in mun if len(w) > 2):
             aparte.append((arch, 'el municipio de %s (%s) no sale en el pedido' % (cod, opps[cod]['nombre']))); continue
-        if any(n(k) in A for k in GRUPO_A_FORZADO): g = 'A'
+        if fijo: g = fijo[1]
+        elif any(n(k) in A for k in GRUPO_A_FORZADO): g = 'A'
         else: g = grupo[0]
         emp = n(next((v for k, v in EMPRESA_FIJA.items() if n(k) in A), None) or p.get('empresa') or ('ELECNOR' if 'ELECNOR' in A else ''))
         c = contratas.get(emp)
         if not c: aparte.append((arch, 'contrata desconocida: %s' % p.get('empresa'))); continue
         fecha = p.get('fecha_documento') or (re.search(r'(\d{2})-(\d{2})-(20\d\d)', arch) and '%s-%s-%s' % tuple(reversed(re.search(r'(\d{2})-(\d{2})-(20\d\d)', arch).groups())))
-        anio = fecha[:4] if fecha else (re.search(r'(20\d\d)', arch) or [None, None])[1]
+        anio = fecha[:4] if fecha else ((fijo and fijo[2]) or (re.search(r'(20\d\d)', arch) or [None, None])[1])
         if anio and anio < '2022': continue
         nums = frozenset(re.findall(r'\d{5,}', ' '.join(p.get('numeros_pedido') or [])))
         lineas = [l for l in (p.get('lineas') or []) if l.get('importe') and not PAGA_COMUNIDAD.search(l.get('concepto') or '')]
@@ -118,7 +125,7 @@ def main():
                               % (opps[cod]['id'], c['id']), por_tramos=False) else 'B'
             print('   duda resuelta: %s -> %s %s' % (arch[:55], g, cod))
         # Solo es el mismo pedido si comparte numeros (Schindler: los mismos exactamente; dos ordenes de 1.400 son dos)
-        clave = next((k for k, d in plan.items() if d['opp'] == cod and (
+        clave = None if fijo else next((k for k, d in plan.items() if d['opp'] == cod and (
             (nums and nums == d['nums']) or (emp == 'FAIN' and nums & d['nums']) or (not fecha and not nums & d['nums'] and d['grupo'] == g and emp == 'FAIN'))), None)
         if clave:
             d = plan[clave]; d['ficheros'].append(arch); d['nums'] |= nums
