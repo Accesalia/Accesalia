@@ -39,6 +39,7 @@ DROPBOX = r"C:\accesalia Dropbox\D SM\Ascensores y rehabilitaciones"
 DESCARTADAS = {
     "virgendelafuencisla8": "antigua (2022), su presupuesto es de 2019: descartada por Mónica",
     "Andarrios9": "de un particular (Nicolás Mediavilla): fuera por decisión de Mónica",
+    "presidentmacia121": "Cataluña, pintura interior: fuera por decisión de Mónica (11-oct)",
 }
 MESES = {m: i for i, m in enumerate(
     ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO",
@@ -362,7 +363,7 @@ def obras_con_hoja():
     por_obra = {}
     for raiz, _, ficheros in os.walk(DROPBOX):
         # Las carpetas "_..." (documentos utiles, formatos) y "PROYECTO X" son plantillas, no obras.
-        if os.path.basename(raiz).startswith("_") or "PROYECTO X" in raiz.upper() or "\_" in raiz:
+        if os.path.basename(raiz).startswith("_") or "PROYECTO X" in raiz.upper() or "\\_" in raiz:
             continue
         for f in ficheros:
             if f.lower().startswith("datos del proyecto") and f.lower().endswith(".xlsx") and not f.startswith("~$"):
