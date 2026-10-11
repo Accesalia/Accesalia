@@ -42,6 +42,11 @@ const ACCESOS: Acceso[] = [
     desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
     href: "/referencia/manias",
   },
+  {
+    nombre: "Consultas de edificios protegidos",
+    desc: "Catálogos, normas y planos de protección por municipio, con el enlace oficial y cuándo revisar si han cambiado",
+    href: "/referencia/proteccion",
+  },
 ];
 
 export default async function Referencia() {

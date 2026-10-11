@@ -24,6 +24,11 @@ export type DocumentoReferencia = {
   tamano: number | null;
   ver: string | null;
   descargar: string | null;
+  // Solo en "proteccion": de donde se bajo y cuando toca mirar si ha cambiado.
+  municipio: string | null;
+  urlOrigen: string | null;
+  descargadoEn: string | null;
+  revisarEn: string | null;
 };
 
 async function firmar(ruta: string): Promise<string | null> {
@@ -40,12 +45,15 @@ async function firmar(ruta: string): Promise<string | null> {
 
 export async function documentosDe(seccion: string): Promise<DocumentoReferencia[]> {
   const r = await fetch(
-    `${URL_BASE}/rest/v1/documentos_referencia?select=id,titulo,descripcion,fichero,nombre_fichero,tipo_mime,tamano` +
-      `&seccion=eq.${encodeURIComponent(seccion)}&activo=is.true&order=orden.asc.nullslast,titulo.asc`,
+    `${URL_BASE}/rest/v1/documentos_referencia?select=id,titulo,descripcion,fichero,nombre_fichero,tipo_mime,tamano,municipio,url_origen,descargado_en,revisar_en` +
+      `&seccion=eq.${encodeURIComponent(seccion)}&activo=is.true&order=municipio.asc.nullsfirst,orden.asc.nullslast,titulo.asc`,
     { headers: cab, cache: "no-store" },
   );
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  type Fila = { id: string; titulo: string; descripcion: string | null; fichero: string; nombre_fichero: string; tipo_mime: string | null; tamano: number | null };
+  type Fila = {
+    id: string; titulo: string; descripcion: string | null; fichero: string; nombre_fichero: string; tipo_mime: string | null; tamano: number | null;
+    municipio: string | null; url_origen: string | null; descargado_en: string | null; revisar_en: string | null;
+  };
   return Promise.all(
     ((await r.json()) as Fila[]).map(async (f) => {
       const tipo = f.tipo_mime === "application/pdf" ? "pdf" : f.tipo_mime?.includes("presentation") ? "powerpoint" : "otro";
@@ -65,6 +73,10 @@ export async function documentosDe(seccion: string): Promise<DocumentoReferencia
               ? enlace
               : null,
         descargar: enlace ? `${enlace}&download=${encodeURIComponent(f.nombre_fichero)}` : null,
+        municipio: f.municipio,
+        urlOrigen: f.url_origen,
+        descargadoEn: f.descargado_en,
+        revisarEn: f.revisar_en,
       } satisfies DocumentoReferencia;
     }),
   );
