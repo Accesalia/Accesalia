@@ -28,7 +28,7 @@ comment on column empresas_emisoras.iban is 'Cuenta para la transferencia que sa
 insert into empresas_emisoras (clave, nombre, nombre_legal, nif, domicilio, telefono, iban, prefijo_proforma, irpf_porcentaje) values
   ('accesalia', 'Accesalia', 'SOLUCIONES DE ACCESIBILIDAD Y ECOEFICIENCIA ACCESALIA S.L.', 'B86374055', 'C/ Alhambra, 24. 28047 Madrid', '644482971', 'ES26 2100 1258 8102 0027 8980', 'ACC', 0),
   ('daniel', 'Daniel de Soto', 'DANIEL IGNACIO DE SOTO MARTIN-CARO', '12764176G', 'C/ Alhambra, 24. 28047 Madrid', '644482971', 'ES90 2100 1258 8102 0019 1207', 'AUT', 15),
-  ('ecobalance', 'Ecobalance', 'ECOBALANCE IBERIA, S.L.', 'B19750140', 'C/ Manzanares, 1. 28670 Villaviciosa de Odón (Madrid)', '608083559', null, 'ECO', 0);
+  ('ecobalance', 'Ecobalance', 'ECOBALANCE IBERIA, S.L.', 'B19750140', 'C/ Manzanares, 1. 28670 Villaviciosa de Odón (Madrid)', '608083559', 'ES40 0182 6781 8802 0168 0038', 'ECO', 0);
 alter table empresas_emisoras enable row level security;
 
 -- El IVA de lo nuestro: dato, nunca en el codigo.
