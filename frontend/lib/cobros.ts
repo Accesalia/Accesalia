@@ -51,6 +51,25 @@ export function puedeVerCobros(yo: Yo): boolean {
   return yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion");
 }
 
+// DOS LIBROS DE FACTURACION (Monica, 12-oct-2026): "Alexandra solo debe ver lo
+// que factura Accesalia o Daniel de Soto; Ana, solo lo que factura Ecobalance.
+// La pantalla de Ecobalance sera OTRA". Las mismas piezas, filtradas por quien
+// emite: la linea (lineas_facturacion.emisor) y la factura (empresa_emisora).
+export type Libro = "accesalia" | "ecobalance";
+const EMISORES: Record<Libro, string[]> = { accesalia: ["accesalia", "daniel_autonomo"], ecobalance: ["ecobalance"] };
+const EMISORAS_FACTURA: Record<Libro, string[]> = { accesalia: ["accesalia", "daniel"], ecobalance: ["ecobalance"] };
+export function puedeVerEcobalance(yo: Yo): boolean {
+  return yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion_ecobalance");
+}
+export const puedeVerLibro = (yo: Yo, libro: Libro) => (libro === "ecobalance" ? puedeVerEcobalance(yo) : puedeVerCobros(yo));
+/** De que libro es un hito (por el emisor de su linea): cada accion lo comprueba. */
+export async function libroDeHito(hitoId: string): Promise<Libro | null> {
+  if (!/^[0-9a-f-]{36}$/.test(hitoId)) return null;
+  const [h] = await leer<{ linea: { emisor: string | null } | null }[]>(`hitos_cobro?select=linea:linea_facturacion_id(emisor)&id=eq.${hitoId}`);
+  const e = h?.linea?.emisor ?? "accesalia";
+  return EMISORES.ecobalance.includes(e) ? "ecobalance" : "accesalia";
+}
+
 import { cuentasDeDocumento, cuentasDeHito, TEXTO_DOCUMENTO, type Documento, type FacturaDeHito, type Hito, type TipoDocumento } from "./cobrosCalculo";
 export * from "./cobrosCalculo";
 
@@ -116,7 +135,7 @@ export type DetalleCobro = {
   sinHito: FacturaDeHito[];
 };
 
-export async function detalleCobro(oppId: string): Promise<DetalleCobro | null> {
+export async function detalleCobro(oppId: string, libro: Libro = "accesalia"): Promise<DetalleCobro | null> {
   const [opps, hojas] = await Promise.all([
     leer<{ id: string; codigo: string | null; nombre: string | null; estado: string; comunidad: { nombre: string } | null }[]>(
       `oportunidades?select=id,codigo,nombre,estado,comunidad:comunidad_id(nombre)&id=eq.${oppId}`,
@@ -134,11 +153,17 @@ export async function detalleCobro(oppId: string): Promise<DetalleCobro | null> 
   const o = opps[0];
   if (!o) return null;
   const ids = hojas.map((h) => h.id);
-  const lineas = ids.length
-    ? await leer<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null }[]>(
-        `lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje&hoja_encargo_id=in.(${ids.join(",")})&order=creado_en.asc`,
+  const todasLineas = ids.length
+    ? (
+        await leer<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; emisor: string | null }[]>(
+          `lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje,emisor&hoja_encargo_id=in.(${ids.join(",")})&order=creado_en.asc`,
+        )
       )
     : [];
+  // Las de otro libro no se ven; y un documento que solo tiene lineas de otro libro, tampoco.
+  const conLineas = new Set(todasLineas.map((l) => l.hoja_encargo_id));
+  const lineas = todasLineas.filter((l) => EMISORES[libro].includes(l.emisor ?? "accesalia"));
+  const delLibro = new Set(lineas.map((l) => l.hoja_encargo_id));
   const lids = lineas.map((l) => l.id);
   const filas = lids.length
     ? await leer<FilaHito[]>(
@@ -160,7 +185,9 @@ export async function detalleCobro(oppId: string): Promise<DetalleCobro | null> 
   for (const n of nts) notas.set(n.hito_cobro_id, [...(notas.get(n.hito_cobro_id) ?? []), { fecha: n.fecha, texto: n.texto, autor: n.autor }]);
   const porLinea = montarHitos(filas, enlacesPorHito(enl), notas);
 
-  const documentos: Documento[] = hojas.map((h) => {
+  const documentos: Documento[] = hojas
+    .filter((h) => delLibro.has(h.id) || (libro === "accesalia" && !conLineas.has(h.id)))
+    .map((h) => {
     const vs = [...h.versiones].sort((a, b) => a.numero_version - b.numero_version);
     const visor: Documento["visor"] = [];
     for (const v of vs) (v.pdfs_firmados ?? []).forEach((f, k) => visor.push({ etiqueta: vs.length > 1 ? `Firmada v${v.numero_version}` : "Firmada", url: urlVisor(f, h.id, v.id, k) }));
@@ -194,7 +221,7 @@ export async function detalleCobro(oppId: string): Promise<DetalleCobro | null> 
   // Facturas apuntadas a la oportunidad que no pagan ningun hito
   const pagan = new Set(enl.map((e) => e.linea?.factura?.id).filter(Boolean));
   const sueltas = await leer<{ id: string; anio: number; serie: string; numero: number; tipo: string; fecha: string | null; estado: string; base: number | null; url_pdf: string | null; empresa_emisora: string }[]>(
-    `facturas?select=id,anio,serie,numero,tipo,fecha,estado,base,url_pdf,empresa_emisora&oportunidad_id=eq.${oppId}`,
+    `facturas?select=id,anio,serie,numero,tipo,fecha,estado,base,url_pdf,empresa_emisora&oportunidad_id=eq.${oppId}&empresa_emisora=in.(${EMISORAS_FACTURA[libro].join(",")})`,
   );
   return {
     opp: { id: o.id, codigo: o.codigo, nombre: o.nombre, estado: o.estado, comunidad: o.comunidad?.nombre ?? null },
@@ -228,7 +255,7 @@ export type FilaPorCobrar = {
   antiguo: boolean;
 };
 
-export async function porCobrar(): Promise<FilaPorCobrar[]> {
+export async function porCobrar(libro: Libro = "accesalia"): Promise<FilaPorCobrar[]> {
   const [hojas, lineas, filas, enl] = await Promise.all([
     todo<{ id: string; numero_hoja: string | null; tipo_documento: TipoDocumento; oportunidad_id: string | null; fecha_firma: string | null; fecha_creacion: string | null;
       opp: { codigo: string | null; nombre: string | null; comunidad: { nombre: string } | null } | null;
@@ -236,8 +263,8 @@ export async function porCobrar(): Promise<FilaPorCobrar[]> {
       "hojas_encargo?select=id,numero_hoja,tipo_documento,oportunidad_id,fecha_firma,fecha_creacion,opp:oportunidad_id(codigo,nombre,comunidad:comunidad_id(nombre))," +
         "versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,importe_base)&estado=eq.devuelta_firmada&oportunidad_id=not.is.null",
     ),
-    todo<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null }>(
-      "lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje",
+    todo<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; emisor: string | null }>(
+      "lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje,emisor",
     ),
     todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id"),
     todo<FilaEnlace>(
@@ -246,10 +273,14 @@ export async function porCobrar(): Promise<FilaPorCobrar[]> {
   ]);
   const porLinea = montarHitos(filas, enlacesPorHito(enl), new Map());
   const lineasDe = new Map<string, typeof lineas>();
-  for (const l of lineas) lineasDe.set(l.hoja_encargo_id, [...(lineasDe.get(l.hoja_encargo_id) ?? []), l]);
+  const conLineas = new Set(lineas.map((l) => l.hoja_encargo_id));
+  for (const l of lineas.filter((x) => EMISORES[libro].includes(x.emisor ?? "accesalia")))
+    lineasDe.set(l.hoja_encargo_id, [...(lineasDe.get(l.hoja_encargo_id) ?? []), l]);
   const porOpp = new Map<string, FilaPorCobrar>();
   for (const h of hojas) {
     const ls = lineasDe.get(h.id) ?? [];
+    // Solo los documentos de este libro (los que aun no tienen lineas, a Accesalia).
+    if (!ls.length && (libro === "ecobalance" || conLineas.has(h.id))) continue;
     const doc: Documento = {
       id: h.id, codigo: h.numero_hoja, tipo: h.tipo_documento, titulo: "", fecha: h.fecha_firma ?? h.fecha_creacion, estado: "devuelta_firmada",
       importe: Number([...h.versiones].sort((a, b) => a.numero_version - b.numero_version).at(-1)?.importe_base) || 0,
@@ -361,11 +392,13 @@ export async function fraccionarHito(hitoId: string, partes: { importe: number; 
 }
 
 /** El PDF de una factura (almacen privado `facturas`). */
-export async function pdfDeFactura(id: string): Promise<{ pdf: Uint8Array; nombre: string } | null> {
-  const [f] = await leer<{ url_pdf: string | null; anio: number; serie: string; numero: number; pagador_nombre: string | null }[]>(
-    `facturas?select=url_pdf,anio,serie,numero,pagador_nombre&id=eq.${id}`,
+export async function pdfDeFactura(id: string, yo?: Yo): Promise<{ pdf: Uint8Array; nombre: string } | null> {
+  const [f] = await leer<{ url_pdf: string | null; anio: number; serie: string; numero: number; pagador_nombre: string | null; empresa_emisora: string }[]>(
+    `facturas?select=url_pdf,anio,serie,numero,pagador_nombre,empresa_emisora&id=eq.${id}`,
   );
   if (!f?.url_pdf?.startsWith("almacen:")) return null;
+  // Cada libro, sus facturas (12-oct-2026).
+  if (yo && !puedeVerLibro(yo, EMISORAS_FACTURA.ecobalance.includes(f.empresa_emisora) ? "ecobalance" : "accesalia")) return null;
   const r = await fetch(`${URL_BASE}/storage/v1/object/${f.url_pdf.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
   if (!r.ok) return null;
   return { pdf: new Uint8Array(await r.arrayBuffer()), nombre: `Factura ${f.anio}-${f.serie}-${f.numero} ${f.pagador_nombre ?? ""}.pdf`.replace(/\s+/g, " ") };
@@ -410,7 +443,8 @@ export async function datosCaja(): Promise<DatosCaja> {
       "hojas_encargo?select=id,oportunidad_id,pagador_tipo,fecha_firma,opp:oportunidad_id(codigo,nombre,comunidad:comunidad_id(nombre))&estado=eq.devuelta_firmada&oportunidad_id=not.is.null",
     ),
     todo<{ id: string; hoja_encargo_id: string; bloque: { va_a_faro: boolean; va_a_tecnico: boolean } | null }>(
-      "lineas_facturacion?select=id,hoja_encargo_id,bloque:bloque_id(va_a_faro,va_a_tecnico)",
+      // El cronograma y la caja son de Accesalia (y Daniel): lo de Ecobalance va en su libro.
+      `lineas_facturacion?select=id,hoja_encargo_id,bloque:bloque_id(va_a_faro,va_a_tecnico)&emisor=in.(${EMISORES.accesalia.join(",")})`,
     ),
     todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id"),
     todo<FilaEnlace>("factura_linea_hitos?select=hito_cobro_id,importe,linea:factura_linea_id(factura:factura_id(id,anio,serie,numero,tipo,fecha,estado,url_pdf,empresa_emisora))"),

@@ -1,5 +1,5 @@
 import { quienSoy } from "../../../../lib/sesion";
-import { pdfDeFactura, puedeVerCobros } from "../../../../lib/cobros";
+import { pdfDeFactura, puedeVerCobros, puedeVerEcobalance } from "../../../../lib/cobros";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const yo = await quienSoy();
-  if (!yo || !puedeVerCobros(yo)) return new Response("No tienes acceso a la facturación.", { status: 403 });
-  const f = await pdfDeFactura(id);
+  if (!yo || !(puedeVerCobros(yo) || puedeVerEcobalance(yo))) return new Response("No tienes acceso a la facturación.", { status: 403 });
+  const f = await pdfDeFactura(id, yo);
   if (!f) return new Response("Esta factura no tiene PDF.", { status: 404 });
   return new Response(f.pdf as unknown as BodyInit, {
     headers: {

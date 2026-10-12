@@ -47,6 +47,15 @@ const AREAS: Area[] = [
     href: "/facturacion",
     ve: (yo) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion"),
   },
+  {
+    // ECOBALANCE (Monica, 12-oct-2026): solo Ana, Daniel y Monica. Sus listas:
+    // las hojas firmadas con 3 presupuestos y las que llevan CAES.
+    nombre: "Ecobalance",
+    color: "verde",
+    desc: "Las direcciones con 3 presupuestos o CAES en una hoja firmada. Solo Ecobalance y dirección",
+    href: "/ecobalance",
+    ve: (yo) => !!yo && (yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion_ecobalance")),
+  },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, color: "arena", ve: () => true },
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
