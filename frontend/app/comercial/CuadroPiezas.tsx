@@ -817,7 +817,19 @@ export function Pestana({
  *  Verde lo tuyo, azul lo que depende de otros, y la cifra encima de cada fase
  *  en rojo. El numerito de la fase iba en gris oscuro sobre negro —invisible—,
  *  asi que va del color de su columna. */
-export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: AgregadoFase[] }) {
+export function PanelFases({
+  pasos,
+  agregado,
+  enlaces,
+  elegida = null,
+}: {
+  pasos: Paso[];
+  agregado: AgregadoFase[];
+  /** Si se da, cada fase se pincha y lleva a sus oportunidades ("Opps por fases",
+   *  12-oct-2026). Un mapa y no una funcion: esto es de cliente y la pagina, de servidor. */
+  enlaces?: Record<string, string>;
+  elegida?: string | null;
+}) {
   const cuantas = (clave: string) => agregado.find((a) => a.clave === clave)?.cuantas ?? 0;
   return (
     <section className="rounded-lg border-2 border-white bg-[#021101] px-4 py-4">
@@ -825,6 +837,7 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
       <p className="mt-1.5 text-[10px] text-[#F9EDEC]">
         En verde lo tuyo, en <span className="text-[#87C1FF]">azul lo que depende de otros</span>. El caso estándar:
         cuando no aplican, se salta los pasos que no le tocan.
+        {enlaces && <b className="text-[#FFD500]"> Pincha una fase para ver sus oportunidades.</b>}
       </p>
 
       {/* Rejilla de columnas EXACTAS, no flex: con flex cada columna se ajusta a
@@ -834,8 +847,8 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
         {pasos.map((p) => {
           const n = cuantas(p.clave);
           const tinta = p.ajeno ? "text-[#87C1FF]" : "text-[#23F242]";
-          return (
-            <div key={p.clave} className="min-w-0">
+          const dentro = (
+            <>
               <div className="mb-1 text-[12px] font-extrabold uppercase leading-none text-[#FF463F]/80">{n} aquí</div>
               <div
                 className={
@@ -849,7 +862,20 @@ export function PanelFases({ pasos, agregado }: { pasos: Paso[]; agregado: Agreg
                 {p.corto[1] && <span className="block">{p.corto[1]}</span>}
               </div>
               {p.quien && <div className="mt-0.5 text-[10px] leading-[1.3] text-[#4A93E2]">{p.quien}</div>}
-            </div>
+            </>
+          );
+          if (!enlaces?.[p.clave]) return <div key={p.clave} className="min-w-0">{dentro}</div>;
+          return (
+            <Link
+              key={p.clave}
+              href={enlaces[p.clave]}
+              className={
+                "-m-1 min-w-0 rounded-md p-1 transition " +
+                (elegida === p.clave ? "bg-white/15 ring-2 ring-[#FFD500]" : "hover:bg-white/10")
+              }
+            >
+              {dentro}
+            </Link>
           );
         })}
       </div>

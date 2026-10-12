@@ -64,11 +64,11 @@ function Proximamente({ texto }: { texto: string }) {
   );
 }
 
-type Seccion = "agenda" | "oportunidades" | "administradores" | "cobros" | "comovoy";
-const SECCIONES: Seccion[] = ["agenda", "oportunidades", "administradores", "cobros", "comovoy"];
+type Seccion = "agenda" | "oportunidades" | "fases" | "administradores" | "cobros" | "comovoy";
+const SECCIONES: Seccion[] = ["agenda", "oportunidades", "fases", "administradores", "cobros", "comovoy"];
 
-export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string }> }) {
-  const { c, ver, vista, pag } = await searchParams;
+export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string; fase?: string }> }) {
+  const { c, ver, vista, pag, fase } = await searchParams;
   const pagina = Math.max(1, parseInt(pag ?? "1", 10) || 1);
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial");
@@ -106,7 +106,13 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     );
   }
 
-  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina);
+  // Que se ve. SIN `ver`, la pantalla de accesos: un boton por cosa (los
+  // comerciales, 12-oct-2026: "en vez de pestañas, botones"). Las pestañas
+  // siguen ahi, como "Navegacion rapida".
+  const accesos = !ver;
+  const seccion: Seccion = SECCIONES.includes(ver as Seccion) ? (ver as Seccion) : "agenda";
+  const faseElegida = seccion === "fases" && fase ? fase : null;
+  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina, faseElegida);
   const nombre = esDemo ? "Fantasma" : elegido && direccion ? elegido.nombre : yo.nombre;
 
   const hoy = FECHA_LARGA.format(new Date());
@@ -120,8 +126,6 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     "rounded-full border px-3.5 py-1.5 text-sm transition " +
     (activo ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/65 hover:border-lima");
 
-  // Que se ve a la izquierda. Al entrar, lo que tengo que hacer.
-  const seccion: Seccion = SECCIONES.includes(ver as Seccion) ? (ver as Seccion) : "agenda";
   const aqui = (v: Seccion) => {
     const q = new URLSearchParams();
     if (c) q.set("c", c);
@@ -133,7 +137,8 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   const enPagina = (n: number) => {
     const q = new URLSearchParams();
     if (c) q.set("c", c);
-    q.set("ver", "oportunidades");
+    q.set("ver", seccion === "fases" ? "fases" : "oportunidades");
+    if (faseElegida) q.set("fase", faseElegida);
     if (n > 1) q.set("pag", String(n));
     return "/comercial?" + q.toString();
   };
@@ -148,11 +153,94 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     return "/comercial?" + q.toString();
   };
 
+  // Las fases, para "Opps por fases": cada una lleva a sus oportunidades.
+  const enFase = (clave: string) => {
+    const q = new URLSearchParams();
+    if (c) q.set("c", c);
+    q.set("ver", "fases");
+    q.set("fase", clave);
+    return "/comercial?" + q.toString();
+  };
+  const enlacesFases = Object.fromEntries(cuadro.pasos.map((p) => [p.clave, enFase(p.clave)]));
+  const nombreFase = cuadro.pasos.find((p) => p.clave === faseElegida)?.corto.join(" ").trim() ?? faseElegida;
+  const conC = c ? `?c=${c}` : "";
+  // Con una fase elegida, la lista trae solo esa: el total sale de las fases.
+  const totalAbiertas = faseElegida ? cuadro.agregado.reduce((t, a) => t + a.cuantas, 0) : cuadro.totalOportunidades;
+
+  // La lista de oportunidades: la de "Oportunidades abiertas" y, filtrada, la de una fase.
+  const lista = (
+    <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3.5">
+        <Titulo>
+          {faseElegida ? <>En «{nombreFase}» · {cuadro.totalOportunidades}</> : <>Oportunidades abiertas · {cuadro.totalOportunidades}</>}
+        </Titulo>
+        {/* Ir a una concreta, entre TODAS las abiertas (8-oct-2026). */}
+        {!esDemo && <BuscarOportunidad oportunidades={paraGrabar.oportunidades} />}
+      </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[760px]">
+          {cuadro.oportunidades.length === 0 ? (
+            <p className="px-5 py-10 text-center text-base text-carbon/50">
+              {faseElegida ? "Ninguna oportunidad está ahora en esta fase." : "No hay ninguna oportunidad abierta en la app todavía."}
+            </p>
+          ) : (
+            <ul className="divide-y divide-black/5">
+              {cuadro.oportunidades.map((o) => (
+                <li key={o.id}>
+                  <TarjetaOportunidad
+                    o={o}
+                    pasos={cuadro.pasos}
+                    umbralParado={cuadro.umbralParado}
+                    umbralSinContacto={cuadro.umbralSinContacto}
+                    verFicha={
+                      esDemo
+                        ? `/comercial/ficha/${o.id}?c=${ID_FANTASMA}`
+                        : // La ficha real, de momento por COMUNIDAD y solo para direccion,
+                          // habilitada para que Monica la vea y decida (5-oct-2026).
+                          direccion && o.comunidadId
+                          ? `/comercial/ficha/${o.comunidadId}`
+                          : null
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+      {paginas > 1 && (
+        <div className="flex items-center justify-between gap-3 border-t border-black/5 px-4 py-3 text-sm">
+          {pagina > 1 ? (
+            <Link href={enPagina(pagina - 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
+              ← Anteriores
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="text-carbon/55">
+            {cuadro.oportunidades.length ? <>{desde}–{hasta} de {cuadro.totalOportunidades}</> : <>No hay tantas: son {cuadro.totalOportunidades}</>}
+          </span>
+          {pagina < paginas ? (
+            <Link href={enPagina(pagina + 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
+              Siguientes →
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
+      )}
+    </section>
+  );
+
   return (
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1900px] px-6 pb-16 pt-5">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Menú</Link>
+        {accesos ? (
+          <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Menú</Link>
+        ) : (
+          <Link href={`/comercial${conC}`} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Accesos del área comercial</Link>
+        )}
 
         {/* ---------------- cabecera ---------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -230,209 +318,233 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           </div>
         )}
 
-        {/* ----------------------- la tira de pestañas -----------------------
-            Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
-            mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
-        <div className="mt-6 flex flex-wrap gap-[8px] pl-[13px]">
-            <Pestana
-              texto="Mis administradores"
-              cuantas={cuadro.cartera.mias.length}
-              activo={seccion === "administradores"}
-              donde={aqui("administradores")}
-              clase="w-[185px]"
-              icono={<IconoCartera />}
-            />
-            <Pestana
-              texto="Oportunidades abiertas"
-              cuantas={cuadro.totalOportunidades}
-              activo={seccion === "oportunidades"}
-              donde={aqui("oportunidades")}
-              clase="w-[180px]"
-              icono={<IconoOportunidad />}
-            />
-            <Pestana
-              texto="Agenda"
-              cuantas={null}
-              activo={seccion === "agenda"}
-              donde={aqui("agenda")}
-              clase="w-[110px]"
-              icono={<IconoAgenda />}
-            />
-            <Pestana
-              texto="Ver firmadas pendientes de cobrar"
-              cuantas={cuadro.firmadas.length}
-              activo={seccion === "cobros"}
-              donde={aqui("cobros")}
-              clase="w-[185px]"
-              icono={<IconoCobro />}
-            />
-            <Pestana
-              texto="Cómo voy de lo mío"
-              cuantas={null}
-              activo={seccion === "comovoy"}
-              donde={aqui("comovoy")}
-              clase="w-[150px]"
-              icono={<IconoBalanza />}
-            />
-        </div>
+        {accesos ? (
+          <Accesos
+            botones={[
+              { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.mias.length, donde: aqui("administradores"), icono: <IconoCartera /> },
+              { texto: "Oportunidades abiertas", detalle: "Todas las abiertas, con su barra de fases", cuantas: totalAbiertas, donde: aqui("oportunidades"), icono: <IconoOportunidad /> },
+              { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
+              { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
+              { texto: "¿Qué hay de lo mío?", detalle: "Cómo voy: firmas, cobros y comisión", cuantas: null, donde: aqui("comovoy"), icono: <IconoBalanza /> },
+            ]}
+            rapida={aqui("agenda")}
+          />
+        ) : (
+          <>
+          {/* ----------------------- la tira de pestañas -----------------------
+              Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
+              mismo sitio en todas las pantallas (Monica, 12-sep-2026). */}
+          <div className="mt-6 flex flex-wrap gap-[8px] pl-[13px]">
+              <Pestana
+                texto="Mis administradores"
+                cuantas={cuadro.cartera.mias.length}
+                activo={seccion === "administradores"}
+                donde={aqui("administradores")}
+                clase="w-[185px]"
+                icono={<IconoCartera />}
+              />
+              <Pestana
+                texto="Oportunidades abiertas"
+                cuantas={totalAbiertas}
+                activo={seccion === "oportunidades"}
+                donde={aqui("oportunidades")}
+                clase="w-[180px]"
+                icono={<IconoOportunidad />}
+              />
+              <Pestana
+                texto="Opps por fases"
+                cuantas={null}
+                activo={seccion === "fases"}
+                donde={aqui("fases")}
+                clase="w-[150px]"
+                icono={<IconoFases />}
+              />
+              <Pestana
+                texto="Agenda"
+                cuantas={null}
+                activo={seccion === "agenda"}
+                donde={aqui("agenda")}
+                clase="w-[110px]"
+                icono={<IconoAgenda />}
+              />
+              <Pestana
+                texto="Ver firmadas pendientes de cobrar"
+                cuantas={cuadro.firmadas.length}
+                activo={seccion === "cobros"}
+                donde={aqui("cobros")}
+                clase="w-[185px]"
+                icono={<IconoCobro />}
+              />
+              <Pestana
+                texto="Cómo voy de lo mío"
+                cuantas={null}
+                activo={seccion === "comovoy"}
+                donde={aqui("comovoy")}
+                clase="w-[150px]"
+                icono={<IconoBalanza />}
+              />
+          </div>
 
-        {/* ------- las dos columnas: la izquierda cambia, la derecha no -------
-            El azul pasa por DEBAJO de las dos: es lo que las une y lo que le da
-            el contraste a la zona blanca del diario (su maqueta). */}
-        <div className="grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]">
-          {/* ================= columna izquierda ================= */}
-          <div className="min-w-0">
+          {/* ------- las dos columnas: la izquierda cambia, la derecha no -------
+              El azul pasa por DEBAJO de las dos: es lo que las une y lo que le da
+              el contraste a la zona blanca del diario (su maqueta). */}
+          <div className="grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]">
+            {/* ================= columna izquierda ================= */}
+            <div className="min-w-0">
 
-            {/* ---- lo que tengo que hacer ---- */}
-            {seccion === "agenda" && (
-              <div>
-                <Agenda
-                  tareas={cuadro.agenda}
-                  verAgenda={enAgenda("agenda")}
-                  verCalendario={enAgenda("calendario")}
-                  calendario={vista === "calendario"}
-                />
-              </div>
-            )}
-
-            {/* ---- oportunidades abiertas: el agregado y la lista ---- */}
-            {seccion === "oportunidades" && (
-              <>
+              {/* ---- lo que tengo que hacer ---- */}
+              {seccion === "agenda" && (
                 <div>
-                  <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} />
+                  <Agenda
+                    tareas={cuadro.agenda}
+                    verAgenda={enAgenda("agenda")}
+                    verCalendario={enAgenda("calendario")}
+                    calendario={vista === "calendario"}
+                  />
                 </div>
+              )}
+
+              {/* ---- oportunidades abiertas: el agregado y la lista ---- */}
+              {seccion === "oportunidades" && (
+                <>
+                  <div>
+                    <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} />
+                  </div>
+                  {lista}
+                </>
+              )}
+
+              {/* ---- opps por fases: arriba las fases, abajo las de la elegida ----
+                  (los comerciales, 12-oct-2026) */}
+              {seccion === "fases" && (
+                <>
+                  <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} enlaces={enlacesFases} elegida={faseElegida} />
+                  {faseElegida ? (
+                    lista
+                  ) : (
+                    <p className="mt-6 rounded-2xl bg-white px-5 py-8 text-center text-base text-carbon/65">
+                      Elige una fase arriba y aquí salen las oportunidades que están en ella.
+                    </p>
+                  )}
+                </>
+              )}
+
+              {/* ---- mis administradores ---- */}
+              {seccion === "administradores" && (
+                <div className="space-y-6">
+                  <Cartera cartera={cuadro.cartera} todos={todos} />
+                  <MapaCartera mapa={cuadro.mapa} titulo={todos || esDemo ? "Dónde estamos y dónde no" : "Dónde estoy y dónde no"} />
+                </div>
+              )}
+
+              {/* ---- firmadas, pendientes de cobro ---- */}
+              {/* Otra base juridica y otra urgencia: aqui la decision ya esta
+                  tomada y lo que falta es un pago comprometido. */}
+              {seccion === "cobros" && (
                 <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3.5">
-                    <Titulo>Oportunidades abiertas · {cuadro.totalOportunidades}</Titulo>
-                    {/* Ir a una concreta, entre TODAS las abiertas (8-oct-2026). */}
-                    {!esDemo && <BuscarOportunidad oportunidades={paraGrabar.oportunidades} />}
+                  <div className="px-4 pt-3.5">
+                    <Titulo>Hojas firmadas pendientes de cobro · {cuadro.firmadas.length}</Titulo>
                   </div>
                   <div className="overflow-x-auto">
                     <div className="min-w-[760px]">
-                      {cuadro.oportunidades.length === 0 ? (
+                      {cuadro.firmadas.length === 0 ? (
                         <p className="px-5 py-10 text-center text-base text-carbon/50">
-                          No hay ninguna oportunidad abierta en la app todavía.
+                          Nada firmado pendiente de cobro en la app todavía.
+                          <br />
+                          <span className="text-sm">Los hitos de pago de una hoja aún no se guardan aquí.</span>
                         </p>
                       ) : (
                         <ul className="divide-y divide-black/5">
-                          {cuadro.oportunidades.map((o) => (
-                            <li key={o.id}>
-                              <TarjetaOportunidad
-                                o={o}
-                                pasos={cuadro.pasos}
-                                umbralParado={cuadro.umbralParado}
-                                umbralSinContacto={cuadro.umbralSinContacto}
-                                verFicha={
-                                  esDemo
-                                    ? `/comercial/ficha/${o.id}?c=${ID_FANTASMA}`
-                                    : // La ficha real, de momento por COMUNIDAD y solo para direccion,
-                                      // habilitada para que Monica la vea y decida (5-oct-2026).
-                                      direccion && o.comunidadId
-                                      ? `/comercial/ficha/${o.comunidadId}`
-                                      : null
-                                }
-                              />
+                          {cuadro.firmadas.map((f) => (
+                            <li key={f.id}>
+                              <TarjetaFirmada f={f} verFicha={esDemo ? `/comercial/ficha/${f.id}?c=${ID_FANTASMA}` : null} />
                             </li>
                           ))}
                         </ul>
                       )}
                     </div>
                   </div>
-                  {paginas > 1 && (
-                    <div className="flex items-center justify-between gap-3 border-t border-black/5 px-4 py-3 text-sm">
-                      {pagina > 1 ? (
-                        <Link href={enPagina(pagina - 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
-                          ← Anteriores
-                        </Link>
-                      ) : (
-                        <span />
-                      )}
-                      <span className="text-carbon/55">
-                        {cuadro.oportunidades.length ? <>{desde}–{hasta} de {cuadro.totalOportunidades}</> : <>No hay tantas: son {cuadro.totalOportunidades}</>}
-                      </span>
-                      {pagina < paginas ? (
-                        <Link href={enPagina(pagina + 1)} className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 font-semibold text-carbon/70 transition hover:border-lima">
-                          Siguientes →
-                        </Link>
-                      ) : (
-                        <span />
-                      )}
-                    </div>
-                  )}
                 </section>
-              </>
-            )}
+              )}
 
-            {/* ---- mis administradores ---- */}
-            {seccion === "administradores" && (
-              <div className="space-y-6">
-                <Cartera cartera={cuadro.cartera} todos={todos} />
-                <MapaCartera mapa={cuadro.mapa} titulo={todos || esDemo ? "Dónde estamos y dónde no" : "Dónde estoy y dónde no"} />
-              </div>
-            )}
+              {/* ---- cómo voy de lo mío ---- */}
+              {seccion === "comovoy" && <Cifras cifras={cuadro.cifras} periodo={esDemo ? "últimos 90 días" : null} />}
+            </div>
 
-            {/* ---- firmadas, pendientes de cobro ---- */}
-            {/* Otra base juridica y otra urgencia: aqui la decision ya esta
-                tomada y lo que falta es un pago comprometido. */}
-            {seccion === "cobros" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-                <div className="px-4 pt-3.5">
-                  <Titulo>Hojas firmadas pendientes de cobro · {cuadro.firmadas.length}</Titulo>
-                </div>
-                <div className="overflow-x-auto">
-                  <div className="min-w-[760px]">
-                    {cuadro.firmadas.length === 0 ? (
-                      <p className="px-5 py-10 text-center text-base text-carbon/50">
-                        Nada firmado pendiente de cobro en la app todavía.
-                        <br />
-                        <span className="text-sm">Los hitos de pago de una hoja aún no se guardan aquí.</span>
-                      </p>
-                    ) : (
-                      <ul className="divide-y divide-black/5">
-                        {cuadro.firmadas.map((f) => (
-                          <li key={f.id}>
-                            <TarjetaFirmada f={f} verFicha={esDemo ? `/comercial/ficha/${f.id}?c=${ID_FANTASMA}` : null} />
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* ---- cómo voy de lo mío ---- */}
-            {seccion === "comovoy" && <Cifras cifras={cuadro.cifras} periodo={esDemo ? "últimos 90 días" : null} />}
+            {/* ================= columna derecha, siempre igual =================
+                Va sobre el azul, no fuera de el, en su propia zona blanca. */}
+            <div className="flex flex-col gap-3 rounded-[10px] border border-[#0B3253] bg-white p-3">
+              <Grabar
+                hoy={hoyISO}
+                canales={CANALES}
+                oportunidades={paraGrabar.oportunidades}
+                personas={paraGrabar.personas}
+                // Quien ve todas las carteras no tiene conflicto con nadie.
+                miComercialId={direccion ? null : mio?.id ?? null}
+                guardar={guardarEntrada}
+              />
+              {/* Las notas que esperan en la bandeja (8-oct-2026): solo se ve si
+                  hay alguna. */}
+              {pendientes > 0 && (
+                <Link
+                  href="/comercial/pendientes"
+                  className="flex items-center justify-between rounded-xl border border-[#8a6410] bg-form-nuevo px-3.5 py-2.5 text-[14px] font-semibold text-[#5c4208] transition hover:bg-[#ffeeb0]"
+                >
+                  <span>📥 Notas pendientes de colocar</span>
+                  <span className="rounded-full bg-[#5c4208] px-2 py-0.5 text-[12px] font-bold text-white">{pendientes}</span>
+                </Link>
+              )}
+              <Diario entradas={cuadro.diario} />
+            </div>
           </div>
-
-          {/* ================= columna derecha, siempre igual =================
-              Va sobre el azul, no fuera de el, en su propia zona blanca. */}
-          <div className="flex flex-col gap-3 rounded-[10px] border border-[#0B3253] bg-white p-3">
-            <Grabar
-              hoy={hoyISO}
-              canales={CANALES}
-              oportunidades={paraGrabar.oportunidades}
-              personas={paraGrabar.personas}
-              // Quien ve todas las carteras no tiene conflicto con nadie.
-              miComercialId={direccion ? null : mio?.id ?? null}
-              guardar={guardarEntrada}
-            />
-            {/* Las notas que esperan en la bandeja (8-oct-2026): solo se ve si
-                hay alguna. */}
-            {pendientes > 0 && (
-              <Link
-                href="/comercial/pendientes"
-                className="flex items-center justify-between rounded-xl border border-[#8a6410] bg-form-nuevo px-3.5 py-2.5 text-[14px] font-semibold text-[#5c4208] transition hover:bg-[#ffeeb0]"
-              >
-                <span>📥 Notas pendientes de colocar</span>
-                <span className="rounded-full bg-[#5c4208] px-2 py-0.5 text-[12px] font-bold text-white">{pendientes}</span>
-              </Link>
-            )}
-            <Diario entradas={cuadro.diario} />
-          </div>
-        </div>
+          </>
+        )}
       </main>
     </div>
+  );
+}
+
+// LA PANTALLA DE ACCESOS (los comerciales, 12-oct-2026): al entrar en el area,
+// un boton por cosa en vez de la tira de pestañas. Es lo mismo que las
+// pestañas: cada boton abre la pantalla de siempre con la suya elegida. Las
+// pestañas no se quitan: son el ultimo boton, "Navegacion rapida", porque
+// Monica sospecha que en cuanto se hagan a la app las preferiran.
+// Mismos colores que la tira: el azul de debajo y el gris azulado de las
+// pestañas sin elegir.
+type Boton = { texto: string; detalle: string; cuantas: number | null; donde: string; icono: React.ReactNode };
+
+function Accesos({ botones, rapida }: { botones: Boton[]; rapida: string }) {
+  return (
+    <nav className="mt-6 grid gap-4 rounded-[10px] bg-[#104269] p-4 sm:grid-cols-2 sm:p-6 xl:grid-cols-3">
+      {botones.map((b) => (
+        <Link
+          key={b.texto}
+          href={b.donde}
+          className="flex min-h-[132px] flex-col justify-between gap-3 rounded-[10px] bg-[#D8DEE5] p-4 text-[#104269] transition hover:bg-[#E4E9EE] hover:ring-2 hover:ring-[#FFCD00]"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span className="[&>svg]:size-[30px]">{b.icono}</span>
+            {b.cuantas !== null && (
+              <span className="rounded-full bg-[#104269] px-2.5 py-0.5 text-[15px] font-bold tabular-nums text-[#FFCD00]">{b.cuantas}</span>
+            )}
+          </div>
+          <div>
+            <div className="text-[20px] font-bold leading-tight">{b.texto}</div>
+            <div className="mt-1 text-[13px] leading-snug text-[#104269]/85">{b.detalle}</div>
+          </div>
+        </Link>
+      ))}
+      <Link
+        href={rapida}
+        className="flex min-h-[132px] flex-col justify-between gap-3 rounded-[10px] border-2 border-dashed border-[#D8DEE5]/70 p-4 text-[#FFCD00] transition hover:border-[#FFCD00] hover:bg-white/5"
+      >
+        <span className="[&>svg]:size-[30px]"><IconoPestanas /></span>
+        <div>
+          <div className="text-[20px] font-bold leading-tight">Navegación rápida</div>
+          <div className="mt-1 text-[13px] leading-snug text-[#F9EDEC]">La pantalla de pestañas de siempre, con todo a mano</div>
+        </div>
+      </Link>
+    </nav>
   );
 }
 
@@ -472,6 +584,26 @@ function IconoCobro() {
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <circle cx="12" cy="12" r="3" />
       <path d="M6 9v6M18 9v6" />
+    </svg>
+  );
+}
+
+// Las fases: una escalera de pasos.
+function IconoFases() {
+  return (
+    <svg viewBox="0 0 24 24" {...trazo}>
+      <path d="M3 20h4v-4h4v-4h4V8h4V4" />
+      <path d="M3 20h18" />
+    </svg>
+  );
+}
+// La navegacion rapida: la tira de pestañas.
+function IconoPestanas() {
+  return (
+    <svg viewBox="0 0 24 24" {...trazo}>
+      <rect x="2" y="9" width="20" height="12" rx="2" />
+      <path d="M2 9V5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v4" />
+      <path d="M9 9V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
     </svg>
   );
 }

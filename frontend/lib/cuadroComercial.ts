@@ -357,8 +357,10 @@ async function oportunidadesPendientes(
   comercialId: string | null,
   pasos: Paso[],
   pagina: number,
+  fase: string | null = null,
 ): Promise<{ lista: OportunidadCuadro[]; total: number }> {
-  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
+  // Solo las de una fase, si se pide ("Opps por fases", Monica, 12-oct-2026).
+  const f = (comercialId ? `&comercial_id=eq.${comercialId}` : "") + (fase ? `&fase_actual=eq.${encodeURIComponent(fase)}` : "");
   // Primero TODAS, pero ligeras: solo para contarlas de verdad y saber cuales
   // caen en esta pagina. Luego, enteras, solo esas.
   // Abierta hasta que esta COBRADA: eso lo dice la base (fase_actual_oportunidad).
@@ -540,15 +542,16 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
   };
 }
 
-/** El cuadro de un comercial (o de todos, si no se dice cual). */
-export async function cuadroComercial(comercialId: string | null, pagina = 1): Promise<CuadroComercial> {
+/** El cuadro de un comercial (o de todos, si no se dice cual). Con `fase`, la
+ *  lista de oportunidades trae solo las que estan en esa fase. */
+export async function cuadroComercial(comercialId: string | null, pagina = 1, fase: string | null = null): Promise<CuadroComercial> {
   const [pasos, u, { cartera, empresaIds }] = await Promise.all([
     pasosComerciales(),
     umbrales(),
     carteraDe(comercialId),
   ]);
   const [oportunidades, agregado, tareas, entradas, mapa] = await Promise.all([
-    oportunidadesPendientes(comercialId, pasos, pagina),
+    oportunidadesPendientes(comercialId, pasos, pagina, fase),
     agregadoFases(comercialId, pasos),
     agenda(comercialId),
     diario(comercialId),
