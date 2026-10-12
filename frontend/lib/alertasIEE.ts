@@ -40,6 +40,9 @@ export type AlertaIEE = {
   cp: string | null;
   anioConstruccion: number | null;
   fechaEmision: string | null;
+  /** La de las ya inscritas ("Fecha ultimo IEE registrado"), sacada de lo
+   *  guardado tal cual; las de tramite no la traen. */
+  fechaInscripcion: string | null;
   valoracion: string | null;
   deficienciasSubsanadas: string | null;
   calificacionEnergetica: string | null;
@@ -114,6 +117,24 @@ const CAMPOS =
   "asignada_email_en,asignada_email_fallo,oportunidad_id,comerciales(nombre),descartada_en,motivo_descarte," +
   "descarto:equipo!iee_registrado_descartada_por_fkey(nombre)";
 
+const deDiaMesAnio = (s: string | undefined): string | null => {
+  const m = (s ?? "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+};
+
+/** La fecha del informe para leerla: la de emision, o si no la de inscripcion.
+ *  Una fecha que aun no ha llegado es una errata del propio registro (Pablo
+ *  Luna 4: "20/12/2030", con las de al lado de dic-2020): se dice, no se toca. */
+export function fechaDelInforme(a: Pick<AlertaIEE, "fechaEmision" | "fechaInscripcion">): { que: string; valor: string } {
+  const es = (iso: string) => iso.split("-").reverse().join("/");
+  if (a.fechaEmision) {
+    const futura = a.fechaEmision > new Date().toISOString().slice(0, 10);
+    return { que: "Emitido el", valor: es(a.fechaEmision) + (futura ? " (fecha imposible: errata del registro)" : "") };
+  }
+  if (a.fechaInscripcion) return { que: "Inscrito el", valor: es(a.fechaInscripcion) };
+  return { que: "Emitido el", valor: "—" };
+}
+
 const vestir = (f: Fila): AlertaIEE => ({
   codigo: f.codigo,
   referencia: f.referencia,
@@ -123,6 +144,7 @@ const vestir = (f: Fila): AlertaIEE => ({
   cp: f.cp,
   anioConstruccion: f.anio_construccion,
   fechaEmision: f.fecha_emision,
+  fechaInscripcion: deDiaMesAnio(f.bruto?.["Fecha último IEE registrado"]),
   valoracion: f.valoracion,
   deficienciasSubsanadas: f.deficiencias_subsanadas,
   calificacionEnergetica: f.calificacion_energetica,

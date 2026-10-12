@@ -292,7 +292,9 @@ export async function barrerNuestrasDirecciones({
             // La fecha que se guarda es la de EMISION, no la de hoy. Monica:
             // "la a, sin duda, y ademas es una fecha que queremos tener".
             // Asi no inunda el parte de hoy y ademas dice la verdad.
-            await guardarNota(nota, undefined, nota.fechaEmision);
+            // Las ya inscritas no traen emision: vale su fecha de inscripcion
+            // (12-oct-2026). Sin ninguna de las dos, la de hoy.
+            await guardarNota(nota, undefined, nota.fechaEmision ?? nota.fechaInscripcion);
             r.guardadas += 1;
           } catch (e) {
             r.errores.push(`${via} ${numero}: ${e instanceof Error ? e.message : String(e)}`);

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
-import { alertaIEE, comercialesActivos, grado, porQue } from "../../../lib/alertasIEE";
+import { alertaIEE, comercialesActivos, fechaDelInforme, grado, porQue } from "../../../lib/alertasIEE";
 import { enviarCorreo } from "../../../lib/correo";
 
 // ASIGNAR UNA ALERTA A UN COMERCIAL.
@@ -42,7 +42,7 @@ function plantilla(nombre: string, a: NonNullable<Awaited<ReturnType<typeof aler
     ["Referencia catastral", a.referencia ?? "—"],
     ["Año de construcción", a.anioConstruccion ? String(a.anioConstruccion) : "—"],
     ["Valoración del IEE", a.valoracion ?? "—"],
-    ["Emitido el", enCastellano(a.fechaEmision)],
+    [fechaDelInforme(a).que, fechaDelInforme(a).valor],
     ["Deficiencias subsanadas", a.deficienciasSubsanadas ?? "—"],
     ["¿Cumple accesibilidad?", a.accesibilidadSatisface === null ? "—" : a.accesibilidadSatisface ? "Sí" : "No"],
     ["¿Admite ajustes razonables?", a.accesibilidadAjustes === null ? "—" : a.accesibilidadAjustes ? "Sí" : "No"],

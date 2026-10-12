@@ -49,6 +49,11 @@ export type NotaIEE = {
   anioConstruccion: number | null;
   anioRehabilitacion: number | null;
   fechaEmision: string | null;
+  /** Las IEE ya INSCRITAS no traen "Fecha emision informe" (esa es la de los
+   *  expedientes en tramite) sino "Fecha ultimo IEE registrado" (12-oct-2026:
+   *  240 se quedaron sin fecha por no leerla). No es la de emision: se ensena
+   *  como "inscrita el" y no se guarda en fecha_emision. */
+  fechaInscripcion: string | null;
   valoracion: string | null;
   deficienciasSubsanadas: string | null;
   fechaSubsanacion: string | null;
@@ -178,6 +183,7 @@ export async function leerNotaDeUrl(url: string): Promise<NotaIEE | null> {
     anioConstruccion: aEntero(p["Año de construcción"]),
     anioRehabilitacion: aEntero(p["Año de rehabilitación"]),
     fechaEmision: aFecha(p["Fecha emisión informe"]),
+    fechaInscripcion: aFecha(p["Fecha último IEE registrado"]),
     valoracion: p["Valoración final"] || null,
     deficienciasSubsanadas: p["Deficiencias subsanadas"] || null,
     fechaSubsanacion: aFecha(p["Fecha"]),

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { alertaIEE } from "../../../../lib/alertasIEE";
+import { alertaIEE, fechaDelInforme } from "../../../../lib/alertasIEE";
 import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
@@ -69,7 +69,7 @@ export default async function FichaIEE({ params }: { params: Promise<{ codigo: s
       titulo: "El informe",
       datos: [
         ["Nº de registro", a.codigo],
-        ["Fecha de emisión", enCastellano(a.fechaEmision)],
+        [fechaDelInforme(a).que === "Inscrito el" ? "Inscrito en el registro el" : "Fecha de emisión", fechaDelInforme(a).valor],
         ["Validez", a.validez ?? "No consta"],
         ["Estado del expediente", a.estadoExpediente ?? "No consta"],
         ["Lo vimos aparecer el", enCastellano(a.vistoEn.slice(0, 10))],

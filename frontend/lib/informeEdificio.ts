@@ -973,23 +973,32 @@ export async function ieeDe(referenciaBruta: string): Promise<Iee | null> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
   if (!URL_BASE || !SECRETO || ref.length < 14) return null;
   try {
+    // Todas las del edificio y aqui la mas reciente: las ya INSCRITAS no traen
+    // fecha de emision, sino "Fecha ultimo IEE registrado" (12-oct-2026), y
+    // ordenando solo por emision se quedaban detras o sin fecha.
     const r = await fetch(
-      `${URL_BASE}/rest/v1/iee_registrado?select=fecha_emision,valoracion,accesibilidad_satisface,` +
-        `accesibilidad_ajustes,calificacion_energetica&referencia=eq.${ref}` +
-        `&order=fecha_emision.desc.nullslast&limit=1`,
+      `${URL_BASE}/rest/v1/iee_registrado?select=fecha_emision,bruto,valoracion,accesibilidad_satisface,` +
+        `accesibilidad_ajustes,calificacion_energetica&referencia=eq.${ref}`,
       { headers: cab, cache: "no-store" },
     );
     if (!r.ok) return null;
-    const [f] = (await r.json()) as {
+    const filas = (await r.json()) as {
       fecha_emision: string | null;
+      bruto: Record<string, string> | null;
       valoracion: string | null;
       accesibilidad_satisface: boolean | null;
       accesibilidad_ajustes: boolean | null;
       calificacion_energetica: string | null;
     }[];
+    const fechaDe = (x: (typeof filas)[number]) => {
+      if (x.fecha_emision) return x.fecha_emision;
+      const m = (x.bruto?.["Fecha último IEE registrado"] ?? "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+    };
+    const [f] = filas.sort((a, b) => (fechaDe(b) ?? "").localeCompare(fechaDe(a) ?? ""));
     if (!f) return null;
     return {
-      fecha: f.fecha_emision,
+      fecha: fechaDe(f),
       valoracion: f.valoracion,
       accesibilidadCumple: f.accesibilidad_satisface,
       admiteAjustes: f.accesibilidad_ajustes,
