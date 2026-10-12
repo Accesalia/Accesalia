@@ -13,6 +13,10 @@ import {
   type Indice,
   type TipoObra as Tipo,
 } from "../../../lib/estimacionCalculo";
+import type { EntradaCostes } from "../../../lib/informeCostes";
+import { EmitirInforme } from "./EmitirInforme";
+
+type Opcion = { valor: string; texto: string; pista?: string };
 
 // ESTIMACION DE COSTES DE OBRA (Monica, 11-oct-2026). Contesta "yo como vecino,
 // ¿cuanto tengo que soltar?". Dos areas:
@@ -31,14 +35,25 @@ const campo =
   "mt-1 h-[40px] w-full rounded-[10px] border border-carbon/25 bg-white px-3 text-[14px] text-carbon outline-none focus:border-lima-dark focus:ring-2 focus:ring-lima/40";
 const CAJA = "rounded-2xl border border-black/5 bg-white shadow-sm";
 
-export function Estimador({ d }: { d: Datos }) {
+export function Estimador({
+  d,
+  oportunidades,
+  personas,
+  tipos,
+  puedeCrear,
+}: {
+  d: Datos;
+  oportunidades: Opcion[];
+  personas: Opcion[];
+  tipos: Opcion[];
+  puedeCrear: boolean;
+}) {
   const [tipo, setTipo] = useState<Tipo>("ascensor");
   const [caso, setCaso] = useState("B");
   const [paradas, setParadas] = useState("6");
   const [m2f, setM2f] = useState("");
   const [m2c, setM2c] = useState("");
   const [comunidad, setComunidad] = useState("");
-  const [opp, setOpp] = useState("");
 
   const entrada = { caso, paradas: num(paradas), m2Fachada: num(m2f), m2Cubierta: num(m2c) };
   const est = useMemo(() => estimar(d, tipo, entrada), [d, tipo, caso, paradas, m2f, m2c]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -58,16 +73,10 @@ export function Estimador({ d }: { d: Datos }) {
       : esSate(tipo)
         ? `${nombreTipo}: ${[tipo !== "cubierta" && m2f ? `${m2f} m² de fachada` : null, tipo !== "fachada" && m2c ? `${m2c} m² de cubierta` : null].filter(Boolean).join(" y ")}`
         : nombreTipo;
-  const enlaceInforme = opp.trim()
-    ? `/referencia/estimacion/informe?${new URLSearchParams({
-        opp: opp.trim(),
-        tipo,
-        caso,
-        ...(tipo === "ascensor" && paradas ? { paradas } : {}),
-        ...(m2f ? { m2f } : {}),
-        ...(m2c ? { m2c } : {}),
-      })}`
-    : undefined;
+  // Lo que se estima, para emitir el informe (null si aun no se puede).
+  const paraInforme: EntradaCostes | null = valido
+    ? { tipo, caso, paradas: tipo === "ascensor" ? num(paradas) || null : null, m2f: num(m2f), m2c: num(m2c) }
+    : null;
 
   return (
     <>
@@ -209,27 +218,13 @@ export function Estimador({ d }: { d: Datos }) {
               Imprimir informe
             </button>
           </div>
-          {/* CON LAS AYUDAS: desde la oportunidad, que es donde se sabe a cuales
-              puede acceder el edificio. Sin paradas, salen de Catastro. */}
-          <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-black/5 pt-4">
-            <label className="block min-w-[260px] flex-1">
-              <span className={etq}>Con las ayudas: código de la oportunidad</span>
-              <input value={opp} onChange={(e) => setOpp(e.target.value)} placeholder="DAN-2025-277" className={campo} />
-            </label>
-            <a
-              href={enlaceInforme}
-              aria-disabled={!enlaceInforme}
-              className={
-                "inline-flex h-[40px] items-center rounded-xl px-5 text-[14px] font-extrabold transition " +
-                (enlaceInforme ? "bg-carbon text-white hover:bg-carbon/85" : "pointer-events-none bg-carbon/20 text-white")
-              }
-            >
-              Informe con ayudas
-            </a>
-          </div>
-          <p className="mt-2 text-[12px] text-carbon/50">
+          {/* CON LAS AYUDAS: el informe se EMITE para una direccion -nuestra o
+              nueva- y se guarda tal cual (12-oct-2026). */}
+          <EmitirInforme entrada={paraInforme} oportunidades={oportunidades} personas={personas} tipos={tipos} puedeCrear={puedeCrear} />
+          <p className="mt-2 text-[12px] text-carbon/65">
             Con las ayudas a las que puede acceder ese edificio, lo que darían para esta obra, cuándo se convocan y cuánto tardan
-            en concederse, y lo que habrá subido la obra para entonces.
+            en concederse, y lo que habrá subido la obra para entonces. Queda guardado: en su oportunidad o, si no es de nadie, en
+            «Direcciones vistas».
           </p>
         </section>
       )}

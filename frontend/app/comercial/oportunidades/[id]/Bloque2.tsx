@@ -5,6 +5,7 @@ import type { Gestion } from "../../../../lib/gestionOportunidad";
 import { ESTADOS_3D, TIPOS_3D } from "../../../../lib/gestionOportunidad";
 import { estadoDeHoja } from "../../../../lib/estadoHoja";
 import { Miniaturas } from "../../../components/Miniaturas";
+import type { InformeGuardado } from "../../../../lib/informeCostes";
 
 // BLOQUE 2 · DOCUMENTACION (Monica, 6-oct-2026). La ESTRUCTURA es la del
 // esqueleto gris del 29-sep (docs/figma/gestion-oportunidad-gris.html): Sali
@@ -41,7 +42,24 @@ function Tarjeta({ titulo, sub, children }: { titulo: string; sub: ReactNode; ch
   );
 }
 
-export function Bloque2({ id, g, d, trato }: { id: string; g: Gestion; d: Documentacion; trato: ReactNode }) {
+const HORA = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
+const EUR0 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" });
+
+export function Bloque2({
+  id,
+  g,
+  d,
+  trato,
+  informes = [],
+}: {
+  id: string;
+  g: Gestion;
+  d: Documentacion;
+  trato: ReactNode;
+  /** Los informes emitidos para esta oportunidad (12-oct-2026). */
+  informes?: InformeGuardado[];
+}) {
+  const costes = informes.filter((x) => x.tipo === "estimacion_costes");
   const v = d.viabilidad;
   const hojaNueva = g.comunidadId ? `/comercial/hoja-encargo?comunidad=${g.comunidadId}&opp=${id}` : null;
   const conPresupuesto = d.hojas.filter((h) => h.presupuesto);
@@ -149,6 +167,43 @@ export function Bloque2({ id, g, d, trato }: { id: string; g: Gestion; d: Docume
           <Link href={`/comercial/presupuesto?opp=${id}`} className={ENLACE}>
             {d.presupuestos.length ? "abrir · hacer otro" : "hacer presupuesto"}
           </Link>
+        </Tarjeta>
+      </div>
+
+      {/* ------------------------------ informes para la comunidad
+          (Monica, 12-oct-2026). Opcionales, complementan el bloque 1. Cada uno
+          queda tal cual se emitio: si la comunidad llama por "el papel que me
+          diste", aqui esta. El de proteccion viene despues. */}
+      <div className="mt-2.5 grid gap-2.5 md:grid-cols-2">
+        <Tarjeta
+          titulo="Estimación de costes"
+          sub={
+            costes.length ? (
+              <ul className="space-y-0.5">
+                {costes.slice(0, 4).map((x) => (
+                  <li key={x.id}>
+                    <a href={`/referencia/estimacion/informe/${x.id}`} className={ENLACE}>
+                      {HORA.format(new Date(x.creado_en))}
+                    </a>
+                    {" · "}
+                    {x.datos.obra}
+                    {x.datos.precios && ` · ${EUR0.format(x.datos.precios.hoy)} € con IVA`}
+                    {x.autor && ` · ${x.autor.nombre}`}
+                  </li>
+                ))}
+                {costes.length > 4 && <li className="text-[#8a8a8a]">y {costes.length - 4} más antiguos</li>}
+              </ul>
+            ) : (
+              "Opcional · lo que costaría la obra, las ayudas y cuánto sube si se espera"
+            )
+          }
+        >
+          <Link href="/referencia/estimacion" className={ENLACE}>
+            {costes.length ? "emitir otro" : "emitir"}
+          </Link>
+        </Tarjeta>
+        <Tarjeta titulo="Consulta de protección" sub="Opcional · si el edificio está protegido, qué se puede hacer">
+          <span className={PRONTO}>Próximamente</span>
         </Tarjeta>
       </div>
 

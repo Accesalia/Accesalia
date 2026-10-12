@@ -116,20 +116,41 @@ function titular(oficial: string): string {
 const nombreConvocatoria = (c: Catalogo) => [c.programa, c.linea].filter(Boolean).join(" · ") + (c.ambito === "ayto_madrid" ? "" : ` · ${c.entidad}`);
 const ESTADO: Record<string, string> = { abierta: "abierta ahora", cerrada: "se convoca de nuevo", pendiente: "pendiente de convocar" };
 
-export async function anexoDeOportunidad(oppId: string, opciones: { pem?: number | null } = {}): Promise<Anexo | null> {
+/** Las ayudas de unas obras dadas por su clave de tipos_proyecto ("ascensor",
+ *  "sate"...), como si fuera lo pedido. Para el informe de costes, que estima
+ *  UNA obra concreta (Monica, 12-oct-2026). */
+async function pedidoPorClaves(claves: string[]): Promise<{ ids: Set<string>; nombres: string[] }> {
+  const tipos = await leer<{ id: string; clave: string; nombre: string; parent_id: string | null }[]>("tipos_proyecto?select=id,clave,nombre,parent_id");
+  const elegidos = tipos.filter((t) => claves.includes(t.clave));
+  const ids = new Set(elegidos.map((t) => t.id));
+  for (const t of tipos) if (t.parent_id && ids.has(t.parent_id)) ids.add(t.id);
+  return { ids, nombres: elegidos.map((t) => t.nombre.toLowerCase()) };
+}
+
+export async function anexoDeOportunidad(oppId: string, opciones: { pem?: number | null; pedido?: string[] } = {}): Promise<Anexo | null> {
   const [opp] = await leer<{ referencia_catastral: string | null; accesos: { acceso: { ref_catastral: string | null; municipio: string | null } | null }[] }[]>(
     `oportunidades?select=referencia_catastral,accesos:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral,municipio))&id=eq.${oppId}`,
   );
   const ref = opp?.referencia_catastral ?? opp?.accesos.find((a) => a.acceso?.ref_catastral)?.acceso?.ref_catastral ?? null;
   if (!ref) return null;
+  return anexoDeReferencia(ref, { ...opciones, oppId, municipio: opp?.accesos[0]?.acceso?.municipio ?? null });
+}
 
+/** El anexo de un edificio por su referencia catastral, sin oportunidad: para
+ *  una direccion que aun no es de nadie (la estimacion de costes, 12-oct-2026).
+ *  Lo pedido sale de `pedido` (claves de tipos_proyecto) o de la oportunidad. */
+export async function anexoDeReferencia(
+  ref: string,
+  opciones: { pem?: number | null; pedido?: string[]; oppId?: string | null; municipio?: string | null } = {},
+): Promise<Anexo | null> {
+  const oppId = opciones.oppId ?? null;
   const [i, asc, iee, distrito, pedido, catalogo] = await Promise.all([
     // Lo ve el cliente: aqui no vale un "sin consultar" (9-oct-2026).
     informeEdificio(ref, { completo: true }),
     ascensorDe(ref),
     ieeDe(ref),
     distritoDe(ref),
-    pedidoDe(oppId),
+    opciones.pedido ? pedidoPorClaves(opciones.pedido) : oppId ? pedidoDe(oppId) : Promise.resolve({ ids: new Set<string>(), nombres: [] }),
     leer<Catalogo[]>(
       "catalogo_convocatorias?select=id,ambito,entidad,programa,linea,municipio,zona,solo_barrios,para_que,cubre,porcentaje,tope_vivienda,tope_edificio,tope_actuacion,cuanto_da,estado,orden,tipos:catalogo_convocatoria_tipos(tipo_proyecto_id)&activo=is.true&estado=neq.historica&order=orden.asc",
     ),
@@ -137,7 +158,7 @@ export async function anexoDeOportunidad(oppId: string, opciones: { pem?: number
   if (!i) return null;
 
   const dato = (titulo: string, que: string) => i.secciones.find((s) => s.titulo === titulo)?.datos.find((d) => d.que === que)?.valor ?? null;
-  const municipio = sinTildes(i.municipio ?? opp?.accesos[0]?.acceso?.municipio ?? "");
+  const municipio = sinTildes(i.municipio ?? opciones.municipio ?? "");
   const esMadrid = municipio === "MADRID";
 
   // ---------------- las cifras y el resumen

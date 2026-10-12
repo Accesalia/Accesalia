@@ -20,6 +20,7 @@ import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
+import { informesDeOportunidad } from "../../../../lib/informeCostes";
 import { Miniaturas } from "../../../components/Miniaturas";
 import { Completar } from "./Completar";
 import { completitud, propuestaAdminComunidad, TEXTO_FALTA, type Falta } from "../../../../lib/completa";
@@ -100,7 +101,10 @@ export default async function GestionOportunidad({
   const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
   // Las listas para completar, solo si hace falta completar: son largas.
   const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
-  const documentacion = bloque === 2 ? await documentacionDe(id, g.comunidadId) : null;
+  const [documentacion, informes] =
+    bloque === 2
+      ? await Promise.all([documentacionDe(id, g.comunidadId), informesDeOportunidad(id).catch(() => [])])
+      : [null, []];
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
   // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
@@ -270,7 +274,7 @@ export default async function GestionOportunidad({
             // columnas. El diario y el trabajo de abajo son de toda la
             // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
             <div className="min-w-0 xl:col-span-3">
-              <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} />
+              <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} informes={informes} />
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.

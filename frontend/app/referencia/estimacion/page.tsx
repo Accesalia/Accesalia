@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { quienSoy } from "../../../lib/sesion";
+import { puedeEntrar, quienSoy } from "../../../lib/sesion";
+import { opcionesEntrada } from "../../../lib/entradaDiario";
+import { tiposParaMovil } from "../../../lib/oportunidadMovil";
 import { datosEstimacion } from "../../../lib/estimacionCostes";
 import { Estimador } from "./Estimador";
 
@@ -14,7 +16,8 @@ export const dynamic = "force-dynamic";
 export default async function Estimacion() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/referencia/estimacion");
-  const d = await datosEstimacion();
+  // Para el informe: nuestras oportunidades, y las listas de la ventana rapida.
+  const [d, listas, tipos] = await Promise.all([datosEstimacion(), opcionesEntrada(), tiposParaMovil().catch(() => [])]);
 
   return (
     <div className="min-h-screen">
@@ -32,7 +35,13 @@ export default async function Estimacion() {
             con cada proyecto nuevo.
           </p>
         </div>
-        <Estimador d={d} />
+        <Estimador
+          d={d}
+          oportunidades={listas.oportunidades.map((o) => ({ valor: o.valor, texto: o.texto, pista: o.pista }))}
+          personas={listas.personas}
+          tipos={tipos}
+          puedeCrear={puedeEntrar(yo, "comercial", "trabajar")}
+        />
       </main>
     </div>
   );
