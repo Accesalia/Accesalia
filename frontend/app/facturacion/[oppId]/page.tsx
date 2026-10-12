@@ -24,7 +24,7 @@ export default async function PaginaCobro({ params, searchParams }: { params: Pr
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1600px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        <Volver siNoHay="/facturacion/cobrar" />
+        <Volver siNoHay="/facturacion/cobrar/por-cobrar" />
         {d ? <Cobro d={d} proformas={proformas} /> : <p className="mt-6 text-carbon/70">Esa oportunidad no existe.</p>}
       </main>
     </div>
