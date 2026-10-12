@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../lib/sesion";
-import { buscar } from "../../lib/consulta";
+import { buscar, listasBuscador, type QueBuscar } from "../../lib/consulta";
+import { BuscadorVivo } from "./BuscadorVivo";
 import { CAJA, ENLACE, Marco, ROT } from "./Marco";
 
 export const dynamic = "force-dynamic";
@@ -21,44 +22,21 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
   if (!yo) redirect("/entrar?volver=/consulta");
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
-  const que = sp.que === "admin" ? "admin" : "direccion";
-  const resultados = q ? await buscar(q, que) : [];
+  const que: QueBuscar = sp.que === "admin" || sp.que === "contrata" ? sp.que : "direccion";
+  // 12-oct-2026: el desplegable filtra al escribir; "Buscar" saca la lista entera.
+  const [resultados, listas] = await Promise.all([q ? buscar(q, que) : Promise.resolve([]), listasBuscador()]);
 
   return (
     <Marco aqui="/consulta">
-      <form action="/consulta" className={CAJA + " flex flex-wrap items-center gap-3 p-4"}>
-        <input type="hidden" name="que" value={que} />
-        <div className="flex overflow-hidden rounded-lg border border-carbon/30">
-          {(
-            [
-              ["direccion", "Buscar dirección"],
-              ["admin", "Buscar administrador"],
-            ] as const
-          ).map(([v, t]) => (
-            <Link
-              key={v}
-              href={`/consulta?que=${v}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-              className={"px-3.5 py-2 text-[13px] font-semibold " + (que === v ? "bg-carbon text-white" : "bg-white text-carbon/70 hover:text-carbon")}
-            >
-              {t}
-            </Link>
-          ))}
-        </div>
-        <input
-          name="q"
-          defaultValue={q}
-          autoFocus
-          placeholder={que === "admin" ? "nombre de la administración" : "calle y número: ronda segovia 5"}
-          className="min-w-[280px] flex-1 rounded-lg border border-carbon/40 bg-white px-3.5 py-2 text-[15px] text-carbon outline-none placeholder:text-carbon/55 focus:border-lima"
-        />
-        <button className="rounded-lg bg-lima px-6 py-2 text-[14px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white">Buscar</button>
-      </form>
+      <div className={CAJA + " p-4"}>
+        <BuscadorVivo listas={listas} que={que} q={q} />
+      </div>
 
       {q && (
         <section className={CAJA + " mt-3 p-4"}>
           <div className={ROT}>
             {resultados.length === 0 ? "Nada con eso" : `${resultados.length === 60 ? "Las 60 primeras" : resultados.length}`} ·{" "}
-            {que === "admin" ? "administraciones" : "comunidades"} con «{q}»
+            {que === "admin" ? "administraciones" : que === "contrata" ? "contratas" : "comunidades"} con «{q}»
           </div>
           {resultados.length === 0 && que === "direccion" && (
             <p className="mt-2 text-[13px] text-carbon/65">Prueba con menos palabras: solo la calle, o la calle y el número.</p>
@@ -66,9 +44,14 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
           <ul className="mt-2 divide-y divide-[#f0f0f0]">
             {resultados.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline gap-x-3 py-1.5 text-[14px]">
-                <Link href={r.tipo === "comunidad" ? `/administracion/comunidades/${r.id}` : `/consulta/oportunidades?admin=${r.id}`} className={ENLACE}>
-                  {r.nombre}
-                </Link>
+                {r.tipo === "contrata" ? (
+                  // La ficha de la contrata aun no existe.
+                  <span className="font-semibold text-carbon">{r.nombre}</span>
+                ) : (
+                  <Link href={r.tipo === "comunidad" ? `/administracion/comunidades/${r.id}` : `/consulta/oportunidades?admin=${r.id}`} className={ENLACE}>
+                    {r.nombre}
+                  </Link>
+                )}
                 {r.detalle && <span className="text-[12px] text-[#6e6e6e]">{r.detalle}</span>}
               </li>
             ))}

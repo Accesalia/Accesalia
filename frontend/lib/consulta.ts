@@ -212,13 +212,38 @@ export async function listadoAdministradores(): Promise<FilaAdmin[]> {
 
 export type Encontrado =
   | { tipo: "comunidad"; id: string; nombre: string; detalle: string }
-  | { tipo: "admin"; id: string; nombre: string; detalle: string };
+  | { tipo: "admin"; id: string; nombre: string; detalle: string }
+  | { tipo: "contrata"; id: string; nombre: string; detalle: string };
+
+export type QueBuscar = "direccion" | "admin" | "contrata";
+
+/** Una opcion del desplegable del buscador: lo que se ve y a donde lleva
+ *  (null: aun no tiene ficha, como las contratas). */
+export type Sugerencia = { id: string; nombre: string; detalle: string; href: string | null };
+
+/** LAS LISTAS DEL DESPLEGABLE (Monica, 12-oct-2026): "segun escribes se filtre
+ *  a las que tienen eso, y las muestre, hasta que eliges una". Se cargan una vez
+ *  y se filtran en la pantalla: son pocas (unas 2.800 comunidades). */
+export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>> {
+  const [comunidades, admins, contratas] = await Promise.all([
+    todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>("comunidades?select=id,nombre,municipio,direccion&order=nombre.asc"),
+    todo<{ id: string; nombre_accesalia: string }>("empresa?select=id,nombre_accesalia&tipo=eq.administracion_fincas&activa=is.true&order=nombre_accesalia.asc"),
+    todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc"),
+  ]);
+  return {
+    // La direccion va en el detalle para que se encuentre tambien por ella.
+    direccion: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "), href: `/administracion/comunidades/${c.id}` })),
+    admin: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, detalle: "", href: `/consulta/oportunidades?admin=${a.id}` })),
+    // Las contratas aun no tienen ficha: se encuentran, pero no llevan a ningun sitio.
+    contrata: contratas.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.tipo, c.cif].filter(Boolean).join(" · "), href: null })),
+  };
+}
 
 const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Busca por trozos de palabra, sin tildes ni mayusculas: "ronda segovia 5"
  *  encuentra "RONDA DE SEGOVIA 5". */
-export async function buscar(q: string, que: "direccion" | "admin"): Promise<Encontrado[]> {
+export async function buscar(q: string, que: QueBuscar): Promise<Encontrado[]> {
   const palabras = limpio(q).split(/[\s,.]+/).filter((p) => p.length > 0);
   if (!palabras.length) return [];
   const casa = (texto: string) => {
@@ -233,6 +258,13 @@ export async function buscar(q: string, que: "direccion" | "admin"): Promise<Enc
       .filter((c) => casa(`${c.nombre} ${c.direccion ?? ""} ${c.municipio ?? ""}`))
       .slice(0, 60)
       .map((c) => ({ tipo: "comunidad" as const, id: c.id, nombre: c.nombre, detalle: c.municipio ?? "" }));
+  }
+  if (que === "contrata") {
+    const filas = await todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc");
+    return filas
+      .filter((c) => casa(`${c.nombre} ${c.cif ?? ""}`))
+      .slice(0, 60)
+      .map((c) => ({ tipo: "contrata" as const, id: c.id, nombre: c.nombre, detalle: [c.tipo, c.cif].filter(Boolean).join(" · ") }));
   }
   const admins = await listadoAdministradores();
   return admins

@@ -111,6 +111,17 @@ type Puerta = {
 
 const PUERTAS: Puerta[] = [
   {
+    // EL RADAR DE IEE (Monica, 12-oct-2026): "un boton de ir al radar para las
+    // personas que tienen funciones con ese acceso: secretaria comercial, Daniel
+    // y yo". La llave es la misma que pide el radar: supervisar el area
+    // comercial (Alejandra) o direccion.
+    nombre: "Ir al radar",
+    color: "turquesa",
+    desc: "El radar de IEE: las direcciones de cada día, a quién se dieron y si salió oportunidad",
+    href: "/comercial/alertas-iee",
+    funciones: ["direccion", "supervision_comercial"],
+  },
+  {
     nombre: "Mesa de viabilidades",
     color: "melocoton",
     desc: "Los escaneados del buzón: de qué portal es cada uno, y su viabilidad",
