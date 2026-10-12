@@ -19,6 +19,14 @@ import type { DatosCaja } from "../../../lib/cobros";
 // se habra cobrado hasta esa fecha: lo simulado y lo ya pactado con fecha.
 //
 // Todo lo de aqui es en memoria: nada se guarda todavia.
+//
+// CADA TECNICO, UNA LINEA DE PRODUCCION (Monica, 12-oct-2026): "considera todos
+// los tecnicos a la vez y asi es irreal: sale como si cada uno cogiera el relevo
+// de otro. Cada tecnico es un bloque, con su inicio y su cronograma. El conjunto
+// de ellos es lo que me permite el control de produccion y de flujo de caja".
+// Asi que se pinta por tecnico: su cabecera (cuando queda libre, cuanto factura)
+// y debajo sus trabajos, uno tras otro; todos arrancan hoy, en paralelo. El
+// escaneo es su propia linea arriba, porque es otra cola.
 
 type Fila = {
   k: string;
@@ -129,6 +137,70 @@ export function Cronograma({ d }: { d: DatosCaja }) {
   }, [hoy]);
 
   const CAMPO = "w-12 rounded-md border border-black/15 bg-white px-1 py-0.5 text-right text-[12px]";
+
+  // Las lineas: cada tecnico activo con sus trabajos, en el orden de la lista.
+  const lineas = tecnicos
+    .filter((t) => t.activo)
+    .map((t) => {
+      const items = plan.filter((p) => p.tec === t.id);
+      const fin = items.reduce<Date | null>((m, p) => (!m || p.redFin > m ? p.redFin : m), null);
+      return {
+        t,
+        items,
+        libre: fin && fin > hoy ? fin : null,
+        cobra: items.filter((p) => p.cobro && p.cobro <= corteD).reduce((a, p) => a + p.f.euros, 0),
+      };
+    });
+
+  const sinTecnico = plan.filter((p) => !lineas.some((l) => l.t.id === p.tec));
+  const fila = (p: (typeof plan)[number]) => {
+            const i = filas.findIndex((x) => x.k === p.f.k);
+            const f = p.f;
+            return (
+              <div key={f.k} draggable onDragStart={() => (arrastrando.current = f.k)} onDragOver={(e) => e.preventDefault()}
+                onDrop={() => { if (arrastrando.current) mover(arrastrando.current, f.k); arrastrando.current = null; }}
+                className={"flex border-b border-black/5 hover:bg-lima-soft/30 " + (f.tipo === "rq" ? "bg-ajeno-soft/40" : "")}>
+                <div className="flex w-[640px] shrink-0 items-center gap-2 px-2 py-1 text-[12.5px]">
+                  <span className="flex w-[230px] items-center gap-1">
+                    <span className="cursor-grab select-none text-carbon/40" title="Arrastra">⋮⋮</span>
+                    <span className="flex flex-col text-[9px] leading-none text-carbon/50">
+                      <button type="button" onClick={() => subirBajar(f.k, -1)} disabled={i === 0}>▲</button>
+                      <button type="button" onClick={() => subirBajar(f.k, 1)} disabled={i === plan.length - 1}>▼</button>
+                    </span>
+                    {f.tipo === "rq" ? (
+                      <>
+                        <input value={f.nombre} onChange={(e) => cambiar(f.k, { nombre: e.target.value })} className="min-w-0 flex-1 rounded-md border border-black/15 bg-white px-1 py-0.5 text-[12px]" />
+                        <button type="button" className="text-alerta" title="Quitar" onClick={() => setFilas(filas.filter((x) => x.k !== f.k))}>×</button>
+                      </>
+                    ) : (
+                      <Link href={`/facturacion/${f.oppId}`} className="min-w-0 flex-1 truncate font-medium text-carbon hover:underline" title={f.nombre}>{f.nombre}</Link>
+                    )}
+                  </span>
+                  <select value={f.tecnico} onChange={(e) => cambiar(f.k, { tecnico: e.target.value })} className="w-[110px] rounded-md border border-black/15 bg-white px-1 py-0.5 text-[12px]">
+                    <option value="">{p.tec ? `auto: ${nombreTec(p.tec)}` : "auto"}</option>
+                    {tecnicos.filter((t) => t.activo).map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  </select>
+                  {(["escaneo", "redaccion", "visado", "ok"] as const).map((c) => (
+                    <input key={c} type="number" min={0} step={0.5} value={f[c]} disabled={f.tipo === "rq" && c !== "redaccion"}
+                      onChange={(e) => cambiar(f.k, { [c]: Number(e.target.value) } as Partial<Fila>)} className={CAMPO + " disabled:opacity-30"} />
+                  ))}
+                  <span className="flex-1 text-right tabular-nums">{f.tipo === "rq" ? <span className="text-ajeno">no cobra</span> : `${EUR.format(f.euros)} €`}</span>
+                </div>
+                <div className="relative h-8 shrink-0" style={{ width: HORIZONTE * PX }}>
+                  {p.escIni && p.escFin && <Barra x={xDe(p.escIni)} w={xDe(p.escFin) - xDe(p.escIni)} cls="bg-ajeno/70" t="Escaneo" />}
+                  <Barra x={xDe(p.redIni)} w={xDe(p.redFin) - xDe(p.redIni)} cls={f.tipo === "rq" ? "bg-ajeno" : "bg-lima"} t={`${f.tipo === "rq" ? "Requerimiento" : "Proyecto"} · ${nombreTec(p.tec)}`} />
+                  {p.cobro && (
+                    <>
+                      <Barra x={xDe(p.redFin)} w={xDe(p.cobro) - xDe(p.redFin)} cls="bg-black/10" t="Visado, OK y cobro" />
+                      <span title={`Cobro ${ddmm(p.cobro)} · ${EUR.format(f.euros)} €`} className={"absolute top-1.5 h-5 w-1.5 rounded-sm " + (p.cobro <= corteD ? "bg-lima-dark" : "bg-carbon/40")} style={{ left: xDe(p.cobro) }} />
+                    </>
+                  )}
+                  <Corte x={xDe(corteD)} />
+                </div>
+              </div>
+            );
+  };
+
   return (
     <>
       {/* la cifra y la linea de corte */}
@@ -212,52 +284,50 @@ export function Cronograma({ d }: { d: DatosCaja }) {
             </div>
           </div>
 
-          {plan.map((p, i) => {
-            const f = p.f;
-            return (
-              <div key={f.k} draggable onDragStart={() => (arrastrando.current = f.k)} onDragOver={(e) => e.preventDefault()}
-                onDrop={() => { if (arrastrando.current) mover(arrastrando.current, f.k); arrastrando.current = null; }}
-                className={"flex border-b border-black/5 hover:bg-lima-soft/30 " + (f.tipo === "rq" ? "bg-ajeno-soft/40" : "")}>
-                <div className="flex w-[640px] shrink-0 items-center gap-2 px-2 py-1 text-[12.5px]">
-                  <span className="flex w-[230px] items-center gap-1">
-                    <span className="cursor-grab select-none text-carbon/40" title="Arrastra">⋮⋮</span>
-                    <span className="flex flex-col text-[9px] leading-none text-carbon/50">
-                      <button type="button" onClick={() => subirBajar(f.k, -1)} disabled={i === 0}>▲</button>
-                      <button type="button" onClick={() => subirBajar(f.k, 1)} disabled={i === plan.length - 1}>▼</button>
-                    </span>
-                    {f.tipo === "rq" ? (
-                      <>
-                        <input value={f.nombre} onChange={(e) => cambiar(f.k, { nombre: e.target.value })} className="min-w-0 flex-1 rounded-md border border-black/15 bg-white px-1 py-0.5 text-[12px]" />
-                        <button type="button" className="text-alerta" title="Quitar" onClick={() => setFilas(filas.filter((x) => x.k !== f.k))}>×</button>
-                      </>
-                    ) : (
-                      <Link href={`/facturacion/${f.oppId}`} className="min-w-0 flex-1 truncate font-medium text-carbon hover:underline" title={f.nombre}>{f.nombre}</Link>
-                    )}
+          {/* EL ESCANEO: su propia cola, arriba */}
+          {plan.some((p) => p.escIni) && (
+            <div className="flex border-b border-black/10 bg-ajeno-soft/40">
+              <div className="w-[640px] shrink-0 px-2 py-1.5 text-[12px] font-bold text-[#3f5f80]">
+                Escaneo FARO · una sola cola · {plan.filter((p) => p.escIni).length} escaneos
+              </div>
+              <div className="relative h-8 shrink-0" style={{ width: HORIZONTE * PX }}>
+                {plan.map((p) => p.escIni && p.escFin && <Barra key={p.f.k} x={xDe(p.escIni)} w={xDe(p.escFin) - xDe(p.escIni)} cls="bg-ajeno/70" t={`Escaneo · ${p.f.nombre}`} />)}
+                <Corte x={xDe(corteD)} />
+              </div>
+            </div>
+          )}
+
+          {/* UNA LINEA DE PRODUCCION POR TECNICO */}
+          {lineas.map(({ t, items, libre, cobra }) => (
+            <div key={t.id} className="border-b-2 border-black/15">
+              <div className="flex bg-[#f6f6f3]">
+                <div className="flex w-[640px] shrink-0 items-baseline gap-2 px-2 py-1.5 text-[12.5px]">
+                  <b className="text-carbon">{t.nombre}</b>
+                  <span className="text-carbon/65">
+                    {items.length} trabajo{items.length === 1 ? "" : "s"}
+                    {libre ? ` · libre el ${ddmm(libre)}` : " · libre ya"}
+                    {cobra > 0 ? ` · ${EUR.format(cobra)} € hasta el corte` : ""}
+                    {t.factor !== 1 ? ` · tarda ×${t.factor}` : ""}
                   </span>
-                  <select value={f.tecnico} onChange={(e) => cambiar(f.k, { tecnico: e.target.value })} className="w-[110px] rounded-md border border-black/15 bg-white px-1 py-0.5 text-[12px]">
-                    <option value="">{p.tec ? `auto: ${nombreTec(p.tec)}` : "auto"}</option>
-                    {tecnicos.filter((t) => t.activo).map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                  </select>
-                  {(["escaneo", "redaccion", "visado", "ok"] as const).map((c) => (
-                    <input key={c} type="number" min={0} step={0.5} value={f[c]} disabled={f.tipo === "rq" && c !== "redaccion"}
-                      onChange={(e) => cambiar(f.k, { [c]: Number(e.target.value) } as Partial<Fila>)} className={CAMPO + " disabled:opacity-30"} />
-                  ))}
-                  <span className="flex-1 text-right tabular-nums">{f.tipo === "rq" ? <span className="text-ajeno">no cobra</span> : `${EUR.format(f.euros)} €`}</span>
                 </div>
-                <div className="relative h-8 shrink-0" style={{ width: HORIZONTE * PX }}>
-                  {p.escIni && p.escFin && <Barra x={xDe(p.escIni)} w={xDe(p.escFin) - xDe(p.escIni)} cls="bg-ajeno/70" t="Escaneo" />}
-                  <Barra x={xDe(p.redIni)} w={xDe(p.redFin) - xDe(p.redIni)} cls={f.tipo === "rq" ? "bg-ajeno" : "bg-lima"} t={`${f.tipo === "rq" ? "Requerimiento" : "Proyecto"} · ${nombreTec(p.tec)}`} />
-                  {p.cobro && (
-                    <>
-                      <Barra x={xDe(p.redFin)} w={xDe(p.cobro) - xDe(p.redFin)} cls="bg-black/10" t="Visado, OK y cobro" />
-                      <span title={`Cobro ${ddmm(p.cobro)} · ${EUR.format(f.euros)} €`} className={"absolute top-1.5 h-5 w-1.5 rounded-sm " + (p.cobro <= corteD ? "bg-lima-dark" : "bg-carbon/40")} style={{ left: xDe(p.cobro) }} />
-                    </>
-                  )}
+                {/* su ocupacion, de un vistazo */}
+                <div className="relative h-7 shrink-0" style={{ width: HORIZONTE * PX }}>
+                  {items.map((p) => (
+                    <Barra key={p.f.k} x={xDe(p.redIni)} w={xDe(p.redFin) - xDe(p.redIni)} cls={(p.f.tipo === "rq" ? "bg-ajeno" : "bg-lima") + " opacity-60"} t={p.f.nombre} />
+                  ))}
                   <Corte x={xDe(corteD)} />
                 </div>
               </div>
-            );
-          })}
+              {items.map(fila)}
+              {!items.length && <p className="px-3 py-2 text-[12px] text-carbon/55">Sin trabajos: libre para coger el siguiente.</p>}
+            </div>
+          ))}
+          {sinTecnico.length > 0 && (
+            <div className="border-b-2 border-black/15">
+              <div className="bg-amber-50 px-2 py-1.5 text-[12.5px] font-bold text-amber-900">Sin técnico · {sinTecnico.length} trabajos (activa algún técnico)</div>
+              {sinTecnico.map(fila)}
+            </div>
+          )}
           {!plan.length && <p className="px-4 py-8 text-center text-carbon/60">No hay proyectos con la entrega por facturar.</p>}
         </div>
       </div>
