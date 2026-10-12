@@ -66,8 +66,13 @@ const max = (a: Date, b: Date) => (a > b ? a : b);
 
 export function Cronograma({ d }: { d: DatosCaja }) {
   const hoy = useMemo(() => { const x = new Date(); x.setHours(0, 0, 0, 0); return x; }, []);
+  // SOLO LO QUE TIENE LA NUBE LISTA (Monica, 12-oct-2026): lo que va a FARO
+  // entra aqui cuando su nube esta lista (Nubes de puntos); lo que no va a FARO,
+  // directamente. Todos arrancan en el dia 0: la nube ya esta hecha.
+  const listos = d.trabajos.filter((t) => t.tecnico && (!t.faro || t.nube?.lista));
+  const esperandoNube = d.trabajos.filter((t) => t.tecnico && t.faro && !t.nube?.lista).length;
   const [filas, setFilas] = useState<Fila[]>(() =>
-    d.trabajos.map((t) => ({
+    listos.map((t) => ({
       k: t.oppId, tipo: "proyecto", nombre: t.nombre, oppId: t.oppId, euros: t.entrega, contrata: t.contrata,
       // Escaneo a 0: casi todos los que estan aqui ya estan escaneados (Monica,
       // 12-oct-2026). Donde falte, se pone a mano en su fila.
@@ -257,6 +262,11 @@ export function Cronograma({ d }: { d: DatosCaja }) {
           + Requerimiento
         </button>
         <span className="text-[12.5px] text-carbon/65">Arrastra las filas (o ▲▼) para cambiar el orden; todo se recalcula. Días en laborables.</span>
+        {esperandoNube > 0 && (
+          <Link href="/facturacion/nubes" className="ml-auto rounded-xl border border-ajeno/40 bg-ajeno-soft px-3 py-1.5 text-[13px] font-semibold text-[#3f5f80] hover:border-ajeno">
+            {esperandoNube} esperando su nube → Nubes de puntos
+          </Link>
+        )}
       </div>
 
       {/* la lista y el cronograma, fila a fila */}

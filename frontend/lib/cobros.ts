@@ -373,7 +373,24 @@ export async function pdfDeFactura(id: string): Promise<{ pdf: Uint8Array; nombr
 
 // ------------------------------------- vista 3: la semilla del cronograma
 
-export type TrabajoCaja = { oppId: string; codigo: string | null; nombre: string; entrega: number; contrata: boolean; firma: string | null };
+export type TrabajoCaja = {
+  oppId: string;
+  codigo: string | null;
+  nombre: string;
+  entrega: number;
+  contrata: boolean;
+  firma: string | null;
+  /** La primera factura cobrada de esa oportunidad: cuando entra en la lista de
+   *  nubes (no se guarda la fecha del cobro; es la de la factura). */
+  cobradoDesde: string | null;
+  /** Su escaneo (nubes_puntos), si ya se ha tocado. */
+  nube: { prevista: string | null; escaneado: string | null; lista: string | null } | null;
+  /** Lo que abre lo que se ha cobrado (Monica, 12-oct-2026), segun el bloque de
+   *  sus lineas (bloques.va_a_faro / va_a_tecnico): un proyecto tecnico va a
+   *  FARO y a tecnico; un IEE o una subvencion, no. */
+  faro: boolean;
+  tecnico: boolean;
+};
 export type CobroFijo = { oppId: string; nombre: string; fecha: string; importe: number; tipo: string };
 export type DatosCaja = {
   trabajos: TrabajoCaja[];
@@ -388,17 +405,27 @@ export type DatosCaja = {
  *  CFO, concesion...) sin fecha. Las tareas, sus duraciones y los requerimientos
  *  se engancharan a las tablas de proyecto cuando existan. */
 export async function datosCaja(): Promise<DatosCaja> {
-  const [hojas, lineas, filas, enl, tecnicos] = await Promise.all([
+  const [hojas, lineas, filas, enl, tecnicos, cobradas, nubes] = await Promise.all([
     todo<{ id: string; oportunidad_id: string | null; pagador_tipo: string; fecha_firma: string | null; opp: { codigo: string | null; nombre: string | null; comunidad: { nombre: string } | null } | null }>(
       "hojas_encargo?select=id,oportunidad_id,pagador_tipo,fecha_firma,opp:oportunidad_id(codigo,nombre,comunidad:comunidad_id(nombre))&estado=eq.devuelta_firmada&oportunidad_id=not.is.null",
     ),
-    todo<{ id: string; hoja_encargo_id: string }>("lineas_facturacion?select=id,hoja_encargo_id"),
+    todo<{ id: string; hoja_encargo_id: string; bloque: { va_a_faro: boolean; va_a_tecnico: boolean } | null }>(
+      "lineas_facturacion?select=id,hoja_encargo_id,bloque:bloque_id(va_a_faro,va_a_tecnico)",
+    ),
     todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id"),
     todo<FilaEnlace>("factura_linea_hitos?select=hito_cobro_id,importe,linea:factura_linea_id(factura:factura_id(id,anio,serie,numero,tipo,fecha,estado,url_pdf,empresa_emisora))"),
     leer<{ equipo: { id: string; nombre: string; apellidos: string | null; activo: boolean | null } | null }[]>(
       "equipo_funciones?select=equipo:equipo_id(id,nombre,apellidos,activo),funcion:funcion_id!inner(clave)&funcion.clave=eq.proyecto",
     ).catch(() => []),
+    todo<{ oportunidad_id: string | null; fecha: string | null }>("facturas?select=oportunidad_id,fecha&estado=eq.cobrada&oportunidad_id=not.is.null"),
+    todo<{ oportunidad_id: string; fecha_prevista_escaneo: string | null; escaneado_en: string | null; nube_lista_en: string | null }>(
+      "nubes_puntos?select=oportunidad_id,fecha_prevista_escaneo,escaneado_en,nube_lista_en",
+    ),
   ]);
+  const primerCobro = new Map<string, string>();
+  for (const f of cobradas)
+    if (f.oportunidad_id && f.fecha && (!primerCobro.has(f.oportunidad_id) || f.fecha < primerCobro.get(f.oportunidad_id)!)) primerCobro.set(f.oportunidad_id, f.fecha);
+  const nubeDe = new Map(nubes.map((n) => [n.oportunidad_id, { prevista: n.fecha_prevista_escaneo, escaneado: n.escaneado_en, lista: n.nube_lista_en }]));
   const porLinea = montarHitos(filas, enlacesPorHito(enl), new Map());
   const hojaDe = new Map(hojas.map((h) => [h.id, h]));
   const trab = new Map<string, TrabajoCaja>();
@@ -415,8 +442,22 @@ export async function datosCaja(): Promise<DatosCaja> {
         if (c.porFacturar <= 0 || c.enPausa) continue;
         if ((h.fecha_firma ?? "") < "2025-01-01" && !x.facturas.length) continue;
         if (x.fechaPrevista) fijos.push({ oppId: h.oportunidad_id, nombre, fecha: x.fechaPrevista, importe: c.porFacturar, tipo: x.tipo });
-        else if (x.tipo === "entrega") {
-          const t = trab.get(h.oportunidad_id) ?? { oppId: h.oportunidad_id, codigo: h.opp?.codigo ?? null, nombre, entrega: 0, contrata: h.pagador_tipo === "contrata", firma: h.fecha_firma };
+        // Solo es trabajo de tecnico la entrega de una linea que va a tecnico; la
+        // de una subvencion o un IEE espera a otras cosas: va con lo de fuera.
+        else if (x.tipo === "entrega" && l.bloque?.va_a_tecnico) {
+          const t = trab.get(h.oportunidad_id) ?? {
+            oppId: h.oportunidad_id,
+            codigo: h.opp?.codigo ?? null,
+            nombre,
+            entrega: 0,
+            contrata: h.pagador_tipo === "contrata",
+            firma: h.fecha_firma,
+            cobradoDesde: primerCobro.get(h.oportunidad_id) ?? null,
+            nube: nubeDe.get(h.oportunidad_id) ?? null,
+            faro: false,
+            tecnico: true,
+          };
+          if (l.bloque?.va_a_faro) t.faro = true;
           t.entrega += c.porFacturar;
           trab.set(h.oportunidad_id, t);
         } else { sinFechaImp += c.porFacturar; sinFechaN++; }
@@ -430,4 +471,25 @@ export async function datosCaja(): Promise<DatosCaja> {
     tecnicos: tecnicos.filter((t) => t.equipo && t.equipo.activo !== false).map((t) => ({ id: t.equipo!.id, nombre: [t.equipo!.nombre, t.equipo!.apellidos].filter(Boolean).join(" ") }))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
   };
+}
+
+/** Apunta el escaneo de un trabajo (nubes_puntos): crea su fila la primera vez. */
+export async function guardarNube(
+  oppId: string,
+  cambios: Partial<{ fecha_prevista_escaneo: string | null; escaneado_en: string | null; nube_lista_en: string | null }>,
+  yo: Yo,
+) {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) throw new Error("Oportunidad no valida");
+  const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/nubes_puntos?on_conflict=oportunidad_id`, {
+    method: "POST",
+    headers: {
+      apikey: process.env.SUPABASE_SECRET_KEY ?? "",
+      Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({ oportunidad_id: oppId, ...cambios, actualizado_por: yo.id }),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`No se pudo guardar: ${r.status} ${await r.text()}`);
 }
