@@ -22,6 +22,7 @@ import "server-only";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { enviarCorreo } from "./correo";
+import { personaPorCorreo } from "./sesion";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -39,7 +40,15 @@ const CORREO_VALIDO = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
 // ------------------------------------------------------------ quien entra donde
 
-export type Rol = "administrador" | "presidente" | "comercial" | "manual";
+export type Rol = "administrador" | "presidente" | "comercial" | "manual" | "direccion";
+
+/** DIRECCION ENTRA EN TODAS, SIN APARECER (Monica, 12-oct-2026): "dame acceso a
+ *  mi por defecto, pero INVISIBLE a todas las comunidades", con un buscador
+ *  arriba para elegir. Con el correo con que entra en la app. No sale en la
+ *  lista de autorizados de ninguna comunidad. */
+export async function esDireccion(email: string): Promise<boolean> {
+  return !!(await personaPorCorreo(limpio(email)).catch(() => null))?.veTodo;
+}
 export type Autorizado = { email: string; nombre: string | null; rol: Rol; puedeSubir: boolean; id?: string; motivo?: string | null };
 
 /** Los correos que entran en el portal de una comunidad, con su papel. */
@@ -133,7 +142,31 @@ export async function comunidadesDeCorreo(email: string): Promise<{ id: string; 
 }
 
 export async function puedeEntrarEn(email: string, comunidadId: string): Promise<Rol | null> {
-  return (await comunidadesDeCorreo(email)).find((c) => c.id === comunidadId)?.rol ?? null;
+  const suya = (await comunidadesDeCorreo(email)).find((c) => c.id === comunidadId)?.rol ?? null;
+  if (suya) return suya;
+  return (await esDireccion(email)) ? "direccion" : null;
+}
+
+export async function datosComunidad(id: string): Promise<{ id: string; nombre: string; municipio: string | null; rol: Rol } | null> {
+  if (!/^[0-9a-f-]{36}$/.test(id)) return null;
+  const [c] = await pedir<{ id: string; nombre: string; municipio: string | null }[]>(`comunidades?select=id,nombre,municipio&id=eq.${id}`);
+  return c ? { ...c, rol: "direccion" } : null;
+}
+
+/** Todas las comunidades, para el buscador de direccion. */
+export async function todasLasComunidades(): Promise<{ valor: string; texto: string; pista: string }[]> {
+  const out: { id: string; nombre: string; municipio: string | null }[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/comunidades?select=id,nombre,municipio&order=nombre.asc`, {
+      headers: { ...CAB, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${r.status}`);
+    const t = (await r.json()) as typeof out;
+    out.push(...t);
+    if (t.length < 1000) break;
+  }
+  return out.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.municipio ?? "" }));
 }
 
 // ------------------------------------------------------------ la entrada
@@ -150,7 +183,8 @@ export async function pedirEntrada(email: string): Promise<void> {
   const recientes = await pedir<{ id: string }[]>(`portal_entradas?select=id&email=eq.${encodeURIComponent(e)}&creado_en=gte.${hace1h}`);
   if (recientes.length >= 5) return;
   const coms = await comunidadesDeCorreo(e);
-  if (!coms.length) return;
+  const direccion = !coms.length && (await esDireccion(e));
+  if (!coms.length && !direccion) return;
 
   const token = randomBytes(32).toString("base64url");
   await pedir("portal_entradas", {
@@ -165,10 +199,10 @@ export async function pedirEntrada(email: string): Promise<void> {
     para: e,
     asunto: "Tu acceso a la documentación de Accesalia",
     texto:
-      `Hola:\n\nPara entrar en la página de documentación de ${coms.length === 1 ? coms[0].nombre : "tus comunidades"}, pulsa este enlace:\n\n${enlace}\n\n` +
+      `Hola:\n\nPara entrar en la página de documentación de ${coms.length === 1 ? coms[0].nombre : "las comunidades"}, pulsa este enlace:\n\n${enlace}\n\n` +
       `Sirve una sola vez y caduca en una hora. Si no lo has pedido tú, ignora este correo.\n\nAccesalia`,
     html:
-      `<p>Hola:</p><p>Para entrar en la página de documentación de <b>${coms.length === 1 ? coms[0].nombre : "tus comunidades"}</b>, pulsa el botón:</p>` +
+      `<p>Hola:</p><p>Para entrar en la página de documentación de <b>${coms.length === 1 ? coms[0].nombre : "las comunidades"}</b>, pulsa el botón:</p>` +
       `<p><a href="${enlace}" style="display:inline-block;background:#7ac943;color:#2b2b2b;font-weight:bold;padding:12px 22px;border-radius:10px;text-decoration:none">Entrar</a></p>` +
       `<p style="color:#666;font-size:13px">Sirve una sola vez y caduca en una hora. Si no lo has pedido tú, ignora este correo.</p><p>Accesalia</p>`,
   });

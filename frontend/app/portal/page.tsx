@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { comunidadesDeCorreo, quienEstaEnElPortal } from "../../lib/portal";
+import { comunidadesDeCorreo, esDireccion, quienEstaEnElPortal, todasLasComunidades } from "../../lib/portal";
+import { BuscadorComunidad } from "./BuscadorComunidad";
 import { accionPedirEntrada } from "./acciones";
 import { MarcoPortal } from "./Marco";
 
@@ -10,19 +11,24 @@ export const dynamic = "force-dynamic";
 // llega un enlace para entrar (solo a los correos autorizados; la respuesta es
 // la misma para todos, para no decir quien lo esta). Con sesion: sus comunidades.
 
-const ROL = { administrador: "Administrador", presidente: "Presidente", comercial: "Comercial", manual: "Autorizado" } as const;
+const ROL = { administrador: "Administrador", presidente: "Presidente", comercial: "Comercial", manual: "Autorizado", direccion: "Dirección" } as const;
 
 export default async function Portal({ searchParams }: { searchParams: Promise<{ enviado?: string; caducado?: string; error?: string }> }) {
   const sp = await searchParams;
   const email = await quienEstaEnElPortal();
 
   if (email) {
-    const coms = await comunidadesDeCorreo(email);
-    if (coms.length === 1) redirect(`/portal/c/${coms[0].id}`);
+    const [coms, direccion] = await Promise.all([comunidadesDeCorreo(email), esDireccion(email)]);
+    if (coms.length === 1 && !direccion) redirect(`/portal/c/${coms[0].id}`);
+    const todas = direccion ? await todasLasComunidades() : [];
     return (
       <MarcoPortal email={email}>
+        {/* Direccion: entra en todas, sin aparecer; elige con el buscador. */}
+        {direccion && <BuscadorComunidad opciones={todas} />}
         <h1 className="text-2xl font-bold text-carbon">Tus comunidades</h1>
-        {coms.length === 0 ? (
+        {coms.length === 0 && direccion ? (
+          <p className="mt-3 text-carbon/70">Elige arriba la comunidad en la que quieres entrar.</p>
+        ) : coms.length === 0 ? (
           <p className="mt-3 text-carbon/70">Este correo ya no tiene acceso a ninguna comunidad. Si crees que es un error, escríbenos.</p>
         ) : (
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">

@@ -6,7 +6,7 @@ import { quienSoy } from "../../../../lib/sesion";
 import { autorizadosDe } from "../../../../lib/portal";
 import { accionAutorizar, accionQuitarAutorizado } from "./accionesPortal";
 
-const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano" } as const;
+const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano", direccion: "dirección" } as const;
 import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";

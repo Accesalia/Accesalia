@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { comunidadesDeCorreo, hojasPorFirmar, quienEstaEnElPortal, subidoPor } from "../../../../lib/portal";
+import { comunidadesDeCorreo, datosComunidad, esDireccion, hojasPorFirmar, quienEstaEnElPortal, subidoPor, todasLasComunidades } from "../../../../lib/portal";
+import { BuscadorComunidad } from "../../BuscadorComunidad";
 import { MarcoPortal } from "../../Marco";
 import { Subir } from "../../Subir";
 
@@ -18,13 +19,16 @@ export default async function ComunidadEnElPortal({ params }: { params: Promise<
   const { id } = await params;
   const email = await quienEstaEnElPortal();
   if (!email) redirect("/portal");
-  const coms = await comunidadesDeCorreo(email);
-  const c = coms.find((x) => x.id === id);
+  const [coms, direccion] = await Promise.all([comunidadesDeCorreo(email), esDireccion(email)]);
+  // Direccion entra en todas, sin aparecer en ninguna lista (12-oct-2026).
+  const c = coms.find((x) => x.id === id) ?? (direccion ? await datosComunidad(id) : null);
   if (!c) redirect("/portal");
+  const todas = direccion ? await todasLasComunidades() : [];
   const [pedidos, enviados] = await Promise.all([hojasPorFirmar(id), subidoPor(email, id)]);
 
   return (
     <MarcoPortal email={email}>
+      {direccion && <BuscadorComunidad opciones={todas} />}
       {/* Varias comunidades (un administrador): una pestaña por comunidad. */}
       {coms.length > 1 && (
         <nav className="mb-4 flex flex-wrap gap-1.5">
