@@ -326,6 +326,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
               { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
               { texto: "¿Qué hay de lo mío?", detalle: "Cómo voy: firmas, cobros y comisión", cuantas: null, donde: aqui("comovoy"), icono: <IconoBalanza /> },
+              { texto: "Plantillas de mail", detalle: "Ver, crear y retocar: las generales y las tuyas", cuantas: null, donde: "/comercial/plantillas", icono: <IconoSobre /> },
               { texto: "Direcciones vistas que no llegaron a mayores", detalle: "Los informes emitidos sin oportunidad, con día y hora", cuantas: null, donde: "/comercial/direcciones-vistas", icono: <IconoOjo /> },
             ]}
             rapida={aqui("agenda")}
@@ -589,6 +590,15 @@ function IconoCobro() {
   );
 }
 
+// Las plantillas de mail: un sobre.
+function IconoSobre() {
+  return (
+    <svg viewBox="0 0 24 24" {...trazo}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-10 6L2 7" />
+    </svg>
+  );
+}
 // Lo visto: un ojo.
 function IconoOjo() {
   return (
