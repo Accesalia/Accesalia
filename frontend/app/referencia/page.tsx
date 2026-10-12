@@ -44,6 +44,12 @@ const ACCESOS: Acceso[] = [
     href: "/referencia/estimacion",
   },
   {
+    nombre: "Subvenciones posibles",
+    color: "turquesa",
+    desc: "Para una dirección y una obra: qué ayudas podría pedir, cuánto darían, cuándo llegarían y cuánto sube la obra mientras",
+    href: "/referencia/subvenciones",
+  },
+  {
     nombre: "Manías detectadas",
     color: "lila",
     desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
@@ -51,7 +57,7 @@ const ACCESOS: Acceso[] = [
   },
   {
     nombre: "Consultas de edificios protegidos",
-    color: "turquesa",
+    color: "arena",
     desc: "Catálogos, normas y planos de protección por municipio, con el enlace oficial y cuándo revisar si han cambiado",
     href: "/referencia/proteccion",
   },

@@ -64,6 +64,7 @@ export function Bloque2({
   enviados?: CorreoEnviado[];
 }) {
   const costes = informes.filter((x) => x.tipo === "estimacion_costes");
+  const estudios = informes.filter((x) => x.tipo === "estudio_ayudas");
   const v = d.viabilidad;
   const hojaNueva = g.comunidadId ? `/comercial/hoja-encargo?comunidad=${g.comunidadId}&opp=${id}` : null;
   const conPresupuesto = d.hojas.filter((h) => h.presupuesto);
@@ -178,7 +179,7 @@ export function Bloque2({
           (Monica, 12-oct-2026). Opcionales, complementan el bloque 1. Cada uno
           queda tal cual se emitio: si la comunidad llama por "el papel que me
           diste", aqui esta. El de proteccion viene despues. */}
-      <div className="mt-2.5 grid gap-2.5 md:grid-cols-2">
+      <div className="mt-2.5 grid gap-2.5 md:grid-cols-3">
         <Tarjeta
           titulo="Estimación de costes"
           sub={
@@ -204,6 +205,34 @@ export function Bloque2({
         >
           <Link href="/referencia/estimacion" className={ENLACE}>
             {costes.length ? "emitir otro" : "emitir"}
+          </Link>
+        </Tarjeta>
+        {/* EL ESTUDIO DE AYUDAS (12-oct-2026): ayudas, lo concedido cerca, el
+            coste y lo que de verdad cubren si se espera. */}
+        <Tarjeta
+          titulo="Estudio de ayudas"
+          sub={
+            estudios.length ? (
+              <ul className="space-y-0.5">
+                {estudios.slice(0, 4).map((x) => (
+                  <li key={x.id}>
+                    <a href={`/referencia/subvenciones/estudio/${x.id}`} className={ENLACE}>
+                      {HORA.format(new Date(x.creado_en))}
+                    </a>
+                    {" · "}
+                    {x.datos.obra}
+                    {x.autor && ` · ${x.autor.nombre}`}
+                  </li>
+                ))}
+                {estudios.length > 4 && <li className="text-[#8a8a8a]">y {estudios.length - 4} más antiguos</li>}
+              </ul>
+            ) : (
+              "Opcional · las ayudas que podría pedir, cuándo llegarían y lo que cubren de verdad si se espera"
+            )
+          }
+        >
+          <Link href="/referencia/subvenciones" className={ENLACE}>
+            {estudios.length ? "emitir otro" : "emitir"}
           </Link>
         </Tarjeta>
         <Tarjeta titulo="Consulta de protección" sub="Opcional · si el edificio está protegido, qué se puede hacer">

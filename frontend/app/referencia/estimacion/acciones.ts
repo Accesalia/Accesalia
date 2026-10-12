@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
-import { emitirInformeCostes, type EntradaCostes } from "../../../lib/informeCostes";
+import { emitirInformeCostes, type EntradaCostes, type TipoInforme } from "../../../lib/informeCostes";
 import { crearOportunidadDesdeMovil } from "../../../lib/oportunidadMovil";
 import { cambiarDireccion } from "../../../lib/altaOportunidad";
 
@@ -26,10 +26,10 @@ async function yoOFuera() {
 
 const mal = (e: unknown): Resultado => ({ ok: false, error: e instanceof Error ? e.message : String(e) });
 
-export async function emitirParaOportunidad(oppId: string, entrada: EntradaCostes): Promise<Resultado> {
+export async function emitirParaOportunidad(oppId: string, entrada: EntradaCostes, clase: TipoInforme = "estimacion_costes"): Promise<Resultado> {
   try {
     const yo = await yoOFuera();
-    const id = await emitirInformeCostes({ oppId, ref: null, direccion: "", municipio: null }, entrada, yo);
+    const id = await emitirInformeCostes({ oppId, ref: null, direccion: "", municipio: null }, entrada, yo, clase);
     revalidatePath(`/comercial/oportunidades/${oppId}`);
     return { ok: true, id };
   } catch (e) {
@@ -37,11 +37,11 @@ export async function emitirParaOportunidad(oppId: string, entrada: EntradaCoste
   }
 }
 
-export async function emitirSinGuardar(r: Resuelta, entrada: EntradaCostes): Promise<Resultado> {
+export async function emitirSinGuardar(r: Resuelta, entrada: EntradaCostes, clase: TipoInforme = "estimacion_costes"): Promise<Resultado> {
   try {
     const yo = await yoOFuera();
     if (!r.parcela) throw new Error("Esa dirección no tiene referencia catastral: sin ella no se sabe el edificio.");
-    const id = await emitirInformeCostes({ oppId: null, ref: r.parcela, direccion: r.nombre, municipio: null }, entrada, yo);
+    const id = await emitirInformeCostes({ oppId: null, ref: r.parcela, direccion: r.nombre, municipio: null }, entrada, yo, clase);
     return { ok: true, id };
   } catch (e) {
     return mal(e);
@@ -59,7 +59,7 @@ export type DatosRapidos = {
   comercial: string;
 };
 
-export async function crearOportunidadYEmitir(r: Resuelta, datos: DatosRapidos, entrada: EntradaCostes): Promise<Resultado> {
+export async function crearOportunidadYEmitir(r: Resuelta, datos: DatosRapidos, entrada: EntradaCostes, clase: TipoInforme = "estimacion_costes"): Promise<Resultado> {
   try {
     const yo = await yoOFuera();
     if (!puedeEntrar(yo, "comercial", "trabajar")) throw new Error("Crear oportunidades es del área comercial.");
@@ -76,7 +76,7 @@ export async function crearOportunidadYEmitir(r: Resuelta, datos: DatosRapidos, 
     }, datos.comercial || null);
     // La direccion ya viene buscada en Catastro: se cuelga entera, con sus portales.
     await cambiarDireccion(oppId, r);
-    const id = await emitirInformeCostes({ oppId, ref: null, direccion: r.nombre, municipio: null }, entrada, yo);
+    const id = await emitirInformeCostes({ oppId, ref: null, direccion: r.nombre, municipio: null }, entrada, yo, clase);
     return { ok: true, id };
   } catch (e) {
     return mal(e);

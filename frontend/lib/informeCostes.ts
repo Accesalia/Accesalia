@@ -63,11 +63,34 @@ export type FotoCostes = {
   ayudas: { convocatoria: string; cubre: string; cuantoDa: string; estimacion: string | null; cuando: string }[];
   esperar: { convocatoria: string; abierta: boolean; meses: number; entonces: number; mas: number; importe: number } | null;
   nota: string | null;
+  /** Solo en el ESTUDIO DE AYUDAS (12-oct-2026): lo concedido cerca y, por cada
+   *  ayuda con datos, lo que de verdad cubre si se espera a cobrarla. */
+  entorno?: { donde: string; filas: { quien: string; detalle: string; importe: number | null }[]; mas: number; total: number } | null;
+  resumen?: ResumenAyuda[];
 };
+
+/** Una ayuda, echadas las cuentas: lo que da, cuando llegaria la concesion, lo
+ *  que costaria la obra para entonces y lo que de verdad ahorra. */
+export type ResumenAyuda = {
+  convocatoria: string;
+  importe: number;
+  meses: number;
+  /** Coste de la obra con IVA, hoy y cuando llegaria la concesion. */
+  hoy: number;
+  entonces: number;
+  /** Lo que sube la obra mientras se espera. */
+  encarece: number;
+  /** Sobre el papel: la ayuda entre lo que cuesta la obra hoy. */
+  cubrePapel: number;
+  /** De verdad, si se espera: (ayuda - lo que sube) entre lo que cuesta hoy. */
+  cubreDeVerdad: number;
+};
+
+export type TipoInforme = "estimacion_costes" | "estudio_ayudas";
 
 export type InformeGuardado = {
   id: string;
-  tipo: "estimacion_costes" | "proteccion";
+  tipo: "estimacion_costes" | "estudio_ayudas" | "proteccion";
   oportunidad_id: string | null;
   direccion: string;
   referencia_catastral: string | null;
@@ -89,6 +112,7 @@ export async function emitirInformeCostes(
   donde: { oppId: string | null; ref: string | null; direccion: string; municipio: string | null },
   entrada: EntradaCostes,
   yo: Yo,
+  clase: TipoInforme = "estimacion_costes",
 ): Promise<string> {
   if (!donde.oppId && !donde.ref) throw new Error("Falta la dirección: elige una oportunidad o busca la dirección en Catastro.");
   const { tipo } = entrada;
@@ -173,11 +197,34 @@ export async function emitirInformeCostes(
     nota: est?.nota ?? null,
   };
 
+  // EL ESTUDIO DE AYUDAS: lo concedido cerca y el resumen de cada ayuda.
+  if (clase === "estudio_ayudas") {
+    foto.entorno = anexo?.entorno ?? null;
+    foto.resumen = vale
+      ? ayudas
+          .filter((x) => x.a.importe && x.hastaConceder !== null && x.entonces)
+          .map((x) => {
+            const hoy = conIva(est!.hoy);
+            const encarece = x.entonces! - hoy;
+            return {
+              convocatoria: x.a.convocatoria,
+              importe: x.a.importe!,
+              meses: Math.round(x.hastaConceder!),
+              hoy,
+              entonces: x.entonces!,
+              encarece,
+              cubrePapel: x.a.importe! / hoy,
+              cubreDeVerdad: Math.max(0, x.a.importe! - encarece) / hoy,
+            };
+          })
+      : [];
+  }
+
   const [fila] = await pedir<{ id: string }[]>("informes_generados", {
     method: "POST",
     headers: { Prefer: "return=representation" },
     body: JSON.stringify({
-      tipo: "estimacion_costes",
+      tipo: clase,
       oportunidad_id: donde.oppId,
       direccion: foto.direccion || foto.nombre,
       referencia_catastral: anexo?.referencia ?? donde.ref,

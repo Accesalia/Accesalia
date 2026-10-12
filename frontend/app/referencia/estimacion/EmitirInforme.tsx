@@ -41,6 +41,7 @@ export function EmitirInforme({
   tipos,
   puedeCrear,
   comerciales,
+  clase = "estimacion_costes",
 }: {
   entrada: EntradaCostes | null;
   oportunidades: Opcion[];
@@ -49,6 +50,8 @@ export function EmitirInforme({
   puedeCrear: boolean;
   /** Solo si quien crea no es comercial: tiene que elegir de quien es. */
   comerciales: Opcion[] | null;
+  /** Que se emite: el informe de costes o el estudio de ayudas (12-oct-2026). */
+  clase?: "estimacion_costes" | "estudio_ayudas";
 }) {
   const router = useRouter();
   const [opp, setOpp] = useState("");
@@ -73,7 +76,7 @@ export function EmitirInforme({
     setError(null);
     empezar(async () => {
       const r = await accion();
-      if (r.ok) router.push(`/referencia/estimacion/informe/${r.id}`);
+      if (r.ok) router.push(clase === "estudio_ayudas" ? `/referencia/subvenciones/estudio/${r.id}` : `/referencia/estimacion/informe/${r.id}`);
       else setError(r.error);
     });
   };
@@ -104,7 +107,7 @@ export function EmitirInforme({
           />
         </div>
         {opp && (
-          <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirParaOportunidad(opp, entrada!))} className={bOscuro}>
+          <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirParaOportunidad(opp, entrada!, clase))} className={bOscuro}>
             {enCurso ? "Emitiendo…" : "Emitir y guardar en la oportunidad"}
           </button>
         )}
@@ -125,7 +128,7 @@ export function EmitirInforme({
             </button>
           </p>
           <div className="mt-2.5 flex flex-wrap gap-2.5">
-            <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirSinGuardar(nueva, entrada!))} className={bBlanco}>
+            <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirSinGuardar(nueva, entrada!, clase))} className={bBlanco}>
               {enCurso && !rapida ? "Emitiendo…" : "Emitir sin guardar"}
             </button>
             {puedeCrear && (
@@ -255,7 +258,7 @@ export function EmitirInforme({
               <button type="button" disabled={enCurso} onClick={() => setRapida(false)} className={bBlanco}>
                 Cancelar
               </button>
-              <button type="button" disabled={enCurso || sinEntrada || faltaComercial} onClick={() => lanzar(() => crearOportunidadYEmitir(nueva, datos(), entrada!))} className={bLima}>
+              <button type="button" disabled={enCurso || sinEntrada || faltaComercial} onClick={() => lanzar(() => crearOportunidadYEmitir(nueva, datos(), entrada!, clase))} className={bLima}>
                 {enCurso ? "Creando…" : "Crear y emitir"}
               </button>
             </div>

@@ -69,8 +69,11 @@ export default async function DireccionesVistas() {
                         {f.datos.precios && <div className="text-[12.5px] text-carbon/65">{eur(f.datos.precios.hoy)} con IVA</div>}
                       </td>
                       <td className="px-4 py-2.5 text-right">
-                        <Link href={`/referencia/estimacion/informe/${f.id}`} className="font-semibold text-lima-dark hover:underline">
-                          ver informe
+                        <Link
+                          href={f.tipo === "estudio_ayudas" ? `/referencia/subvenciones/estudio/${f.id}` : `/referencia/estimacion/informe/${f.id}`}
+                          className="font-semibold text-lima-dark hover:underline"
+                        >
+                          {f.tipo === "estudio_ayudas" ? "ver estudio" : "ver informe"}
                         </Link>
                       </td>
                     </tr>
