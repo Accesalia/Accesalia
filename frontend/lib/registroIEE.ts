@@ -332,7 +332,9 @@ export async function guardarNota(nota: NotaIEE, motivo?: MotivoIEE | null, vist
       cp: nota.cp,
       anio_construccion: nota.anioConstruccion,
       anio_rehabilitacion: nota.anioRehabilitacion,
-      fecha_emision: nota.fechaEmision,
+      // Una fecha que aun no ha llegado es errata del registro: no se escribe,
+      // para no pisar la estimada a mano (Pablo Luna 4: 2030 por 2020).
+      ...(nota.fechaEmision && nota.fechaEmision > new Date().toISOString().slice(0, 10) ? {} : { fecha_emision: nota.fechaEmision }),
       valoracion: nota.valoracion,
       deficiencias_subsanadas: nota.deficienciasSubsanadas,
       fecha_subsanacion: nota.fechaSubsanacion,
@@ -342,7 +344,7 @@ export async function guardarNota(nota: NotaIEE, motivo?: MotivoIEE | null, vist
       estado_expediente: nota.estadoExpediente,
       validez: nota.validez,
       bruto: nota.bruto,
-      ...(vistoEn ? { visto_en: vistoEn } : {}),
+      ...(vistoEn && vistoEn <= new Date().toISOString() ? { visto_en: vistoEn } : {}),
       // Se guarda siempre. "nueva" = hay que repartirla; "sin_interes" = ni
       // desfavorable ni con accesibilidad pendiente, asi que no molesta a nadie.
       estado: porQue ? "nueva" : "sin_interes",

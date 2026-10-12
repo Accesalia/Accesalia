@@ -125,8 +125,13 @@ const deDiaMesAnio = (s: string | undefined): string | null => {
 /** La fecha del informe para leerla: la de emision, o si no la de inscripcion.
  *  Una fecha que aun no ha llegado es una errata del propio registro (Pablo
  *  Luna 4: "20/12/2030", con las de al lado de dic-2020): se dice, no se toca. */
-export function fechaDelInforme(a: Pick<AlertaIEE, "fechaEmision" | "fechaInscripcion">): { que: string; valor: string } {
+export function fechaDelInforme(a: Pick<AlertaIEE, "fechaEmision" | "fechaInscripcion" | "bruto">): { que: string; valor: string } {
   const es = (iso: string) => iso.split("-").reverse().join("/");
+  // La guardada no es la del registro: es una ESTIMADA a mano (Pablo Luna 4,
+  // 12-oct-2026). Se dicen las dos.
+  const delRegistro = deDiaMesAnio(a.bruto?.["Fecha emisión informe"]);
+  if (a.fechaEmision && delRegistro && delRegistro !== a.fechaEmision)
+    return { que: "Emitido el", valor: `${es(a.fechaEmision)} (estimada; el registro dice ${es(delRegistro)})` };
   if (a.fechaEmision) {
     const futura = a.fechaEmision > new Date().toISOString().slice(0, 10);
     return { que: "Emitido el", valor: es(a.fechaEmision) + (futura ? " (fecha imposible: errata del registro)" : "") };
