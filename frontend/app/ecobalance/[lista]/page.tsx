@@ -87,6 +87,12 @@ export default async function ListaDeEcobalance({ params }: { params: Promise<{ 
                         ) : (
                           "—"
                         )}
+                        {/* Sus hitos de Ecobalance: de ahi salen las proformas (12-oct-2026). */}
+                        {f.oppId && (
+                          <Link href={`/facturacion/${f.oppId}?libro=ecobalance`} className="ml-2 text-[12px] font-semibold text-[#2f5f8a] hover:underline">
+                            cobro
+                          </Link>
+                        )}
                       </td>
                       <td className="px-3 py-2">{f.numeroHoja ?? "—"}</td>
                       <td className="whitespace-nowrap px-3 py-2">{fecha(f.firmada)}</td>

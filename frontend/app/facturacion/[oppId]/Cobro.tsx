@@ -24,7 +24,15 @@ const ESTADO: Record<string, string> = {
   anulado: "border-black/10 bg-black/5 text-carbon/55 line-through",
 };
 
-export function Cobro({ d }: { d: DetalleCobro }) {
+/** Las proformas vivas de cada hito (lib/proformas.proformasPorHito). */
+type ProformasDeHito = Record<string, { id: string; codigo: string; facturada: boolean }[]>;
+/** Marcar hitos para la proforma: los que quedan por facturar (o a exito), sin subhitos. */
+type Marca = { marcados: string[]; cambiar: (id: string) => void; proformas: ProformasDeHito };
+
+export function Cobro({ d, proformas = {} }: { d: DetalleCobro; proformas?: ProformasDeHito }) {
+  // LAS PROFORMAS (12-oct-2026): se marcan los hitos o subhitos y se emite.
+  const [marcados, setMarcados] = useState<string[]>([]);
+  const marca: Marca = { marcados, cambiar: (id) => setMarcados(marcados.includes(id) ? marcados.filter((x) => x !== id) : [...marcados, id]), proformas };
   const primero = d.documentos.find((x) => x.visor.length)?.visor[0] ?? null;
   const [visor, setVisor] = useState<{ etiqueta: string; url: string } | null>(primero);
   const c = d.documentos.map(cuentasDeDocumento);
@@ -65,8 +73,22 @@ export function Cobro({ d }: { d: DetalleCobro }) {
             </p>
           )}
           {d.documentos.map((doc) => (
-            <DocumentoCard key={doc.id} oppId={d.opp.id} doc={doc} verDoc={setVisor} />
+            <DocumentoCard key={doc.id} oppId={d.opp.id} doc={doc} verDoc={setVisor} marca={marca} />
           ))}
+          {marcados.length > 0 && (
+            <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-lima bg-lima-soft px-4 py-2.5 shadow-md">
+              <span className="text-[13px] font-semibold text-carbon">
+                {marcados.length} hito{marcados.length > 1 ? "s" : ""} marcado{marcados.length > 1 ? "s" : ""} para la proforma
+              </span>
+              <span className="flex gap-2">
+                <button type="button" className={BTN} onClick={() => setMarcados([])}>Desmarcar</button>
+                <Link href={`/facturacion/proforma/nueva?hitos=${marcados.join(",")}`}
+                  className="rounded-lg bg-lima px-3 py-1 text-[12.5px] font-bold text-carbon hover:bg-lima-dark hover:text-white">
+                  Emitir proforma →
+                </Link>
+              </span>
+            </div>
+          )}
           {d.sinHito.length > 0 && (
             <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
               <div className="text-[11px] font-bold uppercase tracking-wide text-amber-900">Facturas que no pagan ningún hito</div>
@@ -109,7 +131,7 @@ function Cifra({ titulo, valor, aviso, pie }: { titulo: string; valor: number; a
   );
 }
 
-function DocumentoCard({ oppId, doc, verDoc }: { oppId: string; doc: Documento; verDoc: (v: { etiqueta: string; url: string }) => void }) {
+function DocumentoCard({ oppId, doc, verDoc, marca }: { oppId: string; doc: Documento; verDoc: (v: { etiqueta: string; url: string }) => void; marca: Marca }) {
   const c = cuentasDeDocumento(doc);
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
@@ -153,7 +175,7 @@ function DocumentoCard({ oppId, doc, verDoc }: { oppId: string; doc: Documento; 
             </div>
             <div className="mt-1.5 divide-y divide-black/5">
               {l.hitos.map((h) => (
-                <HitoFila key={h.id} oppId={oppId} h={h} verDoc={verDoc} />
+                <HitoFila key={h.id} oppId={oppId} h={h} verDoc={verDoc} marca={marca} />
               ))}
             </div>
           </div>
@@ -182,7 +204,7 @@ function FacturaChip({ f, ver }: { f: Hito["facturas"][number]; ver: (v: { etiqu
   );
 }
 
-function HitoFila({ oppId, h, verDoc, sub }: { oppId: string; h: Hito; verDoc: (v: { etiqueta: string; url: string }) => void; sub?: boolean }) {
+function HitoFila({ oppId, h, verDoc, sub, marca }: { oppId: string; h: Hito; verDoc: (v: { etiqueta: string; url: string }) => void; sub?: boolean; marca: Marca }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState<null | "nota" | "pausa" | "fraccionar">(null);
   const [texto, setTexto] = useState("");
@@ -191,6 +213,9 @@ function HitoFila({ oppId, h, verDoc, sub }: { oppId: string; h: Hito; verDoc: (
   const [ocupado, empezar] = useTransition();
   const c = cuentasDeHito(h);
   const pausado = !!h.enPausaDesde;
+  // Se proforma la hoja del arbol: el hito sin subhitos, o cada subhito.
+  const proformable = !h.subhitos.length && !["anulado", "completado"].includes(h.estado) && (c.porFacturar > 0 || c.aExito);
+  const susProformas = marca.proformas[h.id] ?? [];
   const puedeFraccionar = !sub && !h.subhitos.length && !h.facturas.length && h.importe != null && h.estado === "pendiente";
 
   const correr = (f: () => Promise<{ ok: boolean; error?: string }>) =>
@@ -214,6 +239,11 @@ function HitoFila({ oppId, h, verDoc, sub }: { oppId: string; h: Hito; verDoc: (
   return (
     <div className={"py-1.5 " + (sub ? "ml-6 border-l-2 border-amber-200 pl-3" : "")}>
       <div className={"flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] " + (pausado ? "opacity-60" : "")}>
+        <span className="w-4">
+          {proformable && (
+            <input type="checkbox" title="Marcar para la proforma" checked={marca.marcados.includes(h.id)} onChange={() => marca.cambiar(h.id)} />
+          )}
+        </span>
         <span className="w-[200px] font-semibold text-carbon/85">
           {sub ? `Plazo ${h.orden}` : nombreHito(h)}
           {h.porcentaje != null && !sub && <span className="font-normal text-carbon/60"> · {h.porcentaje} %</span>}
@@ -234,6 +264,16 @@ function HitoFila({ oppId, h, verDoc, sub }: { oppId: string; h: Hito; verDoc: (
           {puedeFraccionar && <button type="button" className={BTN} onClick={abrirFraccionar}>Fraccionar</button>}
         </span>
       </div>
+      {susProformas.length > 0 && (
+        <div>
+          {susProformas.map((p) => (
+            <Link key={p.id} href={`/facturacion/proforma/${p.id}`}
+              className={"mr-1 mt-1 inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11.5px] font-semibold " + (p.facturada ? "border-black/10 bg-black/5 text-carbon/60" : "border-[#9db6cf] bg-[#e3ecf5] text-[#2f5f8a]")}>
+              📝 {p.codigo}{p.facturada ? " · facturada" : " · sin factura"}
+            </Link>
+          ))}
+        </div>
+      )}
       {h.texto && !sub && <div className="mt-0.5 text-[11.5px] text-carbon/60">{h.texto.split("\n")[0]}</div>}
       {h.facturas.length > 0 && (
         <div>
@@ -299,7 +339,7 @@ function HitoFila({ oppId, h, verDoc, sub }: { oppId: string; h: Hito; verDoc: (
       )}
 
       {h.subhitos.map((s) => (
-        <HitoFila key={s.id} oppId={oppId} h={s} verDoc={verDoc} sub />
+        <HitoFila key={s.id} oppId={oppId} h={s} verDoc={verDoc} sub marca={marca} />
       ))}
     </div>
   );

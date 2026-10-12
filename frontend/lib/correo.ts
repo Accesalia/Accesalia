@@ -26,7 +26,8 @@ export type Area =
   | "facturacion"
   | "tecnicos"
   | "licencias"
-  | "daniel";
+  | "daniel"
+  | "facturacion_ecobalance";
 
 // El nombre es lo que lee en su bandeja quien recibe el correo, antes de abrirlo.
 // Son de Monica: cambiarlos aqui cuando ella lo diga y no darle mas vueltas.
@@ -42,6 +43,10 @@ const BUZONES: Record<Area, { direccion: string; nombre: string }> = {
   // No es el correo de trabajo de Daniel: se creo para el CRM, es funcional
   // como los demas. Lo usa la agenda.
   daniel: { direccion: "daniel.accesalia@gmail.com", nombre: "Accesalia · Daniel" },
+  // El de Ecobalance, aparte (Monica, 12-oct-2026): es otra empresa, a Ana le
+  // llegan las respuestas y Alexandra no ve nada de Ecobalance. Lo crea Ana el
+  // 13-oct; hasta que su clave este en Vercel, el area sale "sin configurar".
+  facturacion_ecobalance: { direccion: "facturacion.ecobalance@gmail.com", nombre: "Ecobalance · Facturación" },
 };
 
 // Una a una y por su nombre, no con `process.env[variable]`: asi se ve de un
@@ -61,6 +66,7 @@ const CLAVES: Record<Area, string | undefined> = {
   tecnicos: process.env.GMAIL_TECNICOS,
   licencias: process.env.GMAIL_LICENCIAS,
   daniel: process.env.GMAIL_DANIEL,
+  facturacion_ecobalance: process.env.GMAIL_FACTURACION_ECOBALANCE,
 };
 
 /** Si el buzon de esa area puede mandar hoy. Para poder DECIRLO en pantalla:
