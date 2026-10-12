@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { oportunidadesAbiertas, sinSitio } from "../../../lib/buzonPolycam";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { accionColocar, accionRepasar } from "./acciones";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +43,9 @@ export default async function Buzon({
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1100px] px-6 pb-16 pt-5">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Área comercial
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>

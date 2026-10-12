@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { quienSoy } from "../../../lib/sesion";
 import { documentosDe } from "../../../lib/documentosReferencia";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,9 @@ export default async function Marketing() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[900px] px-4 py-6 sm:px-6">
-        <Link href="/referencia" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/referencia">
           ← Documentación de referencia
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">Documentación de marketing</h1>
         <p className="mt-1 text-carbon/55">Dossieres, folletos y presentaciones para enseñar o mandar.</p>
 

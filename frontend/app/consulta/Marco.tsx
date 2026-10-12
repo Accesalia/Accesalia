@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BarraSuperior } from "../components/BarraSuperior";
+import { Salida } from "../components/Salida";
 
 // EL MARCO DE CONSULTAR: la barra, la salida y las tres pestañas (buscar y los
 // dos listados), para pasar de una a otra sin volver al menu.
@@ -22,9 +23,9 @@ export function Marco({ aqui, children }: { aqui: string; children: ReactNode })
     <div className="min-h-screen bg-fondo">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">
+        <Salida href="/menu">
           ← Menú
-        </Link>
+        </Salida>
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2 border-b border-black/10">
           <h1 className="pb-2 text-[25px] font-bold text-carbon">Consultar</h1>
           <nav className="flex gap-1">

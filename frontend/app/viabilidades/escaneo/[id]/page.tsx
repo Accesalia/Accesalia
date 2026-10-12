@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../../components/BarraSuperior";
 import { enlaceAlModelo } from "../../../../lib/mesaViabilidades";
 import { haceViabilidades } from "../../revision-polycam/acciones";
 import { Visor3D } from "../../../components/Visor3D";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -40,9 +41,9 @@ export default async function VerEscaneo({ params }: { params: Promise<{ id: str
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-5">
-        <Link href="/viabilidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/viabilidades">
           ← Mesa de viabilidades
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-[20px] font-bold leading-tight text-carbon">
           {e.asunto || e.nombre_original_fichero || "Escaneo sin asunto"}
         </h1>

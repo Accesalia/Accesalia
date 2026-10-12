@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { quienSoy } from "../../../../lib/sesion";
 import { fichaContrata, type GenteContrata } from "../../../../lib/fichas";
 import { CAJA, ENLACE, Marco, ROT } from "../../Marco";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -55,9 +56,9 @@ export default async function FichaDeContrata({ params }: { params: Promise<{ id
 
   return (
     <Marco aqui="">
-      <Link href="/consulta?que=contrata" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">
+      <Salida href="/consulta?que=contrata">
         ← Buscar
-      </Link>
+      </Salida>
       <div className="mt-3 flex flex-wrap items-baseline gap-x-4 border-b border-black/10 pb-4">
         <h1 className="text-3xl font-bold text-carbon">{c.nombre}</h1>
         <span className="text-carbon/65">{[c.tipo, c.especialidad].filter(Boolean).join(" · ")}</span>

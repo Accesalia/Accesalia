@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { entradaPorId } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +36,9 @@ export default async function FichaEntrada({ params }: { params: Promise<{ id: s
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[860px] px-6 pb-16 pt-5">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Área comercial
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
           <div>

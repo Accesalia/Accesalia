@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { listarComerciales } from "../../../lib/comercial";
 import { correosEnviados } from "../../../lib/envioCorreo";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +33,9 @@ export default async function CorreosEnviados({ searchParams }: { searchParams: 
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Accesos del área comercial
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">Correos enviados</h1>
         <p className="mt-1.5 text-carbon/65">Lo que se ha mandado a las comunidades desde la app: cuándo, a quién, qué decía y qué llevaba.</p>
 

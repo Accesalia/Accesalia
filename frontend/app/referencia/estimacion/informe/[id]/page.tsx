@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../../../components/BarraSuperior";
 import { quienSoy } from "../../../../../lib/sesion";
 import { leerInforme } from "../../../../../lib/informeCostes";
 import { Imprimir } from "../Imprimir";
+import { Salida } from "../../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +36,13 @@ export default async function InformeEmitido({ params }: { params: Promise<{ id:
         <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             {inf.oportunidad_id && (
-              <Link href={`/comercial/oportunidades/${inf.oportunidad_id}?bloque=2`} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+              <Salida href={`/comercial/oportunidades/${inf.oportunidad_id}?bloque=2`}>
                 ← Oportunidad {inf.oportunidad?.codigo}
-              </Link>
+              </Salida>
             )}
-            <Link href="/referencia/estimacion" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+            <Salida href="/referencia/estimacion">
               ← Estimación de costes de obra
-            </Link>
+            </Salida>
           </div>
           <div className="flex items-center gap-2.5">
             <a href={`/referencia/estimacion/informe/${id}/pdf`} target="_blank" rel="noreferrer" className="rounded-xl border border-carbon/30 bg-white px-4 py-2 text-[14px] font-bold text-carbon transition hover:border-carbon">

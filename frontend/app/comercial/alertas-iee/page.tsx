@@ -17,6 +17,7 @@ import {
 import { buzonListo } from "../../../lib/correo";
 import { ListaPendientes, type DiaPendiente } from "./ListaPendientes";
 import { VolverAlMonton } from "./Piezas";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -127,9 +128,9 @@ export default async function AlertasIEE({
           margenes a los lados para que no se estire tanto". Cuatro columnas
           repartidas en 1.392 px dejan la fila medio vacia y se lee peor. */}
       <main className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-5">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Área comercial
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>

@@ -32,6 +32,11 @@ export async function BarraSuperior() {
           />
         </Link>
 
+        {/* EL HUECO DE LA SALIDA (12-oct-2026): aqui pinta cada pantalla su
+            "← Volver a…" (components/Salida), para que no se pierda al bajar. El id es
+            el de HUECO_SALIDA, escrito aqui porque esto es de servidor. */}
+        <div id="barra-salida" className="flex min-w-0 items-center gap-4 overflow-hidden" />
+
         <div className="flex-1" />
 
         {yo && (

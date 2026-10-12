@@ -5,6 +5,7 @@ import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { comercialesActivos } from "../../../lib/gestionOportunidad";
 import { oppsAsignables } from "../../../lib/gestionComercial";
 import { accionAsignar } from "./acciones";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -39,9 +40,9 @@ export default async function GestionComercial({ searchParams }: { searchParams:
     <div className="min-h-screen" style={{ background: "#8EB180" }}>
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6 min-[1300px]:px-0">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Área comercial
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-[25px] font-bold text-carbon">Gestión de oportunidades</h1>
 
         <div className="mt-4 grid items-start gap-[10px] lg:grid-cols-[1fr_300px]">

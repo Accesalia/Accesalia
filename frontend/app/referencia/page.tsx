@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { quienSoy } from "../../lib/sesion";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -64,9 +65,9 @@ export default async function Referencia() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/menu">
           ← Áreas de Accesalia
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Documentación de referencia</h1>
         <p className="mt-1 text-carbon/55">Catálogos y tablas para consultar.</p>
 

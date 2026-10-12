@@ -6,6 +6,7 @@ import { fichaDemo } from "../../../../lib/fichaDemo";
 import { esComunidad, fichaReal } from "../../../../lib/fichaReal";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { Bloque, Cobros, DiarioCompleto, Documentos, eur, FichaEdificio, Olfato, Personas, Tiempos, Vacio, ddmm } from "./Piezas";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function FichaCompleta({
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-20 pt-5 sm:px-6">
-        <Link href={volver} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Área comercial</Link>
+        <Salida href={volver}>← Área comercial</Salida>
 
         {/* ------------------------------- cabecera ------------------------------- */}
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">

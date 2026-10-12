@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { quienSoy } from "../../lib/sesion";
 import { RELOJES, RETIRADOS, ultimaDeCadaReloj, ultimasPasadas, type Pasada } from "../../lib/reloj";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -80,12 +81,9 @@ export default async function Relojes() {
     <>
       <BarraSuperior />
       <main className="mx-auto max-w-[1120px] px-4 pb-16 pt-5 sm:px-6">
-        <Link
-          href="/menu"
-          className="text-sm font-semibold text-carbon/55 transition-colors hover:text-carbon"
-        >
+        <Salida href="/menu">
           ← Menú
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-black/10 pb-4">
           <h1 className="text-3xl font-bold leading-tight text-carbon sm:text-4xl">

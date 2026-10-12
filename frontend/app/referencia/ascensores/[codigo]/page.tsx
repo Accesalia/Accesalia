@@ -5,6 +5,7 @@ import { Visor3D } from "../../../components/Visor3D";
 import { quienSoy } from "../../../../lib/sesion";
 import { assetUrl, obtenerModelo, urlsRenders } from "../../../../lib/catalogo";
 import { Imagenes } from "./Imagenes";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +28,9 @@ export default async function Modelo({ params }: { params: Promise<{ codigo: str
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-        <Link href="/referencia/ascensores" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/referencia/ascensores">
           ← Modelos de ascensor en 3D
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">
           {m.codigo} · {m.nombre}
         </h1>

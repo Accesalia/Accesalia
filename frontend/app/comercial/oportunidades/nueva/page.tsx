@@ -5,6 +5,7 @@ import { opcionesOportunidad } from "../../../../lib/altaOportunidad";
 import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { Formulario } from "./Formulario";
 import { guardarOportunidad } from "./acciones";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +44,9 @@ export default async function NuevaOportunidad({
     <div className="min-h-screen bg-alta-opp">
       <BarraSuperior />
       <main className="mx-auto max-w-[1300px] px-4 pb-20 pt-5 sm:px-6">
-        <Link href="/comercial" className="text-sm font-semibold text-white/75 transition hover:text-white">
+        <Salida href="/comercial">
           ← Área Comercial
-        </Link>
+        </Salida>
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">

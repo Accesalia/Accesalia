@@ -5,6 +5,7 @@ import { opcionesEntrada } from "../../../lib/entradaDiario";
 import { pendientesDe } from "../../../lib/pendientes";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { Colocar } from "./Colocar";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,9 @@ export default async function Pendientes() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1000px] px-6 pb-20 pt-5 text-sm">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Área comercial
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Notas pendientes de colocar</h1>
         <p className="mt-1 max-w-[760px] text-[13px] text-carbon/65">
           Son notas grabadas con una dirección que no estaba en la lista. Puede que estuviera mal escrita, que no fuera

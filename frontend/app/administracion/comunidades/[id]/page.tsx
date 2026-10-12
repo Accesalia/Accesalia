@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { fichaComunidad, type FichaComunidad } from "../../../../lib/administracion";
 import { quienSoy } from "../../../../lib/sesion";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -113,9 +114,9 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/administracion/comunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/administracion/comunidades">
           ← Comunidades
-        </Link>
+        </Salida>
         <Link
           href={`/administracion/comunidades/${id}/propuesta`}
           className="ml-4 text-sm font-semibold text-lima-dark transition hover:underline"

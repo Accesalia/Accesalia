@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +66,7 @@ export default async function AreaAdministracion() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Menú</Link>
+        <Salida href="/menu">← Menú</Salida>
 
         <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Área Administración</h1>
         <p className="mt-1.5 text-lg text-carbon/60">Los datos que sostienen todo lo demás: quién es quién y dónde.</p>

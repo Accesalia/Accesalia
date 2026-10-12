@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { misPendientes, tarjetasQueVeo } from "../../../lib/misPendientes";
 import { quienSoy } from "../../../lib/sesion";
 import { ListaPendiente } from "../Lista";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +34,9 @@ export default async function OppsAMedias({ searchParams }: { searchParams: Prom
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1100px] px-6 pb-20 pt-5 text-sm">
-        <Link href="/pendientes" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">
+        <Salida href="/pendientes">
           ← Pendientes
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Oportunidades a medias · {lista.length}</h1>
         <p className="mt-1 text-[13px] text-carbon/70">
           Sin dirección, contacto o siguiente paso no se puede generar viabilidad ni hoja. Pincha cada una para completarla.

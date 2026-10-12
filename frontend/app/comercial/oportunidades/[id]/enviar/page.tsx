@@ -5,6 +5,7 @@ import { puedeEntrar, quienSoy } from "../../../../../lib/sesion";
 import { paraEnviar } from "../../../../../lib/envioCorreo";
 import { plantillasPara } from "../../../../../lib/plantillasCorreo";
 import { EnviarCorreo } from "./EnviarCorreo";
+import { Salida } from "../../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +28,9 @@ export default async function Enviar({ params }: { params: Promise<{ id: string 
     <div className="min-h-screen bg-form">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href={`/comercial/oportunidades/${id}?bloque=2`} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href={`/comercial/oportunidades/${id}?bloque=2`}>
           ← La oportunidad
-        </Link>
+        </Salida>
         <p className="mb-3 mt-2 text-sm text-carbon/70">
           {d.codigo} · <b className="text-carbon">{d.nombre}</b>
         </p>

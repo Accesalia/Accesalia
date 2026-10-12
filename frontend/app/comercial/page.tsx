@@ -22,6 +22,7 @@ import {
   Titulo,
 } from "./CuadroPiezas";
 import { MapaCartera } from "./MapaCartera";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -95,7 +96,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
       <div className="min-h-screen">
         <BarraSuperior />
         <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-5 sm:px-6">
-          <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Menú</Link>
+          <Salida href="/menu">← Menú</Salida>
           <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Área comercial</h1>
           <div className="mt-5 max-w-2xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
             Tienes la función comercial, pero no hay una cartera a tu nombre en la lista de comerciales. Si deberías ver una,
@@ -237,9 +238,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1900px] px-6 pb-16 pt-5">
         {accesos ? (
-          <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Menú</Link>
+          <Salida href="/menu">← Menú</Salida>
         ) : (
-          <Link href={`/comercial${conC}`} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">← Accesos del área comercial</Link>
+          <Salida href={`/comercial${conC}`}>← Accesos del área comercial</Salida>
         )}
 
         {/* ---------------- cabecera ---------------- */}

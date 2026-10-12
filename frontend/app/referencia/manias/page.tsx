@@ -6,6 +6,7 @@ import { manias, municipiosCatastro, type Mania } from "../../../lib/manias";
 import { bonito } from "../../../lib/direccionNombre";
 import { Lista } from "./Lista";
 import { Anadir, type EntidadConocida } from "./Anadir";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -53,9 +54,9 @@ export default async function Manias() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1000px] px-4 py-6 sm:px-6">
-        <Link href="/referencia" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/referencia">
           ← Documentación de referencia
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">Manías detectadas</h1>
         <p className="mt-1 max-w-[70ch] text-carbon/55">
           Lo que cada ayuntamiento, junta, ECU o técnico pide o hace a su manera, sacado de las notas de las fichas.

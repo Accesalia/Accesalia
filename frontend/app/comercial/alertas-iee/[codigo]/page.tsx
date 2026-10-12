@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { alertaIEE } from "../../../../lib/alertasIEE";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -40,9 +41,9 @@ export default async function FichaIEE({ params }: { params: Promise<{ codigo: s
       <div className="min-h-screen">
         <BarraSuperior />
         <main className="mx-auto w-full max-w-[820px] px-6 pb-16 pt-5">
-          <Link href="/comercial/alertas-iee" className="text-sm font-semibold text-carbon/55 hover:text-carbon">
+          <Salida href="/comercial/alertas-iee">
             ← Radar de IEE
-          </Link>
+          </Salida>
           <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-[14px] text-amber-900">
             No hay ningún informe guardado con el número <b>{codigo}</b>.
           </div>
@@ -95,9 +96,9 @@ export default async function FichaIEE({ params }: { params: Promise<{ codigo: s
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1000px] px-6 pb-16 pt-5">
-        <Link href="/comercial/alertas-iee" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial/alertas-iee">
           ← Radar de IEE
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">

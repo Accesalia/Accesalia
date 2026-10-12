@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { quienSoy } from "../../../lib/sesion";
 import { gobiernaPlantillas, plantillasPara, puedeVerPlantillas } from "../../../lib/plantillasCorreo";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -59,9 +60,9 @@ export default async function Plantillas() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial">
           ← Accesos del área comercial
-        </Link>
+        </Salida>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl font-bold text-carbon">Plantillas de mail</h1>

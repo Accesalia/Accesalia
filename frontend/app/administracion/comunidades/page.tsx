@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { listarComunidades } from "../../../lib/administracion";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,9 @@ export default async function Comunidades({ searchParams }: { searchParams: Prom
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1100px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/administracion" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/administracion">
           ← Área Administración
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>

@@ -6,6 +6,7 @@ import { quienSoy, puedeEntrar } from "../../lib/sesion";
 import { hoyMadrid } from "../../lib/rrhh";
 import { Gestion } from "./Gestion";
 import { MiEspacio } from "./MiEspacio";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -83,9 +84,9 @@ export default async function Rrhh({
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1240px] px-4 pb-20 pt-5 sm:px-6">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/menu">
           ← Menú
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>

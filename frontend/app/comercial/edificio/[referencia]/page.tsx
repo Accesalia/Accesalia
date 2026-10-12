@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../../components/BarraSuperior";
 import { ascensorDe, informeEdificio } from "../../../../lib/informeEdificio";
 import { marcarAscensor } from "./acciones";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -147,9 +148,9 @@ export default async function Edificio({
       <div className="min-h-screen">
         <BarraSuperior />
         <main className="mx-auto w-full max-w-[820px] px-6 pb-16 pt-5">
-          <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+          <Salida href="/comercial">
             ← Área comercial
-          </Link>
+          </Salida>
           <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
             <h1 className="text-[18px] font-bold text-amber-900">
               {seRompio ? "Catastro no contesta ahora mismo" : "No hay ninguna finca con esa referencia"}
@@ -201,9 +202,9 @@ export default async function Edificio({
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1440px] px-6 pb-16 pt-5">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <Link href="/comercial" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+          <Salida href="/comercial">
             ← Área comercial
-          </Link>
+          </Salida>
           {/* El interruptor de la regla de medir. Se queda en la vista que estes. */}
           <Link
             href={`/comercial/edificio/${referencia}?${conMarco ? "" : "marco=1&"}${vista ? `vista=${vista}` : ""}`}

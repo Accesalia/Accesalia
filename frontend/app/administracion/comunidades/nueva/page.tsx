@@ -5,6 +5,7 @@ import { opcionesAlta } from "../../../../lib/alta";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { Formulario } from "./Formulario";
 import { guardarAlta } from "./acciones";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,9 @@ export default async function NuevaComunidad({ searchParams }: { searchParams: P
     <div className="min-h-screen bg-form">
       <BarraSuperior />
       <main className="mx-auto max-w-[1300px] px-4 pb-20 pt-5 sm:px-6">
-        <Link href="/administracion/comunidades" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/administracion/comunidades">
           ← Comunidades de vecinos
-        </Link>
+        </Salida>
 
 
         {falta && (

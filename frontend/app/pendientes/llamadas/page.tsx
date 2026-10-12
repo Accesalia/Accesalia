@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { misPendientes, tarjetasQueVeo } from "../../../lib/misPendientes";
 import { quienSoy } from "../../../lib/sesion";
 import { ListaPendiente } from "../Lista";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,9 @@ export default async function LlamadasPorColocar() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1100px] px-6 pb-20 pt-5 text-sm">
-        <Link href="/pendientes" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">
+        <Salida href="/pendientes">
           ← Pendientes
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Llamadas por colocar · {llamadas.length}</h1>
         <p className="mt-1 text-[13px] text-carbon/70">
           Cuando lo que se derivaba de la llamada esté gestionado, márcala como hecha.

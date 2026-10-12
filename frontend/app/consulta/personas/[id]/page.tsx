@@ -13,6 +13,7 @@ import {
   type ResumenOrganismo,
 } from "../../../../lib/fichas";
 import { CAJA, ENLACE, Marco, ROT } from "../../Marco";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -136,9 +137,9 @@ export default async function FichaDePersona({ params }: { params: Promise<{ id:
 
   return (
     <Marco aqui="">
-      <Link href="/consulta?que=persona" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">
+      <Salida href="/consulta?que=persona">
         ← Buscar
-      </Link>
+      </Salida>
 
       {/* ------------------------------ 1 · datos personales */}
       <div className="mt-3 border-b border-black/10 pb-4">

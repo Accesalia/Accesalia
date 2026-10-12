@@ -27,6 +27,7 @@ import { Completar } from "./Completar";
 import { completitud, propuestaAdminComunidad, TEXTO_FALTA, type Falta } from "../../../../lib/completa";
 import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -167,9 +168,9 @@ export default async function GestionOportunidad({
           estirarlo como una goma y que quede ilegible". Lo de pantallas
           grandes de verdad (el 27") se mira cuando se vea en ellas. */}
       <main className="mx-auto w-full max-w-[1648px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/comercial?ver=oportunidades" className="text-sm font-semibold text-carbon/75 transition hover:text-carbon">
+        <Salida href="/comercial?ver=oportunidades">
           ← Oportunidades abiertas
-        </Link>
+        </Salida>
 
         {/* ------------------------- 1 · cabecera ------------------------- */}
         <Cabecera

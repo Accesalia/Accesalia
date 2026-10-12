@@ -5,6 +5,7 @@ import { quienSoy } from "../../../lib/sesion";
 import { bonito } from "../../../lib/direccionNombre";
 import { arbolTipos, municipiosConTasas, reglasDe, tramitesDe } from "../../../lib/tasas";
 import { Calculadora } from "./Calculadora";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -31,9 +32,9 @@ export default async function Tasas({ searchParams }: { searchParams: Promise<{ 
       </div>
       <main className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6 print:max-w-none print:p-0">
         <div className="print:hidden">
-          <Link href="/referencia" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+          <Salida href="/referencia">
             ← Documentación de referencia
-          </Link>
+          </Salida>
           <h1 className="mt-3 text-3xl font-bold text-carbon">Tasas de ayuntamiento</h1>
           <p className="mt-1 max-w-[75ch] text-carbon/55">
             Cuánto se paga en cada municipio y cómo se pide la licencia o la declaración responsable. Elige el municipio;

@@ -4,6 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { quienSoy } from "../../../lib/sesion";
 import { documentosDe, type DocumentoReferencia } from "../../../lib/documentosReferencia";
 import { nombreBonito } from "../../../lib/catalogoProteccion";
+import { Salida } from "../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -54,9 +55,9 @@ export default async function Proteccion() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[900px] px-4 py-6 sm:px-6">
-        <Link href="/referencia" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/referencia">
           ← Documentación de referencia
-        </Link>
+        </Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">Consultas de edificios protegidos</h1>
         <p className="mt-1 text-carbon/55">
           Catálogos, normas y planos de protección de cada municipio, tal como los publica el ayuntamiento. Con el enlace de

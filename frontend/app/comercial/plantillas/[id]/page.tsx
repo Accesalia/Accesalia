@@ -5,6 +5,7 @@ import { quienSoy } from "../../../../lib/sesion";
 import { plantilla, puedeTocar, puedeVerPlantillas } from "../../../../lib/plantillasCorreo";
 import { accionGuardar, accionQuitar } from "../acciones";
 import { FormPlantilla } from "../FormPlantilla";
+import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -44,9 +45,9 @@ export default async function VerPlantilla({ params, searchParams }: { params: P
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1000px] px-4 pb-16 pt-5 sm:px-6">
-        <Link href="/comercial/plantillas" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/comercial/plantillas">
           ← Plantillas de mail
-        </Link>
+        </Salida>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-3xl font-bold text-carbon">{p.nombre}</h1>

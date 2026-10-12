@@ -5,6 +5,7 @@ import { porHacer } from "../../lib/mesaViabilidades";
 import { accionBuscar, accionVincular, haceViabilidades } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
 import { accionEmpezar } from "./acciones";
+import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +48,9 @@ export default async function MesaDeViabilidades({ searchParams }: { searchParam
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1120px] px-6 pb-16 pt-5">
-        <Link href="/menu" className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+        <Salida href="/menu">
           ← Áreas de Accesalia
-        </Link>
+        </Salida>
 
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4 border-b border-black/10 pb-4">
           <div>
