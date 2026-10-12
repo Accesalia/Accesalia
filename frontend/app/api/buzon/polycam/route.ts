@@ -13,7 +13,10 @@ import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+// 300, como los otros relojes. Con 60, una pasada lenta se cortaba SIN DEJAR
+// RASTRO (Vercel la mata antes de apuntarla): del 7 al 12-oct-2026 no hay ni una
+// linea en pasada_reloj y el buzon no se miro en cinco dias.
+export const maxDuration = 300;
 
 const TAREA = "buzon_polycam";
 

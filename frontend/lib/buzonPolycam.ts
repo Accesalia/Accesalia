@@ -428,7 +428,14 @@ export type Repaso = {
   /** Los que ya estaban guardados de una pasada anterior y no se repiten. */
   repetidos: number;
   errores: string[];
+  /** Correos que se quedan para la siguiente pasada por no pasar del tope. */
+  quedan: number;
 };
+
+// EL TOPE DE UNA PASADA (12-oct-2026). Pasado este tiempo no se empieza otro
+// correo: se deja para la siguiente, que es dentro de diez minutos. Asi la
+// pasada siempre acaba a tiempo de apuntarse.
+const TOPE_MS = 200_000;
 
 // ---------------------------------------------------------------------------
 // GUARDAR UN ESCANEADO
@@ -629,6 +636,17 @@ async function colocar(
 // es fase temprana, y no siempre se hace."
 
 export async function repasarBuzon(): Promise<Repaso> {
+  const inicio = Date.now();
+  // Si algo falla, que diga EN QUE PASO estaba: conectar, spam, buscar o un correo.
+  let paso = "conectar con Gmail";
+  try {
+    return await repasar(inicio, (p) => (paso = p));
+  } catch (e) {
+    throw new Error(`${paso}: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Repaso> {
   const usuario = process.env.BUZON_POLYCAM_USUARIO;
   const clave = process.env.BUZON_POLYCAM_CLAVE;
   if (!usuario || !clave) throw new Error("Faltan BUZON_POLYCAM_USUARIO / BUZON_POLYCAM_CLAVE en el entorno.");
@@ -639,15 +657,22 @@ export async function repasarBuzon(): Promise<Repaso> {
     secure: true,
     auth: { user: usuario, pass: clave.replace(/\s+/g, "") },
     logger: false,
+    // Si Gmail no contesta, que falle pronto y se apunte, en vez de esperar los
+    // 5 minutos que trae de serie y morir sin rastro (12-oct-2026).
+    connectionTimeout: 20_000,
+    greetingTimeout: 15_000,
+    socketTimeout: 60_000,
   });
 
   const r: Repaso = {
-    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [],
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0,
   };
 
   await cliente.connect();
   // Primero se rescata lo que Gmail aparto, para que entre en ESTA pasada.
+  enPaso("rescatar del spam");
   r.rescatados = await rescatarDeSpam(cliente);
+  enPaso("abrir la bandeja de entrada");
   const cerrojo = await cliente.getMailboxLock("INBOX");
   try {
     // LOS QUE NO SE HAN GUARDADO TODAVIA. Son dos grupos:
@@ -666,7 +691,12 @@ export async function repasarBuzon(): Promise<Repaso> {
       ]),
     ];
 
-    for (const uid of lista) {
+    for (const [n, uid] of lista.entries()) {
+      if (Date.now() - inicio > TOPE_MS) {
+        r.quedan = lista.length - n;
+        break;
+      }
+      enPaso(`correo ${uid}`);
       r.mirados++;
       let asunto = "(sin asunto)";
       try {
