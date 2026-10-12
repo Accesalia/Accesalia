@@ -56,8 +56,8 @@ export type FichaPersona = {
   notas: string | null;
   actuales: Cargo[];
   anteriores: Cargo[];
-  /** Si es de Accesalia: su ficha de empleado (hoy, los comerciales, que son
-   *  los que estan en la agenda). Seccion con llave: RRHH, direccion y el mismo. */
+  /** Si es de Accesalia (persona.equipo_id): su ficha de empleado. Seccion con
+   *  llave: RRHH, direccion y el mismo. */
   empleado: { equipoId: string; email: string | null; titulacion: string | null; activo: boolean; funciones: string[] } | null;
   /** Si es comercial: su cartera. Llave: direccion, supervision y el mismo. */
   comercial: { id: string; administraciones: number; oppsAbiertas: number } | null;
@@ -80,9 +80,9 @@ type PuestoCrudo = {
 export async function fichaPersona(id: string): Promise<FichaPersona | null> {
   if (!esId(id)) return null;
   const [p] = await leer<
-    { id: string; nombre: string; apellidos: string | null; telefono_personal: string | null; notas: string | null; correos: { email: string; etiqueta: string | null; puesto_id: string | null }[]; puestos: PuestoCrudo[] }[]
+    { id: string; nombre: string; apellidos: string | null; telefono_personal: string | null; notas: string | null; equipo_id: string | null; correos: { email: string; etiqueta: string | null; puesto_id: string | null }[]; puestos: PuestoCrudo[] }[]
   >(
-    `persona?select=id,nombre,apellidos,telefono_personal,notas,correos:correo(email,etiqueta,puesto_id),` +
+    `persona?select=id,nombre,apellidos,telefono_personal,notas,equipo_id,correos:correo(email,etiqueta,puesto_id),` +
       `puestos:puesto(id,cargo,desde,hasta,telefono_empresa,figura_legal_propietaria_id,empresa:empresa_id(id,nombre_accesalia),contrata:contrata_id(id,nombre),organismo:organismo_id(id,nombre),area:organismo_area_id(nombre),correos:correo(email))` +
       `&id=eq.${id}`,
   );
@@ -101,9 +101,13 @@ export async function fichaPersona(id: string): Promise<FichaPersona | null> {
   ]);
   const nombreCom = new Map(comunidades.map((c) => [c.id, c.nombre]));
 
-  // ¿Es de la casa? Hoy solo los comerciales estan en la agenda.
-  const [com] = await leer<{ id: string; equipo: { id: string; email: string | null; titulacion: string | null; activo: boolean; funciones: { hasta: string | null; funcion: { nombre: string } | null }[] } | null }[]>(
-    `comerciales?select=id,equipo:equipo_id(id,email,titulacion,activo,funciones:equipo_funciones(hasta,funcion:funcion_id(nombre)))&persona_id=eq.${id}&limit=1`,
+  // ¿Es de la casa? Por persona.equipo_id (12-oct-2026: los empleados en la agenda).
+  type Equipo = { id: string; email: string | null; titulacion: string | null; activo: boolean; funciones: { hasta: string | null; funcion: { nombre: string } | null }[] };
+  const [emp] = p.equipo_id
+    ? await leer<Equipo[]>(`equipo?select=id,email,titulacion,activo,funciones:equipo_funciones(hasta,funcion:funcion_id(nombre))&id=eq.${p.equipo_id}`)
+    : [];
+  const [com] = await leer<{ id: string }[]>(
+    `comerciales?select=id&or=(persona_id.eq.${id}${p.equipo_id ? `,equipo_id.eq.${p.equipo_id}` : ""})&limit=1`,
   );
   const [cartera, abiertas] = com
     ? await Promise.all([
@@ -147,13 +151,13 @@ export async function fichaPersona(id: string): Promise<FichaPersona | null> {
     notas: p.notas,
     actuales: cargos.filter((c) => !c.hasta).sort(porDesde),
     anteriores: cargos.filter((c) => c.hasta).sort((a, b) => (b.hasta ?? "").localeCompare(a.hasta ?? "")),
-    empleado: com?.equipo
+    empleado: emp
       ? {
-          equipoId: com.equipo.id,
-          email: com.equipo.email,
-          titulacion: com.equipo.titulacion,
-          activo: com.equipo.activo,
-          funciones: com.equipo.funciones.filter((f) => !f.hasta && f.funcion).map((f) => f.funcion!.nombre),
+          equipoId: emp.id,
+          email: emp.email,
+          titulacion: emp.titulacion,
+          activo: emp.activo,
+          funciones: emp.funciones.filter((f) => !f.hasta && f.funcion).map((f) => f.funcion!.nombre),
         }
       : null,
     comercial: com ? { id: com.id, administraciones: cartera.length, oppsAbiertas: abiertas.length } : null,

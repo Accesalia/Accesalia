@@ -231,6 +231,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
     nombre: string;
     apellidos: string | null;
     telefono_personal: string | null;
+    equipo_id: string | null;
     correos: { email: string }[];
     puestos: {
       cargo: string | null;
@@ -251,7 +252,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
     // LA AGENDA (12-oct-2026): "un cuarto buscador, por persona, sea de donde
     // sea". Con sus cargos vigentes, que dicen quien es y a donde llevar.
     todo<PersonaAgenda>(
-      "persona?select=id,nombre,apellidos,telefono_personal,correos:correo(email)," +
+      "persona?select=id,nombre,apellidos,telefono_personal,equipo_id,correos:correo(email)," +
         "puestos:puesto(cargo,hasta,telefono_empresa,figura_legal_propietaria_id,empresa_id,empresa:empresa_id(nombre_accesalia),contrata:contrata_id(nombre),organismo:organismo_id(nombre),correos:correo(email))" +
         "&activa=is.true&order=nombre.asc",
     ),
@@ -275,7 +276,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
     return {
       id: p.id,
       nombre: [p.nombre, p.apellidos].filter(Boolean).join(" "),
-      detalle: [cargos.filter(Boolean).join(" / "), contacto.slice(0, 2).join(" · ")].filter(Boolean).join(" — "),
+      detalle: [[p.equipo_id ? "De Accesalia" : null, ...cargos].filter(Boolean).join(" / "), contacto.slice(0, 2).join(" · ")].filter(Boolean).join(" — "),
       href,
     };
   });
