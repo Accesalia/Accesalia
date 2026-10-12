@@ -413,6 +413,8 @@ export async function crearOportunidad(
 
   // 4 · el codigo y la oportunidad
   const codigo = await siguienteCodigo(d.comercialId);
+  // Sin codigo no nace (Monica, 12-oct-2026): pasa si el comercial no tiene siglas.
+  if (!codigo) throw new Error("Ese comercial no tiene siglas: sin ellas no hay código y la oportunidad no puede nacer.");
   const op = await crear<{ id: string }>("oportunidades", {
     codigo,
     // Nace el dia del contacto, no el dia que se apunta: una oportunidad que se

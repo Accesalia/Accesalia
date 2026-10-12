@@ -55,6 +55,8 @@ export type DatosRapidos = {
   contactoTelefono: string;
   tipos: string[];
   paso: string;
+  /** De quien es, si quien la crea no es comercial. */
+  comercial: string;
 };
 
 export async function crearOportunidadYEmitir(r: Resuelta, datos: DatosRapidos, entrada: EntradaCostes): Promise<Resultado> {
@@ -71,7 +73,7 @@ export async function crearOportunidadYEmitir(r: Resuelta, datos: DatosRapidos, 
       contactoTelefono: datos.contactoTelefono || null,
       tipos: datos.tipos,
       paso: datos.paso || null,
-    });
+    }, datos.comercial || null);
     // La direccion ya viene buscada en Catastro: se cuelga entera, con sus portales.
     await cambiarDireccion(oppId, r);
     const id = await emitirInformeCostes({ oppId, ref: null, direccion: r.nombre, municipio: null }, entrada, yo);

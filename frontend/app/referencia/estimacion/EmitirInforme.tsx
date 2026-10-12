@@ -40,12 +40,15 @@ export function EmitirInforme({
   personas,
   tipos,
   puedeCrear,
+  comerciales,
 }: {
   entrada: EntradaCostes | null;
   oportunidades: Opcion[];
   personas: Opcion[];
   tipos: Opcion[];
   puedeCrear: boolean;
+  /** Solo si quien crea no es comercial: tiene que elegir de quien es. */
+  comerciales: Opcion[] | null;
 }) {
   const router = useRouter();
   const [opp, setOpp] = useState("");
@@ -62,6 +65,9 @@ export function EmitirInforme({
   const [cTel, setCTel] = useState("");
   const [nTipos, setNTipos] = useState<string[]>([]);
   const [paso, setPaso] = useState("");
+  const [comercial, setComercial] = useState("");
+  // Sin comercial no hay codigo: la oportunidad no puede nacer (12-oct-2026).
+  const faltaComercial = !!comerciales && !comercial;
 
   const lanzar = (accion: () => Promise<{ ok: true; id: string } | { ok: false; error: string }>) => {
     setError(null);
@@ -72,7 +78,7 @@ export function EmitirInforme({
     });
   };
   const sinEntrada = !entrada;
-  const datos = (): DatosRapidos => ({ administrador: admin, contacto, contactoNombre: cNombre, contactoTelefono: cTel, tipos: nTipos, paso });
+  const datos = (): DatosRapidos => ({ administrador: admin, contacto, contactoNombre: cNombre, contactoTelefono: cTel, tipos: nTipos, paso, comercial });
 
   return (
     <div className="mt-4 border-t border-black/5 pt-4">
@@ -164,7 +170,22 @@ export function EmitirInforme({
                 Cancelar
               </button>
             </div>
-            <p className="mt-2 text-[13px] text-carbon/70">Lo que sepas ahora. Todo es opcional: lo demás se completa en su ficha.</p>
+            {comerciales && (
+              <>
+                <span className={ETQ + " mt-3"}>Comercial · obligatorio</span>
+                <Elegir
+                  id="est_n_comercial"
+                  nombre=""
+                  opciones={comerciales}
+                  valor={comercial}
+                  alElegir={setComercial}
+                  vacio="¿de quién es?"
+                  clase="mt-1"
+                />
+                <p className="mt-1 text-[12px] text-carbon/65">Sin comercial no hay código, y sin código la oportunidad no nace.</p>
+              </>
+            )}
+            <p className="mt-2 text-[13px] text-carbon/70">Lo demás es opcional: se completa en su ficha.</p>
 
             <span className={ETQ + " mt-3"}>Administrador</span>
             <Elegir
@@ -234,7 +255,7 @@ export function EmitirInforme({
               <button type="button" disabled={enCurso} onClick={() => setRapida(false)} className={bBlanco}>
                 Cancelar
               </button>
-              <button type="button" disabled={enCurso || sinEntrada} onClick={() => lanzar(() => crearOportunidadYEmitir(nueva, datos(), entrada!))} className={bLima}>
+              <button type="button" disabled={enCurso || sinEntrada || faltaComercial} onClick={() => lanzar(() => crearOportunidadYEmitir(nueva, datos(), entrada!))} className={bLima}>
                 {enCurso ? "Creando…" : "Crear y emitir"}
               </button>
             </div>

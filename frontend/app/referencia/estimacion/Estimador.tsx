@@ -41,12 +41,14 @@ export function Estimador({
   personas,
   tipos,
   puedeCrear,
+  comerciales,
 }: {
   d: Datos;
   oportunidades: Opcion[];
   personas: Opcion[];
   tipos: Opcion[];
   puedeCrear: boolean;
+  comerciales: Opcion[] | null;
 }) {
   const [tipo, setTipo] = useState<Tipo>("ascensor");
   const [caso, setCaso] = useState("B");
@@ -220,7 +222,7 @@ export function Estimador({
           </div>
           {/* CON LAS AYUDAS: el informe se EMITE para una direccion -nuestra o
               nueva- y se guarda tal cual (12-oct-2026). */}
-          <EmitirInforme entrada={paraInforme} oportunidades={oportunidades} personas={personas} tipos={tipos} puedeCrear={puedeCrear} />
+          <EmitirInforme entrada={paraInforme} oportunidades={oportunidades} personas={personas} tipos={tipos} puedeCrear={puedeCrear} comerciales={comerciales} />
           <p className="mt-2 text-[12px] text-carbon/65">
             Con las ayudas a las que puede acceder ese edificio, lo que darían para esta obra, cuándo se convocan y cuánto tardan
             en concederse, y lo que habrá subido la obra para entonces. Queda guardado: en su oportunidad o, si no es de nadie, en

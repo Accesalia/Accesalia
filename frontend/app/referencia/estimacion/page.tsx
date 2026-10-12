@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { puedeEntrar, quienSoy } from "../../../lib/sesion";
+import { comercialDe, puedeEntrar, quienSoy } from "../../../lib/sesion";
+import { listarComerciales } from "../../../lib/comercial";
 import { opcionesEntrada } from "../../../lib/entradaDiario";
 import { tiposParaMovil } from "../../../lib/oportunidadMovil";
 import { datosEstimacion } from "../../../lib/estimacionCostes";
@@ -17,7 +18,13 @@ export default async function Estimacion() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/referencia/estimacion");
   // Para el informe: nuestras oportunidades, y las listas de la ventana rapida.
-  const [d, listas, tipos] = await Promise.all([datosEstimacion(), opcionesEntrada(), tiposParaMovil().catch(() => [])]);
+  const [d, listas, tipos, mio, comerciales] = await Promise.all([
+    datosEstimacion(),
+    opcionesEntrada(),
+    tiposParaMovil().catch(() => []),
+    comercialDe(yo.id),
+    listarComerciales(),
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -41,6 +48,8 @@ export default async function Estimacion() {
           personas={listas.personas}
           tipos={tipos}
           puedeCrear={puedeEntrar(yo, "comercial", "trabajar")}
+          // Si no es comercial, la ventana rapida le pide de quien es.
+          comerciales={mio ? null : comerciales.map((c) => ({ valor: c.id, texto: [c.nombre, c.apellidos].filter(Boolean).join(" ") }))}
         />
       </main>
     </div>

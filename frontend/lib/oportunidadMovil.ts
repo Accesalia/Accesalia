@@ -56,8 +56,14 @@ export type NuevaDesdeMovil = {
 
 const PASOS = ["primer_contacto", "visita", "envio_documentos"];
 
-/** Crea la oportunidad (si no existe ya con ese id) y devuelve su id. */
-export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil): Promise<string> {
+/** Crea la oportunidad (si no existe ya con ese id) y devuelve su id. El
+ *  comercial es quien la crea; si quien la crea no es comercial (direccion,
+ *  desde la estimacion de costes), el que se elija en `comercialId`.
+ *
+ *  SIN COMERCIAL NO NACE (Monica, 12-oct-2026): "sin comercial NO HAY CODIGO
+ *  que asignar, no puede nacer". La base lo admitiria (codigo y comercial_id
+ *  son opcionales), por eso lo para el codigo. */
+export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil, comercialId: string | null = null): Promise<string> {
   if (!/^[0-9a-f-]{36}$/.test(d.id)) throw new Error("La oportunidad nueva llega sin un id válido.");
   if (!d.direccion.trim()) throw new Error("Una oportunidad nueva necesita al menos la dirección que se escribió.");
 
@@ -65,8 +71,10 @@ export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil): Pr
   const ya = (await pedir("GET", `oportunidades?select=id&id=eq.${d.id}&limit=1`)) as { id: string }[];
   if (ya.length) return d.id;
 
-  const mio = await comercialDe(yo.id);
-  const codigo = mio ? await siguienteCodigo(mio.id) : null;
+  const mio = (await comercialDe(yo.id)) ?? (comercialId ? { id: comercialId } : null);
+  if (!mio) throw new Error("Una oportunidad nace con su comercial: elige de quién es.");
+  const codigo = await siguienteCodigo(mio.id);
+  if (!codigo) throw new Error("Ese comercial no tiene siglas: sin ellas no hay código y la oportunidad no puede nacer.");
   const [lc, idc] = (d.contacto ?? "").split(":");
   const [la, ida] = (d.administrador ?? "").split(":");
   const conContacto = lc === "puesto" || lc === "pc";
@@ -77,7 +85,7 @@ export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil): Pr
     fecha_apertura: d.fecha,
     nombre: d.direccion.trim(),
     comunidad_provisional: d.direccion.trim(),
-    comercial_id: mio?.id ?? null,
+    comercial_id: mio.id,
     estado: "abierta",
     puesto_id: lc === "puesto" ? idc : null,
     persona_comunidad_id: lc === "pc" ? idc : null,
