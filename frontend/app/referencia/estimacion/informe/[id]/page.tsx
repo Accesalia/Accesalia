@@ -43,7 +43,15 @@ export default async function InformeEmitido({ params }: { params: Promise<{ id:
               ← Estimación de costes de obra
             </Link>
           </div>
-          <Imprimir />
+          <div className="flex items-center gap-2.5">
+            <a href={`/referencia/estimacion/informe/${id}/pdf`} target="_blank" rel="noreferrer" className="rounded-xl border border-carbon/30 bg-white px-4 py-2 text-[14px] font-bold text-carbon transition hover:border-carbon">
+              Ver PDF
+            </a>
+            <a href={`/referencia/estimacion/informe/${id}/pdf?descargar=1`} className="rounded-xl border border-carbon/30 bg-white px-4 py-2 text-[14px] font-bold text-carbon transition hover:border-carbon">
+              Descargar PDF
+            </a>
+            <Imprimir />
+          </div>
         </div>
         <p className="mt-2 text-[13px] text-carbon/65 print:hidden">
           Emitido el {HORA.format(new Date(inf.creado_en))}
