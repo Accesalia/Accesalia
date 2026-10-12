@@ -438,7 +438,28 @@ export type Repaso = {
   quedan: number;
   /** Los que se dejan en el buzon por grandes: asunto, de quien y cuanto pesan. */
   grandes: string[];
+  /** Apartados por no contestar: desde cuando y el ultimo intento. La siguiente
+   *  pasada los lee de aqui (pasada_reloj.detalle). */
+  atascados: { uid: number; desde: string; ultimo: string }[];
+  /** Apartados que esta pasada no ha reintentado (aun no ha pasado la hora). */
+  esperan: number;
 };
+
+const ESPERA_CORREO_MS = 60_000;
+const REINTENTO_MS = 60 * 60_000;
+class Atasco extends Error {}
+
+/** Los apartados de la ultima pasada que se apunto con detalle. */
+async function atascadosAnteriores(): Promise<Map<number, { desde: string; ultimo: string }>> {
+  try {
+    const [p] = await leer<{ detalle: { atascados?: { uid: number; desde: string; ultimo: string }[] } | null }[]>(
+      "pasada_reloj?select=detalle&tarea=eq.buzon_polycam&detalle=not.is.null&order=empezada_en.desc&limit=1",
+    );
+    return new Map((p?.detalle?.atascados ?? []).map((a) => [a.uid, { desde: a.desde, ultimo: a.ultimo }]));
+  } catch {
+    return new Map();
+  }
+}
 
 // EL TOPE DE UNA PASADA (12-oct-2026). Pasado este tiempo no se empieza otro
 // correo: se deja para la siguiente, que es dentro de diez minutos. Asi la
@@ -688,7 +709,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   });
 
   const r: Repaso = {
-    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [],
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [], atascados: [], esperan: 0,
   };
 
   await cliente.connect();
@@ -697,6 +718,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   r.rescatados = await rescatarDeSpam(cliente);
   enPaso("abrir la bandeja de entrada");
   const cerrojo = await cliente.getMailboxLock("INBOX");
+  let tocada = false; // un correo no contesto: la conexion ya no vale
   try {
     // LOS QUE NO SE HAN GUARDADO TODAVIA. Son dos grupos:
     //
@@ -715,100 +737,130 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
       ]),
     ];
 
-    for (const [n, uid] of lista.entries()) {
+    // EL ORDEN (12-oct-2026): primero lo mas nuevo, que es lo que alguien
+    // acaba de mandar; los apartados por no contestar, al final y solo si hace
+    // mas de una hora del ultimo intento, para no machacar a Gmail.
+    const atascados = await atascadosAnteriores();
+    for (const uid of atascados.keys()) if (!lista.includes(uid)) atascados.delete(uid); // ya entraron o ya no estan
+    const toca = (uid: number) => Date.now() - Date.parse(atascados.get(uid)!.ultimo) > REINTENTO_MS;
+    const orden = [
+      ...lista.filter((u) => !atascados.has(u)).sort((a, b) => b - a),
+      ...lista.filter((u) => atascados.has(u) && toca(u)),
+    ];
+    r.esperan = lista.length - orden.length;
+
+    for (const [n, uid] of orden.entries()) {
       if (Date.now() - inicio > TOPE_MS) {
-        r.quedan = lista.length - n;
+        r.quedan = orden.length - n;
         break;
       }
       enPaso(`correo ${uid}`);
       r.mirados++;
       let asunto = "(sin asunto)";
       try {
-        // ANTES DE BAJARLO, CUANTO PESA. Uno enorme colgaba la pasada entera.
-        const info = await cliente.fetchOne(String(uid), { size: true, envelope: true, flags: true }, { uid: true });
-        if (info && (info.size ?? 0) > MAX_BYTES) {
-          const mb = ((info.size ?? 0) / 1048576).toFixed(0);
-          const de = info.envelope?.from?.[0]?.address ?? "?";
-          r.grandes.push(`${info.envelope?.subject ?? "(sin asunto)"} · de ${de} · ${mb} MB`);
-          if (!info.flags?.has(GRANDE)) await cliente.messageFlagsAdd(String(uid), [GRANDE], { uid: true });
-          enPaso(`correo ${uid}: ${mb} MB, se deja en el buzon`);
-          continue;
-        }
-        const bajado = await cliente.download(String(uid), undefined, { uid: true });
-        if (!bajado?.content) throw new Error("el correo no trae contenido");
-        const correo: ParsedMail = await simpleParser(bajado.content);
-        asunto = correo.subject?.trim() || "(sin asunto)";
-
-        const quienVino = correo.from?.value?.[0]?.address ?? null;
-        const comun = {
-          remitente: quienVino,
-          // QUIEN FUE A VISITAR Y ESCANEAR, el primero de los cuatro papeles de
-          // una viabilidad. Se pone solo, que es su criterio: "que se cree solo,
-          // igual que quien hizo la visita o el polycam, que salen de los datos
-          // que cuelgan de esas acciones".
-          visito_id: await quienEscaneo(quienVino),
-          asunto: correo.subject?.trim() || null,
-          // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
-          fecha: correo.date ? correo.date.toISOString() : null,
-          // El Message-ID: con esto se vuelve siempre al correo original, a su
-          // fecha y a su cuerpo, sin copiarlos aqui.
-          identificador_correo: correo.messageId ?? null,
-          ruta_polycam: enlacePolycam(correo),
-        };
-
-        const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
-
-        // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
-        // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
-        // tambien: queda constancia de que ese correo entro, que es lo que ella
-        // pidio -"se guardan los datos... y el archivo que tenga"-.
-        if (!adjuntos.length) {
-          const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
-          if (id) r.guardados++;
-          else r.repetidos++;
-        }
-
-        // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
-        // escaneado distinto; por eso lo unico es la pareja del correo con el
-        // nombre del fichero, y no el correo a secas.
-        for (const a of adjuntos) {
-          const nombre = a.filename ?? "escaneo";
-          const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre, fecha_escaneo: fechaDelEscaneo(nombre) });
-          if (!id) {
-            r.repetidos++;
-            continue;
+        // UN CORREO NO PUEDE ATASCAR A LOS DEMAS (12-oct-2026): si en 60 s no
+        // contesta, se aparta y se reintenta dentro de una hora.
+        await Promise.race([
+          (async () => {
+          // ANTES DE BAJARLO, CUANTO PESA. Uno enorme colgaba la pasada entera.
+          const info = await cliente.fetchOne(String(uid), { size: true, envelope: true, flags: true }, { uid: true });
+          if (info && (info.size ?? 0) > MAX_BYTES) {
+            const mb = ((info.size ?? 0) / 1048576).toFixed(0);
+            const de = info.envelope?.from?.[0]?.address ?? "?";
+            r.grandes.push(`${info.envelope?.subject ?? "(sin asunto)"} · de ${de} · ${mb} MB`);
+            if (!info.flags?.has(GRANDE)) await cliente.messageFlagsAdd(String(uid), [GRANDE], { uid: true });
+            enPaso(`correo ${uid}: ${mb} MB, se deja en el buzon`);
+            return;
           }
-          r.guardados++;
-          // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
-          // carpeta y dos ficheros con el mismo nombre no se pisan.
-          const ruta = `${id}/${limpioNombre(nombre)}${extension(nombre)}`;
-          await subirFichero(
-            ruta,
-            a.content as Buffer,
-            a.contentType ?? "application/octet-stream",
-            ALMACEN_POLYCAM,
-          );
-          await apuntarRuta(id, ruta);
-          r.ficheros++;
-        }
+          const bajado = await cliente.download(String(uid), undefined, { uid: true });
+          if (!bajado?.content) throw new Error("el correo no trae contenido");
+          const correo: ParsedMail = await simpleParser(bajado.content);
+          asunto = correo.subject?.trim() || "(sin asunto)";
 
-        // Hecho: leido, y fuera la etiqueta de "no supe colocarlo", que ya no
-        // significa nada porque ahora todo se guarda.
-        await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
-        try {
-          await cliente.messageFlagsRemove(String(uid), [SIN_SITIO], { uid: true });
-        } catch {
-          // Si la etiqueta no estaba, da igual.
-        }
+          const quienVino = correo.from?.value?.[0]?.address ?? null;
+          const comun = {
+            remitente: quienVino,
+            // QUIEN FUE A VISITAR Y ESCANEAR, el primero de los cuatro papeles de
+            // una viabilidad. Se pone solo, que es su criterio: "que se cree solo,
+            // igual que quien hizo la visita o el polycam, que salen de los datos
+            // que cuelgan de esas acciones".
+            visito_id: await quienEscaneo(quienVino),
+            asunto: correo.subject?.trim() || null,
+            // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
+            fecha: correo.date ? correo.date.toISOString() : null,
+            // El Message-ID: con esto se vuelve siempre al correo original, a su
+            // fecha y a su cuerpo, sin copiarlos aqui.
+            identificador_correo: correo.messageId ?? null,
+            ruta_polycam: enlacePolycam(correo),
+          };
+
+          const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
+
+          // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
+          // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
+          // tambien: queda constancia de que ese correo entro, que es lo que ella
+          // pidio -"se guardan los datos... y el archivo que tenga"-.
+          if (!adjuntos.length) {
+            const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
+            if (id) r.guardados++;
+            else r.repetidos++;
+          }
+
+          // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
+          // escaneado distinto; por eso lo unico es la pareja del correo con el
+          // nombre del fichero, y no el correo a secas.
+          for (const a of adjuntos) {
+            const nombre = a.filename ?? "escaneo";
+            const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre, fecha_escaneo: fechaDelEscaneo(nombre) });
+            if (!id) {
+              r.repetidos++;
+              continue;
+            }
+            r.guardados++;
+            // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
+            // carpeta y dos ficheros con el mismo nombre no se pisan.
+            const ruta = `${id}/${limpioNombre(nombre)}${extension(nombre)}`;
+            await subirFichero(
+              ruta,
+              a.content as Buffer,
+              a.contentType ?? "application/octet-stream",
+              ALMACEN_POLYCAM,
+            );
+            await apuntarRuta(id, ruta);
+            r.ficheros++;
+          }
+
+          // Hecho: leido, y fuera la etiqueta de "no supe colocarlo", que ya no
+          // significa nada porque ahora todo se guarda.
+          await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+          try {
+            await cliente.messageFlagsRemove(String(uid), [SIN_SITIO], { uid: true });
+          } catch {
+            // Si la etiqueta no estaba, da igual.
+          }
+          })(),
+          new Promise<never>((_, mal) => setTimeout(() => mal(new Atasco()), ESPERA_CORREO_MS)),
+        ]);
       } catch (e) {
+        if (e instanceof Atasco) {
+          // La conexion queda tocada: se apunta y se acaba la pasada. Lo demas,
+          // en la siguiente, que ya no empieza por este.
+          atascados.set(uid, { desde: atascados.get(uid)?.desde ?? new Date().toISOString(), ultimo: new Date().toISOString() });
+          r.errores.push(`correo ${uid} · no contesta en ${ESPERA_CORREO_MS / 1000} s: apartado, se reintenta en una hora`);
+          tocada = true;
+          break;
+        }
         // Un correo que falla NO se marca leido: se vuelve a intentar al rato.
         r.errores.push(`${asunto} · ${e instanceof Error ? e.message : String(e)}`);
       }
     }
+    r.atascados = [...atascados.entries()].map(([uid, a]) => ({ uid, ...a }));
   } finally {
     enPaso("cerrar la conexion");
     cerrojo.release();
-    await cliente.logout();
+    // Con la conexion tocada, despedirse educadamente tambien se colgaria.
+    if (tocada) cliente.close();
+    else await cliente.logout();
   }
 
   enPaso("hecho");
