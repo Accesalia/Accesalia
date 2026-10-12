@@ -39,10 +39,10 @@ def familias(desc):
     sola y la daba por ausente."""
     d = C.k(desc)
     out = set()
-    if re.search(r'CSS|SEGURIDAD Y SALUD', d): out.add('css')
+    if re.search(r'\bCSS\b|\bCSYS\b|SEGURIDAD Y SALUD|RECURSO PREVENTIVO', d): out.add('css')   # (12-oct) CSYS en los pedidos de FAIN
     if re.search(r'SUBVENCI|DOCUMENTACION TECNICA', d): out.add('subvencion')
-    if re.search(r'DIRECCION (DE OBRA|FACULTATIVA)|DF|DO', d): out.add('df')
-    if re.search(r'IEE|ITE|EVALUACION DEL EDIFICIO|LIBRO DEL EDIFICIO|CERTIFICADO DE EFICIENCIA|CEE', d): out.add('iee')
+    if re.search(r'DIRECCION (DE OBRA|FACULTATIVA)|\bDF\b|\bDO\b', d): out.add('df')
+    if re.search(r'\bIEE\b|\bITE\b|EVALUACION DEL EDIFICIO|LIBRO DEL EDIFICIO|CERTIFICADO DE EFICIENCIA|\bCEE\b', d): out.add('iee')
     if re.search(r'INFORME|VIABILIDAD|PRESUPUESTOS|MEDICIONES', d): out.add('informe')
     if re.search(r'PROYECTO|REDACCION|ASCENSOR|PLATAFORMA|RAMPA|SATE|LICENCIA|MODELADO|TOMA DE DATOS|COTA CERO', d) or not out: out.add('proyecto')
     return out

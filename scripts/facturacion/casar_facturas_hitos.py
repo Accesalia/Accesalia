@@ -38,7 +38,7 @@ FAMILIA = {
 
 def familia_de_linea(desc):
     d = k(desc)
-    if re.search(r'\bCSS\b|SEGURIDAD Y SALUD', d): return 'css'
+    if re.search(r'\bCSS\b|\bCSYS\b|SEGURIDAD Y SALUD|RECURSO PREVENTIVO', d): return 'css'   # (12-oct) CSYS en los pedidos de FAIN
     if re.search(r'SUBVENCI|DOCUMENTACION TECNICA', d): return 'subvencion'
     if re.search(r'DIRECCION (DE OBRA|FACULTATIVA)|\bDF\b|\bDO\b', d) and not re.search(r'PROYECTO', d): return 'df'
     if re.search(r'\bIEE\b|\bITE\b|EVALUACION DEL EDIFICIO|LIBRO DEL EDIFICIO|CERTIFICADO DE EFICIENCIA|\bCEE\b', d) and not re.search(r'PROYECTO', d): return 'iee'
