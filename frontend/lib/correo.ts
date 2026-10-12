@@ -82,6 +82,8 @@ export async function enviarCorreo({
   texto,
   html,
   responderA,
+  nombreRemitente,
+  adjuntos,
 }: {
   /** De que AREA sale, que lo decide la tarea y no quien la ejecuta. */
   desde: Area;
@@ -93,6 +95,11 @@ export async function enviarCorreo({
    *  le escribe "Accesalia · Comercial" y, si responde, le contesta a ella. Son
    *  dos campos distintos del correo y aqui se ponen distintos a proposito. */
   responderA?: string | null;
+  /** El nombre que lee quien lo recibe, en vez del del buzon: sale del buzon
+   *  comercial, pero "de Beatriz García · Accesalia" (Monica, 12-oct-2026). */
+  nombreRemitente?: string | null;
+  /** Los ficheros adjuntos (los PDF de la oportunidad). */
+  adjuntos?: { nombre: string; contenido: Uint8Array | Buffer }[];
 }): Promise<Enviado> {
   const buzon = BUZONES[desde];
   const clave = CLAVES[desde];
@@ -111,12 +118,13 @@ export async function enviarCorreo({
       auth: { user: buzon.direccion, pass: clave },
     });
     await transporte.sendMail({
-      from: `"${buzon.nombre}" <${buzon.direccion}>`,
+      from: `"${(nombreRemitente || buzon.nombre).replace(/"/g, "")}" <${buzon.direccion}>`,
       to: para,
       replyTo: responderA || undefined,
       subject: asunto,
       text: texto,
       html,
+      attachments: adjuntos?.map((a) => ({ filename: a.nombre, content: Buffer.from(a.contenido), contentType: "application/pdf" })),
     });
     return { ok: true };
   } catch (e) {

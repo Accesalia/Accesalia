@@ -6,6 +6,7 @@ import { ESTADOS_3D, TIPOS_3D } from "../../../../lib/gestionOportunidad";
 import { estadoDeHoja } from "../../../../lib/estadoHoja";
 import { Miniaturas } from "../../../components/Miniaturas";
 import type { InformeGuardado } from "../../../../lib/informeCostes";
+import type { CorreoEnviado } from "../../../../lib/envioCorreo";
 
 // BLOQUE 2 · DOCUMENTACION (Monica, 6-oct-2026). La ESTRUCTURA es la del
 // esqueleto gris del 29-sep (docs/figma/gestion-oportunidad-gris.html): Sali
@@ -51,6 +52,7 @@ export function Bloque2({
   d,
   trato,
   informes = [],
+  enviados = [],
 }: {
   id: string;
   g: Gestion;
@@ -58,6 +60,8 @@ export function Bloque2({
   trato: ReactNode;
   /** Los informes emitidos para esta oportunidad (12-oct-2026). */
   informes?: InformeGuardado[];
+  /** Lo enviado por correo desde aqui (12-oct-2026). */
+  enviados?: CorreoEnviado[];
 }) {
   const costes = informes.filter((x) => x.tipo === "estimacion_costes");
   const v = d.viabilidad;
@@ -284,10 +288,26 @@ export function Bloque2({
           {g.trajo && <p className="text-[11.5px] text-[#6e6e6e]">Quién lo trae: {g.trajo}</p>}
           <div className="mt-2.5">{trato}</div>
         </div>
-        <div className={HUECA + " flex-col gap-1.5"}>
-          <span className="font-bold uppercase tracking-[0.09em]">Enviar</span>
-          <span>elegir documentos + plantilla de correo</span>
-          <span className={PRONTO}>Próximamente</span>
+        {/* ENVIAR (Monica, 12-oct-2026): documentos + plantilla, desde el buzon
+            comercial a nombre del comercial; queda en el diario. */}
+        <div className={CAJA + " flex flex-col"}>
+          <div className={BANDA}>Enviar</div>
+          {enviados.length === 0 ? (
+            <p className="mt-1.5 text-[12px] text-[#4a4a4a]">Nada enviado desde la app todavía.</p>
+          ) : (
+            <ul className="mt-1.5 space-y-1 text-[12px] text-[#4a4a4a]">
+              {enviados.slice(0, 4).map((c) => (
+                <li key={c.id}>
+                  <b>{HORA.format(new Date(c.creado_en))}</b> · {c.asunto} · a {c.para.join(", ")}
+                  {c.documentos.length > 0 && ` · ${c.documentos.length} doc.`}
+                  {!c.ok && <span className="text-alerta"> · no salió</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link href={`/comercial/oportunidades/${id}/enviar`} className={BOT + " mt-2.5 self-start"}>
+            Enviar documentos
+          </Link>
         </div>
       </div>
     </section>
