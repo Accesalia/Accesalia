@@ -17,7 +17,8 @@ suelto: `bg-hueso`, `text-carbon`, `border-lima`.
 | `lima` | `#7ac943` | El verde de la marca. **Acción**: botón principal, lo que se pulsa. |
 | `lima-dark` | `#3f7a1c` | El mismo verde, más profundo, para texto y para el fondo al pasar el ratón. Bajado desde `#5fa62f`, que daba 3,0:1 y no se leía. |
 | `lima-soft` | `#eef7e4` | Verde casi blanco. Fondo de las tarjetas **de dentro**. |
-| `hueso` | `#f7f7f5` | El crema suavísimo. **Fondo de toda la app.** |
+| `fondo` | `#eef5e8` | Verde suave. **Fondo de toda la app** (desde el 12-oct-2026; antes era el hueso). |
+| `hueso` | `#f7f7f5` | El crema suavísimo. Lo apagado y lo de dentro. |
 | `ajeno` | `#5b7fa6` | Azul pizarra: lo que **no depende de nosotros** (el arquitecto, el escaneo, el 3D). |
 | `ajeno-soft` | `#e8eef5` | Su versión de fondo. |
 | `alerta` | `#9f3a38` | Rojo apagado. Atasco. Avisa sin gritar. |
@@ -125,7 +126,7 @@ Y su forma, que también es suya:
 
 ## Las piezas
 
-**La página.** `bg-hueso` de fondo (ya va en el `body`), barra superior
+**La página.** `bg-fondo` de fondo (ya va en el `body`), barra superior
 `bg-carbon` pegada arriba, y el contenido en `main` centrado:
 `mx-auto max-w-[1300px] px-4 pb-16 pt-5 sm:px-6`. En formularios, `max-w-[1000px]`.
 
@@ -222,3 +223,13 @@ font-semibold uppercase tracking-wide text-carbon/40` con la palabra
 - No hay modo oscuro y no se ha pedido.
 - La tipografía es la del sistema (`--font-sans`). Nunca se ha hablado de traer
   una de fuera.
+
+## Los menús de botones
+
+**Todos con la misma pieza:** `RejillaAccesos` y `TarjetaAcceso`, de
+`app/components/Accesos.tsx` (Mónica, 12-oct-2026). Cuatro columnas en
+pantalla, dos en tableta y una en el móvil; tarjetas más altas que anchas, con
+el título en dos líneas si hace falta y hasta cuatro de subtítulo. **Cada acceso
+lleva su color** de la paleta `COLORES` (azul, verde, ámbar, arena, turquesa,
+lila, rosa, melocotón), puesto en la lista del menú: el color va con el acceso,
+no con su sitio. Un menú nuevo usa esta pieza y no se inventa la suya.
