@@ -35,6 +35,8 @@ export default async function Ecobalance() {
             insignia={cuantas(tres.length)}
           />
           <TarjetaAcceso nombre="CAES" desc="Las direcciones con CAES en una hoja firmada" href="/ecobalance/caes" color="turquesa" insignia={cuantas(caes.length)} />
+          {/* PAGAR (12-oct-2026): los impuestos de Ecobalance, que Ana lleva aparte. */}
+          <TarjetaAcceso nombre="Pagar" desc="Los impuestos de Ecobalance: qué se presenta, qué se paga y cuándo, mes a mes" href="/pagar" color="ambar" />
         </RejillaAccesos>
       </main>
     </div>

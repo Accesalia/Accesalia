@@ -43,7 +43,7 @@ const AREAS: Area[] = [
     // control de produccion.
     nombre: "Facturación y asignación",
     color: "ambar",
-    desc: "Lo que queda por cobrar, los hitos y facturas de cada oportunidad, y el cronograma de trabajo y caja",
+    desc: "Cobrar, pagar, prever y asignar: las hojas firmadas, los impuestos, la caja del mes y el trabajo de los técnicos",
     href: "/facturacion",
     ve: (yo) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion"),
   },

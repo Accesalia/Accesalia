@@ -4,6 +4,7 @@ import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
 import { datosCaja, puedeVerCobros } from "../../../lib/cobros";
 import { Cronograma } from "./Cronograma";
+import { Areas } from "../Areas";
 
 export const dynamic = "force-dynamic";
 
@@ -23,14 +24,17 @@ export default async function PaginaCaja() {
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1700px] px-4 pb-16 pt-5 text-sm sm:px-6">
         <Volver siNoHay="/facturacion" />
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon">Cronograma y previsión de caja</h1>
-          <span
-            className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/60"
-            title="Las duraciones son las de por defecto y lo que se cambia aquí no se guarda todavía: se enganchará a las tablas de proyecto y requerimientos."
-          >
-            Semilla · no se guarda
-          </span>
+        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-black/10 pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+            <h1 className="text-3xl font-bold leading-tight text-carbon">Cronograma y previsión de caja</h1>
+            <span
+              className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/60"
+              title="Las duraciones son las de por defecto y lo que se cambia aquí no se guarda todavía: se enganchará a las tablas de proyecto y requerimientos."
+            >
+              Semilla · no se guarda
+            </span>
+          </div>
+          <Areas yo={yo} activa="asignar" />
         </div>
         <Cronograma d={d} />
       </main>
