@@ -56,28 +56,28 @@ def main():
         for ln in open(f, encoding='utf-8'):
             if ln.strip():
                 x = json.loads(ln); leidas[x['id']] = x
-    casadas = {x['factura_linea_id'] for x in b.leer('factura_linea_hitos?select=factura_linea_id')}
+    casadas = {x['factura_linea_id'] for x in b.leer('factura_linea_hitos?select=factura_linea_id&order=factura_linea_id,hito_cobro_id')}
     FL = [fl for fl in b.leer('factura_lineas?select=id,concepto,base,factura:factura_id!inner(tipo,empresa_emisora,anio,serie,numero,fecha,estado,pagador_nombre,pagador_nif)'
-                              '&factura.serie=eq.1&factura.estado=neq.anulada') if fl['id'] not in casadas]
+                              '&factura.serie=eq.1&factura.estado=neq.anulada&order=id') if fl['id'] not in casadas]
 
     def palabras(nombre):
         ws = set(C.k(limpia(nombre)).split())
         for a, z in re.findall(r'(\d+)\s*(?:AL|A)\s*(\d+)', C.k(nombre)):
             if int(a) < int(z) <= int(a) + 60: ws |= {str(n) for n in range(int(a), int(z) + 1)}
         return ws
-    coms = {c['id']: (c['nombre'], palabras(c['nombre']), (c['cif_comunidad'] or '').upper()) for c in b.leer('comunidades?select=id,nombre,cif_comunidad')}
-    hojas = b.leer('hojas_encargo?select=id,numero_hoja,fecha_creacion,fecha_firma,comunidad_id,estado,version_firmada_id&estado=neq.anulada')
+    coms = {c['id']: (c['nombre'], palabras(c['nombre']), (c['cif_comunidad'] or '').upper()) for c in b.leer('comunidades?select=id,nombre,cif_comunidad&order=id')}
+    hojas = b.leer('hojas_encargo?select=id,numero_hoja,fecha_creacion,fecha_firma,comunidad_id,estado,version_firmada_id&estado=neq.anulada&order=id')
     por_com = collections.defaultdict(list)
     for h in hojas: por_com[h['comunidad_id']].append(h)
     lineas = collections.defaultdict(list)
-    for l in b.leer('lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,porcentaje,bloque:bloque_id(nombre)'):
+    for l in b.leer('lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,porcentaje,bloque:bloque_id(nombre)&order=id'):
         l['descripcion'] = l['descripcion'] or (l['bloque'] or {}).get('nombre') or ''
         lineas[l['hoja_encargo_id']].append(l)
     hitos = collections.defaultdict(list)
-    for h in b.leer('hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,hito_padre_id'):
+    for h in b.leer('hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,hito_padre_id&order=id'):
         if not h['hito_padre_id']: hitos[h['linea_facturacion_id']].append(h)
     conceptos = collections.defaultdict(list)
-    for c in b.leer('conceptos_hoja?select=hoja_encargo_id,version_hoja_id,descripcion,importe,desglose,forma_pago,bloque:bloque_id(nombre)'):
+    for c in b.leer('conceptos_hoja?select=hoja_encargo_id,version_hoja_id,descripcion,importe,desglose,forma_pago,bloque:bloque_id(nombre)&order=id'):
         conceptos[c['hoja_encargo_id']].append(c)
 
     filas, cuenta = [], collections.Counter()
@@ -89,6 +89,7 @@ def main():
         if f['empresa_emisora'] == 'ecobalance' or f['tipo'] == 'abono' or fam is None or not imp:
             continue
         r = {'factura': '%s %s/%s' % (f['empresa_emisora'], f['anio'], f['numero']), 'fecha': f['fecha'], 'estado_factura': f['estado'],
+             'linea': fl['id'], 'fecha_factura': f['fecha'],
              'cliente': f['pagador_nombre'], 'importe': imp, 'concepto': x.get('concepto'), 'plazo': x.get('plazo'),
              'direccion': x.get('direccion'), 'hoja_citada': x.get('fecha_hoja'), 'texto': ' '.join((fl['concepto'] or '').split())[:250],
              'comunidad': '', 'hojas': '', 'lo_que_tiene_la_hoja': '', 'hitos': ''}
@@ -134,6 +135,7 @@ def main():
             else:
                 causa('LA HOJA NO LO INCLUYE', 'la hoja está pero no lleva %s: ¿otra hoja o un extra?' % fam)
             continue
+        r['lineas_ids'] = [l['id'] for h, l in ls]; r['linea_factura_id'] = fl['id']
         tipos = C.PLAZO.get(x.get('plazo'))
         r['hitos'] = ' || '.join('%s: %s' % ((l['descripcion'] or '')[:30], ', '.join('%s %s' % (t['hito'], t['importe']) for t in hitos.get(l['id'], [])) or 'SIN HITOS') for h, l in ls)
         opciones = [(h, l, t) for h, l in ls for t in hitos.get(l['id'], []) if not tipos or t['hito'] in tipos]
@@ -146,11 +148,16 @@ def main():
         if exactas:
             ids = {o[2]['id'] for o in exactas}
             lins = {o[1]['id'] for o in exactas}
+            # (12-oct) lo que hace falta para escribirlo con C.escribir: la hoja, el hito y si hay hermanos iguales
+            pri = sorted(exactas, key=lambda o: o[2]['orden'] or 0)[0]
+            r.update({'veredicto': 'exacto' if len(ids) == 1 else 'exacto_varios', 'hito': pri[2]['id'], 'otros': sorted(ids),
+                      'hoja': pri[0]['numero_hoja'], 'hoja_id': pri[0]['id']})
             causa('CASA AHORA' if len(ids) == 1 or len(lins) == 1 else 'VARIAS OPCIONES',
                   '; '.join('%s · %s %s' % (o[0]['numero_hoja'], o[2]['hito'], o[2]['importe']) for o in exactas[:4]))
             continue
         trozo = [o for o in opciones if o[2]['importe'] and imp < float(o[2]['importe']) - 1]
         if trozo:
+            r.update({'veredicto': 'subhito', 'hito': trozo[0][2]['id'], 'hoja': trozo[0][0]['numero_hoja'], 'hoja_id': trozo[0][0]['id']})
             causa('SUBHITO', 'es un trozo de %s %s (%s)' % (trozo[0][2]['hito'], trozo[0][2]['importe'], trozo[0][0]['numero_hoja'])); continue
         causa('HITOS MAL GENERADOS', 'ningún hito es de ese plazo (%s) ni de ese importe' % x.get('plazo'))
 
@@ -167,6 +174,7 @@ def main():
         for c in fila: c.alignment = Alignment(vertical='top', wrap_text=c.column_letter in 'BNOP')
     ws.freeze_panes = 'C2'; ws.auto_filter.ref = ws.dimensions
     wb.save(SALIDA)
+    json.dump(filas, open(SALIDA.replace('.xlsx', '.json'), 'w', encoding='utf-8'), ensure_ascii=False, default=str)
     for k_, v in cuenta.most_common(): print(f'{v:4}  {k_}')
     det = collections.Counter((r['causa'], re.sub(r'(HE|PD)-\d{4}-\d{4}|\d{4}-\d\d-\d\d|proyecto|css|df|subvencion|iee|informe', '…', r['detalle'])) for r in filas)
     print()
