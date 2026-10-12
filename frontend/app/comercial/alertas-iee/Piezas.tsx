@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { asignarAlerta, descartarAlerta, devolverAlMonton, recuperarAlerta } from "./acciones";
+import { asignarAlerta, asignarVarias, descartarAlerta, descartarVarias, devolverAlMonton, recuperarAlerta } from "./acciones";
 import type { ComercialAlQueAsignar } from "../../../lib/alertasIEE";
 
 // LAS PIEZAS QUE NECESITAN RATON.
@@ -143,5 +143,126 @@ export function Recuperar({ codigo }: { codigo: string }) {
         recuperar
       </button>
     </form>
+  );
+}
+
+/** EN BLOQUE (Monica, 12-oct-2026): con un municipio elegido, seleccionar todas
+ *  y asignarlas al mismo comercial o descartarlas a la vez. */
+export function AccionesEnBloque({
+  elegidas,
+  posibles,
+  comerciales,
+  alMarcarTodas,
+  alHacer,
+}: {
+  elegidas: string[];
+  /** Las que se pueden repartir en lo que se ve. */
+  posibles: string[];
+  comerciales: ComercialAlQueAsignar[];
+  alMarcarTodas: (todas: boolean) => void;
+  alHacer: () => void;
+}) {
+  const [abierto, setAbierto] = useState<"asignar" | "descartar" | null>(null);
+  const [motivo, setMotivo] = useState("");
+  const [haciendo, setHaciendo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const n = elegidas.length;
+  const todas = n > 0 && n === posibles.length;
+
+  const hacer = async (accion: () => Promise<{ ok: true; hechas: number } | { ok: false; error: string }>) => {
+    setHaciendo(true);
+    setError(null);
+    const r = await accion();
+    setHaciendo(false);
+    if (r.ok) {
+      setAbierto(null);
+      setMotivo("");
+      alHacer();
+    } else setError(r.error);
+  };
+
+  return (
+    <div className="mb-2 flex flex-wrap items-center gap-2.5 rounded-xl border border-black/10 bg-white px-3 py-2">
+      <button
+        type="button"
+        onClick={() => alMarcarTodas(!todas)}
+        className="h-[32px] rounded-[8px] border border-black/25 bg-white px-3 text-[14px] font-semibold text-carbon transition hover:border-carbon/50"
+      >
+        {todas ? "Quitar la selección" : `Seleccionar todas (${posibles.length})`}
+      </button>
+      <span className="text-[13px] text-carbon/65">{n ? `${n} marcada${n === 1 ? "" : "s"}` : "Marca las que quieras, o todas"}</span>
+
+      {n > 0 && (
+        <div className="relative">
+          <button
+            type="button"
+            disabled={haciendo}
+            onClick={() => setAbierto(abierto === "asignar" ? null : "asignar")}
+            className="h-[32px] rounded-[8px] bg-lima px-3 text-[14px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50"
+          >
+            Asignar las {n} a… <span aria-hidden className="ml-1">▾</span>
+          </button>
+          {abierto === "asignar" && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setAbierto(null)} aria-hidden />
+              <div role="menu" className="absolute left-0 top-[36px] z-20 w-[220px] rounded-xl border border-black/15 bg-white p-1.5 shadow-lg">
+                {comerciales.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="menuitem"
+                    disabled={haciendo}
+                    onClick={() => hacer(() => asignarVarias(elegidas, c.id))}
+                    className="mb-1 block w-full rounded-lg px-3 py-2.5 text-left text-[15px] font-semibold text-carbon transition last:mb-0 hover:bg-lima-soft"
+                  >
+                    {c.nombre}
+                    {c.correo ? "" : <span className="ml-1 text-[12px] font-normal text-carbon/60">(sin correo)</span>}
+                  </button>
+                ))}
+                <button type="button" onClick={() => setAbierto(null)} className="mt-1 block w-full rounded-lg border-t border-black/10 px-3 py-2 text-left text-[13px] text-carbon/60 hover:text-carbon">
+                  cancelar
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {n > 0 &&
+        (abierto === "descartar" ? (
+          <span className="flex items-center gap-1.5">
+            <input
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              placeholder="Motivo (opcional)"
+              autoFocus
+              className="h-[30px] w-[170px] rounded-[6px] border border-black/20 bg-white px-2 text-[13px] text-carbon"
+            />
+            <button
+              type="button"
+              disabled={haciendo}
+              onClick={() => hacer(() => descartarVarias(elegidas, motivo))}
+              className="h-[30px] rounded-[6px] border border-carbon/30 bg-white px-2.5 text-[13px] font-semibold text-carbon transition hover:border-carbon disabled:opacity-50"
+            >
+              Descartar las {n}
+            </button>
+            <button type="button" onClick={() => setAbierto(null)} className="text-[12px] text-carbon/60 underline hover:text-carbon">
+              cancelar
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            disabled={haciendo}
+            onClick={() => setAbierto("descartar")}
+            className="h-[32px] rounded-[8px] border border-black/25 bg-white px-3 text-[14px] text-carbon transition hover:border-carbon/50 disabled:opacity-50"
+          >
+            Descartar las {n}
+          </button>
+        ))}
+
+      {haciendo && <span className="text-[13px] text-carbon/65">Haciendo…</span>}
+      {error && <span className="text-[13px] font-semibold text-alerta">{error}</span>}
+    </div>
   );
 }

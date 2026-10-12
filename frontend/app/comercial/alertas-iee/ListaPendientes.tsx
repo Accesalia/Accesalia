@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { CarteraEnMunicipio, ComercialAlQueAsignar } from "../../../lib/alertasIEE";
-import { Asignador, Descartar, Recuperar } from "./Piezas";
+import { Asignador, Descartar, Recuperar, AccionesEnBloque } from "./Piezas";
 
 // LA LISTA DE PENDIENTES, FILTRADA EN EL NAVEGADOR (Monica, 10-oct-2026).
 //
@@ -82,6 +82,8 @@ export function ListaPendientes({
   const [municipioPedido, setMunicipio] = useState<string | null>(inicial.municipio);
   const [verNuestras, setNuestras] = useState(inicial.nuestras);
   const [verDescartadas, setDescartadas] = useState(inicial.descartadas);
+  // EN BLOQUE (12-oct-2026): las marcadas, solo con un municipio elegido.
+  const [marcadas, setMarcadas] = useState<string[]>([]);
 
   const esNuestra = (a: FilaPendiente) => a.nuestra?.tipo === "misma_finca";
   const esDescartada = (a: FilaPendiente) => a.estado === "descartada";
@@ -118,9 +120,14 @@ export function ListaPendientes({
         .filter((d) => d.alertas.length > 0)
     : sinFiltrar;
   const suCartera = municipio ? (cartera[municipio] ?? []) : [];
+  const posibles = municipio ? dias.flatMap((d) => d.alertas).filter((a) => !esNuestra(a) && !esDescartada(a)).map((a) => a.codigo) : [];
+  // Las marcadas que siguen ahi (al repartir o cambiar de filtro, las demas se caen).
+  const elegidas = marcadas.filter((c) => posibles.includes(c));
+  const marcar = (codigo: string) => setMarcadas((l) => (l.includes(codigo) ? l.filter((x) => x !== codigo) : [...l, codigo]));
 
   const elegir = (m: string | null) => {
     setMunicipio(m);
+    setMarcadas([]);
     apuntarEnLaUrl(m, verNuestras, verDescartadas);
   };
   const conmutarNuestras = () => {
@@ -211,10 +218,21 @@ export function ListaPendientes({
 
       {/* Sin overflow-hidden: el desplegable de "Asignar a…" flota por encima y
           en las ultimas filas se quedaba cortado. */}
+      {municipio && posibles.length > 0 && (
+        <AccionesEnBloque
+          elegidas={elegidas}
+          posibles={posibles}
+          comerciales={comerciales}
+          alMarcarTodas={(todas) => setMarcadas(todas ? posibles : [])}
+          alHacer={() => setMarcadas([])}
+        />
+      )}
+
       <div className={CAJA}>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-black/10 text-left text-[11px] uppercase tracking-wider text-carbon/45">
+              {municipio && <th className="w-8 pl-4" aria-label="Marcar" />}
               <th className="px-4 py-2 font-bold">Dirección</th>
               <th className="px-3 py-2 font-bold">Por qué está aquí</th>
               <th className="px-3 py-2 font-bold">El informe</th>
@@ -225,7 +243,7 @@ export function ListaPendientes({
           {dias.length === 0 && (
             <tbody>
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-[13px] text-carbon/50">
+                <td colSpan={municipio ? 5 : 4} className="px-4 py-6 text-center text-[13px] text-carbon/50">
                   No queda ninguna por asignar. Todo repartido.
                 </td>
               </tr>
@@ -234,13 +252,26 @@ export function ListaPendientes({
           {dias.map((d) => (
             <tbody key={d.dia}>
               <tr className="border-y border-black/5 bg-hueso/60">
-                <td colSpan={4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
+                <td colSpan={municipio ? 5 : 4} className="px-4 py-1.5 text-[12px] font-bold text-carbon/70">
                   {d.dia === hoy ? "Hoy · " : ""}
                   {comoSeDice(d.dia)}
                 </td>
               </tr>
               {d.alertas.map((a) => (
-                <tr key={a.codigo} className="border-b border-black/5">
+                <tr key={a.codigo} className={"border-b border-black/5" + (elegidas.includes(a.codigo) ? " bg-lima-soft/60" : "")}>
+                  {municipio && (
+                    <td className="pl-4 align-top pt-2.5">
+                      {posibles.includes(a.codigo) && (
+                        <input
+                          type="checkbox"
+                          aria-label={`Marcar ${a.direccion ?? a.codigo}`}
+                          checked={elegidas.includes(a.codigo)}
+                          onChange={() => marcar(a.codigo)}
+                          className="size-4 accent-lima-dark"
+                        />
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-2">
                     <div className="font-bold text-carbon">
                       {a.direccion ?? "Sin dirección"}

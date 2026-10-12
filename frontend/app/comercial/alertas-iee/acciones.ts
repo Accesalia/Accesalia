@@ -236,3 +236,82 @@ export async function recuperarAlerta(formulario: FormData) {
   revalidatePath("/comercial/alertas-iee");
   revalidatePath("/pendientes");
 }
+
+// ---------------------------------------------------------------------------
+// EN BLOQUE (Monica, 12-oct-2026): "al seleccionar un municipio, un boton de
+// seleccionar todas para hacer acciones sobre todas a la vez: asignar a un
+// mismo comercial, o descartar todas a la vez".
+//
+// Asignar varias manda UN correo con todas las fichas dentro, no uno por
+// alerta: al comercial le llega "te paso estas 7 en Leganes", no siete correos.
+// ---------------------------------------------------------------------------
+
+type EnBloque = { ok: true; hechas: number } | { ok: false; error: string };
+
+export async function asignarVarias(codigos: string[], comercialId: string): Promise<EnBloque> {
+  const yo = await quienSoy();
+  if (!yo) return { ok: false, error: "Tu sesión ha caducado: vuelve a entrar." };
+  if (!puedeEntrar(yo, "comercial", "supervisar")) return { ok: false, error: "Repartir es de supervisión comercial." };
+  const comercial = (await comercialesActivos()).find((c) => c.id === comercialId);
+  if (!comercial) return { ok: false, error: "Ese comercial no está activo." };
+
+  const alertas = (await Promise.all(codigos.map((c) => alertaIEE(c)))).filter((a): a is NonNullable<typeof a> => !!a);
+  if (!alertas.length) return { ok: false, error: "No queda ninguna de esas por asignar." };
+  const lista = `(${alertas.map((a) => `"${a.codigo.replace(/"/g, "")}"`).join(",")})`;
+
+  // Primero se deja constancia, luego el correo (como al asignar una).
+  const ahora = new Date().toISOString();
+  await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=in.${encodeURIComponent(lista)}&estado=eq.nueva`, {
+    method: "PATCH",
+    headers: { ...cab, Prefer: "return=minimal" },
+    body: JSON.stringify({ asignada_a: comercialId, asignada_en: ahora, asignada_por: yo.id, estado: "asignada", asignada_email_en: null, asignada_email_fallo: null }),
+  });
+
+  // Un solo correo: cada ficha, una detras de otra.
+  const fichas = alertas.map((a) => plantilla(comercial.nombre, a, yo.nombre));
+  const n = alertas.length;
+  const asunto = n === 1 ? fichas[0].asunto : `${n} direcciones del radar de IEE`;
+  // De cada ficha, sus datos: las lineas que empiezan con dos espacios.
+  const datosDe = (t: string) => t.split("\n").filter((l) => l.startsWith("  ")).join("\n");
+  const texto =
+    n === 1
+      ? fichas[0].texto
+      : `Hola ${comercial.nombre},\n\nnuestro radar ha encontrado ${n} IEE que te paso a la vez:\n\n` +
+        fichas.map((f, i) => `${i + 1}. ${f.asunto}\n${datosDe(f.texto)}`).join("\n\n") +
+        `\n\nTe las paso para que puedas hacerles una visita o llamar si quieres. Van a necesitar un arquitecto.\n\nTe las pasa ${yo.nombre}.\n`;
+  const html =
+    n === 1
+      ? fichas[0].html
+      : `<p>Hola ${comercial.nombre},</p><p>nuestro radar ha encontrado ${n} IEE que te paso a la vez:</p>` +
+        fichas.map((f, i) => `<h3 style="font-family:sans-serif;font-size:15px;margin:18px 0 4px">${i + 1}. ${f.asunto}</h3>` + (f.html.match(/<table[\s\S]*<\/table>/)?.[0] ?? "")).join("") +
+        `<p>Te las paso para que puedas hacerles una visita o llamar si quieres. Van a necesitar un arquitecto.</p><p>Te las pasa ${yo.nombre}.</p>`;
+  const salio = comercial.correo
+    ? await enviarCorreo({ desde: "comercial", para: comercial.correo, responderA: yo.email, asunto, texto, html })
+    : { ok: false, dice: `${comercial.nombre} no tiene correo en su ficha de equipo` };
+
+  await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=in.${encodeURIComponent(lista)}&asignada_en=eq.${encodeURIComponent(ahora)}`, {
+    method: "PATCH",
+    headers: { ...cab, Prefer: "return=minimal" },
+    body: JSON.stringify({ asignada_email_en: salio.ok ? new Date().toISOString() : null, asignada_email_fallo: salio.ok ? null : (salio.dice ?? "no se pudo enviar") }),
+  });
+
+  revalidatePath("/comercial/alertas-iee");
+  revalidatePath("/pendientes");
+  return { ok: true, hechas: n };
+}
+
+export async function descartarVarias(codigos: string[], motivo: string): Promise<EnBloque> {
+  const yo = await quienSoy();
+  if (!yo) return { ok: false, error: "Tu sesión ha caducado: vuelve a entrar." };
+  if (!puedeEntrar(yo, "comercial", "supervisar")) return { ok: false, error: "Descartar es de supervisión comercial." };
+  if (!codigos.length) return { ok: false, error: "No hay ninguna marcada." };
+  const lista = `(${codigos.map((c) => `"${c.replace(/"/g, "")}"`).join(",")})`;
+  await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=in.${encodeURIComponent(lista)}&estado=eq.nueva`, {
+    method: "PATCH",
+    headers: { ...cab, Prefer: "return=minimal" },
+    body: JSON.stringify({ estado: "descartada", descartada_por: yo.id, descartada_en: new Date().toISOString(), motivo_descarte: motivo.trim() || null }),
+  });
+  revalidatePath("/comercial/alertas-iee");
+  revalidatePath("/pendientes");
+  return { ok: true, hechas: codigos.length };
+}
