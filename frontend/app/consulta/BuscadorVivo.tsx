@@ -14,6 +14,7 @@ const PESTAÑAS: [QueBuscar, string, string][] = [
   ["direccion", "Dirección", "calle y número: ronda segovia 5"],
   ["admin", "Administrador", "nombre de la administración"],
   ["contrata", "Contrata", "nombre o CIF de la contrata"],
+  ["persona", "Persona", "nombre, teléfono o correo: de donde sea"],
 ];
 const MAXIMO = 12;
 const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();

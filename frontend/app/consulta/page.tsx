@@ -22,7 +22,7 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
   if (!yo) redirect("/entrar?volver=/consulta");
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
-  const que: QueBuscar = sp.que === "admin" || sp.que === "contrata" ? sp.que : "direccion";
+  const que: QueBuscar = sp.que === "admin" || sp.que === "contrata" || sp.que === "persona" ? sp.que : "direccion";
   // 12-oct-2026: el desplegable filtra al escribir; "Buscar" saca la lista entera.
   const [resultados, listas] = await Promise.all([q ? buscar(q, que) : Promise.resolve([]), listasBuscador()]);
 
@@ -36,7 +36,7 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
         <section className={CAJA + " mt-3 p-4"}>
           <div className={ROT}>
             {resultados.length === 0 ? "Nada con eso" : `${resultados.length === 60 ? "Las 60 primeras" : resultados.length}`} ·{" "}
-            {que === "admin" ? "administraciones" : que === "contrata" ? "contratas" : "comunidades"} con «{q}»
+            {que === "admin" ? "administraciones" : que === "contrata" ? "contratas" : que === "persona" ? "personas" : "comunidades"} con «{q}»
           </div>
           {resultados.length === 0 && que === "direccion" && (
             <p className="mt-2 text-[13px] text-carbon/65">Prueba con menos palabras: solo la calle, o la calle y el número.</p>
@@ -44,7 +44,11 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
           <ul className="mt-2 divide-y divide-[#f0f0f0]">
             {resultados.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline gap-x-3 py-1.5 text-[14px]">
-                {r.tipo === "contrata" ? (
+                {r.tipo === "persona" && r.href ? (
+                  <Link href={r.href} className={ENLACE}>
+                    {r.nombre}
+                  </Link>
+                ) : r.tipo === "contrata" || r.tipo === "persona" ? (
                   // La ficha de la contrata aun no existe.
                   <span className="font-semibold text-carbon">{r.nombre}</span>
                 ) : (

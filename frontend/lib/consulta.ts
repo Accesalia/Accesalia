@@ -213,9 +213,10 @@ export async function listadoAdministradores(): Promise<FilaAdmin[]> {
 export type Encontrado =
   | { tipo: "comunidad"; id: string; nombre: string; detalle: string }
   | { tipo: "admin"; id: string; nombre: string; detalle: string }
-  | { tipo: "contrata"; id: string; nombre: string; detalle: string };
+  | { tipo: "contrata"; id: string; nombre: string; detalle: string }
+  | { tipo: "persona"; id: string; nombre: string; detalle: string; href: string | null };
 
-export type QueBuscar = "direccion" | "admin" | "contrata";
+export type QueBuscar = "direccion" | "admin" | "contrata" | "persona";
 
 /** Una opcion del desplegable del buscador: lo que se ve y a donde lleva
  *  (null: aun no tiene ficha, como las contratas). */
@@ -225,12 +226,67 @@ export type Sugerencia = { id: string; nombre: string; detalle: string; href: st
  *  a las que tienen eso, y las muestre, hasta que eliges una". Se cargan una vez
  *  y se filtran en la pantalla: son pocas (unas 2.800 comunidades). */
 export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>> {
-  const [comunidades, admins, contratas] = await Promise.all([
+  type PersonaAgenda = {
+    id: string;
+    nombre: string;
+    apellidos: string | null;
+    telefono_personal: string | null;
+    correos: { email: string }[];
+    puestos: {
+      cargo: string | null;
+      hasta: string | null;
+      telefono_empresa: string | null;
+      figura_legal_propietaria_id: string | null;
+      empresa_id: string | null;
+      empresa: { nombre_accesalia: string | null } | null;
+      contrata: { nombre: string } | null;
+      organismo: { nombre: string } | null;
+      correos: { email: string }[];
+    }[];
+  };
+  const [comunidades, admins, contratas, personas] = await Promise.all([
     todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>("comunidades?select=id,nombre,municipio,direccion&order=nombre.asc"),
     todo<{ id: string; nombre_accesalia: string }>("empresa?select=id,nombre_accesalia&tipo=eq.administracion_fincas&activa=is.true&order=nombre_accesalia.asc"),
     todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc"),
+    // LA AGENDA (12-oct-2026): "un cuarto buscador, por persona, sea de donde
+    // sea". Con sus cargos vigentes, que dicen quien es y a donde llevar.
+    todo<PersonaAgenda>(
+      "persona?select=id,nombre,apellidos,telefono_personal,correos:correo(email)," +
+        "puestos:puesto(cargo,hasta,telefono_empresa,figura_legal_propietaria_id,empresa_id,empresa:empresa_id(nombre_accesalia),contrata:contrata_id(nombre),organismo:organismo_id(nombre),correos:correo(email))" +
+        "&activa=is.true&order=nombre.asc",
+    ),
   ]);
+  const nombreComunidad = new Map(comunidades.map((c) => [c.id, c.nombre]));
+  const agenda: Sugerencia[] = personas.map((p) => {
+    const vivos = p.puestos.filter((x) => !x.hasta);
+    const cargos = vivos.map((x) => {
+      const donde = x.figura_legal_propietaria_id
+        ? nombreComunidad.get(x.figura_legal_propietaria_id)
+        : (x.empresa?.nombre_accesalia ?? x.contrata?.nombre ?? x.organismo?.nombre);
+      return [x.cargo ? x.cargo.charAt(0).toUpperCase() + x.cargo.slice(1) : null, donde].filter(Boolean).join(" · ");
+    });
+    const contacto = [
+      p.telefono_personal,
+      ...vivos.map((x) => x.telefono_empresa),
+      ...p.correos.map((c) => c.email),
+      ...vivos.flatMap((x) => x.correos.map((c) => c.email)),
+    ].filter((x, i, a): x is string => !!x && a.indexOf(x) === i);
+    // Sin ficha de persona todavia: lleva a la de su comunidad o su administracion.
+    const conFicha = vivos.find((x) => x.figura_legal_propietaria_id && nombreComunidad.has(x.figura_legal_propietaria_id)) ?? vivos.find((x) => x.empresa_id);
+    const href = conFicha?.figura_legal_propietaria_id
+      ? `/administracion/comunidades/${conFicha.figura_legal_propietaria_id}`
+      : conFicha?.empresa_id
+        ? `/consulta/oportunidades?admin=${conFicha.empresa_id}`
+        : null;
+    return {
+      id: p.id,
+      nombre: [p.nombre, p.apellidos].filter(Boolean).join(" "),
+      detalle: [cargos.filter(Boolean).join(" / "), contacto.slice(0, 2).join(" · ")].filter(Boolean).join(" — "),
+      href,
+    };
+  });
   return {
+    persona: agenda,
     // La direccion va en el detalle para que se encuentre tambien por ella.
     direccion: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "), href: `/administracion/comunidades/${c.id}` })),
     admin: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, detalle: "", href: `/consulta/oportunidades?admin=${a.id}` })),
@@ -258,6 +314,13 @@ export async function buscar(q: string, que: QueBuscar): Promise<Encontrado[]> {
       .filter((c) => casa(`${c.nombre} ${c.direccion ?? ""} ${c.municipio ?? ""}`))
       .slice(0, 60)
       .map((c) => ({ tipo: "comunidad" as const, id: c.id, nombre: c.nombre, detalle: c.municipio ?? "" }));
+  }
+  if (que === "persona") {
+    const { persona } = await listasBuscador();
+    return persona
+      .filter((p) => casa(`${p.nombre} ${p.detalle}`))
+      .slice(0, 60)
+      .map((p) => ({ tipo: "persona" as const, id: p.id, nombre: p.nombre, detalle: p.detalle, href: p.href }));
   }
   if (que === "contrata") {
     const filas = await todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc");
