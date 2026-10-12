@@ -56,6 +56,29 @@ const AREAS: Area[] = [
     href: "/ecobalance",
     ve: (yo) => !!yo && (yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion_ecobalance")),
   },
+  // LOS TRES CUADROS DE DIRECCION (Monica, 12-oct-2026): solo Daniel y Monica.
+  // Montados con lo que hay; lo que aun no tiene dato sale como hueco con su nota.
+  {
+    nombre: "Negocio",
+    color: "lila",
+    desc: "Trabajo contratado entre fechas: opps abiertas y ganadas, importes, % de éxito y administradores nuevos, por comercial",
+    href: "/negocio",
+    ve: (yo) => !!yo && yo.veTodo,
+  },
+  {
+    nombre: "Control interno",
+    color: "rosa",
+    desc: "Los técnicos entre fechas: proyectos hechos, requerimientos, tiempos y desviaciones; informes de Sali",
+    href: "/control-interno",
+    ve: (yo) => !!yo && yo.veTodo,
+  },
+  {
+    nombre: "Resultados económicos",
+    color: "melocoton",
+    desc: "Facturado, gastos, horas, beneficio, morosidad, retrasos de cobro, administradores y zonas",
+    href: "/resultados-economicos",
+    ve: (yo) => !!yo && yo.veTodo,
+  },
   { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, color: "arena", ve: () => true },
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador

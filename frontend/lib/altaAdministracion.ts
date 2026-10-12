@@ -152,7 +152,9 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
       municipio: d.municipio,
       comercial_id: d.comercialId,
       comercial_captador_id: d.comercialCaptadorId,
-      fecha_alta_cartera: d.altaCartera,
+      // Si no se dice, hoy: sin fecha de alta no hay "administradores nuevos
+      // entre fechas" en Negocio (Monica, 12-oct-2026).
+      fecha_alta_cartera: d.altaCartera || hoy(),
       comision_estado: d.comisionEstado,
       estado: "contacto",
       activa: true,
