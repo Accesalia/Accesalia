@@ -68,6 +68,12 @@ const ALMACEN_POLYCAM = "almacen-polycam-y-fotos";
 
 /** La etiqueta que se le pone al correo que no se supo colocar. */
 export const SIN_SITIO = "accesalia-sin-sitio";
+/** Correo demasiado grande para bajarlo en la pasada automatica: se deja en el
+ *  buzon con esta etiqueta y se ve aparte (12-oct-2026: el correo 12 colgaba
+ *  TODAS las pasadas desde el 7-oct). */
+export const GRANDE = "accesalia-grande";
+/** A partir de aqui no se baja solo. El almacen ademas no admite ficheros de mas de 50 MB. */
+const MAX_BYTES = 40 * 1024 * 1024;
 
 // REMITENTES DE CONFIANZA QUE NO SON PERSONAS.
 //
@@ -430,6 +436,8 @@ export type Repaso = {
   errores: string[];
   /** Correos que se quedan para la siguiente pasada por no pasar del tope. */
   quedan: number;
+  /** Los que se dejan en el buzon por grandes: asunto, de quien y cuanto pesan. */
+  grandes: string[];
 };
 
 // EL TOPE DE UNA PASADA (12-oct-2026). Pasado este tiempo no se empieza otro
@@ -680,7 +688,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   });
 
   const r: Repaso = {
-    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0,
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [],
   };
 
   await cliente.connect();
@@ -716,6 +724,16 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
       r.mirados++;
       let asunto = "(sin asunto)";
       try {
+        // ANTES DE BAJARLO, CUANTO PESA. Uno enorme colgaba la pasada entera.
+        const info = await cliente.fetchOne(String(uid), { size: true, envelope: true, flags: true }, { uid: true });
+        if (info && (info.size ?? 0) > MAX_BYTES) {
+          const mb = ((info.size ?? 0) / 1048576).toFixed(0);
+          const de = info.envelope?.from?.[0]?.address ?? "?";
+          r.grandes.push(`${info.envelope?.subject ?? "(sin asunto)"} · de ${de} · ${mb} MB`);
+          if (!info.flags?.has(GRANDE)) await cliente.messageFlagsAdd(String(uid), [GRANDE], { uid: true });
+          enPaso(`correo ${uid}: ${mb} MB, se deja en el buzon`);
+          continue;
+        }
         const bajado = await cliente.download(String(uid), undefined, { uid: true });
         if (!bajado?.content) throw new Error("el correo no trae contenido");
         const correo: ParsedMail = await simpleParser(bajado.content);
