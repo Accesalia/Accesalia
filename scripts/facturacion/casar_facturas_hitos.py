@@ -66,6 +66,21 @@ def calle_y_numero(t):
     return out[:3], num
 
 
+def lineas_por_factura(b):
+    out = collections.defaultdict(list)
+    for x in b.leer('factura_lineas?select=id,factura_id&order=id'): out[x['factura_id']].append(x['id'])
+    return out
+
+
+def direccion_de_factura(factura_id, leidas, lineas_de_factura, referencia):
+    """(12-oct) Una linea sin direccion ("tramitacion de subvenciones para dicha comunidad"): la de otra linea de la
+    misma factura y, si no hay, la referencia de la factura (Factusol: "VIDRIERIA 3 MADRID 1A PARTE")."""
+    for lid in lineas_de_factura.get(factura_id, []):
+        d = (leidas.get(lid) or {}).get('direccion')
+        if d: return d
+    return referencia
+
+
 def cerca(a, b, tol=1.0):
     return a is not None and b is not None and abs(float(a) - float(b)) <= tol
 
@@ -77,10 +92,11 @@ def main():
     for f in glob.glob(os.path.join(carpeta, 'extraido_*.jsonl')):
         for ln in open(f, encoding='utf-8'):
             if ln.strip(): x = json.loads(ln); leidas[x['id']] = x
-    FL = b.leer('factura_lineas?select=id,factura_id,posicion,concepto,base,factura:factura_id(tipo,empresa_emisora,anio,serie,numero,fecha,estado,pagador_nombre,pagador_nif)&order=id')
+    FL = b.leer('factura_lineas?select=id,factura_id,posicion,concepto,base,factura:factura_id(tipo,empresa_emisora,anio,serie,numero,fecha,estado,pagador_nombre,pagador_nif,referencia)&order=id')
     # (12-oct) solo las que AUN no estan casadas: al relanzarlo no se repiten enlaces ni subhitos
     ya_casadas = {x['factura_linea_id'] for x in b.leer('factura_linea_hitos?select=factura_linea_id&order=factura_linea_id,hito_cobro_id')}
     FL = [fl for fl in FL if fl['id'] not in ya_casadas]
+    lineas_de_factura = lineas_por_factura(b)
     def palabras(nombre):
         ws = set(k(nombre).split())
         # los rangos cuentan con todos sus numeros: "KERRIA N 28 AL 40" contiene el 30
@@ -103,6 +119,8 @@ def main():
     res, c = [], collections.Counter()
     for fl in FL:
         x = leidas.get(fl['id'], {})
+        if not x.get('direccion'):   # (12-oct) "para dicha comunidad": la de otra linea de la factura o la referencia
+            x = dict(x, direccion=direccion_de_factura(fl['factura_id'], leidas, lineas_de_factura, fl['factura'].get('referencia')))
         f = fl['factura']
         imp = float(fl['base'] or 0)
         r = {'estado_factura': f['estado'], 'fecha_factura': f['fecha'], 'linea': fl['id'], 'factura': '%s %s %s/%s-%s' % (f['empresa_emisora'], f['tipo'], f['anio'], f['serie'], f['numero']),

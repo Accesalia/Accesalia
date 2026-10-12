@@ -57,8 +57,10 @@ def main():
             if ln.strip():
                 x = json.loads(ln); leidas[x['id']] = x
     casadas = {x['factura_linea_id'] for x in b.leer('factura_linea_hitos?select=factura_linea_id&order=factura_linea_id,hito_cobro_id')}
-    FL = [fl for fl in b.leer('factura_lineas?select=id,concepto,base,factura:factura_id!inner(tipo,empresa_emisora,anio,serie,numero,fecha,estado,pagador_nombre,pagador_nif)'
+    FL = [fl for fl in b.leer('factura_lineas?select=id,factura_id,concepto,base,factura:factura_id!inner(tipo,empresa_emisora,anio,serie,numero,fecha,estado,pagador_nombre,pagador_nif,referencia)'
                               '&factura.serie=eq.1&factura.estado=neq.anulada&order=id') if fl['id'] not in casadas]
+
+    lineas_de_factura = C.lineas_por_factura(b)
 
     def palabras(nombre):
         ws = set(C.k(limpia(nombre)).split())
@@ -83,6 +85,8 @@ def main():
     filas, cuenta = [], collections.Counter()
     for fl in FL:
         x = leidas.get(fl['id'], {})
+        if not x.get('direccion'):   # (12-oct) "para dicha comunidad": la de otra linea de la factura o la referencia
+            x = dict(x, direccion=C.direccion_de_factura(fl['factura_id'], leidas, lineas_de_factura, fl['factura'].get('referencia')))
         f = fl['factura']
         imp = float(fl['base'] or 0)
         fam = C.FAMILIA.get(x.get('concepto'), 'proyecto')
