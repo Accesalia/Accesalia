@@ -6,11 +6,21 @@
 // Al cambiar algo de fondo de este fichero, subir la version: el movil tira la
 // copia vieja y guarda la nueva.
 
-const CACHE = "satelite-v1";
+const CACHE = "satelite-v2";
+
+// Guardar la pagina solo si ES la pagina: una redireccion al login no lo es
+// (antes, al instalar sin sesion, se guardaba el login con el nombre de la nota).
+const guardarPagina = (r) => {
+  if (r.ok && !r.redirected) {
+    const copia = r.clone();
+    caches.open(CACHE).then((c) => c.put("/satelite", copia));
+  }
+  return r;
+};
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then((c) => c.add("/satelite").catch(() => {})));
+  e.waitUntil(fetch("/satelite").then(guardarPagina).catch(() => {}));
 });
 
 self.addEventListener("activate", (e) => {
@@ -30,19 +40,23 @@ self.addEventListener("fetch", (e) => {
   // Lo que habla con el servidor no se guarda nunca: tiene que ser de verdad.
   if (url.pathname.startsWith("/api/")) return;
 
-  // La pagina: primero la red (que este al dia); sin red, la copia.
+  // LA PAGINA: PRIMERO LA COPIA (Monica, 12-oct-2026: "lo que le cuesta es
+  // arrancar, 5-6 segundos"). Antes se esperaba al servidor -despertarlo, mirar
+  // dos veces quien entra- para enseñar una pagina que ya estaba en el movil.
+  // Ahora sale la copia al momento y por detras se trae la nueva para la
+  // proxima vez. La sesion la comprueba el envio: si no hay, la nota se queda
+  // en el movil y la pagina avisa "tienes que volver a entrar".
+  // Sin copia (la primera vez), la red, como siempre.
   if (req.mode === "navigate" && url.pathname.startsWith("/satelite")) {
+    const nueva = fetch(req).then(guardarPagina);
     e.respondWith(
-      fetch(req)
-        .then((r) => {
-          // Una redireccion al login no es la pagina: no se guarda.
-          if (r.ok && !r.redirected) {
-            const copia = r.clone();
-            caches.open(CACHE).then((c) => c.put("/satelite", copia));
-          }
-          return r;
-        })
-        .catch(() => caches.match("/satelite")),
+      caches.match("/satelite").then((hay) => {
+        if (hay) {
+          e.waitUntil(nueva.catch(() => {}));
+          return hay;
+        }
+        return nueva;
+      }),
     );
     return;
   }
