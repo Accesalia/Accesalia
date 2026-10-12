@@ -638,11 +638,26 @@ async function colocar(
 export async function repasarBuzon(): Promise<Repaso> {
   const inicio = Date.now();
   // Si algo falla, que diga EN QUE PASO estaba: conectar, spam, buscar o un correo.
+  // Y cada paso queda en el registro de Vercel: del 7 al 12-oct la pasada se
+  // COLGABA (60 s, y luego 300 s, sin acabar) y no habia forma de saber donde.
   let paso = "conectar con Gmail";
+  const enPaso = (p: string) => {
+    paso = p;
+    console.log(`[polycam] ${Math.round((Date.now() - inicio) / 1000)} s · ${p}`);
+  };
+  enPaso(paso);
+  // El freno de mano: si a los 240 s no ha acabado, se corta AQUI y se apunta
+  // donde se quedo, antes de que Vercel la mate sin dejar rastro.
+  let freno: ReturnType<typeof setTimeout> | undefined;
+  const colgada = new Promise<never>((_, mal) => {
+    freno = setTimeout(() => mal(new Error(`colgada mas de 240 s (sin respuesta de Gmail)`)), 240_000);
+  });
   try {
-    return await repasar(inicio, (p) => (paso = p));
+    return await Promise.race([repasar(inicio, enPaso), colgada]);
   } catch (e) {
     throw new Error(`${paso}: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    clearTimeout(freno);
   }
 }
 
@@ -682,6 +697,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
     //     colocarlos. Esos estan leidos pero NO guardados, asi que si solo se
     //     buscara por "sin leer" se quedarian en el buzon para siempre. Los tres
     //     escaneados de prueba del 2-oct estan ahi, y con esto entran solos.
+    enPaso("buscar los correos sin leer");
     const sinLeer = await cliente.search({ seen: false });
     const rebotados = await cliente.search({ keyword: SIN_SITIO });
     const lista = [
@@ -772,10 +788,12 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
       }
     }
   } finally {
+    enPaso("cerrar la conexion");
     cerrojo.release();
     await cliente.logout();
   }
 
+  enPaso("hecho");
   return r;
 }
 
