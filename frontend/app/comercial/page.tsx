@@ -154,6 +154,19 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     return "/comercial?" + q.toString();
   };
 
+  // EL SELECTOR DE COMERCIAL NO SACA DE DONDE SE ESTA (Monica, 12-oct-2026):
+  // al elegir uno en "Oportunidades abiertas" la devolvia a los botones. Se
+  // queda en la misma pestaña, con su fase o su vista.
+  const conComercial = (id: string | null) => {
+    const q = new URLSearchParams();
+    if (id) q.set("c", id);
+    if (ver) q.set("ver", ver);
+    if (ver === "fases" && fase) q.set("fase", fase);
+    if (ver === "agenda" && vista) q.set("vista", vista);
+    const t = q.toString();
+    return "/comercial" + (t ? "?" + t : "");
+  };
+
   // Las fases, para "Opps por fases": cada una lleva a sus oportunidades.
   const enFase = (clave: string) => {
     const q = new URLSearchParams();
@@ -256,12 +269,12 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           <div className="flex flex-wrap items-center gap-4">
             {direccion && (
               <div className="flex flex-wrap gap-1.5">
-                <Link href="/comercial" className={pill(todos)}>Todos</Link>
+                <Link href={conComercial(null)} className={pill(todos)}>Todos</Link>
                 {comerciales.map((m) => (
-                  <Link key={m.id} href={`/comercial?c=${m.id}`} className={pill(elegido?.id === m.id)}>{m.nombre}</Link>
+                  <Link key={m.id} href={conComercial(m.id)} className={pill(elegido?.id === m.id)}>{m.nombre}</Link>
                 ))}
                 <Link
-                  href={`/comercial?c=${ID_FANTASMA}`}
+                  href={conComercial(ID_FANTASMA)}
                   className={
                     "rounded-full border border-dashed px-3.5 py-1.5 text-sm transition " +
                     (esDemo ? "border-carbon bg-carbon font-semibold text-white" : "border-carbon/30 text-carbon/55 hover:border-carbon")
