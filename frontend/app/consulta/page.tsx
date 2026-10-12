@@ -44,18 +44,20 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
           <ul className="mt-2 divide-y divide-[#f0f0f0]">
             {resultados.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline gap-x-3 py-1.5 text-[14px]">
-                {r.tipo === "persona" && r.href ? (
-                  <Link href={r.href} className={ENLACE}>
-                    {r.nombre}
-                  </Link>
-                ) : r.tipo === "contrata" || r.tipo === "persona" ? (
-                  // La ficha de la contrata aun no existe.
-                  <span className="font-semibold text-carbon">{r.nombre}</span>
-                ) : (
-                  <Link href={r.tipo === "comunidad" ? `/administracion/comunidades/${r.id}` : `/consulta/oportunidades?admin=${r.id}`} className={ENLACE}>
-                    {r.nombre}
-                  </Link>
-                )}
+                <Link
+                  href={
+                    r.tipo === "comunidad"
+                      ? `/administracion/comunidades/${r.id}`
+                      : r.tipo === "contrata"
+                        ? `/consulta/contratas/${r.id}`
+                        : r.tipo === "persona"
+                          ? `/consulta/personas/${r.id}`
+                          : `/consulta/oportunidades?admin=${r.id}`
+                  }
+                  className={ENLACE}
+                >
+                  {r.nombre}
+                </Link>
                 {r.detalle && <span className="text-[12px] text-[#6e6e6e]">{r.detalle}</span>}
               </li>
             ))}

@@ -271,13 +271,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
       ...p.correos.map((c) => c.email),
       ...vivos.flatMap((x) => x.correos.map((c) => c.email)),
     ].filter((x, i, a): x is string => !!x && a.indexOf(x) === i);
-    // Sin ficha de persona todavia: lleva a la de su comunidad o su administracion.
-    const conFicha = vivos.find((x) => x.figura_legal_propietaria_id && nombreComunidad.has(x.figura_legal_propietaria_id)) ?? vivos.find((x) => x.empresa_id);
-    const href = conFicha?.figura_legal_propietaria_id
-      ? `/administracion/comunidades/${conFicha.figura_legal_propietaria_id}`
-      : conFicha?.empresa_id
-        ? `/consulta/oportunidades?admin=${conFicha.empresa_id}`
-        : null;
+    const href = `/consulta/personas/${p.id}`;
     return {
       id: p.id,
       nombre: [p.nombre, p.apellidos].filter(Boolean).join(" "),
@@ -290,8 +284,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
     // La direccion va en el detalle para que se encuentre tambien por ella.
     direccion: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "), href: `/administracion/comunidades/${c.id}` })),
     admin: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, detalle: "", href: `/consulta/oportunidades?admin=${a.id}` })),
-    // Las contratas aun no tienen ficha: se encuentran, pero no llevan a ningun sitio.
-    contrata: contratas.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.tipo, c.cif].filter(Boolean).join(" · "), href: null })),
+    contrata: contratas.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.tipo, c.cif].filter(Boolean).join(" · "), href: `/consulta/contratas/${c.id}` })),
   };
 }
 
