@@ -69,7 +69,9 @@ export function Cronograma({ d }: { d: DatosCaja }) {
   const [filas, setFilas] = useState<Fila[]>(() =>
     d.trabajos.map((t) => ({
       k: t.oppId, tipo: "proyecto", nombre: t.nombre, oppId: t.oppId, euros: t.entrega, contrata: t.contrata,
-      tecnico: "", escaneo: 2, redaccion: 3, visado: 5, ok: 3,
+      // Escaneo a 0: casi todos los que estan aqui ya estan escaneados (Monica,
+      // 12-oct-2026). Donde falte, se pone a mano en su fila.
+      tecnico: "", escaneo: 0, redaccion: 3, visado: 5, ok: 3,
     })),
   );
   const [tecnicos, setTecnicos] = useState<Tecnico[]>(() => d.tecnicos.map((t) => ({ ...t, activo: false, factor: 1 })).map((t) => ({ ...t, activo: true })));
