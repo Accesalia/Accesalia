@@ -8,7 +8,8 @@ import { createServerClient } from "@supabase/ssr";
 import { esElReloj } from "./lib/reloj";
 
 // Lo que se ve sin haber entrado: la propia puerta y la vuelta del correo o de Google.
-const PUBLICO = ["/entrar", "/auth/"];
+// /portal: la pagina de la comunidad, con su propio acceso por correo (12-oct-2026).
+const PUBLICO = ["/entrar", "/auth/", "/portal"];
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });

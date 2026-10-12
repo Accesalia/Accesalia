@@ -6,6 +6,7 @@ import { misPendientes, tarjetasQueVeo } from "../../lib/misPendientes";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { solicitudesPendientes } from "../../lib/rrhh";
+import { cuantosPorRevisar } from "../../lib/recibidos";
 
 export const dynamic = "force-dynamic";
 
@@ -55,16 +56,22 @@ export default async function Pendientes() {
   // -Alexandra- y direccion, que es la misma regla de la pantalla de RRHH. Lo
   // propio no cuenta: nadie se aprueba a si mismo.
   const resuelveRrhh = puedeEntrar(yo, "rrhh", "trabajar");
-  const [{ notas, opps, llamadas }, radar, ausencias] = await Promise.all([
+  const [{ notas, opps, llamadas }, radar, ausencias, recibidos] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
     resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
+    cuantosPorRevisar(yo),
   ]);
   const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
 
   const tarjetas: Tarjeta[] = [
     ...(veRadar
       ? [{ clave: "radar", titulo: "Radar de IEE", numero: radar, pie: "Edificios de fuera con IEE nueva: asignar a un comercial o descartar.", href: "/comercial/alertas-iee", ver: "Ir al radar" }]
+      : []),
+    // LO QUE SUBEN LAS COMUNIDADES desde su pagina (12-oct-2026): sale a quien
+    // tiene algo que revisar, y siempre a quien lo revisa todo.
+    ...(recibidos > 0 || veo.supervisa
+      ? [{ clave: "recibidos", titulo: "Documentos recibidos", numero: recibidos, pie: "Lo que las comunidades suben desde su página: revisarlo (la hoja firmada crea sus cobros).", href: "/comercial/recibidos", ver: "Revisar" }]
       : []),
     { clave: "notas", titulo: "Notas por colocar", numero: notas.length, pie: "La dirección que se escribió no estaba en la lista.", href: "/comercial/pendientes", ver: "Colocarlas" },
     {

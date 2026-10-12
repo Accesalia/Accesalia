@@ -182,11 +182,18 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   if (adjuntos.length < elegidos.length) throw new Error("Algún documento no se ha podido leer del almacén: no se envía nada.");
 
   const remitente = `${d.comercial.nombre} · Accesalia`;
+  // LA PAGINA DE DOCUMENTACION DE LA COMUNIDAD (12-oct-2026): al pie de cada
+  // correo, para que nos devuelvan la hoja firmada y lo demas por ahi.
+  const pie = `
+
+—
+Para enviarnos documentación (la hoja de encargo firmada, actas, DNI…): ${APP}/portal
+Entra con tu correo; te llegará un enlace para acceder.`;
   const r = await enviarCorreo({
     desde: "comercial",
     para: para.join(", "),
     asunto: e.asunto.trim(),
-    texto: e.cuerpo.trim(),
+    texto: e.cuerpo.trim() + pie,
     responderA: d.comercial.email,
     nombreRemitente: remitente,
     adjuntos,

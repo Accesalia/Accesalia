@@ -1,5 +1,6 @@
 "use server";
 
+import { crearLineasDeHoja } from "../../../lib/lineasDeHoja";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
@@ -99,6 +100,8 @@ export async function accionApuntarFirmada(hojaId: string, ruta: string): Promis
     await permiso(await comunidadDeHoja(hojaId));
     if (!ruta.startsWith(`hojas-encargo/${hojaId}/`)) throw new Error("Ruta que no es de esta hoja.");
     await apuntarFirmada(hojaId, ruta);
+    // Firmada: nacen sus lineas e hitos de cobro (12-oct-2026).
+    await crearLineasDeHoja(hojaId);
     revalidatePath("/comercial/hoja-encargo");
     return { ok: true };
   } catch (e) {

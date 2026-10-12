@@ -3,6 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { fichaComunidad, type FichaComunidad } from "../../../../lib/administracion";
 import { quienSoy } from "../../../../lib/sesion";
+import { autorizadosDe } from "../../../../lib/portal";
+import { accionAutorizar, accionQuitarAutorizado } from "./accionesPortal";
+
+const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano" } as const;
 import { Salida } from "../../../components/Salida";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +108,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
 
   const f = await fichaComunidad(id);
   if (!f) notFound();
+  const autorizados = await autorizadosDe(id).catch(() => []);
 
   const admin = f.administradores.find((a) => a.vigente) ?? null;
   const anteriores = f.administradores.filter((a) => !a.vigente);
@@ -321,6 +326,46 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                 El IBAN cambia: las comunidades cambian de cuenta. Habrá que guardar desde cuándo vale cada uno.
               </p>
             </Seccion>
+
+            {/* SU PAGINA DE DOCUMENTACION (Monica, 12-oct-2026): quien puede entrar
+                y subir. El administrador, el presidente y el comercial, siempre;
+                el resto, a mano. VER su documentacion, caso a caso y mas adelante. */}
+            <div id="portal">
+              <Seccion n={6} titulo="Su página de documentación" nota="quién puede entrar y subir">
+                <ul className="divide-y divide-black/5 text-[14px]">
+                  {autorizados.map((a) => (
+                    <li key={a.email} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
+                      <span>
+                        <b className="text-carbon">{a.email}</b>
+                        {a.nombre && <span className="text-carbon/65"> · {a.nombre}</span>}
+                        {a.motivo && <span className="text-carbon/55"> · {a.motivo}</span>}
+                      </span>
+                      <span className="flex items-center gap-2 text-[12.5px]">
+                        <span className="rounded-full bg-black/5 px-2 py-0.5 font-semibold text-carbon/65">{ROL_PORTAL[a.rol]}</span>
+                        {a.rol === "manual" && a.id && (
+                          <form action={accionQuitarAutorizado.bind(null, id, a.id)}>
+                            <button type="submit" className="text-alerta underline">quitar</button>
+                          </form>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                  {autorizados.length === 0 && <li className="py-2 text-carbon/60">Nadie todavía: no tenemos el correo del administrador ni del presidente.</li>}
+                </ul>
+                <form action={accionAutorizar.bind(null, id)} className="mt-3 grid gap-2 border-t border-black/5 pt-3 sm:grid-cols-[1.3fr_1fr_1fr_auto]">
+                  <input name="email" type="email" required placeholder="correo" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
+                  <input name="nombre" placeholder="nombre" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
+                  <input name="motivo" placeholder="por qué (la nuera del presidente…)" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
+                  <button type="submit" className="rounded-lg bg-lima px-3 py-1.5 text-sm font-bold text-carbon hover:bg-lima-dark hover:text-white">
+                    Dar acceso
+                  </button>
+                </form>
+                <p className="mt-2 text-xs text-carbon/55">
+                  Entran con su correo en {`${process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app"}/portal`}: les llega un enlace de un solo uso. Pueden subir
+                  documentos; ver, todavía nada.
+                </p>
+              </Seccion>
+            </div>
           </div>
 
           {/* ======================= la columna caliente ======================= */}

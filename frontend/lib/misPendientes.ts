@@ -19,6 +19,7 @@ import type { Yo } from "./sesion";
 import { comercialDe, puedeEntrar } from "./sesion";
 import { autoresQueVeo } from "./pendientes";
 import { TEXTO_FALTA, type Falta } from "./completa";
+import { cuantosPorRevisar } from "./recibidos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -74,7 +75,9 @@ export async function cuantosPendientes(yo: Yo): Promise<number> {
       f.llamadas ? leer(`llamadas?select=id&estado=eq.por_colocar&limit=1`, true) : Promise.resolve({ total: 0 }),
       ausencias,
     ]);
-    return n.total + o.total + l.total + a.total;
+    // Los documentos que suben las comunidades, a quien los revisa (12-oct-2026).
+    const recibidos = await cuantosPorRevisar(yo);
+    return n.total + o.total + l.total + a.total + recibidos;
   } catch {
     return 0;
   }
