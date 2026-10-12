@@ -11,6 +11,9 @@
   --color-lima-dark: #3f7a1c;
   --color-lima-soft: #eef7e4;
   --color-hueso: #f7f7f5;
+  /* EL FONDO DE LAS PANTALLAS (Monica, 12-oct-2026): verde suave en vez del
+     gris hueso. Hueso se queda para lo apagado y lo de dentro. */
+  --color-fondo: #eef5e8;
 
   /* Lo que no depende de nosotros (arquitecto, escaneo, 3D): azul pizarra. */
   --color-ajeno: #5b7fa6;
@@ -68,7 +71,7 @@ button:disabled {
 
 html,
 body {
-  background: var(--color-hueso);
+  background: var(--color-fondo);
   color: var(--color-carbon);
   -webkit-font-smoothing: antialiased;
 }

@@ -19,7 +19,7 @@ const PESTANAS = [
 
 export function Marco({ aqui, children }: { aqui: string; children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-hueso">
+    <div className="min-h-screen bg-fondo">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
         <Link href="/menu" className="text-sm font-semibold text-carbon/65 transition hover:text-carbon">

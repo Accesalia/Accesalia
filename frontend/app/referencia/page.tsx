@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
+import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { quienSoy } from "../../lib/sesion";
 
 export const dynamic = "force-dynamic";
@@ -14,36 +15,42 @@ export const dynamic = "force-dynamic";
 // Nada mas. Mientras su pagina no este montada y revisada con ella, la linea va
 // con href: null y sale como tarjeta "En preparacion", sin llevar a ningun sitio.
 
-type Acceso = { nombre: string; desc: string; href: string | null };
+type Acceso = { nombre: string; desc: string; href: string | null; color: ColorAcceso };
 
 const ACCESOS: Acceso[] = [
   {
     nombre: "Modelos de ascensor en 3D",
+    color: "azul",
     desc: "El catálogo AT1–AT16: cada modelo en 3D para girarlo, sus imágenes y su plano. Para enseñarlo en una junta",
     href: "/referencia/ascensores",
   },
   {
     nombre: "Documentación de marketing",
+    color: "rosa",
     desc: "Dossieres en español e inglés, tríptico, dossier SATE y las presentaciones de la subvención",
     href: "/referencia/marketing",
   },
   {
     nombre: "Tasas de ayuntamiento",
+    color: "ambar",
     desc: "Cuánto se paga en cada municipio y cómo se pide la licencia; calculadora y ficha para los vecinos",
     href: "/referencia/tasas",
   },
   {
     nombre: "Estimación de costes de obra",
+    color: "verde",
     desc: "Lo que cuesta hoy un ascensor, un SATE, una rampa… según nuestras obras; cómo sube y lo que se espera a 1 y 2 años",
     href: "/referencia/estimacion",
   },
   {
     nombre: "Manías detectadas",
+    color: "lila",
     desc: "Lo que cada ayuntamiento, junta, ECU o técnico pide a su manera, con fecha. Por municipio, entidad o persona",
     href: "/referencia/manias",
   },
   {
     nombre: "Consultas de edificios protegidos",
+    color: "turquesa",
     desc: "Catálogos, normas y planos de protección por municipio, con el enlace oficial y cuándo revisar si han cambiado",
     href: "/referencia/proteccion",
   },
@@ -63,36 +70,11 @@ export default async function Referencia() {
         <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Documentación de referencia</h1>
         <p className="mt-1 text-carbon/55">Catálogos y tablas para consultar.</p>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {ACCESOS.map((a) => {
-            const contenido = (
-              <>
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className={"text-lg font-semibold " + (a.href ? "text-carbon" : "text-carbon/55")}>{a.nombre}</h2>
-                  {!a.href && (
-                    <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/40">
-                      En preparación
-                    </span>
-                  )}
-                </div>
-                <p className={"mt-1 text-sm " + (a.href ? "text-carbon/60" : "text-carbon/40")}>{a.desc}</p>
-              </>
-            );
-            return a.href ? (
-              <Link
-                key={a.nombre}
-                href={a.href}
-                className="block rounded-2xl border border-lima/40 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                {contenido}
-              </Link>
-            ) : (
-              <div key={a.nombre} className="rounded-2xl border border-black/5 bg-hueso/60 p-5">
-                {contenido}
-              </div>
-            );
-          })}
-        </div>
+        <RejillaAccesos className="mt-8">
+          {ACCESOS.map((a) => (
+            <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} etiqueta="En preparación" />
+          ))}
+        </RejillaAccesos>
       </main>
     </div>
   );

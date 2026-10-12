@@ -515,12 +515,12 @@ type Boton = { texto: string; detalle: string; cuantas: number | null; donde: st
 
 function Accesos({ botones, rapida }: { botones: Boton[]; rapida: string }) {
   return (
-    <nav className="mt-6 grid gap-4 rounded-[10px] bg-[#104269] p-4 sm:grid-cols-2 sm:p-6 xl:grid-cols-3">
+    <nav className="mt-6 grid gap-4 rounded-[10px] bg-[#104269] p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
       {botones.map((b) => (
         <Link
           key={b.texto}
           href={b.donde}
-          className="flex min-h-[132px] flex-col justify-between gap-3 rounded-[10px] bg-[#D8DEE5] p-4 text-[#104269] transition hover:bg-[#E4E9EE] hover:ring-2 hover:ring-[#FFCD00]"
+          className="flex min-h-[170px] flex-col justify-between gap-3 rounded-[10px] bg-[#D8DEE5] p-4 text-[#104269] transition hover:bg-[#E4E9EE] hover:ring-2 hover:ring-[#FFCD00]"
         >
           <div className="flex items-start justify-between gap-3">
             <span className="[&>svg]:size-[30px]">{b.icono}</span>
@@ -536,7 +536,7 @@ function Accesos({ botones, rapida }: { botones: Boton[]; rapida: string }) {
       ))}
       <Link
         href={rapida}
-        className="flex min-h-[132px] flex-col justify-between gap-3 rounded-[10px] border-2 border-dashed border-[#D8DEE5]/70 p-4 text-[#FFCD00] transition hover:border-[#FFCD00] hover:bg-white/5"
+        className="flex min-h-[170px] flex-col justify-between gap-3 rounded-[10px] border-2 border-dashed border-[#D8DEE5]/70 p-4 text-[#FFCD00] transition hover:border-[#FFCD00] hover:bg-white/5"
       >
         <span className="[&>svg]:size-[30px]"><IconoPestanas /></span>
         <div>

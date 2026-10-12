@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
+import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
 
 type Puerta = {
   nombre: string;
+  color: ColorAcceso;
   desc: string;
   href: string | null;
   cuenta?: string; // lo que hay dentro, para que se vea sin entrar
@@ -25,12 +27,14 @@ type Puerta = {
 const PUERTAS: Puerta[] = [
   {
     nombre: "Comunidades de vecinos",
+    color: "verde",
     desc: "Buscar una comunidad, abrir su ficha y completarla. Y dar de alta una nueva.",
     href: "/administracion/comunidades",
     cuenta: "1.228 en la app",
   },
   {
     nombre: "Administraciones de fincas",
+    color: "azul",
     desc: "Las administraciones, su gente y las comunidades que llevan.",
     href: null,
     cuenta: "279 en la app",
@@ -89,37 +93,18 @@ export default async function AreaAdministracion() {
           )}
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {PUERTAS.map((p) => {
-            const cuerpo = (
-              <>
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className={"text-lg font-bold " + (p.href ? "text-carbon" : "text-carbon/55")}>{p.nombre}</h2>
-                  {!p.href && (
-                    <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/40">
-                      Próximamente
-                    </span>
-                  )}
-                </div>
-                <p className={"mt-1 text-base " + (p.href ? "text-carbon/60" : "text-carbon/40")}>{p.desc}</p>
-                {p.cuenta && <p className="mt-2 text-sm font-semibold text-lima-dark">{p.cuenta}</p>}
-              </>
-            );
-            return p.href ? (
-              <Link
-                key={p.nombre}
-                href={p.href}
-                className="block rounded-2xl border border-lima/40 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                {cuerpo}
-              </Link>
-            ) : (
-              <div key={p.nombre} className="rounded-2xl border border-black/5 bg-hueso/60 p-5">
-                {cuerpo}
-              </div>
-            );
-          })}
-        </div>
+        <RejillaAccesos className="mt-8">
+          {PUERTAS.map((p) => (
+            <TarjetaAcceso
+              key={p.nombre}
+              nombre={p.nombre}
+              desc={p.desc}
+              href={p.href}
+              color={p.color}
+              pie={p.cuenta ? <p className="text-sm font-semibold text-lima-dark">{p.cuenta}</p> : null}
+            />
+          ))}
+        </RejillaAccesos>
       </main>
     </div>
   );

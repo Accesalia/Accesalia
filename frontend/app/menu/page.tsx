@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
+import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
 import { cuantosPendientes } from "../../lib/revisionPolycam";
 
@@ -14,11 +15,12 @@ export const dynamic = "force-dynamic";
 // RRHH, todos (cada uno su espacio); el area comercial, direccion y quien es
 // comercial.
 
-type Area = { nombre: string; desc: string; href: string | null; ve: (yo: Yo | null, comercial: boolean) => boolean };
+type Area = { nombre: string; desc: string; href: string | null; color: ColorAcceso; ve: (yo: Yo | null, comercial: boolean) => boolean };
 
 const AREAS: Area[] = [
   {
     nombre: "Área comercial",
+    color: "azul",
     desc: "Cuadro de mando del comercial: agenda, diario, oportunidades pendientes de firma, cartera y mapa",
     href: "/comercial",
     ve: (yo, comercial) => !yo || yo.veTodo || comercial || puedeEntrar(yo, "comercial"),
@@ -28,6 +30,7 @@ const AREAS: Area[] = [
     // estudio para trabajar de verdad es poder dar de alta y mantener las
     // administraciones y las comunidades. Dentro habra mas puertas.
     nombre: "Área Administración",
+    color: "verde",
     desc: "Las administraciones de fincas y las comunidades de vecinos: consultarlas, abrir su ficha y dar de alta",
     href: "/administracion",
     ve: (yo) => !yo || yo.veTodo || puedeEntrar(yo, "administracion"),
@@ -39,15 +42,17 @@ const AREAS: Area[] = [
     // los tecnicos y se ve la caja. Direccion, facturacion (Alexandra, Ana) y
     // control de produccion.
     nombre: "Facturación y asignación",
+    color: "ambar",
     desc: "Lo que queda por cobrar, los hitos y facturas de cada oportunidad, y el cronograma de trabajo y caja",
     href: "/facturacion",
     ve: (yo) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion"),
   },
-  { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, ve: () => true },
+  { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, color: "arena", ve: () => true },
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
     // y llega a su ficha (Monica, 7-oct-2026).
     nombre: "Buscar y consultar",
+    color: "turquesa",
     desc: "Buscar una dirección o un administrador, y los listados de oportunidades y administradores de un vistazo",
     href: "/consulta",
     ve: () => true,
@@ -56,12 +61,14 @@ const AREAS: Area[] = [
     // Para todo el mundo (Monica, 10-oct-2026): catalogos y tablas de consulta.
     // El primero, los modelos de ascensor en 3D para enseñarlos en una junta.
     nombre: "Documentación de referencia",
+    color: "lila",
     desc: "Catálogos para consultar: los modelos de ascensor en 3D, y más que vendrán",
     href: "/referencia",
     ve: () => true,
   },
   {
     nombre: "RRHH",
+    color: "rosa",
     desc: "Tus días y tus solicitudes. Para RRHH y dirección, además: vacaciones del equipo y fichas",
     href: "/rrhh",
     ve: () => true,
@@ -92,6 +99,7 @@ const AREAS: Area[] = [
 
 type Puerta = {
   nombre: string;
+  color: ColorAcceso;
   desc: string;
   href: string;
   /** Las claves de las funciones que abren esta puerta (basta una). */
@@ -104,6 +112,7 @@ type Puerta = {
 const PUERTAS: Puerta[] = [
   {
     nombre: "Mesa de viabilidades",
+    color: "melocoton",
     desc: "Los escaneados del buzón: de qué portal es cada uno, y su viabilidad",
     href: "/viabilidades",
     funciones: ["viabilidades"],
@@ -114,6 +123,7 @@ const PUERTAS: Puerta[] = [
     // El catalogo de bloques (Monica, 3-oct-2026): direccion y la secretaria
     // comercial. Direccion ya lo ve todo; la llave que hace falta es la otra.
     nombre: "Modificar plantilla de Hoja de Encargo",
+    color: "arena",
     desc: "Los bloques que se marcan al generar una hoja: sus textos, su orden y sus importes por defecto",
     href: "/comercial/bloques",
     funciones: ["direccion", "secretaria"],
@@ -140,58 +150,32 @@ export default async function Menu() {
         <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Áreas de Accesalia</h1>
         <p className="mt-1 text-carbon/55">Elige con qué quieres trabajar.</p>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {areas.map((a) => {
-            const contenido = (
-              <>
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className={"text-lg font-semibold " + (a.href ? "text-carbon" : "text-carbon/55")}>{a.nombre}</h2>
-                  {!a.href && (
-                    <span className="shrink-0 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/40">
-                      Próximamente
-                    </span>
-                  )}
-                </div>
-                <p className={"mt-1 text-sm " + (a.href ? "text-carbon/60" : "text-carbon/40")}>{a.desc}</p>
-              </>
-            );
-            return a.href ? (
-              <Link
-                key={a.nombre}
-                href={a.href}
-                className="block rounded-2xl border border-lima/40 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                {contenido}
-              </Link>
-            ) : (
-              <div key={a.nombre} className="rounded-2xl border border-black/5 bg-hueso/60 p-5">
-                {contenido}
-              </div>
-            );
-          })}
-        </div>
+        <RejillaAccesos className="mt-8">
+          {areas.map((a) => (
+            <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} />
+          ))}
+        </RejillaAccesos>
 
         {puertas.length > 0 && (
           <section className="mt-10">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <RejillaAccesos>
               {puertas.map((p, i) => (
-                <Link
+                <TarjetaAcceso
                   key={p.href}
+                  nombre={p.nombre}
+                  desc={p.desc}
                   href={p.href}
-                  className="block rounded-2xl border border-ajeno/40 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-lg font-semibold text-carbon">{p.nombre}</h3>
-                    {p.comoSeCuenta && cuentas[i] > 0 && (
+                  color={p.color}
+                  insignia={
+                    p.comoSeCuenta && cuentas[i] > 0 ? (
                       <span className="shrink-0 rounded-full border border-ajeno/40 bg-ajeno-soft px-2.5 py-0.5 text-[11px] font-bold text-[#3f5f80]">
                         {p.comoSeCuenta(cuentas[i])}
                       </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-sm text-carbon/60">{p.desc}</p>
-                </Link>
+                    ) : null
+                  }
+                />
               ))}
-            </div>
+            </RejillaAccesos>
           </section>
         )}
       </main>
