@@ -1,0 +1,28 @@
+[
+ {
+  "codigo": "DAN-2025-322",
+  "estado": "abierta",
+  "hojas": 2,
+  "buscado": "HERMANDAD DE DONANTES DE SANGRE 25 MADRID",
+  "resultado": "ok",
+  "via": "CL HERMANDAD DONANTES SANGRE",
+  "municipio": "MADRID",
+  "parcela": "0674828VK4607D",
+  "nombre": "Hermandad Donantes Sangre 25, Madrid",
+  "accesos": "25 esc 1",
+  "clave": "78b9478d-3422-455d-a17d-d11020c7da8b"
+ },
+ {
+  "codigo": "DAN-2026-235",
+  "estado": "abierta",
+  "hojas": 2,
+  "buscado": "HERMANDAD DE DONANTES DE SANGRE 27 MADRID",
+  "resultado": "ok",
+  "via": "CL HERMANDAD DONANTES SANGRE",
+  "municipio": "MADRID",
+  "parcela": "0674828VK4607D",
+  "nombre": "Hermandad Donantes Sangre 27, Madrid",
+  "accesos": "27 esc 2",
+  "clave": "3fd16fdb-e104-4595-b2fa-b26de522001a"
+ }
+]
