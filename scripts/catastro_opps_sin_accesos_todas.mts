@@ -66,6 +66,22 @@ export const CONOCIDAS: Record<string, string> = {
   "DAN-2017-129": "Jeronimo Historias Rehabilitacion: no es una direccion; anterior a 2022, se obvia",
   "DAN-2022-159": "Direccion pendiente de concretar (Arroyomolinos): no es una direccion",
   "DAN-2023-168": "Urb. Jardin de Villarejo, Villarejo de Salvanes: sin numero",
+  // De 2022 en adelante que no se encuentran (Monica, 14-oct: "no soy capaz, no existen").
+  "DAN-2022-282": "Inmaculada 13: no existe el 13",
+  "DAN-2022-019": "Empecinado 13, Mostoles: sin numeros en Catastro",
+  "DAN-2023-138": "Ferrovial 9: calle dudosa (¿Ferroviarios?)",
+  "DAN-2023-109": "Oriente 9, Fuenlabrada: no existe el 9",
+  "DAN-2022-106": "Pico de Cotos 63, Collado Villalba: no existe el 63",
+  "DAN-2022-284": "Recalde 9: no existe el 9",
+  "DAN-2023-245": "Apostol Santiago 25: no existe el 25",
+  "DAN-2022-234": "Ntra Sra de la Merced 11, Leganes: no existe; la parcela 4543501VK3645S tiene Merced 1 y 3 y Los Angeles 6 y 8",
+  "DAN-2022-250": "Portugal 44, Fuenlabrada: sin viviendas en Catastro",
+  "DAN-2022-113": "Rio Miño 4: calle no encontrada",
+  "DAN-2022-227": "Ntra Sra de las Angustias 14, MADRID: no existe en Madrid; ¿duplicada de DAN-2022-179 (Leganes)?",
+  "DAN-2022-193": "Av Carlos V 51-65, Mostoles: sin viviendas en Catastro",
+  "DAN-2024-229": "Aragon-Cerrolaza, Pozuelo: sin numero",
+  "DAN-2022-119": "Cerro Prieto 7, Mostoles: sin numeros en Catastro",
+  "DAN-2022-293": "Soria 1: no existe el 1",
 };
 const FUERA = new Set(Object.keys(CONOCIDAS));
 // NOMBRES PEGADOS de las carpetas antiguas (Monica, 13-oct: "solo las de nombre pegado, es muy facil resolverlas"),
