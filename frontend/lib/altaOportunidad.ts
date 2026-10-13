@@ -115,7 +115,6 @@ export type OpcionesOportunidad = {
   /** Las administraciones de fincas: solo para decir en cual entra un
    *  administrador que se crea al vuelo. */
   administraciones: OpcionSimple[];
-  comunidades: OpcionSimple[];
   contratas: OpcionSimple[];
   /** Presidente, vecino... para el contacto de la comunidad. */
   rolesComunidad: OpcionSimple[];
@@ -125,7 +124,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string, mio?: string | null): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, admins, comunidades, contratas, puestos, vecinos] =
+  const [comerciales, canales, quienes, tipos, admins, contratas, puestos, vecinos] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -145,9 +144,6 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
       "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
         "&order=nombre_accesalia.asc&limit=2000",
-    ),
-    leer<{ id: string; nombre: string; municipio: string | null }[]>(
-      "comunidades?select=id,nombre,municipio&order=nombre.asc&limit=3000",
     ),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
     leer<{
@@ -203,7 +199,6 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
       ),
     ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
     administraciones: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, pista: a.municipio ?? undefined })),
-    comunidades: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, pista: c.municipio ?? undefined })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
     rolesComunidad: [
       { id: "presidente", nombre: "Presidente" },

@@ -190,7 +190,6 @@ export function Formulario({
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
-  const comunidades: Opcion[] = opciones.comunidades.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
   const administradores: Opcion[] = opciones.administradores.map((a) => ({ valor: a.id, texto: a.nombre, pista: a.pista }));
   const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
   const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
@@ -202,9 +201,7 @@ export function Formulario({
   // Como se entero: la primera nota del diario lo lleva, como todas (8-oct).
   const [canalNota, setCanalNota] = useState(inicial?.canal ?? "");
 
-  const [comunidad, setComunidad] = useState("");
   const [direccion, setDireccion] = useState(inicial?.direccion ?? "");
-  const [buscarDireccion, setBuscarDireccion] = useState(false);
   // La ventana de Catastro (3-oct-2026): se abre con Intro o con la lupa, y si
   // se cierra sin terminar lo escrito se queda como provisional.
   const [ventana, setVentana] = useState(false);
@@ -238,7 +235,6 @@ export function Formulario({
   const codigo = comercial === "" ? "elige comercial" : opciones.codigoDe[comercial] ?? "sin iniciales";
 
   const hayHilo =
-    comunidad !== "" ||
     direccion.trim() !== "" ||
     admin !== "" ||
     adminNuevo !== null ||
@@ -252,7 +248,7 @@ export function Formulario({
     (hablaAdmin && (admin !== "" || adminNuevo !== null)) ||
     otroNuevo !== null;
   const puedeGuardar = nota.trim() !== "" && canalNota !== "" && comercial !== "" && hayHilo && paso !== "" && hayContacto;
-  const sinBuscar = !buscarDireccion && !resuelta && direccion.trim() !== "";
+  const sinBuscar = !resuelta && direccion.trim() !== "";
 
   const guardarPersona = (p: Persona) => {
     if (creando === "admin") setAdminNuevo(p);
@@ -414,18 +410,9 @@ export function Formulario({
                 <span className={rotuloSub}>del edificio</span>
               </div>
               <div className="w-[472px] shrink-0">
-                {buscarDireccion ? (
-                  <Elegir
-                    id="comunidad"
-                    nombre=""
-                    opciones={comunidades}
-                    valor={comunidad}
-                    alElegir={setComunidad}
-                    vacio="busca la que ya tenemos"
-                    marco="border-black"
-                    abrirAlMontar
-                  />
-                ) : resuelta ? (
+                {/* LA COMUNIDAD NO SE ELIGE (Monica, 13-oct-2026): nace desde la opp al
+                    confirmar sus accesos; si ya existe, la trae su acceso. */}
+                {resuelta ? (
                   // Ya buscada: se ve con el nombre y se puede deshacer, como lo
                   // que se crea nuevo en esta misma pantalla.
                   <div className="flex h-[40px] items-center gap-2 rounded-lg border border-accion bg-[#eef3f8] px-3 text-[15px]">
@@ -468,34 +455,17 @@ export function Formulario({
                     </button>
                   </div>
                 )}
-                {!buscarDireccion && <input type="hidden" name="direccion_provisional" value={direccion} />}
+                <input type="hidden" name="direccion_provisional" value={direccion} />
                 <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
                 <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
                 <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
               </div>
               <span className={apoyo + " ml-[15px] w-[67px] shrink-0 text-right"}>
-                {buscarDireccion
-                  ? "Mejor la escribo"
-                  : sinBuscar && provisionalAdrede
-                    ? "Sin buscar: provisional"
-                    : "Si ya existe, selecciónala"}
+                {sinBuscar && provisionalAdrede ? "Sin buscar: provisional" : ""}
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  if (buscarDireccion) {
-                    setComunidad("");
-                    setBuscarDireccion(false);
-                  } else {
-                    setDireccion("");
-                    setResuelta(null);
-                    setBuscarDireccion(true);
-                  }
-                }}
-                className={accion + " ml-[8px] w-[83px] text-[12px]"}
-              >
-                {buscarDireccion ? "Aquí" : "Aquí ▾"}
-              </button>
+              {/* aqui iba "Aqui ▾" (elegir una comunidad ya existente): se quita y se
+                  deja su hueco, para que nada se mueva */}
+              <span aria-hidden className="ml-[8px] w-[83px] shrink-0" />
             </div>
 
             <div className="my-[30px] ml-[10px] border-t border-raya" />
