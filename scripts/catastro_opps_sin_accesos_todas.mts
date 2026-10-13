@@ -53,8 +53,47 @@ export const CONOCIDAS: Record<string, string> = {
   "ALV-2026-134": "Alfonso XII sin numero: pendiente del comercial",
   "DAN-2025-424": "CEIP Tierno Galvan, Alcala: sin Catastro a proposito",
   "DAN-2025-436": "Garaje Mejico s/n, Fuenlabrada: sin Catastro a proposito",
+  // Nombres pegados sin arreglo (Monica, 14-oct: "todas las que sean anteriores a 2022, las obviamos: no interesan
+  // y no tienen datos"), y las que no son una direccion o no tienen numero.
+  "DAN-2016-159": "Prado San Juan 46, Guadarrama: Catastro no da numeros; anterior a 2022, se obvia",
+  "DAN-2016-187": "Plaza Fuensanta 4, Mostoles: PL o PZ; anterior a 2022, se obvia",
+  "DAN-2016-188": "Plaza Fuensanta 7, Mostoles: PL o PZ; anterior a 2022, se obvia",
+  "DAN-2020-068": "Carrefour Market, San Martin de Valdeiglesias: un local; anterior a 2022, se obvia",
+  "DAN-2015-010": "Calle de la Estacion, Fuenlabrada: sin numero; anterior a 2022, se obvia",
+  "DAN-2021-096": "Carretera de Galapagar, Torrelodones: sin numero; anterior a 2022, se obvia",
+  "DAN-2017-071": "Hospital de la Fuenfria (Cercedilla): no es una direccion; anterior a 2022, se obvia",
+  "DAN-2019-029": "Corregidor Juan de Boadilla 37: no esta en el callejero; anterior a 2022, se obvia",
+  "DAN-2017-129": "Jeronimo Historias Rehabilitacion: no es una direccion; anterior a 2022, se obvia",
+  "DAN-2022-159": "Direccion pendiente de concretar (Arroyomolinos): no es una direccion",
+  "DAN-2023-168": "Urb. Jardin de Villarejo, Villarejo de Salvanes: sin numero",
 };
 const FUERA = new Set(Object.keys(CONOCIDAS));
+// NOMBRES PEGADOS de las carpetas antiguas (Monica, 13-oct: "solo las de nombre pegado, es muy facil resolverlas"),
+// separados contra el callejero oficial de su municipio (vias_catastro). Con --corregidas se procesan solo estas.
+const CORREGIDO: Record<string, string> = {
+  "CAR-2025-069": "CALLE CAMINO VIEJO DE LEGANES 237 MADRID", // en Leganes no existe; la calle es de Madrid
+  "DAN-2015-015": "CALLE NTRA SRA ESPERANZA 5 LEGANES",
+  "DAN-2015-018": "CALLE NTRA SRA D L ANGUSTIAS 18 LEGANES",
+  "DAN-2016-001": "CALLE ALFEREZ LUIS MARTIN VIDAL 2 VILLAVICIOSA DE ODON",
+  "DAN-2016-103": "CALLE DR BARRAQUER 14 GETAFE",
+  "DAN-2016-136": "CALLE NTRA SRA DEL PILAR 2 LEGANES",
+  "DAN-2016-148": "PASEO EXTREMADURA 244 MADRID", // la carpeta dice DUPLICADO
+  "DAN-2016-151": "CALLE NAZARIO CALONGE 5 SAN FERNANDO DE HENARES", // "solo el 5" (Monica, 14-oct)
+  "DAN-2016-206": "COLONIA ALMENDROS 9 ARGANDA DEL REY",
+  "DAN-2017-063": "URBANIZACION RESIDENCIALES LOS 10 COLMENAR VIEJO",
+  "DAN-2018-034": "AVENIDA FCO JAVIER SAUQUILLO 30 FUENLABRADA",
+  "DAN-2022-288": "AVENIDA FCO JAVIER SAUQUILLO 2 FUENLABRADA",
+  "DAN-2019-001": "AVENIDA GENERAL PALACIO 6 GETAFE", // hay avenida y plaza
+  "DAN-2019-035": "CALLE NTRA SRA MACARENA 11 LEGANES",
+  "DAN-2022-029": "CALLE NTRA SRA MACARENA 5 LEGANES",
+  "DAN-2020-073": "CALLE NTRA SRA DE BEGOÑA 1 LEGANES",
+  "DAN-2021-003": "AVENIDA DOCTOR MARTIN VEGUE 33-35-37 LEGANES",
+  "DAN-2021-010": "CALLE ISLA DE CORCEGA 20 ALCOBENDAS", // la carpeta dice CORDEGA
+  "DAN-2022-030": "CALLE OLIMPICO AURELIO GARCIA 2-18 ALCORCON", // "del 2 al 18, la manzana entera (es un recinto)" (Monica, 14-oct)
+  "DAN-2022-179": "CALLE NTRA SRA D L ANGUSTIAS 14 LEGANES",
+  "DAN-2022-195": "CALLE CAMINO DE HUMANES 27 MOSTOLES",
+  "DAN-2022-248": "CALLE NTRA SRA DE LA MERCED 1 LEGANES",
+};
 const CAB = { apikey: env.SUPABASE_SECRET_KEY, Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`, "Content-Type": "application/json" };
 async function leer<T>(ruta: string): Promise<T> {
   const r = await fetch(`${env.SUPABASE_URL}/rest/v1/${ruta}`, { headers: CAB });
@@ -88,13 +127,14 @@ const CLARAS = process.argv.includes("--claras")
       try { return (JSON.parse(readFileSync(new URL(f, import.meta.url), "utf8")) as { codigo: string; resultado: string }[]).filter((x) => x.resultado === "ok").map((x) => x.codigo); } catch { return []; }
     }))
   : null;
-const opps = sinAccesos.filter((o) => !CLARAS || CLARAS.has(o.codigo)).filter((o) => (SOLO ? o.codigo === SOLO : GRUPO === "prioritarias" ? prioritaria(o) : !prioritaria(o)) && (!DUDOSAS || DUDOSAS.has(o.codigo)));
+const CORREGIDAS = process.argv.includes("--corregidas");
+const opps = sinAccesos.filter((o) => !CORREGIDAS || o.codigo in CORREGIDO).filter((o) => !CLARAS || CLARAS.has(o.codigo)).filter((o) => (SOLO ? o.codigo === SOLO : GRUPO === "prioritarias" ? prioritaria(o) : !prioritaria(o)) && (!DUDOSAS || DUDOSAS.has(o.codigo)));
 console.log(`${sinAccesos.length} opps sin accesos; grupo ${SOLO ?? GRUPO}: ${opps.length}${ESCRIBIR ? "" : " (en seco)"}\n`);
 
 const salida: Record<string, unknown>[] = [];
 let bien = 0;
 for (const o of opps) {
-  const escrito = (o.nombre ?? o.comunidad?.nombre ?? o.comunidad_provisional ?? "").replace(/^CP\s+/i, "").trim();
+  const escrito = CORREGIDO[o.codigo] ?? (o.nombre ?? o.comunidad?.nombre ?? o.comunidad_provisional ?? "").replace(/^CP\s+/i, "").trim();
   const fila: Record<string, unknown> = { codigo: o.codigo, estado: o.estado, hojas: o.hojas.length, buscado: escrito };
   try {
     if (!escrito) throw new Error("no hay direccion que buscar");
@@ -182,6 +222,6 @@ for (const o of opps) {
   }
   salida.push(fila);
 }
-const fichero = new URL(`../docs/opps_sin_accesos_${SOLO ?? GRUPO}${DUDOSAS ? "_dudosas" : ""}${CLARAS ? "_escritas" : ""}.json`, import.meta.url);
+const fichero = new URL(`../docs/opps_sin_accesos_${SOLO ?? GRUPO}${DUDOSAS ? "_dudosas" : ""}${CLARAS ? "_escritas" : ""}${CORREGIDAS ? "_pegadas" : ""}.json`, import.meta.url);
 writeFileSync(fichero, JSON.stringify(salida, null, 1));
 console.log(`\nclaras: ${bien} | dudosas: ${opps.length - bien} -> ${fichero.pathname}`);

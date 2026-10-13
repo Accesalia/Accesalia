@@ -14,6 +14,11 @@ from produccion import arrancar  # noqa: E402
 ESCRIBIR = '--escribir' in sys.argv
 b = arrancar()
 
+# --tanda2 (Monica, 14-oct): "60 duplicado, es en Madrid; 148 duplicado"
+PARES2 = [
+    ('CAR-2025-069', 'CP VIEJODELEGANES237 LEGANES', 'CP CAMINO VIEJO DE LEGANES 237 MADRID'),
+    ('DAN-2016-148', 'CP PASEODEEXTREMADURA244DUPLICADO MADRID', 'CP PASEO EXTREMADURA 244 MADRID'),
+]
 PARES = [  # (opp antigua, nombre de la CP del barrido que se absorbe, nombre de la CP superviviente)
     ('DAN-2016-023', 'CP PASEO SANTA MARIA DE LA CABEZA 129 MADRID', 'CP PASEO SANTA MARIA DE LA CABEZA 129-131 MADRID'),
     ('DAN-2016-090', 'CP RIBERA DEL MANZANARES 85 MADRID', 'CP RIBERA DEL MANZANARES 85 MADRID'),
@@ -37,6 +42,8 @@ REFS = [('beneficiarios_reparto_caes', 'comunidad_id'), ('comunidad_admin_respon
         ('comunidades_fuera_de_lista_provisional_hasta_revisar_una_a_una', 'figura_legal_propietaria_id'),
         ('cuentas_bancarias', 'titular_id'), ('lineas_facturacion', 'pagador_id')]
 
+if '--tanda2' in sys.argv:
+    PARES = PARES2
 for opp, n_abs, n_sup in PARES:
     o = b.leer('oportunidades?codigo=eq.%s&select=id,comunidad_id' % opp)[0]
     ab = b.leer('comunidades?id=eq.%s&select=id,nombre,municipio,cif_comunidad' % o['comunidad_id'])[0]
