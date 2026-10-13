@@ -17,6 +17,7 @@
 
 import "server-only";
 import type { Yo } from "./sesion";
+import { direccionesDeOpps } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -223,8 +224,10 @@ export async function detalleCobro(oppId: string, libro: Libro = "accesalia"): P
   const sueltas = await leer<{ id: string; anio: number; serie: string; numero: number; tipo: string; fecha: string | null; estado: string; base: number | null; url_pdf: string | null; empresa_emisora: string }[]>(
     `facturas?select=id,anio,serie,numero,tipo,fecha,estado,base,url_pdf,empresa_emisora&oportunidad_id=eq.${oppId}&empresa_emisora=in.(${EMISORAS_FACTURA[libro].join(",")})`,
   );
+  // La direccion de la opp, SIEMPRE con municipio (Monica, 13-oct-2026).
+  const dir = (await direccionesDeOpps([o.id])).get(o.id) ?? null;
   return {
-    opp: { id: o.id, codigo: o.codigo, nombre: o.nombre, estado: o.estado, comunidad: o.comunidad?.nombre ?? null },
+    opp: { id: o.id, codigo: o.codigo, nombre: dir ?? o.nombre, estado: o.estado, comunidad: o.comunidad?.nombre ?? null },
     documentos,
     sinHito: sueltas
       .filter((f) => !pagan.has(f.id))
@@ -277,6 +280,7 @@ export async function porCobrar(libro: Libro = "accesalia"): Promise<FilaPorCobr
   for (const l of lineas.filter((x) => EMISORES[libro].includes(x.emisor ?? "accesalia")))
     lineasDe.set(l.hoja_encargo_id, [...(lineasDe.get(l.hoja_encargo_id) ?? []), l]);
   const porOpp = new Map<string, FilaPorCobrar>();
+  const dirs = await direccionesDeOpps(hojas.map((h) => h.oportunidad_id));
   for (const h of hojas) {
     const ls = lineasDe.get(h.id) ?? [];
     // Solo los documentos de este libro (los que aun no tienen lineas, a Accesalia).
@@ -290,7 +294,7 @@ export async function porCobrar(libro: Libro = "accesalia"): Promise<FilaPorCobr
     };
     const c = cuentasDeDocumento(doc);
     const fila = porOpp.get(h.oportunidad_id!) ?? {
-      oppId: h.oportunidad_id!, codigo: h.opp?.codigo ?? null, nombre: h.opp?.comunidad?.nombre ?? h.opp?.nombre ?? "Sin nombre",
+      oppId: h.oportunidad_id!, codigo: h.opp?.codigo ?? null, nombre: dirs.get(h.oportunidad_id!) ?? h.opp?.comunidad?.nombre ?? h.opp?.nombre ?? "Sin nombre",
       documentos: [], primeraFirma: null, firmado: 0, facturado: 0, cobrado: 0, porFacturar: 0, previo: 0, pendienteCobro: 0, enPausa: 0, aExito: 0, proximo: null, antiguo: false,
     };
     fila.documentos.push({ codigo: h.numero_hoja, tipo: h.tipo_documento });
@@ -462,6 +466,7 @@ export async function datosCaja(): Promise<DatosCaja> {
   const nubeDe = new Map(nubes.map((n) => [n.oportunidad_id, { prevista: n.fecha_prevista_escaneo, escaneado: n.escaneado_en, lista: n.nube_lista_en }]));
   const porLinea = montarHitos(filas, enlacesPorHito(enl), new Map());
   const hojaDe = new Map(hojas.map((h) => [h.id, h]));
+  const dirs = await direccionesDeOpps(hojas.map((h) => h.oportunidad_id));
   const trab = new Map<string, TrabajoCaja>();
   const fijos: CobroFijo[] = [];
   let sinFechaImp = 0, sinFechaN = 0;
@@ -469,7 +474,7 @@ export async function datosCaja(): Promise<DatosCaja> {
     const h = hojaDe.get(l.hoja_encargo_id);
     if (!h?.oportunidad_id) continue;
     // lo firmado antes de 2025 sin facturas cargadas no se sabe si esta cobrado: fuera
-    const nombre = h.opp?.comunidad?.nombre ?? h.opp?.nombre ?? "Sin nombre";
+    const nombre = dirs.get(h.oportunidad_id) ?? h.opp?.comunidad?.nombre ?? h.opp?.nombre ?? "Sin nombre";
     for (const ht of porLinea.get(l.id) ?? []) {
       for (const x of ht.subhitos.length ? ht.subhitos : [ht]) {
         const c = cuentasDeHito(x);

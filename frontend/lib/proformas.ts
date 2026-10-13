@@ -21,6 +21,7 @@ import "server-only";
 // Los porcentajes (IVA, IRPF) salen de la base, nunca del codigo.
 
 import type { Yo } from "./sesion";
+import { direccionesDeOpps, enFrase } from "./direccionOpp";
 import { puedeVerLibro, TEXTO_HITO, type Libro } from "./cobros";
 import { enviarCorreo, buzonListo, direccionDe, type Area } from "./correo";
 import { crearEntrada } from "./entradaDiario";
@@ -218,9 +219,10 @@ export async function prepararProforma(ids: string[]): Promise<Preparada> {
     emisora(empresa),
     pagadorDe(hitos[0].pagador),
     parametro("iva_honorarios_pct"),
-    pedir<{ nombre: string | null; comunidad: { nombre: string } | null }[]>(`oportunidades?select=nombre,comunidad:comunidad_id(nombre)&id=eq.${hitos[0].oppId}`),
+    direccionesDeOpps([hitos[0].oppId]),
   ]);
-  const donde = (opp[0]?.comunidad?.nombre ?? opp[0]?.nombre ?? "").replace(/^CP\s+/i, "");
+  // La direccion de la opp, SIEMPRE con municipio (Monica, 13-oct-2026).
+  const donde = opp.get(hitos[0].oppId ?? "") ?? "";
   const porLinea = new Map<string, HitoProformable[]>();
   for (const h of hitos) porLinea.set(h.lineaId, [...(porLinea.get(h.lineaId) ?? []), h]);
   return {
@@ -232,7 +234,7 @@ export async function prepararProforma(ids: string[]): Promise<Preparada> {
     pagador,
     ivaPct: iva,
     irpfPct: em.irpf_porcentaje,
-    lineas: [...porLinea.values()].map((hs) => ({ concepto: conceptoDe(hs, donde), hitos: hs.map((h) => h.id) })),
+    lineas: [...porLinea.values()].map((hs) => ({ concepto: conceptoDe(hs, enFrase(donde)), hitos: hs.map((h) => h.id) })),
   };
 }
 
@@ -341,11 +343,12 @@ export async function leerProforma(id: string): Promise<Proforma | null> {
   if (!UUID.test(id)) return null;
   const [f] = await pedir<FilaProforma[]>(`proformas?select=${SEL}&id=eq.${id}`);
   if (!f) return null;
-  const [em, envios] = await Promise.all([
+  const [em, envios, dirs] = await Promise.all([
     emisora(f.empresa),
     pedir<{ creado_en: string; para: string[]; ok: boolean; error: string | null }[]>(
       `correos_enviados?select=creado_en,para,ok,error&documentos=cs.${encodeURIComponent(JSON.stringify([{ tipo: "Proforma", id }]))}&order=creado_en.desc`,
     ),
+    direccionesDeOpps([f.oportunidad_id]),
   ]);
   return {
     id: f.id,
@@ -353,7 +356,7 @@ export async function leerProforma(id: string): Promise<Proforma | null> {
     empresa: f.empresa,
     fecha: f.fecha,
     oppId: f.oportunidad_id,
-    opp: f.opp ? { codigo: f.opp.codigo, nombre: f.opp.comunidad?.nombre ?? f.opp.nombre ?? "" } : null,
+    opp: f.opp ? { codigo: f.opp.codigo, nombre: dirs.get(f.oportunidad_id ?? "") ?? f.opp.comunidad?.nombre ?? f.opp.nombre ?? "" } : null,
     pagador: { nombre: f.pagador_nombre, nif: f.pagador_nif, domicilio: f.pagador_domicilio, email: null },
     base: Number(f.base), ivaPct: Number(f.iva_porcentaje), iva: Number(f.iva), irpfPct: Number(f.irpf_porcentaje), irpf: Number(f.irpf), total: Number(f.total),
     estado: f.estado,
@@ -395,9 +398,10 @@ export async function listaProformas(libro: Libro, f: { mes?: string; oppId?: st
     factura: { anio: number; serie: string; numero: number } | null; opp: { nombre: string | null; comunidad: { nombre: string } | null } | null }[]>(
     `proformas?select=id,codigo,empresa,fecha,oportunidad_id,pagador_nombre,total,estado,factura:factura_id(anio,serie,numero),opp:oportunidad_id(nombre,comunidad:comunidad_id(nombre))${filtro}&order=fecha.desc,numero.desc`,
   );
+  const dirs = await direccionesDeOpps(filas.map((x) => x.oportunidad_id));
   return filas.map((x) => ({
     id: x.id, codigo: x.codigo, empresa: x.empresa, fecha: x.fecha, oppId: x.oportunidad_id,
-    donde: x.opp?.comunidad?.nombre ?? x.opp?.nombre ?? "", pagador: x.pagador_nombre, total: Number(x.total), estado: x.estado,
+    donde: dirs.get(x.oportunidad_id ?? "") ?? x.opp?.comunidad?.nombre ?? x.opp?.nombre ?? "", pagador: x.pagador_nombre, total: Number(x.total), estado: x.estado,
     facturada: x.factura ? `${x.factura.anio}/${x.factura.serie}-${x.factura.numero}` : null,
   }));
 }

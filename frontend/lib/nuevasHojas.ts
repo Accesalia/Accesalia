@@ -14,6 +14,7 @@
 
 import "server-only";
 import type { Yo } from "./sesion";
+import { direccionDeAccesos } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -44,20 +45,7 @@ export function puedeValidar(yo: Yo): boolean {
 // ------------------------------------------------------------ la direccion
 
 type Acceso = { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null };
-const titulo = (t: string | null) => (t ?? "").toLowerCase().replace(/(^|[\s(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
-/** "Cl Bolsa 3 · Madrid"; varios portales de la misma calle, seguidos. */
-export function direccionDeAccesos(accesos: Acceso[]): string {
-  if (!accesos.length) return "Sin dirección";
-  const portal = (a: Acceso) => [a.numero, a.escalera ? `esc. ${a.escalera}` : ""].filter(Boolean).join(", ");
-  const calles = new Map<string, string[]>();
-  for (const a of accesos) {
-    const calle = [titulo(a.tipo_via), titulo(a.nombre_via)].filter(Boolean).join(" ");
-    calles.set(calle, [...(calles.get(calle) ?? []), portal(a)]);
-  }
-  const txt = [...calles].map(([c, ps]) => `${c} ${ps.join(" + ")}`).join(" · ");
-  const munis = [...new Set(accesos.map((a) => titulo(a.municipio)).filter(Boolean))].join(", ");
-  return munis ? `${txt} · ${munis}` : txt;
-}
+export { direccionDeAccesos } from "./direccionOpp";
 
 // ------------------------------------------------------------ la lista
 
