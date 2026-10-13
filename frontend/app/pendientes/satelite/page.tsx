@@ -15,12 +15,12 @@ const TEXTO: Record<TipoApunte, { titulo: string; sub: string; color: string }> 
   oportunidad: {
     titulo: "Opps nuevas que has lanzado desde el satélite",
     sub: "No están creadas, solo apuntadas: les faltan datos para poder darlas de alta.",
-    color: "rgba(120, 182, 184, 0.5)",
+    color: "rgba(120, 182, 184, 0.22)",
   },
   administrador: {
     titulo: "Administradores nuevos creados desde el satélite",
     sub: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
-    color: "rgba(124, 109, 178, 0.5)",
+    color: "rgba(124, 109, 178, 0.22)",
   },
 };
 
@@ -38,9 +38,9 @@ export default async function ApuntesSatelite({ searchParams }: { searchParams: 
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1100px] px-6 pb-20 pt-5 text-sm">
         <Salida href="/pendientes">← Pendientes</Salida>
-        <div className="mt-3 rounded-[20px] px-6 py-5" style={{ background: x.color }}>
-          <h1 className="text-[24px] font-bold uppercase leading-[1.35] tracking-[1.32px] text-black">{x.titulo}</h1>
-          <p className="mt-1 text-[16px] font-bold leading-[1.35] text-black">{x.sub}</p>
+        <div className="mt-3 rounded-[18px] px-6 py-4" style={{ background: x.color }}>
+          <h1 className="text-[20px] font-bold leading-snug text-carbon">{x.titulo}</h1>
+          <p className="mt-0.5 text-[13.5px] leading-snug text-carbon/70">{x.sub}</p>
         </div>
         <ListaApuntes apuntes={apuntes} tipo={tipo} />
       </main>

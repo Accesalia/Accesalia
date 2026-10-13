@@ -13,44 +13,126 @@ import { direccionesVistas } from "../../lib/informeCostes";
 export const dynamic = "force-dynamic";
 
 // PENDIENTES (Monica, 8-oct-2026): todo lo que tengo a medias. Se llega desde el
-// boton PENDIENTES de la barra de arriba, junto a LLAMADA.
+// boton PENDIENTES de la barra de arriba, junto a LLAMADA. Cada persona ve las
+// tarjetas que le tocan.
 //
-// UNA PIZARRA DE AVISOS, PARA TODO EL MUNDO (Monica, 10-oct-2026): una tarjeta
-// por tipo, con su numero, y cada una lleva a su sitio. Cada persona ve las que
-// le tocan.
+// SU MAQUETA (Monica, 13-oct-2026; OneDrive/Imagenes/Screenshots/"propuesta
+// pantalla pendintes con avisos urgentes.png", con sus codigos de color): seis
+// marcos en dos filas de tres. Arriba: AVISOS URGENTES (su marco amarillo con
+// borde rojo), lo que esta a medio crear y lo que necesita un humano. Abajo:
+// nueva documentacion recibida y cosas que pueden interesarte. Cada tarjeta, su
+// fondo de color; titulo, numero, flecha y borde en el mismo color mas oscuro;
+// la frase de abajo en gris oscuro. Los tamaños, a la escala de la pantalla de
+// antes. Avisos urgentes y Viabilidad lista son de momento solo el hueco.
+// Un marco sin tarjetas para esa persona no sale.
 //
-// TARJETAS APILADAS, ALARGADAS Y CENTRADAS, CADA UNA CON SU COLOR (Monica,
-// 13-oct-2026; referencia: NotebookLM): "el comercial no tiene que pensar, solo
-// leer lo que es cada una y con instrucciones de que hacer con ella". Sus
-// medidas: 1273 de ancho, 222 de alto, esquina de 20, titulo 24, explicacion
-// 20, numero 64. Los cinco primeros colores y textos son suyos; el resto
-// conserva su contenido con el mismo formato.
-//
-// PARA AÑADIR UNA TARJETA: una entrada mas en `tarjetas`. Nada mas.
+// PARA AÑADIR UNA TARJETA: una entrada mas en `tarjetas`, con su marco.
 
-type Tarjeta = { clave: string; titulo: string; sub: string; numero: number | null; href: string; color: string };
+type Marco = "a_medio_crear" | "humano" | "documentacion" | "interesarte";
+const MARCOS: { clave: Marco; titulo: string }[] = [
+  { clave: "a_medio_crear", titulo: "Lo que está a medio crear" },
+  { clave: "humano", titulo: "Lo que necesita un humano" },
+  { clave: "documentacion", titulo: "Nueva documentación recibida" },
+  { clave: "interesarte", titulo: "Cosas que pueden interesarte" },
+];
+
+/** Sus colores: el fondo y el tono oscuro (titulo, numero, flecha y borde). */
+type Color = { fondo: string; tono: string };
+const C = {
+  ambar: { fondo: "#F2ECD9", tono: "#8A6B05" },
+  verde: { fondo: "#E5F3DC", tono: "#2D6609" },
+  rojo: { fondo: "#F3E3E1", tono: "#923428" },
+  turquesa: { fondo: "#E2EFEF", tono: "#044E4E" },
+  frambuesa: { fondo: "#F2E3EC", tono: "#850F56" },
+  naranja: { fondo: "#F8E5D3", tono: "#8C4804" },
+  morado: { fondo: "#E9E6F2", tono: "#2F1385" },
+  // Las que su maqueta no colorea: del mismo estilo.
+  azul: { fondo: "#E3ECF5", tono: "#1F4E79" },
+  ciruela: { fondo: "#EEE5F3", tono: "#5B2A86" },
+  arena: { fondo: "#F1ECE0", tono: "#6B5214" },
+  pizarra: { fondo: "#E6EBEE", tono: "#2E4756" },
+} satisfies Record<string, Color>;
+
+type Tarjeta = {
+  clave: string;
+  marco: Marco;
+  titulo: string;
+  pie: string;
+  /** null = hueco: aun no tiene contenido. */
+  numero: number | null;
+  href: string | null;
+  color: Color;
+  /** La flechita delante del numero de su maqueta (las que necesitan un humano). */
+  flechita?: boolean;
+};
+
+const GRIS = "#4a4a48";
 
 function TarjetaPendiente({ t }: { t: Tarjeta }) {
   const nada = t.numero === 0;
-  return (
-    <Link
-      href={t.href}
-      style={{ background: t.color }}
-      className="group flex min-h-[222px] items-center gap-8 rounded-[20px] px-[40px] py-7 transition hover:brightness-95"
-    >
+  const cuerpo = (
+    <div className="flex gap-3">
       <div className="min-w-0 flex-1">
-        <h2 className="text-[24px] font-bold uppercase leading-[1.35] tracking-[1.32px] text-black">{t.titulo}</h2>
-        <p className="mt-2 text-[20px] font-bold leading-[1.35] tracking-[1.32px] text-black">{t.sub}</p>
+        <span className="block text-[12px] font-bold uppercase leading-snug tracking-[0.06em]" style={{ color: t.color.tono }}>
+          {t.titulo}
+        </span>
+        <span className="mt-2 block text-[11.5px] font-semibold leading-snug" style={{ color: GRIS }}>
+          {t.pie}
+        </span>
       </div>
-      <div className="flex shrink-0 flex-col items-center gap-2">
-        <span className={"text-[64px] font-bold leading-[1.35] tracking-[1.32px] tabular-nums " + (nada ? "text-black/40" : "text-black")}>
+      <div className="flex shrink-0 flex-col items-end justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-[28px] font-bold leading-none tabular-nums" style={{ color: t.color.tono, opacity: nada ? 0.45 : 1 }}>
+          {t.flechita && <span className="text-[18px] font-normal">⟶</span>}
           {t.numero === null ? "—" : t.numero}
         </span>
-        <span className="rounded-full bg-white px-5 py-1.5 text-[20px] font-bold leading-[1.35] tracking-[1.32px] text-black shadow-sm transition group-hover:shadow">
-          Revisar
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[18px] font-bold shadow-sm transition group-hover:shadow"
+          style={{ color: t.color.tono, opacity: t.href ? 1 : 0.4 }}
+        >
+          →
         </span>
       </div>
+    </div>
+  );
+  const forma = { background: t.color.fondo, borderColor: t.color.tono };
+  return t.href ? (
+    <Link href={t.href} style={forma} className="group block rounded-[10px] border-[0.5px] px-4 py-3.5 transition hover:-translate-y-0.5 hover:shadow-md">
+      {cuerpo}
     </Link>
+  ) : (
+    <div style={forma} className="rounded-[10px] border-[0.5px] px-4 py-3.5" title="Aún sin contenido: está por montar">
+      {cuerpo}
+    </div>
+  );
+}
+
+/** AVISOS URGENTES: su propio marco. De momento, el hueco. */
+function AvisosUrgentes() {
+  return (
+    <section
+      className="flex flex-col items-center justify-center rounded-[14px] border-2 px-6 py-8 text-center"
+      style={{ background: "#FAFAE3", borderColor: "#891010" }}
+      title="Aún sin contenido: está por montar"
+    >
+      <h2 className="text-[22px] font-extrabold uppercase tracking-[0.04em]" style={{ color: "#901616" }}>
+        Avisos urgentes
+      </h2>
+      <span className="mt-2 text-[28px] font-bold leading-none" style={{ color: "#923428" }}>
+        —
+      </span>
+      <p className="mt-5 text-[15px] font-extrabold leading-snug" style={{ color: "#891414" }}>
+        Cosas pasadas de fecha, alertas y avisos importantes.
+      </p>
+      <span
+        className="mt-3 flex h-8 w-8 items-center justify-center rounded-full border-[0.5px] bg-white text-[18px] font-bold"
+        style={{ color: "#923428", borderColor: "#923428" }}
+      >
+        →
+      </span>
+      <p className="mt-3 text-[15px] font-extrabold leading-snug" style={{ color: "#9A9A9A" }}>
+        Si solo puedes mirar una cosa, que sea esto
+      </p>
+    </section>
   );
 }
 
@@ -64,7 +146,7 @@ export default async function Pendientes() {
   // LAS VACACIONES (Monica, 10-oct-2026): las resuelve quien gestiona RRHH
   // -Alexandra- y direccion. Lo propio no cuenta: nadie se aprueba a si mismo.
   const resuelveRrhh = puedeEntrar(yo, "rrhh", "trabajar");
-  // Lo del comercial: posibles, apuntes del satelite, direcciones con informe.
+  // Lo del comercial: avisos, apuntes del satelite, viabilidades, direcciones con informe, posibles.
   const comercial = puedeEntrar(yo, "comercial", "trabajar");
   const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas] = await Promise.all([
     misPendientes(yo),
@@ -81,130 +163,108 @@ export default async function Pendientes() {
   const misVistas = vistas ? vistas.filter((f) => todasVistas || f.creado_por === yo.id).length : null;
 
   const tarjetas: Tarjeta[] = [
-    {
-      clave: "notas",
-      titulo: "Notas del diario que no he sabido colocar",
-      sub: "Me las pasaste desde la app o el satélite, pero no he sabido localizar en qué dirección o persona colgarlas.",
-      numero: notas.length,
-      href: "/comercial/pendientes",
-      color: "rgba(206, 103, 103, 0.5)",
-    },
+    // ---------------------------------------------- lo que esta a medio crear
     ...(comercial
       ? [
           {
-            clave: "satelite_opps",
-            titulo: "Opps nuevas que has lanzado desde el satélite",
-            sub: "No están creadas, solo apuntadas: les faltan datos para poder darlas de alta.",
-            numero: apuntes?.oportunidad ?? null,
-            href: "/pendientes/satelite?tipo=oportunidad",
-            color: "rgba(120, 182, 184, 0.5)",
+            clave: "satelite_opps", marco: "a_medio_crear" as const, titulo: "Opps nuevas que has lanzado desde el satélite",
+            pie: "No están creadas, solo apuntadas: les faltan datos para poder darlas de alta.",
+            numero: apuntes?.oportunidad ?? null, href: "/pendientes/satelite?tipo=oportunidad", color: C.ambar,
           },
           {
-            clave: "satelite_admins",
-            titulo: "Administradores nuevos creados desde el satélite",
-            sub: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
-            numero: apuntes?.administrador ?? null,
-            href: "/pendientes/satelite?tipo=administrador",
-            color: "rgba(124, 109, 178, 0.5)",
+            clave: "satelite_admins", marco: "a_medio_crear" as const, titulo: "Administradores nuevos creados desde el satélite",
+            pie: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
+            numero: apuntes?.administrador ?? null, href: "/pendientes/satelite?tipo=administrador", color: C.verde,
           },
         ]
       : []),
+    {
+      clave: "opps", marco: "a_medio_crear", titulo: "Opps a medio montar",
+      pie: "Falta mirar el Catastro, la persona de contacto o algo más: hay que completarlas.",
+      numero: opps.length, href: "/pendientes/oportunidades", color: C.azul,
+    },
+    // -------------------------------------------- lo que necesita un humano
+    {
+      clave: "notas", marco: "humano", titulo: "Notas del diario que no he sabido colocar",
+      pie: "Me las pasaste desde la app o el satélite, pero no he sabido localizar en qué dirección o persona colgarlas.",
+      numero: notas.length, href: "/comercial/pendientes", color: C.rojo, flechita: true,
+    },
     ...(veo.llamadas
-      ? [
-          {
-            clave: "llamadas",
-            titulo: "Llamadas que me pasaste y no sé dónde poner",
-            sub: "Con las notas que incluiste no tengo pistas para saber de qué o de quién eran: necesito ayuda humana.",
-            numero: llamadas.length,
-            href: "/pendientes/llamadas",
-            color: "rgba(199, 163, 54, 0.5)",
-          },
-        ]
+      ? [{
+          clave: "llamadas", marco: "humano" as const, titulo: "Llamadas que me pasaste y no sé dónde poner",
+          pie: "Con las notas que incluiste no tengo pistas para saber de qué o de quién eran: necesito ayuda humana.",
+          numero: llamadas.length, href: "/pendientes/llamadas", color: C.turquesa, flechita: true,
+        }]
       : []),
-    ...(comercial
-      ? [
-          {
-            clave: "direcciones",
-            titulo: "Direcciones para las que has generado informes",
-            sub: "No han generado opp, pero alguien las pidió: las guardamos aquí por si quieres seguirles la pista.",
-            numero: misVistas,
-            href: "/comercial/direcciones-vistas",
-            color: "rgba(125, 215, 61, 0.5)",
-          },
-        ]
+    ...(resuelveRrhh
+      ? [{
+          clave: "ausencias", marco: "humano" as const, titulo: "Vacaciones y permisos",
+          pie: "Solicitudes por aprobar o rechazar.",
+          numero: ausenciasAjenas, href: "/rrhh#por-resolver", color: C.ciruela,
+        }]
       : []),
-    // Las de antes, con su contenido de siempre en el formato nuevo.
-    {
-      clave: "opps",
-      titulo: "Oportunidades a medias",
-      sub: "Les falta dirección, contacto o siguiente paso: sin eso no se puede generar viabilidad ni hoja.",
-      numero: opps.length,
-      href: "/pendientes/oportunidades",
-      color: "rgba(214, 140, 72, 0.5)",
-    },
-    ...(comercial
-      ? [
-          {
-            clave: "posibles",
-            titulo: "Administradores sin consolidar",
-            sub: "Los has traído tú, pero aún no son de tu cartera: insísteles hasta su primera hoja firmada.",
-            numero: posibles ? posibles.length : null,
-            href: "/pendientes/administradores",
-            color: "rgba(206, 120, 170, 0.5)",
-          },
-        ]
-      : []),
+    // ----------------------------------------- nueva documentacion recibida
     // LO QUE SUBEN LAS COMUNIDADES desde su pagina (12-oct-2026): sale a quien
     // tiene algo que revisar, y siempre a quien lo revisa todo.
     ...(recibidos > 0 || veo.supervisa
+      ? [{
+          clave: "recibidos", marco: "documentacion" as const, titulo: "Hojas de encargo recibidas firmadas",
+          pie: "Han llegado vía portal y necesitan revisión para darles el ok.",
+          numero: recibidos, href: "/comercial/recibidos", color: C.frambuesa,
+        }]
+      : []),
+    ...(comercial
+      ? [{
+          clave: "viabilidades", marco: "documentacion" as const, titulo: "Viabilidad lista",
+          pie: "Viabilidades ya preparadas, listas para tu revisión y enviar a la comunidad.",
+          numero: null, href: null, color: C.naranja,
+        }]
+      : []),
+    // ------------------------------------------ cosas que pueden interesarte
+    ...(comercial
       ? [
           {
-            clave: "recibidos",
-            titulo: "Documentos que han subido las comunidades",
-            sub: "Lo que suben desde su página: revísalo. La hoja firmada crea sus cobros.",
-            numero: recibidos,
-            href: "/comercial/recibidos",
-            color: "rgba(92, 142, 210, 0.5)",
+            clave: "direcciones", marco: "interesarte" as const, titulo: "Direcciones para las que has generado informes",
+            pie: "No han generado opp, pero alguien las pidió: te las guardo aquí por si quieres seguirles la pista.",
+            numero: misVistas, href: "/comercial/direcciones-vistas", color: C.morado,
+          },
+          {
+            clave: "posibles", marco: "interesarte" as const, titulo: "Administradores sin consolidar",
+            pie: "Posibles, no de tu cartera: insísteles hasta su primera hoja firmada.",
+            numero: posibles ? posibles.length : null, href: "/pendientes/administradores", color: C.arena,
           },
         ]
       : []),
     ...(veRadar
-      ? [
-          {
-            clave: "radar",
-            titulo: "Radar de IEE",
-            sub: "Edificios de fuera con IEE nueva: asígnalos a un comercial o descártalos.",
-            numero: radar,
-            href: "/comercial/alertas-iee",
-            color: "rgba(160, 150, 130, 0.5)",
-          },
-        ]
-      : []),
-    ...(resuelveRrhh
-      ? [
-          {
-            clave: "ausencias",
-            titulo: "Vacaciones y permisos",
-            sub: "Solicitudes del equipo por aprobar o rechazar.",
-            numero: ausenciasAjenas,
-            href: "/rrhh#por-resolver",
-            color: "rgba(98, 176, 150, 0.5)",
-          },
-        ]
+      ? [{
+          clave: "radar", marco: "interesarte" as const, titulo: "Radar de IEE",
+          pie: "Edificios de fuera con IEE nueva: asignar a un comercial o descartar.",
+          numero: radar, href: "/comercial/alertas-iee", color: C.pizarra,
+        }]
       : []),
   ];
+
+  const marcos = MARCOS.map((m) => ({ ...m, tarjetas: tarjetas.filter((t) => t.marco === m.clave) })).filter((m) => m.tarjetas.length);
 
   return (
     <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1321px] px-6 pb-20 pt-5 text-sm">
+      <main className="mx-auto w-full max-w-[1300px] px-6 pb-20 pt-5 text-sm">
         <Volver siNoHay="/menu" />
         <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Pendientes</h1>
         <p className="mt-1 text-[13px] text-carbon/70">Lo que tienes por hacer. Cada tarjeta lleva a su lista.</p>
 
-        <div className="mx-auto mt-6 flex max-w-[1273px] flex-col gap-5">
-          {tarjetas.map((t) => (
-            <TarjetaPendiente key={t.clave} t={t} />
+        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          {comercial && <AvisosUrgentes />}
+          {marcos.map((m) => (
+            <section key={m.clave} className="rounded-[14px] border-[0.5px] border-black bg-white px-4 pb-4 pt-5">
+              <h2 className="text-center text-[15px] font-extrabold uppercase tracking-[0.04em] text-black">{m.titulo}</h2>
+              <div className="mt-4 flex flex-col gap-3">
+                {m.tarjetas.map((t) => (
+                  <TarjetaPendiente key={t.clave} t={t} />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </main>
