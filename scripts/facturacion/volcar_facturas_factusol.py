@@ -11,7 +11,7 @@ ABONOS (rectificativas, F_FAB/F_LFB, serie 6, en negativo): en la misma tabla, c
 Lineas: si Factusol apunta de que documento salen (DOCLFA 'P' = presupuesto, DTPLFA serie, DCOLFA numero), se guarda
 y se enlaza con el presupuesto de Factusol ya volcado (misma empresa y año del fichero).
 
-  python scripts/facturacion/volcar_facturas_factusol.py <facturas_2025_2026.json> [--escribir] [--corregir [--solo accesalia/2026/287]]
+  python scripts/facturacion/volcar_facturas_factusol.py <facturas_2025_2026.json> [--escribir] [--corregir [--solo accesalia/2026/287]] [--estados]
 CORREGIDAS: Factusol corrige sobre la misma factura; las que ya estan se comparan y, con --corregir, se ponen al dia
 (lo que decian antes queda en sus notas). Ver corregidas().
 """
@@ -130,6 +130,36 @@ def corregidas(b, filas):
             b.actualizar('factura_lineas?id=eq.%s' % x['id'], {'concepto': l['DESLFA'], 'base': n(l['TOTLFA']), 'cantidad': n(l['CANLFA']), 'precio': n(l['PRELFA'])})
         print('   CORREGIDA EN LA APP (lo de antes, en sus notas)')
     print('corregidas en Factusol: %d | solo con otro estado (cobro): %d %s' % (cambiadas, len(estados), estados[:20]))
+    if '--estados' in sys.argv and '--escribir' in sys.argv:
+        poner_estados(b, filas, app, estados)
+
+
+# ESTADOS DE COBRO (Monica, 13-oct-2026: "ok"): el volcado nunca los ponia al dia, y una factura que pasa a cobrada en
+# Factusol seguia pendiente en la app, con sus hitos. Con --estados: la factura toma el estado de Factusol y sus hitos
+# casados le siguen (cobrada -> completado; si vuelve a pendiente -> pendiente). Un subhito completa a su padre cuando
+# todos los subhitos estan completados y suman lo del padre.
+def poner_estados(b, filas, app, nombres):
+    for f, clave, ls in filas:
+        nombre = '%s%s/%s/%s' % ('abono ' if f['tipo'] == 'abono' else '', f['empresa_emisora'], f['anio'], f['numero'])
+        if nombre not in nombres:
+            continue
+        a = app[(f['tipo'], f['empresa_emisora'], f['anio'], f['serie'], f['numero'])]
+        b.actualizar('facturas?id=eq.%s' % a['id'], {'estado': f['estado'], 'estado_factusol': f['estado_factusol']})
+        nuevo = {'cobrada': 'completado', 'pendiente': 'pendiente'}.get(f['estado'])
+        tocados = []
+        if nuevo:
+            for l in b.leer('factura_lineas?factura_id=eq.%s&select=id' % a['id']):
+                for e in b.leer('factura_linea_hitos?factura_linea_id=eq.%s&select=hito_cobro_id' % l['id']):
+                    h = b.leer('hitos_cobro?id=eq.%s&select=id,hito_padre_id,estado' % e['hito_cobro_id'])[0]
+                    if h['estado'] in ('anulado', 'devuelto'):
+                        continue
+                    b.actualizar('hitos_cobro?id=eq.%s' % h['id'], {'estado': nuevo}); tocados.append(h['id'])
+                    if h['hito_padre_id']:
+                        p = b.leer('hitos_cobro?id=eq.%s&select=id,importe' % h['hito_padre_id'])[0]
+                        subs = b.leer('hitos_cobro?hito_padre_id=eq.%s&select=importe,estado' % p['id'])
+                        hecho = all(s['estado'] == 'completado' for s in subs) and abs(sum(float(s['importe'] or 0) for s in subs) - float(p['importe'] or 0)) < 0.01
+                        b.actualizar('hitos_cobro?id=eq.%s' % p['id'], {'estado': 'completado' if hecho else 'parcial'})
+        print('   ESTADO %s: %s -> %s; hitos casados puestos a %s: %d' % (nombre, a['estado'], f['estado'], nuevo, len(tocados)))
 
 
 if __name__ == '__main__':
