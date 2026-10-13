@@ -11,7 +11,9 @@ ABONOS (rectificativas, F_FAB/F_LFB, serie 6, en negativo): en la misma tabla, c
 Lineas: si Factusol apunta de que documento salen (DOCLFA 'P' = presupuesto, DTPLFA serie, DCOLFA numero), se guarda
 y se enlaza con el presupuesto de Factusol ya volcado (misma empresa y año del fichero).
 
-  python scripts/facturacion/volcar_facturas_factusol.py <facturas_2025_2026.json> [--escribir]
+  python scripts/facturacion/volcar_facturas_factusol.py <facturas_2025_2026.json> [--escribir] [--corregir [--solo accesalia/2026/287]]
+CORREGIDAS: Factusol corrige sobre la misma factura; las que ya estan se comparan y, con --corregir, se ponen al dia
+(lo que decian antes queda en sus notas). Ver corregidas().
 """
 import sys, os, json, urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -36,11 +38,13 @@ def main():
     presu = {(p['empresa_emisora'], p['anio'], p['serie'], p['numero']): p['id'] for p in
              b.leer('presupuestos?select=id,empresa_emisora,anio,serie,numero&origen=eq.factusol')}
     lin = {}
-    for l in d['lineas'] + d.get('lineas_abono', []):   # el abono es serie 6: su clave no choca con la factura
-        lin.setdefault((l['empresa'], l['anio'], str(l['TIPLFA']), int(l['CODLFA'])), []).append(l)
+    # el tipo va en la clave: los abonos de Accesalia son serie 6, pero los de Daniel son serie 1, como sus facturas
+    for tipo, ls_ in (('factura', d['lineas']), ('abono', d.get('lineas_abono', []))):
+        for l in ls_:
+            lin.setdefault((tipo, l['empresa'], l['anio'], str(l['TIPLFA']), int(l['CODLFA'])), []).append(l)
     filas = []
     for f in [dict(x, tipo='factura') for x in d['facturas']] + [dict(x, tipo='abono') for x in d.get('abonos', [])]:
-        clave = (f['empresa'], f['anio'], str(f['TIPFAC']), int(f['CODFAC']))
+        clave = (f['tipo'], f['empresa'], f['anio'], str(f['TIPFAC']), int(f['CODFAC']))
         iva = [{'tipo': n(f['PIVA%dFAC' % i]), 'base': n(f['BAS%dFAC' % i]), 'cuota': n(f['IIVA%dFAC' % i])}
                for i in (1, 2, 3) if n(f['BAS%dFAC' % i])]
         filas.append(({'origen': 'factusol', 'tipo': f['tipo'], 'empresa_emisora': EMPRESA[f['empresa']], 'anio': int(f['anio']),
@@ -53,7 +57,8 @@ def main():
                        'irpf_porcentaje': n(f['PRET1FAC']), 'irpf_importe': n(f['IRET1FAC']), 'total': n(f['TOTFAC'])},
                       clave, sorted(lin.get(clave, []), key=lambda l: l['POSLFA'] or 0)))
     print('facturas: %d | lineas: %d' % (len(filas), sum(len(x[2]) for x in filas)))
-    if '--escribir' not in sys.argv: print('(marcha en seco)'); return
+    if '--escribir' not in sys.argv:
+        print('(marcha en seco)'); corregidas(b, filas); return
     cab = dict(b.cab); cab['Content-Type'] = 'application/json'; cab['Prefer'] = 'return=representation'
     # las que ya esten (se relanza sin duplicar): el indice unico parcial no sirve de on_conflict en la API
     ya = {(x['tipo'], x['empresa_emisora'], x['anio'], x['serie'], x['numero']) for x in
@@ -75,6 +80,56 @@ def main():
         if filas_l: b.insertar('factura_lineas', filas_l)
         hechas += 1
     print('volcadas: %d | lineas enlazadas a su presupuesto: %d' % (hechas, enlazadas))
+    corregidas(b, filas)
+
+
+# CORREGIDAS EN FACTUSOL (Monica, 13-oct-2026, Navarra 28-30 2026/287: "errata, el cuerpo de la factura miente, hay que
+# corregirla"). Factusol corrige SOBRE LA MISMA FACTURA (mismo numero, sin abono), asi que el volcado, que salta las que
+# ya estan, nunca se enteraba. Ahora compara las que ya estan; con --corregir las pone al dia y deja en sus notas lo que
+# decian antes (trazabilidad). Si cambia el IMPORTE de una linea ya casada con su hito, no la toca: se avisa y se mira a mano.
+#   --solo accesalia/2026/287   limita la correccion a esa factura
+CAMPOS = ('fecha', 'referencia', 'estado', 'estado_factusol', 'pagador_nombre', 'pagador_nif', 'base', 'total')
+
+
+def corregidas(b, filas):
+    solo = sys.argv[sys.argv.index('--solo') + 1] if '--solo' in sys.argv else None
+    hoy = __import__('datetime').date.today().isoformat()
+    app = {(x['tipo'], x['empresa_emisora'], x['anio'], x['serie'], x['numero']): x for x in
+           b.leer('facturas?select=id,tipo,empresa_emisora,anio,serie,numero,notas,%s&origen=eq.factusol&order=id' % ','.join(CAMPOS))}
+    cambiadas, estados = 0, []
+    for f, clave, ls in filas:
+        a = app.get((f['tipo'], f['empresa_emisora'], f['anio'], f['serie'], f['numero']))
+        if not a:
+            continue
+        nombre = '%s%s/%s/%s' % ('abono ' if f['tipo'] == 'abono' else '', f['empresa_emisora'], f['anio'], f['numero'])
+        dif = {k: (a[k], f[k]) for k in CAMPOS if str(a[k] if a[k] is not None else '') != str(f[k] if f[k] is not None else '')
+               and not (k in ('base', 'total') and a[k] is not None and f[k] is not None and abs(float(a[k]) - float(f[k])) < 0.005)}
+        la = {l['posicion']: l for l in b.leer('factura_lineas?factura_id=eq.%s&select=id,posicion,concepto,base' % a['id'])}
+        dl = []
+        for l in ls:
+            x = la.get(l['POSLFA'])
+            if x and ((x['concepto'] or '').strip() != (l['DESLFA'] or '').strip() or abs(float(x['base'] or 0) - float(n(l['TOTLFA']) or 0)) >= 0.005):
+                dl.append((x, l))
+        if not dif and not dl:
+            continue
+        if set(dif) <= {'estado', 'estado_factusol'} and not dl:
+            estados.append(nombre)
+            continue          # solo cambia el estado (cobrada, etc.): eso es la vida normal, no una correccion
+        cambiadas += 1
+        print('CORREGIDA EN FACTUSOL %s: %s%s' % (nombre, {k: v for k, v in dif.items()}, (' | %d linea(s) con otro texto o importe' % len(dl)) if dl else ''))
+        if '--corregir' not in sys.argv or (solo and solo != nombre):
+            continue
+        casadas = [x for x, l in dl if abs(float(x['base'] or 0) - float(n(l['TOTLFA']) or 0)) >= 0.005
+                   and b.leer('factura_linea_hitos?factura_linea_id=eq.%s&select=hito_cobro_id' % x['id'])]
+        if casadas:
+            print('   NO SE TOCA: cambia el importe de %d linea(s) ya casada(s); mirarla a mano' % len(casadas)); continue
+        antes = ['%s: "%s"' % (k, v[0]) for k, v in dif.items()] + ['linea %s: "%s" (%s)' % (x['posicion'], (x['concepto'] or '').strip(), x['base']) for x, l in dl]
+        nota = 'Corregida en Factusol (volcado %s, mismo numero). Antes: %s.' % (hoy, '; '.join(antes))
+        b.actualizar('facturas?id=eq.%s' % a['id'], dict({k: v[1] for k, v in dif.items()}, notas=((a['notas'] or '') + '\n' + nota).strip()))
+        for x, l in dl:
+            b.actualizar('factura_lineas?id=eq.%s' % x['id'], {'concepto': l['DESLFA'], 'base': n(l['TOTLFA']), 'cantidad': n(l['CANLFA']), 'precio': n(l['PRELFA'])})
+        print('   CORREGIDA EN LA APP (lo de antes, en sus notas)')
+    print('corregidas en Factusol: %d | solo con otro estado (cobro): %d %s' % (cambiadas, len(estados), estados[:20]))
 
 
 if __name__ == '__main__':
