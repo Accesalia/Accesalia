@@ -32,12 +32,6 @@ export default async function Comunidades({ searchParams }: { searchParams: Prom
             <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Comunidades de vecinos</h1>
             <p className="mt-1 text-lg text-carbon/60">Busca por la dirección: «mayor 15», «ganapanes», «leganés».</p>
           </div>
-          <Link
-            href="/administracion/comunidades/nueva"
-            className="inline-flex items-center gap-2 rounded-full bg-lima px-5 py-2.5 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white"
-          >
-            + Dar de alta una comunidad
-          </Link>
         </div>
 
         {/* buscador: una sola linea, sin formulario kilometrico */}

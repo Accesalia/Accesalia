@@ -494,8 +494,61 @@ export async function crearOportunidad(
     d.portalIds,
     "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
   );
+  // 9 · y, con los accesos ya vinculados, su comunidad.
+  await comunidadDesdeAccesos(op.id);
 
   return { id: op.id, codigo, notaId: nota.id };
+}
+
+/** LA COMUNIDAD NACE DESDE LA OPP, NUNCA AL REVES (Monica, 13-oct-2026). Se
+ *  llama TRAS VINCULAR LOS ACCESOS de Catastro:
+ *    - si alguno de sus accesos ya es de una comunidad, la opp es de esa: no se
+ *      crea otra;
+ *    - si ninguno lo es, nace "CP " + el nombre de la opp, como nombre
+ *      provisional (el real y el CIF llegan con la tarjeta CIF).
+ *  Un acceso es de UNA sola comunidad (accesos.figura_legal_propietaria_id): los
+ *  que aun no tienen titular pasan a ser de la de la opp; el de uno que ya lo
+ *  tiene no se toca nunca.
+ *  Si los accesos son de VARIAS comunidades, no se elige ninguna: lo decide una
+ *  persona. Devuelve la comunidad de la opp, o null. */
+export async function comunidadDesdeAccesos(oppId: string): Promise<string | null> {
+  const [op] = await leer<{ id: string; nombre: string | null; codigo: string | null; comunidad_id: string | null }[]>(
+    `oportunidades?select=id,nombre,codigo,comunidad_id&id=eq.${oppId}&limit=1`,
+  );
+  if (!op) return null;
+  const rels = await leer<{ acceso: { id: string; municipio: string | null; figura_legal_propietaria_id: string | null } | null }[]>(
+    `relacion_oportunidad_accesos?select=acceso:acceso_id(id,municipio,figura_legal_propietaria_id)&opp_id=eq.${oppId}&hasta=is.null`,
+  );
+  const accesos = rels.map((r) => r.acceso).filter((a): a is NonNullable<typeof a> => !!a);
+  if (!accesos.length) return op.comunidad_id;
+
+  // Los titulares que ya tienen sus accesos, y de ellos los que son comunidades.
+  const titulares = [...new Set(accesos.map((a) => a.figura_legal_propietaria_id).filter((x): x is string => !!x))];
+  const comunidades = titulares.length
+    ? await leer<{ id: string }[]>(`comunidades?select=id&id=in.(${titulares.join(",")})`)
+    : [];
+
+  let comunidadId = op.comunidad_id;
+  if (!comunidadId) {
+    if (comunidades.length > 1) return null; // de varias comunidades: lo decide una persona
+    if (comunidades.length === 1) comunidadId = comunidades[0].id;
+    else if (titulares.length) return null; // de un particular o una empresa: no es una CP
+    else {
+      const nombre = op.nombre?.trim() || op.codigo || "";
+      const municipio = accesos.find((a) => a.municipio)?.municipio ?? null;
+      const c = await crear<{ id: string }>("comunidades", { nombre: /^CP\s/i.test(nombre) ? nombre : `CP ${nombre}`, municipio });
+      await crear("figura_legal_propietaria", { id_comodin: c.id, figura: "Comunidad de Propietarios" });
+      comunidadId = c.id;
+    }
+    await actualizar(`oportunidades?id=eq.${oppId}`, { comunidad_id: comunidadId, comunidad_provisional: null });
+  }
+
+  // Sus accesos sin titular pasan a ser de su comunidad. Los que ya tienen uno, no se tocan.
+  const sinTitular = accesos.filter((a) => !a.figura_legal_propietaria_id).map((a) => a.id);
+  if (sinTitular.length) {
+    await actualizar(`accesos?id=in.(${sinTitular.join(",")})&figura_legal_propietaria_id=is.null`, { figura_legal_propietaria_id: comunidadId });
+  }
+  return comunidadId;
 }
 
 /** Los portales elegidos en la ventana de Catastro, como ACCESOS (el atomo:
@@ -558,4 +611,7 @@ export async function cambiarDireccion(
     // Sin comunidad, el nombre provisional es lo unico que la nombra.
     ...(op.comunidad_id ? {} : { comunidad_provisional: r.nombre }),
   });
+  // Con los accesos ya vinculados, su comunidad (13-oct-2026): la que ya tengan
+  // sus accesos, o "CP " + su nombre si no tiene. Si ya tenia, no cambia.
+  await comunidadDesdeAccesos(oppId);
 }

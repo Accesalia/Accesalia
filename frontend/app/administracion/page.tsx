@@ -42,17 +42,15 @@ const PUERTAS: Puerta[] = [
   },
 ];
 
-// LAS TRES ALTAS (Monica, 25-sep-2026). Son tres cosas distintas, con tres
-// flujos y tres grupos de condiciones, y no se mezclan:
-//   comunidad     -> gira alrededor de la DIRECCION
+// LAS ALTAS (Monica, 25-sep-2026), y no se mezclan:
 //   administrador -> gira alrededor de la PERSONA de contacto
 //   oportunidad   -> gira alrededor de la ENTRADA DEL DIARIO
-// Los tres botones viven aqui y tambien en comercial: una accion, dos puertas.
+// La comunidad ya NO tiene alta propia (13-oct-2026): nace DESDE la opp, al
+// vincularle los accesos de Catastro (lib/altaOportunidad, comunidadDesdeAccesos).
 
 type Alta = { nombre: string; gira: string; href: string | null };
 
 const ALTAS: Alta[] = [
-  { nombre: "Una comunidad", gira: "su dirección", href: "/administracion/comunidades/nueva" },
   { nombre: "Un administrador", gira: "la persona de contacto", href: "/administracion/administraciones/nueva" },
   { nombre: "Una oportunidad", gira: "la entrada del diario", href: "/comercial/oportunidades/nueva" },
 ];

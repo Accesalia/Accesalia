@@ -9,6 +9,8 @@
 //
 //   npx tsx scripts/nombres_de_opps_sin_nombre.mts            -> solo calcula y deja el CSV
 //   npx tsx scripts/nombres_de_opps_sin_nombre.mts --escribir -> ademas los escribe
+//   --cerradas: las CERRADAS con hojas de encargo, que salen en cobros y
+//   proformas (Monica, 13-oct-2026: "las cerradas: si, les ponemos nombre")
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { nombrePropuesto, type Portal } from "../frontend/lib/direccionNombre.ts";
@@ -22,6 +24,7 @@ const env = Object.fromEntries(
 const URL_BASE = env.SUPABASE_URL;
 const CAB = { apikey: env.SUPABASE_SECRET_KEY, Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`, "Content-Type": "application/json" };
 const ESCRIBIR = process.argv.includes("--escribir");
+const CERRADAS = process.argv.includes("--cerradas");
 
 async function leer<T>(ruta: string): Promise<T> {
   const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, { headers: CAB });
@@ -38,8 +41,12 @@ const portal = (via: string | null, num: string | null, esc: string | null, viv:
   clave: `${ficha}|${num ?? ""}|${esc ?? ""}`, parcela: ficha, tipo_via: "", nombre_via: via ?? "", numero: num ?? "", escalera: esc ?? "", viviendas: viv ?? 0,
 });
 
-const opps = await leer<Opp[]>("oportunidades?select=id,codigo&estado=eq.abierta&nombre=is.null&order=codigo&limit=5000");
-console.log(`${opps.length} opps abiertas sin nombre`);
+const opps = await leer<Opp[]>(
+  CERRADAS
+    ? "oportunidades?select=id,codigo,hojas:hojas_encargo!inner(id)&estado=eq.cerrada&nombre=is.null&order=codigo&limit=5000"
+    : "oportunidades?select=id,codigo&estado=eq.abierta&nombre=is.null&order=codigo&limit=5000",
+);
+console.log(`${opps.length} opps ${CERRADAS ? "cerradas con hojas" : "abiertas"} sin nombre`);
 
 const salida: { id: string; codigo: string; nombre: string | null; motivo: string }[] = [];
 for (let i = 0; i < opps.length; i += 100) {
@@ -68,9 +75,9 @@ for (let i = 0; i < opps.length; i += 100) {
 }
 
 const csv = ["codigo;nombre;motivo;id", ...salida.map((s) => [s.codigo, s.nombre ?? "", s.motivo, s.id].join(";"))].join("\n");
-const fichero = new URL("../docs/nombres_opps_sin_nombre.csv", import.meta.url);
+const fichero = new URL(`../docs/nombres_opps_sin_nombre${CERRADAS ? "_cerradas" : ""}.csv`, import.meta.url);
 writeFileSync(fichero, "﻿" + csv, "utf8");
-console.log(`CSV: docs/nombres_opps_sin_nombre.csv · ${salida.filter((s) => s.nombre).length} con nombre, ${salida.filter((s) => !s.nombre).length} sin poder calcularlo`);
+console.log(`CSV: ${fichero.pathname.split("/").pop()} · ${salida.filter((s) => s.nombre).length} con nombre, ${salida.filter((s) => !s.nombre).length} sin poder calcularlo`);
 
 if (ESCRIBIR) {
   let n = 0;
