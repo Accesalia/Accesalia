@@ -446,6 +446,7 @@ export type Repaso = {
 };
 
 const ESPERA_CORREO_MS = 60_000;
+const TROZO = 8 * 1024 * 1024;
 const REINTENTO_MS = 60 * 60_000;
 class Atasco extends Error {}
 
@@ -772,7 +773,10 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
             enPaso(`correo ${uid}: ${mb} MB, se deja en el buzon`);
             return;
           }
-          const bajado = await cliente.download(String(uid), undefined, { uid: true });
+          // TROZOS DE 8 MB (13-oct-2026). La libreria pide de 64 KB en 64 KB, y cada
+        // peticion a Gmail tarda casi un segundo en volver: 0,04 MB/s. Un zip de
+        // 31 MB no cabia en ninguna pasada. Con 8 MB son cuatro peticiones.
+        const bajado = await cliente.download(String(uid), undefined, { uid: true, chunkSize: TROZO });
           if (!bajado?.content) throw new Error("el correo no trae contenido");
           const correo: ParsedMail = await simpleParser(bajado.content);
           asunto = correo.subject?.trim() || "(sin asunto)";
@@ -904,7 +908,7 @@ export async function sinSitio(): Promise<CorreoSinSitio[]> {
   try {
     const uids = await cliente.search({ keyword: SIN_SITIO });
     for (const uid of (Array.isArray(uids) ? uids : []).slice(-40).reverse()) {
-      const bajado = await cliente.download(String(uid), undefined, { uid: true });
+      const bajado = await cliente.download(String(uid), undefined, { uid: true, chunkSize: TROZO });
       if (!bajado?.content) continue;
       const correo: ParsedMail = await simpleParser(bajado.content);
       const asunto = correo.subject?.trim() || "(sin asunto)";
@@ -954,7 +958,7 @@ export async function colocarAMano(uid: number, oportunidadId: string): Promise<
   await cliente.connect();
   const cerrojo = await cliente.getMailboxLock("INBOX");
   try {
-    const bajado = await cliente.download(String(uid), undefined, { uid: true });
+    const bajado = await cliente.download(String(uid), undefined, { uid: true, chunkSize: TROZO });
     if (!bajado?.content) throw new Error("Ese correo ya no está en el buzón.");
     const correo: ParsedMail = await simpleParser(bajado.content);
     const de = correo.from?.value?.[0]?.address ?? "";

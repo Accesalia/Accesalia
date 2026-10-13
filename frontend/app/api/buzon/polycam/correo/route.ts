@@ -82,7 +82,8 @@ export async function GET(req: Request) {
       const mayor = partes.sort((x, y) => (y.size ?? 0) - (x.size ?? 0))[0];
       if (!mayor?.part) return "sin adjunto";
       const t = Date.now();
-      const { content } = await cliente.download(String(uid), mayor.part, { uid: true });
+      const trozo = Number(new URL(req.url).searchParams.get("trozo_mb") ?? "8") * 1024 * 1024;
+      const { content } = await cliente.download(String(uid), mayor.part, { uid: true, chunkSize: trozo });
       if (!content) return "Gmail no entrega el adjunto";
       let bytes = 0;
       await new Promise<void>((bien) => {
