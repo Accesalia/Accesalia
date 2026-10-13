@@ -63,13 +63,13 @@ async function leer<T>(ruta: string): Promise<T> {
 }
 
 type Opp = {
-  id: string; codigo: string; nombre: string | null; estado: string; comunidad_provisional: string | null;
+  id: string; codigo: string; nombre: string | null; estado: string; comunidad_id: string | null; comunidad_provisional: string | null;
   comunidad: { nombre: string } | null; hojas: { id: string }[]; accesos: { opp_id: string; hasta: string | null }[];
 };
 const todas: Opp[] = [];
 for (let desde = 0; ; desde += 1000) {
   const tanda = await leer<Opp[]>(
-    "oportunidades?select=id,codigo,nombre,estado,comunidad_provisional,comunidad:comunidad_id(nombre),hojas:hojas_encargo(id)," +
+    "oportunidades?select=id,codigo,nombre,estado,comunidad_id,comunidad_provisional,comunidad:comunidad_id(nombre),hojas:hojas_encargo(id)," +
       `accesos:relacion_oportunidad_accesos(opp_id,hasta)&order=codigo,id&offset=${desde}&limit=1000`,
   );
   todas.push(...tanda);
@@ -82,7 +82,13 @@ const DUDOSAS = process.argv.includes("--dudosas")
   ? new Set((JSON.parse(readFileSync(new URL(`../docs/opps_sin_accesos_${GRUPO}.json`, import.meta.url), "utf8")) as { codigo: string; resultado: string }[])
       .filter((x) => x.resultado === "dudosa").map((x) => x.codigo))
   : null;
-const opps = sinAccesos.filter((o) => (SOLO ? o.codigo === SOLO : GRUPO === "prioritarias" ? prioritaria(o) : !prioritaria(o)) && (!DUDOSAS || DUDOSAS.has(o.codigo)));
+// --claras: solo las que salieron claras en las pasadas en seco (la del grupo y la de sus dudosas)
+const CLARAS = process.argv.includes("--claras")
+  ? new Set([`../docs/opps_sin_accesos_${GRUPO}.json`, `../docs/opps_sin_accesos_${GRUPO}_dudosas.json`].flatMap((f) => {
+      try { return (JSON.parse(readFileSync(new URL(f, import.meta.url), "utf8")) as { codigo: string; resultado: string }[]).filter((x) => x.resultado === "ok").map((x) => x.codigo); } catch { return []; }
+    }))
+  : null;
+const opps = sinAccesos.filter((o) => !CLARAS || CLARAS.has(o.codigo)).filter((o) => (SOLO ? o.codigo === SOLO : GRUPO === "prioritarias" ? prioritaria(o) : !prioritaria(o)) && (!DUDOSAS || DUDOSAS.has(o.codigo)));
 console.log(`${sinAccesos.length} opps sin accesos; grupo ${SOLO ?? GRUPO}: ${opps.length}${ESCRIBIR ? "" : " (en seco)"}\n`);
 
 const salida: Record<string, unknown>[] = [];
@@ -105,13 +111,49 @@ for (const o of opps) {
     if (c.vias.length !== 1) throw new Error(`varias vias: ${c.vias.map((v) => `${v.tipo} ${v.nombre}`).join(" / ")}`);
     const via = c.vias[0];
     if (!e.numero) throw new Error(`sin numero (${via.tipo} ${via.nombre})`);
-    const n = await buscarNumero(via, e.numero);
-    if (n.paso !== "edificios") throw new Error(`numero ${e.numero} en ${via.tipo} ${via.nombre}: ${n.paso}${n.paso === "sin_numero" ? ` (hay ${n.sugeridos.join(", ")})` : ""}`);
-    const parcelas = [...new Set(n.edificios.map((x) => x.parcela))];
-    const portales = await portalesDe(parcelas);
-    const delNumero = portales.filter((p) => p.viviendas > 0 && parseInt(p.numero) === parseInt(e.numero));
-    const elegidos = portales.length === 1 ? portales : delNumero;
+    // EL GUION Y LA LETRA (13-oct, fallo de la primera pasada): "35-1" en Majadahonda es el PORTAL 1 del 35
+    // (Catastro: 35(1)); "129-131" o "19-21-23" son VARIOS NUMEROS; "17 A" es el portal 17(A). Antes se cogia
+    // el primer numero con todos sus portales.
+    const tras = escrito.match(new RegExp(String.raw`\b${e.numero}((?:\s*-\s*\d+)+)`))?.[1];
+    const guion = tras ? tras.split("-").map((x) => x.trim()).filter(Boolean) : [];
+    const letra = escrito.match(new RegExp(String.raw`\b${e.numero}\s+([A-Z])\b(?!\s*Y\b)`))?.[1];
+    const parcelas: string[] = [];
+    const portales: Awaited<ReturnType<typeof portalesDe>> = [];
+    const sumaNumero = async (num: string) => {
+      const n = await buscarNumero(via, num);
+      if (n.paso !== "edificios") throw new Error(`numero ${num} en ${via.tipo} ${via.nombre}: ${n.paso}${n.paso === "sin_numero" ? ` (hay ${n.sugeridos.join(", ")})` : ""}`);
+      const nuevas = [...new Set(n.edificios.map((x) => x.parcela))].filter((x) => !parcelas.includes(x));
+      parcelas.push(...nuevas);
+      if (nuevas.length) portales.push(...(await portalesDe(nuevas)));
+    };
+    await sumaNumero(e.numero);
+    const subportal = (sub: string) => portales.filter((p) => p.numero === `${e.numero}(${sub})`);
+    let elegidos: typeof portales;
+    if (guion.length === 1 && subportal(guion[0]).length) {
+      elegidos = subportal(guion[0]);                                   // 35-1 -> 35(1)
+    } else if (letra && subportal(letra).length) {
+      elegidos = subportal(letra);                                      // 17 A -> 17(A)
+    } else {
+      let numeros = [e.numero, ...guion];
+      // "28-38": un rango -> los de su misma acera (de 2 en 2). "19-21-23": los escritos.
+      if (guion.length === 1 && parseInt(guion[0]) > parseInt(e.numero) + 2) {
+        numeros = [];
+        for (let k = parseInt(e.numero); k <= parseInt(guion[0]); k += 2) numeros.push(String(k));
+      }
+      for (const num of numeros.slice(1)) await sumaNumero(num);
+      const conViv = (num: string) => portales.filter((p) => p.viviendas > 0 && parseInt(p.numero) === parseInt(num));
+      elegidos = portales.length === 1 ? portales : numeros.flatMap(conViv);
+    }
     if (!elegidos.length) throw new Error(`sin portales con viviendas en el ${e.numero} (parcela ${parcelas.join(", ")})`);
+    // Un acceso que YA es de OTRA comunidad no se vincula: se aparta para mirarlo (13-oct; caso Virgen de Iciar 15 esc 4).
+    for (const p of elegidos) {
+      const ya = await leer<{ figura_legal_propietaria_id: string | null }[]>(
+        `accesos?select=figura_legal_propietaria_id&municipio=eq.${encodeURIComponent(via.municipio)}&tipo_via=eq.${encodeURIComponent(p.tipo_via)}` +
+          `&nombre_via=eq.${encodeURIComponent(p.nombre_via)}&numero=eq.${encodeURIComponent(p.numero)}&escalera=eq.${encodeURIComponent(p.escalera)}`,
+      );
+      const otra = ya.find((a) => a.figura_legal_propietaria_id && a.figura_legal_propietaria_id !== o.comunidad_id);
+      if (otra) throw new Error(`el acceso ${p.nombre_via} ${p.numero}${p.escalera ? ` esc ${p.escalera}` : ""} ya es de OTRA comunidad`);
+    }
     const nombre = nombrePropuesto(elegidos, portales, via.municipio);
     Object.assign(fila, { resultado: "ok", via: `${via.tipo} ${via.nombre}`, municipio: via.municipio, parcela: parcelas.join(" "), nombre,
       accesos: elegidos.map((p) => `${p.numero}${p.escalera ? ` esc ${p.escalera}` : ""}`).join(" · ") });
@@ -140,6 +182,6 @@ for (const o of opps) {
   }
   salida.push(fila);
 }
-const fichero = new URL(`../docs/opps_sin_accesos_${SOLO ?? GRUPO}${DUDOSAS ? "_dudosas" : ""}.json`, import.meta.url);
+const fichero = new URL(`../docs/opps_sin_accesos_${SOLO ?? GRUPO}${DUDOSAS ? "_dudosas" : ""}${CLARAS ? "_escritas" : ""}.json`, import.meta.url);
 writeFileSync(fichero, JSON.stringify(salida, null, 1));
 console.log(`\nclaras: ${bien} | dudosas: ${opps.length - bien} -> ${fichero.pathname}`);
