@@ -57,6 +57,9 @@ export default async function ComunidadEnElPortal({ params }: { params: Promise<
               <li key={p.hojaId}>
                 <div className="text-[15px] text-carbon">
                   <b>Hoja de encargo {p.codigo}</b> (versión {p.version}), firmada
+                  {(p.descripcion || p.opp) && (
+                    <span className="block text-[13.5px] text-carbon/70">{[p.descripcion, p.opp].filter(Boolean).join(" · ")}</span>
+                  )}
                   {p.enviada && <span className="text-carbon/65"> · os la enviamos el {FECHA.format(new Date(p.enviada))}</span>}
                 </div>
                 {p.recibida ? (

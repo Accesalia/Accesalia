@@ -251,21 +251,34 @@ export async function cerrarSesion() {
 
 // ------------------------------------------------------------ lo que se les pide
 
-export type Pedido = { hojaId: string; codigo: string; version: number; descripcion: string | null; enviada: string | null; recibida: boolean };
+export type Pedido = { hojaId: string; codigo: string; version: number; descripcion: string | null; enviada: string | null; recibida: boolean; opp: string | null };
 
-/** Las hojas de encargo enviadas a esta comunidad y aun sin firmar. */
+/** Las hojas de encargo enviadas a esta comunidad y aun sin firmar.
+ *
+ *  POR COMUNIDAD -> SUS OPPS EN CURSO -> SUS HOJAS (Monica, 14-oct-2026): "una
+ *  comunidad debe ver solo las opps en curso; no va por direccion, sino por
+ *  comunidad-opp". Solo las opps ABIERTAS de esta comunidad, y de ellas las
+ *  hojas enviadas y sin firmar que van A LA COMUNIDAD (las de una contrata las
+ *  firma la contrata). Con el nombre de su opp, para que sepan de que obra es. */
 export async function hojasPorFirmar(comunidadId: string): Promise<Pedido[]> {
+  const opps = await pedir<{ id: string; nombre: string | null; codigo: string | null }[]>(
+    `oportunidades?select=id,nombre,codigo&comunidad_id=eq.${comunidadId}&estado=eq.abierta`,
+  );
+  if (!opps.length) return [];
+  const nombreDe = new Map(opps.map((o) => [o.id, o.nombre?.trim() || o.codigo || null]));
   const [hojas, recibidas] = await Promise.all([
-    pedir<{ id: string; numero_hoja: string | null; descripcion: string | null; versiones: { numero_version: number; url_pdf_hoja: string | null; fecha_enviada: string | null }[] }[]>(
-      `hojas_encargo?select=id,numero_hoja,descripcion,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_enviada)` +
-        `&comunidad_id=eq.${comunidadId}&estado=eq.enviada_comunidad&order=creado_en.desc`,
+    pedir<{ id: string; oportunidad_id: string | null; numero_hoja: string | null; descripcion: string | null; versiones: { numero_version: number; url_pdf_hoja: string | null; fecha_enviada: string | null }[] }[]>(
+      `hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_enviada)` +
+        `&oportunidad_id=in.(${opps.map((o) => o.id).join(",")})&estado=eq.enviada_comunidad&pagador_tipo=eq.comunidad&order=creado_en.desc`,
     ),
     pedir<{ hoja_encargo_id: string }[]>(`portal_recibidos?select=hoja_encargo_id&comunidad_id=eq.${comunidadId}&tipo=eq.hoja_firmada&estado=eq.por_revisar`),
   ]);
   const ya = new Set(recibidas.map((r) => r.hoja_encargo_id));
   return hojas.flatMap((h) => {
     const v = [...h.versiones].filter((x) => x.url_pdf_hoja).sort((a, b) => b.numero_version - a.numero_version)[0];
-    return v ? [{ hojaId: h.id, codigo: h.numero_hoja ?? "", version: v.numero_version, descripcion: h.descripcion, enviada: v.fecha_enviada, recibida: ya.has(h.id) }] : [];
+    return v
+      ? [{ hojaId: h.id, codigo: h.numero_hoja ?? "", version: v.numero_version, descripcion: h.descripcion, enviada: v.fecha_enviada, recibida: ya.has(h.id), opp: nombreDe.get(h.oportunidad_id ?? "") ?? null }]
+      : [];
   });
 }
 
