@@ -58,8 +58,11 @@ export function nombrePropuesto(elegidos: Portal[], todos: Portal[], municipio: 
     v.set(p.numero, [...(v.get(p.numero) ?? []), p.escalera]);
     porVia.set(p.nombre_via, v);
   }
+  // Los numeros de menor a mayor, no en el orden en que llegan de Catastro
+  // ("Porvenir 9, 11 y 13", no "13, 9 y 11"; 13-oct-2026).
+  const orden = (a: string, b: string) => parseInt(a) - parseInt(b) || a.localeCompare(b, "es");
   const trozos = Array.from(porVia, ([via, numeros]) => {
-    const partes = Array.from(numeros, ([num, escaleras]) => {
+    const partes = Array.from(numeros).sort(([a], [b]) => orden(a, b)).map(([num, escaleras]) => {
       const n = num.replace(/\((\w+)\)/, " $1");
       const delNumero = todos.filter((t) => t.nombre_via === via && t.numero === num);
       const conViv = delNumero.filter((t) => t.viviendas > 0);

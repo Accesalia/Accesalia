@@ -1,0 +1,831 @@
+﻿codigo;nombre;motivo;id
+ALV-2026-004;Lisboa 8, San Fernando de Henares;;30aa4121-d1fb-4024-840c-29183c645fcb
+ALV-2026-011;Virgen del Puerto 27, Madrid;;9fde6731-3613-4dcb-acd8-ee8c18865f5f
+ALV-2026-039;Nardo 6, Alcala de Henares;;1db55533-ef86-4064-a335-336167951f42
+ALV-2026-042;Puerto Lapice 4, Madrid;;3333778c-c74a-48e3-bb6b-6368414c11a8
+ALV-2026-043;Puerto Lapice 6, Madrid;;d1d3ca22-a298-4454-8287-0a60452c92ae
+ALV-2026-050;Gregorio Izquierdo 53, San Sebastian de los Reyes;;9af18726-62c1-4c8a-b034-a6978de4df5f
+ALV-2026-058;Cruces 62, Madrid;;b8558b5d-71f7-4813-8977-15259090da5f
+ALV-2026-060;Marianistas 6, Madrid;;10e41839-a70c-4373-a9c9-7a9ad2d368e9
+ALV-2026-075;Lopez Silva 3, Madrid;;e90df5a3-137b-4296-a48f-961735e08a4a
+ALV-2026-080;Campo de la Paloma 34, Madrid;;4eb0d178-3bef-4360-bfbe-00ca10c92bf9
+ALV-2026-081;Higueras 34, Madrid;;c49014c7-c154-4c24-9d7f-7684f9be562e
+ALV-2026-100;Numancia 12, Madrid;;d88ea882-e1fa-495f-97e7-b8850eb91f80
+ALV-2026-130;Seo de Urgel 13, Madrid;;0239753c-6c83-4e65-abc3-a102b0d4c79b
+ALV-2026-131;Seo de Urgel 15, Madrid;;1a3814dd-9527-4b1d-bbf3-903b68eb1462
+ALV-2026-150;Imagen 18, Madrid;;6f35c512-d1e3-4b53-8ce3-7618be439a5c
+ALV-2026-171;General Aranaz 42, Madrid;;70f1052a-47cd-450b-8bcb-03f5afe71ebf
+ALV-2026-172;Genil 5, Madrid;;40145357-015f-401b-99c7-45030cf27722
+ALV-2026-179;Miguel de Unamuno 24, Fuenlabrada;;9ce3498f-7b54-4938-9307-bf702d2d7f19
+ALV-2026-180;El Salvador 8, Leganes;;ca2661e3-bce6-453d-8027-f8abcbd95f2b
+ALV-2026-181;Herminio Puertas 49, Madrid;;2a38eb92-da61-4d63-9283-9dc63e8f8dca
+ALV-2026-182;Olivos 54, Madrid;;6c891a9d-3a2b-4ec1-8b55-2bfb631a0997
+ALV-2026-183;Alcaudon 32, Madrid;;580a063e-9e48-4efe-9c19-3c5630e579b1
+ALV-2026-185;Narvaez 69, Madrid;;2bf89288-5a31-4e8d-847b-3a6f70eaddef
+ALV-2026-186;Pablo Neruda 29, Madrid;;a6b32cca-fabc-4487-ae9d-1c68564c604d
+ALV-2026-187;Palomeras 17, Madrid;;e24ff9ec-a6a7-477f-b340-25f116986f21
+ALV-2026-188;Villafuerte 23, Madrid;;9c5893f4-371f-4a51-a887-eb08e77778c8
+ALV-2026-189;Calderon de la Barca 12, Leganes;;6352f21a-c39d-4ce9-b29a-e95850a56774
+ALV-2026-190;Vallandes 6, Madrid;;632f8d07-22c5-4d83-811e-a46372aa99b9
+ALV-2026-192;Porvenir 9, 11, 13, 15, 17 y 19, Madrid;;d9a7ba7c-4564-490c-a99c-6e9f87117318
+ALV-2026-193;Ramon Gomez de la Serna 1, Madrid;;da275c3a-2250-40e4-9a47-dc292ca9d612
+ALV-2026-194;San Juan 10, Leganes;;fcdc9173-d890-4c50-968b-9b4ca4c279b8
+ALV-2026-195;Hachero 33, Madrid;;e406fad8-341a-4329-a122-7a21dfd02798
+CAR-2025-013;Gallo 22, Madrid;;df41687f-998a-488f-88f4-28786e30c94f
+CAR-2025-017;Blasco de Garay 14, Madrid;;e0d80b6a-bda3-4900-b74a-5f7dee5572f4
+CAR-2025-020;Illescas 24, 24 B, 24 C, 24 D y 24 E, Madrid;;37311799-1736-43ae-8b9c-2a0af8370239
+CAR-2025-024;Jimenez Diaz 7, Getafe;;3ffa2e15-3c78-4578-8fd3-5c1d97d10c9d
+CAR-2025-082;Luis de Torres 10, Alcala de Henares;;a74f239f-c23c-4a5f-9cff-1c7454253336
+CAR-2026-024;Cuestas Altas 1, Getafe;;515afd9b-5bdf-4a64-a36b-2c55fece0e3b
+DAN-2014-004;Monforte de Lemos 69, Madrid;;cde55000-01a2-42bd-8236-1b0a9363542f
+DAN-2014-011;Zaida 22, Madrid;;b49dd78b-6531-4032-87a2-617824747df3
+DAN-2015-001;Rafael Finat 87, Madrid;;386c4240-8684-4e03-b35f-9ccce6bc7b14
+DAN-2015-013;Esmeralda 12, Madrid;;c34ab0dc-c934-4028-8fbb-5bf7ada28790
+DAN-2015-024;General Ricardos 232, Madrid;;8c27dcd8-59ef-426a-be6b-1ada3e7bc480
+DAN-2015-028;Dos de Mayo 6, Madrid;;2c26287f-91c8-492d-a2a8-1f9ab60db1e5
+DAN-2015-035;Velez Rubio 195, Madrid;;5314bd88-1420-4ef0-93b5-cbe401d996c3
+DAN-2015-074;Tucurinca 4, Madrid;;7628e3b3-2720-4aeb-9f21-c60dd3b9243e
+DAN-2015-084;Diamante 29, Madrid;;cb30e7a5-f8d8-42c3-8086-585da9d321c9
+DAN-2015-086;Imperial 23, Madrid;;891f94d0-6e5a-4e28-9b52-199710e6355d
+DAN-2015-094;Quince de Agosto 7, Madrid;;ee87a843-5955-4f65-9ada-75d8ca783b16
+DAN-2015-102;Etruria 43, Madrid;;b5b2b423-5775-4cec-95be-d53c1370acf5
+DAN-2015-118;Maldonado 75, Madrid;;c0708ee0-5681-494e-b287-3cc3d47440db
+DAN-2016-005;Ntra Señora de Valvanera 80, Madrid;;9993b5a8-497c-4915-985b-f46d8327bc5b
+DAN-2016-010;Encarnacion Oviol 50, Madrid;;40f889b1-935a-4b17-882e-aced4720027f
+DAN-2016-015;Luchana 37, Madrid;;7c25e610-3527-45c3-ba00-8955fafd9a21
+DAN-2016-016;Sierra Contraviesa 54, Madrid;;5d98e6f9-52d3-402f-ae8a-6193d59a9a7b
+DAN-2016-020;Juan Español 32, Madrid;;6897a796-c847-417e-a947-43ecbb0274d0
+DAN-2016-033;Leñeros 44 y 46, Madrid;;cf3e423a-08b9-4b9e-859f-689a84086cdf
+DAN-2016-050;Genserico 7, Madrid;;1add05db-a744-42e1-be71-72b90058409e
+DAN-2016-064;Jacobinia 86, Madrid;;010dc6dd-f050-4545-8182-f59e58ea672e
+DAN-2016-072;Gandhi 5, Madrid;;c20cf570-4a78-4cdb-be8f-bfdd30484de2
+DAN-2016-074;Morando 2, Madrid;;df1c7898-b625-40b9-9bb3-dcbd4fed3f1d
+DAN-2016-078;Valmojado 283, Madrid;;0a85b4fc-64b0-4c90-a9c3-50aba273af04
+DAN-2016-084;Cerro de la Alcazaba 19, Madrid;;9511f557-e6dc-40ca-9ca1-7476e457f094
+DAN-2016-085;San Dimas 15, Madrid;;5e037599-3376-4e6e-9a49-ab13ec99536f
+DAN-2016-108;Abejuela 17, Madrid;;87b3a9b4-502a-46f0-a1bb-49746392a567
+DAN-2016-115;Monforte de Lemos 151, Madrid;;d97c81a3-2603-4289-a689-d8e5c3e95efa
+DAN-2016-122;Concha Espina 19, Madrid;;04497882-c3b8-44a2-a63c-88ed223aac1e
+DAN-2016-129;Boadilla del Monte 55, Madrid;;6991d8a9-92e4-4c35-965f-fcb525516434
+DAN-2016-133;Blasco de Garay 46, Madrid;;d7ad5e92-6656-46a5-bf5e-ae53d8ca35a5
+DAN-2016-140;Toboso 136, Madrid;;547299b0-c0db-45d7-bf7a-852088d3979c
+DAN-2016-141;Rafael Salazar Alonso 7, Madrid;;51ab92cf-4f37-4cfe-84c8-861dd5f67a6d
+DAN-2016-145;Ntra Señora de Valvanera 112, Madrid;;e7fd00fc-4e93-45c9-95e1-777389f108b6
+DAN-2016-156;General Diaz Porlier 27, Madrid;;122eb1bb-df5d-4099-88b0-06255ae6c827
+DAN-2016-166;Villasandino 22, Madrid;;163ea390-c703-4a45-8347-0b5051fff276
+DAN-2016-170;Luis Ruiz 86, Madrid;;2453b6f5-2013-46ba-97e8-6b3c53758f79
+DAN-2016-173;Apostol Santiago 49, Madrid;;d1f68bbf-7e2f-46e4-b31f-492fe46673f1
+DAN-2016-180;Galiana 28, Madrid;;f7328b4f-bd8e-460b-bcae-7b08791a7880
+DAN-2016-185;San Pascual 17, Aranjuez;;5bed59bf-b557-424f-a779-89c6a0195fef
+DAN-2016-194;Luis Ruiz 82, Madrid;;a6eb814a-09a5-42e2-8b71-7a05a05022a4
+DAN-2016-200;Boldano 10, Madrid;;6331ae81-1d6f-4959-bf83-52b5086735a5
+DAN-2016-210;Jose Ortega y Gasset 94, Madrid;;2cd94fdb-4c78-4bd1-a9cf-92a3c4004b32
+DAN-2016-214;Francisco Guzman 1, Madrid;;6d042995-1842-484e-918b-2fe043b9222a
+DAN-2017-003;Federico Gutierrez 24, Madrid;;90a1a668-135b-45c5-bd9e-dd0fb5ef7fad
+DAN-2017-017;Alcalde Sainz de Baranda 89, Madrid;;780f2c3c-b781-48cc-992f-420c84e650d6
+DAN-2017-024;Alcaudon 41, Madrid;;f12553b2-a856-44b2-a3b0-f13d0f3e80d8
+DAN-2017-026;Carolina Coronado 37, Madrid;;e0b6bb9d-8246-4a07-a0c5-bb93b8bc3e9c
+DAN-2017-031;Veza 14, Madrid;;ee7ded5d-6067-474c-b6f0-bd320e3f613b
+DAN-2017-051;Jaime Hermida 20, Madrid;;f773e616-552c-4f30-b688-97883885f0e0
+DAN-2017-053;Lago de Constanza 46, Madrid;;ae94aafe-cffe-4e4f-8a99-e973261be80e
+DAN-2017-054;Mercedes Arteaga 50, Madrid;;a81920a4-896c-4cf5-809f-27c76c0953d9
+DAN-2017-057;Gran Via 62, Madrid;;dac761d7-79f4-490f-be92-33eecab1ba1e
+DAN-2017-067;Cordillera de Cuera 3, Madrid;;316ab5aa-c02d-47b1-a9bf-6a62bcb30a4f
+DAN-2017-069;Albaida 76, Madrid;;60834a71-7a3e-4ebb-93f1-1fd248265d84
+DAN-2017-075;Toboso 134, Madrid;;548394c7-23db-4ffa-8ffe-22ad6f644d6c
+DAN-2017-084;Jose Abascal 16, Madrid;;a5488c75-1fb6-42f6-ac90-fb9bd44d921b
+DAN-2017-085;Molina 63, Madrid;;5cf96674-e8b2-4588-a47f-97a8db722cce
+DAN-2017-093;Granero 9, San Sebastian de los Reyes;;c7b0158c-a26e-45da-a951-751a6a66237e
+DAN-2017-097;Espalter 13, Madrid;;d4fafe34-56b5-4377-afa8-c902e364c23b
+DAN-2017-099;Pobla de Segur 11, Madrid;;3a2d8f9a-0319-4459-ba82-0c91845e6e80
+DAN-2017-118;Almonacid 24, Madrid;;c86ed3a0-1d99-4b87-9b6d-bab08cf6d2ce
+DAN-2017-133;Bravo Murillo 28, Madrid;;b2037928-6239-4cd3-b937-ccaf9756100c
+DAN-2017-139;Acacias 59, Madrid;;e024bec4-435a-4db0-8ec6-9faeccc76e65
+DAN-2017-147;Princesa 27, Madrid;;55f53e24-f47e-45d3-9e60-f9f364f7d24f
+DAN-2017-174;Luis Piernas 34, Madrid;;7bad59b9-bdf3-4413-94ce-2e666aa1af27
+DAN-2017-176;Angel Ripoll 52, Madrid;;c931efd4-d00f-45f0-85ea-fa2440c2e6fd
+DAN-2018-005;Biosca 16, Madrid;;0ecc2421-d4bf-4359-9595-2492e3e5a276
+DAN-2018-009;Florencio Garcia 11, Madrid;;b985e0e1-0967-4ef1-b9a8-f067000af61a
+DAN-2018-012;San Telesforo 15, Madrid;;34b9eace-4215-47bc-a64d-7d42c276c318
+DAN-2018-013;Montejurra 13, Madrid;;38917b6b-4774-4d0b-896e-0554f0d86024
+DAN-2018-014;Tajuya 2, Madrid;;827d6824-a962-4372-8ad4-3de253e8b32e
+DAN-2018-016;Villa de Churriana 13, Madrid;;80e24e1a-381f-4b80-a36f-5547ad5c2766
+DAN-2018-037;Jose Noriega 9, Madrid;;3ca5cea4-a74e-4fc5-98f1-9a8bd1399446
+DAN-2018-038;Nuestra Señora del Villar 55, Madrid;;4ef0791e-6542-4eff-99f3-909f15a33a12
+DAN-2018-039;Sor Maria de Agreda 24, Madrid;;e33ac8a7-5ecc-40c9-8688-16ca15ab4cb2
+DAN-2018-040;Bailen 43, Madrid;;14687a13-06cf-4bc3-ad8e-9306cb03b74c
+DAN-2018-049;Arroyo del Opañel 9, Madrid;;76f12113-826a-4d5e-8805-4135236436d6
+DAN-2018-052;Barbara de Braganza 12, Madrid;;af52b22d-0d7e-4151-b414-b403d904e216
+DAN-2018-058;San Maximiliano 31, Madrid;;6313127f-19c7-42c6-ba25-b89489edc88b
+DAN-2018-077;Pensamiento 24, Madrid;;bb1fa266-81a9-41e1-8018-754248b2918a
+DAN-2018-086;Iriarte 27, Madrid;;cafb2b09-2ee6-43ed-b7ed-ac756a6eea6a
+DAN-2019-004;Carabelos 41, Madrid;;b0ad5f05-3f81-4eb8-87e2-c5e98adcb284
+DAN-2019-010;Vallehermoso 112, Madrid;;0abf8240-71e2-4f3f-ba92-7abf9013aa9f
+DAN-2019-011;San Basilio 24, Madrid;;c1b9f4a9-5190-4cf0-b336-8a29e5fb5335
+DAN-2019-013;Almuñecar 6 y 7, Madrid;;7e568267-1024-477a-ab8e-99fc9a8a16c4
+DAN-2019-019;Segovia 18, Torrejon de Ardoz;;f26e8667-92d8-4fa2-91aa-8e0fb92821c4
+DAN-2019-025;Jerusalen 16, Parla;;4dd21a52-b61e-4584-b433-f7a042d49aa3
+DAN-2019-037;San Pascual 17, Aranjuez;;84e9aa0f-50c1-4e12-85df-63a26cea7db6
+DAN-2019-040;Quilichao 6, Madrid;;6cf76879-526b-44bb-9513-67765fa8c35b
+DAN-2019-041;Vallehermoso 94, Madrid;;0f7ed370-cef7-40b9-960b-6b951485a6a7
+DAN-2019-042;Escuelas Pias 4, Alcala de Henares;;2fc84b2c-2be6-4a86-9628-b36635f5b321
+DAN-2019-054;Doctor Esquerdo 59, Madrid;;f0ba0b67-d1d8-4434-a0c5-55b4cc72cbaa
+DAN-2019-059;Arturo Soria 244, Madrid;;5cb8d0f5-eb4e-44df-bc29-683ed02c46c1
+DAN-2019-069;General Ramirez de Madrid 22, Madrid;;b0282d2c-433c-4505-af37-1de421ea6d11
+DAN-2019-071;Modesto Lafuente 21, Madrid;;302e65be-7bfe-419d-a4a8-2c731d5f85bf
+DAN-2019-072;Portugalete 25, Madrid;;580ce76a-621c-4484-a566-a87c1b4b3597
+DAN-2019-073;Miguel de Moncada 5, Alcala de Henares;;df4eda3b-d9fb-4282-b5ab-1054429ace9b
+DAN-2019-075;Manuel Laborda 15, Madrid;;3b68245c-09de-44e4-bf80-efdf2cc1eecf
+DAN-2019-076;Pablo Neruda 54, Madrid;;b7f0ee02-5994-4677-a17d-bd09053ff077
+DAN-2019-078;Sierra Madrona 34, Madrid;;0ac9d8d9-d7bc-4e92-bd3e-7da69020731d
+DAN-2020-001;Leopoldo Gimeno 16, San Sebastian de los Reyes;;cea6fd39-ef41-436b-aa39-cb8e5e161cd3
+DAN-2020-002;Antonio Casero 16, Madrid;;5d0a44eb-fb06-45a8-bd60-a4b99d67b3a3
+DAN-2020-004;Chucuri 10, Madrid;;bcf806f3-733e-4646-bfc4-9374268c56e1
+DAN-2020-007;Moreras 19, Aranjuez;;119c7153-80a9-4b54-a4ca-c480ac8df4c4
+DAN-2020-009;Buena Madre 9, Pinto;;c030c37e-b99c-44da-a055-96192a66cd22
+DAN-2020-015;Entrearroyos 98, Madrid;;66386fa8-e1db-4f7a-a5d2-aad89fd614e7
+DAN-2020-020;Sirio 36, Madrid;;f099456b-f873-4d2e-9af7-b59a73846647
+DAN-2020-027;Emilio Ferrari 101, Madrid;;b1fd82a8-4d82-48fe-9d89-6369ce002bee
+DAN-2020-029;Pedro Rubin de Celis 28, Pinto;;701a54e6-2e28-4dac-843a-bf0d8b813269
+DAN-2020-031;Parvillas Altas 12, Madrid;;877697a1-5b57-4a82-ba45-e7ecd1485c59
+DAN-2020-034;Belgrado 1, Torrejon de Ardoz;;26a2a958-ee5f-4325-a449-a6160fa78931
+DAN-2020-043;Lince 8, Madrid;;a2191b2a-3922-44f8-ace0-b7d60df5f419
+DAN-2020-045;Braulio Gutierrez 7, Madrid;;e8b56f09-a718-4ce2-bff8-0af35b2d69db
+DAN-2020-052;Vitoria 1, Alcala de Henares;;40a3c687-1132-4f86-a504-9b5ae39d685b
+DAN-2020-064;San Telesforo 19, Madrid;;1bcda25f-d2fe-4d26-921a-9e33c14dd957
+DAN-2021-009;San Donato 1, Madrid;;4c5e5781-7641-48c8-b0f7-d504ecda5f0d
+DAN-2021-013;Granados 2, Alcala de Henares;;488c8cc5-5ca8-49b4-8ab4-e9544818ad79
+DAN-2021-022;Juan Boscan 57, Madrid;;bfdfe06c-55a2-4ef0-825f-d39fec0c5b5e
+DAN-2021-026;Hermanos de Pablo 45, Madrid;;6f275f6b-a20a-44ae-aad3-f944e29bd546
+DAN-2021-029;Luis Ruiz 88, Madrid;;37851b2a-2b44-42af-92ec-5bad480c4027
+DAN-2021-031;Portugalete 27, Madrid;;bd0dbbea-77a4-467f-8b3e-6a007a1e9850
+DAN-2021-034;San Telesforo 17, Madrid;;8a45182a-f272-4d93-87ff-80b5650593cd
+DAN-2021-039;Dolores Armengot 31, Madrid;;65177cdb-8125-41f5-9f3d-f818f1f38424
+DAN-2021-040;Maria de Guzman 42, Madrid;;18452636-fb7a-4701-82f9-13b9370893d5
+DAN-2021-055;Muller 31, Madrid;;b5399513-a69e-4394-8a13-ed23bd75a473
+DAN-2021-056;Ezequiel Solana 18, Madrid;;a2f4547d-c14d-444a-9c28-56a91f3a2d1f
+DAN-2021-057;La del Manojo de Rosas 57, Madrid;;5f5fc830-92df-43c0-a3aa-0ad45db86346
+DAN-2021-058;Horno Labradores 13, Madrid;;d2481877-a86f-43e5-b3b8-4a4d7a4905a0
+DAN-2021-061;Juan Pradillo 15, Madrid;;fbb6e456-e6eb-4d34-a658-c2bb4360d45a
+DAN-2021-065;Llanos de Escudero 37, Madrid;;5b31efd3-eac7-46c1-945a-dd59ffe18715
+DAN-2021-070;Copenhague 14, Torrejon de Ardoz;;14fd02e4-e197-42ec-a5e1-b9c0e71be8a5
+DAN-2021-071;Encomienda de Palacios 60, Madrid;;6fbba91e-aad3-4ce2-9669-f084ae70621c
+DAN-2021-073;Logroño 156, Madrid;;ba73f59d-86c7-43d8-a1f2-cfe4aaa3e14c
+DAN-2021-074;Belzunegui 52, Madrid;;dd479439-d1d9-4811-9f84-fbdcfc7db987
+DAN-2021-079;Angel Mugica 35, Madrid;;97cb543a-d4b3-4b66-a147-5c20da810e8c
+DAN-2021-080;Infanta Mercedes 4, Madrid;;f9a28f86-b0e9-472d-be4c-cd79c77ff3d0
+DAN-2021-083;Martin de los Heros 38, Madrid;;f5935412-1a55-4c85-b4f7-74006cb2ed59
+DAN-2021-084;Principe de Vergara 25, Madrid;;2d798309-c738-426c-b5bd-623bc91ec35c
+DAN-2021-085;Pedro Jimenez 8, Madrid;;8c7ff34b-f741-4ad5-b0df-3b3e20295128
+DAN-2021-094;Ceferino Rodriguez 17, Madrid;;f9e6c53d-0cda-42a6-bf06-65ebb247e23b
+DAN-2021-098;Hernandez Iglesias 5, Madrid;;240cab90-cd7c-405b-b581-fee12fd52adc
+DAN-2021-099;Ramon Gomez de la Serna 103, Madrid;;4a803ac9-5b76-4f84-ae5f-1566cc616176
+DAN-2021-100;Manuel Maria Iglesias 2, Madrid;;5466b043-10a9-4137-bc55-bd982d9a74ab
+DAN-2021-104;Perales 11, Pinto;;b8bd51bc-c3a9-4714-9362-80ed93f29117
+DAN-2021-108;Aviacion 71, Madrid;;b1030867-46fd-48ea-9082-1dcdff83caa2
+DAN-2021-114;Corral de Cantos 19, Madrid;;de647fec-daa7-4aa4-946b-4bfa219469e5
+DAN-2021-118;San Jaime 2, Madrid;;0f1445f2-84a2-43fb-81da-a3b324c3317c
+DAN-2021-120;Arroyo Fontarron 121, Madrid;;a37f03f8-633d-4d32-9a56-2bfc6f995e9d
+DAN-2021-124;Chantada 46, Madrid;;2568be3a-eed5-4c9d-8615-1f6dbab6417d
+DAN-2021-135;Leon 8, Madrid;;27b79c70-6de1-41a4-b803-1d13b451da6e
+DAN-2022-050;Escalonilla 17, Madrid;;2e28b34c-dedf-4c25-bc80-6afc9894a8b9
+DAN-2022-054;Goya 55, Madrid;;8fb655cc-8678-462a-828e-ecae59fe0aa8
+DAN-2022-057;Manresa 56, Madrid;;e632064e-1b81-4845-a7ae-a0361afebb47
+DAN-2022-059;Arturo Soria 7, Madrid;;1941c7b4-53a2-4a20-84f4-809ff190075b
+DAN-2022-060;Hellin 19, Madrid;;2efeb92a-4d54-4e43-9e6e-4f9168ad6294
+DAN-2022-062;Chile 5, Torrejon de Ardoz;;fdf96be0-5b21-4724-aeb1-6ae10839b0cf
+DAN-2022-066;Silicio 23, Torrejon de Ardoz;;d596d0a6-c775-47d7-931b-207538be16d2
+DAN-2022-068;Agustin de Foxa 19, Madrid;;e20333b1-0a44-483b-8195-ff4b09c387d0
+DAN-2022-073;Maldonado 33, Madrid;;019a70c0-0e4c-473f-8631-6ba8336f452d
+DAN-2022-074;Acacias 59, Madrid;;1c107ac6-5c46-41ff-b225-06aaeafe2a45
+DAN-2022-077;Huerta de Villaverde 9, Madrid;;12dbb8f3-e4f1-48d6-9d43-0fddea0b170b
+DAN-2022-080;Villaescusa 2 y 4, Madrid;;a43cee82-87ff-403e-9711-f8b61363e4f1
+DAN-2022-095;Fonsagrada 9, Madrid;;e6d9f808-47e1-4001-a482-3a27b21982b1
+DAN-2022-102;Valderribas 38, Madrid;;f7776f98-ca8e-4949-be1b-26d074d8fd33
+DAN-2022-107;Torrelaguna 6, Alcala de Henares;;fcee8c95-9ebf-496d-9d46-6562aa9dd72c
+DAN-2022-109;Alfonso X el Sabio 44, Parla;;d9d09f1c-ca27-49e8-92fd-2147ef3f7280
+DAN-2022-111;Marques de Cubas 6, Madrid;;56671c5d-3e0b-46cd-a02e-4072ccadde5f
+DAN-2022-114;Rueza 32, Madrid;;a0ca4734-da7e-4f90-8553-6434efff0072
+DAN-2022-120;Hermanos del Moral 75, Madrid;;553c1465-8fa8-4e56-84d3-01de3e18ab2d
+DAN-2022-121;Lorca 8, Madrid;;817df786-4aff-4245-9195-07186db111c0
+DAN-2022-124;De las Ciudades 8, Parla;;8fab6c72-61a2-4b76-9970-9fc7d2c5be1d
+DAN-2022-130;Alcorcon 7, Parla;;24e92779-26b0-4ab6-98af-d35c72dee329
+DAN-2022-131;Luis Ruiz 111, Madrid;;b25c98a8-4735-4556-ab33-18358c009505
+DAN-2022-132;Jose Arcones Gil 108, Madrid;;9503cc30-50a9-4832-82c2-9c8c333b53ff
+DAN-2022-133;Juan Tornero 64, Madrid;;71120764-1b37-4cdb-b295-9e36a2c1ee29
+DAN-2022-137;Nectar 5, Madrid;;4222ea5a-cafb-46de-9d5e-c05b86ed1756
+DAN-2022-138;Badalona 48, Madrid;;2ae84d55-26de-42af-a4e5-bab99496e123
+DAN-2022-143;Cantalejos 6, Madrid;;bb3af7ca-c57a-4117-ab03-7df442efb89a
+DAN-2022-145;Ramon Gomez de la Serna 79, 81 y 83, Madrid;;afc9321b-3363-48bb-8c19-65a3b9765382
+DAN-2022-148;Badalona 28, Madrid;;45a37689-b476-42e9-93c6-e8a658dc41aa
+DAN-2022-150;Isla Malaita 5, Madrid;;984413f0-e3de-4c3f-bbe5-9df22b5ad3e0
+DAN-2022-151;Marbella 66, Madrid;;7ef7c50e-7bd9-41a4-97a6-a255cdaa9966
+DAN-2022-153;Mar Menor 24, Madrid;;4210f195-32ed-4dca-9534-9f6d465faf7f
+DAN-2022-154;Jacinto Camarero 3, Madrid;;f870196c-49ce-4e16-bb20-998a132fb3bd
+DAN-2022-156;Manresa 17, Madrid;;b368bd0d-dd7b-4294-b93c-e8cb420ca315
+DAN-2022-160;Ascao 53, Madrid;;4528b3e4-7091-4034-a2ac-fddb3db7a648
+DAN-2022-167;Hacienda de Pavones 164, Madrid;;f744fe53-4724-4197-8f10-43b63cbbbf13
+DAN-2022-168;Hacienda de Pavones 252, Madrid;;66c4ff7b-8002-4da3-8268-3c3c9e840311
+DAN-2022-169;Tacona 83, Madrid;;ab654148-ea99-4a69-a867-366b9d40555e
+DAN-2022-171;Garellano 17, Madrid;;3cf827fa-99d8-4503-b4e3-47de25105af0
+DAN-2022-172;Encomienda de Palacios 107, Madrid;;5db1ea67-b329-4891-b78e-24793aadde75
+DAN-2022-173;Encomienda de Palacios 18, Madrid;;b91c243c-9aa4-4cdf-94ac-0d4a48b57816
+DAN-2022-174;Francisco Ordoñez 5, Madrid;;bce8f84b-83de-4cdf-b498-f5221911075a
+DAN-2022-176;Almogia 2, Madrid;;c1814602-153d-4ea9-a354-c82d5f7c97d3
+DAN-2022-177;Alora 11, Madrid;;4138cd09-23f4-4bfc-b791-aef3f9373649
+DAN-2022-180;Andarrios 9, Madrid;;e739e0be-c507-4449-9b0a-ac8eb052ed84
+DAN-2022-182;Marbella 8, Madrid;;c92676d0-5854-4406-bbed-e8b882a77af0
+DAN-2022-184;Leganes 12, Parla;;084d4f95-a8cb-4b87-9c11-d0bfdb931b28
+DAN-2022-200;Via Carpetana 191, Madrid;;8be8f8a2-15f0-4feb-b82d-f54985a52a9b
+DAN-2022-204;Pablo Serrano 7, Madrid;;7bad6c5c-5dc4-43b2-9209-7fa0ff707cfe
+DAN-2022-211;Esteban Collantes 33, Madrid;;3acd2496-afb3-462f-8708-9378af873908
+DAN-2022-212;Villastar 4, Madrid;;e25b79fd-4ea7-4304-a3ff-72555d805580
+DAN-2022-213;Azucena 7, Alcala de Henares;;76f04133-29b3-4fe1-8bf2-66baa24f8367
+DAN-2022-214;Cervantes 2, Alcala de Henares;;83b8b787-532d-4136-91ef-36830f1da05c
+DAN-2022-216;San Emilio 19, Madrid;;8a5332db-b316-4ae3-9abe-61ec51723a75
+DAN-2022-217;Fuentebella 8, Parla;;8396518e-b3ba-4de3-8481-2e1d61cce4ca
+DAN-2022-218;General Ricardos 232, Madrid;;c649a1ac-6646-4235-8889-6dc4d98c5d66
+DAN-2022-220;Goiri 33, Madrid;;4788ab76-1cd4-4fd7-b0e9-90204567acc4
+DAN-2022-222;Rio Jarama 1, Parla;;1c4ffd93-b636-4f06-a73d-65ce36413173
+DAN-2022-230;Colmenar Viejo 10, San Sebastian de los Reyes;;92775db8-9e04-4ac7-8af4-ff8299142283
+DAN-2022-232;Soledad 9, Parla;;c6934bfe-8140-4e94-abb0-2e2c5709dd90
+DAN-2022-233;Lucano 63, Madrid;;f37f4e26-29d2-4195-91c9-9d9ecc632419
+DAN-2022-235;Olivar 2, Madrid;;de5ceb92-9016-48d3-8c66-8755d23bc50d
+DAN-2022-237;Pico Balaitus 41, Madrid;;abcdf580-6589-4a00-8b95-553394ae7b97
+DAN-2022-241;Pico Salvaguardia 6, Madrid;;94b354a4-e167-4483-959b-b980cb19ad9f
+DAN-2022-243;Moreras 7, Aranjuez;;f033bfc7-94a0-451a-b816-63bbce383180
+DAN-2022-245;Filipinas 28, Madrid;;1f4683f0-bc16-481f-b6dd-80107af74ee4
+DAN-2022-253;Guadalajara 55, San Sebastian de los Reyes;;4f51bfa1-5122-4ee9-844d-8d0ba344737c
+DAN-2022-254;San Blas 26, Parla;;c70cb06d-aa9b-48d6-9d73-11d31f67fde5
+DAN-2022-255;Luruaco 1, Madrid;;8f9f358d-9ef3-4604-bd48-8381efa20bd8
+DAN-2022-256;Diez 6, Madrid;;cab27632-a831-47c8-83e6-faae25c30181
+DAN-2022-259;Isla de Arosa 8 y 10, Madrid;;ddc332b1-73fa-40b7-aba4-0d31b8e14ccd
+DAN-2022-263;Fermin Caballero 75, Madrid;;48aea548-66be-44eb-99f8-4ba2c7070314
+DAN-2022-264;Valverde 36, Madrid;;da10b20c-4d5e-4303-b1aa-86ef7740b439
+DAN-2022-265;Vizcaya 11, Madrid;;d6aac318-f866-4ef2-bd3e-203502262faa
+DAN-2022-269;Doctor Esquerdo 59, Madrid;;a5161bbd-191b-4581-af0b-c8bd3ab8a9df
+DAN-2022-272;Santa Maria 30, Madrid;;f80313cd-7a01-4ddc-ab76-336801f443fa
+DAN-2022-273;Andarrios 5, Madrid;;85491130-df4d-4b36-a945-9edc5c2531c0
+DAN-2022-274;Betanzos 77, Madrid;;5428edbc-4147-4eec-81bc-bf0ddeca9161
+DAN-2022-276;Ramon Gomez de la Serna 121, Madrid;;4cf8763f-9404-4378-8059-115c782dfcb4
+DAN-2022-278;Cardenal Herrera Oria 116, Madrid;;7d3864ad-bb1d-4bbe-98c1-e8d2d8d41dff
+DAN-2022-279;Hernani 29, Madrid;;6fb134e0-fa1f-4f54-8212-498ef66ffc72
+DAN-2022-280;Hernani 33, Madrid;;b7d7107a-7889-4ea9-aff2-494bb81d0a71
+DAN-2022-287;San Diego 94, Madrid;;d8d84740-66db-4736-99c8-a1bb2b7c6c97
+DAN-2022-289;Rio Salado 6, Madrid;;caf8a8b6-dcdf-4519-8c71-5773f0ed7b4f
+DAN-2022-294;Gutierre de Cetina 71, Madrid;;cf1a8174-ab39-4e9d-a5e9-0db2d0ae7448
+DAN-2022-295;Pintor Juan Gris 4, Madrid;;6d115457-98c1-44e1-ad13-3e208b674376
+DAN-2022-296;Jazmin 16 y 18, Madrid;;37ff460a-76d3-441d-a9e9-f5f70c84cddc
+DAN-2022-297;Jazmin 30 y 32, Madrid;;72e1e084-2816-4e21-8505-f370af2f7a80
+DAN-2022-299;San Venancio 1, Madrid;;e2aa17b6-0e71-4439-873c-09f1cedd05d3
+DAN-2022-300;Ciudad Real 11, Torrejon de Ardoz;;6d3b6eb4-cc5e-4688-9e6c-4b22de6988f7
+DAN-2023-001;Alava 10, Fuenlabrada;;7839f65c-5bb9-4e1a-a0be-c5086c69d151
+DAN-2023-003;Alcarria 25, Leganes;;65fda29c-23fb-4816-99b1-2761753e9015
+DAN-2023-004;Alcarria 64, Leganes;;3e713859-e7ec-4724-bb8f-6ef57d22c670
+DAN-2023-005;Los Alpes 8, Alcorcon;;a7ec56b1-c7ef-4d56-9948-de8fa2f9b9a2
+DAN-2023-006;Alpujarras 30, Leganes;;43981204-11f7-4056-9455-1a81315e9d5e
+DAN-2023-007;Ampurdan 9, Leganes;;3207fac1-49e2-4372-8629-25bbe4450b38
+DAN-2023-010;Aragon 14, Getafe;;94148e20-8f77-422e-851c-2cbba8499898
+DAN-2023-011;Doctor Martin Vegue 26, Leganes;;c62ba715-ef7d-49cd-af33-69f968be434e
+DAN-2023-012;Dr Mendiguchia Carriche 25, Leganes;;fdaeeb1f-1252-420f-828a-32acf3a52f6f
+DAN-2023-013;Dr Mendiguchia Carriche 25, Leganes;;0b3463ed-59d4-471a-aa6f-baee1aefd29a
+DAN-2023-014;España 10, Fuenlabrada;;6a769722-68bd-413e-a25a-35221d86189e
+DAN-2023-015;Olimpica 2, Mostoles;;b22ea5f2-b9ae-4325-adbb-b72c68999a5e
+DAN-2023-019;Callao 29, Fuenlabrada;;70b4e944-08fb-46fd-bed0-2b22cf8ea6c8
+DAN-2023-020;Callao 4, Fuenlabrada;;8208b4f0-2cfb-4d6a-bd0b-0f125166d18f
+DAN-2023-021;Callao 68, Fuenlabrada;;1af72114-100e-4c2a-977a-fb521d7657bd
+DAN-2023-022;Capitan Fco Sanchez 34, Alcobendas;;c1da4dda-30fd-4963-8828-8a25594cec3d
+DAN-2023-023;Cataluña 2, Getafe;;c1b2456e-b380-4015-91db-e1943e8b246f
+DAN-2023-024;Cataluña 32, Getafe;;7ce70a9c-c985-4db8-a113-2794c2b28d86
+DAN-2023-036;Ceferino Rodriguez 17, Madrid;;c053aeb7-223e-45d6-9594-6d8ec55ca7a1
+DAN-2023-037;Charco 20, Leganes;;e117c63a-e9f2-46da-a4f6-083b00589cc0
+DAN-2023-041;Del Empecinado 6, Mostoles;;2a7798f1-affe-475f-b136-bc12613a0250
+DAN-2023-042;Españoleto 5, Mostoles;;ecc250b1-2890-477a-8e24-ebbec7488bda
+DAN-2023-043;Estacion 9, Fuenlabrada;;eac74797-ae70-4178-b78a-7006c67706d6
+DAN-2023-044;Grecia 18, Fuenlabrada;;53d13344-c6f7-4ad1-b9bb-05be56278b47
+DAN-2023-045;De Guadalupe 3, Mostoles;;3a984238-4317-427d-ab20-6ecc659e0f42
+DAN-2023-047;Hernani 66, Madrid;;84e6bc12-6d6e-4ca9-b237-1d2f27335f9d
+DAN-2023-048;Hilarion Eslava 51 y 53, Madrid;;4fa009f9-199f-458a-b112-0b841bfcc30b
+DAN-2023-049;Holanda 3, Fuenlabrada;;5dda450e-927e-47fd-a430-03ac79eac5b2
+DAN-2023-050;Humera 14, Fuenlabrada;;3d9d9127-5070-4b06-a0f1-6abe43ca7648
+DAN-2023-053;Lerida 6, Alcobendas;;95beb94e-e1e2-46b6-a6d1-99560bf076d1
+DAN-2023-055;Matadero 18, Alcorcon;;1d457f26-d3f3-4f39-b576-58bd4d158502
+DAN-2023-057;Navarra 2, Alcorcon;;087247ca-3493-478a-8914-9570cef55e16
+DAN-2023-059;Pensamiento 5, Leganes;;91e55753-107a-43ae-bba3-5bf67f977898
+DAN-2023-060;Floras 3, Leganes;;2e852988-39e3-4438-aa4a-79201f43ea71
+DAN-2023-061;Polvoranca 25, Alcorcon;;2f7f79d0-7ff7-4451-97b1-80c040e5b7f7
+DAN-2023-062;Portugal 4, Fuenlabrada;;d28fabcd-780e-45e8-b605-b9c147db3ba0
+DAN-2023-065;Rioja 57, Leganes;;fb37093c-d388-4d1b-8b96-cef0ca47428a
+DAN-2023-066;San Joaquin 14, Fuenlabrada;;40ccea66-3ac2-4eef-95ab-3346e79f1993
+DAN-2023-067;San Vicente 13, Alcobendas;;e5f26290-d23a-4bc1-825d-d4bb001e0a60
+DAN-2023-068;Sierra 4, Getafe;;660cec7e-4be3-4c92-91d3-f2fe994eada5
+DAN-2023-071;Viena 5, Fuenlabrada;;82687b6f-e20a-4ffb-a8f8-6ed8a6d52bf9
+DAN-2023-072;Aniceto Marinas 112, Madrid;;b4ba1b62-d25d-460a-aacd-6a628d8df273
+DAN-2023-073;Valladolid 21, Madrid;;fcba82ba-579a-4846-8daa-000a77d80590
+DAN-2023-074;Comandante Fortea 48, Madrid;;74512480-9d53-45ea-97a9-09f2a0d183ea
+DAN-2023-075;Comandante Fortea 9 B, Madrid;;3c0852cf-1e1b-4103-a879-01b16a4ae55b
+DAN-2023-076;Doctora de Alcala 5, Alcala de Henares;;67c45bf4-fc55-46fb-8f30-ab72068d46a4
+DAN-2023-077;Ermita del Santo 41, Madrid;;e3e25eb8-b926-4cec-b118-0672b93e5f79
+DAN-2023-078;Almuñecar 1, Madrid;;c3c131c5-f595-4c62-913b-dac2cfd2335e
+DAN-2023-079;Almuñecar 3, Madrid;;337bcf78-b808-4097-b903-373a12d1bb39
+DAN-2023-080;Ribera del Manzanares 11, Madrid;;363d42d1-c1f2-4e00-9503-32d675ac7244
+DAN-2023-081;Ribera del Manzanares 21, Madrid;;86d9a68d-01d0-48b0-a971-350f8193baf5
+DAN-2023-082;Ribera del Manzanares 67, Madrid;;5cda7fb5-e713-4622-b45f-96e3f09ce964
+DAN-2023-083;Ribera del Manzanares 69, Madrid;;610a68ef-09bf-4676-8076-64e98f77117a
+DAN-2023-084;Ribera del Manzanares 85, Madrid;;9114f0cf-796f-44e6-88c9-1a7ffe9e92ab
+DAN-2023-085;San Pol de Mar 1, Madrid;;e7844f1a-1ba0-43a8-962c-d71c37d149b8
+DAN-2023-086;Santa Coloma 8, Madrid;;96bf4e5a-9c4c-48f0-aeb1-4b3c1b596d9e
+DAN-2023-087;Santa Fe 2, Madrid;;2738dc98-2c17-4667-b459-c09096461c32
+DAN-2023-088;Santovenia 5, Madrid;;908d55e1-b2ad-42c3-8e6b-63079c089672
+DAN-2023-089;Alpujarras 72, Leganes;;7f0b4d8d-74ff-43cd-8e44-2bf9f88f31fc
+DAN-2023-090;Comandante Fortea 18, Madrid;;4d94002f-5184-4135-8584-d97feb712c63
+DAN-2023-091;Florida 57, Madrid;;23d17e9b-17bb-467a-9282-cf348407e1fd
+DAN-2023-092;Santurce 63, Madrid;;1663f757-eb62-4e23-8e18-98773c768556
+DAN-2023-093;Doctor Esquerdo 59, Madrid;;7804b86e-6934-4d02-be7a-2f6a54fe6f87
+DAN-2023-095;Reina Cristina 15 y 17, Madrid;;03e91eaf-d06a-4d5d-8353-7f46c5419c85
+DAN-2023-096;Reina Cristina 19 y 21, Madrid;;d7ed7890-4ae4-40f6-85ba-d2a0e25ce300
+DAN-2023-099;Carril Charcas 18, Sevilla la Nueva;;75f3ef08-564c-466a-9c47-cb007faed479
+DAN-2023-101;Pedro Unanue 8, Madrid;;649a5f54-ecfe-4346-8687-125ef593e241
+DAN-2023-103;Tamarindo 2, Aranjuez;;ac659d2b-3f09-426f-b131-d6eecd51eaae
+DAN-2023-105;San Venancio 21, Madrid;;7e5ac3fb-326d-4586-b5fe-9d6332a38be9
+DAN-2023-110;Juan Boscan 74, Madrid;;3af8ea87-8a39-4744-973e-da129789296d
+DAN-2023-111;Pradolonguillo 6, Madrid;;282c190b-c42f-4c11-81b6-c177c02a8aed
+DAN-2023-112;Recreo 3, San Sebastian de los Reyes;;1b06f75c-e3ba-4f2b-bdd4-cc8c585a11bc
+DAN-2023-114;San Anastasio 2, Madrid;;25e9c220-9a73-432e-9642-6e5664ef6f8f
+DAN-2023-115;Soria 3, Mostoles;;f5b8a384-072e-4317-ae7c-ee560c8e62af
+DAN-2023-116;Alcala 213, Madrid;;37f32d51-7f55-4d83-b9b6-e3a645e92613
+DAN-2023-118;Del Valles 9, Leganes;;77d5fa76-1769-4547-8095-5326a75f5264
+DAN-2023-122;Camino de Leganes 58, Mostoles;;5a6decf5-43b0-4d7d-970f-2ceee45dc2c3
+DAN-2023-126;Normas 3, 5 y 7, Madrid;;54c764a5-dba7-409f-b4ec-1e7cc5c0233b
+DAN-2023-127;Ntra Sra Macarena 2, Leganes;;7ccaf939-f49c-401b-bda5-b006e513569b
+DAN-2023-128;Ginzo de Limia 29, Madrid;;c9820993-425d-40da-9934-851d90fe97bc
+DAN-2023-129;Batalla de Brunete 12, Leganes;;c4b6b3d0-f438-40b7-8c88-adfee86d23e5
+DAN-2023-130;Ramon Gomez de la Serna 115, Madrid;;63cde043-790b-41f0-b1da-e0c2a54192aa
+DAN-2023-131;Artajona 16, Madrid;;4dd88ab2-bfdb-4f97-bf3c-6157a22b374d
+DAN-2023-132;De Guadalupe 6, Mostoles;;a8ac5561-f334-4699-9ac1-0725d1ea25f3
+DAN-2023-133;Valladolid 2, Fuenlabrada;;8b3f76e1-c03e-4f61-abb3-d19c22f0b7db
+DAN-2023-136;Caceres 2, Coslada;;c61f25c4-2e32-46ab-8fcc-6779eb8ebae1
+DAN-2023-137;Tajo 8, Las Rozas de Madrid;;97bc55ef-5cc2-48cc-8b64-a51e01d05980
+DAN-2023-139;Francia 14, Fuenlabrada;;56f77b4a-809b-42d5-a2de-999a72f328c0
+DAN-2023-140;Arte 1, Madrid;;6d90996c-df44-4b26-82dc-d704efeddf47
+DAN-2023-141;Cardenal Herrera Oria 297, Madrid;;95814d26-9a61-4cb8-bb2f-6fbff5c6ed3c
+DAN-2023-143;Cardenal Herrera Oria 291, Madrid;;577eee32-0f62-4419-90bb-8dcdce676557
+DAN-2023-145;Francia 34, Fuenlabrada;;11827372-8ff9-4519-b4ee-7db8d6e700ca
+DAN-2023-146;Manresa 33, Madrid;;37fca960-3d92-4d08-bb16-55b150075fde
+DAN-2023-147;Rio Sella 2, Mostoles;;b5e29611-6035-4db4-84f4-9ee48bc7c8f4
+DAN-2023-152;Galerias Robles 5, Madrid;;30afcd8e-0c7c-43ae-808c-57fe0a833ed1
+DAN-2023-155;Almonacid 7, Madrid;;db2f3021-face-4320-823e-09e1c6ca80ae
+DAN-2023-157;Dr Mendiguchia Carriche 11, Leganes;;9b1a98e3-048b-4b80-a6de-0b70e57684da
+DAN-2023-158;Dr Mendiguchia Carriche 29, Leganes;;62b62523-1bb6-40f4-b274-6feffd3f270e
+DAN-2023-159;San Onofre 7, San Sebastian de los Reyes;;4c192763-8cc2-4782-a123-a4c53e0f143f
+DAN-2023-160;San Onofre 7, San Sebastian de los Reyes;;36f884f0-7132-421e-b778-dbae9e56705d
+DAN-2023-161;Valle de Tobalina 46, Madrid;;97bda1d3-df5a-484e-a374-a57147494add
+DAN-2023-169;Vedra 22 A, 22 B, 22 C, 22 D, 22 E, 22 F, 22 G, 22 H, 22 I, 22 J, 22 K, 22 L, 22 M, 22 N, 22 O, 22 P, 22 Q, 22 R, 22 S, 22 T, 22 U, 22 V, 22 X y 22 Y, Madrid;;a30efb3f-c3ef-4cb1-ada1-b2253f5f9197
+DAN-2023-172;Milan 19, Torrejon de Ardoz;;7a03b68d-5e40-40a5-b97e-49d6cd184ff5
+DAN-2023-174;Concepcion 8, Madrid;;2e57dd44-69f0-49f9-b59c-d0de8acb74ea
+DAN-2023-176;Belgica 3, Getafe;;5d2541bc-6c1e-44ee-a15a-e73feb5fce60
+DAN-2023-177;Medellin 10, Madrid;;0e1101e8-058a-457d-93e2-2d2d3e7d4962
+DAN-2023-178;Valdetorres de Jarama 13, Madrid;;8f4400f0-cb93-441f-8041-82002920d4f3
+DAN-2023-181;Carlos Fuentes 21, Madrid;;11a14ffb-5819-41b0-8f29-01d348ed9998
+DAN-2023-183;Fresnedillas 7, Madrid;;c68656a6-6c32-4247-82cf-fc059bf66611
+DAN-2023-184;Olimpica 18, Mostoles;;0cb908d4-823c-4c02-b38e-510fd7897eca
+DAN-2023-186;San Claudio 32, Madrid;;4b933356-f198-4c48-9443-0a3075954259
+DAN-2023-187;Alfonso X el Sabio 39, Parla;;c042c1dc-f152-44c2-bb54-ba729e28b8be
+DAN-2023-190;Rafael Finat 38, Madrid;;652b2991-30a7-4c15-84c4-af43056a7ec8
+DAN-2023-191;Jaime I el Conquistador 39, Parla;;9b0051af-0c38-44da-b484-b6680abb3478
+DAN-2023-193;Cuatro Amigos 5 y 7, Madrid;;ccf9f97f-418f-4ee1-ba66-ecd846c4901c
+DAN-2023-198;Arteijo 14, Madrid;;469523ff-bb49-43e3-84e3-b69288fcf540
+DAN-2023-201;Los Cantos 7 y 9, Alcorcon;;cf50682b-fc65-459f-9bde-84aed8b9601a
+DAN-2023-202;Alpujarras 23, Leganes;;9acf939e-feb9-4dbb-ba4c-d8b5211a8ee5
+DAN-2023-204;Arroyo Belincoso 30, Madrid;;26a87f49-12a7-4b9c-b26e-9a75904f614a
+DAN-2023-205;De la Onu 76, Mostoles;;737aca6f-f615-497c-afac-b419a743e9bd
+DAN-2023-207;Peña Prieta 53, Madrid;;3a4616f0-95f8-40d2-ba1a-c7e5a62dc105
+DAN-2023-209;Simon Hernandez 70 y 72, Mostoles;;f2ce135a-8823-4cdb-9764-348b365a3f2c
+DAN-2023-210;La Habana 109, Madrid;;c43e395f-95fd-45ec-865f-4562c120dacd
+DAN-2023-211;Aranjuez 2, Parla;;d6fdaf20-ce06-406d-a42e-b8d4ab28a3ed
+DAN-2023-212;Velez Blanco 46, Madrid;;c6fba8ba-9b5e-4900-b377-52e615a7ad55
+DAN-2023-213;Ainsa 18, Madrid;;68dece43-893c-463e-b1a4-0269e6e46b50
+DAN-2023-214;Pitagoras 3, Madrid;;0f8502ef-9b96-4129-81fd-ee87161884c8
+DAN-2023-218;Andes 11, Fuenlabrada;;cbfe65dc-51fe-45d2-93a6-43ca9da7ef65
+DAN-2023-219;Andalucia 4, San Sebastian de los Reyes;;ead92816-71dc-484e-9899-e7475f21d981
+DAN-2023-220;Discobolo 67, Madrid;;bd2accde-eac1-4efc-8ca3-a72487ee4565
+DAN-2023-222;Totana 36, Madrid;;4e97cdee-05f8-45f4-b284-c3c7cc07796c
+DAN-2023-224;Maria Zurita 10, Madrid;;603bc5bf-cfb2-4e7a-a8ae-bcfcf9cacd67
+DAN-2023-225;Almuñecar 9, Madrid;;ed1c9bf2-a5a5-41d8-82c5-a3730d5983db
+DAN-2023-226;Almuñecar 7, Madrid;;ead998f3-2046-4b32-9922-feea74fc5891
+DAN-2023-227;Almuñecar 9, Madrid;;5c92edf6-32ec-4310-9164-a4fe16cc7e43
+DAN-2023-229;Pradillo 26, Madrid;;ea1d3f9e-a59c-4128-83ea-d8ef938b9ae4
+DAN-2023-230;Cgdor Señor de la Elipa 11, Madrid;;e464b45f-b520-4482-b9fb-0864625188e1
+DAN-2023-233;Juan del Rosal 2, Madrid;;21e76b79-cefd-4fb4-9ee3-c3c7fccd8bdf
+DAN-2023-234;Valencia de Don Juan 4, Madrid;;5822049a-95f7-4027-a233-beb159b044bd
+DAN-2023-235;Conde de Torralba 10, Madrid;;7c76b901-a059-4ccf-8c7e-f98e9a217224
+DAN-2023-236;Modesto Lafuente 4, Madrid;;620058f0-d9e0-4597-a81a-2b676f876d87
+DAN-2023-237;Pablo Luna 4, Madrid;;1db2d867-9e3a-42ed-9403-f608e06e602b
+DAN-2023-238;Angeles 6, Getafe;;8a56dc62-fb2d-4e2e-9ddf-ddd5183b08a4
+DAN-2023-240;De las Mercedes 3, Mostoles;;40139691-efa2-460c-b7bb-dc9d2de809f6
+DAN-2023-242;Valdecaleras 6, Madrid;;3bf8b8d1-fe9c-4d02-ab7a-ba6f91ce59dd
+DAN-2023-243;Nicolasa Gomez 104, Madrid;;911d5aed-0fd2-48d0-8c7c-1868d5732146
+DAN-2023-244;Fernando el Catolico 73, Madrid;;e8a70077-a6b9-458c-bcb9-fbad8e1022d9
+DAN-2023-247;San Pablo 55, Coslada;;9a69d37c-9789-4f64-b780-c2cffb6f7fb1
+DAN-2023-248;Antonio Cumella 3, 5, 7 y 9, Madrid;;d89b3c93-b706-49b2-994c-faa1b1d80d42
+DAN-2023-249;Cgdor Jose de Pasamonte 5, 7 y 9, Madrid;;ed00545d-eacd-48d6-acc0-679cb2fd10dc
+DAN-2023-252;Pico Artilleros 30, Madrid;;de3d4689-9671-40cb-8bec-0a05305bdd8b
+DAN-2023-254;Machupichu 43, Madrid;;be23caf2-9b35-4ae0-bedf-527a679cfcc5
+DAN-2023-255;Pablo Serrano 9, Madrid;;1c7c59d5-5152-433e-8c1a-f19e6fed368e
+DAN-2023-256;Alfonso Xii 7, Mostoles;;d0c2e630-4bc8-437c-a70d-45c24ac0db2e
+DAN-2023-257;De la Plazuela 9, Las Rozas de Madrid;;0eb29576-8697-4a9f-8356-d6ae0712fbf2
+DAN-2023-260;Cristo Remedios 18, San Sebastian de los Reyes;;cc481ad8-ad20-425e-9ece-930589c7c962
+DAN-2023-262;Jose Maria Pereda 41, Alcala de Henares;;7f514cae-714f-4d78-a577-faced4f2091f
+DAN-2023-263;Costa Brava 18, Madrid;;cfac38e0-341e-4b36-b328-fcd9ec2ca396
+DAN-2023-264;Las Fuentes 3, Torrejon de Ardoz;;b335ecca-2214-4fa5-b74f-0e8bd40d976b
+DAN-2023-265;Fortunata y Jacinta 31 + Orense 43 + Pedro Teixeira 5, Madrid;;4e1e9518-6ddf-46f4-a090-094a522c0ef5
+DAN-2023-266;Gil Imon 5, Madrid;;4169eab4-d03f-49d6-b543-f29ed1a15144
+DAN-2023-267;Jose Ortega y Gasset 34, Madrid;;c718e4c3-96ae-4085-bba4-fe23a8d8729f
+DAN-2023-268;Jose Arcones Gil 106, Madrid;;6cfcdc6b-cb95-4b49-98d1-4a1520132c12
+DAN-2023-269;San Marcelo 26, Madrid;;d87d83dd-d2a4-48c0-81d4-84eeac1df062
+DAN-2023-270;Charco 24, Leganes;;715d309c-ab27-442f-8925-53b71a5ec7fe
+DAN-2023-271;Discobolo 63, Madrid;;b0b9f7ef-b9c9-4e1e-89aa-815ee2b12ae3
+DAN-2023-272;Betanzos 60, Madrid;;bd01f938-65fb-4d44-93ad-cf10fa853b41
+DAN-2023-273;Camarena 136, Madrid;;dbd42b9e-e1a5-4003-9338-0e1f9a86a5e8
+DAN-2023-275;Juan Ramon Jimenez 7, Mostoles;;7b5ac3ab-828e-40bd-8166-405e77c0b3c7
+DAN-2023-278;Lucano 45, Madrid;;64c05109-1720-4efc-b0f1-e9a39eeb2be1
+DAN-2023-279;Cardenal Herrera Oria 301, Madrid;;b1595461-c7f6-4151-8368-cf3cfae553e7
+DAN-2023-280;La Salle 12, Madrid;;5fe8ea3f-a7a4-4831-9c06-696c027b4da7
+DAN-2023-282;Huerta del Convento 24, Madrid;;f7a79119-7286-4582-b25d-96ad9f10bd40
+DAN-2023-285;Ribera del Manzanares 5, Madrid;;11a7d600-6e6b-4fbc-9ea4-830932a59243
+DAN-2023-286;Iglesia 4, Torrejon de Ardoz;;8cfc5d68-54d4-4f17-9d5e-d7e59845f1e1
+DAN-2023-288;Ginebra 2, Mostoles;;61dfa6e4-f326-4906-87f8-835d3c6dae24
+DAN-2023-290;Oriente 8, Fuenlabrada;;ffcf47ae-2582-41d8-bc2d-398275b5eed1
+DAN-2023-292;Simon Hernandez 29, Mostoles;;74d96085-0ac1-4704-a2a7-b462b58a1e60
+DAN-2023-294;Cuestablanca 2, Alcobendas;;25318860-8480-44d1-9724-a42ae39eaccf
+DAN-2023-295;Arte 3, Madrid;;cfc07b32-1969-4b3b-b1e7-2f3f6d843178
+DAN-2023-297;Cancion del Olvido 23, Madrid;;22d8e1b9-4673-4ff1-b370-8e25cda60aa2
+DAN-2023-298;Hacienda de Pavones 51, Madrid;;cfe5a340-074c-489c-9955-ea6a5231437a
+DAN-2023-299;Andarrios 9, Madrid;;d556a955-80c4-4106-ba6b-5453491fb0b8
+DAN-2023-303;Recalde 4, Madrid;;d6fa3877-64fa-4212-b998-b71c8d796a4d
+DAN-2023-308;De Arroyomolinos 9, Mostoles;;4a2f62a1-2695-485d-b4f4-51bee69d2d3f
+DAN-2023-309;Doctor Martin Vegue 31, Leganes;;9e2ada81-712d-4bad-bb48-96d1913fe420
+DAN-2023-310;Rio Ebro 32, Mostoles;;5d338dcc-ce93-407b-892b-0fcd12e1336c
+DAN-2023-314;Rioja 50, Leganes;;84a04797-de69-41a2-b67c-500a76fe21a7
+DAN-2024-001;Alemania 2, Fuenlabrada;;1350a480-9048-4d5d-ab98-7dfeafc1d571
+DAN-2024-003;Fco Javier Sauquillo 10, Fuenlabrada;;8d11e8cb-c5e4-47c3-b93a-492fc19a8601
+DAN-2024-004;Fco Javier Sauquillo 34, Fuenlabrada;;0acce464-d1c9-460a-9847-8820460172db
+DAN-2024-005;Juan Carlos I 28, Getafe;;6e584acc-4a82-4bae-86c0-db1680f12d43
+DAN-2024-007;Batalla de Brunete 16, Leganes;;183effd8-b075-400f-8121-1cc109e51a99
+DAN-2024-008;Begonia 60, Alcobendas;;3b336a2b-9f6a-48dc-9974-52c477f8f600
+DAN-2024-009;Callao 33, Fuenlabrada;;e95d703f-4100-4be4-baa3-7657a22549ac
+DAN-2024-010;Callao 37, Fuenlabrada;;ce23fbda-52a0-4a7e-b00d-0c428276215e
+DAN-2024-011;Castellon de la Plana 10, Getafe;;f0d1da7c-fd11-45c3-afc5-3146f063705d
+DAN-2024-013;Castilla la Vieja 12, Fuenlabrada;;2477f0a6-fe36-4443-a723-87dca3c4330a
+DAN-2024-021;Covadonga 28, Leganes;;f871d107-6cbb-43d1-81de-304ecd10dc5a
+DAN-2024-022;Cuzco 1, Fuenlabrada;;45278854-ee90-4d8a-9146-c1a3ebbba22a
+DAN-2024-023;Francia 12, Fuenlabrada;;bbaec160-4d1a-4236-ac01-bc78b1a65c1d
+DAN-2024-024;Granada 9, Alcobendas;;4ce6a8c2-0b31-46c8-8311-c348b0b5f858
+DAN-2024-025;Hermanos Pinzon 5, Leganes;;1c87b64c-9770-44eb-88bc-5ee61283b4ab
+DAN-2024-027;Paz 66, Fuenlabrada;;01c21ec6-d3c0-4413-8e1d-e40fbfd3add1
+DAN-2024-028;Maestro Barbieri 2, 4, 6 y 8, Alcobendas;;7d592c94-6e45-4942-8cd6-6ecc522e7529
+DAN-2024-029;Malaga 28, Fuenlabrada;;190b5275-c910-4605-947b-95f4ba8064a7
+DAN-2024-030;Malaga 40, Fuenlabrada;;afaf9970-baa1-4a32-ba1a-06b9c7972fdb
+DAN-2024-031;Naciones 37, Fuenlabrada;;eda00ad5-77bf-4553-8cb6-44300dbec22f
+DAN-2024-032;Nazaret 8, Fuenlabrada;;c230664d-18ab-4067-a2fa-9ac238b819b9
+DAN-2024-035;Colonia 5, Fuenlabrada;;d785768f-2e5a-4bfc-890e-b5eac2195a36
+DAN-2024-036;Roma 2, Leganes;;efef48ff-e407-422c-b51a-9dd314762d71
+DAN-2024-038;Rio Duero 29, Leganes;;7cbcfc30-1492-44bb-9acc-6e5be308d85b
+DAN-2024-039;Saavedra Fajardo 3, Leganes;;bfde4bad-c61e-40ba-9b12-d44a81abdf23
+DAN-2024-040;San Gregorio 2, Leganes;;70896d63-ec76-4673-95a6-60f64b91fd3a
+DAN-2024-041;San Ignacio 10, Leganes;;70cccb2b-0c84-44cc-bb80-d5882e545a46
+DAN-2024-042;San Jose 26, Fuenlabrada;;fd0759bd-4fe3-4137-b379-5e50fcd204e9
+DAN-2024-043;De los Depositos 2, Getafe;;ccf56009-9446-4527-aaca-57e97ab00941
+DAN-2024-044;Nuevo Versalles 2, Fuenlabrada;;df3fb96f-2319-4ab4-9d9c-92c2c8765d8f
+DAN-2024-045;Valladolid 8, Mostoles;;23ca4554-8610-4e6b-b476-0574c91b5d93
+DAN-2024-046;Santa Polonia 8, Madrid;;aa039464-6182-4d55-9977-361abfaee557
+DAN-2024-048;Doctor Blanco Soler 26, Madrid;;8f94c4b9-2126-433e-8232-20167baff402
+DAN-2024-049;San Cesareo 3, Leganes;;d71777dd-e717-409b-a435-f0955c044ee9
+DAN-2024-050;Emilio Castelar 4, Alcala de Henares;;58e81d9b-d086-4037-b61f-a9a37b2870c3
+DAN-2024-053;Mataro 17, Madrid;;83d53861-24cb-456a-beea-58e2bf8a0aab
+DAN-2024-054;España 24, 26, 28 y 30, Getafe;;dc96fc1e-9e9c-403e-a645-afeac0a8836f
+DAN-2024-057;Nuñez de Balboa 8, Leganes;;e177b3fe-144f-4d68-a146-71adc86abf6a
+DAN-2024-059;Ntra Sra D Guadalupe 7, Leganes;;0cbb1967-7d41-4e70-9e48-cebcd703da69
+DAN-2024-061;Pedro Romero 1, Madrid;;ca2bf72d-d7cf-4ba9-90a7-81cd32ed9205
+DAN-2024-063;San Conrado 5, Madrid;;368275dc-a1b8-4776-ae95-463d15dd6294
+DAN-2024-065;Maria Domingo 6, Madrid;;cf97693d-d729-407c-adb8-80a1627f82ae
+DAN-2024-066;Modesto Lafuente 5, Madrid;;f1cd707c-a082-4b06-b92a-69a226fe21f4
+DAN-2024-069;Andalucia 9 y 11, Valdemoro;;598abc85-ab84-43db-9f95-4c7f35d71bf8
+DAN-2024-071;Serena 1, Leganes;;0a45bcf6-9c3f-4d95-887e-99cfe944e270
+DAN-2024-072;Santander 8, Alcala de Henares;;7749cace-fb2e-4975-a976-c9d18b832709
+DAN-2024-074;Gerardo Cordon 3, Madrid;;d3892ce9-8cda-478b-8f83-122c61e1148f
+DAN-2024-075;Teniente Ruiz 2, Mostoles;;e47eaaee-b740-4bc4-aab7-bbb424e4167f
+DAN-2024-077;Entrevias 78, Madrid;;12971705-081a-484f-bfcd-b13b64148e34
+DAN-2024-079;Alhambra 24, Madrid;;ec775867-06b0-4170-95f8-59eb6d1dcf93
+DAN-2024-080;Pitagoras 2, Madrid;;b3898342-5d04-49dc-833d-2a21f2211753
+DAN-2024-084;Avila 8, Fuenlabrada;;c085e049-850d-4901-9045-9b37fb68cc36
+DAN-2024-085;Cruz 9, Torrejon de Ardoz;;3179f4ca-9a71-43ea-938e-e3b148a86dad
+DAN-2024-087;Bonn 13, Madrid;;aba9619a-2874-4a6b-93a2-7bc0430739eb
+DAN-2024-088;Camino de Leganes 5, Mostoles;;cf4ed88c-8523-47c0-afc7-80063dfc3996
+DAN-2024-089;Rio Manzanares 19, Leganes;;b5f39b11-1608-43f9-ae21-ae6986b88e3c
+DAN-2024-091;Lazcano 7, Madrid;;c05c2cdf-c599-4a1d-a22e-0db5aca68b71
+DAN-2024-092;Burgos 4, Mostoles;;acd60156-8d01-4a98-b8ce-f1befb08df44
+DAN-2024-093;Pedro de Valdivia 9, Leganes;;dfc3ec51-5483-4c1a-af8a-85391d52bf1b
+DAN-2024-094;Hermanos Pinzon 1, Leganes;;dadb276b-9dcc-41ce-bbdb-0374c04efd31
+DAN-2024-095;Musas 21, Madrid;;16131616-811a-4a6a-b22a-e1f1e7151c3f
+DAN-2024-096;Callao 41, Fuenlabrada;;551e8913-58f4-4e4b-a3a6-da85916947e2
+DAN-2024-097;Padre Claret 16, Madrid;;8d85ee18-8606-47f0-b1d1-1114fe628a37
+DAN-2024-100;Pablo Rica 25, Madrid;;aaad321b-d850-4a8f-a4e8-3a1fa0e62029
+DAN-2024-105;Montevideo 3, Mostoles;;ab47309f-9fdc-4a44-9f47-4c57851a0fc5
+DAN-2024-109;Cardenal Herrera Oria 295, Madrid;;d4aee72c-11c3-4142-9b68-70c942a31b78
+DAN-2024-116;Virgen de Belen 20, Madrid;;8745072b-b4fc-4af5-a333-860e0b5d5a2e
+DAN-2024-117;Isturiz 11, Madrid;;7631a9b4-6b3e-470f-ba8d-d3abe4e4247f
+DAN-2024-118;Rio Duero 17, Leganes;;5841ed50-8cf3-4a32-ae17-0402652411db
+DAN-2024-119;Fidias 9, Madrid;;a6434e6c-bf95-4e6b-95a9-f2da27170b67
+DAN-2024-121;Sierra 21, San Sebastian de los Reyes;;adf45a44-5b18-4b21-a880-09cadfa90bf4
+DAN-2024-123;Estanislao Figueras 5, Madrid;;33b2b1da-9978-47a5-bc8d-427bcd048347
+DAN-2024-124;Orden 30, Madrid;;2ddde980-730d-4e54-ab4f-0839ddab19db
+DAN-2024-129;Salvador Martinez Lozano 40, Madrid;;80914c7c-177b-4de6-a531-88409aa86125
+DAN-2024-132;Andaluces 24, Madrid;;5c3f66bc-65fb-4dc6-a1f4-94a8d167ff69
+DAN-2024-133;Tiscar 15, Madrid;;01928030-5184-4160-8c8e-32e986f16026
+DAN-2024-134;Sierra 51, San Sebastian de los Reyes;;49cd0141-80c8-4705-a16a-ce2637a13c00
+DAN-2024-136;Pensamiento 9, Madrid;;f2784123-7023-41c9-aa93-9c112e26d561
+DAN-2024-137;Ampelido 25, Madrid;;667971f9-2df0-4ac6-addf-213087b6aa06
+DAN-2024-138;Andevalo 38, Madrid;;0042bf50-561b-44b8-a25e-848ed7f3b9aa
+DAN-2024-139;Vicente Camaron 16, Madrid;;8569a0e9-38f4-4c97-9508-214137060fd2
+DAN-2024-140;Alejandrina Moran 23, Madrid;;92005e0d-b0cf-45be-8146-4708bdf72760
+DAN-2024-146;Paloma 7, Leganes;;73e04bf6-0a70-4d97-9bf5-28f5b9938f29
+DAN-2024-147;Ntra Sra D Guadalupe 5, Leganes;;b22a0c5e-6404-42a1-a8d1-fbb19827cff7
+DAN-2024-149;Badalona 118, Madrid;;a09f2046-f3f3-4312-8dfa-0152b1e36d33
+DAN-2024-150;Rio Duero 7, Leganes;;459f7247-a2e9-42fe-9655-86b6cffa1b77
+DAN-2024-152;Rodriguez San Pedro 13 D, Madrid;;30ac7568-1ada-459c-956f-82a58b4dda8d
+DAN-2024-155;Ricardo Ortiz 44, Madrid;;4b56362f-7db7-443e-99c1-2f741a43262c
+DAN-2024-157;San Fidel 99, Madrid;;8b8fa83e-7742-4ecb-ae3a-7e85e825f011
+DAN-2024-158;Amparo 45, Madrid;;559ab069-1e43-4168-bccb-a72a475d7e83
+DAN-2024-159;Margarita 14, Leganes;;3b04aadc-504a-443f-8956-b00ef2db7223
+DAN-2024-163;Asturias 14, San Sebastian de los Reyes;;ca14be83-554a-4633-90a2-911d679dba3e
+DAN-2024-165;Torre Arias 25, Madrid;;9cf834c2-b5ac-4ffe-b0fe-de8c9a7a2764
+DAN-2024-167;Alcala 462, Madrid;;a3697e3c-e29e-4c6c-8c42-fe1c25b95207
+DAN-2024-169;Doctor Fleming 30, Leganes;;9a134a1f-5096-4718-9444-d6f3212609ed
+DAN-2024-170;Oriente 8, Fuenlabrada;;7214c800-8fcf-4f71-bb1b-8aef1524d63b
+DAN-2024-171;Antonio Pirala 9, Madrid;;f5a5f007-e897-4b98-ad38-3e4edba5a5f7
+DAN-2024-172;Fuentebella 55, Parla;;2377ff75-98fd-4fee-a247-28a5a2037db3
+DAN-2024-173;San Emilio 21, Madrid;;d864d323-a1d1-4e18-8382-76eaeaa6c127
+DAN-2024-174;Anguita 17, Madrid;;50e3ee61-f5ef-4a2c-a3e4-3c4186eafd53
+DAN-2024-182;Yebenes 179, Madrid;;7bf6b6d7-91d8-48b0-bd5e-59b5eb538cbd
+DAN-2024-185;Pablo Neruda 48, Madrid;;1b8abf73-77ec-45ae-9385-d6572fff2cef
+DAN-2024-186;General Ricardos 62, Madrid;;e7591e60-bbe5-4054-be0f-a9060ae56708
+DAN-2024-187;Meson de Paredes 90, Madrid;;95fcea14-0d23-49a4-954c-1c60f76aa275
+DAN-2024-196;Panticosa 7, Fuenlabrada;;078499b3-1804-41ab-9f36-79d6d0115056
+DAN-2024-197;Manuel Noya 27, Madrid;;11699d8c-2a59-488c-bf51-3db921905077
+DAN-2024-198;Toreros 51, Madrid;;ce69aee2-3855-4920-bb15-872f82c4c265
+DAN-2024-199;Bolaños 91, Madrid;;2ad86e6b-881a-4503-83b1-658f9e824c0d
+DAN-2024-201;Velez Blanco 19, Madrid;;5243baa7-0847-458e-af49-5c58dee97192
+DAN-2024-202;Santiago Apostol 16, Alcobendas;;d05d03f7-0441-4cec-8885-14cae87394d9
+DAN-2024-203;Arroyo Fontarron 91, Madrid;;bd20052d-3923-45cf-b2e9-0484179aa1ee
+DAN-2024-204;Lopez de Hoyos 384 A, Madrid;;e4f78d8f-130f-42c7-882e-4f61df30eda4
+DAN-2024-209;Camarena 190, Madrid;;f76d0d05-813d-4992-b5e4-e5c6653d4186
+DAN-2024-211;Fatima 3, Fuenlabrada;;6a5a1da3-fdb8-4a7b-8b24-e1118b7b9a33
+DAN-2024-214;San Felipe 4, Torrejon de Ardoz;;8e363c83-fbab-4dfb-a9ec-a3cd74c4b173
+DAN-2024-218;Felipe Castro 9, Madrid;;3b005d01-b4ff-4539-96b3-22d21114a705
+DAN-2024-219;Legazpi 3, Leganes;;20db7aad-7632-4e9e-936c-4a52af80cb5c
+DAN-2024-222;Buena Madre 6, Pinto;;b28119e4-9a80-4b63-8f3e-223c0daf6e66
+DAN-2024-226;Mariblanca 23, Madrid;;eddeaba5-fd98-47ed-8ede-0aedd4702d40
+DAN-2024-227;Constitucion 59 y 61, Alcobendas;;f1f9747b-70a9-424b-90c9-69899110e40c
+DAN-2024-228;Ramon Azorin 41, Madrid;;e69b4db1-b3ad-44e6-82b4-94579f38d8c9
+DAN-2024-230;Puerto de Somiedo 14, Madrid;;4e4eeae9-2ab1-40e0-9dee-4ed77fd4f879
+DAN-2024-232;Santa Aurea 36, Madrid;;1130dfbf-1630-4a0b-9db6-1a4b4ef2ffb7
+DAN-2024-233;Badajoz 35, Mostoles;;1180e11c-0976-44eb-b7a2-be3be5006088
+DAN-2024-236;Valleguerra 5, Madrid;;ebc3417a-82af-440d-afa8-995905046e0b
+DAN-2024-241;Las Gardenias 21, 23, 25, 27, 29, 31, 33, 35, 37 y 39, Alcorcon;;06b59383-a389-4833-bee1-b52e2801f3a4
+DAN-2024-242;Olvido 4, Parla;;935c63ca-4e48-4cea-9c25-be5f3333bc9c
+DAN-2024-243;San Jose 2, Alcala de Henares;;b6ec6c82-42e9-4ad8-a4a8-5b674f56d823
+DAN-2024-244;Santa Virgilia 8, Madrid;;0ab2973c-7e4e-46ae-a113-c7698b770a3f
+DAN-2024-245;Honda 2 + Telefonica 2, Fuenlabrada;;6e15db10-701e-432f-bdc9-8d6de3438644
+DAN-2024-247;Egido de la Fuente 13, Pinto;;64db8bcb-ee41-48e5-993c-2cf469b30755
+DAN-2024-248;San Andres 2, Leganes;;048c9b8c-2de9-44a8-a693-9f071f88d8bc
+DAN-2024-251;Malaga 6, Alcorcon;;7ee19106-b850-45ad-97e5-7dfa996a7d94
+DAN-2024-252;Antonia Calvo 11, Madrid;;181fbcb6-df63-4fc8-9f53-e1c664850373
+DAN-2024-253;Fuentebella 73, Parla;;cfba9f7b-9f5b-41f9-a451-82680d1dedbc
+DAN-2024-254;Genserico 3, Madrid;;008e5254-0b49-4907-a7bb-e80b72a842b4
+DAN-2024-256;Andorra 91, Madrid;;8ef050f6-d890-4701-9d85-1e7bfc6fe4c9
+DAN-2024-257;Peal 20, Madrid;;19b115d5-9f78-4f27-a656-9e188a40ea9f
+DAN-2024-258;San Anselmo 11, Madrid;;e6ac6c63-319e-4e72-b354-908210769377
+DAN-2024-259;Teruel 1, Alcobendas;;6e269b18-dba3-4c16-8571-300170f9cf94
+DAN-2024-261;Goya 53, Madrid;;e7f302ed-da11-4d21-ba92-8873e570dacc
+DAN-2024-262;Calahorra 26, Madrid;;5575297d-82c7-4d7a-b9ba-84e4b77a8fd7
+DAN-2024-266;Sagrados Corazones 14, Madrid;;480552c5-624f-4631-ae70-84038f399cea
+DAN-2024-267;Sagrados Corazones 7, Madrid;;f21ab2d2-6cb9-4aa5-a3a4-54382a86d5fb
+DAN-2024-269;Severino Aznar Embid 3, Madrid;;c8ac4330-14df-4b14-b7c7-53253f34ee6a
+DAN-2024-270;Esteban Carros 20, Madrid;;1ad65957-2170-48c1-8b8f-a9eb7afa6f11
+DAN-2024-273;Ntra Señora de Valvanera 80, Madrid;;0ad2fad7-63e8-44b7-9878-611f631418c3
+DAN-2024-274;Cordovin 6, Madrid;;5655020b-e196-4b2e-9346-70607dfd3a0e
+DAN-2024-275;San Eudaldo 8, Madrid;;2ff13de2-2e10-48cb-a4ec-ef26e8a58ecc
+DAN-2024-277;Mayor 43, Madrid;;2ad7da28-9288-4e7c-b7a8-50018dd95e75
+DAN-2024-281;Jose Ortega y Gasset 86, Madrid;;4a36b9b1-518c-419e-98e7-e8f8a19f52b5
+DAN-2024-282;Lopez de Hoyos 365, Madrid;;c7572e9f-2ec0-423d-a4d6-cccba87c4dde
+DAN-2024-286;Quintana 9, Madrid;;10e613fe-28ca-4626-af15-37e0340e3d2f
+DAN-2024-288;Canillejas A Vicalvaro 65, Madrid;;a599b586-d1bf-4d1f-93ac-ee0ce9084f07
+DAN-2024-289;Cuarteles 130, Aranjuez;;52d0b761-6bf5-4455-9ce0-a293fa01edd7
+DAN-2024-290;Montes de Barbanza 5, Madrid;;026780d8-8fa7-46f0-8376-9b734df49a7a
+DAN-2024-292;Valdecanillas 59, Madrid;;64889b6c-02e2-466f-adec-07a56d8e7c3a
+DAN-2024-294;Juanelo 19, Madrid;;54db0222-c50b-41fc-a044-276dc56ec533
+DAN-2024-296;Santiago de Compostela 24 y 26, Madrid;;7b4725d9-0c96-412e-a325-11f90e3f034b
+DAN-2024-300;Hachero 16, Madrid;;c4abea55-1f7f-458a-97b2-31e3e53b8b31
+DAN-2024-303;Sangenjo 6, Madrid;;c7a6ef1c-1baa-4101-b4e4-c3ca6732c1df
+DAN-2024-309;Pintor Julio Romero 1, Mostoles;;8bce0afd-c820-4acd-9e13-37a20ce6db5e
+DAN-2024-310;Urgel 25, Madrid;;70fc634f-69ad-48df-bc22-0f6a9ef9e218
+DAN-2024-311;Jose Arcones Gil 100, Madrid;;f348fe23-4bf1-493c-900a-b1dde1fac049
+DAN-2025-004;De Portugal 43 y 45, Mostoles;;cb45415a-fe4e-4e27-9426-be007aaeceff
+DAN-2025-012;Madrid 4, Leganes;;48244e2e-74b1-45df-b35f-3c24c051c6e1
+DAN-2025-014;Nicolas Sanchez 14, Madrid;;b4a17437-b856-47f0-a268-b144ddc02d66
+DAN-2025-020;Secoya 24, Madrid;;c9995de2-37dd-49c1-9661-8c8557494d82
+DAN-2025-021;Cazorla 4, Madrid;;402b9345-1b35-44f1-a800-99dd527c44ba
+DAN-2025-023;General Cabrera 25 A y 25 B, Madrid;;27fe8935-b37b-43fe-8c6e-c5bb920b1687
+DAN-2025-026;Francisco Suarez 16, Madrid;;1064263d-afd4-422a-a28f-f18b1b6ad75e
+DAN-2025-027;Moralzarzal 100, Madrid;;46a646e0-2a34-495c-803a-a3bc8539369b
+DAN-2025-028;Huertas 24, Madrid;;702c97dd-d4b3-48f8-9a28-d868c8379908
+DAN-2025-029;Huertas 3, Madrid;;d27ba7bb-d79e-4811-9cd5-7201806b8d04
+DAN-2025-030;Salitre 43, Madrid;;42015ab0-8cf7-4c8c-b369-99aaad3a4f1c
+DAN-2025-031;Villajimena 109, Madrid;;cb4877c8-4519-48dd-8d25-5f4c8f52a2f9
+DAN-2025-033;Fuente 22, Parla;;3e482896-ba5a-434f-ba4e-c92d02f8a64d
+DAN-2025-035;Arcos de Jalon 48, Madrid;;31e1a7ee-55fe-4812-8f38-9de7d8775956
+DAN-2025-036;Arcos de Jalon 62, Madrid;;0517c689-f62f-46d7-9e3f-f417bd528a2b
+DAN-2025-038;Lavapies 51, Madrid;;5d8f282a-824b-4f85-8f5b-2143fa1b0592
+DAN-2025-040;San Emilio 64, Madrid;;2669e39d-5f4c-4b3b-85c1-d8333f46e801
+DAN-2025-043;De las Indias 16, Leganes;;a87bf9e5-0d5e-415b-8a1e-4194e454c848
+DAN-2025-044;Rio Tajo 20, Leganes;;060a176f-84a5-40d3-bd6e-4dff19094bfd
+DAN-2025-046;Fernando el Catolico 47 y 47 A, Madrid;;8604e028-9cd9-44fd-9f8d-6578989c6ba5
+DAN-2025-049;De Castilla 1 y 1 B, Alcala de Henares;;b075ce9a-9bdd-4dca-b011-e71a668bbdae
+DAN-2025-050;Sur 179, Madrid;;120efe78-3770-4920-b89b-96f58311bcf7
+DAN-2025-051;San Luis 95 y 95 B, Madrid;;e0717fce-764a-4140-9fa9-a8d793c5637e
+DAN-2025-054;Santa Adela 15, 17 y 19, Madrid;;4dcf7af5-05ed-482a-b2c7-5130ff575e34
+DAN-2025-058;Biosca 8, Madrid;;ec9b3e5e-8445-427d-989c-f4b16aa2aada
+DAN-2025-059;Bolivia 10, Mostoles;;398acce2-6818-4d11-bd64-c93488579308
+DAN-2025-061;Principe 7 + Diego de Leon 7, San Sebastian de los Reyes;;d7d1b166-538f-46d6-8a71-8885b15cc85c
+DAN-2025-062;Principe D Juan Carlos 2 y 2 V, Alcorcon;;1d209cb4-858a-4eab-bb9e-47d4607bdd93
+DAN-2025-063;San Claudio 46, Madrid;;ed127a68-687a-4ab1-bdc6-3dd85e35d090
+DAN-2025-064;Cebreros 31, Madrid;;6cf04891-4909-4cfe-bc0d-c2f924890b95
+DAN-2025-067;Rio Duero 53, Leganes;;6390804e-d273-49b1-8d2b-e0b6e01a9f06
+DAN-2025-068;Sepulveda 23, Madrid;;d569bc26-dd01-49f6-bde2-7ea762fa680d
+DAN-2025-071;Garcilaso 8, Leganes;;705e4b70-1096-4fa2-a22a-7d2369d6f068
+DAN-2025-072;Chile 10, Fuenlabrada;;d66d2812-da0f-4272-8df8-bd4e44e5650b
+DAN-2025-073;Nicolas Godoy 20, Madrid;;27aeccf4-9d20-4e6c-8584-1f9716cdee10
+DAN-2025-076;Lope de Vega 7, Leganes;;e4e45f36-aab5-4418-b5ca-7da69d02a8d0
+DAN-2025-077;Lopez Grass 66, Madrid;;528c341a-623e-4580-893b-622f18288479
+DAN-2025-078;Rio Nervion 12, Leganes;;0f6532fa-c22e-43f8-bd28-1e5e1a9e93f8
+DAN-2025-080;Valdemoro 10, Getafe;;bf1b69f6-25cb-436b-a6fc-9de902ec24da
+DAN-2025-081;Castellon de la Plana 12, Getafe;;770f1675-0296-4db6-9ed9-e122a344d198
+DAN-2025-082;Yebenes 118, Madrid;;db096200-829a-41c8-84bd-0900c5d5b917
+DAN-2025-083;Mirlo 12, Madrid;;c4a5ddbf-cfca-4dcc-8858-1d863dcda83a
+DAN-2025-084;Velasco 19, Leganes;;dfa234c4-17a5-4fba-8404-8db053e4748f
+DAN-2025-087;Herminio Puertas 4, Madrid;;fc0f90fd-d89e-4c16-944e-a3afd31b918a
+DAN-2025-090;Antonio Grilo 12, Madrid;;cc7a0a36-d545-4ac3-9955-d845a45bbf4b
+DAN-2025-091;Marques de Corbera 26 A, 26 B y 26 C, Madrid;;52d79990-3832-499a-b769-e69c8612f33d
+DAN-2025-092;Gomeznarro 82, Madrid;;44ab9004-852e-4510-92ab-c0d143225d50
+DAN-2025-093;Tirso de Molina 5, Leganes;;fb61a8af-b1b3-47ff-a843-58edbb67e34e
+DAN-2025-094;Tulipan 14, Leganes;;0e0b9860-0952-4790-ae0e-1c47c7a787be
+DAN-2025-095;Vasco de Gama 5, Leganes;;b8af7e51-ecab-4d52-9e20-d6b34c2ad05c
+DAN-2025-096;España 27, Pinto;;2b20e8ad-c857-458f-934f-b5e3f5136153
+DAN-2025-097;Costa Rica 9, Pinto;;090c02b9-650a-41ed-aaa6-5add7e20c46b
+DAN-2025-098;Darro 8, Pinto;;f3ccf2b6-d2ba-419b-94d6-786b53b95680
+DAN-2025-099;Rio Duero 22, Leganes;;dcc8d2ff-b3d7-4722-b714-aa3fea04a2d8
+DAN-2025-100;Maqueda 105, Madrid;;f5298f92-61b5-419e-8cfd-7ee0dd1211df
+DAN-2025-105;Hermanos Gomez 38, Madrid;;197875bc-bfd2-4803-a815-0c8fa6fdb384
+DAN-2025-106;San Ignacio 8, Leganes;;e561a7bb-cc3f-426c-acc5-9d06a5b12330
+DAN-2025-107;Esteban Carros 4, Madrid;;cf0e74d3-3fcd-4aae-865e-fb519b658e27
+DAN-2025-108;Hornachos 3, Madrid;;149256d3-7649-4f80-80e2-10b3b267a0c4
+DAN-2025-109;San Claudio 59, Madrid;;384b583a-9e6f-428c-a653-73830133b987
+DAN-2025-110;Felipe Ii 30, Madrid;;36d2a9c3-9cef-4133-bac7-656bfd77bfa6
+DAN-2025-111;Sepulveda 57, Madrid;;305f47f7-f2da-45aa-a56e-9d05595b54f6
+DAN-2025-112;Dolores Barranco 72, Madrid;;3a3d0aed-bd59-44b8-89e9-92cb3a2abd41
+DAN-2025-113;Nicolas Sanchez 102, Madrid;;f4af8b34-476a-456f-b286-68006d448c84
+DAN-2025-114;Valladolid 7, Fuenlabrada;;e97f3272-f212-45cf-b3d1-da81ac01903f
+DAN-2025-117;San Dacio 35, Madrid;;58cbc8f0-f84f-4118-9732-f5dad3067f3a
+DAN-2025-118;Santa Teresa 5, Leganes;;c0adc2f8-941e-44e8-beac-5f9b3d77fd66
+DAN-2025-119;Maestra Maria Sanchez Arb 1, Madrid;;bf0d39d3-3bef-4e3a-93e0-539bd9851a61
+DAN-2025-120;Rio Turia 2, Leganes;;2af6721b-c07b-484d-acfc-2c843e7aff8d
+DAN-2025-124;Espada 12, Madrid;;95625713-1e83-4386-80d2-f6ae8b1b2399
+DAN-2025-128;Carlos Martin Alvarez 65 B, Madrid;;92b6a5d3-8fd8-4e2e-832b-77545a757877
+DAN-2025-129;Godella 1, Madrid;;39fb6af7-7613-41b5-99e3-83d1ed0462fc
+DAN-2025-130;Alcalde Lopez Casero 3, Madrid;;3931b92c-a24e-4f3a-8adb-890e4d39042a
+DAN-2025-131;Zurbano 23, Madrid;;beb39f21-294d-481a-b327-f504c15edb6a
+DAN-2025-132;Alcala 308, Madrid;;a53d9210-e0fe-44db-a340-20a833aebf8b
+DAN-2025-134;Mataro 8, Madrid;;b3ead134-5d49-4d41-9a95-705db5fc2444
+DAN-2025-135;Colmenar Viejo 17, San Sebastian de los Reyes;;bf178d1b-db5b-4814-9cad-8881aa77942b
+DAN-2025-136;German Perez Carrasco 58, Madrid;;0b06c698-4e13-4075-b59f-bf52706c3b9d
+DAN-2025-137;Canillejas A Vicalvaro 68 B, Madrid;;65cb1603-6928-4f3a-bc29-573bbfa7fcb1
+DAN-2025-140;Doctor Casal 17, Madrid;;a3675b6a-7e6c-47e8-a819-519ed7e12b1f
+DAN-2025-142;Peña de la Miel 6, Madrid;;261259c4-8075-4250-8413-41d7b25c0e2a
+DAN-2025-144;Prieto Ureña 10, Madrid;;f1cf3a58-2079-409b-af08-6c0b20346052
+DAN-2025-145;Eduardo Urosa 7, Madrid;;2efc13ca-fada-4f7f-a264-f236f10863fb
+DAN-2025-153;Triunfo 11, Madrid;;1c33f959-0c88-4eed-9824-a63336dd478e
+DAN-2025-154;Duraton 6, Madrid;;e3141c42-e71b-4396-8f24-0aed5fcd3844
+DAN-2025-155;Josefa Alonso 4, Madrid;;32972964-2277-4e45-829a-1888364e7de7
+DAN-2025-156;Ntra Señora del Rosario 18, Madrid;;8ecb2fd0-231c-40e0-9268-d601048ecb01
+DAN-2025-157;De Portugal 46, Mostoles;;d1e4d177-86b3-4557-8929-b111e95ba5dd
+DAN-2025-159;Hinojal 4, Madrid;;1bdbc07e-2ce9-4daa-b936-7313a3eab09b
+DAN-2025-160;Luis Pando 5, Madrid;;28ebe7e3-b93b-4c0c-8596-c570b25b395c
+DAN-2025-161;Malaga 16, Fuenlabrada;;8012e66d-a770-45be-9bbc-07a04d0776a1
+DAN-2025-162;Baleares 4, Leganes;;250e935f-b3d2-4b0f-add8-a0e773f74375
+DAN-2025-165;Luis de Hoyos Sainz 108, Madrid;;55ce7529-cc13-41fb-8068-9fb4d2cd6fa4
+DAN-2025-166;Laguna 38, Madrid;;f3166824-fd5e-4c2c-849b-c7e041d02e46
+DAN-2025-167;Fuenlabrada 109, Leganes;;2305e7b3-4fce-4a3f-9aeb-54e20a8d2b5d
+DAN-2025-170;Vieja de Pinto 13, Madrid;;07b34058-8bce-4459-baa8-343a5949364e
+DAN-2025-172;Polvoranca 40, Alcorcon;;8686e35e-ca27-4e56-9f59-725f5bbb85ac
+DAN-2025-174;Estados 10, Fuenlabrada;;076b037e-1ac6-431b-9ccd-6651d41ec416
+DAN-2025-175;Rey Juan Carlos I 33, Leganes;;db6ceed1-657c-4069-876c-0b8bcd44567b
+DAN-2025-176;Bureba 25, Leganes;;af04b377-49e4-40ed-8ae0-f4c021bac859
+DAN-2025-177;Juan de la Cierva 27, Getafe;;2e46eb33-4631-4c7e-a798-6c9970ba1d63
+DAN-2025-178;De las Indias 10, Leganes;;0302a452-fe56-46a5-86a0-4f574db16e99
+DAN-2025-179;Arganda 4, Madrid;;a451af53-f159-411a-a5d8-364f97b294a6
+DAN-2025-181;Batalla Navas de Tolosa 8, Leganes;;f460593d-ab3f-45c7-a5ad-49bbbac650d5
+DAN-2025-183;Regiones 4 y 4 A, Fuenlabrada;;0ec20817-0292-4764-9af6-5a4cce4cf6cf
+DAN-2025-187;Arturo Soria 54 y 56, Madrid;;f6162e9e-f2db-4f1f-908d-5b257176fb7a
+DAN-2025-189;Cava Alta 8, Madrid;;724e4aab-c5d7-449f-b4e3-7f03a08c8bfe
+DAN-2025-190;Valladolid 11, Alcobendas;;c11df47e-0871-40b0-a9ae-5f2122ebf776
+DAN-2025-191;Callao 44, Fuenlabrada;;ed598311-1740-4d0f-b543-51aefd62b110
+DAN-2025-198;Valdeserrano 3, Fuenlabrada;;4a1e1e8c-6411-42cf-82cd-eeda4f996055
+DAN-2025-224;San Joaquin 26, Fuenlabrada;;ee44b4a7-55f1-4cd6-be83-e08f8079eb39
+DAN-2025-228;Virgen de la Fuencisla 8, Parla;;7d021eb1-1196-480a-88f9-341f1980c404
+DAN-2025-244;Marcos de Orueta 15 y 15 C, Madrid;;f25613e3-0dc3-45d0-aef2-36ad7a7a6f37
+DAN-2025-246;Ntra Sra D L Almudena 5, Leganes;;2158e925-7ee1-49ef-827e-0893761a66d8
+DAN-2025-247;Puerto Balbaran 27, Madrid;;c8d79407-e69f-4324-9c80-6512cb471508
+DAN-2025-248;Cava de San Miguel 7, Madrid;;a6b42e6f-894e-4ffa-8a73-d400aef84e4b
+DAN-2025-262;Riansares 7, Villaviciosa de Odon;;4c3238ab-61e8-4a2f-852a-91000380ed6a
+DAN-2025-263;Carcavilla 1, Mostoles;;2debffa3-6570-431a-969d-01c7beb50530
+DAN-2025-265;Soldado Jose Maria Rey 41, Madrid;;8a210502-2a1d-49c2-a50d-f9344d31ce3e
+DAN-2025-267;Clavelinas 9, Madrid;;728d7c13-0b39-4bf0-ad64-1e3d8760715f
+DAN-2025-284;Martinez Izquierdo 39, Madrid;;3fb7abec-2613-4e03-bf40-7d96ed4d2552
+DAN-2025-301;Afecto 5, Madrid;;5cff0ead-8bcd-443e-93c9-190b8e811973
+DAN-2025-303;Sandoval 11, Madrid;;97b80fbb-af49-4be6-a874-f89b7c976740
+DAN-2025-342;Castillo Malpica 32, Villanueva de la Cañada;;d2ec1603-c916-4722-bf4c-f558b4b25875
+DAN-2025-372;Batalla de Clavijo 1, Leganes;;2c7895db-c415-4c72-8859-c4a36fb519c8
+DAN-2025-385;Sanchez Preciado 38, Madrid;;a18bceac-f72f-49ca-8a00-94c0ffd16857
+DAN-2025-388;Cgdor Diego Cabeza Vaca 20, Madrid;;269bea05-cd2f-4a7f-9d35-e9cf004e1bc0
+DAN-2025-391;San Mariano 82, Madrid;;3579df49-81f5-42a8-bb94-d2ba99f6f754
+DAN-2025-393;Camino Viejo de Leganes 237, Madrid;;6f2449a7-3040-47cb-9b40-fb5d7fdf6f69
+DAN-2025-394;Gutierre de Cetina 123, Madrid;;5a89b8d4-fff4-4547-98b9-6bd86164d96f
+DAN-2025-400;Sirio 60, Madrid;;7e92452a-cd70-476f-bdb2-b0ad221ced2c
+DAN-2025-404;Santa Catalina Donados 3, Madrid;;58d73558-2295-41a7-9b57-9371d75f9620
+DAN-2025-437;Extremadura 13, Fuenlabrada;;8641b661-af32-4c88-82de-11ad94286049
+DAN-2025-438;Orellana 18, Leganes;;0af2c4f7-081b-4341-a3cb-baa733da700f
+DAN-2025-439;Getafe 9, Leganes;;616e009e-e8c5-47a2-ad93-8ff05de7aa50
+DAN-2025-440;Ferrocarril 17, Azuqueca de Henares;;ad1ce834-fb67-4794-84a8-6b9f1f0d0a28
+DAN-2025-441;Cadalso de los Vidrios 2, Madrid;;89f9198b-0fd5-4298-b0cd-663759a1e939
+DAN-2025-442;Carrero Juan Ramon 35, Madrid;;d5958711-ae68-4cfb-bd3d-647b66eb6f4d
+DAN-2025-443;Fuentebella 27, Parla;;e9f324b9-2524-4ece-8a03-cfc2f006d645
+DAN-2025-444;Virgen del Camino 2, Leganes;;bdcf17b5-5d93-45da-8155-7517245fd6f7
+DAN-2025-445;Malaga 4, Alcorcon;;35f6037b-8654-47fc-934a-29cdd517f72d
+DAN-2026-022;Suiza 19, Fuenlabrada;;54d70eb3-9266-4b88-92cf-477a7ac1abf6
+DAN-2026-024;Principes de España 19, Coslada;;eaed4e22-0c2a-4cf1-8313-cc679664d1c1
+DAN-2026-047;Santa Barbara 20, Torrelaguna;;5075491c-6591-4f97-b153-26452cb77ae3
+DAN-2026-048;Del Empecinado 17, Mostoles;;f1437483-0d2a-46dc-bc3d-fdb554e609b8
+DAN-2026-051;Virgen de la Oliva 57, Madrid;;f48ffef9-53b7-452b-8d66-6c70aa35e880
+DAN-2026-078;Camarena 134, Madrid;;2ad509cf-0b27-4518-8367-9d6f26d36166
+DAN-2026-079;Camarena 256 y 256 B, Madrid;;bdfe74d9-6379-4c7e-a3fe-518bf2f19e81
+DAN-2026-095;San Fidel 65, Madrid;;a44268a1-a6f0-42e0-94c7-bc64e24af136
+DAN-2026-110;Esteban Collantes 44, Madrid;;b2948b46-ba76-4e49-bdbc-da66f26f6852
+DAN-2026-131;Principe 34, Aranjuez;;33711fae-5b59-40ce-a2f0-f360ab58e60a
+DAN-2026-134;Ribadesella 16, Madrid;;6f4690dc-1dd5-4b8b-a7d7-95d1d2db88b3
+DAN-2026-138;Luis Gomez 3, Madrid;;69eee653-bcbd-4989-a553-b091370ac8c3
+DAN-2026-155;Rio Henares 2, Leganes;;73a92156-e862-4c89-a6a2-3f5c0a007bb1
+DAN-2026-156;Eugenia Montijo 4, San Fernando de Henares;;625d2ece-10bd-4dea-b285-ebead0953aa0
+DAN-2026-162;Redentor 9, Madrid;;773c72fc-2285-4242-8393-280f40c1aa20
+DAN-2026-166;San Francisco 2, San Lorenzo de el Escorial;;cce40209-bdd9-45dd-bb41-98ee48accb56
+DAN-2026-167;Canillas 11, Madrid;;105bf054-2690-4aa5-81c7-5c48acb9f177
+DAN-2026-178;Gabriel Miro 3, Madrid;;c094402c-436b-412e-94f9-45d6fa12aa00
+DAN-2026-180;Granja San Antonio 7, Fresnedillas de la Oliva;;c1e7f3a3-f5e6-4437-be2e-aef8791c5ecd
+DAN-2026-181;Honduras 20, Coslada;;c9dffaa2-8914-41d4-9a83-d1a69421ca06
+DAN-2026-182;Mar Menor 21, 23 y 25, Madrid;;f265a592-826d-4791-8914-b79deb096c3d
+DAN-2026-183;Pizarro 4, Torrejon de Ardoz;;56b524ab-294e-4349-b6be-8af47a2a7464
+DAN-2026-185;Santa Susana 41, Madrid;;147360f5-df75-4629-a8c9-0480a7516e74
+DAN-2026-200;Badalona 58, Madrid;;29305b4a-83ef-4d26-a66c-d00f147e99c3
+DAN-2026-201;Badalona 60, Madrid;;6ba5ff89-08a2-454f-9e06-2415d8e27e96
+DAN-2026-202;Enrique Granados 7, Parla;;9c7e7545-bfad-47e7-a76a-95d643eb6dfe
+DAN-2026-203;Sabadell 62, Madrid;;1ebc27ed-1853-4f0f-9c63-56d869d6c8aa
+DAN-2026-204;Blas Cabrera 64, Madrid;;ea7f8c3a-5f8a-4864-92fa-934dd786bee2
+DAN-2026-205;San Asturio Serrano 1 B, Alcala de Henares;;57f689fd-45c4-42dc-babc-2c981d4b2e74
+DAN-2026-206;Ferenc Puskas 28, Madrid;;f00313c8-5034-470d-976a-a11fd77ed68c
+DAN-2026-207;Marques de Viana 55, Madrid;;fbfabba5-a8af-4d31-96c8-398f2b1f8a9d
+DAN-2026-208;Sevilla 7, Pozuelo de Alarcon;;d09b6267-95d9-49fc-88c0-f32c567dbaa6
+DAN-2026-209;Doctora de Alcala 3, Alcala de Henares;;0a4c2018-e30f-4bed-80e0-57c8ef58ce24
+DAN-2026-210;De la Estacion 2, Alcala de Henares;;bdc604b1-2770-43c9-91fd-403a495d7fc7
+DAN-2026-211;Blasco de Garay 7, Madrid;;49673d67-210a-4658-9377-3e5931532d6c
+DAN-2026-212;Pintor Velazquez 75, Mostoles;;c99dd494-323c-46fd-9895-6f55d5d1372c
+DAN-2026-213;Alonso Cano 63, Madrid;;413320a5-afab-4ef9-b2a6-b6cb19452058
+DAN-2026-214;Francia 25, Fuenlabrada;;d30e40e5-8b8a-45f3-b996-2959ca8714b9
+DAN-2026-215;San Francisco Javier 3, Fuenlabrada;;7fe323e6-0a2c-4296-91d8-1f0163f7efae
+DAN-2026-216;Maliciosa 4, Madrid;;e83a6322-ea15-4e59-abb4-411ad87ccf46
+DAN-2026-217;San Vicente 18, Alcobendas;;97d7b7c9-ce17-4396-81a6-51ee625502ed
+DAN-2026-218;Colmenar Viejo 29, San Sebastian de los Reyes;;6f1b71b4-8895-415f-b454-14ada44c4acf
+DAN-2026-219;Zamora 28, Fuenlabrada;;14ff27af-6e29-429d-8da7-4a11331441ae
+DAN-2026-220;Brasilia 39, Madrid;;dadb43f4-b6db-4d1e-9966-67bdec785633
+DAN-2026-221;Mostoles 3, Moraleja de Enmedio;;8c609481-3fbb-4bc8-a738-3f4a0a3cc503
+DAN-2026-222;Castilla 3, Azuqueca de Henares;;b249841b-3559-4fa0-b49f-750ee519639d
+DAN-2026-223;San Gerardo 51 y 53, Madrid;;7e00540d-6acb-43d5-b220-9ca8bfcb0dae
+DAN-2026-224;Abejuela 4, Madrid;;81ec9afb-19cf-4aad-93a0-0679bf236cc1
+DAN-2026-225;Rio Segura 4, Leganes;;fb62975c-3ece-42ef-86f2-ca942cd6e77f
+DAN-2026-226;Albufera 220 y 222, Madrid;;4b0270cd-8f0f-4a54-bb97-04bbf54b5b59
+DAN-2026-227;Pablo Neruda 15, Madrid;;d4b31e4f-9faf-4035-9500-5702789c6a75
+DAN-2026-228;Riojanos 23, Madrid;;2e3fc2a9-c6ca-4728-a4a6-0382ccb8a0cc
+DAN-2026-229;Principe de Asturias 98, Villaviciosa de Odon;;e83fe780-7900-4028-80f8-73d5a31d6396
+DAN-2026-230;Santa Aurea 17, Madrid;;0d225372-52a3-4f16-a925-e50942f86032
+DAN-2026-231;Regala 354 escalera 2, Pareja;;4d1d4569-24b9-4d6c-a683-b08608ed861c
+DAN-2026-232;Adelfas 18, Madrid;;2927d72a-d448-4fea-aca1-4bbe456904b5
+DAN-2026-233;Antonio Salvador 81, Madrid;;e52f4ef1-cb79-4eb9-ad23-1f8ba9a6f5e6
