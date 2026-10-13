@@ -360,7 +360,10 @@ export async function crearOportunidad(
       contrata_id: enContrata,
       cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
       telefono_empresa: n.telefono,
-      comercial_id: d.comercialId,
+      // Un administrador nuevo NO entra en la cartera de nadie hasta su primera
+      // hoja firmada (Monica, 13-oct-2026: la picaresca de "marcarlos"). Queda
+      // como POSIBLE de quien lo trae; la base lo consolida al firmar.
+      comercial_id: enContrata ? d.comercialId : null,
       comercial_captador_id: d.comercialId,
       desde: hoy(),
     });

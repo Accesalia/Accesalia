@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { Volver } from "../components/Volver";
-import { misPendientes, tarjetasQueVeo } from "../../lib/misPendientes";
+import { misPendientes, posiblesDe, tarjetasQueVeo } from "../../lib/misPendientes";
 import { puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { solicitudesPendientes } from "../../lib/rrhh";
@@ -56,11 +56,15 @@ export default async function Pendientes() {
   // -Alexandra- y direccion, que es la misma regla de la pantalla de RRHH. Lo
   // propio no cuenta: nadie se aprueba a si mismo.
   const resuelveRrhh = puedeEntrar(yo, "rrhh", "trabajar");
-  const [{ notas, opps, llamadas }, radar, ausencias, recibidos] = await Promise.all([
+  // Los administradores posibles, sin consolidar (13-oct-2026): a quien trabaja
+  // el area comercial; cada uno los suyos, direccion todos.
+  const vePosibles = puedeEntrar(yo, "comercial", "trabajar");
+  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
     resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
     cuantosPorRevisar(yo),
+    vePosibles ? posiblesDe(yo).catch(() => null) : Promise.resolve(null),
   ]);
   const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
 
@@ -82,6 +86,16 @@ export default async function Pendientes() {
       href: "/pendientes/oportunidades",
       ver: "Ver",
     },
+    ...(vePosibles
+      ? [{
+          clave: "posibles",
+          titulo: "Administradores sin consolidar",
+          numero: posibles ? posibles.length : null,
+          pie: "Posibles, no de tu cartera: insísteles hasta su primera hoja firmada.",
+          href: "/pendientes/administradores",
+          ver: "Ver",
+        }]
+      : []),
     ...(resuelveRrhh
       ? [{ clave: "ausencias", titulo: "Vacaciones y permisos", numero: ausenciasAjenas, pie: "Solicitudes por aprobar o rechazar.", href: "/rrhh#por-resolver", ver: "Resolverlas" }]
       : []),

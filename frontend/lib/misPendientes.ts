@@ -13,6 +13,10 @@
 //     Direccion, todas.
 //   · LLAMADAS por colocar: a quien las coloca (hoy la secretaria comercial) y
 //     a direccion. La pantalla de colocarlas esta aparcada: de momento se leen.
+//   · ADMINISTRADORES POSIBLES, sin consolidar (13-oct-2026): los que trajo un
+//     comercial y aun no tienen su primera hoja firmada. Son "posibles" suyos,
+//     no de su cartera: la lista es para insistirles hasta que den una
+//     direccion. Cada comercial, los suyos; direccion, todos.
 
 import "server-only";
 import type { Yo } from "./sesion";
@@ -47,8 +51,13 @@ async function filtros(yo: Yo) {
     // Sin cartera y sin ver todo: ninguna oportunidad es suya.
     opps: veTodo(yo) ? "" : mio ? `&comercial_id=eq.${mio.id}` : null,
     llamadas: colocaLlamadas(yo),
+    // Los posibles de su captador; sin cartera y sin ver todo, ninguno.
+    posibles: veTodo(yo) ? "&comercial_captador_id=not.is.null" : mio ? `&comercial_captador_id=eq.${mio.id}` : null,
   };
 }
+
+const SEL_POSIBLES = "puesto?select=id,desde,creado_en,persona_id,telefono_empresa,comercial_captador_id," +
+  "persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)&consolidado=is.false&contrata_id=is.null&hasta=is.null";
 
 /** QUE TARJETAS LE TOCAN A CADA UNO en la pizarra de Pendientes (Monica,
  *  10-oct-2026). Una tarjeta sale aunque este a cero si es suya: "nada
@@ -69,15 +78,16 @@ export async function cuantosPendientes(yo: Yo): Promise<number> {
     const ausencias = puedeEntrar(yo, "rrhh", "trabajar")
       ? leer(`rrhh_ausencias?select=id&estado=eq.solicitada&persona_id=neq.${yo.id}&limit=1`, true)
       : Promise.resolve({ total: 0 });
-    const [n, o, l, a] = await Promise.all([
+    const [n, o, l, a, p] = await Promise.all([
       leer(`notas_pendientes?select=id&estado=eq.pendiente${f.notas}&limit=1`, true),
       f.opps === null ? Promise.resolve({ total: 0 }) : leer(`oportunidades_por_completar?select=id${f.opps}&limit=1`, true),
       f.llamadas ? leer(`llamadas?select=id&estado=eq.por_colocar&limit=1`, true) : Promise.resolve({ total: 0 }),
       ausencias,
+      f.posibles === null ? Promise.resolve({ total: 0 }) : leer(`${SEL_POSIBLES}${f.posibles}&limit=1`, true),
     ]);
     // Los documentos que suben las comunidades, a quien los revisa (12-oct-2026).
     const recibidos = await cuantosPorRevisar(yo);
-    return n.total + o.total + l.total + a.total + recibidos;
+    return n.total + o.total + l.total + a.total + p.total + recibidos;
   } catch {
     return 0;
   }
@@ -85,7 +95,7 @@ export async function cuantosPendientes(yo: Yo): Promise<number> {
 
 export type ItemPendiente = {
   id: string;
-  clase: "nota" | "oportunidad" | "llamada";
+  clase: "nota" | "oportunidad" | "llamada" | "administrador";
   titulo: string;
   detalle: string;
   /** Lo que falta, destacado. */
@@ -156,4 +166,36 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
       href: null,
     })),
   };
+}
+
+/** LOS ADMINISTRADORES POSIBLES, SIN CONSOLIDAR (Monica, 13-oct-2026): los que
+ *  trajo un comercial y aun no tienen su primera hoja firmada. Los mas antiguos
+ *  arriba: son a los que mas hay que insistir. */
+export async function posiblesDe(yo: Yo): Promise<ItemPendiente[]> {
+  const f = await filtros(yo);
+  if (f.posibles === null) return [];
+  const [{ filas }, { filas: comerciales }] = await Promise.all([
+    leer<{ id: string; desde: string | null; creado_en: string; persona_id: string; telefono_empresa: string | null; comercial_captador_id: string | null;
+           persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null }[]>(
+      `${SEL_POSIBLES}${f.posibles}&order=creado_en.asc&limit=500`,
+    ),
+    leer<{ id: string; nombre: string }[]>("comerciales?select=id,nombre"),
+  ]);
+  const nombreDe = new Map(comerciales.map((c) => [c.id, c.nombre]));
+  const hoy = Date.now();
+  return filas.map((p) => {
+    const desde = p.desde ?? p.creado_en.slice(0, 10);
+    const dias = Math.max(0, Math.floor((hoy - new Date(desde).getTime()) / 86400000));
+    return {
+      id: p.id,
+      clase: "administrador",
+      titulo: [p.persona?.nombre, p.persona?.apellidos].filter(Boolean).join(" ") || "(sin nombre)",
+      detalle: [p.empresa?.nombre_accesalia ?? "sin administración todavía", p.telefono_empresa,
+                p.comercial_captador_id ? nombreDe.get(p.comercial_captador_id) : null].filter(Boolean).join(" · "),
+      falta: `su primera hoja firmada · ${dias === 0 ? "creado hoy" : dias === 1 ? "hace 1 día" : `hace ${dias} días`}`,
+      fecha: desde,
+      href: `/consulta/personas/${p.persona_id}`,
+      comercial: p.comercial_captador_id ? (nombreDe.get(p.comercial_captador_id) ?? null) : null,
+    };
+  });
 }

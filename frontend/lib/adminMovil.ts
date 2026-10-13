@@ -12,6 +12,9 @@
 // van al PUESTO, no a la persona: son de su trabajo. La nota va a las notas de
 // ese administrador.
 //
+// NO ES DE NADIE TODAVIA (13-oct-2026): "un admin solo ES de un comercial tras
+// la primera hoja firmada". Queda como POSIBLE de quien lo crea.
+//
 // Aqui si se crea la persona, porque lo ha pedido quien la conoce, a proposito.
 // Lo que no se hace nunca es crearla sola cuando un nombre no aparece.
 //
@@ -75,7 +78,9 @@ export async function crearAdminDesdeMovil(yo: Yo, d: AdminDesdeMovil): Promise<
     contrata_id: null,
     cargo: CARGO_DE.administrador ?? "Administrador",
     telefono_empresa: telefono,
-    comercial_id: mio?.id ?? null,
+    // NO entra en su cartera: es un POSIBLE suyo hasta la primera hoja firmada
+    // (Monica, 13-oct-2026). La base lo consolida al firmar.
+    comercial_id: null,
     comercial_captador_id: mio?.id ?? null,
     desde: hoy,
   });

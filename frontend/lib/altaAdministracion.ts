@@ -219,6 +219,9 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
       cargo_clave: manda ? "el que manda" : null,
       telefono_empresa: p.telefonoTrabajo,
       numero_colegiado: p.colegiado,
+      // Sus gestores son POSIBLES de quien los trae hasta su primera hoja
+      // firmada; no entran en ninguna cartera al crearlos (Monica, 13-oct-2026).
+      comercial_captador_id: d.comercialCaptadorId ?? d.comercialId,
       desde: p.desde ?? hoy(),
       notas: p.notas,
     });
