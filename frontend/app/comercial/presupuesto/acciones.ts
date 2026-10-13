@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
-import { puedeHacerHojas, puedeVerComunidad } from "../../../lib/hojaEncargo";
-import { borrarBorrador, comunidadDeOportunidad, guardarPresupuesto, oportunidadDePresupuesto, type GuardarPresupuesto } from "../../../lib/presupuesto";
+import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaEncargo";
+import { borrarBorrador, guardarPresupuesto, oportunidadDePresupuesto, type GuardarPresupuesto } from "../../../lib/presupuesto";
 
 export type Resultado<T = object> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -14,8 +14,8 @@ async function permiso(oppId: string | null) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial");
   if (!puedeHacerHojas(yo)) redirect("/comercial");
-  const comunidad = oppId ? await comunidadDeOportunidad(oppId) : null;
-  if (!comunidad || !(await puedeVerComunidad(yo, comunidad))) throw new Error("No puedes tocar los presupuestos de esta oportunidad.");
+  // Por la opp, no por su comunidad: tener CP no es condicion (13-oct-2026).
+  if (!oppId || !(await puedeVerOpp(yo, oppId))) throw new Error("No puedes tocar los presupuestos de esta oportunidad.");
   return yo;
 }
 

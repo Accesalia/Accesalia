@@ -19,6 +19,7 @@
 
 import "server-only";
 import { exigirCompleta } from "./completa";
+import { nombreDeOpp } from "./direccionOpp";
 import type { Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { lineasDelPresupuesto, totales, IVA, type Cliente, type FormaPago, type HojaMotor } from "./motorPresupuesto";
@@ -70,11 +71,12 @@ export type PresupuestoResumen = {
 };
 
 export type DatosPresupuesto = {
-  opp: { id: string; codigo: string | null; nombre: string | null; comunidadId: string };
+  opp: { id: string; codigo: string | null; nombre: string | null; comunidadId: string | null };
   direccion: string;
   hojas: HojaElegible[];
   cliente: Cliente;
-  pagador: { tipo: "comunidad" | "contrata"; id: string };
+  /** Quien paga, si se sabe. Tener CP no es condicion (13-oct-2026). */
+  pagador: { tipo: "comunidad" | "contrata" | "persona"; id: string } | null;
   presupuestos: PresupuestoResumen[];
 };
 
@@ -90,8 +92,6 @@ type FilaConcepto = {
   bloque: { nombre_corto: string | null; nombre: string; desglose: Desglose } | null;
 };
 
-/** La direccion del texto: el nombre de la comunidad sin el "CP" de delante. */
-const sinCp = (n: string) => n.replace(/^CP\s+/i, "").trim();
 
 export async function oportunidadDePresupuesto(id: string): Promise<string | null> {
   const [p] = await leer<{ oportunidad_id: string | null }[]>(`presupuestos?select=oportunidad_id&id=eq.${id}`);
@@ -113,14 +113,15 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
     ),
     leer<{
       id: string; numero_hoja: string | null; estado: string; descripcion: string | null; fecha_creacion: string | null; fecha_firma: string | null;
-      pagador_tipo: "comunidad" | "contrata"; pagador_contrata_id: string | null;
+      pagador_tipo: "comunidad" | "contrata" | "persona"; pagador_contrata_id: string | null; pagador_persona_id: string | null;
       contrata: { nombre: string; cif: string | null; domicilio_fiscal: string | null } | null;
+      persona: { nombre: string; apellidos: string | null } | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null }[];
       conceptos: FilaConcepto[];
       lineas: { id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null }[];
     }[]>(
-      `hojas_encargo?select=id,numero_hoja,estado,descripcion,fecha_creacion,fecha_firma,pagador_tipo,pagador_contrata_id,` +
-        `contrata:pagador_contrata_id(nombre,cif,domicilio_fiscal),` +
+      `hojas_encargo?select=id,numero_hoja,estado,descripcion,fecha_creacion,fecha_firma,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
+        `contrata:pagador_contrata_id(nombre,cif,domicilio_fiscal),persona:pagador_persona_id(nombre,apellidos),` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja),` +
         `conceptos:conceptos_hoja(id,version_hoja_id,descripcion,importe,porcentaje,desglose,incluido,incluido_en_concepto_id,bloque:bloque_id(nombre_corto,nombre,desglose)),` +
         `lineas:lineas_facturacion(id,descripcion,importe,es_porcentaje,porcentaje)` +
@@ -139,9 +140,11 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
     ),
   ]);
   const o = opps[0];
-  if (!o?.comunidad) return null;
+  if (!o) return null;
+  // Su comunidad, si la tiene: un dato, no una condicion (13-oct-2026).
   const c = o.comunidad;
-  const direccion = sinCp(c.nombre);
+  // La direccion del texto es el NOMBRE DE LA OPP (13-oct-2026).
+  const direccion = nombreDeOpp(o);
   const fuera = new Set(sustituidas.map((s) => s.hoja_antigua_id));
 
   const elegibles: HojaElegible[] = [];
@@ -190,26 +193,40 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
   }
 
   // Quien paga: el de la ultima hoja que no sea de la comunidad, si la hay
-  // (una contrata que paga por ella); si no, la comunidad.
+  // (una contrata que paga por ella, o el particular al que va); si no, la
+  // comunidad; si no tiene, se escribe a mano.
   const deContrata = [...hojas].reverse().find((h) => h.pagador_tipo === "contrata" && h.pagador_contrata_id && h.contrata);
+  const dePersona = [...hojas].reverse().find((h) => h.pagador_tipo === "persona" && h.pagador_persona_id && h.persona);
+  const vacio: Cliente = { nombre: "", nif: "", domicilio: "", cp: "", poblacion: "", provincia: "" };
   const cliente: Cliente = deContrata
-    ? { nombre: deContrata.contrata!.nombre, nif: deContrata.contrata!.cif ?? "", domicilio: deContrata.contrata!.domicilio_fiscal ?? "", cp: "", poblacion: "", provincia: "" }
-    : {
-        nombre: c.nombre,
-        nif: c.cif_comunidad ?? "",
-        // Sin domicilio fiscal apuntado, la direccion del nombre (sin el municipio).
-        domicilio: c.domicilio_fiscal ?? (c.municipio ? direccion.replace(new RegExp(`\\s+${c.municipio}$`, "i"), "") : direccion),
-        cp: c.cp ?? "",
-        poblacion: c.municipio ?? "",
-        provincia: c.provincia ?? "",
-      };
+    ? { ...vacio, nombre: deContrata.contrata!.nombre, nif: deContrata.contrata!.cif ?? "", domicilio: deContrata.contrata!.domicilio_fiscal ?? "" }
+    : dePersona
+      ? { ...vacio, nombre: [dePersona.persona!.nombre, dePersona.persona!.apellidos].filter(Boolean).join(" ") }
+      : c
+        ? {
+            nombre: c.nombre,
+            nif: c.cif_comunidad ?? "",
+            // Sin domicilio fiscal apuntado, la direccion (sin el municipio).
+            domicilio: c.domicilio_fiscal ?? direccion.replace(/,\s*[^,]*$/, ""),
+            cp: c.cp ?? "",
+            poblacion: c.municipio ?? "",
+            provincia: c.provincia ?? "",
+          }
+        : vacio;
+  const pagador: DatosPresupuesto["pagador"] = deContrata
+    ? { tipo: "contrata", id: deContrata.pagador_contrata_id! }
+    : dePersona
+      ? { tipo: "persona", id: dePersona.pagador_persona_id! }
+      : c
+        ? { tipo: "comunidad", id: c.id }
+        : null;
 
   return {
-    opp: { id: o.id, codigo: o.codigo, nombre: o.nombre, comunidadId: c.id },
+    opp: { id: o.id, codigo: o.codigo, nombre: o.nombre, comunidadId: c?.id ?? null },
     direccion,
     hojas: elegibles,
     cliente,
-    pagador: deContrata ? { tipo: "contrata", id: deContrata.pagador_contrata_id! } : { tipo: "comunidad", id: c.id },
+    pagador,
     presupuestos: presus.map((p) => ({
       id: p.id,
       codigo: p.codigo,
@@ -253,7 +270,7 @@ async function codigoDe(id: string): Promise<string> {
 export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promise<{ id: string; codigo: string | null }> {
   if (!g.borrador) await exigirCompleta(g.oportunidadId, "generar el presupuesto");
   const d = await datosPresupuesto(g.oportunidadId);
-  if (!d) throw new Error("La oportunidad no tiene comunidad.");
+  if (!d) throw new Error("No existe esa oportunidad.");
   const elegidas = d.hojas.filter((h) => g.hojaIds.includes(h.id));
   if (g.hojaIds.length !== elegidas.length) throw new Error("Alguna hoja marcada no es de esta oportunidad.");
   const lineas = lineasDelPresupuesto(elegidas, d.direccion);
@@ -269,8 +286,8 @@ export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promis
     empresa_emisora: "accesalia",
     serie: "PR",
     estado: "borrador",
-    pagador_tipo: d.pagador.tipo,
-    pagador_id: d.pagador.id,
+    pagador_tipo: d.pagador?.tipo ?? null,
+    pagador_id: d.pagador?.id ?? null,
     pagador_nombre: limpio(g.cliente.nombre),
     pagador_nif: limpio(g.cliente.nif),
     pagador_domicilio: limpio(g.cliente.domicilio),

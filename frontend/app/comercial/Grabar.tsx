@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Elegir } from "../components/Elegir";
 import { Acciones } from "./CuadroPiezas";
@@ -30,18 +29,14 @@ export function Grabar({
 }) {
   const [abierto, setAbierto] = useState(false);
   // HOJA DE ENCARGO (9-oct-2026): primero la oportunidad, y de ahi a su hoja
-  // con el generador abierto. La hoja trabaja por comunidad: sin ella no hay.
+  // con el generador abierto. La hoja es de la OPORTUNIDAD: tener CP no es
+  // condicion (Monica, 13-oct-2026).
   const router = useRouter();
   // PRESUPUESTO (10-oct-2026): la misma ventana, y de ahi a construirlo.
   const [hoja, setHoja] = useState<false | "hoja" | "presupuesto">(false);
-  const [sinComunidad, setSinComunidad] = useState<string | null>(null);
   const irAHoja = (id: string) => {
-    const o = oportunidades.find((x) => x.valor === id);
-    if (!o) return;
-    if (!o.comunidadId) return setSinComunidad(id);
-    router.push(
-      hoja === "presupuesto" ? `/comercial/presupuesto?opp=${id}` : `/comercial/hoja-encargo?comunidad=${o.comunidadId}&opp=${id}&nueva=1`,
-    );
+    if (!oportunidades.some((x) => x.valor === id)) return;
+    router.push(hoja === "presupuesto" ? `/comercial/presupuesto?opp=${id}` : `/comercial/hoja-encargo?opp=${id}&nueva=1`);
   };
   return (
     <>
@@ -49,18 +44,12 @@ export function Grabar({
         grabarEntrada={() => setAbierto(true)}
         hojaEncargo={
           oportunidades.length
-            ? () => {
-                setSinComunidad(null);
-                setHoja("hoja");
-              }
+            ? () => setHoja("hoja")
             : undefined
         }
         presupuesto={
           oportunidades.length
-            ? () => {
-                setSinComunidad(null);
-                setHoja("presupuesto");
-              }
+            ? () => setHoja("presupuesto")
             : undefined
         }
       />
@@ -87,14 +76,6 @@ export function Grabar({
               abrirAlMontar
               clase="mt-3"
             />
-            {sinComunidad && (
-              <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[13px] text-amber-900">
-                Esta oportunidad todavía no tiene comunidad, y sin ella no se puede hacer {hoja === "presupuesto" ? "el presupuesto" : "la hoja"}.{" "}
-                <Link href={`/comercial/oportunidades/${sinComunidad}`} className="font-bold underline">
-                  Abrir su ficha
-                </Link>
-              </p>
-            )}
           </div>
         </div>
       )}

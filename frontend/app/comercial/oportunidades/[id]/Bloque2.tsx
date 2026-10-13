@@ -66,7 +66,8 @@ export function Bloque2({
   const costes = informes.filter((x) => x.tipo === "estimacion_costes");
   const estudios = informes.filter((x) => x.tipo === "estudio_ayudas");
   const v = d.viabilidad;
-  const hojaNueva = g.comunidadId ? `/comercial/hoja-encargo?comunidad=${g.comunidadId}&opp=${id}` : null;
+  // La hoja es de la OPORTUNIDAD: el boton sale siempre, tenga o no CP (13-oct-2026).
+  const hojaNueva = `/comercial/hoja-encargo?opp=${id}`;
   const conPresupuesto = d.hojas.filter((h) => h.presupuesto);
   const tipo3D = texto3D(TIPOS_3D, g.tresD?.tipo ?? null);
   const estado3D = texto3D(ESTADOS_3D, g.tresD?.estado ?? null);
@@ -265,25 +266,19 @@ export function Bloque2({
                         ver
                       </a>
                     )}
-                    {hojaNueva && (
-                      <Link href={hojaNueva} className={ENLACE}>
-                        abrir
-                      </Link>
-                    )}
+                    <Link href={hojaNueva} className={ENLACE}>
+                      abrir
+                    </Link>
                   </span>
                 </li>
               );
             })}
           </ul>
         )}
-        {hojaNueva ? (
-          // Abre el generador directamente, con esta opp elegida (13-oct-2026).
-          <Link href={`${hojaNueva}&nueva=1`} className={BOT + " mt-2.5 uppercase"}>
-            + Generar hoja de encargo
-          </Link>
-        ) : (
-          <p className="mt-2 text-[12px] text-amber-900/80">Sin comunidad no hay a quién hacerle la hoja: fija la dirección.</p>
-        )}
+        {/* Abre el generador directamente, con esta opp elegida (13-oct-2026). */}
+        <Link href={`${hojaNueva}&nueva=1`} className={BOT + " mt-2.5 uppercase"}>
+          + Generar hoja de encargo
+        </Link>
       </div>
 
       {/* ------------------------------ las fotografias (8-oct-2026)

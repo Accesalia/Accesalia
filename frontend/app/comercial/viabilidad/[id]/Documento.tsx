@@ -123,7 +123,8 @@ export function Documento({ d }: { d: DocViabilidad }) {
   const unaObra = d.obra.length === 1 ? d.obra[0] : null;
   const ultimaVacia = tasas.length > 0 && !tasas.at(-1)!.concepto.trim() && tasas.at(-1)!.importe === null;
   const pdf = `/comercial/viabilidad/${d.id}/pdf`;
-  const hoja = d.comunidadId ? `/comercial/hoja-encargo?comunidad=${d.comunidadId}&opp=${d.oppId}` : null;
+  // La hoja es de la oportunidad, tenga o no CP (13-oct-2026).
+  const hoja = d.oppId ? `/comercial/hoja-encargo?opp=${d.oppId}` : null;
 
   const guardar = () =>
     empezar(async () => {

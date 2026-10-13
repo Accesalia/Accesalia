@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
-import { puedeHacerHojas, puedeVerComunidad } from "../../../lib/hojaEncargo";
-import { comunidadDeOportunidad, datosPresupuesto } from "../../../lib/presupuesto";
+import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaEncargo";
+import { datosPresupuesto } from "../../../lib/presupuesto";
 import { Presupuesto } from "./Presupuesto";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +20,9 @@ export default async function PaginaPresupuesto({ searchParams }: { searchParams
   if (!yo) redirect("/entrar?volver=" + encodeURIComponent(`/comercial/presupuesto${opp ? `?opp=${opp}` : ""}`));
   if (!puedeHacerHojas(yo)) redirect("/comercial");
 
-  const comunidad = opp ? await comunidadDeOportunidad(opp) : null;
-  const permitida = comunidad ? await puedeVerComunidad(yo, comunidad) : false;
-  const datos = comunidad && permitida ? await datosPresupuesto(opp!) : null;
+  // Por la opp, no por su comunidad: tener CP no es condicion (13-oct-2026).
+  const permitida = opp ? await puedeVerOpp(yo, opp) : false;
+  const datos = opp && permitida ? await datosPresupuesto(opp) : null;
 
   return (
     <div className="min-h-screen">
@@ -37,9 +37,9 @@ export default async function PaginaPresupuesto({ searchParams }: { searchParams
             <p className="mt-3 max-w-[640px] rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-amber-900">
               {!opp
                 ? "El presupuesto se hace desde una oportunidad: ábrelo desde su ficha o desde el botón Presupuesto del área comercial."
-                : !comunidad
-                  ? "Esta oportunidad todavía no tiene comunidad, y sin ella no hay a quién hacer el presupuesto."
-                  : "Esta oportunidad no es de tu cartera."}
+                : !permitida
+                  ? "Esta oportunidad no es de tu cartera."
+                  : "Esa oportunidad no existe."}
             </p>
           </>
         )}

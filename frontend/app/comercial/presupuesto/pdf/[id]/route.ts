@@ -1,6 +1,6 @@
 import { quienSoy } from "../../../../../lib/sesion";
-import { puedeHacerHojas, puedeVerComunidad } from "../../../../../lib/hojaEncargo";
-import { comunidadDeOportunidad, pdfGuardado } from "../../../../../lib/presupuesto";
+import { puedeHacerHojas, puedeVerOpp } from "../../../../../lib/hojaEncargo";
+import { pdfGuardado } from "../../../../../lib/presupuesto";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,8 +13,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!yo || !puedeHacerHojas(yo)) return new Response("No tienes acceso a los presupuestos.", { status: 403 });
   const p = await pdfGuardado(id);
   if (!p) return new Response("Este presupuesto no existe o todavía no está generado.", { status: 404 });
-  const comunidad = await comunidadDeOportunidad(p.oportunidadId);
-  if (!comunidad || !(await puedeVerComunidad(yo, comunidad))) return new Response("No tienes acceso a esta oportunidad.", { status: 403 });
+  if (!p.oportunidadId || !(await puedeVerOpp(yo, p.oportunidadId))) return new Response("No tienes acceso a esta oportunidad.", { status: 403 });
   const descargar = new URL(req.url).searchParams.get("descargar") === "1";
   return new Response(p.pdf as unknown as BodyInit, {
     headers: {

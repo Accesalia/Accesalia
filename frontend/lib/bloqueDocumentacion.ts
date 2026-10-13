@@ -62,7 +62,7 @@ export type Documentacion = {
   fotos: (Foto & { fecha: string })[];
 };
 
-export async function documentacionDe(oppId: string, comunidadId: string | null): Promise<Documentacion> {
+export async function documentacionDe(oppId: string): Promise<Documentacion> {
   const [viabs, datos, presupuestos, fotos, deLaApp] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
@@ -73,7 +73,8 @@ export async function documentacionDe(oppId: string, comunidadId: string | null)
         `modelo:modelo_escalera_id(codigo,nombre),superada:superada_por_version_id(numero_version,hoja:hoja_encargo_id(numero_hoja))` +
         `&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
     ),
-    comunidadId ? datosHoja(comunidadId) : Promise.resolve(null),
+    // Las hojas de ESTA oportunidad, tenga o no CP (13-oct-2026).
+    datosHoja(oppId),
     // El presupuesto lo emite Factusol; la app solo guarda su numero y su PDF,
     // en la version de la hoja a la que acompaña.
     leer<{ id: string; numero_hoja: string | null; versiones: { numero_version: number; numero_presupuesto: string | null; url_pdf_presupuesto: string | null }[] }[]>(

@@ -1,5 +1,5 @@
 import { quienSoy } from "../../../../../lib/sesion";
-import { pdfDeVersion, puedeHacerHojas, puedeVerComunidad } from "../../../../../lib/hojaEncargo";
+import { pdfDeVersion, puedeHacerHojas, puedeVerOpp } from "../../../../../lib/hojaEncargo";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ versionI
   if (!yo || !puedeHacerHojas(yo)) return new Response("No tienes acceso a las hojas de encargo.", { status: 403 });
   const v = await pdfDeVersion(versionId);
   if (!v) return new Response("Esta versión no existe o no tiene hoja.", { status: 404 });
-  if (!(await puedeVerComunidad(yo, v.comunidadId))) return new Response("No tienes acceso a esta comunidad.", { status: 403 });
+  if (!v.oppId || !(await puedeVerOpp(yo, v.oppId))) return new Response("No tienes acceso a esta oportunidad.", { status: 403 });
   const descargar = new URL(req.url).searchParams.get("descargar") === "1";
   return new Response(v.pdf as unknown as BodyInit, {
     headers: {

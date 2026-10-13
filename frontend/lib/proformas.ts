@@ -91,7 +91,7 @@ type FilaHito = {
   padre: { hito: string; porcentaje: number | null } | null;
   linea: { id: string; descripcion: string | null; importe: number | null; emisor: string | null; pagador_tipo: string | null; pagador_id: string | null;
     bloque: { nombre: string } | null;
-    hoja: { numero_hoja: string | null; fecha_firma: string | null; oportunidad_id: string | null; pagador_tipo: string | null; pagador_contrata_id: string | null; comunidad_id: string | null } | null } | null;
+    hoja: { numero_hoja: string | null; fecha_firma: string | null; oportunidad_id: string | null; pagador_tipo: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null; comunidad_id: string | null } | null } | null;
 };
 
 export async function hitosProformables(ids: string[]): Promise<HitoProformable[]> {
@@ -102,7 +102,7 @@ export async function hitosProformables(ids: string[]): Promise<HitoProformable[
     pedir<FilaHito[]>(
       `hitos_cobro?select=id,hito,porcentaje,importe,hito_padre_id,estado,padre:hito_padre_id(hito,porcentaje),` +
         `linea:linea_facturacion_id(id,descripcion,importe,emisor,pagador_tipo,pagador_id,bloque:bloque_id(nombre),` +
-        `hoja:hoja_encargo_id(numero_hoja,fecha_firma,oportunidad_id,pagador_tipo,pagador_contrata_id,comunidad_id))&id=in.(${lista})`,
+        `hoja:hoja_encargo_id(numero_hoja,fecha_firma,oportunidad_id,pagador_tipo,pagador_contrata_id,pagador_persona_id,comunidad_id))&id=in.(${lista})`,
     ),
     pedir<{ hito_padre_id: string }[]>(`hitos_cobro?select=hito_padre_id&hito_padre_id=in.(${lista})`),
     pedir<{ hito_cobro_id: string; importe: number | null; linea: { factura: { estado: string } | null } | null }[]>(
@@ -129,6 +129,8 @@ export async function hitosProformables(ids: string[]): Promise<HitoProformable[
       const enProforma = prof.get(h.id) ?? 0;
       const pag = l.pagador_tipo && l.pagador_id ? { tipo: l.pagador_tipo, id: l.pagador_id }
         : l.hoja?.pagador_tipo === "contrata" && l.hoja.pagador_contrata_id ? { tipo: "contrata", id: l.hoja.pagador_contrata_id }
+        // Una hoja que va a un particular (13-oct-2026): paga esa persona.
+        : l.hoja?.pagador_tipo === "persona" && l.hoja.pagador_persona_id ? { tipo: "persona", id: l.hoja.pagador_persona_id }
         : l.hoja?.comunidad_id ? { tipo: "comunidad", id: l.hoja.comunidad_id } : null;
       return {
         id: h.id,

@@ -20,9 +20,16 @@
 // "A quien" sale de la comunidad de la oportunidad (nombre y CIF). El CIF no es
 // obligatorio: si falta, la casilla sale en blanco y se puede escribir en la
 // propia hoja (Monica, 2-oct).
+//
+// LA HOJA ES DE LA OPORTUNIDAD, NO DE LA COMUNIDAD (Monica, 13-oct-2026): "tener
+// CP no deberia condicionar nada, ni que se emita la hoja ni la factura". El
+// generador se abre por opp, los permisos son los de su cartera y las hojas son
+// las suyas. A quien va: su comunidad si la tiene, una contrata, o la persona
+// titular de sus accesos (un particular: un chalet no es una CP).
 
 import "server-only";
 import { exigirCompleta } from "./completa";
+import { nombreDeOpp } from "./direccionOpp";
 import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
@@ -65,20 +72,21 @@ async function carteraDe(yo: Yo): Promise<string | "todas" | null> {
 
 // ----------------------------------------------------------- el selector
 
-export type OpcionComunidad = { valor: string; texto: string; pista?: string };
+export type OpcionOpp = { valor: string; texto: string; pista?: string };
 
-export async function comunidadesParaHoja(yo: Yo): Promise<OpcionComunidad[]> {
+/** Las oportunidades de su cartera (todas, a direccion y secretaria), por su nombre. */
+export async function oppsParaHoja(yo: Yo): Promise<OpcionOpp[]> {
   const cartera = await carteraDe(yo);
   if (!cartera) return [];
   const filtro = cartera === "todas" ? "" : `&comercial_id=eq.${cartera}`;
-  const opps = await leer<{ comunidad: { id: string; nombre: string; municipio: string | null } | null }[]>(
-    `oportunidades?select=comunidad:comunidad_id(id,nombre,municipio)&comunidad_id=not.is.null${filtro}&limit=5000`,
+  const opps = await leer<{ id: string; codigo: string | null; nombre: string | null; estado: string }[]>(
+    `oportunidades?select=id,codigo,nombre,estado${filtro}&order=estado.asc,fecha_apertura.desc.nullslast&limit=5000`,
   );
-  const vistas = new Map<string, OpcionComunidad>();
-  for (const o of opps)
-    if (o.comunidad && !vistas.has(o.comunidad.id))
-      vistas.set(o.comunidad.id, { valor: o.comunidad.id, texto: o.comunidad.nombre, pista: o.comunidad.municipio ?? undefined });
-  return [...vistas.values()].sort((a, b) => a.texto.localeCompare(b.texto, "es"));
+  return opps.map((o) => ({
+    valor: o.id,
+    texto: nombreDeOpp(o),
+    pista: [o.codigo, o.estado === "abierta" ? null : o.estado].filter(Boolean).join(" · ") || undefined,
+  }));
 }
 
 // --------------------------------------------------------- lo que se pinta
@@ -122,8 +130,9 @@ export type Hoja = {
   titulo: string;
   fecha: string | null;
   aQuien: string;
-  pagadorTipo: "comunidad" | "contrata";
+  pagadorTipo: "comunidad" | "contrata" | "persona";
   contrataId: string | null;
+  personaId: string | null;
   /** La ultima version. `borrador` = se guardo sin PDF: sigue viva y no ha
    *  salido de Accesalia ("si es PDF, ya esta congelado"). */
   version: { id: string; numero: number; html: string | null; borrador: boolean; motivo: string | null } | null;
@@ -148,7 +157,14 @@ export type BloqueHoja = {
   naturaleza: string | null;
 };
 export type DatosHoja = {
-  comunidad: { id: string; nombre: string; cif: string | null; municipio: string | null };
+  /** La oportunidad de la que son las hojas: manda ella, no la comunidad. */
+  opp: { id: string; codigo: string | null; nombre: string };
+  /** Su comunidad, si la tiene. No hace falta para hacer la hoja. */
+  comunidad: { id: string; nombre: string; cif: string | null; municipio: string | null } | null;
+  /** Las personas titulares de sus accesos (un particular), para "a quien va". */
+  personas: { id: string; nombre: string }[];
+  /** Su municipio, de sus accesos: para el "en ..., Municipio" de la cabecera. */
+  municipio: string | null;
   oportunidades: Oportunidad[];
   hojas: Hoja[];
   bloques: BloqueHoja[];
@@ -164,6 +180,16 @@ const textoAcceso = (a: { tipo_via: string | null; nombre_via: string | null; nu
 const enlaceDoc = (u: string): string | null =>
   u.startsWith("almacen:") ? null : u.replace(/\/view(\?.*)?$/, "/preview");
 
+/** ¿Puede este usuario tocar los documentos de esta oportunidad? Los de su cartera. */
+export async function puedeVerOpp(yo: Yo, oppId: string): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) return false;
+  const cartera = await carteraDe(yo);
+  if (cartera === "todas") return true;
+  if (!cartera) return false;
+  const o = await leer<{ id: string }[]>(`oportunidades?select=id&id=eq.${oppId}&comercial_id=eq.${cartera}&limit=1`);
+  return o.length > 0;
+}
+
 /** ¿Puede este usuario abrir la hoja de esta comunidad? */
 export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<boolean> {
   const cartera = await carteraDe(yo);
@@ -173,22 +199,24 @@ export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<bo
   return o.length > 0;
 }
 
-export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> {
-  const [comunidades, opps, hojas, bloques, tipos, contratas] = await Promise.all([
-    leer<{ id: string; nombre: string; cif_comunidad: string | null; municipio: string | null }[]>(
-      `comunidades?select=id,nombre,cif_comunidad,municipio&id=eq.${comunidadId}`,
-    ),
+export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
+  const [opps, hojas, bloques, tipos, contratas] = await Promise.all([
     leer<{
       id: string;
       codigo: string | null;
       nombre: string | null;
       estado: string;
       comercial: { nombre: string } | null;
-      accesos: { hasta: string | null; acceso: { id: string; tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null } | null }[];
+      comunidad: { id: string; nombre: string; cif_comunidad: string | null; municipio: string | null } | null;
+      accesos: {
+        hasta: string | null;
+        acceso: { id: string; tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null; figura_legal_propietaria_id: string | null } | null;
+      }[];
     }[]>(
-      `oportunidades?select=id,codigo,nombre,estado,comercial:comercial_id(nombre),` +
-        `accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,tipo_via,nombre_via,numero,escalera))` +
-        `&comunidad_id=eq.${comunidadId}&order=estado.asc,fecha_apertura.desc.nullslast`,
+      `oportunidades?select=id,codigo,nombre,estado,comercial:comercial_id(nombre),comunidad:comunidad_id(id,nombre,cif_comunidad,municipio),` +
+        `accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,tipo_via,nombre_via,numero,escalera,municipio,figura_legal_propietaria_id))` +
+        `&id=eq.${oppId}`,
     ),
     leer<{
       id: string;
@@ -197,20 +225,22 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
       estado: string;
       descripcion: string | null;
       fecha_creacion: string | null;
-      pagador_tipo: "comunidad" | "contrata";
+      pagador_tipo: "comunidad" | "contrata" | "persona";
       pagador_contrata_id: string | null;
+      pagador_persona_id: string | null;
       contrata: { nombre: string } | null;
+      persona: { nombre: string; apellidos: string | null } | null;
       version_firmada_id: string | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null; motivo_cambio: string | null }[];
       conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; importe: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
-      `hojas_encargo?select=id,oportunidad_id,numero_hoja,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,` +
-        `contrata:pagador_contrata_id(nombre),version_firmada_id,` +
+      `hojas_encargo?select=id,oportunidad_id,numero_hoja,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
+        `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html,motivo_cambio),` +
         `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,importe,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
-        `&comunidad_id=eq.${comunidadId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
+        `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
     ),
     leer<{ id: string; codigo: string; nombre_corto: string | null; nombre: string; texto_plantilla: string | null; desglose: Desglose; honorarios_defecto: number | null; naturaleza: string | null }[]>(
       "bloques?select=id,codigo,nombre_corto,nombre,texto_plantilla,desglose,honorarios_defecto,naturaleza&activo=is.true&order=orden.asc.nullslast",
@@ -220,8 +250,17 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
     ),
     leer<{ id: string; nombre: string; cif: string | null }[]>("contratas?select=id,nombre,cif&order=nombre.asc&limit=1000"),
   ]);
-  const c = comunidades[0];
-  if (!c) return null;
+  const o = opps[0];
+  if (!o) return null;
+  const c = o.comunidad;
+  const vivos = o.accesos.filter((a) => !a.hasta && a.acceso).map((a) => a.acceso!);
+  // Los titulares de sus accesos que son personas (particulares): a ellos puede ir la hoja.
+  const titulares = [...new Set(vivos.map((a) => a.figura_legal_propietaria_id).filter((x): x is string => !!x && x !== c?.id))];
+  const personas = titulares.length
+    ? (await leer<{ id: string; nombre: string; apellidos: string | null }[]>(`persona?select=id,nombre,apellidos&id=in.(${titulares.join(",")})`)).map(
+        (p) => ({ id: p.id, nombre: [p.nombre, p.apellidos].filter(Boolean).join(" ") }),
+      )
+    : [];
 
   const oportunidades: Oportunidad[] = opps.map((o) => ({
     id: o.id,
@@ -236,7 +275,10 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
   }));
 
   return {
-    comunidad: { id: c.id, nombre: c.nombre, cif: c.cif_comunidad, municipio: c.municipio },
+    opp: { id: o.id, codigo: o.codigo, nombre: nombreDeOpp(o) },
+    comunidad: c ? { id: c.id, nombre: c.nombre, cif: c.cif_comunidad, municipio: c.municipio } : null,
+    personas,
+    municipio: c?.municipio ?? vivos.find((a) => a.municipio)?.municipio ?? null,
     oportunidades,
     hojas: hojas.map((h, i) => {
       const versiones = [...h.versiones].sort((a, b) => a.numero_version - b.numero_version);
@@ -295,9 +337,15 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
         estado: h.estado,
         titulo: tipos.map((t) => t.tipo?.nombre).filter(Boolean).join(" + ") || (h.descripcion ?? "").trim() || "Hoja de encargo",
         fecha: ultima?.fecha_generada ?? h.fecha_creacion,
-        aQuien: h.pagador_tipo === "contrata" ? h.contrata?.nombre ?? "Contrata" : c.nombre,
+        aQuien:
+          h.pagador_tipo === "contrata"
+            ? h.contrata?.nombre ?? "Contrata"
+            : h.pagador_tipo === "persona"
+              ? [h.persona?.nombre, h.persona?.apellidos].filter(Boolean).join(" ") || "Particular"
+              : c?.nombre ?? "La comunidad",
         pagadorTipo: h.pagador_tipo,
         contrataId: h.pagador_contrata_id,
+        personaId: h.pagador_persona_id,
         version: ultima
           ? {
               id: ultima.id,
@@ -339,9 +387,8 @@ export async function datosHoja(comunidadId: string): Promise<DatosHoja | null> 
 
 export type Generar = {
   hojaId: string | null;
-  comunidadId: string;
   oportunidadId: string;
-  aQuien: { tipo: "comunidad" } | { tipo: "contrata"; id: string };
+  aQuien: { tipo: "comunidad" } | { tipo: "contrata"; id: string } | { tipo: "persona"; id: string };
   actuaciones: { tipoId: string; accesoIds: string[] }[];
   conceptos: {
     bloqueId: string;
@@ -428,10 +475,16 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     ? await leer<{ id: string; nombre: string }[]>(`tipos_proyecto?select=id,nombre&id=in.(${actuaciones.map((a) => a.tipoId).join(",")})`)
     : [];
   const descripcion = actuaciones.map((a) => tipos.find((t) => t.id === a.tipoId)?.nombre).filter(Boolean).join(" + ");
+  // La comunidad de la hoja es la de su opp, si la tiene: un dato, no una condicion.
+  const [deOpp] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${g.oportunidadId}`);
+  if (!deOpp) throw new Error("No existe esa oportunidad.");
+  if (g.aQuien.tipo === "comunidad" && !deOpp.comunidad_id) throw new Error("Esta oportunidad no tiene comunidad: elige a quién va la hoja.");
   const pagador =
     g.aQuien.tipo === "contrata"
-      ? { pagador_tipo: "contrata", pagador_contrata_id: g.aQuien.id }
-      : { pagador_tipo: "comunidad", pagador_contrata_id: null };
+      ? { pagador_tipo: "contrata", pagador_contrata_id: g.aQuien.id, pagador_persona_id: null }
+      : g.aQuien.tipo === "persona"
+        ? { pagador_tipo: "persona", pagador_contrata_id: null, pagador_persona_id: g.aQuien.id }
+        : { pagador_tipo: "comunidad", pagador_contrata_id: null, pagador_persona_id: null };
   const generadaPor = yo.funciones.some((f) => f.clave === "secretaria")
     ? "secretaria_comercial"
     : yo.funciones.some((f) => f.clave === "comercial")
@@ -442,7 +495,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   let hojaId = g.hojaId;
   if (!hojaId) {
     const [h] = await crear<{ id: string }>("hojas_encargo", {
-      comunidad_id: g.comunidadId,
+      comunidad_id: deOpp.comunidad_id,
       oportunidad_id: g.oportunidadId,
       ...pagador,
       emisor: "accesalia",
@@ -625,10 +678,11 @@ export async function marcarEnviada(hojaId: string) {
   });
 }
 
-/** ¿De que comunidad es esta hoja? Para comprobar el permiso en cada accion. */
-export async function comunidadDeHoja(hojaId: string): Promise<string | null> {
-  const [h] = await leer<{ comunidad_id: string }[]>(`hojas_encargo?select=comunidad_id&id=eq.${hojaId}`);
-  return h?.comunidad_id ?? null;
+/** ¿De que oportunidad es esta hoja? Para comprobar el permiso en cada accion. */
+export async function oppDeHoja(hojaId: string): Promise<string | null> {
+  if (!/^[0-9a-f-]{36}$/.test(hojaId)) return null;
+  const [h] = await leer<{ oportunidad_id: string | null }[]>(`hojas_encargo?select=oportunidad_id&id=eq.${hojaId}`);
+  return h?.oportunidad_id ?? null;
 }
 
 // ------------------------------------------------- la firmada, al almacen
@@ -692,19 +746,19 @@ export async function enlaceFirmada(hojaId: string, versionId: string, n: number
 
 /** El PDF de una version: el guardado en el almacen al generarla. Un borrador
  *  no tiene, y NO se fabrica al pedirlo: el PDF es lo que congela la hoja. */
-export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array; comunidadId: string; nombre: string } | null> {
+export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array; oppId: string | null; nombre: string } | null> {
   const [v] = await leer<{
     contenido_html: string | null;
     url_pdf_hoja: string | null;
     numero_version: number;
-    hoja: { comunidad_id: string; descripcion: string | null } | null;
-  }[]>(`versiones_hoja?select=contenido_html,url_pdf_hoja,numero_version,hoja:hoja_encargo_id(comunidad_id,descripcion)&id=eq.${versionId}`);
+    hoja: { oportunidad_id: string | null; descripcion: string | null } | null;
+  }[]>(`versiones_hoja?select=contenido_html,url_pdf_hoja,numero_version,hoja:hoja_encargo_id(oportunidad_id,descripcion)&id=eq.${versionId}`);
   if (!v?.hoja) return null;
   const nombre = `Hoja de encargo ${v.hoja.descripcion ?? ""} v${v.numero_version}.pdf`.replace(/\s+/g, " ");
   if (v.url_pdf_hoja?.startsWith("almacen:")) {
     const resto = v.url_pdf_hoja.slice("almacen:".length);
     const r = await fetch(`${URL_BASE}/storage/v1/object/${resto}`, { headers: CAB, cache: "no-store" });
-    if (r.ok) return { pdf: new Uint8Array(await r.arrayBuffer()), comunidadId: v.hoja.comunidad_id, nombre };
+    if (r.ok) return { pdf: new Uint8Array(await r.arrayBuffer()), oppId: v.hoja.oportunidad_id, nombre };
   }
   return null;
 }

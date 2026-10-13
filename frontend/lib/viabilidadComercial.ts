@@ -350,9 +350,8 @@ export async function viabilidadDeOpp(oppId: string): Promise<{ id: string; nume
 }
 
 /** De que comunidad es, para el permiso. */
-export async function comunidadDeViabilidad(id: string): Promise<string | null> {
-  const [v] = await leer<{ oportunidad: { comunidad_id: string | null } | null }[]>(
-    `viabilidades?select=oportunidad:oportunidad_id(comunidad_id)&id=eq.${id}`,
-  );
-  return v?.oportunidad?.comunidad_id ?? null;
+export async function oppDeViabilidad(id: string): Promise<string | null> {
+  if (!/^[0-9a-f-]{36}$/.test(id)) return null;
+  const [v] = await leer<{ oportunidad_id: string | null }[]>(`viabilidades?select=oportunidad_id&id=eq.${id}`);
+  return v?.oportunidad_id ?? null;
 }

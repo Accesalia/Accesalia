@@ -105,7 +105,7 @@ export default async function GestionOportunidad({
   const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
   const [documentacion, informes, enviados] =
     bloque === 2
-      ? await Promise.all([documentacionDe(id, g.comunidadId), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
+      ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
       : [null, [], []];
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en

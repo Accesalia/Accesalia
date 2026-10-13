@@ -6,23 +6,23 @@ import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
 import {
   apuntarFirmada,
-  comunidadDeHoja,
+  oppDeHoja,
   enlaceFirmada,
   generarHoja,
   marcarEnviada,
   permisoFirmada,
   puedeHacerHojas,
-  puedeVerComunidad,
+  puedeVerOpp,
   type Generar,
 } from "../../../lib/hojaEncargo";
 
 /** Se comprueba en CADA accion: abrir la pantalla no es permiso para escribir.
  *  Y no basta con la funcion: un comercial solo toca las de su cartera. */
-async function permiso(comunidadId: string | null) {
+async function permiso(oppId: string | null) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/hoja-encargo");
   if (!puedeHacerHojas(yo)) redirect("/comercial");
-  if (!comunidadId || !(await puedeVerComunidad(yo, comunidadId))) throw new Error("No puedes tocar las hojas de esta comunidad.");
+  if (!oppId || !(await puedeVerOpp(yo, oppId))) throw new Error("No puedes tocar las hojas de esta oportunidad.");
   return yo;
 }
 
@@ -30,8 +30,8 @@ export type Resultado<T = object> = ({ ok: true } & T) | { ok: false; error: str
 
 export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: string; hojaId: string }>> {
   try {
-    const yo = await permiso(g.comunidadId);
-    if (g.hojaId && (await comunidadDeHoja(g.hojaId)) !== g.comunidadId) throw new Error("La hoja no es de esta comunidad.");
+    const yo = await permiso(g.oportunidadId);
+    if (g.hojaId && (await oppDeHoja(g.hojaId)) !== g.oportunidadId) throw new Error("La hoja no es de esta oportunidad.");
     // La puerta de calidad esta en GENERAR (Monica, 26-sep): el dato a medias
     // se acepta en el alta, pero no llega a un documento.
     if (!g.oportunidadId) return { ok: false, error: "Elige de qué oportunidad es la hoja." };
@@ -46,7 +46,7 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
       return { ok: false, error: "Falta el importe de alguna línea que se cobra." };
     if (g.conjunto && !(g.conjunto.importe > 0))
       return { ok: false, error: "Falta el importe del proyecto conjunto." };
-    if (g.aQuien.tipo === "contrata" && !g.aQuien.id) return { ok: false, error: "Elige la contrata." };
+    if (g.aQuien.tipo !== "comunidad" && !g.aQuien.id) return { ok: false, error: "Elige a quién va la hoja." };
     const r = await generarHoja(g, yo);
     revalidatePath("/comercial/hoja-encargo");
     return { ok: true, ...r };
@@ -63,10 +63,10 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
  *  medias. Lo que no se puede guardar vacio es a quien va y donde. */
 export async function accionBorrador(g: Generar): Promise<Resultado<{ versionId: string; hojaId: string }>> {
   try {
-    const yo = await permiso(g.comunidadId);
-    if (g.hojaId && (await comunidadDeHoja(g.hojaId)) !== g.comunidadId) throw new Error("La hoja no es de esta comunidad.");
+    const yo = await permiso(g.oportunidadId);
+    if (g.hojaId && (await oppDeHoja(g.hojaId)) !== g.oportunidadId) throw new Error("La hoja no es de esta oportunidad.");
     if (!g.oportunidadId) return { ok: false, error: "Elige de qué oportunidad es la hoja." };
-    if (g.aQuien.tipo === "contrata" && !g.aQuien.id) return { ok: false, error: "Elige la contrata." };
+    if (g.aQuien.tipo !== "comunidad" && !g.aQuien.id) return { ok: false, error: "Elige a quién va la hoja." };
     const r = await generarHoja({ ...g, borrador: true }, yo);
     revalidatePath("/comercial/hoja-encargo");
     return { ok: true, ...r };
@@ -77,7 +77,7 @@ export async function accionBorrador(g: Generar): Promise<Resultado<{ versionId:
 
 export async function accionEnviada(hojaId: string): Promise<Resultado> {
   try {
-    await permiso(await comunidadDeHoja(hojaId));
+    await permiso(await oppDeHoja(hojaId));
     await marcarEnviada(hojaId);
     revalidatePath("/comercial/hoja-encargo");
     return { ok: true };
@@ -88,7 +88,7 @@ export async function accionEnviada(hojaId: string): Promise<Resultado> {
 
 export async function accionPermisoFirmada(hojaId: string, nombre: string): Promise<Resultado<{ ruta: string; url: string }>> {
   try {
-    await permiso(await comunidadDeHoja(hojaId));
+    await permiso(await oppDeHoja(hojaId));
     return { ok: true, ...(await permisoFirmada(hojaId, nombre)) };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
@@ -97,7 +97,7 @@ export async function accionPermisoFirmada(hojaId: string, nombre: string): Prom
 
 export async function accionApuntarFirmada(hojaId: string, ruta: string): Promise<Resultado> {
   try {
-    await permiso(await comunidadDeHoja(hojaId));
+    await permiso(await oppDeHoja(hojaId));
     if (!ruta.startsWith(`hojas-encargo/${hojaId}/`)) throw new Error("Ruta que no es de esta hoja.");
     await apuntarFirmada(hojaId, ruta);
     // Firmada: nacen sus lineas e hitos de cobro (12-oct-2026).
@@ -110,6 +110,6 @@ export async function accionApuntarFirmada(hojaId: string, ruta: string): Promis
 }
 
 export async function accionEnlaceFirmada(hojaId: string, versionId: string, indice: number): Promise<string | null> {
-  await permiso(await comunidadDeHoja(hojaId));
+  await permiso(await oppDeHoja(hojaId));
   return enlaceFirmada(hojaId, versionId, indice);
 }

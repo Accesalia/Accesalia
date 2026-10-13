@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Elegir } from "../../components/Elegir";
 import type { Desglose } from "../../../lib/catalogoBloques";
-import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionComunidad } from "../../../lib/hojaEncargo";
+import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionOpp } from "../../../lib/hojaEncargo";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
 import { accionApuntarFirmada, accionBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 import { estadoDeHoja } from "../../../lib/estadoHoja";
@@ -50,7 +50,7 @@ type Estado = {
   hojaId: string | null;
   titulo: string;
   oppId: string;
-  aQuien: string; // "comunidad" o el id de la contrata
+  aQuien: string; // "comunidad", "persona:<id>" (un particular) o el id de la contrata
   actuaciones: Actuacion[];
   on: Record<string, boolean>;
   modo: Record<string, Desglose>;
@@ -83,30 +83,29 @@ const CHIP = "inline-flex items-center gap-1.5 rounded-full border px-3 py-[5px]
 const DOC = "cursor-pointer rounded-lg border px-[9px] py-1 text-xs font-semibold";
 
 export function HojasDeEncargo({
-  comunidades,
+  opps,
   datos,
-  oppElegida,
   aviso,
   abrirNueva,
 }: {
-  comunidades: OpcionComunidad[];
+  opps: OpcionOpp[];
   datos: DatosHoja | null;
-  oppElegida: string | null;
   aviso: string | null;
   abrirNueva?: boolean;
 }) {
   const router = useRouter();
 
-  // ----------------------------------------------------------- sin comunidad
+  // ------------------------------------------------- sin oportunidad elegida
+  // LA HOJA ES DE LA OPORTUNIDAD, no de la comunidad (Monica, 13-oct-2026).
   const selector = (
     <div className="mt-3 max-w-[560px]">
       <Elegir
-        id="comunidad"
-        nombre="Comunidad"
-        opciones={comunidades}
-        valor={datos?.comunidad.id ?? ""}
-        alElegir={(v) => v && router.push(`/comercial/hoja-encargo?comunidad=${v}`)}
-        vacio="Elige la comunidad…"
+        id="opp"
+        nombre="Oportunidad"
+        opciones={opps}
+        valor={datos?.opp.id ?? ""}
+        alElegir={(v) => v && router.push(`/comercial/hoja-encargo?opp=${v}`)}
+        vacio="Elige la oportunidad…"
         conPista
         abrirAlMontar={!datos}
       />
@@ -116,27 +115,29 @@ export function HojasDeEncargo({
     return (
       <>
         <h1 className="mt-2.5 text-[25px] font-bold leading-tight text-carbon">Hoja de encargo</h1>
-        <p className="mt-1 text-[13px] text-carbon/65">Elige de qué comunidad es la hoja.</p>
+        <p className="mt-1 text-[13px] text-carbon/65">Elige de qué oportunidad es la hoja.</p>
         {selector}
         {aviso && <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-amber-900">{aviso}</p>}
-        {comunidades.length === 0 && (
+        {opps.length === 0 && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-amber-900">
-            No hay comunidades en tu cartera todavía.
+            No hay oportunidades en tu cartera todavía.
           </p>
         )}
       </>
     );
-  return <ConComunidad datos={datos} oppElegida={oppElegida} selector={selector} abrirNueva={abrirNueva} />;
+  return <ConOpp datos={datos} selector={selector} abrirNueva={abrirNueva} />;
 }
 
-function ConComunidad({
+/** A quien va por defecto: su comunidad si la tiene; si no, el particular
+ *  titular de sus accesos; si no, nadie (se elige). */
+const aQuienPorDefecto = (d: DatosHoja) => (d.comunidad ? "comunidad" : d.personas[0] ? `persona:${d.personas[0].id}` : "");
+
+function ConOpp({
   datos,
-  oppElegida,
   selector,
   abrirNueva,
 }: {
   datos: DatosHoja;
-  oppElegida: string | null;
   selector: React.ReactNode;
   /** Se llega desde el boton "Hoja de encargo" del area comercial: el
    *  generador ya abierto, para esa oportunidad (9-oct-2026). */
@@ -147,9 +148,7 @@ function ConComunidad({
   const [error, setError] = useState<string | null>(null);
 
   const opps = datos.oportunidades;
-  const [oppId, setOppId] = useState<string>(
-    (opps.find((o) => o.id === oppElegida) ?? opps.find((o) => o.estado === "abierta") ?? opps[0])?.id ?? "",
-  );
+  const [oppId, setOppId] = useState<string>(datos.opp.id);
   const opp = opps.find((o) => o.id === oppId) ?? null;
 
   // ---------------------------------------------------------- lo contratado
@@ -230,7 +229,14 @@ function ConComunidad({
           : `Modificar hoja ${h.numero}${h.codigo ? ` (${h.codigo})` : ""} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})`
         : "Nueva hoja de encargo",
       oppId: oppDeHoja,
-      aQuien: h?.pagadorTipo === "contrata" && h.contrataId ? h.contrataId : "comunidad",
+      aQuien:
+        h?.pagadorTipo === "contrata" && h.contrataId
+          ? h.contrataId
+          : h?.pagadorTipo === "persona" && h.personaId
+            ? `persona:${h.personaId}`
+            : h?.pagadorTipo === "comunidad" && datos.comunidad
+              ? "comunidad"
+              : aQuienPorDefecto(datos),
       actuaciones: acts,
       on,
       modo,
@@ -263,7 +269,7 @@ function ConComunidad({
     <>
       {/* ---------------- cabecera ---------------- */}
       {selector}
-      <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">{datos.comunidad.nombre}</h1>
+      <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">{datos.opp.nombre}</h1>
       <p className="mt-1 text-[13px] text-carbon/65">
         {opp?.codigo && <b className="text-carbon/85">{opp.codigo}</b>}
         {opp?.codigo && " · "}
@@ -286,11 +292,6 @@ function ConComunidad({
             </button>
           ))}
         </div>
-      )}
-      {opps.length === 0 && (
-        <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-amber-900">
-          Esta comunidad no tiene ninguna oportunidad: hace falta una para generar la hoja.
-        </p>
       )}
 
       {/* ---------------- 1 · lo contratado ---------------- */}
@@ -323,7 +324,7 @@ function ConComunidad({
               + Generar nueva hoja
             </button>
           </div>
-          {hojas.length === 0 && <p className="py-6 text-center text-carbon/60">Esta comunidad aún no tiene ninguna hoja.</p>}
+          {hojas.length === 0 && <p className="py-6 text-center text-carbon/60">Esta oportunidad aún no tiene ninguna hoja.</p>}
           {hojas.map((h) => {
             // Un borrador se dice: no tiene PDF, no ha salido y no se marca enviado.
             const enBorrador = !!h.version?.borrador;
@@ -515,8 +516,10 @@ function Generador({
   const nombreConjunto = (st.texto.CONJUNTO ?? "").trim() || "Proyecto conjunto: " + enConjunto.map((b) => nombreLinea(b)).join(" + ");
 
   const contrata = datos.contratas.find((c) => c.id === st.aQuien) ?? null;
-  const razon = st.aQuien === "comunidad" ? datos.comunidad.nombre : contrata?.nombre ?? "";
-  const cif = st.aQuien === "comunidad" ? datos.comunidad.cif ?? "" : contrata?.cif ?? "";
+  const persona = st.aQuien.startsWith("persona:") ? datos.personas.find((x) => `persona:${x.id}` === st.aQuien) ?? null : null;
+  // El DNI del particular no esta en la app: su casilla sale en blanco y se escribe en la hoja.
+  const razon = st.aQuien === "comunidad" ? datos.comunidad?.nombre ?? "" : persona ? persona.nombre : contrata?.nombre ?? "";
+  const cif = st.aQuien === "comunidad" ? datos.comunidad?.cif ?? "" : persona ? "" : contrata?.cif ?? "";
 
   const poner = (cambio: Partial<Estado>) => setSt((s) => ({ ...s, ...cambio }));
   const toggle = (b: BloqueHoja) =>
@@ -570,7 +573,7 @@ function Generador({
         .map((a) => {
           const tipo = datos.tipos.find((t) => t.id === a.tipoId)?.nombre ?? "…";
           const donde = accesos.filter((x) => a.accesoIds.includes(x.id)).map((x) => x.texto).join(" · ") || "…";
-          return `<div>Proyecto para <b>${esc(tipo)}</b> en edificio residencial existente en: <b>${esc(donde)}</b>${datos.comunidad.municipio ? ", " + esc(datos.comunidad.municipio) : ""}</div>`;
+          return `<div>Proyecto para <b>${esc(tipo)}</b> en edificio residencial existente en: <b>${esc(donde)}</b>${datos.municipio ? ", " + esc(datos.municipio) : ""}</div>`;
         })
         .join("");
 
@@ -642,9 +645,13 @@ function Generador({
       copia.querySelectorAll("[title]").forEach((x) => x.removeAttribute("title"));
       const r = await (borrador ? accionBorrador : accionGenerar)({
         hojaId: st.hojaId,
-        comunidadId: datos.comunidad.id,
         oportunidadId: st.oppId,
-        aQuien: st.aQuien === "comunidad" ? { tipo: "comunidad" } : { tipo: "contrata", id: st.aQuien },
+        aQuien:
+          st.aQuien === "comunidad"
+            ? { tipo: "comunidad" }
+            : st.aQuien.startsWith("persona:")
+              ? { tipo: "persona", id: st.aQuien.slice("persona:".length) }
+              : { tipo: "contrata", id: st.aQuien },
         actuaciones: st.actuaciones.map((a) => ({ tipoId: a.tipoId, accesoIds: a.accesoIds })),
         conceptos: marcados.map((b) => ({
           bloqueId: b.id,
@@ -666,8 +673,11 @@ function Generador({
     });
 
   const opcionesTipo = datos.tipos.map((t) => ({ valor: t.id, texto: t.nombre }));
+  // A quien va: su comunidad (si la tiene), el particular titular de sus accesos
+  // o una contrata. Tener CP no es condicion para hacer la hoja (13-oct-2026).
   const opcionesAQuien = [
-    { valor: "comunidad", texto: datos.comunidad.nombre, pista: datos.comunidad.cif ?? "sin CIF" },
+    ...(datos.comunidad ? [{ valor: "comunidad", texto: datos.comunidad.nombre, pista: datos.comunidad.cif ?? "sin CIF" }] : []),
+    ...datos.personas.map((x) => ({ valor: `persona:${x.id}`, texto: x.nombre, pista: "particular, titular" })),
     ...datos.contratas.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.cif ?? "contrata" })),
   ];
 
@@ -727,7 +737,7 @@ function Generador({
           {/* ---------- cabecera ---------- */}
           <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
             <div className={TITULO + " mb-2.5"}>Cabecera</div>
-            <Elegir id="aquien" nombre="A quién" opciones={opcionesAQuien} valor={st.aQuien} alElegir={(v) => poner({ aQuien: v || "comunidad" })} conPista />
+            <Elegir id="aquien" nombre="A quién" opciones={opcionesAQuien} valor={st.aQuien} alElegir={(v) => poner({ aQuien: v || aQuienPorDefecto(datos) })} conPista />
             <span className={ETQ + " mt-2.5"}>Qué + dónde</span>
             {st.actuaciones.map((a, i) => (
               <div key={a.clave} className="mb-1.5 grid grid-cols-[1fr_1fr_24px] items-start gap-2">
