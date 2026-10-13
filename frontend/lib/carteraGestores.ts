@@ -91,6 +91,9 @@ type Fila = {
   desde: string | null;
 };
 
+/** Desde cuando cuentan la estrella y los que marean (13-oct-2026). */
+export const DESDE_RANKINGS = "2025-01-01";
+
 const pct = (g: number, p: number) => (g + p > 0 ? Math.round((100 * g) / (g + p)) : null);
 
 /** La cartera de un comercial, o la de todos (null). */
@@ -153,6 +156,15 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
   const diasTodas = conFirma
     .map((o) => (new Date(o.firma!).getTime() - new Date(o.apertura!).getTime()) / 86400000)
     .filter((d) => d >= 0);
+  // ESTRELLA Y QUE MAREAN, SOLO DESDE ENERO DE 2025 (Monica, 13-oct-2026):
+  // "las hojas y las facturas de antes aun no estan cuadradas". Las mismas
+  // cuentas, con las oportunidades abiertas desde entonces hasta hoy.
+  const desde2025: GestorCartera[] = gestores.map((g) => {
+    const de = g.opps.filter((o) => (o.apertura ?? "") >= DESDE_RANKINGS);
+    const ga = de.filter((o) => o.resultado === "ganada").length;
+    const pe = de.filter((o) => o.resultado === "perdida").length;
+    return { ...g, ganadas: ga, perdidas: pe, enCurso: de.filter((o) => o.resultado === "en_curso").length, total: de.length, pct: pct(ga, pe) };
+  });
   const ganadas = gestores.reduce((s, g) => s + g.ganadas, 0);
   const perdidas = gestores.reduce((s, g) => s + g.perdidas, 0);
 
@@ -175,12 +187,12 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
       dias: diasTodas.length ? Math.round(diasTodas.reduce((s, d) => s + d, 0) / diasTodas.length) : null,
     },
     // ESTRELLA: mayor porcentaje; a igualdad, el que mas ha firmado.
-    estrella: gestores
+    estrella: desde2025
       .filter((g) => g.pct !== null && g.ganadas > 0)
       .sort((a, b) => b.pct! - a.pct! || b.ganadas - a.ganadas)
       .slice(0, 5),
     // QUE MAREAN: peor porcentaje, solo con al menos 5 perdidas.
-    marean: gestores
+    marean: desde2025
       .filter((g) => g.perdidas >= 5)
       .sort((a, b) => a.pct! - b.pct! || b.perdidas - a.perdidas)
       .slice(0, 5),

@@ -196,17 +196,17 @@ export function CarteraLateral({ c }: { c: CarteraGestores }) {
       </section>
 
       <section className={CAJA}>
-        <Cabecera titulo="Estrella" sub="los que más firman, en proporción" />
+        <Cabecera titulo="Estrella" sub="los que más firman, en proporción · desde enero de 2025" />
         {c.estrella.length ? <Ranking filas={c.estrella} tono="bien" /> : <p className="px-4 py-5 text-[12px] text-carbon/55">Aún no hay ninguno con hojas firmadas.</p>}
       </section>
 
       <section className={CAJA}>
-        <Cabecera titulo="Que marean" sub="peor proporción, entre los que tienen al menos 5 perdidas" />
+        <Cabecera titulo="Que marean" sub="peor proporción, con al menos 5 perdidas · desde enero de 2025" />
         {c.marean.length ? (
           <Ranking filas={c.marean} tono="mal" />
         ) : (
           <p className="px-4 py-5 text-[12px] leading-relaxed text-carbon/55">
-            Ninguno tiene todavía 5 oportunidades perdidas. Saldrán cuando las perdidas tengan su administrador apuntado.
+            Desde enero de 2025 ninguno tiene 5 oportunidades perdidas. Saldrán al cerrar las que no siguen adelante y al apuntar su administrador.
           </p>
         )}
       </section>
