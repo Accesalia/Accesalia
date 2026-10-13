@@ -222,6 +222,18 @@ lo que ya tenemos y enseña los tres niveles en cada resultado:
 
 ## Sin resolver
 
+- **ABIERTO (13-oct, Mónica: "no tengo ni idea de cómo modelar esto"): la clave
+  tiene que ser a la vez MATRÍCULA (fija: va en el código de todo lo de después de
+  la firma) y AGRUPACIÓN de sitios (flexible: 56 + 58, Etruria + Lucano,
+  mancomunidades; se descubre con el tiempo y a veces hay que deshacerla).** Las
+  dos cosas chocan. Probado y no le cuadra: fusiones con alias, reglas automáticas
+  por parcela o CP, dirección rígida + grupo flexible ("eso es el acceso, no la
+  DIR"), y "si salen accesos, clave nueva" (su frase del 11-oct, leída así, no le
+  cuadra). Lo de "Duplicados" y "Buscar antes de crear" de arriba queda en
+  suspenso hasta resolver esto. Propuesto: decidirlo sobre casos reales (Etruria /
+  Lucano, Palomares 75, Paular 1 y 2, Santa María la Blanca 3-5 + Iglesia 22,
+  Ganapanes, Cuestablanca, Isturiz 9 y 11) antes de construir nada.
+
 - Si un **PRY · ASC** se fusiona en un proyecto conjunto, su apellido deja de ser
   cierto: ¿se cambia el código o se conserva con nota?
 - **Palomares 75**: accesos cruzados (las viviendas del 75 están en la comunidad del
