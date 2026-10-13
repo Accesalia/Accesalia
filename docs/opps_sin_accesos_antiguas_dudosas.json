@@ -1,0 +1,1698 @@
+[
+ {
+  "codigo": "CAR-2025-069",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VIEJODELEGANES237 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2012-001",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "BLASCO DE GARAY 48 MADRID",
+  "resultado": "ok",
+  "via": "CL BLASCO DE GARAY",
+  "municipio": "MADRID",
+  "parcela": "9864219VK3796D",
+  "nombre": "Blasco de Garay 48, Madrid",
+  "accesos": "48 · 48 esc E · 48 esc I"
+ },
+ {
+  "codigo": "DAN-2014-001",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CARDENAL CISNEROS 9 MADRID",
+  "resultado": "ok",
+  "via": "CL CARDENAL CISNEROS",
+  "municipio": "MADRID",
+  "parcela": "0559808VK4705H",
+  "nombre": "Cardenal Cisneros 9, Madrid",
+  "accesos": "9"
+ },
+ {
+  "codigo": "DAN-2014-002",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PUB IRLANDES MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL IRLANDA / CL IRLANDESES"
+ },
+ {
+  "codigo": "DAN-2014-005",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GUZMAN EL BUENO 56 MADRID",
+  "resultado": "ok",
+  "via": "CL GUZMAN EL BUENO",
+  "municipio": "MADRID",
+  "parcela": "9765301VK3796F",
+  "nombre": "Guzman el Bueno 56, Madrid",
+  "accesos": "56"
+ },
+ {
+  "codigo": "DAN-2014-008",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CAMARENA MADRID",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL CAMARENA)"
+ },
+ {
+  "codigo": "DAN-2015-010",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CALLEDELAESTACION FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2015-015",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELAESPERANZA5 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2015-018",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELASANGUSTIAS18 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2015-020",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GUINDALES 25 ALCORCON",
+  "resultado": "ok",
+  "via": "CL GUINDALES",
+  "municipio": "ALCORCON",
+  "parcela": "9569604VK2696N",
+  "nombre": "Guindales 25, Alcorcon",
+  "accesos": "25 esc E"
+ },
+ {
+  "codigo": "DAN-2015-030",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CARABANCHEL 10 GETAFE",
+  "resultado": "ok",
+  "via": "CL CARABANCHEL",
+  "municipio": "GETAFE",
+  "parcela": "8229408VK3682N",
+  "nombre": "Carabanchel 10, Getafe",
+  "accesos": "10 esc E"
+ },
+ {
+  "codigo": "DAN-2015-045",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ORDOÑEZ 17 LEGANES",
+  "resultado": "ok",
+  "via": "CL ORDOÑEZ",
+  "municipio": "LEGANES",
+  "parcela": "4748608VK3644N",
+  "nombre": "Ordoñez 17, Leganes",
+  "accesos": "17 esc 2"
+ },
+ {
+  "codigo": "DAN-2015-053",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ALFONSO MARTINEZ 11 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: BO 2003CHAMARTIN-CASTILLA / CL ALBERTO MARTIN ARTAJO / CL ALCALDE MARTIN DE ALZAGA / CL ALFONSO MARTINEZ CONDE / EM ALONSO MARTINEZ / PZ ALONSO MARTINEZ / CL ANGEL MARTIN RODRIGUEZ / PZ ANTON MARTIN / CL ARROYO DE LA TIA MARTINA / CL BOSQUE(CHAMARTIN) / CL CABO LOPEZ MARTINEZ / CL CAPITAN SALAZAR MARTINEZ"
+ },
+ {
+  "codigo": "DAN-2015-054",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "OPORTO 8 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: EM OPORTO / AV OPORTO"
+ },
+ {
+  "codigo": "DAN-2015-055",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "REAL 82 PARLA",
+  "resultado": "ok",
+  "via": "CL REAL",
+  "municipio": "PARLA",
+  "parcela": "4750301VK3545S",
+  "nombre": "Real 82, Parla",
+  "accesos": "82 esc 2"
+ },
+ {
+  "codigo": "DAN-2015-056",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTO TOMAS DE AQUINO 37 PARLA",
+  "resultado": "ok",
+  "via": "CL SANTO TOMAS DE AQUINO",
+  "municipio": "PARLA",
+  "parcela": "5147808VK3554N",
+  "nombre": "Santo Tomas de Aquino 37, Parla",
+  "accesos": "37 esc 1"
+ },
+ {
+  "codigo": "DAN-2015-060",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MADRID 22 LEGANES",
+  "resultado": "ok",
+  "via": "CL MADRID",
+  "municipio": "LEGANES",
+  "parcela": "5349214VK3654N",
+  "nombre": "Madrid 22, Leganes",
+  "accesos": "22"
+ },
+ {
+  "codigo": "DAN-2015-070",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "JUAN MONTOYA 9 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL CARMEN MONTOYA / CL JESUS MONTOYA / CL MONTOYA"
+ },
+ {
+  "codigo": "DAN-2015-073",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VALLE DE ORO 20 MADRID",
+  "resultado": "ok",
+  "via": "CL VALLE DE ORO",
+  "municipio": "MADRID",
+  "parcela": "8311301VK3781A",
+  "nombre": "Valle de Oro 20, Madrid",
+  "accesos": "20"
+ },
+ {
+  "codigo": "DAN-2015-075",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CADETE JULIO LLOPART 26 MADRID",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2015-080",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ANTONIA RODRIGUEZ SACRISTAN 31 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL AGUSTIN RODRIGUEZ BONAT / CL ALEJANDRO RODRIGUEZ / CL ANGEL MARTIN RODRIGUEZ / CL ANTONIO RODRIGUEZ / CL ANTONIO RODRIGUEZ VILLA / CL CABO I IDOIA RODRIGUEZ B / CL CAYETANO RODRIGUEZ / CL CEFERINO RODRIGUEZ / CL CGDOR RODRIGO RODRIGUEZ / CL CIUDAD RODRIGO / CL DON RODRIGO / CL EUSTAQUIO RODRIGUEZ"
+ },
+ {
+  "codigo": "DAN-2015-087",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SIERRA CARBONERA 77 MADRID",
+  "resultado": "ok",
+  "via": "CL SIERRA CARBONERA",
+  "municipio": "MADRID",
+  "parcela": "3614807VK4731D",
+  "nombre": "Sierra Carbonera 77, Madrid",
+  "accesos": "77 esc 2"
+ },
+ {
+  "codigo": "DAN-2015-088",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ARENA 45 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL ARENA",
+  "municipio": "FUENLABRADA",
+  "parcela": "2496609VK3529N",
+  "nombre": "Arena 45, Fuenlabrada",
+  "accesos": "45 esc T"
+ },
+ {
+  "codigo": "DAN-2015-101",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CORREGIDOR JUAN DE BOBADILLA 11 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 11 en PZ CORREG CONDE MACEDA Y TAB: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2015-107",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANCHEZ PRECIADOS 59 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL PRECIADOS / CJ PRECIADOS / CL SANCHEZ PRECIADO / TR SANCHEZ PRECIADO"
+ },
+ {
+  "codigo": "DAN-2015-120",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVPORTUGAL15 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-001",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ALFEREZLUISMARTINDEVIDALES2 VILLAVICIOSA DE ODON",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL ALFEREZ LUIS MARTIN VIDAL)"
+ },
+ {
+  "codigo": "DAN-2016-018",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "HIGUERAL 12 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL HIGUERAL",
+  "municipio": "FUENLABRADA",
+  "parcela": "2289001VK3528N",
+  "nombre": "Higueral 12, Fuenlabrada",
+  "accesos": "12 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-027",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTAROSA5DELANTE LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL SANTAREM)"
+ },
+ {
+  "codigo": "DAN-2016-028",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTO DOMINGO 10 MADRID",
+  "resultado": "ok",
+  "via": "CL SANTO DOMINGO",
+  "municipio": "MADRID",
+  "parcela": "7911505VK3771B",
+  "nombre": "Santo Domingo 10, Madrid",
+  "accesos": "10"
+ },
+ {
+  "codigo": "DAN-2016-046",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VALLEHERMOSO 32 MADRID",
+  "resultado": "ok",
+  "via": "CL VALLEHERMOSO",
+  "municipio": "MADRID",
+  "parcela": "0163121VK4706C",
+  "nombre": "Vallehermoso 32, Madrid",
+  "accesos": "32"
+ },
+ {
+  "codigo": "DAN-2016-052",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVPORTUGAL41 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-053",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "EMPECINADO 21 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "numero 21 en CL EMPECINADO: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2016-057",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONSTITUCION 49 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL CONSTITUCION",
+  "municipio": "FUENLABRADA",
+  "parcela": "3196521VK3539N",
+  "nombre": "Constitucion 49, Fuenlabrada",
+  "accesos": "49 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-059",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NAZARET 9-11 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL NAZARET",
+  "municipio": "FUENLABRADA",
+  "parcela": "2202502VK3620S",
+  "nombre": "Nazaret 9, Fuenlabrada",
+  "accesos": "9 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-066",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FORESTA 17, TRES CANTOS",
+  "resultado": "dudosa",
+  "motivo": "numero 17 en CL FORESTA: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2016-071",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "RIOHENARES3 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-073",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ESTACION 1 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL ESTACION",
+  "municipio": "FUENLABRADA",
+  "parcela": "2396103VK3529N",
+  "nombre": "Estacion 1, Fuenlabrada",
+  "accesos": "1 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-075",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CARCAVILLA 7 MOSTOLES",
+  "resultado": "ok",
+  "via": "CL CARCAVILLA",
+  "municipio": "MOSTOLES",
+  "parcela": "6346605VK2664N 6346901VK2664N",
+  "nombre": "Carcavilla 7, Mostoles",
+  "accesos": "7 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-082",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VILLA GARCIA 5 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL AGUSTIN GARCIA MALLA / CL ANGELES GARCIA MADRID / CL ANTOLIN GARCIA / CL BERNARDA GARCIA / CL BERNARDINA GARCIA / CL BERNARDO LOPEZ GARCIA / CL BRUNO GARCIA / AV CONCHA GARCIA CAMPOY / AV DOCTOR GARCIA TAPIA / CJ EDUARDO GARCIA 'EL CHATA' / CL ENRIQUE GARCIA ALVAREZ / CL ESPERANZA GARCIA"
+ },
+ {
+  "codigo": "DAN-2016-086",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CASTELLON 13 MOSTOLES",
+  "resultado": "ok",
+  "via": "CL CASTELLON",
+  "municipio": "MOSTOLES",
+  "parcela": "7038802VK2673N",
+  "nombre": "Castellon 13, Mostoles",
+  "accesos": "13"
+ },
+ {
+  "codigo": "DAN-2016-088",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SAN ONOFRE 7 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 7 en CL SAN ONOFRE: sin_numero (hay 2, 3, 4, 5, 6, 8, 8)"
+ },
+ {
+  "codigo": "DAN-2016-089",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MONTE LEON 18 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL ALMONTE / CL ARROYO DEL MONTE / CM ARROYO DEL MONTE / CL AVELINO MONTERO RIOS / CL AYAMONTE / CL BAÑOS DE MONTEMAYOR / CL BELMONTE DE TAJO / CR BOADILLA DEL MONTE / CL BOADILLA DEL MONTE / CL CALVO Y MONTERO / CL CASTROMONTE / CL CERRO DEL MONTE"
+ },
+ {
+  "codigo": "DAN-2016-094",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MANUEL SAAVEDRA 11 ARANJUEZ",
+  "resultado": "dudosa",
+  "motivo": "numero 11 en CL MANUEL SAAVEDRA: sin_numero (hay 7, 9)"
+ },
+ {
+  "codigo": "DAN-2016-101",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CAPELLANES 20 MADRID",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-102",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ARTICA11 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-103",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "DOCTORBARRAQUER14 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL DOCTOR MARAÑON)"
+ },
+ {
+  "codigo": "DAN-2016-136",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELPILAR2 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2016-137",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PELAYO7 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL PELAYOS)"
+ },
+ {
+  "codigo": "DAN-2016-148",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PASEODEEXTREMADURA244DUPLICADO MADRID",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-151",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NAZARIOGALONGE5-7 SAN FERNANDO DE HENARES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NAZARIO CALONGE)"
+ },
+ {
+  "codigo": "DAN-2016-159",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PRADODESANJUAN46 GUADARRAMA",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-160",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SAN JUAN DE LA MATA 42 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 42 en CL SAN JUAN DE MATA: sin_numero (hay 37, 39, 41, 43, 45, 47)"
+ },
+ {
+  "codigo": "DAN-2016-167",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ANGELES 11 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "numero 11 en CL ANGELES: sin_numero (hay 6, 7, 8, 9, 10, 12, 12, 13, 14, 16)"
+ },
+ {
+  "codigo": "DAN-2016-171",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MOSTOLES3PORTAL3 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL CUESTA DE MOSTOLES / TR CUESTA DE MOSTOLES / CL MOSTOLES"
+ },
+ {
+  "codigo": "DAN-2016-175",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MOSTOLES3PORTAL5 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL CUESTA DE MOSTOLES / TR CUESTA DE MOSTOLES / CL MOSTOLES"
+ },
+ {
+  "codigo": "DAN-2016-182",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "JABONERIA 4 ALCORCON",
+  "resultado": "dudosa",
+  "motivo": "numero 4 en CL JABONERIA: sin_numero (hay 6, 8, 8, 9, 10)"
+ },
+ {
+  "codigo": "DAN-2016-183",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "JOSE ANTONIO 38 BOADILLA DEL MONTE",
+  "resultado": "dudosa",
+  "motivo": "numero 38 en CL JOSE ANTONIO: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2016-186",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AMERICA 16 MOSTOLES",
+  "resultado": "ok",
+  "via": "CL AMERICA",
+  "municipio": "MOSTOLES",
+  "parcela": "6743413VK2664S",
+  "nombre": "America 16, Mostoles",
+  "accesos": "16 esc 1"
+ },
+ {
+  "codigo": "DAN-2016-187",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PLAZADELAFUENSANTA4 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-188",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PLAZADELAFUENSANTA7 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-189",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "REJILLA 1 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "numero 1 en CL REJILLA: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2016-204",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVANDALUCIA26 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-206",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "COLONIALOSALMENDROS9 ARGANDA DEL REY",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2016-209",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CASTRO 2 GETAFE",
+  "resultado": "ok",
+  "via": "CL CASTRO",
+  "municipio": "GETAFE",
+  "parcela": "8538804VK3683S",
+  "nombre": "Castro 2, Getafe",
+  "accesos": "2 esc 2 · 2 esc 4 · 2 esc E"
+ },
+ {
+  "codigo": "DAN-2016-213",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CASTRO 4 GETAFE",
+  "resultado": "ok",
+  "via": "CL CASTRO",
+  "municipio": "GETAFE",
+  "parcela": "8538804VK3683S",
+  "nombre": "Castro 4, Getafe",
+  "accesos": "4 esc 3"
+ },
+ {
+  "codigo": "DAN-2017-004",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PRINCESA 31 MADRID",
+  "resultado": "ok",
+  "via": "CL PRINCESA",
+  "municipio": "MADRID",
+  "parcela": "9456501VK3795E",
+  "nombre": "Princesa 31, Madrid",
+  "accesos": "31"
+ },
+ {
+  "codigo": "DAN-2017-011",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MARGARITA 41 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: PZ MARGARET THATCHER / CL MARGARITA DE PARMA / CL MARGARITA LUGO / CL MARGARITA NELKEN / CL MARGARITA XIRGU / CL MARGARITAS / PL SANTA MARGARITA"
+ },
+ {
+  "codigo": "DAN-2017-012",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ANIS 10 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 10 en CL ANIS: sin_numero (hay 6, 8)"
+ },
+ {
+  "codigo": "DAN-2017-013",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONSTITUCION 51 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL CONSTITUCION",
+  "municipio": "FUENLABRADA",
+  "parcela": "3196521VK3539N",
+  "nombre": "Constitucion 51, Fuenlabrada",
+  "accesos": "51 esc 1"
+ },
+ {
+  "codigo": "DAN-2017-015",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "HERNAN CORTES 5 LEGANES",
+  "resultado": "ok",
+  "via": "CL HERNAN CORTES",
+  "municipio": "LEGANES",
+  "parcela": "4841902VK3644S 4942202VK3644S",
+  "nombre": "Hernan Cortes 5 y 5 A, Leganes",
+  "accesos": "5 · 5(A)"
+ },
+ {
+  "codigo": "DAN-2017-021",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "OPORTO 13 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: EM OPORTO / AV OPORTO"
+ },
+ {
+  "codigo": "DAN-2017-036",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "COSTA RICA 11 PINTO",
+  "resultado": "ok",
+  "via": "CL COSTA RICA",
+  "municipio": "PINTO",
+  "parcela": "0648702VK4504N",
+  "nombre": "Costa Rica 11, Pinto",
+  "accesos": "11 esc 1"
+ },
+ {
+  "codigo": "DAN-2017-037",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "DEL MOLINO 8 PINTO",
+  "resultado": "ok",
+  "via": "CL MOLINO",
+  "municipio": "PINTO",
+  "parcela": "0749103VK4504N",
+  "nombre": "Molino 8, Pinto",
+  "accesos": "8 esc 1"
+ },
+ {
+  "codigo": "DAN-2017-047",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTOÑA 56 MADRID",
+  "resultado": "ok",
+  "via": "CL SANTOÑA",
+  "municipio": "MADRID",
+  "parcela": "9605606VK3790F",
+  "nombre": "Santoña 56, Madrid",
+  "accesos": "56"
+ },
+ {
+  "codigo": "DAN-2017-063",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "LOSRESIDENCIALES10 COLMENAR VIEJO",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-064",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PLANETAS5 TRES CANTOS",
+  "resultado": "dudosa",
+  "motivo": "sin numero (PL SECTOR PLANETAS)"
+ },
+ {
+  "codigo": "DAN-2017-071",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "HOSPITALDELAFUENFRIA MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL HOSPITAL / CL HOSPITAL DE ORBIGO / CL HOSPITAL DE SAN PAU / TR HOSPITALET DE LLOBREGAT / CL HOSPITALET DE LLOBREGAT / AV HOSPITALIDAD"
+ },
+ {
+  "codigo": "DAN-2017-073",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MONTFRISA GETAFE",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-078",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVPORTUGAL12 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-086",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FUENCARRAL 26 MADRID",
+  "resultado": "ok",
+  "via": "CL FUENCARRAL",
+  "municipio": "MADRID",
+  "parcela": "0650024VK4705B",
+  "nombre": "Fuencarral 26, Madrid",
+  "accesos": "26 · 26 esc E · 26 esc Y"
+ },
+ {
+  "codigo": "DAN-2017-092",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "URBANIZACION FUENTEBELLA 14 PARLA",
+  "resultado": "dudosa",
+  "motivo": "numero 14 en UR FUENTEBELLA: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2017-098",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GENERAL VARELA 13 Y 15 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: AV GENERAL / GL GENERAL ALVAREZ DE CASTRO / CL GENERAL ALVAREZ DE CASTRO / CL GENERAL AMPUDIA / CL GENERAL ARANAZ / CL GENERAL ARRANDO / CL GENERAL CABRERA / CL GENERAL CADENAS CAMPOS / CL GENERAL CASTAÑOS / CL GENERAL DIAZ PORLIER / CL GENERAL GALLEGOS / TR GENERAL HIERRO MARTINEZ"
+ },
+ {
+  "codigo": "DAN-2017-102",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ORIENTE 19 GETAFE",
+  "resultado": "ok",
+  "via": "CL ORIENTE",
+  "municipio": "GETAFE",
+  "parcela": "8019210VK3681N 8019211VK3681N",
+  "nombre": "Oriente 19 y 19 A, Getafe",
+  "accesos": "19 esc E · 19(A) esc T"
+ },
+ {
+  "codigo": "DAN-2017-106",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ITALIA 1 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "sin portales con viviendas en el 1 (parcela 2098801VK3519N, 2198702VK3529N)"
+ },
+ {
+  "codigo": "DAN-2017-111",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ORDOÑO23 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-115",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CAROLI 7 MADRID",
+  "resultado": "ok",
+  "via": "CL CAROLI",
+  "municipio": "MADRID",
+  "parcela": "3690401VK3739B",
+  "nombre": "Caroli 7 A, Madrid",
+  "accesos": "7(A) esc 9"
+ },
+ {
+  "codigo": "DAN-2017-122",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GENERAL FANJUL 24 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: AV GENERAL / GL GENERAL ALVAREZ DE CASTRO / CL GENERAL ALVAREZ DE CASTRO / CL GENERAL AMPUDIA / CL GENERAL ARANAZ / CL GENERAL ARRANDO / CL GENERAL CABRERA / CL GENERAL CADENAS CAMPOS / CL GENERAL CASTAÑOS / CL GENERAL DIAZ PORLIER / CL GENERAL GALLEGOS / TR GENERAL HIERRO MARTINEZ"
+ },
+ {
+  "codigo": "DAN-2017-129",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "JERONIMO HISTORIAS REHABILITACION MADRID",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-145",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SIERRA CARBONERA 79 MADRID",
+  "resultado": "ok",
+  "via": "CL SIERRA CARBONERA",
+  "municipio": "MADRID",
+  "parcela": "3614807VK4731D",
+  "nombre": "Sierra Carbonera 79, Madrid",
+  "accesos": "79 esc 3"
+ },
+ {
+  "codigo": "DAN-2017-149",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "RAMPAS (MADRID)",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-153",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ALELI4 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2017-161",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NORIAS 20 MAJADAHONDA",
+  "resultado": "ok",
+  "via": "CL NORIAS",
+  "municipio": "MAJADAHONDA",
+  "parcela": "6605101VK2860N",
+  "nombre": "Norias 20, Majadahonda",
+  "accesos": "20 esc E"
+ },
+ {
+  "codigo": "DAN-2017-162",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NORIAS 22 MAJADAHONDA",
+  "resultado": "ok",
+  "via": "CL NORIAS",
+  "municipio": "MAJADAHONDA",
+  "parcela": "6605102VK2860N",
+  "nombre": "Norias 22, Majadahonda",
+  "accesos": "22 esc E"
+ },
+ {
+  "codigo": "DAN-2017-163",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NORIAS 26 MAJADAHONDA",
+  "resultado": "ok",
+  "via": "CL NORIAS",
+  "municipio": "MAJADAHONDA",
+  "parcela": "6605104VK2860N 6605121VK2860N",
+  "nombre": "Norias 26, Majadahonda",
+  "accesos": "26"
+ },
+ {
+  "codigo": "DAN-2017-166",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTA BRIGIDA 1-2 MAJADAHONDA",
+  "resultado": "ok",
+  "via": "CL SANTA BRIGIDA",
+  "municipio": "MAJADAHONDA",
+  "parcela": "6605107VK2860N 6605108VK2860N 6605109VK2860N 6605110VK2860S 6605111VK2860S 6605112VK2860S",
+  "nombre": "Santa Brigida 1 1, 1 2, 1 3, 1 4, 1 5 y 1 6, Majadahonda",
+  "accesos": "1(1) esc E · 1(2) esc E · 1(3) esc E · 1(4) esc E · 1(5) esc E · 1(6) esc E"
+ },
+ {
+  "codigo": "DAN-2017-167",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTA BRIGIDA 1-5 MAJADAHONDA",
+  "resultado": "ok",
+  "via": "CL SANTA BRIGIDA",
+  "municipio": "MAJADAHONDA",
+  "parcela": "6605107VK2860N 6605108VK2860N 6605109VK2860N 6605110VK2860S 6605111VK2860S 6605112VK2860S",
+  "nombre": "Santa Brigida 1 1, 1 2, 1 3, 1 4, 1 5 y 1 6, Majadahonda",
+  "accesos": "1(1) esc E · 1(2) esc E · 1(3) esc E · 1(4) esc E · 1(5) esc E · 1(6) esc E"
+ },
+ {
+  "codigo": "DAN-2017-168",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "LA PAZ 9 MADRID",
+  "resultado": "ok",
+  "via": "CL PAZ",
+  "municipio": "MADRID",
+  "parcela": "0443113VK4704C",
+  "nombre": "Paz 9, Madrid",
+  "accesos": "9"
+ },
+ {
+  "codigo": "DAN-2018-022",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GENERAL VARELA 3 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: AV GENERAL / GL GENERAL ALVAREZ DE CASTRO / CL GENERAL ALVAREZ DE CASTRO / CL GENERAL AMPUDIA / CL GENERAL ARANAZ / CL GENERAL ARRANDO / CL GENERAL CABRERA / CL GENERAL CADENAS CAMPOS / CL GENERAL CASTAÑOS / CL GENERAL DIAZ PORLIER / CL GENERAL GALLEGOS / TR GENERAL HIERRO MARTINEZ"
+ },
+ {
+  "codigo": "DAN-2018-034",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVFRANCISCOJAVIERSAUQUILLO30 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2018-041",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CORTE DEL FARAON 24 MADRID",
+  "resultado": "dudosa",
+  "motivo": "sin portales con viviendas en el 24 (parcela 0783901VK4608D)"
+ },
+ {
+  "codigo": "DAN-2018-045",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "BIOSCA 12 MADRID",
+  "resultado": "ok",
+  "via": "CL BIOSCA",
+  "municipio": "MADRID",
+  "parcela": "5003407VK4850C",
+  "nombre": "Biosca 12, Madrid",
+  "accesos": "12 esc 1"
+ },
+ {
+  "codigo": "DAN-2018-046",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VIACARPETANA MADRID",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2018-047",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONSTITUCION 50 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL CONSTITUCION",
+  "municipio": "FUENLABRADA",
+  "parcela": "3295501VK3539S",
+  "nombre": "Constitucion 50, Fuenlabrada",
+  "accesos": "50 esc 2"
+ },
+ {
+  "codigo": "DAN-2018-062",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ENRIQUE VELASCO 18 MADRID",
+  "resultado": "ok",
+  "via": "CL ENRIQUE VELASCO",
+  "municipio": "MADRID",
+  "parcela": "3920310VK4732B 3920324VK4732B 3920325VK4732B",
+  "nombre": "Enrique Velasco 18, 18 A y 18 D, Madrid",
+  "accesos": "18 · 18(A) esc T · 18(D)"
+ },
+ {
+  "codigo": "DAN-2018-064",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "TOLEDO 6 MADRID",
+  "resultado": "ok",
+  "via": "CL TOLEDO",
+  "municipio": "MADRID",
+  "parcela": "0042804VK4704A",
+  "nombre": "Toledo 6, Madrid",
+  "accesos": "6"
+ },
+ {
+  "codigo": "DAN-2018-066",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FUENLABRADA 13 ALCORCON",
+  "resultado": "ok",
+  "via": "CL FUENLABRADA",
+  "municipio": "ALCORCON",
+  "parcela": "9966401VK2696N",
+  "nombre": "Fuenlabrada 13, Alcorcon",
+  "accesos": "13 esc A · 13 esc B"
+ },
+ {
+  "codigo": "DAN-2018-072",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "BATALLA DE TORRIJOS 15 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 15 en CL BATALLA DE TORRIJOS: sin_numero (hay 10, 10, 11, 12, 12, 13, 14, 16, 16, 17, 17, 18, 20)"
+ },
+ {
+  "codigo": "DAN-2018-076",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SAN BLAS 12 PARLA",
+  "resultado": "ok",
+  "via": "CL SAN BLAS",
+  "municipio": "PARLA",
+  "parcela": "4449301VK3544N",
+  "nombre": "San Blas 12, Parla",
+  "accesos": "12 esc 2"
+ },
+ {
+  "codigo": "DAN-2018-078",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VEZA MADRID",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL VEZA)"
+ },
+ {
+  "codigo": "DAN-2018-087",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MAZARRADO12 MADRID",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL MAZARREDO)"
+ },
+ {
+  "codigo": "DAN-2018-088",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "BERARDO MARTIN 12 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "numero 12 en CL BERARDO MARTIN: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2018-091",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "JACINTO BENAVENTE 24 GETAFE",
+  "resultado": "ok",
+  "via": "CL JACINTO BENAVENTE",
+  "municipio": "GETAFE",
+  "parcela": "8029028VK3672N",
+  "nombre": "Jacinto Benavente 24, Getafe",
+  "accesos": "24 esc E"
+ },
+ {
+  "codigo": "DAN-2018-094",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CASTELLON 19 MOSTOLES",
+  "resultado": "ok",
+  "via": "CL CASTELLON",
+  "municipio": "MOSTOLES",
+  "parcela": "7038805VK2673N",
+  "nombre": "Castellon 19, Mostoles",
+  "accesos": "19 · 19 esc 1"
+ },
+ {
+  "codigo": "DAN-2018-095",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PARQUE AMERICA 4 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL AMERICA / PZ AMERICA"
+ },
+ {
+  "codigo": "DAN-2018-103",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NAZARET 1 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL NAZARET",
+  "municipio": "FUENLABRADA",
+  "parcela": "2201403VK3620S",
+  "nombre": "Nazaret 1, Fuenlabrada",
+  "accesos": "1 esc 1"
+ },
+ {
+  "codigo": "DAN-2018-104",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PROP PLAZA PARIS 8 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "numero 8 en CL PLAZA: sin_numero (hay 3, 4, 5, 6, 7, 10, 12, 13)"
+ },
+ {
+  "codigo": "DAN-2018-107",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FUENLABRADA 63 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "numero 63 en CL FUENLABRADA: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2019-001",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GENERALPALACIO6 GETAFE",
+  "resultado": "dudosa",
+  "motivo": "varias vias: PL BAJO RASANTE GENERAL / CL GENERAL CASTAÑO / CL GENERAL MIAJA / AV GENERAL PALACIO / PZ GENERAL PALACIO / CL GENERAL PINGARRON / CL GENERALIFE"
+ },
+ {
+  "codigo": "DAN-2019-002",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FUENLABRADA 63 PARLA",
+  "resultado": "ok",
+  "via": "CL FUENLABRADA",
+  "municipio": "PARLA",
+  "parcela": "4251703VK3545S",
+  "nombre": "Fuenlabrada 63, Parla",
+  "accesos": "63 esc 1"
+ },
+ {
+  "codigo": "DAN-2019-007",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NAZARET 10 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL NAZARET",
+  "municipio": "FUENLABRADA",
+  "parcela": "2301603VK3620S",
+  "nombre": "Nazaret 10, Fuenlabrada",
+  "accesos": "10 esc 1"
+ },
+ {
+  "codigo": "DAN-2019-023",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "LAFONTANA-MANCOMUNIDAD FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2019-029",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CORREGIDORJUANDEBOADILLA37 MADRID",
+  "resultado": "dudosa",
+  "motivo": "sin numero (PZ CORREG CONDE MACEDA Y TAB)"
+ },
+ {
+  "codigo": "DAN-2019-035",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELAMACARENA11 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2019-046",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "LOS OLIVOS 2 MEJORADA DEL CAMPO",
+  "resultado": "ok",
+  "via": "CL OLIVOS",
+  "municipio": "MEJORADA DEL CAMPO",
+  "parcela": "8824309VK5782S",
+  "nombre": "Olivos 2, Mejorada del Campo",
+  "accesos": "2 esc 1"
+ },
+ {
+  "codigo": "DAN-2019-063",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NICOLAS MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL CABO NICOLAS MUR / CL LORENZO SAN NICOLAS / CL MAESE NICOLAS / CL NICOLAS AROCENA / CL NICOLAS CABRERA / CL NICOLAS GODOY / CL NICOLAS MARIA URGOITI / CL NICOLAS MORALES / CL NICOLAS SALMERON / CL NICOLAS SANCHEZ / CL NICOLAS USERA / CL NICOLASA GOMEZ"
+ },
+ {
+  "codigo": "DAN-2019-067",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "1 RENDER (LEGANES)",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2020-003",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "1 MODELO TIPO LEGANES (LEGANES)",
+  "resultado": "dudosa",
+  "motivo": "varias vias: AU AUTOPISTA R-5 LEGANES / DS CR LEGANES-FUENLABRA K3,5 / DS CR LEGANES-FUENLABRADA K1 / AV LEGANES"
+ },
+ {
+  "codigo": "DAN-2020-011",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CORREGIDOR JUAN DE BOBADILLA 18 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 18 en PZ CORREG CONDE MACEDA Y TAB: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2020-023",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NICARAGUA 6 MADRID",
+  "resultado": "ok",
+  "via": "CL NICARAGUA",
+  "municipio": "MADRID",
+  "parcela": "3089902VK4738G",
+  "nombre": "Nicaragua 6, Madrid",
+  "accesos": "6 esc 1 · 6 esc S"
+ },
+ {
+  "codigo": "DAN-2020-026",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PLAZA VALENCIA 8 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: RD VALENCIA / CL VALENCIA"
+ },
+ {
+  "codigo": "DAN-2020-054",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONDE DE BARCELONA 8 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "numero 8 en CL CONDE DE BARCELONA: sin_numero (hay 3, 3, 4, 5, 7, 9)"
+ },
+ {
+  "codigo": "DAN-2020-068",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CARREFOURMARKET SAN MARTIN DE VALDEIGLESIAS",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2020-073",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADEBEGOÑA1 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2021-003",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVDRMARTINVEGUEJAUDENES33-35-37 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2021-006",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANCLEMENTE GETAFE",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2021-008",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "0-ORDENANZA (GETAFE)",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL ORDESA)"
+ },
+ {
+  "codigo": "DAN-2021-010",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ISLADECORDEGA20 ALCOBENDAS",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2021-011",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "VALVERDE 28 MADRID",
+  "resultado": "ok",
+  "via": "CL VALVERDE",
+  "municipio": "MADRID",
+  "parcela": "0651127VK4705B",
+  "nombre": "Valverde 28, Madrid",
+  "accesos": "28 esc D · 28 esc I"
+ },
+ {
+  "codigo": "DAN-2021-017",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONSTITUCION 8 LEGANES",
+  "resultado": "ok",
+  "via": "CL CONSTITUCION",
+  "municipio": "LEGANES",
+  "parcela": "5448301VK3654N",
+  "nombre": "Constitucion 8, Leganes",
+  "accesos": "8"
+ },
+ {
+  "codigo": "DAN-2021-045",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PROP CL CISNEROS 24 ALCORCON",
+  "resultado": "dudosa",
+  "motivo": "varias vias: TR CISNEROS / CL CISNEROS / CL FUENTE CISNEROS / TR FUENTE CISNEROS / CO FUENTECISNEROS"
+ },
+ {
+  "codigo": "DAN-2021-054",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PROP CL CISNEROS 31 ALCORCON",
+  "resultado": "dudosa",
+  "motivo": "varias vias: TR CISNEROS / CL CISNEROS / CL FUENTE CISNEROS / TR FUENTE CISNEROS / CO FUENTECISNEROS"
+ },
+ {
+  "codigo": "DAN-2021-066",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PASEO MELANCOLICOS 51 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 51 en PS MELANCOLICOS: sin_numero (hay 47, 49, 49, 50)"
+ },
+ {
+  "codigo": "DAN-2021-069",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CAÑON 9 ALCOBENDAS",
+  "resultado": "dudosa",
+  "motivo": "numero 9 en CL CAÑON: sin_numero (hay 4, 5, 10, 12, 14, 14)"
+ },
+ {
+  "codigo": "DAN-2021-081",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ALFONSO XIII 111 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 111 en CL ALFONSO XIII: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2021-096",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CARRETERRADEGALAPAGAR TORRELODONES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2021-110",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MALAGA 1618 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "numero 1618 en CL MALAGA: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2021-121",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GUADALUPE9 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL GUADALAJARA / CL NTRA SRA D GUADALUPE / CL RIO GUADALQUIVIR"
+ },
+ {
+  "codigo": "DAN-2022-019",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "EMPECINADO 13 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "numero 13 en CL EMPECINADO: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2022-029",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELAMACARENA5 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2022-030",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "OLIMPICOAURELIOGARCIA ALCORCON",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL OLIMPIADA / CL OLIMPICA CONCHITA PUIG / CL OLIMPICO AURELIO GARCIA / CL OLIMPICO FCO FDEZ OCHOA"
+ },
+ {
+  "codigo": "DAN-2022-079",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ANGEL 8 MADRID",
+  "resultado": "ok",
+  "via": "CL ANGEL",
+  "municipio": "MADRID",
+  "parcela": "9637409VK3793H",
+  "nombre": "Angel 8, Madrid",
+  "accesos": "8"
+ },
+ {
+  "codigo": "DAN-2022-106",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PICO DE COTOS 63 COLLADO VILLALBA",
+  "resultado": "dudosa",
+  "motivo": "numero 63 en CL PICO DE COTOS: sin_numero (hay 66)"
+ },
+ {
+  "codigo": "DAN-2022-113",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "RIO MIÑO 4 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL ANTONIO MIRO VALVERDE / CL ANTONIO PALOMINO / CL BERCIANOS DEL REAL CAMINO / CL BOADILLA DEL CAMINO / AV CAMILO JOSE CELA / LG CAMINO A COSLADA / CL CAMINO DE LOS BERROCALES / AV CAMINO DE SANTIAGO / LG CAMINO SAN FDO DE HENARES / CL CAMINO VIEJO D VILLAVERDE / CL CAMINO VIEJO DE LEGANES / CL CAMINO VINATEROS"
+ },
+ {
+  "codigo": "DAN-2022-119",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CERRO PRIETO 7 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "numero 7 en CL CERRO PRIETO: sin_numero (hay )"
+ },
+ {
+  "codigo": "DAN-2022-159",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "direccion pendiente concretar (ARROYOMOLINOS)",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2022-179",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELASANGUSTIAS14 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2022-193",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AV CARLOS V 51-65 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "sin portales con viviendas en el 51 (parcela 6930411VK2663S)"
+ },
+ {
+  "codigo": "DAN-2022-195",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CAMINODEHUMANES27 MOSTOLES",
+  "resultado": "dudosa",
+  "motivo": "varias vias: GC CAMINO / CL CAMINO CARRASQUILLAS / CL CAMINO DE CARRASQUILLAS / CL CAMINO DE HUMANES / TR CAMINO DE LEGANES / CL CAMINO DE LEGANES / CL CAMINO DEL OBISPO / GC CUATRO CAMINOS"
+ },
+ {
+  "codigo": "DAN-2022-205",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SAN JOSE 7 ALCORCON",
+  "resultado": "ok",
+  "via": "CL SAN JOSE",
+  "municipio": "ALCORCON",
+  "parcela": "0172105VK3607S",
+  "nombre": "San Jose 7, Alcorcon",
+  "accesos": "7 esc E"
+ },
+ {
+  "codigo": "DAN-2022-227",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRA SEÑORA DE LAS ANGUSTIAS 14 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: CL AUGUSTO FIGUEROA / CL AUGUSTO GONZALEZ BESADA / CL AUGUSTOBRIGA / CL NTRA SRA DE LAS ANGUSTIAS"
+ },
+ {
+  "codigo": "DAN-2022-234",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELAMERCED11 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2022-248",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "NUESTRASEÑORADELAMERCED1 LEGANES",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL NUESTRA SRA DE MONTSERRAT)"
+ },
+ {
+  "codigo": "DAN-2022-250",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "PORTUGAL 44 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "sin portales con viviendas en el 44 (parcela 1399401VK3519N)"
+ },
+ {
+  "codigo": "DAN-2022-252",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "TOLEDO 5 GETAFE",
+  "resultado": "ok",
+  "via": "CL TOLEDO",
+  "municipio": "GETAFE",
+  "parcela": "7920107VK3672S",
+  "nombre": "Toledo 5, Getafe",
+  "accesos": "5 esc E"
+ },
+ {
+  "codigo": "DAN-2022-261",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "MILLANASTRAY21A37 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: BO CARABANCHEL-COMILLAS / CL FUENCEMILLAN / CL GENERAL MILLAN ASTRAY / CL HUMILLADERO / PZ HUMILLADERO / PZ MARQUES DE COMILLAS / CL PILAR MILLAN ASTRAY / CL SAN MILLAN / PS SAN MILLAN DE LA COGOLLA / CL TOMILLAR"
+ },
+ {
+  "codigo": "DAN-2022-277",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ANDALUCIA 2 GETAFE",
+  "resultado": "ok",
+  "via": "CL ANDALUCIA",
+  "municipio": "GETAFE",
+  "parcela": "9026002VK3682N",
+  "nombre": "Andalucia 2, Getafe",
+  "accesos": "2 esc E"
+ },
+ {
+  "codigo": "DAN-2022-282",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "DE LA INMACULADA 13 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 13 en CL INMACULADA CONCEPCION: sin_numero (hay 10, 11, 14, 15, 16, 17)"
+ },
+ {
+  "codigo": "DAN-2022-284",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "RECALDE 9 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 9 en CL RECALDE: sin_numero (hay 4, 8, 12)"
+ },
+ {
+  "codigo": "DAN-2022-288",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "AVFRANCISCOJAVIERSAUQUILLO2 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2022-293",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SORIA 1 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 1 en CL SORIA: sin_numero (hay 2, 3, 4, 5, 7, 9)"
+ },
+ {
+  "codigo": "DAN-2022-301",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "SANTA ANA 2 MARCHAMALO",
+  "resultado": "dudosa",
+  "motivo": "calle en varios municipios"
+ },
+ {
+  "codigo": "DAN-2023-038",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CONSTITUCION 11 FUENLABRADA",
+  "resultado": "ok",
+  "via": "CL CONSTITUCION",
+  "municipio": "FUENLABRADA",
+  "parcela": "3096802VK3529N 3096810VK3529N 3097501VK3539N 3097502VK3539N 3097503VK3539N 3097504VK3539N",
+  "nombre": "Constitucion 11 A, 11 B, 11 C, 11 D, 11 E y 11 F, Fuenlabrada",
+  "accesos": "11(A) esc 1 · 11(B) esc 1 · 11(C) esc 1 · 11(D) esc 1 · 11(E) esc 1 · 11(F) esc 1"
+ },
+ {
+  "codigo": "DAN-2023-109",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ORIENTE 9 FUENLABRADA",
+  "resultado": "dudosa",
+  "motivo": "numero 9 en CL ORIENTE: sin_numero (hay 4, 6, 6, 8, 10)"
+ },
+ {
+  "codigo": "DAN-2023-138",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "FERROVIAL 9 MADRID",
+  "resultado": "dudosa",
+  "motivo": "varias vias: PS FERROVIARIOS / CL FERROVIARIOS / CL PROV FERROVIARIOS CUATRO / CL PROV FERROVIARIOS DOS / CL PROV FERROVIARIOS TRES / CL PROV FERROVIARIOS UNO"
+ },
+ {
+  "codigo": "DAN-2023-168",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "URBJARDINDEVILLAREJO VILLAREJO DE SALVANES",
+  "resultado": "dudosa",
+  "motivo": "calle: no la encuentro"
+ },
+ {
+  "codigo": "DAN-2023-245",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "APOSTOL SANTIAGO 25 MADRID",
+  "resultado": "dudosa",
+  "motivo": "numero 25 en CL APOSTOL SANTIAGO: sin_numero (hay 21, 22, 27, 28, 28, 29, 29)"
+ },
+ {
+  "codigo": "DAN-2024-070",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "GUADARRAMA 22 VILLAVICIOSA DE ODON",
+  "resultado": "ok",
+  "via": "CL GUADARRAMA",
+  "municipio": "VILLAVICIOSA DE ODON",
+  "parcela": "3179207VK2637N",
+  "nombre": "Guadarrama 22, Villaviciosa de Odon",
+  "accesos": "22 esc 1"
+ },
+ {
+  "codigo": "DAN-2024-111",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "CANILLAS 97 MADRID",
+  "resultado": "ok",
+  "via": "CL CANILLAS",
+  "municipio": "MADRID",
+  "parcela": "3375109VK4737E",
+  "nombre": "Canillas 97, Madrid",
+  "accesos": "97 esc 1"
+ },
+ {
+  "codigo": "DAN-2024-223",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "COSLADA 7 MADRID",
+  "resultado": "ok",
+  "via": "CL COSLADA",
+  "municipio": "MADRID",
+  "parcela": "2767603VK4726F 2767615VK4726F",
+  "nombre": "Coslada 7, Madrid",
+  "accesos": "7 esc 1"
+ },
+ {
+  "codigo": "DAN-2024-229",
+  "estado": "cerrada",
+  "hojas": 0,
+  "buscado": "ARAGON-CERROLAZA POZUELO DE ALARCON",
+  "resultado": "dudosa",
+  "motivo": "sin numero (CL CERROLAZA)"
+ }
+]
