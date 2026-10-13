@@ -50,6 +50,8 @@ export function Satelite() {
   const [fecha, setFecha] = useState(hoyISO());
   const [opp, setOpp] = useState("");
   const [escrita, setEscrita] = useState("");
+  // Una direccion que ya tenemos (clave), elegida de la lista (13-oct-2026).
+  const [claveId, setClaveId] = useState<string | null>(null);
   // Si la direccion no esta: null = aun no se ha contestado la pregunta.
   const [decision, setDecision] = useState<null | "nueva" | "revisar">(null);
   // "ES NUEVA" (8-oct-2026): lo que se pueda poner de la oportunidad que nace.
@@ -122,6 +124,7 @@ export function Satelite() {
   const haySitio = opp !== "" || (escrita !== "" && decision !== null) || lista === "puesto" || lista === "persona";
   const limpiarDireccion = () => {
     setEscrita("");
+    setClaveId(null);
     setDecision(null);
     setNAbierta(false);
     setNAdmin("");
@@ -163,6 +166,7 @@ export function Satelite() {
       oportunidadId: opp || null,
       persona: con || null,
       dondeTexto: opp ? null : escrita || null,
+      claveId: opp ? null : claveId,
       nueva:
         !opp && escrita && decision === "nueva"
           ? {
@@ -250,6 +254,7 @@ export function Satelite() {
     setFecha(n.fecha);
     setOpp(n.oportunidadId ?? "");
     setEscrita(n.dondeTexto ?? "");
+    setClaveId(n.claveId ?? null);
     setDecision(n.dondeTexto ? (n.nueva ? "nueva" : "revisar") : null);
     setNAdmin(n.nueva?.administrador ?? "");
     setNContacto(n.nueva?.contacto ?? "");
@@ -393,7 +398,11 @@ export function Satelite() {
             <span className="min-w-0 flex-1 font-semibold text-[#5c4208]">
               {escrita}{" "}
               <span className="font-normal opacity-70">
-                {decision === "nueva" ? "· oportunidad nueva" : decision === "revisar" ? "· se revisa después" : "· no está en la lista"}
+                {decision === "nueva"
+                  ? claveId ? "· opp nueva en esta dirección" : "· oportunidad nueva"
+                  : decision === "revisar"
+                    ? "· se revisa después"
+                    : claveId ? "· dirección que ya tenemos" : "· no está en la lista"}
               </span>
             </span>
             <button type="button" aria-label="Quitar" onClick={limpiarDireccion} className="px-1 text-lg text-[#5c4208]/70">
@@ -404,15 +413,28 @@ export function Satelite() {
           <Elegir
             id="sat_opp"
             nombre=""
-            opciones={listas?.oportunidades ?? []}
+            // Primero las opps, por su nombre; luego las direcciones que ya
+            // tenemos aunque no tengan opp abierta (13-oct-2026).
+            opciones={[...(listas?.oportunidades ?? []), ...(listas?.direcciones ?? [])]}
             valor={opp}
-            alElegir={setOpp}
+            alElegir={(v) => {
+              if (v.startsWith("clave:")) {
+                const d = listas?.direcciones?.find((x) => x.valor === v);
+                setOpp("");
+                setClaveId(v.slice("clave:".length));
+                setEscrita(d?.texto ?? "");
+                setDecision(null);
+                return;
+              }
+              setOpp(v);
+            }}
             vacio="busca la dirección…"
             marco="border-carbon/40"
             conPista
             clase="mt-1"
             noEsta={(q) => {
               setOpp("");
+              setClaveId(null);
               setEscrita(q);
               setDecision(null);
             }}
@@ -422,7 +444,11 @@ export function Satelite() {
         {/* La direccion no esta: puede ser una oportunidad nueva o una errata. */}
         {escrita && !opp && decision === null && (
           <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
-            <p className="text-[14px] text-amber-900">No la encuentro. ¿Es nueva o la marco para revisar después?</p>
+            <p className="text-[14px] text-amber-900">
+              {claveId
+                ? "Esta dirección ya la tenemos, pero sin opp abierta. ¿Es una opp nueva aquí o la marco para revisar después?"
+                : "No la encuentro. ¿Es nueva o la marco para revisar después?"}
+            </p>
             <div className="mt-2 grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -432,7 +458,7 @@ export function Satelite() {
                 }}
                 className="rounded-xl border border-[#5c4208] bg-[#5c4208] py-2.5 text-[14px] font-bold text-white"
               >
-                Es nueva
+                {claveId ? "Es una opp nueva aquí" : "Es nueva"}
               </button>
               <button
                 type="button"

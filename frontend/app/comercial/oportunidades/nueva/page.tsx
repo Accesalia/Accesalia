@@ -7,6 +7,7 @@ import { Formulario } from "./Formulario";
 import { guardarOportunidad } from "./acciones";
 import { Salida } from "../../../components/Salida";
 import { apuntePendiente } from "../../../../lib/apuntesSatelite";
+import { abrirClave } from "../../../../lib/claves";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,12 @@ export default async function NuevaOportunidad({
   const apunte = apunteId ? await apuntePendiente(yo, apunteId) : null;
   const delApunte = apunte
     ? await (async () => {
-        const d = apunte.datos as { administrador?: string | null; tipos?: string[]; paso?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null };
+        const d = apunte.datos as {
+          administrador?: string | null; tipos?: string[]; paso?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null;
+          claveId?: string | null;
+        };
+        // Una direccion que ya tenemos, elegida en el satelite: el alta la trae elegida.
+        const clave = d.claveId ? (await abrirClave(d.claveId).catch(() => null))?.clave ?? null : null;
         // El administrador llega como su puesto; el alta lo elige por la persona.
         let admin: string | null = null;
         const [t, idPuesto] = (d.administrador ?? "").split(":");
@@ -62,6 +68,7 @@ export default async function NuevaOportunidad({
             admin,
             tipos: Array.isArray(d.tipos) ? d.tipos : [],
             paso: d.paso ?? null,
+            clave,
           },
           contacto: [d.contactoNombre, d.contactoTelefono].filter(Boolean).join(" · ") || null,
           autor: apunte.autor,
@@ -93,6 +100,9 @@ export default async function NuevaOportunidad({
             <b>Apuntada desde el satélite{delApunte.autor ? ` por ${delApunte.autor}` : ""}.</b> Está rellena con lo que se mandó: completa lo que
             falte y dala de alta.
             {delApunte.contacto && <> Contacto que se apuntó: <b>{delApunte.contacto}</b>.</>}
+            {delApunte.inicial.clave && (
+              <> Es una dirección que ya tenemos: <b>{delApunte.inicial.clave.nombre}</b>. Pulsa la lupa para confirmar sus accesos en Catastro.</>
+            )}
           </p>
         )}
         {apunteId && !apunte && (

@@ -40,6 +40,8 @@ type Cuerpo = {
   oportunidadId?: string | null;
   persona?: string | null;
   dondeTexto?: string | null;
+  /** La direccion que ya tenemos (clave), si se eligio de la lista. */
+  claveId?: string | null;
   fotos?: string[];
   /** "Es nueva": la oportunidad que nace con esta nota (8-oct-2026). */
   nueva?: Omit<NuevaDesdeMovil, "direccion" | "fecha"> | null;
@@ -81,6 +83,7 @@ export async function POST(req: Request) {
           contactoTelefono: c.nueva.contactoTelefono ?? null,
           tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
           paso: c.nueva.paso ?? null,
+          claveId: c.claveId && /^[0-9a-f-]{36}$/.test(c.claveId) ? c.claveId : null,
           fotos,
         },
       });

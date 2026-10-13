@@ -17,6 +17,9 @@ export type OppSat = Opcion & { comercialId: string | null; comercial: string | 
 export type Listas = {
   oportunidades: OppSat[];
   personas: Opcion[];
+  /** Las direcciones que ya tenemos (claves DIR), aunque no tengan opp abierta
+   *  (puede faltar en listas guardadas antes). Valor "clave:<id>". */
+  direcciones?: Opcion[];
   /** Lo que quieren, para "Es nueva" (puede faltar en listas guardadas antes). */
   tipos?: Opcion[];
   miComercialId: string | null;
@@ -45,6 +48,8 @@ export type NotaEnCola = {
   oportunidadId: string | null;
   persona: string | null;
   dondeTexto: string | null;
+  /** Si se eligio una direccion que ya tenemos (clave), su id. */
+  claveId?: string | null;
   /** Si la direccion no estaba y se dijo "Es nueva". */
   nueva?: NuevaSat | null;
   /** "+ Crear nuevo adm" (13-oct-2026): el administrador que nace con la nota. */
@@ -139,6 +144,7 @@ export async function enviarCola(): Promise<ResultadoEnvio> {
           oportunidadId: n.oportunidadId,
           persona: n.persona,
           dondeTexto: n.dondeTexto,
+          claveId: n.claveId ?? null,
           nueva: n.nueva ?? null,
           nuevoAdmin: n.nuevoAdmin ?? null,
           fotos: n.rutas ?? [],

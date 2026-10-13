@@ -196,6 +196,9 @@ export function Formulario({
     admin?: string | null;
     tipos?: string[];
     paso?: string | null;
+    /** La direccion que ya tenemos (clave), elegida en el satelite: la ventana
+     *  de Catastro se abre con ella (13-oct-2026). */
+    clave?: { id: string; nombre: string; codigo: string | null } | null;
   };
 }) {
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
@@ -217,7 +220,7 @@ export function Formulario({
   const [canalNota, setCanalNota] = useState(inicial?.canal ?? "");
 
   // La direccion elegida de la lista: se abre Catastro con ella.
-  const [claveElegida, setClaveElegida] = useState<{ id: string; nombre: string; codigo: string | null } | null>(null);
+  const [claveElegida, setClaveElegida] = useState<{ id: string; nombre: string; codigo: string | null } | null>(inicial?.clave ?? null);
   const [direccion, setDireccion] = useState(inicial?.direccion ?? "");
   const [buscarDireccion, setBuscarDireccion] = useState(false);
   // La ventana de Catastro (3-oct-2026): se abre con Intro o con la lupa, y si
