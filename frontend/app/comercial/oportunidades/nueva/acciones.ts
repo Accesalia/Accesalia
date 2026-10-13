@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { crearOportunidad, type DatosOportunidad } from "../../../../lib/altaOportunidad";
 import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { cerrarPendienteEnAlta } from "../../../../lib/pendientes";
+import { cerrarApunteEnAlta } from "../../../../lib/apuntesSatelite";
 
 const VOLVER = "/comercial/oportunidades/nueva";
 
@@ -107,6 +108,11 @@ export async function guardarOportunidad(fd: FormData) {
   // primera nota de esta oportunidad, y sus fotos pasan aqui (8-oct-2026).
   const pendiente = texto(fd, "pendiente");
   if (pendiente) await cerrarPendienteEnAlta(yo, pendiente, hecho.notaId, hecho.id);
+
+  // Si viene de un APUNTE DEL SATELITE (13-oct-2026): queda dado de alta con
+  // esta oportunidad, y sus fotos pasan a la primera nota.
+  const apunteId = texto(fd, "apunte");
+  if (apunteId) await cerrarApunteEnAlta(yo, apunteId, hecho.notaId, hecho.id);
 
   revalidatePath("/comercial");
   // AL CREARLA SE ATERRIZA EN SU GESTION, no en el cuadro (Monica, 5-oct-2026):

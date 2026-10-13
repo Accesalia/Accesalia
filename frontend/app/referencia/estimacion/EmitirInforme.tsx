@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { Elegir } from "../../components/Elegir";
 import { VentanaDireccion, type DireccionResuelta } from "../../comercial/oportunidades/nueva/VentanaDireccion";
 import type { EntradaCostes } from "../../../lib/informeCostes";
-import { crearOportunidadYEmitir, emitirParaOportunidad, emitirSinGuardar, type DatosRapidos } from "./acciones";
+import { emitirParaOportunidad, emitirSinGuardar } from "./acciones";
 
 // EL INFORME, ¿PARA QUIEN? (Monica, 12-oct-2026). Un buscador entre nuestras
 // oportunidades. Si la direccion no esta, se busca en Catastro (hace falta el
-// edificio para las plantas y las ayudas) y salen dos botones:
-//   - "Emitir sin guardar": queda solo el rastro, con fecha y hora;
-//   - "Crear oportunidad y emitir": una ventana rapida, la del satelite del
-//     movil ("la he probado en la app de escritorio y funciona genial"). Todo
-//     opcional: la oportunidad nace coja y se completa en el PC.
+// edificio para las plantas y las ayudas) y se emite: queda el informe, sin
+// oportunidad, y la direccion en Pendientes ("Direcciones para las que has
+// generado informes") por si se le sigue la pista. AQUI NO SE CREAN OPPS
+// (Monica, 13-oct-2026: "estimacion de costes no deberia crear opps").
 // Cada informe se EMITE: se guarda tal cual salio y se abre para verlo,
 // imprimirlo y, mas adelante, enviarlo.
 
@@ -57,20 +56,8 @@ export function EmitirInforme({
   const [opp, setOpp] = useState("");
   const [buscando, setBuscando] = useState<string | null>(null);
   const [nueva, setNueva] = useState<DireccionResuelta | null>(null);
-  const [rapida, setRapida] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enCurso, empezar] = useTransition();
-
-  // La ventana rapida.
-  const [admin, setAdmin] = useState("");
-  const [contacto, setContacto] = useState("");
-  const [cNombre, setCNombre] = useState("");
-  const [cTel, setCTel] = useState("");
-  const [nTipos, setNTipos] = useState<string[]>([]);
-  const [paso, setPaso] = useState("");
-  const [comercial, setComercial] = useState("");
-  // Sin comercial no hay codigo: la oportunidad no puede nacer (12-oct-2026).
-  const faltaComercial = !!comerciales && !comercial;
 
   const lanzar = (accion: () => Promise<{ ok: true; id: string } | { ok: false; error: string }>) => {
     setError(null);
@@ -81,7 +68,6 @@ export function EmitirInforme({
     });
   };
   const sinEntrada = !entrada;
-  const datos = (): DatosRapidos => ({ administrador: admin, contacto, contactoNombre: cNombre, contactoTelefono: cTel, tipos: nTipos, paso, comercial });
 
   return (
     <div className="mt-4 border-t border-black/5 pt-4">
@@ -96,7 +82,6 @@ export function EmitirInforme({
             alElegir={(v) => {
               setOpp(v);
               setNueva(null);
-              setRapida(false);
             }}
             vacio="busca entre nuestras oportunidades…"
             conPista
@@ -128,18 +113,14 @@ export function EmitirInforme({
             </button>
           </p>
           <div className="mt-2.5 flex flex-wrap gap-2.5">
-            <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirSinGuardar(nueva, entrada!, clase))} className={bBlanco}>
-              {enCurso && !rapida ? "Emitiendo…" : "Emitir sin guardar"}
+            <button type="button" disabled={sinEntrada || enCurso} onClick={() => lanzar(() => emitirSinGuardar(nueva, entrada!, clase))} className={bLima}>
+              {enCurso ? "Emitiendo…" : "Emitir"}
             </button>
-            {puedeCrear && (
-              <button type="button" disabled={sinEntrada || enCurso} onClick={() => setRapida(true)} className={bLima}>
-                Crear oportunidad y emitir
-              </button>
-            )}
           </div>
           <p className="mt-2 text-[12px] text-carbon/70">
-            «Sin guardar» no crea nada: solo queda apuntada la dirección, con fecha y hora, en «Direcciones vistas que no
-            llegaron a mayores».
+            No crea ninguna oportunidad (Monica, 13-oct-2026: «estimación de costes no debería crear opps»). La dirección queda
+            apuntada, con fecha y hora, en tus Pendientes («Direcciones para las que has generado informes»), por si quieres
+            seguirle la pista.
           </p>
         </div>
       )}
@@ -160,112 +141,6 @@ export function EmitirInforme({
         />
       )}
 
-      {/* LA VENTANA RAPIDA: la de "Es nueva" del satelite. */}
-      {rapida && nueva && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-[8vh]" onClick={() => !enCurso && setRapida(false)}>
-          <div className="w-full max-w-[520px] rounded-2xl border border-[#8a6410] bg-form-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-[17px] font-bold text-carbon">Oportunidad nueva</h3>
-                <p className="text-[13px] text-carbon/70">{nueva.nombre}</p>
-              </div>
-              <button type="button" disabled={enCurso} onClick={() => setRapida(false)} className="text-[13px] font-semibold text-carbon/65 hover:text-carbon">
-                Cancelar
-              </button>
-            </div>
-            {comerciales && (
-              <>
-                <span className={ETQ + " mt-3"}>Comercial · obligatorio</span>
-                <Elegir
-                  id="est_n_comercial"
-                  nombre=""
-                  opciones={comerciales}
-                  valor={comercial}
-                  alElegir={setComercial}
-                  vacio="¿de quién es?"
-                  clase="mt-1"
-                />
-                <p className="mt-1 text-[12px] text-carbon/65">Sin comercial no hay código, y sin código la oportunidad no nace.</p>
-              </>
-            )}
-            <p className="mt-2 text-[13px] text-carbon/70">Lo demás es opcional: se completa en su ficha.</p>
-
-            <span className={ETQ + " mt-3"}>Administrador</span>
-            <Elegir
-              id="est_n_admin"
-              nombre=""
-              opciones={personas.filter((p) => p.valor.startsWith("puesto:"))}
-              valor={admin}
-              alElegir={setAdmin}
-              vacio="de la lista…"
-              conPista
-              clase="mt-1"
-            />
-            <span className={ETQ + " mt-3"}>Persona de contacto en la comunidad</span>
-            <Elegir
-              id="est_n_contacto"
-              nombre=""
-              opciones={personas.filter((p) => p.valor.startsWith("puesto:") || p.valor.startsWith("pc:"))}
-              valor={contacto}
-              alElegir={setContacto}
-              vacio="de la lista…"
-              conPista
-              clase="mt-1"
-            />
-            {!contacto && (
-              <div className="mt-1.5 grid grid-cols-[1fr_140px] gap-1.5">
-                <input value={cNombre} onChange={(e) => setCNombre(e.target.value)} placeholder="o escríbelo: nombre" className={CAMPO} />
-                <input value={cTel} onChange={(e) => setCTel(e.target.value)} placeholder="teléfono" inputMode="tel" className={CAMPO} />
-              </div>
-            )}
-            <span className={ETQ + " mt-3"}>Qué quieren</span>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {tipos.map((t) => {
-                const on = nTipos.includes(t.valor);
-                return (
-                  <button
-                    key={t.valor}
-                    type="button"
-                    onClick={() => setNTipos((a) => (on ? a.filter((x) => x !== t.valor) : [...a, t.valor]))}
-                    className={
-                      "rounded-full border px-3 py-1 text-[13px] font-semibold " +
-                      (on ? "border-[#5c4208] bg-[#5c4208] text-white" : "border-carbon/25 bg-white text-carbon/75 hover:border-carbon/50")
-                    }
-                  >
-                    {t.texto}
-                  </button>
-                );
-              })}
-            </div>
-            <span className={ETQ + " mt-3"}>Siguiente paso</span>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {PASOS.map((p) => (
-                <button
-                  key={p.clave}
-                  type="button"
-                  onClick={() => setPaso(paso === p.clave ? "" : p.clave)}
-                  className={
-                    "rounded-xl border px-3.5 py-1.5 text-[13px] font-semibold " +
-                    (paso === p.clave ? "border-[#5c4208] bg-[#5c4208] text-white" : "border-carbon/25 bg-white text-carbon/75 hover:border-carbon/50")
-                  }
-                >
-                  {p.texto}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-5 flex justify-end gap-2.5">
-              <button type="button" disabled={enCurso} onClick={() => setRapida(false)} className={bBlanco}>
-                Cancelar
-              </button>
-              <button type="button" disabled={enCurso || sinEntrada || faltaComercial} onClick={() => lanzar(() => crearOportunidadYEmitir(nueva, datos(), entrada!, clase))} className={bLima}>
-                {enCurso ? "Creando…" : "Crear y emitir"}
-              </button>
-            </div>
-            {error && <p className="mt-2 text-[13px] text-alerta">{error}</p>}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -30,6 +30,7 @@ export function Marcar({
   marco = "border-carbon/70",
   debajo = false,
   grupos,
+  inicial,
 }: {
   id: string;
   opciones: Marca[];
@@ -44,8 +45,10 @@ export function Marcar({
   /** El panel en COLUMNAS, cada una con su titulo y sus valores en orden (la
    *  pantalla de crear oportunidad, 7-oct-2026). Sin esto, una sola lista. */
   grupos?: { titulo: string; valores: string[] }[];
+  /** Lo que viene ya marcado (un apunte del satelite, 13-oct-2026). */
+  inicial?: string[];
 }) {
-  const [puestos, setPuestos] = useState<string[]>([]);
+  const [puestos, setPuestos] = useState<string[]>(() => (inicial ?? []).filter((v) => opciones.some((o) => o.valor === v)));
   const [busca, setBusca] = useState("");
   const [abierto, setAbierto] = useState(false);
   // Si no hay sitio debajo, hacia arriba: si no, la lista se sale de la pantalla.

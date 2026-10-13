@@ -6,6 +6,7 @@ import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../li
 import { Formulario } from "./Formulario";
 import { guardarOportunidad } from "./acciones";
 import { Salida } from "../../../components/Salida";
+import { apuntePendiente } from "../../../../lib/apuntesSatelite";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,9 @@ export const dynamic = "force-dynamic";
 export default async function NuevaOportunidad({
   searchParams,
 }: {
-  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string; pendiente?: string }>;
+  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string; pendiente?: string; apunte?: string }>;
 }) {
-  const { falta, nota, direccion, fecha, canal, pendiente } = await searchParams;
+  const { falta, nota, direccion, fecha, canal, pendiente, apunte: apunteId } = await searchParams;
   // Desde "Grabar entrada", con la direccion que no estaba en la lista.
   const inicial =
     nota || direccion
@@ -35,6 +36,38 @@ export default async function NuevaOportunidad({
       : undefined;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/nueva");
+  // UN APUNTE DEL SATELITE (13-oct-2026): el alta, ya rellena con lo que se
+  // mando desde el movil. Al guardar, el apunte queda dado de alta.
+  const apunte = apunteId ? await apuntePendiente(yo, apunteId) : null;
+  const delApunte = apunte
+    ? await (async () => {
+        const d = apunte.datos as { administrador?: string | null; tipos?: string[]; paso?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null };
+        // El administrador llega como su puesto; el alta lo elige por la persona.
+        let admin: string | null = null;
+        const [t, idPuesto] = (d.administrador ?? "").split(":");
+        if (t === "puesto" && /^[0-9a-f-]{36}$/.test(idPuesto ?? "")) {
+          const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/puesto?select=persona_id&id=eq.${idPuesto}`, {
+            headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` },
+            cache: "no-store",
+          });
+          admin = r.ok ? ((await r.json()) as { persona_id: string | null }[])[0]?.persona_id ?? null : null;
+        }
+        return {
+          inicial: {
+            nota: apunte.nota,
+            direccion: apunte.direccion ?? "",
+            fecha: apunte.fecha,
+            canal: apunte.canal && ["visita", "llamada", "mail", "escrito"].includes(apunte.canal) ? apunte.canal : null,
+            apunte: apunte.id,
+            admin,
+            tipos: Array.isArray(d.tipos) ? d.tipos : [],
+            paso: d.paso ?? null,
+          },
+          contacto: [d.contactoNombre, d.contactoTelefono].filter(Boolean).join(" · ") || null,
+          autor: apunte.autor,
+        };
+      })()
+    : null;
   if (!puedeEntrar(yo, "comercial") && !puedeEntrar(yo, "administracion")) redirect("/menu");
 
   const { elige, mio } = await eligeComercialAlDarDeAlta(yo);
@@ -55,8 +88,27 @@ export default async function NuevaOportunidad({
           </p>
         )}
 
+        {delApunte && (
+          <p className="mt-3 rounded-xl border border-[#78b6b8] bg-[#78b6b8]/20 px-4 py-3 text-[14px] text-carbon">
+            <b>Apuntada desde el satélite{delApunte.autor ? ` por ${delApunte.autor}` : ""}.</b> Está rellena con lo que se mandó: completa lo que
+            falte y dala de alta.
+            {delApunte.contacto && <> Contacto que se apuntó: <b>{delApunte.contacto}</b>.</>}
+          </p>
+        )}
+        {apunteId && !apunte && (
+          <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
+            Ese apunte ya no está pendiente o no es tuyo.
+          </p>
+        )}
+
         <div className="mt-3">
-          <Formulario opciones={opciones} eligeComercial={elige} accion={guardarOportunidad} volver="/comercial" inicial={inicial} />
+          <Formulario
+            opciones={opciones}
+            eligeComercial={elige}
+            accion={guardarOportunidad}
+            volver={delApunte ? "/pendientes/satelite?tipo=oportunidad" : "/comercial"}
+            inicial={delApunte?.inicial ?? inicial}
+          />
         </div>
       </main>
     </div>

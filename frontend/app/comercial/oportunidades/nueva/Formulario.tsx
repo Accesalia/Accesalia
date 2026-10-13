@@ -185,7 +185,18 @@ export function Formulario({
   /** Lo que llega de "Grabar entrada" cuando la direccion no estaba en la
    *  lista y se dijo "Es nueva" (Monica, 8-oct-2026): la nota, la direccion
    *  escrita y cuando paso, ya puestas. */
-  inicial?: { nota: string; direccion: string; fecha: string | null; canal: string | null; pendiente?: string | null };
+  inicial?: {
+    nota: string;
+    direccion: string;
+    fecha: string | null;
+    canal: string | null;
+    pendiente?: string | null;
+    /** Un apunte del satelite (13-oct-2026): al guardar queda dado de alta. */
+    apunte?: string | null;
+    admin?: string | null;
+    tipos?: string[];
+    paso?: string | null;
+  };
 }) {
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
@@ -219,7 +230,7 @@ export function Formulario({
   // terminar, ESO es dejarla provisional a proposito.
   const [provisionalAdrede, setProvisionalAdrede] = useState(false);
 
-  const [admin, setAdmin] = useState("");
+  const [admin, setAdmin] = useState(inicial?.admin ?? "");
   const [quien, setQuien] = useState("");
 
   const [hablaLlamo, setHablaLlamo] = useState(false);
@@ -232,7 +243,7 @@ export function Formulario({
   const [otroNuevo, setOtroNuevo] = useState<Persona | null>(null);
   const [creando, setCreando] = useState<null | "admin" | "quien" | "otro">(null);
 
-  const [paso, setPaso] = useState("");
+  const [paso, setPaso] = useState(inicial?.paso ?? "");
   // "Fue el mismo administrador" (7-oct-2026): ya no es una casilla. Si solo
   // se ha puesto el administrador, es que llamo el; si hay otra persona, llamo
   // ella.
@@ -494,6 +505,7 @@ export function Formulario({
                 <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
                 <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
                 <input type="hidden" name="clave_unir" value={resuelta?.unirA ?? ""} />
+                {inicial?.apunte && <input type="hidden" name="apunte" value={inicial.apunte} />}
               </div>
               <span className={apoyo + " ml-[15px] w-[67px] shrink-0 text-right"}>
                 {buscarDireccion
@@ -603,6 +615,7 @@ export function Formulario({
                 marco="border-black"
                 debajo
                 grupos={columnasDeInteres(opciones.tipos)}
+                inicial={inicial?.tipos}
               />
             </div>
           </div>

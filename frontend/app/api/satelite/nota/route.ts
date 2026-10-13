@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
 import { crearEntrada } from "../../../../lib/entradaDiario";
-import { crearOportunidadDesdeMovil, type NuevaDesdeMovil } from "../../../../lib/oportunidadMovil";
-import { crearAdminDesdeMovil, type AdminDesdeMovil } from "../../../../lib/adminMovil";
+import type { NuevaDesdeMovil } from "../../../../lib/oportunidadMovil";
+import type { AdminDesdeMovil } from "../../../../lib/adminMovil";
+import { apuntar, notaYaApuntada } from "../../../../lib/apuntesSatelite";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // GUARDAR UNA NOTA QUE LLEGA DEL SATELITE (8-oct-2026). Es la misma nota que
 // la del PC: texto + sitio, con su canal, su fecha y sus fotos ya subidas. El
 // movil le da su propio id al escribirla: si la reenvia porque se corto la
 // cobertura, no se duplica.
+//
+// LO NUEVO NO SE CREA DESDE EL MOVIL (Monica, 13-oct-2026): "el satelite debe
+// permitir coger el dato rapido, no necesariamente completo: es para que no se
+// les olvide, no para que trabajen desde el movil". Una opp o un administrador
+// nuevos se APUNTAN (lib/apuntesSatelite) con su nota y todo lo que mando el
+// movil, y salen en Pendientes para completarlos y darlos de alta en la oficina.
 export const dynamic = "force-dynamic";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -22,7 +29,7 @@ async function yaEsta(id: string): Promise<boolean> {
     return r.ok && ((await r.json()) as unknown[]).length > 0;
   };
   const hay = await Promise.all(["notas_oportunidad", "notas_administracion_fincas", "notas_pendientes"].map(mirar));
-  return hay.some(Boolean);
+  return hay.some(Boolean) || (await notaYaApuntada(id));
 }
 
 type Cuerpo = {
@@ -50,27 +57,38 @@ export async function POST(req: Request) {
   if (id && (await yaEsta(id))) return NextResponse.json({ ok: true, repetida: true });
 
   try {
-    // ES NUEVA: primero nace la oportunidad (coja), y la nota va a ella.
-    let oportunidadId = c.oportunidadId || null;
-    let dondeTexto = c.dondeTexto || null;
-    let persona = c.persona || null;
-    // NUEVO ADMINISTRADOR: primero nace la persona con su puesto, y la nota va
-    // a sus notas. La nota es obligatoria: sin ella no se crea nadie.
+    const fecha = c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : new Date().toISOString().slice(0, 10);
+    const fotos = Array.isArray(c.fotos) ? c.fotos.map(String) : [];
+    // NUEVO ADMINISTRADOR: se apunta, no se crea. La nota es obligatoria.
     if (c.nuevoAdmin) {
       if (!(c.texto ?? "").trim()) throw new Error("Falta la nota: es obligatoria.");
-      persona = "puesto:" + (await crearAdminDesdeMovil(yo, c.nuevoAdmin));
-      oportunidadId = null;
-      dondeTexto = null;
-    }
-    if (!c.nuevoAdmin && c.nueva && c.dondeTexto) {
-      oportunidadId = await crearOportunidadDesdeMovil(yo, {
-        ...c.nueva,
-        direccion: c.dondeTexto,
-        fecha: c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : new Date().toISOString().slice(0, 10),
-        tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
+      if (!c.nuevoAdmin.nombre?.trim()) throw new Error("Falta el nombre del administrador.");
+      if (!c.nuevoAdmin.telefono?.trim() && !c.nuevoAdmin.correo?.trim()) throw new Error("Falta el teléfono o el correo del administrador: al menos uno.");
+      await apuntar(yo, {
+        tipo: "administrador", notaId: id ?? null, fecha, nota: c.texto ?? "", canal: c.canal ?? null, direccion: null,
+        nombre: c.nuevoAdmin.nombre, datos: { telefono: c.nuevoAdmin.telefono ?? null, correo: c.nuevoAdmin.correo ?? null, fotos },
       });
-      dondeTexto = null;
+      return NextResponse.json({ ok: true, donde: "apuntado: lo completas en la oficina (Pendientes)" });
     }
+    // ES NUEVA: la oportunidad se apunta, no se crea.
+    if (c.nueva && c.dondeTexto) {
+      await apuntar(yo, {
+        tipo: "oportunidad", notaId: id ?? null, fecha, nota: c.texto ?? "", canal: c.canal ?? null, direccion: c.dondeTexto, nombre: null,
+        datos: {
+          administrador: c.nueva.administrador ?? null,
+          contacto: c.nueva.contacto ?? null,
+          contactoNombre: c.nueva.contactoNombre ?? null,
+          contactoTelefono: c.nueva.contactoTelefono ?? null,
+          tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
+          paso: c.nueva.paso ?? null,
+          fotos,
+        },
+      });
+      return NextResponse.json({ ok: true, donde: "apuntada: la completas y das de alta en la oficina (Pendientes)" });
+    }
+    const oportunidadId = c.oportunidadId || null;
+    const dondeTexto = c.dondeTexto || null;
+    const persona = c.persona || null;
     const destino = await crearEntrada({
       id,
       texto: c.texto ?? "",
@@ -81,7 +99,7 @@ export async function POST(req: Request) {
       dondeTexto,
       autorId: yo.id,
       autorNombre: yo.nombre,
-      fotos: Array.isArray(c.fotos) ? c.fotos.map(String) : [],
+      fotos,
     });
     return NextResponse.json({ ok: true, donde: destino.donde });
   } catch (e) {
