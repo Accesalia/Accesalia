@@ -16,14 +16,14 @@ export function AreasBarra({ areas, activa }: { areas: PestanaArea[]; activa: st
   useEffect(() => setHueco(document.getElementById(HUECO_SALIDA)), []);
   if (hueco === undefined) return null;
   const pestanas = (
-    <nav className="flex items-center gap-1">
+    <nav className="flex shrink-0 items-center gap-0.5">
       {areas.map((a) => {
         const on = a.clave === activa;
         return (
           <Link
             key={a.clave}
             href={a.href}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-1.5 text-[14.5px] font-semibold transition ${on ? "bg-white text-carbon" : "text-white/65 hover:text-white"}`}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-semibold transition ${on ? "bg-white text-carbon" : "text-white/65 hover:text-white"}`}
           >
             {a.titulo}
             {a.cuenta ? (

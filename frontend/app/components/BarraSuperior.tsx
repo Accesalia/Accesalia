@@ -35,7 +35,9 @@ export async function BarraSuperior() {
         {/* EL HUECO DE LA SALIDA (12-oct-2026): aqui pinta cada pantalla su
             "← Volver a…" (components/Salida), para que no se pierda al bajar. El id es
             el de HUECO_SALIDA, escrito aqui porque esto es de servidor. */}
-        <div id="barra-salida" className="flex min-w-0 items-center gap-4 overflow-hidden" />
+        {/* El hueco no se encoge: lo que se pinta aqui (la salida, las areas de facturacion)
+            se ve entero; si falta sitio, cede el buscador (13-oct-2026). */}
+        <div id="barra-salida" className="flex shrink-0 items-center gap-4" />
 
         <div className="flex-1" />
 
@@ -43,7 +45,7 @@ export async function BarraSuperior() {
           <form
             action="/consulta"
             role="search"
-            className="hidden items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 transition focus-within:border-lima md:flex"
+            className="hidden w-72 min-w-[9rem] shrink items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 transition focus-within:border-lima md:flex"
           >
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/60">
               <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.6" />
@@ -54,14 +56,14 @@ export async function BarraSuperior() {
               name="q"
               aria-label="Buscar una comunidad"
               placeholder="Buscar una comunidad…"
-              className="w-56 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
+              className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
             />
           </form>
         )}
 
         {yo && (
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-white/80 sm:inline">
+            <span className="hidden text-sm text-white/80 2xl:inline">
               <span className="text-white/45">Hola, </span>
               <b className="font-semibold text-white">{yo.nombre}</b>
             </span>
