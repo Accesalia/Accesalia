@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { bonito, NOMBRE_TIPO, nombrePropuesto, type Portal } from "../../../../lib/direccionNombre";
 import type { Entendido, Via } from "../../../../lib/buscarDireccion";
-import { buscarElNumero, buscarLaCalle, confirmarDireccion, entender, verPortales } from "./direccion";
+import { buscarElNumero, buscarLaCalle, clavesDeLaParcela, confirmarDireccion, entender, verClave, verPortales } from "./direccion";
+import type { ClaveBreve } from "../../../../lib/claves";
 
 // BUSCAR LA DIRECCION — la maqueta del 3-oct-2026 (docs/figma/buscar-direccion.html).
 //
@@ -17,6 +18,14 @@ import { buscarElNumero, buscarLaCalle, confirmarDireccion, entender, verPortale
 //   · cerrarla en cualquier momento no pierde nada: lo escrito se queda como
 //     nombre provisional;
 //   · el comercial no dice "accesos": el boton es "Incluye estos".
+//
+// LA CLAVE (Monica, 13-oct-2026): si se eligio una direccion de la lista (una
+// clave, con DIR o sin el), la ventana abre su parcela con sus accesos ya
+// marcados: elegirla no se salta Catastro, solo evita una clave nueva. Y si lo
+// buscado comparte parcela con otra clave, SE MUESTRA, pero no se junta: "ok a
+// que lo muestre, no a que lo junte como si fuera la misma direccion. No
+// automaticamente" (Monica). Unir es una casilla, desmarcada. La oportunidad va
+// por libre en los dos casos.
 
 export type DireccionResuelta = {
   nombre: string;
@@ -27,6 +36,9 @@ export type DireccionResuelta = {
   /** Con "pendiente": la parcela, que es lo que distingue "falta el alcance"
    *  de "falta la direccion". Si eran varias (el 6 y el 6 B), la primera. */
   parcela: string | null;
+  /** La clave (direccion) a la que se une: la elegida de la lista, o la que
+   *  comparte parcela si se dijo "unir". Null = la de sus accesos o una nueva. */
+  unirA: string | null;
 };
 
 type Paso =
@@ -61,11 +73,14 @@ export function VentanaDireccion({
   escrito,
   alListo,
   alCerrar,
+  clave,
 }: {
   escrito: string;
   alListo: (r: DireccionResuelta) => void;
   /** Sin terminar: lo escrito se queda como provisional. */
   alCerrar: () => void;
+  /** Elegida en la lista del alta: se abre su parcela con sus accesos marcados. */
+  clave?: ClaveBreve | null;
 }) {
   const [e, setE] = useState<Entendido>({ escrito, tipo: "", calle: "", numero: "", municipio: "" });
   const [paso, setPaso] = useState<Paso>({ k: "cargando", texto: "Leyendo lo que has escrito…" });
@@ -75,6 +90,10 @@ export function VentanaDireccion({
   const [nombre, setNombre] = useState("");
   const [nombreTocado, setNombreTocado] = useState(false);
   const [otroNumero, setOtroNumero] = useState("");
+  // De que clave es ya cada portal de la parcela (los que lo son).
+  const [deClave, setDeClave] = useState<Record<string, ClaveBreve>>({});
+  // "Unir a esa direccion": solo si el comercial marca la casilla.
+  const [unir, setUnir] = useState<string | null>(null);
 
   // Lo resuelto, para las pastillas de arriba.
   const [municipioHecho, setMunicipioHecho] = useState("");
@@ -106,6 +125,21 @@ export function VentanaDireccion({
   };
 
   useEffect(() => {
+    // Una direccion de la lista: directa a su parcela, con lo suyo marcado.
+    if (clave) {
+      setPaso({ k: "cargando", texto: "Bajando su parcela de Catastro…" });
+      verClave(clave.id)
+        .then(async (c) => {
+          if (!c) return setPaso({ k: "error", mensaje: "esta dirección no tiene parcela de Catastro guardada; ciérrala y búscala escribiéndola" });
+          const via: Via = { tipo: c.via.tipo, nombre: c.via.nombre, municipio: c.via.municipio, provincia: "" };
+          setE({ escrito, tipo: c.via.tipo, calle: c.via.nombre, numero: c.numero, municipio: c.via.municipio });
+          setViaHecha(via);
+          setMunicipioHecho(c.via.municipio);
+          await aLasParcelas(via, c.parcelas, [], c.numero, c.marcados);
+        })
+        .catch((err) => setPaso({ k: "error", mensaje: err instanceof Error ? err.message : String(err) }));
+      return;
+    }
     entender(escrito)
       .then((x) => {
         setE(x);
@@ -150,10 +184,18 @@ export function VentanaDireccion({
     setPaso({ k: "edificios", via, edificios: r.edificios });
   };
 
-  const aLasParcelas = async (via: Via, parcelas: string[], pila = [...atras, paso], numero = e.numero) => {
-    const portales = await pedir("Bajando la parcela de Catastro…", () => verPortales(parcelas));
+  const aLasParcelas = async (via: Via, parcelas: string[], pila = [...atras, paso], numero = e.numero, yaMarcados?: string[]) => {
+    const r = await pedir("Bajando la parcela de Catastro…", () => Promise.all([verPortales(parcelas), clavesDeLaParcela(parcelas)]));
     setAtras(pila);
-    if (!portales) return;
+    if (!r) return;
+    const [portales, claves] = r;
+    setDeClave(claves);
+    // La direccion elegida de la lista: lo suyo, ya marcado.
+    if (yaMarcados) {
+      setMarcados(new Set(portales.filter((p) => yaMarcados.includes(p.clave)).map((p) => p.clave)));
+      setNombreTocado(false);
+      return setPaso({ k: "accesos", via, parcelas, portales });
+    }
     // Se enseña TODO, tambien lo que no tiene viviendas (garaje, local): "nos
     // contratan mucho para eso" (Monica, 3-oct). Va aparte, al final. Solo se
     // marca de antemano cuando no hay nada que elegir.
@@ -165,12 +207,28 @@ export function VentanaDireccion({
     setPaso({ k: "accesos", via, parcelas, portales });
   };
 
+  const terminar = async (acc: Extract<Paso, { k: "accesos" }>, pendiente: boolean, unirA: string | null) => {
+    const claves = pendiente ? [] : Array.from(marcados);
+    const r = await pedir("Guardando la ficha de Catastro…", () => confirmarDireccion(acc.parcelas, claves));
+    if (!r) return;
+    alListo({ nombre: nombre.trim() || escrito, portalIds: r.portalIds, pendiente, parcela: pendiente ? acc.parcelas[0] : null, unirA });
+  };
+
+  // Las direcciones nuestras con las que comparte parcela lo marcado, si nada de
+  // lo marcado es ya de una: se ENSEÑAN, no se juntan.
+  const vecinas = useMemo(() => {
+    if (paso.k !== "accesos" || clave || Array.from(marcados).some((k) => deClave[k])) return [];
+    const m = new Map<string, ClaveBreve>();
+    for (const p of paso.portales) if (!marcados.has(p.clave) && deClave[p.clave]) m.set(deClave[p.clave].id, deClave[p.clave]);
+    return Array.from(m.values());
+  }, [paso, clave, marcados, deClave]);
+
   const confirmar = async (pendiente: boolean) => {
     if (paso.k !== "accesos") return;
-    const claves = pendiente ? [] : Array.from(marcados);
-    const r = await pedir("Guardando la ficha de Catastro…", () => confirmarDireccion(paso.parcelas, claves));
-    if (!r) return;
-    alListo({ nombre: nombre.trim() || escrito, portalIds: r.portalIds, pendiente, parcela: pendiente ? paso.parcelas[0] : null });
+    // Elegida de la lista: se suma a esa clave. Si no, solo se une a otra si el
+    // comercial marco la casilla.
+    if (clave) return terminar(paso, pendiente, pendiente ? null : clave.id);
+    return terminar(paso, pendiente, pendiente || !vecinas.some((c) => c.id === unir) ? null : unir);
   };
 
   // El nombre que propone la app, mientras el comercial no lo toque.
@@ -491,6 +549,11 @@ export function VentanaDireccion({
         </label>
       );
     };
+    // Si el grupo ya es de una direccion nuestra (una clave), se dice.
+    const yaEs = (ps: Portal[]) => {
+      const c = deClave[ps[0].clave];
+      return c ? `(ya es la dirección «${c.nombre}»${c.codigo ? ` · ${c.codigo}` : ""})` : undefined;
+    };
     const grupo = (titulo: string, ps: Portal[], conNumero: boolean, otra: boolean, coletilla?: string) => (
       <div key={titulo} className={"mt-4 rounded-xl border border-raya px-3.5 py-3 " + (otra ? "bg-[#f6f6f3]" : "bg-white")}>
         <div className="flex items-center justify-between gap-3">
@@ -537,17 +600,35 @@ export function VentanaDireccion({
                 : `En esta parcela Catastro tiene ${paso.portales.length} portales.`,
               "¿Sabes cuáles van?",
             )}
-            {suyos.map((ps) => grupo(`${tipoBonito(via.tipo)} ${bonito(via.nombre)} ${numeroBonito(ps[0].numero)}`, ps, false, false))}
+            {suyos.map((ps) => grupo(`${tipoBonito(via.tipo)} ${bonito(via.nombre)} ${numeroBonito(ps[0].numero)}`, ps, false, false, yaEs(ps)))}
             {ajenos.map((ps) =>
               grupo(
                 `En la misma parcela también está ${ps[0].nombre_via === via.nombre ? "el " + numeroBonito(ps[0].numero) : `${tipoBonito(ps[0].tipo_via)} ${bonito(ps[0].nombre_via)} ${numeroBonito(ps[0].numero)}`}`,
                 ps,
                 true,
                 true,
+                yaEs(ps),
               ),
             )}
             {sinViv.length > 0 && grupo("Sin viviendas", sinViv, true, true, "(aquí no hay viviendas: es el garaje o un local)")}
           </>
+        )}
+        {vecinas.length > 0 && (
+          <div className="mt-4 rounded-xl border border-accion bg-[#eef3f8] px-4 py-3 text-[13px] leading-relaxed text-carbon">
+            <b>
+              En la misma parcela está {vecinas.map((c) => `«${c.nombre}»`).join(" y ")}, que ya es una dirección nuestra.
+            </b>{" "}
+            ¿Lo unimos a esa dirección o es una dirección aparte? No afecta a la oportunidad, que va por libre: se creará sobre lo que marques. Pero si
+            lo unes, la documentación que ya tenemos de esa dirección (actas, presidente, administrador) se podrá aplicar también aquí.
+            <div className="mt-2 flex flex-col gap-1.5">
+              {vecinas.map((c) => (
+                <label key={c.id} className="flex cursor-pointer items-center gap-2 font-semibold text-accion-marco">
+                  <input type="checkbox" checked={unir === c.id} onChange={() => setUnir((u) => (u === c.id ? null : c.id))} className="size-4 accent-accion" />
+                  Unir a «{c.nombre}»{c.codigo ? ` · ${c.codigo}` : ""}
+                </label>
+              ))}
+            </div>
+          </div>
         )}
         <div className="mt-4 grid grid-cols-[128px_1fr] items-center gap-x-2.5">
           <span className={etq}>Nombre de la oportunidad</span>

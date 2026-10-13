@@ -28,7 +28,7 @@ export function CambiarDireccion({ id, actual, pendiente }: { id: string; actual
           escrito={actual}
           alListo={(r) => {
             setAbierta(false);
-            empezar(() => accionDireccion(id, { nombre: r.nombre, portalIds: r.portalIds, parcela: r.parcela }));
+            empezar(() => accionDireccion(id, { nombre: r.nombre, portalIds: r.portalIds, parcela: r.parcela, unirA: r.unirA }));
           }}
           alCerrar={() => setAbierta(false)}
         />

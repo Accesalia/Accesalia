@@ -22,7 +22,7 @@ import "server-only";
 import { canalesDe, type Canal } from "./canales";
 import { columnasQuien, opcionesQuien, type OpcionQuien } from "./quien";
 import { CARGO_DE } from "./oportunidadVocabulario";
-import { claveDesdeAccesos } from "./claves";
+import { claveDesdeAccesos, listaDeClaves } from "./claves";
 
 // El vocabulario vive en un fichero aparte porque lo necesitan las dos
 // orillas: la pantalla y el servidor.
@@ -116,7 +116,9 @@ export type OpcionesOportunidad = {
   /** Las administraciones de fincas: solo para decir en cual entra un
    *  administrador que se crea al vuelo. */
   administraciones: OpcionSimple[];
-  comunidades: OpcionSimple[];
+  /** "¿Ya existe algo ahi?": las CLAVES (direcciones nuestras, con DIR o sin el),
+   *  no las comunidades (Monica, 13-oct-2026). */
+  claves: OpcionSimple[];
   contratas: OpcionSimple[];
   /** Presidente, vecino... para el contacto de la comunidad. */
   rolesComunidad: OpcionSimple[];
@@ -126,7 +128,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string, mio?: string | null): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, admins, comunidades, contratas, puestos, vecinos] =
+  const [comerciales, canales, quienes, tipos, admins, claves, contratas, puestos, vecinos] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -147,9 +149,7 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
       "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
         "&order=nombre_accesalia.asc&limit=2000",
     ),
-    leer<{ id: string; nombre: string; municipio: string | null }[]>(
-      "comunidades?select=id,nombre,municipio&order=nombre.asc&limit=3000",
-    ),
+    listaDeClaves(),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
     leer<{
       id: string;
@@ -204,7 +204,7 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
       ),
     ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
     administraciones: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, pista: a.municipio ?? undefined })),
-    comunidades: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, pista: c.municipio ?? undefined })),
+    claves: claves.map((c) => ({ id: c.id, nombre: c.nombre, pista: c.codigo ?? "sin DIR todavía" })),
     contratas: contratas.map((c) => ({ id: c.id, nombre: c.nombre })),
     rolesComunidad: [
       { id: "presidente", nombre: "Presidente" },
@@ -290,6 +290,9 @@ export type DatosOportunidad = {
   portalIds: string[];
   /** Solo con "pendiente hasta la visita": se sabe el edificio, no el alcance. */
   referenciaCatastral: string | null;
+  /** La clave a la que se une: la elegida de la lista, o la que comparte
+   *  parcela si el comercial dijo "unir" (13-oct-2026). */
+  claveUnir: string | null;
 };
 
 export type ResultadoOportunidad = { id: string; codigo: string | null; notaId: string };
@@ -497,8 +500,9 @@ export async function crearOportunidad(
   );
   // 9 · y, con los accesos ya vinculados, su comunidad.
   await comunidadDesdeAccesos(op.id);
-  // 10 · y su clave (el sitio, 13-oct-2026): la de su direccion, o una nueva sin numero.
-  await claveDesdeAccesos(op.id);
+  // 10 · y su clave (el sitio, 13-oct-2026): la de su direccion, la que eligio
+  //      el comercial (de la lista, o "unir" por compartir parcela), o una nueva.
+  await claveDesdeAccesos(op.id, autorId, d.claveUnir);
 
   return { id: op.id, codigo, notaId: nota.id };
 }
@@ -611,7 +615,7 @@ export async function enlazarAccesos(oppId: string, portalIds: string[], deDonde
  *  quede rastro de que hubo otra direccion. */
 export async function cambiarDireccion(
   oppId: string,
-  r: { nombre: string; portalIds: string[]; parcela: string | null },
+  r: { nombre: string; portalIds: string[]; parcela: string | null; unirA?: string | null },
 ): Promise<void> {
   const [op] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${oppId}&limit=1`);
   if (!op) throw new Error("No existe esa oportunidad");
@@ -627,6 +631,6 @@ export async function cambiarDireccion(
   // Con los accesos ya vinculados, su comunidad (13-oct-2026): la que ya tengan
   // sus accesos, o "CP " + su nombre si no tiene. Si ya tenia, no cambia.
   await comunidadDesdeAccesos(oppId);
-  // Y su clave (13-oct-2026): la de su direccion, o una nueva sin numero.
-  await claveDesdeAccesos(oppId);
+  // Y su clave (13-oct-2026): la de su direccion, la que se eligio unir, o una nueva.
+  await claveDesdeAccesos(oppId, null, r.unirA ?? null);
 }

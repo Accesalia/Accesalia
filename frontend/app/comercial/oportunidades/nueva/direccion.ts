@@ -17,6 +17,7 @@ import {
   type Via,
 } from "../../../../lib/buscarDireccion";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { abrirClave, clavesDePortales, type ClaveBreve } from "../../../../lib/claves";
 
 async function puede() {
   const yo = await quienSoy();
@@ -61,4 +62,18 @@ export async function confirmarDireccion(parcelas: string[], claves: string[]): 
     }
   }
   return { portalIds };
+}
+
+/** Una clave elegida en la lista del alta: su parcela y sus portales ya
+ *  marcados. Elegirla no se salta Catastro (Monica, 13-oct-2026). */
+export async function verClave(claveId: string) {
+  await puede();
+  return abrirClave(claveId);
+}
+
+/** De que clave es ya cada portal de estas parcelas, para preguntar "¿unir o
+ *  direccion aparte?" cuando la parcela comparte portales con otra. */
+export async function clavesDeLaParcela(parcelas: string[]): Promise<Record<string, ClaveBreve>> {
+  await puede();
+  return clavesDePortales(parcelas);
 }

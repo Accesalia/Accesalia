@@ -98,6 +98,7 @@ export async function guardarOportunidad(fd: FormData) {
     nombre: texto(fd, "nombre_opp") ?? direccionProvisional,
     portalIds: (texto(fd, "portal_ids") ?? "").split(",").filter(Boolean),
     referenciaCatastral: texto(fd, "referencia_opp"),
+    claveUnir: texto(fd, "clave_unir"),
   };
 
   const hecho = await crearOportunidad(datos, yo.id);

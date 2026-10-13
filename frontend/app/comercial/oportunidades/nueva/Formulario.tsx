@@ -190,7 +190,10 @@ export function Formulario({
   const hoy = inicial?.fecha ?? new Date().toISOString().slice(0, 10);
 
   const comerciales: Opcion[] = opciones.comerciales.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
-  const comunidades: Opcion[] = opciones.comunidades.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
+  // "¿Ya existe algo ahi?": las CLAVES, nuestras direcciones con DIR o sin el
+  // (Monica, 13-oct-2026). Elegir una no se salta Catastro: abre la ventana con
+  // su parcela y sus accesos marcados.
+  const claves: Opcion[] = opciones.claves.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.pista }));
   const administradores: Opcion[] = opciones.administradores.map((a) => ({ valor: a.id, texto: a.nombre, pista: a.pista }));
   const contratas: Opcion[] = opciones.contratas.map((c) => ({ valor: c.id, texto: c.nombre }));
   const canales: Opcion[] = opciones.canales.map((c) => ({ valor: c.id, texto: c.nombre }));
@@ -202,7 +205,8 @@ export function Formulario({
   // Como se entero: la primera nota del diario lo lleva, como todas (8-oct).
   const [canalNota, setCanalNota] = useState(inicial?.canal ?? "");
 
-  const [comunidad, setComunidad] = useState("");
+  // La direccion elegida de la lista: se abre Catastro con ella.
+  const [claveElegida, setClaveElegida] = useState<{ id: string; nombre: string; codigo: string | null } | null>(null);
   const [direccion, setDireccion] = useState(inicial?.direccion ?? "");
   const [buscarDireccion, setBuscarDireccion] = useState(false);
   // La ventana de Catastro (3-oct-2026): se abre con Intro o con la lupa, y si
@@ -238,7 +242,7 @@ export function Formulario({
   const codigo = comercial === "" ? "elige comercial" : opciones.codigoDe[comercial] ?? "sin iniciales";
 
   const hayHilo =
-    comunidad !== "" ||
+    resuelta !== null ||
     direccion.trim() !== "" ||
     admin !== "" ||
     adminNuevo !== null ||
@@ -416,11 +420,18 @@ export function Formulario({
               <div className="w-[472px] shrink-0">
                 {buscarDireccion ? (
                   <Elegir
-                    id="comunidad"
+                    id="clave_elegida"
                     nombre=""
-                    opciones={comunidades}
-                    valor={comunidad}
-                    alElegir={setComunidad}
+                    opciones={claves}
+                    valor=""
+                    alElegir={(v) => {
+                      const c = opciones.claves.find((x) => x.id === v);
+                      if (!c) return;
+                      setClaveElegida({ id: c.id, nombre: c.nombre, codigo: c.pista && c.pista !== "sin DIR todavía" ? c.pista : null });
+                      setDireccion(c.nombre);
+                      setBuscarDireccion(false);
+                      setVentana(true);
+                    }}
                     vacio="busca la que ya tenemos"
                     marco="border-black"
                     abrirAlMontar
@@ -436,7 +447,15 @@ export function Formulario({
                         · {resuelta.pendiente ? "pendiente de la visita" : `${resuelta.portalIds.length} ${resuelta.portalIds.length === 1 ? "acceso" : "accesos"}`}
                       </span>
                     </span>
-                    <button type="button" onClick={() => setResuelta(null)} aria-label="Deshacer" className="text-accion-marco/70 hover:text-accion-marco">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResuelta(null);
+                        setClaveElegida(null);
+                      }}
+                      aria-label="Deshacer"
+                      className="text-accion-marco/70 hover:text-accion-marco"
+                    >
                       ×
                     </button>
                   </div>
@@ -450,6 +469,8 @@ export function Formulario({
                       onChange={(e) => {
                         setDireccion(e.target.value);
                         setProvisionalAdrede(false);
+                        // Lo escrito a mano ya no es la direccion de la lista.
+                        setClaveElegida(null);
                       }}
                       placeholder="dirección del edificio"
                       className="h-[40px] w-full rounded-lg border-[0.5px] border-black bg-white px-3 pr-10 text-[15px] text-carbon outline-none transition placeholder:text-carbon/55 focus:border-lima"
@@ -472,6 +493,7 @@ export function Formulario({
                 <input type="hidden" name="nombre_opp" value={resuelta?.nombre ?? ""} />
                 <input type="hidden" name="portal_ids" value={resuelta?.portalIds.join(",") ?? ""} />
                 <input type="hidden" name="referencia_opp" value={resuelta?.parcela ?? ""} />
+                <input type="hidden" name="clave_unir" value={resuelta?.unirA ?? ""} />
               </div>
               <span className={apoyo + " ml-[15px] w-[67px] shrink-0 text-right"}>
                 {buscarDireccion
@@ -484,7 +506,6 @@ export function Formulario({
                 type="button"
                 onClick={() => {
                   if (buscarDireccion) {
-                    setComunidad("");
                     setBuscarDireccion(false);
                   } else {
                     setDireccion("");
@@ -658,12 +679,21 @@ export function Formulario({
       {ventana && (
         <VentanaDireccion
           escrito={direccion.trim()}
+          clave={claveElegida}
           alListo={(r) => {
             setResuelta(r);
             setVentana(false);
           }}
           alCerrar={() => {
             setVentana(false);
+            // Una direccion de la lista que se cierra sin terminar: se vuelve a
+            // la lista, no se queda como provisional.
+            if (claveElegida) {
+              setClaveElegida(null);
+              setDireccion("");
+              setBuscarDireccion(true);
+              return;
+            }
             // Cerrar sin terminar es dejarla provisional a proposito.
             if (direccion.trim()) setProvisionalAdrede(true);
           }}

@@ -19,7 +19,7 @@
 
 import "server-only";
 
-import { bonito } from "./direccionNombre";
+import { bonito, NOMBRE_TIPO } from "./direccionNombre";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -86,7 +86,7 @@ const enLista = (ids: string[]) => `(${ids.join(",")})`;
  *    queda esa (asi ningun numero pasa a alias sin necesidad); si no, la de MAS
  *    ACCESOS (regla de Monica). La absorbida conserva su codigo y apunta a la
  *    superviviente; sus accesos pasan a ella. */
-export async function claveDesdeAccesos(oppId: string, quien: string | null = null): Promise<string | null> {
+export async function claveDesdeAccesos(oppId: string, quien: string | null = null, unirA: string | null = null): Promise<string | null> {
   const rels = await leer<{ acceso: Acceso | null }[]>(
     `relacion_oportunidad_accesos?select=acceso:acceso_id(${CAMPOS})&opp_id=eq.${oppId}&hasta=is.null`,
   );
@@ -108,7 +108,13 @@ export async function claveDesdeAccesos(oppId: string, quien: string | null = nu
     );
   }
   const todos = new Map<string, Acceso>([...hermanos, ...suyos].map((a) => [a.id, a]));
-  const candidatas = [...new Set([...todos.values()].map((a) => a.clave_id).filter((x): x is string => !!x))];
+  // UNIR A ESA DIRECCION (Monica, 13-oct-2026): en el alta, el comercial eligio
+  // la clave de la lista, o dijo "unir" porque comparte parcela con ella. Es una
+  // candidata mas: si sus accesos ya estaban en otra, es una FUSION con la regla
+  // de siempre, no un cambio de clave de los accesos.
+  const candidatas = [
+    ...new Set([...[...todos.values()].map((a) => a.clave_id), unirA].filter((x): x is string => !!x && /^[0-9a-f-]{36}$/.test(x))),
+  ];
 
   // Las absorbidas llevan a su superviviente.
   let claves = candidatas.length
@@ -180,4 +186,97 @@ export async function numerarClaveDeOpp(oppId: string): Promise<string | null> {
   await pedir(`claves?id=eq.${claveId}&codigo=is.null`, "PATCH", { codigo, numerada_en: new Date().toISOString() });
   const [d] = await leer<{ codigo: string | null }[]>(`claves?select=codigo&id=eq.${claveId}`);
   return d?.codigo ?? null;
+}
+
+// ------------------------------------------------- el alta: la lista y Catastro
+//
+// "¿YA EXISTE ALGO AHI?" (Monica, 13-oct-2026). La lista del alta son las CLAVES
+// (con DIR o sin el), no las comunidades. Elegir una NO se salta Catastro: abre
+// su parcela con sus accesos marcados, y lo que se marque se suma a ella. Y si
+// se busca una direccion cuya parcela comparte portales con otra clave (Norias
+// 9 junto a la de 5 y 7), se pregunta UNA vez: ¿unir o direccion aparte?
+
+export type ClaveBreve = { id: string; nombre: string; codigo: string | null };
+
+/** Las claves vivas (no absorbidas), para la lista del alta. */
+export async function listaDeClaves(): Promise<ClaveBreve[]> {
+  // La base da como mucho 1.000 filas por consulta: por tandas.
+  const filas: { id: string; nombre: string | null; codigo: string | null }[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const tanda = await leer<typeof filas>(`claves?select=id,nombre,codigo&absorbida_por=is.null&order=nombre.asc,id.asc&limit=1000&offset=${desde}`);
+    filas.push(...tanda);
+    if (tanda.length < 1000) break;
+  }
+  // EL TIPO DE VIA, entre parentesis al final (Monica, 13-oct-2026): Avenida y
+  // Travesia Dos de Mayo son sitios distintos, y al final no cambia el orden.
+  const tipos = new Map<string, Set<string>>();
+  for (let desde = 0; ; desde += 1000) {
+    const tanda = await leer<{ clave_id: string; tipo_via: string }[]>(
+      `accesos?select=clave_id,tipo_via&clave_id=not.is.null&order=id.asc&limit=1000&offset=${desde}`,
+    );
+    for (const a of tanda) if (a.tipo_via) tipos.set(a.clave_id, (tipos.get(a.clave_id) ?? new Set()).add(a.tipo_via));
+    if (tanda.length < 1000) break;
+  }
+  const conVia = (c: { id: string; nombre: string }) => {
+    const ts = [...(tipos.get(c.id) ?? [])].map((t) => NOMBRE_TIPO[t] ?? t);
+    return ts.length ? `${c.nombre} (${ts.join(", ")})` : c.nombre;
+  };
+  return filas.filter((c) => c.nombre).map((c) => ({ id: c.id, nombre: conVia({ id: c.id, nombre: c.nombre! }), codigo: c.codigo }));
+}
+
+/** Lo que identifica un portal de Catastro en la ventana: parcela|numero|escalera. */
+const clavePortal = (parcela: string, numero: string, escalera: string | null) => `${parcela}|${numero}|${escalera ?? ""}`;
+
+/** Una clave elegida en la lista: sus parcelas y sus portales, para abrir Catastro
+ *  con ellos ya marcados. Sin parcela (accesos antiguos sin referencia), null. */
+export async function abrirClave(claveId: string): Promise<{
+  clave: ClaveBreve;
+  parcelas: string[];
+  marcados: string[];
+  via: { tipo: string; nombre: string; municipio: string };
+  numero: string;
+} | null> {
+  if (!/^[0-9a-f-]{36}$/.test(claveId)) return null;
+  const [c] = await leer<{ id: string; nombre: string | null; codigo: string | null; absorbida_por: string | null }[]>(
+    `claves?select=id,nombre,codigo,absorbida_por&id=eq.${claveId}`,
+  );
+  if (!c) return null;
+  if (c.absorbida_por) return abrirClave(c.absorbida_por);
+  const accs = await leer<(Acceso & { ref_catastral: string | null })[]>(`accesos?select=${CAMPOS},ref_catastral&clave_id=eq.${claveId}`);
+  const conParcela = accs.filter((a) => a.ref_catastral);
+  if (!conParcela.length) return null;
+  const a = conParcela[0];
+  return {
+    clave: { id: c.id, nombre: c.nombre ?? "", codigo: c.codigo },
+    parcelas: [...new Set(conParcela.map((x) => x.ref_catastral!))],
+    marcados: conParcela.map((x) => clavePortal(x.ref_catastral!, x.numero, x.escalera)),
+    via: { tipo: a.tipo_via, nombre: a.nombre_via, municipio: a.municipio },
+    numero: a.numero,
+  };
+}
+
+/** De que clave es ya cada portal de estas parcelas (los que lo son). */
+export async function clavesDePortales(parcelas: string[]): Promise<Record<string, ClaveBreve>> {
+  const limpias = parcelas.filter((p) => /^[0-9A-Z]{14,20}$/.test(p));
+  if (!limpias.length) return {};
+  const accs = await leer<{ ref_catastral: string; numero: string; escalera: string | null; clave_id: string }[]>(
+    `accesos?select=ref_catastral,numero,escalera,clave_id&ref_catastral=in.${enLista(limpias)}&clave_id=not.is.null`,
+  );
+  if (!accs.length) return {};
+  const ids = [...new Set(accs.map((a) => a.clave_id))];
+  const cs = await leer<{ id: string; nombre: string | null; codigo: string | null; absorbida_por: string | null }[]>(
+    `claves?select=id,nombre,codigo,absorbida_por&id=in.${enLista(ids)}`,
+  );
+  // Una absorbida cuenta como su superviviente.
+  const sup = [...new Set(cs.map((c) => c.absorbida_por).filter((x): x is string => !!x))];
+  const supervivientes = sup.length
+    ? await leer<{ id: string; nombre: string | null; codigo: string | null }[]>(`claves?select=id,nombre,codigo&id=in.${enLista(sup)}`)
+    : [];
+  const breve = new Map<string, ClaveBreve>();
+  for (const c of [...cs, ...supervivientes]) breve.set(c.id, { id: c.id, nombre: c.nombre ?? "", codigo: c.codigo });
+  const viva = (id: string) => {
+    const c = cs.find((x) => x.id === id);
+    return breve.get(c?.absorbida_por ?? id)!;
+  };
+  return Object.fromEntries(accs.map((a) => [clavePortal(a.ref_catastral, a.numero, a.escalera), viva(a.clave_id)]));
 }

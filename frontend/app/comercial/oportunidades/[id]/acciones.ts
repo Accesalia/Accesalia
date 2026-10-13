@@ -109,7 +109,7 @@ export async function accionEntrada(id: string, fd: FormData) {
  *  o la que resulto ser otra. */
 export async function accionDireccion(
   id: string,
-  r: { nombre: string; portalIds: string[]; parcela: string | null },
+  r: { nombre: string; portalIds: string[]; parcela: string | null; unirA?: string | null },
 ) {
   await permiso(id);
   await cambiarDireccion(id, r);
