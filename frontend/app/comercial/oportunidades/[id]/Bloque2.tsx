@@ -277,8 +277,9 @@ export function Bloque2({
           </ul>
         )}
         {hojaNueva ? (
-          <Link href={hojaNueva} className={BOT + " mt-2.5 uppercase"}>
-            + Nueva versión
+          // Abre el generador directamente, con esta opp elegida (13-oct-2026).
+          <Link href={`${hojaNueva}&nueva=1`} className={BOT + " mt-2.5 uppercase"}>
+            + Generar hoja de encargo
           </Link>
         ) : (
           <p className="mt-2 text-[12px] text-amber-900/80">Sin comunidad no hay a quién hacerle la hoja: fija la dirección.</p>
