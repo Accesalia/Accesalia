@@ -174,6 +174,52 @@ tienen alguna línea atada a su hito (554 enteras); **306 sin atar**.
   inflexión. **La verdad está en el Dropbox**, que se barrerá despacio: 2026
   primero, de fin de obra hacia atrás.
 
+## Duplicados: matrícula fija, pertenencia corregible (13-oct-2026)
+
+La preocupación de Mónica: la clave viaja como eje por todo lo que pasa después de
+la firma (planos, visado, licencia, certificaciones, subvenciones, actas…), así que
+**dos ids para el mismo sitio** es mucho peor que un nombre mal puesto. Caso: Lucano
+65 se firma primero (ascensor) y Etruria 26 después por separado; sin acceso en
+común, nacerían DIR-00412 y DIR-00413, y la tarjeta del CIF diría luego que es una
+sola comunidad.
+
+- **El código es una MATRÍCULA**: `DIR-00413 · DAN-… · PRY · ASC` se pone al nacer
+  el trabajo, se imprime y **no cambia nunca** (como un número de visado del COAM:
+  lo entregado no se reescribe). **No se renumera al fusionar.**
+- **La pertenencia es un ENLACE**: el trabajo → su actuación → su clave. Eso sí se
+  corrige. **Nada apunta a la clave salvo la actuación y los accesos**; nunca se
+  copia el DIR como dato en cada plano o certificado.
+- **Fusionar es en una de las dos, nunca en una tercera.** Sobrevive por defecto la
+  más antigua (la primera firmada); quien fusiona puede elegir la otra. La que
+  desaparece pasa sus accesos y sus actuaciones a la superviviente y queda como
+  **alias** (buscarla lleva a la otra, con fecha y autor de la fusión); su número
+  no se reutiliza. Es un caso excepcional.
+- **La defensa principal es no nacer duplicada.** Al firmar, antes de crear una
+  clave, la app busca candidatas: misma parcela, mismo número, accesos que ya tienen
+  CP o clave, mismo CIF, accesos a pocos metros. Si hay alguna, **no se crea una
+  nueva sin que una persona diga "no, es otra"**, y queda quién lo dijo.
+- Lo mismo un nivel más abajo: al firmar, la app propone las **actuaciones** abiertas
+  en esos accesos; crear una nueva exige decirlo.
+- La CP provisional (la que nace desde la opp, 13-oct) mira también a sus hermanos:
+  si otro acceso de la misma parcela o del mismo número ya tiene CP, se propone esa.
+  El CIF manda al final: si dos CP resultan ser la misma, se fusionan y se propone
+  fusionar sus claves.
+
+## Buscar antes de crear una oportunidad (13-oct-2026)
+
+Lo que mordió el 13-oct: el "Si ya existe, selecciónala" del alta listaba
+COMUNIDADES, y lo que se busca es una DIRECCIÓN. Un solo buscador, que mira en todo
+lo que ya tenemos y enseña los tres niveles en cada resultado:
+
+- se escribe una dirección (o un DIR-…, o el nombre de una CP) y se coteja por
+  conjunto de palabras contra los ACCESOS que ya existen;
+- cada resultado es una **dirección** (municipio + calle + número) con sus
+  **escaleras** debajo, y junto a ella **su clave** (DIR-00412 y su nombre, si ya
+  está en una), **su CP** y **sus oportunidades abiertas**;
+- se marcan las escaleras de la opp nueva: la opp nace con esos accesos; la CP y,
+  a la firma, la clave le llegan por ellos;
+- si no aparece, se busca en Catastro como hasta ahora (dirección nueva).
+
 ## Sin resolver
 
 - Si un **PRY · ASC** se fusiona en un proyecto conjunto, su apellido deja de ser
