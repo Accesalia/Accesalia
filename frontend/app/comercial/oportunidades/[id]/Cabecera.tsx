@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
-import { accionPausar, accionReactivar } from "./acciones";
+import { accionCerrar, accionPausar, accionReabrir, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import type { EstadoBloque } from "./Carril";
 import type { ContactoComunidad, Gestion, HitoGestion } from "../../../../lib/gestionOportunidad";
@@ -41,6 +41,7 @@ export function Cabecera({
   distrito: string | null;
 }) {
   const pausada = g.estado === "pausada";
+  const cerrada = g.estado === "cerrada";
   return (
     <>
         {/* SU CABECERA: tres columnas de anchos distintos segun lo que llevan
@@ -142,7 +143,17 @@ export function Cabecera({
               aquí se irá acumulando una línea por bloque quemado
             </div>
             <div className="mt-2.5 flex flex-wrap items-center gap-3">
-            {pausada ? (
+            {cerrada ? (
+              // CERRADA (14-oct-2026): se puede reabrir; el cierre queda apuntado.
+              <>
+                <span className="rounded-[6px] bg-carbon/10 px-3 py-1.5 text-[12px] font-bold uppercase text-carbon/70">Cerrada</span>
+                <form action={accionReabrir.bind(null, id)}>
+                  <button className="rounded-[6px] border border-carbon/25 px-3 py-1.5 text-[12px] font-bold uppercase text-carbon/60 transition hover:border-carbon/50">
+                    Reabrir
+                  </button>
+                </form>
+              </>
+            ) : pausada ? (
               <form action={accionReactivar.bind(null, id)}>
                 <button className={BOTON + " !bg-[#5E744C] !border-[#3f5236] hover:!bg-[#516340]"}>Reactivar</button>
               </form>
@@ -155,6 +166,27 @@ export function Cabecera({
                   <span className={ROTULO}>Retomarla cuándo</span>
                   <input name="nota" placeholder="cuando hagan hucha, si sale la subvención…" className={CAMPO + " mt-1"} />
                   <button className={BOTON + " mt-2 w-full"}>Pausarla</button>
+                </form>
+              </details>
+            )}
+            {/* CERRARLA A MANO (Monica, 14-oct-2026): "un boton que la cierre y
+                pida la razon, porque si no algunas quedan ahi para siempre". */}
+            {!cerrada && (
+              <details className="relative">
+                <summary className="cursor-pointer list-none rounded-[6px] border border-carbon/25 px-3 py-1.5 text-[12px] font-bold uppercase text-carbon/60 transition hover:border-alerta/60 hover:text-alerta">
+                  Cerrar
+                </summary>
+                <form action={accionCerrar.bind(null, id)} className={CAJA + " absolute right-0 z-20 mt-2 w-[340px] p-3"}>
+                  <span className={ROTULO}>¿Cómo se cierra?</span>
+                  <label className="mt-1.5 flex items-center gap-2 text-[13px] text-carbon">
+                    <input type="radio" name="tipo" value="perdida" defaultChecked /> Perdida
+                  </label>
+                  <label className="mt-1 flex items-center gap-2 text-[13px] text-carbon">
+                    <input type="radio" name="tipo" value="otra" /> Otra razón (duplicada, error de alta, no localizable…)
+                  </label>
+                  <span className={ROTULO + " mt-2.5 block"}>¿Por qué?</span>
+                  <textarea name="motivo" required rows={3} placeholder="se han ido con otro arquitecto, no hay dinero…" className={CAMPO + " mt-1 resize-y"} />
+                  <button className={BOTON + " mt-2 w-full"}>Cerrarla</button>
                 </form>
               </details>
             )}

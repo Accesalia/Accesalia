@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
   pausar,
+  cerrar,
+  reabrir,
   guardarJunta,
   guardarNegociacion,
   guardarTipos,
@@ -80,6 +82,19 @@ export async function accionJunta(id: string, juntaId: string | null, fd: FormDa
 export async function accionPausar(id: string, fd: FormData) {
   await permiso(id);
   await pausar(id, texto(fd, "nota"));
+  refrescar(id);
+}
+
+/** Cerrarla a mano, con su porque (14-oct-2026). */
+export async function accionCerrar(id: string, fd: FormData) {
+  const yo = await permiso(id);
+  await cerrar(id, { perdida: fd.get("tipo") !== "otra", motivo: String(fd.get("motivo") ?? ""), quien: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") });
+  refrescar(id);
+}
+
+export async function accionReabrir(id: string) {
+  await permiso(id);
+  await reabrir(id);
   refrescar(id);
 }
 

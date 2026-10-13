@@ -490,6 +490,38 @@ export async function reactivar(oportunidadId: string) {
   await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "abierta" });
 }
 
+/** CERRARLA A MANO (Monica, 14-oct-2026): "un boton que la cierre y pida la
+ *  razon, porque si no algunas quedan ahi para siempre sin resolver". Ganar
+ *  la cierra sola al cobrar; perder (o que fuera un duplicado, un error...)
+ *  pasa en cualquier punto, y eso es esto. El motivo va a
+ *  motivo_cierre_oportunidad, la tabla de los cierres, con su fecha y su
+ *  comercial. Si estaba pausada, la pausa se cierra con fecha. */
+export async function cerrar(oportunidadId: string, d: { perdida: boolean; motivo: string; quien: string }) {
+  const motivo = d.motivo.trim();
+  if (!motivo) throw new Error("Escribe por qué se cierra.");
+  const [op] = await leer<{ comercial_id: string | null; estado: string }[]>(`oportunidades?select=comercial_id,estado&id=eq.${oportunidadId}`);
+  if (!op) throw new Error("No existe esa oportunidad.");
+  if (op.estado === "cerrada") return;
+  const hoy = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+  if (op.estado === "pausada") {
+    await escribir("PATCH", `historial_pausas_oportunidad?oportunidad_id=eq.${oportunidadId}&hasta=is.null`, { hasta: hoy });
+  }
+  await escribir("POST", "motivo_cierre_oportunidad", {
+    oportunidad_id: oportunidadId,
+    comercial_id: op.comercial_id,
+    resultado_final: d.perdida ? "perdido" : null,
+    motivo_perdido: d.perdida ? motivo : null,
+    notas: `Cerrada a mano por ${d.quien}${d.perdida ? " (perdida)" : ""}: ${motivo}`,
+    fecha_cierre: hoy,
+  });
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "cerrada" });
+}
+
+/** Reabrirla: vuelve a abierta. El cierre anterior se queda apuntado. */
+export async function reabrir(oportunidadId: string) {
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}&estado=eq.cerrada`, { estado: "abierta" });
+}
+
 /** EL COMERCIAL QUE LLEVA LA OPP (Monica, 3-oct-2026: "hay que poder elegir el
  *  comercial asignado a cada opp"). A el le llegan los correos de la opp, y a
  *  quien comparta su cartera (Alejandra, en la de Daniel). El codigo no se toca:
