@@ -546,6 +546,16 @@ export async function comunidadDesdeAccesos(oppId: string): Promise<string | nul
   // Sus accesos sin titular pasan a ser de su comunidad. Los que ya tienen uno, no se tocan.
   const sinTitular = accesos.filter((a) => !a.figura_legal_propietaria_id).map((a) => a.id);
   if (sinTitular.length) {
+    // Hay comunidades antiguas sin su fila de titular (13-oct-2026: 2.786
+    // comunidades, 1.993 titulares): sin ella el acceso no puede apuntarle. Se
+    // crea si falta; si ya esta, no se toca (podria ser una mancomunidad).
+    const r = await fetch(`${URL_BASE}/rest/v1/figura_legal_propietaria?on_conflict=id_comodin`, {
+      method: "POST",
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json", Prefer: "resolution=ignore-duplicates,return=minimal" },
+      body: JSON.stringify({ id_comodin: comunidadId, figura: "Comunidad de Propietarios" }),
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`Supabase figura_legal_propietaria ${r.status}: ${await r.text()}`);
     await actualizar(`accesos?id=in.(${sinTitular.join(",")})&figura_legal_propietaria_id=is.null`, { figura_legal_propietaria_id: comunidadId });
   }
   return comunidadId;
