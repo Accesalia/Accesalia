@@ -5,6 +5,62 @@
 > expediente 360 y acabó en la pregunta de fondo: **¿qué une las distintas partes
 > entre sí?** Su dibujo: `OneDrive/Imágenes/Screenshots/PROPUSTA CLAVE DIRECCIONS.png`.
 
+## PROPUESTA EN PRUEBA (13-oct-2026) — sustituye a lo de abajo donde choque
+
+Salida de una tarde entera con Mónica, empezando por "al crear una opp, ¿cómo sé si el
+sitio ya existe?" ("es el MISMO ORIGEN de todo"). Mónica la prueba con sus casos antes
+de darla por decidida. Las secciones de abajo (11-oct) quedan como historia: donde
+choquen, manda esta.
+
+```
+CLAVE DIR   nace con la PRIMERA OPP de esos accesos; NÚMERO en la primera firma
+   ▲
+ACCESOS ◄── COMUNIDAD      ◄── EDIFICIO          (la comunidad apunta a los ACCESOS, no a la clave)
+   ▲
+  OPP        apunta a SUS ACCESOS (no a la clave: su DIR sale de sus accesos)
+             antes de firmar: texto, charla y DESEOS (oportunidad_tipos)
+   └─ HOJAS  el SOBRE que se firma (versiones, PDF, firma, a quién va, forma de pago)
+        └─ LÍNEAS + HITOS          toda línea nace de una hoja (o pedido / nota de
+             │                     responsabilidad); no hay otro sitio donde crearlas
+             │  cada línea abre un TRABAJO de su área; los hitos cobrados desbloquean fases
+             ├─ PRY  el proyecto: con SUS accesos (el ascensor solo en Norias 5) y su TIPO
+             │       → plantilla de lo que implica (envolvente: toma de datos, PRY, CEE,
+             │         visado, licencia, DF, CSS, CFO; subvención: IEE, CEE, tramitación)
+             ├─ servicios de ese proyecto (CSS, DF, CFO, SUB, 3PP, FIN…) → "SOBRE" su PRY
+             │       aunque lleguen en otra hoja meses después; una SUB puede ir sobre VARIOS PRY
+             └─ servicios sueltos (CSS o SUB de obra AJENA, IEE, LEE, pericial…) → sobre los
+                     ACCESOS de la opp; la obra ajena no existe en la base: es documentación
+                     del servicio
+```
+
+- **Un solo eje desde el alta, sin cambio de eje en la firma.** La clave existe desde
+  que se abre la primera opp en esos accesos, sin número; el buscador del alta la
+  encuentra aunque no tenga número. A la primera firma recibe su DIR, que va en la
+  matrícula de todo lo que nace después.
+- **La misma calle + número + municipio = la misma clave**, sin preguntar (Mayor 27 A
+  y B). Un acceso de otro número pero del mismo edificio o CP que una clave existente
+  (Norias 9 junto a Norias 5 y 7) se ofrece en el alta y el comercial lo añade con un
+  clic, una vez. Una clave puede tener varias comunidades.
+- **Fusión** (dos claves que resultan ser el mismo sitio): sin número, se juntan sin
+  coste; con número, **sobrevive la que tiene MÁS ACCESOS** (no la más antigua). El
+  NOMBRE de la clave sale siempre de todos sus accesos ("Etruria 56 y 58 + Lucano 70"),
+  sobreviva el número que sobreviva. La matrícula impresa no se renumera nunca: el DIR
+  absorbido queda como alias.
+- **SIN ACTUACIÓN como pieza propia.** El 11-oct: "decide el proyecto: proyecto
+  conjunto = 1 actuación, separados = 2" → actuación = proyecto, dos nombres para lo
+  mismo. Comprobado con Mónica que no hay ningún caso que la pida: no somos
+  constructora (no hay obras nuestras: OBR son nuestros servicios DF/CSS/CFO sobre la
+  obra de una contrata); obras separadas ya son un área aparte del proyecto; dividir
+  un proyecto (cubierta / fachada) es modificación de proyecto, ya contemplada; la
+  consulta previa es fase o continuación del PRY; la subvención que agrupa varios
+  proyectos es un servicio sobre varios PRY. Las `actuaciones_hoja` se quedan como el
+  qué + dónde de la cabecera de la hoja (texto del documento), no como pieza del modelo.
+- **No rompe nada construido**: hojas, conceptos, líneas, hitos, facturas, casados y
+  deseos se quedan. Se AÑADE: la tabla de claves; línea → trabajo de su área; trabajo
+  → "sobre" qué PRY.
+- Pendiente aparte: el informe pericial, ¿PRY (11-oct, "consume técnico") o junto al
+  IEE (13-oct)? ("luego lo pensamos").
+
 ## La idea en una línea
 
 **Todo lo que hacemos tiene detrás un lugar físico.** Nadie pide un ascensor
@@ -174,55 +230,17 @@ tienen alguna línea atada a su hito (554 enteras); **306 sin atar**.
   inflexión. **La verdad está en el Dropbox**, que se barrerá despacio: 2026
   primero, de fin de obra hacia atrás.
 
-## Duplicados: matrícula fija, pertenencia corregible (13-oct-2026)
+## (13-oct, tarde) Duplicados y buscador
 
-La preocupación de Mónica: la clave viaja como eje por todo lo que pasa después de
-la firma (planos, visado, licencia, certificaciones, subvenciones, actas…), así que
-**dos ids para el mismo sitio** es mucho peor que un nombre mal puesto. Caso: Lucano
-65 se firma primero (ascensor) y Etruria 26 después por separado; sin acceso en
-común, nacerían DIR-00412 y DIR-00413, y la tarjeta del CIF diría luego que es una
-sola comunidad.
-
-- **El código es una MATRÍCULA**: `DIR-00413 · DAN-… · PRY · ASC` se pone al nacer
-  el trabajo, se imprime y **no cambia nunca** (como un número de visado del COAM:
-  lo entregado no se reescribe). **No se renumera al fusionar.**
-- **La pertenencia es un ENLACE**: el trabajo → su actuación → su clave. Eso sí se
-  corrige. **Nada apunta a la clave salvo la actuación y los accesos**; nunca se
-  copia el DIR como dato en cada plano o certificado.
-- **Fusionar es en una de las dos, nunca en una tercera.** Sobrevive por defecto la
-  más antigua (la primera firmada); quien fusiona puede elegir la otra. La que
-  desaparece pasa sus accesos y sus actuaciones a la superviviente y queda como
-  **alias** (buscarla lleva a la otra, con fecha y autor de la fusión); su número
-  no se reutiliza. Es un caso excepcional.
-- **La defensa principal es no nacer duplicada.** Al firmar, antes de crear una
-  clave, la app busca candidatas: misma parcela, mismo número, accesos que ya tienen
-  CP o clave, mismo CIF, accesos a pocos metros. Si hay alguna, **no se crea una
-  nueva sin que una persona diga "no, es otra"**, y queda quién lo dijo.
-- Lo mismo un nivel más abajo: al firmar, la app propone las **actuaciones** abiertas
-  en esos accesos; crear una nueva exige decirlo.
-- La CP provisional (la que nace desde la opp, 13-oct) mira también a sus hermanos:
-  si otro acceso de la misma parcela o del mismo número ya tiene CP, se propone esa.
-  El CIF manda al final: si dos CP resultan ser la misma, se fusionan y se propone
-  fusionar sus claves.
-
-## Buscar antes de crear una oportunidad (13-oct-2026)
-
-Lo que mordió el 13-oct: el "Si ya existe, selecciónala" del alta listaba
-COMUNIDADES, y lo que se busca es una DIRECCIÓN. Un solo buscador, que mira en todo
-lo que ya tenemos y enseña los tres niveles en cada resultado:
-
-- se escribe una dirección (o un DIR-…, o el nombre de una CP) y se coteja por
-  conjunto de palabras contra los ACCESOS que ya existen;
-- cada resultado es una **dirección** (municipio + calle + número) con sus
-  **escaleras** debajo, y junto a ella **su clave** (DIR-00412 y su nombre, si ya
-  está en una), **su CP** y **sus oportunidades abiertas**;
-- se marcan las escaleras de la opp nueva: la opp nace con esos accesos; la CP y,
-  a la firma, la clave le llegan por ellos;
-- si no aparece, se busca en Catastro como hasta ahora (dirección nueva).
+Lo pensado esta tarde sobre duplicados (matrícula fija, fusión en una de las dos,
+comprobación al firmar) y sobre el buscador del alta queda absorbido por la PROPUESTA
+EN PRUEBA de arriba. Cambios respecto a lo dicho a media tarde: sobrevive la clave con
+MÁS ACCESOS (no la más antigua); la clave nace con la opp (no a la firma), así que el
+buscador del alta busca direcciones y claves aunque no tengan número.
 
 ## Sin resolver
 
-- **ABIERTO (13-oct, Mónica: "no tengo ni idea de cómo modelar esto"): la clave
+- **(13-oct) RESUELTO en la PROPUESTA EN PRUEBA de arriba** — lo que sigue es cómo estaba planteado: la clave
   tiene que ser a la vez MATRÍCULA (fija: va en el código de todo lo de después de
   la firma) y AGRUPACIÓN de sitios (flexible: 56 + 58, Etruria + Lucano,
   mancomunidades; se descubre con el tiempo y a veces hay que deshacerla).** Las
