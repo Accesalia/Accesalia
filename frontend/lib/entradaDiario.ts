@@ -20,6 +20,7 @@
 // programa: se dicta con el del teclado.
 
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 import { CANALES } from "./tipoDeNota";
 import { apuntarFotos } from "./fotos";
 
@@ -100,7 +101,7 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
   return {
     oportunidades: ops.map((o) => ({
       valor: o.id,
-      texto: o.comunidad?.nombre ?? o.nombre ?? o.comunidad_provisional ?? o.codigo ?? "(sin dirección)",
+      texto: nombreDeOpp(o),
       pista: [o.codigo, o.comercial?.nombre].filter(Boolean).join(" · ") || undefined,
       comercialId: o.comercial_id,
       comercial: o.comercial?.nombre ?? null,
@@ -263,13 +264,13 @@ export async function entradaPorId(id: string): Promise<EntradaFicha | null> {
       autor: { nombre: string } | null;
       comercial: { nombre: string } | null;
       puesto: { cargo: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string } | null } | null;
-      oportunidad: { codigo: string | null; comunidad: { nombre: string } | null } | null;
+      oportunidad: { codigo: string | null; nombre: string | null } | null;
     }[]
   >(
     `interacciones?select=id,creado_en,fecha_evento,origen,transcripcion,requiere_humano,motivo_requiere_humano,` +
       `oportunidad_id,autor:autor_id(nombre),comercial:comercial_id(nombre),` +
       `puesto:puesto_id(cargo,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia)),` +
-      `oportunidad:oportunidad_id(codigo,comunidad:comunidad_id(nombre))&id=eq.${id}&limit=1`,
+      `oportunidad:oportunidad_id(codigo,nombre)&id=eq.${id}&limit=1`,
   );
   if (!i) return null;
 
@@ -286,6 +287,6 @@ export async function entradaPorId(id: string): Promise<EntradaFicha | null> {
     con: i.puesto?.persona?.nombre ?? null,
     conDonde: i.puesto?.empresa?.nombre_accesalia ?? i.puesto?.cargo ?? null,
     oportunidadId: i.oportunidad_id,
-    oportunidad: i.oportunidad?.comunidad?.nombre ?? i.oportunidad?.codigo ?? null,
+    oportunidad: i.oportunidad ? nombreDeOpp(i.oportunidad) : null,
   };
 }

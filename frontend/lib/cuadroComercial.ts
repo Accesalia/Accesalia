@@ -9,6 +9,7 @@
 // de cada una esta en app/comercial/page.tsx.
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
+import { nombreDeOpp } from "./direccionOpp";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import { carteraGestores, type CarteraGestores } from "./carteraGestores";
 import { fotosDeNotas, type Foto } from "./fotos";
@@ -275,6 +276,8 @@ type HitoCrudo = { hito: string; estado: "hecho" | "saltado" | "pendiente"; fech
 
 type OportunidadCruda = {
   id: string;
+  nombre: string | null;
+  codigo: string | null;
   creado_en: string;
   /** Cuando se abrio el encargo de verdad. Vacia en las que no se sabe. */
   fecha_apertura: string | null;
@@ -289,7 +292,7 @@ type OportunidadCruda = {
 };
 
 const SEL_OPORTUNIDAD =
-  "id,creado_en,fecha_apertura,comunidad_provisional,origen_notas,referencia_catastral," +
+  "id,nombre,codigo,creado_en,fecha_apertura,comunidad_provisional,origen_notas,referencia_catastral," +
   // Los accesos VIVOS (sin baja): de aqui sale el aviso de la direccion.
   "vivos:relacion_oportunidad_accesos(count)," +
   "comunidad:comunidad_id(id,nombre)," +
@@ -436,7 +439,8 @@ async function oportunidadesPendientes(
   const lista = pendientes.map((o) => {
     const b = leerBarra(pasos, fases.get(o.id) ?? [], o.fecha_apertura ?? o.creado_en);
     const neg = o.negociacion_oportunidad[0];
-    const nombre = o.comunidad?.nombre ?? o.comunidad_provisional ?? "Sin dirección todavía";
+    // La direccion es el NOMBRE DE LA OPP (Monica, 13-oct-2026).
+    const nombre = nombreDeOpp(o);
     const juntaProxima = b.actual?.clave === "junta" && b.junta && b.junta >= hoyISO();
     return {
       id: o.id,
@@ -478,16 +482,16 @@ async function agenda(comercialId: string | null): Promise<TareaCuadro[]> {
     id: string;
     texto: string;
     fecha_limite: string | null;
-    oportunidad: { comunidad_provisional: string | null; comunidad: { nombre: string } | null } | null;
+    oportunidad: { nombre: string | null; codigo: string | null } | null;
   }[]>(
-    `tareas_seguimiento?select=id,texto,fecha_limite,oportunidad:oportunidad_id(comunidad_provisional,comunidad:comunidad_id(nombre))` +
+    `tareas_seguimiento?select=id,texto,fecha_limite,oportunidad:oportunidad_id(nombre,codigo)` +
       `&estado=eq.abierta${f}&or=(fecha_limite.is.null,fecha_limite.lte.${domingo.toISOString().slice(0, 10)})` +
       `&order=fecha_limite.asc.nullslast&limit=40`,
   );
   return filas.map((t) => ({
     id: t.id,
     texto: t.texto,
-    donde: t.oportunidad?.comunidad?.nombre ?? t.oportunidad?.comunidad_provisional ?? null,
+    donde: t.oportunidad ? nombreDeOpp(t.oportunidad) : null,
     fecha: t.fecha_limite,
     hora: null,
   }));

@@ -1,4 +1,5 @@
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 // lib/envioCorreo.ts
 //
 // ENVIAR DOCUMENTOS A LA COMUNIDAD DESDE SU OPORTUNIDAD (Monica, 12-oct-2026).
@@ -133,7 +134,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
 
   return {
     codigo: o.codigo,
-    nombre: o.comunidad?.nombre ?? o.nombre ?? o.comunidad_provisional ?? o.codigo ?? "",
+    nombre: nombreDeOpp(o),
     comercial: o.comercial
       ? { id: o.comercial.id, nombre: [o.comercial.nombre, o.comercial.apellidos].filter(Boolean).join(" "), email: o.comercial.equipo?.email ?? null }
       : null,

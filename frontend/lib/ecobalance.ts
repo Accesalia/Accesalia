@@ -1,4 +1,5 @@
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 // lib/ecobalance.ts
 //
 // LO DE ECOBALANCE (Monica, 12-oct-2026). Lo ven Ana, Daniel y Monica; nadie
@@ -65,7 +66,7 @@ export async function listaEcobalance(lista: ListaEcobalance): Promise<FilaEcoba
       firmada: h.fecha_firma,
       oppId: o?.id ?? null,
       codigo: o?.codigo ?? null,
-      direccion: o?.comunidad?.nombre ?? o?.nombre ?? o?.comunidad_provisional ?? "Sin dirección",
+      direccion: nombreDeOpp(o),
       municipio: o?.comunidad?.municipio ?? null,
       comercial: o?.comercial?.nombre ?? null,
       precio,

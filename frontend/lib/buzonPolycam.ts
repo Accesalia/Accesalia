@@ -47,6 +47,7 @@
 //     escaneo".
 
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 
 import { ImapFlow } from "imapflow";
 import { simpleParser, type Attachment, type ParsedMail } from "mailparser";
@@ -936,8 +937,8 @@ export async function colocarAMano(uid: number, oportunidadId: string): Promise<
   if (!usuario || !clave) throw new Error("Faltan las variables del buzón.");
 
   const [ops, tipos, equipo] = await Promise.all([
-    leer<{ id: string; comunidad_id: string | null; comunidad: { nombre: string } | null }[]>(
-      `oportunidades?select=id,comunidad_id,comunidad:comunidad_id(nombre)&id=eq.${oportunidadId}&limit=1`,
+    leer<{ id: string; nombre: string | null; codigo: string | null; comunidad_id: string | null }[]>(
+      `oportunidades?select=id,nombre,codigo,comunidad_id&id=eq.${oportunidadId}&limit=1`,
     ),
     leer<{ id: string }[]>("tipos_documento?select=id&nombre=eq.Escaneo%20Polycam&limit=1"),
     leer<{ id: string; email: string | null }[]>("equipo?select=id,email&activo=is.true"),
@@ -965,7 +966,8 @@ export async function colocarAMano(uid: number, oportunidadId: string): Promise<
     await colocar(cliente, uid, correo, {
       oportunidadId,
       comunidadId: op.comunidad_id ?? "",
-      comunidadNombre: op.comunidad?.nombre ?? "esa dirección",
+      // La direccion es el NOMBRE DE LA OPP (13-oct-2026).
+      comunidadNombre: nombreDeOpp(op),
       autorId: porCorreo.get(correoLlano(de)) ?? null,
       tipoPolycamId: tipos[0].id,
     });
@@ -978,11 +980,11 @@ export async function colocarAMano(uid: number, oportunidadId: string): Promise<
 
 /** Las oportunidades abiertas, para el desplegable de la bandeja. */
 export async function oportunidadesAbiertas(): Promise<{ valor: string; texto: string }[]> {
-  const filas = await leer<{ id: string; codigo: string | null; comunidad: { nombre: string } | null; comunidad_provisional: string | null }[]>(
-    "oportunidades?select=id,codigo,comunidad:comunidad_id(nombre),comunidad_provisional&estado=eq.abierta&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=500",
+  const filas = await leer<{ id: string; codigo: string | null; nombre: string | null }[]>(
+    "oportunidades?select=id,codigo,nombre&estado=eq.abierta&order=fecha_apertura.desc.nullslast,creado_en.desc&limit=500",
   );
   return filas.map((o) => ({
     valor: o.id,
-    texto: (o.comunidad?.nombre ?? o.comunidad_provisional ?? "(sin dirección)") + (o.codigo ? ` · ${o.codigo}` : ""),
+    texto: nombreDeOpp(o) + (o.nombre && o.codigo ? ` · ${o.codigo}` : ""),
   }));
 }

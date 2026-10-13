@@ -19,6 +19,7 @@
 // enteros: "soledad 18" no es "soledad 180".
 
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -177,7 +178,7 @@ async function direcciones(): Promise<(PropuestaDireccion & { buscable: string }
     buscable: `${c.nombre} ${c.direccion ?? ""} ${c.municipio ?? ""}`,
   }));
   for (const o of opps) {
-    const nombre = o.nombre ?? o.comunidad_provisional;
+    const nombre = nombreDeOpp(o);
     if (!nombre) continue;
     salida.push({
       tipo: "oportunidad",

@@ -14,7 +14,7 @@
 
 import "server-only";
 import type { Yo } from "./sesion";
-import { direccionDeAccesos } from "./direccionOpp";
+import { nombreDeOpp } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -42,11 +42,6 @@ export function puedeValidar(yo: Yo): boolean {
   return yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion");
 }
 
-// ------------------------------------------------------------ la direccion
-
-type Acceso = { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null };
-export { direccionDeAccesos } from "./direccionOpp";
-
 // ------------------------------------------------------------ la lista
 
 export type FilaNueva = {
@@ -63,15 +58,13 @@ export type FilaNueva = {
 
 type HojaCruda = {
   id: string; numero_hoja: string; fecha_firma: string; oportunidad_id: string | null;
-  opp: { comercial: { nombre: string } | null; accesos: { hasta: string | null; acceso: Acceso | null }[] } | null;
+  opp: { nombre: string | null; codigo: string | null; comercial: { nombre: string } | null } | null;
 };
 type LineaCruda = { id: string; hoja_encargo_id: string; validada_en: string | null };
 
 const SEL_HOJA =
   "id,numero_hoja,fecha_firma,oportunidad_id," +
-  "opp:oportunidad_id(comercial:comerciales!oportunidades_comercial_id_fkey(nombre)," +
-  "accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(tipo_via,nombre_via,numero,escalera,municipio)))";
-const accesosVivos = (h: HojaCruda) => (h.opp?.accesos ?? []).filter((a) => !a.hasta && a.acceso).map((a) => a.acceso!);
+  "opp:oportunidad_id(nombre,codigo,comercial:comerciales!oportunidades_comercial_id_fkey(nombre))";
 
 export async function nuevasHojas(): Promise<FilaNueva[]> {
   const pend = await leer<LineaCruda[]>(
@@ -97,7 +90,7 @@ export async function nuevasHojas(): Promise<FilaNueva[]> {
       out.push({
         id: h.id, numero: h.numero_hoja, fechaFirma: h.fecha_firma,
         dias: Math.max(0, Math.round((hoyMs - Date.parse(h.fecha_firma)) / 86400000)),
-        direccion: direccionDeAccesos(accesosVivos(h)),
+        direccion: nombreDeOpp(h.opp), // la direccion es el nombre de la opp (13-oct-2026)
         comercial: h.opp?.comercial?.nombre ?? null,
         lineas: ls.length, validadas: ls.filter((l) => l.validada_en).length,
         dudas: dudas.filter((d) => d.hoja_encargo_id === h.id).length,

@@ -25,6 +25,7 @@
 //     de sus oportunidades.
 
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 import { bloquesDe } from "../app/comercial/oportunidades/[id]/Carril";
 import type { HitoGestion } from "./gestionOportunidad";
 
@@ -145,7 +146,7 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
     const ahora = bloques.find((b) => b.activo) ?? [...bloques].reverse().find((b) => b.pie.startsWith("Hecho")) ?? bloques[0];
     return {
       id: o.id,
-      nombre: o.nombre ?? o.comunidad_provisional ?? o.codigo ?? "(sin nombre)",
+      nombre: nombreDeOpp(o),
       codigo: o.codigo,
       comunidadId: o.comunidad_id,
       comercialId: o.comercial_id,

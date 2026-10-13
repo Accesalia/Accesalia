@@ -16,6 +16,7 @@
 // `equipo` (20 personas de verdad). Cuando se unifiquen, se mueve.
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
+import { nombreDeOpp } from "./direccionOpp";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
@@ -220,6 +221,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       estado: string;
       creado_en: string;
       fecha_apertura: string | null;
+      nombre: string | null;
       comunidad_provisional: string | null;
       comunidad_id: string | null;
       referencia_catastral: string | null;
@@ -240,7 +242,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       } | null;
     }[]
   >(
-    `oportunidades?select=id,codigo,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
+    `oportunidades?select=id,codigo,nombre,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
@@ -291,7 +293,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
   return {
     id: op.id,
     codigo: op.codigo,
-    direccion: op.comunidad?.nombre ?? op.comunidad_provisional ?? "(sin dirección)",
+    // La direccion es el NOMBRE DE LA OPP (Monica, 13-oct-2026).
+    direccion: nombreDeOpp(op),
     aviso: avisoDireccion(cuenta(op.vivos), op.referencia_catastral),
     referenciaCatastral:
       op.portales?.map((p) => p.acceso?.ref_catastral).find(Boolean) ?? op.referencia_catastral,

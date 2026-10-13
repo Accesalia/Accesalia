@@ -1,4 +1,5 @@
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 // lib/informeCostes.ts
 //
 // EL INFORME DE COSTES PARA UNA COMUNIDAD, EMITIDO Y GUARDADO (Monica,
@@ -166,7 +167,7 @@ export async function emitirInformeCostes(
   const foto: FotoCostes = {
     version: 1,
     fecha: FECHA.format(new Date()),
-    nombre: opp ? (opp.comunidad?.nombre ?? opp.nombre ?? opp.comunidad_provisional ?? opp.codigo) : (anexo?.direccion ?? donde.direccion),
+    nombre: opp ? nombreDeOpp(opp) : (anexo?.direccion ?? donde.direccion),
     direccion: anexo?.direccion ?? donde.direccion,
     lugar: anexo?.lugar ?? donde.municipio,
     obra,

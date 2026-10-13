@@ -1,4 +1,5 @@
 import "server-only";
+import { nombreDeOpp } from "./direccionOpp";
 // lib/negocio.ts
 //
 // NEGOCIO · TRABAJO CONTRATADO (Monica, 12-oct-2026). Indicadores de seguimiento
@@ -165,7 +166,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     const d = porOpp.get(o.id) ?? {
       oppId: o.id,
       codigo: o.codigo,
-      direccion: o.comunidad?.nombre ?? o.nombre ?? o.comunidad_provisional ?? o.codigo ?? "Sin dirección",
+      direccion: nombreDeOpp(o),
       comercial: o.comercial_id ? (nombreCom.get(o.comercial_id) ?? "—") : "Sin comercial",
       hojas: [],
       lineas: [],

@@ -24,7 +24,6 @@ import { comercialDe, puedeEntrar } from "./sesion";
 import { autoresQueVeo } from "./pendientes";
 import { TEXTO_FALTA, type Falta } from "./completa";
 import { cuantosPorRevisar } from "./recibidos";
-import { direccionesDeOpps } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -130,9 +129,6 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
   // Los nombres de los comerciales aparte: la vista no se cruza sola con ellos.
   const { filas: comerciales } = await leer<{ id: string; nombre: string }[]>("comerciales?select=id,nombre");
   const nombreDe = new Map(comerciales.map((c) => [c.id, c.nombre]));
-  // La direccion sale de sus accesos vivos, con municipio; nunca del nombre de
-  // la comunidad ("CP ..."), que es lo que trae la vista (Monica, 13-oct-2026).
-  const direcciones = await direccionesDeOpps((opps.filas as { id: string }[]).map((o) => o.id));
 
   return {
     notas: notas.filas.map((n) => ({
@@ -152,11 +148,9 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
       return {
         id: o.id,
         clase: "oportunidad",
-        titulo: direcciones.get(o.id) ?? "Sin dirección",
-        // Sin accesos, el nombre que tenga ayuda a reconocerla, pero no es la direccion.
-        detalle: [o.codigo, direcciones.has(o.id) ? null : o.direccion && `«${o.direccion}»`, o.comercial_id ? nombreDe.get(o.comercial_id) : null]
-          .filter(Boolean)
-          .join(" · "),
+        // La direccion es el NOMBRE DE LA OPP; la vista ya lo trae (13-oct-2026).
+        titulo: o.direccion ?? o.codigo ?? "Sin nombre",
+        detalle: [o.codigo, o.comercial_id ? nombreDe.get(o.comercial_id) : null].filter(Boolean).join(" · "),
         falta: falta.map((x) => TEXTO_FALTA[x]).join(" · "),
         fecha: o.desde,
         href: `/comercial/oportunidades/${o.id}`,

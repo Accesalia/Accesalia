@@ -1,51 +1,39 @@
 // lib/direccionOpp.ts
 //
-// LA DIRECCION DE UNA OPORTUNIDAD (Monica, 13-oct-2026): "NO EXISTEN DIRECCIONES
-// SIN MUNICIPIO. Bolsa 3 no es nada, Bolsa 3 MADRID si". Sale siempre de sus
-// accesos vivos (oportunidades > relacion_oportunidad_accesos > accesos), nunca
-// del nombre de la comunidad, y siempre con su municipio: "Cl Bolsa 3 · Madrid".
+// LA DIRECCION DE UNA OPORTUNIDAD ES SU NOMBRE (Monica, 13-oct-2026): "son tres
+// entidades y cada una debe tener su nombre": comunidad, acceso y opp. TODA la
+// app lee la direccion como oportunidades.nombre: ni el "CP ..." de la
+// comunidad, ni algo calculado al vuelo desde los accesos.
+//
+// El nombre nace en el alta de la opp: el que propone la app con los accesos
+// marcados (lib/direccionNombre.ts, nombrePropuesto), o el que ponga el
+// comercial. Despues no cambia solo.
 
 import "server-only";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 
-type Acceso = { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null };
-
-const titulo = (t: string | null) => (t ?? "").toLowerCase().replace(/(^|[\s(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
-
-/** "Cl Bolsa 3 · Madrid"; varios portales de la misma calle, seguidos: "Av Independencia 43, esc. 1 + 43, esc. 2 · San Sebastian De Los Reyes". */
-export function direccionDeAccesos(accesos: Acceso[]): string {
-  if (!accesos.length) return "Sin dirección";
-  const portal = (a: Acceso) => [a.numero, a.escalera ? `esc. ${a.escalera}` : ""].filter(Boolean).join(", ");
-  const calles = new Map<string, string[]>();
-  for (const a of accesos) {
-    const calle = [titulo(a.tipo_via), titulo(a.nombre_via)].filter(Boolean).join(" ");
-    calles.set(calle, [...(calles.get(calle) ?? []), portal(a)]);
-  }
-  const txt = [...calles].map(([c, ps]) => `${c} ${ps.join(" + ")}`).join(" · ");
-  const munis = [...new Set(accesos.map((a) => titulo(a.municipio)).filter(Boolean))].join(", ");
-  return munis ? `${txt} · ${munis}` : txt;
+/** El nombre de la opp; sin el, su codigo, para que al menos se reconozca. */
+export function nombreDeOpp(o: { nombre?: string | null; codigo?: string | null } | null | undefined): string {
+  return o?.nombre?.trim() || o?.codigo || "Sin nombre";
 }
 
-/** La direccion (con municipio) de cada oportunidad. Las que no tienen accesos, no salen. */
-export async function direccionesDeOpps(ids: (string | null | undefined)[]): Promise<Map<string, string>> {
+/** El nombre de cada oportunidad (o su codigo, si no tiene). */
+export async function nombresDeOpps(ids: (string | null | undefined)[]): Promise<Map<string, string>> {
   const unicos = [...new Set(ids.filter((x): x is string => !!x && /^[0-9a-f-]{36}$/.test(x)))];
   const out = new Map<string, string>();
   for (let i = 0; i < unicos.length; i += 150) {
     const trozo = unicos.slice(i, i + 150);
-    const r = await fetch(
-      `${URL_BASE}/rest/v1/relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(tipo_via,nombre_via,numero,escalera,municipio)&hasta=is.null&opp_id=in.(${trozo.join(",")})`,
-      { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
-    );
-    if (!r.ok) throw new Error(`Supabase relacion_oportunidad_accesos ${r.status}: ${await r.text()}`);
-    const filas = (await r.json()) as { opp_id: string; acceso: Acceso | null }[];
-    const porOpp = new Map<string, Acceso[]>();
-    for (const f of filas) if (f.acceso) porOpp.set(f.opp_id, [...(porOpp.get(f.opp_id) ?? []), f.acceso]);
-    for (const [opp, accs] of porOpp) out.set(opp, direccionDeAccesos(accs));
+    const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?select=id,nombre,codigo&id=in.(${trozo.join(",")})`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`Supabase oportunidades ${r.status}: ${await r.text()}`);
+    for (const o of (await r.json()) as { id: string; nombre: string | null; codigo: string | null }[]) out.set(o.id, nombreDeOpp(o));
   }
   return out;
 }
 
-/** "Cl Bolsa 3, Madrid": para dentro de una frase (el concepto de una proforma). */
+/** Para dentro de una frase (el concepto de una proforma). */
 export const enFrase = (direccion: string) => direccion.replace(/ · /g, ", ");
