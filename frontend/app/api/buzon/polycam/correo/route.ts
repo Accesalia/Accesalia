@@ -78,11 +78,12 @@ export async function GET(req: Request) {
         if (n.disposition === "attachment" || (!n.childNodes && (n.size ?? 0) > 100_000)) partes.push(n);
         n.childNodes?.forEach(recorrer);
       };
-      recorrer(m?.bodyStructure as Nodo | undefined);
+      recorrer(m ? (m.bodyStructure as Nodo | undefined) : undefined);
       const mayor = partes.sort((x, y) => (y.size ?? 0) - (x.size ?? 0))[0];
       if (!mayor?.part) return "sin adjunto";
       const t = Date.now();
       const { content } = await cliente.download(String(uid), mayor.part, { uid: true });
+      if (!content) return "Gmail no entrega el adjunto";
       let bytes = 0;
       await new Promise<void>((bien) => {
         const corta = setTimeout(() => {
