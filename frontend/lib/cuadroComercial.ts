@@ -10,6 +10,7 @@
 
 import { avisoDireccion, cuenta } from "./direccionNombre";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
+import { carteraGestores, type CarteraGestores } from "./carteraGestores";
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
 import { datosMapa, type DatosMapa, type ComunidadEnMapa } from "./mapaComunidades";
@@ -169,6 +170,8 @@ export type CuadroComercial = {
   firmadas: FirmadaCuadro[]; // la segunda lista: firmadas, pendientes de cobro
   cifras: CifraCuadro[];
   cartera: CarteraCuadro;
+  /** La cartera por GESTOR, conectada a la base (13-oct-2026). La demo no la trae. */
+  gestores?: CarteraGestores;
   mapa: DatosMapa;
   umbralParado: number;
   umbralSinContacto: number;
@@ -228,6 +231,22 @@ export async function umbrales(): Promise<{ parado: number; sinContacto: number 
   );
   const v = (k: string, porDefecto: number) => Number(filas.find((f) => f.clave === k)?.valor ?? porDefecto);
   return { parado: v("doc_atascado", 15), sinContacto: v("sin_contacto", 30) };
+}
+
+/** Comunidades para el mapa de una cartera POR GESTOR (13-oct-2026): las que
+ *  administran sus gestores. Por tramos: la lista de ids no cabe en una
+ *  direccion. */
+async function mapaDePuestos(puestoIds: string[]): Promise<DatosMapa> {
+  const vistas = new Map<string, ComunidadEnMapa>();
+  for (let i = 0; i < puestoIds.length; i += 120) {
+    const filas = await restTodo<{ comunidad_id: string; comunidad: ComunidadEnMapa | null }>(
+      `comunidad_admin_responsable?select=comunidad_id,comunidad:comunidades(municipio,lat,lng)` +
+        `&vigente=is.true&puesto_id=in.(${puestoIds.slice(i, i + 120).join(",")})`,
+    );
+    // Una comunidad puede tener varias personas responsables: se cuenta una vez.
+    for (const f of filas) if (f.comunidad) vistas.set(f.comunidad_id, f.comunidad);
+  }
+  return datosMapa([...vistas.values()]);
 }
 
 /** Comunidades para el mapa: todas, o las de las administraciones de un comercial. */
@@ -544,18 +563,27 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
 
 /** El cuadro de un comercial (o de todos, si no se dice cual). Con `fase`, la
  *  lista de oportunidades trae solo las que estan en esa fase. */
-export async function cuadroComercial(comercialId: string | null, pagina = 1, fase: string | null = null): Promise<CuadroComercial> {
-  const [pasos, u, { cartera, empresaIds }] = await Promise.all([
+export async function cuadroComercial(
+  comercialId: string | null,
+  pagina = 1,
+  fase: string | null = null,
+  /** Solo la pestaña de administradores ensena la cartera y el mapa: en las
+   *  demas no se calculan (13-oct-2026: la app ya iba lenta). */
+  conCartera = false,
+): Promise<CuadroComercial> {
+  const [pasos, u, { cartera }, gestores] = await Promise.all([
     pasosComerciales(),
     umbrales(),
     carteraDe(comercialId),
+    conCartera ? carteraGestores(comercialId) : Promise.resolve(undefined),
   ]);
   const [oportunidades, agregado, tareas, entradas, mapa] = await Promise.all([
     oportunidadesPendientes(comercialId, pasos, pagina, fase),
     agregadoFases(comercialId, pasos),
     agenda(comercialId),
     diario(comercialId),
-    mapaDe(empresaIds),
+    // El mapa: todas las comunidades, o las de los gestores de su cartera.
+    !conCartera ? Promise.resolve(datosMapa([])) : comercialId ? mapaDePuestos(gestores?.puestoIds ?? []) : mapaDe(null),
   ]);
   return {
     demo: false,
@@ -569,6 +597,7 @@ export async function cuadroComercial(comercialId: string | null, pagina = 1, fa
     firmadas: [],
     cifras: CIFRAS_SIN_DATO,
     cartera,
+    gestores,
     mapa,
     umbralParado: u.parado,
     umbralSinContacto: u.sinContacto,

@@ -7,6 +7,7 @@ import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import { guardarEntrada } from "./acciones";
 import { Grabar } from "./Grabar";
+import { CarteraConsolidados, CarteraLateral } from "./CarteraGestores";
 import { BuscarOportunidad } from "./BuscarOportunidad";
 import { CANALES, opcionesEntrada } from "../../lib/entradaDiario";
 import { cuantasPendientes } from "../../lib/pendientes";
@@ -113,7 +114,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   const accesos = !ver;
   const seccion: Seccion = SECCIONES.includes(ver as Seccion) ? (ver as Seccion) : "agenda";
   const faseElegida = seccion === "fases" && fase ? fase : null;
-  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina, faseElegida);
+  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina, faseElegida, seccion === "administradores");
+  // La cartera POR GESTOR, conectada a la base (13-oct-2026). La demo sigue con la suya.
+  const carteraNueva = seccion === "administradores" && !esDemo && !!cuadro.gestores;
   const nombre = esDemo ? "Fantasma" : elegido && direccion ? elegido.nombre : yo.nombre;
 
   const hoy = FECHA_LARGA.format(new Date());
@@ -405,7 +408,14 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           {/* ------- las dos columnas: la izquierda cambia, la derecha no -------
               El azul pasa por DEBAJO de las dos: es lo que las une y lo que le da
               el contraste a la zona blanca del diario (su maqueta). */}
-          <div className="grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]">
+          <div
+            className={
+              "grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] " +
+              // En la cartera, 60 / 40: la lista de administradores necesita sitio
+              // y la columna de al lado lleva tres tarjetas (Monica, 13-oct-2026).
+              (carteraNueva ? "xl:grid-cols-[minmax(0,60fr)_minmax(0,40fr)]" : "xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]")
+            }
+          >
             {/* ================= columna izquierda ================= */}
             <div className="min-w-0">
 
@@ -449,7 +459,11 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               {/* ---- mis administradores ---- */}
               {seccion === "administradores" && (
                 <div className="space-y-6">
-                  <Cartera cartera={cuadro.cartera} todos={todos} />
+                  {carteraNueva && cuadro.gestores ? (
+                    <CarteraConsolidados c={cuadro.gestores} todos={todos} />
+                  ) : (
+                    <Cartera cartera={cuadro.cartera} todos={todos} />
+                  )}
                   <MapaCartera mapa={cuadro.mapa} titulo={todos || esDemo ? "Dónde estamos y dónde no" : "Dónde estoy y dónde no"} />
                 </div>
               )}
@@ -511,7 +525,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                   <span className="rounded-full bg-[#5c4208] px-2 py-0.5 text-[12px] font-bold text-white">{pendientes}</span>
                 </Link>
               )}
-              <Diario entradas={cuadro.diario} />
+              {/* En la cartera, en lugar del diario: no consolidados, estrella y
+                  los que marean (13-oct-2026). */}
+              {carteraNueva && cuadro.gestores ? <CarteraLateral c={cuadro.gestores} /> : <Diario entradas={cuadro.diario} />}
             </div>
           </div>
           </>
