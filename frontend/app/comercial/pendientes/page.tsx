@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { opcionesEntrada } from "../../../lib/entradaDiario";
-import { pendientesDe } from "../../../lib/pendientes";
+import { empresasParaColocar, pendientesDe } from "../../../lib/pendientes";
+import { listaDeClaves } from "../../../lib/claves";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { Colocar } from "./Colocar";
 import { Salida } from "../../components/Salida";
@@ -21,7 +22,16 @@ export default async function Pendientes() {
   if (!yo) redirect("/entrar?volver=/comercial/pendientes");
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
 
-  const [notas, opciones] = await Promise.all([pendientesDe(yo), opcionesEntrada()]);
+  // Ademas de las opps y la agenda: las DIRECCIONES que ya tenemos (claves) y
+  // las ADMINISTRACIONES (Monica, 14-oct-2026: "por clave si es direccion, por
+  // agenda si es persona, o por empresa").
+  const [notas, opciones, claves, empresas] = await Promise.all([
+    pendientesDe(yo),
+    opcionesEntrada(),
+    listaDeClaves().catch(() => []),
+    empresasParaColocar().catch(() => []),
+  ]);
+  const direcciones = claves.map((c) => ({ valor: "clave:" + c.id, texto: c.nombre, pista: `dirección · ${c.codigo ?? "sin DIR"}` }));
 
   return (
     <div className="min-h-screen">
@@ -44,7 +54,12 @@ export default async function Pendientes() {
         ) : (
           <ul className="mt-5 flex flex-col gap-3">
             {notas.map((p) => (
-              <Colocar key={p.id} p={p} oportunidades={opciones.oportunidades} personas={opciones.personas} />
+              <Colocar
+                key={p.id}
+                p={p}
+                oportunidades={[...opciones.oportunidades, ...direcciones]}
+                personas={[...opciones.personas, ...empresas]}
+              />
             ))}
           </ul>
         )}

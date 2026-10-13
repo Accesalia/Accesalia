@@ -20,9 +20,11 @@ export const dynamic = "force-dynamic";
 export default async function NuevaOportunidad({
   searchParams,
 }: {
-  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string; pendiente?: string; apunte?: string }>;
+  searchParams: Promise<{ falta?: string; nota?: string; direccion?: string; fecha?: string; canal?: string; pendiente?: string; apunte?: string; clave?: string }>;
 }) {
-  const { falta, nota, direccion, fecha, canal, pendiente, apunte: apunteId } = await searchParams;
+  const { falta, nota, direccion, fecha, canal, pendiente, apunte: apunteId, clave: claveUrl } = await searchParams;
+  // Una direccion que ya tenemos (clave), elegida al colocar una nota (14-oct-2026).
+  const claveDeUrl = claveUrl ? (await abrirClave(claveUrl).catch(() => null))?.clave ?? null : null;
   // Desde "Grabar entrada", con la direccion que no estaba en la lista.
   const inicial =
     nota || direccion
@@ -33,6 +35,7 @@ export default async function NuevaOportunidad({
           canal: canal && ["visita", "llamada", "mail", "escrito"].includes(canal) ? canal : null,
           // Desde la bandeja: al guardar, esta pendiente queda colocada aqui.
           pendiente: pendiente && /^[0-9a-f-]{36}$/.test(pendiente) ? pendiente : null,
+          clave: claveDeUrl,
         }
       : undefined;
   const yo = await quienSoy();

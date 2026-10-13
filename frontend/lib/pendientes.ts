@@ -163,6 +163,18 @@ export async function colocarPendiente(
   }
 
   const [lista, pid] = destino.persona.split(":");
+  // LA EMPRESA MISMA (Monica, 14-oct-2026: "por agenda si es persona, o por
+  // empresa"): la nota va a las notas de la administracion. Sus fotos no
+  // pueden ir a una empresa (un documento es de una opp, comunidad o persona):
+  // con fotos, se cuelga de una persona de esa administracion.
+  if (lista === "empresa") {
+    if (!/^[0-9a-f-]{36}$/.test(pid ?? "")) throw new Error("Esa administración no es válida.");
+    const fotos = await leer<{ id: string }[]>(`fotos_nota?select=id&nota_pendiente_id=eq.${id}&limit=1`);
+    if (fotos.length) throw new Error("Esta nota trae fotos, y las fotos no pueden ir a una empresa: cuélgala de una persona de esa administración.");
+    const [n] = await escribir<{ id: string }[]>("POST", "notas_administracion_fincas", { ...comun, empresa_id: pid });
+    await marcarColocada(id, { nota_administracion_id: n.id });
+    return;
+  }
   if (lista !== "puesto" && lista !== "persona") {
     throw new Error("Con un presidente o un vecino, la nota va a su oportunidad: busca la dirección.");
   }
@@ -178,6 +190,14 @@ export async function colocarPendiente(
     personaId: lista === "persona" ? pid : null,
   });
   await marcarColocada(id, { nota_administracion_id: n.id });
+}
+
+/** Las administraciones de fincas, para colocar una nota en la empresa misma. */
+export async function empresasParaColocar(): Promise<{ valor: string; texto: string; pista: string }[]> {
+  const filas = await leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
+    "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas&order=nombre_accesalia.asc&limit=2000",
+  );
+  return filas.map((e) => ({ valor: "empresa:" + e.id, texto: e.nombre_accesalia, pista: ["administración", e.municipio].filter(Boolean).join(" · ") }));
 }
 
 /** "ES NUEVA": la oportunidad se crea en el alta, y su primera nota es esta.

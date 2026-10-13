@@ -20,6 +20,7 @@
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
+import { listaDeClaves } from "./claves";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -155,20 +156,25 @@ export async function proponerPersonas(q: string): Promise<PropuestaPersona[]> {
 // ------------------------------------------------------------ direcciones
 
 export type PropuestaDireccion = {
-  tipo: "comunidad" | "oportunidad";
+  tipo: "comunidad" | "oportunidad" | "clave";
   id: string;
   nombre: string;
   detalle: string;
 };
 
+// DONDE VA LA LLAMADA (Monica, 14-oct-2026): "por clave si es direccion". Se
+// propone entre las OPPS ABIERTAS, por su nombre, y las DIRECCIONES que ya
+// tenemos (claves DIR), aunque no tengan opp abierta. Las comunidades siguen
+// en la lista solo para poner nombre a las llamadas antiguas que las eligieron.
 async function direcciones(): Promise<(PropuestaDireccion & { buscable: string })[]> {
-  const [comunidades, opps] = await Promise.all([
+  const [comunidades, opps, claves] = await Promise.all([
     todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>(
       "comunidades?select=id,nombre,municipio,direccion",
     ),
     todo<{ id: string; nombre: string | null; comunidad_provisional: string | null; codigo: string | null }>(
-      "oportunidades?select=id,nombre,comunidad_provisional,codigo&comunidad_id=is.null",
+      "oportunidades?select=id,nombre,comunidad_provisional,codigo&estado=eq.abierta",
     ),
+    listaDeClaves().catch(() => []),
   ]);
   const salida: (PropuestaDireccion & { buscable: string })[] = comunidades.map((c) => ({
     tipo: "comunidad",
@@ -184,15 +190,19 @@ async function direcciones(): Promise<(PropuestaDireccion & { buscable: string }
       tipo: "oportunidad",
       id: o.id,
       nombre,
-      detalle: ["oportunidad sin comunidad", o.codigo].filter(Boolean).join(" · "),
-      buscable: `${nombre} ${o.comunidad_provisional ?? ""}`,
+      detalle: ["oportunidad", o.codigo].filter(Boolean).join(" · "),
+      buscable: `${nombre} ${o.codigo ?? ""}`,
     });
+  }
+  for (const c of claves) {
+    salida.push({ tipo: "clave", id: c.id, nombre: c.nombre, detalle: `dirección · ${c.codigo ?? "sin DIR"}`, buscable: `${c.nombre} ${c.codigo ?? ""}` });
   }
   return salida;
 }
 
 export async function proponerDirecciones(q: string): Promise<PropuestaDireccion[]> {
-  return mejores(q, await direcciones()).map(({ tipo, id, nombre, detalle }) => ({ tipo, id, nombre, detalle }));
+  // Se proponen opps y direcciones; las comunidades ya no.
+  return mejores(q, (await direcciones()).filter((d) => d.tipo !== "comunidad")).map(({ tipo, id, nombre, detalle }) => ({ tipo, id, nombre, detalle }));
 }
 
 // ------------------------------------------------------------ el postit
@@ -231,7 +241,7 @@ export type DatosPostit = {
 };
 
 const TIPOS_QUIEN = ["puesto", "persona", "persona_comunidad", "nuevo"];
-const TIPOS_DONDE = ["comunidad", "oportunidad", "nueva"];
+const TIPOS_DONDE = ["comunidad", "oportunidad", "clave", "nueva"];
 
 function fila(d: DatosPostit) {
   const quien = d.quien && TIPOS_QUIEN.includes(d.quien.tipo) ? d.quien : null;
@@ -247,6 +257,7 @@ function fila(d: DatosPostit) {
     donde_texto: t(d.donde_texto),
     donde_comunidad_id: donde?.tipo === "comunidad" ? donde.id : null,
     donde_oportunidad_id: donde?.tipo === "oportunidad" ? donde.id : null,
+    donde_clave_id: donde?.tipo === "clave" ? donde.id : null,
     donde_nueva: donde?.tipo === "nueva",
     area: AREAS_LLAMADA.some((a) => a.clave === d.area) ? d.area : null,
     actualizado_en: new Date().toISOString(),
@@ -310,6 +321,7 @@ type FilaLlamada = {
   donde_texto: string | null;
   donde_comunidad_id: string | null;
   donde_oportunidad_id: string | null;
+  donde_clave_id: string | null;
   donde_nueva: boolean;
   area: string | null;
   apuntada_por: string;
@@ -359,6 +371,7 @@ export async function listarPostits(
     for (const [tipo, id] of [
       ["comunidad", f.donde_comunidad_id],
       ["oportunidad", f.donde_oportunidad_id],
+      ["clave", f.donde_clave_id],
     ] as const)
       if (id) donde = { tipo, id, etiqueta: etiquetaDe(sitios, tipo, id) };
     return {

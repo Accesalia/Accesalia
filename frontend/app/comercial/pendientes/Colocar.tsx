@@ -11,6 +11,11 @@ import { accionColocar } from "./acciones";
 // UNA NOTA PENDIENTE Y SUS TRES SALIDAS (Monica, 8-oct-2026): la oportunidad
 // correcta (la direccion estaba mal escrita), la persona del administrador (no
 // iba de una direccion), o "Es nueva": el alta, con todo ya puesto.
+//
+// POR CLAVE, AGENDA O EMPRESA (Monica, 14-oct-2026): el buscador de arriba
+// encuentra tambien las direcciones que ya tenemos (claves), aunque no tengan
+// opp abierta: una nota de esa direccion crea la opp en ella. El de abajo,
+// ademas de las personas, las administraciones mismas.
 
 const ETQ = "block text-[10px] font-bold uppercase tracking-[0.05em] text-carbon/60";
 const BOT = "h-[31px] rounded-lg border px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40";
@@ -41,7 +46,13 @@ export function Colocar({ p, oportunidades, personas }: { p: Pendiente; oportuni
     router.push("/comercial/oportunidades/nueva?" + q.toString());
   };
 
-  const deAdmin = persona.startsWith("puesto:") || persona.startsWith("persona:");
+  const deAdmin = persona.startsWith("puesto:") || persona.startsWith("persona:") || persona.startsWith("empresa:");
+  // Una direccion que ya tenemos, sin opp elegida: la nota crea la opp en ella.
+  const clave = opp.startsWith("clave:") ? opp.slice("clave:".length) : null;
+  const enLaDireccion = () => {
+    const q = new URLSearchParams({ direccion: oportunidades.find((o) => o.valor === opp)?.texto ?? "", nota: p.texto, fecha: p.fecha ?? "", canal: p.canal ?? "", pendiente: p.id, clave: clave ?? "" });
+    router.push("/comercial/oportunidades/nueva?" + q.toString());
+  };
 
   return (
     <li className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
@@ -61,23 +72,24 @@ export function Colocar({ p, oportunidades, personas }: { p: Pendiente; oportuni
 
       <div className="mt-3 grid gap-3 border-t border-black/5 pt-3 md:grid-cols-2">
         <div>
-          <span className={ETQ}>Era esta oportunidad</span>
+          <span className={ETQ}>Era esta oportunidad o esta dirección</span>
           <div className="mt-1 flex gap-2">
             <Elegir id={`opp-${p.id}`} nombre="" opciones={oportunidades} valor={opp} alElegir={setOpp} vacio="busca la dirección buena…" conPista clase="min-w-0 flex-1" />
             <button
               type="button"
               disabled={!opp || ocupado}
-              onClick={() => colocar({ oportunidadId: opp })}
+              onClick={() => (clave ? enLaDireccion() : colocar({ oportunidadId: opp }))}
+              title={clave ? "Es una dirección que ya tenemos, sin opp elegida: se da de alta la opp en ella con esta nota" : undefined}
               className={BOT + " border-lima bg-lima text-carbon hover:bg-lima-dark hover:text-white"}
             >
-              Colocar
+              {clave ? "Crear la opp aquí" : "Colocar"}
             </button>
           </div>
         </div>
         <div>
-          <span className={ETQ}>O no iba de una dirección: es de esta persona del administrador</span>
+          <span className={ETQ}>O no iba de una dirección: es de esta persona o administración</span>
           <div className="mt-1 flex gap-2">
-            <Elegir id={`per-${p.id}`} nombre="" opciones={personas} valor={persona} alElegir={setPersona} vacio="busca la persona…" conPista clase="min-w-0 flex-1" />
+            <Elegir id={`per-${p.id}`} nombre="" opciones={personas} valor={persona} alElegir={setPersona} vacio="busca la persona o la administración…" conPista clase="min-w-0 flex-1" />
             <button
               type="button"
               disabled={!deAdmin || ocupado}
