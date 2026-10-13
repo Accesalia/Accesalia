@@ -6,7 +6,7 @@
 //     -> se CIERRAN los enlaces que sobran (hasta = hoy; no se borran), sus accesos dejan de ser de esa
 //        comunidad si se les puso en esta pasada, y se rehacen el nombre de la opp y el de la clave.
 //   TIPO 2, faltan numeros: "129-131", "19-21-23" -> se buscan en Catastro y se enlazan los que faltan.
-//   Mar Menor 28-38 (DAN-2022-115): APARTADA, Monica no ha dicho que numeros son.
+//   Mar Menor 28-38 (DAN-2022-115): todos los pares (Monica, 13-oct: SATE de manzana completa).
 //   cd frontend && NODE_PATH="$(pwd)/node_modules/next/dist/compiled" npx tsx --conditions=react-server ../scripts/arreglo_guiones_opps.mts [--escribir]
 
 import { readFileSync } from "node:fs";
@@ -36,7 +36,13 @@ const FALTAN: Record<string, string[]> = {   // opp -> direcciones que faltan
   "DAN-2021-005": ["MIRAFLORES 8 ALCOBENDAS"],
   "DAN-2021-088": ["SANGENJO 21 MADRID", "SANGENJO 23 MADRID"],
   "DAN-2023-185": ["AV ESPAÑA 39 MAJADAHONDA", "AV ESPAÑA 41 MAJADAHONDA"],
+  // Monica, 13-oct: "eran todos los pares, un SATE de manzana completa"
+  "DAN-2022-115": ["MAR MENOR 30 MADRID", "MAR MENOR 32 MADRID", "MAR MENOR 34 MADRID", "MAR MENOR 36 MADRID", "MAR MENOR 38 MADRID"],
 };
+// --solo=CODIGO: solo esa opp (las demas ya estan arregladas)
+const SOLO = process.argv.find((a) => a.startsWith("--solo="))?.slice(7);
+for (const k of Object.keys(SOBRAN)) if (SOLO && k !== SOLO) delete SOBRAN[k];
+for (const k of Object.keys(FALTAN)) if (SOLO && k !== SOLO) delete FALTAN[k];
 type Acc = { id: string; municipio: string; nombre_via: string; numero: string; escalera: string; figura_legal_propietaria_id: string | null };
 const vivos = async (oppId: string) =>
   (await leer<{ acceso_id: string; acceso: Acc }[]>(`relacion_oportunidad_accesos?select=acceso_id,acceso:acceso_id(id,municipio,nombre_via,numero,escalera,figura_legal_propietaria_id)&opp_id=eq.${oppId}&hasta=is.null`)).map((r) => r.acceso);
