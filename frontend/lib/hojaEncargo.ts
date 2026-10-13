@@ -30,6 +30,7 @@
 import "server-only";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
+import { numerarClaveDeOpp } from "./claves";
 import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
@@ -717,6 +718,11 @@ export async function apuntarFirmada(hojaId: string, ruta: string) {
     method: "PATCH",
     body: JSON.stringify({ estado: "devuelta_firmada", fecha_firma: hoy(), version_firmada_id: v.id, fecha_estado: new Date().toISOString() }),
   });
+  // LA FIRMA NUMERA LA CLAVE (Monica, 13-oct-2026): si el sitio de la opp aun no
+  // tiene DIR, recibe el siguiente. Si la opp no tiene accesos, no hay clave que
+  // numerar: el control de "opps sin clave" lo enseña.
+  const [h] = await leer<{ oportunidad_id: string | null }[]>(`hojas_encargo?select=oportunidad_id&id=eq.${hojaId}`);
+  if (h?.oportunidad_id) await numerarClaveDeOpp(h.oportunidad_id);
 }
 
 /** Enlace para ver una firmada del almacen. Caduca en diez minutos. */

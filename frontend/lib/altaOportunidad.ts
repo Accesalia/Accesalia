@@ -22,6 +22,7 @@ import "server-only";
 import { canalesDe, type Canal } from "./canales";
 import { columnasQuien, opcionesQuien, type OpcionQuien } from "./quien";
 import { CARGO_DE } from "./oportunidadVocabulario";
+import { claveDesdeAccesos } from "./claves";
 
 // El vocabulario vive en un fichero aparte porque lo necesitan las dos
 // orillas: la pantalla y el servidor.
@@ -496,6 +497,8 @@ export async function crearOportunidad(
   );
   // 9 · y, con los accesos ya vinculados, su comunidad.
   await comunidadDesdeAccesos(op.id);
+  // 10 · y su clave (el sitio, 13-oct-2026): la de su direccion, o una nueva sin numero.
+  await claveDesdeAccesos(op.id);
 
   return { id: op.id, codigo, notaId: nota.id };
 }
@@ -624,4 +627,6 @@ export async function cambiarDireccion(
   // Con los accesos ya vinculados, su comunidad (13-oct-2026): la que ya tengan
   // sus accesos, o "CP " + su nombre si no tiene. Si ya tenia, no cambia.
   await comunidadDesdeAccesos(oppId);
+  // Y su clave (13-oct-2026): la de su direccion, o una nueva sin numero.
+  await claveDesdeAccesos(oppId);
 }
