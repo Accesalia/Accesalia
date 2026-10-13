@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-const ESPERA = 25_000;
+const ESPERA = 30_000;
 
 async function conTiempo<T>(que: string, f: () => Promise<T>): Promise<{ que: string; segundos: number; contesta: boolean; dice: unknown }> {
   const t = Date.now();
@@ -65,6 +65,59 @@ export async function GET(req: Request) {
   );
   pasos.push(await conTiempo(`correo ${uid}: tamaño`, () => de({ size: true }).then((m) => (m ? `${((m.size ?? 0) / 1048576).toFixed(1)} MB` : "no existe"))));
   pasos.push(await conTiempo(`correo ${uid}: que lleva dentro`, () => de({ bodyStructure: true }).then((m) => (m ? m.bodyStructure : "no existe"))));
+  // LA VELOCIDAD (13-oct-2026): Gmail contesta al instante que es cada correo
+  // pero ninguno de 10-30 MB se baja en 60 s. Se baja el adjunto mas grande
+  // durante 20 s, sin guardarlo, y se mide. ?otros=13,14,15 dice que son esos.
+  pasos.push(
+    await conTiempo(`correo ${uid}: velocidad de descarga (20 s, sin guardar)`, async () => {
+      const m = await de({ bodyStructure: true });
+      type Nodo = { part?: string; size?: number; disposition?: string; childNodes?: Nodo[] };
+      const partes: Nodo[] = [];
+      const recorrer = (n?: Nodo) => {
+        if (!n) return;
+        if (n.disposition === "attachment" || (!n.childNodes && (n.size ?? 0) > 100_000)) partes.push(n);
+        n.childNodes?.forEach(recorrer);
+      };
+      recorrer(m?.bodyStructure as Nodo | undefined);
+      const mayor = partes.sort((x, y) => (y.size ?? 0) - (x.size ?? 0))[0];
+      if (!mayor?.part) return "sin adjunto";
+      const t = Date.now();
+      const { content } = await cliente.download(String(uid), mayor.part, { uid: true });
+      let bytes = 0;
+      await new Promise<void>((bien) => {
+        const corta = setTimeout(() => {
+          content.destroy();
+          bien();
+        }, 20_000);
+        content.on("data", (c: Buffer) => (bytes += c.length));
+        content.on("end", () => {
+          clearTimeout(corta);
+          bien();
+        });
+        content.on("error", () => {
+          clearTimeout(corta);
+          bien();
+        });
+      });
+      const seg = (Date.now() - t) / 1000;
+      return {
+        parte: mayor.part,
+        bajado: `${(bytes / 1048576).toFixed(1)} de ${((mayor.size ?? 0) / 1048576).toFixed(1)} MB`,
+        velocidad: `${(bytes / 1048576 / seg).toFixed(2)} MB/s`,
+        segundos: Math.round(seg),
+      };
+    }),
+  );
+  const otros = (new URL(req.url).searchParams.get("otros") ?? "").split(",").map(Number).filter((n) => n > 0);
+  for (const o of otros) {
+    pasos.push(
+      await conTiempo(`correo ${o}: quien, asunto y tamaño`, () =>
+        cliente
+          .fetchOne(String(o), { envelope: true, size: true, internalDate: true }, { uid: true })
+          .then((m) => (m ? { de: m.envelope?.from?.[0]?.address, asunto: m.envelope?.subject, llego: m.internalDate, mb: ((m.size ?? 0) / 1048576).toFixed(1) } : "no existe")),
+      ),
+    );
+  }
   try {
     cliente.close();
   } catch {}
