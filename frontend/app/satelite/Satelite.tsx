@@ -61,6 +61,12 @@ export function Satelite() {
   const [nTipos, setNTipos] = useState<string[]>([]);
   const [nPaso, setNPaso] = useState("");
   const [con, setCon] = useState("");
+  // "+ CREAR NUEVO ADM" (13-oct-2026): puerta fria, un contacto que aun no es
+  // de ninguna administracion. Solo nombre, telefono, correo y la nota.
+  const [modoAdmin, setModoAdmin] = useState(false);
+  const [aNombre, setANombre] = useState("");
+  const [aTel, setATel] = useState("");
+  const [aCorreo, setACorreo] = useState("");
   const [fotos, setFotos] = useState<{ foto: Blob; mini: Blob; vista: string }[]>([]);
   const [preparando, setPreparando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -190,8 +196,56 @@ export function Satelite() {
     sincronizar();
   };
 
+  // Obligatorios: la nota, el nombre y al menos uno de telefono o correo.
+  const puedeAdmin = texto.trim() !== "" && aNombre.trim() !== "" && (aTel.trim() !== "" || aCorreo.trim() !== "");
+  // ¿Hay ya alguien con ese nombre? Se avisa, para no crear dos veces a la
+  // misma persona con apodos distintos. No se impide: puede ser otro.
+  const limpio = (x: string) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  const parecido = aNombre.trim().length >= 4
+    ? (listas?.personas ?? []).find((p) => p.valor.startsWith("puesto:") && limpio(p.texto).includes(limpio(aNombre)))
+    : undefined;
+
+  const guardarAdmin = async () => {
+    if (!puedeAdmin) return;
+    setError(null);
+    const nota: NotaEnCola = {
+      id: crypto.randomUUID(),
+      creada: new Date().toISOString(),
+      texto: texto.trim(),
+      // Una puerta fria es una visita; si fue otra cosa, se cambia en el PC.
+      canal: "visita",
+      fecha: hoyISO(),
+      oportunidadId: null,
+      persona: null,
+      dondeTexto: null,
+      nuevoAdmin: {
+        personaId: crypto.randomUUID(),
+        puestoId: crypto.randomUUID(),
+        nombre: aNombre.trim(),
+        telefono: aTel.trim() || null,
+        correo: aCorreo.trim() || null,
+      },
+      resumen: `Nuevo administrador: ${aNombre.trim()}`,
+      fotos: [],
+    };
+    await meterEnCola(nota);
+    setTexto("");
+    setANombre("");
+    setATel("");
+    setACorreo("");
+    setModoAdmin(false);
+    setAviso(navigator.onLine ? "Guardado. Enviándolo…" : "Guardado en el móvil. Saldrá solo en cuanto haya cobertura.");
+    setTimeout(() => setAviso(null), 4000);
+    await refrescarCola();
+    sincronizar();
+  };
+
   const corregir = async (n: NotaEnCola) => {
     setTexto(n.texto);
+    setModoAdmin(!!n.nuevoAdmin);
+    setANombre(n.nuevoAdmin?.nombre ?? "");
+    setATel(n.nuevoAdmin?.telefono ?? "");
+    setACorreo(n.nuevoAdmin?.correo ?? "");
     setCanal(n.canal);
     setFecha(n.fecha);
     setOpp(n.oportunidadId ?? "");
@@ -233,6 +287,73 @@ export function Satelite() {
         </p>
       )}
 
+      {/* ---- + CREAR NUEVO ADM (13-oct-2026) ---- */}
+      {!modoAdmin ? (
+        <button
+          type="button"
+          onClick={() => setModoAdmin(true)}
+          className="mt-3 w-full rounded-xl border border-[#8a6410] bg-form-nuevo py-2.5 text-[14px] font-bold text-[#5c4208]"
+        >
+          + Crear nuevo adm
+        </button>
+      ) : (
+        <section className="mt-3 rounded-2xl border border-[#8a6410] bg-white p-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[13px] font-extrabold uppercase tracking-[0.04em] text-[#5c4208]">Nuevo administrador</h2>
+            <button type="button" onClick={() => setModoAdmin(false)} className="text-[13px] font-semibold text-carbon/60 underline">
+              Cancelar
+            </button>
+          </div>
+          <label className="mt-2 block">
+            <span className={ETQ}>Nombre *</span>
+            <input value={aNombre} onChange={(e) => setANombre(e.target.value)} autoComplete="off" className={CAMPO + " mt-1"} />
+          </label>
+          {parecido && (
+            <p className="mt-1 text-[12px] text-amber-900">
+              Ya hay un administrador parecido: <b>{parecido.texto}</b>
+              {parecido.pista ? ` · ${parecido.pista}` : ""}. Si es él, usa la nota normal y búscalo en «Con quién».
+            </p>
+          )}
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <label className="block">
+              <span className={ETQ}>Teléfono</span>
+              <input value={aTel} onChange={(e) => setATel(e.target.value)} inputMode="tel" className={CAMPO + " mt-1"} />
+            </label>
+            <label className="block">
+              <span className={ETQ}>Correo</span>
+              <input value={aCorreo} onChange={(e) => setACorreo(e.target.value)} inputMode="email" autoComplete="off" className={CAMPO + " mt-1"} />
+            </label>
+          </div>
+          <p className="mt-1 text-[11px] text-carbon/55">Al menos uno de los dos.</p>
+          <label className="mt-2 block">
+            <span className={ETQ}>Nota *</span>
+            <textarea
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              rows={5}
+              placeholder="Qué ha pasado. Escríbelo o díctalo con el micro del teclado."
+              className={CAMPO + " mt-1 resize-y leading-relaxed"}
+            />
+          </label>
+          {error && <p className="mt-2 text-[13px] font-semibold text-alerta">{error}</p>}
+          <button
+            type="button"
+            disabled={!puedeAdmin}
+            onClick={guardarAdmin}
+            className="mt-3 w-full rounded-2xl bg-lima py-4 text-[17px] font-extrabold text-carbon shadow-sm transition active:scale-[0.99] disabled:bg-black/10 disabled:text-carbon/35"
+          >
+            Guardar
+          </button>
+          {!puedeAdmin && (aNombre || texto || aTel || aCorreo) && (
+            <p className="mt-1.5 text-center text-[12px] text-carbon/55">
+              {!aNombre.trim() ? "Falta el nombre." : !aTel.trim() && !aCorreo.trim() ? "Falta el teléfono o el correo." : "Falta la nota."}
+            </p>
+          )}
+        </section>
+      )}
+
+      {!modoAdmin && (
+      <>
       {/* ---- la nota ---- */}
       <label className="mt-4 block">
         <span className={ETQ}>Qué ha pasado</span>
@@ -535,6 +656,8 @@ export function Satelite() {
                 ? "Falta cómo te has enterado."
                 : ""}
         </p>
+      )}
+      </>
       )}
       {aviso && <p className="mt-3 rounded-xl bg-lima-soft px-3 py-2 text-center text-[14px] font-semibold text-lima-dark">{aviso}</p>}
 

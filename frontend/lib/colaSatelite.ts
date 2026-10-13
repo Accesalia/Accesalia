@@ -47,6 +47,8 @@ export type NotaEnCola = {
   dondeTexto: string | null;
   /** Si la direccion no estaba y se dijo "Es nueva". */
   nueva?: NuevaSat | null;
+  /** "+ Crear nuevo adm" (13-oct-2026): el administrador que nace con la nota. */
+  nuevoAdmin?: { personaId: string; puestoId: string; nombre: string; telefono: string | null; correo: string | null } | null;
   /** Para enseñarla en la lista de "esperando" sin buscar en las listas. */
   resumen: string;
   fotos: { foto: Blob; mini: Blob }[];
@@ -138,6 +140,7 @@ export async function enviarCola(): Promise<ResultadoEnvio> {
           persona: n.persona,
           dondeTexto: n.dondeTexto,
           nueva: n.nueva ?? null,
+          nuevoAdmin: n.nuevoAdmin ?? null,
           fotos: n.rutas ?? [],
         }),
       });

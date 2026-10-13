@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { crearOportunidadDesdeMovil, type NuevaDesdeMovil } from "../../../../lib/oportunidadMovil";
+import { crearAdminDesdeMovil, type AdminDesdeMovil } from "../../../../lib/adminMovil";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // GUARDAR UNA NOTA QUE LLEGA DEL SATELITE (8-oct-2026). Es la misma nota que
@@ -35,6 +36,8 @@ type Cuerpo = {
   fotos?: string[];
   /** "Es nueva": la oportunidad que nace con esta nota (8-oct-2026). */
   nueva?: Omit<NuevaDesdeMovil, "direccion" | "fecha"> | null;
+  /** "+ Crear nuevo adm": el administrador que nace con esta nota (13-oct-2026). */
+  nuevoAdmin?: AdminDesdeMovil | null;
 };
 
 export async function POST(req: Request) {
@@ -50,7 +53,16 @@ export async function POST(req: Request) {
     // ES NUEVA: primero nace la oportunidad (coja), y la nota va a ella.
     let oportunidadId = c.oportunidadId || null;
     let dondeTexto = c.dondeTexto || null;
-    if (c.nueva && c.dondeTexto) {
+    let persona = c.persona || null;
+    // NUEVO ADMINISTRADOR: primero nace la persona con su puesto, y la nota va
+    // a sus notas. La nota es obligatoria: sin ella no se crea nadie.
+    if (c.nuevoAdmin) {
+      if (!(c.texto ?? "").trim()) throw new Error("Falta la nota: es obligatoria.");
+      persona = "puesto:" + (await crearAdminDesdeMovil(yo, c.nuevoAdmin));
+      oportunidadId = null;
+      dondeTexto = null;
+    }
+    if (!c.nuevoAdmin && c.nueva && c.dondeTexto) {
       oportunidadId = await crearOportunidadDesdeMovil(yo, {
         ...c.nueva,
         direccion: c.dondeTexto,
@@ -65,7 +77,7 @@ export async function POST(req: Request) {
       canal: c.canal ?? "",
       fecha: c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : null,
       oportunidadId,
-      persona: c.persona || null,
+      persona,
       dondeTexto,
       autorId: yo.id,
       autorNombre: yo.nombre,
