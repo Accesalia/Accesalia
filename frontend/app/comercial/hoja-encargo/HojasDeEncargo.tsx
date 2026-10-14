@@ -40,8 +40,8 @@ const CONTRATADO: { texto: string; codigos: (c: string) => boolean }[] = [
   { texto: "Memoria", codigos: (c) => c === "MEMORIA TECNICA" },
 ];
 
-// La regla de la DF (2-oct-2026): sale incluida si la hoja lleva proyecto, y se
-// cobra si no. Los ATAJOS (DF -> CFO, proyecto o consulta -> visado,
+// La DF sale como diga el catalogo: incluida, "que es lo normal" (Monica,
+// 14-oct-2026; hasta hoy aqui se forzaba "se cobra" si no habia proyecto). Los ATAJOS (DF -> CFO, proyecto o consulta -> visado,
 // subvenciones -> documentacion tecnica -> CEE + IEE + libro) estan en el
 // catalogo: bloques.marca_tambien (14-oct-2026).
 // LOS BLOQUES, POR AREA (Monica, 14-oct-2026: "ahora es un mar de palabras").
@@ -55,8 +55,6 @@ const AREAS: { clave: string; titulo: string }[] = [
   { clave: "FIN", titulo: "Financiación" },
   { clave: "3PPTOS", titulo: "3 presupuestos" },
 ];
-const PROYECTO = "REDACCION PROYECTO";
-const DF = "DF";
 const LICENCIA = "TRAMITACION LICENCIAS";
 
 type Actuacion = { clave: number; tipoId: string; accesoIds: string[] };
@@ -580,7 +578,6 @@ function Generador({
   };
   const modoDe = (b: BloqueHoja): Desglose => {
     if (st.modo[b.id]) return st.modo[b.id];
-    if (b.codigo === DF) return marcado(PROYECTO) ? "incluido" : "se_cobra";
     return b.desglose;
   };
   // A EXITO (Subvenciones): sin importe fijo, un % de lo concedido que SALE en la
