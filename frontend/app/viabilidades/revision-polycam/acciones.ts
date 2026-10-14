@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { buscarAMano, vincular, type Busqueda } from "../../../lib/revisionPolycam";
+import { buscarAMano, desvincular, vincular, type Busqueda } from "../../../lib/revisionPolycam";
 import { quienSoy } from "../../../lib/sesion";
 
 const DONDE = "/viabilidades";
@@ -37,4 +37,17 @@ export async function accionVincular(fd: FormData) {
 
   await vincular(polycamId, accesos, yo.id);
   revalidatePath(DONDE);
+}
+
+/** "CORREGIR DIRECCION" (Monica, 14-oct-2026): deshace lo que vinculo la app y lo
+ *  devuelve a "necesito un humano". Solo si aun no se ha empezado su viabilidad. */
+export async function accionCorregirDireccion(polycamId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await haceViabilidades();
+  try {
+    await desvincular(polycamId);
+    revalidatePath(DONDE);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

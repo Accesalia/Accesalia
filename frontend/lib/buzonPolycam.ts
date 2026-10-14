@@ -47,6 +47,7 @@
 //     escaneo".
 
 import "server-only";
+import { vincularSolos } from "./revisionPolycam";
 import { nombreDeOpp } from "./direccionOpp";
 
 import { ImapFlow } from "imapflow";
@@ -868,6 +869,12 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
     else await cliente.logout();
   }
 
+  // LA APP VINCULA SOLA lo que no tiene duda (Monica, 14-oct-2026). Si falla, no
+  // tumba la pasada: lo vera Alex en "necesito un humano".
+  if (r.guardados) {
+    enPaso("vincular solos los que no tienen duda");
+    await vincularSolos().catch((e) => r.errores.push(`vincular solos · ${e instanceof Error ? e.message : String(e)}`));
+  }
   enPaso("hecho");
   return r;
 }

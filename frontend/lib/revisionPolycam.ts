@@ -124,6 +124,9 @@ export type EscaneadoPendiente = {
   /** El enlace firmado al fichero de nuestro almacen, si hay fichero. */
   enlaceFichero: string | null;
   candidatos: GrupoCandidato[];
+  /** POR QUE NECESITA UN HUMANO: "hay dos opps abiertas en Andarrios 9", "no
+   *  existe ninguna opp en Polvoranca 8"... */
+  motivo: string;
 };
 
 type AccesoFila = {
@@ -185,13 +188,28 @@ function agrupa(accesos: AccesoFila[], hay: Set<string>): GrupoCandidato[] {
   });
 }
 
+/** Los municipios (de los que hay en la base) que nombra el asunto, enteros. */
+function municipiosNombrados(hay: Set<string>, accesos: AccesoFila[]): Set<string> {
+  const todos = new Set(accesos.map((a) => aplanar(a.municipio)));
+  return new Set([...todos].filter((m) => {
+    const p = palabras(m);
+    return p.length > 0 && p.every((x) => hay.has(x));
+  }));
+}
+
 /** Los accesos que PODRIAN ser, segun el asunto del correo. */
 export function candidatos(asunto: string | null, accesos: AccesoFila[]): GrupoCandidato[] {
   const hay = new Set(palabras(asunto ?? ""));
   if (!hay.size) return [];
+  // CALLE NO ES MUNICIPIO (Monica, 14-oct-2026): "Polvoranca 8 Leganes" no es la
+  // calle Leganes 8 de Parla. Si el asunto nombra un municipio, solo valen los
+  // edificios de ese municipio. Si no nombra ninguno, salen todos (Cañada 8
+  // Madrid y Cañada 8 Alcorcon) y decide una persona.
+  const nombrados = municipiosNombrados(hay, accesos);
 
   return agrupa(
     accesos.filter((a) => {
+      if (nombrados.size && !nombrados.has(aplanar(a.municipio))) return false;
       const dela = palabras(a.nombre_via);
       const num = numeroBase(a.numero);
       // Hace falta calle Y numero. Sin numero no se propone nada: "Nectar" a
@@ -305,7 +323,7 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
     fecha_escaneo: string | null;
   };
 
-  const [escaneados, vinculos, accesos, citas] = await Promise.all([
+  const [escaneados, vinculos, accesos, citas, oppsDe] = await Promise.all([
     leerTodo<Escaneado>(
       "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo",
       "creado_en",
@@ -313,6 +331,7 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
     leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
     leerTodo<AccesoFila>("accesos?select=id,municipio,tipo_via,nombre_via,numero,escalera"),
     citasDeEscaneo().catch(() => []),
+    oppsAbiertasPorAcceso(),
   ]);
 
   const yaVinculados = new Set(vinculos.map((v) => v.polycam_id));
@@ -327,9 +346,103 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
       nombreOriginal: e.nombre_original_fichero,
       rutaPolycam: e.ruta_polycam,
       enlaceFichero: e.polycam ? await enlaceFirmado(e.polycam) : null,
-      candidatos: conAgenda(candidatos(e.asunto, accesos), e, citas, new Set(palabras(e.asunto ?? ""))),
+      ...(() => {
+        const cands = conAgenda(candidatos(e.asunto, accesos), e, citas, new Set(palabras(e.asunto ?? "")));
+        const d = decidirSolo(e.asunto, cands, oppsDe);
+        // Sin motivo = se puede vincular sola (lo hara el buzon en su proxima pasada).
+        return { candidatos: cands, motivo: "vincula" in d ? "" : d.motivo };
+      })(),
     })),
   );
+}
+
+// ------------------------------------------------- vincular sola
+
+type OppDeAcceso = { id: string; nombre: string };
+
+/** Las opps ABIERTAS de cada acceso. */
+async function oppsAbiertasPorAcceso(): Promise<Map<string, OppDeAcceso[]>> {
+  const filas = await leerTodo<{ acceso_id: string; opp: { id: string; codigo: string | null; nombre: string | null; estado: string } | null }>(
+    "relacion_oportunidad_accesos?select=acceso_id,opp:opp_id(id,codigo,nombre,estado)&hasta=is.null",
+    "acceso_id,opp_id",
+  );
+  const m = new Map<string, OppDeAcceso[]>();
+  for (const f of filas) {
+    if (!f.opp || f.opp.estado !== "abierta") continue;
+    m.set(f.acceso_id, [...(m.get(f.acceso_id) ?? []), { id: f.opp.id, nombre: f.opp.nombre ?? f.opp.codigo ?? "" }]);
+  }
+  return m;
+}
+
+/** ¿LA APP PUEDE VINCULARLO SOLA? (Monica, 14-oct-2026). Solo sin duda:
+ *    - hay visita de escaneo agendada en un edificio (y solo uno), o
+ *    - el asunto dice calle + numero + MUNICIPIO y encaja con UN edificio;
+ *  y ese edificio tiene UNA opp abierta. Se vincula a los accesos de esa opp en
+ *  ese edificio: las escaleras las dice la opp, no la app. Si no, a un humano,
+ *  diciendo por que. */
+function decidirSolo(
+  asunto: string | null,
+  grupos: GrupoCandidato[],
+  oppsDe: Map<string, OppDeAcceso[]>,
+): { accesos: string[]; motivo: string; vincula: true } | { motivo: string } {
+  const porAgenda = grupos.filter((g) => g.agenda);
+  const conMunicipio = grupos.filter((g) => g.municipioEnElAsunto);
+  let g: GrupoCandidato | undefined;
+  let por = "";
+  if (porAgenda.length === 1) {
+    g = porAgenda[0];
+    por = g.agenda!;
+  } else if (porAgenda.length > 1) {
+    return { motivo: `Había visitas de escaneo agendadas en ${porAgenda.length} edificios esos días.` };
+  } else if (!(asunto ?? "").trim()) {
+    return { motivo: "El correo venía sin asunto." };
+  } else if (!grupos.length) {
+    return { motivo: "El asunto no encaja con ninguna dirección que tengamos: puede que no esté dada de alta." };
+  } else if (!conMunicipio.length) {
+    return { motivo: "El asunto no dice el municipio." };
+  } else if (conMunicipio.length > 1) {
+    return { motivo: `El asunto encaja con ${conMunicipio.length} edificios.` };
+  } else {
+    g = conMunicipio[0];
+    por = `El asunto dice ${g.direccion} ${g.municipio}`;
+  }
+  const opps = new Map<string, OppDeAcceso>();
+  for (const a of g.accesos) for (const o of oppsDe.get(a.id) ?? []) opps.set(o.id, o);
+  if (!opps.size) return { motivo: `No hay ninguna opp abierta en ${g.direccion} ${g.municipio}: puede que no esté dada de alta.` };
+  if (opps.size > 1) return { motivo: `Hay ${opps.size} opps abiertas en ${g.direccion}: ${[...opps.values()].map((o) => o.nombre).join(" · ")}.` };
+  const [o] = [...opps.values()];
+  const suyos = g.accesos.filter((a) => (oppsDe.get(a.id) ?? []).some((x) => x.id === o.id)).map((a) => a.id);
+  return { vincula: true, accesos: suyos, motivo: `${por}, con una sola opp abierta: ${o.nombre}.` };
+}
+
+/** Repasa los escaneados sin vincular y vincula solos los que no tienen duda.
+ *  Lo llama el buzon al acabar cada pasada. Devuelve cuantos vinculo. */
+export async function vincularSolos(): Promise<number> {
+  const lista = await pendientesDeRevisar();
+  const oppsDe = await oppsAbiertasPorAcceso();
+  let n = 0;
+  for (const e of lista) {
+    const d = decidirSolo(e.asunto, e.candidatos, oppsDe);
+    if (!("vincula" in d)) continue;
+    const r = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?on_conflict=polycam_id,acceso_id`, {
+      method: "POST",
+      headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal,resolution=ignore-duplicates" },
+      body: JSON.stringify(d.accesos.map((acceso_id) => ({ polycam_id: e.id, acceso_id, automatico: true, motivo: d.motivo }))),
+    });
+    if (r.ok) n++;
+  }
+  return n;
+}
+
+/** "CORREGIR DIRECCION": deshace lo que vinculo la app y lo devuelve a "necesito
+ *  un humano". Solo si aun no se ha empezado su viabilidad. */
+export async function desvincular(polycamId: string): Promise<void> {
+  const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?select=viabilidad_id&id=eq.${polycamId}`, { headers: cab, cache: "no-store" });
+  const [e] = (await r.json()) as { viabilidad_id: string | null }[];
+  if (!e) throw new Error("No existe ese escaneado.");
+  if (e.viabilidad_id) throw new Error("Su viabilidad ya está empezada: corrígelo desde la viabilidad.");
+  const b = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?polycam_id=eq.${polycamId}`, { method: "DELETE", headers: cab });
+  if (!b.ok) throw new Error(`relacion_polycam_acceso ${b.status}: ${await b.text()}`);
 }
 
 // ------------------------------------------------- la agenda como ancla

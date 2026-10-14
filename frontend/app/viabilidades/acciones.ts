@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { intentarAnexo } from "../../lib/anexoGuardado";
-import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, type DatosMesa } from "../../lib/mesaViabilidades";
+import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { enviarCorreo } from "../../lib/correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
@@ -143,4 +143,21 @@ export async function accionEnviar(id: string, d: DatosMesa): Promise<string[]> 
   revalidatePath("/viabilidades");
   if (!fallos.length) redirect("/viabilidades?enviada=1");
   return fallos;
+}
+
+/** "RESUELTO POR DANIEL" (Monica, 14-oct-2026): Daniel contesta al aviso de
+ *  atasco y queda apuntado, para que no se quede en el limbo. Lo marca quien tiene
+ *  la funcion de responsable tecnico (o quien lo ve todo). */
+export async function accionResolverDaniel(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await haceViabilidades();
+  if (!yo.veTodo && !yo.funciones.some((f) => f.clave === "responsable_tecnico"))
+    return { ok: false, error: "Lo marca el responsable técnico." };
+  try {
+    await resolverDaniel(id, yo.id);
+    revalidatePath("/viabilidades");
+    revalidatePath(`/viabilidades/${id}`);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

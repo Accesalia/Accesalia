@@ -223,6 +223,12 @@ export type PorHacer = {
   desde: string;
   borrador: boolean;
   danielAvisado: boolean;
+  /** Daniel contesto al aviso, o la viabilidad ya se envio: no queda en el limbo
+   *  (Monica, 14-oct-2026). "Pendientes del ok de Daniel" = avisado y no resuelto. */
+  danielResuelto: boolean;
+  /** Lo vinculo la APP sola (sin duda): su porque. Null si lo vinculo una persona.
+   *  Con esto sale "vinculado por la app" y el boton "corregir direccion". */
+  vinculadoPorApp: string | null;
   /** Para empezar: con que opp. Varias = elegir; ninguna = no se puede. */
   opps: { id: string; codigo: string | null; nombre: string | null; proyecto: string | null; comercial: string | null }[];
 };
@@ -236,11 +242,13 @@ type EscaneoFila = {
   polycam: string | null;
   ruta_polycam: string | null;
   viabilidad_id: string | null;
-  relacion_polycam_acceso: { accesos: AccesoFila | null }[];
+  relacion_polycam_acceso: { automatico: boolean; motivo: string | null; accesos: AccesoFila | null }[];
 };
 const SEL_ESC =
   "id,creado_en,asunto,nombre_original_fichero,fecha_escaneo,polycam,ruta_polycam,viabilidad_id," +
-  "relacion_polycam_acceso!inner(accesos(id,municipio,tipo_via,nombre_via,numero,escalera))";
+  "relacion_polycam_acceso!inner(automatico,motivo,accesos(id,municipio,tipo_via,nombre_via,numero,escalera))";
+/** Si lo vinculo la app, su porque. */
+const porApp = (e: EscaneoFila) => (e.relacion_polycam_acceso.some((r) => r.automatico) ? e.relacion_polycam_acceso.find((r) => r.motivo)?.motivo ?? "Vinculado por la app" : null);
 
 const accesosDe = (e: EscaneoFila) => e.relacion_polycam_acceso.map((r) => r.accesos).filter((a): a is AccesoFila => !!a);
 
@@ -248,10 +256,10 @@ const accesosDe = (e: EscaneoFila) => e.relacion_polycam_acceso.map((r) => r.acc
  *  viabilidades que aun no ha mandado al comercial. Las que mas esperan, arriba. */
 export async function porHacer(): Promise<PorHacer[]> {
   const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&order=creado_en.asc`);
-  type ViabFila = { id: string; enviada_en: string | null; daniel_avisado_en: string | null; fecha_visita: string | null; oportunidades: OppFila | null };
+  type ViabFila = { id: string; enviada_en: string | null; daniel_avisado_en: string | null; daniel_resuelto_en: string | null; fecha_visita: string | null; oportunidades: OppFila | null };
   const ids = Array.from(new Set(escaneos.map((e) => e.viabilidad_id).filter((x): x is string => !!x)));
   const viabs = ids.length
-    ? await leer<ViabFila[]>(`viabilidades?select=id,enviada_en,daniel_avisado_en,fecha_visita,oportunidades(${SEL_OPP})&id=in.(${ids.join(",")})`)
+    ? await leer<ViabFila[]>(`viabilidades?select=id,enviada_en,daniel_avisado_en,daniel_resuelto_en,fecha_visita,oportunidades(${SEL_OPP})&id=in.(${ids.join(",")})`)
     : [];
   const viab = new Map(viabs.map((v) => [v.id, v]));
 
@@ -276,6 +284,8 @@ export async function porHacer(): Promise<PorHacer[]> {
       desde: es[0].creado_en,
       borrador: true,
       danielAvisado: !!v.daniel_avisado_en,
+      danielResuelto: !!v.daniel_resuelto_en || !!v.enviada_en,
+      vinculadoPorApp: es.map(porApp).find(Boolean) ?? null,
       opps: [],
     });
   }
@@ -296,6 +306,8 @@ export async function porHacer(): Promise<PorHacer[]> {
       desde: e.creado_en,
       borrador: false,
       danielAvisado: false,
+      danielResuelto: false,
+      vinculadoPorApp: porApp(e),
       opps: opps.map((o) => ({ id: o.id, codigo: o.codigo, nombre: o.nombre, proyecto: proyectoDe(o), comercial: o.comercial?.nombre ?? null })),
     });
   }
@@ -605,6 +617,17 @@ export async function marcar(id: string, que: "enviada_en"): Promise<void> {
 /** "Me he atascado": la hora y EL PORQUE, juntos (la base no deja una sin el
  *  otro). La nota de Sali en el diario de la opp la escribe la base sola.
  *  Devuelve la direccion del escaneo: es el asunto del correo a Daniel. */
+/** "RESUELTO POR DANIEL" (Monica, 14-oct-2026): contesto al aviso de atasco.
+ *  Queda quien y cuando, para que no se quede en el limbo. */
+export async function resolverDaniel(id: string, quien: string): Promise<void> {
+  await escribir(
+    "PATCH",
+    `viabilidades?id=eq.${id}&daniel_avisado_en=not.is.null`,
+    { daniel_resuelto_en: new Date().toISOString(), daniel_resuelto_por: quien },
+    "return=minimal",
+  );
+}
+
 export async function avisarDaniel(id: string, motivo: string): Promise<string> {
   await escribir(
     "PATCH",
