@@ -3,6 +3,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
 import { datosHoja, oppsParaHoja, puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaEncargo";
+import { estadoRevision, puedeRevisar } from "../../../lib/revisionOferta";
 import { HojasDeEncargo } from "./HojasDeEncargo";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,8 @@ export default async function PaginaHojas({ searchParams }: { searchParams: Prom
   const opciones = await oppsParaHoja(yo);
   const permitida = opp ? await puedeVerOpp(yo, opp) : false;
   const datos = opp && permitida ? await datosHoja(opp) : null;
+  // EL OK A LA OFERTA (14-oct-2026): como va, y si quien mira puede darlo.
+  const okOferta = datos ? await estadoRevision(datos.opp.id) : null;
 
   return (
     <div className="min-h-screen">
@@ -38,6 +41,8 @@ export default async function PaginaHojas({ searchParams }: { searchParams: Prom
           datos={datos}
           aviso={opp && !datos ? (permitida ? "Esa oportunidad no existe." : "Esa oportunidad no es de tu cartera.") : null}
           abrirNueva={nueva === "1"}
+          okOferta={okOferta}
+          puedoRevisar={puedeRevisar(yo)}
         />
       </main>
     </div>

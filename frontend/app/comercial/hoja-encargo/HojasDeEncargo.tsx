@@ -6,6 +6,8 @@ import { Elegir } from "../../components/Elegir";
 import type { Desglose } from "../../../lib/catalogoBloques";
 import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionOpp } from "../../../lib/hojaEncargo";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
+import type { EstadoRevision } from "../../../lib/revisionOferta";
+import { accionPedirRevision, accionResolverRevision } from "../revision/acciones";
 import { accionApuntarFirmada, accionBorrador, accionDescartarBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 import { estadoDeHoja } from "../../../lib/estadoHoja";
 import { columnasDeInteres } from "../../../lib/columnasInteres";
@@ -103,11 +105,15 @@ export function HojasDeEncargo({
   datos,
   aviso,
   abrirNueva,
+  okOferta,
+  puedoRevisar,
 }: {
   opps: OpcionOpp[];
   datos: DatosHoja | null;
   aviso: string | null;
   abrirNueva?: boolean;
+  okOferta?: EstadoRevision | null;
+  puedoRevisar?: boolean;
 }) {
   const router = useRouter();
 
@@ -141,7 +147,7 @@ export function HojasDeEncargo({
         )}
       </>
     );
-  return <ConOpp datos={datos} selector={selector} abrirNueva={abrirNueva} />;
+  return <ConOpp datos={datos} selector={selector} abrirNueva={abrirNueva} okOferta={okOferta ?? null} puedoRevisar={!!puedoRevisar} />;
 }
 
 /** A quien va por defecto: su comunidad si la tiene; si no, el particular
@@ -152,9 +158,13 @@ function ConOpp({
   datos,
   selector,
   abrirNueva,
+  okOferta,
+  puedoRevisar,
 }: {
   datos: DatosHoja;
   selector: React.ReactNode;
+  okOferta: EstadoRevision | null;
+  puedoRevisar: boolean;
   /** Se llega desde el boton "Hoja de encargo" del area comercial: el
    *  generador ya abierto, para esa oportunidad (9-oct-2026). */
   abrirNueva?: boolean;
@@ -358,6 +368,9 @@ function ConOpp({
         </div>
       </section>
 
+      {/* ---------------- el ok a la oferta ---------------- */}
+      <OkOferta oppId={datos.opp.id} estado={okOferta} puedoRevisar={puedoRevisar} />
+
       {/* ---------------- 2 · las hojas + el visor ---------------- */}
       <section className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <div className={TARJETA + " lg:w-[46%] lg:shrink-0"}>
@@ -415,12 +428,14 @@ function ConOpp({
                       + borrador
                     </span>
                   )}
-                  {h.estado === "borrador" && !enBorrador && ultimaGenerada && (
+                  {["borrador", "pendiente_firma_daniel", "firmada_daniel"].includes(h.estado) && !enBorrador && ultimaGenerada && (
                     <button
                       type="button"
-                      disabled={ocupado}
+                      // Sin el ok a la oferta no sale a la comunidad (14-oct-2026).
+                      disabled={ocupado || !okOferta?.okVigente}
+                      title={okOferta?.okVigente ? undefined : "Antes, el ok a la oferta: pídelo arriba"}
                       onClick={() => empezar(async () => { const r = await accionEnviada(h.id); if (!r.ok) setError(r.error); else router.refresh(); })}
-                      className="ml-2 text-[11px] font-semibold text-lima-dark underline-offset-2 hover:underline"
+                      className="ml-2 text-[11px] font-semibold text-lima-dark underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-carbon/35 disabled:no-underline"
                     >
                       marcar enviada
                     </button>
@@ -545,6 +560,96 @@ function ConOpp({
         />
       )}
     </>
+  );
+}
+
+// ============================================================ el ok a la oferta
+
+/** EL OK A LA OFERTA (Monica, 14-oct-2026). Antes de enviarla a la comunidad, el
+ *  paquete (hojas + presupuesto + viabilidad) pasa por quien tenga la funcion de
+ *  revision de ofertas. Aqui el comercial lo pide y ve como va. Quien revisa tiene
+ *  su pantalla; si entra aqui, puede cerrarlo tambien, para que nada se quede
+ *  parado. */
+function OkOferta({ oppId, estado, puedoRevisar }: { oppId: string; estado: EstadoRevision | null; puedoRevisar: boolean }) {
+  const router = useRouter();
+  const [ocupado, empezar] = useTransition();
+  const [nota, setNota] = useState("");
+  const [comentario, setComentario] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const u = estado?.ultima ?? null;
+  const cuando = (iso: string) =>
+    new Date(iso).toLocaleString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
+  const pedir = () =>
+    empezar(async () => {
+      setMsg(null);
+      const r = await accionPedirRevision(oppId, nota.trim() || null);
+      if (!r.ok) return setMsg(r.error);
+      setNota("");
+      setMsg(r.avisos.length ? `Pedido (envío ${r.numero}). Avisos: ${r.avisos.join("; ")}` : `Pedido el ok (envío ${r.numero}).`);
+      router.refresh();
+    });
+  const cerrar = (decision: "ok" | "cambios") =>
+    empezar(async () => {
+      if (!u) return;
+      setMsg(null);
+      const r = await accionResolverRevision(u.id, decision, comentario.trim() || null);
+      if (!r.ok) return setMsg(r.error);
+      setComentario("");
+      router.refresh();
+    });
+
+  const pendiente = u?.estado === "pendiente";
+  const [texto, clase] = estado?.okVigente
+    ? [`Ok a la oferta · ${u?.resueltaPor ?? ""}, ${u?.resueltaEn ? cuando(u.resueltaEn) : ""}. Ya se puede enviar a la comunidad.`, "border-lima bg-lima-soft text-lima-dark"]
+    : estado?.okCaducado
+      ? ["El ok caducó: algo del paquete ha cambiado después (una hoja, la viabilidad o el presupuesto). Hay que pedirlo otra vez.", "border-amber-300 bg-amber-50 text-amber-900"]
+      : pendiente
+        ? [`Esperando el ok · envío ${u!.numero}, pedido ${cuando(u!.enviadaEn)}${u!.enviadaPor ? ` por ${u!.enviadaPor}` : ""}.`, "border-amber-300 bg-amber-50 text-amber-900"]
+        : u?.estado === "cambios"
+          ? [`Piden cambios · ${u.resueltaPor ?? ""}, ${u.resueltaEn ? cuando(u.resueltaEn) : ""}:`, "border-alerta/40 bg-[#fbeeee] text-alerta"]
+          : ["Aún no se ha pedido el ok a la oferta. Sin él, no se envía a la comunidad.", "border-black/10 bg-white text-carbon/70"];
+
+  return (
+    <section className={"mt-4 rounded-2xl border p-4 " + clase}>
+      <div className={TITULO + " mb-1.5"}>Ok a la oferta</div>
+      <p className="text-[13px] font-semibold">{texto}</p>
+      {u?.estado === "cambios" && u.comentario && <p className="mt-1 whitespace-pre-line text-[13px] text-carbon">{u.comentario}</p>}
+      {/* Pedirlo: si no hay, si piden cambios, si caduco o para mandar otro paquete. */}
+      {!estado?.okVigente && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={nota}
+            onChange={(e) => setNota(e.target.value)}
+            placeholder={pendiente ? "Otro paquete: qué ha cambiado…" : "Nota para quien revisa (opcional): qué ha cambiado, qué urge…"}
+            className="min-w-[280px] flex-1 rounded-[10px] border border-black/15 bg-white px-2.5 py-1.5 text-[13px] text-carbon focus:border-lima focus:outline-none"
+          />
+          <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={pedir}>
+            {pendiente ? "Pedir el ok de nuevo" : "Pedir el ok"}
+          </button>
+        </div>
+      )}
+      {/* Quien revisa, si entra aqui: ok al paquete o devolverlo. El detalle por
+          bloque esta en su pantalla de revision. */}
+      {pendiente && puedoRevisar && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-black/10 pt-2.5">
+          <input
+            type="text"
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+            placeholder="Si pides cambios, di cuáles…"
+            className="min-w-[280px] flex-1 rounded-[10px] border border-black/15 bg-white px-2.5 py-1.5 text-[13px] text-carbon focus:border-lima focus:outline-none"
+          />
+          <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={() => cerrar("ok")}>
+            Ok al paquete
+          </button>
+          <button type="button" className={BTN} disabled={ocupado || !comentario.trim()} onClick={() => cerrar("cambios")}>
+            Devolver con cambios
+          </button>
+        </div>
+      )}
+      {msg && <p className="mt-1.5 text-[12px] font-semibold text-carbon">{msg}</p>}
+    </section>
   );
 }
 

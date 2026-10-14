@@ -31,6 +31,7 @@ import "server-only";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
 import { numerarClaveDeOpp } from "./claves";
+import { estadoRevision } from "./revisionOferta";
 import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
@@ -738,6 +739,10 @@ export async function descartarBorrador(hojaId: string): Promise<"hoja" | "versi
 // --------------------------------------------------------------- estados
 
 export async function marcarEnviada(hojaId: string) {
+  // SIN EL OK A LA OFERTA NO SALE (Monica, 14-oct-2026).
+  const [h] = await leer<{ oportunidad_id: string | null }[]>(`hojas_encargo?select=oportunidad_id&id=eq.${hojaId}`);
+  if (h?.oportunidad_id && !(await estadoRevision(h.oportunidad_id)).okVigente)
+    throw new Error("Falta el ok a la oferta (o caducó porque algo cambió): pídelo antes de enviarla.");
   // Solo se envia lo que tiene PDF: un borrador no ha salido de Accesalia.
   const [v] = await leer<{ id: string; url_pdf_hoja: string | null }[]>(
     `versiones_hoja?select=id,url_pdf_hoja&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc&limit=1`,

@@ -20,6 +20,7 @@ import { crearEntrada } from "./entradaDiario";
 import { pdfGuardado as pdfViabilidad } from "./viabilidadComercial";
 import { pdfGuardado as pdfPresupuesto } from "./presupuesto";
 import { pdfDeVersion } from "./hojaEncargo";
+import { estadoRevision } from "./revisionOferta";
 import { informesDeOportunidad, leerInforme } from "./informeCostes";
 import { pdfDeInformeCostes } from "./pdf/InformeCostesDoc";
 
@@ -179,6 +180,9 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   if (!e.asunto.trim() || !e.cuerpo.trim()) throw new Error("Faltan el asunto o el texto.");
 
   const elegidos = d.documentos.filter((x) => e.docs.includes(x.clave));
+  // LA OFERTA (hoja o presupuesto) NO SALE SIN SU OK (Monica, 14-oct-2026).
+  if (elegidos.some((x) => x.clave.startsWith("hoja:") || x.clave.startsWith("presupuesto:")) && !(await estadoRevision(oppId)).okVigente)
+    throw new Error("Falta el ok a la oferta (o caducó porque algo cambió): pídelo en la hoja de encargo antes de enviarla.");
   const adjuntos = (await Promise.all(elegidos.map((x) => pdfDe(x.clave)))).filter((x): x is { nombre: string; contenido: Uint8Array } => !!x);
   if (adjuntos.length < elegidos.length) throw new Error("Algún documento no se ha podido leer del almacén: no se envía nada.");
 
