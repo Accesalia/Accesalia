@@ -531,6 +531,13 @@ export async function listarComerciales(): Promise<Comercial[]> {
   );
 }
 
+/** La persona del equipo de un comercial (comerciales.equipo_id): la duena de su
+ *  agenda. Null si no tiene. */
+export async function equipoDeComercial(comercialId: string): Promise<string | null> {
+  const [f] = await rest<{ equipo_id: string | null }[]>(`comerciales?select=equipo_id&id=eq.${comercialId}`);
+  return f?.equipo_id ?? null;
+}
+
 export async function listarAdministraciones(): Promise<{ id: string; nombre: string }[]> {
   const filas = await rest<{ id: string; nombre_accesalia: string }[]>(
     "empresa?select=id,nombre_accesalia&activa=eq.true&tipo=eq.administracion_fincas" +

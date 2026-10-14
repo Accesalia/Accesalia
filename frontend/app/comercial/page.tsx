@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
-import { listarComerciales } from "../../lib/comercial";
+import { equipoDeComercial, listarComerciales } from "../../lib/comercial";
 import { cuadroComercial, POR_PAGINA } from "../../lib/cuadroComercial";
 import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
@@ -23,6 +23,7 @@ import {
   Titulo,
 } from "./CuadroPiezas";
 import { MapaCartera } from "./MapaCartera";
+import { HojaDelDia, diaPedido, hoyEnMadrid, vistaPedida, type Vista } from "../agenda/HojaDelDia";
 import { Salida } from "../components/Salida";
 
 export const dynamic = "force-dynamic";
@@ -69,8 +70,8 @@ function Proximamente({ texto }: { texto: string }) {
 type Seccion = "agenda" | "oportunidades" | "fases" | "administradores" | "cobros" | "comovoy";
 const SECCIONES: Seccion[] = ["agenda", "oportunidades", "fases", "administradores", "cobros", "comovoy"];
 
-export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string; fase?: string }> }) {
-  const { c, ver, vista, pag, fase } = await searchParams;
+export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string; fase?: string; dia?: string; hoja?: string }> }) {
+  const { c, ver, vista, pag, fase, dia, hoja } = await searchParams;
   const pagina = Math.max(1, parseInt(pag ?? "1", 10) || 1);
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial");
@@ -156,6 +157,38 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     if (v === "calendario") q.set("vista", "calendario");
     return "/comercial?" + q.toString();
   };
+
+  // LA AGENDA DE ESE COMERCIAL (Monica, 14-oct-2026): su hoja del dia, con sus
+  // citas. Solo cuando hay un comercial elegido: cada persona tiene la suya, y
+  // "todas las carteras" no es la agenda de nadie.
+  const equipoAgenda = seccion === "agenda" && elegido && !esDemo ? await equipoDeComercial(elegido.id) : null;
+  // El "vista" de la direccion ya era el cambio agenda / calendario; el de dia o
+  // semana va en "hoja".
+  const enDia = (d: string, vi: Vista) => {
+    const q = new URLSearchParams();
+    if (c) q.set("c", c);
+    q.set("ver", "agenda");
+    if (vista) q.set("vista", vista);
+    if (d !== hoyEnMadrid()) q.set("dia", d);
+    if (vi === "semana") q.set("hoja", "semana");
+    return "/comercial?" + q.toString();
+  };
+  const hojaAgenda =
+    seccion !== "agenda" || esDemo ? undefined : equipoAgenda ? (
+      <HojaDelDia
+        dia={diaPedido(dia)}
+        vista={vistaPedida(hoja)}
+        deQuien={equipoAgenda}
+        enlace={enDia}
+        // Crea citas el propio comercial, y en la de otro quien ve todo (el
+        // servidor lo vuelve a comprobar).
+        personas={equipoAgenda === yo.id || yo.veTodo ? paraGrabar.personas : undefined}
+      />
+    ) : (
+      <p className="px-1 py-10 text-center text-[14px] text-carbon/65">
+        {todos ? "Elige un comercial para ver su agenda." : "Este comercial no tiene ficha en el equipo: no hay agenda que enseñar."}
+      </p>
+    );
 
   // EL SELECTOR DE COMERCIAL NO SACA DE DONDE SE ESTA (Monica, 12-oct-2026):
   // al elegir uno en "Oportunidades abiertas" la devolvia a los botones. Se
@@ -424,6 +457,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 <div>
                   <Agenda
                     tareas={cuadro.agenda}
+                    hoja={hojaAgenda}
                     verAgenda={enAgenda("agenda")}
                     verCalendario={enAgenda("calendario")}
                     calendario={vista === "calendario"}

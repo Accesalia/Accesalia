@@ -65,11 +65,15 @@ function Cambio({ verAgenda, verCalendario, calendario }: { verAgenda: string; v
 
 export function Agenda({
   tareas,
+  hoja,
   verAgenda,
   verCalendario,
   calendario,
 }: {
   tareas: TareaCuadro[];
+  /** LA AGENDA DE ESE COMERCIAL, su hoja del dia (Monica, 14-oct-2026): cuando
+   *  viene, es lo que se ve en el marco. Sin ella (la demo), la lista de tareas. */
+  hoja?: React.ReactNode;
   verAgenda: string;
   verCalendario: string;
   calendario: boolean;
@@ -127,6 +131,8 @@ export function Agenda({
           <br />
           <span className="text-[12px]">Enséñame tu maqueta y lo monto aquí.</span>
         </p>
+      ) : hoja ? (
+        <div className="px-4 pb-4 pt-1">{hoja}</div>
       ) : (
       <div>
         {tareas.length === 0 ? (
