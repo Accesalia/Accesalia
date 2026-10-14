@@ -47,6 +47,8 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
     // lleva su porcentaje (14-oct-2026).
     if (g.conceptos.some((k) => k.desglose === "se_cobra" && !k.enConjunto && !(k.importe && k.importe > 0) && !(k.porcentaje && k.porcentaje > 0)))
       return { ok: false, error: "Falta el importe de alguna línea que se cobra." };
+    if (g.conceptos.some((k) => k.formaPagoAMano && !(k.formaPago ?? "").trim()))
+      return { ok: false, error: "Escribe la forma de pago de la línea que va a mano." };
     if (g.conjunto && !(g.conjunto.importe > 0))
       return { ok: false, error: "Falta el importe del proyecto conjunto." };
     if (g.aQuien.tipo !== "comunidad" && !g.aQuien.id) return { ok: false, error: "Elige a quién va la hoja." };

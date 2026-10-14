@@ -11,6 +11,9 @@ import "server-only";
 //     que no, queda en un hito "otro" con aviso para revisarlo a mano;
 //   - un concepto A EXITO (Subvenciones: 3% de lo concedido, 14-oct-2026) -> una
 //     linea a porcentaje, sin importe, con el hito que dice su bloque;
+//   - una forma de pago ESCRITA A MANO en la hoja (no una de la lista): sus
+//     hitos se sacan igual, pero la linea entra con una DUDA abierta para que
+//     facturacion los revise antes de validarla (Monica, 14-oct-2026);
 //   - los 3 PRESUPUESTOS (vayan como vayan, tambien en "no aparece") -> su linea de
 //     Ecobalance: el % del PEM de parametros_economicos, a exito, hito
 //     "adjudicacion" (si gana nuestra contrata).
@@ -84,9 +87,9 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
   const [conceptos, [tres], [pct]] = await Promise.all([
     pedir<{
       id: string; bloque_id: string | null; descripcion: string | null; importe: number | null; porcentaje: number | null; desglose: string | null;
-      forma_pago: string | null; incluido_en_concepto_id: string | null; bloque: { base_exito: string | null; hito_exito: string | null } | null;
+      forma_pago: string | null; forma_pago_a_mano: boolean; incluido_en_concepto_id: string | null; bloque: { base_exito: string | null; hito_exito: string | null } | null;
     }[]>(
-      `conceptos_hoja?select=id,bloque_id,descripcion,importe,porcentaje,desglose,forma_pago,incluido_en_concepto_id,bloque:bloque_id(base_exito,hito_exito)` +
+      `conceptos_hoja?select=id,bloque_id,descripcion,importe,porcentaje,desglose,forma_pago,forma_pago_a_mano,incluido_en_concepto_id,bloque:bloque_id(base_exito,hito_exito)` +
         `&version_hoja_id=eq.${h.version_firmada_id}&order=creado_en.asc`,
     ),
     pedir<{ id: string }[]>(`bloques?select=id&nombre=eq.${encodeURIComponent("SOLICITUD Y ANÁLISIS DE PRESUPUESTOS")}`),
@@ -95,7 +98,7 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
   const emisor = h.emisor === "daniel_autonomo" ? "daniel_autonomo" : "accesalia";
   let n = 0;
 
-  const crearLinea = async (linea: Record<string, unknown>, hitos: HitoNuevo[]) => {
+  const crearLinea = async (linea: Record<string, unknown>, hitos: HitoNuevo[]): Promise<string> => {
     const [l] = await pedir<{ id: string }[]>("lineas_facturacion", {
       method: "POST",
       headers: { Prefer: "return=representation" },
@@ -107,6 +110,7 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
       body: JSON.stringify(hitos.map((x, i) => ({ linea_facturacion_id: l.id, orden: i + 1, estado: "pendiente", ...x }))),
     });
     n++;
+    return l.id;
   };
 
   // Lo que se cobra: cada concepto suelto que se cobra (el conjunto incluido).
@@ -122,10 +126,23 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
       continue;
     }
     const importe = c.importe == null ? null : Number(c.importe);
-    await crearLinea(
+    const lineaId = await crearLinea(
       { concepto_hoja_id: c.id, bloque_id: c.bloque_id, descripcion: c.descripcion, importe, es_porcentaje: false, emisor },
       hitosDeFormaDePago(c.forma_pago, importe),
     );
+    if (c.forma_pago_a_mano)
+      await pedir("notas_facturacion", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          hoja_encargo_id: hojaId,
+          linea_facturacion_id: lineaId,
+          tipo: "duda",
+          origen: "lectura_hoja",
+          fecha: new Date().toISOString().slice(0, 10),
+          texto: `Hitos modificados: la forma de pago se escribió a mano en la hoja («${c.forma_pago ?? ""}»). Revisar los hitos antes de validar.`,
+        }),
+      });
   }
 
   // Los 3 presupuestos, vayan como vayan: Ecobalance, a exito. Tambien en "no

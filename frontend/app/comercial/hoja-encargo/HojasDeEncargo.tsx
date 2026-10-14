@@ -72,6 +72,8 @@ type Estado = {
   pago: Record<string, string>;
   /** El % de las lineas A EXITO (Subvenciones), retocable en cada hoja. */
   pct: Record<string, string>;
+  /** Las lineas con la forma de pago ESCRITA A MANO (14-oct-2026). */
+  mano: Record<string, boolean>;
   /** EL TEXTO DE CADA LINEA, escrito UNA vez (Monica, 6-oct-2026): "proyecto de
    *  bajada a cota cero de 5 ascensores". Viaja a la hoja y a la viabilidad: una
    *  fuente, dos destinos. La clave CONJUNTO es la de la linea condensada. */
@@ -224,6 +226,7 @@ function ConOpp({
     const imp: Record<string, string> = {};
     const pago: Record<string, string> = {};
     const pct: Record<string, string> = {};
+    const mano: Record<string, boolean> = {};
     const junto: Record<string, boolean> = {};
     // La clave de cada linea: el bloque, o bloque|actuacion si ese bloque da
     // varias (un proyecto por actuacion, 14-oct-2026).
@@ -241,6 +244,7 @@ function ConOpp({
       if (k.desglose) modo[k.bloqueId] = k.desglose;
       if (k.importe != null) imp[c] = EUR.format(k.importe);
       if (k.formaPago) pago[c] = k.formaPago;
+      if (k.formaPagoAMano) mano[c] = true;
       if (k.porcentaje != null) pct[k.bloqueId] = EUR.format(k.porcentaje);
     }
     // Una hoja base: sus bloques, con sus atajos, y sus actuaciones en todos los
@@ -282,6 +286,7 @@ function ConOpp({
       imp,
       pago,
       pct,
+      mano,
       texto: Object.fromEntries(
         (h?.conceptos ?? [])
           .filter((k) => k.descripcion && (k.bloqueId || k.esConjunto))
@@ -399,6 +404,14 @@ function ConOpp({
                     {h.titulo}
                   </span>{" "}
                   <span className={"rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] " + e.clase}>{e.texto}</span>
+                  {h.conceptos.some((k) => k.formaPagoAMano) && (
+                    <span
+                      className="ml-1.5 rounded-full border border-amber-400 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] text-amber-900"
+                      title="La forma de pago de alguna línea se escribió a mano: al recibirla firmada, facturación revisa sus hitos"
+                    >
+                      hitos a mano · revisar al firmar
+                    </span>
+                  )}
                   {enBorrador && h.estado !== "borrador" && (
                     <span className="ml-1.5 rounded-full border border-dashed border-carbon/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em] text-carbon/60">
                       + borrador
@@ -800,12 +813,15 @@ function Generador({
           formaPago: modoDe(l.b) === "se_cobra" ? (exitoDe(l.b) ? textoExito(l.b) : pagoDe(l)) : null,
           // El texto de la linea, escrito una vez: va a la hoja y a la viabilidad.
           // Si es de una actuacion, su nombre la distingue de las demas.
-          texto: (st.texto[l.clave] ?? "").trim() || (l.tipo ? nombreLinea(l) : null),
+          // Se guarda SIEMPRE lo que pone al lado de la cifra, escrito o el que
+          // propone la app: "o empezaran los lios" (14-oct-2026).
+          texto: nombreLinea(l),
+          formaPagoAMano: modoDe(l.b) === "se_cobra" && !exitoDe(l.b) && !!st.mano[l.clave],
           enConjunto: dentro(l) && modoDe(l.b) === "se_cobra",
         })),
         // La linea condensada, si la hay. Su importe puede NO ser la suma: "a
         // veces el proyecto conjunto tiene un precio unico, y otras se desglosa".
-        conjunto: hayConjunto ? { texto: (st.texto.CONJUNTO ?? "").trim() || null, importe: importeConjunto } : null,
+        conjunto: hayConjunto ? { texto: nombreConjunto, importe: importeConjunto } : null,
         html: copia.innerHTML,
         motivoCambio: st.versionQueSale > 1 ? st.motivo.trim() || null : null,
       });
@@ -1051,14 +1067,32 @@ function Generador({
                   {m === "se_cobra" && !exitoDe(b) && (
                     <div className="col-span-3 flex items-center gap-1.5 text-xs text-carbon/65">
                       <span className="shrink-0">Forma de pago</span>
+                      {/* A MANO (14-oct-2026): si no es ninguna de la lista, se
+                          escribe; sus hitos se revisaran en facturacion al firmar. */}
                       <Elegir
                         id={`pago-${l.clave}`}
                         nombre=""
                         clase="min-w-0 flex-1"
-                        opciones={FORMAS_PAGO.map((f) => ({ valor: f, texto: f }))}
-                        valor={pagoDe(l)}
-                        alElegir={(v) => v && poner({ pago: { ...st.pago, [l.clave]: v } })}
+                        opciones={[...FORMAS_PAGO.map((f) => ({ valor: f, texto: f })), { valor: A_MANO, texto: "Otra: escribirla a mano…" }]}
+                        valor={st.mano[l.clave] ? A_MANO : pagoDe(l)}
+                        alElegir={(v) =>
+                          v === A_MANO
+                            ? poner({ mano: { ...st.mano, [l.clave]: true }, pago: { ...st.pago, [l.clave]: st.pago[l.clave] ?? pagoDe(l) } })
+                            : v && poner({ pago: { ...st.pago, [l.clave]: v }, mano: { ...st.mano, [l.clave]: false } })
+                        }
                       />
+                    </div>
+                  )}
+                  {m === "se_cobra" && !exitoDe(b) && st.mano[l.clave] && (
+                    <div className="col-span-3">
+                      <input
+                        type="text"
+                        value={st.pago[l.clave] ?? ""}
+                        placeholder="30% a la contratación · 70% a la entrega del Proyecto"
+                        onChange={(e) => poner({ pago: { ...st.pago, [l.clave]: e.target.value } })}
+                        className="w-full rounded-[10px] border border-amber-400 bg-amber-50 px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
+                      />
+                      <p className="mt-0.5 text-[11px] text-amber-900/80">Escrita a mano: al recibirla firmada, facturación revisará sus hitos.</p>
                     </div>
                   )}
                 </div>
@@ -1159,6 +1193,9 @@ function marcarConAtajos(bloques: BloqueHoja[], on: Record<string, boolean>, mod
   };
   marcar(b);
 }
+
+/** El valor del selector de forma de pago que abre la casilla "a mano". */
+const A_MANO = "__a_mano__";
 
 /** Una linea de la hoja: un bloque, o un bloque de proyecto para UNA actuacion. */
 type Linea = { clave: string; b: BloqueHoja; tipoId: string | null; tipo: string | null };

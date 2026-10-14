@@ -113,6 +113,8 @@ export type ConceptoHoja = {
   /** Cobro a exito (Subvenciones: 3% de lo concedido). */
   porcentaje: number | null;
   formaPago: string | null;
+  /** La forma de pago se escribio a mano: sus hitos se revisan al firmarse. */
+  formaPagoAMano: boolean;
   /** El texto de la linea, escrito una vez por el comercial. */
   descripcion: string | null;
   /** Va DENTRO del proyecto conjunto: su importe es informativo, lo que se
@@ -253,13 +255,13 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       persona: { nombre: string; apellidos: string | null } | null;
       version_firmada_id: string | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null; motivo_cambio: string | null }[];
-      conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; tipo_proyecto_id: string | null; importe: number | null; porcentaje: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
+      conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; tipo_proyecto_id: string | null; importe: number | null; porcentaje: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; forma_pago_a_mano: boolean; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
       `hojas_encargo?select=id,oportunidad_id,numero_hoja,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
         `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html,motivo_cambio),` +
-        `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,tipo_proyecto_id,importe,porcentaje,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
+        `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,tipo_proyecto_id,importe,porcentaje,incluido,desglose,forma_pago,forma_pago_a_mano,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
         `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
     ),
@@ -326,6 +328,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
           porcentaje: k.porcentaje == null ? null : Number(k.porcentaje),
           descripcion: k.descripcion,
           formaPago: k.forma_pago,
+          formaPagoAMano: k.forma_pago_a_mano,
           enConjunto: !!k.incluido_en_concepto_id,
           esConjunto: conjuntos.has(k.id),
         }));
@@ -435,6 +438,8 @@ export type Generar = {
     /** Cobro a exito (Subvenciones): el % que se escribio en la hoja. */
     porcentaje: number | null;
     formaPago: string | null;
+    /** Escrita a mano, no una de la lista (14-oct-2026). */
+    formaPagoAMano: boolean;
     /** El texto de la linea, escrito una vez por el comercial. Viaja a la hoja y
      *  a la viabilidad: una fuente, dos destinos. */
     texto: string | null;
@@ -632,6 +637,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         descripcion: g.conjunto.texto,
         // Se cobra como una sola cosa: con la forma de pago de su primera linea.
         forma_pago: g.conceptos.find((k) => k.enConjunto)?.formaPago ?? null,
+        forma_pago_a_mano: g.conceptos.find((k) => k.enConjunto)?.formaPagoAMano ?? false,
       }]);
       conjuntoId = c?.id ?? null;
     }
@@ -648,6 +654,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         importe: k.desglose === "se_cobra" ? k.importe : null,
         porcentaje: k.desglose === "se_cobra" ? k.porcentaje : null,
         forma_pago: k.desglose === "se_cobra" ? k.formaPago : null,
+        forma_pago_a_mano: k.desglose === "se_cobra" && k.formaPagoAMano,
         descripcion: k.texto,
         incluido_en_concepto_id: k.enConjunto ? conjuntoId : null,
       })),
