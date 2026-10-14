@@ -189,11 +189,34 @@ export type ContactoComunidad = { nombre: string; telefono: string | null; papel
  *  dia que se migren a la agenda unica, esto mira a `puesto` y la pantalla no se
  *  entera. */
 export async function contactosDeComunidad(comunidadId: string): Promise<ContactoComunidad[]> {
-  const filas = await leer<{ nombre: string; telefono: string | null; rol: string | null; es_contacto_principal: boolean | null }[]>(
-    `personas_comunidad?select=nombre,telefono,rol,es_contacto_principal&comunidad_id=eq.${comunidadId}` +
-      `&order=es_contacto_principal.desc.nullslast,nombre.asc&limit=12`,
-  );
-  return filas.map((f) => ({ nombre: f.nombre, telefono: f.telefono, papel: f.rol }));
+  // DE LA AGENDA (14-oct-2026): las personas con un cargo vigente en la comunidad
+  // (su puesto cuelga de la figura legal, que es la comunidad). Ahi entran los
+  // contactos leidos del correo. Y, mientras conviva, la tabla vieja: lo que no
+  // este ya por nombre en la agenda.
+  const [agenda, viejos] = await Promise.all([
+    leer<{ cargo: string | null; telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }[]>(
+      `puesto?select=cargo,telefono_empresa,persona:persona_id(nombre,apellidos,telefono_personal)` +
+        `&figura_legal_propietaria_id=eq.${comunidadId}&hasta=is.null&limit=30`,
+    ).catch(() => []),
+    leer<{ nombre: string; telefono: string | null; rol: string | null; es_contacto_principal: boolean | null }[]>(
+      `personas_comunidad?select=nombre,telefono,rol,es_contacto_principal&comunidad_id=eq.${comunidadId}` +
+        `&order=es_contacto_principal.desc.nullslast,nombre.asc&limit=12`,
+    ),
+  ]);
+  const clave = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  // El presidente arriba; luego los demas cargos y los vecinos.
+  const PESO: Record<string, number> = { presidente: 0, vicepresidente: 1, secretario: 2, tesorero: 3, vocal: 4, comision: 5, conserje: 6 };
+  const deAgenda = agenda
+    .filter((p) => p.persona)
+    .map((p) => ({
+      nombre: [p.persona!.nombre, p.persona!.apellidos].filter(Boolean).join(" "),
+      telefono: p.persona!.telefono_personal ?? p.telefono_empresa,
+      papel: p.cargo,
+    }))
+    .sort((a, b) => (PESO[a.papel ?? ""] ?? 9) - (PESO[b.papel ?? ""] ?? 9));
+  const vistos = new Set(deAgenda.map((c) => clave(c.nombre)));
+  const sueltos = viejos.filter((f) => !vistos.has(clave(f.nombre))).map((f) => ({ nombre: f.nombre, telefono: f.telefono, papel: f.rol }));
+  return [...deAgenda, ...sueltos].slice(0, 12);
 }
 
 export async function catalogoTipos(): Promise<TipoGestion[]> {
