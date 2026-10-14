@@ -6,7 +6,7 @@ import { Elegir } from "../../components/Elegir";
 import type { Desglose } from "../../../lib/catalogoBloques";
 import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionOpp } from "../../../lib/hojaEncargo";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
-import { accionApuntarFirmada, accionBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
+import { accionApuntarFirmada, accionBorrador, accionDescartarBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 import { estadoDeHoja } from "../../../lib/estadoHoja";
 import { columnasDeInteres } from "../../../lib/columnasInteres";
 
@@ -389,9 +389,32 @@ function ConOpp({
                     {h.importe > 0 && ` · ${eur(h.importe)} € + IVA`}
                   </div>
                 </div>
-                <button type="button" className={BTN} disabled={ocupado} onClick={() => abrir(h)}>
-                  {enBorrador ? "Seguir el borrador" : "Modificar"}
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <button type="button" className={BTN} disabled={ocupado} onClick={() => abrir(h)}>
+                    {enBorrador ? "Seguir el borrador" : "Modificar"}
+                  </button>
+                  {/* DESCARTAR: solo un borrador, que no ha salido de Accesalia
+                      ("asi no se acumulan cosas inutiles", 14-oct-2026). */}
+                  {enBorrador && (
+                    <button
+                      type="button"
+                      disabled={ocupado}
+                      onClick={() => {
+                        const entera = !h.documentos.some((d) => d.tipo === "generada");
+                        if (!confirm(entera ? "¿Descartas este borrador? La hoja nunca se generó: se borra entera." : `¿Descartas el borrador? La hoja vuelve a su versión ${h.version!.numero - 1}.`)) return;
+                        empezar(async () => {
+                          const r = await accionDescartarBorrador(h.id);
+                          if (!r.ok) return setError(r.error);
+                          if (st?.hojaId === h.id) setSt(null);
+                          router.refresh();
+                        });
+                      }}
+                      className="text-[11px] font-semibold text-carbon/55 underline-offset-2 hover:text-alerta hover:underline"
+                    >
+                      descartar borrador
+                    </button>
+                  )}
+                </div>
                 <div className="col-span-2 flex flex-wrap gap-1.5">
                   {h.documentos.map((d) => {
                     const clave = `${d.versionId}-${d.tipo}-${d.indice}`;

@@ -698,6 +698,31 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
   return { hojaId: hojaId!, versionId: v.id };
 }
 
+// ----------------------------------------------------- descartar un borrador
+
+/** DESCARTAR UN BORRADOR (Monica, 14-oct-2026: "asi no se acumulan cosas
+ *  inutiles"). Solo lo que no ha salido de Accesalia: la ultima version sin PDF.
+ *  Si la hoja nunca se genero (sin PDF ni codigo HE), se va entera; si el
+ *  borrador iba encima de versiones generadas, se va solo el borrador y la hoja
+ *  vuelve a su ultima generada. Lo generado no se borra nunca. */
+export async function descartarBorrador(hojaId: string): Promise<"hoja" | "version"> {
+  const [h] = await leer<{ numero_hoja: string | null }[]>(`hojas_encargo?select=numero_hoja&id=eq.${hojaId}`);
+  const versiones = await leer<{ id: string; url_pdf_hoja: string | null; contenido_html: string | null }[]>(
+    `versiones_hoja?select=id,url_pdf_hoja,contenido_html&hoja_encargo_id=eq.${hojaId}&order=numero_version.desc`,
+  );
+  const ultima = versiones[0];
+  if (!h || !ultima || ultima.url_pdf_hoja || !ultima.contenido_html) throw new Error("Esta hoja no tiene un borrador que descartar.");
+  await pedir(`conceptos_hoja?version_hoja_id=eq.${ultima.id}&incluido_en_concepto_id=not.is.null`, { method: "DELETE" });
+  await pedir(`conceptos_hoja?version_hoja_id=eq.${ultima.id}`, { method: "DELETE" });
+  await pedir(`versiones_hoja?id=eq.${ultima.id}`, { method: "DELETE" });
+  if (h.numero_hoja || versiones.some((v) => v.url_pdf_hoja)) return "version";
+  // Nunca salio: fuera la hoja entera (sus actuaciones se van con ella).
+  await pedir(`conceptos_hoja?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });
+  await pedir(`hojas_encargo_estado_historial?hoja_encargo_id=eq.${hojaId}`, { method: "DELETE" });
+  await pedir(`hojas_encargo?id=eq.${hojaId}`, { method: "DELETE" });
+  return "hoja";
+}
+
 // --------------------------------------------------------------- estados
 
 export async function marcarEnviada(hojaId: string) {

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
 import {
   apuntarFirmada,
+  descartarBorrador,
   oppDeHoja,
   enlaceFirmada,
   generarHoja,
@@ -74,6 +75,18 @@ export async function accionBorrador(g: Generar): Promise<Resultado<{ versionId:
     return { ok: true, ...r };
   } catch (e) {
     return { ok: false, error: "No se ha podido guardar: " + (e as Error).message };
+  }
+}
+
+/** Descartar el borrador: solo lo que no ha salido de Accesalia (14-oct-2026). */
+export async function accionDescartarBorrador(hojaId: string): Promise<Resultado> {
+  try {
+    await permiso(await oppDeHoja(hojaId));
+    await descartarBorrador(hojaId);
+    revalidatePath("/comercial/hoja-encargo");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
   }
 }
 
