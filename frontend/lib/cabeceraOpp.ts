@@ -117,7 +117,7 @@ async function loFirmado(hojaIds: string[]): Promise<string | null> {
 
 // ------------------------------------------------------------------ el estado
 
-type HojaCruda = {
+export type HojaCruda = {
   id: string;
   estado: string;
   fecha_firma: string | null;
@@ -152,13 +152,21 @@ async function cobrosDe(hojaIds: string[]): Promise<{ hay: boolean; alguno: bool
   return { hay: hitos.length > 0, alguno: cobrados > 0, todos: hitos.length > 0 && cobrados === hitos.length };
 }
 
-async function estadoDe(
-  op: { estado: string; cierres: { fecha_cierre: string | null; resultado_final: string | null; motivo_perdido: string | null; creado_en: string }[] },
+export type CierreCrudo = { fecha_cierre: string | null; resultado_final: string | null; motivo_perdido: string | null; creado_en: string };
+
+async function estadoDe(op: { estado: string; cierres: CierreCrudo[] }, hojas: HojaCruda[]): Promise<EstadoOpp> {
+  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
+  return estadoCon(op, hojas, await cobrosDe(firmadas.map((h) => h.id)));
+}
+
+/** El estado con los cobros ya leidos (para calcular muchas opps de golpe). */
+export function estadoCon(
+  op: { estado: string; cierres: CierreCrudo[] },
   hojas: HojaCruda[],
-): Promise<EstadoOpp> {
+  c: { alguno: boolean; todos: boolean },
+): EstadoOpp {
   const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
   const ganada = firmadas.length > 0;
-  const c = await cobrosDe(firmadas.map((h) => h.id));
   const cierre = [...op.cierres].sort((a, b) => b.creado_en.localeCompare(a.creado_en))[0];
   const cerrada = op.estado === "cerrada";
   return {
@@ -177,9 +185,12 @@ async function estadoDe(
 
 // ------------------------------------------------- de que estamos pendientes
 
-export type Falta = { texto: string; extra: string | null };
+/** LA SECCION del "Resumen de como estan las cosas" (Monica, 14-oct-2026): el
+ *  paso que bloquea, agrupado en lo que el comercial tiene que hacer. */
+export type Paso = "escaneo" | "sin_hoja" | "hoja_enviada" | "junta" | "firma" | "cobro" | "completado" | "cerrada";
+export type Falta = { texto: string; extra: string | null; paso?: Paso };
 
-type Datos = {
+export type Datos = {
   estado: EstadoOpp;
   hojas: HojaCruda[];
   juntas: { fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }[];
@@ -204,7 +215,26 @@ const MODIFICAR = new Set(["piden_mas_presupuestos", "aplazada", "complicacion"]
  *
  *  OJO: es la escalera de LO QUE NOS BLOQUEA, no la de fases comerciales: lee
  *  sus propios datos, nunca fases_oportunidad. */
-function falta(d: Datos): Falta {
+/** El paso y su seccion. Los textos los fija faltaTexto, aqui al lado. */
+const SECCION: [RegExp, Paso][] = [
+  [/^Perdida/, "cerrada"],
+  [/^Todo completado/, "completado"],
+  [/cobro/i, "cobro"],
+  [/votó sí/, "firma"],
+  [/votó que no/, "junta"],
+  [/decisión sobre la nueva oferta/, "hoja_enviada"],
+  [/nueva oferta|modificar la oferta/, "sin_hoja"],
+  [/se celebre la junta|qué votaron/, "junta"],
+  [/fecha de la junta/, "hoja_enviada"],
+  [/revisión pidió|ok a la oferta|enviar la doc|Preparar la HE|arquitecto defina/, "sin_hoja"],
+];
+
+export function falta(d: Datos): Falta {
+  const f = faltaTexto(d);
+  return { ...f, paso: SECCION.find(([rx]) => rx.test(f.texto))?.[1] ?? "escaneo" };
+}
+
+function faltaTexto(d: Datos): Falta {
   const e = d.estado;
   const r = d.revision?.ultima ?? null;
   const generada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja));

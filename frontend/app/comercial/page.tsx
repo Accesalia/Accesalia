@@ -371,6 +371,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {accesos ? (
           <Accesos
             botones={[
+              { texto: "Resumen de cómo están las cosas", detalle: "Tus opps por lo que toca hacer, con a quién llamar", cuantas: null, donde: "/comercial/resumen", icono: <IconoFases /> },
               { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.gestores, donde: aqui("administradores"), icono: <IconoCartera /> },
               { texto: "Oportunidades abiertas", detalle: "Todas las abiertas, con su barra de fases", cuantas: totalAbiertas, donde: aqui("oportunidades"), icono: <IconoOportunidad /> },
               { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
