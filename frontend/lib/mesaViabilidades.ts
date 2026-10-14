@@ -229,6 +229,9 @@ export type PorHacer = {
   /** Lo vinculo la APP sola (sin duda): su porque. Null si lo vinculo una persona.
    *  Con esto sale "vinculado por la app" y el boton "corregir direccion". */
   vinculadoPorApp: string | null;
+  /** El asunto y el remitente del correo (del escaneo mas antiguo), como en la maqueta. */
+  asunto: string | null;
+  remitente: string | null;
   /** Para empezar: con que opp. Varias = elegir; ninguna = no se puede. */
   opps: { id: string; codigo: string | null; nombre: string | null; proyecto: string | null; comercial: string | null }[];
 };
@@ -237,6 +240,7 @@ type EscaneoFila = {
   id: string;
   creado_en: string;
   asunto: string | null;
+  remitente: string | null;
   nombre_original_fichero: string | null;
   fecha_escaneo: string | null;
   polycam: string | null;
@@ -245,7 +249,7 @@ type EscaneoFila = {
   relacion_polycam_acceso: { automatico: boolean; motivo: string | null; accesos: AccesoFila | null }[];
 };
 const SEL_ESC =
-  "id,creado_en,asunto,nombre_original_fichero,fecha_escaneo,polycam,ruta_polycam,viabilidad_id," +
+  "id,creado_en,asunto,remitente,nombre_original_fichero,fecha_escaneo,polycam,ruta_polycam,viabilidad_id," +
   "relacion_polycam_acceso!inner(automatico,motivo,accesos(id,municipio,tipo_via,nombre_via,numero,escalera))";
 /** Si lo vinculo la app, su porque. */
 const porApp = (e: EscaneoFila) => (e.relacion_polycam_acceso.some((r) => r.automatico) ? e.relacion_polycam_acceso.find((r) => r.motivo)?.motivo ?? "Vinculado por la app" : null);
@@ -286,6 +290,8 @@ export async function porHacer(): Promise<PorHacer[]> {
       danielAvisado: !!v.daniel_avisado_en,
       danielResuelto: !!v.daniel_resuelto_en || !!v.enviada_en,
       vinculadoPorApp: es.map(porApp).find(Boolean) ?? null,
+      asunto: es[0].asunto,
+      remitente: es[0].remitente,
       opps: [],
     });
   }
@@ -308,6 +314,8 @@ export async function porHacer(): Promise<PorHacer[]> {
       danielAvisado: false,
       danielResuelto: false,
       vinculadoPorApp: porApp(e),
+      asunto: e.asunto,
+      remitente: e.remitente,
       opps: opps.map((o) => ({ id: o.id, codigo: o.codigo, nombre: o.nombre, proyecto: proyectoDe(o), comercial: o.comercial?.nombre ?? null })),
     });
   }
