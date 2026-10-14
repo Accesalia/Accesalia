@@ -82,5 +82,7 @@ export const FORMAS_PAGO = [
   "50% a la contratación (provisión de fondos) · 50% a la entrega del Proyecto",
   "100% a la firma del Plan de Seguridad y Salud",
   "100% a la contratación",
-  "1.980 € a la contratación · 3% de lo concedido a la concesión",
 ];
+// La de "1.980 a la contratacion · 3% de lo concedido" se fue el 14-oct-2026: los
+// 1.980 son la Documentacion tecnica (su bloque) y el 3% es el cobro a exito del
+// bloque Subvenciones, que la hoja escribe solo.

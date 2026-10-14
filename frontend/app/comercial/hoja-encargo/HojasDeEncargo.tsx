@@ -38,11 +38,12 @@ const CONTRATADO: { texto: string; codigos: (c: string) => boolean }[] = [
   { texto: "Memoria", codigos: (c) => c === "MEMORIA TECNICA" },
 ];
 
-// Las reglas de la DF y el CFO (2-oct-2026): la DF sale incluida si la hoja
-// lleva proyecto, y se cobra si no; marcar la DF marca el CFO.
+// La regla de la DF (2-oct-2026): sale incluida si la hoja lleva proyecto, y se
+// cobra si no. Los ATAJOS (DF -> CFO, proyecto o consulta -> visado,
+// subvenciones -> documentacion tecnica -> CEE + IEE + libro) estan en el
+// catalogo: bloques.marca_tambien (14-oct-2026).
 const PROYECTO = "REDACCION PROYECTO";
 const DF = "DF";
-const CFO = "CERTIFICADO FIN DE OBRA";
 const LICENCIA = "TRAMITACION LICENCIAS";
 
 type Actuacion = { clave: number; tipoId: string; accesoIds: string[] };
@@ -56,6 +57,8 @@ type Estado = {
   modo: Record<string, Desglose>;
   imp: Record<string, string>;
   pago: Record<string, string>;
+  /** El % de las lineas A EXITO (Subvenciones), retocable en cada hoja. */
+  pct: Record<string, string>;
   /** EL TEXTO DE CADA LINEA, escrito UNA vez (Monica, 6-oct-2026): "proyecto de
    *  bajada a cota cero de 5 ascensores". Viaja a la hoja y a la viabilidad: una
    *  fuente, dos destinos. La clave CONJUNTO es la de la linea condensada. */
@@ -205,6 +208,7 @@ function ConOpp({
     const modo: Record<string, Desglose> = {};
     const imp: Record<string, string> = {};
     const pago: Record<string, string> = {};
+    const pct: Record<string, string> = {};
     const junto: Record<string, boolean> = {};
     for (const k of h?.conceptos ?? []) {
       // La linea del conjunto: su importe es el que se escribio (precio unico o
@@ -216,6 +220,7 @@ function ConOpp({
       if (k.desglose) modo[k.bloqueId] = k.desglose;
       if (k.importe != null) imp[k.bloqueId] = EUR.format(k.importe);
       if (k.formaPago) pago[k.bloqueId] = k.formaPago;
+      if (k.porcentaje != null) pct[k.bloqueId] = EUR.format(k.porcentaje);
     }
     const acts = h?.actuaciones.length
       ? h.actuaciones.map((a) => ({ clave: claveAct.current++, tipoId: a.tipoId, accesoIds: a.accesoIds }))
@@ -242,6 +247,7 @@ function ConOpp({
       modo,
       imp,
       pago,
+      pct,
       texto: Object.fromEntries(
         (h?.conceptos ?? [])
           .filter((k) => k.descripcion && (k.bloqueId || k.esConjunto))
@@ -491,14 +497,26 @@ function Generador({
     if (b.codigo === DF) return marcado(PROYECTO) ? "incluido" : "se_cobra";
     return b.desglose;
   };
-  const importeDe = (b: BloqueHoja) => aNumero(st.imp[b.id] ?? (b.importe != null ? EUR.format(b.importe) : "")) ?? 0;
-  const pagoDe = (b: BloqueHoja) => st.pago[b.id] ?? FORMAS_PAGO[b.codigo === "CSS" ? 1 : 0];
+  // A EXITO (Subvenciones): sin importe fijo, un % de lo concedido que SALE en la
+  // hoja, en el desglose y en la forma de pago (Monica, 14-oct-2026).
+  const exitoDe = (b: BloqueHoja) => (b.exito && modoDe(b) === "se_cobra" ? b.exito : null);
+  const pctDe = (b: BloqueHoja) => aNumero(st.pct[b.id] ?? (b.exito ? EUR.format(b.exito.porcentaje) : "")) ?? 0;
+  const textoExito = (b: BloqueHoja) =>
+    `${eur(pctDe(b))} % de ${b.exito?.base ?? "la base"}, a la ${MOMENTO[b.exito?.hito ?? ""] ?? b.exito?.hito ?? ""}`;
+  const importeDe = (b: BloqueHoja) =>
+    exitoDe(b) ? 0 : aNumero(st.imp[b.id] ?? (b.importe != null ? EUR.format(b.importe) : "")) ?? 0;
+  const pagoDe = (b: BloqueHoja) => st.pago[b.id] ?? b.formaPagoDefecto ?? FORMAS_PAGO[0];
 
   const marcados = bloques.filter((b) => st.on[b.id]);
   const conLinea = marcados.filter((b) => modoDe(b) !== "no_aparece");
   const soloTexto = marcados.filter((b) => modoDe(b) === "no_aparece");
   const cobrados = conLinea.filter((b) => modoDe(b) === "se_cobra");
   const suma = cobrados.reduce((s, b) => s + importeDe(b), 0);
+  // Lo que se añade al total en letra: "+ 3 % de lo concedido".
+  const masExito = cobrados
+    .filter((b) => exitoDe(b))
+    .map((b) => ` + ${eur(pctDe(b))} % de ${b.exito?.base ?? "la base"}`)
+    .join("");
   // Las que el comercial ha marcado como parte de un proyecto conjunto.
   const enConjunto = cobrados.filter((b) => st.junto[b.id]);
   const sumaConjunto = enConjunto.reduce((s, b) => s + importeDe(b), 0);
@@ -522,13 +540,32 @@ function Generador({
   const cif = st.aQuien === "comunidad" ? datos.comunidad?.cif ?? "" : persona ? "" : contrata?.cif ?? "";
 
   const poner = (cambio: Partial<Estado>) => setSt((s) => ({ ...s, ...cambio }));
+  // ATAJOS (catalogo, bloques.marca_tambien): al MARCAR un bloque se marcan los
+  // suyos, y los de esos (subvenciones -> doc. tecnica -> CEE, IEE, libro). Solo
+  // atajan: desmarcar no arrastra nada, y cada uno se puede quitar a mano.
   const toggle = (b: BloqueHoja) =>
     setSt((s) => {
       const on = { ...s.on, [b.id]: !s.on[b.id] };
-      const cfo = porCodigo(CFO);
-      if (b.codigo === DF && on[b.id] && cfo) on[cfo.id] = true;
-      return { ...s, on };
+      const modo = { ...s.modo };
+      const marcar = (x: BloqueHoja, visto: Set<string>) => {
+        for (const id of x.marcaTambien) {
+          if (visto.has(id)) continue;
+          visto.add(id);
+          const y = bloques.find((z) => z.id === id);
+          if (!y) continue;
+          if (!on[id]) {
+            on[id] = true;
+            if (x.marcaComo) modo[id] = x.marcaComo;
+          }
+          marcar(y, visto);
+        }
+      };
+      if (on[b.id]) marcar(b, new Set([b.id]));
+      return { ...s, on, modo };
     });
+  // Un bloque que no va suelto (el visado) solo se puede marcar si esta marcado
+  // alguno que lo arrastra.
+  const arrastrado = (b: BloqueHoja) => bloques.some((x) => st.on[x.id] && x.marcaTambien.includes(b.id));
 
   // -------------------------------------------- el papel: montarlo una vez
   useEffect(() => {
@@ -610,10 +647,12 @@ function Generador({
       }
       for (const b of conLinea) {
         if (dentro(b)) continue;
-        const valor = modoDe(b) === "se_cobra" ? precio(importeDe(b)) : "<i>incluido</i>";
+        const valor = exitoDe(b)
+          ? `${eur(pctDe(b))} % de ${esc(b.exito?.base ?? "")} + IVA`
+          : modoDe(b) === "se_cobra" ? precio(importeDe(b)) : "<i>incluido</i>";
         filas.push(`<tr><td>${esc(nombreLinea(b))}</td><td class="r">${valor}</td></tr>`);
       }
-      des.innerHTML = `<table>${filas.join("")}</table>` + `<div class="totalbanda">Total Honorarios Profesionales: ${eur(total)} € + IVA</div>`;
+      des.innerHTML = `<table>${filas.join("")}</table>` + `<div class="totalbanda">Total Honorarios Profesionales: ${eur(total)} €${esc(masExito)} + IVA</div>`;
     }
 
     const icio = p.querySelector<HTMLElement>('[data-p="icio"]');
@@ -630,7 +669,7 @@ function Generador({
       pago.innerHTML = cobrados.length
         ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul class="pago">${[
             ...(hayConjunto ? [`<li>${esc(nombreConjunto)}: ${esc(pagoDe(enConjunto[0]))}</li>`] : []),
-            ...cobrados.filter((b) => !dentro(b)).map((b) => `<li>${esc(nombreLinea(b))}: ${esc(pagoDe(b))}</li>`),
+            ...cobrados.filter((b) => !dentro(b)).map((b) => `<li>${esc(nombreLinea(b))}: ${esc(exitoDe(b) ? textoExito(b) : pagoDe(b))}</li>`),
           ].join("")}</ul>`
         : "";
   });
@@ -656,8 +695,9 @@ function Generador({
         conceptos: marcados.map((b) => ({
           bloqueId: b.id,
           desglose: modoDe(b),
-          importe: modoDe(b) === "se_cobra" ? importeDe(b) : null,
-          formaPago: modoDe(b) === "se_cobra" ? pagoDe(b) : null,
+          importe: modoDe(b) === "se_cobra" && !exitoDe(b) ? importeDe(b) : null,
+          porcentaje: exitoDe(b) ? pctDe(b) : null,
+          formaPago: modoDe(b) === "se_cobra" ? (exitoDe(b) ? textoExito(b) : pagoDe(b)) : null,
           // El texto de la linea, escrito una vez: va a la hoja y a la viabilidad.
           texto: (st.texto[b.id] ?? "").trim() || null,
           enConjunto: dentro(b) && modoDe(b) === "se_cobra",
@@ -785,8 +825,15 @@ function Generador({
                   key={b.id}
                   type="button"
                   onClick={() => toggle(b)}
+                  disabled={!b.suelto && !st.on[b.id] && !arrastrado(b)}
+                  title={
+                    b.suelto
+                      ? undefined
+                      : "No se contrata suelto: va con " +
+                        bloques.filter((x) => x.marcaTambien.includes(b.id)).map((x) => x.nombreCorto).join(" o ")
+                  }
                   className={
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition " +
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 " +
                     (st.on[b.id] ? "border-lima bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/50 hover:border-carbon hover:text-carbon")
                   }
                 >
@@ -822,15 +869,28 @@ function Generador({
                     )}
                   </span>
                   <Interruptor valor={m} alCambiar={(v) => poner({ modo: { ...st.modo, [b.id]: v } })} />
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    disabled={m !== "se_cobra"}
-                    value={m === "se_cobra" ? st.imp[b.id] ?? (b.importe != null ? EUR.format(b.importe) : "") : "—"}
-                    placeholder="€"
-                    onChange={(e) => poner({ imp: { ...st.imp, [b.id]: e.target.value } })}
-                    className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
-                  />
+                  {exitoDe(b) ? (
+                    <label className="flex items-center gap-1 text-[13px]">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={st.pct[b.id] ?? EUR.format(b.exito!.porcentaje)}
+                        onChange={(e) => poner({ pct: { ...st.pct, [b.id]: e.target.value } })}
+                        className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none"
+                      />
+                      %
+                    </label>
+                  ) : (
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      disabled={m !== "se_cobra"}
+                      value={m === "se_cobra" ? st.imp[b.id] ?? (b.importe != null ? EUR.format(b.importe) : "") : "—"}
+                      placeholder="€"
+                      onChange={(e) => poner({ imp: { ...st.imp, [b.id]: e.target.value } })}
+                      className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
+                    />
+                  )}
                   {m === "se_cobra" && (
                     <div className="col-span-3">
                       {/* EL TEXTO, escrito una vez: viaja a la hoja y a la
@@ -845,7 +905,12 @@ function Generador({
                       />
                     </div>
                   )}
-                  {m === "se_cobra" && (
+                  {exitoDe(b) && (
+                    <div className="col-span-3 text-xs text-carbon/65">
+                      A éxito: <b className="text-carbon/80">{textoExito(b)}</b>. Sale así en la hoja.
+                    </div>
+                  )}
+                  {m === "se_cobra" && !exitoDe(b) && (
                     <div className="col-span-3 flex items-center gap-1.5 text-xs text-carbon/65">
                       <span className="shrink-0">Forma de pago</span>
                       <Elegir
@@ -899,7 +964,7 @@ function Generador({
             <div className="mt-2 flex justify-between font-bold">
               <span>Total honorarios</span>
               <span>
-                {eur(total)} € + IVA = {eur(total * 1.21)} €
+                {eur(total)} € + IVA = {eur(total * 1.21)} €{masExito}
               </span>
             </div>
             {soloTexto.length > 0 && (
@@ -936,6 +1001,8 @@ function Generador({
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** El hito de un cobro a exito, como se escribe en la hoja. */
+const MOMENTO: Record<string, string> = { concesion: "concesión", adjudicacion: "adjudicación", presentacion: "presentación", licencia: "licencia", cfo: "fin de obra" };
 const frase = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
 function Interruptor({ valor, alCambiar }: { valor: Desglose; alCambiar: (v: Desglose) => void }) {

@@ -42,7 +42,9 @@ export async function accionGenerar(g: Generar): Promise<Resultado<{ versionId: 
     // Las lineas que van DENTRO de un proyecto conjunto pueden ir a cero: "a
     // veces el proyecto conjunto tiene un precio unico, y otras se desglosa"
     // (Monica, 6-oct-2026). Lo que no puede faltar es el importe del conjunto.
-    if (g.conceptos.some((k) => k.desglose === "se_cobra" && !k.enConjunto && !(k.importe && k.importe > 0)))
+    // Una linea a exito (Subvenciones: 3% de lo concedido) no tiene importe fijo:
+    // lleva su porcentaje (14-oct-2026).
+    if (g.conceptos.some((k) => k.desglose === "se_cobra" && !k.enConjunto && !(k.importe && k.importe > 0) && !(k.porcentaje && k.porcentaje > 0)))
       return { ok: false, error: "Falta el importe de alguna línea que se cobra." };
     if (g.conjunto && !(g.conjunto.importe > 0))
       return { ok: false, error: "Falta el importe del proyecto conjunto." };

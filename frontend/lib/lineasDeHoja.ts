@@ -9,7 +9,9 @@ import "server-only";
 //     piezas no se cobran aparte;
 //   - la forma de pago (texto) -> sus hitos. Las del generador se reconocen; lo
 //     que no, queda en un hito "otro" con aviso para revisarlo a mano;
-//   - los 3 PRESUPUESTOS (sueltos o incluidos "gratis") -> su linea de
+//   - un concepto A EXITO (Subvenciones: 3% de lo concedido, 14-oct-2026) -> una
+//     linea a porcentaje, sin importe, con el hito que dice su bloque;
+//   - los 3 PRESUPUESTOS (vayan como vayan, tambien en "no aparece") -> su linea de
 //     Ecobalance: el % del PEM de parametros_economicos, a exito, hito
 //     "adjudicacion" (si gana nuestra contrata).
 // Si la hoja ya tiene lineas, no hace nada: no duplica.
@@ -80,8 +82,12 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
   if (ya.length) return 0;
 
   const [conceptos, [tres], [pct]] = await Promise.all([
-    pedir<{ id: string; bloque_id: string | null; descripcion: string | null; importe: number | null; desglose: string | null; forma_pago: string | null; incluido_en_concepto_id: string | null }[]>(
-      `conceptos_hoja?select=id,bloque_id,descripcion,importe,desglose,forma_pago,incluido_en_concepto_id&version_hoja_id=eq.${h.version_firmada_id}&order=creado_en.asc`,
+    pedir<{
+      id: string; bloque_id: string | null; descripcion: string | null; importe: number | null; porcentaje: number | null; desglose: string | null;
+      forma_pago: string | null; incluido_en_concepto_id: string | null; bloque: { base_exito: string | null; hito_exito: string | null } | null;
+    }[]>(
+      `conceptos_hoja?select=id,bloque_id,descripcion,importe,porcentaje,desglose,forma_pago,incluido_en_concepto_id,bloque:bloque_id(base_exito,hito_exito)` +
+        `&version_hoja_id=eq.${h.version_firmada_id}&order=creado_en.asc`,
     ),
     pedir<{ id: string }[]>(`bloques?select=id&nombre=eq.${encodeURIComponent("SOLICITUD Y ANÁLISIS DE PRESUPUESTOS")}`),
     pedir<{ valor: number }[]>("parametros_economicos?select=valor&clave=eq.tres_presupuestos_pct"),
@@ -105,6 +111,16 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
 
   // Lo que se cobra: cada concepto suelto que se cobra (el conjunto incluido).
   for (const c of conceptos.filter((k) => k.desglose === "se_cobra" && !k.incluido_en_concepto_id)) {
+    // A exito: el % y el hito los dice su bloque, no el texto de la forma de pago.
+    if (c.porcentaje != null && c.bloque?.hito_exito) {
+      const pct = Number(c.porcentaje);
+      const sobre = c.bloque.base_exito ?? "la base";
+      await crearLinea(
+        { concepto_hoja_id: c.id, bloque_id: c.bloque_id, descripcion: c.descripcion, importe: null, es_porcentaje: true, porcentaje: pct, base_porcentaje: sobre, emisor },
+        [{ hito: c.bloque.hito_exito, porcentaje: 100, importe: null, notas: `A éxito: ${pct.toLocaleString("es-ES")} % sobre ${sobre}.` }],
+      );
+      continue;
+    }
     const importe = c.importe == null ? null : Number(c.importe);
     await crearLinea(
       { concepto_hoja_id: c.id, bloque_id: c.bloque_id, descripcion: c.descripcion, importe, es_porcentaje: false, emisor },
@@ -112,8 +128,10 @@ export async function crearLineasDeHoja(hojaId: string): Promise<number> {
     );
   }
 
-  // Los 3 presupuestos, vayan como vayan: Ecobalance, a exito.
-  const tresPp = tres ? conceptos.find((k) => k.bloque_id === tres.id && k.desglose !== "no_aparece") : undefined;
+  // Los 3 presupuestos, vayan como vayan: Ecobalance, a exito. Tambien en "no
+  // aparece", que es su posicion por defecto (hasta el 14-oct-2026 se saltaba).
+  // El comercial no ve este cobro: no esta en el bloque sino en los parametros.
+  const tresPp = tres ? conceptos.find((k) => k.bloque_id === tres.id) : undefined;
   if (tresPp && pct) {
     await crearLinea(
       {
