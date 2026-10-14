@@ -18,6 +18,7 @@ import { cambiarDireccion } from "../../../../lib/altaOportunidad";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { quedaPorCobrar } from "../../../../lib/cabeceraOpp";
+import { buscarOpps } from "../../../../lib/consulta";
 
 const texto = (fd: FormData, k: string) => {
   const v = String(fd.get(k) ?? "").trim();
@@ -241,4 +242,11 @@ export async function accionAdminAComunidad(id: string) {
   await permiso(id);
   await ponerAdminEnComunidad(id);
   refrescar(id);
+}
+
+/** IR A OTRA OPP desde la ficha, sin volver a la lista (Monica, 14-oct-2026). */
+export async function accionBuscarOpps(q: string): Promise<{ id: string; nombre: string; detalle: string }[]> {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial")) return [];
+  return (await buscarOpps(q)).map(({ id, nombre, detalle }) => ({ id, nombre, detalle }));
 }

@@ -26,7 +26,24 @@ function Tramo({ estado, paso }: { estado: EstadoTramo; paso: Paso }) {
 
 export function BarraFases({ b }: { b: BarraOportunidad }) {
   return (
-    <div className="mt-[10px] rounded-[10px] bg-[#232323] px-4 pb-3 pt-3.5">
+    <div className="mt-[10px] rounded-[10px] bg-[#232323] px-4 pb-3 pt-3">
+      {/* EL NOMBRE DE CADA FASE, encima de su tramo (Monica, 14-oct-2026: "creo
+          que cabe bien con ese ancho de pantalla"). El de la fase actual, en claro. */}
+      <div className="mb-1.5 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${b.pasos.length}, minmax(0, 1fr))` }}>
+        {b.pasos.map((p) => {
+          const aqui = b.tramos[p.clave] === "actual";
+          return (
+            <div
+              key={p.clave}
+              className={"min-w-0 truncate text-[10.5px] font-semibold leading-tight " + (aqui ? (p.ajeno ? "text-[#9DBDE6]" : "text-white") : "text-white/50")}
+              title={p.corto.join(" ").trim()}
+            >
+              {p.numero && <span className="mr-1 tabular-nums opacity-60">{p.numero}</span>}
+              {p.corto.join(" ").trim()}
+            </div>
+          );
+        })}
+      </div>
       <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${b.pasos.length}, minmax(0, 1fr))` }}>
         {b.pasos.map((p) => (
           <Tramo key={p.clave} paso={p} estado={b.tramos[p.clave] ?? "pendiente"} />

@@ -11,7 +11,8 @@ import type { QueBuscar, Sugerencia } from "../../lib/consulta";
 // la lista entera de abajo, como antes.
 
 const PESTAÑAS: [QueBuscar, string, string][] = [
-  ["direccion", "Dirección", "calle y número: ronda segovia 5"],
+  ["opp", "Oportunidad", "nombre de la opp: etruria 56"],
+  ["direccion", "Comunidad", "calle y número: ronda segovia 5"],
   ["admin", "Administrador", "nombre de la administración"],
   ["contrata", "Contrata", "nombre o CIF de la contrata"],
   ["persona", "Persona", "nombre, teléfono o correo: de donde sea"],
@@ -31,9 +32,13 @@ export function BuscadorVivo({ listas, que: queInicial, q: qInicial }: { listas:
   const encontradas = useMemo(() => {
     const palabras = limpio(q).split(/[\s,.]+/).filter(Boolean);
     if (!palabras.length) return { lista: [], total: 0 };
+    // Un NUMERO casa con un numero entero del nombre: "mostoles 3" no es
+    // "Carlos V 32" ni el codigo DAN-2023 (14-oct-2026).
     const todas = listas[que].filter((s) => {
-      const t = limpio(`${s.nombre} ${s.detalle}`);
-      return palabras.every((p) => t.includes(p));
+      const nombre = limpio(s.nombre);
+      const t = `${nombre} ${limpio(s.detalle)}`;
+      const numeros: string[] = nombre.match(/\d+/g) ?? [];
+      return palabras.every((p) => (/^\d+$/.test(p) ? numeros.includes(p) : t.includes(p)));
     });
     return { lista: todas.slice(0, MAXIMO), total: todas.length };
   }, [q, que, listas]);

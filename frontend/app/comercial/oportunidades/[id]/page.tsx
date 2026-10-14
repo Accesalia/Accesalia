@@ -33,6 +33,7 @@ import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
 import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
 import { DatosOpp } from "./DatosOpp";
+import { IrAOtraOpp } from "./IrAOtraOpp";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -175,9 +176,12 @@ export default async function GestionOportunidad({
           estirarlo como una goma y que quede ilegible". Lo de pantallas
           grandes de verdad (el 27") se mira cuando se vea en ellas. */}
       <main className="mx-auto w-full max-w-[1648px] px-4 pb-16 pt-5 sm:px-6">
-        <Salida href="/comercial?ver=oportunidades">
-          ← Oportunidades abiertas
-        </Salida>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Salida href="/comercial?ver=oportunidades">
+            ← Oportunidades abiertas
+          </Salida>
+          <IrAOtraOpp />
+        </div>
 
         {/* ------------------------- 1 · cabecera ------------------------- */}
         {cab && (

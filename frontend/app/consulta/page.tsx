@@ -22,7 +22,9 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
   if (!yo) redirect("/entrar?volver=/consulta");
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
-  const que: QueBuscar = sp.que === "admin" || sp.que === "contrata" || sp.que === "persona" ? sp.que : "direccion";
+  // Por defecto, la OPORTUNIDAD por su nombre (14-oct-2026).
+  const que: QueBuscar =
+    sp.que === "admin" || sp.que === "contrata" || sp.que === "persona" || sp.que === "direccion" ? sp.que : "opp";
   // 12-oct-2026: el desplegable filtra al escribir; "Buscar" saca la lista entera.
   const [resultados, listas] = await Promise.all([q ? buscar(q, que) : Promise.resolve([]), listasBuscador()]);
 
@@ -36,9 +38,9 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
         <section className={CAJA + " mt-3 p-4"}>
           <div className={ROT}>
             {resultados.length === 0 ? "Nada con eso" : `${resultados.length === 60 ? "Las 60 primeras" : resultados.length}`} ·{" "}
-            {que === "admin" ? "administraciones" : que === "contrata" ? "contratas" : que === "persona" ? "personas" : "comunidades"} con «{q}»
+            {que === "opp" ? "oportunidades" : que === "admin" ? "administraciones" : que === "contrata" ? "contratas" : que === "persona" ? "personas" : "comunidades"} con «{q}»
           </div>
-          {resultados.length === 0 && que === "direccion" && (
+          {resultados.length === 0 && (que === "direccion" || que === "opp") && (
             <p className="mt-2 text-[13px] text-carbon/65">Prueba con menos palabras: solo la calle, o la calle y el número.</p>
           )}
           <ul className="mt-2 divide-y divide-[#f0f0f0]">
@@ -46,7 +48,9 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
               <li key={r.id} className="flex flex-wrap items-baseline gap-x-3 py-1.5 text-[14px]">
                 <Link
                   href={
-                    r.tipo === "comunidad"
+                    r.tipo === "opp"
+                      ? `/comercial/oportunidades/${r.id}`
+                      : r.tipo === "comunidad"
                       ? `/administracion/comunidades/${r.id}`
                       : r.tipo === "contrata"
                         ? `/consulta/contratas/${r.id}`

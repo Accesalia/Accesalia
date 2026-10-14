@@ -55,11 +55,11 @@ export async function BarraSuperior() {
               <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.6" />
               <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
-            <input type="hidden" name="que" value="direccion" />
+            <input type="hidden" name="que" value="opp" />
             <input
               name="q"
-              aria-label="Buscar una comunidad"
-              placeholder="Buscar una comunidad…"
+              aria-label="Buscar una oportunidad"
+              placeholder="Buscar una oportunidad…"
               className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
             />
           </form>

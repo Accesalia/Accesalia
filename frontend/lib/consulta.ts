@@ -212,12 +212,58 @@ export async function listadoAdministradores(): Promise<FilaAdmin[]> {
 // -------------------------------------------------------------- buscar
 
 export type Encontrado =
+  | { tipo: "opp"; id: string; nombre: string; detalle: string }
   | { tipo: "comunidad"; id: string; nombre: string; detalle: string }
   | { tipo: "admin"; id: string; nombre: string; detalle: string }
   | { tipo: "contrata"; id: string; nombre: string; detalle: string }
   | { tipo: "persona"; id: string; nombre: string; detalle: string; href: string | null };
 
-export type QueBuscar = "direccion" | "admin" | "contrata" | "persona";
+export type QueBuscar = "opp" | "direccion" | "admin" | "contrata" | "persona";
+
+// LAS OPORTUNIDADES, POR SU NOMBRE (Monica, 14-oct-2026: "la lupa no encuentra
+// opps que veo abiertas"). Buscaba solo comunidades. Los buscadores de trabajo
+// van por el NOMBRE DE LA OPP (13-oct). Se leen al momento, sin guardar: una opp
+// recien creada o renombrada tiene que salir ya. Las abiertas, primero.
+const ESTADO_OPP: Record<string, string> = { abierta: "abierta", pausada: "pausada", cerrada: "cerrada" };
+
+export async function oppsParaBuscar(): Promise<Sugerencia[]> {
+  const filas: { id: string; nombre: string | null; codigo: string | null; estado: string; puesto: { empresa: { nombre_accesalia: string } | null } | null }[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/oportunidades?select=id,nombre,codigo,estado,puesto:puesto_id(empresa:empresa_id(nombre_accesalia))&order=id`,
+      { headers: { ...CAB, Range: `${desde}-${desde + 999}` }, cache: "no-store" },
+    );
+    if (!r.ok) throw new Error(`Supabase oportunidades ${r.status}: ${await r.text()}`);
+    const lote = (await r.json()) as typeof filas;
+    filas.push(...lote);
+    if (lote.length < 1000) break;
+  }
+  const peso = (e: string) => (e === "abierta" ? 0 : e === "pausada" ? 1 : 2);
+  return filas
+    .sort((a, b) => peso(a.estado) - peso(b.estado) || nombreDeOpp(a).localeCompare(nombreDeOpp(b), "es"))
+    .map((o) => ({
+      id: o.id,
+      nombre: nombreDeOpp(o),
+      detalle: [ESTADO_OPP[o.estado] ?? o.estado, o.codigo, o.puesto?.empresa?.nombre_accesalia].filter(Boolean).join(" · "),
+      href: `/comercial/oportunidades/${o.id}`,
+    }));
+}
+
+/** UNA OPP CASA si estan todas las palabras. Un NUMERO tiene que ser un numero
+ *  entero del nombre: "mostoles 3" no es "Carlos V 32" ni el codigo DAN-2023. */
+function casaOpp(palabras: string[], s: { nombre: string; detalle: string }) {
+  const nombre = limpio(s.nombre);
+  const todo = `${nombre} ${limpio(s.detalle)}`;
+  const numeros: string[] = nombre.match(/\d+/g) ?? [];
+  return palabras.every((p) => (/^\d+$/.test(p) ? numeros.includes(p) : todo.includes(p)));
+}
+
+/** Para el buscador de la ficha de opp: las que casan, las abiertas primero. */
+export async function buscarOpps(q: string, maximo = 12): Promise<Sugerencia[]> {
+  const palabras = limpio(q).split(/[\s,.]+/).filter(Boolean);
+  if (!palabras.length) return [];
+  return (await oppsParaBuscar()).filter((s) => casaOpp(palabras, s)).slice(0, maximo);
+}
 
 /** Una opcion del desplegable del buscador: lo que se ve y a donde lleva
  *  (null: aun no tiene ficha, como las contratas). */
@@ -246,7 +292,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
       correos: { email: string }[];
     }[];
   };
-  const [comunidades, admins, contratas, personas] = await Promise.all([
+  const [comunidades, admins, contratas, personas, opps] = await Promise.all([
     todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>("comunidades?select=id,nombre,municipio,direccion&order=nombre.asc"),
     todo<{ id: string; nombre_accesalia: string }>("empresa?select=id,nombre_accesalia&tipo=eq.administracion_fincas&activa=is.true&order=nombre_accesalia.asc"),
     todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc"),
@@ -257,6 +303,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
         "puestos:puesto(cargo,hasta,telefono_empresa,figura_legal_propietaria_id,empresa_id,empresa:empresa_id(nombre_accesalia),contrata:contrata_id(nombre),organismo:organismo_id(nombre),correos:correo(email))" +
         "&activa=is.true&order=nombre.asc",
     ),
+    oppsParaBuscar(),
   ]);
   const nombreComunidad = new Map(comunidades.map((c) => [c.id, c.nombre]));
   const agenda: Sugerencia[] = personas.map((p) => {
@@ -282,6 +329,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
     };
   });
   return {
+    opp: opps,
     persona: agenda,
     // La direccion va en el detalle para que se encuentre tambien por ella.
     direccion: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "), href: `/administracion/comunidades/${c.id}` })),
@@ -301,6 +349,12 @@ export async function buscar(q: string, que: QueBuscar): Promise<Encontrado[]> {
     const t = limpio(texto);
     return palabras.every((p) => t.includes(p));
   };
+  if (que === "opp") {
+    return (await oppsParaBuscar())
+      .filter((s) => casaOpp(palabras, s))
+      .slice(0, 60)
+      .map((s) => ({ tipo: "opp" as const, id: s.id, nombre: s.nombre, detalle: s.detalle }));
+  }
   if (que === "direccion") {
     const filas = await todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>(
       "comunidades?select=id,nombre,municipio,direccion&order=nombre.asc",
