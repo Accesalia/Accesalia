@@ -57,20 +57,47 @@ export const SECCIONES: { clave: Seccion; titulo: string }[] = [
   { clave: "cobro", titulo: "Firmada, pendiente de cobrar" },
 ];
 
-export type Llamar = { quien: string; papel: string; telefono: string | null };
+export type Llamar = { quien: string; papel: string; telefono: string | null; empresa?: string | null; persona?: string | null };
+
+/** COMO SE DESBLOQUEA (Monica, 15-oct-2026): "cada item no puede ser una
+ *  excepcion". Las alertas se agrupan por lo que hay que hacer para moverlas:
+ *  - admin: llamar o escribir al administrador. La UNICA que tiene margen: si se
+ *    graba un contacto, sale de alertas 5 dias, y si no pasa nada, vuelve.
+ *  - interno: preguntar en casa (viabilidad, ok a la oferta, cobro). Sin margen:
+ *    "deben responder inmediatamente".
+ *  - doc: generar el documento y enviarlo. Sin margen: no depende de nadie.
+ *  - polycam: cerrar el escaneo. Sin margen: "si no te dan dia, vas y escaneas".
+ *  - perdida: darla por perdida y cerrarla. Al cerrarla, sale. */
+export type Accion = "admin" | "interno" | "doc" | "polycam" | "perdida";
+export const ACCIONES: { clave: Accion; titulo: string; sub: string }[] = [
+  { clave: "admin", titulo: "Llamar o escribir al administrador", sub: "Al grabar lo que te digan, sale de alertas 5 días. Si no se mueve, vuelve." },
+  { clave: "interno", titulo: "Preguntar en casa", sub: "Viabilidad, ok a la oferta o cobro: deben responder en el día." },
+  { clave: "doc", titulo: "Generar el documento y enviarlo", sub: "Lo tenemos todo: no depende de nadie, hay que hacerlo." },
+  { clave: "polycam", titulo: "Hacer el Polycam", sub: "Llama al contacto y cierra fecha. Si no te dan día, vas y escaneas." },
+  { clave: "perdida", titulo: "Darla por perdida y cerrarla", sub: "Seis meses sin noticias, o la junta votó que no." },
+];
+
 export type FilaResumen = {
   id: string;
   codigo: string | null;
   nombre: string;
   seccion: Seccion;
-  /** "Hoja enviada el 04/06/26; falta que confirmen la fecha de la junta". */
+  /** Lo que pasa, corto y con su fecha: "Hoja enviada el 04/06/25". */
   pasa: string;
   llamar: Llamar[];
+  /** La administracion, para agrupar las llamadas: una llamada mueve varias opps. */
+  admin: Llamar | null;
+  /** Con quien se habla en casa, si es "interno". */
+  enCasa: string | null;
   ultima: string | null;
-  /** "Lleva 23 dias (plazo 15)": pasado el plazo de su fase. */
-  alerta: string | null;
+  /** El ultimo contacto grabado (diario, llamadas). */
+  contacto: string | null;
+  accion: Accion;
+  /** Pasado el plazo de su fase (y fuera del margen tras un contacto). */
+  alerta: boolean;
   /** Los dias que lleva en la fase (para ordenar: lo mas parado arriba). */
   diasFase: number;
+  plazo: number;
 };
 
 /** LOS PLAZOS DE CADA FASE (Monica, 14-oct-2026). */
@@ -83,6 +110,10 @@ export const PLAZOS = {
   juntaSinResultado: 5, // "5 por si hay festivos, que si no serian 3"
   aprobadaSinHoja: 7, // votan si y no llega la hoja firmada (Monica, 14-oct)
   firmadaSinCobro: 15,
+  /** Tras grabar una llamada o un mail al administrador, sale de alertas estos dias. */
+  margenTrasContacto: 5,
+  /** (de Claude, a confirmar) hoja enviada sin noticias: pasa a "darla por perdida". */
+  darPorPerdida: 180,
 };
 
 type OppCruda = {
@@ -132,7 +163,7 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       (t) => `viabilidades?select=id,oportunidad_id,enviada_en,url_pdf&oportunidad_id=in.(${t})`),
     porTramos<{ oportunidad_id: string; numero: number; estado: string; enviada_en: string; resuelta_en: string | null; comentario: string | null; resuelve: { nombre: string } | null }>(ids,
       (t) => `revisiones_oferta?select=oportunidad_id,numero,estado,enviada_en,resuelta_en,comentario,resuelve:resuelta_por(nombre)&oportunidad_id=in.(${t})`).catch(() => []),
-    porTramos<{ oportunidad_id: string; fecha: string | null }>(ids, (t) => `notas_oportunidad?select=oportunidad_id,fecha&oportunidad_id=in.(${t})`),
+    porTramos<{ oportunidad_id: string; fecha: string | null; creado_en: string }>(ids, (t) => `notas_oportunidad?select=oportunidad_id,fecha,creado_en&oportunidad_id=in.(${t})`),
     porTramos<{ oportunidad_id: string; fecha_evento: string | null; creado_en: string }>(ids,
       (t) => `interacciones?select=oportunidad_id,fecha_evento,creado_en&oportunidad_id=in.(${t})`).catch(() => []),
     porTramos<{ donde_oportunidad_id: string; creado_en: string }>(ids,
@@ -193,6 +224,16 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
   for (const n of notas) toca(n.oportunidad_id, n.fecha);
   for (const n of inter) toca(n.oportunidad_id, n.fecha_evento ?? n.creado_en);
   for (const l of llam) toca(l.donde_oportunidad_id, l.creado_en);
+  // el ultimo CONTACTO grabado: diario y llamadas, nada mas
+  const contacto = new Map<string, string>();
+  const habla = (opp: string | null | undefined, f: string | null | undefined) => {
+    if (!opp || !f) return;
+    const d = f.slice(0, 10);
+    if (d <= hoyISO() && d > (contacto.get(opp) ?? "")) contacto.set(opp, d);
+  };
+  for (const n of notas) habla(n.oportunidad_id, n.fecha ?? n.creado_en);
+  for (const n of inter) habla(n.oportunidad_id, n.fecha_evento ?? n.creado_en);
+  for (const l of llam) habla(l.donde_oportunidad_id, l.creado_en);
   for (const j of juntas) toca(j.oportunidad_id, j.fecha_junta);
   for (const o of ops) {
     toca(o.id, o.fecha_apertura ?? o.creado_en);
@@ -217,40 +258,49 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     const fa = falta(d);
     if (fa.paso === "completado" || fa.paso === "cerrada" || !fa.paso) continue;
 
-    // LO QUE PASA, con fecha: "Hoja enviada el 04/06/26; falta que confirmen la fecha de la junta".
-    const frase = fa.texto.charAt(0).toLowerCase() + fa.texto.slice(1);
+    // LO QUE PASA, corto y con su fecha.
     const enviada = hojas.flatMap((h) => h.versiones.map((v) => v.fecha_enviada)).filter(Boolean).sort().at(-1) as string | undefined;
     const juntaSi = (juntasDe.get(o.id) ?? []).filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta).filter(Boolean).sort().at(-1) as string | undefined;
-    let pasa =
-      fa.paso === "escaneo"
-        ? d.cita ? `${fa.extra ?? "Visita agendada"}; falta el Polycam` : `Nueva opp (abierta el ${ddmmaa(o.fecha_apertura ?? o.creado_en)}), falta fijar la fecha para escanear`
-        : fa.paso === "hoja_enviada" && enviada ? `Hoja enviada el ${ddmmaa(enviada)}; ${frase}`
-        : fa.paso === "firma" ? `La junta aprobó${juntaSi ? ` el ${ddmmaa(juntaSi)}` : ""}; falta que remitan la hoja firmada`
-        : fa.paso === "cobro" && estado.fechaGanada ? `Firmada el ${ddmmaa(estado.fechaGanada)}; ${frase}`
-        : fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
-    // EL PLAZO DE SU FASE, contado desde que empezo la fase.
     const u0 = ultima.get(o.id) ?? null;
+    const c0 = contacto.get(o.id) ?? null;
     const abierta = (o.fecha_apertura ?? o.creado_en).slice(0, 10);
     const ultJunta = [...(juntasDe.get(o.id) ?? [])].filter((j) => j.fecha_junta).sort((a, b) => a.fecha_junta!.localeCompare(b.fecha_junta!)).at(-1);
-    let desde = abierta, plazo = PLAZOS.sinHojaEnviada;
+    const el = (iso: string | null | undefined) => (iso ? ` el ${ddmmaa(iso)}` : "");
+
+    // EL PLAZO DE SU FASE, contado desde que empezo la fase; y COMO SE DESBLOQUEA.
+    let desde = abierta, plazo = PLAZOS.sinHojaEnviada, accion: Accion = "doc", enCasa: string | null = null, pasa = fa.texto;
     if (fa.paso === "escaneo") {
-      if (d.cita) { desde = d.cita.inicio.slice(0, 10); plazo = PLAZOS.visitaSinPolycam; }
-      else { desde = abierta; plazo = PLAZOS.sinFechaEscaneo; }
+      accion = "polycam";
+      if (d.cita) { desde = d.cita.inicio.slice(0, 10); plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(desde)}, falta el Polycam`; }
+      else { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin fecha para escanear`; }
     } else if (fa.paso === "sin_hoja") {
-      if (d.polycam && !d.arquitecto) { desde = polyFecha.get(o.id) ?? abierta; plazo = PLAZOS.polycamSinViabilidad; }
-      else { desde = polyFecha.get(o.id) ?? abierta; plazo = PLAZOS.sinHojaEnviada; }
+      desde = polyFecha.get(o.id) ?? abierta;
+      if (d.polycam && !d.arquitecto) { plazo = PLAZOS.polycamSinViabilidad; accion = "interno"; enCasa = "quien hace la viabilidad"; pasa = `Polycam${el(desde)}, falta la viabilidad`; }
+      else if (/ok a la/.test(fa.texto)) { accion = "interno"; enCasa = "quien revisa la oferta"; }
+      else pasa = fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
     } else if (fa.paso === "hoja_enviada") {
-      // desde el envio, o desde lo ultimo que se supo despues
-      desde = [enviada, u0].filter(Boolean).sort().at(-1) ?? abierta; plazo = PLAZOS.hojaSinNoticias;
+      desde = enviada ?? abierta; plazo = PLAZOS.hojaSinNoticias; accion = "admin";
+      pasa = /nueva oferta/.test(fa.texto) ? `Nueva oferta enviada${el(enviada)}, sin respuesta` : `Hoja enviada${el(enviada)}, sin fecha de junta`;
+      // Seis meses sin saber nada: ya no es llamar, es cerrarla.
+      const ultimaNoticia = [enviada, c0].filter(Boolean).sort().at(-1) ?? abierta;
+      if (dias(ultimaNoticia) > PLAZOS.darPorPerdida) { accion = "perdida"; pasa += `; nada desde${el(ultimaNoticia)}`; }
     } else if (fa.paso === "junta") {
-      desde = ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.juntaSinResultado;
+      desde = ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.juntaSinResultado; accion = "admin";
+      if (/votó que no/.test(fa.texto)) { accion = "perdida"; plazo = 0; pasa = `La junta votó que no${el(ultJunta?.fecha_junta)}`; }
+      else if (desde > hoyISO()) pasa = `Junta${el(desde)}`;
+      else pasa = `Junta${el(desde)}, no sabemos qué votaron`;
     } else if (fa.paso === "firma") {
-      desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja;
+      desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja; accion = "admin";
+      pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`;
     } else if (fa.paso === "cobro") {
-      desde = estado.fechaGanada ?? abierta; plazo = estado.primerCobro ? Infinity : PLAZOS.firmadaSinCobro;
+      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; accion = "interno"; enCasa = "facturación";
+      pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
     }
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta
-    const alerta = diasFase > plazo ? `Lleva ${diasFase} días (plazo ${plazo})` : null;
+    let alerta = diasFase > plazo;
+    // EL MARGEN, solo para el administrador: grabado un contacto en la fase, sale
+    // de alertas 5 dias; si no se mueve, vuelve (Monica, 15-oct-2026).
+    if (alerta && accion === "admin" && c0 && c0 >= desde && dias(c0) <= PLAZOS.margenTrasContacto) alerta = false;
 
     // A QUIEN LLAMAR
     const llamar: Llamar[] = [];
@@ -261,6 +311,8 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
         quien: [pe ? [pe.nombre, pe.apellidos].filter(Boolean).join(" ") : null, a.empresa?.nombre_accesalia].filter(Boolean).join(" · "),
         papel: "administración",
         telefono: a.puesto?.telefono_empresa ?? pe?.telefono_personal ?? null,
+        empresa: a.empresa?.nombre_accesalia ?? null,
+        persona: pe ? [pe.nombre, pe.apellidos].filter(Boolean).join(" ") : null,
       });
     }
     const PESO: Record<string, number> = { presidente: 0, vicepresidente: 1, secretario: 2 };
@@ -275,10 +327,14 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     const muni = o.portales.map((p) => p.acceso?.municipio).find(Boolean);
     if (muni && !limpio(nombre).includes(limpio(muni))) nombre = `${nombre}, ${muni.charAt(0) + muni.slice(1).toLowerCase()}`;
 
-    filas.push({ id: o.id, codigo: o.codigo, nombre, seccion: fa.paso as Seccion, pasa, llamar, ultima: u0, alerta, diasFase });
+    filas.push({
+      id: o.id, codigo: o.codigo, nombre, seccion: fa.paso as Seccion, pasa, llamar,
+      admin: llamar.find((l) => l.papel === "administración") ?? null, enCasa,
+      ultima: u0, contacto: c0, accion, alerta, diasFase, plazo,
+    });
   }
-  // Dentro de cada seccion: las de alerta arriba, y lo mas parado primero.
-  filas.sort((x, y) => Number(!!y.alerta) - Number(!!x.alerta) || y.diasFase - x.diasFase);
+  // Lo mas parado primero.
+  filas.sort((x, y) => y.diasFase - x.diasFase);
   return { filas };
 }
 

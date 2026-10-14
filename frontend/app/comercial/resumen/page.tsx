@@ -41,7 +41,13 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
         <Salida href="/comercial">← Accesos del área comercial</Salida>
         <h1 className="mt-3 text-3xl font-bold text-carbon">Resumen de cómo están las cosas</h1>
         <p className="mt-1.5 text-carbon/65">
-          {filas.length} opps abiertas · <b className="text-alerta">{alertas} han pasado el plazo de su fase</b>. Llama, y al colgar, graba lo que te han dicho.
+          {lista ? (
+            <>{filas.length} opps abiertas.</>
+          ) : (
+            <>
+              <b className="text-alerta">{alertas} alertas</b> de {filas.length} opps abiertas, agrupadas por cómo se desbloquean. Las demás van en plazo: están en Opps por fases.
+            </>
+          )}
         </p>
 
         {todos && (
@@ -60,7 +66,7 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
         {/* "Una pestaña para verlo en forma de lista, sin mas" (Monica, 14-oct-2026). */}
         <div className="mt-5 flex gap-1 border-b border-carbon/15">
           {[
-            { v: "", t: "Resumen" },
+            { v: "", t: "Alertas" },
             { v: "lista", t: "Lista" },
           ].map((x) => (
             <Link

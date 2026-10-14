@@ -219,6 +219,9 @@ const MODIFICAR = new Set(["piden_mas_presupuestos", "aplazada", "complicacion"]
 const SECCION: [RegExp, Paso][] = [
   [/^Perdida/, "cerrada"],
   [/^Todo completado/, "completado"],
+  // Cobrada la primera parte, al comercial ya no le toca nada: lo que queda por
+  // cobrar es de facturacion (Monica, 15-oct-2026). Antes de /cobro/, que la pillaba.
+  [/^Cobro de la primera parte recibido/, "completado"],
   [/cobro/i, "cobro"],
   [/votó sí/, "firma"],
   [/votó que no/, "junta"],
