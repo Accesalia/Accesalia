@@ -281,3 +281,38 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
   filas.sort((x, y) => Number(!!y.alerta) - Number(!!x.alerta) || y.diasFase - x.diasFase);
   return { filas };
 }
+
+// ---------------------------------------------------------------- el mapa
+
+/** EL MAPA DEBAJO DEL RESUMEN (Daniel, 14-oct-2026): "un punto por direccion:
+ *  cerradas perdidas en rojo, ganadas en verde, en curso en azul". Todas las
+ *  opps del comercial, tambien las cerradas. La posicion, de su comunidad; si no
+ *  la tiene, de la ficha de Catastro de sus portales. */
+export type PuntoOpp = { id: string; nombre: string; lat: number; lng: number; estado: "ganada" | "perdida" | "en_curso" };
+
+export async function puntosMapa(comercialId: string | null): Promise<{ puntos: PuntoOpp[]; sinPosicion: number }> {
+  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
+  const ops = await leer<{
+    id: string;
+    nombre: string | null;
+    codigo: string | null;
+    estado: string;
+    comunidad: { lat: number | null; lng: number | null } | null;
+    hojas: { estado: string }[];
+    portales: { hasta: string | null; acceso: { portal: { ficha: { lat: number | null; lng: number | null } | null } | null } | null }[];
+  }>(
+    `oportunidades?select=id,nombre,codigo,estado,comunidad:comunidad_id(lat,lng),hojas:hojas_encargo(estado),` +
+      `portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(portal:ficha_catastro_portal_id(ficha:ficha_id(lat,lng))))${f}&order=id`,
+  );
+  const puntos: PuntoOpp[] = [];
+  let sinPosicion = 0;
+  for (const o of ops) {
+    const ficha = o.portales.map((p) => p.acceso?.portal?.ficha).find((x) => x?.lat != null && x?.lng != null);
+    const lat = o.comunidad?.lat ?? ficha?.lat ?? null;
+    const lng = o.comunidad?.lng ?? ficha?.lng ?? null;
+    if (lat == null || lng == null) { sinPosicion++; continue; }
+    const ganada = o.hojas.some((h) => h.estado === "devuelta_firmada");
+    puntos.push({ id: o.id, nombre: nombreDeOpp(o), lat, lng, estado: ganada ? "ganada" : o.estado === "cerrada" ? "perdida" : "en_curso" });
+  }
+  return { puntos, sinPosicion };
+}

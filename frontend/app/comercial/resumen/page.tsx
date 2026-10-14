@@ -4,8 +4,9 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { listarComerciales } from "../../../lib/comercial";
-import { resumenComercial } from "../../../lib/resumenComercial";
+import { puntosMapa, resumenComercial } from "../../../lib/resumenComercial";
 import { ListaResumen, ListaSimple } from "./ListaResumen";
+import { MapaOpps } from "./MapaOpps";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -27,7 +28,7 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
   // Direccion entra viendo a quien elija; el comercial, siempre lo suyo.
   const elegido = todos ? (c === "todos" ? null : (comerciales.find((x) => x.id === c)?.id ?? mio?.id ?? null)) : (mio?.id ?? null);
   if (!todos && !elegido) redirect("/comercial");
-  const { filas } = await resumenComercial(elegido);
+  const [{ filas }, mapa] = await Promise.all([resumenComercial(elegido), puntosMapa(elegido)]);
   const alertas = filas.filter((f) => f.alerta).length;
 
   const pill = (activo: boolean) =>
@@ -75,6 +76,8 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
           ))}
         </div>
         {lista ? <ListaSimple filas={filas} /> : <ListaResumen filas={filas} />}
+        {/* Debajo, el mapa (Daniel, 14-oct-2026). */}
+        <MapaOpps key={elegido ?? "todos"} puntos={mapa.puntos} sinPosicion={mapa.sinPosicion} />
       </main>
     </div>
   );
