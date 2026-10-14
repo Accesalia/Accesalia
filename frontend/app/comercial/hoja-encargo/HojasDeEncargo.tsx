@@ -453,9 +453,10 @@ function ConOpp({
           datos={datos}
           claveAct={claveAct}
           alCerrar={cerrar}
-          alGenerar={(versionId) => {
+          alGenerar={(versionId, borrador) => {
             setSt(null);
-            window.open(`/comercial/hoja-encargo/pdf/${versionId}`, "_blank");
+            // Un borrador no tiene PDF: no hay nada que abrir (14-oct-2026).
+            if (!borrador) window.open(`/comercial/hoja-encargo/pdf/${versionId}`, "_blank");
             router.refresh();
           }}
         />
@@ -477,7 +478,7 @@ function Generador({
   datos: DatosHoja;
   claveAct: React.MutableRefObject<number>;
   alCerrar: () => void;
-  alGenerar: (versionId: string) => void;
+  alGenerar: (versionId: string, borrador: boolean) => void;
 }) {
   const [st, setSt] = useState<Estado>(inicial);
   const [ocupado, empezar] = useTransition();
@@ -713,7 +714,7 @@ function Generador({
         motivoCambio: st.versionQueSale > 1 ? st.motivo.trim() || null : null,
       });
       if (!r.ok) return setError(r.error);
-      alGenerar(r.versionId);
+      alGenerar(r.versionId, borrador);
     });
 
   const opcionesTipo = datos.tipos.map((t) => ({ valor: t.id, texto: t.nombre }));
