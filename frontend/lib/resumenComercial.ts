@@ -78,10 +78,10 @@ export const PLAZOS = {
   sinFechaEscaneo: 7, // se abre y no hay fecha de Polycam
   visitaSinPolycam: 7, // (de Claude) paso la visita y no llega el Polycam
   polycamSinViabilidad: 10,
-  sinHojaEnviada: 30, // "si no le ha enviado ni la hoja hace mas de un mes"
+  sinHojaEnviada: 30, // un mes DESDE EL ESCANEO: "a veces el presi no da dia hasta semanas despues"
   hojaSinNoticias: 30,
   juntaSinResultado: 5, // "5 por si hay festivos, que si no serian 3"
-  aprobadaSinHoja: 15, // (de Claude) votan si y no llega la hoja firmada
+  aprobadaSinHoja: 7, // votan si y no llega la hoja firmada (Monica, 14-oct)
   firmadaSinCobro: 15,
 };
 
@@ -238,7 +238,7 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       else { desde = abierta; plazo = PLAZOS.sinFechaEscaneo; }
     } else if (fa.paso === "sin_hoja") {
       if (d.polycam && !d.arquitecto) { desde = polyFecha.get(o.id) ?? abierta; plazo = PLAZOS.polycamSinViabilidad; }
-      else { desde = abierta; plazo = PLAZOS.sinHojaEnviada; }
+      else { desde = polyFecha.get(o.id) ?? abierta; plazo = PLAZOS.sinHojaEnviada; }
     } else if (fa.paso === "hoja_enviada") {
       // desde el envio, o desde lo ultimo que se supo despues
       desde = [enviada, u0].filter(Boolean).sort().at(-1) ?? abierta; plazo = PLAZOS.hojaSinNoticias;

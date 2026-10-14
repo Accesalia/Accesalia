@@ -5,7 +5,7 @@ import { Salida } from "../../components/Salida";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { listarComerciales } from "../../../lib/comercial";
 import { resumenComercial } from "../../../lib/resumenComercial";
-import { ListaResumen } from "./ListaResumen";
+import { ListaResumen, ListaSimple } from "./ListaResumen";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -16,8 +16,9 @@ export const maxDuration = 60;
 //   opp (con municipio) · lo que pasa (construido con datos) · a quien llamar · grabar
 // En cada seccion, arriba y en rojo, las que pasan el plazo de su fase.
 
-export default async function Resumen({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
-  const { c } = await searchParams;
+export default async function Resumen({ searchParams }: { searchParams: Promise<{ c?: string; vista?: string }> }) {
+  const { c, vista } = await searchParams;
+  const lista = vista === "lista";
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/resumen");
   if (!yo.veTodo && !puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -44,18 +45,36 @@ export default async function Resumen({ searchParams }: { searchParams: Promise<
 
         {todos && (
           <div className="mt-4 flex flex-wrap gap-1.5">
-            <Link href="/comercial/resumen?c=todos" className={pill(!elegido)}>
+            <Link href={`/comercial/resumen?c=todos${lista ? "&vista=lista" : ""}`} className={pill(!elegido)}>
               Todos
             </Link>
             {comerciales.map((m) => (
-              <Link key={m.id} href={`/comercial/resumen?c=${m.id}`} className={pill(elegido === m.id)}>
+              <Link key={m.id} href={`/comercial/resumen?c=${m.id}${lista ? "&vista=lista" : ""}`} className={pill(elegido === m.id)}>
                 {m.nombre}
               </Link>
             ))}
           </div>
         )}
 
-        <ListaResumen filas={filas} />
+        {/* "Una pestaña para verlo en forma de lista, sin mas" (Monica, 14-oct-2026). */}
+        <div className="mt-5 flex gap-1 border-b border-carbon/15">
+          {[
+            { v: "", t: "Resumen" },
+            { v: "lista", t: "Lista" },
+          ].map((x) => (
+            <Link
+              key={x.t}
+              href={`/comercial/resumen?${c ? `c=${c}&` : ""}${x.v ? `vista=${x.v}` : ""}`}
+              className={
+                "-mb-px rounded-t-lg border px-4 py-1.5 text-sm font-semibold " +
+                ((x.v === "lista") === lista ? "border-carbon/15 border-b-white bg-white text-carbon" : "border-transparent text-carbon/55 hover:text-carbon")
+              }
+            >
+              {x.t}
+            </Link>
+          ))}
+        </div>
+        {lista ? <ListaSimple filas={filas} /> : <ListaResumen filas={filas} />}
       </main>
     </div>
   );
