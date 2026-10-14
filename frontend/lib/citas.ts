@@ -156,7 +156,8 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     persona: { id: string; nombre: string; apellidos: string | null } | null;
     con: { nombre: string | null; telefono: string | null; papel: string | null;
            persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
-           puesto: { cargo: string | null; telefono_empresa: string | null } | null }[];
+           puesto: { cargo: string | null; telefono_empresa: string | null } | null;
+           pc: { nombre: string | null; telefono: string | null; rol: string | null } | null }[];
     adj: { id: string; ruta_almacen: string | null; nombre: string | null; hoja_encargo_id: string | null; viabilidad_id: string | null;
            presupuesto_id: string | null; documento_id: string | null;
            hoja: { numero_hoja: string | null } | null; viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
@@ -164,7 +165,7 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
-      `con:citas_con_quien(nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
+      `con:citas_con_quien(nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa),pc:persona_comunidad_id(nombre,telefono,rol)),` +
       `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
       `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
       `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
@@ -189,9 +190,9 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     // Con quien: de su ficha si esta en la agenda (el telefono es el del puesto,
     // y si no el personal); si no, lo escrito a mano.
     conQuien: f.con.map((c) => ({
-      nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.nombre ?? "",
-      telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.telefono,
-      papel: c.papel ?? c.puesto?.cargo ?? null,
+      nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.pc?.nombre ?? c.nombre ?? "",
+      telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.pc?.telefono ?? c.telefono,
+      papel: c.papel ?? c.puesto?.cargo ?? c.pc?.rol ?? null,
     })),
     adjuntos: f.adj.map((a) =>
       a.hoja_encargo_id
@@ -242,4 +243,143 @@ export async function polycamDe(oppId: string): Promise<{ recibido: string; fech
     fechaEscaneo: cita ? aHoraMadrid(cita.inicio).slice(0, 10) : primero.fecha_escaneo ?? llegada(primero),
     cuantos: todos.size,
   };
+}
+
+// ------------------------------------------------------------ crear una cita
+
+/** Con quien, tal como llega del formulario: alguien de la agenda (lo que
+ *  devuelve proponerPersonas de lib/llamadas.ts: un puesto, una persona suelta o
+ *  un contacto de comunidad) o escrito a mano. */
+export type ConQuienNuevo =
+  | { tipo: "puesto" | "persona" | "persona_comunidad"; id: string; papel?: string | null }
+  | { tipo: "a_mano"; nombre: string; telefono?: string | null; papel?: string | null };
+
+export type CitaNueva = {
+  /** "AAAA-MM-DDTHH:MM" en hora de Madrid. */
+  local: string;
+  minutos?: number | null;
+  /** Por defecto "cita" (60 min). */
+  tipo?: string | null;
+  asunto: string;
+  paraQue: string;
+  direccion: string;
+  notas?: string | null;
+  conQuien: ConQuienNuevo[];
+  /** En la agenda de quien sale (equipo.id). */
+  deQuien: string;
+  /** De que es, opcional. */
+  oportunidadId?: string | null;
+};
+
+/** Crea una cita apuntada por una persona. Lo obligatorio, aqui y no solo en la
+ *  pantalla: fecha y hora, titulo, PARA QUE, donde y al menos un con quien. */
+export async function crearCita(c: CitaNueva, quien: string): Promise<string> {
+  const limpio = (x: string | null | undefined) => (x ?? "").trim();
+  if (!limpio(c.asunto)) throw new Error("Falta el título.");
+  if (!limpio(c.paraQue)) throw new Error("Falta el para qué.");
+  if (!limpio(c.direccion)) throw new Error("Falta el dónde.");
+  if (!c.conQuien.length || c.conQuien.some((x) => x.tipo === "a_mano" && !limpio(x.nombre))) throw new Error("Falta con quién.");
+  if (!/^[0-9a-f-]{36}$/.test(c.deQuien)) throw new Error("Falta de quién es la agenda.");
+  const tipo = limpio(c.tipo) || "cita";
+  const [t] = await pedir<{ minutos_defecto: number }[]>(`tipos_cita?select=minutos_defecto&clave=eq.${encodeURIComponent(tipo)}&activo=is.true`);
+  if (!t) throw new Error("Tipo de cita no válido.");
+  const minutos = c.minutos && c.minutos > 0 ? Math.round(c.minutos) : t.minutos_defecto;
+  const [f] = await pedir<{ id: string }[]>("citas?select=id", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      tipo,
+      inicio: deHoraMadrid(c.local),
+      minutos,
+      asunto: limpio(c.asunto),
+      para_que: limpio(c.paraQue),
+      direccion: limpio(c.direccion),
+      notas: limpio(c.notas) || null,
+      oportunidad_id: c.oportunidadId || null,
+      de_quien: c.deQuien,
+      apuntada_por: quien,
+      origen: "persona",
+    }),
+  });
+  // Un puesto lleva su persona: asi la cita encuentra a la persona aunque cambie de puesto.
+  const puestos = c.conQuien.filter((x) => x.tipo === "puesto").map((x) => (x as { id: string }).id);
+  const personaDe = new Map(
+    puestos.length
+      ? (await pedir<{ id: string; persona_id: string | null }[]>(`puesto?select=id,persona_id&id=in.(${puestos.join(",")})`)).map((p) => [p.id, p.persona_id])
+      : [],
+  );
+  await pedir("citas_con_quien", {
+    method: "POST",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify(
+      c.conQuien.map((x) =>
+        x.tipo === "a_mano"
+          ? { cita_id: f.id, nombre: limpio(x.nombre), telefono: limpio(x.telefono) || null, papel: limpio(x.papel) || null }
+          : {
+              cita_id: f.id,
+              persona_id: x.tipo === "persona" ? x.id : x.tipo === "puesto" ? personaDe.get(x.id) ?? null : null,
+              puesto_id: x.tipo === "puesto" ? x.id : null,
+              persona_comunidad_id: x.tipo === "persona_comunidad" ? x.id : null,
+              papel: limpio(x.papel) || null,
+            },
+      ),
+    ),
+  });
+  return f.id;
+}
+
+/** Quien puede tocar una cita o apuntar en una agenda: la persona de esa agenda,
+ *  quien la apunto, direccion y la secretaria comercial. */
+export async function puedeTocarCita(yo: { id: string; veTodo: boolean; funciones: { clave: string }[] }, citaId: string): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/.test(citaId)) return false;
+  if (yo.veTodo || yo.funciones.some((f) => f.clave === "secretaria")) return true;
+  const [c] = await pedir<{ de_quien: string | null; apuntada_por: string | null }[]>(`citas?select=de_quien,apuntada_por&id=eq.${citaId}`);
+  return !!c && (c.de_quien === yo.id || c.apuntada_por === yo.id);
+}
+
+// ------------------------------------------------------------ los adjuntos
+
+const ALMACEN = "documentos-comerciales";
+const limpioFichero = (n: string) =>
+  n.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "_").replace(/_+/g, "_").slice(-80) || "fichero";
+const CAB_ALMACEN = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
+const PUBLICA = () => process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE;
+
+/** Permiso de un solo uso para que el navegador suba un fichero de la cita al
+ *  almacen (como la hoja firmada): PUT del fichero a `url`. Despues, apuntarAdjunto. */
+export async function permisoAdjunto(citaId: string, nombre: string): Promise<{ ruta: string; url: string }> {
+  const ruta = `citas/${citaId}/${crypto.randomUUID().slice(0, 8)}-${limpioFichero(nombre)}`;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${ALMACEN}/${ruta}`, { method: "POST", headers: CAB_ALMACEN, cache: "no-store" });
+  if (!r.ok) throw new Error(`Almacén ${r.status}: ${await r.text()}`);
+  const { url } = (await r.json()) as { url: string };
+  return { ruta, url: `${PUBLICA()}/storage/v1${url}` };
+}
+
+/** Ya subido: queda en la cita. */
+export async function apuntarAdjunto(citaId: string, ruta: string, nombre: string): Promise<string> {
+  if (!ruta.startsWith(`citas/${citaId}/`)) throw new Error("Ese fichero no es de esta cita.");
+  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${ALMACEN}/${ruta}`, { headers: CAB_ALMACEN, cache: "no-store" });
+  if (!info.ok) throw new Error("El fichero no ha llegado al almacén.");
+  const [f] = await pedir<{ id: string }[]>("citas_adjuntos?select=id", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({ cita_id: citaId, ruta_almacen: `${ALMACEN}/${ruta}`, nombre: nombre.trim() || null }),
+  });
+  return f.id;
+}
+
+/** Enlace para abrir un adjunto de tipo fichero. Caduca en diez minutos. */
+export async function enlaceAdjunto(adjuntoId: string): Promise<{ citaId: string; url: string } | null> {
+  if (!/^[0-9a-f-]{36}$/.test(adjuntoId)) return null;
+  const [a] = await pedir<{ cita_id: string; ruta_almacen: string | null }[]>(`citas_adjuntos?select=cita_id,ruta_almacen&id=eq.${adjuntoId}`);
+  if (!a?.ruta_almacen) return null;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/sign/${a.ruta_almacen}`, {
+    method: "POST",
+    headers: { ...CAB_ALMACEN, "Content-Type": "application/json" },
+    body: JSON.stringify({ expiresIn: 600 }),
+    cache: "no-store",
+  });
+  if (!r.ok) return null;
+  const { signedURL } = (await r.json()) as { signedURL: string };
+  return { citaId: a.cita_id, url: `${PUBLICA()}/storage/v1${signedURL}` };
 }
