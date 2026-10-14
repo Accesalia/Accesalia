@@ -371,7 +371,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {accesos ? (
           <Accesos
             botones={[
-              { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.mias.length, donde: aqui("administradores"), icono: <IconoCartera /> },
+              { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.gestores, donde: aqui("administradores"), icono: <IconoCartera /> },
               { texto: "Oportunidades abiertas", detalle: "Todas las abiertas, con su barra de fases", cuantas: totalAbiertas, donde: aqui("oportunidades"), icono: <IconoOportunidad /> },
               { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
               { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
@@ -390,7 +390,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           <div className="mt-6 flex flex-wrap gap-[8px] pl-[13px]">
               <Pestana
                 texto="Mis administradores"
-                cuantas={cuadro.cartera.mias.length}
+                cuantas={cuadro.cartera.gestores}
                 activo={seccion === "administradores"}
                 donde={aqui("administradores")}
                 clase="w-[185px]"

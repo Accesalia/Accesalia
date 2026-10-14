@@ -130,6 +130,7 @@ export async function cuadroDemo(): Promise<CuadroComercial> {
     ],
 
     cartera: {
+      gestores: 25,
       cifras: [
         { valor: "25", etiqueta: "administraciones" },
         { valor: "132", etiqueta: "comunidades" },

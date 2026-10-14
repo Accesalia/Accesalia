@@ -147,6 +147,9 @@ export type CifraCuadro = { etiqueta: string; valor: string | null; pie: string;
 export type FilaRanking = { nombre: string; dato: string; prestada?: boolean; href?: string };
 
 export type CarteraCuadro = {
+  /** Cuantos gestores tiene en cartera: los CONSOLIDADOS que lleva (14-oct-2026).
+   *  Es el numero del boton y de la pestaña. */
+  gestores: number;
   cifras: { valor: string; etiqueta: string }[];
   mias: FilaRanking[];
   estrella: FilaRanking[] | null;
@@ -576,6 +579,14 @@ const CIFRAS_SIN_DATO: CifraCuadro[] = [
 
 async function carteraDe(comercialId: string | null): Promise<{ cartera: CarteraCuadro; empresaIds: string[] | null }> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "&comercial_id=not.is.null";
+  // EL NUMERO DE LA CARTERA (Monica, 14-oct-2026: "no esta bien conectada"): eran
+  // las 5 primeras EMPRESAS del modelo viejo. La cartera va por GESTOR: los
+  // consolidados que lleva, los mismos que lista la pestaña (cartera_gestores).
+  const cuenta = await fetch(`${URL_BASE}/rest/v1/puesto?select=id&consolidado=is.true&hasta=is.null&contrata_id=is.null${f}`, {
+    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Prefer: "count=exact", Range: "0-0" },
+    cache: "no-store",
+  });
+  const gestores = Number(cuenta.headers.get("content-range")?.split("/")[1] ?? 0) || 0;
   const empresas = await rest<{ id: string; nombre_accesalia: string; comunidades: { count: number }[] }[]>(
     `empresa?select=id,nombre_accesalia,comunidades:comunidad_admin_responsable(count)` +
       `&tipo=eq.administracion_fincas&comunidades.vigente=is.true${f}&limit=2000`,
@@ -587,6 +598,7 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
   return {
     empresaIds: comercialId ? conN.map((e) => e.id) : null,
     cartera: {
+      gestores,
       cifras: [
         { valor: String(conN.length), etiqueta: "administraciones" },
         { valor: String(direcciones), etiqueta: "comunidades" },
