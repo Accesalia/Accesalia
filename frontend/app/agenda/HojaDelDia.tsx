@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { aHoraMadrid, citasDeLaSemana, citasDelDia, type CitaDelDia } from "../../lib/citas";
+import { aHoraMadrid, citasDeLaSemana, citasDelDia, tiposDeCita, type CitaDelDia } from "../../lib/citas";
 import { Dia, Semana } from "./Dia";
 import type { Opcion } from "../components/Elegir";
 
@@ -56,7 +56,7 @@ export async function HojaDelDia({
   const lunes = lunesDe(dia);
   const dias = Array.from({ length: 7 }, (_, i) => masDias(lunes, i));
   const citas = (semana ? await citasDeLaSemana(lunes, deQuien) : await citasDelDia(dia, deQuien)).map(enRaya);
-  const editable = personas && deQuien ? { deQuien, personas } : undefined;
+  const editable = personas && deQuien ? { deQuien, personas, tipos: await tiposDeCita() } : undefined;
 
   const salto = semana ? 7 : 1;
   const titulo = semana

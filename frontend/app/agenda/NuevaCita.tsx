@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Elegir, type Opcion } from "../components/Elegir";
 import { accionApuntarAdjunto, accionCrearCita, accionEditarCita, accionPermisoAdjunto, accionQuitarAdjunto } from "./acciones";
 import type { CitaDelDia, ConQuienNuevo } from "../../lib/citas";
+import type { TipoCita } from "./Dia";
 
 // NUEVA CITA (Monica, 14-oct-2026): se pincha en una raya del papel y sale con
 // su fecha y su hora, que se pueden mover. Pide titulo, con quien, para que y
@@ -59,6 +60,7 @@ export function FormCita({
   hora,
   deQuien,
   personas,
+  tipos,
   cita,
   alCerrar,
 }: {
@@ -68,6 +70,8 @@ export function FormCita({
   /** La persona del equipo duena de la agenda. */
   deQuien: string;
   personas: Opcion[];
+  /** Los tipos de cita, con su color y su duracion por defecto. */
+  tipos: TipoCita[];
   /** La cita a editar; sin ella, es una nueva. */
   cita?: CitaDelDia;
   alCerrar: () => void;
@@ -78,6 +82,10 @@ export function FormCita({
   );
   const [yaAdjuntos, setYaAdjuntos] = useState(cita?.adjuntos ?? []);
   const [ficheros, setFicheros] = useState<File[]>([]);
+  // EL TIPO, lo primero (Monica, 14-oct-2026): da el color en la agenda y
+  // propone su duracion, que se puede cambiar.
+  const [tipo, setTipo] = useState<string | null>(cita && tipos.some((t) => t.clave === cita.tipo) ? cita.tipo : null);
+  const [minutos, setMinutos] = useState(cita?.minutos ?? 60);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const otra = useRef((cita?.conQuien.length ?? 1) + 1);
@@ -89,6 +97,7 @@ export function FormCita({
   async function guardar(form: HTMLFormElement) {
     const fd = new FormData(form);
     const falta = [
+      !tipo && "el tipo",
       !fd.get("fecha") && "la fecha",
       !fd.get("hora") && "la hora",
       !String(fd.get("asunto") ?? "").trim() && "el título",
@@ -102,7 +111,8 @@ export function FormCita({
     setError(null);
     const datos = {
       local: `${texto("fecha")}T${texto("hora")}`,
-      minutos: Number(fd.get("minutos")) || null,
+      tipo,
+      minutos,
       asunto: texto("asunto"),
       paraQue: texto("para_que"),
       direccion: texto("direccion"),
@@ -162,7 +172,35 @@ export function FormCita({
         </div>
         {error && <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">{error}</p>}
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_1fr]">
+        <div className="mt-4">
+          <span className={ETIQUETA}>Tipo</span>
+          <div role="radiogroup" aria-label="Tipo de cita" className="flex flex-wrap gap-1.5">
+            {tipos.map((t) => {
+              const elegido = tipo === t.clave;
+              const color = t.color ?? "#9aa0a6";
+              return (
+                <button
+                  key={t.clave}
+                  type="button"
+                  role="radio"
+                  aria-checked={elegido}
+                  onClick={() => {
+                    setTipo(t.clave);
+                    setMinutos(t.minutos);
+                  }}
+                  style={{ borderColor: color, backgroundColor: elegido ? color : `color-mix(in srgb, ${color} 15%, white)` }}
+                  className={"inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-[13px] font-semibold text-carbon transition " + (elegido ? "shadow-sm" : "hover:brightness-95")}
+                >
+                  {!elegido && <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />}
+                  {elegido && <span aria-hidden>✓</span>}
+                  {t.nombre}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_1fr]">
           <label>
             <span className={ETIQUETA}>Fecha</span>
             <input type="date" name="fecha" defaultValue={dia} className={CAMPO} />
@@ -173,8 +211,8 @@ export function FormCita({
           </label>
           <label>
             <span className={ETIQUETA}>Duración</span>
-            <select name="minutos" defaultValue={cita?.minutos ?? 60} className={CAMPO}>
-              {[...new Set([...DURACIONES, cita?.minutos ?? 60])].sort((a, b) => a - b).map((m) => (
+            <select value={minutos} onChange={(e) => setMinutos(Number(e.target.value))} className={CAMPO}>
+              {[...new Set([...DURACIONES, minutos])].sort((a, b) => a - b).map((m) => (
                 <option key={m} value={m}>{duracion(m)}</option>
               ))}
             </select>

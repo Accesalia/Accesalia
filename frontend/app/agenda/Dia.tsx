@@ -22,7 +22,8 @@ import { accionEditarCita, accionEnlaceAdjunto, accionMoverCita } from "./accion
 export type CitaEnRaya = CitaDelDia & { dia: string; desde: number; hasta: number };
 
 /** Para tocar la agenda (crear, editar, mover). Sin esto, solo se mira. */
-export type Editable = { deQuien: string; personas: Opcion[] };
+export type Editable = { deQuien: string; personas: Opcion[]; tipos: TipoCita[] };
+export type TipoCita = { clave: string; nombre: string; color: string | null; minutos: number };
 
 const RAYA = 44; // alto de media hora, en px
 const MEDIA = 30;
@@ -209,12 +210,22 @@ function Ficha({ c, alEditar }: { c: CitaEnRaya; alEditar?: () => void }) {
 
 // ------------------------------------------------------------ como se ve una cita
 
-function tonos(c: CitaDelDia) {
-  return c.estado === "anulada"
-    ? "border-l-carbon/25 bg-white/70 opacity-60"
-    : c.estado === "hecha"
-      ? "border-l-carbon/40 bg-hueso"
-      : "border-l-lima bg-lima-soft";
+// EL COLOR DE SU TIPO (Monica, 14-oct-2026): que de un vistazo se vea que es
+// cada cosa (el rojo, solo las juntas). El fondo, su color muy claro; el borde de
+// la izquierda, su color entero. La HECHA conserva su color pero APAGADO, como
+// agrisado; la anulada, mas apagada todavia y tachada.
+const SIN_COLOR = "#9aa0a6";
+function tonos(c: CitaDelDia): { className: string; style: React.CSSProperties } {
+  const color = c.tipoColor ?? SIN_COLOR;
+  return {
+    className: c.estado === "anulada" ? "opacity-50" : c.estado === "hecha" ? "opacity-80" : "",
+    style: {
+      // Opaco (mezclado con blanco), para que las rayas del papel no se vean a traves.
+      backgroundColor: `color-mix(in srgb, ${color} 19%, white)`,
+      borderLeftColor: color,
+      filter: c.estado === "anulada" ? "grayscale(0.85)" : c.estado === "hecha" ? "saturate(0.3)" : undefined,
+    },
+  };
 }
 
 function Cabecilla({ c }: { c: CitaEnRaya }) {
@@ -242,8 +253,8 @@ function CitaDia({ c, editable, alEditar }: { c: CitaEnRaya; editable: boolean; 
     <div
       draggable={editable}
       onDragStart={AL_COGER(c)}
-      style={{ minHeight: Math.max(1, Math.ceil((c.hasta - c.desde) / MEDIA)) * RAYA - 4 }}
-      className={"min-w-0 flex-1 rounded-lg border border-black/10 border-l-4 shadow-sm " + tonos(c) + (editable ? " cursor-grab active:cursor-grabbing" : "")}
+      style={{ ...tonos(c).style, minHeight: Math.max(1, Math.ceil((c.hasta - c.desde) / MEDIA)) * RAYA - 4 }}
+      className={"min-w-0 flex-1 rounded-lg border border-black/10 border-l-[6px] bg-white shadow-sm " + tonos(c).className + (editable ? " cursor-grab active:cursor-grabbing" : "")}
     >
       <button type="button" onClick={() => setAbierta(!abierta)} aria-expanded={abierta} className="block w-full px-3 py-1.5 text-left">
         <div className="flex items-baseline gap-2 text-[11px] font-bold uppercase tracking-wide text-carbon/70">
@@ -302,7 +313,7 @@ function useAgenda(citas: CitaEnRaya[], editable?: Editable) {
   const ventanas = (
     <>
       {editable && ventana && "nueva" in ventana && (
-        <FormCita dia={ventana.nueva.dia} hora={ventana.nueva.hora} deQuien={editable.deQuien} personas={editable.personas} alCerrar={() => setVentana(null)} />
+        <FormCita dia={ventana.nueva.dia} hora={ventana.nueva.hora} deQuien={editable.deQuien} personas={editable.personas} tipos={editable.tipos} alCerrar={() => setVentana(null)} />
       )}
       {editable && ventana && "editar" in ventana && (
         <FormCita
@@ -310,13 +321,18 @@ function useAgenda(citas: CitaEnRaya[], editable?: Editable) {
           hora={hhmm0(ventana.editar.desde)}
           deQuien={editable.deQuien}
           personas={editable.personas}
+          tipos={editable.tipos}
           cita={ventana.editar}
           alCerrar={() => setVentana(null)}
         />
       )}
       {ventana && "ver" in ventana && (
         <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-carbon/40 px-4 py-10" onMouseDown={(e) => e.target === e.currentTarget && setVentana(null)}>
-          <div className={"w-full max-w-[620px] rounded-2xl border border-black/10 border-l-4 p-4 shadow-xl " + tonos(ventana.ver)}>
+          {/* La ventana, sin apagar: se tiene que leer bien aunque este hecha. */}
+          <div
+            style={{ borderLeftColor: ventana.ver.tipoColor ?? SIN_COLOR }}
+            className="w-full max-w-[620px] rounded-2xl border border-black/10 border-l-[6px] bg-white p-4 shadow-xl"
+          >
             <div className="flex items-baseline gap-2 text-[11px] font-bold uppercase tracking-wide text-carbon/70">
               <Cabecilla c={ventana.ver} />
               <button type="button" onClick={() => setVentana(null)} className="ml-auto rounded-lg border border-black/10 bg-white px-3 py-1 text-[12px] font-semibold normal-case tracking-normal text-carbon/70 hover:text-carbon">
@@ -485,6 +501,7 @@ export function Semana({
                       onClick={() => setVentana({ ver: c })}
                       title={`${c.asunto} — ${c.paraQue}`}
                       style={{
+                        ...tonos(c).style,
                         top: ((c.desde - primera) / MEDIA) * (RAYA + 1) + 1,
                         height: alto,
                         left: `calc(${(s.carril / s.carriles) * 100}% + 2px)`,
@@ -492,7 +509,7 @@ export function Semana({
                       }}
                       className={
                         "absolute flex flex-col justify-start overflow-hidden rounded-md border border-black/10 border-l-4 px-1.5 py-0.5 text-left shadow-sm hover:z-10 hover:shadow-md " +
-                        tonos(c) +
+                        tonos(c).className +
                         (editable ? " cursor-grab active:cursor-grabbing" : "")
                       }
                     >
