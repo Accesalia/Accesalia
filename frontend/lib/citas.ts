@@ -126,6 +126,8 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
  *  (compuesto al leer, siempre al dia: nombre, telefono y papel) y sus adjuntos. */
 export type CitaDelDia = Cita & {
   tipoNombre: string;
+  /** El color de su tipo (hex): el rojo, solo para juntas. */
+  tipoColor: string | null;
   fin: string;
   estado: "pendiente" | "hecha" | "anulada";
   direccion: string | null;
@@ -164,7 +166,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
   const hasta = deHoraMadrid(`${diaSiguiente(hastaDia)}T00:00`);
   const filas = await pedir<(Fila & {
     estado: CitaDelDia["estado"]; direccion: string | null; notas: string | null; origen: CitaDelDia["origen"];
-    tipo_cita: { nombre: string } | null;
+    tipo_cita: { nombre: string; color: string | null } | null;
     opp: { id: string; codigo: string | null; nombre: string | null } | null;
     comunidad: { id: string; nombre: string } | null;
     empresa: { id: string; nombre_accesalia: string | null; nombre_legal: string | null } | null;
@@ -178,7 +180,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
            presupuesto_id: string | null; documento_id: string | null;
            hoja: { numero_hoja: string | null } | null; viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
   })[]>(
-    `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre),` +
+    `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre,color),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
       `con:citas_con_quien(id,persona_id,puesto_id,persona_comunidad_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa),pc:persona_comunidad_id(nombre,telefono,rol)),` +
@@ -189,6 +191,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
   return filas.map((f) => ({
     ...aCita(f),
     tipoNombre: f.tipo_cita?.nombre ?? f.tipo,
+    tipoColor: f.tipo_cita?.color ?? null,
     fin: new Date(Date.parse(f.inicio) + f.minutos * 60000).toISOString(),
     estado: f.estado,
     direccion: f.direccion,
@@ -281,7 +284,8 @@ export type CitaNueva = {
   /** "AAAA-MM-DDTHH:MM" en hora de Madrid. */
   local: string;
   minutos?: number | null;
-  /** Por defecto "cita" (60 min). */
+  /** El tipo (tiposDeCita): da el color y la duracion por defecto. Obligatorio
+   *  (se comprueba al guardar; el generico "cita" ya no existe). */
   tipo?: string | null;
   asunto: string;
   paraQue: string;
@@ -303,7 +307,8 @@ export async function crearCita(c: CitaNueva, quien: string): Promise<string> {
   if (!limpio(c.direccion)) throw new Error("Falta el dónde.");
   if (!c.conQuien.length || c.conQuien.some((x) => x.tipo === "a_mano" && !limpio(x.nombre))) throw new Error("Falta con quién.");
   if (!/^[0-9a-f-]{36}$/.test(c.deQuien)) throw new Error("Falta de quién es la agenda.");
-  const tipo = limpio(c.tipo) || "cita";
+  const tipo = limpio(c.tipo);
+  if (!tipo) throw new Error("Elige el tipo de cita.");
   const [t] = await pedir<{ minutos_defecto: number }[]>(`tipos_cita?select=minutos_defecto&clave=eq.${encodeURIComponent(tipo)}&activo=is.true`);
   if (!t) throw new Error("Tipo de cita no válido.");
   const minutos = c.minutos && c.minutos > 0 ? Math.round(c.minutos) : t.minutos_defecto;
@@ -418,6 +423,8 @@ export async function enlaceAdjunto(adjuntoId: string): Promise<{ citaId: string
 // ------------------------------------------------------------ editar y mover
 
 export type CitaCambios = Omit<CitaNueva, "deQuien" | "tipo" | "oportunidadId"> & {
+  /** Cambiar el tipo (opcional): solo uno activo. */
+  tipo?: string | null;
   /** pendiente, hecha (el gris de Daniel) o anulada. */
   estado?: "pendiente" | "hecha" | "anulada";
 };
@@ -433,6 +440,9 @@ export async function editarCita(citaId: string, c: CitaCambios): Promise<void> 
   if (c.estado && !["pendiente", "hecha", "anulada"].includes(c.estado)) throw new Error("Estado no válido.");
   const [actual] = await pedir<{ id: string; minutos: number }[]>(`citas?select=id,minutos&id=eq.${citaId}`);
   if (!actual) throw new Error("No existe esa cita.");
+  const tipo = limpio(c.tipo);
+  if (tipo && !(await pedir<{ clave: string }[]>(`tipos_cita?select=clave&clave=eq.${encodeURIComponent(tipo)}&activo=is.true`)).length)
+    throw new Error("Tipo de cita no válido.");
   await pedir(`citas?id=eq.${citaId}`, {
     method: "PATCH",
     body: JSON.stringify({
@@ -443,6 +453,7 @@ export async function editarCita(citaId: string, c: CitaCambios): Promise<void> 
       direccion: limpio(c.direccion),
       notas: limpio(c.notas) || null,
       ...(c.estado ? { estado: c.estado } : {}),
+      ...(tipo ? { tipo } : {}),
       actualizado_en: new Date().toISOString(),
     }),
   });
@@ -479,4 +490,15 @@ export async function citaDeAdjunto(adjuntoId: string): Promise<string | null> {
   if (!/^[0-9a-f-]{36}$/.test(adjuntoId)) return null;
   const [a] = await pedir<{ cita_id: string }[]>(`citas_adjuntos?select=cita_id&id=eq.${adjuntoId}`);
   return a?.cita_id ?? null;
+}
+
+// ------------------------------------------------------------ los tipos
+
+/** Los tipos de cita activos, en su orden, con su color y su duracion por
+ *  defecto: para el selector del formulario (Monica, 14-oct-2026). */
+export async function tiposDeCita(): Promise<{ clave: string; nombre: string; color: string | null; minutos: number }[]> {
+  const t = await pedir<{ clave: string; nombre: string; color: string | null; minutos_defecto: number }[]>(
+    "tipos_cita?select=clave,nombre,color,minutos_defecto&activo=is.true&order=orden.asc.nullslast,nombre.asc",
+  );
+  return t.map((x) => ({ clave: x.clave, nombre: x.nombre, color: x.color, minutos: x.minutos_defecto }));
 }
