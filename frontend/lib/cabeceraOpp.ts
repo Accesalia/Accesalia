@@ -31,6 +31,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { BLOQUE_DE, OBRAS, SUBVENCION } from "./hojaBase";
 import { COLUMNAS_INTERES } from "./columnasInteres";
 import { aHoraMadrid, polycamDe } from "./citas";
+import { estadoRevision, type EstadoRevision } from "./revisionOferta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -120,7 +121,8 @@ type HojaCruda = {
   id: string;
   estado: string;
   fecha_firma: string | null;
-  versiones: { numero_version: number; url_pdf_hoja: string | null }[];
+  fecha_estado: string | null;
+  versiones: { numero_version: number; url_pdf_hoja: string | null; fecha_generada: string | null; fecha_enviada: string | null }[];
 };
 
 export type EstadoOpp = {
@@ -175,22 +177,12 @@ async function estadoDe(
 
 // ------------------------------------------------- de que estamos pendientes
 
-/** El orden de las hojas por lo avanzadas que estan. */
-const RANGO: Record<string, number> = {
-  borrador: 1,
-  pendiente_firma_daniel: 2,
-  firmada_daniel: 3,
-  enviada_comunidad: 4,
-  cambios_solicitados: 5,
-  devuelta_firmada: 6,
-};
-
 export type Falta = { texto: string; extra: string | null };
 
 type Datos = {
   estado: EstadoOpp;
   hojas: HojaCruda[];
-  juntas: { fecha_junta: string | null; celebrada: boolean; resultado: string | null }[];
+  juntas: { fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }[];
   tresd: { tipo_3d: string | null; estado: string | null } | null;
   cita: { inicio: string } | null;
   /** El Polycam ha llegado (buzon o mesa de viabilidades): polycamDe. */
@@ -198,17 +190,30 @@ type Datos = {
   /** El arquitecto termino la viabilidad: la envio desde la mesa (enviada_en),
    *  o el comercial ya la remato (url_pdf). */
   arquitecto: boolean;
+  /** EL OK A LA OFERTA (revision_ofertas, del hilo de la hoja, 14-oct-2026): al
+   *  paquete entero, y caduca si algo del paquete cambia. */
+  revision: EstadoRevision | null;
 };
 
+/** Lo que dijo la junta que obliga a MODIFICAR LA OFERTA (Monica, 14-oct-2026:
+ *  "si piden mas presupuestos, retrasan, etc., es decision modificar oferta"). */
+const MODIFICAR = new Set(["piden_mas_presupuestos", "aplazada", "complicacion"]);
+
 /** EL PASO QUE BLOQUEA. Del dato mas avanzado hacia atras: el primero que se
- *  cumple decide el texto. Los textos son de Monica (14-oct-2026). */
+ *  cumple decide el texto. Los textos son de Monica (14-oct-2026).
+ *
+ *  OJO: es la escalera de LO QUE NOS BLOQUEA, no la de fases comerciales: lee
+ *  sus propios datos, nunca fases_oportunidad. */
 function falta(d: Datos): Falta {
   const e = d.estado;
-  const generadas = d.hojas.filter((h) => h.versiones.some((v) => v.url_pdf_hoja) || RANGO[h.estado] >= 2);
-  const hoja = [...generadas].sort((a, b) => (RANGO[b.estado] ?? 0) - (RANGO[a.estado] ?? 0))[0] ?? null;
-  // Si ya hubo una version anterior, lo que se mueve es "la nueva oferta".
-  const nueva = !!hoja && Math.max(...hoja.versiones.map((v) => v.numero_version), 1) > 1;
-  const laDoc = nueva ? "la nueva oferta" : "la doc";
+  const r = d.revision?.ultima ?? null;
+  const generada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja));
+  const enviada = d.hojas.some((h) => h.estado === "enviada_comunidad" || h.versiones.some((v) => v.fecha_enviada));
+  // La revision pidio cambios: con lo que dijo quien reviso.
+  const cambiosRevision = (): Falta => ({
+    texto: "La revisión pidió cambios: corregir la oferta antes de enviarla",
+    extra: r?.comentario ? `${r.resueltaPor ? r.resueltaPor + ": " : ""}${r.comentario}` : null,
+  });
 
   if (e.perdida) return { texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
   if (e.ganada) {
@@ -216,23 +221,34 @@ function falta(d: Datos): Falta {
     if (e.primerCobro) return { texto: "Cobro de la primera parte recibido: empezamos con el proyecto", extra: "Pendiente del cobro del resto del importe" };
     return { texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
   }
-  if (hoja?.estado === "cambios_solicitados") return { texto: "Pidieron modificar la oferta: pendiente de elaborar la nueva oferta", extra: null };
 
   // La junta: la ultima que se apunto.
-  const junta = [...d.juntas].sort((a, b) => (a.fecha_junta ?? "").localeCompare(b.fecha_junta ?? "")).at(-1) ?? null;
+  const junta =
+    [...d.juntas].sort((a, b) => (a.fecha_junta ?? a.creado_en).localeCompare(b.fecha_junta ?? b.creado_en)).at(-1) ?? null;
+  if (junta?.resultado === "favorable") return { texto: "La junta votó sí: pendiente de que nos envíen la hoja firmada", extra: null };
+  if (junta?.resultado === "desfavorable") return { texto: "La junta votó que no: cerrarla como perdida", extra: null };
+
+  // EL BUCLE DE MODIFICAR LA OFERTA: lo pide la junta, o la hoja quedo en
+  // "cambios solicitados". Desde ese momento, lo que se mueve es la NUEVA oferta.
+  const hojaCambios = d.hojas.find((h) => h.estado === "cambios_solicitados");
+  const desde =
+    junta && junta.resultado && MODIFICAR.has(junta.resultado)
+      ? (junta.fecha_junta ?? junta.creado_en.slice(0, 10))
+      : hojaCambios
+        ? (hojaCambios.fecha_estado ?? "").slice(0, 10)
+        : null;
+  if (desde !== null) {
+    const despues = (f: string | null | undefined) => !!f && f.slice(0, 10) >= desde;
+    const nuevaGenerada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja && despues(v.fecha_generada)));
+    if (!nuevaGenerada) return { texto: "Pidieron modificar la oferta: pendiente de elaborar la nueva oferta", extra: null };
+    if (d.hojas.some((h) => h.versiones.some((v) => despues(v.fecha_enviada))))
+      return { texto: "Pendientes de la decisión sobre la nueva oferta", extra: null };
+    if (r && despues(r.enviadaEn) && r.estado === "cambios") return cambiosRevision();
+    if (r && despues(r.enviadaEn) && d.revision?.okVigente) return { texto: "Falta enviar la nueva oferta a la comunidad", extra: null };
+    return { texto: "Falta el ok a la nueva oferta", extra: null };
+  }
+
   if (junta) {
-    switch (junta.resultado) {
-      case "favorable":
-        return { texto: "La junta votó sí: pendiente de que nos envíen la hoja firmada", extra: null };
-      case "desfavorable":
-        return { texto: "La junta votó que no", extra: null };
-      case "piden_mas_presupuestos":
-        return { texto: "La junta pide más presupuestos", extra: null };
-      case "aplazada":
-        return { texto: "Junta aplazada: falta que confirmen la nueva fecha", extra: null };
-      case "complicacion":
-        return { texto: "Hubo una complicación en la junta", extra: null };
-    }
     if (junta.fecha_junta && junta.fecha_junta >= hoyISO() && !junta.celebrada) {
       const a_medida = d.tresd && d.tresd.tipo_3d !== "generico_escalera";
       const extra = a_medida ? (d.tresd!.estado === "listo" || d.tresd!.estado === "entregado" ? "3D específico listo" : "Falta el 3D específico") : null;
@@ -241,10 +257,10 @@ function falta(d: Datos): Falta {
     if (junta.fecha_junta || junta.celebrada) return { texto: "Pendientes de que confirmen qué votaron", extra: null };
   }
 
-  if (hoja?.estado === "enviada_comunidad")
-    return { texto: nueva ? "Pendientes de la decisión sobre la nueva oferta" : "Falta que confirmen la fecha de la junta", extra: null };
-  if (hoja?.estado === "firmada_daniel") return { texto: `Falta enviar ${laDoc} a la comunidad`, extra: null };
-  if (hoja) return { texto: `Falta el ok de Daniel a los precios${nueva ? " de la nueva oferta" : ""}`, extra: null };
+  if (enviada) return { texto: "Falta que confirmen la fecha de la junta", extra: null };
+  if (r?.estado === "cambios") return cambiosRevision();
+  if (d.revision?.okVigente) return { texto: "Falta enviar la doc a la comunidad", extra: null };
+  if (generada) return { texto: "Falta el ok a la oferta", extra: null };
   if (d.arquitecto) return { texto: "Preparar la HE, la VB y el presupuesto", extra: null };
   if (d.polycam) return { texto: "Que el arquitecto defina la viabilidad", extra: null };
   if (d.cita) {
@@ -259,7 +275,7 @@ function falta(d: Datos): Falta {
 const SEL_OPP =
   "id,nombre,codigo,estado,creado_en,fecha_apertura," +
   "cierres:motivo_cierre_oportunidad(fecha_cierre,resultado_final,motivo_perdido,creado_en)," +
-  "hojas:hojas_encargo(id,estado,fecha_firma,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja))," +
+  "hojas:hojas_encargo(id,estado,fecha_firma,fecha_estado,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_generada,fecha_enviada))," +
   "tipos:oportunidad_tipos(tipo:tipo_id(nombre))";
 
 type OppCruda = {
@@ -280,9 +296,9 @@ async function leerUna(op: OppCruda, desglose: Map<string, string>) {
   // OJO: la escalera NO lee fases_oportunidad (Monica, 14-oct-2026: "hay dos
   // escaleras: la de las FASES COMERCIALES, que no se toca, y la de lo que nos
   // bloquea para avanzar, que es DISTINTA"). Lee sus propios datos.
-  const [estado, juntas, tresd, citas, polycam, viab] = await Promise.all([
+  const [estado, juntas, tresd, citas, polycam, viab, revision] = await Promise.all([
     estadoDe(op, hojas),
-    leer<Datos["juntas"]>(`juntas?select=fecha_junta,celebrada,resultado&oportunidad_id=eq.${op.id}`),
+    leer<Datos["juntas"]>(`juntas?select=fecha_junta,celebrada,resultado,creado_en&oportunidad_id=eq.${op.id}`),
     leer<{ tipo_3d: string | null; estado: string | null }[]>(
       `modelos_3d_venta?select=tipo_3d,estado&oportunidad_id=eq.${op.id}&order=creado_en.desc&limit=1`,
     ),
@@ -293,6 +309,7 @@ async function leerUna(op: OppCruda, desglose: Map<string, string>) {
     leer<{ id: string }[]>(
       `viabilidades?select=id&oportunidad_id=eq.${op.id}&or=(enviada_en.not.is.null,url_pdf.not.is.null)&limit=1`,
     ).catch(() => []),
+    estadoRevision(op.id).catch(() => null),
   ]);
   const intereses = op.tipos.map((t) => t.tipo?.nombre).filter((n): n is string => !!n);
   const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id);
@@ -309,6 +326,7 @@ async function leerUna(op: OppCruda, desglose: Map<string, string>) {
       cita: citas[0] ?? null,
       polycam: !!polycam,
       arquitecto: viab.length > 0,
+      revision,
     }),
   };
 }
