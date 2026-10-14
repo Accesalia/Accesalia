@@ -13,7 +13,7 @@ import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
 import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
-import { AZUL, Carril, bloquesDe } from "./Carril";
+import { AZUL, Carril } from "./Carril";
 import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { distritoDe } from "../../../../lib/informeEdificio";
@@ -28,6 +28,11 @@ import { completitud, propuestaAdminComunidad, TEXTO_FALTA, type Falta } from ".
 import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { Salida } from "../../../components/Salida";
+import { cabeceraDe } from "../../../../lib/cabeceraOpp";
+import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
+import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
+import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
+import { DatosOpp } from "./DatosOpp";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -84,14 +89,16 @@ export default async function GestionOportunidad({
   if (!g) notFound();
 
   const pausada = g.estado === "pausada";
-  const hechos = g.hitos.filter((h) => h.estado === "hecho").length;
-  const aplican = g.hitos.filter((h) => h.estado !== "no_aplica").length;
-  const ahora = g.hitos.find((h) => h.estado === "en_curso") ?? g.hitos.find((h) => h.estado === "pendiente" && h.aplicable);
   // "Dicen que estan interesados en": los tipos marcados, con su nombre.
-  const quieren = tipos.filter((t) => g.tiposElegidos.includes(t.id)).map((t) => t.nombre);
-  // El bloque por el que va, para el "Por donde vamos" de la cabecera.
-  const bloqueAhora = bloquesDe(g.hitos).find((b) => b.activo) ?? null;
-  const [contactos, distrito, viabilidad, completa] = await Promise.all([
+  const elegidos = tipos.filter((t) => g.tiposElegidos.includes(t.id));
+  const quieren = elegidos.map((t) => t.nombre);
+  // Lo que se puede anadir desde la cabecera: lo que se ofrece en el alta.
+  const delAlta = new Set(COLUMNAS_INTERES.flatMap((c) => c.nombres));
+  const paraAnadir = tipos.filter((t) => delAlta.has(t.nombre) && !g.tiposElegidos.includes(t.id));
+  const [cab, barra, escaneo, contactos, distrito, viabilidad, completa] = await Promise.all([
+    cabeceraDe(id),
+    barraDeOportunidad(id, g.comunidadId, g.creada),
+    escaneoDe(id).catch(() => null),
     g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
     g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
     viabilidadDeOpp(id),
@@ -173,17 +180,17 @@ export default async function GestionOportunidad({
         </Salida>
 
         {/* ------------------------- 1 · cabecera ------------------------- */}
-        <Cabecera
-          id={id}
-          g={g}
-          hechos={hechos}
-          aplican={aplican}
-          ahora={ahora}
-          quieren={quieren}
-          bloqueAhora={bloqueAhora}
-          contactos={contactos}
-          distrito={distrito}
-        />
+        {cab && (
+          <Cabecera
+            id={id}
+            g={g}
+            cab={cab}
+            barra={barra}
+            contactos={contactos}
+            intereses={elegidos.map((t) => ({ id: t.id, nombre: t.nombre }))}
+            paraAnadir={paraAnadir.map((t) => ({ id: t.id, nombre: t.nombre }))}
+          />
+        )}
         {pausada && (
           <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900">
             <b>Pausada{g.pausa && <> desde el {fechaCorta(g.pausa.desde)}</>}.</b> No está perdida: está esperando.
@@ -218,6 +225,10 @@ export default async function GestionOportunidad({
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
+        {/* Los datos que bajaron de la cabecera (14-oct-2026). */}
+        {bloque === 1 && (
+          <DatosOpp id={id} g={g} quieren={quieren} distrito={distrito} escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""} />
+        )}
         {bloque === 1 && (g.referenciaCatastral || viabilidad) && (
           <div className="mb-[10px] flex items-center gap-1">
             {g.referenciaCatastral && VISTAS.map((v) => (

@@ -330,6 +330,41 @@ export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
   return { tramos, actual, diasAqui, junta: por.get("junta")?.fecha ?? null };
 }
 
+export type BarraOportunidad = Pick<OportunidadCuadro, "tramos" | "actual" | "diasAqui" | "esperando" | "proximo" | "ultimoContacto"> & {
+  pasos: Paso[];
+};
+
+/** LA BARRA DE UNA SOLA OPORTUNIDAD, para la cabecera de su ficha (Monica,
+ *  14-oct-2026: "es la barra que YA EXISTE en el listado de opps abiertas, sin
+ *  ningun cambio"). Mismo calculo que cada tarjeta de la lista: leerBarra. */
+export async function barraDeOportunidad(id: string, comunidadId: string | null, creada: string): Promise<BarraOportunidad> {
+  const [pasos, fases, puente] = await Promise.all([
+    pasosComerciales(),
+    fasesDe([id]),
+    comunidadId
+      ? rest<{ interacciones: { fecha_evento: string | null; creado_en: string } | null }[]>(
+          `interaccion_comunidad?select=interacciones(fecha_evento,creado_en)&comunidad_id=eq.${comunidadId}`,
+        )
+      : Promise.resolve([]),
+  ]);
+  const b = leerBarra(pasos, fases.get(id) ?? [], creada);
+  const ultimo = puente
+    .map((r) => r.interacciones?.fecha_evento ?? r.interacciones?.creado_en?.slice(0, 10))
+    .filter((d): d is string => !!d)
+    .sort()
+    .at(-1);
+  const juntaProxima = b.actual?.clave === "junta" && b.junta && b.junta >= hoyISO();
+  return {
+    pasos,
+    tramos: b.tramos,
+    actual: b.actual ? { numero: b.actual.numero, nombre: b.actual.corto.join(" ").trim(), ajeno: b.actual.ajeno, quien: b.actual.quien } : null,
+    diasAqui: b.diasAqui,
+    esperando: b.actual?.ajeno ? `al ${b.actual.quien}` : b.tramos.tresd === "actual" ? "el 3D" : null,
+    proximo: juntaProxima ? `junta el ${DIA.format(new Date(b.junta!))}` : null,
+    ultimoContacto: ultimo ?? null,
+  };
+}
+
 /** Las fases de unas cuantas oportunidades, de la vista. */
 async function fasesDe(ids: string[]): Promise<Map<string, HitoCrudo[]>> {
   const m = new Map<string, HitoCrudo[]>();

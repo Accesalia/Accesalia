@@ -17,6 +17,7 @@ import { marcarAscensor } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { quedaPorCobrar } from "../../../../lib/cabeceraOpp";
 
 const texto = (fd: FormData, k: string) => {
   const v = String(fd.get(k) ?? "").trim();
@@ -42,6 +43,45 @@ export async function accionTipos(id: string, fd: FormData) {
   await permiso(id);
   await guardarTipos(id, fd.getAll("tipo").map(String).filter(Boolean));
   refrescar(id);
+}
+
+// LO QUE DICEN QUE QUIEREN, desde la cabecera (Monica, 14-oct-2026): "que se
+// puedan quitar y anadir las cosas que dicen que quieren, asi luego la hoja de
+// encargo sale prerrellenada bien". Una etiqueta cada vez.
+const UUID = /^[0-9a-f-]{36}$/;
+
+export async function accionQuitarInteres(id: string, tipoId: string) {
+  await permiso(id);
+  if (!UUID.test(tipoId)) return;
+  await fetch(`${process.env.SUPABASE_URL}/rest/v1/oportunidad_tipos?oportunidad_id=eq.${id}&tipo_id=eq.${tipoId}`, {
+    method: "DELETE",
+    headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` },
+  });
+  refrescar(id);
+}
+
+export async function accionAnadirInteres(id: string, fd: FormData) {
+  await permiso(id);
+  const tipoId = String(fd.get("tipo") ?? "");
+  if (!UUID.test(tipoId)) return;
+  await fetch(`${process.env.SUPABASE_URL}/rest/v1/oportunidad_tipos?on_conflict=oportunidad_id,tipo_id`, {
+    method: "POST",
+    headers: {
+      apikey: process.env.SUPABASE_SECRET_KEY ?? "",
+      Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=ignore-duplicates,return=minimal",
+    },
+    body: JSON.stringify({ oportunidad_id: id, tipo_id: tipoId }),
+  });
+  refrescar(id);
+}
+
+/** Firmada y con dinero pendiente: ni se cierra ni se pausa (Monica, 14-oct-2026:
+ *  "si el comercial lo intenta, le sale aviso"). Se comprueba aqui tambien, no
+ *  solo en la pantalla. */
+async function noSiQuedaPorCobrar(id: string) {
+  if (await quedaPorCobrar(id)) throw new Error("Esto aún tiene cosas por cobrar: no se puede cerrar ni pausar.");
 }
 
 export async function accionNegociacion(id: string, fd: FormData) {
@@ -81,6 +121,7 @@ export async function accionJunta(id: string, juntaId: string | null, fd: FormDa
 
 export async function accionPausar(id: string, fd: FormData) {
   await permiso(id);
+  await noSiQuedaPorCobrar(id);
   await pausar(id, texto(fd, "nota"));
   refrescar(id);
 }
@@ -88,6 +129,7 @@ export async function accionPausar(id: string, fd: FormData) {
 /** Cerrarla a mano, con su porque (14-oct-2026). */
 export async function accionCerrar(id: string, fd: FormData) {
   const yo = await permiso(id);
+  await noSiQuedaPorCobrar(id);
   await cerrar(id, { perdida: fd.get("tipo") !== "otra", motivo: String(fd.get("motivo") ?? ""), quien: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") });
   refrescar(id);
 }

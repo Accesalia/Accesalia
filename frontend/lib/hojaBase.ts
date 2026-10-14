@@ -20,7 +20,7 @@
 import { COLUMNAS_INTERES } from "./columnasInteres";
 
 /** El interes del alta -> el codigo de su bloque en el catalogo. */
-const BLOQUE_DE: Record<string, string> = {
+export const BLOQUE_DE: Record<string, string> = {
   IEE: "IEE",
   LEE: "LEE",
   CEE: "CEE",
@@ -38,7 +38,7 @@ const BLOQUE_DE: Record<string, string> = {
   CSS: "CSS",
   "Toma de datos y Modelado 3D": "TOMA DE DATOS Y MODELADO 3D",
 };
-const SUBVENCION: Record<string, string> = {
+export const SUBVENCION: Record<string, string> = {
   Subvenciones: "TRAMITACION SUBVENCIONES",
   "Doc técnica subv (IEE+CEE+LEE)": "DOCUMENTACION TECNICA SUBVENCIONES",
 };
@@ -46,7 +46,7 @@ const PROYECTO = "REDACCION PROYECTO";
 
 /** Las obras: las columnas de accesibilidad y eficiencia del alta, y las que
  *  aun no tienen sitio en ellas. */
-const OBRAS = new Set([
+export const OBRAS = new Set([
   ...COLUMNAS_INTERES.filter((c) => c.titulo === "Accesibilidad" || c.titulo === "Eficiencia").flatMap((c) => c.nombres),
   "Sustitución de ascensor",
   "Otros - proyecto técnico",
