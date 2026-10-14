@@ -124,13 +124,16 @@ export function Cabecera({
           <div className="mt-2.5 rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2">
             <p className="text-[12px] leading-[1.6]">
               <span className="mr-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Administración</span>
-              {g.administracion ? (
+              {/* SOLO EL ADMINISTRADOR DE LA COMUNIDAD, el de la cartera (Monica,
+                  14-oct-2026): "si no hay, NO ENSENA NADA. No podemos identificar
+                  como admin a quien no lo es". El contacto de la opp no lo suple. */}
+              {g.adminComunidad?.empresa || g.adminComunidad?.persona ? (
                 <span className="text-carbon">
-                  {g.contacto && <b>{g.contacto}</b>}
-                  {g.contacto && " — "}
-                  {g.administracion}
-                  {g.administracionMunicipio && <span className="text-carbon/50"> {g.administracionMunicipio}</span>}
-                  {g.contactoTelefono && <span className="tabular-nums text-carbon/60"> · {g.contactoTelefono}</span>}
+                  {g.adminComunidad.persona && <b>{g.adminComunidad.persona}</b>}
+                  {g.adminComunidad.persona && g.adminComunidad.empresa && " — "}
+                  {g.adminComunidad.empresa}
+                  {g.adminComunidad.municipio && <span className="text-carbon/50"> {g.adminComunidad.municipio}</span>}
+                  {g.adminComunidad.telefono && <span className="tabular-nums text-carbon/60"> · {g.adminComunidad.telefono}</span>}
                 </span>
               ) : (
                 <span className="text-carbon/50">— no se apuntó.</span>

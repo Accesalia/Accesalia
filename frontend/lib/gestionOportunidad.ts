@@ -138,6 +138,10 @@ export type Gestion = {
   contactoTelefono: string | null;
   /** Donde esta la administracion (14-oct-2026, cabecera nueva). */
   administracionMunicipio: string | null;
+  /** EL ADMINISTRADOR DE LA COMUNIDAD (Monica, 14-oct-2026: "cambialo"): el
+   *  vigente en comunidad_admin_responsable, el mismo que cuenta la cartera. La
+   *  cabecera lo ensena antes que el contacto apuntado en la opp. */
+  adminComunidad: { empresa: string | null; persona: string | null; municipio: string | null; telefono: string | null } | null;
   /** MI CONTACTO EN LA COMUNIDAD: el que vino en la ficha de crear (una persona
    *  de la comunidad, o el apuntado a mano). No es la administracion. */
   contactoComunidad: { nombre: string; telefono: string | null; papel: string | null } | null;
@@ -284,6 +288,15 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
   );
   if (!op) return null;
 
+  // El administrador vigente de la comunidad (el de la cartera). Si falla, la ficha sale igual.
+  const adminCom = op.comunidad_id
+    ? await leer<
+        { empresa: { nombre_accesalia: string; municipio: string | null } | null; puesto: { telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null } | null }[]
+      >(
+        `comunidad_admin_responsable?select=empresa:empresa_id(nombre_accesalia,municipio),puesto:puesto_id(telefono_empresa,persona:persona_id(nombre,apellidos,telefono_personal))` +
+          `&comunidad_id=eq.${op.comunidad_id}&vigente=is.true&order=creado_en.desc&limit=1`,
+      ).catch(() => [])
+    : [];
   const [catalogo, hitos, tipos, neg, tres, juntas, notas, entradas] = await Promise.all([
     leer<{ clave: string; nombre: string; orden: number; es_ramal: boolean; responsable_rol: string | null }[]>(
       "hitos_comerciales?select=clave,nombre,orden,es_ramal,responsable_rol&order=orden.asc",
@@ -339,6 +352,14 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     contactoDonde: op.puesto?.cargo ?? null,
     contactoTelefono: op.puesto?.telefono_empresa ?? null,
     administracionMunicipio: op.puesto?.empresa?.municipio ?? null,
+    adminComunidad: adminCom[0]
+      ? {
+          empresa: adminCom[0].empresa?.nombre_accesalia ?? null,
+          persona: adminCom[0].puesto?.persona ? [adminCom[0].puesto.persona.nombre, adminCom[0].puesto.persona.apellidos].filter(Boolean).join(" ") : null,
+          municipio: adminCom[0].empresa?.municipio ?? null,
+          telefono: adminCom[0].puesto?.telefono_empresa ?? adminCom[0].puesto?.persona?.telefono_personal ?? null,
+        }
+      : null,
     contactoComunidad: op.pc
       ? { nombre: op.pc.nombre, telefono: op.pc.telefono, papel: op.pc.rol }
       : op.contacto_provisional
