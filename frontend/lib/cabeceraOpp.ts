@@ -190,7 +190,6 @@ export type Falta = { texto: string; extra: string | null };
 type Datos = {
   estado: EstadoOpp;
   hojas: HojaCruda[];
-  fases: { hito: string; estado: string }[];
   juntas: { fecha_junta: string | null; celebrada: boolean; resultado: string | null }[];
   tresd: { tipo_3d: string | null; estado: string | null } | null;
   cita: { inicio: string } | null;
@@ -205,7 +204,6 @@ type Datos = {
  *  cumple decide el texto. Los textos son de Monica (14-oct-2026). */
 function falta(d: Datos): Falta {
   const e = d.estado;
-  const hecho = (h: string) => d.fases.some((f) => f.hito === h && f.estado === "hecho");
   const generadas = d.hojas.filter((h) => h.versiones.some((v) => v.url_pdf_hoja) || RANGO[h.estado] >= 2);
   const hoja = [...generadas].sort((a, b) => (RANGO[b.estado] ?? 0) - (RANGO[a.estado] ?? 0))[0] ?? null;
   // Si ya hubo una version anterior, lo que se mueve es "la nueva oferta".
@@ -247,8 +245,8 @@ function falta(d: Datos): Falta {
     return { texto: nueva ? "Pendientes de la decisión sobre la nueva oferta" : "Falta que confirmen la fecha de la junta", extra: null };
   if (hoja?.estado === "firmada_daniel") return { texto: `Falta enviar ${laDoc} a la comunidad`, extra: null };
   if (hoja) return { texto: `Falta el ok de Daniel a los precios${nueva ? " de la nueva oferta" : ""}`, extra: null };
-  if (d.arquitecto || hecho("viabilidad_arquitecto")) return { texto: "Preparar la HE, la VB y el presupuesto", extra: null };
-  if (d.polycam || hecho("polycam")) return { texto: "Que el arquitecto defina la viabilidad", extra: null };
+  if (d.arquitecto) return { texto: "Preparar la HE, la VB y el presupuesto", extra: null };
+  if (d.polycam) return { texto: "Que el arquitecto defina la viabilidad", extra: null };
   if (d.cita) {
     const [dia, hora] = aHoraMadrid(d.cita.inicio).split("T");
     return { texto: "Enviar el Polycam para la viabilidad", extra: `Visita el ${fecha(dia)} a las ${hora}` };
@@ -279,9 +277,11 @@ type OppCruda = {
 /** Todo lo que hace falta de UNA opp para su estado, lo que quieren y su paso. */
 async function leerUna(op: OppCruda, desglose: Map<string, string>) {
   const hojas = op.hojas.filter((h) => h.estado !== "anulada");
-  const [estado, fases, juntas, tresd, citas, polycam, viab] = await Promise.all([
+  // OJO: la escalera NO lee fases_oportunidad (Monica, 14-oct-2026: "hay dos
+  // escaleras: la de las FASES COMERCIALES, que no se toca, y la de lo que nos
+  // bloquea para avanzar, que es DISTINTA"). Lee sus propios datos.
+  const [estado, juntas, tresd, citas, polycam, viab] = await Promise.all([
     estadoDe(op, hojas),
-    leer<{ hito: string; estado: string }[]>(`fases_oportunidad?select=hito,estado&oportunidad_id=eq.${op.id}`),
     leer<Datos["juntas"]>(`juntas?select=fecha_junta,celebrada,resultado&oportunidad_id=eq.${op.id}`),
     leer<{ tipo_3d: string | null; estado: string | null }[]>(
       `modelos_3d_venta?select=tipo_3d,estado&oportunidad_id=eq.${op.id}&order=creado_en.desc&limit=1`,
@@ -304,7 +304,6 @@ async function leerUna(op: OppCruda, desglose: Map<string, string>) {
     falta: falta({
       estado,
       hojas,
-      fases,
       juntas,
       tresd: tresd[0] ?? null,
       cita: citas[0] ?? null,
