@@ -22,7 +22,12 @@ async function pedir<T>(ruta: string, init: RequestInit = {}): Promise<T> {
   return (r.status === 204 || r.headers.get("content-length") === "0" ? null : await r.json()) as T;
 }
 
-export type Cita = { id: string; tipo: string; oportunidadId: string | null; inicio: string; minutos: number; asunto: string; deQuien: string | null };
+export type Cita = {
+  id: string; tipo: string; oportunidadId: string | null; inicio: string; minutos: number; asunto: string;
+  /** PARA QUE voy / llamo / vienen: obligatorio, sale en la raya de la agenda. */
+  paraQue: string;
+  deQuien: string | null;
+};
 
 /** "2026-10-20T10:30", la hora de Madrid que se elige en pantalla -> el instante
  *  exacto (con su desfase de verano o invierno). */
@@ -54,9 +59,14 @@ export function aHoraMadrid(iso: string): string {
   return `${p("year")}-${p("month")}-${p("day")}T${p("hour") === "24" ? "00" : p("hour")}:${p("minute")}`;
 }
 
-type Fila = { id: string; tipo: string; oportunidad_id: string | null; inicio: string; minutos: number; asunto: string; de_quien: string | null };
-const aCita = (f: Fila): Cita => ({ id: f.id, tipo: f.tipo, oportunidadId: f.oportunidad_id, inicio: f.inicio, minutos: f.minutos, asunto: f.asunto, deQuien: f.de_quien });
-const SEL = "id,tipo,oportunidad_id,inicio,minutos,asunto,de_quien";
+type Fila = { id: string; tipo: string; oportunidad_id: string | null; inicio: string; minutos: number; asunto: string; para_que: string; de_quien: string | null };
+const aCita = (f: Fila): Cita => ({
+  id: f.id, tipo: f.tipo, oportunidadId: f.oportunidad_id, inicio: f.inicio, minutos: f.minutos, asunto: f.asunto, paraQue: f.para_que, deQuien: f.de_quien,
+});
+const SEL = "id,tipo,oportunidad_id,inicio,minutos,asunto,para_que,de_quien";
+
+/** "ascensor, rampa y fotovoltaica". */
+const enLista = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} y ${xs.at(-1)}` : xs[0] ?? "");
 
 /** La visita de escaneo de una opp, si se apunto. */
 export async function escaneoDe(oppId: string): Promise<Cita | null> {
@@ -83,7 +93,15 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
     });
     return aCita(f);
   }
-  const [tipo] = await pedir<{ minutos_defecto: number }[]>("tipos_cita?select=minutos_defecto&clave=eq.escaneo_polycam");
+  const [[tipo], intereses] = await Promise.all([
+    pedir<{ minutos_defecto: number; plantilla_para_que: string | null }[]>("tipos_cita?select=minutos_defecto,plantilla_para_que&clave=eq.escaneo_polycam"),
+    pedir<{ tipo: { nombre: string } | null }[]>(`oportunidad_tipos?select=tipo:tipo_id(nombre)&oportunidad_id=eq.${oppId}`),
+  ]);
+  // EL PARA QUE, propuesto por la plantilla del tipo con lo que sabemos de la
+  // opp (14-oct-2026). Con quien ha quedado no se copia aqui: sale de su ficha,
+  // siempre al dia.
+  const queQuieren = enLista(intereses.map((x) => x.tipo?.nombre.toLowerCase()).filter((x): x is string => !!x)) || "lo que piden";
+  const paraQue = (tipo?.plantilla_para_que ?? "Escanear con Polycam.").replace("{intereses}", queQuieren);
   const [f] = await pedir<Fila[]>(`citas?select=${SEL}`, {
     method: "POST",
     headers: { Prefer: "return=representation" },
@@ -93,6 +111,8 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
       inicio,
       minutos: tipo?.minutos_defecto ?? 90,
       asunto: `Escaneo Polycam · ${nombreDeOpp(opp)}`,
+      para_que: paraQue,
+      direccion: nombreDeOpp(opp),
       de_quien: opp.comercial?.equipo_id ?? quien,
       apuntada_por: quien,
     }),
