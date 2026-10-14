@@ -45,8 +45,8 @@ export function contratasParaSelector(): Promise<{ id: string; nombre: string }[
 
 const ESTADOS_HOJA: Record<string, { label: string; clase: string }> = {
   borrador: { label: "Borrador", clase: "bg-black/5 text-carbon/50" },
-  pendiente_firma_daniel: { label: "Pendiente firma Daniel", clase: "bg-amber-100 text-amber-700" },
-  firmada_daniel: { label: "Firmada por Daniel", clase: "bg-amber-100 text-amber-700" },
+  pendiente_firma_daniel: { label: "Pendiente del ok a la oferta", clase: "bg-amber-100 text-amber-700" },
+  firmada_daniel: { label: "Ok oferta comercial", clase: "bg-amber-100 text-amber-700" },
   enviada_comunidad: { label: "Enviada a comunidad", clase: "bg-sky-100 text-sky-700" },
   cambios_solicitados: { label: "Cambios solicitados", clase: "bg-amber-100 text-amber-700" },
   rechazada: { label: "Rechazada", clase: "bg-red-100 text-red-700" },
