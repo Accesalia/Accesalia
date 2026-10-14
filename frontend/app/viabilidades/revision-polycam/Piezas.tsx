@@ -24,8 +24,6 @@ import type { Busqueda, GrupoCandidato } from "../../../lib/revisionPolycam";
 // base no hay diferencia entre lo propuesto y lo buscado, en los dos casos la
 // decision es de Alex.
 
-const BOTON_AJENO =
-  "inline-flex h-[30px] shrink-0 items-center justify-center rounded-[8px] border border-[#3f5f80] bg-ajeno px-3.5 text-[12px] font-bold uppercase tracking-wide text-white transition hover:bg-[#4a6d91]";
 const BOTON_PRINCIPAL =
   "rounded-xl bg-lima px-6 py-2.5 text-base font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-40";
 const BOTON_SECUNDARIO =
@@ -116,7 +114,10 @@ export function Vincular({
   candidatos,
   guardar,
   buscar,
+  rotulo = "Vincular",
 }: {
+  /** Lo que pone el boton que abre el buscador (en la mesa: "Buscar posible direccion"). */
+  rotulo?: string;
   polycamId: string;
   asunto: string | null;
   candidatos: GrupoCandidato[];
@@ -201,8 +202,13 @@ export function Vincular({
 
   return (
     <>
-      <button type="button" onClick={() => setAbierto(true)} className={BOTON_AJENO}>
-        Vincular
+      {/* Azul claro, como en su maqueta de la mesa (14-oct-2026). */}
+      <button
+        type="button"
+        onClick={() => setAbierto(true)}
+        className="inline-flex min-h-[30px] max-w-[150px] shrink-0 items-center justify-center rounded-[8px] border border-[#9db6cf] bg-[#e3ecf5] px-3 py-1 text-center text-[11px] font-bold uppercase leading-tight tracking-wide text-[#3f5f80] transition hover:bg-[#d5e2ef]"
+      >
+        {rotulo}
       </button>
 
       {abierto && (
