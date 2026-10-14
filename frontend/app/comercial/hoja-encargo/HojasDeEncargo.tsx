@@ -509,7 +509,8 @@ function Generador({
 
   const marcados = bloques.filter((b) => st.on[b.id]);
   const conLinea = marcados.filter((b) => modoDe(b) !== "no_aparece");
-  const soloTexto = marcados.filter((b) => modoDe(b) === "no_aparece");
+  // Los que no tienen texto (inicio de obra, visado) no son "solo texto": no salen.
+  const soloTexto = marcados.filter((b) => modoDe(b) === "no_aparece" && (b.titulo || b.puntos.length));
   const cobrados = conLinea.filter((b) => modoDe(b) === "se_cobra");
   const suma = cobrados.reduce((s, b) => s + importeDe(b), 0);
   // Lo que se añade al total en letra: "+ 3 % de lo concedido".
@@ -620,6 +621,9 @@ function Generador({
     if (cont)
       bloques.forEach((b, i) => {
         let el = cont.querySelector<HTMLElement>(`[data-c="${b.id}"]`);
+        // SIN TEXTO NO SALE NADA (14-oct-2026): el inicio de obra y el visado
+        // existen por debajo y abren su trabajo, pero la comunidad no los lee.
+        if (!b.titulo && !b.puntos.length) return el?.remove();
         if (st.on[b.id] && !el) {
           el = document.createElement("div");
           el.className = "bloque";
