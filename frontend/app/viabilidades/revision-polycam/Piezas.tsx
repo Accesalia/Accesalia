@@ -57,7 +57,13 @@ function Grupo({
         <div className="text-[15px] font-bold text-carbon/85">
           {g.direccion} <span className="font-semibold text-carbon/60">{g.municipio}</span>
         </div>
-        {avisarDelMunicipio && !g.municipioEnElAsunto && (
+        {/* LA AGENDA COMO ANCLA (14-oct-2026): habia visita de escaneo aqui. */}
+        {g.agenda && (
+          <span className="rounded-full border border-[#588FD9]/50 bg-[#588FD9]/10 px-2 py-0.5 text-[11px] font-bold text-[#2f5f9e]">
+            {g.agenda}
+          </span>
+        )}
+        {avisarDelMunicipio && !g.municipioEnElAsunto && !g.agenda && (
           <span className="text-[11px] font-semibold text-carbon/55">
             el asunto no nombra este municipio
           </span>

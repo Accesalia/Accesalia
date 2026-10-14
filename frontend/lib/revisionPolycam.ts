@@ -107,6 +107,10 @@ export type GrupoCandidato = {
   accesos: AccesoCandidato[];
   /** El asunto nombra su municipio. Esos salen primero. */
   municipioEnElAsunto: boolean;
+  /** LA AGENDA COMO ANCLA (Monica, 14-oct-2026): habia una visita de escaneo
+   *  agendada en este edificio por esas fechas. Va el primero, con su frase:
+   *  "Visita agendada el 15/10 a las 10:00 · Brasilia 39, Madrid". */
+  agenda?: string | null;
 };
 
 export type EscaneadoPendiente = {
@@ -297,15 +301,18 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
     nombre_original_fichero: string | null;
     ruta_polycam: string | null;
     polycam: string | null;
+    fecha: string | null;
+    fecha_escaneo: string | null;
   };
 
-  const [escaneados, vinculos, accesos] = await Promise.all([
+  const [escaneados, vinculos, accesos, citas] = await Promise.all([
     leerTodo<Escaneado>(
-      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam",
+      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo",
       "creado_en",
     ),
     leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
     leerTodo<AccesoFila>("accesos?select=id,municipio,tipo_via,nombre_via,numero,escalera"),
+    citasDeEscaneo().catch(() => []),
   ]);
 
   const yaVinculados = new Set(vinculos.map((v) => v.polycam_id));
@@ -320,9 +327,76 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
       nombreOriginal: e.nombre_original_fichero,
       rutaPolycam: e.ruta_polycam,
       enlaceFichero: e.polycam ? await enlaceFirmado(e.polycam) : null,
-      candidatos: candidatos(e.asunto, accesos),
+      candidatos: conAgenda(candidatos(e.asunto, accesos), e, citas, new Set(palabras(e.asunto ?? ""))),
     })),
   );
+}
+
+// ------------------------------------------------- la agenda como ancla
+
+type CitaEscaneo = { dia: string; hora: string; opp: string; correo: string | null; accesos: AccesoFila[] };
+const DIA = 86_400_000;
+const enMadrid = (iso: string, opciones: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", ...opciones }).format(new Date(iso));
+
+/** Las visitas de escaneo agendadas (no anuladas), con los accesos de su opp y
+ *  el correo de quien iba: el que suele mandar el Polycam. */
+async function citasDeEscaneo(): Promise<CitaEscaneo[]> {
+  type Fila = {
+    inicio: string;
+    de_quien: { email: string | null } | null;
+    opp: { codigo: string | null; nombre: string | null; accesos: { hasta: string | null; acceso: AccesoFila | null }[] } | null;
+  };
+  const filas = await leerTodo<Fila>(
+    "citas?select=inicio,de_quien:de_quien(email),opp:oportunidad_id(codigo,nombre," +
+      "accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,municipio,tipo_via,nombre_via,numero,escalera)))" +
+      "&tipo=eq.escaneo_polycam&estado=neq.anulada",
+    "inicio",
+  );
+  return filas
+    .filter((f) => f.opp)
+    .map((f) => ({
+      dia: enMadrid(f.inicio, { year: "numeric", month: "2-digit", day: "2-digit" }),
+      hora: enMadrid(f.inicio, { hour: "2-digit", minute: "2-digit", hour12: false }),
+      opp: f.opp!.nombre ?? f.opp!.codigo ?? "",
+      correo: f.de_quien?.email?.toLowerCase() ?? null,
+      accesos: f.opp!.accesos.filter((a) => !a.hasta && a.acceso).map((a) => a.acceso!),
+    }));
+}
+
+/** Los edificios con una visita de escaneo agendada cerca de cuando se hizo el
+ *  escaneo (la fecha del fichero, si la trae; si no, la semana antes de que
+ *  llegara el correo) van PRIMERO, con su frase. Primero los de quien mando el
+ *  correo, y entre ellos la visita mas cercana. Alex sigue decidiendo. */
+function conAgenda(
+  grupos: GrupoCandidato[],
+  e: { fecha: string | null; fecha_escaneo: string | null; creado_en: string; remitente: string | null },
+  citas: CitaEscaneo[],
+  hay: Set<string>,
+): GrupoCandidato[] {
+  if (!citas.length) return grupos;
+  const llegada = Date.parse(enMadrid(e.fecha ?? e.creado_en, { year: "numeric", month: "2-digit", day: "2-digit" }) + "T12:00:00Z");
+  const escaneo = e.fecha_escaneo ? Date.parse(e.fecha_escaneo + "T12:00:00Z") : null;
+  const remitente = (e.remitente ?? "").toLowerCase();
+  const cerca = citas
+    .map((c) => ({ c, t: Date.parse(c.dia + "T12:00:00Z") }))
+    .filter(({ t }) => (escaneo != null ? Math.abs(t - escaneo) <= DIA : t <= llegada + DIA && t >= llegada - 7 * DIA))
+    .map(({ c, t }) => ({ c, distancia: Math.abs(t - (escaneo ?? llegada)), suyo: !!c.correo && remitente.includes(c.correo) }))
+    .sort((a, b) => Number(b.suyo) - Number(a.suyo) || a.distancia - b.distancia);
+  if (!cerca.length) return grupos;
+
+  const fuera = new Map(grupos.map((g) => [g.clave, g]));
+  const primero: GrupoCandidato[] = [];
+  for (const { c } of cerca) {
+    const [d, m] = [c.dia.slice(8, 10), c.dia.slice(5, 7)];
+    const frase = `Visita agendada el ${d}/${m} a las ${c.hora} · ${c.opp}`;
+    for (const g of agrupa(c.accesos, hay)) {
+      if (primero.some((x) => x.clave === g.clave)) continue;
+      const ya = fuera.get(g.clave);
+      fuera.delete(g.clave);
+      primero.push({ ...(ya ?? g), agenda: frase });
+    }
+  }
+  return [...primero, ...grupos.filter((g) => fuera.has(g.clave))];
 }
 
 /** Solo CUANTOS hay esperando, para el boton del cuadro de entrada.
