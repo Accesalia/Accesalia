@@ -274,3 +274,165 @@ export async function revisionesPendientes(): Promise<(Revision & { oportunidadI
   );
   return filas.map((f) => ({ ...aRevision(f), oportunidadId: f.oportunidad_id, opp: f.opp ? nombreDeOpp(f.opp) : "" }));
 }
+
+// ------------------------------------------------- la pantalla de revision
+
+/** Cuantas ofertas esperan revision: el aviso de la barra negra ("Tienes x
+ *  ofertas esperando tu ok") y la tarjeta de Pendientes. */
+export async function contarPendientes(): Promise<number> {
+  const r = await fetch(`${URL_BASE}/rest/v1/revisiones_oferta?select=id&estado=eq.pendiente`, {
+    headers: { ...CAB, Prefer: "count=exact", Range: "0-0" },
+    cache: "no-store",
+  });
+  const total = r.headers.get("content-range")?.split("/")[1];
+  return total ? Number(total) : 0;
+}
+
+export type FilaConcepto = {
+  conceptoId: string;
+  bloque: string;
+  /** Lo que pone al lado de la cifra en la hoja. */
+  texto: string | null;
+  desglose: string | null;
+  importe: number | null;
+  porcentaje: number | null;
+  formaPago: string | null;
+  formaPagoAMano: boolean;
+  /** Va dentro del proyecto conjunto (su precio es informativo) / es la linea del conjunto. */
+  enConjunto: boolean;
+  esConjunto: boolean;
+  /** El "modificalo" de quien revisa, con su nota, si lo puso. */
+  modificar: { nota: string; quien: string | null; cuando: string } | null;
+};
+export type HojaEnRevision = {
+  hojaId: string;
+  versionId: string;
+  numero: string | null;
+  version: number;
+  titulo: string;
+  /** El texto de la hoja tal cual salio (la foto HTML): para leerla sin abrir el PDF. */
+  html: string | null;
+  /** El PDF, en la app. */
+  pdf: string;
+  importeBase: number | null;
+  /** LA TABLA: bloque, importe, forma de pago. */
+  conceptos: FilaConcepto[];
+};
+export type DetalleRevision = Revision & {
+  oportunidadId: string;
+  opp: string;
+  hojas: HojaEnRevision[];
+  viabilidad: { id: string; numero: string | null; version: number; enlace: string } | null;
+  presupuesto: { id: string; codigo: string | null; enlace: string } | null;
+};
+
+/** Todo lo que necesita la pantalla de revision para UN envio: de cada hoja, su
+ *  texto, su PDF y la TABLA de conceptos (bloque, importe, forma de pago), con
+ *  los "modificalo" que ya se hayan marcado. */
+export async function detalleRevision(revisionId: string): Promise<DetalleRevision | null> {
+  if (!uuid(revisionId)) return null;
+  const [f] = await pedir<(FilaRev & { oportunidad_id: string; opp: { codigo: string | null; nombre: string | null } | null })[]>(
+    `revisiones_oferta?select=${SEL_REV},oportunidad_id,opp:oportunidad_id(codigo,nombre)&id=eq.${revisionId}`,
+  );
+  if (!f) return null;
+  const rev = aRevision(f);
+  const versiones = rev.documentos.filter((d): d is Extract<DocPaquete, { tipo: "hoja" }> => d.tipo === "hoja").map((d) => d.versionId);
+  const [vs, marcas] = await Promise.all([
+    versiones.length
+      ? pedir<{
+          id: string; numero_version: number; contenido_html: string | null; importe_base: number | null;
+          hoja: { id: string; numero_hoja: string | null; descripcion: string | null } | null;
+          conceptos: { id: string; descripcion: string | null; desglose: string | null; importe: number | null; porcentaje: number | null; forma_pago: string | null;
+                       forma_pago_a_mano: boolean; incluido_en_concepto_id: string | null; creado_en: string; bloque: { nombre_corto: string | null; nombre: string } | null }[];
+        }[]>(
+          `versiones_hoja?select=id,numero_version,contenido_html,importe_base,hoja:hoja_encargo_id(id,numero_hoja,descripcion),` +
+            `conceptos:conceptos_hoja(id,descripcion,desglose,importe,porcentaje,forma_pago,forma_pago_a_mano,incluido_en_concepto_id,creado_en,bloque:bloque_id(nombre_corto,nombre))` +
+            `&id=in.(${versiones.join(",")})`,
+        )
+      : Promise.resolve([]),
+    pedir<{ concepto_hoja_id: string; nota: string | null; cuando: string; quien: { nombre: string } | null }[]>(
+      `revisiones_oferta_decisiones?select=concepto_hoja_id,nota,cuando,quien:quien(nombre)&revision_id=eq.${revisionId}&decision=eq.modificar`,
+    ),
+  ]);
+  const hojas: HojaEnRevision[] = vs.map((v) => {
+    const conjuntos = new Set(v.conceptos.map((k) => k.incluido_en_concepto_id).filter(Boolean));
+    return {
+      hojaId: v.hoja?.id ?? "",
+      versionId: v.id,
+      numero: v.hoja?.numero_hoja ?? null,
+      version: v.numero_version,
+      titulo: v.hoja?.descripcion ?? "Hoja de encargo",
+      html: v.contenido_html,
+      pdf: `/comercial/hoja-encargo/pdf/${v.id}`,
+      importeBase: v.importe_base == null ? null : Number(v.importe_base),
+      conceptos: [...v.conceptos]
+        .sort((a, b) => a.creado_en.localeCompare(b.creado_en))
+        .map((k) => {
+          const m = marcas.find((x) => x.concepto_hoja_id === k.id);
+          return {
+            conceptoId: k.id,
+            bloque: k.bloque?.nombre_corto ?? k.bloque?.nombre ?? "Proyecto conjunto",
+            texto: k.descripcion,
+            desglose: k.desglose,
+            importe: k.importe == null ? null : Number(k.importe),
+            porcentaje: k.porcentaje == null ? null : Number(k.porcentaje),
+            formaPago: k.forma_pago,
+            formaPagoAMano: k.forma_pago_a_mano,
+            enConjunto: !!k.incluido_en_concepto_id,
+            esConjunto: conjuntos.has(k.id),
+            modificar: m ? { nota: m.nota ?? "", quien: m.quien?.nombre ?? null, cuando: m.cuando } : null,
+          };
+        }),
+    };
+  });
+  const viab = rev.documentos.find((d): d is Extract<DocPaquete, { tipo: "viabilidad" }> => d.tipo === "viabilidad");
+  const ppto = rev.documentos.find((d): d is Extract<DocPaquete, { tipo: "presupuesto" }> => d.tipo === "presupuesto");
+  return {
+    ...rev,
+    oportunidadId: f.oportunidad_id,
+    opp: f.opp ? nombreDeOpp(f.opp) : "",
+    hojas,
+    viabilidad: viab ? { id: viab.id, numero: viab.numero, version: viab.version, enlace: `/comercial/viabilidad/${viab.id}` } : null,
+    presupuesto: ppto ? { id: ppto.id, codigo: ppto.codigo, enlace: `/comercial/presupuesto?opp=${f.oportunidad_id}` } : null,
+  };
+}
+
+/** MODIFICALO en un bloque, con su nota (o, con nota vacia, quitarlo). Se puede
+ *  cambiar mientras el envio este pendiente. No resuelve nada: eso es
+ *  cerrarRevision. */
+export async function marcarModificar(revisionId: string, conceptoId: string, nota: string | null, yo: Yo): Promise<void> {
+  if (!puedeRevisar(yo)) throw new Error("No tienes la función de revisión de ofertas.");
+  if (!uuid(revisionId) || !uuid(conceptoId)) throw new Error("Datos no válidos.");
+  const [r] = await pedir<{ estado: string; docs: { version_hoja_id: string | null }[] }[]>(
+    `revisiones_oferta?select=estado,docs:revisiones_oferta_documentos(version_hoja_id)&id=eq.${revisionId}`,
+  );
+  if (!r) throw new Error("No existe esa revisión.");
+  if (r.estado !== "pendiente") throw new Error("Esta revisión ya está resuelta o la superó otro envío.");
+  const [k] = await pedir<{ version_hoja_id: string | null }[]>(`conceptos_hoja?select=version_hoja_id&id=eq.${conceptoId}`);
+  if (!k?.version_hoja_id || !r.docs.some((x) => x.version_hoja_id === k.version_hoja_id)) throw new Error("Ese bloque no va en este envío.");
+  await pedir(`revisiones_oferta_decisiones?revision_id=eq.${revisionId}&concepto_hoja_id=eq.${conceptoId}`, { method: "DELETE" });
+  const texto = (nota ?? "").trim();
+  if (texto)
+    await pedir("revisiones_oferta_decisiones", {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ revision_id: revisionId, version_hoja_id: k.version_hoja_id, concepto_hoja_id: conceptoId, decision: "modificar", nota: texto, quien: yo.id }),
+    });
+}
+
+/** CERRAR LA REVISION. "ok": ok al PAQUETE entero (solo si no hay ningun
+ *  "modificalo" marcado). "cambios": se devuelve al comercial con los
+ *  "modificalo" de cada bloque y, si se escribe, un comentario general. */
+export async function cerrarRevision(revisionId: string, decision: "ok" | "cambios", comentario: string | null, yo: Yo): Promise<{ avisos: string[] }> {
+  const marcas = await pedir<{ nota: string | null; concepto: { descripcion: string | null; bloque: { nombre_corto: string | null } | null } | null;
+                                v: { hoja: { numero_hoja: string | null } | null } | null }[]>(
+    `revisiones_oferta_decisiones?select=nota,concepto:concepto_hoja_id(descripcion,bloque:bloque_id(nombre_corto)),v:version_hoja_id(hoja:hoja_encargo_id(numero_hoja))` +
+      `&revision_id=eq.${revisionId}&decision=eq.modificar`,
+  );
+  if (decision === "ok" && marcas.length) throw new Error("Hay bloques marcados para modificar: quítalos o devuelve la oferta con cambios.");
+  const general = (comentario ?? "").trim();
+  const lista = marcas.map((m) => `· ${m.v?.hoja?.numero_hoja ?? "Hoja"} · ${m.concepto?.bloque?.nombre_corto ?? m.concepto?.descripcion ?? "bloque"}: ${m.nota}`);
+  const texto = [general, ...lista].filter(Boolean).join("\n");
+  if (decision === "cambios" && !texto) throw new Error("Marca qué bloques hay que modificar o di qué cambiar.");
+  return resolverRevision(revisionId, decision, decision === "cambios" ? texto : general || null, yo);
+}
