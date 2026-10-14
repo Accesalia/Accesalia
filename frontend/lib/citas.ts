@@ -206,3 +206,40 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     ),
   }));
 }
+
+// ------------------------------------------------- el Polycam que ha llegado
+
+/** EL POLYCAM DE UNA OPP (Monica, 14-oct-2026): lo que la ficha enseña como
+ *  "Recibido", solo lectura; lo escribe la app al llegar el correo al buzon.
+ *  Un escaneo es de la opp si cuelga de sus accesos (lo coloca el buzon) o de una
+ *  viabilidad suya (lo coloca la mesa al empezarla).
+ *    recibido = el dia que llego al buzon (el del correo; si no, el de su alta).
+ *    fechaEscaneo = el dia del escaneo: la visita agendada si la hay; si no, la
+ *      que trae el nombre del fichero; si no, el dia que llego ("se coge esa
+ *      fecha como la del escaneo, para que quede reflejado cuando se escaneo"). */
+export async function polycamDe(oppId: string): Promise<{ recibido: string; fechaEscaneo: string; cuantos: number } | null> {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
+  type Esc = { id: string; fecha: string | null; fecha_escaneo: string | null; creado_en: string };
+  const SEL_ESC = "id,fecha,fecha_escaneo,creado_en";
+  const [accesos, viabs, cita] = await Promise.all([
+    pedir<{ acceso_id: string }[]>(`relacion_oportunidad_accesos?select=acceso_id&opp_id=eq.${oppId}&hasta=is.null`),
+    pedir<{ id: string }[]>(`viabilidades?select=id&oportunidad_id=eq.${oppId}`),
+    escaneoDe(oppId),
+  ]);
+  const [porAcceso, porViab] = await Promise.all([
+    accesos.length
+      ? pedir<{ esc: Esc | null }[]>(`relacion_polycam_acceso?select=esc:polycam_id(${SEL_ESC})&acceso_id=in.(${accesos.map((a) => a.acceso_id).join(",")})`)
+      : Promise.resolve([]),
+    viabs.length ? pedir<Esc[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=in.(${viabs.map((v) => v.id).join(",")})`) : Promise.resolve([]),
+  ]);
+  const todos = new Map<string, Esc>();
+  for (const e of [...porAcceso.map((x) => x.esc), ...porViab]) if (e) todos.set(e.id, e);
+  if (!todos.size) return null;
+  const llegada = (e: Esc) => (e.fecha ?? e.creado_en).slice(0, 10);
+  const primero = [...todos.values()].sort((a, b) => llegada(a).localeCompare(llegada(b)))[0];
+  return {
+    recibido: llegada(primero),
+    fechaEscaneo: cita ? aHoraMadrid(cita.inicio).slice(0, 10) : primero.fecha_escaneo ?? llegada(primero),
+    cuantos: todos.size,
+  };
+}
