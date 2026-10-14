@@ -10,7 +10,12 @@ import { puedeVerOpp } from "../../lib/hojaEncargo";
 import {
   aHoraMadrid,
   apuntarAdjunto,
+  citaDeAdjunto,
   crearCita,
+  editarCita,
+  moverCita,
+  quitarAdjunto,
+  type CitaCambios,
   enlaceAdjunto,
   guardarEscaneo,
   permisoAdjunto,
@@ -83,4 +88,45 @@ export async function accionEnlaceAdjunto(adjuntoId: string): Promise<string | n
   const e = await enlaceAdjunto(adjuntoId);
   if (!e || !(await puedeTocarCita(yo, e.citaId))) return null;
   return e.url;
+}
+
+/** EDITAR una cita: todo lo del formulario (el con quien sustituye la lista
+ *  entera) y, si se manda, su estado: pendiente, hecha o anulada. */
+export async function accionEditarCita(id: string, cambios: CitaCambios): Promise<Resultado> {
+  try {
+    const yo = await quienSoy();
+    if (!yo || !(await puedeTocarCita(yo, id))) return { ok: false, error: "No puedes tocar esta cita." };
+    await editarCita(id, cambios);
+    revalidatePath("/agenda");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** MOVER una cita (el arrastre): solo la hora y, si se da, la duracion. */
+export async function accionMoverCita(id: string, local: string, minutos?: number | null): Promise<Resultado> {
+  try {
+    const yo = await quienSoy();
+    if (!yo || !(await puedeTocarCita(yo, id))) return { ok: false, error: "No puedes tocar esta cita." };
+    await moverCita(id, local, minutos);
+    revalidatePath("/agenda");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** Quitar un adjunto (si es un fichero, se borra del almacen). */
+export async function accionQuitarAdjunto(adjuntoId: string): Promise<Resultado> {
+  try {
+    const yo = await quienSoy();
+    const cita = await citaDeAdjunto(adjuntoId);
+    if (!yo || !cita || !(await puedeTocarCita(yo, cita))) return { ok: false, error: "No puedes tocar esta cita." };
+    await quitarAdjunto(adjuntoId);
+    revalidatePath("/agenda");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

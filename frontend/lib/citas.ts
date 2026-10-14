@@ -133,7 +133,9 @@ export type CitaDelDia = Cita & {
   origen: "persona" | "app";
   /** De que es: la opp (con su codigo), la comunidad, la administracion o la persona. */
   deQue: { tipo: "opp" | "comunidad" | "administracion" | "persona"; id: string; texto: string; codigo?: string | null } | null;
-  conQuien: { nombre: string; telefono: string | null; papel: string | null }[];
+  /** Con quien, compuesto al leer; `tipo` e `id` para repintarlo en el formulario
+   *  (a_mano no tiene id de agenda: el suyo es el de la fila). */
+  conQuien: { tipo: "puesto" | "persona" | "persona_comunidad" | "a_mano"; id: string; nombre: string; telefono: string | null; papel: string | null }[];
   adjuntos: { tipo: "fichero" | "hoja" | "viabilidad" | "presupuesto" | "documento"; id: string; nombre: string }[];
 };
 
@@ -144,9 +146,22 @@ const diaSiguiente = (dia: string) => new Date(Date.parse(`${dia}T12:00:00Z`) + 
  *  las de esa persona del equipo (su agenda); sin el, las de todos. Las anuladas
  *  vienen tambien: la pantalla decide si las enseña tachadas o no. */
 export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDelDia[]> {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dia)) throw new Error("Día no válido.");
-  const desde = deHoraMadrid(`${dia}T00:00`);
-  const hasta = deHoraMadrid(`${diaSiguiente(dia)}T00:00`);
+  return citasEntre(dia, dia, deQuien);
+}
+
+/** Las de una SEMANA: del lunes dado a su domingo. */
+export async function citasDeLaSemana(lunes: string, deQuien?: string): Promise<CitaDelDia[]> {
+  let domingo = lunes;
+  for (let i = 0; i < 6; i++) domingo = diaSiguiente(domingo);
+  return citasEntre(lunes, domingo, deQuien);
+}
+
+/** Las citas de `desde` a `hasta`, los dos dias incluidos, en hora de Madrid. */
+export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: string): Promise<CitaDelDia[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desdeDia) || !/^\d{4}-\d{2}-\d{2}$/.test(hastaDia)) throw new Error("Día no válido.");
+  if (deQuien && !/^[0-9a-f-]{36}$/.test(deQuien)) throw new Error("Agenda no válida.");
+  const desde = deHoraMadrid(`${desdeDia}T00:00`);
+  const hasta = deHoraMadrid(`${diaSiguiente(hastaDia)}T00:00`);
   const filas = await pedir<(Fila & {
     estado: CitaDelDia["estado"]; direccion: string | null; notas: string | null; origen: CitaDelDia["origen"];
     tipo_cita: { nombre: string } | null;
@@ -154,7 +169,8 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     comunidad: { id: string; nombre: string } | null;
     empresa: { id: string; nombre_accesalia: string | null; nombre_legal: string | null } | null;
     persona: { id: string; nombre: string; apellidos: string | null } | null;
-    con: { nombre: string | null; telefono: string | null; papel: string | null;
+    con: { id: string; persona_id: string | null; puesto_id: string | null; persona_comunidad_id: string | null;
+           nombre: string | null; telefono: string | null; papel: string | null;
            persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
            puesto: { cargo: string | null; telefono_empresa: string | null } | null;
            pc: { nombre: string | null; telefono: string | null; rol: string | null } | null }[];
@@ -165,7 +181,7 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
-      `con:citas_con_quien(nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa),pc:persona_comunidad_id(nombre,telefono,rol)),` +
+      `con:citas_con_quien(id,persona_id,puesto_id,persona_comunidad_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa),pc:persona_comunidad_id(nombre,telefono,rol)),` +
       `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
       `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
       `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
@@ -190,6 +206,13 @@ export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDe
     // Con quien: de su ficha si esta en la agenda (el telefono es el del puesto,
     // y si no el personal); si no, lo escrito a mano.
     conQuien: f.con.map((c) => ({
+      ...(c.puesto_id
+        ? { tipo: "puesto" as const, id: c.puesto_id }
+        : c.persona_comunidad_id
+          ? { tipo: "persona_comunidad" as const, id: c.persona_comunidad_id }
+          : c.persona_id
+            ? { tipo: "persona" as const, id: c.persona_id }
+            : { tipo: "a_mano" as const, id: c.id }),
       nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.pc?.nombre ?? c.nombre ?? "",
       telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.pc?.telefono ?? c.telefono,
       papel: c.papel ?? c.puesto?.cargo ?? c.pc?.rol ?? null,
@@ -301,6 +324,15 @@ export async function crearCita(c: CitaNueva, quien: string): Promise<string> {
       origen: "persona",
     }),
   });
+  await ponerConQuien(f.id, c.conQuien);
+  return f.id;
+}
+
+/** Guarda el con quien de una cita. */
+async function ponerConQuien(citaId: string, conQuien: ConQuienNuevo[]): Promise<void> {
+  const limpio = (x: string | null | undefined) => (x ?? "").trim();
+  const f = { id: citaId };
+  const c = { conQuien };
   // Un puesto lleva su persona: asi la cita encuentra a la persona aunque cambie de puesto.
   const puestos = c.conQuien.filter((x) => x.tipo === "puesto").map((x) => (x as { id: string }).id);
   const personaDe = new Map(
@@ -325,7 +357,6 @@ export async function crearCita(c: CitaNueva, quien: string): Promise<string> {
       ),
     ),
   });
-  return f.id;
 }
 
 /** Quien puede tocar una cita o apuntar en una agenda: la persona de esa agenda,
@@ -382,4 +413,70 @@ export async function enlaceAdjunto(adjuntoId: string): Promise<{ citaId: string
   if (!r.ok) return null;
   const { signedURL } = (await r.json()) as { signedURL: string };
   return { citaId: a.cita_id, url: `${PUBLICA()}/storage/v1${signedURL}` };
+}
+
+// ------------------------------------------------------------ editar y mover
+
+export type CitaCambios = Omit<CitaNueva, "deQuien" | "tipo" | "oportunidadId"> & {
+  /** pendiente, hecha (el gris de Daniel) o anulada. */
+  estado?: "pendiente" | "hecha" | "anulada";
+};
+
+/** Editar una cita: todo lo del formulario. El con quien SUSTITUYE la lista
+ *  entera. Mismas comprobaciones que al crearla. */
+export async function editarCita(citaId: string, c: CitaCambios): Promise<void> {
+  const limpio = (x: string | null | undefined) => (x ?? "").trim();
+  if (!limpio(c.asunto)) throw new Error("Falta el título.");
+  if (!limpio(c.paraQue)) throw new Error("Falta el para qué.");
+  if (!limpio(c.direccion)) throw new Error("Falta el dónde.");
+  if (!c.conQuien.length || c.conQuien.some((x) => x.tipo === "a_mano" && !limpio(x.nombre))) throw new Error("Falta con quién.");
+  if (c.estado && !["pendiente", "hecha", "anulada"].includes(c.estado)) throw new Error("Estado no válido.");
+  const [actual] = await pedir<{ id: string; minutos: number }[]>(`citas?select=id,minutos&id=eq.${citaId}`);
+  if (!actual) throw new Error("No existe esa cita.");
+  await pedir(`citas?id=eq.${citaId}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      inicio: deHoraMadrid(c.local),
+      minutos: c.minutos && c.minutos > 0 ? Math.round(c.minutos) : actual.minutos,
+      asunto: limpio(c.asunto),
+      para_que: limpio(c.paraQue),
+      direccion: limpio(c.direccion),
+      notas: limpio(c.notas) || null,
+      ...(c.estado ? { estado: c.estado } : {}),
+      actualizado_en: new Date().toISOString(),
+    }),
+  });
+  await pedir(`citas_con_quien?cita_id=eq.${citaId}`, { method: "DELETE" });
+  await ponerConQuien(citaId, c.conQuien);
+}
+
+/** Mover una cita (el arrastre): solo la hora y, si se da, la duracion. */
+export async function moverCita(citaId: string, local: string, minutos?: number | null): Promise<void> {
+  const [actual] = await pedir<{ id: string }[]>(`citas?select=id&id=eq.${citaId}`);
+  if (!actual) throw new Error("No existe esa cita.");
+  await pedir(`citas?id=eq.${citaId}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      inicio: deHoraMadrid(local),
+      ...(minutos && minutos > 0 ? { minutos: Math.round(minutos) } : {}),
+      actualizado_en: new Date().toISOString(),
+    }),
+  });
+}
+
+/** Quitar un adjunto de la cita. Si era un fichero, se borra tambien del almacen. */
+export async function quitarAdjunto(adjuntoId: string): Promise<{ citaId: string }> {
+  const [a] = await pedir<{ cita_id: string; ruta_almacen: string | null }[]>(`citas_adjuntos?select=cita_id,ruta_almacen&id=eq.${adjuntoId}`);
+  if (!a) throw new Error("No existe ese adjunto.");
+  await pedir(`citas_adjuntos?id=eq.${adjuntoId}`, { method: "DELETE" });
+  if (a.ruta_almacen)
+    await fetch(`${URL_BASE}/storage/v1/object/${a.ruta_almacen}`, { method: "DELETE", headers: CAB_ALMACEN, cache: "no-store" }).catch(() => null);
+  return { citaId: a.cita_id };
+}
+
+/** De que cita es un adjunto: para comprobar el permiso antes de quitarlo. */
+export async function citaDeAdjunto(adjuntoId: string): Promise<string | null> {
+  if (!/^[0-9a-f-]{36}$/.test(adjuntoId)) return null;
+  const [a] = await pedir<{ cita_id: string }[]>(`citas_adjuntos?select=cita_id&id=eq.${adjuntoId}`);
+  return a?.cita_id ?? null;
 }
