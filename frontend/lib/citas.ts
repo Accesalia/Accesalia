@@ -119,3 +119,90 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
   });
   return aCita(f);
 }
+
+// ------------------------------------------------------------ la pagina del dia
+
+/** Una cita tal como la pinta la agenda: con su "para que", de que es, con quien
+ *  (compuesto al leer, siempre al dia: nombre, telefono y papel) y sus adjuntos. */
+export type CitaDelDia = Cita & {
+  tipoNombre: string;
+  fin: string;
+  estado: "pendiente" | "hecha" | "anulada";
+  direccion: string | null;
+  notas: string | null;
+  origen: "persona" | "app";
+  /** De que es: la opp (con su codigo), la comunidad, la administracion o la persona. */
+  deQue: { tipo: "opp" | "comunidad" | "administracion" | "persona"; id: string; texto: string; codigo?: string | null } | null;
+  conQuien: { nombre: string; telefono: string | null; papel: string | null }[];
+  adjuntos: { tipo: "fichero" | "hoja" | "viabilidad" | "presupuesto" | "documento"; id: string; nombre: string }[];
+};
+
+/** "2026-10-20" -> el dia siguiente, sin liarse con horas ni zonas. */
+const diaSiguiente = (dia: string) => new Date(Date.parse(`${dia}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+
+/** Las citas de un DIA (en hora de Madrid), por orden de hora. Con `deQuien`, solo
+ *  las de esa persona del equipo (su agenda); sin el, las de todos. Las anuladas
+ *  vienen tambien: la pantalla decide si las enseña tachadas o no. */
+export async function citasDelDia(dia: string, deQuien?: string): Promise<CitaDelDia[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dia)) throw new Error("Día no válido.");
+  const desde = deHoraMadrid(`${dia}T00:00`);
+  const hasta = deHoraMadrid(`${diaSiguiente(dia)}T00:00`);
+  const filas = await pedir<(Fila & {
+    estado: CitaDelDia["estado"]; direccion: string | null; notas: string | null; origen: CitaDelDia["origen"];
+    tipo_cita: { nombre: string } | null;
+    opp: { id: string; codigo: string | null; nombre: string | null } | null;
+    comunidad: { id: string; nombre: string } | null;
+    empresa: { id: string; nombre_accesalia: string | null; nombre_legal: string | null } | null;
+    persona: { id: string; nombre: string; apellidos: string | null } | null;
+    con: { nombre: string | null; telefono: string | null; papel: string | null;
+           persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
+           puesto: { cargo: string | null; telefono_empresa: string | null } | null }[];
+    adj: { id: string; ruta_almacen: string | null; nombre: string | null; hoja_encargo_id: string | null; viabilidad_id: string | null;
+           presupuesto_id: string | null; documento_id: string | null;
+           hoja: { numero_hoja: string | null } | null; viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
+  })[]>(
+    `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre),` +
+      `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
+      `persona:persona_id(id,nombre,apellidos),` +
+      `con:citas_con_quien(nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
+      `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
+      `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
+      `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
+  );
+  return filas.map((f) => ({
+    ...aCita(f),
+    tipoNombre: f.tipo_cita?.nombre ?? f.tipo,
+    fin: new Date(Date.parse(f.inicio) + f.minutos * 60000).toISOString(),
+    estado: f.estado,
+    direccion: f.direccion,
+    notas: f.notas,
+    origen: f.origen,
+    deQue: f.opp
+      ? { tipo: "opp", id: f.opp.id, texto: nombreDeOpp(f.opp), codigo: f.opp.codigo }
+      : f.comunidad
+        ? { tipo: "comunidad", id: f.comunidad.id, texto: f.comunidad.nombre }
+        : f.empresa
+          ? { tipo: "administracion", id: f.empresa.id, texto: f.empresa.nombre_accesalia ?? f.empresa.nombre_legal ?? "Administración" }
+          : f.persona
+            ? { tipo: "persona", id: f.persona.id, texto: [f.persona.nombre, f.persona.apellidos].filter(Boolean).join(" ") }
+            : null,
+    // Con quien: de su ficha si esta en la agenda (el telefono es el del puesto,
+    // y si no el personal); si no, lo escrito a mano.
+    conQuien: f.con.map((c) => ({
+      nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.nombre ?? "",
+      telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.telefono,
+      papel: c.papel ?? c.puesto?.cargo ?? null,
+    })),
+    adjuntos: f.adj.map((a) =>
+      a.hoja_encargo_id
+        ? { tipo: "hoja" as const, id: a.hoja_encargo_id, nombre: a.nombre ?? `Hoja de encargo ${a.hoja?.numero_hoja ?? ""}`.trim() }
+        : a.viabilidad_id
+          ? { tipo: "viabilidad" as const, id: a.viabilidad_id, nombre: a.nombre ?? `Viabilidad ${a.viabilidad?.numero ?? ""}`.trim() }
+          : a.presupuesto_id
+            ? { tipo: "presupuesto" as const, id: a.presupuesto_id, nombre: a.nombre ?? `Presupuesto ${a.presupuesto?.codigo ?? ""}`.trim() }
+            : a.documento_id
+              ? { tipo: "documento" as const, id: a.documento_id, nombre: a.nombre ?? "Documento" }
+              : { tipo: "fichero" as const, id: a.id, nombre: a.nombre ?? a.ruta_almacen ?? "Fichero" },
+    ),
+  }));
+}
