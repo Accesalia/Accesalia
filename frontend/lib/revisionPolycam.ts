@@ -335,7 +335,8 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
   ]);
 
   const yaVinculados = new Set(vinculos.map((v) => v.polycam_id));
-  const pendientes = escaneados.filter((e) => !yaVinculados.has(e.id));
+  // Los avisos de las cuentas de Google no son escaneos (Monica, 14-oct-2026).
+  const pendientes = escaneados.filter((e) => !yaVinculados.has(e.id) && !esDeGoogle(e.remitente));
 
   return Promise.all(
     pendientes.map(async (e) => ({
@@ -355,6 +356,10 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
     })),
   );
 }
+
+/** Los avisos de las cuentas de Google (seguridad, verificacion, privacidad)
+ *  llegan al buzon y no son escaneos: no se guardan y no se enseñan. */
+export const esDeGoogle = (remitente: string | null) => /@([a-z0-9-]+\.)*google\.com$/i.test((remitente ?? "").trim());
 
 // ------------------------------------------------- vincular sola
 
@@ -398,8 +403,13 @@ function decidirSolo(
     return { motivo: "El correo venía sin asunto." };
   } else if (!grupos.length) {
     return { motivo: "El asunto no encaja con ninguna dirección que tengamos: puede que no esté dada de alta." };
+  } else if (!conMunicipio.length && grupos.length === 1) {
+    // EL UNICO EN LA BASE (Monica, 14-oct-2026): el asunto no dice el municipio,
+    // pero esa calle y ese numero solo existen en uno. "Cristo de la Victoria 129".
+    g = grupos[0];
+    por = `El asunto dice ${g.direccion} (solo existe en ${g.municipio})`;
   } else if (!conMunicipio.length) {
-    return { motivo: "El asunto no dice el municipio." };
+    return { motivo: `El asunto no dice el municipio y encaja con ${grupos.length} edificios.` };
   } else if (conMunicipio.length > 1) {
     return { motivo: `El asunto encaja con ${conMunicipio.length} edificios.` };
   } else {
@@ -523,11 +533,11 @@ function conAgenda(
 export async function cuantosPendientes(): Promise<number> {
   try {
     const [escaneados, vinculos] = await Promise.all([
-      leerTodo<{ id: string }>("escaneados_polycam?select=id"),
+      leerTodo<{ id: string; remitente: string | null }>("escaneados_polycam?select=id,remitente"),
       leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
     ]);
     const yaVinculados = new Set(vinculos.map((v) => v.polycam_id));
-    return escaneados.filter((e) => !yaVinculados.has(e.id)).length;
+    return escaneados.filter((e) => !yaVinculados.has(e.id) && !esDeGoogle(e.remitente)).length;
   } catch {
     return 0;
   }

@@ -47,7 +47,7 @@
 //     escaneo".
 
 import "server-only";
-import { vincularSolos } from "./revisionPolycam";
+import { esDeGoogle, vincularSolos } from "./revisionPolycam";
 import { nombreDeOpp } from "./direccionOpp";
 
 import { ImapFlow } from "imapflow";
@@ -773,6 +773,13 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
             r.grandes.push(`${info.envelope?.subject ?? "(sin asunto)"} · de ${de} · ${mb} MB`);
             if (!info.flags?.has(GRANDE)) await cliente.messageFlagsAdd(String(uid), [GRANDE], { uid: true });
             enPaso(`correo ${uid}: ${mb} MB, se deja en el buzon`);
+            return;
+          }
+          // LOS AVISOS DE GOOGLE NO SON ESCANEOS (Monica, 14-oct-2026): seguridad,
+          // verificacion, privacidad de la cuenta. Se marcan leidos y no se guardan.
+          if (info && esDeGoogle(info.envelope?.from?.[0]?.address ?? null)) {
+            await cliente.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+            enPaso(`correo ${uid}: aviso de Google, descartado`);
             return;
           }
           // TROZOS DE 8 MB (13-oct-2026). La libreria pide de 64 KB en 64 KB, y cada
