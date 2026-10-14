@@ -103,6 +103,9 @@ export type Oportunidad = {
 };
 export type ConceptoHoja = {
   bloqueId: string | null;
+  /** De que actuacion es (su tipo de proyecto): un bloque de proyecto da una
+   *  linea por actuacion (14-oct-2026). */
+  tipoId: string | null;
   codigo: string | null;
   nombreCorto: string;
   desglose: Desglose | null;
@@ -247,13 +250,13 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       persona: { nombre: string; apellidos: string | null } | null;
       version_firmada_id: string | null;
       versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null; pdfs_firmados: string[] | null; contenido_html: string | null; motivo_cambio: string | null }[];
-      conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; importe: number | null; porcentaje: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
+      conceptos: { id: string; version_hoja_id: string | null; bloque_id: string | null; tipo_proyecto_id: string | null; importe: number | null; porcentaje: number | null; incluido: boolean; desglose: Desglose | null; forma_pago: string | null; descripcion: string | null; incluido_en_concepto_id: string | null; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[];
       actuaciones: { orden: number; tipo: { id: string; nombre: string } | null; accesos: { acceso_id: string }[] }[];
     }[]>(
       `hojas_encargo?select=id,oportunidad_id,numero_hoja,estado,descripcion,fecha_creacion,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
         `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),version_firmada_id,` +
         `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja,pdfs_firmados,contenido_html,motivo_cambio),` +
-        `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,importe,porcentaje,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
+        `conceptos:conceptos_hoja(id,version_hoja_id,bloque_id,tipo_proyecto_id,importe,porcentaje,incluido,desglose,forma_pago,descripcion,incluido_en_concepto_id,bloque:bloque_id(codigo,nombre_corto,nombre)),` +
         `actuaciones:actuaciones_hoja(orden,tipo:tipo_proyecto_id(id,nombre),accesos:actuacion_accesos(acceso_id))` +
         `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
     ),
@@ -311,6 +314,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       const conceptos = filasConceptos
         .map((k) => ({
           bloqueId: k.bloque_id,
+          tipoId: k.tipo_proyecto_id,
           codigo: k.bloque?.codigo ?? null,
           nombreCorto: k.bloque?.nombre_corto ?? k.bloque?.nombre ?? "Concepto",
           desglose: k.desglose,
@@ -419,6 +423,8 @@ export type Generar = {
   actuaciones: { tipoId: string; accesoIds: string[] }[];
   conceptos: {
     bloqueId: string;
+    /** La actuacion de la que es la linea (bloques de proyecto). */
+    tipoId: string | null;
     desglose: Desglose;
     importe: number | null;
     /** Cobro a exito (Subvenciones): el % que se escribio en la hoja. */
@@ -631,6 +637,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         hoja_encargo_id: hojaId,
         version_hoja_id: v.id,
         bloque_id: k.bloqueId,
+        tipo_proyecto_id: k.tipoId,
         incluido: true,
         desglose: k.desglose,
         importe: k.desglose === "se_cobra" ? k.importe : null,
