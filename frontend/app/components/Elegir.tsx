@@ -36,6 +36,7 @@ export function Elegir({
   conPista,
   dosLineas,
   noEsta,
+  grupos,
 }: {
   id: string;
   nombre: string;
@@ -65,6 +66,9 @@ export function Elegir({
    *  saber que lo buscado no aparece (Monica, 8-oct-2026: la direccion que no
    *  esta puede ser nueva o una errata, y se pregunta). Sin esto, no sale. */
   noEsta?: (escrito: string) => void;
+  /** EN COLUMNAS, como el "de lo que vendemos, que quieren" del alta (Monica,
+   *  14-oct-2026): cada grupo una columna con su titulo. Sin esto, la lista. */
+  grupos?: { titulo: string; valores: string[] }[];
 }) {
   const [propio, setPropio] = useState(defecto ?? "");
   const elegido = valor ?? propio;
@@ -118,6 +122,15 @@ export function Elegir({
   const q = limpio(busca.trim());
   const filtradas = q === "" ? opciones : opciones.filter((o) => limpio(o.texto + " " + (o.pista ?? "")).includes(q));
   const puesto = opciones.find((o) => o.valor === elegido) ?? null;
+  const columnas = grupos?.map((g) => ({
+    titulo: g.titulo,
+    opciones: g.valores.map((v) => filtradas.find((o) => o.valor === v)).filter((o): o is Opcion => !!o),
+  }));
+  const elegir = (v: string) => {
+    poner(v);
+    setAbierto(false);
+    setBusca("");
+  };
 
   return (
     <div className={"relative " + clase} ref={caja}>
@@ -162,7 +175,8 @@ export function Elegir({
       {abierto && (
         <div
           className={
-            "absolute left-0 right-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+            "absolute left-0 z-30 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg " +
+            (columnas ? "w-[860px] " : "right-0 ") +
             (arriba ? "bottom-full mb-1" : "top-full mt-1")
           }
         >
@@ -184,6 +198,29 @@ export function Elegir({
             placeholder="Escribe para buscar…"
             className="w-full border-b border-black/10 px-3 py-2 text-sm text-carbon outline-none placeholder:text-carbon/55"
           />
+          {columnas ? (
+            <div className="grid grid-cols-4 divide-x divide-black/10">
+              {columnas.map((c) => (
+                <div key={c.titulo} className="min-w-0 py-2">
+                  <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{c.titulo}</div>
+                  {c.opciones.length === 0 && <p className="px-3 py-1 text-[12px] text-carbon/50">—</p>}
+                  {c.opciones.map((o) => (
+                    <button
+                      key={o.valor}
+                      type="button"
+                      onClick={() => elegir(o.valor)}
+                      className={
+                        "block w-full cursor-pointer px-3 py-1.5 text-left text-sm hover:bg-lima-soft " +
+                        (o.valor === elegido ? "font-bold text-lima-dark" : "text-carbon")
+                      }
+                    >
+                      {o.texto}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
           <ul className="max-h-60 overflow-auto py-1">
             {elegido !== "" && (
               <li>
@@ -236,6 +273,7 @@ export function Elegir({
               </li>
             )}
           </ul>
+          )}
         </div>
       )}
     </div>

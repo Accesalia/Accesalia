@@ -8,6 +8,7 @@ import type { BloqueHoja, DatosHoja, Documento, Hoja, OpcionOpp } from "../../..
 import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } from "../../../lib/hojaPapel";
 import { accionApuntarFirmada, accionBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 import { estadoDeHoja } from "../../../lib/estadoHoja";
+import { columnasDeInteres } from "../../../lib/columnasInteres";
 
 // LA PESTAÑA HOJA DE ENCARGO, tal cual la maqueta que Monica aprobo el 2-oct-2026
 // (docs/figma/hoja-de-encargo.html):
@@ -42,6 +43,17 @@ const CONTRATADO: { texto: string; codigos: (c: string) => boolean }[] = [
 // cobra si no. Los ATAJOS (DF -> CFO, proyecto o consulta -> visado,
 // subvenciones -> documentacion tecnica -> CEE + IEE + libro) estan en el
 // catalogo: bloques.marca_tambien (14-oct-2026).
+// LOS BLOQUES, POR AREA (Monica, 14-oct-2026: "ahora es un mar de palabras").
+// El area es de cada bloque, en el catalogo (bloques.area).
+const AREAS: { clave: string; titulo: string }[] = [
+  { clave: "PRY", titulo: "Proyecto" },
+  { clave: "OBR", titulo: "Obra" },
+  { clave: "SUBV", titulo: "Subvenciones" },
+  { clave: "IEE", titulo: "IEE" },
+  { clave: "CAES", titulo: "CAES" },
+  { clave: "FIN", titulo: "Financiación" },
+  { clave: "3PPTOS", titulo: "3 presupuestos" },
+];
 const PROYECTO = "REDACCION PROYECTO";
 const DF = "DF";
 const LICENCIA = "TRAMITACION LICENCIAS";
@@ -718,6 +730,12 @@ function Generador({
     });
 
   const opcionesTipo = datos.tipos.map((t) => ({ valor: t.id, texto: t.nombre }));
+  // "Que se hace" en las cuatro columnas del alta de la opp (14-oct-2026).
+  const gruposTipo = columnasDeInteres(datos.tipos);
+  // Los bloques por area; uno sin area (uno nuevo del catalogo) sale al final.
+  const porArea = [...AREAS, { clave: "", titulo: "Otros" }]
+    .map((a) => ({ ...a, bloques: bloques.filter((b) => (a.clave ? b.area === a.clave : !AREAS.some((x) => x.clave === b.area))) }))
+    .filter((a) => a.bloques.length);
   // A quien va: su comunidad (si la tiene), el particular titular de sus accesos
   // o una contrata. Tener CP no es condicion para hacer la hoja (13-oct-2026).
   const opcionesAQuien = [
@@ -790,6 +808,7 @@ function Generador({
                   id={`tipo-${a.clave}`}
                   nombre=""
                   opciones={opcionesTipo}
+                  grupos={gruposTipo}
                   valor={a.tipoId}
                   vacio="Qué se hace…"
                   alElegir={(v) => poner({ actuaciones: st.actuaciones.map((x) => (x.clave === a.clave ? { ...x, tipoId: v } : x)) })}
@@ -824,8 +843,12 @@ function Generador({
           {/* ---------- que incluye ---------- */}
           <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
             <div className={TITULO + " mb-2.5"}>Qué incluye</div>
+            <div className="flex flex-col gap-2">
+            {porArea.map((a) => (
+            <div key={a.clave} className="grid grid-cols-[96px_1fr] items-start gap-2">
+              <span className="pt-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{a.titulo}</span>
             <div className="flex flex-wrap gap-1.5">
-              {bloques.map((b) => (
+              {a.bloques.map((b) => (
                 <button
                   key={b.id}
                   type="button"
@@ -845,6 +868,9 @@ function Generador({
                   {st.on[b.id] && "✓"} {b.nombreCorto}
                 </button>
               ))}
+            </div>
+            </div>
+            ))}
             </div>
           </div>
 

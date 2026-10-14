@@ -168,6 +168,8 @@ export type BloqueHoja = {
   /** false = no se marca solo: viaja con el que lo arrastra (el visado). */
   suelto: boolean;
   formaPagoDefecto: string | null;
+  /** Su area de trabajo (PRY, OBR, SUBV...): el generador los agrupa por ella. */
+  area: string | null;
 };
 export type DatosHoja = {
   /** La oportunidad de la que son las hojas: manda ella, no la comunidad. */
@@ -258,10 +260,10 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
     leer<{
       id: string; codigo: string; nombre_corto: string | null; nombre: string; texto_plantilla: string | null; desglose: Desglose; honorarios_defecto: number | null;
       naturaleza: string | null; porcentaje_exito: number | null; base_exito: string | null; hito_exito: string | null; marca_tambien: string[] | null;
-      marca_como: Desglose | null; suelto: boolean; forma_pago_defecto: string | null;
+      marca_como: Desglose | null; suelto: boolean; forma_pago_defecto: string | null; area: string | null;
     }[]>(
       "bloques?select=id,codigo,nombre_corto,nombre,texto_plantilla,desglose,honorarios_defecto,naturaleza,porcentaje_exito,base_exito,hito_exito," +
-        "marca_tambien,marca_como,suelto,forma_pago_defecto&activo=is.true&order=orden.asc.nullslast",
+        "marca_tambien,marca_como,suelto,forma_pago_defecto,area&activo=is.true&order=orden.asc.nullslast",
     ),
     leer<{ id: string; nombre: string }[]>(
       "tipos_proyecto?select=id,nombre&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
@@ -400,6 +402,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
         marcaComo: b.marca_como,
         suelto: b.suelto,
         formaPagoDefecto: b.forma_pago_defecto,
+        area: b.area,
       };
     }),
     tipos,
