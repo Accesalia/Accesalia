@@ -188,6 +188,9 @@ export type DatosHoja = {
   bloques: BloqueHoja[];
   tipos: { id: string; nombre: string }[];
   contratas: { id: string; nombre: string; cif: string | null }[];
+  /** Lo que dijeron en el alta que les interesa (oportunidad_tipos): sale
+   *  premarcado en las hojas base (14-oct-2026). */
+  interes: { id: string; nombre: string }[];
 };
 
 const textoAcceso = (a: { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null }) =>
@@ -219,7 +222,7 @@ export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<bo
 
 export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
-  const [opps, hojas, bloques, tipos, contratas] = await Promise.all([
+  const [opps, hojas, bloques, tipos, contratas, interes] = await Promise.all([
     leer<{
       id: string;
       codigo: string | null;
@@ -272,6 +275,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       "tipos_proyecto?select=id,nombre&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
     leer<{ id: string; nombre: string; cif: string | null }[]>("contratas?select=id,nombre,cif&order=nombre.asc&limit=1000"),
+    leer<{ tipo: { id: string; nombre: string } | null }[]>(`oportunidad_tipos?select=tipo:tipo_id(id,nombre)&oportunidad_id=eq.${oppId}`),
   ]);
   const o = opps[0];
   if (!o) return null;
@@ -411,6 +415,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
     }),
     tipos,
     contratas,
+    interes: interes.map((x) => x.tipo).filter((t): t is { id: string; nombre: string } => !!t),
   };
 }
 

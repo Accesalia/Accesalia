@@ -9,6 +9,7 @@ import { CLAUSULA_ICIO, ESTILO_PAPEL, FORMAS_PAGO, esqueletoHoja, fechaLarga } f
 import { accionApuntarFirmada, accionBorrador, accionDescartarBorrador, accionEnlaceFirmada, accionEnviada, accionGenerar, accionPermisoFirmada } from "./acciones";
 import { estadoDeHoja } from "../../../lib/estadoHoja";
 import { columnasDeInteres } from "../../../lib/columnasInteres";
+import { basesDe, hojaBase, type Base } from "../../../lib/hojaBase";
 
 // LA PESTAÑA HOJA DE ENCARGO, tal cual la maqueta que Monica aprobo el 2-oct-2026
 // (docs/figma/hoja-de-encargo.html):
@@ -212,7 +213,9 @@ function ConOpp({
   // --------------------------------------------------------- el generador
   const [st, setSt] = useState<Estado | null>(null);
   const claveAct = useRef(1);
-  const abrir = (h: Hoja | null) => {
+  // LAS HOJAS BASE (14-oct-2026): lo que dijeron que les interesa, premarcado.
+  const bases = basesDe(datos.interes);
+  const abrir = (h: Hoja | null, base?: Base) => {
     setError(null);
     const oppDeHoja = (h?.oportunidadId && opps.find((o) => o.id === h.oportunidadId)?.id) || oppId;
     const accesosOpp = opps.find((o) => o.id === oppDeHoja)?.accesos.map((a) => a.id) ?? [];
@@ -240,9 +243,18 @@ function ConOpp({
       if (k.formaPago) pago[c] = k.formaPago;
       if (k.porcentaje != null) pct[k.bloqueId] = EUR.format(k.porcentaje);
     }
+    // Una hoja base: sus bloques, con sus atajos, y sus actuaciones en todos los
+    // accesos de la opp.
+    const premarca = base ? hojaBase(base, datos.interes, (id) => datos.tipos.some((t) => t.id === id)) : null;
+    for (const codigo of premarca?.bloques ?? []) {
+      const b = datos.bloques.find((x) => x.codigo === codigo);
+      if (b) marcarConAtajos(datos.bloques, on, modo, b);
+    }
     const acts = h?.actuaciones.length
       ? h.actuaciones.map((a) => ({ clave: claveAct.current++, tipoId: a.tipoId, accesoIds: a.accesoIds }))
-      : [{ clave: claveAct.current++, tipoId: "", accesoIds: accesosOpp }];
+      : premarca?.tipos.length
+        ? premarca.tipos.map((tipoId) => ({ clave: claveAct.current++, tipoId, accesoIds: accesosOpp }))
+        : [{ clave: claveAct.current++, tipoId: "", accesoIds: accesosOpp }];
     setSt({
       hojaId: h?.id ?? null,
       // Si la ultima es un borrador, se sigue ESE: no sale una version mas.
@@ -250,7 +262,11 @@ function ConOpp({
         ? h.version?.borrador
           ? `Seguir el borrador · hoja ${h.numero}${h.codigo ? ` (${h.codigo})` : ""} · ${h.titulo} (versión ${h.version.numero})`
           : `Modificar hoja ${h.numero}${h.codigo ? ` (${h.codigo})` : ""} · ${h.titulo} (saldrá la versión ${(h.version?.numero ?? 0) + 1})`
-        : "Nueva hoja de encargo",
+        : base === "subvenciones"
+          ? "Nueva hoja de encargo · subvenciones"
+          : base === "resto"
+            ? "Nueva hoja de encargo · lo que les interesa"
+            : "Nueva hoja de encargo",
       oppId: oppDeHoja,
       aQuien:
         h?.pagadorTipo === "contrata" && h.contrataId
@@ -344,9 +360,24 @@ function ConOpp({
         <div className={TARJETA + " lg:w-[46%] lg:shrink-0"}>
           <div className="mb-2.5 flex items-center justify-between">
             <div className={TITULO}>Hojas de encargo</div>
-            <button type="button" className={BTN_PRIM} disabled={!opp || ocupado} onClick={() => abrir(null)}>
-              + Generar nueva hoja
-            </button>
+            <div className="flex flex-wrap justify-end gap-1.5">
+              {/* LAS HOJAS BASE: lo que dijeron en el alta, premarcado. */}
+              {bases.map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  className={BTN_PRIM}
+                  disabled={!opp || ocupado}
+                  title={"Premarcada con lo que dijeron que les interesa: " + datos.interes.map((t) => t.nombre).join(", ")}
+                  onClick={() => abrir(null, b)}
+                >
+                  + Hoja de {b === "subvenciones" ? "subvenciones" : "lo demás"}
+                </button>
+              ))}
+              <button type="button" className={bases.length ? BTN : BTN_PRIM} disabled={!opp || ocupado} onClick={() => abrir(null)}>
+                {bases.length ? "+ En blanco" : "+ Generar nueva hoja"}
+              </button>
+            </div>
           </div>
           {hojas.length === 0 && <p className="py-6 text-center text-carbon/60">Esta oportunidad aún no tiene ninguna hoja.</p>}
           {hojas.map((h) => {
@@ -603,22 +634,10 @@ function Generador({
   // atajan: desmarcar no arrastra nada, y cada uno se puede quitar a mano.
   const toggle = (b: BloqueHoja) =>
     setSt((s) => {
-      const on = { ...s.on, [b.id]: !s.on[b.id] };
+      const on = { ...s.on };
       const modo = { ...s.modo };
-      const marcar = (x: BloqueHoja, visto: Set<string>) => {
-        for (const id of x.marcaTambien) {
-          if (visto.has(id)) continue;
-          visto.add(id);
-          const y = bloques.find((z) => z.id === id);
-          if (!y) continue;
-          if (!on[id]) {
-            on[id] = true;
-            if (x.marcaComo) modo[id] = x.marcaComo;
-          }
-          marcar(y, visto);
-        }
-      };
-      if (on[b.id]) marcar(b, new Set([b.id]));
+      if (on[b.id]) on[b.id] = false;
+      else marcarConAtajos(bloques, on, modo, b);
       return { ...s, on, modo };
     });
   // Un bloque que no va suelto (el visado) solo se puede marcar si esta marcado
@@ -1117,6 +1136,28 @@ function Generador({
       </div>
     </section>
   );
+}
+
+/** Marca un bloque y, en cascada, los que arrastra (catalogo: marca_tambien),
+ *  con la posicion que diga quien los arrastra. Lo que ya estaba marcado no se
+ *  toca. */
+function marcarConAtajos(bloques: BloqueHoja[], on: Record<string, boolean>, modo: Record<string, Desglose>, b: BloqueHoja) {
+  on[b.id] = true;
+  const visto = new Set([b.id]);
+  const marcar = (x: BloqueHoja) => {
+    for (const id of x.marcaTambien) {
+      if (visto.has(id)) continue;
+      visto.add(id);
+      const y = bloques.find((z) => z.id === id);
+      if (!y) continue;
+      if (!on[id]) {
+        on[id] = true;
+        if (x.marcaComo) modo[id] = x.marcaComo;
+      }
+      marcar(y);
+    }
+  };
+  marcar(b);
 }
 
 /** Una linea de la hoja: un bloque, o un bloque de proyecto para UNA actuacion. */
