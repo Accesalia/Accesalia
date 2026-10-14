@@ -3,6 +3,7 @@ import { BarraSuperior } from "../components/BarraSuperior";
 import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
 import { cuantosPendientes } from "../../lib/revisionPolycam";
+import { contarPendientes, FUNCION_REVISION } from "../../lib/revisionOferta";
 
 export const dynamic = "force-dynamic";
 
@@ -142,6 +143,26 @@ type Puerta = {
 };
 
 const PUERTAS: Puerta[] = [
+  {
+    // REVISION DE OFERTAS (Monica, 14-oct-2026): el ok al paquete antes de que
+    // el comercial lo mande a la comunidad. Por su funcion (hoy Daniel y Monica).
+    nombre: "Revisión de ofertas",
+    color: "rosa",
+    desc: "Las ofertas que esperan tu ok antes de salir a la comunidad: sus hojas, la viabilidad y el presupuesto",
+    href: "/comercial/revision",
+    funciones: [FUNCION_REVISION],
+    cuantos: contarPendientes,
+    comoSeCuenta: (n) => (n === 1 ? "1 esperando tu ok" : `${n} esperando tu ok`),
+  },
+  {
+    // GESTIONES DE LA APP (Monica, 14-oct-2026): lo que se puede tocar de la app,
+    // en un sitio: funciones de cada persona, bloques, plantillas, RRHH...
+    nombre: "Gestiones de la app",
+    color: "lila",
+    desc: "Lo que se puede tocar de la app en un solo sitio: funciones de cada persona, bloques, plantillas y RRHH",
+    href: "/gestiones",
+    funciones: ["direccion"],
+  },
   {
     // EL RADAR DE IEE (Monica, 12-oct-2026): "un boton de ir al radar para las
     // personas que tienen funciones con ese acceso: secretaria comercial, Daniel

@@ -499,7 +499,8 @@ export async function Gestion({ yo, hoy, verEx, fichaId, sId, error, alta, loteI
         </section>
 
       {/* ---------- documentos de toda la plantilla ---------- */}
-      <section className="mt-10">
+      {/* El id, para llegar directo desde Gestiones de la app ("Subir convenio"). */}
+      <section id="documentos" className="mt-10 scroll-mt-24">
         <Titulo extra="Los ve todo el equipo en su espacio">Documentos para toda la plantilla</Titulo>
         <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
           <ListaDocumentos docs={deEmpresa} puedeBorrar volver="/rrhh" vacio="Todavía no hay ninguno. Aquí van el convenio, el calendario laboral y la normativa interna." />

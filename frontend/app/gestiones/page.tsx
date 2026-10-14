@@ -1,0 +1,78 @@
+import { redirect } from "next/navigation";
+import { BarraSuperior } from "../components/BarraSuperior";
+import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
+import { Salida } from "../components/Salida";
+import { quienSoy } from "../../lib/sesion";
+import { puedeAsignarFunciones } from "../../lib/gestionFunciones";
+
+export const dynamic = "force-dynamic";
+
+// GESTIONES DE LA APP (Monica, 14-oct-2026): lo que se puede tocar de la app,
+// reunido en un sitio para no buscarlo pantalla a pantalla. Los botones pueden
+// repetir accesos que ya estan en otros sitios. Es de direccion.
+//
+// CRECEDERA: UN ACCESO NUEVO = UNA LINEA EN `ACCESOS`.
+
+type Acceso = { nombre: string; desc: string; href: string; color: ColorAcceso };
+
+const ACCESOS: Acceso[] = [
+  {
+    nombre: "Asignar funciones a personas",
+    color: "lila",
+    desc: "Quién tiene cada función: dar una función a una persona o quitársela",
+    href: "/gestiones/funciones",
+  },
+  {
+    nombre: "Catálogo de bloques",
+    color: "arena",
+    desc: "Los bloques que se marcan al generar una hoja de encargo: sus textos, su orden y sus importes",
+    href: "/comercial/bloques",
+  },
+  {
+    nombre: "Plantillas",
+    color: "azul",
+    desc: "Las plantillas de correo, generales y personales: verlas, crearlas y retocarlas",
+    href: "/comercial/plantillas",
+  },
+  {
+    nombre: "Alta de persona en RRHH",
+    color: "rosa",
+    desc: "Dar de alta a alguien nuevo en el equipo, con sus datos y sus funciones",
+    href: "/rrhh?alta=1#alta",
+  },
+  {
+    nombre: "Subir convenio",
+    color: "melocoton",
+    desc: "Los documentos para toda la plantilla: el convenio, el calendario laboral y la normativa interna",
+    href: "/rrhh#documentos",
+  },
+  {
+    nombre: "Calendario",
+    color: "verde",
+    desc: "El calendario de la empresa: festivos, cierres de oficina y la jornada del convenio",
+    href: "/rrhh#calendario",
+  },
+];
+
+export default async function Gestiones() {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/gestiones");
+  if (!yo.veTodo && !puedeAsignarFunciones(yo)) redirect("/menu");
+
+  return (
+    <div className="min-h-screen">
+      <BarraSuperior />
+      <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
+        <Salida href="/menu">← Áreas de Accesalia</Salida>
+        <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Gestiones de la app</h1>
+        <p className="mt-1 text-carbon/65">Lo que se puede tocar de la app, en un solo sitio.</p>
+
+        <RejillaAccesos className="mt-8">
+          {ACCESOS.map((a) => (
+            <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} />
+          ))}
+        </RejillaAccesos>
+      </main>
+    </div>
+  );
+}

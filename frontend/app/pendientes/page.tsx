@@ -9,6 +9,7 @@ import { solicitudesPendientes } from "../../lib/rrhh";
 import { cuantosPorRevisar } from "../../lib/recibidos";
 import { cuantosApuntes } from "../../lib/apuntesSatelite";
 import { direccionesVistas } from "../../lib/informeCostes";
+import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 
 export const dynamic = "force-dynamic";
 
@@ -148,7 +149,10 @@ export default async function Pendientes() {
   const resuelveRrhh = puedeEntrar(yo, "rrhh", "trabajar");
   // Lo del comercial: avisos, apuntes del satelite, viabilidades, direcciones con informe, posibles.
   const comercial = puedeEntrar(yo, "comercial", "trabajar");
-  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas] = await Promise.all([
+  // LAS OFERTAS ESPERANDO EL OK (Monica, 14-oct-2026): a quien tiene la funcion
+  // de revisarlas. Se envian en caliente: no pueden esperar.
+  const revisa = puedeRevisar(yo);
+  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas, ofertas] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
     resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
@@ -156,6 +160,7 @@ export default async function Pendientes() {
     comercial ? posiblesDe(yo).catch(() => null) : Promise.resolve(null),
     comercial ? cuantosApuntes(yo).catch(() => null) : Promise.resolve(null),
     comercial ? direccionesVistas().catch(() => null) : Promise.resolve(null),
+    revisa ? contarPendientes().catch(() => null) : Promise.resolve(null),
   ]);
   const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
   // Las direcciones con informe: las tuyas; direccion y supervision, todas (como su lista).
@@ -194,6 +199,13 @@ export default async function Pendientes() {
           clave: "llamadas", marco: "humano" as const, titulo: "Llamadas que me pasaste y no sé dónde poner",
           pie: "Con las notas que incluiste no tengo pistas para saber de qué o de quién eran: necesito ayuda humana.",
           numero: llamadas.length, href: "/pendientes/llamadas", color: C.turquesa, flechita: true,
+        }]
+      : []),
+    ...(revisa
+      ? [{
+          clave: "ofertas", marco: "humano" as const, titulo: "Ofertas esperando tu ok",
+          pie: "El comercial no puede mandarlas a la comunidad hasta que les des el ok o se las devuelvas con cambios.",
+          numero: ofertas, href: "/comercial/revision", color: C.rojo, flechita: true,
         }]
       : []),
     ...(resuelveRrhh

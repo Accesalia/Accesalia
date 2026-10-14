@@ -24,6 +24,7 @@ import { comercialDe, puedeEntrar } from "./sesion";
 import { autoresQueVeo } from "./pendientes";
 import { TEXTO_FALTA, type Falta } from "./completa";
 import { cuantosPorRevisar } from "./recibidos";
+import { contarPendientes, puedeRevisar } from "./revisionOferta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -87,7 +88,10 @@ export async function cuantosPendientes(yo: Yo): Promise<number> {
     ]);
     // Los documentos que suben las comunidades, a quien los revisa (12-oct-2026).
     const recibidos = await cuantosPorRevisar(yo);
-    return n.total + o.total + l.total + a.total + p.total + recibidos;
+    // Las ofertas esperando el ok, a quien las revisa: suman tambien aqui ademas
+    // de su aviso propio en la barra (Monica, 14-oct-2026).
+    const ofertas = puedeRevisar(yo) ? await contarPendientes().catch(() => 0) : 0;
+    return n.total + o.total + l.total + a.total + p.total + recibidos + ofertas;
   } catch {
     return 0;
   }

@@ -4,6 +4,7 @@ import { quienSoy } from "../../lib/sesion";
 import { salir } from "../entrar/acciones";
 import { BotonLlamada } from "./postit/BotonLlamada";
 import { cuantosPendientes } from "../../lib/misPendientes";
+import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 
 // Cabecera de toda la app: logo, el buscador, quien ha entrado (con su boton de
 // salir) y el boton MENU. Montada de cero el 11-sep-2026.
@@ -17,6 +18,9 @@ export async function BarraSuperior() {
   const yo = await quienSoy().catch(() => null);
   // El numero del boton PENDIENTES. Si falla, 0: nunca tumba la barra.
   const pendientes = yo ? await cuantosPendientes(yo) : 0;
+  // LAS OFERTAS ESPERANDO EL OK (Monica, 14-oct-2026): destacado y aparte de
+  // PENDIENTES, porque la oferta se envia en caliente. Solo a quien las revisa.
+  const ofertas = yo && puedeRevisar(yo) ? await contarPendientes().catch(() => 0) : 0;
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-carbon text-white">
@@ -76,6 +80,19 @@ export async function BarraSuperior() {
               </button>
             </form>
           </div>
+        )}
+
+        {ofertas > 0 && (
+          <Link
+            href="/comercial/revision"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border-2 border-[#d9a3a3] bg-alerta px-4 py-2 text-sm font-bold text-white transition hover:bg-[#8a302e]"
+          >
+            <span className="grid size-5 place-items-center rounded-full bg-white text-[12px] font-extrabold text-alerta">{ofertas}</span>
+            <span>
+              <span className="hidden lg:inline">Tienes {ofertas} {ofertas === 1 ? "oferta esperando" : "ofertas esperando"} tu ok</span>
+              <span className="lg:hidden">{ofertas === 1 ? "oferta" : "ofertas"} por el ok</span>
+            </span>
+          </Link>
         )}
 
         {/* LLAMADA (Monica, 8-oct-2026): pone un postit delante, sin salir de
