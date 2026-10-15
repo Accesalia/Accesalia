@@ -31,8 +31,8 @@ import { nombreDeOpp } from "./direccionOpp";
 import { pasoDe, type Clave, type Paso } from "./pasosEscalera";
 import { BLOQUE_DE, OBRAS, SUBVENCION } from "./hojaBase";
 import { COLUMNAS_INTERES } from "./columnasInteres";
-import { aHoraMadrid, polycamDe } from "./citas";
-import { estadoRevision, type EstadoRevision } from "./revisionOferta";
+import { aHoraMadrid } from "./citas";
+import type { EstadoRevision } from "./revisionOferta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -312,45 +312,27 @@ type OppCruda = {
   tipos: { tipo: { nombre: string } | null }[];
 };
 
-/** Todo lo que hace falta de UNA opp para su estado, lo que quieren y su paso. */
+/** EL PASO, YA GUARDADO (Monica, 15-oct-2026: "una sola verdad"): la tabla
+ *  estado_oportunidad, que mantiene lib/estadoOportunidad.ts. Una consulta para
+ *  todas las que se pidan; nadie vuelve a calcular la escalera aqui. */
+async function pasosGuardados(ids: string[]): Promise<Map<string, Falta>> {
+  if (!ids.length) return new Map();
+  const filas = await leer<{ oportunidad_id: string; clave: Clave; texto: string; extra: string | null }[]>(
+    `estado_oportunidad?select=oportunidad_id,clave,texto,extra&oportunidad_id=in.(${ids.join(",")})`,
+  ).catch(() => []);
+  return new Map(filas.map((f) => [f.oportunidad_id, { clave: f.clave, texto: f.texto, extra: f.extra, paso: pasoDe(f.clave).seccion }]));
+}
+const SIN_CALCULAR: Falta = { clave: "cerrar_visita", texto: "Sin calcular todavía", extra: null };
+
+/** Su estado y lo que quieren. El paso lo pone quien llama, de la tabla. */
 async function leerUna(op: OppCruda, desglose: Map<string, string>) {
   const hojas = op.hojas.filter((h) => h.estado !== "anulada");
-  // OJO: la escalera NO lee fases_oportunidad (Monica, 14-oct-2026: "hay dos
-  // escaleras: la de las FASES COMERCIALES, que no se toca, y la de lo que nos
-  // bloquea para avanzar, que es DISTINTA"). Lee sus propios datos.
-  const [estado, juntas, tresd, citas, polycam, viab, revision] = await Promise.all([
-    estadoDe(op, hojas),
-    leer<Datos["juntas"]>(`juntas?select=fecha_junta,celebrada,resultado,creado_en&oportunidad_id=eq.${op.id}`),
-    leer<{ tipo_3d: string | null; estado: string | null }[]>(
-      `modelos_3d_venta?select=tipo_3d,estado&oportunidad_id=eq.${op.id}&order=creado_en.desc&limit=1`,
-    ),
-    leer<{ inicio: string }[]>(`citas?select=inicio&tipo=eq.escaneo_polycam&estado=neq.anulada&oportunidad_id=eq.${op.id}&limit=1`).catch(
-      () => [],
-    ),
-    polycamDe(op.id).catch(() => null),
-    leer<{ id: string }[]>(
-      `viabilidades?select=id&oportunidad_id=eq.${op.id}&or=(enviada_en.not.is.null,url_pdf.not.is.null)&limit=1`,
-    ).catch(() => []),
-    estadoRevision(op.id).catch(() => null),
-  ]);
+  const estado = await estadoDe(op, hojas);
   const intereses = op.tipos.map((t) => t.tipo?.nombre).filter((n): n is string => !!n);
   const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id);
   // Ganada: lo que se firmo. Si la hoja no lo dice (las importadas), lo que querian.
   const quieren = (estado.ganada ? await loFirmado(firmadas).catch(() => null) : null) ?? cobrables(intereses, desglose);
-  return {
-    estado,
-    quieren,
-    falta: falta({
-      estado,
-      hojas,
-      juntas,
-      tresd: tresd[0] ?? null,
-      cita: citas[0] ?? null,
-      polycam: !!polycam,
-      arquitecto: viab.length > 0,
-      revision,
-    }),
-  };
+  return { estado, quieren };
 }
 
 export type OtraOpp = {
@@ -388,6 +370,7 @@ async function otrasEnLaDireccion(oppId: string, desglose: Map<string, string>):
   if (!ids.length) return [];
   const opps = await leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=in.(${ids.join(",")})`);
   const porId = new Map(accesos.map((a) => [a.id, a]));
+  const pasos = await pasosGuardados(opps.map((o) => o.id));
 
   const filas = await Promise.all(
     opps.map(async (o) => {
@@ -403,7 +386,7 @@ async function otrasEnLaDireccion(oppId: string, desglose: Map<string, string>):
         cerrada: x.estado.cerrada,
         resultado:
           estado === "abierta"
-            ? x.falta.texto.toLowerCase()
+            ? (pasos.get(o.id) ?? SIN_CALCULAR).texto.toLowerCase()
             : [estado === "ganada" ? "Ganada" : estado === "perdida" ? "Perdida" : "Cerrada", cuando ? fecha(cuando) : null].filter(Boolean).join(" "),
         orden: (estado === "abierta" ? "1" : "0") + (cuando ?? o.fecha_apertura ?? o.creado_en),
       };
@@ -423,8 +406,8 @@ export type DatosCabecera = {
 export async function cabeceraDe(oppId: string): Promise<DatosCabecera | null> {
   const [[op], desglose] = await Promise.all([leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=eq.${oppId}`), desgloses()]);
   if (!op) return null;
-  const [una, otras] = await Promise.all([leerUna(op, desglose), otrasEnLaDireccion(oppId, desglose).catch(() => [])]);
-  return { ...una, otras };
+  const [una, pasos, otras] = await Promise.all([leerUna(op, desglose), pasosGuardados([oppId]), otrasEnLaDireccion(oppId, desglose).catch(() => [])]);
+  return { ...una, falta: pasos.get(oppId) ?? SIN_CALCULAR, otras };
 }
 
 /** ¿Se puede cerrar o pausar? No, si esta firmada y queda dinero por cobrar. */

@@ -31,6 +31,7 @@ import { opcionesEntrada } from "../../../../lib/entradaDiario";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { Salida } from "../../../components/Salida";
 import { cabeceraDe } from "../../../../lib/cabeceraOpp";
+import { recalcular } from "../../../../lib/estadoOportunidad";
 import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
 import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
@@ -99,7 +100,9 @@ export default async function GestionOportunidad({
   const delAlta = new Set(COLUMNAS_INTERES.flatMap((c) => c.nombres));
   const paraAnadir = tipos.filter((t) => delAlta.has(t.nombre) && !g.tiposElegidos.includes(t.id));
   const [cab, barra, escaneo, contactos, distrito, viabilidad, completa] = await Promise.all([
-    cabeceraDe(id),
+    // AL ABRIR LA FICHA se recalcula su paso (estado_oportunidad), y la cabecera
+    // lo lee ya al dia.
+    recalcular(id, "ficha").catch(() => undefined).then(() => cabeceraDe(id)),
     barraDeOportunidad(id, g.comunidadId, g.creada),
     escaneoDe(id).catch(() => null),
     g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),

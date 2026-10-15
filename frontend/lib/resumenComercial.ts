@@ -299,6 +299,15 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
   if (!ids.length) return { filas: [] };
 
   const { datosDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe } = await cargar(ops);
+  // LA FECHA DE ENTRADA EN EL PASO, medida (estado_oportunidad, 15-oct-2026). Si
+  // es reconstruida (opps de antes de la tabla), manda la deducida de aqui abajo,
+  // que es mas fina (el ultimo envio, no el primero).
+  const medida = new Map(
+    (await porTramos<{ oportunidad_id: string; clave: string; desde: string | null; desde_reconstruido: boolean }>(ids,
+      (t) => `estado_oportunidad?select=oportunidad_id,clave,desde,desde_reconstruido&oportunidad_id=in.(${t})`).catch(() => []))
+      .filter((e) => e.desde && !e.desde_reconstruido)
+      .map((e) => [e.oportunidad_id, e]),
+  );
 
   const filas: FilaResumen[] = [];
   for (const o of ops) {
@@ -344,6 +353,8 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación");
       pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
     }
+    const m = medida.get(o.id);
+    if (m && m.clave === fa.clave && fa.paso !== "junta") desde = new Date(m.desde!).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta
     let alerta = diasFase > plazo;
     // EL MARGEN, solo para el administrador: grabado un contacto en la fase, sale
