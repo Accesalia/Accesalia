@@ -25,6 +25,8 @@ import {
 import { MapaCartera } from "./MapaCartera";
 import { resumenComercial } from "../../lib/resumenComercial";
 import { ListaResumen } from "./resumen/ListaResumen";
+import { oppsPorFases } from "../../lib/oppsPorFases";
+import { FasesConMapa } from "./FasesConMapa";
 import { HojaDelDia, diaPedido, hoyEnMadrid, vistaPedida, type Vista } from "../agenda/HojaDelDia";
 import { Salida } from "../components/Salida";
 
@@ -167,6 +169,10 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   // LAS ALERTAS (Monica, 15-oct-2026): pestaña de aqui, no pagina aparte. En la
   // demo no hay: lo de la demo es inventado.
   const alertas = seccion === "alertas" && !esDemo ? (await resumenComercial(elegido?.id ?? null)).filas : [];
+  // OPPS POR FASES (Monica, 15-oct-2026): todas las abiertas, fase > copy > opps,
+  // con el mapa al lado. Sin la columna del diario: la lista necesita el ancho.
+  const porFases = seccion === "fases" && !esDemo ? await oppsPorFases(elegido?.id ?? null) : [];
+  const sinDiario = seccion === "fases";
   // El "vista" de la direccion ya era el cambio agenda / calendario; el de dia o
   // semana va en "hoja".
   const enDia = (d: string, vi: Vista) => {
@@ -208,15 +214,6 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     return "/comercial" + (t ? "?" + t : "");
   };
 
-  // Las fases, para "Opps por fases": cada una lleva a sus oportunidades.
-  const enFase = (clave: string) => {
-    const q = new URLSearchParams();
-    if (c) q.set("c", c);
-    q.set("ver", "fases");
-    q.set("fase", clave);
-    return "/comercial?" + q.toString();
-  };
-  const enlacesFases = Object.fromEntries(cuadro.pasos.map((p) => [p.clave, enFase(p.clave)]));
   const nombreFase = cuadro.pasos.find((p) => p.clave === faseElegida)?.corto.join(" ").trim() ?? faseElegida;
   const conC = c ? `?c=${c}` : "";
   // Con una fase elegida, la lista trae solo esa: el total sale de las fases.
@@ -460,7 +457,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               "grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] " +
               // En la cartera, 60 / 40: la lista de administradores necesita sitio
               // y la columna de al lado lleva tres tarjetas (Monica, 13-oct-2026).
-              (carteraNueva ? "xl:grid-cols-[minmax(0,60fr)_minmax(0,40fr)]" : "xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]")
+              (sinDiario ? "" : carteraNueva ? "xl:grid-cols-[minmax(0,60fr)_minmax(0,40fr)]" : "xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]")
             }
           >
             {/* ================= columna izquierda ================= */}
@@ -491,18 +488,12 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
 
               {/* ---- opps por fases: arriba las fases, abajo las de la elegida ----
                   (los comerciales, 12-oct-2026) */}
-              {seccion === "fases" && (
-                <>
-                  <PanelFases pasos={cuadro.pasos} agregado={cuadro.agregado} enlaces={enlacesFases} elegida={faseElegida} />
-                  {faseElegida ? (
-                    lista
-                  ) : (
-                    <p className="mt-6 rounded-2xl bg-white px-5 py-8 text-center text-base text-carbon/65">
-                      Elige una fase arriba y aquí salen las oportunidades que están en ella.
-                    </p>
-                  )}
-                </>
-              )}
+              {seccion === "fases" &&
+                (esDemo ? (
+                  <p className="rounded-2xl bg-white px-5 py-8 text-center text-base text-carbon/65">En la demostración no hay opps por fases.</p>
+                ) : (
+                  <FasesConMapa filas={porFases} />
+                ))}
 
               {/* ---- alertas: solo lo que se ha pasado de plazo, por como se desbloquea ---- */}
               {seccion === "alertas" && (
@@ -562,7 +553,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
             </div>
 
             {/* ================= columna derecha, siempre igual =================
-                Va sobre el azul, no fuera de el, en su propia zona blanca. */}
+                Va sobre el azul, no fuera de el, en su propia zona blanca. En
+                Opps por fases no: ahi la lista y el mapa necesitan el ancho. */}
+            {!sinDiario && (
             <div className="flex flex-col gap-3 rounded-[10px] border border-[#0B3253] bg-white p-3">
               <Grabar
                 hoy={hoyISO}
@@ -588,6 +581,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                   los que marean (13-oct-2026). */}
               {carteraNueva && cuadro.gestores ? <CarteraLateral c={cuadro.gestores} /> : <Diario entradas={cuadro.diario} />}
             </div>
+            )}
           </div>
           </>
         )}
