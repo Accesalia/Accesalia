@@ -30,57 +30,62 @@ export function Patios({
   const caja = useRef<HTMLInputElement>(null);
   const guardar = accionPatios.bind(null, referencia, id);
 
+  // EN FILA (Monica, 15-oct-2026): "¿Tiene patios?" a la izquierda; Si / No,
+  // "¿cuantos?" y quien los conto, a la derecha.
   return (
-    <form action={guardar} className="text-center">
-      <div className="mb-1 text-[12px] font-bold text-[#14781E]">Patios</div>
-      <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
-        <button
-          type="button"
-          className={BOT(si)}
-          onClick={() => {
-            setSi(true);
-            caja.current?.focus();
-          }}
-        >
-          Sí
-        </button>
-        {/* "No" se guarda tal cual: 0 patios. */}
-        <button type="submit" name="patios" value="0" formNoValidate className={BOT(patios === 0 && !si)} onClick={() => setSi(false)}>
-          No
-        </button>
-      </div>
-      <div className="mt-[5px] flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-0.5 text-[11.5px]">
-        <span className="text-[#8a8a8a]">¿cuántos?</span>
-        <input
-          ref={caja}
-          name="patios"
-          type="number"
-          min={1}
-          max={99}
-          defaultValue={patios && patios > 0 ? patios : ""}
-          aria-label="Cuántos patios tiene"
-          onChange={(e) => e.target.value && setSi(true)}
-          className="w-[38px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
-        />
-        <button type="submit" className="text-[11px] font-semibold text-[#14781E] hover:underline">
-          guardar
-        </button>
-      </div>
-      <p className="mt-[5px] text-[11px] leading-[1.3] text-[#8a8a8a]">
-        {quien ? (
-          <>
-            los contó {quien}
-            {cuando && (
-              <>
-                {" "}
-                el {cuando.slice(8, 10)}/{cuando.slice(5, 7)}
-              </>
-            )}
-          </>
-        ) : (
-          "sin mirar"
+    <form action={guardar} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
+      <div className="pt-px text-[12.5px] font-bold text-[#14781E]">¿Tiene patios?</div>
+      <div className="text-center">
+        <div className="flex items-baseline justify-center gap-[5px] text-[12px]">
+          <button
+            type="button"
+            className={BOT(si)}
+            onClick={() => {
+              setSi(true);
+              caja.current?.focus();
+            }}
+          >
+            Sí
+          </button>
+          {/* "No" se guarda tal cual: 0 patios. */}
+          <button type="submit" name="patios" value="0" formNoValidate className={BOT(patios === 0 && !si)} onClick={() => setSi(false)}>
+            No
+          </button>
+        </div>
+        {si && (
+          <div className="mt-[4px] flex items-baseline justify-center gap-x-1.5 text-[11.5px]">
+            <span className="text-[#8a8a8a]">¿cuántos?</span>
+            <input
+              ref={caja}
+              name="patios"
+              type="number"
+              min={1}
+              max={99}
+              defaultValue={patios && patios > 0 ? patios : ""}
+              aria-label="Cuántos patios tiene"
+              className="w-[38px] rounded-[5px] border border-[#bdbdbd] bg-white px-1 py-px text-center text-[11.5px] text-carbon outline-none focus:border-lima"
+            />
+            <button type="submit" className="text-[11px] font-semibold text-[#14781E] hover:underline">
+              guardar
+            </button>
+          </div>
         )}
-      </p>
+        <p className="mt-[3px] text-[11px] leading-[1.3] text-[#8a8a8a]">
+          {quien ? (
+            <>
+              {quien}
+              {cuando && (
+                <>
+                  {" "}
+                  el {cuando.slice(8, 10)}/{cuando.slice(5, 7)}
+                </>
+              )}
+            </>
+          ) : (
+            "sin mirar"
+          )}
+        </p>
+      </div>
     </form>
   );
 }

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { barrerNuestrasDirecciones, direccionDeAcceso } from "../../../../lib/ieePorDireccion";
 import {
   pausar,
   cerrar,
@@ -281,4 +282,27 @@ export async function accionBuscarOpps(q: string): Promise<{ id: string; nombre:
   const yo = await quienSoy();
   if (!yo || !puedeEntrar(yo, "comercial")) return [];
   return (await buscarOpps(q)).map(({ id, nombre, detalle }) => ({ id, nombre, detalle }));
+}
+
+/** CONSULTAR LA IEE DE ESTA OPP (Monica, 15-oct-2026): cuando no consta, se le
+ *  pregunta al registro aposta por sus portales, con la misma maquina que el
+ *  barrido de nuestras direcciones (lib/ieePorDireccion.ts). Lo que encuentre se
+ *  guarda en iee_registrado y la ficha lo lee de ahi. */
+export async function accionConsultarIee(oppId: string): Promise<{ ok: true; guardadas: number; fuera: boolean } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial", "trabajar")) return { ok: false, error: "Sin permiso para consultar." };
+  if (!(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    const rel = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/relacion_oportunidad_accesos?select=acceso:acceso_id(municipio,tipo_via,nombre_via,numero)&opp_id=eq.${oppId}&hasta=is.null`,
+      { headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` }, cache: "no-store" },
+    ).then((r) => r.json() as Promise<{ acceso: { municipio: string; tipo_via: string; nombre_via: string; numero: string } | null }[]>);
+    const dirs = rel.map((r) => r.acceso).filter((a): a is NonNullable<typeof a> => !!a?.nombre_via && !!a.numero).map(direccionDeAcceso);
+    if (!dirs.length) return { ok: false, error: "La opp no tiene portales con calle y número." };
+    const r = await barrerNuestrasDirecciones({ soloEstas: dirs, segundosMaximos: 50 });
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    return { ok: true, guardadas: r.guardadas, fuera: r.municipiosMirados === 0 && r.municipiosFuera.length > 0 };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

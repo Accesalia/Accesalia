@@ -11,11 +11,13 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTipos, accionTresD } from "./acciones";
-import { Fases, QueContratan, Serie, Titulo } from "./Piezas";
-import { AZUL, Carril } from "./Carril";
+import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTresD } from "./acciones";
+import { Serie, Titulo } from "./Piezas";
+import { AZUL, Pestanas } from "./Carril";
 import { Cabecera } from "./Cabecera";
 import { Edificio } from "./Edificio";
+import { FotosOpp } from "./FotosOpp";
+import { fotosDeOpp } from "../../../../lib/fotos";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
@@ -129,6 +131,9 @@ export default async function GestionOportunidad({
       ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
       : [null, [], []];
   const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
+  // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
+  const fotos = bloque === 1 ? await fotosDeOpp(id).catch(() => []) : [];
+  const apartadoFotos = bloque === 1 ? <FotosOpp oppId={id} fotos={fotos} /> : null;
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
   // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
@@ -218,13 +223,15 @@ export default async function GestionOportunidad({
             La columna de bloques es menu e indicador de avance a la vez, y el
             activo cruza el hueco para fundirse con el panel: "sin linea entre
             ellos, el ojo lee una pieza" (Monica, 30-sep-2026). */}
-        <div className="mt-6 flex items-stretch gap-[14px]">
-          <Carril hitos={g.hitos} visto={bloque} id={id} />
+        {/* LAS PESTAÑAS ARRIBA (Monica, 15-oct-2026): el carril de la izquierda se
+            comia pantalla; asi el panel aprovecha todo el ancho. */}
+        <div className="mt-6">
+          <Pestanas hitos={g.hitos} visto={bloque} id={id} />
           <div
             // El panel azul relleno de la maqueta: "el fondo tiene que decir
             // esto que estas viendo ES el bloque 1".
-            style={{ borderColor: AZUL, borderRadius: "0 10px 10px 10px", background: AZUL }}
-            className="min-w-0 flex-1 border p-[11px]"
+            style={{ borderColor: AZUL, borderRadius: bloque === 1 ? "0 10px 10px 10px" : bloque === 4 ? "10px 0 10px 10px" : "10px", background: AZUL }}
+            className="min-w-0 border p-[11px]"
           >
 
         {/* SUS ANCHOS: 278 · 346 · 190 · 246 en el lienzo de 1300, que salen
@@ -248,12 +255,11 @@ export default async function GestionOportunidad({
           <div
             className={
               "mb-[10px] grid items-stretch gap-[10px] " +
-              (g.referenciaCatastral ? "lg:grid-cols-[minmax(0,1fr)_minmax(200px,auto)]" : "lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]")
+              "lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]"
             }
           >
-            {/* El 3D va con lo que hemos visto, en el edificio (15-oct-2026); si no
-                hay edificio que mirar, se queda aqui arriba. */}
-            {necesita && !g.referenciaCatastral && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
+            {/* El 3D, arriba: hay ancho de sobra (Monica, 15-oct-2026). */}
+            {necesita && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
             {necesita && (
               <Necesidades
                 oppId={id}
@@ -324,22 +330,26 @@ export default async function GestionOportunidad({
             personas={paraCompletar?.personas ?? []}
           />
         )}
-        <div className="grid items-start gap-[10px] xl:grid-cols-[calc(278px+(100%-1090px)/3)_calc(346px+(100%-1090px)/3)_190px_calc(246px+(100%-1090px)/3)]">
+        {/* EL REPARTO CON LAS PESTAÑAS ARRIBA (15-oct-2026): lo que se gana al
+            quitar el carril (unos 186 px) va un 60% al diario, que era una tira
+            partida, y un 40% al contenido. El diario parte de 246 + 112 = 358 px y
+            sigue creciendo con la ventana como antes (un tercio de lo que sobre). */}
+        <div className="grid items-start gap-[10px] xl:grid-cols-[minmax(0,1fr)_calc(358px+(100%-1276px)/3)]">
           {bloque === 2 && documentacion ? (
             // El bloque 2 ocupa el sitio del edificio: las tres primeras
             // columnas. El diario y el trabajo de abajo son de toda la
             // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
-            <div className="min-w-0 xl:col-span-3">
+            <div className="min-w-0 xl:col-span-1">
               <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} informes={informes} enviados={enviados} />
             </div>
           ) : decision ? (
             // Los bloques 3 y 4, en crudo: cada campo con donde vive (15-oct-2026).
-            <div className="min-w-0 xl:col-span-3">
+            <div className="min-w-0 xl:col-span-1">
               {bloque === 3 ? <Bloque3 g={g} d={decision} /> : <Bloque4 d={decision} />}
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.
-            <div className="xl:col-span-3">
+            <div className="xl:col-span-1">
               <iframe
                 src={`/comercial/oportunidades/${id}/anexo#view=FitH`}
                 title="Informe del edificio"
@@ -347,35 +357,25 @@ export default async function GestionOportunidad({
               />
             </div>
           ) : g.referenciaCatastral ? (
-            <Edificio
-              referencia={g.referenciaCatastral}
-              id={id}
-              tresd={bloque === 1 && necesita ? <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} /> : undefined}
-            />
+            <Edificio referencia={g.referenciaCatastral} id={id} fotos={apartadoFotos} />
           ) : (
-            <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-3">
-              <b>Todavía no hay edificio que mirar.</b> Esta oportunidad no tiene referencia
-              catastral, así que no se puede traer ni el Catastro, ni la zona, ni las
-              subvenciones. Se arregla fijando la dirección.
+            <div className="flex min-w-0 flex-col gap-[10px]">
+              <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80">
+                <b>Todavía no hay edificio que mirar.</b> Esta oportunidad no tiene referencia
+                catastral, así que no se puede traer ni el Catastro, ni la zona, ni las
+                subvenciones. Se arregla fijando la dirección.
+              </div>
+              {apartadoFotos}
             </div>
           )}
 
-          {/* ================== el trabajo (segunda fila, a lo ancho) ================== */}
-          <div className="flex min-w-0 flex-col gap-5 xl:col-span-4 xl:row-start-2">
-            {/* --------------------- 2 · las diez fases ---------------------
-                Una barra, y abierta solo la que toca. Antes eran diez filas con
-                cuatro botones cada una: dos pantallas de cosas que hoy no
-                aplican (Monica, 29-sep-2026). */}
-            <Fases hitos={g.hitos} />
-
-            {/* --------------------- 3 · qué contratan --------------------- */}
-            <QueContratan tipos={tipos} elegidos={g.tiposElegidos} guardar={accionTipos.bind(null, id)} />
-
-            {/* ----------------- 4 · qué vendemos y por cuánto ----------------- */}
-            {/* En el bloque 2 va dentro de "El trato": no se repite. */}
-            {bloque === 1 && trato(false)}
-
-            <div className="flex flex-col gap-5">
+          {/* ============ el 3D y las juntas: del bloque 3 (15-oct-2026) ============
+              Las diez fases, que contratan y que le vendemos se fueron de aqui:
+              repetian la barra de la cabecera, el "interesados en" del cuadrito
+              gris y "El trato" del bloque 2. El 3D y las juntas son de la junta:
+              van al bloque 3, hasta que se rehaga con su maqueta. */}
+          {bloque === 3 && (
+            <div className="flex min-w-0 flex-col gap-5 xl:col-span-1 xl:row-start-2">
               {/* ------------------------- 5 · el 3D ------------------------- */}
               <form id="el-3d" action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
                 <Titulo>El 3D</Titulo>
@@ -436,10 +436,10 @@ export default async function GestionOportunidad({
                 }))}
               />
             </div>
-          </div>
+          )}
 
           {/* ============ cuarta columna: 7 · el diario de esta opp ============ */}
-          <div className="flex min-w-0 flex-col gap-5 xl:col-start-4 xl:row-start-1">
+          <div className="flex min-w-0 flex-col gap-5 xl:col-start-2 xl:row-start-1">
             <form action={accionEntrada.bind(null, id)} className={CAJA + " p-4"}>
               <div className={ROT_CAJA + " mb-2"}>Grabar aquí</div>
               <textarea
@@ -449,22 +449,11 @@ export default async function GestionOportunidad({
                 placeholder="Cuéntalo como se lo contarías a un compañero. Puedes dictarlo con el micro de tu teclado."
                 className={CAMPO + " resize-y leading-relaxed"}
               />
-              <div className="mt-2 flex flex-wrap items-end gap-2">
-                <label className="block w-[135px]">
-                  <span className={ROTULO}>Cuándo</span>
-                  <input type="date" name="fecha" className={CAMPO + " mt-1"} />
-                </label>
-                {/* En el PC no viene ninguno marcado: lo elige quien escribe
-                    (Monica, 8-oct-2026). */}
-                <label className="block min-w-0 flex-1">
-                  <span className={ROTULO}>Cómo te has enterado</span>
-                  <select name="canal" required defaultValue="" className={CAMPO + " mt-1"}>
-                    <option value="" disabled>Elige…</option>
-                    {CANALES.map((c) => (
-                      <option key={c.valor} value={c.valor}>{c.texto}</option>
-                    ))}
-                  </select>
-                </label>
+              {/* SIN "CUANDO" NI "COMO TE HAS ENTERADO" (Monica, 15-oct-2026): esa
+                  informacion ya va dentro del texto de la nota. Se guarda con la
+                  fecha de hoy, como escrita. */}
+              <input type="hidden" name="canal" value="escrito" />
+              <div className="mt-2 flex justify-end">
                 <button className={BOTON}>Guardar</button>
               </div>
             </form>

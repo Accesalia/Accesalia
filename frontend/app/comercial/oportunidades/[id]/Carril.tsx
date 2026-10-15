@@ -124,3 +124,39 @@ export function Carril({ hitos, visto, id }: { hitos: HitoGestion[]; visto: numb
     </div>
   );
 }
+
+/** LAS PESTAÑAS ARRIBA (Monica, 15-oct-2026): el carril de la izquierda se comia
+ *  unos 186 px que hacen falta para la informacion. Los cuatro bloques pasan a una
+ *  fila de pestañas encima del panel azul; la que se esta viendo, en el mismo azul
+ *  y pegada a el ("esto que estas viendo ES el bloque 1"). Cada una con su titulo y
+ *  su pie: por donde va la oportunidad no se pierde. */
+export function Pestanas({ hitos, visto, id }: { hitos: HitoGestion[]; visto: number; id: string }) {
+  return (
+    <div className="flex items-end gap-1.5 overflow-x-auto">
+      {bloquesDe(hitos).map(({ activo: _enCurso, ...b }) => {
+        const activo = b.n === visto;
+        const clase =
+          "flex min-w-[170px] flex-1 flex-col rounded-t-[10px] px-3.5 pb-2 pt-2 " +
+          (activo ? "text-white" : "mb-1.5 rounded-b-[10px] border border-[#dcdcdc] bg-[#fbfbfb] transition hover:border-[#104269]");
+        const dentro = (
+          <>
+            <span className="flex items-baseline gap-2">
+              <span className={"text-[10px] font-bold uppercase tracking-[0.08em] " + (activo ? "text-white/80" : "text-[#9a9a9a]")}>Bloque {b.n}</span>
+              <span className={"text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon")}>{b.titulo}</span>
+            </span>
+            <span className={"mt-0.5 truncate text-[11px] leading-snug " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>{b.pie}</span>
+          </>
+        );
+        return activo ? (
+          <div key={b.n} className={clase} style={{ background: AZUL }}>
+            {dentro}
+          </div>
+        ) : (
+          <Link key={b.n} href={`/comercial/oportunidades/${id}${b.n === 1 ? "" : `?bloque=${b.n}`}`} scroll={false} className={clase}>
+            {dentro}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
