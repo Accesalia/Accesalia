@@ -74,7 +74,7 @@ export const ACCIONES: { clave: Accion; titulo: string; sub: string }[] = [
   { clave: "interno", titulo: "Preguntar en casa", sub: "Viabilidad, ok a la oferta o cobro: deben responder en el día." },
   { clave: "doc", titulo: "Generar el documento y enviarlo", sub: "Lo tenemos todo: no depende de nadie, hay que hacerlo." },
   { clave: "polycam", titulo: "Hacer el Polycam", sub: "Llama al contacto y cierra fecha. Si no te dan día, vas y escaneas." },
-  { clave: "perdida", titulo: "Darla por perdida y cerrarla", sub: "Seis meses sin noticias, o la junta votó que no." },
+  { clave: "perdida", titulo: "Darla por perdida y cerrarla", sub: "Tres meses sin noticias, o la junta votó que no." },
 ];
 
 export type FilaResumen = {
@@ -112,8 +112,10 @@ export const PLAZOS = {
   firmadaSinCobro: 15,
   /** Tras grabar una llamada o un mail al administrador, sale de alertas estos dias. */
   margenTrasContacto: 5,
-  /** (de Claude, a confirmar) hoja enviada sin noticias: pasa a "darla por perdida". */
-  darPorPerdida: 180,
+  /** Hoja enviada sin noticias: pasa a "darla por perdida". "Un dia a dia normal,
+   *  si en 2 meses no sabes nada, es mala cosa; con fiestas y vacaciones, 3"
+   *  (Monica, 15-oct-2026). Solo decide si sale en alertas. */
+  darPorPerdida: 90,
 };
 
 type OppCruda = {
@@ -185,6 +187,19 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
         (t) => `escaneados_polycam?select=viabilidad_id,fecha,creado_en&viabilidad_id=in.(${t})`).catch(() => [])
     : [];
   const viabDe = new Map(viab.map((v) => [v.id, v.oportunidad_id]));
+  // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
+  // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
+  // funciones vigentes del equipo: si cambia la persona, cambia sola.
+  const hoy = hoyISO();
+  const funciones = await leer<{ desde: string | null; hasta: string | null; funcion: { clave: string } | null; equipo: { nombre: string } | null }>(
+    `equipo_funciones?select=desde,hasta,funcion:funciones(clave),equipo(nombre)&funciones.clave=in.(viabilidades,facturacion,revision_ofertas)`,
+  ).catch(() => []);
+  const enCasaDe = (clave: string, puesto: string) => {
+    const quien = funciones
+      .filter((x) => x.funcion?.clave === clave && (!x.desde || x.desde <= hoy) && (!x.hasta || x.hasta >= hoy) && x.equipo)
+      .map((x) => x.equipo!.nombre);
+    return quien.length ? `${puesto} (${[...new Set(quien)].join(", ")})` : puesto;
+  };
 
   const grupo = <T,>(xs: T[], k: (x: T) => string | null | undefined) => {
     const m = new Map<string, T[]>();
@@ -275,13 +290,13 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       else { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin fecha para escanear`; }
     } else if (fa.paso === "sin_hoja") {
       desde = polyFecha.get(o.id) ?? abierta;
-      if (d.polycam && !d.arquitecto) { plazo = PLAZOS.polycamSinViabilidad; accion = "interno"; enCasa = "quien hace la viabilidad"; pasa = `Polycam${el(desde)}, falta la viabilidad`; }
-      else if (/ok a la/.test(fa.texto)) { accion = "interno"; enCasa = "quien revisa la oferta"; }
+      if (d.polycam && !d.arquitecto) { plazo = PLAZOS.polycamSinViabilidad; accion = "interno"; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(desde)}, falta la viabilidad`; }
+      else if (/ok a la/.test(fa.texto)) { accion = "interno"; enCasa = enCasaDe("revision_ofertas", "Revisión de ofertas"); }
       else pasa = fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
     } else if (fa.paso === "hoja_enviada") {
       desde = enviada ?? abierta; plazo = PLAZOS.hojaSinNoticias; accion = "admin";
       pasa = /nueva oferta/.test(fa.texto) ? `Nueva oferta enviada${el(enviada)}, sin respuesta` : `Hoja enviada${el(enviada)}, sin fecha de junta`;
-      // Seis meses sin saber nada: ya no es llamar, es cerrarla.
+      // Tres meses sin saber nada: ya no es llamar, es cerrarla.
       const ultimaNoticia = [enviada, c0].filter(Boolean).sort().at(-1) ?? abierta;
       if (dias(ultimaNoticia) > PLAZOS.darPorPerdida) { accion = "perdida"; pasa += `; nada desde${el(ultimaNoticia)}`; }
     } else if (fa.paso === "junta") {
@@ -293,7 +308,7 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja; accion = "admin";
       pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`;
     } else if (fa.paso === "cobro") {
-      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; accion = "interno"; enCasa = "facturación";
+      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; accion = "interno"; enCasa = enCasaDe("facturacion", "Facturación");
       pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
     }
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta
