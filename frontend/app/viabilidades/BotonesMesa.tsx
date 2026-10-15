@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { accionResolverDaniel } from "./acciones";
 import { accionCorregirDireccion } from "./revision-polycam/acciones";
+import { accionEnlaceMaterial } from "../comercial/viabilidad-sin-polycam/acciones";
 
 // Los dos botones de la tarjeta de la mesa que hacen algo sin salir de ella
 // (Monica, 14-oct-2026): "corregir dirección" (lo que vinculo la app vuelve a
@@ -56,5 +57,24 @@ export function ResueltoPorDaniel({ viabilidadId }: { viabilidadId: string }) {
       </button>
       {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
     </span>
+  );
+}
+
+/** Un fichero del material de una viabilidad pedida sin Polycam: se abre con un
+ *  enlace firmado que caduca, pedido al pulsar. */
+export function MaterialPedido({ id, nombre }: { id: string; nombre: string }) {
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        const ventana = window.open("", "_blank");
+        const url = await accionEnlaceMaterial(id).catch(() => null);
+        if (url && ventana) ventana.location.href = url;
+        else ventana?.close();
+      }}
+      className="inline-flex items-center gap-1 rounded-lg border border-[#9db6cf] bg-[#e3ecf5] px-2 py-0.5 text-[11.5px] font-semibold text-[#3f5f80] hover:bg-[#d5e2ef]"
+    >
+      📄 {nombre}
+    </button>
   );
 }

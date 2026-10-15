@@ -4,8 +4,9 @@ import type { EscaneadoPendiente } from "../../lib/revisionPolycam";
 import type { PorHacer } from "../../lib/mesaViabilidades";
 import { accionBuscar, accionVincular } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
-import { accionEmpezar } from "./acciones";
-import { CorregirDireccion, ResueltoPorDaniel } from "./BotonesMesa";
+import { accionEmpezar, accionEmpezarSolicitud } from "./acciones";
+import type { SolicitudPendiente } from "../../lib/solicitudViabilidad";
+import { CorregirDireccion, MaterialPedido, ResueltoPorDaniel } from "./BotonesMesa";
 import { Salida } from "../components/Salida";
 
 // ============================================================================
@@ -77,12 +78,15 @@ function Cabecera({ titulo, n, color, children }: { titulo: string; n: number; c
 
 /** La mesa ya con sus datos: separada de la carga para poder mirarla con datos de muestra. */
 export function Mesa({
+  pedidas,
   todas,
   sinVincular,
   ver,
   enviada,
   resuelveDaniel,
 }: {
+  /** Las viabilidades pedidas sin Polycam que aun nadie ha empezado (15-oct-2026). */
+  pedidas: SolicitudPendiente[];
   todas: PorHacer[];
   sinVincular: EscaneadoPendiente[];
   ver?: string;
@@ -122,6 +126,9 @@ export function Mesa({
             <b>Enviada al comercial.</b> Ya está en sus manos: la completa y la manda con la hoja de encargo.
           </div>
         )}
+
+        {/* --------------------------- las pedidas sin Polycam (15-oct-2026) */}
+        {pedidas.length > 0 && <PedidasSinPolycam pedidas={pedidas} />}
 
         {/* ---------------------------------------------------- las dos columnas */}
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_2px_minmax(0,1fr)]">
@@ -289,5 +296,73 @@ export function Mesa({
         </div>
       </main>
     </div>
+  );
+}
+
+// ------------------------------------------------ pedidas sin Polycam
+
+/** "Para cuando": con prisa (una semana o menos, o ya pasada) se destaca. */
+function plazo(paraCuando: string | null): { texto: string; prisa: boolean } | null {
+  if (!paraCuando) return null;
+  const dias = Math.round((new Date(paraCuando + "T12:00:00").getTime() - Date.now()) / 86_400_000);
+  const texto = dias < 0 ? `para el ${fecha(paraCuando)} (ya pasó)` : dias === 0 ? "para hoy" : `para el ${fecha(paraCuando)}`;
+  return { texto, prisa: dias <= 7 };
+}
+
+/** VIABILIDADES PEDIDAS SIN POLYCAM (Monica, 15-oct-2026): las pide el comercial
+ *  desde el bloque 1 de la opp, con su descripcion y su material. La mas antigua
+ *  arriba. "Empezar" crea la viabilidad y lleva a su mesa de trabajo; desde ahi ya
+ *  sale en "Listas para empezar" como borrador. */
+function PedidasSinPolycam({ pedidas }: { pedidas: SolicitudPendiente[] }) {
+  return (
+    <section className="mt-8">
+      <Cabecera titulo="Viabilidades pedidas sin Polycam" n={pedidas.length} color="#3f5f80">
+        <p className="mt-0.5 text-[13px] text-carbon">El comercial las ha pedido con su descripción y lo que tenga: fotos, planos, croquis…</p>
+      </Cabecera>
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        {pedidas.map((s) => {
+          const p = plazo(s.paraCuando);
+          return (
+            <div key={s.id} className={`${CARD} flex flex-wrap items-start justify-between gap-x-4 gap-y-2`}>
+              <div className="min-w-0 flex-1">
+                <Link href={`/comercial/oportunidades/${s.oportunidadId}`} className="text-[17px] font-bold uppercase leading-snug text-carbon/70 hover:underline">
+                  {s.opp}
+                </Link>
+                {s.accesos && <div className="text-[12px] text-carbon/65">{s.accesos}</div>}
+                <div className="mt-1 text-[13px] font-semibold text-carbon">{s.quieren}</div>
+                <p className="mt-1 whitespace-pre-line text-[14px] text-carbon/90">{s.descripcion}</p>
+                <div className="mt-1.5 text-[11.5px] text-carbon/65">
+                  {[s.pedidaPor ? `pedida por ${s.pedidaPor}` : null, s.codigo].filter(Boolean).join(" · ")}
+                  {" · "}
+                  <span className="font-semibold text-[#a3540f]">{espera(s.pedidaEn)}</span>
+                </div>
+                {s.material.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {s.material.map((m) => (
+                      <MaterialPedido key={m.id} id={m.id} nombre={m.nombre} />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                {p && (
+                  <span
+                    className={
+                      "rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide " +
+                      (p.prisa ? "bg-alerta text-white" : "border border-[#e8d9a8] bg-[#fdf6e0] text-[#6b5214]")
+                    }
+                  >
+                    {p.texto}
+                  </span>
+                )}
+                <form action={accionEmpezarSolicitud.bind(null, s.id)}>
+                  <button className={ABRIR}>Empezar</button>
+                </form>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
