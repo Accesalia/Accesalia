@@ -64,9 +64,9 @@ export async function accionEnlaceMaterial(adjuntoId: string): Promise<string | 
   return enlaceMaterial(adjuntoId);
 }
 
-/** DESMARCAR LAS FASES QUE NO APLICAN: Polycam y viabilidad. true/false lo
+/** DESMARCAR LAS FASES QUE NO APLICAN: Polycam y viabilidad (y el 3D, expreso). true/false lo
  *  decide la persona; null vuelve a lo automatico (segun lo que quieren). */
-export async function accionMarcarNecesidades(oppId: string, d: { polycam?: boolean | null; viabilidad?: boolean | null }): Promise<Resultado> {
+export async function accionMarcarNecesidades(oppId: string, d: { polycam?: boolean | null; viabilidad?: boolean | null; tresd?: boolean | null }): Promise<Resultado> {
   try {
     const yo = await permiso(oppId);
     await marcarNecesidades(oppId, d, yo);

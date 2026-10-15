@@ -33,6 +33,8 @@ export type Necesidades = {
   /** Lo marco una persona (si no, es automatico). */
   polycamAMano: boolean;
   viabilidadAMano: boolean;
+  /** ¿Necesita 3D para la junta? Casilla EXPRESA, a mano; vacio = no (15-oct-2026). */
+  tresd: boolean;
   /** El aviso para la ficha cuando lo automatico quita alguna fase: "Como es
    *  Memoria valorada, no anoto que haya que hacer ni Polycam ni viabilidad...". */
   aviso: string | null;
@@ -89,8 +91,8 @@ export async function necesidadesDeMuchas(ids: string[]): Promise<Map<string, Ne
   for (let i = 0; i < unicos.length; i += 150) tramos.push(unicos.slice(i, i + 150));
   await Promise.all(tramos.map(async (trozo) => {
     const [opps, intereses] = await Promise.all([
-      pedir<{ id: string; necesita_polycam: boolean | null; necesita_viabilidad: boolean | null }[]>(
-        `oportunidades?select=id,necesita_polycam,necesita_viabilidad&id=in.(${trozo.join(",")})`,
+      pedir<{ id: string; necesita_polycam: boolean | null; necesita_viabilidad: boolean | null; necesita_tresd: boolean | null }[]>(
+        `oportunidades?select=id,necesita_polycam,necesita_viabilidad,necesita_tresd&id=in.(${trozo.join(",")})`,
       ),
       pedir<{ oportunidad_id: string; tipo_id: string }[]>(`oportunidad_tipos?select=oportunidad_id,tipo_id&oportunidad_id=in.(${trozo.join(",")})`),
     ]);
@@ -117,6 +119,7 @@ export async function necesidadesDeMuchas(ids: string[]): Promise<Map<string, Ne
         viabilidad,
         polycamAMano: o.necesita_polycam != null,
         viabilidadAMano: o.necesita_viabilidad != null,
+        tresd: o.necesita_tresd === true,
         aviso: quita.length
           ? `Como es ${nombres}, no anoto que haya que hacer ${quita.length === 2 ? "ni Polycam ni viabilidad: pasamos directamente a darles precio" : quita[0] === "Polycam" ? "Polycam: se calcula sin ir (sí la viabilidad del arquitecto)" : "viabilidad"}. Si hay que cambiarlo, solo tienes que desmarcarlo aquí.`
           : null,
@@ -134,13 +137,14 @@ export async function necesidadesDe(oppId: string): Promise<Necesidades | null> 
  *  cuando; el paso de la opp se recalcula. */
 export async function marcarNecesidades(
   oppId: string,
-  d: { polycam?: boolean | null; viabilidad?: boolean | null },
+  d: { polycam?: boolean | null; viabilidad?: boolean | null; tresd?: boolean | null },
   yo: Yo,
 ): Promise<void> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) throw new Error("Oportunidad no válida.");
   const cambio: Record<string, unknown> = { necesidades_por: yo.id, necesidades_en: new Date().toISOString() };
   if (d.polycam !== undefined) cambio.necesita_polycam = d.polycam;
   if (d.viabilidad !== undefined) cambio.necesita_viabilidad = d.viabilidad;
+  if (d.tresd !== undefined) cambio.necesita_tresd = d.tresd;
   await pedir(`oportunidades?id=eq.${oppId}`, { method: "PATCH", body: JSON.stringify(cambio) });
   recalcularLuego(oppId);
 }
