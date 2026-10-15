@@ -71,9 +71,9 @@ export function bloquesDe(hitos: HitoGestion[]): EstadoBloque[] {
   });
 }
 
-/** Los bloques que ya tienen pantalla. El resto se ve en el carril pero aun no
- *  se abre. */
-const CON_PANTALLA = new Set([1, 2]);
+/** Los bloques que ya tienen pantalla. El 3 y el 4, en crudo: se abren para ver
+ *  que campos tienen (Monica, 15-oct-2026). */
+const CON_PANTALLA = new Set([1, 2, 3, 4]);
 
 /** EL CARRIL ES MENU E INDICADOR A LA VEZ. La pestaña oscura es el bloque que
  *  se esta VIENDO ("esto que estas viendo ES el bloque 1", Monica, 30-sep); por

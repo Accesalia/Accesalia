@@ -20,6 +20,8 @@ import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
 import { Bloque2 } from "./Bloque2";
+import { Bloque3, Bloque4 } from "./Bloque34";
+import { decisionCierreDe } from "../../../../lib/bloquesDecisionCierre";
 import { informesDeOportunidad } from "../../../../lib/informeCostes";
 import { correosEnviados } from "../../../../lib/envioCorreo";
 import { Miniaturas } from "../../../components/Miniaturas";
@@ -80,8 +82,8 @@ export default async function GestionOportunidad({
   const vista = sp.vista === "informe" ? "informe" : "ficha";
   // El bloque que se ESTA VIENDO, que no tiene por que ser por el que va la
   // oportunidad: el carril es menu ademas de indicador. Hoy hay pantalla para el
-  // 1 y el 2.
-  const bloque = sp.bloque === "2" ? 2 : 1;
+  // 1 y el 2, y el 3 y el 4 en crudo (15-oct-2026).
+  const bloque = sp.bloque === "2" ? 2 : sp.bloque === "3" ? 3 : sp.bloque === "4" ? 4 : 1;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -115,6 +117,7 @@ export default async function GestionOportunidad({
     bloque === 2
       ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
       : [null, [], []];
+  const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
   // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
@@ -292,6 +295,11 @@ export default async function GestionOportunidad({
             // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
             <div className="min-w-0 xl:col-span-3">
               <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} informes={informes} enviados={enviados} />
+            </div>
+          ) : decision ? (
+            // Los bloques 3 y 4, en crudo: cada campo con donde vive (15-oct-2026).
+            <div className="min-w-0 xl:col-span-3">
+              {bloque === 3 ? <Bloque3 g={g} d={decision} /> : <Bloque4 d={decision} />}
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.
