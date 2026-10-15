@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { informeEdificio } from "../../../../lib/informeEdificio";
 import { barrerNuestrasDirecciones, direccionDeAcceso } from "../../../../lib/ieePorDireccion";
 import {
   pausar,
@@ -302,6 +303,22 @@ export async function accionConsultarIee(oppId: string): Promise<{ ok: true; gua
     const r = await barrerNuestrasDirecciones({ soloEstas: dirs, segundosMaximos: 50 });
     revalidatePath(`/comercial/oportunidades/${oppId}`);
     return { ok: true, guardadas: r.guardadas, fuera: r.municipiosMirados === 0 && r.municipiosFuera.length > 0 };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** VOLVER A CONSULTAR EL EDIFICIO (Monica, 15-oct-2026): solo se ofrece cuando
+ *  faltan datos de Catastro. Se salta la espera entre consultas, porque lo pide
+ *  una persona. */
+export async function accionVolverAConsultar(oppId: string, referencia: string): Promise<{ ok: true; completo: boolean } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial", "trabajar")) return { ok: false, error: "Sin permiso para consultar." };
+  if (!(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    const i = await informeEdificio(referencia, { refrescar: true });
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    return { ok: true, completo: !!i && i.fallos.length === 0 };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

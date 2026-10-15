@@ -2,6 +2,7 @@ import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdifi
 import { accionAscensor, accionPortal } from "./acciones";
 import { Patios } from "./Patios";
 import { ConsultarIee } from "./ConsultarIee";
+import { VolverAConsultar } from "./VolverAConsultar";
 
 // EL EDIFICIO, DENTRO DEL BLOQUE 1 (Monica, 5-oct-2026).
 //
@@ -170,6 +171,9 @@ export function EdificioVista({
         <b>No se ha podido traer el edificio.</b> O no contesta Catastro, o la referencia{" "}
         <span className="font-mono">{referencia}</span> no existe. Si no la encuentra, casi siempre
         es que la dirección está mal escrita.
+        <div className="mt-2">
+          <VolverAConsultar oppId={id} referencia={referencia} />
+        </div>
       </div>
     );
 
@@ -351,7 +355,16 @@ export function EdificioVista({
       {/* ======== las tres cards, iguales y a lo ancho (Monica, 15-oct-2026) ========
           Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
       <section className={CAJA}>
-        <div className={ROT + " mb-[3px] text-[#104269]"}>Lo que dice el Catastro</div>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <div className={ROT + " mb-[3px] text-[#104269]"}>Lo que dice el Catastro</div>
+          {/* Solo si falta algo: si esta todo, no se ofrece (15-oct-2026). */}
+          {i.fallos.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-amber-900/80">
+              <span>No se pudo traer: {i.fallos.join(" · ")}</span>
+              <VolverAConsultar oppId={id} referencia={referencia} />
+            </div>
+          )}
+        </div>
         {tabla(
           <>
             {grupo("catastro", "El edificio", edificio)}
