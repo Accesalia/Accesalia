@@ -84,6 +84,13 @@ export type InformeEdificio = {
    *  menos de 800 m; "entorno" = a menos de 800 m habia menos de 5 y son 8 del
    *  municipio, elegidas al azar pero siempre las mismas para cada edificio. */
   ambitoSubvenciones: "800m" | "entorno";
+  /** Fuera de Madrid capital: el cruce con el catalogo de proteccion de su
+   *  municipio (null en Madrid, que va por el geoportal). bajadoEl null = de ese
+   *  municipio no tenemos catalogo. */
+  catalogoProteccion: EnElCatalogo | null;
+  /** El municipio entero esta en area arqueologica (Alcala de Henares): el foso
+   *  del ascensor exige informe arqueologico. */
+  arqueologiaTodoElMunicipio: boolean;
   /** Cuando se pregunto a Catastro y al geoportal. Un dato de hace un año no es
    *  falso, pero conviene saber que es de hace un año. */
   consultadoEn: string;
@@ -536,6 +543,8 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
     conclusiones: conc,
     subvencionesCerca: cerca,
     ambitoSubvenciones: enElEntorno ? "entorno" : "800m",
+    catalogoProteccion: esMadrid ? null : (catalogo ?? { bajadoEl: null, casados: [] }),
+    arqueologiaTodoElMunicipio: sinTildes(municipio) === "ALCALA DE HENARES",
     consultadoEn: c.consultadoEn,
     pdfs,
     soloYendo,

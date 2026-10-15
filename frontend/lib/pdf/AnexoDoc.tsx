@@ -187,7 +187,7 @@ export function AnexoPagina({ a, croquis, aerea }: { a: Anexo } & ImagenesAnexo)
 
         {a.condiciona && (
           <>
-            <Titulo t={`${num()} · Lo que condiciona la obra`} fuente="Geoportal del Ayuntamiento de Madrid" />
+            <Titulo t={`${num()} · Lo que condiciona la obra`} fuente={a.condicionaFuente ?? "Geoportal del Ayuntamiento de Madrid"} />
             <View style={s.fila3}>
               {a.condiciona.map((c) => (
                 <View key={c.titulo} style={s.punto}>

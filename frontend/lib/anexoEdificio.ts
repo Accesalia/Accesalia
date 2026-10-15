@@ -24,6 +24,7 @@
 import "server-only";
 import { ascensorDe, ieeDe, informeEdificio, distritoDe, type Iee } from "./informeEdificio";
 import { bonito, NOMBRE_TIPO } from "./direccionNombre";
+import { nombreBonito } from "./catalogoProteccion";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -60,6 +61,8 @@ export type Anexo = {
   epoca: { titulo: string; texto: string }[];
   iee: Iee | null;
   condiciona: { bien: boolean; titulo: string; texto: string }[] | null;
+  /** De donde sale lo que condiciona: el geoportal (Madrid) o el catalogo del municipio. */
+  condicionaFuente: string;
   pedido: string | null;
   ayudas: LineaAyuda[];
   ademasEficiencia: LineaAyuda[];
@@ -199,7 +202,9 @@ export async function anexoDeReferencia(
   else if (sobre && sobre >= 4)
     epoca.push({ titulo: `${sobre} alturas`, texto: "Un acceso sin barreras desde la calle hasta cada planta es lo que más valor añade a las viviendas altas." });
 
-  // ---------------- lo que condiciona (solo donde hay dato: Madrid capital)
+  // ---------------- lo que condiciona: en Madrid, el geoportal; fuera, el
+  // catalogo de su municipio y la arqueologia (Monica, 15-oct-2026: "si sabemos
+  // que sale, por que no decirlo?")
   let condiciona: Anexo["condiciona"] = null;
   if (esMadrid) {
     const prot = dato("Protección", "¿Está protegido?");
@@ -210,6 +215,32 @@ export async function anexoDeReferencia(
       homog && { bien: homog === "—", titulo: homog === "—" ? "Sin conjunto homogéneo" : "Conjunto homogéneo", texto: homog === "—" ? "La fachada puede tratarse como el edificio necesite." : homog },
       modelo && { bien: modelo === "No", titulo: modelo === "No" ? "Sin modelo de ascensor impuesto" : "Modelo de ascensor fijado", texto: modelo === "No" ? "Se puede proyectar el ascensor que convenga." : "El distrito exige un modelo concreto: el proyecto parte de él." },
     ].filter(Boolean) as NonNullable<Anexo["condiciona"]>;
+  } else {
+    const muni = i.municipio ? nombreBonito(i.municipio) : "su municipio";
+    const cat = i.catalogoProteccion;
+    condiciona = [];
+    if (cat?.bajadoEl != null) {
+      for (const { fila, como } of cat.casados) {
+        const cita = `«${fila.denominacion.trim().replace(/[.\s]+$/, "")}»${fila.grado ? `, ${fila.grado}` : ""}`;
+        condiciona.push({
+          bien: false,
+          titulo: "Edificio protegido",
+          // Por la referencia catastral es seguro; por la parcela o la calle, el
+          // cruce puede fallar: se dice de donde sale.
+          texto:
+            como === "referencia"
+              ? `Figura en el Catálogo de Bienes Protegidos de ${muni}: ${cita}. La obra pasa por Patrimonio.`
+              : `Según el catálogo municipal de ${muni}: ${cita}. La obra pasa por Patrimonio.`,
+        });
+      }
+      if (!cat.casados.length) condiciona.push({ bien: true, titulo: "Sin protección", texto: `No figura en el catálogo de ${muni}.` });
+    }
+    if (i.arqueologiaTodoElMunicipio)
+      condiciona.push({
+        bien: false,
+        titulo: "Área arqueológica",
+        texto: "El municipio entero está en área arqueológica: el foso del ascensor exige informe arqueológico.",
+      });
   }
 
   // ---------------- las ayudas, por lo que nos han pedido
@@ -242,6 +273,7 @@ export async function anexoDeReferencia(
 
   // ---------------- lo que han conseguido otros
   let entorno: Anexo["entorno"] = null;
+  let deLaBdns = false;
   const paraQuePedido = new Set(pedidas.map((c) => c.para_que));
   // A 800 m, de las dos fuentes con posicion (Ayuntamiento y COAM, sumadas sin
   // repetir), en Madrid y fuera (15-oct-2026). Solo si alli no sale nada, las de
@@ -288,6 +320,7 @@ export async function anexoDeReferencia(
         mas: Math.max(0, suyas.length - 5),
         total: suyas.reduce((t, k) => t + (k.importe ?? 0), 0),
       };
+      deLaBdns = true;
     }
   }
 
@@ -302,7 +335,9 @@ export async function anexoDeReferencia(
     "Dirección General del Catastro",
     iee ? "Registro de IEE de la Comunidad de Madrid" : null,
     esMadrid ? "Geoportal del Ayuntamiento de Madrid" : null,
-    !esMadrid && entorno ? "Base de Datos Nacional de Subvenciones" : null,
+    i.subvencionesCerca.some((x) => x.fuente.includes("COAM")) && entorno && !deLaBdns ? "Visor de rehabilitación PRTR de la Comunidad de Madrid (COAM)" : null,
+    deLaBdns ? "Base de Datos Nacional de Subvenciones" : null,
+    i.catalogoProteccion?.bajadoEl != null && i.municipio ? `Catálogo de bienes protegidos de ${nombreBonito(i.municipio)}` : null,
   ].filter(Boolean).join(" · ");
 
   return {
@@ -317,6 +352,11 @@ export async function anexoDeReferencia(
     epoca: epoca.slice(0, 3),
     iee,
     condiciona: condiciona && condiciona.length ? condiciona : null,
+    condicionaFuente: esMadrid
+      ? "Geoportal del Ayuntamiento de Madrid"
+      : i.catalogoProteccion?.bajadoEl != null && i.municipio
+        ? `Catálogo de bienes protegidos de ${nombreBonito(i.municipio)}`
+        : "Normas urbanísticas del municipio",
     pedido: pedido.nombres.length ? pedido.nombres.join(" y ") : null,
     ayudas: pedidas.sort(orden).slice(0, 5).map(linea),
     ademasEficiencia: ademas.sort(orden).slice(0, 3).map(linea),
