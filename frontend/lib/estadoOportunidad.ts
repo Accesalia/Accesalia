@@ -17,7 +17,7 @@
 
 import "server-only";
 import { after } from "next/server";
-import { BLOQUES, bloqueDeFase, pasoDe, type Clave, type Fase } from "./pasosEscalera";
+import { bloqueDeFase, pasoDe, type Clave, type Fase } from "./pasosEscalera";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -153,15 +153,27 @@ export async function barrido(origen: Origen = "barrido"): Promise<{ total: numb
   return recalcularMuchas(ids, origen);
 }
 
-// ------------------------------------------------- la primera carga
+// ------------------------------------------------- la reconstruccion
 
-/** LA PRIMERA CARGA, con el historial hacia atras RECONSTRUIDO. Las fechas de
- *  entrada en cada fase se deducen de lo que ya hay en la base (el alta, la
- *  primera hoja, el primer envio, la junta, la firma, el cierre) y quedan
- *  marcadas como reconstruidas: deducidas, no medidas. Solo para opps que aun no
- *  tienen fila. */
-export async function cargaInicial(): Promise<{ opps: number; historial: number }> {
-  const [opps, hojas, versiones, juntas, cierres, existentes] = await Promise.all([
+/** RECONSTRUIR lo que no se midio (primera carga, y cada vez que cambie la regla
+ *  de la escalera): las opps sin fila o con la entrada RECONSTRUIDA. Su paso se
+ *  recalcula, `desde` es la fecha del hecho que abre su paso (fechaEntradaDeMuchas,
+ *  la misma regla que todo lo demas) y su historial reconstruido se rehace con
+ *  la regla de la escalera (Monica, 15-oct-2026): la FASE es el ULTIMO HITO
+ *  ALCANZADO, y se entra en cada una con su hecho:
+ *    1 primer contacto  · el alta
+ *    2 visita           · se agenda la visita (la cita)
+ *    3 polycam          · pasa el dia de la visita
+ *    4 viabilidad       · se pide la viabilidad sin Polycam (o llega el Polycam)
+ *    5 documentos       · el arquitecto la envia (o, sin ella, la primera hoja)
+ *    6 envio            · el primer envio a la comunidad
+ *    8 junta            · la primera junta con fecha
+ *    9 firma            · la junta vota que si
+ *    10 cobro           · llega la hoja firmada
+ *  Todo marcado como reconstruido: deducido, no medido. Lo medido no se toca. */
+export async function reconstruir(): Promise<{ opps: number; historial: number }> {
+  const hoyISO = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
+  const [opps, hojas, versiones, juntas, cierres, citas, viabs, solicitudes, estados] = await Promise.all([
     todo<{ id: string; fecha_apertura: string | null; creado_en: string }>("oportunidades?select=id,fecha_apertura,creado_en", "id"),
     todo<{ id: string; oportunidad_id: string | null; fecha_creacion: string | null; fecha_firma: string | null; estado: string }>(
       "hojas_encargo?select=id,oportunidad_id,fecha_creacion,fecha_firma,estado&estado=neq.anulada",
@@ -170,74 +182,85 @@ export async function cargaInicial(): Promise<{ opps: number; historial: number 
     todo<{ hoja_encargo_id: string; fecha_enviada: string | null }>("versiones_hoja?select=hoja_encargo_id,fecha_enviada&fecha_enviada=not.is.null", "id"),
     todo<{ oportunidad_id: string | null; fecha_junta: string | null; resultado: string | null }>("juntas?select=oportunidad_id,fecha_junta,resultado", "id"),
     todo<{ oportunidad_id: string; fecha_cierre: string | null; creado_en: string }>("motivo_cierre_oportunidad?select=oportunidad_id,fecha_cierre,creado_en", "id"),
-    todo<{ oportunidad_id: string }>("estado_oportunidad?select=oportunidad_id", "oportunidad_id"),
+    todo<{ oportunidad_id: string | null; creado_en: string; inicio: string }>("citas?select=oportunidad_id,creado_en,inicio&tipo=eq.escaneo_polycam&estado=neq.anulada", "id"),
+    todo<{ oportunidad_id: string | null; enviada_en: string | null }>("viabilidades?select=oportunidad_id,enviada_en&enviada_en=not.is.null", "id"),
+    todo<{ oportunidad_id: string; pedida_en: string }>("solicitudes_viabilidad?select=oportunidad_id,pedida_en&estado=neq.anulada", "id"),
+    todo<{ oportunidad_id: string; desde_reconstruido: boolean }>("estado_oportunidad?select=oportunidad_id,desde_reconstruido", "oportunidad_id"),
   ]);
-  const ya = new Set(existentes.map((e) => e.oportunidad_id));
-  const nuevas = opps.filter((o) => !ya.has(o.id));
-  if (!nuevas.length) return { opps: 0, historial: 0 };
+  const medidas = new Set(estados.filter((e) => !e.desde_reconstruido).map((e) => e.oportunidad_id));
+  const aRehacer = opps.filter((o) => !medidas.has(o.id));
+  if (!aRehacer.length) return { opps: 0, historial: 0 };
 
-  const hojaDe = new Map(hojas.map((h) => [h.id, h]));
-  const min = (xs: (string | null | undefined)[]) => xs.filter((x): x is string => !!x).map((x) => x.slice(0, 10)).sort()[0] ?? null;
+  const dia = (x: string | null | undefined) => (x ? x.slice(0, 10) : null);
+  const min = (xs: (string | null | undefined)[]) => xs.map(dia).filter((x): x is string => !!x).sort()[0] ?? null;
   const porOpp = <T extends { oportunidad_id: string | null }>(xs: T[]) => {
     const m = new Map<string, T[]>();
     for (const x of xs) if (x.oportunidad_id) m.set(x.oportunidad_id, [...(m.get(x.oportunidad_id) ?? []), x]);
     return m;
   };
-  const hojasDe = porOpp(hojas);
-  const juntasDe = porOpp(juntas);
-  const cierreDe = porOpp(cierres);
+  const hojaDe = new Map(hojas.map((h) => [h.id, h]));
+  const [hojasDe, juntasDe, cierreDe, citasDe, viabsDe, solDe] = [porOpp(hojas), porOpp(juntas), porOpp(cierres), porOpp(citas), porOpp(viabs), porOpp(solicitudes)];
   const enviosDe = new Map<string, string[]>();
   for (const v of versiones) {
     const o = hojaDe.get(v.hoja_encargo_id)?.oportunidad_id;
     if (o && v.fecha_enviada) enviosDe.set(o, [...(enviosDe.get(o) ?? []), v.fecha_enviada]);
   }
-  // El orden de las fases, para no apuntar una entrada "despues" de la actual.
-  const ORDEN = BLOQUES.flatMap((b) => b.hitos);
-  const pos = (f: Fase | null) => (f ? ORDEN.indexOf(f) : ORDEN.length);
-  // La clave que representa la entrada en cada fase, para el historial.
+  // Las fases en su orden (las de FASES, sin el 3D, que es un ramal), con la
+  // clave que representa la entrada en cada una.
   const ENTRADA: [Fase, Clave][] = [
-    ["visita", "cerrar_visita"],
+    ["primer_contacto", "cerrar_visita"],
+    ["visita", "esperando_visita"],
+    ["polycam", "enviar_polycam"],
+    ["viabilidad_arquitecto", "arquitecto_viabilidad"],
     ["preparacion_documentos", "preparar_docs"],
-    ["junta", "falta_fecha_junta"],
+    ["envio_documentos", "falta_fecha_junta"],
+    ["junta", "junta_por_celebrar"],
     ["firma", "junta_si_falta_firmada"],
     ["cobro", "falta_ok_cobro_primera"],
   ];
+  const pos = (f: Fase | null) => (f ? ENTRADA.findIndex(([x]) => x === f) : ENTRADA.length);
 
+  const { faltaDeMuchas, fechaEntradaDeMuchas } = await import("./resumenComercial");
   let nHist = 0;
-  for (let i = 0; i < nuevas.length; i += 150) {
-    const trozo = nuevas.slice(i, i + 150);
-    const { faltaDeMuchas } = await import("./resumenComercial");
-    const faltas = await faltaDeMuchas(trozo.map((o) => o.id));
+  const tramos: (typeof aRehacer)[] = [];
+  for (let i = 0; i < aRehacer.length; i += 150) tramos.push(aRehacer.slice(i, i + 150));
+  for (const trozo of tramos) {
+    const ids = trozo.map((o) => o.id);
+    const [faltas, fechas] = await Promise.all([faltaDeMuchas(ids), fechaEntradaDeMuchas(ids)]);
     const filas: Record<string, unknown>[] = [];
     const historial: Record<string, unknown>[] = [];
     for (const o of trozo) {
       const f = faltas.get(o.id);
       if (!f) continue;
       const p = pasoDe(f.clave);
+      const cita = citasDe.get(o.id)?.[0] ?? null;
+      const visitaPasada = cita && dia(cita.inicio)! <= hoyISO ? dia(cita.inicio) : null;
       const hs = hojasDe.get(o.id) ?? [];
       const js = juntasDe.get(o.id) ?? [];
-      // Cuando entro en cada fase, segun lo que hay.
-      const fechas: Partial<Record<Fase, string | null>> = {
-        visita: min([o.fecha_apertura, o.creado_en]),
-        preparacion_documentos: min(hs.map((h) => h.fecha_creacion)),
-        junta: min(enviosDe.get(o.id) ?? []),
+      const hecho: Partial<Record<Fase, string | null>> = {
+        primer_contacto: min([o.fecha_apertura, o.creado_en]),
+        visita: cita ? dia(cita.creado_en) : null,
+        polycam: visitaPasada,
+        viabilidad_arquitecto: min((solDe.get(o.id) ?? []).map((s) => s.pedida_en)),
+        preparacion_documentos: min((viabsDe.get(o.id) ?? []).map((v) => v.enviada_en)) ?? min(hs.map((h) => h.fecha_creacion)),
+        envio_documentos: min(enviosDe.get(o.id) ?? []),
+        junta: min(js.map((j) => j.fecha_junta)),
         firma: min(js.filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta)),
         cobro: min(hs.filter((h) => h.estado === "devuelta_firmada").map((h) => h.fecha_firma)),
       };
+      // La fecha de entrada del paso actual: la del hecho que lo abre, con la
+      // misma regla que las alertas; si no hay, la de la fase; si no, el alta.
       const cierre = min((cierreDe.get(o.id) ?? []).map((c) => c.fecha_cierre ?? c.creado_en));
-      // Las entradas anteriores o iguales a la fase actual, en orden y sin fechas que retrocedan.
-      const pasos: { fase: Fase | null; clave: Clave; cuando: string }[] = [];
+      const desde = fechas.get(o.id) ?? (p.fase ? hecho[p.fase] : cierre) ?? hecho.primer_contacto ?? o.creado_en.slice(0, 10);
+      // El historial: las entradas en cada fase hasta la actual, en orden y sin
+      // fechas que vuelvan atras ni pasen de la entrada actual.
+      const lineas: { fase: Fase | null; clave: Clave; cuando: string }[] = [];
       for (const [fase, clave] of ENTRADA) {
-        const cuando = fechas[fase];
-        if (!cuando || pos(fase) > pos(p.fase)) continue;
-        if (pasos.length && cuando < pasos[pasos.length - 1].cuando) continue;
-        pasos.push({ fase, clave, cuando });
+        const cuando = hecho[fase];
+        if (!cuando || pos(fase) > pos(p.fase) || cuando > desde) continue;
+        if (lineas.length && cuando < lineas[lineas.length - 1].cuando) continue;
+        lineas.push({ fase, clave, cuando });
       }
-      // La actual: perdida/completado con su cierre; si no, la entrada de su fase.
-      const actual = p.fase ? (pasos.findLast((x) => x.fase === p.fase)?.cuando ?? null) : cierre;
-      const desde = actual ?? pasos.at(-1)?.cuando ?? min([o.fecha_apertura, o.creado_en]) ?? o.creado_en.slice(0, 10);
-      // El historial: las entradas de fase, y al final el paso actual si es otro.
-      const lineas = pasos.filter((x) => x.cuando <= desde);
       if (!lineas.length || lineas.at(-1)!.clave !== f.clave) lineas.push({ fase: p.fase, clave: f.clave, cuando: desde });
       lineas.forEach((x, k) =>
         historial.push({
@@ -265,14 +288,16 @@ export async function cargaInicial(): Promise<{ opps: number; historial: number 
         calculado_en: new Date().toISOString(),
       });
     }
+    // Fuera lo reconstruido de estas opps, y dentro lo nuevo.
+    await pedir(`historial_estado_oportunidad?reconstruido=is.true&oportunidad_id=in.(${ids.join(",")})`, { method: "DELETE" });
     if (filas.length)
       await pedir("estado_oportunidad?on_conflict=oportunidad_id", {
         method: "POST",
-        headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
         body: JSON.stringify(filas),
       });
     if (historial.length) await pedir("historial_estado_oportunidad", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(historial) });
     nHist += historial.length;
   }
-  return { opps: nuevas.length, historial: nHist };
+  return { opps: aRehacer.length, historial: nHist };
 }
