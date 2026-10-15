@@ -22,6 +22,7 @@
 // en manos del comercial.
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 
 import { inflateRawSync } from "node:zlib";
 import { bonito, NOMBRE_TIPO } from "./direccionNombre";
@@ -337,6 +338,7 @@ export async function empezar(escaneoId: string, oppId: string, redactaId: strin
     redacta_id: redactaId,
   });
   await escribir("PATCH", `escaneados_polycam?id=eq.${escaneoId}`, { viabilidad_id: v.id }, "return=minimal");
+  recalcularLuego(oppId);
   return v.id;
 }
 

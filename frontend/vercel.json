@@ -8,6 +8,10 @@
       "schedule": "*/10 * * * *"
     },
     {
+      "path": "/api/estado/barrido",
+      "schedule": "0 2 * * *"
+    },
+    {
       "path": "/api/iee/barrido",
       "schedule": "0 3 * * *"
     },

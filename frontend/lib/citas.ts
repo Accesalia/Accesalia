@@ -10,6 +10,7 @@
 // buzon.
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 import { nombreDeOpp } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -91,6 +92,7 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
       headers: { Prefer: "return=representation" },
       body: JSON.stringify({ inicio, apuntada_por: quien, actualizado_en: new Date().toISOString() }),
     });
+    recalcularLuego(oppId);
     return aCita(f);
   }
   const [[tipo], intereses] = await Promise.all([
@@ -117,6 +119,7 @@ export async function guardarEscaneo(oppId: string, local: string, quien: string
       apuntada_por: quien,
     }),
   });
+  recalcularLuego(oppId);
   return aCita(f);
 }
 
@@ -459,6 +462,9 @@ export async function editarCita(citaId: string, c: CitaCambios): Promise<void> 
   });
   await pedir(`citas_con_quien?cita_id=eq.${citaId}`, { method: "DELETE" });
   await ponerConQuien(citaId, c.conQuien);
+  // Si es la visita de escaneo y se anula o cambia, el paso de su opp puede cambiar.
+  const [de] = await pedir<{ oportunidad_id: string | null }[]>(`citas?select=oportunidad_id&id=eq.${citaId}`);
+  recalcularLuego(de?.oportunidad_id);
 }
 
 /** Mover una cita (el arrastre): solo la hora y, si se da, la duracion. */

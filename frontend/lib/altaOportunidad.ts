@@ -18,6 +18,7 @@
 // lo que se teclea en un buscador que no encuentra nada NO se vuelve a escribir.
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 
 import { canalesDe, type Canal } from "./canales";
 import { columnasQuien, opcionesQuien, type OpcionQuien } from "./quien";
@@ -504,6 +505,8 @@ export async function crearOportunidad(
   //      el comercial (de la lista, o "unir" por compartir parcela), o una nueva.
   await claveDesdeAccesos(op.id, autorId, d.claveUnir);
 
+  // Nace con su estado: si no, no saldria en ninguna lista hasta la noche.
+  recalcularLuego(op.id);
   return { id: op.id, codigo, notaId: nota.id };
 }
 

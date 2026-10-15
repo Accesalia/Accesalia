@@ -6,6 +6,7 @@ import { after } from "next/server";
 import { intentarAnexo } from "../../lib/anexoGuardado";
 import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
+import { recalcularLuego } from "../../lib/estadoOportunidad";
 import { enviarCorreo } from "../../lib/correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
 
@@ -128,6 +129,8 @@ export async function accionEnviar(id: string, d: DatosMesa): Promise<string[]> 
   // viabilidad ya esta en manos del comercial igualmente, y se dice el fallo.
   await guardar(id, d);
   await marcar(id, "enviada_en");
+  // El arquitecto termino: el paso de su opp cambia (15-oct-2026).
+  recalcularLuego(v?.oportunidad_id);
   // Se rehace con el coste de obra ya puesto: las ayudas llevan su estimacion.
   after(() => intentarAnexo(id));
   const donde = v?.oportunidades?.nombre ?? v?.oportunidades?.codigo ?? "tu oportunidad";

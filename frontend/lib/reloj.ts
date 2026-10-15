@@ -96,6 +96,10 @@ export const RELOJES: Reloj[] = [
   // CADA 15 DIAS, por encargo de Monica (6-oct-2026): "para que no quede
   // obsoleto en 4 semanas". El 1 y el 16 a las 4:00 UTC (6:00 en verano y 5:00
   // en invierno en Madrid), antes de que abra la oficina.
+  // EL ESTADO DE LAS OPPS (Monica, 15-oct-2026): la red de seguridad de
+  // estado_oportunidad. A las 2:00 UTC (4:00 en verano, 3:00 en invierno), antes
+  // del barrido de IEE: recalcula todas y dice cuantas estaban mal.
+  { tarea: "estado_barrido", nombre: "Estado de las oportunidades", cada: "todas las noches, de madrugada", ruta: "/api/estado/barrido" },
   { tarea: "bdns_vigilar", nombre: "Subvenciones concedidas (BDNS)", cada: "el día 1 y el 16 de cada mes, de madrugada", ruta: "/api/bdns/vigilar" },
 ];
 

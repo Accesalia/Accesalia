@@ -15,6 +15,7 @@
 // 789.000, somos 20, tocamos a 39.450".
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 import { exigirCompleta } from "./completa";
 import { mesa } from "./mesaViabilidades";
 import { anexoDeOportunidad } from "./anexoEdificio";
@@ -327,6 +328,7 @@ export async function generarViabilidad(id: string, yo: Yo): Promise<string> {
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify(d.hojas.map((h) => ({ viabilidad_id: id, version_hoja_id: h.versionId }))),
     });
+  recalcularLuego(await oppDeViabilidad(id));
   return numero;
 }
 

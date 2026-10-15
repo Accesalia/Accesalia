@@ -18,6 +18,7 @@
 //     comercial". Si piden cambios, vuelve a generada (borrador).
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 import { nombreDeOpp } from "./direccionOpp";
 import { enviarCorreo } from "./correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion } from "./quienLleva";
@@ -209,6 +210,7 @@ export async function pedirRevision(oppId: string, nota: string | null, yo: Yo):
     if (!e.ok) avisos.push(`${p.nombre}: ${e.dice ?? "no salió"}`);
   }
   if (!revisan.length) avisos.push("nadie tiene hoy la función de revisión de ofertas");
+  recalcularLuego(oppId);
   return { id: r.id, numero, avisos };
 }
 
@@ -264,6 +266,7 @@ export async function resolverRevision(
     if (!e.ok) avisos.push(`${p.nombre}: ${e.dice ?? "no salió"}`);
   }
   if (!lleva.personas.length) avisos.push("la oportunidad no tiene comercial asignado");
+  recalcularLuego(r.oportunidad_id);
   return { avisos };
 }
 

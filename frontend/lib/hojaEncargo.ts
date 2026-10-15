@@ -28,6 +28,7 @@
 // titular de sus accesos (un particular: un chalet no es una CP).
 
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
 import { numerarClaveDeOpp } from "./claves";
@@ -708,6 +709,7 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
     });
   }
 
+  recalcularLuego(g.oportunidadId);
   return { hojaId: hojaId!, versionId: v.id };
 }
 
@@ -725,6 +727,8 @@ export async function descartarBorrador(hojaId: string): Promise<"hoja" | "versi
   );
   const ultima = versiones[0];
   if (!h || !ultima || ultima.url_pdf_hoja || !ultima.contenido_html) throw new Error("Esta hoja no tiene un borrador que descartar.");
+  const [deOpp] = await leer<{ oportunidad_id: string | null }[]>(`hojas_encargo?select=oportunidad_id&id=eq.${hojaId}`);
+  recalcularLuego(deOpp?.oportunidad_id);
   await pedir(`conceptos_hoja?version_hoja_id=eq.${ultima.id}&incluido_en_concepto_id=not.is.null`, { method: "DELETE" });
   await pedir(`conceptos_hoja?version_hoja_id=eq.${ultima.id}`, { method: "DELETE" });
   await pedir(`versiones_hoja?id=eq.${ultima.id}`, { method: "DELETE" });
@@ -755,6 +759,7 @@ export async function marcarEnviada(hojaId: string) {
     method: "PATCH",
     body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
   });
+  recalcularLuego(h?.oportunidad_id);
 }
 
 /** ¿De que oportunidad es esta hoja? Para comprobar el permiso en cada accion. */
@@ -801,6 +806,7 @@ export async function apuntarFirmada(hojaId: string, ruta: string) {
   // numerar: el control de "opps sin clave" lo enseña.
   const [h] = await leer<{ oportunidad_id: string | null }[]>(`hojas_encargo?select=oportunidad_id&id=eq.${hojaId}`);
   if (h?.oportunidad_id) await numerarClaveDeOpp(h.oportunidad_id);
+  recalcularLuego(h?.oportunidad_id);
 }
 
 /** Enlace para ver una firmada del almacen. Caduca en diez minutos. */

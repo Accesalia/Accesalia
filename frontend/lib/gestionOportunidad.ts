@@ -20,6 +20,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
+import { recalcularLuego } from "./estadoOportunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -496,6 +497,7 @@ export async function guardarTresD(
   const hay = await leer<{ id: string }[]>(`modelos_3d_venta?select=id&oportunidad_id=eq.${oportunidadId}&limit=1`);
   if (hay[0]) await escribir("PATCH", `modelos_3d_venta?id=eq.${hay[0].id}`, fila);
   else await escribir("POST", "modelos_3d_venta", fila);
+  recalcularLuego(oportunidadId);
 }
 
 /** La junta. Una oportunidad puede tener varias a lo largo del tiempo -aplazada,
@@ -517,6 +519,7 @@ export async function guardarJunta(
   };
   if (juntaId) await escribir("PATCH", `juntas?id=eq.${juntaId}`, fila);
   else await escribir("POST", "juntas", fila);
+  recalcularLuego(oportunidadId);
 }
 
 /** Pausar: la oportunidad queda PAUSADA, no cerrada. No esta perdida, esta
@@ -574,11 +577,13 @@ export async function cerrar(oportunidadId: string, d: { perdida: boolean; motiv
     fecha_cierre: hoy,
   });
   await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "cerrada" });
+  recalcularLuego(oportunidadId);
 }
 
 /** Reabrirla: vuelve a abierta. El cierre anterior se queda apuntado. */
 export async function reabrir(oportunidadId: string) {
   await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}&estado=eq.cerrada`, { estado: "abierta" });
+  recalcularLuego(oportunidadId);
 }
 
 /** EL COMERCIAL QUE LLEVA LA OPP (Monica, 3-oct-2026: "hay que poder elegir el

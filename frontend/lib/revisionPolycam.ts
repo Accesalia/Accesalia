@@ -1,4 +1,5 @@
 import "server-only";
+import { recalcularPorAccesosLuego } from "./estadoOportunidad";
 
 // ============================================================================
 // LA REVISION DE LOS ESCANEADOS (Monica, 2-oct-2026)
@@ -439,7 +440,10 @@ export async function vincularSolos(): Promise<number> {
       headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal,resolution=ignore-duplicates" },
       body: JSON.stringify(d.accesos.map((acceso_id) => ({ polycam_id: e.id, acceso_id, automatico: true, motivo: d.motivo }))),
     });
-    if (r.ok) n++;
+    if (r.ok) {
+      n++;
+      recalcularPorAccesosLuego(d.accesos);
+    }
   }
   return n;
 }
@@ -451,8 +455,11 @@ export async function desvincular(polycamId: string): Promise<void> {
   const [e] = (await r.json()) as { viabilidad_id: string | null }[];
   if (!e) throw new Error("No existe ese escaneado.");
   if (e.viabilidad_id) throw new Error("Su viabilidad ya está empezada: corrígelo desde la viabilidad.");
+  const antes = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?select=acceso_id&polycam_id=eq.${polycamId}`, { headers: cab, cache: "no-store" });
+  const accesos = antes.ok ? ((await antes.json()) as { acceso_id: string }[]).map((a) => a.acceso_id) : [];
   const b = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?polycam_id=eq.${polycamId}`, { method: "DELETE", headers: cab });
   if (!b.ok) throw new Error(`relacion_polycam_acceso ${b.status}: ${await b.text()}`);
+  recalcularPorAccesosLuego(accesos);
 }
 
 // ------------------------------------------------- la agenda como ancla
@@ -574,5 +581,6 @@ export async function vincular(
     },
   );
   if (!r.ok) throw new Error(`relacion_polycam_acceso ${r.status}: ${await r.text()}`);
+  recalcularPorAccesosLuego(accesoIds);
   return ((await r.json()) as unknown[]).length;
 }
