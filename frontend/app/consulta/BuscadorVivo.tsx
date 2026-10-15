@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QueBuscar, Sugerencia } from "../../lib/consulta";
+import { casa, palabrasDe } from "../../lib/casarBusqueda";
 
 // EL BUSCADOR QUE FILTRA AL ESCRIBIR (Monica, 12-oct-2026): "deberia ser un
 // desplegable + buscar, y segun escribes se filtre a las que tienen eso, y las
@@ -18,7 +19,10 @@ const PESTAÑAS: [QueBuscar, string, string][] = [
   ["persona", "Persona", "nombre, teléfono o correo: de donde sea"],
 ];
 const MAXIMO = 12;
-const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+/** Una fila del desplegable: la opcion, y si es una opp de la comunidad de
+ *  encima (va sangrada). */
+type Fila = Sugerencia & { sub?: boolean };
 
 export function BuscadorVivo({ listas, que: queInicial, q: qInicial }: { listas: Record<QueBuscar, Sugerencia[]>; que: QueBuscar; q: string }) {
   const router = useRouter();
@@ -28,19 +32,19 @@ export function BuscadorVivo({ listas, que: queInicial, q: qInicial }: { listas:
   const [marcada, setMarcada] = useState(0);
   const campo = useRef<HTMLInputElement>(null);
 
-  // Lo que casa: todas las palabras escritas, en el nombre o en el detalle.
+  // Lo que casa: todas las palabras escritas, en el nombre, en el detalle o en
+  // uno de sus portales (lib/casarBusqueda.ts, 15-oct-2026). Si casa por un
+  // portal, se dice cual. Una comunidad lleva sus opps debajo, para ir directo.
   const encontradas = useMemo(() => {
-    const palabras = limpio(q).split(/[\s,.]+/).filter(Boolean);
-    if (!palabras.length) return { lista: [], total: 0 };
-    // Un NUMERO casa con un numero entero del nombre: "mostoles 3" no es
-    // "Carlos V 32" ni el codigo DAN-2023 (14-oct-2026).
-    const todas = listas[que].filter((s) => {
-      const nombre = limpio(s.nombre);
-      const t = `${nombre} ${limpio(s.detalle)}`;
-      const numeros: string[] = nombre.match(/\d+/g) ?? [];
-      return palabras.every((p) => (/^\d+$/.test(p) ? numeros.includes(p) : t.includes(p)));
-    });
-    return { lista: todas.slice(0, MAXIMO), total: todas.length };
+    const palabras = palabrasDe(q);
+    if (!palabras.length) return { lista: [] as Fila[], total: 0 };
+    const todas: Fila[] = [];
+    for (const s of listas[que]) {
+      const c = casa(palabras, s);
+      if (c) todas.push({ ...s, detalle: c.por ? `por ${c.por}${s.detalle ? ` · ${s.detalle}` : ""}` : s.detalle });
+    }
+    const lista = todas.slice(0, MAXIMO).flatMap((s): Fila[] => [s, ...(s.hijos ?? []).map((h) => ({ ...h, id: `${s.id}:${h.id}`, sub: true }))]);
+    return { lista, total: todas.length };
   }, [q, que, listas]);
 
   const elegir = (s: Sugerencia) => {
@@ -124,12 +128,16 @@ export function BuscadorVivo({ listas, que: queInicial, q: qInicial }: { listas:
                   }}
                   onMouseEnter={() => setMarcada(i)}
                   className={
-                    "flex flex-wrap items-baseline justify-between gap-x-3 px-3.5 py-2 text-[14px] " +
+                    "flex flex-wrap items-baseline justify-between gap-x-3 py-2 " +
+                    (s.sub ? "pl-8 pr-3.5 text-[13px] " : "px-3.5 text-[14px] ") +
                     (s.href ? "cursor-pointer " : "cursor-default ") +
                     (i === marcada ? "bg-lima-soft" : "")
                   }
                 >
-                  <span className="font-semibold text-carbon">{s.nombre}</span>
+                  <span className={s.sub ? "text-carbon" : "font-semibold text-carbon"}>
+                    {s.sub && <span className="mr-1.5 text-carbon/45">↳ opp</span>}
+                    {s.nombre}
+                  </span>
                   <span className="text-[12.5px] text-carbon/65">
                     {s.detalle}
                     {!s.href && <span className="ml-2 rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/55">ficha próximamente</span>}

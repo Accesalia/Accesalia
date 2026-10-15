@@ -29,6 +29,8 @@ import { nombreDeOpp } from "./direccionOpp";
 import { bloquesDe } from "../app/comercial/oportunidades/[id]/Carril";
 import type { HitoGestion } from "./gestionOportunidad";
 import { hitosDeEstado } from "./fasesDeEstado";
+import { bonito } from "./direccionNombre";
+import { casa as casaBusqueda, palabrasDe } from "./casarBusqueda";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -206,7 +208,7 @@ export async function listadoAdministradores(): Promise<FilaAdmin[]> {
 
 export type Encontrado =
   | { tipo: "opp"; id: string; nombre: string; detalle: string }
-  | { tipo: "comunidad"; id: string; nombre: string; detalle: string }
+  | { tipo: "comunidad"; id: string; nombre: string; detalle: string; opps: Sugerencia[] }
   | { tipo: "admin"; id: string; nombre: string; detalle: string }
   | { tipo: "contrata"; id: string; nombre: string; detalle: string }
   | { tipo: "persona"; id: string; nombre: string; detalle: string; href: string | null };
@@ -220,17 +222,12 @@ export type QueBuscar = "opp" | "direccion" | "admin" | "contrata" | "persona";
 const ESTADO_OPP: Record<string, string> = { abierta: "abierta", pausada: "pausada", cerrada: "cerrada" };
 
 export async function oppsParaBuscar(): Promise<Sugerencia[]> {
-  const filas: { id: string; nombre: string | null; codigo: string | null; estado: string; puesto: { empresa: { nombre_accesalia: string } | null } | null }[] = [];
-  for (let desde = 0; ; desde += 1000) {
-    const r = await fetch(
-      `${URL_BASE}/rest/v1/oportunidades?select=id,nombre,codigo,estado,puesto:puesto_id(empresa:empresa_id(nombre_accesalia))&order=id`,
-      { headers: { ...CAB, Range: `${desde}-${desde + 999}` }, cache: "no-store" },
-    );
-    if (!r.ok) throw new Error(`Supabase oportunidades ${r.status}: ${await r.text()}`);
-    const lote = (await r.json()) as typeof filas;
-    filas.push(...lote);
-    if (lote.length < 1000) break;
-  }
+  const [filas, portales] = await Promise.all([
+    alDia<{ id: string; nombre: string | null; codigo: string | null; estado: string; puesto: { empresa: { nombre_accesalia: string } | null } | null }>(
+      "oportunidades?select=id,nombre,codigo,estado,puesto:puesto_id(empresa:empresa_id(nombre_accesalia))&order=id",
+    ),
+    portalesDeTodo(),
+  ]);
   const peso = (e: string) => (e === "abierta" ? 0 : e === "pausada" ? 1 : 2);
   return filas
     .sort((a, b) => peso(a.estado) - peso(b.estado) || nombreDeOpp(a).localeCompare(nombreDeOpp(b), "es"))
@@ -239,28 +236,122 @@ export async function oppsParaBuscar(): Promise<Sugerencia[]> {
       nombre: nombreDeOpp(o),
       detalle: [ESTADO_OPP[o.estado] ?? o.estado, o.codigo, o.puesto?.empresa?.nombre_accesalia].filter(Boolean).join(" · "),
       href: `/comercial/oportunidades/${o.id}`,
+      portales: portales.deOpp.get(o.id),
     }));
 }
 
-/** UNA OPP CASA si estan todas las palabras. Un NUMERO tiene que ser un numero
- *  entero del nombre: "mostoles 3" no es "Carlos V 32" ni el codigo DAN-2023. */
-function casaOpp(palabras: string[], s: { nombre: string; detalle: string }) {
-  const nombre = limpio(s.nombre);
-  const todo = `${nombre} ${limpio(s.detalle)}`;
-  const numeros: string[] = nombre.match(/\d+/g) ?? [];
-  return palabras.every((p) => (/^\d+$/.test(p) ? numeros.includes(p) : todo.includes(p)));
+/** Todo, de mil en mil y AL DIA (sin guardar): una opp recien dada de alta tiene
+ *  que salir ya, tambien por su direccion. */
+async function alDia<T>(path: string): Promise<T[]> {
+  const filas: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${path}`, { headers: { ...CAB, Range: `${desde}-${desde + 999}` }, cache: "no-store" });
+    if (!r.ok) throw new Error(`Supabase ${path.split("?")[0]} ${r.status}: ${await r.text()}`);
+    const lote = (await r.json()) as T[];
+    filas.push(...lote);
+    if (lote.length < 1000) break;
+  }
+  return filas;
+}
+
+/** LOS PORTALES DE CADA OPP Y DE CADA COMUNIDAD (Monica, 15-oct-2026: "hay alguna
+ *  pantalla donde meta una direccion y me salga la opp?"). De una opp: sus
+ *  accesos, los demas de su clave DIR (otros portales del mismo edificio) y el
+ *  codigo DIR. De una comunidad: sus accesos. Cada portal entero, "Etruria 58
+ *  esc 2, Madrid". Son pocas filas (unos 4.500 accesos): se leen todas. */
+async function portalesDeTodo(): Promise<{ deOpp: Map<string, string[]>; deComunidad: Map<string, string[]>; oppsDeComunidad: Map<string, Set<string>> }> {
+  type Acc = { id: string; municipio: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; clave_id: string | null; figura_legal_propietaria_id: string | null };
+  const [accesos, rels, claves] = await Promise.all([
+    alDia<Acc>("accesos?select=id,municipio,nombre_via,numero,escalera,clave_id,figura_legal_propietaria_id&order=id"),
+    alDia<{ opp_id: string; acceso_id: string }>("relacion_oportunidad_accesos?select=opp_id,acceso_id&hasta=is.null&order=opp_id"),
+    alDia<{ id: string; codigo: string | null }>("claves?select=id,codigo&codigo=not.is.null&order=id"),
+  ]);
+  const texto = (a: Acc) =>
+    [
+      [a.nombre_via ? bonito(a.nombre_via) : null, a.numero?.replace(/\((\w+)\)/, " $1")].filter(Boolean).join(" "),
+      a.escalera?.trim() ? ` esc ${a.escalera.trim()}` : "",
+      a.municipio ? `, ${bonito(a.municipio)}` : "",
+    ].join("");
+  const porId = new Map(accesos.map((a) => [a.id, a]));
+  const deClave = new Map<string, Acc[]>();
+  for (const a of accesos) if (a.clave_id) deClave.set(a.clave_id, [...(deClave.get(a.clave_id) ?? []), a]);
+  const codigo = new Map(claves.map((c) => [c.id, c.codigo!]));
+
+  const suyos = new Map<string, Acc[]>();
+  for (const r of rels) {
+    const a = porId.get(r.acceso_id);
+    if (a) suyos.set(r.opp_id, [...(suyos.get(r.opp_id) ?? []), a]);
+  }
+  const deOpp = new Map<string, string[]>();
+  const oppsDeComunidad = new Map<string, Set<string>>();
+  for (const [opp, accs] of suyos) {
+    const claveIds = [...new Set(accs.map((a) => a.clave_id).filter((x): x is string => !!x))];
+    const todos = [...accs, ...claveIds.flatMap((k) => deClave.get(k) ?? [])];
+    deOpp.set(opp, [...new Set(todos.map(texto).filter(Boolean)), ...claveIds.map((k) => codigo.get(k)).filter((x): x is string => !!x)]);
+    for (const a of accs) {
+      const f = a.figura_legal_propietaria_id;
+      if (f) oppsDeComunidad.set(f, (oppsDeComunidad.get(f) ?? new Set<string>()).add(opp));
+    }
+  }
+  const deComunidad = new Map<string, string[]>();
+  for (const a of accesos) {
+    const f = a.figura_legal_propietaria_id;
+    if (!f) continue;
+    const l = deComunidad.get(f) ?? [];
+    const t = texto(a);
+    if (t && !l.includes(t)) l.push(t);
+    deComunidad.set(f, l);
+  }
+  return { deOpp, deComunidad, oppsDeComunidad };
+}
+
+/** Las comunidades, con sus portales y SUS OPPS debajo (Monica, 15-oct-2026: la
+ *  ficha de la comunidad no lleva a sus opps; el buscador, si). Sus opps: las que
+ *  apuntan a ella y las de sus accesos, en el orden de siempre (abiertas primero). */
+async function comunidadesParaBuscar(opps: Sugerencia[]): Promise<Sugerencia[]> {
+  const [comunidades, portales, enlaces] = await Promise.all([
+    todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>("comunidades?select=id,nombre,municipio,direccion&order=nombre.asc"),
+    portalesDeTodo(),
+    alDia<{ id: string; comunidad_id: string }>("oportunidades?select=id,comunidad_id&comunidad_id=not.is.null&order=id"),
+  ]);
+  const suyas = portales.oppsDeComunidad;
+  for (const e of enlaces) suyas.set(e.comunidad_id, (suyas.get(e.comunidad_id) ?? new Set<string>()).add(e.id));
+  return comunidades.map((c) => ({
+    id: c.id,
+    nombre: c.nombre,
+    // La direccion va en el detalle para que se encuentre tambien por ella.
+    detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "),
+    href: `/administracion/comunidades/${c.id}`,
+    portales: portales.deComunidad.get(c.id),
+    hijos: opps.filter((o) => suyas.get(c.id)?.has(o.id)).map((o) => ({ ...o, portales: undefined })),
+  }));
 }
 
 /** Para el buscador de la ficha de opp: las que casan, las abiertas primero. */
 export async function buscarOpps(q: string, maximo = 12): Promise<Sugerencia[]> {
-  const palabras = limpio(q).split(/[\s,.]+/).filter(Boolean);
+  const palabras = palabrasDe(q);
   if (!palabras.length) return [];
-  return (await oppsParaBuscar()).filter((s) => casaOpp(palabras, s)).slice(0, maximo);
+  const out: Sugerencia[] = [];
+  for (const s of await oppsParaBuscar()) {
+    const c = casaBusqueda(palabras, s);
+    if (c) out.push({ ...s, portales: undefined, detalle: c.por ? `por ${c.por} · ${s.detalle}` : s.detalle });
+    if (out.length >= maximo) break;
+  }
+  return out;
 }
 
 /** Una opcion del desplegable del buscador: lo que se ve y a donde lleva
  *  (null: aun no tiene ficha, como las contratas). */
-export type Sugerencia = { id: string; nombre: string; detalle: string; href: string | null };
+export type Sugerencia = {
+  id: string;
+  nombre: string;
+  detalle: string;
+  href: string | null;
+  /** Sus portales, para encontrarla tambien por ellos (lib/casarBusqueda.ts). */
+  portales?: string[];
+  /** De una comunidad: sus opps, debajo. */
+  hijos?: Sugerencia[];
+};
 
 /** LAS LISTAS DEL DESPLEGABLE (Monica, 12-oct-2026): "segun escribes se filtre
  *  a las que tienen eso, y las muestre, hasta que eliges una". Se cargan una vez
@@ -285,7 +376,8 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
       correos: { email: string }[];
     }[];
   };
-  const [comunidades, admins, contratas, personas, opps] = await Promise.all([
+  const opps = await oppsParaBuscar();
+  const [comunidades, admins, contratas, personas, direccion] = await Promise.all([
     todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>("comunidades?select=id,nombre,municipio,direccion&order=nombre.asc"),
     todo<{ id: string; nombre_accesalia: string }>("empresa?select=id,nombre_accesalia&tipo=eq.administracion_fincas&activa=is.true&order=nombre_accesalia.asc"),
     todo<{ id: string; nombre: string; tipo: string | null; cif: string | null }>("contratas?select=id,nombre,tipo,cif&order=nombre.asc"),
@@ -296,7 +388,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
         "puestos:puesto(cargo,hasta,telefono_empresa,figura_legal_propietaria_id,empresa_id,empresa:empresa_id(nombre_accesalia),contrata:contrata_id(nombre),organismo:organismo_id(nombre),correos:correo(email))" +
         "&activa=is.true&order=nombre.asc",
     ),
-    oppsParaBuscar(),
+    comunidadesParaBuscar(opps),
   ]);
   const nombreComunidad = new Map(comunidades.map((c) => [c.id, c.nombre]));
   const agenda: Sugerencia[] = personas.map((p) => {
@@ -324,8 +416,7 @@ export async function listasBuscador(): Promise<Record<QueBuscar, Sugerencia[]>>
   return {
     opp: opps,
     persona: agenda,
-    // La direccion va en el detalle para que se encuentre tambien por ella.
-    direccion: comunidades.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.direccion && c.direccion !== c.nombre ? c.direccion : null, c.municipio].filter(Boolean).join(" · "), href: `/administracion/comunidades/${c.id}` })),
+    direccion,
     admin: admins.map((a) => ({ id: a.id, nombre: a.nombre_accesalia, detalle: "", href: `/consulta/oportunidades?admin=${a.id}` })),
     contrata: contratas.map((c) => ({ id: c.id, nombre: c.nombre, detalle: [c.tipo, c.cif].filter(Boolean).join(" · "), href: `/consulta/contratas/${c.id}` })),
   };
@@ -342,20 +433,19 @@ export async function buscar(q: string, que: QueBuscar): Promise<Encontrado[]> {
     const t = limpio(texto);
     return palabras.every((p) => t.includes(p));
   };
-  if (que === "opp") {
-    return (await oppsParaBuscar())
-      .filter((s) => casaOpp(palabras, s))
-      .slice(0, 60)
-      .map((s) => ({ tipo: "opp" as const, id: s.id, nombre: s.nombre, detalle: s.detalle }));
-  }
-  if (que === "direccion") {
-    const filas = await todo<{ id: string; nombre: string; municipio: string | null; direccion: string | null }>(
-      "comunidades?select=id,nombre,municipio,direccion&order=nombre.asc",
-    );
-    return filas
-      .filter((c) => casa(`${c.nombre} ${c.direccion ?? ""} ${c.municipio ?? ""}`))
-      .slice(0, 60)
-      .map((c) => ({ tipo: "comunidad" as const, id: c.id, nombre: c.nombre, detalle: c.municipio ?? "" }));
+  // La opp y la comunidad, tambien por sus portales (lib/casarBusqueda.ts).
+  if (que === "opp" || que === "direccion") {
+    const opps = await oppsParaBuscar();
+    const lista = que === "opp" ? opps : await comunidadesParaBuscar(opps);
+    const out: Encontrado[] = [];
+    for (const s of lista) {
+      const c = casaBusqueda(palabras, s);
+      if (!c) continue;
+      const detalle = c.por ? `por ${c.por} · ${s.detalle}` : s.detalle;
+      out.push(que === "opp" ? { tipo: "opp", id: s.id, nombre: s.nombre, detalle } : { tipo: "comunidad", id: s.id, nombre: s.nombre, detalle, opps: s.hijos ?? [] });
+      if (out.length >= 60) break;
+    }
+    return out;
   }
   if (que === "persona") {
     const { persona } = await listasBuscador();

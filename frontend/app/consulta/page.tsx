@@ -14,7 +14,8 @@ export const maxDuration = 60;
 // tiene." Transversal: cualquiera de la casa.
 //
 // Encuentra por trozos de palabra, sin tildes ni mayusculas. La direccion lleva
-// a la ficha de la comunidad; el administrador, a sus oportunidades (su ficha
+// a la ficha de la comunidad, con sus opps debajo; la opp se encuentra tambien
+// por sus portales y su clave DIR (15-oct-2026). El administrador, a sus oportunidades (su ficha
 // esta por rehacer).
 
 export default async function Buscador({ searchParams }: { searchParams: Promise<{ q?: string; que?: string }> }) {
@@ -63,6 +64,24 @@ export default async function Buscador({ searchParams }: { searchParams: Promise
                   {r.nombre}
                 </Link>
                 {r.detalle && <span className="text-[12px] text-[#6e6e6e]">{r.detalle}</span>}
+                {/* Las opps de la comunidad, para ir directo (15-oct-2026). */}
+                {r.tipo === "comunidad" && (
+                  <ul className="mt-0.5 w-full pl-5">
+                    {r.opps.length === 0 ? (
+                      <li className="text-[12.5px] text-[#8a8a8a]">Sin opps</li>
+                    ) : (
+                      r.opps.map((o) => (
+                        <li key={o.id} className="flex flex-wrap items-baseline gap-x-3 text-[13px]">
+                          <span className="text-carbon/45">↳ opp</span>
+                          <Link href={`/comercial/oportunidades/${o.id}`} className={ENLACE}>
+                            {o.nombre}
+                          </Link>
+                          <span className="text-[12px] text-[#6e6e6e]">{o.detalle}</span>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>
