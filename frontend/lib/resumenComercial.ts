@@ -15,8 +15,10 @@
 //   comunidad; si no, quien la trajo. Con el telefono a la vista.
 
 import "server-only";
-import { estadoCon, falta, type CierreCrudo, type Datos, type HojaCruda, type Paso } from "./cabeceraOpp";
+import { estadoCon, falta, type CierreCrudo, type Datos, type Falta, type HojaCruda, type Paso } from "./cabeceraOpp";
 import { nombreDeOpp } from "./direccionOpp";
+import { pasoDe, type Accion } from "./pasosEscalera";
+export type { Accion };
 import type { EstadoRevision } from "./revisionOferta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -68,7 +70,6 @@ export type Llamar = { quien: string; papel: string; telefono: string | null; em
  *  - doc: generar el documento y enviarlo. Sin margen: no depende de nadie.
  *  - polycam: cerrar el escaneo. Sin margen: "si no te dan dia, vas y escaneas".
  *  - perdida: darla por perdida y cerrarla. Al cerrarla, sale. */
-export type Accion = "admin" | "interno" | "doc" | "polycam" | "perdida";
 export const ACCIONES: { clave: Accion; titulo: string; sub: string }[] = [
   { clave: "admin", titulo: "Llamar o escribir al administrador", sub: "Al grabar lo que te digan, sale de alertas 5 días. Si no se mueve, vuelve." },
   { clave: "interno", titulo: "Preguntar en casa", sub: "Viabilidad, ok a la oferta o cobro: deben responder en el día." },
@@ -142,13 +143,11 @@ const SEL =
   "hojas:hojas_encargo(id,estado,fecha_firma,fecha_estado,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_generada,fecha_enviada))," +
   "portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,municipio))";
 
-/** El resumen de un comercial (o de todos: null). */
-export async function resumenComercial(comercialId: string | null): Promise<{ filas: FilaResumen[] }> {
-  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const ops = await leer<OppCruda>(`oportunidades?select=${SEL}&estado=eq.abierta${f}&order=id`);
+/** TODO LO QUE HACE FALTA PARA LA ESCALERA DE MUCHAS OPPS, por tramos: unas
+ *  quince consultas para todas, no ocho por opp. Lo usan el resumen y
+ *  faltaDeMuchas (el barrido de estado_oportunidad). */
+async function cargar(ops: OppCruda[]) {
   const ids = ops.map((o) => o.id);
-  if (!ids.length) return { filas: [] };
-
   const accesoDe = new Map<string, string>(); // acceso -> opp
   for (const o of ops) for (const p of o.portales) if (!p.hasta && p.acceso) accesoDe.set(p.acceso.id, o.id);
   const firmadasDe = new Map<string, string>(); // hoja firmada -> opp
@@ -255,8 +254,8 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     for (const h of o.hojas) { toca(o.id, h.fecha_firma); for (const v of h.versiones) { toca(o.id, v.fecha_generada); toca(o.id, v.fecha_enviada); } }
   }
 
-  const filas: FilaResumen[] = [];
-  for (const o of ops) {
+  /** Los datos de la escalera de una opp, ya leidos. */
+  const datosDe = (o: OppCruda) => {
     const hojas = o.hojas.filter((h) => h.estado !== "anulada");
     const estado = estadoCon(o, hojas, cobrosDe.get(o.id) ?? { alguno: false, todos: false });
     const r = [...(revDe.get(o.id) ?? [])].sort((a, b) => b.numero - a.numero)[0];
@@ -270,6 +269,40 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       estado, hojas, juntas: juntasDe.get(o.id) ?? [], tresd, cita: citaDe.get(o.id)?.[0] ?? null,
       polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id), revision,
     };
+    return { d, estado, hojas };
+  };
+  return { datosDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe };
+}
+
+/** EL PASO DE MUCHAS OPPS DE GOLPE, en cualquier estado (ganadas y cerradas
+ *  tambien): para estado_oportunidad, una fila por opp. */
+export async function faltaDeMuchas(ids: string[]): Promise<Map<string, Falta>> {
+  const ops = await porTramos<OppCruda>(ids, (t) => `oportunidades?select=${SEL}&id=in.(${t})`);
+  const out = new Map<string, Falta>();
+  if (!ops.length) return out;
+  const { datosDe } = await cargar(ops);
+  for (const o of ops) out.set(o.id, falta(datosDe(o).d));
+  return out;
+}
+
+/** El paso de UNA opp: el mismo calculo que el de muchas, para que nunca
+ *  difieran. */
+export async function faltaDeOpp(oppId: string): Promise<Falta | null> {
+  return (await faltaDeMuchas([oppId])).get(oppId) ?? null;
+}
+
+/** El resumen de un comercial (o de todos: null). */
+export async function resumenComercial(comercialId: string | null): Promise<{ filas: FilaResumen[] }> {
+  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
+  const ops = await leer<OppCruda>(`oportunidades?select=${SEL}&estado=eq.abierta${f}&order=id`);
+  const ids = ops.map((o) => o.id);
+  if (!ids.length) return { filas: [] };
+
+  const { datosDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe } = await cargar(ops);
+
+  const filas: FilaResumen[] = [];
+  for (const o of ops) {
+    const { d, estado, hojas } = datosDe(o);
     const fa = falta(d);
     if (fa.paso === "completado" || fa.paso === "cerrada" || !fa.paso) continue;
 
@@ -283,32 +316,32 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     const el = (iso: string | null | undefined) => (iso ? ` el ${ddmmaa(iso)}` : "");
 
     // EL PLAZO DE SU FASE, contado desde que empezo la fase; y COMO SE DESBLOQUEA.
-    let desde = abierta, plazo = PLAZOS.sinHojaEnviada, accion: Accion = "doc", enCasa: string | null = null, pasa = fa.texto;
+    // Como se desbloquea: de la CLAVE (lib/pasosEscalera.ts), nunca del texto.
+    let desde = abierta, plazo = PLAZOS.sinHojaEnviada, accion: Accion = pasoDe(fa.clave).accion ?? "doc", enCasa: string | null = null, pasa = fa.texto;
     if (fa.paso === "escaneo") {
-      accion = "polycam";
       if (d.cita) { desde = d.cita.inicio.slice(0, 10); plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(desde)}, falta el Polycam`; }
       else { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin fecha para escanear`; }
     } else if (fa.paso === "sin_hoja") {
       desde = polyFecha.get(o.id) ?? abierta;
-      if (d.polycam && !d.arquitecto) { plazo = PLAZOS.polycamSinViabilidad; accion = "interno"; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(desde)}, falta la viabilidad`; }
-      else if (/ok a la/.test(fa.texto)) { accion = "interno"; enCasa = enCasaDe("revision_ofertas", "Revisión de ofertas"); }
+      if (fa.clave === "arquitecto_viabilidad") { plazo = PLAZOS.polycamSinViabilidad; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(desde)}, falta la viabilidad`; }
+      else if (fa.clave === "falta_ok_oferta" || fa.clave === "nueva_oferta_ok") enCasa = enCasaDe("revision_ofertas", "Revisión de ofertas");
       else pasa = fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
     } else if (fa.paso === "hoja_enviada") {
-      desde = enviada ?? abierta; plazo = PLAZOS.hojaSinNoticias; accion = "admin";
-      pasa = /nueva oferta/.test(fa.texto) ? `Nueva oferta enviada${el(enviada)}, sin respuesta` : `Hoja enviada${el(enviada)}, sin fecha de junta`;
+      desde = enviada ?? abierta; plazo = PLAZOS.hojaSinNoticias;
+      pasa = fa.clave === "nueva_oferta_decision" ? `Nueva oferta enviada${el(enviada)}, sin respuesta` : `Hoja enviada${el(enviada)}, sin fecha de junta`;
       // Tres meses sin saber nada: ya no es llamar, es cerrarla.
       const ultimaNoticia = [enviada, c0].filter(Boolean).sort().at(-1) ?? abierta;
       if (dias(ultimaNoticia) > PLAZOS.darPorPerdida) { accion = "perdida"; pasa += `; nada desde${el(ultimaNoticia)}`; }
     } else if (fa.paso === "junta") {
-      desde = ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.juntaSinResultado; accion = "admin";
-      if (/votó que no/.test(fa.texto)) { accion = "perdida"; plazo = 0; pasa = `La junta votó que no${el(ultJunta?.fecha_junta)}`; }
+      desde = ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.juntaSinResultado;
+      if (fa.clave === "junta_no") { plazo = 0; pasa = `La junta votó que no${el(ultJunta?.fecha_junta)}`; }
       else if (desde > hoyISO()) pasa = `Junta${el(desde)}`;
       else pasa = `Junta${el(desde)}, no sabemos qué votaron`;
     } else if (fa.paso === "firma") {
-      desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja; accion = "admin";
+      desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja;
       pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`;
     } else if (fa.paso === "cobro") {
-      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; accion = "interno"; enCasa = enCasaDe("facturacion", "Facturación");
+      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación");
       pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
     }
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta

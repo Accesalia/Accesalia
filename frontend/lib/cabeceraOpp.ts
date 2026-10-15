@@ -28,6 +28,7 @@
 import "server-only";
 import { bonito } from "./direccionNombre";
 import { nombreDeOpp } from "./direccionOpp";
+import { pasoDe, type Clave, type Paso } from "./pasosEscalera";
 import { BLOQUE_DE, OBRAS, SUBVENCION } from "./hojaBase";
 import { COLUMNAS_INTERES } from "./columnasInteres";
 import { aHoraMadrid, polycamDe } from "./citas";
@@ -187,8 +188,9 @@ export function estadoCon(
 
 /** LA SECCION del "Resumen de como estan las cosas" (Monica, 14-oct-2026): el
  *  paso que bloquea, agrupado en lo que el comercial tiene que hacer. */
-export type Paso = "escaneo" | "sin_hoja" | "hoja_enviada" | "junta" | "firma" | "cobro" | "completado" | "cerrada";
-export type Falta = { texto: string; extra: string | null; paso?: Paso };
+export type { Paso } from "./pasosEscalera";
+/** El paso que bloquea: su CLAVE fija (lib/pasosEscalera.ts) y su copy. */
+export type Falta = { clave: Clave; texto: string; extra: string | null; paso?: Paso };
 
 export type Datos = {
   estado: EstadoOpp;
@@ -215,26 +217,12 @@ const MODIFICAR = new Set(["piden_mas_presupuestos", "aplazada", "complicacion"]
  *
  *  OJO: es la escalera de LO QUE NOS BLOQUEA, no la de fases comerciales: lee
  *  sus propios datos, nunca fases_oportunidad. */
-/** El paso y su seccion. Los textos los fija faltaTexto, aqui al lado. */
-const SECCION: [RegExp, Paso][] = [
-  [/^Perdida/, "cerrada"],
-  [/^Todo completado/, "completado"],
-  // Cobrada la primera parte, al comercial ya no le toca nada: lo que queda por
-  // cobrar es de facturacion (Monica, 15-oct-2026). Antes de /cobro/, que la pillaba.
-  [/^Cobro de la primera parte recibido/, "completado"],
-  [/cobro/i, "cobro"],
-  [/votó sí/, "firma"],
-  [/votó que no/, "junta"],
-  [/decisión sobre la nueva oferta/, "hoja_enviada"],
-  [/nueva oferta|modificar la oferta/, "sin_hoja"],
-  [/se celebre la junta|qué votaron/, "junta"],
-  [/fecha de la junta/, "hoja_enviada"],
-  [/revisión pidió|ok a la oferta|enviar la doc|Preparar la HE|arquitecto defina/, "sin_hoja"],
-];
-
+/** El paso y su seccion. La seccion sale de la CLAVE (lib/pasosEscalera.ts),
+ *  nunca del texto: el 15-oct una expresion /cobro/ metio en alertas las que ya
+ *  tenian la primera parte cobrada. */
 export function falta(d: Datos): Falta {
   const f = faltaTexto(d);
-  return { ...f, paso: SECCION.find(([rx]) => rx.test(f.texto))?.[1] ?? "escaneo" };
+  return { ...f, paso: pasoDe(f.clave).seccion };
 }
 
 function faltaTexto(d: Datos): Falta {
@@ -243,23 +231,24 @@ function faltaTexto(d: Datos): Falta {
   const generada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja));
   const enviada = d.hojas.some((h) => h.estado === "enviada_comunidad" || h.versiones.some((v) => v.fecha_enviada));
   // La revision pidio cambios: con lo que dijo quien reviso.
-  const cambiosRevision = (): Falta => ({
+  const cambiosRevision = (enBucle: boolean): Falta => ({
+    clave: enBucle ? "nueva_oferta_cambios" : "revision_cambios",
     texto: "La revisión pidió cambios: corregir la oferta antes de enviarla",
     extra: r?.comentario ? `${r.resueltaPor ? r.resueltaPor + ": " : ""}${r.comentario}` : null,
   });
 
-  if (e.perdida) return { texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
+  if (e.perdida) return { clave: "perdida", texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
   if (e.ganada) {
-    if (e.cobrada) return { texto: "Todo completado", extra: null };
-    if (e.primerCobro) return { texto: "Cobro de la primera parte recibido: empezamos con el proyecto", extra: "Pendiente del cobro del resto del importe" };
-    return { texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
+    if (e.cobrada) return { clave: "completado", texto: "Todo completado", extra: null };
+    if (e.primerCobro) return { clave: "primera_parte_cobrada", texto: "Cobro de la primera parte recibido: empezamos con el proyecto", extra: "Pendiente del cobro del resto del importe" };
+    return { clave: "falta_ok_cobro_primera", texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
   }
 
   // La junta: la ultima que se apunto.
   const junta =
     [...d.juntas].sort((a, b) => (a.fecha_junta ?? a.creado_en).localeCompare(b.fecha_junta ?? b.creado_en)).at(-1) ?? null;
-  if (junta?.resultado === "favorable") return { texto: "La junta votó sí: pendiente de que nos envíen la hoja firmada", extra: null };
-  if (junta?.resultado === "desfavorable") return { texto: "La junta votó que no: cerrarla como perdida", extra: null };
+  if (junta?.resultado === "favorable") return { clave: "junta_si_falta_firmada", texto: "La junta votó sí: pendiente de que nos envíen la hoja firmada", extra: null };
+  if (junta?.resultado === "desfavorable") return { clave: "junta_no", texto: "La junta votó que no: cerrarla como perdida", extra: null };
 
   // EL BUCLE DE MODIFICAR LA OFERTA: lo pide la junta, o la hoja quedo en
   // "cambios solicitados". Desde ese momento, lo que se mueve es la NUEVA oferta.
@@ -273,34 +262,34 @@ function faltaTexto(d: Datos): Falta {
   if (desde !== null) {
     const despues = (f: string | null | undefined) => !!f && f.slice(0, 10) >= desde;
     const nuevaGenerada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja && despues(v.fecha_generada)));
-    if (!nuevaGenerada) return { texto: "Pidieron modificar la oferta: pendiente de elaborar la nueva oferta", extra: null };
+    if (!nuevaGenerada) return { clave: "nueva_oferta_elaborar", texto: "Pidieron modificar la oferta: pendiente de elaborar la nueva oferta", extra: null };
     if (d.hojas.some((h) => h.versiones.some((v) => despues(v.fecha_enviada))))
-      return { texto: "Pendientes de la decisión sobre la nueva oferta", extra: null };
-    if (r && despues(r.enviadaEn) && r.estado === "cambios") return cambiosRevision();
-    if (r && despues(r.enviadaEn) && d.revision?.okVigente) return { texto: "Falta enviar la nueva oferta a la comunidad", extra: null };
-    return { texto: "Falta el ok a la nueva oferta", extra: null };
+      return { clave: "nueva_oferta_decision", texto: "Pendientes de la decisión sobre la nueva oferta", extra: null };
+    if (r && despues(r.enviadaEn) && r.estado === "cambios") return cambiosRevision(true);
+    if (r && despues(r.enviadaEn) && d.revision?.okVigente) return { clave: "nueva_oferta_enviar", texto: "Falta enviar la nueva oferta a la comunidad", extra: null };
+    return { clave: "nueva_oferta_ok", texto: "Falta el ok a la nueva oferta", extra: null };
   }
 
   if (junta) {
     if (junta.fecha_junta && junta.fecha_junta >= hoyISO() && !junta.celebrada) {
       const a_medida = d.tresd && d.tresd.tipo_3d !== "generico_escalera";
       const extra = a_medida ? (d.tresd!.estado === "listo" || d.tresd!.estado === "entregado" ? "3D específico listo" : "Falta el 3D específico") : null;
-      return { texto: `Falta que se celebre la junta (el ${ddmm(junta.fecha_junta)})`, extra };
+      return { clave: "junta_por_celebrar", texto: `Falta que se celebre la junta (el ${ddmm(junta.fecha_junta)})`, extra };
     }
-    if (junta.fecha_junta || junta.celebrada) return { texto: "Pendientes de que confirmen qué votaron", extra: null };
+    if (junta.fecha_junta || junta.celebrada) return { clave: "junta_que_votaron", texto: "Pendientes de que confirmen qué votaron", extra: null };
   }
 
-  if (enviada) return { texto: "Falta que confirmen la fecha de la junta", extra: null };
-  if (r?.estado === "cambios") return cambiosRevision();
-  if (d.revision?.okVigente) return { texto: "Falta enviar la doc a la comunidad", extra: null };
-  if (generada) return { texto: "Falta el ok a la oferta", extra: null };
-  if (d.arquitecto) return { texto: "Preparar la HE, la VB y el presupuesto", extra: null };
-  if (d.polycam) return { texto: "Que el arquitecto defina la viabilidad", extra: null };
+  if (enviada) return { clave: "falta_fecha_junta", texto: "Falta que confirmen la fecha de la junta", extra: null };
+  if (r?.estado === "cambios") return cambiosRevision(false);
+  if (d.revision?.okVigente) return { clave: "falta_enviar_doc", texto: "Falta enviar la doc a la comunidad", extra: null };
+  if (generada) return { clave: "falta_ok_oferta", texto: "Falta el ok a la oferta", extra: null };
+  if (d.arquitecto) return { clave: "preparar_docs", texto: "Preparar la HE, la VB y el presupuesto", extra: null };
+  if (d.polycam) return { clave: "arquitecto_viabilidad", texto: "Que el arquitecto defina la viabilidad", extra: null };
   if (d.cita) {
     const [dia, hora] = aHoraMadrid(d.cita.inicio).split("T");
-    return { texto: "Enviar el Polycam para la viabilidad", extra: `Visita el ${fecha(dia)} a las ${hora}` };
+    return { clave: "enviar_polycam", texto: "Enviar el Polycam para la viabilidad", extra: `Visita el ${fecha(dia)} a las ${hora}` };
   }
-  return { texto: "Cerrar la visita para el escaneo con Polycam", extra: null };
+  return { clave: "cerrar_visita", texto: "Cerrar la visita para el escaneo con Polycam", extra: null };
 }
 
 // ------------------------------------------------------------------ juntarlo

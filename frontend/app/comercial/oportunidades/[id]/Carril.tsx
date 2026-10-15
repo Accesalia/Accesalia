@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { HitoGestion } from "../../../../lib/gestionOportunidad";
+import { BLOQUES } from "../../../../lib/pasosEscalera";
 
 // EL CARRIL DE LOS CUATRO BLOQUES (Monica, 5-oct-2026).
 //
@@ -24,12 +25,9 @@ export const AZUL = "#104269";
  *  estaba, PORQUE PARA HACERLO PRIMERO HAY QUE MARCARLO" -y la casilla
  *  "necesita 3D" esta en la cabecera del bloque 1-. Cuadra ademas con el
  *  catalogo, donde "Toma de datos y Modelado 3D" es un solo tipo. */
-export const BLOQUES: { n: number; titulo: string; hitos: string[] }[] = [
-  { n: 1, titulo: "Toma de datos", hitos: ["primer_contacto", "visita", "polycam", "tresd"] },
-  { n: 2, titulo: "Documentación", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos"] },
-  { n: 3, titulo: "Decisión de los vecinos", hitos: ["junta"] },
-  { n: 4, titulo: "Cierre", hitos: ["firma", "cobro"] },
-];
+// Los cuatro bloques viven en lib/pasosEscalera.ts: de ahi los lee tambien
+// estado_oportunidad (el bloque de cada opp).
+export { BLOQUES };
 
 /** Las palabras del subtitulo son SUYAS, copiadas de las dos maquetas. Donde no
  *  escribio ninguna se pone el nombre del hito tal cual: antes eso que inventarle
@@ -57,7 +55,7 @@ export function bloquesDe(hitos: HitoGestion[]): EstadoBloque[] {
     const cuentan = mios.filter((h) => h.estado !== "no_aplica" && h.aplicable);
     const hechos = cuentan.filter((h) => h.estado === "hecho");
     const pendiente = cuentan.find((h) => h.estado !== "hecho");
-    const activo = Boolean(ahora && b.hitos.includes(ahora.clave));
+    const activo = Boolean(ahora && (b.hitos as string[]).includes(ahora.clave));
 
     let pie: string;
     if (cuentan.length === 0) pie = "No aplica";
