@@ -18,6 +18,14 @@
     {
       "path": "/api/bdns/vigilar",
       "schedule": "0 4 1,16 * *"
+    },
+    {
+      "path": "/api/edificios/goteo",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/edificios/censo",
+      "schedule": "30 0 1 * *"
     }
   ]
 }

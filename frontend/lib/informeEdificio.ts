@@ -822,34 +822,40 @@ async function guardar(ref: string, c: Crudo) {
   // 5 · las subvenciones de alrededor, al censo (con su posicion y su fecha)
   const censo = (c._fuera?.censo ?? []).filter((a) => a.OBJECTID != null && a._lat != null && a._lng != null);
   if (censo.length) {
-    const n = (v: unknown) => (typeof v === "number" ? v : null);
     await escribir(
       "subvencion_concedida?on_conflict=servicio,capa,objectid",
-      censo.map((a) => {
-        const { _lat, _lng, ...detalle } = a;
-        return {
-          direccion: String(a.DIRECCION ?? "").trim() || "(sin dirección)",
-          convocatoria: a.CONVOCATORIA ?? null,
-          ayuda: a.AYUDA ?? null,
-          fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
-          importe: n(a.IMPORTE_SUBVENCION____),
-          viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? Math.round(a.VIVIENDAS_EDIFICIO) : null,
-          ahorro_energia: n(a["AHORRO_ENERGIA__kWh_año_"]),
-          ahorro_co2: n(a["AHORRO_CO2__kg_año_"]),
-          distrito: a.DISTRITO ?? null,
-          barrio: a.BARRIO ?? null,
-          cp: a.COD_POSTAL != null ? String(a.COD_POSTAL) : null,
-          servicio: "VIVIENDA/REHABILITACION_ENERGETICA_CM",
-          capa: 0,
-          objectid: a.OBJECTID,
-          detalle,
-          lat: _lat,
-          lng: _lng,
-          consultado_en: c.consultadoEn,
-        };
-      }),
+      censo.map((a) => filaDelCenso(a, c.consultadoEn)),
     );
   }
+}
+
+const CENSO = { servicio: "VIVIENDA/REHABILITACION_ENERGETICA_CM", capa: 0 } as const;
+
+/** Una subvencion del geoportal como fila de subvencion_concedida (igual que
+ *  scripts/barrido/geoportal_madrid.py). `_lat`/`_lng`: su posicion en grados. */
+function filaDelCenso(a: Record<string, unknown>, consultadoEn: string) {
+  const n = (v: unknown) => (typeof v === "number" ? v : null);
+  const { _lat, _lng, ...detalle } = a;
+  return {
+    direccion: String(a.DIRECCION ?? "").trim() || "(sin dirección)",
+    convocatoria: a.CONVOCATORIA ?? null,
+    ayuda: a.AYUDA ?? null,
+    fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
+    importe: n(a.IMPORTE_SUBVENCION____),
+    viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? Math.round(a.VIVIENDAS_EDIFICIO) : null,
+    ahorro_energia: n(a["AHORRO_ENERGIA__kWh_año_"]),
+    ahorro_co2: n(a["AHORRO_CO2__kg_año_"]),
+    distrito: a.DISTRITO ?? null,
+    barrio: a.BARRIO ?? null,
+    cp: a.COD_POSTAL != null ? String(a.COD_POSTAL) : null,
+    servicio: CENSO.servicio,
+    capa: CENSO.capa,
+    objectid: a.OBJECTID,
+    detalle,
+    lat: _lat,
+    lng: _lng,
+    consultado_en: consultadoEn,
+  };
 }
 
 type FilaFicha = {
@@ -1337,4 +1343,86 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
   } catch {
     return vacio;
   }
+}
+
+// ============================================================================
+// AL DIA, SOLOS (Monica, 15-oct-2026): ninguna capa del geoportal ni Catastro
+// marca que ha cambiado, asi que:
+//   - el censo de subvenciones se baja ENTERO una vez al mes (es una sola
+//     peticion: ~1.400 filas en segundos), y
+//   - cada noche se refrescan los edificios que llevan mas tiempo sin
+//     consultarse (goteo), sin agobiar a Catastro.
+// ============================================================================
+
+/** EL CENSO ENTERO de subvenciones concedidas de Madrid, a subvencion_concedida.
+ *  Una sola peticion; si el geoportal la corta (exceededTransferLimit), se dice
+ *  y no se guarda nada a medias. */
+export async function bajarCensoSubvenciones(): Promise<{ total: number; nuevas: number }> {
+  const q = new URLSearchParams({ where: "1=1", outFields: "*", returnGeometry: "true", outSR: "4326", f: "json" });
+  const d = (await jsonDe(`${SIGMA}/${CENSO.servicio}/MapServer/${CENSO.capa}/query?${q}`)) as {
+    exceededTransferLimit?: boolean;
+    features?: { attributes: Record<string, string | number | null>; geometry?: { x?: number; y?: number } }[];
+  };
+  if (d.exceededTransferLimit) throw new Error("El geoportal ha cortado la respuesta: hay que pedir el censo por trozos.");
+  const ahora = new Date().toISOString();
+  const filas = (d.features ?? [])
+    .map((f): Record<string, unknown> => ({ ...atributos(f.attributes), _lat: f.geometry?.y ?? null, _lng: f.geometry?.x ?? null }))
+    .filter((a) => a.OBJECTID != null)
+    .map((a) => filaDelCenso(a, ahora));
+  if (!filas.length) throw new Error("El geoportal no ha devuelto ninguna subvencion.");
+
+  const antes = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?select=id&servicio=eq.${encodeURIComponent(CENSO.servicio)}&capa=eq.${CENSO.capa}`, {
+    headers: { ...cab, Prefer: "count=exact", Range: "0-0" },
+    cache: "no-store",
+  });
+  const habia = Number(antes.headers.get("content-range")?.split("/")[1] ?? "0") || 0;
+  for (let k = 0; k < filas.length; k += 500) {
+    const r = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?on_conflict=servicio,capa,objectid`, {
+      method: "POST",
+      headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(filas.slice(k, k + 500)),
+    });
+    if (!r.ok) throw new Error(`Supabase subvencion_concedida ${r.status}: ${await r.text()}`);
+  }
+  return { total: filas.length, nuevas: Math.max(0, filas.length - habia) };
+}
+
+/** EL GOTEO NOCTURNO: los edificios que llevan mas tiempo sin consultarse se
+ *  vuelven a pedir fuera y quedan escritos en las tablas (lo mismo que "volver a
+ *  consultar"). Uno detras de otro, para no agobiar a Catastro, hasta `cuantos`
+ *  o hasta que se acabe el tiempo. Se saltan los que ya se preguntaron hace
+ *  menos de 30 dias sin exito: si no, los que fallan siempre ocuparian la cola. */
+export async function goteoEdificios(cuantos = 20, segundos = 230): Promise<{ hechos: number; bien: number; mal: string[] }> {
+  const hasta = Date.now() + segundos * 1000;
+  const viejos = (await (
+    await fetch(`${URL_BASE}/rest/v1/ficha_catastro?select=referencia&order=consultado_en.asc.nullsfirst&limit=${cuantos * 5}`, { headers: cab, cache: "no-store" })
+  ).json()) as { referencia: string }[];
+  const refs = viejos.map((v) => v.referencia).filter((r) => /^[0-9A-Z]{14}$/.test(r));
+  const recientes = refs.length
+    ? ((await (
+        await fetch(
+          `${URL_BASE}/rest/v1/consulta_externa?select=referencia&fuente=eq.catastro&resultado=neq.ok` +
+            `&preguntado_en=gte.${new Date(Date.now() - 30 * 86400000).toISOString()}&referencia=in.(${refs.join(",")})`,
+          { headers: cab, cache: "no-store" },
+        )
+      ).json()) as { referencia: string }[])
+    : [];
+  const saltar = new Set(recientes.map((r) => r.referencia));
+  const cola = refs.filter((r) => !saltar.has(r)).slice(0, cuantos);
+
+  let hechos = 0, bien = 0;
+  const mal: string[] = [];
+  for (const ref of cola) {
+    if (Date.now() > hasta) break;
+    hechos++;
+    try {
+      const i = await informeEdificio(ref, { refrescar: true });
+      if (i && i.fallos.length === 0) bien++;
+      else mal.push(ref);
+    } catch {
+      mal.push(ref);
+    }
+    await espera(1000);
+  }
+  return { hechos, bien, mal };
 }

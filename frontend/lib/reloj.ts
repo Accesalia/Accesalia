@@ -101,6 +101,12 @@ export const RELOJES: Reloj[] = [
   // del barrido de IEE: recalcula todas y dice cuantas estaban mal.
   { tarea: "estado_barrido", nombre: "Estado de las oportunidades", cada: "todas las noches, de madrugada", ruta: "/api/estado/barrido" },
   { tarea: "bdns_vigilar", nombre: "Subvenciones concedidas (BDNS)", cada: "el día 1 y el 16 de cada mes, de madrugada", ruta: "/api/bdns/vigilar" },
+  // LOS EDIFICIOS AL DIA (Monica, 15-oct-2026). Ni Catastro ni el geoportal
+  // marcan que ha cambiado: el goteo refresca cada noche los 20 edificios mas
+  // viejos (1:00 UTC, antes del estado de las opps) y el censo de subvenciones
+  // de Madrid se baja entero el dia 1 de cada mes (0:30 UTC).
+  { tarea: "goteo_edificios", nombre: "Edificios al día (Catastro y geoportal)", cada: "todas las noches, de madrugada", ruta: "/api/edificios/goteo" },
+  { tarea: "censo_subvenciones", nombre: "Censo de subvenciones de Madrid", cada: "el día 1 de cada mes, de madrugada", ruta: "/api/edificios/censo" },
 ];
 
 // ============================================================================
