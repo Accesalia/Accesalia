@@ -78,11 +78,11 @@ export async function pendientesDe(yo: Yo): Promise<Pendiente[]> {
     donde_texto: string | null; quien_texto: string | null;
     quien_puesto_id: string | null; quien_persona_id: string | null; quien_persona_comunidad_id: string | null;
     autor: { nombre: string } | null;
-    qp: { persona: { nombre: string } | null } | null; qs: { nombre: string } | null; qc: { nombre: string } | null;
+    qp: { persona: { nombre: string } | null } | null; qs: { nombre: string } | null;
   }[]>(
     `notas_pendientes?select=id,creado_en,fecha,canal,texto,autor_id,donde_texto,quien_texto,` +
       `quien_puesto_id,quien_persona_id,quien_persona_comunidad_id,autor:autor_id(nombre),` +
-      `qp:quien_puesto_id(persona:persona_id(nombre)),qs:quien_persona_id(nombre),qc:quien_persona_comunidad_id(nombre)` +
+      `qp:quien_puesto_id(persona:persona_id(nombre)),qs:quien_persona_id(nombre)` +
       `&estado=eq.pendiente${filtroAutores(a)}&order=creado_en.asc&limit=200`,
   );
   const fotos = await fotosDeNotas("nota_pendiente_id", filas.map((f) => f.id)).catch(() => new Map<string, Foto[]>());
@@ -95,7 +95,7 @@ export async function pendientesDe(yo: Yo): Promise<Pendiente[]> {
     autor: f.autor?.nombre ?? null,
     autorId: f.autor_id,
     donde: f.donde_texto,
-    quien: f.qp?.persona?.nombre ?? f.qs?.nombre ?? f.qc?.nombre ?? f.quien_texto,
+    quien: f.qp?.persona?.nombre ?? f.qs?.nombre ?? f.quien_texto,
     persona: f.quien_puesto_id
       ? "puesto:" + f.quien_puesto_id
       : f.quien_persona_id

@@ -7,6 +7,7 @@
 // subvenciones, obra...).
 
 import "server-only";
+import { personasDeComunidad } from "./personasComunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -181,9 +182,12 @@ export async function comunidadPorId(id: string): Promise<FichaComunidad | null>
       `comunidad_admin_responsable?select=${SEL_VINCULO}&comunidad_id=eq.${id}` +
         "&order=vigente.desc,hasta.desc",
     ),
-    rest<PersonaComunidad[]>(
-      `personas_comunidad?select=id,nombre,rol,documento,telefono,email,es_contacto_principal,notas` +
-        `&comunidad_id=eq.${id}&order=es_contacto_principal.desc,rol.asc`,
+    // UNA SOLA AGENDA (15-oct-2026): de persona + puesto, no de personas_comunidad.
+    personasDeComunidad(id).then((ps) =>
+      ps.map((p) => ({
+        id: p.id, nombre: p.nombre, rol: p.rol, documento: p.documento, telefono: p.telefono, email: p.email,
+        es_contacto_principal: p.es_contacto_principal, notas: p.notas,
+      }) as PersonaComunidad),
     ),
     contar(`hojas_encargo?select=id&comunidad_id=eq.${id}`),
   ]);

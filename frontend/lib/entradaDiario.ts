@@ -80,7 +80,7 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
  *  Las personas llevan delante de que lista son: puesto:, persona:, pc:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
-  const [ops, puestos, sueltas, comunidad] = await Promise.all([
+  const [ops, puestos, sueltas] = await Promise.all([
     leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
            comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
       `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
@@ -91,9 +91,6 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
     ),
     leerTodo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
       `persona?select=id,nombre,apellidos,puesto(id)&order=id.asc`,
-    ),
-    leerTodo<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }>(
-      `personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=id.asc`,
     ),
   ]);
 
@@ -117,11 +114,6 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
       ...sueltas
         .filter((p) => !p.puesto.length)
         .map((p) => ({ valor: "persona:" + p.id, texto: completo(p), pista: "agenda" })),
-      ...comunidad.map((p) => ({
-        valor: "pc:" + p.id,
-        texto: p.nombre,
-        pista: [p.rol, p.comunidad?.nombre].filter(Boolean).join(" · ") || "comunidad",
-      })),
     ],
   };
 }
@@ -178,7 +170,6 @@ async function grabarNota(d: DatosEntrada): Promise<Destino> {
   const quien = {
     quien_puesto_id: lista === "puesto" ? id : null,
     quien_persona_id: lista === "persona" ? id : null,
-    quien_persona_comunidad_id: lista === "pc" ? id : null,
   };
   // Cuando paso: si no se dice, hoy.
   const fecha = d.fecha ?? new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });

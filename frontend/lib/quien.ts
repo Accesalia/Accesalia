@@ -47,7 +47,7 @@ export type OpcionQuien = { valor: string; texto: string; pista?: string };
 /** Toda la gente a la que puede apuntar un "nos lo trajo", en una sola lista.
  *  El valor lleva delante de que clase es, porque cada clase vive en su tabla. */
 export async function opcionesQuien(): Promise<OpcionQuien[]> {
-  const [personas, comerciales, vecinos] = await Promise.all([
+  const [personas, comerciales] = await Promise.all([
     leer<{
       id: string;
       nombre: string;
@@ -60,9 +60,6 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
     leer<{ id: string; nombre: string; apellidos: string | null }[]>(
       "comerciales?select=id,nombre,apellidos&activo=eq.true&order=nombre.asc",
     ),
-    leer<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }[]>(
-      "personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=nombre.asc&limit=2000",
-    ).catch(() => []),
   ]);
 
   return [
@@ -80,11 +77,6 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
         pista: [pu?.cargo, donde].filter(Boolean).join(" · ") || "sin empresa",
       };
     }),
-    ...vecinos.map((v) => ({
-      valor: "vecino:" + v.id,
-      texto: v.nombre,
-      pista: [v.rol, v.comunidad?.nombre].filter(Boolean).join(" · ") || "vecino",
-    })),
   ];
 }
 
@@ -113,6 +105,7 @@ export function columnasQuien(valor: string | null): {
   if (!id) return vacio;
   if (clase === "persona") return { ...vacio, quien_lo_trae: id };
   if (clase === "comercial") return { ...vacio, quien_comercial_id: id };
-  if (clase === "vecino") return { ...vacio, quien_persona_comunidad_id: id };
+  // "vecino:" era la tabla vieja (personas_comunidad), retirada el 15-oct-2026: la
+  // gente de la comunidad esta en la agenda y llega como "persona:".
   return vacio;
 }

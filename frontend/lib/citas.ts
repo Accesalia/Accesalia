@@ -178,7 +178,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
            nombre: string | null; telefono: string | null; papel: string | null;
            persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
            puesto: { cargo: string | null; telefono_empresa: string | null } | null;
-           pc: { nombre: string | null; telefono: string | null; rol: string | null } | null }[];
+           }[];
     adj: { id: string; ruta_almacen: string | null; nombre: string | null; hoja_encargo_id: string | null; viabilidad_id: string | null;
            presupuesto_id: string | null; documento_id: string | null;
            hoja: { numero_hoja: string | null } | null; viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
@@ -186,7 +186,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
     `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre,color),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
-      `con:citas_con_quien(id,persona_id,puesto_id,persona_comunidad_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa),pc:persona_comunidad_id(nombre,telefono,rol)),` +
+      `con:citas_con_quien(id,persona_id,puesto_id,persona_comunidad_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
       `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
       `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
       `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
@@ -219,9 +219,9 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
           : c.persona_id
             ? { tipo: "persona" as const, id: c.persona_id }
             : { tipo: "a_mano" as const, id: c.id }),
-      nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.pc?.nombre ?? c.nombre ?? "",
-      telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.pc?.telefono ?? c.telefono,
-      papel: c.papel ?? c.puesto?.cargo ?? c.pc?.rol ?? null,
+      nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.nombre ?? "",
+      telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.telefono,
+      papel: c.papel ?? c.puesto?.cargo ?? null,
     })),
     adjuntos: f.adj.map((a) =>
       a.hoja_encargo_id

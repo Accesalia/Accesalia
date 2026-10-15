@@ -86,10 +86,10 @@ export type DatosCompletar = {
 export async function guardarCompletar(oppId: string, d: DatosCompletar): Promise<void> {
   const cambio: Record<string, unknown> = {};
   const [lista, id] = (d.contacto ?? "").split(":");
-  if (lista === "puesto" || lista === "pc") {
+  if (lista === "puesto") {
     Object.assign(cambio, {
-      puesto_id: lista === "puesto" ? id : null,
-      persona_comunidad_id: lista === "pc" ? id : null,
+      puesto_id: id,
+      persona_comunidad_id: null,
       contacto_provisional: null,
       telefono_provisional: null,
       correo_provisional: null,

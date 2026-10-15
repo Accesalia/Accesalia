@@ -668,12 +668,10 @@ export async function extractoDeOportunidad(
       contacto_provisional: string | null;
       telefono_provisional: string | null;
       puesto: (PersonaPuesto & { persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }) | null;
-      vecino: { nombre: string; rol: string | null; telefono: string | null } | null;
       trajo: { nombre: string; apellidos: string | null; telefono_personal: string | null; puesto: PersonaPuesto[] } | null;
     }[]>(
       `oportunidades?select=contacto_provisional,telefono_provisional,` +
         `puesto:puesto_id(cargo,telefono_empresa,contrata:contratas(nombre),empresa:empresa_id(nombre_accesalia),persona:persona_id(nombre,apellidos,telefono_personal)),` +
-        `vecino:persona_comunidad_id(nombre,rol,telefono),` +
         `trajo:quien_lo_trae(nombre,apellidos,telefono_personal,puesto(cargo,telefono_empresa,contrata:contratas(nombre),empresa(nombre_accesalia)))` +
         `&id=eq.${id}&limit=1&trajo.puesto.hasta=is.null`,
     ),
@@ -723,9 +721,7 @@ export async function extractoDeOportunidad(
       telefono: op.puesto.telefono_empresa ?? op.puesto.persona.telefono_personal,
     });
   }
-  if (op?.vecino) {
-    contactos.push({ papel: ["contacto", op.vecino.rol].filter(Boolean).join(" · "), nombre: op.vecino.nombre, telefono: op.vecino.telefono });
-  }
+
   if (op?.contacto_provisional) {
     contactos.push({ papel: "contacto (provisional)", nombre: op.contacto_provisional, telefono: op.telefono_provisional });
   }

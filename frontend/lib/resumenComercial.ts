@@ -133,7 +133,6 @@ type OppCruda = {
   comunidad_id: string | null;
   contacto_provisional: string | null;
   telefono_provisional: string | null;
-  pc: { nombre: string; telefono: string | null; rol: string | null } | null;
   trajo: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
   cierres: CierreCrudo[];
   hojas: HojaCruda[];
@@ -142,7 +141,7 @@ type OppCruda = {
 
 const SEL =
   "id,codigo,nombre,estado,fecha_apertura,creado_en,comunidad_id,contacto_provisional,telefono_provisional," +
-  "pc:persona_comunidad_id(nombre,telefono,rol),trajo:quien_lo_trae(nombre,apellidos,telefono_personal)," +
+  "trajo:quien_lo_trae(nombre,apellidos,telefono_personal)," +
   "cierres:motivo_cierre_oportunidad(fecha_cierre,resultado_final,motivo_perdido,creado_en)," +
   "hojas:hojas_encargo(id,estado,fecha_firma,fecha_estado,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_generada,fecha_enviada))," +
   "portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,municipio))";
@@ -449,7 +448,6 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     const PESO: Record<string, number> = { presidente: 0, vicepresidente: 1, secretario: 2 };
     const com = [...(comDe.get(o.comunidad_id ?? "") ?? [])].filter((p) => p.persona).sort((x, y) => (PESO[x.cargo ?? ""] ?? 9) - (PESO[y.cargo ?? ""] ?? 9))[0];
     if (com) llamar.push({ quien: [com.persona!.nombre, com.persona!.apellidos].filter(Boolean).join(" "), papel: com.cargo ?? "comunidad", telefono: com.persona!.telefono_personal });
-    else if (o.pc) llamar.push({ quien: o.pc.nombre, papel: o.pc.rol ?? "comunidad", telefono: o.pc.telefono });
     else if (o.contacto_provisional) llamar.push({ quien: o.contacto_provisional, papel: "contacto", telefono: o.telefono_provisional });
     if (!llamar.length && o.trajo) llamar.push({ quien: [o.trajo.nombre, o.trajo.apellidos].filter(Boolean).join(" "), papel: "la trajo", telefono: o.trajo.telefono_personal });
 

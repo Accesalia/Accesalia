@@ -14,6 +14,7 @@
 // "no quiero que se pueda descomponer, para evitar errores".
 
 import "server-only";
+import { personasDeComunidad } from "./personasComunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -180,9 +181,10 @@ export async function fichaComunidad(id: string): Promise<FichaComunidad | null>
       ),
       "el administrador",
     ),
+    // UNA SOLA AGENDA (15-oct-2026): de persona + puesto, no de personas_comunidad.
     intenta(
-      rest<ContactoComunidad[]>(
-        `personas_comunidad?select=nombre,rol,telefono,email,documento,notas&comunidad_id=eq.${id}&order=rol`,
+      personasDeComunidad(id).then((ps) =>
+        ps.map((p) => ({ nombre: p.nombre, rol: p.rol, telefono: p.telefono, email: p.email, documento: p.documento, notas: p.notas }) as ContactoComunidad),
       ),
       "los contactos",
     ),

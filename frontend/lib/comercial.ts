@@ -140,7 +140,6 @@ export type Origen = {
   /** Quien nos lo trajo: solo uno de los tres viene relleno. */
   quien_lo_trae: { nombre: string; apellidos: string | null } | null;
   quien_comercial: { nombre: string; apellidos: string | null } | null;
-  quien_persona_comunidad: { nombre: string } | null;
   /** De quien es el cliente que no hay que pisar. */
   dueno_contrata: { nombre: string } | null;
   condiciona_oferta: boolean;
@@ -392,7 +391,6 @@ export async function administracionPorId(id: string): Promise<AdministracionFic
         "canal:canal_id(nombre,familia)," +
         "quien_lo_trae:quien_lo_trae(nombre,apellidos)," +
         "quien_comercial:quien_comercial_id(nombre,apellidos)," +
-        "quien_persona_comunidad:quien_persona_comunidad_id(nombre)," +
         "dueno_contrata:dueno_contrata_id(nombre)" +
         `&empresa_id=eq.${id}&order=creado_en.asc`,
     ),

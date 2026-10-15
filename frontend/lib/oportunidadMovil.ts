@@ -77,7 +77,7 @@ export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil, com
   if (!codigo) throw new Error("Ese comercial no tiene siglas: sin ellas no hay código y la oportunidad no puede nacer.");
   const [lc, idc] = (d.contacto ?? "").split(":");
   const [la, ida] = (d.administrador ?? "").split(":");
-  const conContacto = lc === "puesto" || lc === "pc";
+  const conContacto = lc === "puesto";
 
   await pedir("POST", "oportunidades", {
     id: d.id,
@@ -88,7 +88,6 @@ export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil, com
     comercial_id: mio.id,
     estado: "abierta",
     puesto_id: lc === "puesto" ? idc : null,
-    persona_comunidad_id: lc === "pc" ? idc : null,
     contacto_provisional: !conContacto && d.contactoNombre?.trim() ? d.contactoNombre.trim() : null,
     telefono_provisional: !conContacto && d.contactoNombre?.trim() ? d.contactoTelefono?.trim() || null : null,
     administrador_puesto_id: la === "puesto" ? ida : null,

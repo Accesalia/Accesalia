@@ -116,15 +116,12 @@ type FilaPuesto = {
 
 async function personas(): Promise<(PropuestaPersona & { buscable: string })[]> {
   const hoy = new Date().toISOString().slice(0, 10);
-  const [puestos, sueltas, deComunidad] = await Promise.all([
+  const [puestos, sueltas] = await Promise.all([
     todo<FilaPuesto>(
       "puesto?select=id,cargo,hasta,persona(id,nombre,apellidos),empresa(nombre_accesalia,nombre_legal),contratas(nombre),organismos(nombre)",
     ),
     todo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
       "persona?select=id,nombre,apellidos,puesto(id)&activa=is.true",
-    ),
-    todo<{ id: string; nombre: string | null; rol: string | null; comunidades: { nombre: string } | null }>(
-      "personas_comunidad?select=id,nombre,rol,comunidades(nombre)",
     ),
   ]);
 
@@ -140,11 +137,6 @@ async function personas(): Promise<(PropuestaPersona & { buscable: string })[]> 
     if (p.puesto.length) continue;
     const nombre = [p.nombre, p.apellidos].filter(Boolean).join(" ");
     salida.push({ tipo: "persona", id: p.id, nombre, detalle: "", buscable: nombre });
-  }
-  for (const p of deComunidad) {
-    if (!p.nombre) continue;
-    const detalle = [p.rol, p.comunidades?.nombre].filter(Boolean).join(" · ");
-    salida.push({ tipo: "persona_comunidad", id: p.id, nombre: p.nombre, detalle, buscable: `${p.nombre} ${detalle}` });
   }
   return salida;
 }
@@ -252,7 +244,7 @@ function fila(d: DatosPostit) {
     quien_texto: t(d.quien_texto),
     quien_puesto_id: quien?.tipo === "puesto" ? quien.id : null,
     quien_persona_id: quien?.tipo === "persona" ? quien.id : null,
-    quien_persona_comunidad_id: quien?.tipo === "persona_comunidad" ? quien.id : null,
+    quien_persona_comunidad_id: null,
     quien_nuevo: quien?.tipo === "nuevo",
     donde_texto: t(d.donde_texto),
     donde_comunidad_id: donde?.tipo === "comunidad" ? donde.id : null,

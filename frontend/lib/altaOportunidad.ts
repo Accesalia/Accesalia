@@ -129,7 +129,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string, mio?: string | null): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, admins, claves, contratas, puestos, vecinos] =
+  const [comerciales, canales, quienes, tipos, admins, claves, contratas, puestos, comunidades] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -156,12 +156,13 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
       id: string;
       cargo: string | null;
       persona_id: string | null;
+      figura_legal_propietaria_id: string | null;
       persona: { nombre: string } | null;
       empresa: { nombre_accesalia: string; tipo: string | null } | null;
-    }[]>("puesto?select=id,cargo,persona_id,persona(nombre),empresa(nombre_accesalia,tipo)&hasta=is.null&limit=3000"),
-    leer<{ id: string; nombre: string; rol: string | null; comunidad: { nombre: string } | null }[]>(
-      "personas_comunidad?select=id,nombre,rol,comunidad:comunidad_id(nombre)&order=nombre.asc&limit=3000",
-    ).catch(() => []),
+    }[]>("puesto?select=id,cargo,persona_id,figura_legal_propietaria_id,persona(nombre),empresa(nombre_accesalia,tipo)&hasta=is.null&limit=5000"),
+    // UNA SOLA AGENDA (15-oct-2026): la gente de las comunidades es un puesto que
+    // cuelga de la comunidad; su nombre, para la pista.
+    leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=10000").catch(() => []),
   ]);
 
   // El numero que le toca a cada uno: una sola lectura de los codigos que ya
@@ -180,6 +181,7 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     codigoDe[c.id] = prefijo + String(n + 1).padStart(3, "0");
   }
 
+  const nombreComunidad = new Map(comunidades.map((c) => [c.id, c.nombre]));
   return {
     comerciales: comerciales.map((c) => ({
       id: c.id,
@@ -220,14 +222,12 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
         .map((p) => ({
           valor: "puesto:" + p.id,
           texto: p.persona!.nombre,
-          pista: [p.cargo, p.empresa?.nombre_accesalia].filter(Boolean).join(" · ") || "sin empresa",
+          pista:
+            [p.cargo, p.empresa?.nombre_accesalia ?? (p.figura_legal_propietaria_id ? nombreComunidad.get(p.figura_legal_propietaria_id) : null)]
+              .filter(Boolean)
+              .join(" · ") || "sin empresa",
         }))
         .sort((a, b) => a.texto.localeCompare(b.texto, "es")),
-      ...vecinos.map((v) => ({
-        valor: "vecino:" + v.id,
-        texto: v.nombre,
-        pista: [v.rol, v.comunidad?.nombre].filter(Boolean).join(" · ") || "de la comunidad",
-      })),
     ],
   };
 }
@@ -340,15 +340,23 @@ export async function crearOportunidad(
   const colocar = async (n: PersonaNueva | null): Promise<string | null> => {
     if (!n?.nombre) return null;
 
+    // EL VECINO, A LA AGENDA (Monica, 15-oct-2026: "una sola tabla, la agenda"):
+    // persona + puesto que cuelga de la comunidad, con el telefono y el correo en
+    // el puesto. Antes iba a personas_comunidad, retirada.
     if (n.que === "vecino" && d.comunidadId) {
-      const v = await crear<{ id: string }>("personas_comunidad", {
-        comunidad_id: d.comunidadId,
-        nombre: n.nombre,
-        rol: "vecino",
-        telefono: n.telefono,
-        email: n.correo,
+      const yaFigura = await leer<{ id_comodin: string }[]>(`figura_legal_propietaria?select=id_comodin&id_comodin=eq.${d.comunidadId}`);
+      if (!yaFigura.length) await crear("figura_legal_propietaria", { id_comodin: d.comunidadId, figura: "Comunidad de Propietarios" });
+      const per = await crear<{ id: string }>("persona", { nombre: n.nombre, activa: true });
+      const pu = await crear<{ id: string }>("puesto", {
+        persona_id: per.id,
+        figura_legal_propietaria_id: d.comunidadId,
+        cargo: "Vecino",
+        cargo_clave: "vecino",
+        telefono_empresa: n.telefono,
+        desde: hoy(),
       });
-      return "vecino:" + v.id;
+      if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
+      return "persona:" + per.id;
     }
 
     const per = await crear<{ id: string }>("persona", {
@@ -393,7 +401,8 @@ export async function crearOportunidad(
   const otroRef = await colocar(d.otroNuevo);
   const contacto = otroRef ?? (d.mismoQueLlama ? quien : null);
   let contactoPuesto = contacto?.startsWith("puesto:") ? contacto.slice(7) : null;
-  let contactoVecino = contacto?.startsWith("vecino:") ? contacto.slice(7) : null;
+  // "vecino:" era la tabla vieja, retirada (15-oct-2026): ya no llega.
+  const contactoVecino: string | null = null;
   if (!contactoPuesto && !contactoVecino && contacto?.startsWith("persona:")) {
     const pid = contacto.slice(8);
     const [pu] = await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${pid}&hasta=is.null&limit=1`);
@@ -436,7 +445,6 @@ export async function crearOportunidad(
     canal_id: d.canalId,
     estado: "abierta",
     puesto_id: contactoPuesto,
-    persona_comunidad_id: contactoVecino,
     contacto_provisional: prov?.nombre ?? null,
     telefono_provisional: prov?.telefono ?? null,
     correo_provisional: prov?.correo ?? null,
@@ -465,7 +473,6 @@ export async function crearOportunidad(
     autor_id: autorId,
     autor: d.autorNombre,
     quien_puesto_id: contactoPuesto,
-    quien_persona_comunidad_id: contactoPuesto ? null : contactoVecino,
   });
 
   // 7 · por donde entramos en el flujo. Los pasos de ANTES no quedan como

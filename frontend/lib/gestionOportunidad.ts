@@ -20,6 +20,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
+import { personasDeComunidad } from "./personasComunidad";
 import { recalcularLuego } from "./estadoOportunidad";
 import { hitosDeEstado } from "./fasesDeEstado";
 
@@ -195,34 +196,10 @@ export type ContactoComunidad = { nombre: string; telefono: string | null; papel
  *  dia que se migren a la agenda unica, esto mira a `puesto` y la pantalla no se
  *  entera. */
 export async function contactosDeComunidad(comunidadId: string): Promise<ContactoComunidad[]> {
-  // DE LA AGENDA (14-oct-2026): las personas con un cargo vigente en la comunidad
-  // (su puesto cuelga de la figura legal, que es la comunidad). Ahi entran los
-  // contactos leidos del correo. Y, mientras conviva, la tabla vieja: lo que no
-  // este ya por nombre en la agenda.
-  const [agenda, viejos] = await Promise.all([
-    leer<{ cargo: string | null; telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }[]>(
-      `puesto?select=cargo,telefono_empresa,persona:persona_id(nombre,apellidos,telefono_personal)` +
-        `&figura_legal_propietaria_id=eq.${comunidadId}&hasta=is.null&limit=30`,
-    ).catch(() => []),
-    leer<{ nombre: string; telefono: string | null; rol: string | null; es_contacto_principal: boolean | null }[]>(
-      `personas_comunidad?select=nombre,telefono,rol,es_contacto_principal&comunidad_id=eq.${comunidadId}` +
-        `&order=es_contacto_principal.desc.nullslast,nombre.asc&limit=12`,
-    ),
-  ]);
-  const clave = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  // El presidente arriba; luego los demas cargos y los vecinos.
-  const PESO: Record<string, number> = { presidente: 0, vicepresidente: 1, secretario: 2, tesorero: 3, vocal: 4, comision: 5, conserje: 6 };
-  const deAgenda = agenda
-    .filter((p) => p.persona)
-    .map((p) => ({
-      nombre: [p.persona!.nombre, p.persona!.apellidos].filter(Boolean).join(" "),
-      telefono: p.persona!.telefono_personal ?? p.telefono_empresa,
-      papel: p.cargo,
-    }))
-    .sort((a, b) => (PESO[a.papel ?? ""] ?? 9) - (PESO[b.papel ?? ""] ?? 9));
-  const vistos = new Set(deAgenda.map((c) => clave(c.nombre)));
-  const sueltos = viejos.filter((f) => !vistos.has(clave(f.nombre))).map((f) => ({ nombre: f.nombre, telefono: f.telefono, papel: f.rol }));
-  return [...deAgenda, ...sueltos].slice(0, 12);
+  // UNA SOLA AGENDA (Monica, 15-oct-2026): "mil veces mejor una sola fuente de
+  // datos que pedirle a la pantalla que deduplique". Solo persona + puesto.
+  const ps = await personasDeComunidad(comunidadId).catch(() => []);
+  return ps.slice(0, 12).map((p) => ({ nombre: p.nombre, telefono: p.telefono, papel: p.rol }));
 }
 
 export async function catalogoTipos(): Promise<TipoGestion[]> {
@@ -269,7 +246,6 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comercial_id: string | null;
       comercial: { nombre: string } | null;
       puesto: { cargo: string | null; telefono_empresa: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string; municipio: string | null } | null } | null;
-      pc: { nombre: string; telefono: string | null; rol: string | null } | null;
       contacto_provisional: string | null;
       telefono_provisional: string | null;
       trajo: {
@@ -284,7 +260,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
       `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia,municipio)),` +
-      `pc:persona_comunidad_id(nombre,telefono,rol),contacto_provisional,telefono_provisional,` +
+      `contacto_provisional,telefono_provisional,` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
       `&id=eq.${id}&limit=1&vivos.hasta=is.null&portales.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
   );
@@ -360,8 +336,10 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
           telefono: adminCom[0].puesto?.telefono_empresa ?? adminCom[0].puesto?.persona?.telefono_personal ?? null,
         }
       : null,
-    contactoComunidad: op.pc
-      ? { nombre: op.pc.nombre, telefono: op.pc.telefono, papel: op.pc.rol }
+    // El interlocutor de la comunidad es un puesto de la agenda sin empresa (un
+    // presidente, un vecino): UNA SOLA AGENDA, 15-oct-2026.
+    contactoComunidad: op.puesto && !op.puesto.empresa && op.puesto.persona
+      ? { nombre: op.puesto.persona.nombre, telefono: op.puesto.telefono_empresa, papel: op.puesto.cargo }
       : op.contacto_provisional
         ? { nombre: op.contacto_provisional, telefono: op.telefono_provisional, papel: null }
         : null,

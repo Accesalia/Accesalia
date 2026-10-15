@@ -41,15 +41,15 @@ export type NotaLeida = {
   canal: string | null;
   qp: { persona: { nombre: string } | null } | null;
   qs: { nombre: string } | null;
-  qc: { nombre: string } | null;
+ 
 };
 export const SEL_NOTA =
   "id,fecha,creado_en,texto,autor,origen,canal," +
-  "qp:quien_puesto_id(persona:persona_id(nombre)),qs:quien_persona_id(nombre),qc:quien_persona_comunidad_id(nombre)";
+  "qp:quien_puesto_id(persona:persona_id(nombre)),qs:quien_persona_id(nombre)";
 
 /** "Daniel · con Fermín Monge": quien la escribio y, si se dijo, con quien. */
 export function quienDeNota(n: NotaLeida): string | null {
-  const con = n.qp?.persona?.nombre ?? n.qs?.nombre ?? n.qc?.nombre ?? null;
+  const con = n.qp?.persona?.nombre ?? n.qs?.nombre ?? null;
   return [n.autor, con && "con " + con].filter(Boolean).join(" · ") || null;
 }
 

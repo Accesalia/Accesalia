@@ -11,6 +11,7 @@
 // Esto SOLO LEE. No escribe nada.
 
 import "server-only";
+import { personasDeComunidad } from "./personasComunidad";
 import type { HitoCobro } from "./cuadroComercial";
 import { EDIFICIO_VACIO, type FichaComercial } from "./fichaComercial";
 
@@ -98,7 +99,8 @@ export async function fichaReal(comunidadId: string): Promise<FichaComercial | n
         "lineas_facturacion(descripcion,importe,hitos_cobro(hito,orden,importe,estado,fecha_vencimiento,fecha_cobro))" +
         `&comunidad_id=eq.${comunidadId}&order=fecha_creacion.desc`,
     ), "la hoja de encargo", avisos),
-    intenta(rest<FilaPersona[]>(`personas_comunidad?select=nombre,rol,telefono,email,notas&comunidad_id=eq.${comunidadId}`), "las personas", avisos),
+    // UNA SOLA AGENDA (15-oct-2026): de persona + puesto, no de personas_comunidad.
+    intenta(personasDeComunidad(comunidadId).then((ps) => ps.map((p) => ({ nombre: p.nombre, rol: p.rol, telefono: p.telefono, email: p.email, notas: p.notas }) as FilaPersona)), "las personas", avisos),
     intenta(rest<FilaObs[]>(`observaciones_expediente?select=id,fecha,fase,texto,autor&comunidad_id=eq.${comunidadId}&order=fecha.desc.nullslast&limit=60`), "el histórico", avisos),
   ]);
 

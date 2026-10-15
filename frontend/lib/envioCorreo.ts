@@ -1,4 +1,5 @@
 import "server-only";
+import { personasDeComunidad } from "./personasComunidad";
 import { nombreDeOpp } from "./direccionOpp";
 // lib/envioCorreo.ts
 //
@@ -64,7 +65,6 @@ type Opp = {
   comunidad_id: string | null;
   puesto_id: string | null;
   administrador_puesto_id: string | null;
-  persona_comunidad_id: string | null;
   contacto_provisional: string | null;
   correo_provisional: string | null;
   comunidad: { nombre: string } | null;
@@ -75,7 +75,7 @@ type Opp = {
 export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
   const [o] = await pedir<Opp[]>(
-    `oportunidades?select=codigo,nombre,comunidad_provisional,comunidad_id,puesto_id,administrador_puesto_id,persona_comunidad_id,contacto_provisional,correo_provisional,` +
+    `oportunidades?select=codigo,nombre,comunidad_provisional,comunidad_id,puesto_id,administrador_puesto_id,contacto_provisional,correo_provisional,` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(id,nombre,apellidos,equipo:equipo_id(email))&id=eq.${oppId}`,
   );
   if (!o) return null;
@@ -120,11 +120,8 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
           `correo?select=email,puesto_id,puesto:puesto_id(persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia))&puesto_id=in.(${puestos.join(",")})&order=principal.desc.nullslast`,
         )
       : Promise.resolve([]),
-    o.comunidad_id
-      ? pedir<{ id: string; nombre: string | null; rol: string | null; email: string | null }[]>(
-          `personas_comunidad?select=id,nombre,rol,email&comunidad_id=eq.${o.comunidad_id}&email=not.is.null`,
-        )
-      : Promise.resolve([]),
+    // UNA SOLA AGENDA (15-oct-2026): la gente de la comunidad, de persona + puesto.
+    o.comunidad_id ? personasDeComunidad(o.comunidad_id).then((ps) => ps.filter((p) => p.email)) : Promise.resolve([]),
   ]);
   for (const c of correosPuesto) {
     const p = c.puesto?.persona;

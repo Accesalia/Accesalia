@@ -173,7 +173,7 @@ export default async function FichaCompleta({
         )}
 
         {/* -------------------------------- personas ------------------------------- */}
-        <Bloque titulo="Quién es quién" de="personas_comunidad">
+        <Bloque titulo="Quién es quién" de="la agenda (persona + puesto)">
           <Personas personas={f.personas} />
         </Bloque>
 
