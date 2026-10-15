@@ -81,8 +81,8 @@ export default async function Relojes() {
     <>
       <BarraSuperior />
       <main className="mx-auto max-w-[1120px] px-4 pb-16 pt-5 sm:px-6">
-        <Salida href="/menu">
-          ← Menú
+        <Salida href="/gestiones">
+          ← Gestiones de la app
         </Salida>
 
         <div className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-black/10 pb-4">

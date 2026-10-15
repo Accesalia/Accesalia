@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 //
 // CRECEDERA: UN ACCESO NUEVO = UNA LINEA EN `ACCESOS`.
 
-type Acceso = { nombre: string; desc: string; href: string; color: ColorAcceso };
+type Acceso = { nombre: string; desc: string; href: string; color: ColorAcceso; soloDireccion?: boolean };
 
 const ACCESOS: Acceso[] = [
   {
@@ -52,6 +52,16 @@ const ACCESOS: Acceso[] = [
     desc: "Los documentos para toda la plantilla: el convenio, el calendario laboral y la normativa interna",
     href: "/rrhh#documentos",
   },
+  // LOS RELOJES (Monica, 15-oct-2026): las tareas que la app hace sola de
+  // madrugada y si han ido bien. Solo para mirar. Es la sala de maquinas: la ve
+  // direccion (ve_todo), como la propia pantalla.
+  {
+    nombre: "Relojes",
+    color: "ambar",
+    desc: "Las tareas que la app hace sola (buzón del Polycam, edificios al día, censo de subvenciones…): cuándo pasaron y si fueron bien",
+    href: "/relojes",
+    soloDireccion: true,
+  },
   {
     nombre: "Calendario",
     color: "verde",
@@ -74,7 +84,7 @@ export default async function Gestiones() {
         <p className="mt-1 text-carbon/65">Lo que se puede tocar de la app, en un solo sitio.</p>
 
         <RejillaAccesos className="mt-8">
-          {ACCESOS.map((a) => (
+          {ACCESOS.filter((a) => !a.soloDireccion || yo.veTodo).map((a) => (
             <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} />
           ))}
         </RejillaAccesos>
