@@ -19,7 +19,7 @@ import { accionQuierenDe } from "./accionesCartera";
 //     dinero, el de entrada; por opps, por la mas reciente, por contacto, por %).
 //   - Cada administrador en una tarjeta COMPACTA de dos lineas: quien es; y lo
 //     firmado, su ultima opp nueva, el ultimo contacto (en color) y la proxima
-//     cita. Y "Grabar contacto". Al pinchar, sus opps, como las de la misma
+//     cita. Y "Grabar nota". Al pinchar, sus opps, como las de la misma
 //     direccion en la cabecera de bloques, y cada una lleva a la suya.
 // A la derecha (CarteraLateral): las opps sin administrador, para completar.
 
@@ -163,10 +163,10 @@ function Tarjeta({ g, alGrabar }: { g: GestorCartera; alGrabar: () => void }) {
         <button
           type="button"
           onClick={alGrabar}
-          title="¿Le llamas? Apunta qué te dijo"
+          title="¿Le llamas? No olvides guardar la nota de qué dijo"
           className="mt-0.5 shrink-0 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-1 text-[12px] font-bold text-lima-dark transition hover:bg-lima hover:text-carbon"
         >
-          Grabar contacto
+          GRABAR NOTA
         </button>
       </div>
       {abierta && <SusOpps opps={g.opps} quieren={quieren} />}
@@ -189,6 +189,8 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
   const [orden, setOrden] = useState<Orden>("dinero");
   const [busca, setBusca] = useState("");
   const [grabando, setGrabando] = useState<string | null>(null);
+  // La leyenda, plegada tras la (i): se abre al pulsarla (Monica, 15-oct-2026).
+  const [leyenda, setLeyenda] = useState(false);
 
   const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const q = limpio(busca.trim());
@@ -222,22 +224,13 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
     <section className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
       <div className="border-b border-black/5 px-4 pb-3 pt-3">
         <div className="text-[15px] font-bold text-carbon">{todos ? "Toda la cartera" : "Mi cartera de administradores"}</div>
-        <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2">
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
           <Cifra valor={String(c.resumen.gestores)} texto="administradores consolidados" />
           <Cifra valor={String(c.resumen.opps)} texto="opps que me han dado" />
           <Cifra valor={c.resumen.pct === null ? "—" : `${c.resumen.pct}%`} texto={`ganadas (${c.resumen.ganadas} de ${c.resumen.ganadas + c.resumen.perdidas} decididas)`} />
           <Cifra valor={EUROS.format(c.resumen.importe)} texto="firmado con ellos" />
           <Cifra valor={String(c.sinGestor.length)} texto="opps abiertas sin administrador" alerta={c.sinGestor.length > 0} />
         </div>
-      </div>
-
-      {/* la leyenda, arriba (Monica: "o se perderán") */}
-      <div className="flex flex-wrap gap-x-5 gap-y-1 border-b border-black/5 bg-hueso/70 px-4 py-2 text-[12px] text-carbon/80">
-        {(Object.keys(ETIQUETAS) as Etiqueta[]).map((e) => (
-          <span key={e}>
-            {ETIQUETAS[e].icono} <b className="font-semibold text-carbon">{ETIQUETAS[e].nombre}</b>: {ETIQUETAS[e].explica}
-          </span>
-        ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border-b border-black/5 px-4 py-2.5">
@@ -248,6 +241,28 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
         {pildora("nuevo", "🆕 Nuevos")}
         {pildora("sin_contacto", "Sin contacto +90 días")}
         {pildora("no_consolidados", "No consolidados")}
+        {/* LA LEYENDA, tras la (i): plegada, se abre al pulsar (15-oct-2026). */}
+        <button
+          type="button"
+          onClick={() => setLeyenda((x) => !x)}
+          aria-expanded={leyenda}
+          title="Qué significa cada icono"
+          className={
+            "ml-auto grid size-7 place-items-center rounded-full border-2 font-serif text-[14px] font-bold italic transition " +
+            (leyenda ? "border-[#104269] bg-[#104269] text-white" : "border-[#104269]/60 text-[#104269] hover:bg-[#104269]/10")
+          }
+        >
+          i
+        </button>
+        {leyenda && (
+          <div className="mt-1 grid w-full gap-1 rounded-xl border border-[#104269]/20 bg-[#E4E9EE]/60 px-3 py-2 text-[12.5px] text-carbon/85 sm:grid-cols-2">
+            {(Object.keys(ETIQUETAS) as Etiqueta[]).map((e) => (
+              <span key={e}>
+                {ETIQUETAS[e].icono} <b className="font-semibold text-carbon">{ETIQUETAS[e].nombre}</b>: {ETIQUETAS[e].explica}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-3 border-b border-black/5 px-4 py-2">
         <label className="flex items-center gap-2 text-[12.5px] text-carbon/75">
@@ -258,13 +273,28 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
             ))}
           </select>
         </label>
-        <input
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar un administrador o una administración…"
-          className="min-w-[220px] flex-1 rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-carbon outline-none placeholder:text-carbon/55 focus:border-lima"
-        />
-        <span className="text-[12px] text-carbon/65">📞 ¿Le llamas? Apunta qué te dijo con «Grabar contacto».</span>
+        <label className="flex min-w-[240px] flex-1 items-center gap-2 rounded-xl border-2 border-black/20 bg-white px-3 py-1.5 focus-within:border-lima">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-carbon/60">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.8" />
+            <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+          <input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            aria-label="Buscar un administrador o una administración"
+            placeholder="Buscar un administrador o una administración…"
+            className="w-full min-w-0 bg-transparent text-sm text-carbon outline-none placeholder:text-carbon/55"
+          />
+        </label>
+        {/* EL BOCADILLO (15-oct-2026), con su rabito hacia los botones de la lista. */}
+        <div className="relative ml-auto mb-2 rounded-xl border-2 border-lima/70 bg-lima-soft px-3 py-1.5 text-center text-[12.5px] font-semibold leading-snug text-lima-dark">
+          ¿Le llamas?
+          <br />
+          No olvides guardar
+          <br />
+          la nota de qué dijo
+          <span aria-hidden className="absolute -bottom-[9px] right-10 size-4 rotate-45 border-b-2 border-r-2 border-lima/70 bg-lima-soft" />
+        </div>
       </div>
 
       {filtro === "no_consolidados" ? (
@@ -284,7 +314,7 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
                   onClick={() => setGrabando(`puesto:${p.id}`)}
                   className="shrink-0 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-1 text-[12px] font-bold text-lima-dark hover:bg-lima hover:text-carbon"
                 >
-                  Grabar contacto
+                  GRABAR NOTA
                 </button>
               </li>
             ))}
@@ -316,11 +346,12 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
   );
 }
 
+/** Una cifra de arriba, en su bloque: discreto pero evidente, centrado. */
 function Cifra({ valor, texto, alerta }: { valor: string; texto: string; alerta?: boolean }) {
   return (
-    <div>
+    <div className={"rounded-xl border px-3 py-2 text-center " + (alerta ? "border-amber-300 bg-amber-50/70" : "border-black/10 bg-[#F4F6F8]")}>
       <div className={"text-[20px] font-bold leading-tight tabular-nums " + (alerta ? "text-amber-700" : "text-carbon")}>{valor}</div>
-      <div className="text-[12px] text-carbon/65">{texto}</div>
+      <div className="text-[12px] leading-snug text-carbon/70">{texto}</div>
     </div>
   );
 }
