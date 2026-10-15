@@ -47,7 +47,7 @@ function hitos(): Promise<HitoCatalogo[]> {
 }
 
 /** Que fases no aplican, segun lo que necesita la opp. */
-export type NoAplican = { polycam: boolean; viabilidad: boolean };
+export type NoAplican = { polycam: boolean; viabilidad: boolean; tresd?: boolean };
 const NO_APLICA_SIN_POLYCAM = new Set(["visita", "polycam"]);
 
 /** De la fase guardada (el ultimo hito alcanzado) y el historial, para las
@@ -70,6 +70,8 @@ export function hitosDeFase(
   return cat.map((h) => {
     if (!necesita.polycam && NO_APLICA_SIN_POLYCAM.has(h.clave)) return { hito: h.clave, estado: "no_aplica", fecha: null };
     if (!necesita.viabilidad && h.clave === "viabilidad_arquitecto") return { hito: h.clave, estado: "no_aplica", fecha: null };
+    // El 3D (ramal): no aplica si no necesita 3D para la junta (15-oct-2026).
+    if (necesita.tresd === false && h.clave === "tresd") return { hito: h.clave, estado: "no_aplica", fecha: null };
     if (alcanzada === null || h.orden >= alcanzada) return { hito: h.clave, estado: "pendiente", fecha: null };
     if (h.es_ramal) return { hito: h.clave, estado: "saltado", fecha: null };
     return { hito: h.clave, estado: "hecho", fecha: fechaDe(h.orden) };
@@ -107,7 +109,7 @@ export async function hitosDeEstado(ids: string[], conFechas = true): Promise<Ma
   for (const p of historial) pasosDe.set(p.oportunidad_id, [...(pasosDe.get(p.oportunidad_id) ?? []), p]);
   for (const id of ids) {
     const n = necesidades.get(id) as NoAplican | undefined;
-    m.set(id, hitosDeFase(cat, porOpp.get(id) ?? null, pasosDe.get(id) ?? [], n ? { polycam: n.polycam, viabilidad: n.viabilidad } : undefined));
+    m.set(id, hitosDeFase(cat, porOpp.get(id) ?? null, pasosDe.get(id) ?? [], n ? { polycam: n.polycam, viabilidad: n.viabilidad, tresd: n.tresd } : undefined));
   }
   return m;
 }

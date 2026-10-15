@@ -208,7 +208,7 @@ export type Datos = {
   revision: EstadoRevision | null;
   /** LO QUE NECESITA (lib/necesidadesOpp.ts, 15-oct-2026): sin Polycam se saltan
    *  A-B-C; sin viabilidad, D. Automatico segun lo que quieren, o a mano. */
-  necesita: { polycam: boolean; viabilidad: boolean };
+  necesita: { polycam: boolean; viabilidad: boolean; tresd: boolean };
   /** Se pidio la viabilidad al arquitecto sin Polycam (solicitudes_viabilidad):
    *  hace de Polycam. El dia en que se pidio. */
   solicitud: string | null;
@@ -278,8 +278,12 @@ function faltaTexto(d: Datos): Falta {
 
   if (junta) {
     if (junta.fecha_junta && junta.fecha_junta >= hoyISO() && !junta.celebrada) {
+      // La segunda linea, el 3D: solo si necesita 3D para la junta o ya hay uno
+      // pedido (Monica, 15-oct-2026: casilla expresa "¿Necesita 3D?").
       const a_medida = d.tresd && d.tresd.tipo_3d !== "generico_escalera";
-      const extra = a_medida ? (d.tresd!.estado === "listo" || d.tresd!.estado === "entregado" ? "3D específico listo" : "Falta el 3D específico") : null;
+      const extra = a_medida
+        ? d.tresd!.estado === "listo" || d.tresd!.estado === "entregado" ? "3D específico listo" : "Falta el 3D específico"
+        : d.necesita.tresd && !d.tresd ? "Falta el 3D específico" : null;
       return { clave: "junta_por_celebrar", texto: `Falta que se celebre la junta (el ${ddmm(junta.fecha_junta)})`, extra };
     }
     if (junta.fecha_junta || junta.celebrada) return { clave: "junta_que_votaron", texto: "Pendientes de que confirmen qué votaron", extra: null };

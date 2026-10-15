@@ -276,7 +276,7 @@ async function cargar(ops: OppCruda[]) {
     const d: Datos = {
       estado, hojas, juntas: juntasDe.get(o.id) ?? [], tresd, cita: citaDe.get(o.id)?.[0] ?? null,
       polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id), revision,
-      necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true },
+      necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true, tresd: necesidades.get(o.id)?.tresd ?? false },
       solicitud: solicitudDe.get(o.id) ?? null,
     };
     return { d, estado, hojas };
