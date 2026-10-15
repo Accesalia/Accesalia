@@ -74,6 +74,59 @@ DOCS = [
      AL + "2024/05/02.PLANOS_REFUNDIDO.pdf", os.path.join(DESCARGAS, "02.PLANOS_REFUNDIDO alcala.pdf")),
 ]
 
+# 15-OCT-2026: los cinco municipios con opps abiertas que faltaban. Del visor de
+# planeamiento de la Comunidad (IDEM) salvo donde se dice. Bajados por Claude el
+# 15-oct (carpeta en PROTECCION_LOCAL_15OCT).
+IDEM = "https://idem.madrid.org/cartografia/planea/planeamiento/planeamiento/"
+PAD15 = os.environ.get("PROTECCION_LOCAL_15OCT", "")
+DOCS_15OCT = [
+    ("ARANJUEZ", 1, "Catálogo (PGOU 1996): normas de protección y arqueología", "Arqueología: capítulo 6, áreas A, B, C y D (págs. 21-27)",
+     "catalogos-proteccion/aranjuez/normas-proteccion-y-arqueologia.pdf", IDEM + "Aranjuez/Vigente/catalogo_001_1.pdf", "aranjuez/catalogo_001_1.pdf"),
+    ("ARANJUEZ", 2, "Catálogo: edificios monumentales", None,
+     "catalogos-proteccion/aranjuez/edificios-monumentales.pdf", IDEM + "Aranjuez/Vigente/catalogo_001_2.pdf", "aranjuez/catalogo_001_2.pdf"),
+    ("ARANJUEZ", 3, "Catálogo: elementos singulares", None,
+     "catalogos-proteccion/aranjuez/elementos-singulares.pdf", IDEM + "Aranjuez/Vigente/catalogo_002.pdf", "aranjuez/catalogo_002.pdf"),
+] + [
+    ("ARANJUEZ", 3 + n, "Inventario de rehabilitación (%d de 5)" % n, "Fichas de edificios residenciales del casco",
+     "catalogos-proteccion/aranjuez/inventario-rehabilitacion-%d.pdf" % n, IDEM + "Aranjuez/Vigente/catalogo_00%d.pdf" % (n + 2),
+     "aranjuez/catalogo_00%d.pdf" % (n + 2))
+    for n in range(1, 6)
+] + [
+    ("ARANJUEZ", 9, "Catálogo: sitios históricos y paseos arbolados", None,
+     "catalogos-proteccion/aranjuez/sitios-y-paseos.pdf", IDEM + "Aranjuez/Vigente/catalogo_008.pdf", "aranjuez/catalogo_008.pdf"),
+    ("ARANJUEZ", 10, "Catálogo: jardines históricos", None,
+     "catalogos-proteccion/aranjuez/jardines.pdf", IDEM + "Aranjuez/Vigente/catalogo_009.pdf", "aranjuez/catalogo_009.pdf"),
+    ("ARANJUEZ", 11, "Plano de protección del patrimonio (I)", "Área arqueológica sombreada, sin separar A-D",
+     "catalogos-proteccion/aranjuez/plano-proteccion-1.pdf", IDEM + "Aranjuez/Vigente/planos_ordenacion_024.pdf", "aranjuez/planos_ordenacion_024.pdf"),
+    ("GETAFE", 1, "Catálogo (PGOU 2003): introducción y listado", None,
+     "catalogos-proteccion/getafe/catalogo-listado.pdf", IDEM + "Getafe/Vigente/CATALOGO_1.PDF", "getafe/CATALOGO_1.PDF"),
+    ("GETAFE", 2, "Catálogo: fichas 1-10", None,
+     "catalogos-proteccion/getafe/catalogo-fichas-1-10.pdf", IDEM + "Getafe/Vigente/CATALOGO_2.PDF", "getafe/CATALOGO_2.PDF"),
+    ("GETAFE", 3, "Catálogo: fichas 11-20", None,
+     "catalogos-proteccion/getafe/catalogo-fichas-11-20.pdf", IDEM + "Getafe/Vigente/CATALOGO_3.PDF", "getafe/CATALOGO_3.PDF"),
+    ("GETAFE", 4, "Normas urbanísticas, Título IV", "Arqueología: arts. 120-122 (págs. 161-165 del PDF)",
+     "catalogos-proteccion/getafe/normas-titulo-iv.pdf", "https://sede.getafe.es/portalGetafe/sede/RecursosWeb/DOCUMENTOS/1/0_11361_1.pdf",
+     "getafe/sede_11361.pdf"),
+    ("PARLA", 1, "Catálogo del Plan General (1997)", "7 edificios del casco",
+     "catalogos-proteccion/parla/catalogo.pdf", IDEM + "Parla/Vigente/catalogo.pdf", "parla/catalogo.pdf"),
+    ("PINTO", 1, "Catálogo (Revisión PGOU 2002)", "Arqueología: capítulo 4 (págs. 36-42 del PDF); el plano O-6.B no está",
+     "catalogos-proteccion/pinto/catalogo.pdf", IDEM + "Pinto/Vigente/CATALOGO.PDF", "pinto/CATALOGO.PDF"),
+    ("PINTO", 2, "Plano O-8: catálogo", None,
+     "catalogos-proteccion/pinto/plano-catalogo.pdf", IDEM + "Pinto/Vigente/PLANOS_ORDENACION_22.PDF", "pinto/PLANOS_ORDENACION_22.PDF"),
+    ("TORREJON DE ARDOZ", 1, "Normas urbanísticas (versión del Ayuntamiento, con el catálogo)",
+     "Catálogo al final (págs. 281-298); arqueología: art. 29 bis (págs. 159-165)",
+     "catalogos-proteccion/torrejon-de-ardoz/normas-urbanisticas.pdf",
+     "https://www.ayto-torrejon.es/sites/default/files/intranet//MiPaginaDescargas/143_3.%20NORMAS%20URBANISTICAS.pdf",
+     "torrejon/ayto_normas_urbanisticas.pdf"),
+    ("TORREJON DE ARDOZ", 2, "Catálogo de bienes protegidos (visor, 1999)", None,
+     "catalogos-proteccion/torrejon-de-ardoz/catalogo-visor.pdf", IDEM + "Torrejon_de_Ardoz/Vigente/CATALOGO_004.pdf", "torrejon/CATALOGO_004.pdf"),
+    ("TORREJON DE ARDOZ", 3, "Descatalogación de Ctra. de Loeches 22-28 (BOCM 2014)", None,
+     "catalogos-proteccion/torrejon-de-ardoz/descatalogacion-ctra-loeches.pdf",
+     "https://www.ayto-torrejon.es/sites/default/files/intranet//MiPaginaDescargas/"
+     "251_publicacion%20bocm%20aprob.def.modific.%20carretera%20loeches%2022%20a%2028.pdf",
+     "torrejon/descatalogacion-ctra-loeches-22-28.pdf"),
+]
+
 
 def local(nombre):
     return nombre if os.path.isabs(nombre) else os.path.join(PAD, nombre)
@@ -83,18 +136,20 @@ if __name__ == "__main__":
     escribir = sys.argv[1:] == ["escribir"]
     b = arrancar()
     ya = {f["fichero"] for f in b.leer("documentos_referencia?select=fichero&seccion=eq.proteccion")}
-    for municipio, orden, titulo, desc, fichero, url, fl in DOCS:
-        tam = os.path.getsize(local(fl)) if fl else None
-        print(municipio, "|", titulo, "|", "subir %.1f MB" % (tam / 1e6) if fl else "ya en el almacen", "|", "fila ya" if fichero in ya else "fila nueva")
+    todos = [d + (BAJADO, REVISAR, local) for d in DOCS] + \
+        [d + ("2026-10-15", "2027-04-15", lambda n: os.path.join(PAD15, n)) for d in DOCS_15OCT]
+    for municipio, orden, titulo, desc, fichero, url, fl, bajado, revisar, donde in todos:
+        tam = os.path.getsize(donde(fl)) if fl and fichero not in ya else None
+        print(municipio, "|", titulo, "|", "subir %.1f MB" % (tam / 1e6) if tam else "ya en el almacen", "|", "fila ya" if fichero in ya else "fila nueva")
         if not escribir or fichero in ya:
             continue
         if fl:
-            b.subir("referencia", fichero, open(local(fl), "rb").read(), reemplazar=True)
+            b.subir("referencia", fichero, open(donde(fl), "rb").read(), reemplazar=True)
         b.insertar("documentos_referencia", [{
             "seccion": "proteccion", "municipio": municipio, "orden": orden, "titulo": titulo,
             "descripcion": desc, "fichero": fichero, "nombre_fichero": fichero.rsplit("/", 1)[1],
             "tipo_mime": "application/pdf", "tamano": tam, "url_origen": url,
-            "descargado_en": BAJADO, "revisar_en": REVISAR, "subido_por": "Claude (con Monica)",
+            "descargado_en": bajado, "revisar_en": revisar, "subido_por": "Claude (con Monica)",
         }])
     if not escribir:
         print("(solo mirar; para cargar: escribir)")

@@ -288,22 +288,49 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
   const nombreMunicipio = nombreBonito(municipio);
   const conCatalogo = !esMadrid && catalogo?.bajadoEl != null;
   const fecha = (x: string) => (x ? new Date(x + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) : "");
-  const COMO = { referencia: "la referencia catastral", parcela: "la manzana y parcela catastral", direccion: "la calle y el número" } as const;
+  const COMO = {
+    referencia: "la referencia catastral",
+    parcela: "la manzana y parcela catastral",
+    direccion: "la calle y el número",
+    calle: "la calle, sin número: hay que ver si este portal está dentro",
+  } as const;
   const datosCatalogo: Dato[] = !conCatalogo
     ? []
     : [
         ...(catalogo!.casados.length
-          ? catalogo!.casados.map(({ fila, como }, n) => ({
+          ? [
+              ...catalogo!.casados.filter((x) => x.como !== "calle").map(({ fila, como }, n, firmes) => ({
               ...d(
                 // Copy de Monica (15-oct-2026): "Probable proteccion. Revisar", y el
                 // enlace al catalogo.
-                catalogo!.casados.length > 1 ? `Probable protección (${n + 1})` : "Probable protección",
+                firmes.length > 1 ? `Probable protección (${n + 1})` : "Probable protección",
                 "Revisar",
                 `${fila.denominacion}${fila.direccion ? ` (${fila.direccion})` : ""}${fila.grado ? ` · ${fila.grado}` : ""}. ` +
                   `Sale en el catálogo municipal por ${COMO[como]}.`,
               ),
               enlace: { texto: `Ver en el catálogo${fila.pagina ? ` (pág. ${fila.pagina})` : ""}`, url: enlaceFicha(fila) },
-            }))
+            })),
+              // LA CALLE SIN NUMERO, en UNA linea: en Aranjuez una calle larga sale
+              // en diez fichas de manzana, y diez lineas iguales no se leen.
+              ...(() => {
+                const porCalle = catalogo!.casados.filter((x) => x.como === "calle");
+                if (!porCalle.length || catalogo!.casados.length > porCalle.length) return [];
+                const primera = porCalle[0].fila;
+                const cuales = porCalle
+                  .slice(0, 6)
+                  .map(({ fila }) => fila.denominacion.split(" - ")[0].trim())
+                  .join("; ");
+                return [{
+                  ...d(
+                    "Probable protección",
+                    "Revisar",
+                    `La calle sale en ${porCalle.length === 1 ? "una ficha" : `${porCalle.length} fichas`} del catálogo sin número de portal ` +
+                      `(${cuales}${porCalle.length > 6 ? "…" : ""}): hay que ver si este edificio está dentro.`,
+                  ),
+                  enlace: { texto: `Ver en el catálogo${primera.pagina ? ` (pág. ${primera.pagina})` : ""}`, url: enlaceFicha(primera) },
+                }];
+              })(),
+            ]
           : [
               {
                 ...d(
@@ -314,19 +341,14 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
                 enlace: { texto: "Ver los documentos", url: "/referencia/proteccion" },
               },
             ]),
-        ...(sinTildes(municipio) === "ALCALA DE HENARES"
-          ? [
-              {
-                ...d(
-                  "Arqueología",
-                  "Todo el municipio (áreas A-D)",
-                  "Cualquier obra que toque el subsuelo pide, como poco, informe arqueológico; en área A, excavación antes de la licencia. El área exacta depende de un plano que no tenemos.",
-                ),
-                enlace: { texto: "Ver la norma (pág. 180)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/alcala-de-henares/normas-urbanisticas-pgou-2023.pdf", pagina: 180 }) },
-              },
-            ]
-          : []),
       ];
+  // LA ARQUEOLOGIA DE CADA MUNICIPIO, salga o no el edificio en el catalogo
+  // (Monica, 15-oct-2026: "nos ha tocado hacer no se que cosa arqueologica para
+  // poder hacer los ascensores alli, cada vez"). El foso toca el subsuelo.
+  const arq = ARQUEOLOGIA[sinTildes(municipio)];
+  const datosArqueologia: Dato[] = esMadrid || !arq
+    ? []
+    : [{ ...d("Arqueología", arq.valor, arq.significa), ...(arq.enlace ? { enlace: arq.enlace } : {}) }];
 
   const secciones: Seccion[] = [
     {
@@ -383,8 +405,8 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
       titulo: "Protección",
       datos: !esMadrid
         ? conCatalogo
-          ? datosCatalogo
-          : [d("¿Sale en el catálogo?", `Aún no tenemos el catálogo de ${nombreMunicipio}`,
+          ? [...datosCatalogo, ...datosArqueologia]
+          : [...datosArqueologia, d("¿Sale en el catálogo?", `Aún no tenemos el catálogo de ${nombreMunicipio}`,
               "No se puede dar por bueno que no esté protegido: hay que mirarlo en el PGOU del municipio.", true)]
         : sinGeo
         ? [sinConsultar("¿Está protegido?")]
@@ -1007,6 +1029,8 @@ type FilaInmueble = {
   uso: string | null;
   superficie: number | null;
   coeficiente: number | string | null;
+  /** La calle de SU portal: un edificio puede dar a dos calles (Juan de la Cierva 27-29 y San Vicente 28, en Getafe). */
+  portal: { tipo_via: string | null; nombre_via: string | null } | null;
 };
 
 /** EL EDIFICIO DESDE LAS TABLAS EXTRAIDAS (Monica, 9-oct-2026).
@@ -1022,7 +1046,7 @@ type FilaInmueble = {
  *  consultar" en vez de "No". */
 async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
   const r = await fetch(
-    `${URL_BASE}/rest/v1/ficha_catastro_inmueble?select=referencia,numero,escalera,planta,puerta,uso,superficie,coeficiente` +
+    `${URL_BASE}/rest/v1/ficha_catastro_inmueble?select=referencia,numero,escalera,planta,puerta,uso,superficie,coeficiente,portal:portal_id(tipo_via,nombre_via)` +
       `&ficha_id=eq.${f.id}&order=referencia.asc&limit=5000`,
     { headers: cab, cache: "no-store" },
   );
@@ -1040,7 +1064,7 @@ async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
         locs: {
           lous: {
             lourb: {
-              dir: { tv: f.tipo_via ?? undefined, nv: f.nombre_via ?? undefined, pnp: i.numero ?? f.numero ?? undefined },
+              dir: { tv: i.portal?.tipo_via ?? f.tipo_via ?? undefined, nv: i.portal?.nombre_via ?? f.nombre_via ?? undefined, pnp: i.numero ?? f.numero ?? undefined },
               dp: f.cp ?? undefined,
               dm: f.distrito_municipal ?? undefined,
               loint: { es: i.escalera ?? undefined, pt: i.planta ?? undefined, pu: i.puerta ?? undefined },
@@ -1394,6 +1418,72 @@ async function componerConCatalogo(ref: string, crudo: Crudo): Promise<InformeEd
     .map((x) => ({ via: x.nv!, numero: x.pnp! }));
   return componer(ref, c, await enElCatalogo(ref, municipio, portales));
 }
+
+/** LA ARQUEOLOGIA DE CADA MUNICIPIO (investigado el 15-oct-2026 en su
+ *  planeamiento; los PDF, en Documentacion de referencia > proteccion). Solo
+ *  Alcala es "todo el municipio": en los demas son zonas, y sin el plano
+ *  georreferenciado no se sabe en cual cae el edificio, asi que se avisa y se
+ *  manda a mirar. En el informe del cliente solo va lo de Alcala, que es seguro. */
+const IDEM = "https://idem.madrid.org/cartografia/planea/planeamiento/planeamiento/";
+const ARQUEOLOGIA: Record<string, { valor: string; significa: string; enlace?: { texto: string; url: string } }> = {
+  "ALCALA DE HENARES": {
+    valor: "Todo el municipio (áreas A-D)",
+    significa:
+      "El foso del ascensor toca el subsuelo: siempre, como poco, informe arqueológico; en área A, excavación antes de la licencia. El área exacta depende de un plano que no tenemos.",
+    enlace: { texto: "Ver la norma (pág. 180)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/alcala-de-henares/normas-urbanisticas-pgou-2023.pdf", pagina: 180 }) },
+  },
+  MOSTOLES: {
+    valor: "Área B en el casco antiguo; áreas C al sur y al oeste del núcleo",
+    significa:
+      "Si el edificio cae dentro: en B, estudio arqueológico antes o a la vez que el proyecto; en C, informe con sondeos antes de la licencia (30 días). Mirar el plano de áreas.",
+    enlace: { texto: "Ver la norma (NU-PAR, apdo. 6)", url: IDEM + "Mostoles/Vigente/NURBANISTICAS_PARTICULARES_II_018-1.pdf" },
+  },
+  ARANJUEZ: {
+    valor: "Áreas A, B, C y D (zona arqueológica del casco)",
+    significa:
+      "En área A, el foso del ascensor exige informe arqueológico con excavación previa a la licencia; en B, catas; en C, informe. Comprobar en el plano de protección en qué área cae.",
+    enlace: { texto: "Ver la norma (pág. 24)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/aranjuez/normas-proteccion-y-arqueologia.pdf", pagina: 24 }) },
+  },
+  GETAFE: {
+    valor: "Zonas arqueológicas del casco urbano y de las terrazas del Manzanares (áreas A, B y C)",
+    significa:
+      "En área A, el foso del ascensor exige informe arqueológico con excavación previa a la licencia; en B, catas; en C, informe. El área sale en los planos de clasificación del suelo.",
+    enlace: { texto: "Ver la norma (arts. 120-122)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/getafe/normas-titulo-iv.pdf", pagina: 162 }) },
+  },
+  PINTO: {
+    valor: "Áreas A, B y C",
+    significa:
+      "En área A, el foso del ascensor exige informe arqueológico con excavación previa a la licencia; en B, catas; en C, informe. El plano que las delimita (O-6.B) no lo tenemos.",
+    enlace: { texto: "Ver la norma (pág. 38)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/pinto/catalogo.pdf", pagina: 38 }) },
+  },
+  "TORREJON DE ARDOZ": {
+    valor: "Áreas A, B y C (norma N-PPA)",
+    significa:
+      "En área A, el foso del ascensor exige informe arqueológico con excavación previa a la licencia; en B, catas; en C, informe. Comprobar en el plano en qué área cae.",
+    enlace: { texto: "Ver la norma (art. 29 bis)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/torrejon-de-ardoz/normas-urbanisticas.pdf", pagina: 159 }) },
+  },
+  "SAN SEBASTIAN DE LOS REYES": {
+    valor: "Áreas A, B y C (sin plano)",
+    significa:
+      "La norma las define, pero el plano que las delimita no lo hemos encontrado: no se sabe si alguna toca el casco. En área A, excavación antes de la licencia.",
+    enlace: { texto: "Ver la norma (pág. 20)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/san-sebastian-de-los-reyes/normas-proteccion.pdf", pagina: 20 }) },
+  },
+  FUENLABRADA: {
+    valor: "Solo al este del término, fuera del casco",
+    significa: "Las áreas A, B y C están hacia Getafe y Cobo Calleja; el casco y los barrios centrales no están dentro.",
+    enlace: { texto: "Ver el plano de áreas", url: IDEM + "Fuenlabrada/Vigente/PLANOS_ORDENACION_142.pdf" },
+  },
+  LEGANES: {
+    valor: "Polvoranca y Arroyo Butarque, fuera del casco",
+    significa:
+      "Dos zonas BIC: el parque de Polvoranca y la vega del Butarque. El límite del Butarque roza Leganés Norte y La Fortuna: si el edificio está ahí, mirar el plano.",
+    enlace: { texto: "Ver la norma (art. 163)", url: IDEM + "Leganes/Vigente/normasurbanisticas_001.pdf" },
+  },
+  ALCOBENDAS: {
+    valor: "Solo al este (Valdelacasa, aeropuerto), fuera del suelo urbano",
+    significa: "Los yacimientos y las áreas A, B y C quedan fuera de la ciudad.",
+  },
+};
 
 /** LOS 21 DISTRITOS DE MADRID CAPITAL.
  *

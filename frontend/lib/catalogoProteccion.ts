@@ -33,7 +33,10 @@ export type FilaCatalogo = {
   notas: string | null;
 };
 
-export type Casado = { fila: FilaCatalogo; como: "referencia" | "parcela" | "direccion" };
+/** "calle": la ficha nombra la calle pero SIN numero (una manzana descrita por
+ *  sus calles, un conjunto "s/n"): el portal puede estar dentro o no. Es el
+ *  aviso mas flojo y solo va a la ficha, nunca al informe del cliente. */
+export type Casado = { fila: FilaCatalogo; como: "referencia" | "parcela" | "direccion" | "calle" };
 
 export type EnElCatalogo = {
   /** Null si de ese municipio no tenemos catalogo: entonces no se sabe. */
@@ -150,6 +153,26 @@ export async function enElCatalogo(
         return pa.size > 0 && (dentro(pa, calle) || dentro(calle, pa)) && !!n && nums.has(n);
       });
       if (sale) casados.push({ fila: f, como: "direccion" });
+    }
+  }
+  // LA CALLE SIN NUMERO (15-oct-2026): en Aranjuez casi todo el inventario de
+  // rehabilitacion son manzanas descritas por las calles que las rodean, con la
+  // parcela en una numeracion antigua que ya no casa; en Getafe, conjuntos "s/n"
+  // como la Colonia Juan de la Cierva. Sin esto, un edificio en esas calles no
+  // daba ningun aviso. Solo si no ha casado nada mejor, y nunca las areas
+  // arqueologicas (van aparte).
+  if (!casados.length) {
+    for (const f of filas) {
+      if (!f.direccion || numeros(f.direccion).size || /arqueol/i.test(f.grado ?? "")) continue;
+      const calles = sinTildes(f.direccion)
+        .split(/,|\/|\bY\b|\bC\s*\/?\s*V\b|\bESQ\.?\b|\bCON VUELTA\b/)
+        .map((c) => palabras(c))
+        .filter((c) => c.size);
+      const sale = portales.some((p) => {
+        const pa = palabras(p.via);
+        return pa.size > 0 && calles.some((c) => [...pa].every((w) => c.has(w)) && [...c].every((w) => pa.has(w)));
+      });
+      if (sale) casados.push({ fila: f, como: "calle" });
     }
   }
   return { bajadoEl: bajado ?? "", casados };

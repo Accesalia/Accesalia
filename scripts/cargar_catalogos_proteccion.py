@@ -47,7 +47,41 @@ FUENTES = {
                                           "catalogos-proteccion/alcala-de-henares/casco-historico-catalogo-101-218-parte2.pdf")},
     "alcala_arqueologia.json": {"nnuu2023": ("Normas urbanisticas del Plan General de Alcala (BOCM 20-11-2023), cap. 19: areas arqueologicas",
                                              "catalogos-proteccion/alcala-de-henares/normas-urbanisticas-pgou-2023.pdf")},
+    # 15-OCT-2026: los cinco que faltaban (Monica). Leidos ficha a ficha como imagen.
+    "aranjuez.json": {
+        "arqueologia": ("Catalogo de Aranjuez (PGOU 1996): normas de proteccion y arqueologia, cap. 6",
+                        "catalogos-proteccion/aranjuez/normas-proteccion-y-arqueologia.pdf"),
+        "monumental": ("Catalogo de Aranjuez (PGOU 1996): edificios monumentales", "catalogos-proteccion/aranjuez/edificios-monumentales.pdf"),
+        "singulares": ("Catalogo de Aranjuez (PGOU 1996): elementos singulares", "catalogos-proteccion/aranjuez/elementos-singulares.pdf"),
+        **{"inventario_00%d" % (n + 2): ("Catalogo de Aranjuez (PGOU 1996): inventario de rehabilitacion (%d de 5)" % n,
+                                          "catalogos-proteccion/aranjuez/inventario-rehabilitacion-%d.pdf" % n) for n in range(1, 6)},
+        "sitios": ("Catalogo de Aranjuez (PGOU 1996): sitios historicos y paseos", "catalogos-proteccion/aranjuez/sitios-y-paseos.pdf"),
+        "jardines": ("Catalogo de Aranjuez (PGOU 1996): jardines historicos", "catalogos-proteccion/aranjuez/jardines.pdf"),
+    },
+    "getafe.json": {
+        "catalogo_1": ("Catalogo de Getafe (PGOU 2003): listado", "catalogos-proteccion/getafe/catalogo-listado.pdf"),
+        "catalogo_2": ("Catalogo de Getafe (PGOU 2003): fichas 1-10", "catalogos-proteccion/getafe/catalogo-fichas-1-10.pdf"),
+        "catalogo_3": ("Catalogo de Getafe (PGOU 2003): fichas 11-20", "catalogos-proteccion/getafe/catalogo-fichas-11-20.pdf"),
+        "normas": ("Normas urbanisticas de Getafe, Titulo IV: zonas arqueologicas (arts. 120-122)",
+                   "catalogos-proteccion/getafe/normas-titulo-iv.pdf"),
+    },
+    "parla.json": {None: ("Catalogo del Plan General de Parla (1997)", "catalogos-proteccion/parla/catalogo.pdf")},
+    "pinto.json": {None: ("Catalogo de Pinto (Revision PGOU 2002)", "catalogos-proteccion/pinto/catalogo.pdf")},
+    "torrejon.json": {
+        "normas_ayto": ("Normas urbanisticas de Torrejon de Ardoz (version del Ayuntamiento): catalogo",
+                        "catalogos-proteccion/torrejon-de-ardoz/normas-urbanisticas.pdf"),
+        "arqueologia": ("Normas urbanisticas de Torrejon de Ardoz: N-PPA, art. 29 bis (arqueologia)",
+                        "catalogos-proteccion/torrejon-de-ardoz/normas-urbanisticas.pdf"),
+        "visor": ("Catalogo de Torrejon de Ardoz (visor, 1999)", "catalogos-proteccion/torrejon-de-ardoz/catalogo-visor.pdf"),
+    },
 }
+
+# ARANJUEZ Y PINTO numeran las parcelas como en 1996/2002 y no casan con las de
+# hoy (Florida 79 de Aranjuez: 8414001 en el catalogo, 8414101 en Catastro;
+# Pedro Faura 6 de Pinto: 352504 / 0448903). Se dejan escritas con otra palabra,
+# para que el cruce no las use y no case con la parcela que no es: alli se casa
+# por la calle y el numero.
+NUMERACION_ANTIGUA = {"aranjuez.json", "pinto.json"}
 
 CAMPOS = ("municipio", "tipo", "numero_ficha", "denominacion", "direccion",
           "referencia_catastral", "grado", "alcance", "pagina", "notas")
@@ -58,6 +92,8 @@ def filas():
         for r in json.load(open(os.path.join(DOCS, fichero), encoding="utf-8")):
             fuente, ruta = fuentes.get(r.get("fuente")) or fuentes[None]
             f = {c: r.get(c) for c in CAMPOS}
+            if fichero in NUMERACION_ANTIGUA and f["notas"]:
+                f["notas"] = f["notas"].replace("parcela catastral", "parcela del catalogo (numeracion antigua, no la de hoy)")
             f["fuente"], f["documento_ruta"] = fuente, ruta
             yield f
 

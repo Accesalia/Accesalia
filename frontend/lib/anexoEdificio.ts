@@ -220,7 +220,10 @@ export async function anexoDeReferencia(
     const cat = i.catalogoProteccion;
     condiciona = [];
     if (cat?.bajadoEl != null) {
-      for (const { fila, como } of cat.casados) {
+      // Al cliente solo lo que casa con el edificio; "la calle sin numero" es un
+      // aviso para revisar, no un dato.
+      const seguros = cat.casados.filter((x) => x.como !== "calle");
+      for (const { fila, como } of seguros) {
         const cita = `«${fila.denominacion.trim().replace(/[.\s]+$/, "")}»${fila.grado ? `, ${fila.grado}` : ""}`;
         condiciona.push({
           bien: false,

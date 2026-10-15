@@ -1,0 +1,93 @@
+[
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "1",
+    "denominacion": "Iglesia parroquial Ntra. Sra. de la Asunción",
+    "direccion": "Calle Real, calle de la Iglesia S/N",
+    "referencia_catastral": null,
+    "grado": "Integral",
+    "alcance": null,
+    "pagina": 15,
+    "notas": "Sin referencia catastral en la ficha. Tipología: edificio singular aislado de arquitectura religiosa; ladrillo visto y mampostería de piedra en fajas alternadas, nave principal y dependencias laterales. Obs.: recomienda trasladar dos cabinas de teléfono y señalización viaria próximas. Ficha en págs. 15-17. Art. 9 (pág. 10): en Integral solo restauración, conservación y consolidación (excepcionalmente rehabilitación para usos públicos).",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "2",
+    "denominacion": "Ermita de la Soledad",
+    "direccion": "Camino de Humanejos S/N",
+    "referencia_catastral": null,
+    "grado": "Integral",
+    "alcance": null,
+    "pagina": 18,
+    "notas": "Sin referencia catastral en la ficha. Nave con presbiterio, porche de hierro adosado, torre campanario; fachada enfoscada con imitación de sillares, cubierta de teja árabe. Uso ocasional de culto. Ficha en págs. 18-20.",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "4",
+    "denominacion": "Antiguas Escuelas (hoy biblioteca)",
+    "direccion": "Calle de Pinto nº 3",
+    "referencia_catastral": null,
+    "grado": "Integral",
+    "alcance": null,
+    "pagina": 21,
+    "notas": "Sin referencia catastral en la ficha. Edificio exento con porche de acceso cubierto, ladrillo visto, gran alero de madera y teja curva. Uso: biblioteca pública. Ficha en págs. 21-23.",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "5",
+    "denominacion": "Antiguo Ayuntamiento",
+    "direccion": "Plaza de la Constitución nº 1",
+    "referencia_catastral": null,
+    "grado": "Integral",
+    "alcance": null,
+    "pagina": 24,
+    "notas": "Sin referencia catastral en la ficha. En el listado (pág. 14) se llama 'Ayuntamiento (antiguo)'. Dos plantas entre medianeras, porche con balcón corrido, torreón con campana y reloj; dependencias municipales secundarias. Misma dirección que la ficha 3 (Ayuntamiento nuevo). Texto de la ficha poco legible en el escaneo. Ficha en págs. 24-25.",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "3",
+    "denominacion": "Ayuntamiento nuevo",
+    "direccion": "Plaza de la Constitución nº 1",
+    "referencia_catastral": null,
+    "grado": "Estructural",
+    "alcance": null,
+    "pagina": 26,
+    "notas": "Sin referencia catastral en la ficha. Edificio aislado de B+2, tres volúmenes (oficinas; soportal, cafetería y biblioteca; salón de plenos). Misma dirección que la ficha 5 (Antiguo Ayuntamiento). Ficha en págs. 26-27. Art. 11 (pág. 10): en Estructural restauración, conservación, consolidación y rehabilitación; reestructuración solo excepcionalmente con estudio pormenorizado.",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "11",
+    "denominacion": "Edificio de vivienda",
+    "direccion": "Plaza de la Constitución nº 3",
+    "referencia_catastral": null,
+    "grado": "Estructural",
+    "alcance": null,
+    "pagina": 28,
+    "notas": "Sin referencia catastral en la ficha. En el listado (pág. 14): 'Edificio en la Plaza de la Constitución nº 3'. Dos plantas en esquina y entre medianeras; fachada enfoscada y encalada, alero de madera, balcones con rejería. Vivienda unifamiliar, estado deteriorado. Ficha en págs. 28-29.",
+    "fuente": "catalogo"
+  },
+  {
+    "municipio": "PARLA",
+    "tipo": "edificio",
+    "numero_ficha": "12",
+    "denominacion": "Edificio de vivienda",
+    "direccion": "Plaza de la Constitución nº 6",
+    "referencia_catastral": null,
+    "grado": "Estructural",
+    "alcance": null,
+    "pagina": 30,
+    "notas": "Sin referencia catastral en la ficha. En el listado (pág. 14): 'Edificio en la Plaza de la Constitución nº 6'. Dos plantas entre medianeras; balcones y rejería; teja árabe. Vivienda unifamiliar, deteriorada incluso en estructura. Ficha en págs. 30-31. La numeración salta del 5 al 11: las fichas 6-10 no están en el catálogo publicado (no se sabe por qué).",
+    "fuente": "catalogo"
+  }
+]
