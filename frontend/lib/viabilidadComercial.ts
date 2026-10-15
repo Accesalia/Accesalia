@@ -15,6 +15,7 @@
 // 789.000, somos 20, tocamos a 39.450".
 
 import "server-only";
+import { firmadoDe } from "./firmaDigital";
 import { recalcularLuego } from "./estadoOportunidad";
 import { exigirCompleta } from "./completa";
 import { mesa } from "./mesaViabilidades";
@@ -340,7 +341,10 @@ export async function pdfGuardado(id: string): Promise<{ pdf: ArrayBuffer; nombr
   if (!v?.url_pdf?.startsWith("almacen:")) return null;
   const f = await fetch(`${URL_BASE}/storage/v1/object/${v.url_pdf.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
   if (!f.ok) return null;
-  return { pdf: await f.arrayBuffer(), nombre: `Viabilidad ${v.numero ?? ""} v${v.version}.pdf`, oppId: v.oportunidad_id };
+  // Si la app la firmo (el ok a la oferta), sale la firmada.
+  const pdf = new Uint8Array(await f.arrayBuffer());
+  const firmada = await firmadoDe(pdf);
+  return { pdf: (firmada ?? pdf).slice().buffer, nombre: `Viabilidad ${v.numero ?? ""} v${v.version}.pdf`, oppId: v.oportunidad_id };
 }
 
 /** La viabilidad viva de una oportunidad (la ultima), para el boton de su ficha. */

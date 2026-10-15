@@ -22,6 +22,7 @@ import { recalcularLuego } from "./estadoOportunidad";
 import { nombreDeOpp } from "./direccionOpp";
 import { enviarCorreo } from "./correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion } from "./quienLleva";
+import { firmaDeUso, firmarParaUso } from "./firmaDigital";
 import type { Yo } from "./sesion";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -232,6 +233,15 @@ export async function resolverRevision(
   );
   if (!r) throw new Error("No existe esa revisión.");
   if (r.estado !== "pendiente") throw new Error("Esta revisión ya está resuelta o la superó otro envío.");
+  const avisos: string[] = [];
+  // EL OK FIRMA (Monica, 15-oct-2026): antes de dar el ok, se firman los PDF del
+  // paquete con la firma del uso "ok_oferta"; si la firma falla, no hay ok. Sin
+  // certificado subido, el ok sale sin firmar y se avisa.
+  if (decision === "ok") {
+    const firmados = await firmarPaquete(revisionId, yo);
+    if (firmados === null) avisos.push("Sin firmar: no hay firma digital para el ok a la oferta (Gestiones de la app → Firmas digitales).");
+    else avisos.push(`Firmados por ${firmados.firmante}: ${firmados.documentos.join(", ")}.`);
+  }
   await pedir(`revisiones_oferta?id=eq.${revisionId}&estado=eq.pendiente`, {
     method: "PATCH",
     body: JSON.stringify({ estado: decision, resuelta_en: new Date().toISOString(), resuelta_por: yo.id, comentario: texto || null, actualizado_en: new Date().toISOString() }),
@@ -248,7 +258,6 @@ export async function resolverRevision(
   const [o] = await pedir<{ codigo: string | null; nombre: string | null }[]>(`oportunidades?select=codigo,nombre&id=eq.${r.oportunidad_id}`);
   const donde = o ? nombreDeOpp(o) : "tu oportunidad";
   const lleva = await quienLlevaLaOpp(r.oportunidad_id);
-  const avisos: string[] = [];
   for (const p of lleva.personas) {
     if (!p.correo) { avisos.push(`${p.nombre} no tiene correo`); continue; }
     const e = await enviarCorreo({
@@ -268,6 +277,46 @@ export async function resolverRevision(
   if (!lleva.personas.length) avisos.push("la oportunidad no tiene comercial asignado");
   recalcularLuego(r.oportunidad_id);
   return { avisos };
+}
+
+/** Firma los PDF del paquete TAL CUAL se mandaron a revisar (la version de cada
+ *  hoja, la viabilidad en su version, el presupuesto en su generacion). Si algo
+ *  se ha rehecho despues, no firma: lo revisado ya no es lo que hay. Devuelve
+ *  null si el uso no tiene firma. */
+async function firmarPaquete(revisionId: string, yo: Yo): Promise<{ firmante: string; documentos: string[] } | null> {
+  const firma = await firmaDeUso("ok_oferta");
+  if (!firma) return null;
+  const docs = await pedir<{
+    version_hoja_id: string | null; viabilidad_id: string | null; viabilidad_version: number | null; presupuesto_id: string | null; presupuesto_generado_en: string | null;
+    v: { url_pdf_hoja: string | null; numero_version: number; hoja: { numero_hoja: string | null } | null } | null;
+    viab: { url_pdf: string | null; version: number; numero: string | null } | null;
+    ppto: { url_pdf: string | null; generado_en: string | null; codigo: string | null } | null;
+  }[]>(
+    `revisiones_oferta_documentos?select=version_hoja_id,viabilidad_id,viabilidad_version,presupuesto_id,presupuesto_generado_en,` +
+      `v:version_hoja_id(url_pdf_hoja,numero_version,hoja:hoja_encargo_id(numero_hoja)),viab:viabilidad_id(url_pdf,version,numero),ppto:presupuesto_id(url_pdf,generado_en,codigo)` +
+      `&revision_id=eq.${revisionId}`,
+  );
+  const lista = docs.map((d) => {
+    if (d.version_hoja_id && d.v)
+      return { documento: `hoja:${d.version_hoja_id}`, nombre: `${d.v.hoja?.numero_hoja ?? "hoja"} v${d.v.numero_version}`, url: d.v.url_pdf_hoja };
+    if (d.viabilidad_id && d.viab) {
+      if (d.viab.version !== d.viabilidad_version) throw new Error("La viabilidad se ha rehecho después de pedir el ok: que el comercial vuelva a mandar la oferta.");
+      return { documento: `viabilidad:${d.viabilidad_id}`, nombre: `viabilidad ${d.viab.numero ?? ""} v${d.viab.version}`.replace("  ", " "), url: d.viab.url_pdf };
+    }
+    if (d.presupuesto_id && d.ppto) {
+      const igual = d.ppto.generado_en && d.presupuesto_generado_en && new Date(d.ppto.generado_en).getTime() === new Date(d.presupuesto_generado_en).getTime();
+      if (!igual) throw new Error("El presupuesto se ha rehecho después de pedir el ok: que el comercial vuelva a mandar la oferta.");
+      return { documento: `presupuesto:${d.presupuesto_id}`, nombre: `presupuesto ${d.ppto.codigo ?? ""}`.trim(), url: d.ppto.url_pdf };
+    }
+    throw new Error("Un documento del paquete ya no existe: que el comercial vuelva a mandar la oferta.");
+  });
+  for (const x of lista) {
+    if (!x.url?.startsWith("almacen:")) throw new Error(`No encuentro el PDF de ${x.nombre}.`);
+    const f = await fetch(`${URL_BASE}/storage/v1/object/${x.url.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
+    if (!f.ok) throw new Error(`No se puede leer el PDF de ${x.nombre} del almacén.`);
+    await firmarParaUso(new Uint8Array(await f.arrayBuffer()), { uso: "ok_oferta", documento: x.documento, motivo: "Ok a la oferta", revisionId }, firma, yo);
+  }
+  return { firmante: firma.firmante, documentos: lista.map((x) => x.nombre) };
 }
 
 /** Las que esperan revision, la mas antigua arriba: la bandeja de quien revisa. */

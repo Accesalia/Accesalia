@@ -23,6 +23,12 @@ const ACCESOS: Acceso[] = [
     href: "/gestiones/funciones",
   },
   {
+    nombre: "Firmas digitales",
+    color: "turquesa",
+    desc: "Los certificados de Accesalia, Daniel y Ecobalance, y con cuál firma la app cada cosa",
+    href: "/gestiones/firmas",
+  },
+  {
     nombre: "Catálogo de bloques",
     color: "arena",
     desc: "Los bloques que se marcan al generar una hoja de encargo: sus textos, su orden y sus importes",

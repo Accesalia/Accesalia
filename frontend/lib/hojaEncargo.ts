@@ -28,6 +28,7 @@
 // titular de sus accesos (un particular: un chalet no es una CP).
 
 import "server-only";
+import { firmadoDe } from "./firmaDigital";
 import { recalcularLuego } from "./estadoOportunidad";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
@@ -848,7 +849,11 @@ export async function pdfDeVersion(versionId: string): Promise<{ pdf: Uint8Array
   if (v.url_pdf_hoja?.startsWith("almacen:")) {
     const resto = v.url_pdf_hoja.slice("almacen:".length);
     const r = await fetch(`${URL_BASE}/storage/v1/object/${resto}`, { headers: CAB, cache: "no-store" });
-    if (r.ok) return { pdf: new Uint8Array(await r.arrayBuffer()), oppId: v.hoja.oportunidad_id, nombre };
+    // Si la app lo firmo (el ok a la oferta), sale el firmado.
+    if (r.ok) {
+      const pdf = new Uint8Array(await r.arrayBuffer());
+      return { pdf: (await firmadoDe(pdf)) ?? pdf, oppId: v.hoja.oportunidad_id, nombre };
+    }
   }
   return null;
 }

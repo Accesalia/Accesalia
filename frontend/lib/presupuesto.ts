@@ -18,6 +18,7 @@
 // mismo motor desde las hojas marcadas.
 
 import "server-only";
+import { firmadoDe } from "./firmaDigital";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
 import type { Yo } from "./sesion";
@@ -369,8 +370,10 @@ export async function pdfGuardado(id: string): Promise<{ pdf: Uint8Array; oportu
   if (!p?.url_pdf?.startsWith("almacen:") || !p.oportunidad_id) return null;
   const r = await fetch(`${URL_BASE}/storage/v1/object/${p.url_pdf.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
   if (!r.ok) return null;
+  const pdf = new Uint8Array(await r.arrayBuffer());
   return {
-    pdf: new Uint8Array(await r.arrayBuffer()),
+    // Si la app lo firmo (el ok a la oferta), sale el firmado.
+    pdf: (await firmadoDe(pdf)) ?? pdf,
     oportunidadId: p.oportunidad_id,
     nombre: `Presupuesto ${p.codigo} ${p.pagador_nombre ?? ""}.pdf`.replace(/\s+/g, " "),
   };
