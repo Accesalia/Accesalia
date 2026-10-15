@@ -96,7 +96,9 @@ export const PASOS: PasoEscalera[] = [
   { clave: "preparar_docs", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "Preparar la HE, la VB y el presupuesto" },
   { clave: "arquitecto_viabilidad", fase: "viabilidad_arquitecto", seccion: "sin_hoja", accion: "interno", titulo: "Que el arquitecto defina la viabilidad" },
   // C': no necesita Polycam. Lo tiene que mover el comercial: no depende de nadie.
-  { clave: "pedir_viabilidad", fase: "polycam", seccion: "escaneo", accion: "doc", titulo: "Pedir la viabilidad y los costes al arquitecto" },
+  // Su fase es la 1: la fase actual es el ultimo hito alcanzado QUE APLICA, y la
+  // 2 y la 3 no aplican (Monica, 15-oct-2026).
+  { clave: "pedir_viabilidad", fase: "primer_contacto", seccion: "escaneo", accion: "doc", titulo: "Pedir la viabilidad y los costes al arquitecto" },
   { clave: "enviar_polycam", fase: "polycam", seccion: "escaneo", accion: "polycam", titulo: "Enviar el Polycam para la viabilidad" },
   { clave: "esperando_visita", fase: "visita", seccion: "escaneo", accion: "polycam", titulo: "Visita agendada: esperando el día" },
   { clave: "cerrar_visita", fase: "primer_contacto", seccion: "escaneo", accion: "polycam", titulo: "Cerrar la visita para el escaneo con Polycam" },
@@ -116,12 +118,12 @@ export const FASES: { clave: Fase; n: number; nombre: string }[] = [
   { clave: "cobro", n: 10, nombre: "Cobro" },
 ];
 
-/** El orden de los copys DENTRO de su fase, por letras: A, B, C, C', D, E-L,
+/** El orden de los copys DENTRO de su fase, por letras: A, C', B, C, D, E-L,
  *  M-N, Q-S, T, U-V. */
 export const ORDEN_EN_FASE: Clave[] = [
-  "cerrar_visita",
+  "cerrar_visita", "pedir_viabilidad",
   "esperando_visita",
-  "enviar_polycam", "pedir_viabilidad",
+  "enviar_polycam",
   "arquitecto_viabilidad",
   "preparar_docs", "falta_ok_oferta", "revision_cambios", "falta_enviar_doc",
   "nueva_oferta_elaborar", "nueva_oferta_cambios", "nueva_oferta_ok", "nueva_oferta_enviar",
