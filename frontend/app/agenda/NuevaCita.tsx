@@ -15,12 +15,12 @@ import type { TipoCita } from "./Dia";
 // EDITAR (Monica, 14-oct-2026) es el mismo formulario con la cita ya puesta: asi
 // se mueve tambien de dia y de hora donde no se puede arrastrar (el movil).
 
-/** Una persona de la cita: elegida de la agenda ("puesto:<id>", "persona:<id>" o
- *  "pc:<id>", las opciones del diario) o escrita a mano. */
+/** Una persona de la cita: elegida de la agenda ("puesto:<id>" o "persona:<id>",
+ *  las opciones del diario) o escrita a mano. */
 type Linea = { clave: number; aMano: boolean; persona: string | null; nombre: string; telefono: string; papel: string };
 
-const TIPO_ELEGIDA = { puesto: "puesto", persona: "persona", pc: "persona_comunidad" } as const;
-const PREFIJO = { puesto: "puesto", persona: "persona", persona_comunidad: "pc" } as const;
+const TIPO_ELEGIDA = { puesto: "puesto", persona: "persona" } as const;
+const PREFIJO = { puesto: "puesto", persona: "persona" } as const;
 
 /** Las personas de una cita guardada, como lineas del formulario. */
 function lineasDe(c: CitaDelDia): Linea[] {

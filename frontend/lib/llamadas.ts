@@ -97,8 +97,8 @@ function mejores<T extends { buscable: string }>(q: string, filas: T[], cuantas 
 // ------------------------------------------------------------ personas
 
 export type PropuestaPersona = {
-  /** puesto | persona | persona_comunidad */
-  tipo: "puesto" | "persona" | "persona_comunidad";
+  /** puesto | persona */
+  tipo: "puesto" | "persona";
   id: string;
   nombre: string;
   detalle: string;
@@ -232,7 +232,7 @@ export type DatosPostit = {
   area: string | null;
 };
 
-const TIPOS_QUIEN = ["puesto", "persona", "persona_comunidad", "nuevo"];
+const TIPOS_QUIEN = ["puesto", "persona", "nuevo"];
 const TIPOS_DONDE = ["comunidad", "oportunidad", "clave", "nueva"];
 
 function fila(d: DatosPostit) {
@@ -244,7 +244,6 @@ function fila(d: DatosPostit) {
     quien_texto: t(d.quien_texto),
     quien_puesto_id: quien?.tipo === "puesto" ? quien.id : null,
     quien_persona_id: quien?.tipo === "persona" ? quien.id : null,
-    quien_persona_comunidad_id: null,
     quien_nuevo: quien?.tipo === "nuevo",
     donde_texto: t(d.donde_texto),
     donde_comunidad_id: donde?.tipo === "comunidad" ? donde.id : null,
@@ -308,7 +307,6 @@ type FilaLlamada = {
   quien_texto: string | null;
   quien_puesto_id: string | null;
   quien_persona_id: string | null;
-  quien_persona_comunidad_id: string | null;
   quien_nuevo: boolean;
   donde_texto: string | null;
   donde_comunidad_id: string | null;
@@ -355,7 +353,6 @@ export async function listarPostits(
     for (const [tipo, id] of [
       ["puesto", f.quien_puesto_id],
       ["persona", f.quien_persona_id],
-      ["persona_comunidad", f.quien_persona_comunidad_id],
     ] as const)
       if (id) quien = { tipo, id, etiqueta: etiquetaDe(gente, tipo, id) };
     let donde: Elegido = null;

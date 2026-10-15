@@ -45,7 +45,7 @@ export type NuevaDesdeMovil = {
   fecha: string;
   /** "puesto:<id>" del administrador, o vacio. */
   administrador: string | null;
-  /** "puesto:<id>" o "pc:<id>" de la lista, o vacio si se escribio. */
+  /** "puesto:<id>" de la lista, o vacio si se escribio. */
   contacto: string | null;
   contactoNombre: string | null;
   contactoTelefono: string | null;

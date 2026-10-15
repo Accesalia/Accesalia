@@ -82,20 +82,18 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
 
 /** Del valor de la casilla a la columna que toca. Solo una, nunca dos: la base
  *  lo exige con `un_solo_quien`. Sirve igual para la oportunidad y para la
- *  administracion (`administracion_origen`): las dos tienen las mismas tres.
+ *  administracion (`administracion_origen`): las dos tienen las mismas.
  *
  *  La persona de la agenda va a `quien_lo_trae` (decidido el 4-oct-2026). El
- *  comercial y el vecino conservan su columna porque no estan en la agenda:
- *  "los cuatro quien no son lo mismo". */
+ *  comercial conserva su columna porque no esta en la agenda. El vecino ya no
+ *  tiene columna propia: esta en la agenda (15-oct-2026). */
 export function columnasQuien(valor: string | null): {
   quien_lo_trae: string | null;
   quien_comercial_id: string | null;
-  quien_persona_comunidad_id: string | null;
 } {
   const vacio = {
     quien_lo_trae: null,
     quien_comercial_id: null,
-    quien_persona_comunidad_id: null,
   };
   if (!valor) return vacio;
   const corte = valor.indexOf(":");

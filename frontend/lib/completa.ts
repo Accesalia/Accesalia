@@ -43,9 +43,9 @@ export type Completitud = { aplica: boolean; falta: Falta[] };
 
 export async function completitud(oppId: string): Promise<Completitud> {
   const [ops, accesos, hojas] = await Promise.all([
-    leer<{ fecha_apertura: string | null; creado_en: string; puesto_id: string | null; persona_comunidad_id: string | null;
+    leer<{ fecha_apertura: string | null; creado_en: string; puesto_id: string | null;
            contacto_provisional: string | null; siguiente_paso: string | null }[]>(
-      `oportunidades?select=fecha_apertura,creado_en,puesto_id,persona_comunidad_id,contacto_provisional,siguiente_paso&id=eq.${oppId}&limit=1`,
+      `oportunidades?select=fecha_apertura,creado_en,puesto_id,contacto_provisional,siguiente_paso&id=eq.${oppId}&limit=1`,
     ),
     leer<{ opp_id: string }[]>(`relacion_oportunidad_accesos?select=opp_id&opp_id=eq.${oppId}&hasta=is.null&limit=1`),
     leer<{ id: string }[]>(`hojas_encargo?select=id&oportunidad_id=eq.${oppId}&estado=in.(enviada_comunidad,devuelta_firmada)&limit=1`),
@@ -57,7 +57,7 @@ export async function completitud(oppId: string): Promise<Completitud> {
   if (!aplica) return { aplica: false, falta: [] };
   const falta: Falta[] = [];
   if (!accesos.length) falta.push("direccion");
-  if (!o.puesto_id && !o.persona_comunidad_id && !o.contacto_provisional) falta.push("contacto");
+  if (!o.puesto_id && !o.contacto_provisional) falta.push("contacto");
   if (!o.siguiente_paso) falta.push("paso");
   return { aplica, falta };
 }
@@ -71,7 +71,7 @@ export async function exigirCompleta(oppId: string, que: string): Promise<void> 
 }
 
 export type DatosCompletar = {
-  /** "puesto:<id>" o "pc:<id>" de la lista, o vacio si es un contacto escrito. */
+  /** "puesto:<id>" de la lista, o vacio si es un contacto escrito. */
   contacto: string | null;
   contactoNombre: string | null;
   contactoTelefono: string | null;
@@ -89,7 +89,6 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
   if (lista === "puesto") {
     Object.assign(cambio, {
       puesto_id: id,
-      persona_comunidad_id: null,
       contacto_provisional: null,
       telefono_provisional: null,
       correo_provisional: null,
@@ -97,7 +96,6 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
   } else if (d.contactoNombre?.trim()) {
     Object.assign(cambio, {
       puesto_id: null,
-      persona_comunidad_id: null,
       contacto_provisional: d.contactoNombre.trim(),
       telefono_provisional: d.contactoTelefono?.trim() || null,
     });

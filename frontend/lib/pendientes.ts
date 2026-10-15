@@ -66,7 +66,7 @@ export type Pendiente = {
   autorId: string;
   donde: string | null;
   quien: string | null;
-  /** La persona elegida de la lista, si se eligio: "puesto:<id>", "persona:<id>", "pc:<id>". */
+  /** La persona elegida de la lista, si se eligio: "puesto:<id>" o "persona:<id>". */
   persona: string | null;
   fotos: Foto[];
 };
@@ -76,12 +76,12 @@ export async function pendientesDe(yo: Yo): Promise<Pendiente[]> {
   const filas = await leer<{
     id: string; creado_en: string; fecha: string | null; canal: string | null; texto: string; autor_id: string;
     donde_texto: string | null; quien_texto: string | null;
-    quien_puesto_id: string | null; quien_persona_id: string | null; quien_persona_comunidad_id: string | null;
+    quien_puesto_id: string | null; quien_persona_id: string | null;
     autor: { nombre: string } | null;
     qp: { persona: { nombre: string } | null } | null; qs: { nombre: string } | null;
   }[]>(
     `notas_pendientes?select=id,creado_en,fecha,canal,texto,autor_id,donde_texto,quien_texto,` +
-      `quien_puesto_id,quien_persona_id,quien_persona_comunidad_id,autor:autor_id(nombre),` +
+      `quien_puesto_id,quien_persona_id,autor:autor_id(nombre),` +
       `qp:quien_puesto_id(persona:persona_id(nombre)),qs:quien_persona_id(nombre)` +
       `&estado=eq.pendiente${filtroAutores(a)}&order=creado_en.asc&limit=200`,
   );
@@ -100,23 +100,21 @@ export async function pendientesDe(yo: Yo): Promise<Pendiente[]> {
       ? "puesto:" + f.quien_puesto_id
       : f.quien_persona_id
         ? "persona:" + f.quien_persona_id
-        : f.quien_persona_comunidad_id
-          ? "pc:" + f.quien_persona_comunidad_id
-          : null,
+        : null,
     fotos: fotos.get(f.id) ?? [],
   }));
 }
 
 type FilaPendiente = {
   id: string; autor_id: string; texto: string; fecha: string | null; canal: string | null; estado: string;
-  quien_puesto_id: string | null; quien_persona_id: string | null; quien_persona_comunidad_id: string | null;
+  quien_puesto_id: string | null; quien_persona_id: string | null;
   autor: { nombre: string } | null;
 };
 
 /** La pendiente, si esta persona puede colocarla y aun no se ha colocado. */
 async function pendienteMia(yo: Yo, id: string): Promise<FilaPendiente> {
   const [p] = await leer<FilaPendiente[]>(
-    `notas_pendientes?select=id,autor_id,texto,fecha,canal,estado,quien_puesto_id,quien_persona_id,quien_persona_comunidad_id,autor:autor_id(nombre)` +
+    `notas_pendientes?select=id,autor_id,texto,fecha,canal,estado,quien_puesto_id,quien_persona_id,autor:autor_id(nombre)` +
       `&id=eq.${encodeURIComponent(id)}&limit=1`,
   );
   if (!p) throw new Error("Esa nota no existe.");
@@ -155,7 +153,6 @@ export async function colocarPendiente(
       oportunidad_id: destino.oportunidadId,
       quien_puesto_id: p.quien_puesto_id,
       quien_persona_id: p.quien_persona_id,
-      quien_persona_comunidad_id: p.quien_persona_comunidad_id,
     });
     await moverFotosDePendiente(id, { nota: "oportunidad", notaId: n.id, oportunidadId: destino.oportunidadId, comunidadId: op.comunidad_id });
     await marcarColocada(id, { nota_oportunidad_id: n.id });

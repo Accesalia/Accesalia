@@ -42,7 +42,7 @@ export function Completar({
   const faltaPaso = falta.some((f) => f.clave === "paso");
   const faltaDireccion = falta.some((f) => f.clave === "direccion");
   // El contacto: alguien de la lista (administracion o comunidad) o escrito.
-  const contactos = personas.filter((p) => p.valor.startsWith("puesto:") || p.valor.startsWith("pc:"));
+  const contactos = personas.filter((p) => p.valor.startsWith("puesto:"));
   const admins = personas.filter((p) => p.valor.startsWith("puesto:"));
 
   const guardar = () =>

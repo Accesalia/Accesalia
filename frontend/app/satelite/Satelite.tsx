@@ -497,7 +497,7 @@ export function Satelite() {
                 <Elegir
                   id="sat_n_contacto"
                   nombre=""
-                  opciones={(listas?.personas ?? []).filter((p) => p.valor.startsWith("puesto:") || p.valor.startsWith("pc:"))}
+                  opciones={(listas?.personas ?? []).filter((p) => p.valor.startsWith("puesto:"))}
                   valor={nContacto}
                   alElegir={setNContacto}
                   vacio="de la lista…"
@@ -590,9 +590,6 @@ export function Satelite() {
           conPista
           clase="mt-1"
         />
-        {lista === "pc" && !opp && !escrita && (
-          <p className="mt-1 text-[12px] text-amber-900">Con un presidente o un vecino, pon también la dirección.</p>
-        )}
       </div>
 
       {/* ---- fotos y fecha ---- */}

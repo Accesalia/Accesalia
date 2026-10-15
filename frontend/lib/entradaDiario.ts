@@ -78,7 +78,7 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
 
 /** TODAS las oportunidades abiertas (no solo las suyas: puede ir a ver una de
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
- *  Las personas llevan delante de que lista son: puesto:, persona:, pc:. */
+ *  Las personas llevan delante de que lista son: puesto: o persona:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
   const [ops, puestos, sueltas] = await Promise.all([
     leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
@@ -123,7 +123,7 @@ export type DatosEntrada = {
   canal: string;
   fecha: string | null;
   oportunidadId: string | null;
-  /** "puesto:<id>", "persona:<id>" o "pc:<id>": de que lista es la persona. */
+  /** "puesto:<id>" o "persona:<id>": de que lista es la persona. */
   persona: string | null;
   /** La direccion escrita que NO estaba en la lista y se marco "revisar". */
   dondeTexto: string | null;

@@ -140,7 +140,7 @@ export type CitaDelDia = Cita & {
   deQue: { tipo: "opp" | "comunidad" | "administracion" | "persona"; id: string; texto: string; codigo?: string | null } | null;
   /** Con quien, compuesto al leer; `tipo` e `id` para repintarlo en el formulario
    *  (a_mano no tiene id de agenda: el suyo es el de la fila). */
-  conQuien: { tipo: "puesto" | "persona" | "persona_comunidad" | "a_mano"; id: string; nombre: string; telefono: string | null; papel: string | null }[];
+  conQuien: { tipo: "puesto" | "persona" | "a_mano"; id: string; nombre: string; telefono: string | null; papel: string | null }[];
   adjuntos: { tipo: "fichero" | "hoja" | "viabilidad" | "presupuesto" | "documento"; id: string; nombre: string }[];
 };
 
@@ -174,7 +174,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
     comunidad: { id: string; nombre: string } | null;
     empresa: { id: string; nombre_accesalia: string | null; nombre_legal: string | null } | null;
     persona: { id: string; nombre: string; apellidos: string | null } | null;
-    con: { id: string; persona_id: string | null; puesto_id: string | null; persona_comunidad_id: string | null;
+    con: { id: string; persona_id: string | null; puesto_id: string | null;
            nombre: string | null; telefono: string | null; papel: string | null;
            persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
            puesto: { cargo: string | null; telefono_empresa: string | null } | null;
@@ -186,7 +186,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
     `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre,color),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
-      `con:citas_con_quien(id,persona_id,puesto_id,persona_comunidad_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
+      `con:citas_con_quien(id,persona_id,puesto_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
       `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
       `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
       `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
@@ -214,11 +214,9 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
     conQuien: f.con.map((c) => ({
       ...(c.puesto_id
         ? { tipo: "puesto" as const, id: c.puesto_id }
-        : c.persona_comunidad_id
-          ? { tipo: "persona_comunidad" as const, id: c.persona_comunidad_id }
-          : c.persona_id
-            ? { tipo: "persona" as const, id: c.persona_id }
-            : { tipo: "a_mano" as const, id: c.id }),
+        : c.persona_id
+          ? { tipo: "persona" as const, id: c.persona_id }
+          : { tipo: "a_mano" as const, id: c.id }),
       nombre: c.persona ? [c.persona.nombre, c.persona.apellidos].filter(Boolean).join(" ") : c.nombre ?? "",
       telefono: c.puesto?.telefono_empresa ?? c.persona?.telefono_personal ?? c.telefono,
       papel: c.papel ?? c.puesto?.cargo ?? null,
@@ -280,7 +278,7 @@ export async function polycamDe(oppId: string): Promise<{ recibido: string; fech
  *  devuelve proponerPersonas de lib/llamadas.ts: un puesto, una persona suelta o
  *  un contacto de comunidad) o escrito a mano. */
 export type ConQuienNuevo =
-  | { tipo: "puesto" | "persona" | "persona_comunidad"; id: string; papel?: string | null }
+  | { tipo: "puesto" | "persona"; id: string; papel?: string | null }
   | { tipo: "a_mano"; nombre: string; telefono?: string | null; papel?: string | null };
 
 export type CitaNueva = {
@@ -359,7 +357,6 @@ async function ponerConQuien(citaId: string, conQuien: ConQuienNuevo[]): Promise
               cita_id: f.id,
               persona_id: x.tipo === "persona" ? x.id : x.tipo === "puesto" ? personaDe.get(x.id) ?? null : null,
               puesto_id: x.tipo === "puesto" ? x.id : null,
-              persona_comunidad_id: x.tipo === "persona_comunidad" ? x.id : null,
               papel: limpio(x.papel) || null,
             },
       ),

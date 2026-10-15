@@ -401,15 +401,13 @@ export async function crearOportunidad(
   const otroRef = await colocar(d.otroNuevo);
   const contacto = otroRef ?? (d.mismoQueLlama ? quien : null);
   let contactoPuesto = contacto?.startsWith("puesto:") ? contacto.slice(7) : null;
-  // "vecino:" era la tabla vieja, retirada (15-oct-2026): ya no llega.
-  const contactoVecino: string | null = null;
-  if (!contactoPuesto && !contactoVecino && contacto?.startsWith("persona:")) {
+  if (!contactoPuesto && contacto?.startsWith("persona:")) {
     const pid = contacto.slice(8);
     const [pu] = await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${pid}&hasta=is.null&limit=1`);
     contactoPuesto = pu?.id ?? null;
   }
   // Y si con quien hablo es el administrador, se busca SU puesto vigente.
-  if (!contactoPuesto && !contactoVecino && d.contactoEsAdmin && administradorId) {
+  if (!contactoPuesto && d.contactoEsAdmin && administradorId) {
     const [pu] = await leer<{ id: string }[]>(
       `puesto?select=id&persona_id=eq.${administradorId}&hasta=is.null&limit=1`,
     );
@@ -417,7 +415,7 @@ export async function crearOportunidad(
   }
 
   // La BD exige: o contacto de verdad, o provisional. Nunca los dos.
-  const hayReal = Boolean(contactoPuesto || contactoVecino);
+  const hayReal = Boolean(contactoPuesto);
   const prov = !hayReal && d.otroNuevo?.nombre
     ? { nombre: d.otroNuevo.nombre, telefono: d.otroNuevo.telefono, correo: d.otroNuevo.correo }
     : null;
