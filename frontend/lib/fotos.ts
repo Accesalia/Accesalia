@@ -69,6 +69,9 @@ async function tipoFotografia(): Promise<string> {
 
 export type DondeFotos =
   | { nota: "oportunidad"; notaId: string; oportunidadId: string; comunidadId: string | null }
+  // Subida desde el PC al expediente de la opp, sin nota (Monica, 15-oct-2026: la
+  // foto del escalon del portal, la puerta que le han arañado a un vecino...).
+  | { nota: "ninguna"; oportunidadId: string; comunidadId: string | null }
   | { nota: "administracion"; notaId: string; puestoId: string | null; personaId: string | null }
   | { nota: "pendiente"; notaId: string };
 
@@ -85,6 +88,8 @@ export async function apuntarFotos(rutas: string[], d: DondeFotos): Promise<numb
   const docs = d.nota === "pendiente" ? buenas.map((ruta) => ({ ruta, fila: null })) : await documentosDeFotos(buenas, d);
   const filasDoc = docs.map((x) => x.fila).filter(Boolean);
   if (filasDoc.length) await crear("documentos", filasDoc);
+  // Sin nota, la foto es solo un documento de la opp.
+  if (d.nota === "ninguna") return buenas.length;
 
   await crear(
     "fotos_nota",
@@ -107,6 +112,7 @@ const notaDe = (d: DondeFotos) => ({
 
 /** Una fila de `documentos` por foto: de la oportunidad o de la persona. */
 async function documentosDeFotos(rutas: string[], d: Exclude<DondeFotos, { nota: "pendiente" }>) {
+  const deOpp = d.nota === "oportunidad" || d.nota === "ninguna";
   const tipo = await tipoFotografia();
   return rutas.map((ruta) => {
     const id = crypto.randomUUID();
@@ -122,8 +128,8 @@ async function documentosDeFotos(rutas: string[], d: Exclude<DondeFotos, { nota:
         backend: "supabase",
         storage_ref: ruta,
         vigente: true,
-        oportunidad_id: d.nota === "oportunidad" ? d.oportunidadId : null,
-        comunidad_id: d.nota === "oportunidad" ? d.comunidadId : null,
+        oportunidad_id: deOpp ? d.oportunidadId : null,
+        comunidad_id: deOpp ? d.comunidadId : null,
         puesto_id: d.nota === "administracion" ? d.puestoId : null,
         persona_id: d.nota === "administracion" ? d.personaId : null,
       },
@@ -133,7 +139,7 @@ async function documentosDeFotos(rutas: string[], d: Exclude<DondeFotos, { nota:
 
 /** Al COLOCAR una nota pendiente, sus fotos dejan de esperar: pasan a ser
  *  documentos de su sitio y apuntan a la nota ya colocada. */
-export async function moverFotosDePendiente(pendienteId: string, d: Exclude<DondeFotos, { nota: "pendiente" }>): Promise<void> {
+export async function moverFotosDePendiente(pendienteId: string, d: Exclude<DondeFotos, { nota: "pendiente" | "ninguna" }>): Promise<void> {
   const filas = await leer<{ id: string; storage_ref: string }[]>(`fotos_nota?select=id,storage_ref&nota_pendiente_id=eq.${pendienteId}`);
   if (!filas.length) return;
   const docs = await documentosDeFotos(filas.map((f) => f.storage_ref), d);
@@ -213,4 +219,44 @@ export async function fotosDeOportunidad(oppId: string): Promise<(Foto & { fecha
   const fotos = await comoFotos(filas);
   const fecha = new Map(filas.map((f) => [f.id, f.creado_en.slice(0, 10)]));
   return fotos.map((f) => ({ ...f, fecha: fecha.get(f.id) ?? "" }));
+}
+
+/** Una foto del expediente de la opp, con de donde vino. */
+export type FotoDeOpp = {
+  /** El documento. */
+  id: string;
+  /** Firmada (una hora): la foto entera, para abrirla. */
+  url: string;
+  /** Firmada: la miniatura (si no la hay, la entera). */
+  mini: string;
+  fecha: string;
+  /** "nota": llego con una nota del diario (tambien las del satelite y las de
+   *  Sali, que son notas). "pc": subida desde el PC al expediente, sin nota. */
+  origen: "nota" | "pc";
+  notaId: string | null;
+};
+
+/** TODAS LAS FOTOS DE LA OPP (Monica, 15-oct-2026): las que llegan con las notas
+ *  y las subidas desde el PC, de la mas nueva a la mas antigua. */
+export async function fotosDeOpp(oppId: string): Promise<FotoDeOpp[]> {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) return [];
+  const tipo = await tipoFotografia();
+  const filas = await leer<{ id: string; storage_ref: string; creado_en: string; notas: { nota_oportunidad_id: string | null }[] }[]>(
+    `documentos?select=id,storage_ref,creado_en,notas:fotos_nota(nota_oportunidad_id)` +
+      `&oportunidad_id=eq.${oppId}&tipo_documento_id=eq.${tipo}&vigente=is.true&order=creado_en.desc&limit=500`,
+  );
+  const fotos = new Map((await comoFotos(filas)).map((f) => [f.id, f]));
+  return filas
+    .filter((f) => fotos.has(f.id))
+    .map((f) => {
+      const notaId = f.notas.find((n) => n.nota_oportunidad_id)?.nota_oportunidad_id ?? null;
+      return {
+        id: f.id,
+        url: fotos.get(f.id)!.grande,
+        mini: fotos.get(f.id)!.mini,
+        fecha: f.creado_en,
+        origen: notaId ? ("nota" as const) : ("pc" as const),
+        notaId,
+      };
+    });
 }

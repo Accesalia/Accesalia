@@ -12,8 +12,10 @@ import {
   guardarTresD,
   reactivar,
 } from "../../../../lib/gestionOportunidad";
+import { apuntarFotos } from "../../../../lib/fotos";
+import { puedeVerOpp } from "../../../../lib/hojaEncargo";
 import { crearEntrada } from "../../../../lib/entradaDiario";
-import { marcarAscensor } from "../../edificio/[referencia]/acciones";
+import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
@@ -191,6 +193,35 @@ export async function accionAscensor(referencia: string, id: string, fd: FormDat
   const v = String(fd.get("ascensor") ?? "");
   await marcarAscensor(referencia, v === "si" ? true : v === "no" ? false : null);
   revalidatePath(`/comercial/oportunidades/${id}`);
+}
+
+/** ¿Portal accesible? "si" / "no" / "" (quitarlo). Firmado, como el ascensor
+ *  (Monica, 15-oct-2026). */
+export async function accionPortal(referencia: string, id: string, fd: FormData) {
+  const v = String(fd.get("portal") ?? "");
+  await marcarPortal(referencia, v === "si" ? true : v === "no" ? false : null);
+  revalidatePath(`/comercial/oportunidades/${id}`);
+}
+
+/** FOTOS DESDE EL PC al expediente de la opp (Monica, 15-oct-2026). El navegador
+ *  las reduce y las sube con los permisos de siempre (accionPermisosFotos, en
+ *  app/comercial/acciones.ts); esto las apunta como documentos de la opp. */
+export async function accionApuntarFotosOpp(oppId: string, rutas: string[]): Promise<{ ok: true; n: number } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !puedeEntrar(yo, "comercial", "trabajar")) return { ok: false, error: "Sin permiso para subir fotos." };
+  if (!(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    const [op] = await fetch(`${process.env.SUPABASE_URL}/rest/v1/oportunidades?select=comunidad_id&id=eq.${oppId}&limit=1`, {
+      headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` },
+      cache: "no-store",
+    }).then((r) => r.json() as Promise<{ comunidad_id: string | null }[]>);
+    if (!op) return { ok: false, error: "Esa oportunidad no existe." };
+    const n = await apuntarFotos(rutas, { nota: "ninguna", oportunidadId: oppId, comunidadId: op.comunidad_id });
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    return { ok: true, n };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
 
 export async function accionPatios(referencia: string, id: string, fd: FormData) {

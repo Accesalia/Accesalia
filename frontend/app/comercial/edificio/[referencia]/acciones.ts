@@ -44,3 +44,32 @@ export async function marcarAscensor(referencia: string, hay: boolean | null) {
 
   revalidatePath(`/comercial/edificio/${referencia}`);
 }
+
+// ¿PORTAL ACCESIBLE? (Monica, 15-oct-2026): igual que el ascensor, lo que vio una
+// persona, con quien y cuando. Si tiene escalones dentro o fuera, se le puede
+// vender una rampa o una plataforma. null quita la marca.
+export async function marcarPortal(referencia: string, accesible: boolean | null) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/edificio/" + referencia);
+  if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
+
+  // Upsert, como el ascensor: si la ficha de Catastro aun no se guardo, lo que
+  // vio una persona no se pierde.
+  await fetch(`${URL_BASE}/rest/v1/ficha_catastro?on_conflict=referencia`, {
+    method: "POST",
+    headers: {
+      apikey: SECRETO,
+      Authorization: `Bearer ${SECRETO}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({
+      referencia: referencia.replace(/\s/g, "").toUpperCase().slice(0, 14),
+      portal_accesible: accesible,
+      portal_visto_por: accesible === null ? null : yo.id,
+      portal_visto_en: accesible === null ? null : new Date().toISOString(),
+    }),
+  });
+
+  revalidatePath(`/comercial/edificio/${referencia}`);
+}

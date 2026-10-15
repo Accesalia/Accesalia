@@ -1017,6 +1017,11 @@ export type Ascensor = {
   patios: number | null;
   patiosQuien: string | null;
   patiosCuando: string | null;
+  /** ¿Portal accesible? false = tiene escalones (dentro o fuera): se le puede
+   *  vender una rampa o una plataforma. null = nadie lo ha mirado (15-oct-2026). */
+  portal: boolean | null;
+  portalQuien: string | null;
+  portalCuando: string | null;
 };
 
 /** LO QUE HEMOS VISTO NOSOTROS: el ascensor y los patios. Va aparte del informe
@@ -1026,12 +1031,16 @@ export type Ascensor = {
  *  el numero de viviendas, solo que con otro origen: manual en vez de Catastro". */
 export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
-  const vacio: Ascensor = { hay: null, quien: null, cuando: null, patios: null, patiosQuien: null, patiosCuando: null };
+  const vacio: Ascensor = {
+    hay: null, quien: null, cuando: null, patios: null, patiosQuien: null, patiosCuando: null,
+    portal: null, portalQuien: null, portalCuando: null,
+  };
   if (!URL_BASE || !SECRETO) return vacio;
   try {
     const r = await fetch(
       `${URL_BASE}/rest/v1/ficha_catastro?select=tiene_ascensor,ascensor_visto_en,equipo:ascensor_visto_por(nombre),` +
-        `patios,patios_vistos_en,conto:patios_vistos_por(nombre)&referencia=eq.${ref}&limit=1`,
+        `patios,patios_vistos_en,conto:patios_vistos_por(nombre),` +
+        `portal_accesible,portal_visto_en,miro:portal_visto_por(nombre)&referencia=eq.${ref}&limit=1`,
       { headers: cab, cache: "no-store" },
     );
     if (!r.ok) return vacio;
@@ -1042,6 +1051,9 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
       patios: number | null;
       patios_vistos_en: string | null;
       conto: { nombre: string } | null;
+      portal_accesible: boolean | null;
+      portal_visto_en: string | null;
+      miro: { nombre: string } | null;
     }[];
     if (!f) return vacio;
     return {
@@ -1051,6 +1063,9 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
       patios: f.patios,
       patiosQuien: f.conto?.nombre ?? null,
       patiosCuando: f.patios_vistos_en,
+      portal: f.portal_accesible,
+      portalQuien: f.miro?.nombre ?? null,
+      portalCuando: f.portal_visto_en,
     };
   } catch {
     return vacio;
