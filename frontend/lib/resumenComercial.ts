@@ -15,7 +15,7 @@
 //   comunidad; si no, quien la trajo. Con el telefono a la vista.
 
 import "server-only";
-import { estadoCon, falta, type CierreCrudo, type Datos, type Falta, type HojaCruda, type Paso } from "./cabeceraOpp";
+import { estadoCon, falta, type CierreCrudo, type Datos, type EstadoOpp, type Falta, type HojaCruda, type Paso } from "./cabeceraOpp";
 import { nombreDeOpp } from "./direccionOpp";
 import { pasoDe, type Accion } from "./pasosEscalera";
 export type { Accion };
@@ -37,15 +37,18 @@ async function leer<T>(path: string): Promise<T[]> {
     if (x.length < 1000) return out;
   }
 }
-/** Por tramos de ids: la lista entera no cabe en una direccion. */
+/** Por tramos de ids, todos a la vez: la lista entera no cabe en una direccion.
+ *  150 por tramo (unos 5.600 caracteres de ids): menos peticiones a la vez. */
 async function porTramos<T>(ids: string[], hacer: (tramo: string) => string): Promise<T[]> {
-  const out: T[] = [];
-  for (let i = 0; i < ids.length; i += 80) out.push(...(await leer<T>(hacer(ids.slice(i, i + 80).join(",")))));
-  return out;
+  const tramos: string[][] = [];
+  for (let i = 0; i < ids.length; i += 150) tramos.push(ids.slice(i, i + 150));
+  return (await Promise.all(tramos.map((t) => leer<T>(hacer(t.join(",")))))).flat();
 }
 
 const hoyISO = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
 const ddmmaa = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
+/** Una fecha con hora, al dia de Madrid; una fecha sola, tal cual. */
+const aDia = (v: string) => (v.length <= 10 ? v : new Date(v).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }));
 const dias = (iso: string) => Math.round((Date.parse(hoyISO()) - Date.parse(iso.slice(0, 10))) / 86_400_000);
 const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -153,7 +156,8 @@ async function cargar(ops: OppCruda[]) {
   const firmadasDe = new Map<string, string>(); // hoja firmada -> opp
   for (const o of ops) for (const h of o.hojas) if (h.estado === "devuelta_firmada") firmadasDe.set(h.id, o.id);
 
-  const [juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestosCom, conPoly, cobros] = await Promise.all([
+  const hoy = hoyISO();
+  const [juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestosCom, conPoly, cobros, polyViab, funciones] = await Promise.all([
     porTramos<{ oportunidad_id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }>(ids,
       (t) => `juntas?select=oportunidad_id,fecha_junta,celebrada,resultado,creado_en&oportunidad_id=in.(${t})`),
     porTramos<{ oportunidad_id: string; tipo_3d: string | null; estado: string | null; creado_en: string }>(ids,
@@ -179,20 +183,16 @@ async function cargar(ops: OppCruda[]) {
       (t) => `relacion_polycam_acceso?select=acceso_id,polycam:polycam_id(fecha,creado_en)&acceso_id=in.(${t})`).catch(() => []),
     porTramos<{ hoja_encargo_id: string; es_porcentaje: boolean | null; hitos: { estado: string }[] }>([...firmadasDe.keys()],
       (t) => `lineas_facturacion?select=hoja_encargo_id,es_porcentaje,hitos:hitos_cobro(estado)&quitada_en=is.null&hoja_encargo_id=in.(${t})`),
+    // El Polycam tambien puede colgar de una viabilidad suya (la mesa).
+    porTramos<{ fecha: string | null; creado_en: string; v: { oportunidad_id: string } }>(ids,
+      (t) => `escaneados_polycam?select=fecha,creado_en,v:viabilidad_id!inner(oportunidad_id)&v.oportunidad_id=in.(${t})`).catch(() => []),
+    // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
+    // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
+    // funciones vigentes del equipo: si cambia la persona, cambia sola.
+    leer<{ desde: string | null; hasta: string | null; funcion: { clave: string } | null; equipo: { nombre: string } | null }>(
+      `equipo_funciones?select=desde,hasta,funcion:funciones(clave),equipo(nombre)&funciones.clave=in.(viabilidades,facturacion,revision_ofertas)`,
+    ).catch(() => []),
   ]);
-  // El Polycam tambien puede colgar de una viabilidad suya (la mesa).
-  const polyViab = viab.length
-    ? await porTramos<{ viabilidad_id: string; fecha: string | null; creado_en: string }>(viab.map((v) => v.id),
-        (t) => `escaneados_polycam?select=viabilidad_id,fecha,creado_en&viabilidad_id=in.(${t})`).catch(() => [])
-    : [];
-  const viabDe = new Map(viab.map((v) => [v.id, v.oportunidad_id]));
-  // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
-  // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
-  // funciones vigentes del equipo: si cambia la persona, cambia sola.
-  const hoy = hoyISO();
-  const funciones = await leer<{ desde: string | null; hasta: string | null; funcion: { clave: string } | null; equipo: { nombre: string } | null }>(
-    `equipo_funciones?select=desde,hasta,funcion:funciones(clave),equipo(nombre)&funciones.clave=in.(viabilidades,facturacion,revision_ofertas)`,
-  ).catch(() => []);
   const enCasaDe = (clave: string, puesto: string) => {
     const quien = funciones
       .filter((x) => x.funcion?.clave === clave && (!x.desde || x.desde <= hoy) && (!x.hasta || x.hasta >= hoy) && x.equipo)
@@ -219,7 +219,7 @@ async function cargar(ops: OppCruda[]) {
     if (!polyFecha.has(opp) || d < polyFecha.get(opp)!) polyFecha.set(opp, d);
   };
   for (const p of conPoly) llega(accesoDe.get(p.acceso_id), p.polycam?.fecha ?? p.polycam?.creado_en);
-  for (const p of polyViab) llega(viabDe.get(p.viabilidad_id), p.fecha ?? p.creado_en);
+  for (const p of polyViab) llega(p.v?.oportunidad_id, p.fecha ?? p.creado_en);
   const polyOpp = new Set(polyFecha.keys());
   const arquitecto = new Set(viab.filter((v) => v.enviada_en || v.url_pdf).map((v) => v.oportunidad_id));
   const cobrosDe = new Map<string, { alguno: boolean; todos: boolean }>();
@@ -271,7 +271,40 @@ async function cargar(ops: OppCruda[]) {
     };
     return { d, estado, hojas };
   };
-  return { datosDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe };
+
+  /** Las fechas de lo que ha pasado en una opp: de ellas sale la entrada en su
+   *  paso y el texto de "lo que pasa". */
+  const fechasDe = (o: OppCruda, hojas: HojaCruda[]) => ({
+    abierta: (o.fecha_apertura ?? o.creado_en).slice(0, 10),
+    enviada: (hojas.flatMap((h) => h.versiones.map((v) => v.fecha_enviada)).filter(Boolean).sort().at(-1) ?? null) as string | null,
+    juntaSi: ((juntasDe.get(o.id) ?? []).filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta).filter(Boolean).sort().at(-1) ?? null) as string | null,
+    ultJunta: [...(juntasDe.get(o.id) ?? [])].filter((j) => j.fecha_junta).sort((a, b) => a.fecha_junta!.localeCompare(b.fecha_junta!)).at(-1)?.fecha_junta ?? null,
+    polycam: polyFecha.get(o.id) ?? null,
+  });
+
+  /** LA FECHA DE ENTRADA EN EL PASO (Monica, 15-oct-2026: UNA sola fecha). Es la
+   *  del HECHO que abre el paso, no la del dia en que la app se entero:
+   *  - escaneo: la apertura; con visita agendada, el dia de la visita;
+   *  - sin hoja: el dia del Polycam ("un mes desde el escaneo"), para todos sus
+   *    subpasos: corregir o pedir el ok no reinicia el reloj;
+   *  - hoja enviada: el ultimo envio;
+   *  - junta: el dia de la junta (si es futura, aun no cuenta);
+   *  - votaron si: el dia de la junta favorable;
+   *  - cobro: la firma; cerrada o completada: el cierre. */
+  const entradaDe = (o: OppCruda, fa: Falta, d: Datos, estado: EstadoOpp, hojas: HojaCruda[]): string => {
+    const f = fechasDe(o, hojas);
+    switch (fa.paso) {
+      case "escaneo": return d.cita ? aDia(d.cita.inicio) : f.abierta;
+      case "sin_hoja": return f.polycam ?? f.abierta;
+      case "hoja_enviada": return f.enviada ?? f.abierta;
+      case "junta": return f.ultJunta ?? f.abierta;
+      case "firma": return f.juntaSi ?? f.ultJunta ?? f.abierta;
+      case "cobro": return estado.fechaGanada ?? f.abierta;
+      case "completado": return fa.clave === "primera_parte_cobrada" ? (estado.fechaGanada ?? f.abierta) : (estado.fechaCierre ? aDia(estado.fechaCierre) : (estado.fechaGanada ?? f.abierta));
+      default: return estado.fechaCierre ? aDia(estado.fechaCierre) : f.abierta;
+    }
+  };
+  return { datosDe, fechasDe, entradaDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe };
 }
 
 /** EL PASO DE MUCHAS OPPS DE GOLPE, en cualquier estado (ganadas y cerradas
@@ -285,29 +318,50 @@ export async function faltaDeMuchas(ids: string[]): Promise<Map<string, Falta>> 
   return out;
 }
 
+/** LA FECHA DE ENTRADA EN EL PASO ACTUAL de muchas opps (YYYY-MM-DD), por
+ *  lotes: la que guarda estado_oportunidad.desde. Una sola fecha para todo. */
+export async function fechaEntradaDeMuchas(ids: string[]): Promise<Map<string, string>> {
+  const ops = await porTramos<OppCruda>(ids, (t) => `oportunidades?select=${SEL}&id=in.(${t})`);
+  const out = new Map<string, string>();
+  if (!ops.length) return out;
+  const { datosDe, entradaDe } = await cargar(ops);
+  for (const o of ops) {
+    const { d, estado, hojas } = datosDe(o);
+    out.set(o.id, entradaDe(o, falta(d), d, estado, hojas));
+  }
+  return out;
+}
+
 /** El paso de UNA opp: el mismo calculo que el de muchas, para que nunca
  *  difieran. */
 export async function faltaDeOpp(oppId: string): Promise<Falta | null> {
   return (await faltaDeMuchas([oppId])).get(oppId) ?? null;
 }
 
-/** El resumen de un comercial (o de todos: null). */
+/** LAS ALERTAS de un comercial (o de todos: null). Rapido (Monica, 15-oct-2026:
+ *  "10 segundos es inviable"): PRIMERO se filtra con estado_oportunidad -las
+ *  que estan en una seccion con alerta y llevan en su paso mas que el plazo mas
+ *  corto de esa seccion- y solo de esas se carga lo demas. */
 export async function resumenComercial(comercialId: string | null): Promise<{ filas: FilaResumen[] }> {
+  const corte = (n: number) => new Date(Date.parse(hoyISO()) - n * 86_400_000).toISOString().slice(0, 10);
+  const MINIMO: Record<Seccion, number> = {
+    escaneo: Math.min(PLAZOS.sinFechaEscaneo, PLAZOS.visitaSinPolycam),
+    sin_hoja: Math.min(PLAZOS.polycamSinViabilidad, PLAZOS.sinHojaEnviada),
+    hoja_enviada: PLAZOS.hojaSinNoticias,
+    junta: 0, // "votaron que no" no tiene plazo; la junta futura se descarta abajo
+    firma: PLAZOS.aprobadaSinHoja,
+    cobro: PLAZOS.firmadaSinCobro,
+  };
+  const o_r = (Object.keys(MINIMO) as Seccion[]).map((k) => `and(seccion.eq.${k},desde.lt.${corte(MINIMO[k])})`).join(",");
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  const ops = await leer<OppCruda>(`oportunidades?select=${SEL}&estado=eq.abierta${f}&order=id`);
-  const ids = ops.map((o) => o.id);
-  if (!ids.length) return { filas: [] };
-
-  const { datosDe, ultima, contacto, polyFecha, juntasDe, adminDe, comDe, enCasaDe } = await cargar(ops);
-  // LA FECHA DE ENTRADA EN EL PASO, medida (estado_oportunidad, 15-oct-2026). Si
-  // es reconstruida (opps de antes de la tabla), manda la deducida de aqui abajo,
-  // que es mas fina (el ultimo envio, no el primero).
-  const medida = new Map(
-    (await porTramos<{ oportunidad_id: string; clave: string; desde: string | null; desde_reconstruido: boolean }>(ids,
-      (t) => `estado_oportunidad?select=oportunidad_id,clave,desde,desde_reconstruido&oportunidad_id=in.(${t})`).catch(() => []))
-      .filter((e) => e.desde && !e.desde_reconstruido)
-      .map((e) => [e.oportunidad_id, e]),
+  // Una sola consulta: las opps y su estado guardado, ya filtradas.
+  const ops = await leer<OppCruda & { est: { desde: string } }>(
+    `oportunidades?select=${SEL},est:estado_oportunidad!inner(desde)&estado=eq.abierta${f}&est.or=(${o_r})&order=id`,
   );
+  if (!ops.length) return { filas: [] };
+  const desdeDe = new Map(ops.map((o) => [o.id, aDia(o.est.desde)]));
+
+  const { datosDe, fechasDe, entradaDe, contacto, adminDe, comDe, enCasaDe } = await cargar(ops);
 
   const filas: FilaResumen[] = [];
   for (const o of ops) {
@@ -316,45 +370,39 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     if (fa.paso === "completado" || fa.paso === "cerrada" || !fa.paso) continue;
 
     // LO QUE PASA, corto y con su fecha.
-    const enviada = hojas.flatMap((h) => h.versiones.map((v) => v.fecha_enviada)).filter(Boolean).sort().at(-1) as string | undefined;
-    const juntaSi = (juntasDe.get(o.id) ?? []).filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta).filter(Boolean).sort().at(-1) as string | undefined;
-    const u0 = ultima.get(o.id) ?? null;
+    const { abierta, enviada, juntaSi, ultJunta, polycam } = fechasDe(o, hojas);
     const c0 = contacto.get(o.id) ?? null;
-    const abierta = (o.fecha_apertura ?? o.creado_en).slice(0, 10);
-    const ultJunta = [...(juntasDe.get(o.id) ?? [])].filter((j) => j.fecha_junta).sort((a, b) => a.fecha_junta!.localeCompare(b.fecha_junta!)).at(-1);
     const el = (iso: string | null | undefined) => (iso ? ` el ${ddmmaa(iso)}` : "");
+    // LA FECHA: la de estado_oportunidad, una sola para todo.
+    const desde = desdeDe.get(o.id) ?? entradaDe(o, fa, d, estado, hojas);
 
-    // EL PLAZO DE SU FASE, contado desde que empezo la fase; y COMO SE DESBLOQUEA.
-    // Como se desbloquea: de la CLAVE (lib/pasosEscalera.ts), nunca del texto.
-    let desde = abierta, plazo = PLAZOS.sinHojaEnviada, accion: Accion = pasoDe(fa.clave).accion ?? "doc", enCasa: string | null = null, pasa = fa.texto;
+    // EL PLAZO DE SU FASE y COMO SE DESBLOQUEA: de la CLAVE (lib/pasosEscalera.ts), nunca del texto.
+    let plazo = PLAZOS.sinHojaEnviada, accion: Accion = pasoDe(fa.clave).accion ?? "doc", enCasa: string | null = null, pasa = fa.texto;
     if (fa.paso === "escaneo") {
-      if (d.cita) { desde = d.cita.inicio.slice(0, 10); plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(desde)}, falta el Polycam`; }
+      if (d.cita) { plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(aDia(d.cita.inicio))}, falta el Polycam`; }
       else { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin fecha para escanear`; }
     } else if (fa.paso === "sin_hoja") {
-      desde = polyFecha.get(o.id) ?? abierta;
-      if (fa.clave === "arquitecto_viabilidad") { plazo = PLAZOS.polycamSinViabilidad; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(desde)}, falta la viabilidad`; }
+      if (fa.clave === "arquitecto_viabilidad") { plazo = PLAZOS.polycamSinViabilidad; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(polycam)}, falta la viabilidad`; }
       else if (fa.clave === "falta_ok_oferta" || fa.clave === "nueva_oferta_ok") enCasa = enCasaDe("revision_ofertas", "Revisión de ofertas");
       else pasa = fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
     } else if (fa.paso === "hoja_enviada") {
-      desde = enviada ?? abierta; plazo = PLAZOS.hojaSinNoticias;
+      plazo = PLAZOS.hojaSinNoticias;
       pasa = fa.clave === "nueva_oferta_decision" ? `Nueva oferta enviada${el(enviada)}, sin respuesta` : `Hoja enviada${el(enviada)}, sin fecha de junta`;
       // Tres meses sin saber nada: ya no es llamar, es cerrarla.
       const ultimaNoticia = [enviada, c0].filter(Boolean).sort().at(-1) ?? abierta;
       if (dias(ultimaNoticia) > PLAZOS.darPorPerdida) { accion = "perdida"; pasa += `; nada desde${el(ultimaNoticia)}`; }
     } else if (fa.paso === "junta") {
-      desde = ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.juntaSinResultado;
-      if (fa.clave === "junta_no") { plazo = 0; pasa = `La junta votó que no${el(ultJunta?.fecha_junta)}`; }
-      else if (desde > hoyISO()) pasa = `Junta${el(desde)}`;
-      else pasa = `Junta${el(desde)}, no sabemos qué votaron`;
+      plazo = PLAZOS.juntaSinResultado;
+      if (fa.clave === "junta_no") { plazo = 0; pasa = `La junta votó que no${el(ultJunta)}`; }
+      else if ((ultJunta ?? "") > hoyISO()) pasa = `Junta${el(ultJunta)}`;
+      else pasa = `Junta${el(ultJunta)}, no sabemos qué votaron`;
     } else if (fa.paso === "firma") {
-      desde = juntaSi ?? ultJunta?.fecha_junta ?? abierta; plazo = PLAZOS.aprobadaSinHoja;
+      plazo = PLAZOS.aprobadaSinHoja;
       pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`;
     } else if (fa.paso === "cobro") {
-      desde = estado.fechaGanada ?? abierta; plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación");
+      plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación");
       pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
     }
-    const m = medida.get(o.id);
-    if (m && m.clave === fa.clave && fa.paso !== "junta") desde = new Date(m.desde!).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta
     let alerta = diasFase > plazo;
     // EL MARGEN, solo para el administrador: grabado un contacto en la fase, sale
@@ -389,7 +437,7 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     filas.push({
       id: o.id, codigo: o.codigo, nombre, seccion: fa.paso as Seccion, pasa, llamar,
       admin: llamar.find((l) => l.papel === "administración") ?? null, enCasa,
-      ultima: u0, contacto: c0, accion, alerta, diasFase, plazo,
+      ultima: c0, contacto: c0, accion, alerta, diasFase, plazo,
     });
   }
   // Lo mas parado primero.
