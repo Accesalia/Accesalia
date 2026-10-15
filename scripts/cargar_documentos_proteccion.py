@@ -125,6 +125,25 @@ DOCS_15OCT = [
      "https://www.ayto-torrejon.es/sites/default/files/intranet//MiPaginaDescargas/"
      "251_publicacion%20bocm%20aprob.def.modific.%20carretera%20loeches%2022%20a%2028.pdf",
      "torrejon/descatalogacion-ctra-loeches-22-28.pdf"),
+    # La arqueologia de los primeros (busqueda del 15-oct; carpeta ../arqueologia/).
+    ("MOSTOLES", 2, "Normas urbanísticas NU-PAR: áreas de protección arqueológica", "Apdos. 6.1-6.4 y 7 (págs. impresas 217-222): área B en el casco",
+     "catalogos-proteccion/mostoles/normas-nu-par-arqueologia.pdf", IDEM + "Mostoles/Vigente/NURBANISTICAS_PARTICULARES_II_018-1.pdf",
+     "../arqueologia/mostoles/NURBANISTICAS_PARTICULARES_II_018-1.pdf"),
+    ("MOSTOLES", 3, "Plano de áreas de protección (NU-PAR)", "Vectorial, 1/30.000",
+     "catalogos-proteccion/mostoles/plano-areas-proteccion.pdf", IDEM + "Mostoles/Vigente/PPATRIMONIO_HISTORICO_003.pdf",
+     "../arqueologia/mostoles/PPATRIMONIO_HISTORICO_003.pdf"),
+    ("LEGANES", 3, "Normas urbanísticas (PGOU 1999)", "Arqueología: art. 163 (págs. 88-93 del PDF)",
+     "catalogos-proteccion/leganes/normas-urbanisticas.pdf", IDEM + "Leganes/Vigente/normasurbanisticas_001.pdf",
+     "../arqueologia/leganes/normasurbanisticas_001.pdf"),
+    ("LEGANES", 4, "Plano A: estructura orgánica del territorio", "Protección arqueológica en línea discontinua rosa",
+     "catalogos-proteccion/leganes/plano-estructura-organica.pdf", IDEM + "Leganes/Vigente/planosordenacion_3.pdf",
+     "../arqueologia/leganes/planosordenacion_3.pdf"),
+    ("FUENLABRADA", 2, "Normas del Plan General: áreas arqueológicas (BOCM)", "Cap. 11.2, arts. 11.2.1-11.2.6 (págs. 31-32 del PDF)",
+     "catalogos-proteccion/fuenlabrada/normas-areas-arqueologicas.pdf", IDEM + "Fuenlabrada/Vigente/ACUERDO_002.pdf",
+     "../arqueologia/fuenlabrada/ACUERDO_002.pdf"),
+    ("FUENLABRADA", 3, "Plano 10: áreas de protección arqueológica", "1/25.000",
+     "catalogos-proteccion/fuenlabrada/plano-areas-arqueologicas.pdf", IDEM + "Fuenlabrada/Vigente/PLANOS_ORDENACION_142.pdf",
+     "../arqueologia/fuenlabrada/PLANOS_ORDENACION_142.pdf"),
 ]
 
 

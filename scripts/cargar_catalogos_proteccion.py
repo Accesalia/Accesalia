@@ -22,11 +22,15 @@ DOCS = os.path.join(os.path.dirname(__file__), "..", "docs", "catalogos_protecci
 # fichero json -> {clave 'fuente' del json (o None): (fuente, documento_ruta)}
 FUENTES = {
     "leganes.json": {None: ("Catalogo de edificios protegidos de Leganes (Ayuntamiento)",
-                            "catalogos-proteccion/leganes/catalogo-edificios-protegidos.pdf")},
+                            "catalogos-proteccion/leganes/catalogo-edificios-protegidos.pdf"),
+                     "normas": ("Normas urbanisticas de Leganes (PGOU 1999), art. 163: zonas arqueologicas",
+                                "catalogos-proteccion/leganes/normas-urbanisticas.pdf")},
     "fuenlabrada.json": {None: ("BOCM 20-05-1999, Plan General de Fuenlabrada: catalogo",
                                 "catalogos-proteccion/fuenlabrada/BOCM-1999-PGOU-Fuenlabrada.pdf")},
     "mostoles.json": {None: ("BOCM 2009, catalogo de bienes protegidos de Mostoles",
-                             "catalogos-proteccion/mostoles/BOCM-2009-catalogo-Mostoles.pdf")},
+                             "catalogos-proteccion/mostoles/BOCM-2009-catalogo-Mostoles.pdf"),
+                      "nupar": ("Normas urbanisticas de Mostoles, NU-PAR: areas de proteccion arqueologica",
+                                "catalogos-proteccion/mostoles/normas-nu-par-arqueologia.pdf")},
     "alcobendas_ssreyes.json": {
         "alcobendas": ("Catalogo de bienes y espacios protegidos de Alcobendas",
                        "catalogos-proteccion/alcobendas/catalogo-bienes-espacios-protegidos.pdf"),

@@ -1424,7 +1424,6 @@ async function componerConCatalogo(ref: string, crudo: Crudo): Promise<InformeEd
  *  Alcala es "todo el municipio": en los demas son zonas, y sin el plano
  *  georreferenciado no se sabe en cual cae el edificio, asi que se avisa y se
  *  manda a mirar. En el informe del cliente solo va lo de Alcala, que es seguro. */
-const IDEM = "https://idem.madrid.org/cartografia/planea/planeamiento/planeamiento/";
 const ARQUEOLOGIA: Record<string, { valor: string; significa: string; enlace?: { texto: string; url: string } }> = {
   "ALCALA DE HENARES": {
     valor: "Todo el municipio (áreas A-D)",
@@ -1436,7 +1435,7 @@ const ARQUEOLOGIA: Record<string, { valor: string; significa: string; enlace?: {
     valor: "Área B en el casco antiguo; áreas C al sur y al oeste del núcleo",
     significa:
       "Si el edificio cae dentro: en B, estudio arqueológico antes o a la vez que el proyecto; en C, informe con sondeos antes de la licencia (30 días). Mirar el plano de áreas.",
-    enlace: { texto: "Ver la norma (NU-PAR, apdo. 6)", url: IDEM + "Mostoles/Vigente/NURBANISTICAS_PARTICULARES_II_018-1.pdf" },
+    enlace: { texto: "Ver el plano de áreas", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/mostoles/plano-areas-proteccion.pdf", pagina: null }) },
   },
   ARANJUEZ: {
     valor: "Áreas A, B, C y D (zona arqueológica del casco)",
@@ -1471,13 +1470,13 @@ const ARQUEOLOGIA: Record<string, { valor: string; significa: string; enlace?: {
   FUENLABRADA: {
     valor: "Solo al este del término, fuera del casco",
     significa: "Las áreas A, B y C están hacia Getafe y Cobo Calleja; el casco y los barrios centrales no están dentro.",
-    enlace: { texto: "Ver el plano de áreas", url: IDEM + "Fuenlabrada/Vigente/PLANOS_ORDENACION_142.pdf" },
+    enlace: { texto: "Ver el plano de áreas", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/fuenlabrada/plano-areas-arqueologicas.pdf", pagina: null }) },
   },
   LEGANES: {
     valor: "Polvoranca y Arroyo Butarque, fuera del casco",
     significa:
       "Dos zonas BIC: el parque de Polvoranca y la vega del Butarque. El límite del Butarque roza Leganés Norte y La Fortuna: si el edificio está ahí, mirar el plano.",
-    enlace: { texto: "Ver la norma (art. 163)", url: IDEM + "Leganes/Vigente/normasurbanisticas_001.pdf" },
+    enlace: { texto: "Ver la norma (art. 163)", url: enlaceFicha({ documento_ruta: "catalogos-proteccion/leganes/normas-urbanisticas.pdf", pagina: 88 }) },
   },
   ALCOBENDAS: {
     valor: "Solo al este (Valdelacasa, aeropuerto), fuera del suelo urbano",

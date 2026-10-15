@@ -163,7 +163,9 @@ export async function enElCatalogo(
   // arqueologicas (van aparte).
   if (!casados.length) {
     for (const f of filas) {
-      if (!f.direccion || numeros(f.direccion).size || /arqueol/i.test(f.grado ?? "")) continue;
+      // La arqueologia va en su linea aparte: un area delimitada por calles (el
+      // casco de Mostoles) no es "el edificio esta protegido".
+      if (!f.direccion || numeros(f.direccion).size || /arqueol/i.test(`${f.grado ?? ""} ${f.denominacion}`)) continue;
       const calles = sinTildes(f.direccion)
         .split(/,|\/|\bY\b|\bC\s*\/?\s*V\b|\bESQ\.?\b|\bCON VUELTA\b/)
         .map((c) => palabras(c))
