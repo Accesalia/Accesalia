@@ -18,7 +18,7 @@ export function ListaResumen({ filas }: { filas: FilaResumen[] }) {
   const alertas = filas.filter((f) => f.alerta);
   if (!alertas.length) return <p className="mt-8 text-carbon/60">Ninguna alerta: todo va en plazo.</p>;
   return (
-    <div className="mt-6 max-w-[1200px] space-y-3">
+    <div className="mt-4 space-y-3">
       {ACCIONES.map((a) => {
         const suyas = alertas.filter((f) => f.accion === a.clave);
         if (!suyas.length) return null;
@@ -127,38 +127,5 @@ function Filas({ filas, gestor, contacto, enCasa }: { filas: FilaResumen[]; gest
         );
       })}
     </ul>
-  );
-}
-
-/** LA LISTA SIN MAS (Monica, 14-oct-2026): "solo las opps que existen para ti,
- *  comercial. Basico: opp - admin - fase - ultimo contacto". */
-export function ListaSimple({ filas }: { filas: FilaResumen[] }) {
-  const fase = new Map(SECCIONES.map((s) => [s.clave, s.titulo]));
-  const orden = [...filas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
-  return (
-    <table className="mt-6 w-full max-w-[1100px] text-left text-[13.5px]">
-      <thead>
-        <tr className="border-b border-carbon/20 text-[12px] uppercase tracking-wide text-carbon/55">
-          <th className="py-1.5 pr-4 font-semibold">Opp</th>
-          <th className="py-1.5 pr-4 font-semibold">Administración</th>
-          <th className="py-1.5 pr-4 font-semibold">Fase</th>
-          <th className="py-1.5 font-semibold">Último contacto</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-black/5">
-        {orden.map((f) => (
-          <tr key={f.id}>
-            <td className="py-1.5 pr-4">
-              <Link href={`/comercial/oportunidades/${f.id}`} className="font-semibold text-carbon hover:underline">
-                {f.nombre}
-              </Link>
-            </td>
-            <td className="py-1.5 pr-4 text-carbon/75">{f.admin?.quien ?? <span className="text-carbon/35">—</span>}</td>
-            <td className={"py-1.5 pr-4 " + (f.alerta ? "font-semibold text-alerta" : "text-carbon/75")}>{fase.get(f.seccion)}</td>
-            <td className="py-1.5 tabular-nums text-carbon/75">{f.contacto ? ddmmaa(f.contacto) : "—"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
   );
 }

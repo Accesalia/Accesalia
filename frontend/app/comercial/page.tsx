@@ -23,6 +23,8 @@ import {
   Titulo,
 } from "./CuadroPiezas";
 import { MapaCartera } from "./MapaCartera";
+import { resumenComercial } from "../../lib/resumenComercial";
+import { ListaResumen } from "./resumen/ListaResumen";
 import { HojaDelDia, diaPedido, hoyEnMadrid, vistaPedida, type Vista } from "../agenda/HojaDelDia";
 import { Salida } from "../components/Salida";
 
@@ -67,8 +69,8 @@ function Proximamente({ texto }: { texto: string }) {
   );
 }
 
-type Seccion = "agenda" | "oportunidades" | "fases" | "administradores" | "cobros" | "comovoy";
-const SECCIONES: Seccion[] = ["agenda", "oportunidades", "fases", "administradores", "cobros", "comovoy"];
+type Seccion = "agenda" | "oportunidades" | "fases" | "alertas" | "administradores" | "cobros" | "comovoy";
+const SECCIONES: Seccion[] = ["agenda", "oportunidades", "fases", "alertas", "administradores", "cobros", "comovoy"];
 
 export default async function AreaComercial({ searchParams }: { searchParams: Promise<{ c?: string; ver?: string; vista?: string; pag?: string; fase?: string; dia?: string; hoja?: string }> }) {
   const { c, ver, vista, pag, fase, dia, hoja } = await searchParams;
@@ -162,6 +164,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   // citas. Solo cuando hay un comercial elegido: cada persona tiene la suya, y
   // "todas las carteras" no es la agenda de nadie.
   const equipoAgenda = seccion === "agenda" && elegido && !esDemo ? await equipoDeComercial(elegido.id) : null;
+  // LAS ALERTAS (Monica, 15-oct-2026): pestaña de aqui, no pagina aparte. En la
+  // demo no hay: lo de la demo es inventado.
+  const alertas = seccion === "alertas" && !esDemo ? (await resumenComercial(elegido?.id ?? null)).filas : [];
   // El "vista" de la direccion ya era el cambio agenda / calendario; el de dia o
   // semana va en "hoja".
   const enDia = (d: string, vi: Vista) => {
@@ -371,10 +376,10 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
         {accesos ? (
           <Accesos
             botones={[
-              { texto: "Resumen de cómo están las cosas", detalle: "Tus opps por lo que toca hacer, con a quién llamar", cuantas: null, donde: "/comercial/resumen", icono: <IconoFases /> },
               { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.gestores, donde: aqui("administradores"), icono: <IconoCartera /> },
               { texto: "Oportunidades abiertas", detalle: "Todas las abiertas, con su barra de fases", cuantas: totalAbiertas, donde: aqui("oportunidades"), icono: <IconoOportunidad /> },
               { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
+              { texto: "Alertas", detalle: "Lo que se ha pasado de plazo, por cómo se desbloquea", cuantas: null, donde: aqui("alertas"), icono: <IconoAlerta /> },
               { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
               { texto: "¿Qué hay de lo mío?", detalle: "Cómo voy: firmas, cobros y comisión", cuantas: null, donde: aqui("comovoy"), icono: <IconoBalanza /> },
               { texto: "Plantillas de mail", detalle: "Ver, crear y retocar: las generales y las tuyas", cuantas: null, donde: "/comercial/plantillas", icono: <IconoSobre /> },
@@ -412,6 +417,14 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                 donde={aqui("fases")}
                 clase="w-[150px]"
                 icono={<IconoFases />}
+              />
+              <Pestana
+                texto="Alertas"
+                cuantas={null}
+                activo={seccion === "alertas"}
+                donde={aqui("alertas")}
+                clase="w-[120px]"
+                icono={<IconoAlerta />}
               />
               <Pestana
                 texto="Agenda"
@@ -489,6 +502,17 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                     </p>
                   )}
                 </>
+              )}
+
+              {/* ---- alertas: solo lo que se ha pasado de plazo, por como se desbloquea ---- */}
+              {seccion === "alertas" && (
+                <div className="rounded-2xl bg-white px-4 pb-5 pt-1">
+                  {esDemo ? (
+                    <p className="py-8 text-center text-base text-carbon/65">En la demostración no hay alertas.</p>
+                  ) : (
+                    <ListaResumen filas={alertas} />
+                  )}
+                </div>
               )}
 
               {/* ---- mis administradores ---- */}
@@ -680,6 +704,16 @@ function IconoFases() {
     <svg viewBox="0 0 24 24" {...trazo}>
       <path d="M3 20h4v-4h4v-4h4V8h4V4" />
       <path d="M3 20h18" />
+    </svg>
+  );
+}
+// Las alertas: un triangulo de aviso.
+function IconoAlerta() {
+  return (
+    <svg viewBox="0 0 24 24" {...trazo}>
+      <path d="M12 3 2 20h20L12 3z" />
+      <path d="M12 10v4" />
+      <path d="M12 17h.01" />
     </svg>
   );
 }

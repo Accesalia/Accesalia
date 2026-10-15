@@ -10,7 +10,7 @@ import { puedeEntrar, quienSoy } from "../../../lib/sesion";
  *  diario de siempre, ya enganchada a su opp. */
 export async function accionGrabarDesdeResumen(oppId: string, fd: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
   const yo = await quienSoy();
-  if (!yo) redirect("/entrar?volver=/comercial/resumen");
+  if (!yo) redirect("/entrar?volver=/comercial?ver=alertas");
   if (!puedeEntrar(yo, "comercial", "trabajar")) return { ok: false, error: "No tienes permiso para grabar en esta opp." };
   const texto = String(fd.get("texto") ?? "").trim();
   if (!texto) return { ok: false, error: "Escribe qué ha pasado." };
@@ -28,7 +28,7 @@ export async function accionGrabarDesdeResumen(oppId: string, fd: FormData): Pro
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
-  revalidatePath("/comercial/resumen");
+  revalidatePath("/comercial");
   revalidatePath(`/comercial/oportunidades/${oppId}`);
   return { ok: true };
 }
