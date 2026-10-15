@@ -375,7 +375,8 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
       datos: !esMadrid
         ? conCatalogo
           ? datosCatalogo
-          : [d("Protección", "No se puede consultar fuera de Madrid capital", undefined, true)]
+          : [d("¿Sale en el catálogo?", `Aún no tenemos el catálogo de ${nombreMunicipio}`,
+              "No se puede dar por bueno que no esté protegido: hay que mirarlo en el PGOU del municipio.", true)]
         : sinGeo
         ? [sinConsultar("¿Está protegido?")]
         : [
