@@ -388,6 +388,7 @@ export function EdificioVista({
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Concedido</th>
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Viviendas</th>
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] pl-4 text-left font-bold">Convocatoria</th>
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Año</th>
                 </tr>
               </thead>
               <tbody>
@@ -399,6 +400,8 @@ export function EdificioVista({
                     </td>
                     <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] text-right tabular-nums">{s.viviendas ?? ""}</td>
                     <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] pl-4 text-[#4a4a4a]">{s.convocatoria ?? "—"}</td>
+                    {/* El año de la concesion: sale de la tabla de subvenciones, siempre (15-oct-2026). */}
+                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] text-right tabular-nums text-[#4a4a4a]">{s.fecha ? s.fecha.slice(0, 4) : "—"}</td>
                   </tr>
                 ))}
               </tbody>
