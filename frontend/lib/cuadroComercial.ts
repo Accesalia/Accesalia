@@ -276,7 +276,7 @@ export async function mapaDe(empresaIds: string[] | null): Promise<DatosMapa> {
 
 /** Una fase, tal como sale del ESTADO DE LA OPP (lib/fasesDeEstado.ts): nada se
  *  marca a mano (Monica, 9-oct y 15-oct-2026). */
-type HitoCrudo = { hito: string; estado: "hecho" | "saltado" | "pendiente"; fecha: string | null };
+type HitoCrudo = { hito: string; estado: "hecho" | "saltado" | "pendiente" | "no_aplica"; fecha: string | null };
 
 type OportunidadCruda = {
   id: string;
@@ -316,12 +316,13 @@ const diasEntre = (desde: string, hasta = hoyISO()) =>
  *  que sigue pendiente; lo que se paso de largo sale como "saltado". */
 export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
   const por = new Map(hitos.map((h) => [h.hito, h]));
+  // La actual: la primera pendiente que no sea ramal (las que no aplican cuentan como pasadas).
   const actual = pasos.find((p) => !p.ramal && (por.get(p.clave)?.estado ?? "pendiente") === "pendiente") ?? null;
 
   const tramos: Record<string, EstadoTramo> = {};
   for (const p of pasos) {
     const e = por.get(p.clave)?.estado ?? "pendiente";
-    tramos[p.clave] = e === "hecho" ? "hecho" : e === "saltado" ? "saltado" : p.clave === actual?.clave ? "actual" : "pendiente";
+    tramos[p.clave] = e === "hecho" ? "hecho" : e === "saltado" ? "saltado" : e === "no_aplica" ? "no_aplica" : p.clave === actual?.clave ? "actual" : "pendiente";
   }
 
   // Cuanto lleva en este paso: desde lo ultimo que se hizo. Si no se ha hecho

@@ -18,6 +18,7 @@ import "server-only";
 import { estadoCon, falta, type CierreCrudo, type Datos, type EstadoOpp, type Falta, type HojaCruda, type Paso } from "./cabeceraOpp";
 import { nombreDeOpp } from "./direccionOpp";
 import { pasoDe, type Accion } from "./pasosEscalera";
+import { necesidadesDeMuchas } from "./necesidadesOpp";
 export type { Accion };
 import type { EstadoRevision } from "./revisionOferta";
 
@@ -157,13 +158,13 @@ async function cargar(ops: OppCruda[]) {
   for (const o of ops) for (const h of o.hojas) if (h.estado === "devuelta_firmada") firmadasDe.set(h.id, o.id);
 
   const hoy = hoyISO();
-  const [juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestosCom, conPoly, cobros, polyViab, funciones] = await Promise.all([
+  const [juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestosCom, conPoly, cobros, polyViab, funciones, necesidades, solicitudes] = await Promise.all([
     porTramos<{ oportunidad_id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }>(ids,
       (t) => `juntas?select=oportunidad_id,fecha_junta,celebrada,resultado,creado_en&oportunidad_id=in.(${t})`),
     porTramos<{ oportunidad_id: string; tipo_3d: string | null; estado: string | null; creado_en: string }>(ids,
       (t) => `modelos_3d_venta?select=oportunidad_id,tipo_3d,estado,creado_en&oportunidad_id=in.(${t})`),
-    porTramos<{ oportunidad_id: string; inicio: string }>(ids,
-      (t) => `citas?select=oportunidad_id,inicio&tipo=eq.escaneo_polycam&estado=neq.anulada&oportunidad_id=in.(${t})`).catch(() => []),
+    porTramos<{ oportunidad_id: string; inicio: string; creado_en: string }>(ids,
+      (t) => `citas?select=oportunidad_id,inicio,creado_en&tipo=eq.escaneo_polycam&estado=neq.anulada&oportunidad_id=in.(${t})`).catch(() => []),
     porTramos<{ id: string; oportunidad_id: string; enviada_en: string | null; url_pdf: string | null }>(ids,
       (t) => `viabilidades?select=id,oportunidad_id,enviada_en,url_pdf&oportunidad_id=in.(${t})`),
     porTramos<{ oportunidad_id: string; numero: number; estado: string; enviada_en: string; resuelta_en: string | null; comentario: string | null; resuelve: { nombre: string } | null }>(ids,
@@ -192,7 +193,14 @@ async function cargar(ops: OppCruda[]) {
     leer<{ desde: string | null; hasta: string | null; funcion: { clave: string } | null; equipo: { nombre: string } | null }>(
       `equipo_funciones?select=desde,hasta,funcion:funciones(clave),equipo(nombre)&funciones.clave=in.(viabilidades,facturacion,revision_ofertas)`,
     ).catch(() => []),
+    // Lo que necesita (Polycam, viabilidad) y si se pidio la viabilidad sin Polycam.
+    necesidadesDeMuchas(ids),
+    porTramos<{ oportunidad_id: string; pedida_en: string }>(ids,
+      (t) => `solicitudes_viabilidad?select=oportunidad_id,pedida_en&estado=neq.anulada&oportunidad_id=in.(${t})`).catch(() => []),
   ]);
+  // la primera solicitud de cada opp
+  const solicitudDe = new Map<string, string>();
+  for (const x of solicitudes) if (!solicitudDe.has(x.oportunidad_id) || x.pedida_en < solicitudDe.get(x.oportunidad_id)!) solicitudDe.set(x.oportunidad_id, x.pedida_en);
   const enCasaDe = (clave: string, puesto: string) => {
     const quien = funciones
       .filter((x) => x.funcion?.clave === clave && (!x.desde || x.desde <= hoy) && (!x.hasta || x.hasta >= hoy) && x.equipo)
@@ -268,6 +276,8 @@ async function cargar(ops: OppCruda[]) {
     const d: Datos = {
       estado, hojas, juntas: juntasDe.get(o.id) ?? [], tresd, cita: citaDe.get(o.id)?.[0] ?? null,
       polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id), revision,
+      necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true },
+      solicitud: solicitudDe.get(o.id) ?? null,
     };
     return { d, estado, hojas };
   };
@@ -280,22 +290,34 @@ async function cargar(ops: OppCruda[]) {
     juntaSi: ((juntasDe.get(o.id) ?? []).filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta).filter(Boolean).sort().at(-1) ?? null) as string | null,
     ultJunta: [...(juntasDe.get(o.id) ?? [])].filter((j) => j.fecha_junta).sort((a, b) => a.fecha_junta!.localeCompare(b.fecha_junta!)).at(-1)?.fecha_junta ?? null,
     polycam: polyFecha.get(o.id) ?? null,
+    solicitud: solicitudDe.has(o.id) ? aDia(solicitudDe.get(o.id)!) : null,
+    agendada: citaDe.get(o.id)?.[0] ? aDia(citaDe.get(o.id)![0].creado_en) : null,
   });
 
   /** LA FECHA DE ENTRADA EN EL PASO (Monica, 15-oct-2026: UNA sola fecha). Es la
    *  del HECHO que abre el paso, no la del dia en que la app se entero:
-   *  - escaneo: la apertura; con visita agendada, el dia de la visita;
-   *  - sin hoja: el dia del Polycam ("un mes desde el escaneo"), para todos sus
-   *    subpasos: corregir o pedir el ok no reinicia el reloj;
-   *  - hoja enviada: el ultimo envio;
-   *  - junta: el dia de la junta (si es futura, aun no cuenta);
-   *  - votaron si: el dia de la junta favorable;
-   *  - cobro: la firma; cerrada o completada: el cierre. */
+   *  - A y C' (pedir la viabilidad): el alta;
+   *  - B: el dia en que se agendo la visita; C: el dia de la visita;
+   *  - D y E-L (sin hoja enviada): el Polycam o la solicitud, lo primero
+   *    ("un mes desde el escaneo"); corregir o pedir el ok no reinicia el reloj.
+   *    Si no hubo ni Polycam ni solicitud (no aplican), el alta;
+   *  - M-N: el ultimo envio; Q-R-S: el dia de la junta (futura en Q: aun no cuenta);
+   *  - T: la junta favorable; U-V: la firma; W-X: el cierre. */
   const entradaDe = (o: OppCruda, fa: Falta, d: Datos, estado: EstadoOpp, hojas: HojaCruda[]): string => {
     const f = fechasDe(o, hojas);
+    const primero = [f.polycam, f.solicitud].filter((x): x is string => !!x).sort()[0] ?? null;
+    switch (fa.clave) {
+      case "cerrar_visita":
+      case "pedir_viabilidad":
+        return f.abierta;
+      case "esperando_visita":
+        return f.agendada ?? f.abierta;
+      case "enviar_polycam":
+        return d.cita ? aDia(d.cita.inicio) : f.abierta;
+    }
     switch (fa.paso) {
-      case "escaneo": return d.cita ? aDia(d.cita.inicio) : f.abierta;
-      case "sin_hoja": return f.polycam ?? f.abierta;
+      case "escaneo": return f.abierta;
+      case "sin_hoja": return primero ?? f.abierta;
       case "hoja_enviada": return f.enviada ?? f.abierta;
       case "junta": return f.ultJunta ?? f.abierta;
       case "firma": return f.juntaSi ?? f.ultJunta ?? f.abierta;
@@ -379,10 +401,12 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     // EL PLAZO DE SU FASE y COMO SE DESBLOQUEA: de la CLAVE (lib/pasosEscalera.ts), nunca del texto.
     let plazo = PLAZOS.sinHojaEnviada, accion: Accion = pasoDe(fa.clave).accion ?? "doc", enCasa: string | null = null, pasa = fa.texto;
     if (fa.paso === "escaneo") {
-      if (d.cita) { plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(aDia(d.cita.inicio))}, falta el Polycam`; }
+      if (fa.clave === "esperando_visita") { plazo = Infinity; pasa = fa.texto; } // B: esperando el dia, no hay nada que mover
+      else if (fa.clave === "enviar_polycam") { plazo = PLAZOS.visitaSinPolycam; pasa = `Visita${el(d.cita ? aDia(d.cita.inicio) : null)}, falta el Polycam`; }
+      else if (fa.clave === "pedir_viabilidad") { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin Polycam: falta pedir la viabilidad al arquitecto`; }
       else { plazo = PLAZOS.sinFechaEscaneo; pasa = `Abierta${el(abierta)}, sin fecha para escanear`; }
     } else if (fa.paso === "sin_hoja") {
-      if (fa.clave === "arquitecto_viabilidad") { plazo = PLAZOS.polycamSinViabilidad; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = `Polycam${el(polycam)}, falta la viabilidad`; }
+      if (fa.clave === "arquitecto_viabilidad") { plazo = PLAZOS.polycamSinViabilidad; enCasa = enCasaDe("viabilidades", "Viabilidades"); pasa = d.polycam ? `Polycam${el(polycam)}, falta la viabilidad` : `Viabilidad pedida${el(fechasDe(o, hojas).solicitud)} sin Polycam, falta que la haga`; }
       else if (fa.clave === "falta_ok_oferta" || fa.clave === "nueva_oferta_ok") enCasa = enCasaDe("revision_ofertas", "Revisión de ofertas");
       else pasa = fa.texto + (fa.extra ? ` · ${fa.extra}` : "");
     } else if (fa.paso === "hoja_enviada") {

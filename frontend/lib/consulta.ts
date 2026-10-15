@@ -133,7 +133,7 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
     const suyos = hitos.get(o.id) ?? new Map();
     const lista = catalogo.map((c) => {
       const h = suyos.get(c.clave);
-      return { clave: c.clave, nombre: c.nombre, estado: h?.estado ?? "pendiente", aplicable: h?.estado !== "saltado", fecha: h?.fecha ?? null } as HitoGestion;
+      return { clave: c.clave, nombre: c.nombre, estado: h?.estado ?? "pendiente", aplicable: h?.estado !== "saltado" && h?.estado !== "no_aplica", fecha: h?.fecha ?? null } as HitoGestion;
     });
     const bloques = bloquesDe(lista);
     const ahora = bloques.find((b) => b.activo) ?? [...bloques].reverse().find((b) => b.pie.startsWith("Hecho")) ?? bloques[0];

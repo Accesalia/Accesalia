@@ -206,6 +206,12 @@ export type Datos = {
   /** EL OK A LA OFERTA (revision_ofertas, del hilo de la hoja, 14-oct-2026): al
    *  paquete entero, y caduca si algo del paquete cambia. */
   revision: EstadoRevision | null;
+  /** LO QUE NECESITA (lib/necesidadesOpp.ts, 15-oct-2026): sin Polycam se saltan
+   *  A-B-C; sin viabilidad, D. Automatico segun lo que quieren, o a mano. */
+  necesita: { polycam: boolean; viabilidad: boolean };
+  /** Se pidio la viabilidad al arquitecto sin Polycam (solicitudes_viabilidad):
+   *  hace de Polycam. El dia en que se pidio. */
+  solicitud: string | null;
 };
 
 /** Lo que dijo la junta que obliga a MODIFICAR LA OFERTA (Monica, 14-oct-2026:
@@ -240,7 +246,7 @@ function faltaTexto(d: Datos): Falta {
   if (e.perdida) return { clave: "perdida", texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
   if (e.ganada) {
     if (e.cobrada) return { clave: "completado", texto: "Todo completado", extra: null };
-    if (e.primerCobro) return { clave: "primera_parte_cobrada", texto: "Cobro de la primera parte recibido: empezamos con el proyecto", extra: "Pendiente del cobro del resto del importe" };
+    if (e.primerCobro) return { clave: "primera_parte_cobrada", texto: "Primera parte cobrada: falta el resto", extra: "Ya es de facturación" };
     return { clave: "falta_ok_cobro_primera", texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
   }
 
@@ -283,13 +289,24 @@ function faltaTexto(d: Datos): Falta {
   if (r?.estado === "cambios") return cambiosRevision(false);
   if (d.revision?.okVigente) return { clave: "falta_enviar_doc", texto: "Falta enviar la doc a la comunidad", extra: null };
   if (generada) return { clave: "falta_ok_oferta", texto: "Falta el ok a la oferta", extra: null };
+  // D -> E: Alex la dio por hecha.
   if (d.arquitecto) return { clave: "preparar_docs", texto: "Preparar la HE, la VB y el presupuesto", extra: null };
-  if (d.polycam) return { clave: "arquitecto_viabilidad", texto: "Que el arquitecto defina la viabilidad", extra: null };
-  if (d.cita) {
-    const [dia, hora] = aHoraMadrid(d.cita.inicio).split("T");
-    return { clave: "enviar_polycam", texto: "Enviar el Polycam para la viabilidad", extra: `Visita el ${fecha(dia)} a las ${hora}` };
+  // A, B, C: solo si necesita Polycam y aun no hay ni Polycam ni solicitud. Si
+  // el Polycam llega sin visita agendada, salta de A a D.
+  if (d.necesita.polycam && !d.polycam && !d.solicitud) {
+    if (d.cita) {
+      const [dia, hora] = aHoraMadrid(d.cita.inicio).split("T");
+      if (dia >= hoyISO()) return { clave: "esperando_visita", texto: `Visita el ${fecha(dia)} a las ${hora}: esperando el día`, extra: null };
+      return { clave: "enviar_polycam", texto: "Enviar el Polycam para la viabilidad", extra: `Visita el ${fecha(dia)} a las ${hora}` };
+    }
+    return { clave: "cerrar_visita", texto: "Cerrar la visita para el escaneo con Polycam", extra: null };
   }
-  return { clave: "cerrar_visita", texto: "Cerrar la visita para el escaneo con Polycam", extra: null };
+  // Sin viabilidad, la fase 4 no aplica: directa a E.
+  if (!d.necesita.viabilidad) return { clave: "preparar_docs", texto: "Preparar la HE, la VB y el presupuesto", extra: null };
+  // D: con el Polycam o con la solicitud, le toca al arquitecto.
+  if (d.polycam || d.solicitud) return { clave: "arquitecto_viabilidad", texto: "Que el arquitecto defina la viabilidad", extra: d.polycam ? null : "Pedida sin Polycam" };
+  // C': no necesita Polycam y aun no se le ha pedido.
+  return { clave: "pedir_viabilidad", texto: "Pedir la viabilidad y los costes al arquitecto", extra: null };
 }
 
 // ------------------------------------------------------------------ juntarlo

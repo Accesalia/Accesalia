@@ -37,6 +37,10 @@ import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
 import { DatosOpp } from "./DatosOpp";
 import { IrAOtraOpp } from "./IrAOtraOpp";
+import { Necesidades } from "./Necesidades";
+import { necesidadesDe } from "../../../../lib/necesidadesOpp";
+import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
+import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -99,7 +103,7 @@ export default async function GestionOportunidad({
   // Lo que se puede anadir desde la cabecera: lo que se ofrece en el alta.
   const delAlta = new Set(COLUMNAS_INTERES.flatMap((c) => c.nombres));
   const paraAnadir = tipos.filter((t) => delAlta.has(t.nombre) && !g.tiposElegidos.includes(t.id));
-  const [cab, barra, escaneo, contactos, distrito, viabilidad, completa] = await Promise.all([
+  const [cab, barra, escaneo, contactos, distrito, viabilidad, completa, necesita, pedir] = await Promise.all([
     // AL ABRIR LA FICHA se recalcula su paso (estado_oportunidad), y la cabecera
     // lo lee ya al dia.
     recalcular(id, "ficha").catch(() => undefined).then(() => cabeceraDe(id)),
@@ -111,6 +115,10 @@ export default async function GestionOportunidad({
     // ¿Le falta algo de lo que exige el camino? (8-oct-2026). Si falla, la
     // ficha sale igual, sin el aviso.
     completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
+    // Que hace falta antes de darles precio: Polycam y viabilidad (15-oct-2026).
+    bloque === 1 ? necesidadesDe(id).catch(() => null) : Promise.resolve(null),
+    // Pedir viabilidad y costes al arquitecto sin Polycam (el formulario es del hilo grafico).
+    bloque === 1 ? datosPedirViabilidad(id).catch(() => null) : Promise.resolve(null),
   ]);
   // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
   const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
@@ -238,6 +246,14 @@ export default async function GestionOportunidad({
         {/* Los datos que bajaron de la cabecera (14-oct-2026). */}
         {bloque === 1 && (
           <DatosOpp id={id} g={g} quieren={quieren} distrito={distrito} escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""} />
+        )}
+        {bloque === 1 && necesita && <Necesidades oppId={id} n={necesita} />}
+        {/* El boton solo cuando hace falta viabilidad y aun no ha llegado el
+            Polycam ni se ha pedido (pasos A, B, C y C'). */}
+        {bloque === 1 && pedir && necesita?.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") && (
+          <div className="mb-[10px]">
+            <PedirViabilidad {...pedir} />
+          </div>
         )}
         {bloque === 1 && (g.referenciaCatastral || viabilidad) && (
           <div className="mb-[10px] flex items-center gap-1">

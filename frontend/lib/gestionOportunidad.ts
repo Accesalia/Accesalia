@@ -83,7 +83,7 @@ export type HitoGestion = {
   ramal: boolean;
   /** Quien lo hace por oficio: comercial, arquitecto, tecnico de escaneo, 3D. */
   rolQuien: string | null;
-  /** hecho / saltado / pendiente: lo dice la base, no se toca. */
+  /** hecho / saltado / pendiente / no_aplica: lo dice la base, no se toca. */
   estado: string;
   aplicable: boolean;
   fecha: string | null;
@@ -396,7 +396,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
         rolQuien: c.responsable_rol,
         estado: h?.estado ?? "pendiente",
         // Lo saltado no cuenta como falta, pero sigue abierto.
-        aplicable: h?.estado !== "saltado",
+        aplicable: h?.estado !== "saltado" && h?.estado !== "no_aplica",
         fecha: h?.fecha ?? null,
       };
     }),

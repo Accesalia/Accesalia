@@ -21,7 +21,10 @@ const VERDE = "#3f9b2f";
 const ddmmaa = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
 const TITULO = new Map(PASOS.map((p) => [p.clave, p.titulo]));
 const FASE_DE = new Map(PASOS.map((p) => [p.clave, p.fase]));
-/** Las fases que tienen copys: primer contacto y el 3D nunca son paso actual. */
+/** Las fases que tienen copys: todas menos el 3D, que es un ramal (va como segunda linea de la junta). */
+/** Los pasos OPCIONALES (Monica, 15-oct-2026: "como el 3D: si existe se pinta, si
+ *  no, no"): solo salen si hay alguna opp en ellos. */
+const OPCIONALES = new Set<Clave>(["pedir_viabilidad"]);
 const INDICE = FASES.filter((f) => ORDEN_EN_FASE.some((c) => FASE_DE.get(c) === f.clave));
 
 export function FasesConMapa({ filas }: { filas: FilaFase[] }) {
@@ -60,7 +63,7 @@ export function FasesConMapa({ filas }: { filas: FilaFase[] }) {
         </div>
         <ul>
           {INDICE.map((fase) => {
-            const copys = ORDEN_EN_FASE.filter((c) => FASE_DE.get(c) === fase.clave);
+            const copys = ORDEN_EN_FASE.filter((c) => FASE_DE.get(c) === fase.clave && (!OPCIONALES.has(c) || (porClave.get(c)?.length ?? 0) > 0));
             const total = copys.reduce((n, c) => n + (porClave.get(c)?.length ?? 0), 0);
             const abierta = fasesAbiertas.has(fase.clave);
             return (

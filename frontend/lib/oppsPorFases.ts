@@ -65,12 +65,11 @@ type Cruda = {
 /** Las opps abiertas de un comercial (o de todos: null), con su paso guardado. */
 export async function oppsPorFases(comercialId: string | null): Promise<FilaFase[]> {
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  // "Cobrada la primera parte" ya no es del comercial: no sale (Monica, 15-oct-2026).
   const ops = await leer<Cruda>(
     `oportunidades?select=id,nombre,codigo,comunidad_id,comunidad:comunidad_id(lat,lng),` +
       `est:estado_oportunidad!inner(clave,fase,desde),` +
       `portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(municipio,portal:ficha_catastro_portal_id(ficha:ficha_id(lat,lng))))` +
-      `&estado=eq.abierta${f}&est.fase=not.is.null&est.clave=neq.primera_parte_cobrada&order=id`,
+      `&estado=eq.abierta${f}&est.fase=not.is.null&order=id`,
   );
   if (!ops.length) return [];
   const ids = ops.map((o) => o.id);

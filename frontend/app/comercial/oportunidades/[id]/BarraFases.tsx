@@ -32,6 +32,7 @@ export function BarraFases({ b }: { b: BarraOportunidad }) {
       <div className="mb-1.5 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${b.pasos.length}, minmax(0, 1fr))` }}>
         {b.pasos.map((p) => {
           const aqui = b.tramos[p.clave] === "actual";
+          const noAplica = b.tramos[p.clave] === "no_aplica";
           return (
             <div
               key={p.clave}
@@ -40,6 +41,8 @@ export function BarraFases({ b }: { b: BarraOportunidad }) {
             >
               {p.numero && <span className="mr-1 tabular-nums opacity-60">{p.numero}</span>}
               {p.corto.join(" ").trim()}
+              {/* Las que no aplican, dichas (Monica, 15-oct-2026). */}
+              {noAplica && <span className="block text-[9.5px] font-normal italic text-white/40">no aplica</span>}
             </div>
           );
         })}
