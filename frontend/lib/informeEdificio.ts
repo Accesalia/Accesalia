@@ -85,7 +85,8 @@ type Inm = {
   idbi?: { rc?: { pc1?: string; pc2?: string; car?: string; cc1?: string; cc2?: string } };
   dt?: {
     np?: string; nm?: string;
-    locs?: { lous?: { lourb?: { dir?: { tv?: string; nv?: string; pnp?: string }; dp?: string; dm?: string; loint?: { es?: string; pt?: string; pu?: string } } } };
+    locs?: { lous?: { lourb?: { dir?: { tv?: string; nv?: string; pnp?: string; plp?: string; snp?: string; cv?: string }; dp?: string; dm?: string; loint?: { es?: string; pt?: string; pu?: string } } } };
+    loine?: { cp?: string; cm?: string };
   };
   debi?: { luso?: string; sfc?: string; cpt?: string; ant?: string };
 };
@@ -132,22 +133,23 @@ async function textoDe(u: string): Promise<string> {
 /** Pregunta a una capa del geoportal "que hay en este punto". `radio` en metros:
  *  hace falta para las capas de PUNTOS -los ascensores-, porque preguntando por
  *  el punto exacto no acierta NUNCA. */
-async function enElPunto(servicio: string, capa: number, x: number, y: number, radio = 0) {
+async function enElPunto(servicio: string, capa: number, x: number, y: number, radio = 0, enGrados = false) {
   const q = new URLSearchParams({
     geometry: `${x},${y}`,
     geometryType: "esriGeometryPoint",
     inSR: "25830",
     spatialRel: "esriSpatialRelIntersects",
     outFields: "*",
-    returnGeometry: "false",
+    returnGeometry: enGrados ? "true" : "false",
     f: "json",
   });
+  if (enGrados) q.set("outSR", "4326");
   if (radio > 0) {
     q.set("distance", String(radio));
     q.set("units", "esriSRUnit_Meter");
   }
   const d = (await jsonDe(`${SIGMA}/${servicio}/MapServer/${capa}/query?${q}`)) as {
-    features?: { attributes: Record<string, string | number | null> }[];
+    features?: { attributes: Record<string, string | number | null>; geometry?: { x?: number; y?: number } }[];
   };
   return d.features ?? [];
 }
@@ -183,6 +185,15 @@ export type Crudo = {
    *  Madrid no se ha consultado: entonces no se sabe, y no se dice "No". Sin el
    *  campo (lo guardado por la propia pantalla) es que si se consulto. */
   geoportal?: boolean;
+  /** Recien traido de fuera: lo que hace falta para escribirlo en las tablas
+   *  (no se guarda en la foto). */
+  _fuera?: {
+    /** Las fuentes del geoportal que no respondieron: esas no se guardan. */
+    geoFallidas: string[];
+    /** El censo de alrededor tal cual (con posicion y fecha), para
+     *  subvencion_concedida. */
+    censo: Record<string, unknown>[];
+  };
 };
 
 // ------------------------------------------------------------------ el informe
@@ -578,32 +589,31 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
 
   let protegido = null, condiciones = null, ascensor = null, apiru = null, arru = null;
   let cerca: SubvencionCerca[] = [];
+  const geoFallidas: string[] = [];
+  let censo: Record<string, unknown>[] = [];
   const esMadrid = (municipio ?? "").toUpperCase() === "MADRID";
 
   if (esMadrid && utmX && utmY) {
-    const pide = async (s: string, c: number, radio = 0) => {
+    const pide = async (fuente: string, s: string, c: number, radio = 0) => {
       try {
         const f = await enElPunto(s, c, utmX!, utmY!, radio);
         return f[0] ? atributos(f[0].attributes) : null;
       } catch {
         fallos.push(`No responde el geoportal (${s}, capa ${c}).`);
+        geoFallidas.push(fuente);
         return null;
       }
     };
-    [protegido, condiciones, ascensor, apiru, arru] = await Promise.all([
-      pide("DESARROLLO_URBANO_ACTUALIZADO/EDIFICIOS_PROTEGIDOS_VIGENTE", 4),
-      pide("PGOUM97/PG_ANALISIS_EDIFICACION", 8),
-      // Los ascensores son PUNTOS, uno por portal: hay que buscar CERCA.
-      pide("URBANISMO/MODELO_ASCENSORES_ESPACIO_PUBLICO", 1, 30),
-      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 2),
-      pide("VIVIENDA/SUBVENCIONES_AMBITOS", 1),
-    ]);
+    [protegido, condiciones, ascensor, apiru, arru] = await Promise.all(
+      FUENTES_GEO.map((x) => pide(x.fuente, x.servicio, x.capa, x.radio)),
+    );
 
     try {
       const [f, aqui] = await Promise.all([
-        enElPunto("VIVIENDA/REHABILITACION_ENERGETICA_CM", 0, utmX, utmY, 800),
+        enElPunto("VIVIENDA/REHABILITACION_ENERGETICA_CM", 0, utmX, utmY, 800, true),
         enElPunto("VIVIENDA/REHABILITACION_ENERGETICA_CM", 0, utmX, utmY, 35),
       ]);
+      censo = f.map((x) => ({ ...atributos(x.attributes), _lat: x.geometry?.y ?? null, _lng: x.geometry?.x ?? null }));
       const suyos = new Set(aqui.map((x) => String(atributos(x.attributes).OBJECTID)));
       cerca = f
         .map((x) => {
@@ -614,7 +624,7 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
             convocatoria: a.CONVOCATORIA ? String(a.CONVOCATORIA) : null,
             viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? a.VIVIENDAS_EDIFICIO : null,
             ahorroCo2: typeof a["AHORRO_CO2__kg_año_"] === "number" ? (a["AHORRO_CO2__kg_año_"] as number) : null,
-            fecha: null,
+            fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
             aqui: suyos.has(String(a.OBJECTID)),
           };
         })
@@ -628,38 +638,218 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
     inmuebles, fincaLdt, tipoParcela, suelo, lat, lng, utmX, utmY,
     protegido, condiciones, ascensor, apiru, arru, cerca, fallos,
     consultadoEn: new Date().toISOString(),
+    _fuera: { geoFallidas, censo },
   };
 }
 
-/** Guardar. Si falla no se cae la pantalla: se ha consultado igual.
- *
- *  UNA FICHA A MEDIAS NO SE GUARDA. Si Catastro nos ha cortado y no hay
- *  coordenadas, guardarla dejaria el fallo congelado 120 dias y nadie sabria por
- *  que esa direccion "no tiene croquis". Mejor no guardar y reintentar. */
-async function guardar(ref: string, c: Crudo) {
-  if (!URL_BASE || !SECRETO) return;
-  if (c.fallos.length > 0 || c.lat === null || c.lng === null) return;
-  const i = componer(ref, c);
-  if (!i) return;
-  const dato = (q: string) => i.secciones.flatMap((s) => s.datos).find((d) => d.que === q)?.valor ?? null;
+/** Las cinco fuentes del geoportal de Madrid que pide la ficha, en el orden del
+ *  Crudo (protegido, condiciones, ascensor, apiru, arru) y con los nombres de
+ *  dato_urbanistico (scripts/barrido/geoportal_madrid.py). */
+const FUENTES_GEO = [
+  { fuente: "edificio_protegido", servicio: "DESARROLLO_URBANO_ACTUALIZADO/EDIFICIOS_PROTEGIDOS_VIGENTE", capa: 4, radio: 0 },
+  { fuente: "condiciones_proteccion", servicio: "PGOUM97/PG_ANALISIS_EDIFICACION", capa: 8, radio: 0 },
+  // Los ascensores son PUNTOS, uno por portal: hay que buscar CERCA.
+  { fuente: "modelo_ascensor", servicio: "URBANISMO/MODELO_ASCENSORES_ESPACIO_PUBLICO", capa: 1, radio: 30 },
+  { fuente: "apiru", servicio: "VIVIENDA/SUBVENCIONES_AMBITOS", capa: 2, radio: 0 },
+  { fuente: "arru", servicio: "VIVIENDA/SUBVENCIONES_AMBITOS", capa: 1, radio: 0 },
+] as const;
 
-  await fetch(`${URL_BASE}/rest/v1/ficha_catastro?on_conflict=referencia`, {
-    method: "POST",
-    headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify({
-      referencia: ref,
-      direccion: i.direccionOficial || null,
-      municipio: i.municipio,
-      cp: dato("Municipio y código postal")?.split("·").pop()?.trim() ?? null,
-      tipo_parcela: c.tipoParcela || null,
-      superficie_suelo: c.suelo,
-      inmuebles: c.inmuebles.length,
-      lat: c.lat, lng: c.lng, utm_x: c.utmX, utm_y: c.utmY,
-      // LO CRUDO ENTERO: de aqui se vuelve a componer el informe sin pedir nada.
-      bruto: c,
-      consultado_en: c.consultadoEn,
-    }),
-  });
+/** GUARDAR LO QUE SE BAJA, EN LAS TABLAS (Monica, 15-oct-2026): "todo lo que se
+ *  baje y no este, deberia guardarse en las tablas. Y si se baja algo, por lo que
+ *  sea, actualizar las tablas que toquen". Lo mismo que hace el barrido
+ *  (scripts/barrido/catastro_opps_abiertas.py y geoportal_madrid.py):
+ *    ficha_catastro          la ficha (sin tocar ascensor, patios ni portal)
+ *    ficha_catastro_portal   un portal por numero y escalera
+ *    ficha_catastro_inmueble uno por inmueble
+ *    dato_urbanistico        las cinco fuentes del geoportal (Madrid), si
+ *                            respondieron las cinco
+ *    subvencion_concedida    las de alrededor, con posicion y fecha
+ *  Lo que fallo no se escribe: no se pisa un dato bueno con un hueco. La foto
+ *  (bruto) solo se guarda entera. Si algo falla al escribir, no se cae la
+ *  pantalla: se ha consultado igual. */
+async function guardar(ref: string, c: Crudo) {
+  if (!URL_BASE || !SECRETO || !c.inmuebles.length) return;
+  const escribir = async <T,>(ruta: string, filas: unknown): Promise<T[]> => {
+    const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, {
+      method: "POST",
+      headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
+      body: JSON.stringify(filas),
+    });
+    if (!r.ok) throw new Error(`Supabase ${ruta.split("?")[0]} ${r.status}: ${await r.text()}`);
+    return (await r.json()) as T[];
+  };
+  const ahora = new Date().toISOString();
+  const entera = c.fallos.length === 0 && c.lat !== null && c.lng !== null;
+  const sitio = (i: Inm) => {
+    const u = urb(i);
+    const pnp = u?.dir?.pnp ?? "";
+    const plp = (u?.dir?.plp ?? "").trim();
+    return {
+      numero: plp ? `${pnp}(${plp})` : pnp,
+      escalera: (u?.loint?.es ?? "").trim(),
+      planta: (u?.loint?.pt ?? "").trim(),
+      puerta: (u?.loint?.pu ?? "").trim(),
+      tv: u?.dir?.tv ?? "",
+      nv: u?.dir?.nv ?? "",
+    };
+  };
+  const decimal = (x?: string) => {
+    const n = Number(String(x ?? "").replace(/\./g, "").replace(",", "."));
+    return Number.isFinite(n) && String(x ?? "").trim() !== "" ? n : null;
+  };
+
+  // 1 · la ficha
+  const p0 = c.inmuebles[0];
+  const u0 = urb(p0);
+  const s0 = sitio(p0);
+  const usos: Record<string, number> = {};
+  const plantas = new Set<string>();
+  let superficie = 0, viviendas = 0;
+  for (const i of c.inmuebles) {
+    const uso = i.debi?.luso ?? "?";
+    usos[uso] = (usos[uso] ?? 0) + 1;
+    if (uso === "Residencial") viviendas++;
+    superficie += decimal(i.debi?.sfc) ?? 0;
+    if (sitio(i).planta) plantas.add(sitio(i).planta);
+  }
+  const anios = c.inmuebles.map((i) => num(i.debi?.ant)).filter((n): n is number => n !== null);
+  const ficha: Record<string, unknown> = {
+    referencia: ref,
+    municipio: p0.dt?.nm ?? null,
+    provincia: p0.dt?.np ?? null,
+    cp: u0?.dp ?? null,
+    anio: anios.length ? Math.min(...anios) : null,
+    inmuebles: c.inmuebles.length,
+    viviendas,
+    superficie: Math.round(superficie) || null,
+    plantas: [...plantas].sort(),
+    usos,
+    tipo_via: s0.tv || null,
+    nombre_via: s0.nv || null,
+    numero: s0.numero || null,
+    numero2: u0?.dir?.snp && u0.dir.snp !== "0" ? u0.dir.snp : null,
+    codigo_via: u0?.dir?.cv ?? null,
+    distrito_municipal: u0?.dm ?? null,
+    ine_provincia: p0.dt?.loine?.cp ?? null,
+    ine_municipio: p0.dt?.loine?.cm ?? null,
+    consultado_en: c.consultadoEn,
+    actualizado_en: ahora,
+  };
+  if (c.fincaLdt) ficha.direccion = c.fincaLdt;
+  if (c.tipoParcela) ficha.tipo_parcela = c.tipoParcela;
+  if (c.suelo !== null) ficha.superficie_suelo = c.suelo;
+  if (c.lat !== null && c.lng !== null) Object.assign(ficha, { lat: c.lat, lng: c.lng });
+  if (c.utmX !== null && c.utmY !== null) Object.assign(ficha, { utm_x: c.utmX, utm_y: c.utmY, utm_srs: "EPSG:25830" });
+  // LA FOTO, solo entera: de aqui se vuelve a componer el informe sin pedir nada.
+  if (entera) {
+    const { _fuera, ...foto } = c;
+    void _fuera;
+    ficha.bruto = foto;
+  }
+  const [fila] = await escribir<{ id: string }>("ficha_catastro?on_conflict=referencia", ficha);
+
+  // 2 · los portales y 3 · los inmuebles
+  const porPortal = new Map<string, { numero: string; escalera: string; tv: string; nv: string; inmuebles: number; viviendas: number; superficie: number; plantas: Set<string>; usos: Record<string, number> }>();
+  for (const i of c.inmuebles) {
+    const t = sitio(i);
+    const k = `${t.numero}|${t.escalera}`;
+    const p = porPortal.get(k) ?? { numero: t.numero, escalera: t.escalera, tv: t.tv, nv: t.nv, inmuebles: 0, viviendas: 0, superficie: 0, plantas: new Set<string>(), usos: {} };
+    const uso = i.debi?.luso ?? "?";
+    p.inmuebles++;
+    p.usos[uso] = (p.usos[uso] ?? 0) + 1;
+    if (uso === "Residencial") p.viviendas++;
+    p.superficie += decimal(i.debi?.sfc) ?? 0;
+    if (t.planta) p.plantas.add(t.planta);
+    porPortal.set(k, p);
+  }
+  const portales = await escribir<{ id: string; numero: string; escalera: string | null }>(
+    "ficha_catastro_portal?on_conflict=ficha_id,numero,escalera",
+    [...porPortal.values()].map((p) => ({
+      ficha_id: fila.id, tipo_via: p.tv || null, nombre_via: p.nv || null, numero: p.numero, escalera: p.escalera,
+      inmuebles: p.inmuebles, viviendas: p.viviendas, superficie: Math.round(p.superficie) || null, plantas: [...p.plantas].sort(), usos: p.usos,
+    })),
+  );
+  const idPortal = new Map(portales.map((p) => [`${p.numero}|${p.escalera ?? ""}`, p.id]));
+  const inmuebles = c.inmuebles
+    .map((i) => {
+      const rc = rcDe(i);
+      const refInm = rc ? [rc.pc1, rc.pc2, rc.car, rc.cc1, rc.cc2].map((x) => x ?? "").join("") : "";
+      const t = sitio(i);
+      return refInm.length >= 18
+        ? {
+            ficha_id: fila.id, portal_id: idPortal.get(`${t.numero}|${t.escalera}`) ?? null, referencia: refInm,
+            numero: t.numero || null, escalera: t.escalera || null, planta: t.planta || null, puerta: t.puerta || null,
+            uso: i.debi?.luso ?? null, superficie: decimal(i.debi?.sfc) !== null ? Math.round(decimal(i.debi?.sfc)!) : null,
+            coeficiente: decimal(i.debi?.cpt),
+          }
+        : null;
+    })
+    .filter(Boolean);
+  for (let k = 0; k < inmuebles.length; k += 200) await escribir("ficha_catastro_inmueble?on_conflict=referencia", inmuebles.slice(k, k + 200));
+
+  // 4 · el geoportal de Madrid: las cinco juntas o ninguna (como el barrido)
+  const esMadrid = (p0.dt?.nm ?? "").toUpperCase() === "MADRID";
+  if (esMadrid && c._fuera && c.utmX !== null && c._fuera.geoFallidas.length === 0) {
+    const valores = [c.protegido, c.condiciones, c.ascensor, c.apiru, c.arru];
+    await escribir(
+      "dato_urbanistico?on_conflict=referencia,fuente",
+      FUENTES_GEO.map((x, n) => {
+        const a = valores[n] as Record<string, unknown> | null;
+        const txt = (v: unknown) => (v == null ? null : String(v).trim());
+        const pdfs: { que: string; url: unknown }[] = [];
+        let codigo: unknown = null, nombre: unknown = null, resumen: unknown = null;
+        if (a && x.fuente === "edificio_protegido") [codigo, nombre, resumen] = [a.CEP_TX_NUMCAT, a.CEP_TX_PROTECCION, a.CEP_TX_CJTO_HOMOGENEO];
+        if (a && x.fuente === "condiciones_proteccion") {
+          nombre = a.PROTECCION;
+          if (a.PLANO_AE) pdfs.push({ que: "Plano de análisis de la edificación", url: a.PLANO_AE });
+        }
+        if (a && x.fuente === "modelo_ascensor") {
+          [nombre, resumen] = [a.DESCRIPCION, a.DIRECCION];
+          if (a.INFORME) pdfs.push({ que: "Informe del modelo de ascensor", url: a.INFORME });
+          if (a.MODELO) pdfs.push({ que: "Modelo de ascensor obligatorio", url: a.MODELO });
+        }
+        if (a && x.fuente === "apiru") [codigo, nombre] = [a.ID_APIRU, a.NOMBRE_APIRU];
+        if (a && x.fuente === "arru") [codigo, nombre] = [a.ID_ARRU, a.NOMBRE_ARRU];
+        return {
+          referencia: ref, fuente: x.fuente, hay: a !== null, codigo: txt(codigo), nombre: txt(nombre), resumen: txt(resumen),
+          pdfs: pdfs.length ? pdfs : null, detalle: a, servicio: x.servicio, capa: x.capa,
+          objectid: a?.OBJECTID ?? null, url: `${SIGMA}/${x.servicio}/MapServer/${x.capa}`, consultado_en: c.consultadoEn,
+        };
+      }),
+    );
+  }
+
+  // 5 · las subvenciones de alrededor, al censo (con su posicion y su fecha)
+  const censo = (c._fuera?.censo ?? []).filter((a) => a.OBJECTID != null && a._lat != null && a._lng != null);
+  if (censo.length) {
+    const n = (v: unknown) => (typeof v === "number" ? v : null);
+    await escribir(
+      "subvencion_concedida?on_conflict=servicio,capa,objectid",
+      censo.map((a) => {
+        const { _lat, _lng, ...detalle } = a;
+        return {
+          direccion: String(a.DIRECCION ?? "").trim() || "(sin dirección)",
+          convocatoria: a.CONVOCATORIA ?? null,
+          ayuda: a.AYUDA ?? null,
+          fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
+          importe: n(a.IMPORTE_SUBVENCION____),
+          viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? Math.round(a.VIVIENDAS_EDIFICIO) : null,
+          ahorro_energia: n(a["AHORRO_ENERGIA__kWh_año_"]),
+          ahorro_co2: n(a["AHORRO_CO2__kg_año_"]),
+          distrito: a.DISTRITO ?? null,
+          barrio: a.BARRIO ?? null,
+          cp: a.COD_POSTAL != null ? String(a.COD_POSTAL) : null,
+          servicio: "VIVIENDA/REHABILITACION_ENERGETICA_CM",
+          capa: 0,
+          objectid: a.OBJECTID,
+          detalle,
+          lat: _lat,
+          lng: _lng,
+          consultado_en: c.consultadoEn,
+        };
+      }),
+    );
+  }
 }
 
 type FilaFicha = {
@@ -935,7 +1125,11 @@ export async function informeEdificio(
   if (ref.length < 14) return null;
 
   const guardado = opciones.refrescar ? null : await leerDeLaBase(ref);
-  if (guardado && !(opciones.completo && guardado.geoportal === false)) return componerConCatalogo(ref, guardado);
+  // Lo guardado vale salvo que le falte lo que solo da fuera: las coordenadas
+  // (sin ellas no hay croquis ni urbanismo) o, para lo que se entrega al
+  // cliente, el geoportal de Madrid.
+  const incompleto = guardado && (guardado.lat === null || (opciones.completo && guardado.geoportal === false));
+  if (guardado && !incompleto) return componerConCatalogo(ref, guardado);
   // Si fuera falla, mejor lo guardado que nada.
   const loQueHay = () => (guardado ? componerConCatalogo(ref, guardado) : null);
   if (!opciones.refrescar && (await preguntadoHacePoco(ref))) return loQueHay();
