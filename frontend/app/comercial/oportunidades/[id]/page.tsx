@@ -36,8 +36,8 @@ import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
 import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
 import { DatosOpp } from "./DatosOpp";
-import { IrAOtraOpp } from "./IrAOtraOpp";
-import { Necesidades } from "./Necesidades";
+import { NecesitaTresD, Necesidades } from "./Necesidades";
+import { columnasDeInteres } from "../../../../lib/columnasInteres";
 import { necesidadesDe } from "../../../../lib/necesidadesOpp";
 import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
 import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
@@ -190,12 +190,8 @@ export default async function GestionOportunidad({
           estirarlo como una goma y que quede ilegible". Lo de pantallas
           grandes de verdad (el 27") se mira cuando se vea en ellas. */}
       <main className="mx-auto w-full max-w-[1648px] px-4 pb-16 pt-5 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Salida href="/comercial?ver=oportunidades">
-            ← Oportunidades abiertas
-          </Salida>
-          <IrAOtraOpp />
-        </div>
+        {/* Ir a otra opp: el propio nombre de la opp hace de selector (15-oct-2026). */}
+        <Salida href="/comercial?ver=oportunidades">← Oportunidades abiertas</Salida>
 
         {/* ------------------------- 1 · cabecera ------------------------- */}
         {cab && (
@@ -207,6 +203,7 @@ export default async function GestionOportunidad({
             contactos={contactos}
             intereses={elegidos.map((t) => ({ id: t.id, nombre: t.nombre }))}
             paraAnadir={paraAnadir.map((t) => ({ id: t.id, nombre: t.nombre }))}
+            gruposAnadir={columnasDeInteres(paraAnadir)}
           />
         )}
         {pausada && (
@@ -243,16 +240,29 @@ export default async function GestionOportunidad({
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
-        {/* Los datos que bajaron de la cabecera (14-oct-2026). */}
+        {/* LO DE ARRIBA DEL BLOQUE 1, en tres (Monica, 15-oct-2026), de lo que
+            se toca a mano a lo que solo informa: si necesita 3D para la junta;
+            que hace falta para darles precio (Polycam, con su escaneo, y
+            viabilidad); y lo estable de la ficha (codigo, distrito, catastro). */}
         {bloque === 1 && (
-          <DatosOpp id={id} g={g} quieren={quieren} distrito={distrito} escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""} />
-        )}
-        {bloque === 1 && necesita && <Necesidades oppId={id} n={necesita} />}
-        {/* El boton solo cuando hace falta viabilidad y aun no ha llegado el
-            Polycam ni se ha pedido (pasos A, B, C y C'). */}
-        {bloque === 1 && pedir && necesita?.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") && (
-          <div className="mb-[10px]">
-            <PedirViabilidad {...pedir} />
+          <div className="mb-[10px] grid items-stretch gap-[10px] lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]">
+            {necesita && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
+            {necesita && (
+              <Necesidades
+                oppId={id}
+                n={necesita}
+                escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
+                recibido={g.hitos.find((h) => h.clave === "polycam")?.estado === "hecho"}
+                pedir={
+                  // El boton solo cuando hace falta viabilidad y aun no ha llegado
+                  // el Polycam ni se ha pedido (pasos A, B, C y C').
+                  pedir && necesita.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") ? (
+                    <PedirViabilidad {...pedir} />
+                  ) : undefined
+                }
+              />
+            )}
+            <DatosOpp g={g} distrito={distrito} />
           </div>
         )}
         {bloque === 1 && (g.referenciaCatastral || viabilidad) && (

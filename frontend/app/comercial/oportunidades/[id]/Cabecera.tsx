@@ -4,6 +4,8 @@ import { CambiarDireccion } from "./CambiarDireccion";
 import { accionAnadirInteres, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { BarraFases } from "./BarraFases";
+import { IrAOtraOpp } from "./IrAOtraOpp";
+import { Marcar } from "../../../components/Marcar";
 import type { ContactoComunidad, Gestion } from "../../../../lib/gestionOportunidad";
 import type { DatosCabecera, OtraOpp } from "../../../../lib/cabeceraOpp";
 import type { BarraOportunidad } from "../../../../lib/cuadroComercial";
@@ -42,6 +44,7 @@ export function Cabecera({
   contactos,
   intereses,
   paraAnadir,
+  gruposAnadir,
 }: {
   id: string;
   g: Gestion;
@@ -52,6 +55,8 @@ export function Cabecera({
   intereses: { id: string; nombre: string }[];
   /** Lo que se puede anadir: lo del alta que aun no esta marcado. */
   paraAnadir: { id: string; nombre: string }[];
+  /** Lo que se puede anadir, en las cuatro columnas del alta (15-oct-2026). */
+  gruposAnadir: { titulo: string; valores: string[] }[];
 }) {
   const e = cab.estado;
   const otrasAbiertas = cab.otras.filter((o) => !o.cerrada).length;
@@ -74,13 +79,18 @@ export function Cabecera({
 
       <div className="mt-2 grid items-stretch gap-[10px] xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
         {/* ---------------------------- la opp ---------------------------- */}
-        <div className={CAJA + " min-w-0 p-4"}>
+        {/* El hueco que sobra va ENTRE el nombre y el cuadrito gris, que se
+            queda abajo (Monica, 15-oct-2026). */}
+        <div className={CAJA + " flex min-w-0 flex-col p-4"}>
           {/* EL NOMBRE DE LA OPP, el que puso el comercial, y detras lo que
-              quieren: "Mayor 25 Madrid SATE + SUBV". La direccion no se ve. */}
-          <h1 className="text-[21px] font-bold uppercase leading-tight text-carbon">
-            {g.direccion}
-            {cab.quieren && <span className="ml-2 align-middle text-[11.5px] font-bold uppercase text-[#1F4E99]">{cab.quieren}</span>}
-          </h1>
+              quieren: "Mayor 25 Madrid SATE + SUBV". La direccion no se ve. Y es
+              a la vez el SELECTOR para ir a otra opp (15-oct-2026). */}
+          <IrAOtraOpp>
+            <h1 className="text-[21px] font-bold uppercase leading-tight text-carbon">
+              {g.direccion}
+              {cab.quieren && <span className="ml-2 align-middle text-[11.5px] font-bold uppercase text-[#1F4E99]">{cab.quieren}</span>}
+            </h1>
+          </IrAOtraOpp>
           <div className="mt-1 flex flex-wrap items-center">
             {g.aviso && (
               <span className="inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
@@ -121,7 +131,8 @@ export function Cabecera({
 
           {/* LO QUE NOS HAN CONTADO, sobre su panel gris: la administracion, quien
               nos la trajo, el contacto en la comunidad y lo que dicen que quieren. */}
-          <div className="mt-2.5 rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2">
+          <div aria-hidden className="min-h-[10px] flex-1" />
+          <div className="rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2">
             <p className="text-[12px] leading-[1.6]">
               <span className="mr-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Administración</span>
               {/* SOLO EL ADMINISTRADOR DE LA COMUNIDAD, el de la cartera (Monica,
@@ -171,21 +182,21 @@ export function Cabecera({
                   </span>
                 </form>
               ))}
+              {/* "+ añadir" con el selector de las cuatro columnas del alta
+                  (Monica, 15-oct-2026): se marcan uno o varios y se anaden. */}
               {paraAnadir.length > 0 && (
                 <details className="relative">
                   <summary className="cursor-pointer list-none px-1 text-[11.5px] font-semibold text-carbon/70 hover:text-carbon">+ añadir</summary>
-                  <form action={accionAnadirInteres.bind(null, id)} className={CAJA + " absolute left-0 z-20 mt-1 flex w-[280px] gap-2 p-2.5"}>
-                    <select name="tipo" required defaultValue="" className={CAMPO + " min-w-0 flex-1"}>
-                      <option value="" disabled>
-                        Elige…
-                      </option>
-                      {paraAnadir.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <button className={BOTON}>Añadir</button>
+                  <form action={accionAnadirInteres.bind(null, id)} className={CAJA + " absolute left-0 z-20 mt-1 flex w-[340px] flex-col gap-2 p-2.5 font-normal"}>
+                    <Marcar
+                      id="tipo"
+                      opciones={paraAnadir.map((t) => ({ valor: t.id, texto: t.nombre }))}
+                      vacio="Qué más quieren (selecciona)"
+                      ancho="w-full"
+                      debajo
+                      grupos={gruposAnadir}
+                    />
+                    <button className={BOTON + " self-end"}>Añadir</button>
                   </form>
                 </details>
               )}
@@ -196,9 +207,11 @@ export function Cabecera({
         {/* ------------------- la derecha: dos tarjetas y Sali ------------------- */}
         <div className="grid min-w-0 gap-[10px] xl:grid-cols-[minmax(0,1fr)_300px] xl:grid-rows-[auto_1fr]">
           {/* PAUSAR, CERRAR, EL ESTADO Y DE QUE ESTAMOS PENDIENTES */}
-          <div className={CAJA + " min-w-0 p-3.5"}>
-            <div className="flex items-start gap-2.5">
-              <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} />
+          {/* LO QUE DESTACA ES DE QUE ESTAMOS PENDIENTES; pausar y cerrar, abajo,
+              pequeños y discretos (Monica, 15-oct-2026). */}
+          <div className={CAJA + " flex min-w-0 flex-col p-3.5"}>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-carbon/60">De qué estamos pendientes para avanzar</span>
               <span className="ml-auto flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-[0.06em] text-carbon/55">
                 {e.cerrada ? "Cerrada" : g.estado === "pausada" ? "Pausada" : "Abierta"}
                 <i
@@ -209,16 +222,14 @@ export function Cabecera({
                 />
               </span>
             </div>
-            {e.porCobrar && (
-              <p className="mt-1.5 text-[11px] text-carbon/55">Esto aún tiene cosas por cobrar: no se puede cerrar ni pausar.</p>
-            )}
-            <div className="mt-3 text-center text-[10px] font-bold uppercase tracking-[0.06em] text-carbon/60">
-              De qué estamos pendientes para avanzar
+            <div className="my-3 flex flex-1 flex-col items-center justify-center text-center">
+              <p className="text-[15px] font-bold uppercase leading-snug text-carbon">{cab.falta.texto}</p>
+              {cab.falta.extra && <p className="mt-1 text-[12.5px] font-semibold uppercase leading-snug text-carbon/70">{cab.falta.extra}</p>}
             </div>
-            <ul className="mx-auto mt-1.5 w-fit list-disc pl-5 text-[11.5px] font-bold uppercase leading-[1.5] text-carbon">
-              <li>{cab.falta.texto}</li>
-              {cab.falta.extra && <li>{cab.falta.extra}</li>}
-            </ul>
+            <div className="flex flex-wrap items-center gap-2 border-t border-black/5 pt-2">
+              <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} />
+              {e.porCobrar && <span className="text-[10.5px] text-carbon/55">Aún hay cosas por cobrar: no se puede cerrar ni pausar.</span>}
+            </div>
           </div>
 
           {/* LOS CONTACTOS DE LA COMUNIDAD, con el telefono a la vista: "invita
@@ -277,7 +288,8 @@ export function Cabecera({
 /** Pausar y Cerrar (o Reactivar / Reabrir). Con hoja firmada y dinero
  *  pendiente no se puede ni lo uno ni lo otro. */
 function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCobrar: boolean; cerrada: boolean }) {
-  const PASTILLA = "rounded-[6px] border px-4 py-1.5 text-[11.5px] font-bold uppercase tracking-wide transition";
+  // Pequeños y discretos (Monica, 15-oct-2026): lo que destaca es lo pendiente.
+  const PASTILLA = "rounded-[5px] border px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide transition";
   const PAUSAR = PASTILLA + " border-[#E6DFA8] bg-[#FAF6D2] text-[#8A7A2A]";
   const CERRAR = PASTILLA + " border-[#E5C4C0] bg-[#F6E3E1] text-[#923428]";
   const NO = " cursor-not-allowed opacity-50";
@@ -308,7 +320,7 @@ function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCob
       ) : (
         <details className="relative">
           <summary className={PAUSAR + " cursor-pointer list-none hover:border-[#c9bd6b]"}>Pausar</summary>
-          <form action={accionPausar.bind(null, id)} className={CAJA + " absolute left-0 z-20 mt-2 w-[320px] p-3"}>
+          <form action={accionPausar.bind(null, id)} className={CAJA + " absolute bottom-full left-0 z-20 mb-2 w-[320px] p-3"}>
             <span className={ROTULO}>Retomarla cuándo</span>
             <input name="nota" placeholder="cuando hagan hucha, si sale la subvención…" className={CAMPO + " mt-1"} />
             <button className={BOTON + " mt-2 w-full"}>Pausarla</button>
@@ -318,7 +330,7 @@ function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCob
       {/* CERRARLA A MANO, con su razon (14-oct-2026). */}
       <details className="relative">
         <summary className={CERRAR + " cursor-pointer list-none hover:border-[#c99a94]"}>Cerrar</summary>
-        <form action={accionCerrar.bind(null, id)} className={CAJA + " absolute left-0 z-20 mt-2 w-[340px] p-3"}>
+        <form action={accionCerrar.bind(null, id)} className={CAJA + " absolute bottom-full left-0 z-20 mb-2 w-[340px] p-3"}>
           <span className={ROTULO}>¿Cómo se cierra?</span>
           <label className="mt-1.5 flex items-center gap-2 text-[13px] text-carbon">
             <input type="radio" name="tipo" value="perdida" defaultChecked /> Perdida

@@ -63,8 +63,9 @@ export async function accionQuitarInteres(id: string, tipoId: string) {
 
 export async function accionAnadirInteres(id: string, fd: FormData) {
   await permiso(id);
-  const tipoId = String(fd.get("tipo") ?? "");
-  if (!UUID.test(tipoId)) return;
+  // Uno o varios: el selector de cuatro columnas deja marcar varios (15-oct-2026).
+  const tipos = fd.getAll("tipo").map(String).filter((t) => UUID.test(t));
+  if (!tipos.length) return;
   await fetch(`${process.env.SUPABASE_URL}/rest/v1/oportunidad_tipos?on_conflict=oportunidad_id,tipo_id`, {
     method: "POST",
     headers: {
@@ -73,7 +74,7 @@ export async function accionAnadirInteres(id: string, fd: FormData) {
       "Content-Type": "application/json",
       Prefer: "resolution=ignore-duplicates,return=minimal",
     },
-    body: JSON.stringify({ oportunidad_id: id, tipo_id: tipoId }),
+    body: JSON.stringify(tipos.map((tipo_id) => ({ oportunidad_id: id, tipo_id }))),
   });
   refrescar(id);
 }
