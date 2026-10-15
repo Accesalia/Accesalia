@@ -59,7 +59,9 @@ function familias(tipos: Tipo[]) {
   const efi = col("Eficiencia");
   const familia = new Map<string, "accesibilidad" | "eficiencia" | "otra">();
   for (const t of tipos) {
-    const arriba = ancestros(t);
+    // La propia categoria cuenta: un interes "Accesibilidad" o "Eficiencia
+    // energetica" a secas (Tomas Borras 6, 15-oct-2026).
+    const arriba = [t.nombre, ...ancestros(t)];
     familia.set(
       t.id,
       acc.has(t.nombre) || t.nombre === "Ascensor" || arriba.includes("Accesibilidad")
@@ -82,8 +84,10 @@ export async function necesidadesDeMuchas(ids: string[]): Promise<Map<string, Ne
   const tipos = await pedir<Tipo[]>("tipos_proyecto?select=id,nombre,parent_id");
   const familia = familias(tipos);
   const nombre = new Map(tipos.map((t) => [t.id, t.nombre]));
-  for (let i = 0; i < unicos.length; i += 150) {
-    const trozo = unicos.slice(i, i + 150);
+  // Los tramos EN PARALELO: uno detras de otro cuadruplicaba el tiempo de la escalera.
+  const tramos: string[][] = [];
+  for (let i = 0; i < unicos.length; i += 150) tramos.push(unicos.slice(i, i + 150));
+  await Promise.all(tramos.map(async (trozo) => {
     const [opps, intereses] = await Promise.all([
       pedir<{ id: string; necesita_polycam: boolean | null; necesita_viabilidad: boolean | null }[]>(
         `oportunidades?select=id,necesita_polycam,necesita_viabilidad&id=in.(${trozo.join(",")})`,
@@ -118,7 +122,7 @@ export async function necesidadesDeMuchas(ids: string[]): Promise<Map<string, Ne
           : null,
       });
     }
-  }
+  }));
   return out;
 }
 
