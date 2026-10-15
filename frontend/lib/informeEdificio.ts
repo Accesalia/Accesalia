@@ -47,9 +47,15 @@ export type SubvencionCerca = {
   /** Cuando se concedio (subvencion_concedida.fecha). Null si no consta: el
    *  visor del COAM no la da. */
   fecha: string | null;
-  /** El año de la concesion, para la columna Año. Null en las del COAM, que no
-   *  dan fecha. */
+  /** EL AÑO DE LA CONVOCATORIA, para la columna Año (Monica, 15-oct-2026: "para
+   *  identificar cuando se pidio"). Sale del nombre de la convocatoria
+   *  ("REHABILITA 2021", "Plan MAD-RE 18") o, en las del COAM, de su expediente
+   *  (".../2022"); las Next Generation del Ayuntamiento lo toman de su gemela del
+   *  COAM. Null si no se sabe (un plan de varios años, el PREE...). */
   anio: number | null;
+  /** El año de la CONCESION (de la fecha). Junto al de la convocatoria dice
+   *  cuanto se tardo. Null en las del COAM, que no dan fecha. */
+  anioConcesion: number | null;
   /** De donde sale: "Ayuntamiento de Madrid" o "Comunidad de Madrid (COAM)". */
   fuente: string;
   aqui: boolean;
@@ -74,6 +80,10 @@ export type InformeEdificio = {
   /** Lo que significa ESTE edificio, para la conversacion con el administrador. */
   conclusiones: Conclusion[];
   subvencionesCerca: SubvencionCerca[];
+  /** De donde son las de subvencionesCerca (Monica, 15-oct-2026): "800m" = a
+   *  menos de 800 m; "entorno" = a menos de 800 m habia menos de 5 y son 8 del
+   *  municipio, elegidas al azar pero siempre las mismas para cada edificio. */
+  ambitoSubvenciones: "800m" | "entorno";
   /** Cuando se pregunto a Catastro y al geoportal. Un dato de hace un año no es
    *  falso, pero conviene saber que es de hace un año. */
   consultadoEn: string;
@@ -185,6 +195,8 @@ export type Crudo = {
   apiru: Record<string, unknown> | null;
   arru: Record<string, unknown> | null;
   cerca: SubvencionCerca[];
+  /** "entorno" si `cerca` son las del municipio (ver ambitoSubvenciones). */
+  ambitoCerca?: "800m" | "entorno";
   fallos: string[];
   consultadoEn: string;
   /** False cuando el informe sale de las tablas extraidas y el geoportal de
@@ -207,6 +219,8 @@ export type Crudo = {
 function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdificio | null {
   const { inmuebles, fincaLdt, tipoParcela, suelo, lat, lng, utmX, utmY } = c;
   const { protegido, condiciones, ascensor, apiru, arru, cerca } = c;
+  const enElEntorno = c.ambitoCerca === "entorno";
+  const dondeCerca = enElEntorno ? "en el entorno" : "a 800 m";
   const fallos = [...c.fallos];
   const pdfs: { que: string; url: string }[] = [];
   if (inmuebles.length === 0) return null;
@@ -397,7 +411,7 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
               cerca.some((x) => x.aqui)
                 ? "Ya han cobrado ayuda: conviene mirar de qué convocatoria y si queda algo por pedir."
                 : undefined),
-            d("Subvenciones concedidas a 800 m", cerca.length === 0 ? "Ninguna" : `${cerca.length} · ${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))}`,
+            d(`Subvenciones concedidas ${dondeCerca}`, cerca.length === 0 ? "Ninguna" : `${cerca.length} · ${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))}`,
               cerca.length > 0
                 ? "Dinero que ya ha caído en el barrio. Es el mejor argumento que hay delante de una junta."
                 : undefined),
@@ -479,8 +493,8 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
     const mayor = cerca[0];
     mete(
       "favor",
-      `${cerca.length} subvenciones concedidas a menos de 800 m`,
-      `${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))} ya repartidos en el barrio` +
+      enElEntorno ? `${cerca.length} subvenciones concedidas en el entorno` : `${cerca.length} subvenciones concedidas a menos de 800 m`,
+      `${eur(cerca.reduce((t, x) => t + (x.importe ?? 0), 0))} ya repartidos ${enElEntorno ? "en el municipio (una muestra)" : "en el barrio"}` +
         (mayor.importe ? `. La mayor: ${eur(mayor.importe)} en ${mayor.direccion}${mayor.viviendas ? ` (${mayor.viviendas} viviendas)` : ""}.` : "."),
     );
   }
@@ -518,6 +532,7 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
     secciones,
     conclusiones: conc,
     subvencionesCerca: cerca,
+    ambitoSubvenciones: enElEntorno ? "entorno" : "800m",
     consultadoEn: c.consultadoEn,
     pdfs,
     soloYendo,
@@ -631,7 +646,8 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
             viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? a.VIVIENDAS_EDIFICIO : null,
             ahorroCo2: typeof a["AHORRO_CO2__kg_año_"] === "number" ? (a["AHORRO_CO2__kg_año_"] as number) : null,
             fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
-            anio: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).getUTCFullYear() : null,
+            anio: anioDeConvocatoria(a.CONVOCATORIA ? String(a.CONVOCATORIA) : null),
+            anioConcesion: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).getUTCFullYear() : null,
             fuente: FUENTE_DE[CENSO.servicio],
             aqui: suyos.has(String(a.OBJECTID)),
           };
@@ -1100,10 +1116,29 @@ async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Pro
   // Una caja algo mayor de 800 m, y luego la distancia de verdad.
   const dLat = 0.0075;
   const dLng = 0.0100;
+  return delCenso(`&lat=gte.${lat - dLat}&lat=lte.${lat + dLat}&lng=gte.${lng - dLng}&lng=lte.${lng + dLng}`, { lat, lng }, ref);
+}
+
+/** LAS DEL MUNICIPIO, para cuando a 800 m hay pocas (Monica, 15-oct-2026). Las
+ *  del COAM llevan el municipio al final de la direccion; las del Ayuntamiento
+ *  son todas de Madrid capital. */
+async function subvencionesDelMunicipio(municipio: string, ref?: string): Promise<SubvencionCerca[] | null> {
+  const m = sinTildes(municipio).trim();
+  if (!m) return null;
+  const filtro =
+    m === "MADRID"
+      ? `&or=(servicio.eq.${encodeURIComponent(CENSO.servicio)},direccion.ilike.${encodeURIComponent("* MADRID")})`
+      : `&servicio=eq.${encodeURIComponent(COAM.servicio)}&direccion=ilike.${encodeURIComponent(`* ${m}`)}`;
+  return delCenso(filtro, null, ref);
+}
+
+/** Lo leido del censo: las dos fuentes sumadas, cada subvencion una vez.
+ *  `desde`: el edificio, si se quiere solo lo de 800 m. */
+async function delCenso(filtro: string, desde: { lat: number; lng: number } | null, ref?: string): Promise<SubvencionCerca[] | null> {
   try {
     const s = await fetch(
-      `${URL_BASE}/rest/v1/subvencion_concedida?select=servicio,referencia,direccion,importe,convocatoria,viviendas,ahorro_co2,fecha,lat,lng` +
-        `&lat=gte.${lat - dLat}&lat=lte.${lat + dLat}&lng=gte.${lng - dLng}&lng=lte.${lng + dLng}&limit=5000`,
+      `${URL_BASE}/rest/v1/subvencion_concedida?select=servicio,referencia,direccion,importe,convocatoria,viviendas,ahorro_co2,fecha,expediente:detalle->>expediente,lat,lng` +
+        `${filtro}&order=servicio.asc,objectid.asc&limit=5000`,
       { headers: cab, cache: "no-store" },
     );
     if (!s.ok) return null;
@@ -1116,10 +1151,13 @@ async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Pro
       viviendas: number | null;
       ahorro_co2: number | null;
       fecha: string | null;
+      expediente: string | null;
       lat: number;
       lng: number;
     }[];
-    const cerca = lista.map((x) => ({ x, m: metros(lat, lng, x.lat, x.lng) })).filter(({ m }) => m <= 800);
+    const cerca = lista
+      .map((x) => ({ x, m: desde ? metros(desde.lat, desde.lng, x.lat, x.lng) : null }))
+      .filter(({ m }) => m === null || m <= 800);
 
     // LAS DOS FUENTES SE SUMAN, PERO CADA SUBVENCION UNA VEZ (Monica, 15-oct-2026).
     // En Madrid capital las del Next Generation estan en las dos: el 9-oct, 490
@@ -1128,10 +1166,17 @@ async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Pro
     // Ayuntamiento del MISMO programa a menos de 40 m: vale la del Ayuntamiento,
     // que trae la fecha.
     const ayto = cerca.filter(({ x }) => x.servicio === CENSO.servicio);
-    const gemela = (x: (typeof lista)[number]) =>
-      ayto.some(({ x: a }) => a.convocatoria === x.convocatoria && metros(a.lat, a.lng, x.lat, x.lng) <= 40);
+    const coam = cerca.filter(({ x }) => x.servicio === COAM.servicio);
+    const misma = (a: (typeof lista)[number], b: (typeof lista)[number]) =>
+      a.convocatoria === b.convocatoria && metros(a.lat, a.lng, b.lat, b.lng) <= 40;
+    // El año de la convocatoria de cada una: el de su nombre, el de su
+    // expediente o, si es del Ayuntamiento y no lo dice, el de su gemela.
+    const convocada = (x: (typeof lista)[number]) =>
+      anioDeConvocatoria(x.convocatoria) ??
+      anioDeExpediente(x.expediente) ??
+      (x.servicio === CENSO.servicio ? anioDeExpediente(coam.find(({ x: c }) => misma(x, c))?.x.expediente ?? null) : null);
     return cerca
-      .filter(({ x }) => x.servicio !== COAM.servicio || !gemela(x))
+      .filter(({ x }) => x.servicio !== COAM.servicio || !ayto.some(({ x: a }) => misma(a, x)))
       .map(({ x, m }) => ({
         // No hay direcciones sin municipio: las del Ayuntamiento son todas de
         // Madrid capital y no lo dicen; las del COAM ya lo llevan.
@@ -1141,11 +1186,12 @@ async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Pro
         viviendas: x.viviendas,
         ahorroCo2: x.ahorro_co2 != null ? Number(x.ahorro_co2) : null,
         fecha: x.fecha,
+        anio: convocada(x),
         // El COAM no da fecha: el "/2022" de sus expedientes es el año de la
         // CONVOCATORIA, no el de la concesion, y no se hace pasar por ella.
-        anio: x.fecha ? Number(x.fecha.slice(0, 4)) : null,
+        anioConcesion: x.fecha ? Number(x.fecha.slice(0, 4)) : null,
         fuente: FUENTE_DE[x.servicio] ?? x.servicio,
-        aqui: m <= 35 || (!!ref && x.referencia === ref),
+        aqui: (m !== null && m <= 35) || (!!ref && x.referencia === ref),
       }))
       .sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
   } catch {
@@ -1153,6 +1199,47 @@ async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Pro
   }
 }
 
+/** 8 AL AZAR, PERO SIEMPRE LAS MISMAS PARA CADA EDIFICIO: el azar se siembra con
+ *  la referencia, asi la tabla no cambia cada vez que se abre la ficha. Las de
+ *  este mismo edificio van siempre. */
+function alAzarEstable(lista: SubvencionCerca[], ref: string, n: number): SubvencionCerca[] {
+  const huella = (t: string) => {
+    let h = 2166136261;
+    for (const ch of t) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+    return h;
+  };
+  const suyas = lista.filter((x) => x.aqui);
+  const resto = lista
+    .filter((x) => !x.aqui)
+    .map((x) => ({ x, h: huella(`${ref}|${x.direccion}|${x.convocatoria}|${x.importe}`) }))
+    .sort((a, b) => a.h - b.h)
+    // Una por edificio: el Programa 4 va por vivienda y llenaria la muestra
+    // con el mismo portal repetido.
+    .filter(({ x }, k, todas) => todas.findIndex(({ x: y }) => y.direccion === x.direccion) === k)
+    .slice(0, Math.max(0, n - suyas.length))
+    .map(({ x }) => x);
+  return [...suyas, ...resto].sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
+}
+
+/** El año de una convocatoria por su nombre: "REHABILITA 2021" -> 2021, "Plan
+ *  MAD-RE 18" -> 2018. Un plan de varios años ("Plan Estatal 2018-2021") no
+ *  tiene uno: null. */
+function anioDeConvocatoria(nombre: string | null): number | null {
+  const t = (nombre ?? "").trim();
+  const largos = t.match(/\b(?:19|20)\d{2}\b/g) ?? [];
+  if (largos.length === 1) return Number(largos[0]);
+  if (largos.length > 1) return null;
+  const corto = /\b(\d{2})$/.exec(t);
+  return corto && !/programa\s*\d+$/i.test(t) ? 2000 + Number(corto[1]) : null;
+}
+
+/** "10-PYL1-00019.3/2022" -> 2022, "ERRP-PCH 006/23" -> 2023: el año de la
+ *  convocatoria en el expediente del COAM. */
+function anioDeExpediente(e: string | null): number | null {
+  const m = /\/(\d{4}|\d{2})\s*$/.exec(e ?? "");
+  if (!m) return null;
+  return m[1].length === 4 ? Number(m[1]) : 2000 + Number(m[1]);
+}
 
 /** LO GUARDADO, EN EL ORDEN DE MONICA (15-oct-2026):
  *   1. PRIMERO NUESTRAS TABLAS: la descarga de Catastro (ficha_catastro +
@@ -1278,9 +1365,16 @@ export async function informeEdificio(
  *  referencia y los portales del edificio. En Madrid no se pregunta nada nuevo. */
 async function componerConCatalogo(ref: string, crudo: Crudo): Promise<InformeEdificio | null> {
   // Las subvenciones de alrededor, siempre del censo (si se puede leer).
-  const delCenso = crudo.lat != null && crudo.lng != null ? await subvencionesDelCenso(crudo.lat, crudo.lng, ref) : null;
-  const c: Crudo = delCenso && (delCenso.length || !crudo.cerca.length) ? { ...crudo, cerca: delCenso } : crudo;
+  const a800 = crudo.lat != null && crudo.lng != null ? await subvencionesDelCenso(crudo.lat, crudo.lng, ref) : null;
+  let c: Crudo = a800 && (a800.length || !crudo.cerca.length) ? { ...crudo, cerca: a800, ambitoCerca: "800m" } : crudo;
   const municipio = c.inmuebles[0]?.dt?.nm ?? null;
+  // MENOS DE 5 A 800 m: 8 DEL MUNICIPIO, "EN EL ENTORNO" (Monica, 15-oct-2026:
+  // "asi salvamos la pantalla" donde no tenemos tanta precision).
+  if (c.cerca.length < 5 && municipio) {
+    const delMunicipio = await subvencionesDelMunicipio(municipio, ref);
+    if (delMunicipio && delMunicipio.length > c.cerca.length)
+      c = { ...c, cerca: alAzarEstable(delMunicipio, ref, 8), ambitoCerca: "entorno" };
+  }
   if (!municipio || sinTildes(municipio) === "MADRID") return componer(ref, c);
   const portales = c.inmuebles
     .map((i) => urb(i)?.dir)

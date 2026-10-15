@@ -250,7 +250,7 @@ export async function anexoDeReferencia(
   if (cerca.length || esMadrid) {
     if (cerca.length)
       entorno = {
-        donde: "a menos de 800 m",
+        donde: i.ambitoSubvenciones === "entorno" ? "en el entorno" : "a menos de 800 m",
         filas: cerca.slice(0, 5).map((x) => ({
           quien: bonito(x.direccion),
           detalle: [x.viviendas ? `${x.viviendas} viviendas` : null, x.convocatoria, x.anio].filter(Boolean).join(" · "),
