@@ -288,12 +288,14 @@ function componer(ref: string, c: Crudo, catalogo?: EnElCatalogo): InformeEdific
         ...(catalogo!.casados.length
           ? catalogo!.casados.map(({ fila, como }, n) => ({
               ...d(
-                catalogo!.casados.length > 1 ? `Posible protección (${n + 1})` : "Posible protección",
-                `${fila.grado ?? "Grado sin leer"} · sin revisar`,
-                `${fila.denominacion}${fila.direccion ? ` (${fila.direccion})` : ""}. Sale en el catálogo municipal por ${COMO[como]}: ` +
-                  "hay que comprobarlo en la ficha antes de contarlo.",
+                // Copy de Monica (15-oct-2026): "Probable proteccion. Revisar", y el
+                // enlace al catalogo.
+                catalogo!.casados.length > 1 ? `Probable protección (${n + 1})` : "Probable protección",
+                "Revisar",
+                `${fila.denominacion}${fila.direccion ? ` (${fila.direccion})` : ""}${fila.grado ? ` · ${fila.grado}` : ""}. ` +
+                  `Sale en el catálogo municipal por ${COMO[como]}.`,
               ),
-              enlace: { texto: `Ver la ficha${fila.pagina ? ` (pág. ${fila.pagina})` : ""}`, url: enlaceFicha(fila) },
+              enlace: { texto: `Ver en el catálogo${fila.pagina ? ` (pág. ${fila.pagina})` : ""}`, url: enlaceFicha(fila) },
             }))
           : [
               {
