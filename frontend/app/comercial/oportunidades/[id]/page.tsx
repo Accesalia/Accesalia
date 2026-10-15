@@ -245,8 +245,15 @@ export default async function GestionOportunidad({
             que hace falta para darles precio (Polycam, con su escaneo, y
             viabilidad); y lo estable de la ficha (codigo, distrito, catastro). */}
         {bloque === 1 && (
-          <div className="mb-[10px] grid items-stretch gap-[10px] lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]">
-            {necesita && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
+          <div
+            className={
+              "mb-[10px] grid items-stretch gap-[10px] " +
+              (g.referenciaCatastral ? "lg:grid-cols-[minmax(0,1fr)_minmax(200px,auto)]" : "lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]")
+            }
+          >
+            {/* El 3D va con lo que hemos visto, en el edificio (15-oct-2026); si no
+                hay edificio que mirar, se queda aqui arriba. */}
+            {necesita && !g.referenciaCatastral && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
             {necesita && (
               <Necesidades
                 oppId={id}
@@ -340,7 +347,11 @@ export default async function GestionOportunidad({
               />
             </div>
           ) : g.referenciaCatastral ? (
-            <Edificio referencia={g.referenciaCatastral} id={id} />
+            <Edificio
+              referencia={g.referenciaCatastral}
+              id={id}
+              tresd={bloque === 1 && necesita ? <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} /> : undefined}
+            />
           ) : (
             <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-3">
               <b>Todavía no hay edificio que mirar.</b> Esta oportunidad no tiene referencia

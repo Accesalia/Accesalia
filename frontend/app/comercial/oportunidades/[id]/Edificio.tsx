@@ -149,14 +149,42 @@ const BOT = (on: boolean) =>
 
 const EUR = new Intl.NumberFormat("es-ES");
 
-/** Devuelve las TRES primeras columnas de su rejilla: 278 · 346 · 190. La cuarta
- *  -el diario- la pone la pantalla. */
-export async function Edificio({ referencia, id }: { referencia: string; id: string }) {
+/** Ocupa las TRES primeras columnas de la rejilla de la pantalla; la cuarta -el
+ *  diario- la pone ella.
+ *
+ *  REORDENADO EL 15-OCT-2026 sobre su maqueta ("propusta para reordenar bloque
+ *  1"), sin tocar el contenido, solo de sitio:
+ *    - arriba, las IMAGENES en una tira, y a su lado el 3D (lo unico nuevo) sobre
+ *      LO QUE HEMOS VISTO NOSOTROS (ascensor y patios);
+ *    - en medio, LO QUE CONDICIONA LO QUE PUEDO HACER y LO QUE DICE EL CATASTRO,
+ *      con el edificio y los usos en paralelo en vez de apilados;
+ *    - abajo, a lo ancho, LO QUE CONDICIONA LO QUE PUEDO PEDIR: el IEE y la zona a
+ *      la izquierda; lo ya concedido aqui y a 800 m, con su tabla, a la derecha. */
+export async function Edificio({ referencia, id, tresd }: { referencia: string; id: string; tresd?: React.ReactNode }) {
   const [i, asc, iee] = await Promise.all([
     informeEdificio(referencia),
     ascensorDe(referencia),
     ieeDe(referencia),
   ]);
+  return <EdificioVista i={i} asc={asc} iee={iee} referencia={referencia} id={id} tresd={tresd} />;
+}
+
+/** Lo que se ve, con los datos ya traidos: aparte para poder mirarlo con datos de muestra. */
+export function EdificioVista({
+  i,
+  asc,
+  iee,
+  referencia,
+  id,
+  tresd,
+}: {
+  i: Awaited<ReturnType<typeof informeEdificio>>;
+  asc: Awaited<ReturnType<typeof ascensorDe>>;
+  iee: Awaited<ReturnType<typeof ieeDe>>;
+  referencia: string;
+  id: string;
+  tresd?: React.ReactNode;
+}) {
 
   // Catastro puede no contestar, o la referencia puede estar mal escrita. Eso se
   // DICE, no se esconde, y se dice donde iba el informe.
@@ -188,46 +216,125 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
   // "consulta pendiente de montar". Ya esta montada aqui arriba, con el dato de
   // verdad, asi que se quita de la lista para no decirlo dos veces.
   const pedir = de("Dinero: a qué ayudas entra").filter((d) => !/IEE/i.test(d.que));
+  // Lo concedido (aqui y a 800 m, y el CO2 de eso) va a la derecha, con su tabla.
+  const esConcedido = (d: { que: string }) => /concedi|CO₂/i.test(d.que);
+  const pedirZona = pedir.filter((d) => !esConcedido(d));
+  const pedirConcedido = pedir.filter(esConcedido);
+
+  // EL IEE, primero, porque es lo que mas vende. Dos lecturas suyas: el filon son
+  // las FAVORABLES pendientes de accesibilidad -"al estar su informe favorable,
+  // nadie les esta mirando"-, y "ajustes razonables = NO es la senal de compra",
+  // porque significa que la obra pasa de tres veces la cuota.
+  const elIee = (
+    <div className="mb-[11px]">
+      <Banda familia="pedir">IEE</Banda>
+      <div className="pl-0.5">
+        <span className="text-[12px] font-semibold text-[#1c1c1c]">
+          {!iee ? (
+            <span className="text-[#8a8a8a]">no nos consta</span>
+          ) : (
+            <>
+              Sí
+              {iee.fecha && <span className="font-normal text-carbon/65"> · {iee.fecha.split("-").reverse().join("/")}</span>}
+              {iee.valoracion && (
+                <span className={iee.valoracion.toLowerCase().startsWith("desfav") ? " text-[#820707]" : ""}>
+                  {" "}· {iee.valoracion.toLowerCase()}
+                </span>
+              )}
+            </>
+          )}
+        </span>
+      </div>
+      {!iee ? (
+        <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
+          Solo sabemos de los edificios que ha barrido el radar del registro. Que no conste no quiere decir que no lo tengan.
+        </p>
+      ) : (
+        <>
+          <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
+            <span className="text-[#6e6e6e]">Accesibilidad</span>
+            <span className="text-[#4a4a4a]">{iee.accesibilidadCumple === null ? "—" : iee.accesibilidadCumple ? "cumple" : "no cumple"}</span>
+          </div>
+          <div className="flex items-baseline gap-x-1.5 pl-6 text-[11.5px]">
+            <span className="text-[#6e6e6e]">ajustes razonables</span>
+            <span className={iee.admiteAjustes === false ? "font-bold text-[#0C8124]" : "text-[#4a4a4a]"}>
+              {iee.admiteAjustes === null ? "—" : iee.admiteAjustes ? "los admite" : "NO los admite"}
+            </span>
+          </div>
+          {iee.admiteAjustes === false && (
+            <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
+              Es la señal de compra: la obra pasa de tres veces la cuota, así que van a querer la subvención.
+            </p>
+          )}
+          {iee.accesibilidadCumple === false && iee.valoracion?.toLowerCase().startsWith("favo") && (
+            <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">Informe favorable con la accesibilidad sin resolver: nadie les está mirando.</p>
+          )}
+          <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
+            <span className="text-[#6e6e6e]">Calificación energética</span>
+            <span className="text-[#4a4a4a]">{iee.energetica ?? "—"}</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
 
   return (
-    <>
-      {/* ---------------- 278 · lo que dice el Catastro ---------------- */}
-      <section className={CAJA}>
-        <div className={ROT + " mb-[7px] text-[#104269]"}>Lo que dice el Catastro</div>
-        <div className="mb-2.5">
-          <Banda familia="catastro">El edificio</Banda>
-          {edificio.map((d) => (
-            <Dato key={d.que} {...d} />
-          ))}
-        </div>
-        {usos.length > 0 && (
-          <div className="mb-2.5">
-            <Banda familia="catastro">Usos</Banda>
-            {usos.map((d) => (
-              <Dato key={d.que} {...d} />
+    <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-3">
+      {/* ================= arriba: las imágenes · el 3D y lo que hemos visto ================= */}
+      <div className="grid gap-[10px] lg:grid-cols-[minmax(0,2.75fr)_minmax(230px,1fr)]">
+        <section className={CAJA}>
+          <div className={ROT_GRIS}>Las imágenes</div>
+          <div className="mt-2 grid grid-cols-3 gap-2.5">
+            {[
+              { que: "Croquis catastral", src: i.croquis },
+              { que: "Vista aérea", src: i.aerea },
+            ].map((x) => (
+              <div key={x.que}>
+                {x.src ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={x.src} alt={x.que} className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover" />
+                ) : (
+                  <div className={HUECO}>no se ha podido traer</div>
+                )}
+                <div className="mt-0.5 text-center text-[10px] text-[#9a9a9a]">{x.que}</div>
+              </div>
+            ))}
+            <div>
+              <div className={HUECO}>Polycam · llega solo por el buzón</div>
+            </div>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            <a href={i.visorCatastro} target="_blank" rel="noreferrer" className={ENLACE}>
+              Visor oficial del Catastro
+            </a>
+            {i.pdfs.slice(0, 4).map((p) => (
+              <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className={ENLACE}>
+                {p.que} (PDF)
+              </a>
             ))}
           </div>
-        )}
+        </section>
 
-        {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va
-            firmado con quien y cuando. */}
-        <div className="rounded-[8px] bg-[#E4EED9] px-[9px] py-[7px]">
-          <div className="text-[12px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline underline-offset-2">Lo que hemos visto nosotros</div>
-          <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
-            <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
-            <div className="bg-[#438538]" />
-            {/* Los patios son un NUMERO, no un si/no: su maqueta pregunta
-                "¿cuantos?". El 0 es un dato -no tiene- y el nulo es otro. */}
-            {/* Los patios SE RELLENAN aqui: es el unico dato de esta columna que
-                no viene de fuera. Un numero, no un si/no -su maqueta pregunta
-                "¿cuantos?"-, y se guarda firmado. */}
-            <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
-          </div>
+        <div className="flex flex-col gap-[10px]">
+          {/* El 3D, lo unico nuevo: se decide por lo que vimos (15-oct-2026). */}
+          {tresd}
+          {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va
+              firmado con quien y cuando. */}
+          <section className="rounded-[10px] bg-[#E4EED9] px-[9px] py-[7px]">
+            <div className="text-[12px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline underline-offset-2">Lo que hemos visto nosotros</div>
+            <div className="mt-1.5 grid grid-cols-[1fr_1px_1fr] gap-x-[11px]">
+              <Visto que="Ascensor" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
+              <div className="bg-[#438538]" />
+              {/* Los patios SE RELLENAN aqui: un numero, no un si/no -su maqueta
+                  pregunta "¿cuantos?"-, y se guarda firmado. */}
+              <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
-      {/* ------------- 346 · lo que puedo hacer y lo que puedo pedir ------------- */}
-      <div className="flex flex-col gap-[10px]">
+      {/* ================= en medio: lo que puedo hacer · lo que dice el Catastro ================= */}
+      <div className="grid items-start gap-[10px] lg:grid-cols-[minmax(0,404fr)_minmax(0,505fr)]">
         <section className={CARD + " border-[#820707]"}>
           <div className={ROT + " mb-[9px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>
           {hacer.length === 0 ? (
@@ -237,149 +344,77 @@ export async function Edificio({ referencia, id }: { referencia: string; id: str
           )}
         </section>
 
-        <section className={CARD + " border-[#0C8124]"}>
-          <div className={ROT + " mb-[9px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
-
-          {/* EL IEE, primero, porque es lo que mas vende. Dos lecturas suyas:
-              el filon son las FAVORABLES pendientes de accesibilidad -"al estar
-              su informe favorable, nadie les esta mirando"-, y "ajustes
-              razonables = NO es la senal de compra", porque significa que la
-              obra pasa de tres veces la cuota. */}
-          <div className="mb-[11px]">
-            <Banda familia="pedir">IEE</Banda>
-            <div className="pl-0.5">
-              <span className="text-[12px] font-semibold text-[#1c1c1c]">
-                {!iee ? (
-                  <span className="text-[#8a8a8a]">no nos consta</span>
-                ) : (
-                  <>
-                    Sí
-                    {iee.fecha && <span className="font-normal text-carbon/65"> · {iee.fecha.split("-").reverse().join("/")}</span>}
-                    {iee.valoracion && (
-                      <span className={iee.valoracion.toLowerCase().startsWith("desfav") ? " text-[#820707]" : ""}>
-                        {" "}· {iee.valoracion.toLowerCase()}
-                      </span>
-                    )}
-                  </>
-                )}
-              </span>
+        <section className={CAJA}>
+          <div className={ROT + " mb-[7px] text-[#104269]"}>Lo que dice el Catastro</div>
+          <div className="grid gap-x-4 gap-y-2.5 sm:grid-cols-2">
+            <div>
+              <Banda familia="catastro">El edificio</Banda>
+              {edificio.map((d) => (
+                <Dato key={d.que} {...d} />
+              ))}
             </div>
-            {!iee ? (
-              <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
-                Solo sabemos de los edificios que ha barrido el radar del registro. Que no conste
-                no quiere decir que no lo tengan.
-              </p>
-            ) : (
-              <>
-                <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
-                  <span className="text-[#6e6e6e]">Accesibilidad</span>
-                  <span className="text-[#4a4a4a]">
-                    {iee.accesibilidadCumple === null ? "—" : iee.accesibilidadCumple ? "cumple" : "no cumple"}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-x-1.5 pl-6 text-[11.5px]">
-                  <span className="text-[#6e6e6e]">ajustes razonables</span>
-                  <span className={iee.admiteAjustes === false ? "font-bold text-[#0C8124]" : "text-[#4a4a4a]"}>
-                    {iee.admiteAjustes === null ? "—" : iee.admiteAjustes ? "los admite" : "NO los admite"}
-                  </span>
-                </div>
-                {iee.admiteAjustes === false && (
-                  <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
-                    Es la señal de compra: la obra pasa de tres veces la cuota, así que van a
-                    querer la subvención.
-                  </p>
-                )}
-                {iee.accesibilidadCumple === false && iee.valoracion?.toLowerCase().startsWith("favo") && (
-                  <p className="mt-0.5 text-[11px] leading-snug text-[#2B6CB0]">
-                    Informe favorable con la accesibilidad sin resolver: nadie les está mirando.
-                  </p>
-                )}
-                <div className="flex items-baseline gap-x-1.5 pl-[13px] text-[11.5px]">
-                  <span className="text-[#6e6e6e]">Calificación energética</span>
-                  <span className="text-[#4a4a4a]">{iee.energetica ?? "—"}</span>
-                </div>
-              </>
+            {usos.length > 0 && (
+              <div>
+                <Banda familia="catastro">Usos</Banda>
+                {usos.map((d) => (
+                  <Dato key={d.que} {...d} />
+                ))}
+              </div>
             )}
           </div>
-          {/* El IEE sale aqui dentro, en su fila "¿Tiene IEE registrada?", que hoy
-              dice "—" y "consulta pendiente de montar". No se le pone un aviso
-              encima: el informe ya lo dice en su sitio. */}
-          {pedir.map((d) => (
-            <Sub key={d.que} familia="pedir" {...d} />
-          ))}
         </section>
-
-        {/* Lo que han cobrado los de al lado: es el argumento de venta, no un
-            adorno. "Sus vecinos han accedido a subvencion de tal y ellos solo a X." */}
-        {i.subvencionesCerca.length > 0 && (
-          <section className={CAJA}>
-            <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-              <div className={ROT_GRIS}>Subvenciones ya concedidas a menos de 800 m</div>
-              <div className="text-[13px]">
-                <b>{EUR.format(Math.round(i.subvencionesCerca.reduce((t, s) => t + (s.importe ?? 0), 0)))} €</b>
-                <span className="text-[11px] text-[#8a8a8a]"> en {i.subvencionesCerca.length} obras</span>
-              </div>
-            </div>
-            <table className="mt-1.5 w-full border-collapse text-[11.5px]">
-              <thead>
-                <tr className="text-[10px] uppercase tracking-[0.07em] text-[#8a8a8a]">
-                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-left font-bold">Dirección</th>
-                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Concedido</th>
-                  <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Viv.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {i.subvencionesCerca.slice(0, 8).map((s, n) => (
-                  <tr key={n}>
-                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px]">{s.direccion}</td>
-                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">
-                      {s.importe === null ? "—" : `${EUR.format(Math.round(s.importe))} €`}
-                    </td>
-                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">{s.viviendas ?? ""}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )}
       </div>
 
-      {/* ---------------------- 190 · las imágenes ---------------------- */}
-      <section className={CAJA}>
-        <div className={ROT_GRIS}>Las imágenes</div>
-        <div className="mt-2 flex flex-col gap-2.5">
-          {[
-            { que: "Croquis catastral", src: i.croquis },
-            { que: "Vista aérea", src: i.aerea },
-          ].map((x) => (
-            <div key={x.que}>
-              {x.src ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={x.src} alt={x.que} className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover" />
-              ) : (
-                <div className={HUECO}>no se ha podido traer</div>
-              )}
-              <div className="mt-0.5 text-center text-[10px] text-[#9a9a9a]">{x.que}</div>
-            </div>
-          ))}
+      {/* ================= abajo, a lo ancho: lo que puedo pedir ================= */}
+      <section className={CARD + " border-[#0C8124]"}>
+        <div className={ROT + " mb-[9px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
+        <div className="grid gap-x-5 gap-y-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <div>
-            <div className={HUECO}>Polycam · llega solo por el buzón</div>
+            {elIee}
+            {pedirZona.map((d) => (
+              <Sub key={d.que} familia="pedir" {...d} />
+            ))}
           </div>
-          <a
-            href={i.visorCatastro}
-            target="_blank"
-            rel="noreferrer"
-            className={ENLACE}
-          >
-            Visor oficial del Catastro
-          </a>
-          {i.pdfs.slice(0, 4).map((p) => (
-            <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className={ENLACE}>
-              {p.que} (PDF)
-            </a>
-          ))}
+          <div>
+            {pedirConcedido.map((d) => (
+              <Sub key={d.que} familia="pedir" {...d} />
+            ))}
+            {/* Lo que han cobrado los de al lado: es el argumento de venta, no un
+                adorno. "Sus vecinos han accedido a subvencion de tal y ellos solo a X." */}
+            {i.subvencionesCerca.length > 0 && (
+              <div className={CAJA + " mt-2"}>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                  <div className={ROT_GRIS}>Subvenciones ya concedidas a menos de 800 m</div>
+                  <div className="text-[13px]">
+                    <b>{EUR.format(Math.round(i.subvencionesCerca.reduce((t, s) => t + (s.importe ?? 0), 0)))} €</b>
+                    <span className="text-[11px] text-[#8a8a8a]"> en {i.subvencionesCerca.length} obras</span>
+                  </div>
+                </div>
+                <table className="mt-1.5 w-full border-collapse text-[11.5px]">
+                  <thead>
+                    <tr className="text-[10px] uppercase tracking-[0.07em] text-[#8a8a8a]">
+                      <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-left font-bold">Dirección</th>
+                      <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Concedido</th>
+                      <th className="border-b border-[#e2e2e2] px-1.5 py-[3px] text-right font-bold">Viv.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {i.subvencionesCerca.slice(0, 8).map((s, n) => (
+                      <tr key={n}>
+                        <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px]">{s.direccion}</td>
+                        <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">
+                          {s.importe === null ? "—" : `${EUR.format(Math.round(s.importe))} €`}
+                        </td>
+                        <td className="border-b border-[#f0f0f0] px-1.5 py-[2.5px] text-right tabular-nums">{s.viviendas ?? ""}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
