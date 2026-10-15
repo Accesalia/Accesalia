@@ -233,7 +233,9 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-black/5 px-4 py-2.5">
+      {/* La fila de los filtros con icono, sobre un crema tostado sutil que le da
+          soporte (Monica, 15-oct-2026). */}
+      <div className="flex flex-wrap items-center gap-2 border-y border-[#E2D6BE] bg-[#F3ECDD] px-4 py-2.5">
         {pildora("todos", "Todos")}
         {pildora("estrella", "⭐ Estrellas")}
         {pildora("dormido", "💤 Dormidos")}
@@ -301,7 +303,7 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
         posibles.length === 0 ? (
           <p className="px-4 py-6 text-[13px] text-carbon/65">Ninguno: todos los que tienes ya han firmado.</p>
         ) : (
-          <ul className="max-h-[42rem] divide-y divide-black/5 overflow-y-auto">
+          <ul className="max-h-[42rem] divide-y divide-black/20 overflow-y-auto">
             {posibles.map((p) => (
               <li key={p.id} className="flex items-center gap-2 px-4 py-2">
                 <Link href={`/consulta/personas/${p.personaId}`} className="min-w-0 flex-1 hover:underline">
@@ -323,7 +325,7 @@ export function CarteraConsolidados({ c, todos, grabar }: { c: CarteraGestores; 
       ) : lista.length === 0 ? (
         <p className="px-4 py-6 text-[13px] text-carbon/65">{c.gestores.length ? "Ninguno con este filtro." : "Todavía no hay administradores consolidados."}</p>
       ) : (
-        <ul className="max-h-[42rem] divide-y divide-black/5 overflow-y-auto">
+        <ul className="max-h-[42rem] divide-y divide-black/20 overflow-y-auto">
           {lista.map((g) => (
             <Tarjeta key={g.id} g={g} alGrabar={() => setGrabando(`puesto:${g.id}`)} />
           ))}
