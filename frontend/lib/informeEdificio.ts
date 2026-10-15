@@ -44,6 +44,8 @@ export type SubvencionCerca = {
   convocatoria: string | null;
   viviendas: number | null;
   ahorroCo2: number | null;
+  /** Cuando se concedio (subvencion_concedida.fecha). Null si no consta. */
+  fecha: string | null;
   aqui: boolean;
 };
 
@@ -612,6 +614,7 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
             convocatoria: a.CONVOCATORIA ? String(a.CONVOCATORIA) : null,
             viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? a.VIVIENDAS_EDIFICIO : null,
             ahorroCo2: typeof a["AHORRO_CO2__kg_año_"] === "number" ? (a["AHORRO_CO2__kg_año_"] as number) : null,
+            fecha: null,
             aqui: suyos.has(String(a.OBJECTID)),
           };
         })
@@ -755,7 +758,8 @@ async function desdeLasTablas(f: FilaFicha): Promise<Crudo | null> {
     ascensor: geo?.ascensor ?? null,
     apiru: geo?.apiru ?? null,
     arru: geo?.arru ?? null,
-    cerca: geo?.cerca ?? [],
+    // Las de alrededor se ponen al componer, del censo (subvencionesDelCenso).
+    cerca: [],
     fallos: [],
     consultadoEn: f.consultado_en,
     geoportal: geo !== null,
@@ -780,7 +784,7 @@ function metros(lat1: number, lng1: number, lat2: number, lng2: number): number 
  *  las cinco fuentes: una a medias no se da por consultada, y la ficha dice
  *  "sin consultar" en vez de "No". Las subvenciones de alrededor salen del
  *  censo entero (subvencion_concedida), con su posicion. */
-async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" | "condiciones" | "ascensor" | "apiru" | "arru" | "cerca"> | null> {
+async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" | "condiciones" | "ascensor" | "apiru" | "arru"> | null> {
   const r = await fetch(`${URL_BASE}/rest/v1/dato_urbanistico?select=fuente,hay,detalle&referencia=eq.${f.referencia}`, {
     headers: cab,
     cache: "no-store",
@@ -791,14 +795,28 @@ async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" 
   if (!FUENTES_GEOPORTAL.every((x) => de(x)?.hay != null)) return null;
   const si = (fuente: string) => (de(fuente)?.hay ? (de(fuente)?.detalle ?? null) : null);
 
-  let cerca: SubvencionCerca[] = [];
-  if (f.lat != null && f.lng != null) {
-    // Una caja algo mayor de 800 m, y luego la distancia de verdad.
-    const dLat = 0.0075;
-    const dLng = 0.0100;
+  return {
+    protegido: si("edificio_protegido"),
+    condiciones: si("condiciones_proteccion"),
+    ascensor: si("modelo_ascensor"),
+    apiru: si("apiru"),
+    arru: si("arru"),
+  };
+}
+
+/** LAS SUBVENCIONES DE ALREDEDOR, SIEMPRE DE NUESTRO CENSO (Monica, 15-oct-2026):
+ *  subvencion_concedida se lee al abrir, con todos sus campos (tambien la
+ *  fecha), venga el edificio de donde venga. Asi una subvencion nueva a 800 m
+ *  sale aunque la foto guardada sea de hace meses. Null si no se puede leer:
+ *  entonces vale lo que hubiera. */
+async function subvencionesDelCenso(lat: number, lng: number): Promise<SubvencionCerca[] | null> {
+  // Una caja algo mayor de 800 m, y luego la distancia de verdad.
+  const dLat = 0.0075;
+  const dLng = 0.0100;
+  try {
     const s = await fetch(
-      `${URL_BASE}/rest/v1/subvencion_concedida?select=direccion,importe,convocatoria,viviendas,ahorro_co2,lat,lng` +
-        `&lat=gte.${f.lat - dLat}&lat=lte.${f.lat + dLat}&lng=gte.${f.lng - dLng}&lng=lte.${f.lng + dLng}`,
+      `${URL_BASE}/rest/v1/subvencion_concedida?select=direccion,importe,convocatoria,viviendas,ahorro_co2,fecha,lat,lng` +
+        `&lat=gte.${lat - dLat}&lat=lte.${lat + dLat}&lng=gte.${lng - dLng}&lng=lte.${lng + dLng}`,
       { headers: cab, cache: "no-store" },
     );
     if (!s.ok) return null;
@@ -808,11 +826,12 @@ async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" 
       convocatoria: string | null;
       viviendas: number | null;
       ahorro_co2: number | null;
+      fecha: string | null;
       lat: number;
       lng: number;
     }[];
-    cerca = lista
-      .map((x) => ({ x, m: metros(f.lat!, f.lng!, x.lat, x.lng) }))
+    return lista
+      .map((x) => ({ x, m: metros(lat, lng, x.lat, x.lng) }))
       .filter(({ m }) => m <= 800)
       .map(({ x, m }) => ({
         direccion: x.direccion.trim(),
@@ -820,23 +839,23 @@ async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" 
         convocatoria: x.convocatoria,
         viviendas: x.viviendas,
         ahorroCo2: x.ahorro_co2 != null ? Number(x.ahorro_co2) : null,
+        fecha: x.fecha,
         aqui: m <= 35,
       }))
       .sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
+  } catch {
+    return null;
   }
-
-  return {
-    protegido: si("edificio_protegido"),
-    condiciones: si("condiciones_proteccion"),
-    ascensor: si("modelo_ascensor"),
-    apiru: si("apiru"),
-    arru: si("arru"),
-    cerca,
-  };
 }
 
-/** Lo guardado. Null si no hay nada o si esta pasado de fecha. */
-async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | null> {
+/** LO GUARDADO, EN EL ORDEN DE MONICA (15-oct-2026):
+ *   1. PRIMERO NUESTRAS TABLAS: la descarga de Catastro (ficha_catastro +
+ *      ficha_catastro_inmueble) y el geoportal guardado (dato_urbanistico).
+ *   2. SI NO HAY TABLAS, LA FOTO (ficha_catastro.bruto), como respaldo: los
+ *      edificios fuera de nuestra descarga. Tenga los dias que tenga.
+ *  Las subvenciones de alrededor y los catalogos de proteccion no van aqui: se
+ *  leen siempre al componer. Null si no hay nada. */
+async function leerDeLaBase(ref: string): Promise<Crudo | null> {
   if (!URL_BASE || !SECRETO) return null;
   try {
     const r = await fetch(
@@ -847,45 +866,96 @@ async function leerDeLaBase(ref: string, diasBueno: number): Promise<Crudo | nul
     if (!r.ok) return null;
     const [f] = (await r.json()) as FilaFicha[];
     if (!f) return null;
-    // Lo guardado por esta misma pantalla, con el geoportal dentro.
-    if (f.bruto?.inmuebles?.length) {
-      // Una guardada a medias se trata como si no existiera: asi se cura sola.
-      const bueno = f.bruto.lat !== null && f.bruto.lng !== null && (f.bruto.fallos?.length ?? 0) === 0;
-      const dias = (Date.now() - new Date(f.consultado_en).getTime()) / 86400000;
-      if (bueno && dias <= diasBueno) return f.bruto;
+    // La foto solo vale entera: una guardada a medias no se usa.
+    const foto = f.bruto?.inmuebles?.length && f.bruto.lat !== null && f.bruto.lng !== null && (f.bruto.fallos?.length ?? 0) === 0 ? f.bruto : null;
+
+    const tablas = await desdeLasTablas(f);
+    if (tablas) {
+      // Lo que las tablas no traen y la foto si: el geoportal de Madrid si no
+      // esta bajado, y el texto de la finca.
+      if (tablas.geoportal === false && foto && foto.geoportal !== false) {
+        Object.assign(tablas, {
+          protegido: foto.protegido, condiciones: foto.condiciones, ascensor: foto.ascensor,
+          apiru: foto.apiru, arru: foto.arru, geoportal: true,
+        });
+      }
+      if (!tablas.fincaLdt && foto?.fincaLdt) tablas.fincaLdt = foto.fincaLdt;
+      return tablas;
     }
-    // Si no, lo extraido por el barrido.
-    return await desdeLasTablas(f);
+    return foto;
   } catch {
     return null;
   }
 }
 
-/** La puerta: primero lo guardado, y solo si no hay se sale fuera. */
+/** SALIR A INTERNET, PERO NO CADA VEZ (Monica, 15-oct-2026). Si ya se pregunto
+ *  hace poco y no estaba, o fallo, no se vuelve a preguntar: se apunta en
+ *  consulta_externa que se pregunto y cuando. "Actualizar" (refrescar) se lo
+ *  salta: lo pide una persona. Los dias, a confirmar por Monica. */
+const DIAS_SI_NO_ESTABA = 30;
+const DIAS_SI_FALLO = 1;
+
+async function preguntadoHacePoco(ref: string): Promise<boolean> {
+  try {
+    const r = await fetch(`${URL_BASE}/rest/v1/consulta_externa?select=resultado,preguntado_en&referencia=eq.${ref}&fuente=eq.catastro&limit=1`, {
+      headers: cab,
+      cache: "no-store",
+    });
+    if (!r.ok) return false;
+    const [u] = (await r.json()) as { resultado: string; preguntado_en: string }[];
+    if (!u || u.resultado === "ok") return false;
+    const dias = (Date.now() - new Date(u.preguntado_en).getTime()) / 86400000;
+    return dias < (u.resultado === "no_esta" ? DIAS_SI_NO_ESTABA : DIAS_SI_FALLO);
+  } catch {
+    return false;
+  }
+}
+
+async function apuntarPregunta(ref: string, resultado: "ok" | "no_esta" | "fallo", detalle: string | null) {
+  try {
+    await fetch(`${URL_BASE}/rest/v1/consulta_externa?on_conflict=referencia,fuente`, {
+      method: "POST",
+      headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({ referencia: ref, fuente: "catastro", preguntado_en: new Date().toISOString(), resultado, detalle }),
+    });
+  } catch {
+    /* no apuntarlo no impide enseñar el edificio */
+  }
+}
+
+/** La puerta: primero lo guardado (tablas, luego foto), y solo si no hay nada se
+ *  sale fuera, y no cada vez. */
 export async function informeEdificio(
   referenciaBruta: string,
   // `completo`: para lo que se entrega al cliente. Si lo guardado no lleva el
   // geoportal, se sale a por el y queda guardado para la proxima.
-  opciones: { refrescar?: boolean; diasBueno?: number; completo?: boolean } = {},
+  opciones: { refrescar?: boolean; completo?: boolean } = {},
 ): Promise<InformeEdificio | null> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
   if (ref.length < 14) return null;
 
-  const guardado = opciones.refrescar ? null : await leerDeLaBase(ref, opciones.diasBueno ?? 120);
+  const guardado = opciones.refrescar ? null : await leerDeLaBase(ref);
   if (guardado && !(opciones.completo && guardado.geoportal === false)) return componerConCatalogo(ref, guardado);
   // Si fuera falla, mejor lo guardado que nada.
   const loQueHay = () => (guardado ? componerConCatalogo(ref, guardado) : null);
+  if (!opciones.refrescar && (await preguntadoHacePoco(ref))) return loQueHay();
 
   // Si Catastro corta la conexion (pasa: 8-oct-2026, "ECONNRESET" en la ficha
   // de Zamora 28 y en la de Albufera 250), la ficha NO se cae: sale el aviso de
-  // "no se ha podido traer el edificio" y la proxima vez se reintenta.
+  // "no se ha podido traer el edificio" y se reintenta pasado DIAS_SI_FALLO.
   let fuera: Crudo | null = null;
   try {
     fuera = await traerDeFuera(ref);
-  } catch {
+  } catch (e) {
+    await apuntarPregunta(ref, "fallo", e instanceof Error ? e.message : String(e));
     return loQueHay();
   }
-  if (!fuera) return loQueHay();
+  if (!fuera) {
+    await apuntarPregunta(ref, "no_esta", null);
+    return loQueHay();
+  }
+  const aMedias = fuera.fallos.length > 0 || fuera.lat === null || fuera.lng === null;
+  await apuntarPregunta(ref, aMedias ? "fallo" : "ok", aMedias ? fuera.fallos.join(" | ") || "sin coordenadas" : null);
   try {
     await guardar(ref, fuera);
   } catch {
@@ -896,7 +966,10 @@ export async function informeEdificio(
 
 /** Fuera de Madrid, antes de componer se mira el catalogo del municipio con la
  *  referencia y los portales del edificio. En Madrid no se pregunta nada nuevo. */
-async function componerConCatalogo(ref: string, c: Crudo): Promise<InformeEdificio | null> {
+async function componerConCatalogo(ref: string, crudo: Crudo): Promise<InformeEdificio | null> {
+  // Las subvenciones de alrededor, siempre del censo (si se puede leer).
+  const delCenso = crudo.lat != null && crudo.lng != null ? await subvencionesDelCenso(crudo.lat, crudo.lng) : null;
+  const c: Crudo = delCenso && (delCenso.length || !crudo.cerca.length) ? { ...crudo, cerca: delCenso } : crudo;
   const municipio = c.inmuebles[0]?.dt?.nm ?? null;
   if (!municipio || sinTildes(municipio) === "MADRID") return componer(ref, c);
   const portales = c.inmuebles
