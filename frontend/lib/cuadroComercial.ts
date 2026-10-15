@@ -12,6 +12,7 @@ import { avisoDireccion, cuenta } from "./direccionNombre";
 import { nombreDeOpp } from "./direccionOpp";
 import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota";
 import { carteraGestores, type CarteraGestores } from "./carteraGestores";
+import { hitosDeEstado } from "./fasesDeEstado";
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
 import { datosMapa, type DatosMapa, type ComunidadEnMapa } from "./mapaComunidades";
@@ -273,8 +274,8 @@ export async function mapaDe(empresaIds: string[] | null): Promise<DatosMapa> {
 // El cuadro de verdad, desde la base
 // ---------------------------------------------------------------------------
 
-/** Una fase, tal como la DEDUCE la base (vista `fases_oportunidad`): nada se
- *  marca a mano (Monica, 9-oct-2026). */
+/** Una fase, tal como sale del ESTADO DE LA OPP (lib/fasesDeEstado.ts): nada se
+ *  marca a mano (Monica, 9-oct y 15-oct-2026). */
 type HitoCrudo = { hito: string; estado: "hecho" | "saltado" | "pendiente"; fecha: string | null };
 
 type OportunidadCruda = {
@@ -310,7 +311,7 @@ const diasEntre = (desde: string, hasta = hoyISO()) =>
   Math.max(0, Math.round((new Date(hasta).getTime() - new Date(desde.slice(0, 10)).getTime()) / 86_400_000));
 
 /** De las fases de una oportunidad a los tramos de la barra, el punto actual y
- *  cuanto lleva ahi. Las fases vienen DEDUCIDAS de la base (fases_oportunidad):
+ *  cuanto lleva ahi. Las fases vienen del estado de la opp (estado_oportunidad):
  *  aqui solo se pintan. El punto actual es el primer paso de la linea principal
  *  que sigue pendiente; lo que se paso de largo sale como "saltado". */
 export function leerBarra(pasos: Paso[], hitos: HitoCrudo[], creadoEn: string) {
@@ -368,18 +369,23 @@ export async function barraDeOportunidad(id: string, comunidadId: string | null,
   };
 }
 
-/** Las fases de unas cuantas oportunidades, de la vista. */
+/** Las fases de unas cuantas oportunidades: del ESTADO DE LA OPP (la escalera,
+ *  estado_oportunidad), no de la vista vieja (Monica, 15-oct-2026). */
 async function fasesDe(ids: string[]): Promise<Map<string, HitoCrudo[]>> {
-  const m = new Map<string, HitoCrudo[]>();
-  if (!ids.length) return m;
-  const filas = await rest<(HitoCrudo & { oportunidad_id: string })[]>(
-    `fases_oportunidad?select=oportunidad_id,hito,estado,fecha&oportunidad_id=in.(${ids.join(",")})`,
-  );
-  for (const f of filas) {
-    if (!m.has(f.oportunidad_id)) m.set(f.oportunidad_id, []);
-    m.get(f.oportunidad_id)!.push(f);
-  }
-  return m;
+  return hitosDeEstado(ids);
+}
+
+/** Las opps que cuentan en las fases: ABIERTAS y con fase (las completadas y
+ *  las perdidas no tienen). Del estado de la opp, con su comercial y su fase si
+ *  se piden. */
+async function vivasConFase(comercialId: string | null, fase: string | null) {
+  const f = (comercialId ? `&opp.comercial_id=eq.${comercialId}` : "") + (fase ? `&fase=eq.${encodeURIComponent(fase)}` : "&fase=not.is.null");
+  return (
+    await restTodo<{ oportunidad_id: string; fase: string; opp: { creado_en: string; fecha_apertura: string | null } }>(
+      `estado_oportunidad?select=oportunidad_id,fase,opp:oportunidades!inner(creado_en,fecha_apertura)&opp.estado=eq.abierta${f}`,
+      "oportunidad_id",
+    )
+  ).map((o) => ({ oportunidad_id: o.oportunidad_id, fase_actual: o.fase, creado_en: o.opp.creado_en, fecha_apertura: o.opp.fecha_apertura }));
 }
 
 /** EL RECUENTO POR FASES, sin tope.
@@ -394,12 +400,8 @@ async function fasesDe(ids: string[]): Promise<Map<string, HitoCrudo[]>> {
  *  tarjeta: si el recuento tuviera su propia idea de "en que fase esta", los dos
  *  numeros acabarian discrepando y nadie sabria cual creer. */
 async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
-  const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
-  // La fase actual ya viene calculada por la base: aqui solo se cuenta.
-  const filas = await restTodo<{ fase_actual: string | null }>(
-    `fase_actual_oportunidad?select=oportunidad_id,fase_actual&estado=eq.abierta&cobrada=is.false${f}`,
-    "oportunidad_id",
-  );
+  // La fase actual ya viene guardada en el estado de la opp: aqui solo se cuenta.
+  const filas = await vivasConFase(comercialId, null);
   const cuenta = new Map<string, number>();
   for (const o of filas) if (o.fase_actual) cuenta.set(o.fase_actual, (cuenta.get(o.fase_actual) ?? 0) + 1);
   return pasos.map((p) => ({ clave: p.clave, cuantas: cuenta.get(p.clave) ?? 0 }));
@@ -420,16 +422,10 @@ async function oportunidadesPendientes(
   fase: string | null = null,
 ): Promise<{ lista: OportunidadCuadro[]; total: number }> {
   // Solo las de una fase, si se pide ("Opps por fases", Monica, 12-oct-2026).
-  const f = (comercialId ? `&comercial_id=eq.${comercialId}` : "") + (fase ? `&fase_actual=eq.${encodeURIComponent(fase)}` : "");
   // Primero TODAS, pero ligeras: solo para contarlas de verdad y saber cuales
   // caen en esta pagina. Luego, enteras, solo esas.
-  // Abierta hasta que esta COBRADA: eso lo dice la base (fase_actual_oportunidad).
-  const vivas = (
-    await restTodo<{ oportunidad_id: string; creado_en: string; fecha_apertura: string | null }>(
-      `fase_actual_oportunidad?select=oportunidad_id,creado_en,fecha_apertura&estado=eq.abierta&cobrada=is.false${f}`,
-      "oportunidad_id",
-    )
-  )
+  // Abierta y con fase: eso lo dice el estado de la opp (estado_oportunidad).
+  const vivas = (await vivasConFase(comercialId, fase))
     .map((o) => ({ ...o, id: o.oportunidad_id }))
     // Las mas recientes arriba; sin fecha de apertura, al final.
     .sort((a, b) =>

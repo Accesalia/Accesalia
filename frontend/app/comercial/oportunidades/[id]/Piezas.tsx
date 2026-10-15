@@ -103,18 +103,20 @@ export function Fases({ hitos }: { hitos: HitoGestion[] }) {
   );
 }
 
-/** De donde sale cada fase: lo que la marca como hecha (fases_oportunidad). */
+/** Cuando esta la opp en cada fase: lo dice la escalera de "que nos falta"
+ *  (estado_oportunidad, lib/pasosEscalera.ts; Monica, 15-oct-2026). Una fase
+ *  queda hecha cuando la opp pasa a una posterior. */
 const DE_DONDE: Record<string, string> = {
-  primer_contacto: "Sale de la primera nota del diario.",
-  visita: "Sale del Polycam: si se recibe el escaneo, hubo visita.",
-  polycam: "Sale del escaneo recibido y vinculado a sus portales.",
-  viabilidad_arquitecto: "Sale de la viabilidad con su PDF generado.",
-  preparacion_documentos: "Sale de la hoja de encargo generada en PDF.",
-  envio_documentos: "Sale de la hoja enviada a la comunidad.",
-  tresd: "Sale del 3D entregado.",
-  junta: "Sale de la junta celebrada.",
-  firma: "Sale de la hoja devuelta firmada.",
-  cobro: "Saldrá de facturación: cuando esté pagada.",
+  primer_contacto: "Hecha al dar de alta la opp.",
+  visita: "Aquí mientras falta cerrar la visita para el escaneo.",
+  polycam: "Aquí con la visita agendada, hasta que llega el Polycam.",
+  viabilidad_arquitecto: "Aquí desde que llega el Polycam hasta que el arquitecto define la viabilidad.",
+  preparacion_documentos: "Aquí hasta tener la HE, la VB y el presupuesto con su ok (o rehacer la oferta).",
+  envio_documentos: "Aquí con el ok, hasta enviar la documentación a la comunidad.",
+  tresd: "El 3D se sigue dentro de la junta.",
+  junta: "Aquí desde que se envía la hoja hasta saber qué votaron.",
+  firma: "Aquí desde que la junta vota sí hasta que llega la hoja firmada.",
+  cobro: "Aquí desde la hoja firmada hasta el cobro.",
 };
 
 // --------------------------------------------------------- qué contratan

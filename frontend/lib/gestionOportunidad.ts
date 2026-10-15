@@ -21,6 +21,7 @@ import { quienDeNota, SEL_NOTA, tipoDeNota, type NotaLeida } from "./tipoDeNota"
 import { fotosDeNotas, type Foto } from "./fotos";
 import "server-only";
 import { recalcularLuego } from "./estadoOportunidad";
+import { hitosDeEstado } from "./fasesDeEstado";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -302,11 +303,9 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     leer<{ clave: string; nombre: string; orden: number; es_ramal: boolean; responsable_rol: string | null }[]>(
       "hitos_comerciales?select=clave,nombre,orden,es_ramal,responsable_rol&order=orden.asc",
     ),
-    // Las fases se DEDUCEN de los datos (vista fases_oportunidad): nada se marca
-    // a mano (Monica, 9-oct-2026).
-    leer<{ hito: string; estado: "hecho" | "saltado" | "pendiente"; fecha: string | null }[]>(
-      `fases_oportunidad?select=hito,estado,fecha&oportunidad_id=eq.${id}`,
-    ),
+    // Las fases salen del ESTADO DE LA OPP (la escalera, estado_oportunidad):
+    // nada se marca a mano (Monica, 9-oct y 15-oct-2026).
+    hitosDeEstado([id]).then((m) => m.get(id) ?? []),
     leer<{ tipo_id: string }[]>(`oportunidad_tipos?select=tipo_id&oportunidad_id=eq.${id}`),
     leer<{ que_vendemos: string | null; precio: number | null; alcance: string | null; notas: string | null }[]>(
       `negociacion_oportunidad?select=que_vendemos,precio,alcance,notas&oportunidad_id=eq.${id}&order=creado_en.desc&limit=1`,

@@ -28,6 +28,7 @@ import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
 import { bloquesDe } from "../app/comercial/oportunidades/[id]/Carril";
 import type { HitoGestion } from "./gestionOportunidad";
+import { hitosDeEstado } from "./fasesDeEstado";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -123,18 +124,10 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
 
   // Los hitos de las vivas, por tandas de ids (la URL no admite miles).
   const hitos = new Map<string, Map<string, { estado: string; fecha: string | null }>>();
-  const lotes = await Promise.all(
-    pedazos(vivas.map((o) => o.id), 150).map((ids) =>
-      // Las fases se DEDUCEN de los datos (vista fases_oportunidad, 9-oct-2026).
-      todo<{ oportunidad_id: string; hito: string; estado: string; fecha: string | null }>(
-        `fases_oportunidad?select=oportunidad_id,hito,estado,fecha&oportunidad_id=in.(${ids.join(",")})`,
-      ),
-    ),
-  );
-  for (const h of lotes.flat()) {
-    if (!hitos.has(h.oportunidad_id)) hitos.set(h.oportunidad_id, new Map());
-    hitos.get(h.oportunidad_id)!.set(h.hito, h);
-  }
+  // Las fases salen del ESTADO DE LA OPP (estado_oportunidad, 15-oct-2026); sin
+  // fechas, que este listado no las enseña.
+  const deEstado = await hitosDeEstado(vivas.map((o) => o.id), false);
+  for (const [id, hs] of deEstado) hitos.set(id, new Map(hs.map((h) => [h.hito, h])));
 
   return vivas.map((o) => {
     const suyos = hitos.get(o.id) ?? new Map();
