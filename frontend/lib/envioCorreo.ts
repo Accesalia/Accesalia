@@ -21,6 +21,7 @@ import { pdfGuardado as pdfViabilidad } from "./viabilidadComercial";
 import { pdfGuardado as pdfPresupuesto } from "./presupuesto";
 import { pdfDeVersion } from "./hojaEncargo";
 import { estadoRevision } from "./revisionOferta";
+import { recalcularLuego } from "./estadoOportunidad";
 import { informesDeOportunidad, leerInforme } from "./informeCostes";
 import { pdfDeInformeCostes } from "./pdf/InformeCostesDoc";
 
@@ -245,6 +246,27 @@ Entra con tu correo; te llegará un enlace para acceder.`;
     }),
   });
   if (!r.ok) throw new Error(`No se ha enviado: ${r.dice}`);
+
+  // ENVIAR LA HOJA POR CORREO ES ENVIARLA (Monica, 15-oct-2026): "enviar mail
+  // desde la app siempre deberia dejar huella y poder usarse como rastro". La
+  // version que sale queda con su fecha de envio y la hoja, enviada a la
+  // comunidad, sin tener que marcarlo a mano.
+  const versiones = elegidos.filter((x) => x.clave.startsWith("hoja:")).map((x) => x.clave.slice(5));
+  if (versiones.length) {
+    const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
+    await pedir(`versiones_hoja?id=in.(${versiones.join(",")})&fecha_enviada=is.null`, {
+      method: "PATCH",
+      body: JSON.stringify({ fecha_enviada: hoy }),
+    });
+    const hojas = await pedir<{ hoja_encargo_id: string }[]>(`versiones_hoja?select=hoja_encargo_id&id=in.(${versiones.join(",")})`);
+    const ids = [...new Set(hojas.map((h) => h.hoja_encargo_id))];
+    if (ids.length)
+      await pedir(`hojas_encargo?id=in.(${ids.join(",")})&estado=in.(borrador,pendiente_firma_daniel,firmada_daniel,cambios_solicitados)`, {
+        method: "PATCH",
+        body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
+      });
+  }
+  recalcularLuego(oppId);
   return fila.id;
 }
 
