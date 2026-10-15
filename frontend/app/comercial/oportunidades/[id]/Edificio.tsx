@@ -388,7 +388,10 @@ export function EdificioVista({
         {i.subvencionesCerca.length > 0 && (
           <div className="mt-3 rounded-[8px] border border-[#d9d9d9] px-2.5 py-2">
             <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-              <div className={ROT_GRIS}>Subvenciones ya concedidas a menos de 800 m</div>
+              {/* "En el entorno" cuando a 800 m habia menos de 5: 8 del municipio (15-oct-2026). */}
+              <div className={ROT_GRIS}>
+                {i.ambitoSubvenciones === "entorno" ? "Subvenciones ya concedidas en el entorno" : "Subvenciones ya concedidas a menos de 800 m"}
+              </div>
               <div className="text-[12.5px]">
                 <b>{EUR.format(Math.round(i.subvencionesCerca.reduce((t, s) => t + (s.importe ?? 0), 0)))} €</b>
                 <span className="text-[11px] text-[#8a8a8a]"> en {i.subvencionesCerca.length} obras</span>
@@ -401,7 +404,8 @@ export function EdificioVista({
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Concedido</th>
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Viviendas</th>
                   <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] pl-4 text-left font-bold">Convocatoria</th>
-                  <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold">Año</th>
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold" title="Año de la convocatoria: cuándo se pidió">Año</th>
+                  <th className="border-b border-[#e2e2e2] px-1.5 py-[2px] text-right font-bold" title="Año en que se concedió: da el lapso">Concedida</th>
                 </tr>
               </thead>
               <tbody>
@@ -415,6 +419,7 @@ export function EdificioVista({
                     <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] pl-4 text-[#4a4a4a]">{s.convocatoria ?? "—"}</td>
                     {/* El año de la concesion: sale de la tabla de subvenciones, siempre (15-oct-2026). */}
                     <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] text-right tabular-nums text-[#4a4a4a]">{s.anio ?? "—"}</td>
+                    <td className="border-b border-[#f0f0f0] px-1.5 py-[2px] text-right tabular-nums text-[#4a4a4a]">{s.anioConcesion ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
