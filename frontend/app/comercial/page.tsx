@@ -455,9 +455,10 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           <div
             className={
               "grid items-start gap-[16px] rounded-[10px] bg-[#104269] p-[16px] " +
-              // En la cartera, 60 / 40: la lista de administradores necesita sitio
-              // y la columna de al lado lleva tres tarjetas (Monica, 13-oct-2026).
-              (sinDiario ? "" : carteraNueva ? "xl:grid-cols-[minmax(0,60fr)_minmax(0,40fr)]" : "xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]")
+              // En la cartera, 70 / 30: la lista de administradores es la
+              // herramienta y necesita sitio; al lado, las opps sin administrador
+              // (Monica, 15-oct-2026).
+              (sinDiario ? "" : carteraNueva ? "xl:grid-cols-[minmax(0,70fr)_minmax(0,30fr)]" : "xl:grid-cols-[minmax(0,1000fr)_minmax(0,390fr)]")
             }
           >
             {/* ================= columna izquierda ================= */}
@@ -510,7 +511,18 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               {seccion === "administradores" && (
                 <div className="space-y-6">
                   {carteraNueva && cuadro.gestores ? (
-                    <CarteraConsolidados c={cuadro.gestores} todos={todos} />
+                    <CarteraConsolidados
+                      c={cuadro.gestores}
+                      todos={todos}
+                      grabar={{
+                        hoy: hoyISO,
+                        canales: CANALES,
+                        oportunidades: paraGrabar.oportunidades,
+                        personas: paraGrabar.personas,
+                        miComercialId: direccion ? null : mio?.id ?? null,
+                        guardar: guardarEntrada,
+                      }}
+                    />
                   ) : (
                     <Cartera cartera={cuadro.cartera} todos={todos} />
                   )}
@@ -577,8 +589,8 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
                   <span className="rounded-full bg-[#5c4208] px-2 py-0.5 text-[12px] font-bold text-white">{pendientes}</span>
                 </Link>
               )}
-              {/* En la cartera, en lugar del diario: no consolidados, estrella y
-                  los que marean (13-oct-2026). */}
+              {/* En la cartera, en lugar del diario: las opps sin administrador,
+                  para completar (15-oct-2026). El diario pinta dentro de una opp. */}
               {carteraNueva && cuadro.gestores ? <CarteraLateral c={cuadro.gestores} /> : <Diario entradas={cuadro.diario} />}
             </div>
             )}

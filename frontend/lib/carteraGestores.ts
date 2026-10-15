@@ -63,13 +63,27 @@ export type GestorCartera = {
   pct: number | null;
   dias: number | null;
   opps: OppDeGestor[];
+  /** LA HERRAMIENTA (Monica, 15-oct-2026), de la vista cartera_gestor_resumen. */
+  importe: number;
+  ultimaOpp: string | null;
+  ultimoContacto: string | null;
+  fuenteContacto: "diario" | "correo" | "fases" | null;
+  cita: { inicio: string; asunto: string | null; tipo: string | null; con: string[] } | null;
+  consolidadoEn: string | null;
+  /** Las etiquetas: estrella, dormido, marea, nuevo. */
+  etiquetas: Etiqueta[];
 };
+export type Etiqueta = "estrella" | "dormido" | "marea" | "nuevo";
+/** Una opp abierta sin administrador apuntado: para completar. */
+export type OppSinGestor = { id: string; codigo: string | null; nombre: string | null; apertura: string | null; quieren: string[] };
 export type GestorPosible = { id: string; personaId: string; nombre: string; administracion: string | null; telefono: string | null; creado: string };
 
 export type CarteraGestores = {
   gestores: GestorCartera[];
   noConsolidados: GestorPosible[];
-  resumen: { gestores: number; opps: number; ganadas: number; perdidas: number; pct: number | null; dias: number | null };
+  resumen: { gestores: number; opps: number; ganadas: number; perdidas: number; pct: number | null; dias: number | null; importe: number };
+  /** Las opps abiertas del comercial sin administrador (15-oct-2026). */
+  sinGestor: OppSinGestor[];
   estrella: GestorCartera[];
   marean: GestorCartera[];
   /** Los gestores de la cartera, para el mapa. */
@@ -133,6 +147,27 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
       })),
     );
   }
+  // LA HERRAMIENTA (Monica, 15-oct-2026): dinero, ultima opp nueva, ultimo
+  // contacto y proxima cita de cada gestor, ya calculados en la base.
+  type Resumen = {
+    puesto_id: string; consolidado_en: string | null; importe_firmado: number | string | null; ultima_opp_nueva: string | null;
+    ultimo_contacto: string | null; ultimo_contacto_fuente: GestorCartera["fuenteContacto"];
+    proxima_cita_inicio: string | null; proxima_cita_asunto: string | null; proxima_cita_tipo: string | null; proxima_cita_con: string[] | null;
+  };
+  const todosIds = consolidados.map((c) => c.puesto_id);
+  const [resumenes, sinGestor] = await Promise.all([
+    Promise.all(
+      Array.from({ length: Math.ceil(todosIds.length / 120) }, (_, k) =>
+        restTodo<Resumen>(`cartera_gestor_resumen?select=*&puesto_id=in.(${todosIds.slice(k * 120, k * 120 + 120).join(",")})`, "puesto_id.asc"),
+      ),
+    ).then((x) => x.flat()),
+    restTodo<{ oportunidad_id: string; codigo: string | null; nombre: string | null; fecha_apertura: string | null; quieren: string[] | null }>(
+      `opps_abiertas_sin_gestor?select=oportunidad_id,codigo,nombre,fecha_apertura,quieren${comercialId ? `&comercial_id=eq.${comercialId}` : ""}`,
+      "fecha_apertura.desc.nullslast,oportunidad_id.asc",
+    ),
+  ]);
+  const resumenDe = new Map(resumenes.map((r) => [r.puesto_id, r]));
+
   const oppsDe = new Map<string, OppDeGestor[]>();
   for (const o of opps) oppsDe.set(o.puesto, [...(oppsDe.get(o.puesto) ?? []), o]);
 
@@ -149,6 +184,20 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
     pct: pct(Number(c.ganadas), Number(c.perdidas)),
     dias: c.dias_medios === null ? null : Number(c.dias_medios),
     opps: oppsDe.get(c.puesto_id) ?? [],
+    importe: Number(resumenDe.get(c.puesto_id)?.importe_firmado ?? 0),
+    ultimaOpp: resumenDe.get(c.puesto_id)?.ultima_opp_nueva ?? null,
+    ultimoContacto: resumenDe.get(c.puesto_id)?.ultimo_contacto ?? null,
+    fuenteContacto: resumenDe.get(c.puesto_id)?.ultimo_contacto_fuente ?? null,
+    cita: resumenDe.get(c.puesto_id)?.proxima_cita_inicio
+      ? {
+          inicio: resumenDe.get(c.puesto_id)!.proxima_cita_inicio!,
+          asunto: resumenDe.get(c.puesto_id)!.proxima_cita_asunto,
+          tipo: resumenDe.get(c.puesto_id)!.proxima_cita_tipo,
+          con: resumenDe.get(c.puesto_id)!.proxima_cita_con ?? [],
+        }
+      : null,
+    consolidadoEn: resumenDe.get(c.puesto_id)?.consolidado_en ?? null,
+    etiquetas: [],
   }));
 
   // Lo de arriba: los dias medios, sobre todas sus oportunidades firmadas.
@@ -168,8 +217,33 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
   const ganadas = gestores.reduce((s, g) => s + g.ganadas, 0);
   const perdidas = gestores.reduce((s, g) => s + g.perdidas, 0);
 
+  // ESTRELLA: mayor porcentaje; a igualdad, el que mas ha firmado.
+  const estrella = desde2025
+    .filter((g) => g.pct !== null && g.ganadas > 0)
+    .sort((a, b) => b.pct! - a.pct! || b.ganadas - a.ganadas)
+    .slice(0, 5);
+  // QUE MAREAN: peor porcentaje, solo con al menos 5 perdidas.
+  const marean = desde2025
+    .filter((g) => g.perdidas >= 5)
+    .sort((a, b) => a.pct! - b.pct! || b.perdidas - a.perdidas)
+    .slice(0, 5);
+
+  // LAS ETIQUETAS (Monica, 15-oct-2026): que la pantalla diga que hacer.
+  //   dormido = ha firmado alguna vez y lleva 3 meses sin darnos una opp nueva;
+  //   nuevo   = consolidado hace menos de 3 meses.
+  const hace3Meses = new Date(Date.now() - 91 * 86400000).toISOString().slice(0, 10);
+  const deEstrella = new Set(estrella.map((g) => g.id));
+  const deMarea = new Set(marean.map((g) => g.id));
+  for (const g of gestores) {
+    if (deEstrella.has(g.id)) g.etiquetas.push("estrella");
+    if (g.ganadas > 0 && (g.ultimaOpp ?? "") < hace3Meses) g.etiquetas.push("dormido");
+    if (deMarea.has(g.id)) g.etiquetas.push("marea");
+    if (g.consolidadoEn && g.consolidadoEn >= hace3Meses) g.etiquetas.push("nuevo");
+  }
+
   return {
     gestores,
+    sinGestor: sinGestor.map((o) => ({ id: o.oportunidad_id, codigo: o.codigo, nombre: o.nombre, apertura: o.fecha_apertura, quieren: o.quieren ?? [] })),
     noConsolidados: posibles.map((p) => ({
       id: p.puesto_id,
       personaId: p.persona_id,
@@ -185,17 +259,10 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
       perdidas,
       pct: pct(ganadas, perdidas),
       dias: diasTodas.length ? Math.round(diasTodas.reduce((s, d) => s + d, 0) / diasTodas.length) : null,
+      importe: gestores.reduce((s, g) => s + g.importe, 0),
     },
-    // ESTRELLA: mayor porcentaje; a igualdad, el que mas ha firmado.
-    estrella: desde2025
-      .filter((g) => g.pct !== null && g.ganadas > 0)
-      .sort((a, b) => b.pct! - a.pct! || b.ganadas - a.ganadas)
-      .slice(0, 5),
-    // QUE MAREAN: peor porcentaje, solo con al menos 5 perdidas.
-    marean: desde2025
-      .filter((g) => g.perdidas >= 5)
-      .sort((a, b) => a.pct! - b.pct! || b.perdidas - a.perdidas)
-      .slice(0, 5),
+    estrella,
+    marean,
     puestoIds: consolidados.map((c) => c.puesto_id),
   };
 }

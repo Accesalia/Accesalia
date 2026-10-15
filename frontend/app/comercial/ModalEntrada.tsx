@@ -39,6 +39,8 @@ export function ModalEntrada({
   miComercialId,
   alCerrar,
   guardar,
+  conInicial,
+  canalInicial,
 }: {
   abierto: boolean;
   hoy: string;
@@ -50,6 +52,11 @@ export function ModalEntrada({
   miComercialId: string | null;
   alCerrar: () => void;
   guardar: (fd: FormData) => Promise<GuardadoEntrada>;
+  /** Con quien, ya puesto ("puesto:<id>"): el "Grabar contacto" de la cartera de
+   *  administradores (Monica, 15-oct-2026). */
+  conInicial?: string;
+  /** El canal, ya puesto ("llamada"). */
+  canalInicial?: string;
 }) {
   const router = useRouter();
   const [texto, setTexto] = useState("");
@@ -71,10 +78,10 @@ export function ModalEntrada({
   useEffect(() => {
     if (!abierto) return;
     setTexto("");
-    setCanal("");
+    setCanal(canalInicial ?? "");
     setFecha(hoy);
     setOportunidad("");
-    setCon("");
+    setCon(conInicial ?? "");
     setEscrita("");
     setRevisar(false);
     setGuardando(false);
@@ -86,7 +93,7 @@ export function ModalEntrada({
     // El cursor, ya dentro de lo primero que hay que escribir.
     const t = setTimeout(() => caja.current?.focus(), 30);
     return () => clearTimeout(t);
-  }, [abierto, hoy]);
+  }, [abierto, hoy, conInicial, canalInicial]);
 
   useEffect(() => {
     if (!abierto) return;
