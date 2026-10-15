@@ -3,8 +3,9 @@ import { bajarCensoSubvenciones } from "../../../../lib/informeEdificio";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
-// EL CENSO DE SUBVENCIONES CONCEDIDAS DE MADRID, ENTERO, UNA VEZ AL MES (Monica,
-// 15-oct-2026). Es una sola peticion al geoportal; restringirlo a lo nuevo
+// EL CENSO DE SUBVENCIONES CONCEDIDAS, ENTERO, UNA VEZ AL MES (Monica,
+// 15-oct-2026): el del Ayuntamiento de Madrid y el del visor del COAM (toda la
+// Comunidad). Es una sola peticion al geoportal; restringirlo a lo nuevo
 // perderia las correcciones que el Ayuntamiento haga en las viejas.
 //
 // La llama el reloj de Vercel de madrugada, y se puede pedir a mano (quien
@@ -28,7 +29,7 @@ export async function GET(req: Request) {
   const quien = esElReloj(req) ? "reloj" : "persona";
   try {
     const r = await bajarCensoSubvenciones();
-    const dice = `${r.total} subvenciones · ${r.nuevas} nuevas`;
+    const dice = `Ayuntamiento: ${r.total} (${r.nuevas} nuevas) · COAM: ${r.coam} (${r.coamNuevas} nuevas)`;
     await apuntarPasada({ tarea: TAREA, empezada, ok: true, dice, detalle: r, quien });
     return NextResponse.json({ ok: true, ...r });
   } catch (e) {

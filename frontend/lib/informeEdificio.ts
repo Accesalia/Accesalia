@@ -44,8 +44,14 @@ export type SubvencionCerca = {
   convocatoria: string | null;
   viviendas: number | null;
   ahorroCo2: number | null;
-  /** Cuando se concedio (subvencion_concedida.fecha). Null si no consta. */
+  /** Cuando se concedio (subvencion_concedida.fecha). Null si no consta: el
+   *  visor del COAM no la da. */
   fecha: string | null;
+  /** El año de la concesion, para la columna Año. Null en las del COAM, que no
+   *  dan fecha. */
+  anio: number | null;
+  /** De donde sale: "Ayuntamiento de Madrid" o "Comunidad de Madrid (COAM)". */
+  fuente: string;
   aqui: boolean;
 };
 
@@ -625,6 +631,8 @@ export async function traerDeFuera(ref: string): Promise<Crudo | null> {
             viviendas: typeof a.VIVIENDAS_EDIFICIO === "number" ? a.VIVIENDAS_EDIFICIO : null,
             ahorroCo2: typeof a["AHORRO_CO2__kg_año_"] === "number" ? (a["AHORRO_CO2__kg_año_"] as number) : null,
             fecha: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).toISOString().slice(0, 10) : null,
+            anio: typeof a.FECHA_SUBVENCION === "number" ? new Date(a.FECHA_SUBVENCION).getUTCFullYear() : null,
+            fuente: FUENTE_DE[CENSO.servicio],
             aqui: suyos.has(String(a.OBJECTID)),
           };
         })
@@ -831,6 +839,89 @@ async function guardar(ref: string, c: Crudo) {
 
 const CENSO = { servicio: "VIVIENDA/REHABILITACION_ENERGETICA_CM", capa: 0 } as const;
 
+/** EL VISOR DE REHABILITACION PRTR DEL COAM Y LA COMUNIDAD (encontrado el 9-oct,
+ *  descargado desde el 15-oct-2026): las subvenciones Next Generation de TODA la
+ *  Comunidad, cada una con su punto y su referencia catastral. Es la API interna
+ *  del visor, sin documentar, y no trae fecha (solo el año del expediente) ni el
+ *  Plan de Ascensores. */
+const COAM = {
+  servicio: "COAM/visorrehabilitaprtrmadrid",
+  url: "https://visorrehabilitaprtrmadrid.coam.org/api/main.cgi?method=resum&pr=all",
+} as const;
+
+const FUENTE_DE: Record<string, string> = {
+  [CENSO.servicio]: "Ayuntamiento de Madrid",
+  [COAM.servicio]: "Comunidad de Madrid (COAM)",
+};
+
+/** Los programas del COAM con el nombre que usa el Ayuntamiento, para que las
+ *  dos fuentes se puedan casar y leer igual. */
+const PROGRAMA_COAM: Record<string, string> = {
+  pr1: "NGEU_MRR_Programa 1",
+  pr3: "NGEU_MRR_Programa 3",
+  pr4: "NGEU_MRR_Programa 4",
+  pr5_Libro: "NGEU_MRR_Programa 5 (libro del edificio)",
+  pr5_Proyecto: "NGEU_MRR_Programa 5 (proyecto)",
+  pr5_Todo: "NGEU_MRR_Programa 5 (libro y proyecto)",
+};
+
+/** Un numero estable por expediente (la tabla casa por servicio+capa+objectid y
+ *  el COAM no tiene objectid): los 13 primeros hex de su SHA-1. */
+async function idDeExpediente(expediente: string): Promise<number> {
+  const h = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(expediente));
+  const hex = [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return parseInt(hex.slice(0, 13), 16);
+}
+
+/** El visor del COAM, entero, a subvencion_concedida. */
+async function bajarCoam(ahora: string): Promise<number> {
+  const r = await fetch(COAM.url, { cache: "no-store", headers: { Accept: "application/json" } });
+  if (!r.ok) throw new Error(`El visor del COAM respondio ${r.status}`);
+  const d = (await r.json()) as {
+    features?: { properties: Record<string, unknown>; geometry?: { coordinates?: [number, number] } }[];
+  };
+  const filas = await Promise.all(
+    (d.features ?? [])
+      .filter((f) => typeof f.properties.expediente === "string" && f.geometry?.coordinates)
+      .map(async (f) => {
+        const a = f.properties;
+        const [lng, lat] = f.geometry!.coordinates!;
+        const n = (v: unknown) => (typeof v === "number" ? v : null);
+        return {
+          referencia: typeof a.catref === "string" ? a.catref.slice(0, 14) : null,
+          direccion: String(a.address ?? "").replace(/\s*\(MADRID\)\s*$/, "").trim() || "(sin dirección)",
+          convocatoria: PROGRAMA_COAM[String(a.pr_det ?? a.pr)] ?? String(a.pr_det ?? a.pr ?? ""),
+          ayuda: null,
+          fecha: null,
+          importe: n(a.imp_con),
+          viviendas: typeof a.viviendas === "number" ? Math.round(a.viviendas) : null,
+          ahorro_energia: null,
+          ahorro_co2: null,
+          distrito: null,
+          barrio: null,
+          cp: null,
+          servicio: COAM.servicio,
+          capa: 0,
+          objectid: await idDeExpediente(String(a.expediente)),
+          detalle: a,
+          lat,
+          lng,
+          consultado_en: ahora,
+        };
+      }),
+  );
+  if (!filas.length) throw new Error("El visor del COAM no ha devuelto ninguna subvencion.");
+  for (let k = 0; k < filas.length; k += 500) {
+    const w = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?on_conflict=servicio,capa,objectid`, {
+      method: "POST",
+      headers: { ...cab, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(filas.slice(k, k + 500)),
+    });
+    if (!w.ok) throw new Error(`Supabase subvencion_concedida ${w.status}: ${await w.text()}`);
+  }
+  return filas.length;
+}
+
 /** Una subvencion del geoportal como fila de subvencion_concedida (igual que
  *  scripts/barrido/geoportal_madrid.py). `_lat`/`_lng`: su posicion en grados. */
 function filaDelCenso(a: Record<string, unknown>, consultadoEn: string) {
@@ -1005,18 +1096,20 @@ async function geoportalGuardado(f: FilaFicha): Promise<Pick<Crudo, "protegido" 
  *  fecha), venga el edificio de donde venga. Asi una subvencion nueva a 800 m
  *  sale aunque la foto guardada sea de hace meses. Null si no se puede leer:
  *  entonces vale lo que hubiera. */
-async function subvencionesDelCenso(lat: number, lng: number): Promise<SubvencionCerca[] | null> {
+async function subvencionesDelCenso(lat: number, lng: number, ref?: string): Promise<SubvencionCerca[] | null> {
   // Una caja algo mayor de 800 m, y luego la distancia de verdad.
   const dLat = 0.0075;
   const dLng = 0.0100;
   try {
     const s = await fetch(
-      `${URL_BASE}/rest/v1/subvencion_concedida?select=direccion,importe,convocatoria,viviendas,ahorro_co2,fecha,lat,lng` +
-        `&lat=gte.${lat - dLat}&lat=lte.${lat + dLat}&lng=gte.${lng - dLng}&lng=lte.${lng + dLng}`,
+      `${URL_BASE}/rest/v1/subvencion_concedida?select=servicio,referencia,direccion,importe,convocatoria,viviendas,ahorro_co2,fecha,lat,lng` +
+        `&lat=gte.${lat - dLat}&lat=lte.${lat + dLat}&lng=gte.${lng - dLng}&lng=lte.${lng + dLng}&limit=5000`,
       { headers: cab, cache: "no-store" },
     );
     if (!s.ok) return null;
     const lista = (await s.json()) as {
+      servicio: string;
+      referencia: string | null;
       direccion: string;
       importe: number | null;
       convocatoria: string | null;
@@ -1026,23 +1119,40 @@ async function subvencionesDelCenso(lat: number, lng: number): Promise<Subvencio
       lat: number;
       lng: number;
     }[];
-    return lista
-      .map((x) => ({ x, m: metros(lat, lng, x.lat, x.lng) }))
-      .filter(({ m }) => m <= 800)
+    const cerca = lista.map((x) => ({ x, m: metros(lat, lng, x.lat, x.lng) })).filter(({ m }) => m <= 800);
+
+    // LAS DOS FUENTES SE SUMAN, PERO CADA SUBVENCION UNA VEZ (Monica, 15-oct-2026).
+    // En Madrid capital las del Next Generation estan en las dos: el 9-oct, 490
+    // de las 531 del Ayuntamiento tenian su gemela en el COAM, en el mismo
+    // edificio y por el mismo importe. La del COAM se salta si hay una del
+    // Ayuntamiento del MISMO programa a menos de 40 m: vale la del Ayuntamiento,
+    // que trae la fecha.
+    const ayto = cerca.filter(({ x }) => x.servicio === CENSO.servicio);
+    const gemela = (x: (typeof lista)[number]) =>
+      ayto.some(({ x: a }) => a.convocatoria === x.convocatoria && metros(a.lat, a.lng, x.lat, x.lng) <= 40);
+    return cerca
+      .filter(({ x }) => x.servicio !== COAM.servicio || !gemela(x))
       .map(({ x, m }) => ({
-        direccion: x.direccion.trim(),
+        // No hay direcciones sin municipio: las del Ayuntamiento son todas de
+        // Madrid capital y no lo dicen; las del COAM ya lo llevan.
+        direccion: x.servicio === CENSO.servicio ? `${x.direccion.trim()} MADRID` : x.direccion.trim(),
         importe: x.importe != null ? Number(x.importe) : null,
         convocatoria: x.convocatoria,
         viviendas: x.viviendas,
         ahorroCo2: x.ahorro_co2 != null ? Number(x.ahorro_co2) : null,
         fecha: x.fecha,
-        aqui: m <= 35,
+        // El COAM no da fecha: el "/2022" de sus expedientes es el año de la
+        // CONVOCATORIA, no el de la concesion, y no se hace pasar por ella.
+        anio: x.fecha ? Number(x.fecha.slice(0, 4)) : null,
+        fuente: FUENTE_DE[x.servicio] ?? x.servicio,
+        aqui: m <= 35 || (!!ref && x.referencia === ref),
       }))
       .sort((x, y) => (y.importe ?? 0) - (x.importe ?? 0));
   } catch {
     return null;
   }
 }
+
 
 /** LO GUARDADO, EN EL ORDEN DE MONICA (15-oct-2026):
  *   1. PRIMERO NUESTRAS TABLAS: la descarga de Catastro (ficha_catastro +
@@ -1168,7 +1278,7 @@ export async function informeEdificio(
  *  referencia y los portales del edificio. En Madrid no se pregunta nada nuevo. */
 async function componerConCatalogo(ref: string, crudo: Crudo): Promise<InformeEdificio | null> {
   // Las subvenciones de alrededor, siempre del censo (si se puede leer).
-  const delCenso = crudo.lat != null && crudo.lng != null ? await subvencionesDelCenso(crudo.lat, crudo.lng) : null;
+  const delCenso = crudo.lat != null && crudo.lng != null ? await subvencionesDelCenso(crudo.lat, crudo.lng, ref) : null;
   const c: Crudo = delCenso && (delCenso.length || !crudo.cerca.length) ? { ...crudo, cerca: delCenso } : crudo;
   const municipio = c.inmuebles[0]?.dt?.nm ?? null;
   if (!municipio || sinTildes(municipio) === "MADRID") return componer(ref, c);
@@ -1357,7 +1467,7 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
 /** EL CENSO ENTERO de subvenciones concedidas de Madrid, a subvencion_concedida.
  *  Una sola peticion; si el geoportal la corta (exceededTransferLimit), se dice
  *  y no se guarda nada a medias. */
-export async function bajarCensoSubvenciones(): Promise<{ total: number; nuevas: number }> {
+export async function bajarCensoSubvenciones(): Promise<{ total: number; nuevas: number; coam: number; coamNuevas: number }> {
   const q = new URLSearchParams({ where: "1=1", outFields: "*", returnGeometry: "true", outSR: "4326", f: "json" });
   const d = (await jsonDe(`${SIGMA}/${CENSO.servicio}/MapServer/${CENSO.capa}/query?${q}`)) as {
     exceededTransferLimit?: boolean;
@@ -1371,11 +1481,15 @@ export async function bajarCensoSubvenciones(): Promise<{ total: number; nuevas:
     .map((a) => filaDelCenso(a, ahora));
   if (!filas.length) throw new Error("El geoportal no ha devuelto ninguna subvencion.");
 
-  const antes = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?select=id&servicio=eq.${encodeURIComponent(CENSO.servicio)}&capa=eq.${CENSO.capa}`, {
-    headers: { ...cab, Prefer: "count=exact", Range: "0-0" },
-    cache: "no-store",
-  });
-  const habia = Number(antes.headers.get("content-range")?.split("/")[1] ?? "0") || 0;
+  const cuantas = async (servicio: string) => {
+    const r = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?select=id&servicio=eq.${encodeURIComponent(servicio)}`, {
+      headers: { ...cab, Prefer: "count=exact", Range: "0-0" },
+      cache: "no-store",
+    });
+    return Number(r.headers.get("content-range")?.split("/")[1] ?? "0") || 0;
+  };
+  const habia = await cuantas(CENSO.servicio);
+  const habiaCoam = await cuantas(COAM.servicio);
   for (let k = 0; k < filas.length; k += 500) {
     const r = await fetch(`${URL_BASE}/rest/v1/subvencion_concedida?on_conflict=servicio,capa,objectid`, {
       method: "POST",
@@ -1384,7 +1498,9 @@ export async function bajarCensoSubvenciones(): Promise<{ total: number; nuevas:
     });
     if (!r.ok) throw new Error(`Supabase subvencion_concedida ${r.status}: ${await r.text()}`);
   }
-  return { total: filas.length, nuevas: Math.max(0, filas.length - habia) };
+  // Y el visor del COAM: toda la Comunidad (Monica, 15-oct-2026).
+  const coam = await bajarCoam(ahora);
+  return { total: filas.length, nuevas: Math.max(0, filas.length - habia), coam, coamNuevas: Math.max(0, coam - habiaCoam) };
 }
 
 /** EL GOTEO NOCTURNO: los edificios que llevan mas tiempo sin consultarse se

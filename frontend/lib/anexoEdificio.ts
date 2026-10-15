@@ -243,14 +243,17 @@ export async function anexoDeReferencia(
   // ---------------- lo que han conseguido otros
   let entorno: Anexo["entorno"] = null;
   const paraQuePedido = new Set(pedidas.map((c) => c.para_que));
-  if (esMadrid) {
-    const cerca = i.subvencionesCerca.filter((x) => !x.aqui).sort((a, b) => (b.importe ?? 0) - (a.importe ?? 0));
+  // A 800 m, de las dos fuentes con posicion (Ayuntamiento y COAM, sumadas sin
+  // repetir), en Madrid y fuera (15-oct-2026). Solo si alli no sale nada, las de
+  // la BDNS de su municipio, que no traen posicion.
+  const cerca = i.subvencionesCerca.filter((x) => !x.aqui).sort((a, b) => (b.importe ?? 0) - (a.importe ?? 0));
+  if (cerca.length || esMadrid) {
     if (cerca.length)
       entorno = {
         donde: "a menos de 800 m",
         filas: cerca.slice(0, 5).map((x) => ({
           quien: bonito(x.direccion),
-          detalle: [x.viviendas ? `${x.viviendas} viviendas` : null, x.convocatoria].filter(Boolean).join(" · "),
+          detalle: [x.viviendas ? `${x.viviendas} viviendas` : null, x.convocatoria, x.anio].filter(Boolean).join(" · "),
           importe: x.importe,
         })),
         mas: Math.max(0, cerca.length - 5),

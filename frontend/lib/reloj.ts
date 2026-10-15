@@ -106,7 +106,7 @@ export const RELOJES: Reloj[] = [
   // viejos (1:00 UTC, antes del estado de las opps) y el censo de subvenciones
   // de Madrid se baja entero el dia 1 de cada mes (0:30 UTC).
   { tarea: "goteo_edificios", nombre: "Edificios al día (Catastro y geoportal)", cada: "todas las noches, de madrugada", ruta: "/api/edificios/goteo" },
-  { tarea: "censo_subvenciones", nombre: "Censo de subvenciones de Madrid", cada: "el día 1 de cada mes, de madrugada", ruta: "/api/edificios/censo" },
+  { tarea: "censo_subvenciones", nombre: "Censo de subvenciones (Ayuntamiento y COAM)", cada: "el día 1 de cada mes, de madrugada", ruta: "/api/edificios/censo" },
 ];
 
 // ============================================================================
