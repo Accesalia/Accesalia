@@ -53,13 +53,21 @@ export async function recalcularMuchas(ids: string[], origen: Origen): Promise<{
     const trozo = unicos.slice(i, i + 150);
     // Se importa aqui: la escalera lee hojas, revisiones, citas... y esos libs
     // avisan a este, asi que cargarla arriba haria un circulo.
-    const { faltaDeMuchas } = await import("./resumenComercial");
+    const { faltaDeMuchas, fechaEntradaDeMuchas } = await import("./resumenComercial");
     const [faltas, antes] = await Promise.all([
       faltaDeMuchas(trozo),
       pedir<Fila[]>(`estado_oportunidad?select=oportunidad_id,clave,fase,desde&oportunidad_id=in.(${trozo.join(",")})`),
     ]);
     const previo = new Map(antes.map((f) => [f.oportunidad_id, f]));
     const ahora = new Date().toISOString();
+    // LA FECHA DEL HECHO, SI LA HAY (Monica, 15-oct-2026): "apuntemos la fecha
+    // del hecho si la hay, y si no, la de cuando se supo". Si hoy se apunta un
+    // Polycam que se hizo en marzo, el paso empezo en marzo: si no, pareceria que
+    // la hoja salio antes del escaneo. La fecha la deduce la misma regla que las
+    // alertas (fechaEntradaDeMuchas); si no hay, ahora.
+    const cambian = [...faltas].filter(([id, f]) => previo.get(id)?.clave !== f.clave).map(([id]) => id);
+    const hechos = cambian.length ? await fechaEntradaDeMuchas(cambian).catch(() => new Map<string, string>()) : new Map<string, string>();
+    const entrada = (id: string) => (hechos.get(id) ? `${hechos.get(id)}T12:00:00Z` : ahora);
     const filas: Record<string, unknown>[] = [];
     const historial: Record<string, unknown>[] = [];
     for (const [id, f] of faltas) {
@@ -75,13 +83,14 @@ export async function recalcularMuchas(ids: string[], origen: Origen): Promise<{
         bloque: bloqueDeFase(p.fase),
         seccion: p.seccion,
         accion: p.accion,
-        desde: cambia ? ahora : ya!.desde,
+        desde: cambia ? entrada(id) : ya!.desde,
         ...(cambia ? { desde_reconstruido: false } : {}),
         calculado_en: ahora,
       });
       if (cambia) {
         cambiadas++;
-        historial.push({ oportunidad_id: id, clave_antes: ya?.clave ?? null, clave: f.clave, fase_antes: ya?.fase ?? null, fase: p.fase, cuando: ahora, origen });
+        // cuando = la fecha del hecho; creado_en (de la base) = cuando lo supo la app.
+        historial.push({ oportunidad_id: id, clave_antes: ya?.clave ?? null, clave: f.clave, fase_antes: ya?.fase ?? null, fase: p.fase, cuando: entrada(id), origen });
       }
       total++;
     }
