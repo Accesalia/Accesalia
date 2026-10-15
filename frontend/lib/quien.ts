@@ -29,6 +29,7 @@
 // siendo un mundo aparte como empresas, no sus personas.
 
 import "server-only";
+import { fichasCortas } from "./fichaCorta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -47,7 +48,7 @@ export type OpcionQuien = { valor: string; texto: string; pista?: string };
 /** Toda la gente a la que puede apuntar un "nos lo trajo", en una sola lista.
  *  El valor lleva delante de que clase es, porque cada clase vive en su tabla. */
 export async function opcionesQuien(): Promise<OpcionQuien[]> {
-  const [personas, comerciales] = await Promise.all([
+  const [personas, comerciales, fichas] = await Promise.all([
     leer<{
       id: string;
       nombre: string;
@@ -60,6 +61,8 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
     leer<{ id: string; nombre: string; apellidos: string | null }[]>(
       "comerciales?select=id,nombre,apellidos&activo=eq.true&order=nombre.asc",
     ),
+    // Lo que sabemos de cada una, en una linea (Monica, 15-oct-2026).
+    fichasCortas().catch(() => null),
   ]);
 
   return [
@@ -74,7 +77,7 @@ export async function opcionesQuien(): Promise<OpcionQuien[]> {
       return {
         valor: "persona:" + p.id,
         texto: [p.nombre, p.apellidos].filter(Boolean).join(" "),
-        pista: [pu?.cargo, donde].filter(Boolean).join(" · ") || "sin empresa",
+        pista: fichas?.porPersona.get(p.id) ?? ([pu?.cargo, donde].filter(Boolean).join(" · ") || "sin empresa"),
       };
     }),
   ];

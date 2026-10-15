@@ -18,6 +18,7 @@
 // lo que se teclea en un buscador que no encuentra nada NO se vuelve a escribir.
 
 import "server-only";
+import { fichasCortas } from "./fichaCorta";
 import { recalcularLuego } from "./estadoOportunidad";
 
 import { canalesDe, type Canal } from "./canales";
@@ -129,7 +130,7 @@ export type OpcionesOportunidad = {
 };
 
 export async function opcionesOportunidad(equipoId?: string, mio?: string | null): Promise<OpcionesOportunidad> {
-  const [comerciales, canales, quienes, tipos, admins, claves, contratas, puestos, comunidades] =
+  const [comerciales, canales, quienes, tipos, admins, claves, contratas, puestos, comunidades, fichas] =
     await Promise.all([
     leer<{ id: string; nombre: string; apellidos: string | null; iniciales: string | null; equipo_id: string | null }[]>(
       "comerciales?select=id,nombre,apellidos,iniciales,equipo_id&activo=eq.true&order=nombre.asc",
@@ -163,6 +164,8 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     // UNA SOLA AGENDA (15-oct-2026): la gente de las comunidades es un puesto que
     // cuelga de la comunidad; su nombre, para la pista.
     leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=10000").catch(() => []),
+    // Lo que sabemos de cada persona, en una linea (Monica, 15-oct-2026).
+    fichasCortas().catch(() => null),
   ]);
 
   // El numero que le toca a cada uno: una sola lectura de los codigos que ya
@@ -202,7 +205,7 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
           .filter((p) => p.empresa?.tipo === "administracion_fincas" && p.persona?.nombre && p.persona_id)
           .map((p) => [
             p.persona_id!,
-            { id: p.persona_id!, nombre: p.persona!.nombre, pista: p.empresa!.nombre_accesalia },
+            { id: p.persona_id!, nombre: p.persona!.nombre, pista: fichas?.porPuesto.get(p.id) ?? p.empresa!.nombre_accesalia },
           ]),
       ),
     ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
@@ -223,9 +226,10 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
           valor: "puesto:" + p.id,
           texto: p.persona!.nombre,
           pista:
-            [p.cargo, p.empresa?.nombre_accesalia ?? (p.figura_legal_propietaria_id ? nombreComunidad.get(p.figura_legal_propietaria_id) : null)]
+            fichas?.porPuesto.get(p.id) ??
+            ([p.cargo, p.empresa?.nombre_accesalia ?? (p.figura_legal_propietaria_id ? nombreComunidad.get(p.figura_legal_propietaria_id) : null)]
               .filter(Boolean)
-              .join(" · ") || "sin empresa",
+              .join(" · ") || "sin empresa"),
         }))
         .sort((a, b) => a.texto.localeCompare(b.texto, "es")),
     ],

@@ -20,6 +20,7 @@
 // programa: se dicta con el del teclado.
 
 import "server-only";
+import { fichasCortas } from "./fichaCorta";
 import { nombreDeOpp } from "./direccionOpp";
 import { CANALES } from "./tipoDeNota";
 import { apuntarFotos } from "./fotos";
@@ -80,7 +81,7 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
  *  Las personas llevan delante de que lista son: puesto: o persona:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
-  const [ops, puestos, sueltas] = await Promise.all([
+  const [ops, puestos, sueltas, fichas] = await Promise.all([
     leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
            comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
       `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
@@ -92,6 +93,8 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
     leerTodo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
       `persona?select=id,nombre,apellidos,puesto(id)&order=id.asc`,
     ),
+    // Lo que sabemos de cada una, en una linea (Monica, 15-oct-2026).
+    fichasCortas().catch(() => null),
   ]);
 
   const completo = (p: { nombre: string; apellidos: string | null }) => [p.nombre, p.apellidos].filter(Boolean).join(" ");
@@ -110,10 +113,14 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
     personas: [
       ...puestos
         .filter((p) => p.persona?.nombre)
-        .map((p) => ({ valor: "puesto:" + p.id, texto: completo(p.persona!), pista: p.empresa?.nombre_accesalia ?? p.cargo ?? "administrador" })),
+        .map((p) => ({
+          valor: "puesto:" + p.id,
+          texto: completo(p.persona!),
+          pista: fichas?.porPuesto.get(p.id) ?? p.empresa?.nombre_accesalia ?? p.cargo ?? "administrador",
+        })),
       ...sueltas
         .filter((p) => !p.puesto.length)
-        .map((p) => ({ valor: "persona:" + p.id, texto: completo(p), pista: "agenda" })),
+        .map((p) => ({ valor: "persona:" + p.id, texto: completo(p), pista: fichas?.porPersona.get(p.id) ?? "agenda" })),
     ],
   };
 }

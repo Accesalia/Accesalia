@@ -19,6 +19,7 @@
 // enteros: "soledad 18" no es "soledad 180".
 
 import "server-only";
+import { fichasCortas } from "./fichaCorta";
 import { nombreDeOpp } from "./direccionOpp";
 import { listaDeClaves } from "./claves";
 
@@ -116,13 +117,15 @@ type FilaPuesto = {
 
 async function personas(): Promise<(PropuestaPersona & { buscable: string })[]> {
   const hoy = new Date().toISOString().slice(0, 10);
-  const [puestos, sueltas] = await Promise.all([
+  const [puestos, sueltas, fichas] = await Promise.all([
     todo<FilaPuesto>(
       "puesto?select=id,cargo,hasta,persona(id,nombre,apellidos),empresa(nombre_accesalia,nombre_legal),contratas(nombre),organismos(nombre)",
     ),
     todo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
       "persona?select=id,nombre,apellidos,puesto(id)&activa=is.true",
     ),
+    // Lo que sabemos de cada una, en una linea (Monica, 15-oct-2026).
+    fichasCortas().catch(() => null),
   ]);
 
   const salida: (PropuestaPersona & { buscable: string })[] = [];
@@ -130,13 +133,14 @@ async function personas(): Promise<(PropuestaPersona & { buscable: string })[]> 
     if (!p.persona || (p.hasta && p.hasta < hoy)) continue;
     const nombre = [p.persona.nombre, p.persona.apellidos].filter(Boolean).join(" ");
     const donde = p.empresa?.nombre_accesalia ?? p.empresa?.nombre_legal ?? p.contratas?.nombre ?? p.organismos?.nombre ?? "";
-    const detalle = [donde, p.cargo].filter(Boolean).join(" · ");
+    const detalle = fichas?.porPuesto.get(p.id) ?? [donde, p.cargo].filter(Boolean).join(" · ");
     salida.push({ tipo: "puesto", id: p.id, nombre, detalle, buscable: `${nombre} ${detalle} ${p.empresa?.nombre_legal ?? ""}` });
   }
   for (const p of sueltas) {
     if (p.puesto.length) continue;
     const nombre = [p.nombre, p.apellidos].filter(Boolean).join(" ");
-    salida.push({ tipo: "persona", id: p.id, nombre, detalle: "", buscable: nombre });
+    const detalle = fichas?.porPersona.get(p.id) ?? "";
+    salida.push({ tipo: "persona", id: p.id, nombre, detalle, buscable: `${nombre} ${detalle}` });
   }
   return salida;
 }
