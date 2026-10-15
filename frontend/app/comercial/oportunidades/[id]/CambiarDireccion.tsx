@@ -21,7 +21,7 @@ export function CambiarDireccion({ id, actual, pendiente }: { id: string; actual
         disabled={guardando}
         className="ml-2 inline-block rounded-full border border-accion-marco bg-white px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accion-marco transition hover:bg-[#eef3f8] disabled:opacity-50"
       >
-        {guardando ? "Guardando…" : pendiente ? "Buscar en Catastro" : "Cambiar la dirección"}
+        {guardando ? "Guardando…" : pendiente ? "Buscar en Catastro" : "Dirección mal apuntada, la corrijo"}
       </button>
       {abierta && (
         <VentanaDireccion

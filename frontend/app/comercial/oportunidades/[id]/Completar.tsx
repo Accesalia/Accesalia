@@ -69,7 +69,7 @@ export function Completar({
       </p>
       {faltaDireccion && (
         <p className="mt-1 text-[12px] text-amber-900/80">
-          La dirección se confirma con el botón de cambiar la dirección, junto al nombre de arriba.
+          La dirección se confirma con el botón «Dirección mal apuntada, la corrijo», junto al nombre de arriba.
         </p>
       )}
 

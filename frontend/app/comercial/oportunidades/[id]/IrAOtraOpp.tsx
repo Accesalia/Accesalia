@@ -69,7 +69,7 @@ export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
             <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.8" />
             <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
-          buscar
+          ir a otra opp
           <span aria-hidden className={"transition " + (abierto ? "rotate-180" : "")}>▾</span>
         </span>
       </button>
