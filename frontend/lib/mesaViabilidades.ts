@@ -321,6 +321,34 @@ export async function porHacer(): Promise<PorHacer[]> {
     });
   }
 
+  // LAS EMPEZADAS DESDE UNA SOLICITUD SIN POLYCAM (15-oct-2026): no tienen
+  // escaneo, asi que no salen arriba. Las que aun no se han enviado al comercial.
+  type DeSolicitud = { pedida_en: string; asunto: string | null; viabilidad: (ViabFila & { daniel_resuelto_en: string | null }) | null; por: { nombre: string } | null };
+  const deSolicitud = await leer<DeSolicitud[]>(
+    `solicitudes_viabilidad?select=pedida_en,descripcion,por:pedida_por(nombre),viabilidad:viabilidad_id(id,enviada_en,daniel_avisado_en,daniel_resuelto_en,fecha_visita,oportunidades(${SEL_OPP}))&estado=eq.empezada`,
+  ).catch(() => [] as DeSolicitud[]);
+  for (const s of deSolicitud) {
+    const v = s.viabilidad;
+    if (!v || v.enviada_en || salida.some((x) => x.viabilidadId === v.id)) continue;
+    salida.push({
+      viabilidadId: v.id,
+      escaneoId: null,
+      direccion: v.oportunidades?.nombre ?? v.oportunidades?.codigo ?? "",
+      escaleras: "",
+      proyecto: proyectoDe(v.oportunidades),
+      comercial: v.oportunidades?.comercial?.nombre ?? null,
+      escaneos: 0,
+      fechaEscaneo: v.fecha_visita,
+      desde: s.pedida_en,
+      borrador: true,
+      danielAvisado: !!v.daniel_avisado_en,
+      danielResuelto: !!v.daniel_resuelto_en || !!v.enviada_en,
+      vinculadoPorApp: null,
+      asunto: "Pedida sin Polycam",
+      remitente: s.por?.nombre ?? null,
+      opps: [],
+    });
+  }
   return salida.sort((a, b) => a.desde.localeCompare(b.desde));
 }
 

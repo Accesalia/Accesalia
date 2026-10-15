@@ -7,6 +7,7 @@ import { intentarAnexo } from "../../lib/anexoGuardado";
 import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { recalcularLuego } from "../../lib/estadoOportunidad";
+import { empezarSolicitud } from "../../lib/solicitudViabilidad";
 import { enviarCorreo } from "../../lib/correo";
 import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
 
@@ -163,4 +164,13 @@ export async function accionResolverDaniel(id: string): Promise<{ ok: true } | {
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** EMPEZAR UNA VIABILIDAD PEDIDA SIN POLYCAM (Monica, 15-oct-2026): nace su
+ *  viabilidad, de la opp, y se abre la mesa de trabajo. */
+export async function accionEmpezarSolicitud(solicitudId: string) {
+  const yo = await haceViabilidades();
+  const id = await empezarSolicitud(solicitudId, yo);
+  revalidatePath("/viabilidades");
+  redirect(`/viabilidades/${id}`);
 }
