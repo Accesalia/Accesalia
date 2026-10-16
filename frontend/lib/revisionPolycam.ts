@@ -112,6 +112,8 @@ export type GrupoCandidato = {
    *  agendada en este edificio por esas fechas. Va el primero, con su frase:
    *  "Visita agendada el 15/10 a las 10:00 · Brasilia 39, Madrid". */
   agenda?: string | null;
+  /** Con agenda: si ademas el asunto encajaba con el. Sin agenda, siempre. */
+  delAsunto?: boolean;
 };
 
 export type EscaneadoPendiente = {
@@ -381,8 +383,12 @@ async function oppsAbiertasPorAcceso(): Promise<Map<string, OppDeAcceso[]>> {
 }
 
 /** ¿LA APP PUEDE VINCULARLO SOLA? (Monica, 14-oct-2026). Solo sin duda:
- *    - hay visita de escaneo agendada en un edificio (y solo uno), o
- *    - el asunto dice calle + numero + MUNICIPIO y encaja con UN edificio;
+ *    - el asunto dice calle + numero + MUNICIPIO y encaja con UN edificio, o
+ *      calle + numero que solo existe en uno;
+ *  LA AGENDA NO VINCULA (Monica, 16-oct-2026, "elimina la regla de la
+ *  agenda"): con una sola visita de escaneo ese dia, pego a Boltaña 59 tres
+ *  escaneos cuyo asunto decia Badajoz 4, Mercurio 36 y Valladolid 13. La
+ *  visita sigue saliendo como pista en la pantalla de revision, nada mas;
  *  y ese edificio tiene UNA opp abierta. Se vincula a los accesos de esa opp en
  *  ese edificio: las escaleras las dice la opp, no la app. Si no, a un humano,
  *  diciendo por que. */
@@ -391,16 +397,13 @@ function decidirSolo(
   grupos: GrupoCandidato[],
   oppsDe: Map<string, OppDeAcceso[]>,
 ): { accesos: string[]; motivo: string; vincula: true } | { motivo: string } {
-  const porAgenda = grupos.filter((g) => g.agenda);
+  // Solo los que salen del ASUNTO. Un grupo que esta aqui solo por la agenda
+  // (sin `delAsunto`) no cuenta para decidir.
+  grupos = grupos.filter((g) => !g.agenda || g.delAsunto);
   const conMunicipio = grupos.filter((g) => g.municipioEnElAsunto);
   let g: GrupoCandidato | undefined;
   let por = "";
-  if (porAgenda.length === 1) {
-    g = porAgenda[0];
-    por = g.agenda!;
-  } else if (porAgenda.length > 1) {
-    return { motivo: `Había visitas de escaneo agendadas en ${porAgenda.length} edificios esos días.` };
-  } else if (!(asunto ?? "").trim()) {
+  if (!(asunto ?? "").trim()) {
     return { motivo: "El correo venía sin asunto." };
   } else if (!grupos.length) {
     return { motivo: "El asunto no encaja con ninguna dirección que tengamos: puede que no esté dada de alta." };
@@ -523,7 +526,7 @@ function conAgenda(
       if (primero.some((x) => x.clave === g.clave)) continue;
       const ya = fuera.get(g.clave);
       fuera.delete(g.clave);
-      primero.push({ ...(ya ?? g), agenda: frase });
+      primero.push({ ...(ya ?? g), agenda: frase, delAsunto: !!ya });
     }
   }
   return [...primero, ...grupos.filter((g) => fuera.has(g.clave))];
