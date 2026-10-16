@@ -1,70 +1,72 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarraSuperior } from "../components/BarraSuperior";
-import { Salida } from "../components/Salida";
 import { quienSoy } from "../../lib/sesion";
-import { puedeVerCobros } from "../../lib/cobros";
-import { calendarioFiscal, librosFiscales } from "../../lib/fiscal";
-import { Hueco, Seccion } from "../negocio/Piezas";
-import { hoyMadrid, ImpuestosLibro } from "./Calendario";
-import { Areas } from "../facturacion/Areas";
+import { calendarioFiscal, EMPRESAS, LIBRO_LABEL, librosFiscales, type Empresa, type LibroFiscal } from "../../lib/fiscal";
+import { MarcoDinero } from "../facturacion/MarcoDinero";
+import { hoyMadrid, Impuestos } from "./Impuestos";
 
 export const dynamic = "force-dynamic";
 
-// PAGAR (Monica, 12-oct-2026). Empieza por los IMPUESTOS, "lo facil": las
-// fechas las pone Hacienda. Arriba lo que viene (y lo que se ha pasado sin
-// hacer), con semaforo; debajo el ano entero, mes a mes. Lo fraccionado sale
-// plazo a plazo, en su mes. Cada libro aparte: Accesalia y Daniel juntos (cada
-// uno con su cifra y el total), Ecobalance solo para Ana y direccion.
-// Lo demas del area, huecos con su nota.
+// PAGAR › IMPUESTOS (Monica, 16-oct-2026): la pantalla de la maqueta validada
+// (docs/figma/area-dinero-v1.html, marco 5) dentro del marco comun del dinero.
+// El menu de la izquierda filtra por empresa (?empresa=). Cada libro aparte, como
+// la facturacion: Accesalia y Daniel juntos; Ecobalance solo para Ana y direccion
+// (?libro=ecobalance). Nominas, proveedores y gastos fijos: «luego» en el menu.
 
-const HUECOS = [
-  {
-    titulo: "Nóminas",
-    va: "lo que se transfiere cada mes a cada persona, y el día.",
-    falta: "engancharlo: las nóminas ya se suben en RRHH (líquido de cada una); falta sacar aquí el total del mes.",
-  },
-  {
-    titulo: "Proveedores",
-    va: "las facturas que nos hacen y cuándo vence cada una.",
-    falta: "dónde se apuntan las facturas recibidas (hoy van a GMA cada mes).",
-  },
-  {
-    titulo: "Gastos fijos",
-    va: "alquiler, luz, internet, seguro de SOFISE, los coches, FARO, licencias, GMA, la línea de crédito, dietas, gasolina (estimada)…",
-    falta: "la lista con su importe y su día. La semilla está en tu Excel «IMPUESTOS RESUMEN ACCESALIA + DANIEL».",
-  },
-];
+const ACTIVO_EMPRESA: Record<string, string> = { accesalia: "emp-accesalia", daniel_autonomo: "emp-daniel" };
 
-export default async function PaginaPagar() {
+export default async function PaginaPagar({ searchParams }: { searchParams: Promise<{ empresa?: string; libro?: string; todo?: string }> }) {
+  const sp = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/pagar");
   const libros = librosFiscales(yo);
   if (!libros.length) redirect("/menu");
+  const libro: LibroFiscal = libros.includes(sp.libro as LibroFiscal) ? (sp.libro as LibroFiscal) : libros[0];
+  const deLibro = EMPRESAS[libro];
+  const empresa = deLibro.includes(sp.empresa as Empresa) ? (sp.empresa as Empresa) : null;
+  const empresas = empresa ? [empresa] : deLibro;
+  const todo = sp.todo === "1";
   const hoy = hoyMadrid();
-  const deCobros = puedeVerCobros(yo);
-  const pagos = await Promise.all(libros.map(calendarioFiscal));
+  const pagos = (await calendarioFiscal(libro)).filter((p) => empresas.includes(p.empresa));
+
+  const q = (extra: Record<string, string | null>) => {
+    const u = new URLSearchParams();
+    const v = { libro: libro === libros[0] ? null : libro, empresa, todo: todo ? "1" : null, ...extra };
+    for (const [k, x] of Object.entries(v)) if (x) u.set(k, x);
+    const s = u.toString();
+    return s ? `/pagar?${s}` : "/pagar";
+  };
+  const otro = libros.find((l) => l !== libro);
+  const BTN = "inline-flex h-10 items-center gap-2 rounded-[9px] border border-[#d6dad2] bg-white px-[18px] text-[14px] font-bold text-carbon-soft";
+
   return (
-    <div className="min-h-screen">
-      <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        {deCobros ? <Salida href="/facturacion">← Facturación y asignación</Salida> : <Salida href="/ecobalance">← Ecobalance</Salida>}
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon">Pagar</h1>
-          {deCobros && <Areas yo={yo} activa="pagar" />}
-        </div>
-
-        {libros.map((l, i) => (
-          <ImpuestosLibro key={l} libro={l} pagos={pagos[i]} hoy={hoy} />
-        ))}
-
-        <Seccion titulo="Lo que irá aquí" sub="El resto de lo que se paga. Cada hueco se cambia por su pantalla cuando esté.">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {HUECOS.map((h) => (
-              <Hueco key={h.titulo} {...h} />
-            ))}
+    <MarcoDinero yo={yo} area="pagar" activo={libro === "accesalia" ? ["impuestos", empresa ? ACTIVO_EMPRESA[empresa] : "emp-todas"] : "impuestos"}>
+      <div className="mb-[22px] flex items-end justify-between gap-6">
+        <div>
+          <h1 className="text-[30px] font-[750] leading-[1.1] tracking-[-.5px] text-carbon">Impuestos</h1>
+          <div className="mt-1.5 text-[14.5px] text-carbon/65">
+            {empresa ? (empresa === "daniel_autonomo" ? "Daniel de Soto" : "Accesalia") : LIBRO_LABEL[libro]}
+            {libro === "accesalia" ? " · los presenta GMA · domiciliados" : ""}
+            {otro && (
+              <>
+                {" · "}
+                <Link href={`/pagar${otro === libros[0] ? "" : `?libro=${otro}`}`} className="font-semibold text-lima-dark hover:underline">
+                  ver {LIBRO_LABEL[otro]} →
+                </Link>
+              </>
+            )}
           </div>
-        </Seccion>
-      </main>
-    </div>
+        </div>
+        <div className="flex gap-2.5">
+          <span className={BTN + " cursor-default opacity-50"} title="Se monta cuando esté: el correo a GMA pidiendo los importes del trimestre">
+            Pedir importes a GMA <span className="text-[10px] font-semibold uppercase tracking-wide">luego</span>
+          </span>
+          <Link href={q({ todo: todo ? null : "1" })} className={BTN + " hover:border-carbon/40"}>
+            {todo ? "Solo los próximos meses" : "Calendario completo"}
+          </Link>
+        </div>
+      </div>
+      <Impuestos pagos={pagos} empresas={empresas} hoy={hoy} todo={todo} hrefTodo={q({ todo: "1" })} />
+    </MarcoDinero>
   );
 }
