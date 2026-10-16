@@ -3,6 +3,7 @@ import { accionAscensor, accionPortal } from "./acciones";
 import { Patios } from "./Patios";
 import { ConsultarIee } from "./ConsultarIee";
 import { VolverAConsultar } from "./VolverAConsultar";
+import { Ampliable } from "../../../components/Ampliable";
 
 // EL EDIFICIO, DENTRO DEL BLOQUE 1 (Monica, 5-oct-2026).
 //
@@ -303,8 +304,13 @@ export function EdificioVista({
             ].map((x) => (
               <div key={x.que}>
                 {x.src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={x.src} alt={x.que} className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover" />
+                  // Al pincharla se amplia, pedida al doble de grande (16-oct-2026).
+                  <Ampliable
+                    src={x.src}
+                    grande={x.src.replace("width=760&height=760", "width=1400&height=1400")}
+                    alt={x.que}
+                    className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover"
+                  />
                 ) : (
                   <div className={HUECO}>no se ha podido traer</div>
                 )}
