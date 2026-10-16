@@ -100,8 +100,10 @@ def main():
             """El mismo cobro guardado dos veces ("(1)", "- copia", el alta y el detalle del recibo): misma factura,
             mismo importe y a una semana o menos. En el confirming, a cualquier distancia (el aviso y la liquidacion)."""
             lejos = 9999 if tipo == 'confirming' else 7
+            # despues de una devolucion, un cargo igual NO es copia: es la repeticion (segundo intento)
+            ultima_dev = max((d for fid, d, i in devueltos if fid == f['factura_id'] and d <= dia), default=None)
             return imp is not None and any(fid == f['factura_id'] and abs(i - imp) < 0.02 and abs((d - dia).days) <= lejos
-                                           for fid, d, i in vistos)
+                                           and (ultima_dev is None or d > ultima_dev) for fid, d, i in vistos)
 
         if not devolucion:
             if ya_apuntado():
@@ -126,7 +128,7 @@ def main():
                 continue
             ya.add(clave)
             nuevos.append({**base, 'tipo': t, 'importe': i})
-        pdfs[ruta] = f['ruta']
+            pdfs[ruta] = f['ruta']   # solo los PDF de lo que se apunta ahora
     print('cobros a apuntar: %d (%s) | PDF a subir: %d | ya estaban: %d'
           % (len(nuevos), dict(collections.Counter(c['tipo'] for c in nuevos)), len(pdfs), estaban))
     if '--escribir' not in sys.argv: print('(marcha en seco)'); return
