@@ -1,87 +1,71 @@
 import { redirect } from "next/navigation";
-import { BarraSuperior } from "../components/BarraSuperior";
-import { Salida } from "../components/Salida";
 import { quienSoy } from "../../lib/sesion";
 import { calendarioFiscal } from "../../lib/fiscal";
-import { Cifra, eur, Hueco, REJILLA, Seccion } from "../negocio/Piezas";
-import { Areas } from "../facturacion/Areas";
+import { datosCaja } from "../../lib/cobros";
+import { MarcoDinero } from "../facturacion/MarcoDinero";
+import { Llegamos, mesesPrever, porMes } from "./Llegamos";
 
 export const dynamic = "force-dynamic";
 
-// PREVER (Monica, 12-oct-2026): "una pantalla que avise: este mes, gastos
-// previstos... e ingresos estimados, para saber si llegamos. ¿Tenemos caja para
-// hacer frente a todo o tocamos asignaciones para adelantar proyectos?". Hoy
-// solo tiene dato lo fiscal (lo que ya se sabe que se carga este mes); el resto,
-// huecos con su nota. Es del libro de Accesalia y Daniel.
-
-const HUECOS = [
-  {
-    titulo: "Impuestos estimados",
-    va: "lo que saldrá en cada declaración antes de presentarla: IVA (por lo facturado), retenciones (por las nóminas), el 202 (18 % del último Sociedades), Sociedades (por el beneficio).",
-    falta: "leer los importes de las declaraciones de 2019-2026 de tu carpeta de Hacienda, para calibrar con lo real.",
-  },
-  {
-    titulo: "Nóminas y Seguridad Social",
-    va: "lo que sale cada mes por personal.",
-    falta: "engancharlo a las nóminas de RRHH y el importe de los seguros sociales.",
-  },
-  {
-    titulo: "Gastos fijos",
-    va: "alquiler, luz, internet, SOFISE, coches, licencias, GMA, línea de crédito, dietas, gasolina…",
-    falta: "la lista de gastos fijos de PAGAR.",
-  },
-  {
-    titulo: "Ingresos previstos",
-    va: "lo que se cobrará este mes por los hitos que se prevé alcanzar (precios, tiempos, quién paga, retrasos, visados).",
-    falta: "unir los hitos con fecha prevista y el cronograma de ASIGNAR, más el desfase de cobro de cada pagador.",
-  },
-  {
-    titulo: "¿Llegamos?",
-    va: "ingresos menos gastos del mes, y qué proyectos adelantar en ASIGNAR si no llega.",
-    falta: "los cuatro huecos de arriba.",
-  },
-];
+// PREVER › ¿LLEGAMOS? (Monica, 12-oct-2026: "una pantalla que avise: este mes,
+// gastos previstos... e ingresos estimados, para saber si llegamos. ¿Tenemos
+// caja para hacer frente a todo o tocamos asignaciones para adelantar
+// proyectos?"). Desde el 16-oct, la pantalla de la maqueta validada dentro del
+// marco comun del dinero; lo que aun no tiene dato, hueco. Ver Llegamos.tsx.
+// Es del libro de Accesalia y Daniel.
 
 const hoyMadrid = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
-const MES = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric", timeZone: "UTC" });
+
+/** Las facturas emitidas de Accesalia y Daniel (2025-26) que quedan por cobrar.
+ *  COBRADO = JUSTIFICANTE SUBIDO (Monica, 16-oct-2026): lo que falta es el total
+ *  menos sus cobros (tabla cobros; negativo en las devoluciones). Un cobro con el
+ *  importe sin leer cuenta como cobrado (el justificante esta). Las que Factusol
+ *  da por cobradas sin justificante NO son dinero por entrar: van aparte. */
+async function porCobrar() {
+  const r = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/facturas?select=total,estado,cobros(importe)&tipo=eq.factura&estado=neq.anulada&empresa_emisora=in.(accesalia,daniel)&fecha=gte.2025-01-01`,
+    { headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` }, cache: "no-store" },
+  );
+  if (!r.ok) throw new Error(`Supabase facturas ${r.status}: ${await r.text()}`);
+  const filas = (await r.json()) as { total: number | null; estado: string; cobros: { importe: number | null }[] }[];
+  const out = { importe: 0, facturas: 0, sinJustificante: { importe: 0, facturas: 0 } };
+  for (const f of filas) {
+    if (f.cobros.some((c) => c.importe == null)) continue;
+    const falta = Number(f.total ?? 0) - f.cobros.reduce((s, c) => s + Number(c.importe), 0);
+    if (falta <= 1) continue;
+    const a = f.estado === "cobrada" ? out.sinJustificante : out;
+    a.importe += falta;
+    a.facturas++;
+  }
+  return out;
+}
 
 export default async function PaginaPrever() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/prever");
   if (!(yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion"))) redirect("/menu");
   const hoy = hoyMadrid();
-  const mes = hoy.slice(0, 7);
-  const delMes = (await calendarioFiscal("accesalia")).filter((p) => p.fecha.startsWith(mes) && p.estado !== "fraccionado" && !p.sinCargo);
-  const conocido = delMes.filter((p) => p.importe != null).reduce((s, p) => s + (p.importe ?? 0), 0);
-  const porSaber = delMes.filter((p) => p.importe == null && p.estado === "pendiente").length;
+  const [impuestos, caja, cobrar] = await Promise.all([calendarioFiscal("accesalia"), datosCaja(), porCobrar()]);
+  const meses = porMes(mesesPrever(hoy, 6), caja.fijos, impuestos, hoy);
+  const pasados = caja.fijos.filter((f) => f.fecha < hoy);
+  const vencido = { importe: pasados.reduce((s, f) => s + f.importe, 0), hitos: pasados.length };
   return (
-    <div className="min-h-screen">
-      <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        <Salida href="/facturacion">← Facturación y asignación</Salida>
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon">Prever</h1>
-          <Areas yo={yo} activa="prever" />
+    <MarcoDinero yo={yo} area="prever" activo="llegamos">
+      <div className="mb-[22px] flex items-end justify-between gap-6">
+        <div>
+          <h1 className="text-[30px] font-[750] leading-[1.1] tracking-[-.5px] text-carbon">¿Llegamos?</h1>
+          <div className="mt-1.5 text-[14.5px] text-carbon/65">
+            Accesalia y Daniel juntos · saldo de hoy en banco: <span className="font-semibold text-amber-800/80">sin dato todavía</span>
+          </div>
         </div>
-
-        <Seccion titulo={`Este mes · ${MES.format(new Date(mes + "-01T00:00:00Z"))}`} sub="Accesalia y Daniel de Soto. Lo que ya tiene dato.">
-          <div className={REJILLA}>
-            <Cifra
-              titulo="Impuestos ya conocidos"
-              valor={eur(conocido)}
-              nota={`los plazos de lo fraccionado${porSaber ? ` · y ${porSaber} declaraciones con el importe por saber` : ""}`}
-            />
-          </div>
-        </Seccion>
-
-        <Seccion titulo="Lo que irá aquí" sub="Cada hueco se cambia por su cifra cuando haya dato.">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {HUECOS.map((h) => (
-              <Hueco key={h.titulo} {...h} />
-            ))}
-          </div>
-        </Seccion>
-      </main>
-    </div>
+        <div className="flex gap-2.5">
+          <span className="inline-flex h-10 items-center rounded-[9px] border border-[#d6dad2] bg-white px-[18px] text-[14px] font-bold text-carbon-soft">Próximos 6 meses</span>
+          <span className="inline-flex h-10 cursor-default items-center gap-2 rounded-[9px] bg-carbon px-[18px] text-[14px] font-bold text-white opacity-50" title="Se monta cuando estén los supuestos">
+            Escenario: tal como va <span className="text-[10px] font-semibold uppercase tracking-wide">luego</span>
+          </span>
+        </div>
+      </div>
+      <Llegamos meses={meses} vencido={vencido} porCobrar={cobrar} sinFecha={caja.sinFecha} />
+    </MarcoDinero>
   );
 }
