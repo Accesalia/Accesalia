@@ -585,7 +585,17 @@ export async function comunidadDesdeAccesos(oppId: string): Promise<string | nul
  *  existia -otra opp, otro año- se reutiliza: la clave de `accesos` es la
  *  direccion, nunca se duplica. Lo usan el alta y el cambio de direccion. */
 export async function enlazarAccesos(oppId: string, portalIds: string[], deDonde: string): Promise<number> {
-  if (portalIds.length === 0) return 0;
+  return (await enlazarAccesosIds(oppId, portalIds, deDonde)).length;
+}
+
+/** Lo mismo, devolviendo los ids de los accesos enlazados.
+ *
+ *  UN ACCESO QUE YA FUE DE LA OPP SE REABRE, no se crea otra vez (16-oct-2026:
+ *  "Direccion mal apuntada, la corrijo" con la misma direccion de Higueras 59
+ *  rompia la ficha: la pareja opp-acceso es unica y el enlace cerrado seguia
+ *  ahi). Se reabre quitandole el `hasta`; su `de_donde` original se conserva. */
+async function enlazarAccesosIds(oppId: string, portalIds: string[], deDonde: string): Promise<string[]> {
+  if (portalIds.length === 0) return [];
   type PortalFicha = {
     id: string;
     tipo_via: string | null;
@@ -598,6 +608,7 @@ export async function enlazarAccesos(oppId: string, portalIds: string[], deDonde
     `ficha_catastro_portal?select=id,tipo_via,nombre_via,numero,escalera,ficha_catastro!inner(referencia,municipio)` +
       `&id=in.(${portalIds.map(encodeURIComponent).join(",")})`,
   );
+  const ids: string[] = [];
   for (const p of portales) {
     const [acceso] = await crearOActualizar<{ id: string }>(
       "accesos",
@@ -612,9 +623,14 @@ export async function enlazarAccesos(oppId: string, portalIds: string[], deDonde
         ficha_catastro_portal_id: p.id,
       },
     );
-    await crear("relacion_oportunidad_accesos", { opp_id: oppId, acceso_id: acceso.id, de_donde: deDonde });
+    const [ya] = await leer<{ hasta: string | null }[]>(
+      `relacion_oportunidad_accesos?select=hasta&opp_id=eq.${oppId}&acceso_id=eq.${acceso.id}&limit=1`,
+    );
+    if (!ya) await crear("relacion_oportunidad_accesos", { opp_id: oppId, acceso_id: acceso.id, de_donde: deDonde });
+    else if (ya.hasta) await actualizar(`relacion_oportunidad_accesos?opp_id=eq.${oppId}&acceso_id=eq.${acceso.id}`, { hasta: null });
+    ids.push(acceso.id);
   }
-  return portales.length;
+  return ids;
 }
 
 /** BUSCAR O CAMBIAR LA DIRECCION de una oportunidad ya creada (Monica,
@@ -632,8 +648,14 @@ export async function cambiarDireccion(
   const [op] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${oppId}&limit=1`);
   if (!op) throw new Error("No existe esa oportunidad");
 
-  await actualizar(`relacion_oportunidad_accesos?opp_id=eq.${oppId}&hasta=is.null`, { hasta: hoy() });
-  await enlazarAccesos(oppId, r.portalIds, "Buscada o cambiada en la ficha de la oportunidad, en la ventana de Catastro");
+  // Primero se enlazan los elegidos y despues se cierran SOLO los que ya no
+  // estan (16-oct-2026): si algo falla a medias, la opp nunca se queda sin
+  // accesos, y un portal que se vuelve a elegir sigue abierto.
+  const nuevos = await enlazarAccesosIds(oppId, r.portalIds, "Buscada o cambiada en la ficha de la oportunidad, en la ventana de Catastro");
+  await actualizar(
+    `relacion_oportunidad_accesos?opp_id=eq.${oppId}&hasta=is.null` + (nuevos.length ? `&acceso_id=not.in.(${nuevos.join(",")})` : ""),
+    { hasta: hoy() },
+  );
   await actualizar(`oportunidades?id=eq.${oppId}`, {
     nombre: r.nombre,
     referencia_catastral: r.parcela,
