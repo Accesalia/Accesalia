@@ -20,6 +20,7 @@
 // programa: se dicta con el del teclado.
 
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { nombreDeOpp } from "./direccionOpp";
 import { CANALES } from "./tipoDeNota";
 import { apuntarFotos } from "./fotos";
@@ -80,6 +81,31 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
  *  Las personas llevan delante de que lista son: puesto: o persona:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
+  // LAS LISTAS SE GUARDAN YA MONTADAS, CON SU VERSION (Monica, 16-oct-2026: "no
+  // MONTARLO cada vez"). En cada visita solo se mira si ha cambiado algo: la
+  // fecha del ultimo cambio y cuantas filas hay de opps, personas y comerciales
+  // (tres preguntas de 1 ms). Si nada cambio, se sirven las guardadas; si algo
+  // cambio -una opp recien dada de alta, una persona nueva-, se montan otra vez
+  // en ese momento. Nunca ensena algo viejo y no depende de que nadie avise.
+  const version = await versionListas().catch(() => String(Date.now()));
+  return unstable_cache(montarOpciones, ["opciones-entrada", version], { revalidate: 3600 })();
+}
+
+/** "fecha del ultimo cambio / filas" de cada tabla de la que salen las listas. */
+async function versionListas(): Promise<string> {
+  const marca = async (tabla: string) => {
+    const r = await fetch(`${URL_BASE}/rest/v1/${tabla}?select=actualizado_en&order=actualizado_en.desc.nullslast&limit=1`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Prefer: "count=exact" },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`${tabla} ${r.status}`);
+    const [f] = (await r.json()) as { actualizado_en: string | null }[];
+    return `${f?.actualizado_en ?? ""}/${r.headers.get("content-range")?.split("/")[1] ?? ""}`;
+  };
+  return (await Promise.all(["oportunidades", "directorio_personas", "comerciales"].map(marca))).join("|");
+}
+
+async function montarOpciones(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
   const [ops, personas] = await Promise.all([
     leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
            comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
