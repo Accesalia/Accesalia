@@ -44,17 +44,17 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
         items: [
           { clave: "nuevas", titulo: "Nuevas Hojas Encargo Firmadas", href: "/facturacion/cobrar", cuenta: c.nuevas },
           { clave: "modificar", titulo: "Modificar Hitos" },
-          { clave: "facturable", titulo: "Facturable ya", cuenta: c.facturable },
+          { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/proximos?ver=ya", cuenta: c.facturable },
           { clave: "proforma", titulo: "Generar Proforma", href: "/facturacion/proformas" },
-          { clave: "sin-justificante", titulo: "Facturas sin justificante", cuenta: c.sinJustificante },
+          { clave: "sin-justificante", titulo: "Facturas sin justificante", href: "/facturacion/cobrar/sin-justificante", cuenta: c.sinJustificante },
         ],
       },
       {
         titulo: "Consultar",
         items: [
           { clave: "buscar", titulo: "Buscar dirección" },
-          { clave: "contratado", titulo: "Todo lo contratado" },
-          { clave: "proximos", titulo: "Próximos hitos" },
+          { clave: "contratado", titulo: "Todo lo contratado", href: "/facturacion/cobrar/contratado" },
+          { clave: "proximos", titulo: "Próximos hitos", href: "/facturacion/cobrar/proximos" },
           { clave: "facturas", titulo: "Facturas emitidas", href: "/facturacion/cobrar/facturas" },
           // No esta en la maqueta: se queda hasta que «Buscar dirección» la sustituya.
           { clave: "por-cobrar", titulo: "Lo que queda por cobrar", href: "/facturacion/cobrar/por-cobrar" },

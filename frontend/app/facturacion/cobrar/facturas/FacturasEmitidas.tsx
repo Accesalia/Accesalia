@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { FacturaEmitida } from "../../../../lib/facturasEmitidas";
+import type { EstadoCobro, FacturaEmitida } from "../../../../lib/facturasEmitidas";
 
 // COBRAR › FACTURAS EMITIDAS. Con el estilo de «Todo lo contratado» de la maqueta
 // (docs/figma/area-dinero-v1.html): tres cifras arriba, filtros en pastillas y
@@ -15,33 +15,46 @@ const eur0 = (n: number) => Math.round(n).toLocaleString("es-ES", { useGrouping:
 const fecha = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}` : "—");
 const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-const ESTADO: Record<string, { t: string; c: string }> = {
+// COBRADO = JUSTIFICANTE SUBIDO (Monica, 12-oct-2026). El estado sale de los
+// justificantes (tabla cobros), no de lo que dice Factusol.
+const ESTADO: Record<EstadoCobro, { t: string; c: string }> = {
   cobrada: { t: "cobrada", c: "bg-[#e3f1d6] text-[#2f5d14]" },
-  cobrada_en_parte: { t: "cobrada en parte", c: "bg-[#fbefd0] text-[#875f07]" },
-  pendiente: { t: "pendiente", c: "bg-[#fbefd0] text-[#875f07]" },
-  anulada: { t: "anulada", c: "bg-black/[.06] text-carbon/50" },
-  otro: { t: "otro", c: "bg-black/[.06] text-carbon/60" },
+  parcial: { t: "cobrada en parte", c: "bg-[#fbefd0] text-[#875f07]" },
+  devuelta: { t: "devuelta", c: "bg-[#f6dfdd] text-alerta" },
+  sin_justificante: { t: "sin justificante", c: "bg-[#fbefd0] text-[#875f07]" },
+  anulada: { t: "—", c: "text-carbon/40" },
+};
+const TIPO_COBRO: Record<string, string> = {
+  cargo_en_cuenta: "cargo en cuenta", transferencia: "transferencia", confirming: "confirming", aviso_de_pago: "aviso de pago",
+  devolucion: "devolución", otro: "cobro",
 };
 
-type Filtro = "todas" | "pendientes" | "sin-casar" | "abonos";
+export type Filtro = "todas" | "sin-justificante" | "devueltas" | "sin-casar" | "abonos";
 
-export function FacturasEmitidas({ facturas, anio, anios }: { facturas: FacturaEmitida[]; anio: number | null; anios: number[] }) {
+export function FacturasEmitidas({
+  facturas, anio, anios, titulo = "Facturas emitidas", filtroInicial = "todas", ruta = "/facturacion/cobrar/facturas",
+}: {
+  facturas: FacturaEmitida[]; anio: number | null; anios: number[]; titulo?: string; filtroInicial?: Filtro; ruta?: string;
+}) {
   const [empresa, setEmpresa] = useState<"las-dos" | "accesalia" | "daniel">("las-dos");
-  const [filtro, setFiltro] = useState<Filtro>("todas");
+  const [filtro, setFiltro] = useState<Filtro>(filtroInicial);
   const [q, setQ] = useState("");
   const [abierta, setAbierta] = useState<string | null>(null);
 
   const deEmpresa = facturas.filter((f) => empresa === "las-dos" || f.empresa === empresa);
-  const vivas = deEmpresa.filter((f) => f.estado !== "anulada");
-  const emitido = vivas.reduce((s, f) => s + f.base, 0);
-  const cobrado = vivas.filter((f) => f.estado === "cobrada").reduce((s, f) => s + f.base, 0);
-  const pendientes = vivas.filter((f) => f.estado === "pendiente" || f.estado === "cobrada_en_parte");
+  // Las cifras, CON IVA: lo cobrado sale de los justificantes, que llevan el IVA.
+  const vivas = deEmpresa.filter((f) => f.estadoCobro !== "anulada");
+  const emitido = vivas.reduce((s, f) => s + f.total, 0);
+  const cobrado = vivas.reduce((s, f) => s + Math.min(f.cobrado, f.total), 0);
+  const sinJustificante = vivas.filter((f) => f.estadoCobro === "sin_justificante");
+  const devueltas = vivas.filter((f) => f.estadoCobro === "devuelta");
   const sinCasar = vivas.filter((f) => f.sinCasar > 0.5);
 
   const lista = useMemo(() => {
     const t = limpio(q.trim());
     return deEmpresa.filter((f) => {
-      if (filtro === "pendientes" && !(f.estado === "pendiente" || f.estado === "cobrada_en_parte")) return false;
+      if (filtro === "sin-justificante" && f.estadoCobro !== "sin_justificante") return false;
+      if (filtro === "devueltas" && f.estadoCobro !== "devuelta") return false;
       if (filtro === "sin-casar" && !(f.sinCasar > 0.5)) return false;
       if (filtro === "abonos" && f.tipo !== "abono") return false;
       if (!t) return true;
@@ -56,29 +69,29 @@ export function FacturasEmitidas({ facturas, anio, anios }: { facturas: FacturaE
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-bold leading-tight text-carbon">Facturas emitidas</h1>
+          <h1 className="text-[28px] font-bold leading-tight text-carbon">{titulo}</h1>
           <p className="mt-1 text-[14.5px] text-carbon/65">
-            Accesalia y Daniel de Soto · {anio ?? "todos los años"} · de Factusol, con su PDF y a qué hito de qué hoja va cada una
+            Accesalia y Daniel de Soto · {anio ?? "todos los años"} · de Factusol, con su PDF, a qué hito de qué hoja va cada una y su justificante de cobro
           </p>
         </div>
         <div className="flex gap-1.5">
           {anios.map((a) => (
-            <Link key={a} href={`/facturacion/cobrar/facturas?anio=${a}`} className={pastilla(a === anio)}>
+            <Link key={a} href={`${ruta}?anio=${a}`} className={pastilla(a === anio)}>
               {a}
             </Link>
           ))}
         </div>
       </div>
 
-      {/* LAS TRES CIFRAS, como en «Todo lo contratado» (base, sin IVA). */}
+      {/* LAS TRES CIFRAS, como en «Todo lo contratado», con IVA: cobrado = justificante subido. */}
       <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <Cifra titulo="Emitido" valor={eur0(emitido)} sub={`${vivas.length} facturas · base sin IVA`} />
-        <Cifra titulo="Cobrado" valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
+        <Cifra titulo="Emitido" valor={eur0(emitido)} sub={`${vivas.length} facturas · con IVA`} />
+        <Cifra titulo="Cobrado, con justificante" valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
         <Cifra
-          titulo="Pendiente de cobro"
-          valor={eur0(pendientes.reduce((s, f) => s + f.base, 0))}
-          sub={`${pendientes.length} facturas`}
-          rojo={pendientes.length > 0}
+          titulo="Sin justificante de cobro"
+          valor={eur0(sinJustificante.reduce((s, f) => s + f.total, 0))}
+          sub={`${sinJustificante.length} facturas${devueltas.length ? ` · ${devueltas.length} devueltas` : ""}`}
+          rojo={sinJustificante.length + devueltas.length > 0}
         />
       </div>
 
@@ -86,7 +99,8 @@ export function FacturasEmitidas({ facturas, anio, anios }: { facturas: FacturaE
         {(
           [
             ["todas", `Todas · ${deEmpresa.length}`],
-            ["pendientes", `Pendientes de cobro · ${pendientes.length}`],
+            ["sin-justificante", `Sin justificante · ${sinJustificante.length}`],
+            ["devueltas", `Devueltas · ${devueltas.length}`],
             ["sin-casar", `Sin casar con su hito · ${sinCasar.length}`],
             ["abonos", `Abonos · ${deEmpresa.filter((f) => f.tipo === "abono").length}`],
           ] as [Filtro, string][]
@@ -128,12 +142,12 @@ export function FacturasEmitidas({ facturas, anio, anios }: { facturas: FacturaE
         {lista.length === 0 && <div className="px-5 py-8 text-center text-[13.5px] text-carbon/55">Ninguna factura con ese filtro.</div>}
         {lista.map((f) => {
           const on = abierta === f.id;
-          const e = ESTADO[f.estado] ?? ESTADO.otro;
+          const e = ESTADO[f.estadoCobro];
           return (
             <div key={f.id} className="border-b border-black/5 last:border-0">
               <div
                 onClick={() => setAbierta(on ? null : f.id)}
-                className={`grid cursor-pointer grid-cols-[70px_80px_minmax(0,1.1fr)_minmax(0,1.9fr)_100px_110px_44px] items-baseline gap-x-3 px-4 py-2.5 text-[13.5px] ${on ? "bg-[#f3f9ec]" : "hover:bg-[#fafbf9]"} ${f.estado === "anulada" ? "opacity-55" : ""}`}
+                className={`grid cursor-pointer grid-cols-[70px_80px_minmax(0,1.1fr)_minmax(0,1.9fr)_100px_110px_44px] items-baseline gap-x-3 px-4 py-2.5 text-[13.5px] ${on ? "bg-[#f3f9ec]" : "hover:bg-[#fafbf9]"} ${f.estadoCobro === "anulada" ? "opacity-55" : ""}`}
               >
                 <span className="tabular-nums text-carbon/70">{fecha(f.fecha)}</span>
                 <span className="tabular-nums text-carbon/80">
@@ -188,8 +202,24 @@ export function FacturasEmitidas({ facturas, anio, anios }: { facturas: FacturaE
                     <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-carbon/50">Lo que dice la factura</div>
                     <div className="text-carbon/80">{f.referencia ?? "—"}</div>
                     <div className="mt-1 text-carbon/55">
-                      {f.pagador} · total con IVA {eur(f.total)} €
+                      {f.pagador} · total con IVA {eur(f.total)} € · Factusol la da por {f.estado.replace(/_/g, " ")}
                     </div>
+                    <div className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-wide text-carbon/50">Justificantes de cobro</div>
+                    {f.cobros.length ? (
+                      f.cobros.map((c) => (
+                        <div key={c.id} className="mb-1">
+                          <span className="tabular-nums text-carbon/45">{fecha(c.fecha)} · </span>
+                          <span className={c.tipo === "devolucion" ? "font-semibold text-alerta" : "text-carbon/85"}>
+                            {TIPO_COBRO[c.tipo] ?? c.tipo} {c.importe == null ? "(importe sin leer)" : `${eur(c.importe)} €`}
+                          </span>
+                          <a href={`/facturacion/justificante/${c.id}`} target="_blank" rel="noreferrer" onClick={(ev) => ev.stopPropagation()} className="ml-2 font-semibold text-lima-dark hover:underline">
+                            ver
+                          </a>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-carbon/45">Ninguno subido.</div>
+                    )}
                   </div>
                   <div>
                     <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-carbon/50">Notas de facturación</div>

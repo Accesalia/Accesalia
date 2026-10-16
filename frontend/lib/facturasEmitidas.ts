@@ -51,6 +51,10 @@ export type DondeVa = {
   importe: number;
 };
 export type NotaHito = { fecha: string; texto: string };
+/** COBRADO = JUSTIFICANTE SUBIDO (Monica, 12-oct-2026), de la tabla `cobros`
+ *  (hilo 68): cada fila un ingreso, una devolucion (negativa) o un confirming. */
+export type Cobro = { id: string; fecha: string | null; importe: number | null; tipo: string };
+export type EstadoCobro = "cobrada" | "parcial" | "devuelta" | "sin_justificante" | "anulada";
 export type FacturaEmitida = {
   id: string;
   empresa: Empresa;
@@ -70,6 +74,11 @@ export type FacturaEmitida = {
   /** Lo facturado que no esta casado con ningun hito. */
   sinCasar: number;
   notas: NotaHito[];
+  /** Los justificantes de cobro y lo que suman (con IVA). */
+  cobros: Cobro[];
+  cobrado: number;
+  /** Por los justificantes: cobrada si suman el total (con 1 € de margen). */
+  estadoCobro: EstadoCobro;
 };
 
 type Cruda = {
@@ -108,11 +117,16 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
   const hitos = fa.flatMap((f) => f.lineas.flatMap((l) => l.enlaces.map((e) => e.hito).filter((h): h is NonNullable<typeof h> => !!h)));
   const padresIds = [...new Set(hitos.map((h) => h.hito_padre_id).filter((x): x is string => !!x))];
   const todosIds = [...new Set([...hitos.map((h) => h.id), ...padresIds])];
-  const [padres, notas] = await Promise.all([
+  const [padres, notas, cobros] = await Promise.all([
     porTramos<{ id: string; hito: string; importe: number | null }>(padresIds, (t) => `hitos_cobro?select=id,hito,importe&id=in.(${t})`),
     porTramos<{ hito_cobro_id: string; fecha: string | null; texto: string }>(todosIds,
       (t) => `notas_facturacion?select=hito_cobro_id,fecha,texto&hito_cobro_id=in.(${t})&order=fecha`),
+    porTramos<{ id: string; factura_id: string; fecha_cobro: string | null; importe: number | null; tipo: string }>(fa.map((f) => f.id),
+      (t) => `cobros?select=id,factura_id,fecha_cobro,importe,tipo&factura_id=in.(${t})&order=fecha_cobro`).catch(() => []),
   ]);
+  const cobrosDe = new Map<string, Cobro[]>();
+  for (const c of cobros)
+    cobrosDe.set(c.factura_id, [...(cobrosDe.get(c.factura_id) ?? []), { id: c.id, fecha: c.fecha_cobro, importe: c.importe == null ? null : Number(c.importe), tipo: c.tipo }]);
   const padreDe = new Map(padres.map((p) => [p.id, p]));
   const notasDe = new Map<string, NotaHito[]>();
   for (const n of notas) notasDe.set(n.hito_cobro_id, [...(notasDe.get(n.hito_cobro_id) ?? []), { fecha: n.fecha ?? "", texto: n.texto }]);
@@ -142,6 +156,18 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
           }
       }
     const base = Number(f.base) || 0;
+    const total = Number(f.total) || 0;
+    const susCobros = cobrosDe.get(f.id) ?? [];
+    const cobrado = Math.round(susCobros.reduce((s, c) => s + (c.importe ?? 0), 0) * 100) / 100;
+    // Las reglas de Monica (hilo 68): con justificante = alguna fila; cobrada = suman
+    // el total (1 € de margen); devuelta = alguna devolucion y no llega al total. Una
+    // fila sin importe leido cuenta como cobrada (hay justificante, falta leerlo).
+    const estadoCobro: EstadoCobro =
+      f.estado === "anulada" || f.tipo === "abono" ? "anulada"
+      : !susCobros.length ? "sin_justificante"
+      : cobrado >= total - 1 || susCobros.some((c) => c.importe == null) ? "cobrada"
+      : susCobros.some((c) => c.tipo === "devolucion") ? "devuelta"
+      : "parcial";
     return {
       id: f.id,
       empresa: f.empresa_emisora,
@@ -150,7 +176,7 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
       fecha: f.fecha,
       estado: f.estado,
       base,
-      total: Number(f.total) || 0,
+      total,
       pdf: !!f.url_pdf,
       direccion: opp ? nombreDeOpp(opp) : (f.referencia ?? f.pagador_nombre ?? "—"),
       oppId: opp?.id ?? null,
@@ -159,6 +185,9 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
       donde,
       sinCasar: f.tipo === "factura" && f.estado !== "anulada" ? Math.max(0, Math.round((base - casado) * 100) / 100) : 0,
       notas: susNotas,
+      cobros: susCobros,
+      cobrado,
+      estadoCobro,
     };
   });
 }
