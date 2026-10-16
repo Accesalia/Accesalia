@@ -10,6 +10,9 @@ const nextConfig = {
     // vacian esta memoria); lo que cambie otra persona se ve a los 30 s o al
     // recargar (Monica: ok). Las pantallas sin datos, 3 minutos.
     staleTimes: { dynamic: 30, static: 180 },
+    // LOS PDF QUE SE SUELTAN (factura de Factusol y justificante del cargo, 16-oct-2026)
+    // viajan en la accion del servidor: el limite por defecto (1 MB) se queda corto.
+    serverActions: { bodySizeLimit: "10mb" },
   },
 };
 

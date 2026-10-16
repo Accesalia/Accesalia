@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../../../lib/sesion";
 import { detalleCobro, puedeVerCobros } from "../../../../lib/cobros";
-import { leerProforma, listaProformas, proformasPorHito, referenciaFactusol, type Proforma } from "../../../../lib/proformas";
+import { leerProforma, listaProformas, paraEnviarProforma, proformasPorHito, referenciaFactusol, type Proforma } from "../../../../lib/proformas";
+import { EnviarFactura } from "./EnviarFactura";
 import { MarcoDinero } from "../../MarcoDinero";
 import { Buscador } from "../modificar/Buscador";
 import { Copiar } from "../../proforma/[id]/AccionesProforma";
@@ -32,6 +33,8 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
   const esperando = (await Promise.all(lista.filter((p) => p.estado === "emitida" && !p.facturada).map((p) => leerProforma(p.id)))).filter(
     (p): p is Proforma => !!p,
   );
+  // A quien se envia la factura: los de la proforma (agenda de la comunidad, y la contrata si paga ella).
+  const envios = await Promise.all(esperando.map((p) => paraEnviarProforma(p).catch(() => null)));
 
   return (
     <MarcoDinero yo={yo} area="cobrar" activo="proforma">
@@ -46,8 +49,8 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
       {d && (
         <>
           <h1 className="mt-6 text-[28px] font-bold leading-tight text-carbon">{d.opp.nombre ?? d.opp.codigo}</h1>
-          {esperando.map((p) => (
-            <Esperando key={p.id} p={p} />
+          {esperando.map((p, i) => (
+            <Esperando key={p.id} p={p} destinatarios={envios[i]?.destinatarios ?? []} />
           ))}
           {d.documentos.length ? (
             <MarcarHitos documentos={d.documentos} enProforma={enProforma} />
@@ -61,7 +64,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
 }
 
 /** Una proforma esperando el OK: (1) lo que se copia en Factusol; (2) enviar la factura. */
-function Esperando({ p }: { p: Proforma }) {
+function Esperando({ p, destinatarios }: { p: Proforma; destinatarios: { email: string; quien: string }[] }) {
   const enviada = p.envios.find((e) => e.ok);
   return (
     <section className="mt-5 overflow-hidden rounded-2xl border border-[#ecdcae] bg-white">
@@ -104,14 +107,15 @@ function Esperando({ p }: { p: Proforma }) {
           <div className="mb-2 text-[13px] font-bold text-carbon">
             <span className="mr-2 rounded-full bg-carbon px-2 py-0.5 text-[11px] text-white">2</span>Enviar factura y registro del cargo
           </div>
-          <p className="text-[13px] leading-relaxed text-carbon/65">
-            Aquí irá el gesto único de la maqueta: soltar el PDF de la factura de Factusol (y, en cargo en cuenta, el justificante del alta del recibo), comprobar que cuadra con la proforma y enviarla a la comunidad desde el buzón de facturación.
-          </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-carbon/65">
-            Mientras, la factura se enlaza sola con esta proforma al volcar Factusol, por el código <b>{p.codigo}</b> delante en la Referencia.
-          </p>
+          <EnviarFactura
+            proformaId={p.id}
+            codigo={p.codigo}
+            donde={(p.opp?.nombre ?? "").replace(/^CP\s+/i, "")}
+            total={EUR(p.total)}
+            destinatarios={destinatarios}
+          />
           <Link href={`/facturacion/proforma/${p.id}`} className="mt-3 inline-block text-[13px] font-semibold text-lima-dark hover:underline">
-            Abrir la proforma (enviarla, anularla, el PDF) →
+            Abrir la proforma (reenviarla, anularla, el PDF) →
           </Link>
         </div>
       </div>
