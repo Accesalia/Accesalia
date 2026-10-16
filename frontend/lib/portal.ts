@@ -61,7 +61,7 @@ export async function autorizadosDe(comunidadId: string): Promise<Autorizado[]> 
       `puesto?select=id,persona_id,persona:persona_id(nombre,apellidos)&figura_legal_propietaria_id=eq.${comunidadId}&cargo=eq.presidente&hasta=is.null`,
     ),
     pedir<{ comercial: { nombre: string; equipo: { email: string | null } | null } | null }[]>(
-      `oportunidades?select=comercial:comercial_id(nombre,equipo:equipo_id(email))&comunidad_id=eq.${comunidadId}&estado=neq.cerrada`,
+      `oportunidades?select=comercial:comercial_id(nombre,equipo:equipo_id(email))&comunidad_id=eq.${comunidadId}&estado=in.(abierta,pausada)`,
     ),
     pedir<{ id: string; email: string; nombre: string | null; motivo: string | null; puede_subir: boolean }[]>(
       `portal_autorizados?select=id,email,nombre,motivo,puede_subir&comunidad_id=eq.${comunidadId}&activo=is.true`,
@@ -128,7 +128,7 @@ export async function comunidadesDeCorreo(email: string): Promise<{ id: string; 
     const coms = await pedir<{ id: string }[]>(`comerciales?select=id&equipo_id=eq.${equipo[0].id}`);
     if (coms.length) {
       const opps = await pedir<{ comunidad_id: string | null }[]>(
-        `oportunidades?select=comunidad_id&comercial_id=in.(${coms.map((c) => c.id).join(",")})&estado=neq.cerrada&comunidad_id=not.is.null`,
+        `oportunidades?select=comunidad_id&comercial_id=in.(${coms.map((c) => c.id).join(",")})&estado=in.(abierta,pausada)&comunidad_id=not.is.null`,
       );
       opps.forEach((o) => o.comunidad_id && pon(o.comunidad_id, "comercial"));
     }

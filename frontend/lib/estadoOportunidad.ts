@@ -149,7 +149,8 @@ export function recalcularPorAccesosLuego(accesoIds: string[]): void {
 /** EL BARRIDO NOCTURNO: todas las opps. "cambiadas" son las que estaban mal: si
  *  sale alguna, una accion se olvido de avisar. */
 export async function barrido(origen: Origen = "barrido"): Promise<{ total: number; cambiadas: number }> {
-  const ids = (await todo<{ id: string }>("oportunidades?select=id", "id")).map((o) => o.id);
+  // Las anuladas por duplicadas no tienen paso: no existen para nadie (16-oct-2026).
+  const ids = (await todo<{ id: string }>("oportunidades?select=id&estado=neq.anulada", "id")).map((o) => o.id);
   return recalcularMuchas(ids, origen);
 }
 
@@ -174,7 +175,7 @@ export async function barrido(origen: Origen = "barrido"): Promise<{ total: numb
 export async function reconstruir(): Promise<{ opps: number; historial: number }> {
   const hoyISO = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
   const [opps, hojas, versiones, juntas, cierres, citas, viabs, solicitudes, estados] = await Promise.all([
-    todo<{ id: string; fecha_apertura: string | null; creado_en: string }>("oportunidades?select=id,fecha_apertura,creado_en", "id"),
+    todo<{ id: string; fecha_apertura: string | null; creado_en: string }>("oportunidades?select=id,fecha_apertura,creado_en&estado=neq.anulada", "id"),
     todo<{ id: string; oportunidad_id: string | null; fecha_creacion: string | null; fecha_firma: string | null; estado: string }>(
       "hojas_encargo?select=id,oportunidad_id,fecha_creacion,fecha_firma,estado&estado=neq.anulada",
       "id",

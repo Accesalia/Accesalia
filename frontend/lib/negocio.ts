@@ -76,7 +76,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     todo<{ id: string; nombre: string }>("comerciales?select=id,nombre&order=nombre.asc"),
     todo<{ id: string; codigo: string | null; comercial_id: string | null; estado: string; fecha_apertura: string | null; creado_en: string; nombre: string | null; comunidad_provisional: string | null;
       comunidad: { nombre: string } | null; admin: { empresa_id: string | null } | null }>(
-      "oportunidades?select=id,codigo,comercial_id,estado,fecha_apertura,creado_en,nombre,comunidad_provisional,comunidad:comunidad_id(nombre),admin:administrador_puesto_id(empresa_id)",
+      "oportunidades?select=id,codigo,comercial_id,estado,fecha_apertura,creado_en,nombre,comunidad_provisional,comunidad:comunidad_id(nombre),admin:administrador_puesto_id(empresa_id)&estado=neq.anulada",
     ),
     todo<{ id: string; numero_hoja: string | null; oportunidad_id: string | null; fecha_firma: string | null; version_firmada_id: string | null; versiones: { id: string; numero_version: number; importe_base: number | null }[] }>(
       "hojas_encargo?select=id,numero_hoja,oportunidad_id,fecha_firma,version_firmada_id,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,importe_base)&estado=eq.devuelta_firmada",

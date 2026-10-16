@@ -84,7 +84,7 @@ export async function oppsParaHoja(yo: Yo): Promise<OpcionOpp[]> {
   if (!cartera) return [];
   const filtro = cartera === "todas" ? "" : `&comercial_id=eq.${cartera}`;
   const opps = await leer<{ id: string; codigo: string | null; nombre: string | null; estado: string }[]>(
-    `oportunidades?select=id,codigo,nombre,estado${filtro}&order=estado.asc,fecha_apertura.desc.nullslast&limit=5000`,
+    `oportunidades?select=id,codigo,nombre,estado${filtro}&estado=neq.anulada&order=estado.asc,fecha_apertura.desc.nullslast&limit=5000`,
   );
   return opps.map((o) => ({
     valor: o.id,

@@ -590,7 +590,7 @@ export async function vigilarAlertasIEE(): Promise<ResultadoVigilancia> {
     // ---- 1. ¿hay ya oportunidad para esa finca? ----
     if (a.referencia_parcela) {
       const opps = await leer<{ id: string }>(
-        `oportunidades?select=id&referencia_catastral=eq.${encodeURIComponent(a.referencia_parcela)}&limit=1`,
+        `oportunidades?select=id&referencia_catastral=eq.${encodeURIComponent(a.referencia_parcela)}&estado=neq.anulada&limit=1`,
       );
       if (opps[0]) {
         await fetch(`${URL_BASE}/rest/v1/iee_registrado?codigo=eq.${encodeURIComponent(a.codigo)}`, {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
-import { accionAnadirInteres, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReactivar } from "./acciones";
+import { accionAnadirInteres, accionAnularDuplicada, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { TiraFases } from "./BarraFases";
 import { CabeceraPlegable } from "./CabeceraPlegable";
@@ -290,6 +290,23 @@ export function Cabecera({
  *  Ganada y perdida se dicen aqui mismo, en su color. */
 export function Estado({ id, g, cab }: { id: string; g: Gestion; cab: DatosCabecera }) {
   const e = cab.estado;
+  // ANULADA POR DUPLICADA (16-oct-2026): no es nada, solo apunta a la buena.
+  if (e.anulada)
+    return (
+      <div className="flex items-center gap-2.5 rounded-[8px] bg-white px-3 py-1.5">
+        <span className="text-[9.5px] font-bold uppercase tracking-[0.07em] text-carbon/45">Estado</span>
+        <span className="h-4 border-l border-carbon/35" />
+        <span className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-bold uppercase text-carbon/60">
+          Anulada por duplicada
+          <i className="inline-block h-2.5 w-2.5 rounded-full bg-carbon/25" />
+        </span>
+        {g.duplicadaDe && (
+          <Link href={`/comercial/oportunidades/${g.duplicadaDe.id}`} className="ml-auto text-[12.5px] font-semibold text-accion-marco underline">
+            Ir a la buena: {[g.duplicadaDe.codigo, g.duplicadaDe.nombre].filter(Boolean).join(" · ")}
+          </Link>
+        )}
+      </div>
+    );
   const [texto, punto, color] = e.ganada
     ? [`Ganada${e.fechaGanada ? " · " + e.fechaGanada.split("-").reverse().join("/") : ""}`, "bg-[#2D6609]", "text-[#2D6609]"]
     : e.perdida
@@ -311,7 +328,7 @@ export function Estado({ id, g, cab }: { id: string; g: Gestion; cab: DatosCabec
         className="ml-auto flex items-center gap-1.5"
         title={e.porCobrar ? "Aún hay cosas por cobrar: no se puede cerrar ni pausar." : undefined}
       >
-        <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} />
+        <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} otras={cab.otras} />
       </span>
     </div>
   );
@@ -319,7 +336,7 @@ export function Estado({ id, g, cab }: { id: string; g: Gestion; cab: DatosCabec
 
 /** Pausar y Cerrar (o Reactivar / Reabrir). Con hoja firmada y dinero
  *  pendiente no se puede ni lo uno ni lo otro. */
-function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCobrar: boolean; cerrada: boolean }) {
+function Botones({ id, g, porCobrar, cerrada, otras }: { id: string; g: Gestion; porCobrar: boolean; cerrada: boolean; otras: OtraOpp[] }) {
   // Pequeños y discretos (Monica, 15-oct-2026): lo que destaca es lo pendiente.
   const PASTILLA = "rounded-[5px] border px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide transition";
   const PAUSAR = PASTILLA + " border-[#E6DFA8] bg-[#FAF6D2] text-[#8A7A2A]";
@@ -373,6 +390,33 @@ function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCob
           <span className={ROTULO + " mt-2.5 block"}>¿Por qué?</span>
           <textarea name="motivo" required rows={3} placeholder="se han ido con otro arquitecto, no hay dinero…" className={CAMPO + " mt-1 resize-y"} />
           <button className={BOTON + " mt-2 w-full"}>Cerrarla</button>
+        </form>
+      </details>
+      {/* ANULAR POR DUPLICADA (16-oct-2026): ni perdida ni cerrada. Lo suyo pasa
+          a la buena y esta deja de salir en todas partes. */}
+      <details className="relative">
+        <summary className={PASTILLA + " cursor-pointer list-none border-carbon/25 bg-white text-carbon/60 hover:border-carbon/50"}>Duplicada</summary>
+        <form action={accionAnularDuplicada.bind(null, id)} className={CAJA + " absolute right-0 top-full z-30 mt-2 w-[360px] p-3"}>
+          <span className={ROTULO}>¿Cuál es la buena?</span>
+          {otras.filter((o) => !o.cerrada).length > 0 && (
+            <select name="buena" defaultValue="" className={CAMPO + " mt-1"}>
+              <option value="">— de esta dirección —</option>
+              {otras
+                .filter((o) => !o.cerrada)
+                .map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.accesos}
+                    {o.quieren ? ` · ${o.quieren}` : ""}
+                  </option>
+                ))}
+            </select>
+          )}
+          <input name="codigo" placeholder="o su código: ALV-2026-155" className={CAMPO + " mt-1.5"} />
+          <p className="mt-2 text-[11.5px] leading-snug text-carbon/65">
+            Esta se anula: no se borra, pero deja de salir en listas, carteras y estadísticas. Sus notas, citas, viabilidades y
+            documentos pasan a la buena. Si tiene hoja, presupuesto o factura, no se puede.
+          </p>
+          <button className={BOTON + " mt-2 w-full"}>Anular esta como duplicada</button>
         </form>
       </details>
     </>

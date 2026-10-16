@@ -131,6 +131,8 @@ export type Gestion = {
   /** "Pendiente de confirmar alcance / direccion", o null. Ver avisoDireccion. */
   aviso: string | null;
   estado: string;
+  /** Si se anulo por duplicada: la buena (16-oct-2026). */
+  duplicadaDe: { id: string; codigo: string | null; nombre: string | null } | null;
   comercial: string | null;
   /** Para elegirlo en la ficha: ninguna de las 1.228 migradas lo tiene aun. */
   comercialId: string | null;
@@ -245,6 +247,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comunidad: { nombre: string } | null;
       comercial_id: string | null;
       comercial: { nombre: string } | null;
+      duplicada: { id: string; codigo: string | null; nombre: string | null } | null;
       puesto: { cargo: string | null; telefono_empresa: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string; municipio: string | null } | null } | null;
       contacto_provisional: string | null;
       telefono_provisional: string | null;
@@ -258,7 +261,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     `oportunidades?select=id,codigo,nombre,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
-      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),` +
+      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),` +
       `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia,municipio)),` +
       `contacto_provisional,telefono_provisional,` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
@@ -321,6 +324,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       op.portales?.map((p) => p.acceso?.ref_catastral).find(Boolean) ?? op.referencia_catastral,
     comunidadId: op.comunidad_id,
     estado: op.estado,
+    duplicadaDe: op.duplicada ?? null,
     comercial: op.comercial?.nombre ?? null,
     comercialId: op.comercial_id,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
@@ -516,7 +520,7 @@ export async function pausar(oportunidadId: string, condicion: string | null) {
     oportunidad_id: oportunidadId,
     condicion_reactivacion: oNulo(condicion),
   });
-  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "pausada" });
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}&estado=neq.anulada`, { estado: "pausada" });
 }
 
 /** Retomarla: se cierra la pausa abierta poniendole fecha de fin -asi queda
@@ -526,7 +530,7 @@ export async function reactivar(oportunidadId: string) {
   await escribir("PATCH", `historial_pausas_oportunidad?oportunidad_id=eq.${oportunidadId}&hasta=is.null`, {
     hasta: hoy,
   });
-  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}`, { estado: "abierta" });
+  await escribir("PATCH", `oportunidades?id=eq.${oportunidadId}&estado=eq.pausada`, { estado: "abierta" });
 }
 
 /** CERRARLA A MANO (Monica, 14-oct-2026): "un boton que la cierre y pida la
@@ -540,7 +544,7 @@ export async function cerrar(oportunidadId: string, d: { perdida: boolean; motiv
   if (!motivo) throw new Error("Escribe por qué se cierra.");
   const [op] = await leer<{ comercial_id: string | null; estado: string }[]>(`oportunidades?select=comercial_id,estado&id=eq.${oportunidadId}`);
   if (!op) throw new Error("No existe esa oportunidad.");
-  if (op.estado === "cerrada") return;
+  if (op.estado === "cerrada" || op.estado === "anulada") return;
   const hoy = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
   if (op.estado === "pausada") {
     await escribir("PATCH", `historial_pausas_oportunidad?oportunidad_id=eq.${oportunidadId}&hasta=is.null`, { hasta: hoy });
@@ -574,4 +578,30 @@ export async function cambiarComercial(oportunidadId: string, comercialId: strin
 /** Los comerciales que se pueden elegir: los activos. */
 export async function comercialesActivos(): Promise<{ id: string; nombre: string }[]> {
   return leer<{ id: string; nombre: string }[]>("comerciales?select=id,nombre&activo=is.true&order=nombre.asc");
+}
+
+/** ANULARLA POR DUPLICADA (Monica, 16-oct-2026): Valladolid 13 se dio de alta
+ *  dos veces. No se borra ni cuenta como perdida: queda anulada, apuntando a la
+ *  buena, y lo que colgaba de ella (notas, citas, viabilidades, documentos...)
+ *  pasa a la buena. Lo hace la base de una vez (anular_por_duplicada), que se
+ *  niega si la duplicada ya tiene hoja, presupuesto, proforma o factura.
+ *  Devuelve lo que se movio ("2 notas, 1 cita"). */
+export async function anularPorDuplicada(oportunidadId: string, buenaId: string, quien: string): Promise<string> {
+  const r = await fetch(`${URL_BASE}/rest/v1/rpc/anular_por_duplicada`, {
+    method: "POST",
+    headers: { ...cabeceras, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_opp: oportunidadId, p_buena: buenaId, p_quien: quien }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    let dice = t;
+    try {
+      dice = (JSON.parse(t) as { message?: string }).message ?? t;
+    } catch {
+      /* no era json */
+    }
+    throw new Error(dice);
+  }
+  recalcularLuego(buenaId);
+  return (await r.json()) as string;
 }

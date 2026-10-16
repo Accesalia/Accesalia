@@ -127,6 +127,8 @@ export type HojaCruda = {
 };
 
 export type EstadoOpp = {
+  /** Anulada por duplicada (16-oct-2026): no cuenta como nada, ni perdida. */
+  anulada: boolean;
   ganada: boolean;
   cerrada: boolean;
   perdida: boolean;
@@ -169,11 +171,15 @@ export function estadoCon(
   const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
   const ganada = firmadas.length > 0;
   const cierre = [...op.cierres].sort((a, b) => b.creado_en.localeCompare(a.creado_en))[0];
-  const cerrada = op.estado === "cerrada";
+  const anulada = op.estado === "anulada";
+  // Una anulada se trata como cerrada (sin pasos, sin pausar ni cerrar) pero
+  // NO es perdida: un duplicado no es una venta perdida.
+  const cerrada = op.estado === "cerrada" || anulada;
   return {
+    anulada,
     ganada,
     cerrada,
-    perdida: cerrada && !ganada,
+    perdida: cerrada && !ganada && !anulada,
     pausada: op.estado === "pausada",
     porCobrar: ganada && !c.todos,
     cobrada: c.todos,
@@ -389,7 +395,7 @@ async function otrasEnLaDireccion(oppId: string, desglose: Map<string, string>):
   );
   const ids = [...new Set(rel.map((r) => r.opp_id))].slice(0, 20);
   if (!ids.length) return [];
-  const opps = await leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=in.(${ids.join(",")})`);
+  const opps = await leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=in.(${ids.join(",")})&estado=neq.anulada`);
   const porId = new Map(accesos.map((a) => [a.id, a]));
   const pasos = await pasosGuardados(opps.map((o) => o.id));
 

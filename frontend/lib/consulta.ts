@@ -77,7 +77,7 @@ type OppFila = {
 async function oportunidades(): Promise<OppFila[]> {
   return todo<OppFila>(
     "oportunidades?select=id,codigo,nombre,estado,comunidad_id,comunidad_provisional,comercial_id," +
-      "puesto:puesto_id(empresa:empresa_id(id,nombre_accesalia,tipo))&order=nombre.asc.nullslast",
+      "puesto:puesto_id(empresa:empresa_id(id,nombre_accesalia,tipo))&estado=neq.anulada&order=nombre.asc.nullslast",
   );
 }
 
@@ -224,7 +224,7 @@ const ESTADO_OPP: Record<string, string> = { abierta: "abierta", pausada: "pausa
 export async function oppsParaBuscar(): Promise<Sugerencia[]> {
   const [filas, portales] = await Promise.all([
     alDia<{ id: string; nombre: string | null; codigo: string | null; estado: string; puesto: { empresa: { nombre_accesalia: string } | null } | null }>(
-      "oportunidades?select=id,nombre,codigo,estado,puesto:puesto_id(empresa:empresa_id(nombre_accesalia))&order=id",
+      "oportunidades?select=id,nombre,codigo,estado,puesto:puesto_id(empresa:empresa_id(nombre_accesalia))&estado=neq.anulada&order=id",
     ),
     portalesDeTodo(),
   ]);

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { informeEdificio } from "../../../../lib/informeEdificio";
 import { barrerNuestrasDirecciones, direccionDeAcceso } from "../../../../lib/ieePorDireccion";
 import {
+  anularPorDuplicada,
   pausar,
   cerrar,
   reabrir,
@@ -322,4 +323,28 @@ export async function accionVolverAConsultar(oppId: string, referencia: string):
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** ANULAR POR DUPLICADA (Monica, 16-oct-2026). La buena se elige de las otras
+ *  opps de la direccion o se escribe su codigo. Hecho, se va a la buena. */
+export async function accionAnularDuplicada(id: string, fd: FormData) {
+  const yo = await permiso(id);
+  let buena = String(fd.get("buena") ?? "").trim();
+  const codigo = String(fd.get("codigo") ?? "").trim().toUpperCase();
+  if (!buena && codigo) {
+    const URL_BASE = process.env.SUPABASE_URL ?? "";
+    const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
+    const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?select=id&codigo=eq.${encodeURIComponent(codigo)}&estado=neq.anulada&limit=1`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+      cache: "no-store",
+    });
+    const [o] = r.ok ? ((await r.json()) as { id: string }[]) : [];
+    if (!o) throw new Error(`No hay ninguna opp con el código ${codigo}.`);
+    buena = o.id;
+  }
+  if (!buena) throw new Error("Elige cuál es la buena.");
+  await anularPorDuplicada(id, buena, yo.id);
+  refrescar(id);
+  refrescar(buena);
+  redirect(`/comercial/oportunidades/${buena}`);
 }
