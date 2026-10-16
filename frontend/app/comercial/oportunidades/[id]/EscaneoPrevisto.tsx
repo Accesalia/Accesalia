@@ -8,7 +8,8 @@ import { accionGuardarEscaneo } from "../../../agenda/acciones";
 // tipo escaneo_polycam, una por opp): la crea o la mueve la accion de la agenda,
 // y sale en la agenda de su comercial. Con la fecha puesta, la cabecera pasa de
 // "cerrar la visita" a "enviar el Polycam".
-export function EscaneoPrevisto({ id, inicial }: { id: string; inicial: string }) {
+/** `compacto`: dentro de la tira del bloque 1, con el rotulo en minusculas (16-oct-2026). */
+export function EscaneoPrevisto({ id, inicial, compacto = false }: { id: string; inicial: string; compacto?: boolean }) {
   const [valor, setValor] = useState(inicial);
   const [error, setError] = useState<string | null>(null);
   const [hecho, setHecho] = useState(false);
@@ -26,8 +27,12 @@ export function EscaneoPrevisto({ id, inicial }: { id: string; inicial: string }
     });
 
   return (
-    <span className="flex flex-wrap items-center gap-2">
-      <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-[#8a8a8a]">Escaneo previsto</span>
+    <span className={"flex flex-wrap items-center " + (compacto ? "gap-1.5" : "gap-2")}>
+      {compacto ? (
+        <span className="text-[11.5px] text-carbon/60">escaneo</span>
+      ) : (
+        <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-[#8a8a8a]">Escaneo previsto</span>
+      )}
       <input
         type="datetime-local"
         value={valor}
@@ -35,13 +40,13 @@ export function EscaneoPrevisto({ id, inicial }: { id: string; inicial: string }
           setValor(e.target.value);
           setHecho(false);
         }}
-        className="h-[24px] rounded-[5px] border border-[#cfcfcf] bg-[#fafafa] px-1.5 text-[12px] text-carbon"
+        className={"h-[24px] rounded-[5px] border border-[#cfcfcf] bg-white px-1.5 text-carbon " + (compacto ? "text-[11.5px]" : "text-[12px]")}
       />
       <button
         type="button"
         disabled={!valor || ocupado || (hecho && valor === inicial)}
         onClick={guardar}
-        className="rounded-[5px] border border-[#2b2b2b]/40 px-2.5 py-px text-[11.5px] font-bold text-carbon transition hover:border-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-40"
+        className={"rounded-[5px] border border-[#2b2b2b]/40 py-px font-bold text-carbon " + (compacto ? "px-1.5 text-[11px]" : "px-2.5 text-[11.5px]") + " transition hover:border-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-40"}
       >
         {ocupado ? "Agendando…" : inicial ? "Mover" : "Agendar"}
       </button>

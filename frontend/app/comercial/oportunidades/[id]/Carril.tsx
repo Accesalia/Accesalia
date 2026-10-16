@@ -132,19 +132,20 @@ export function Carril({ hitos, visto, id }: { hitos: HitoGestion[]; visto: numb
  *  su pie: por donde va la oportunidad no se pierde. */
 export function Pestanas({ hitos, visto, id }: { hitos: HitoGestion[]; visto: number; id: string }) {
   return (
-    <div className="flex items-end gap-1.5 overflow-x-auto">
+    <div className="flex min-w-0 items-end gap-1.5 overflow-x-auto">
       {bloquesDe(hitos).map(({ activo: _enCurso, ...b }) => {
         const activo = b.n === visto;
+        // EN UNA LINEA (Monica, 16-oct-2026, "reducir espacios"): "1 · Toma de
+        // datos · Falta el Polycam".
         const clase =
-          "flex min-w-[170px] flex-1 flex-col rounded-t-[10px] px-3.5 pb-2 pt-2 " +
+          "flex min-w-[150px] flex-1 items-baseline gap-1.5 overflow-hidden whitespace-nowrap rounded-t-[10px] px-3.5 py-2 " +
           (activo ? "text-white" : "mb-1.5 rounded-b-[10px] border border-[#dcdcdc] bg-[#fbfbfb] transition hover:border-[#104269]");
         const dentro = (
           <>
-            <span className="flex items-baseline gap-2">
-              <span className={"text-[10px] font-bold uppercase tracking-[0.08em] " + (activo ? "text-white/80" : "text-[#9a9a9a]")}>Bloque {b.n}</span>
-              <span className={"text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon")}>{b.titulo}</span>
+            <span className={"text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon")}>
+              {b.n} · {b.titulo}
             </span>
-            <span className={"mt-0.5 truncate text-[11px] leading-snug " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>{b.pie}</span>
+            <span className={"truncate text-[11.5px] " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>· {b.pie}</span>
           </>
         );
         return activo ? (

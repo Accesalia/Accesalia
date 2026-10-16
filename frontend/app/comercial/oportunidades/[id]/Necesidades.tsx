@@ -1,43 +1,61 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { accionMarcarNecesidades } from "../../viabilidad-sin-polycam/acciones";
-import { CAJA, ROT_CAJA } from "./estilo";
 import { EscaneoPrevisto } from "./EscaneoPrevisto";
 
 // LAS FASES QUE NO APLICAN (Monica, 15-oct-2026). Segun lo que dicen que
 // quieren, la app decide si hace falta Polycam y viabilidad, y lo AVISA "por si
 // acaso es una excepcion": "Como es Memoria valorada, no anoto que haya que hacer
 // ni Polycam ni viabilidad... Si hay que cambiarlo, solo tienes que desmarcarlo
-// aqui". Las dos casillas salen SIEMPRE, tambien cuando es automatico. Lo que se
+// aqui". Las casillas salen SIEMPRE, tambien cuando es automatico. Lo que se
 // toca a mano ya no se recalcula solo; "volver a lo automatico" lo devuelve.
+//
+// EN UNA TIRA (Monica, 16-oct-2026, su maqueta "propuesta tira 3d polycam y
+// demas" y "reducir espacios"): las tres cajas de arriba del bloque 1 pasan a
+// una sola linea en crema, partida en sus tres areas -3D, Polycam, viabilidad-.
+// Lo que toca hacer va en pastilla: "Pedir al arquitecto" en granate; lo que ya
+// ha llegado, en verde ("Recibido Polycam", "Recibida viabilidad").
 
 type N = { polycam: boolean; viabilidad: boolean; polycamAMano: boolean; viabilidadAMano: boolean; aviso: string | null; tresd?: boolean };
 
-// QUE HACE FALTA PARA DARLES PRECIO: Polycam y viabilidad. Si necesita Polycam,
-// se abre lo del escaneo (cuando, agendar, si ha llegado); si no, no sale
-// (Monica, 15-oct-2026). Y debajo, cuando toca, el boton de pedir la viabilidad.
-export function Necesidades({
+const PASTILLA = "whitespace-nowrap rounded-full px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white";
+export const PASTILLA_PEDIR = PASTILLA + " bg-[#7a2a26] transition hover:bg-[#5e1f1c]";
+const LLEGADO = PASTILLA + " bg-[#3c6b2a]";
+const AREA = "flex min-w-0 flex-wrap items-center justify-center gap-x-1.5 gap-y-1 px-2";
+
+/** dd/mm/aa */
+const corta = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
+
+export function TiraBloque1({
   oppId,
   n,
   escaneo,
-  recibido,
+  polycamRecibido,
+  viabilidadRecibida,
+  viabilidad,
   pedir,
 }: {
   oppId: string;
   n: N;
   /** La visita de escaneo apuntada, "AAAA-MM-DDTHH:MM" en hora de Madrid. */
   escaneo: string;
-  recibido: boolean;
-  /** El boton "Pedir viabilidad", cuando toca. */
+  /** El Polycam, si ha llegado: la fecha (o "" si llego sin fecha). null, si no. */
+  polycamRecibido: string | null;
+  /** Si el arquitecto ya definio la viabilidad. */
+  viabilidadRecibida: boolean;
+  /** El documento de viabilidad, si lo hay: a el lleva su pastilla. */
+  viabilidad: { href: string; rotulo: string } | null;
+  /** El boton "Pedir al arquitecto", cuando toca. */
   pedir?: React.ReactNode;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [ocupado, empezar] = useTransition();
 
-  const marcar = (d: { polycam?: boolean | null; viabilidad?: boolean | null }) =>
+  const marcar = (d: { polycam?: boolean | null; viabilidad?: boolean | null; tresd?: boolean | null }) =>
     empezar(async () => {
       setError(null);
       const r = await accionMarcarNecesidades(oppId, d);
@@ -45,84 +63,90 @@ export function Necesidades({
       else router.refresh();
     });
 
-  const casilla = (que: "polycam" | "viabilidad", texto: string, aMano: boolean) => (
-    <label className="flex items-center gap-2 text-[13.5px] text-carbon">
-      <input
-        type="checkbox"
-        checked={n[que]}
-        disabled={ocupado}
-        onChange={(e) => marcar({ [que]: e.target.checked })}
-        className="h-4 w-4 accent-[#104269]"
-      />
-      {texto}
-      <span className="text-[11.5px] text-carbon/50">
-        {aMano ? (
-          <>
-            · marcado a mano ·{" "}
-            <button type="button" disabled={ocupado} onClick={() => marcar({ [que]: null })} className="underline hover:text-carbon">
-              volver a lo automático
-            </button>
-          </>
-        ) : (
-          "· automático, según lo que quieren"
-        )}
+  const CASILLA = "h-4 w-4 accent-[#104269]";
+  /** Automatico o a mano, en pequeño: el detalle, al pasar por encima. */
+  const como = (que: "polycam" | "viabilidad", aMano: boolean) =>
+    aMano ? (
+      <span className="text-[10.5px] text-carbon/50">
+        a mano ·{" "}
+        <button type="button" disabled={ocupado} onClick={() => marcar({ [que]: null })} className="underline hover:text-carbon">
+          volver a lo automático
+        </button>
       </span>
-    </label>
-  );
+    ) : (
+      <span title="Automático, según lo que quieren. Si es una excepción, cámbialo aquí." className="cursor-help text-[10.5px] text-carbon/40">
+        (auto)
+      </span>
+    );
 
   return (
-    <div className={CAJA + " px-3 py-2"}>
-      <div className={ROT_CAJA}>Qué hace falta para darles precio</div>
-      {n.aviso && <p className="mb-2 text-[13.5px] text-carbon/80">{n.aviso}</p>}
-      <div className="flex flex-col gap-1.5">
-        {casilla("polycam", "Necesita Polycam", n.polycamAMano)}
-        {n.polycam && (
-          <div className="ml-6 flex flex-wrap items-center gap-x-5 gap-y-1">
-            <EscaneoPrevisto id={oppId} inicial={escaneo} />
-            <span className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-[#8a8a8a]">Recibido</span>
-              <span className={"text-[11.5px] " + (recibido ? "font-semibold text-lima-dark" : "text-[#8a8a8a]")}>{recibido ? "sí" : "todavía no ha llegado"}</span>
-            </span>
-          </div>
-        )}
-        {casilla("viabilidad", "Necesita viabilidad", n.viabilidadAMano)}
-        {pedir && <div className="ml-6">{pedir}</div>}
+    <div className="rounded-[8px] bg-[#f6ecd2] py-1.5 text-[13px] text-carbon">
+      <div className="grid items-center gap-y-1.5 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,2.8fr)_minmax(0,1.6fr)]">
+        {/* ¿NECESITA 3D PARA LA JUNTA? Va aparte y PRIMERO: es lo que hay que marcar
+            expresamente, antes de la viabilidad para que Alex diga cual encaja.
+            Sin marcar = no. */}
+        <label className={AREA} title="Para la junta. Márcalo antes de la viabilidad: Alex dirá cuál encaja.">
+          <span className="flex items-center gap-1.5">
+            <input type="checkbox" checked={n.tresd ?? false} disabled={ocupado} onChange={(e) => marcar({ tresd: e.target.checked })} className={CASILLA} />
+            Necesita 3D
+          </span>
+        </label>
+
+        {/* EL POLYCAM: si hace falta, la visita de escaneo hasta que llega. */}
+        <div className={AREA + " lg:border-l lg:border-carbon/30"}>
+          <label className="flex items-center gap-1.5">
+            <input type="checkbox" checked={n.polycam} disabled={ocupado} onChange={(e) => marcar({ polycam: e.target.checked })} className={CASILLA} />
+            Necesita Polycam
+          </label>
+          {como("polycam", n.polycamAMano)}
+          {n.polycam &&
+            (polycamRecibido !== null ? (
+              <span className="flex items-center gap-1.5">
+                <span className={LLEGADO}>Recibido Polycam</span>
+                {polycamRecibido && <span className="text-[11.5px] tabular-nums text-carbon/60">{corta(polycamRecibido)}</span>}
+              </span>
+            ) : (
+              <span className="flex flex-wrap items-center gap-1.5">
+                <EscaneoPrevisto id={oppId} inicial={escaneo} compacto />
+                <span className="text-[11.5px] text-carbon/60">
+                  · recibido: <span className="text-carbon/45">todavía no</span>
+                </span>
+              </span>
+            ))}
+        </div>
+
+        {/* LA VIABILIDAD: pedirla, o lo que ya ha llegado. */}
+        <div className={AREA + " lg:border-l lg:border-carbon/30"}>
+          <label className="flex items-center gap-1.5">
+            <input type="checkbox" checked={n.viabilidad} disabled={ocupado} onChange={(e) => marcar({ viabilidad: e.target.checked })} className={CASILLA} />
+            Necesita viabilidad
+          </label>
+          {como("viabilidad", n.viabilidadAMano)}
+          {n.viabilidad &&
+            (viabilidadRecibida ? (
+              viabilidad ? (
+                <Link href={viabilidad.href} title={viabilidad.rotulo} className={LLEGADO + " hover:bg-[#2f5621]"}>
+                  Recibida viabilidad →
+                </Link>
+              ) : (
+                <span className={LLEGADO}>Recibida viabilidad</span>
+              )
+            ) : (
+              pedir ??
+              (viabilidad && (
+                <Link href={viabilidad.href} className="whitespace-nowrap text-[11.5px] font-semibold text-carbon/70 underline hover:text-carbon">
+                  {viabilidad.rotulo} →
+                </Link>
+              ))
+            ))}
+        </div>
       </div>
-      {error && <p className="mt-1.5 text-[12px] text-alerta">{error}</p>}
-    </div>
-  );
-}
-
-/** ¿NECESITA 3D PARA LA JUNTA? (Monica, 15-oct-2026). Va aparte y PRIMERO: es lo
- *  que hay que marcar expresamente. No hace falta para dar precio sino para la
- *  junta; se decide antes de la viabilidad para que Alex diga cual encaja, y se
- *  usa en el bloque 3. Sin marcar = no. */
-export function NecesitaTresD({ oppId, si }: { oppId: string; si: boolean }) {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [ocupado, empezar] = useTransition();
-  return (
-    <div className={CAJA + " px-3 py-2"}>
-      <div className={ROT_CAJA}>Para la junta</div>
-      <label className="flex items-center gap-2 text-[13.5px] text-carbon">
-        <input
-          type="checkbox"
-          checked={si}
-          disabled={ocupado}
-          onChange={(e) =>
-            empezar(async () => {
-              setError(null);
-              const r = await accionMarcarNecesidades(oppId, { tresd: e.target.checked });
-              if (!r.ok) setError(r.error);
-              else router.refresh();
-            })
-          }
-          className="h-4 w-4 accent-[#104269]"
-        />
-        Necesita 3D
-      </label>
-      <p className="mt-0.5 text-[11.5px] leading-snug text-carbon/55">Márcalo antes de la viabilidad: Alex dirá cuál encaja.</p>
-      {error && <p className="mt-1 text-[12px] text-alerta">{error}</p>}
+      {(n.aviso || error) && (
+        <div className="mt-1 border-t border-carbon/10 px-3 pt-1 text-[12px]">
+          {n.aviso && <span className="text-carbon/75">{n.aviso}</span>}
+          {error && <span className="ml-2 text-alerta">{error}</span>}
+        </div>
+      )}
     </div>
   );
 }

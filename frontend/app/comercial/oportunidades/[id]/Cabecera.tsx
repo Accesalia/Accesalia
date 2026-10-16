@@ -3,7 +3,8 @@ import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
 import { accionAnadirInteres, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
-import { BarraFases } from "./BarraFases";
+import { TiraFases } from "./BarraFases";
+import { CabeceraPlegable } from "./CabeceraPlegable";
 import { IrAOtraOpp } from "./IrAOtraOpp";
 import { Marcar } from "../../../components/Marcar";
 import type { ContactoComunidad, Gestion } from "../../../../lib/gestionOportunidad";
@@ -23,6 +24,14 @@ import type { BarraOportunidad } from "../../../../lib/cuadroComercial";
 //     app, nunca el comercial);
 //   - a la derecha, los contactos de la comunidad, y debajo Sali;
 //   - abajo, a lo ancho, la barra de fases de la lista de opps, en negro.
+//
+// PLEGADA (Monica, 16-oct-2026, "reducir espacios"): con tanta cabecera no se
+// veia ningun dato del edificio sin bajar. Ahora arriba va una sola tira -el
+// codigo y el nombre sobre el verde, y en su cajita de que estamos pendientes y
+// el admin-; "Ver completa" abre lo de siempre (lo que nos han contado, Sali y
+// los contactos). El estado, con pausar y cerrar, baja junto a las pestañas
+// (Estado, aqui abajo), y la barra de fases lleva al lado los dias y el ultimo
+// contacto (TiraFases).
 //
 // Vive aparte de la pantalla para poder mirarla renderizada con datos de muestra.
 
@@ -58,45 +67,59 @@ export function Cabecera({
   /** Lo que se puede anadir, en las cuatro columnas del alta (15-oct-2026). */
   gruposAnadir: { titulo: string; valores: string[] }[];
 }) {
-  const e = cab.estado;
   const otrasAbiertas = cab.otras.filter((o) => !o.cerrada).length;
   const otrasCerradas = cab.otras.length - otrasAbiertas;
 
+  // El admin de la comunidad, el de la cartera: si no hay, no se suple con nadie.
+  const admin = g.adminComunidad?.persona || g.adminComunidad?.empresa;
+
   return (
     <>
-      {/* GANADA / PERDIDA: el letrero, para saber en que punto estamos al
-          abrir la ficha, venga de donde venga (de la lista de otras opps de la
-          misma direccion, por ejemplo). No es un boton: se calcula. */}
-      <div className="mt-3 flex min-h-[30px] justify-end">
-        {e.ganada ? (
-          <span className="rounded-[6px] bg-[#2D6609] px-4 py-1.5 text-[12px] font-bold uppercase tracking-wide text-white">
-            Ganada{e.fechaGanada && <span className="font-normal normal-case"> · {e.fechaGanada.split("-").reverse().join("/")}</span>}
-          </span>
-        ) : e.perdida ? (
-          <span className="rounded-[6px] bg-[#B3261E] px-4 py-1.5 text-[12px] font-bold uppercase tracking-wide text-white">Perdida</span>
-        ) : null}
-      </div>
-
-      <div className="mt-2 grid items-stretch gap-[10px] xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
+      <CabeceraPlegable
+        izquierda={
+          <>
+            {g.codigo && <span className="text-[11px] font-bold tabular-nums text-carbon/60">{g.codigo}</span>}
+            {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren.
+                Es a la vez el SELECTOR para ir a otra opp (15-oct-2026). */}
+            <IrAOtraOpp>
+              <h1 className="whitespace-nowrap text-[19px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_0_rgba(0,0,0,0.15)]">
+                {g.direccion}
+                {cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#1F4E99] [text-shadow:none]">{cab.quieren}</span>}
+              </h1>
+            </IrAOtraOpp>
+            {/* El aviso de la direccion (provisional...) no se esconde en el panel. */}
+            {g.aviso && (
+              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">{g.aviso}</span>
+            )}
+          </>
+        }
+        caja={
+          <>
+            <span className="text-[10px] font-bold uppercase tracking-[0.03em] text-carbon/50">Pendientes de</span>
+            <span className="text-[11.5px] font-bold uppercase text-carbon" title={cab.falta.extra ?? undefined}>
+              {cab.falta.texto}
+            </span>
+            <span className="h-4 border-l border-carbon/35" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Admin</span>
+            <span className="text-[11.5px] text-carbon">
+              {admin ? (
+                <>
+                  <b>{admin}</b>
+                  {g.adminComunidad?.telefono && <span className="tabular-nums text-carbon/70"> {g.adminComunidad.telefono}</span>}
+                </>
+              ) : (
+                <span className="text-carbon/50">— no se apuntó</span>
+              )}
+            </span>
+          </>
+        }
+        panel={
+      <div className="grid items-stretch gap-[10px] xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
         {/* ---------------------------- la opp ---------------------------- */}
         {/* El hueco que sobra va ENTRE el nombre y el cuadrito gris, que se
             queda abajo (Monica, 15-oct-2026). */}
         <div className={CAJA + " flex min-w-0 flex-col p-4"}>
-          {/* EL NOMBRE DE LA OPP, el que puso el comercial, y detras lo que
-              quieren: "Mayor 25 Madrid SATE + SUBV". La direccion no se ve. Y es
-              a la vez el SELECTOR para ir a otra opp (15-oct-2026). */}
-          <IrAOtraOpp>
-            <h1 className="text-[21px] font-bold uppercase leading-tight text-carbon">
-              {g.direccion}
-              {cab.quieren && <span className="ml-2 align-middle text-[11.5px] font-bold uppercase text-[#1F4E99]">{cab.quieren}</span>}
-            </h1>
-          </IrAOtraOpp>
-          <div className="mt-1 flex flex-wrap items-center">
-            {g.aviso && (
-              <span className="inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
-                {g.aviso}
-              </span>
-            )}
+          <div className="flex flex-wrap items-center">
             <CambiarDireccion id={id} actual={g.direccion} pendiente={Boolean(g.aviso)} />
           </div>
 
@@ -205,33 +228,7 @@ export function Cabecera({
         </div>
 
         {/* ------------------- la derecha: dos tarjetas y Sali ------------------- */}
-        <div className="grid min-w-0 gap-[10px] xl:grid-cols-[minmax(0,1fr)_300px] xl:grid-rows-[auto_1fr]">
-          {/* PAUSAR, CERRAR, EL ESTADO Y DE QUE ESTAMOS PENDIENTES */}
-          {/* LO QUE DESTACA ES DE QUE ESTAMOS PENDIENTES; pausar y cerrar, abajo,
-              pequeños y discretos (Monica, 15-oct-2026). */}
-          <div className={CAJA + " flex min-w-0 flex-col p-3.5"}>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-carbon/60">De qué estamos pendientes para avanzar</span>
-              <span className="ml-auto flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-[0.06em] text-carbon/55">
-                {e.cerrada ? "Cerrada" : g.estado === "pausada" ? "Pausada" : "Abierta"}
-                <i
-                  className={
-                    "inline-block h-2.5 w-2.5 rounded-full " +
-                    (e.cerrada ? "bg-carbon/35" : g.estado === "pausada" ? "bg-amber-400" : "bg-[#3BB54A]")
-                  }
-                />
-              </span>
-            </div>
-            <div className="my-3 flex flex-1 flex-col items-center justify-center text-center">
-              <p className="text-[15px] font-bold uppercase leading-snug text-carbon">{cab.falta.texto}</p>
-              {cab.falta.extra && <p className="mt-1 text-[12.5px] font-semibold uppercase leading-snug text-carbon/70">{cab.falta.extra}</p>}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 border-t border-black/5 pt-2">
-              <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} />
-              {e.porCobrar && <span className="text-[10.5px] text-carbon/55">Aún hay cosas por cobrar: no se puede cerrar ni pausar.</span>}
-            </div>
-          </div>
-
+        <div className="grid min-w-0 gap-[10px] xl:grid-cols-[minmax(0,1fr)_300px]">
           {/* LOS CONTACTOS DE LA COMUNIDAD, con el telefono a la vista: "invita
               a llamar, y eso es bueno". */}
           <div className={CAJA + " p-3.5"}>
@@ -258,7 +255,7 @@ export function Cabecera({
 
           {/* SALI: el resumen y el estado de situacion, visible para todos los
               bloques. Unas seis lineas, y "Ver mas" despliega el resto. */}
-          <section className={CAJA + " p-3.5 xl:col-span-2"}>
+          <section className={CAJA + " p-3.5 xl:col-start-1 xl:row-start-1"}>
             <div className="flex items-baseline justify-between gap-3">
               <span className={ROT_CAJA}>Sali</span>
               <span title="Actualizar el estado — Sali todavía no está enchufada" className="cursor-not-allowed text-[11px] text-carbon/35">
@@ -278,10 +275,45 @@ export function Cabecera({
           </section>
         </div>
       </div>
+        }
+      />
 
-      {/* LA BARRA DE FASES, la de la lista de opps abiertas, en negro. */}
-      <BarraFases b={barra} />
+      {/* LA BARRA DE FASES, la de la lista de opps abiertas, en negro, con los
+          dias en esta fase y el ultimo contacto al lado. */}
+      <TiraFases b={barra} />
     </>
+  );
+}
+
+/** EL ESTADO, CON PAUSAR Y CERRAR, junto a las pestañas (Monica, 16-oct-2026):
+ *  "crear un sitio para las tres, ver estado y cambiar estado, ahora juntas".
+ *  Ganada y perdida se dicen aqui mismo, en su color. */
+export function Estado({ id, g, cab }: { id: string; g: Gestion; cab: DatosCabecera }) {
+  const e = cab.estado;
+  const [texto, punto, color] = e.ganada
+    ? [`Ganada${e.fechaGanada ? " · " + e.fechaGanada.split("-").reverse().join("/") : ""}`, "bg-[#2D6609]", "text-[#2D6609]"]
+    : e.perdida
+      ? ["Perdida", "bg-[#B3261E]", "text-[#B3261E]"]
+      : e.cerrada
+        ? ["Cerrada", "bg-carbon/35", "text-carbon"]
+        : g.estado === "pausada"
+          ? ["Pausada", "bg-amber-400", "text-carbon"]
+          : ["Abierta", "bg-[#3BB54A]", "text-carbon"];
+  return (
+    <div className="flex items-center gap-2.5 rounded-[8px] bg-white px-3 py-1.5">
+      <span className="text-[9.5px] font-bold uppercase tracking-[0.07em] text-carbon/45">Estado</span>
+      <span className="h-4 border-l border-carbon/35" />
+      <span className={"flex items-center gap-1.5 whitespace-nowrap text-[13px] font-bold uppercase " + color}>
+        {texto}
+        <i className={"inline-block h-2.5 w-2.5 rounded-full " + punto} />
+      </span>
+      <span
+        className="ml-auto flex items-center gap-1.5"
+        title={e.porCobrar ? "Aún hay cosas por cobrar: no se puede cerrar ni pausar." : undefined}
+      >
+        <Botones id={id} g={g} porCobrar={e.porCobrar} cerrada={e.cerrada} />
+      </span>
+    </div>
   );
 }
 
@@ -320,7 +352,7 @@ function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCob
       ) : (
         <details className="relative">
           <summary className={PAUSAR + " cursor-pointer list-none hover:border-[#c9bd6b]"}>Pausar</summary>
-          <form action={accionPausar.bind(null, id)} className={CAJA + " absolute bottom-full left-0 z-20 mb-2 w-[320px] p-3"}>
+          <form action={accionPausar.bind(null, id)} className={CAJA + " absolute right-0 top-full z-30 mt-2 w-[320px] p-3"}>
             <span className={ROTULO}>Retomarla cuándo</span>
             <input name="nota" placeholder="cuando hagan hucha, si sale la subvención…" className={CAMPO + " mt-1"} />
             <button className={BOTON + " mt-2 w-full"}>Pausarla</button>
@@ -330,7 +362,7 @@ function Botones({ id, g, porCobrar, cerrada }: { id: string; g: Gestion; porCob
       {/* CERRARLA A MANO, con su razon (14-oct-2026). */}
       <details className="relative">
         <summary className={CERRAR + " cursor-pointer list-none hover:border-[#c99a94]"}>Cerrar</summary>
-        <form action={accionCerrar.bind(null, id)} className={CAJA + " absolute bottom-full left-0 z-20 mb-2 w-[340px] p-3"}>
+        <form action={accionCerrar.bind(null, id)} className={CAJA + " absolute right-0 top-full z-30 mt-2 w-[340px] p-3"}>
           <span className={ROTULO}>¿Cómo se cierra?</span>
           <label className="mt-1.5 flex items-center gap-2 text-[13px] text-carbon">
             <input type="radio" name="tipo" value="perdida" defaultChecked /> Perdida

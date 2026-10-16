@@ -55,16 +55,16 @@ export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div ref={caja} className="relative">
+    <div ref={caja} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setAbierto((x) => !x)}
         aria-expanded={abierto}
         title="Ir a otra oportunidad"
-        className="group -mx-2 flex w-[calc(100%+1rem)] items-start gap-3 rounded-lg px-2 py-1 text-left transition hover:bg-carbon/[0.04]"
+        className="group -mx-1.5 inline-flex items-center gap-2 rounded-lg px-1.5 py-0.5 text-left transition hover:bg-white/15"
       >
-        <span className="min-w-0 flex-1">{children}</span>
-        <span className="mt-1 flex shrink-0 items-center gap-1.5 rounded-full border border-carbon/20 px-2.5 py-0.5 text-[11.5px] font-semibold text-carbon/60 transition group-hover:border-carbon/45 group-hover:text-carbon">
+        <span>{children}</span>
+        <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-carbon/20 bg-white px-2 py-px text-[11px] font-semibold text-carbon/60 transition group-hover:border-carbon/45 group-hover:text-carbon">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
             <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.8" />
             <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -75,7 +75,7 @@ export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
       </button>
 
       {abierto && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-1 rounded-lg border border-carbon/25 bg-white p-2 shadow-lg">
+        <div className="absolute left-0 top-full z-40 mt-1 w-[min(520px,90vw)] rounded-lg border border-carbon/25 bg-white p-2 shadow-lg">
           <input
             autoFocus
             value={q}

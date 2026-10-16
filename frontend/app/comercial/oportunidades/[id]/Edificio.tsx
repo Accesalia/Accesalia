@@ -26,11 +26,12 @@ import { Ampliable } from "../../../components/Ampliable";
 // LOS COLORES DE SU MAQUETA (docs/figma/bloque1-toma-de-datos.html), con sus
 // valores tal cual (Monica, 7-oct-2026: "lo que se creo se aleja mucho de la
 // maqueta").
-const ROT = "text-[12px] font-bold uppercase tracking-[0.05em] underline underline-offset-2";
+const ROT = "text-[13px] font-bold uppercase tracking-[0.05em] underline underline-offset-2";
 const ROT_GRIS = "text-[10px] font-bold uppercase tracking-[0.09em] text-[#8a8a8a]";
-const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white px-[13px] py-[11px]";
+// Menos aire (Monica, 16-oct-2026, "reducir espacios").
+const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white px-[11px] py-[9px]";
 // Las dos cards del centro llevan el borde de SU color, y algo mas de aire.
-const CARD = "rounded-[10px] bg-white px-[15px] py-[13px] border";
+const CARD = "rounded-[10px] bg-white px-[11px] py-[9px] border";
 // "La banda del titulo": cada subtitulo con el color de SU tarjeta -azul lo del
 // Catastro, rojo lo que condiciona, verde lo que se puede pedir-, tinte flojo y
 // borde a todo color. Asi se sabe de que familia es sin leerlo.
@@ -41,10 +42,11 @@ const BANDA = {
 };
 type Familia = keyof typeof BANDA;
 function Banda({ familia, children }: { familia: Familia; children: React.ReactNode }) {
-  return <div className={`mb-1.5 rounded-[5px] border px-[7px] py-[3px] font-bold text-[#1c1c1c] ${BANDA[familia]}`}>{children}</div>;
+  return <div className={`mb-1 rounded-[5px] border px-[7px] py-[3px] font-bold text-[#1c1c1c] ${BANDA[familia]}`}>{children}</div>;
 }
 const ENLACE = "text-[11.5px] text-[#1c1c1c] underline underline-offset-2 hover:text-[#104269]";
 // Lo que no se ha podido traer: el hueco gris punteado de la maqueta.
+const HUECO_BAJO = "grid h-[56px] w-full place-items-center rounded-[8px] border border-dashed border-[#cfcfcf] bg-[#fafafa] px-2 text-center text-[10.5px] text-[#9a9a9a]";
 const HUECO = "grid aspect-square w-full place-items-center rounded-[10px] border border-dashed border-[#cfcfcf] bg-[#fafafa] px-2 text-center text-[11px] text-[#9a9a9a]";
 
 /** Una fila de las tres cards: campo, dato y lo que significa (y su enlace). */
@@ -133,18 +135,21 @@ export async function Edificio({
   referencia,
   id,
   fotos,
+  distrito,
 }: {
   referencia: string;
   id: string;
   /** El apartado de fotos de la opp, abajo del todo. */
   fotos?: React.ReactNode;
+  /** El distrito o barrio, que va con la referencia en la card del Catastro. */
+  distrito?: string | null;
 }) {
   const [i, asc, iee] = await Promise.all([
     informeEdificio(referencia),
     ascensorDe(referencia),
     ieeDe(referencia),
   ]);
-  return <EdificioVista i={i} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} />;
+  return <EdificioVista i={i} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} />;
 }
 
 /** Lo que se ve, con los datos ya traidos: aparte para poder mirarlo con datos de muestra. */
@@ -155,6 +160,7 @@ export function EdificioVista({
   referencia,
   id,
   fotos,
+  distrito,
 }: {
   i: Awaited<ReturnType<typeof informeEdificio>>;
   asc: Awaited<ReturnType<typeof ascensorDe>>;
@@ -162,6 +168,7 @@ export function EdificioVista({
   referencia: string;
   id: string;
   fotos?: React.ReactNode;
+  distrito?: string | null;
 }) {
 
   // Catastro puede no contestar, o la referencia puede estar mal escrita. Eso se
@@ -248,16 +255,16 @@ export function EdificioVista({
    *  para comprobarlo si lo hay). */
   const fila = (d: FilaDato) => (
     <tr key={d.que} className="align-top">
-      <td className="border-b border-[#eef0f2] py-[3px] pr-3 text-[12px] text-[#6e6e6e]">{d.que}</td>
+      <td className="border-b border-[#eef0f2] py-[2px] pr-3 text-[12px] text-[#6e6e6e]">{d.que}</td>
       <td
         className={
-          "border-b border-[#eef0f2] py-[3px] pr-4 text-[12px] font-semibold " +
+          "border-b border-[#eef0f2] py-[2px] pr-4 text-[12px] font-semibold " +
           (d.falta ? "text-[#8a8a8a]" : d.tono === "rojo" ? "text-[#820707]" : d.tono === "verde" ? "text-[#0C8124]" : "text-[#1c1c1c]")
         }
       >
         {d.valor}
       </td>
-      <td className="border-b border-[#eef0f2] py-[3px] text-[11.5px] leading-snug text-[#2B6CB0]">
+      <td className="border-b border-[#eef0f2] py-[2px] text-[11.5px] leading-snug text-[#2B6CB0]">
         {d.significa ?? ""}
         {d.enlace && (
           <a href={d.enlace.url} target="_blank" rel="noreferrer" className={(d.significa ? "ml-2 " : "") + "whitespace-nowrap font-semibold text-[#820707] underline underline-offset-2"}>
@@ -272,97 +279,108 @@ export function EdificioVista({
     datos.length > 0 && (
       <tbody key={titulo}>
         <tr>
-          <td colSpan={3} className="pb-1 pt-2.5">
+          <td colSpan={3} className="pb-0.5 pt-1.5">
             <Banda familia={familia}>{titulo}</Banda>
           </td>
         </tr>
         {datos.map(fila)}
       </tbody>
     );
-  /** La tabla de las tres columnas, con el mismo ancho de columnas en las tres cards. */
+  /** La tabla de las tres columnas, con el mismo ancho de columnas en las tres cards. Las
+   *  dos de datos, mas juntas (Monica, 16-oct-2026): lo que sobra, a lo que significa. */
   const tabla = (grupos: React.ReactNode) => (
     <table className="w-full border-collapse">
       <colgroup>
-        <col className="w-[200px]" />
-        <col className="w-[30%]" />
+        <col className="w-[150px]" />
+        <col className="w-[240px]" />
         <col />
       </colgroup>
       {grupos}
     </table>
   );
 
-  return (
-    <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
-      {/* ================= arriba: las imágenes · lo que hemos visto ================= */}
-      <div className="grid gap-[10px] lg:grid-cols-[minmax(0,2.4fr)_minmax(280px,1fr)]">
-        <section className={CAJA}>
-          <div className={ROT_GRIS}>Las imágenes</div>
-          <div className="mt-2 grid grid-cols-3 gap-2.5">
-            {[
-              { que: "Croquis catastral", src: i.croquis },
-              { que: "Vista aérea", src: i.aerea },
-            ].map((x) => (
-              <div key={x.que}>
-                {x.src ? (
-                  // Al pincharla se amplia, pedida al doble de grande (16-oct-2026).
-                  <Ampliable
-                    src={x.src}
-                    grande={x.src.replace("width=760&height=760", "width=1400&height=1400")}
-                    alt={x.que}
-                    className="aspect-square w-full rounded-[10px] border border-[#d9d9d9] object-cover"
-                  />
-                ) : (
-                  <div className={HUECO}>no se ha podido traer</div>
-                )}
-                <div className="mt-0.5 text-center text-[10px] text-[#9a9a9a]">{x.que}</div>
-              </div>
-            ))}
-            <div>
-              <div className={HUECO}>Polycam · llega solo por el buzón</div>
+  // LO QUE HEMOS VISTO Y LAS IMAGENES, en una columna estrecha a la derecha de las
+  // cards (Monica, 16-oct-2026): arriba lo que hemos visto, debajo las miniaturas
+  // apiladas. Se amplian al pincharlas, asi que no hace falta que ocupen.
+  const lateral = (
+    <div className="flex min-w-0 flex-col gap-[10px]">
+      {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va firmado
+          con quien y cuando. En filas (15-oct-2026), con el portal accesible. */}
+      <section className="rounded-[10px] bg-[#E4EED9] px-2.5 py-2">
+        <div className="border-b border-[#1c1c1c]/15 pb-1 text-[10.5px] font-bold uppercase tracking-[0.03em] text-[#1c1c1c] underline underline-offset-2">
+          Lo que hemos visto nosotros
+        </div>
+        <div className="mt-2 flex flex-col gap-2">
+          <Visto que="¿Tiene ascensor?" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
+          {/* EL PORTAL ACCESIBLE (Monica, 15-oct-2026): si tiene escalones,
+              dentro o fuera, se le vende una rampa o una plataforma. */}
+          <Visto
+            que="¿Portal accesible?"
+            campo="portal"
+            hay={asc.portal}
+            quien={asc.portalQuien}
+            cuando={asc.portalCuando}
+            marcar={accionPortal.bind(null, referencia, id)}
+          />
+          {/* Los patios SE RELLENAN aqui: un numero, no un si/no -su maqueta
+              pregunta "¿cuantos?"-, y se guarda firmado. */}
+          <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
+        </div>
+      </section>
+
+      <section className={CAJA}>
+        <div className={ROT_GRIS}>
+          Las imágenes <span className="font-normal normal-case tracking-normal">· pincha para ampliar</span>
+        </div>
+        <div className="mt-2 flex flex-col gap-2">
+          {[
+            { que: "Croquis catastral", src: i.croquis },
+            { que: "Vista aérea", src: i.aerea },
+          ].map((x) => (
+            <div key={x.que}>
+              {x.src ? (
+                // Al pincharla se amplia, pedida al doble de grande (16-oct-2026).
+                <Ampliable
+                  src={x.src}
+                  grande={x.src.replace("width=760&height=760", "width=1400&height=1400")}
+                  alt={x.que}
+                  className="h-[120px] w-full rounded-[8px] border border-[#d9d9d9] object-cover"
+                />
+              ) : (
+                <div className={HUECO_BAJO}>no se ha podido traer</div>
+              )}
+              <div className="mt-0.5 text-center text-[10px] text-[#9a9a9a]">{x.que}</div>
             </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-            <a href={i.visorCatastro} target="_blank" rel="noreferrer" className={ENLACE}>
-              Visor oficial del Catastro
+          ))}
+          <div className={HUECO_BAJO}>Polycam · llega solo por el buzón</div>
+        </div>
+        <div className="mt-2 flex flex-col gap-0.5">
+          <a href={i.visorCatastro} target="_blank" rel="noreferrer" className={ENLACE}>
+            Visor oficial del Catastro
+          </a>
+          {i.pdfs.slice(0, 4).map((p) => (
+            <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className={ENLACE}>
+              {p.que} (PDF)
             </a>
-            {i.pdfs.slice(0, 4).map((p) => (
-              <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className={ENLACE}>
-                {p.que} (PDF)
-              </a>
-            ))}
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 
-        {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va firmado
-            con quien y cuando. En filas (15-oct-2026), con el portal accesible. */}
-        <section className="rounded-[10px] bg-[#E4EED9] px-3 py-2.5">
-          <div className="border-b border-[#1c1c1c]/15 pb-1 text-[12px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline underline-offset-2">
-            Lo que hemos visto nosotros
-          </div>
-          <div className="mt-2.5 flex flex-col gap-3">
-            <Visto que="¿Tiene ascensor?" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
-            {/* EL PORTAL ACCESIBLE (Monica, 15-oct-2026): si tiene escalones,
-                dentro o fuera, se le vende una rampa o una plataforma. */}
-            <Visto
-              que="¿Portal accesible?"
-              campo="portal"
-              hay={asc.portal}
-              quien={asc.portalQuien}
-              cuando={asc.portalCuando}
-              marcar={accionPortal.bind(null, referencia, id)}
-            />
-            {/* Los patios SE RELLENAN aqui: un numero, no un si/no -su maqueta
-                pregunta "¿cuantos?"-, y se guarda firmado. */}
-            <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
-          </div>
-        </section>
-      </div>
-
+  return (
+    <div className="grid min-w-0 items-start gap-[10px] lg:grid-cols-[minmax(0,1fr)_205px]">
+    <div className="flex min-w-0 flex-col gap-[10px]">
       {/* ======== las tres cards, iguales y a lo ancho (Monica, 15-oct-2026) ========
           Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
       <section className={CAJA}>
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <div className={ROT + " mb-[3px] text-[#104269]"}>Lo que dice el Catastro</div>
+          {/* La referencia y el distrito, que antes iban en "La ficha" (16-oct-2026). */}
+          <span className="text-[11px] text-[#8a8a8a]">
+            {distrito && <>{distrito} · </>}
+            <span className="font-mono">{referencia}</span>
+          </span>
           {/* Solo si falta algo: si esta todo, no se ofrece (15-oct-2026). */}
           {i.fallos.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-amber-900/80">
@@ -450,6 +468,8 @@ export function EdificioVista({
 
       {/* ================= las fotos de la opp, abajo del todo ================= */}
       {fotos}
+    </div>
+    {lateral}
     </div>
   );
 }

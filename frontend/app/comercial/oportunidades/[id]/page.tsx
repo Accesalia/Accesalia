@@ -14,7 +14,7 @@ import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTresD } from "./acciones";
 import { Serie, Titulo } from "./Piezas";
 import { AZUL, Pestanas } from "./Carril";
-import { Cabecera } from "./Cabecera";
+import { Cabecera, Estado } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { FotosOpp } from "./FotosOpp";
 import { fotosDeOpp } from "../../../../lib/fotos";
@@ -37,8 +37,7 @@ import { recalcular } from "../../../../lib/estadoOportunidad";
 import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
 import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
-import { DatosOpp } from "./DatosOpp";
-import { NecesitaTresD, Necesidades } from "./Necesidades";
+import { PASTILLA_PEDIR, TiraBloque1 } from "./Necesidades";
 import { columnasDeInteres } from "../../../../lib/columnasInteres";
 import { necesidadesDe } from "../../../../lib/necesidadesOpp";
 import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
@@ -73,8 +72,8 @@ function fechaCorta(v: string): string {
 // LAS VISTAS DEL BLOQUE 1 (Monica, 6-oct-2026): "un switch de vista
 // ficha/vista informe". Vendra una tercera ("apoyo comercial"): se anade aqui.
 const VISTAS = [
-  { clave: "ficha", rotulo: "Vista ficha" },
-  { clave: "informe", rotulo: "Vista informe" },
+  { clave: "ficha", rotulo: "Ficha" },
+  { clave: "informe", rotulo: "Informe" },
 ] as const;
 
 export default async function GestionOportunidad({
@@ -225,8 +224,18 @@ export default async function GestionOportunidad({
             ellos, el ojo lee una pieza" (Monica, 30-sep-2026). */}
         {/* LAS PESTAÑAS ARRIBA (Monica, 15-oct-2026): el carril de la izquierda se
             comia pantalla; asi el panel aprovecha todo el ancho. */}
-        <div className="mt-6">
-          <Pestanas hitos={g.hitos} visto={bloque} id={id} />
+        <div className="mt-3">
+          {/* LAS PESTAÑAS LLEGAN HASTA EL DIARIO, y en el hueco de encima del diario
+              va el estado con pausar y cerrar (Monica, 16-oct-2026, "reducir
+              espacios"). El ancho es el del diario mas el borde del panel. */}
+          <div className="grid items-end gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(332px,calc(352px+(100%-1424px)/3))]">
+            <Pestanas hitos={g.hitos} visto={bloque} id={id} />
+            {cab && (
+              <div className="mb-1.5">
+                <Estado id={id} g={g} cab={cab} />
+              </div>
+            )}
+          </div>
           <div
             // El panel azul relleno de la maqueta: "el fondo tiene que decir
             // esto que estas viendo ES el bloque 1".
@@ -247,62 +256,56 @@ export default async function GestionOportunidad({
 
             Se colocan por rejilla y no por orden en el fichero, para no mover de
             sitio codigo que ya funciona. */}
-        {/* LO DE ARRIBA DEL BLOQUE 1, en tres (Monica, 15-oct-2026), de lo que
-            se toca a mano a lo que solo informa: si necesita 3D para la junta;
-            que hace falta para darles precio (Polycam, con su escaneo, y
-            viabilidad); y lo estable de la ficha (codigo, distrito, catastro). */}
-        {bloque === 1 && (
-          <div
-            className={
-              "mb-[10px] grid items-stretch gap-[10px] " +
-              "lg:grid-cols-[minmax(200px,auto)_minmax(0,1fr)_minmax(200px,auto)]"
-            }
-          >
-            {/* El 3D, arriba: hay ancho de sobra (Monica, 15-oct-2026). */}
-            {necesita && <NecesitaTresD oppId={id} si={(necesita as { tresd?: boolean }).tresd ?? false} />}
-            {necesita && (
-              <Necesidades
-                oppId={id}
-                n={necesita}
-                escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
-                recibido={g.hitos.find((h) => h.clave === "polycam")?.estado === "hecho"}
-                pedir={
-                  // El boton solo cuando hace falta viabilidad y aun no ha llegado
-                  // el Polycam ni se ha pedido (pasos A, B, C y C').
-                  pedir && necesita.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") ? (
-                    <PedirViabilidad {...pedir} />
-                  ) : undefined
-                }
-              />
-            )}
-            <DatosOpp g={g} distrito={distrito} />
-          </div>
-        )}
-        {bloque === 1 && (g.referenciaCatastral || viabilidad) && (
-          <div className="mb-[10px] flex items-center gap-1">
-            {g.referenciaCatastral && VISTAS.map((v) => (
-              <Link
-                key={v.clave}
-                href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
-                scroll={false}
-                replace
-                className={
-                  "rounded-full border px-3 py-1 text-[12px] font-semibold transition " +
-                  (vista === v.clave ? "border-carbon bg-carbon text-white" : "border-carbon/25 bg-white text-carbon/70 hover:border-carbon/50")
-                }
-              >
-                {v.rotulo}
-              </Link>
-            ))}
-            {/* La viabilidad, cuando la hay: Alex la empezo y el comercial la
-                remata aqui (Monica, 6-oct-2026). */}
-            {viabilidad && (
-              <Link
-                href={`/comercial/viabilidad/${viabilidad.id}`}
-                className="ml-auto rounded-full border border-lima/60 bg-lima-soft px-3 py-1 text-[12px] font-semibold text-lima-dark transition hover:border-lima-dark"
-              >
-                📄 Viabilidad{viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"} →
-              </Link>
+        {/* LA TIRA DEL BLOQUE 1 (Monica, 16-oct-2026, "reducir espacios"): el 3D, el
+            Polycam y la viabilidad en una linea crema sobre el contenido, y Ficha /
+            Informe encima del diario. El codigo baja a la cabecera, y la referencia
+            y el distrito a la card del Catastro. */}
+        {bloque === 1 && necesita && (
+          <div className="mb-[8px] grid items-center gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(320px,calc(340px+(100%-1400px)/3))]">
+            <TiraBloque1
+              oppId={id}
+              n={necesita}
+              escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
+              polycamRecibido={(() => {
+                const h = g.hitos.find((x) => x.clave === "polycam");
+                return h?.estado === "hecho" ? (h.fecha ?? "") : null;
+              })()}
+              viabilidadRecibida={g.hitos.find((x) => x.clave === "viabilidad_arquitecto")?.estado === "hecho"}
+              // La viabilidad, cuando la hay: Alex la empezo y el comercial la remata
+              // en su pantalla (Monica, 6-oct-2026).
+              viabilidad={
+                viabilidad
+                  ? {
+                      href: `/comercial/viabilidad/${viabilidad.id}`,
+                      rotulo: `Viabilidad${viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"}`,
+                    }
+                  : null
+              }
+              pedir={
+                // El boton solo cuando hace falta viabilidad y aun no ha llegado
+                // el Polycam ni se ha pedido (pasos A, B, C y C').
+                pedir && necesita.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") ? (
+                  <PedirViabilidad {...pedir} rotulo="Pedir al arquitecto" claseBoton={PASTILLA_PEDIR} />
+                ) : undefined
+              }
+            />
+            {g.referenciaCatastral && (
+              <div className="flex justify-end gap-2">
+                {VISTAS.map((v) => (
+                  <Link
+                    key={v.clave}
+                    href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
+                    scroll={false}
+                    replace
+                    className={
+                      "rounded-[4px] px-4 py-1 text-[10.5px] font-bold uppercase transition " +
+                      (vista === v.clave ? "bg-lima text-[#1d3a0e]" : "bg-[#e4e4e4] text-carbon/60 hover:bg-white")
+                    }
+                  >
+                    {v.rotulo}
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -330,11 +333,11 @@ export default async function GestionOportunidad({
             personas={paraCompletar?.personas ?? []}
           />
         )}
-        {/* EL REPARTO CON LAS PESTAÑAS ARRIBA (15-oct-2026): lo que se gana al
-            quitar el carril (unos 186 px) va un 60% al diario, que era una tira
-            partida, y un 40% al contenido. El diario parte de 246 + 112 = 358 px y
-            sigue creciendo con la ventana como antes (un tercio de lo que sobre). */}
-        <div className="grid items-start gap-[10px] xl:grid-cols-[minmax(0,1fr)_calc(358px+(100%-1276px)/3)]">
+        {/* EL REPARTO (Monica, 16-oct-2026, "reducir espacios"): el diario parte de
+            340 px en su lienzo de 1470 y sigue creciendo con la ventana como antes
+            (un tercio de lo que sobre). El contenido lleva dentro su columna
+            estrecha de lo visto y las imagenes. */}
+        <div className="grid items-start gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(320px,calc(340px+(100%-1400px)/3))]">
           {bloque === 2 && documentacion ? (
             // El bloque 2 ocupa el sitio del edificio: las tres primeras
             // columnas. El diario y el trabajo de abajo son de toda la
@@ -357,7 +360,7 @@ export default async function GestionOportunidad({
               />
             </div>
           ) : g.referenciaCatastral ? (
-            <Edificio referencia={g.referenciaCatastral} id={id} fotos={apartadoFotos} />
+            <Edificio referencia={g.referenciaCatastral} id={id} fotos={apartadoFotos} distrito={distrito} />
           ) : (
             <div className="flex min-w-0 flex-col gap-[10px]">
               <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80">
@@ -438,34 +441,36 @@ export default async function GestionOportunidad({
             </div>
           )}
 
-          {/* ============ cuarta columna: 7 · el diario de esta opp ============ */}
-          <div className="flex min-w-0 flex-col gap-5 xl:col-start-2 xl:row-start-1">
-            <form action={accionEntrada.bind(null, id)} className={CAJA + " p-4"}>
-              <div className={ROT_CAJA + " mb-2"}>Grabar aquí</div>
+          {/* ============ cuarta columna: 7 · el diario de esta opp ============
+              La nota nueva y lo que va pasando, bajo un mismo fondo crema: "ahorro
+              sitio y da continuidad" (Monica, 16-oct-2026). */}
+          <div className="flex min-w-0 flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2 xl:col-start-2 xl:row-start-1">
+            <form action={accionEntrada.bind(null, id)} className="flex items-start gap-2">
+              {/* Una linea que crece al escribir. */}
               <textarea
                 name="texto"
-                rows={4}
+                rows={1}
                 required
-                placeholder="Cuéntalo como se lo contarías a un compañero. Puedes dictarlo con el micro de tu teclado."
-                className={CAMPO + " resize-y leading-relaxed"}
+                aria-label="Añadir una nueva nota"
+                placeholder="Añadir una nueva nota"
+                title="Cuéntalo como se lo contarías a un compañero. Puedes dictarlo con el micro de tu teclado."
+                className={CAMPO + " max-h-[240px] min-h-[34px] resize-none leading-relaxed [field-sizing:content]"}
               />
               {/* SIN "CUANDO" NI "COMO TE HAS ENTERADO" (Monica, 15-oct-2026): esa
                   informacion ya va dentro del texto de la nota. Se guarda con la
                   fecha de hoy, como escrita. */}
               <input type="hidden" name="canal" value="escrito" />
-              <div className="mt-2 flex justify-end">
-                <button className={BOTON}>Guardar</button>
-              </div>
+              <button className={BOTON}>Guardar</button>
             </form>
 
-            <section className={CAJA + " overflow-hidden"}>
-              <div className="px-4 pt-4">
-                <div className={ROT_CAJA + " mb-2"}>Lo que va pasando</div>
+            <section>
+              <div className="px-2 pt-1">
+                <div className={ROT_CAJA + " mb-1"}>Lo que va pasando</div>
               </div>
               {g.diario.length === 0 ? (
-                <p className="px-4 pb-6 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>
+                <p className="px-2 pb-3 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>
               ) : (
-                <ul className="max-h-[36rem] divide-y divide-black/5 overflow-y-auto">
+                <ul className="max-h-[36rem] divide-y divide-black/10 overflow-y-auto">
                   {g.diario.map((e) => {
                     // La cabecera es igual venga de donde venga la entrada. Lo que
                     // cambia es como se lee el texto largo:
@@ -479,7 +484,7 @@ export default async function GestionOportunidad({
                         <span className="font-bold text-carbon/80">
                           {e.fecha ? e.fecha.split("-").reverse().join("/") : "sin fecha"}
                         </span>
-                        <span className="rounded-full border border-black/5 bg-hueso px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
+                        <span className="rounded-full border border-black/5 bg-white/70 px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
                         {e.con && <span className="text-lima-dark">{e.con}</span>}
                       </div>
                     );
@@ -489,7 +494,7 @@ export default async function GestionOportunidad({
                     if (e.enlazable) {
                       return (
                         <li key={e.id}>
-                          <Link href={`/comercial/interaccion/${e.id}`} className="block px-4 py-3 transition hover:bg-black/[0.02]">
+                          <Link href={`/comercial/interaccion/${e.id}`} className="block px-2 py-2.5 transition hover:bg-black/[0.03]">
                             {cabecera}
                             <p className={TEXTO + " line-clamp-3"}>{e.texto}</p>
                           </Link>
@@ -498,7 +503,7 @@ export default async function GestionOportunidad({
                     }
                     if (!largo) {
                       return (
-                        <li key={e.id} className="px-4 py-3">
+                        <li key={e.id} className="px-2 py-2.5">
                           {cabecera}
                           <p className={TEXTO}>{e.texto}</p>
                           <Miniaturas fotos={e.fotos} />
@@ -507,7 +512,7 @@ export default async function GestionOportunidad({
                     }
                     return (
                       <li key={e.id}>
-                        <details className="group px-4 py-3 transition hover:bg-black/[0.02]">
+                        <details className="group px-2 py-2.5 transition hover:bg-black/[0.03]">
                           <summary className="cursor-pointer list-none">
                             {cabecera}
                             <p className={TEXTO + " line-clamp-3 group-open:hidden"}>{e.texto}</p>
@@ -517,7 +522,7 @@ export default async function GestionOportunidad({
                           </summary>
                           <p className={TEXTO}>{e.texto}</p>
                         </details>
-                        <div className="-mt-2 px-4 pb-3">
+                        <div className="-mt-2 px-2 pb-2.5">
                           <Miniaturas fotos={e.fotos} />
                         </div>
                       </li>

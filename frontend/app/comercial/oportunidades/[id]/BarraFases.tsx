@@ -24,9 +24,10 @@ function Tramo({ estado, paso }: { estado: EstadoTramo; paso: Paso }) {
   return <span title={`${t}: pendiente`} className={base + "h-2 bg-white/25"} />;
 }
 
-export function BarraFases({ b }: { b: BarraOportunidad }) {
+/** La barra sola: los nombres de las fases y sus tramos. */
+function Barra({ b }: { b: BarraOportunidad }) {
   return (
-    <div className="mt-[10px] rounded-[10px] bg-[#232323] px-4 pb-3 pt-3">
+    <>
       {/* EL NOMBRE DE CADA FASE, encima de su tramo (Monica, 14-oct-2026: "creo
           que cabe bien con ese ancho de pantalla"). El de la fase actual, en claro. */}
       <div className="mb-1.5 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${b.pasos.length}, minmax(0, 1fr))` }}>
@@ -52,28 +53,31 @@ export function BarraFases({ b }: { b: BarraOportunidad }) {
           <Tramo key={p.clave} paso={p} estado={b.tramos[p.clave] ?? "pendiente"} />
         ))}
       </div>
-      <div className="mt-2.5 flex flex-wrap items-baseline gap-x-8 gap-y-1 text-[12.5px] text-white/70">
-        {b.actual && (
-          <span>
-            Está en{" "}
-            <b className={b.actual.ajeno ? "text-[#9DBDE6]" : "text-white"}>
-              {b.actual.numero ? `${b.actual.numero} · ` : ""}
-              {b.actual.nombre}
-            </b>
-          </span>
-        )}
-        {b.esperando ? (
-          <span className="font-semibold text-[#9DBDE6]">
-            esperando {b.esperando}
-            {b.diasAqui !== null ? `, ${b.diasAqui} ${b.diasAqui === 1 ? "día" : "días"}` : ""}
-          </span>
-        ) : b.diasAqui !== null ? (
-          <span>
-            {b.diasAqui} {b.diasAqui === 1 ? "día" : "días"} aquí
-          </span>
-        ) : null}
-        {b.proximo && <span className="font-semibold text-white/90">{b.proximo}</span>}
-        <span className="ml-auto text-[15px] font-bold text-white">últ. contacto {b.ultimoContacto ? ddmmaa(b.ultimoContacto) : "—"}</span>
+    </>
+  );
+}
+
+/** LA TIRA DE FASES DE LA FICHA (Monica, 16-oct-2026, "reducir espacios"): la
+ *  barra al 70 % del ancho y, a su lado, los dias en esta fase y el ultimo
+ *  contacto, que antes iban en la linea de debajo. Lo que esperamos y la junta
+ *  proxima van debajo de cada cifra. */
+export function TiraFases({ b }: { b: BarraOportunidad }) {
+  const CIFRA = "flex min-w-0 flex-col justify-center rounded-[10px] bg-[#232323] px-4 py-2 text-white";
+  const ROT = "text-[10px] font-bold uppercase tracking-[0.07em] text-white/50";
+  return (
+    <div className="mt-2 grid gap-[10px] xl:grid-cols-[70%_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="rounded-[10px] bg-[#232323] px-4 py-3">
+        <Barra b={b} />
+      </div>
+      <div className={CIFRA}>
+        <span className={ROT}>Días en esta fase</span>
+        <span className="text-[20px] font-bold leading-tight tabular-nums">{b.diasAqui ?? "—"}</span>
+        {b.esperando && <span className="truncate text-[11px] font-semibold text-[#9DBDE6]">esperando {b.esperando}</span>}
+      </div>
+      <div className={CIFRA}>
+        <span className={ROT}>Último contacto</span>
+        <span className="text-[20px] font-bold leading-tight tabular-nums">{b.ultimoContacto ? ddmmaa(b.ultimoContacto) : "—"}</span>
+        {b.proximo && <span className="truncate text-[11px] font-semibold text-white/80">{b.proximo}</span>}
       </div>
     </div>
   );

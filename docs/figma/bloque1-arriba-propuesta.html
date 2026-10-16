@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloque 1 · arriba</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+  body { background:#8EB180; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color:#2b2b2b; }
+  .caja { border-radius:10px; border:1px solid #d9d9d9; background:#fff; }
+  .rot { display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:#8a8a8a; }
+  .pill-on { background:#2b2b2b; color:#fff; border-color:#2b2b2b; }
+  .pliegue { position:absolute; left:0; right:0; border-top:3px dashed #d4202a; z-index:50; pointer-events:none; }
+  .pliegue span { position:absolute; right:12px; top:-26px; background:#d4202a; color:#fff; font-size:12px; font-weight:700; padding:3px 10px; border-radius:6px; }
+  .tab { padding:8px 16px; font-size:13px; font-weight:700; border-radius:8px 8px 0 0; }
+  .vista { display:none; } .vista.on { display:block; }
+  td { padding:2px 6px; border-bottom:1px solid #f0f0f0; font-size:11.5px; }
+  .grp { border:1px solid; border-radius:6px; padding:2px 8px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+  table.t { width:100%; border-collapse:collapse; table-layout:fixed; }
+  table.t td:nth-child(1) { width:170px; color:#555; }
+  table.t td:nth-child(2) { width:28%; font-weight:600; }
+  table.t td:nth-child(3) { color:#1F4E99; font-size:11px; }
+  table.t3 td { padding:1px 4px; line-height:1.3; }
+  table.t3 td:nth-child(1) { width:150px; }
+  table.t3 td:nth-child(2) { width:240px; }
+  table.t2 { width:100%; border-collapse:collapse; margin-top:4px; }
+  table.t2 th { font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:#8a8a8a; text-align:left; padding:2px 6px; border-bottom:1px solid #e2e2e2; }
+  .sn { border:1px solid #c9c9c9; background:#fff; border-radius:4px; padding:0 7px; font-size:11.5px; color:#555; }
+</style>
+</head>
+<body>
+
+<!-- Selector de la maqueta (no es de la app) -->
+<div class="sticky top-0 z-[60] flex items-center gap-2 bg-[#2b2b2b] px-4 py-2 text-[13px] text-white">
+  <b class="mr-3">MAQUETA · arriba del bloque 1</b>
+  <button data-v="ahora" class="sel rounded-md border border-white/40 px-3 py-1">Como está ahora</button>
+  <button data-v="propuesta" class="sel rounded-md border border-white/40 px-3 py-1">Propuesta de Claude</button>
+  <button data-v="tuya" class="sel rounded-md border border-white/40 px-3 py-1">Tu propuesta</button>
+  <button data-v="espacios" class="sel rounded-md border border-white/40 px-3 py-1">Reducir espacios</button>
+  <span class="ml-auto text-white/60">La línea roja = lo que se ve sin scroll en un portátil (≈ 760 px)</span>
+</div>
+
+<div class="relative">
+<div class="pliegue" style="top:720px"><span>hasta aquí se ve sin scroll</span></div>
+
+<!-- ============================ COMO ESTÁ AHORA ============================ -->
+<div id="ahora" class="vista">
+  <div class="h-[56px] border-b border-black/10 bg-white"></div>
+  <main class="mx-auto max-w-[1648px] px-6 pb-16 pt-5">
+    <div class="text-[13px] font-semibold text-carbon/70">← Oportunidades abiertas</div>
+    <div class="mt-3 h-[30px]"></div> <!-- hueco del letrero Ganada/Perdida, vacío -->
+
+    <div class="mt-2 grid gap-[10px]" style="grid-template-columns:0.85fr 1fr">
+      <div class="caja flex flex-col p-4">
+        <h1 class="text-[21px] font-bold uppercase leading-tight">Mayor 25 Madrid <span class="ml-2 align-middle text-[11.5px] text-[#1F4E99]">ASCENSOR + SUBV</span></h1>
+        <div class="mt-1 text-[11.5px] text-black/50 underline">Dirección mal apuntada, la corrijo</div>
+        <div class="mt-2.5 rounded-[6px] border border-black/25 px-2.5 py-1 text-[12px] font-semibold uppercase">En la misma dirección: 1 opp cerrada ▾</div>
+        <div class="flex-1 min-h-[10px]"></div>
+        <div class="rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2 text-[12px] leading-[1.6]">
+          <p><span class="mr-2 text-[10px] font-bold uppercase text-[#76749D]">Administración</span><b>Luis Pérez</b> — Fincas Centro · 91 555 12 34</p>
+          <p class="font-bold text-[#76749D]">Nos llega a través de <span class="font-normal text-black/70">Fincas Centro</span></p>
+          <p class="font-bold text-[#76749D]">Mi contacto en la comunidad es <span class="font-normal text-black/70">Ana Ruiz · 600 11 22 33 (presidenta)</span></p>
+          <p class="font-bold text-[#76749D]">Dicen que están interesados en — <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Ascensor ×</span> <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Subvenciones ×</span> <span class="text-black/60">+ añadir</span></p>
+        </div>
+      </div>
+      <div class="grid gap-[10px]" style="grid-template-columns:1fr 300px">
+        <div class="caja flex flex-col p-3.5">
+          <div class="flex"><span class="text-[10px] font-bold uppercase text-black/60">De qué estamos pendientes para avanzar</span><span class="ml-auto text-[9.5px] font-bold uppercase text-black/55">Abierta <i class="inline-block h-2.5 w-2.5 rounded-full bg-[#3BB54A]"></i></span></div>
+          <p class="my-6 text-center text-[15px] font-bold uppercase">Enviar el Polycam para la viabilidad</p>
+          <div class="flex gap-2 border-t border-black/5 pt-2"><span class="rounded-[5px] border border-[#E6DFA8] bg-[#FAF6D2] px-2.5 text-[10.5px] font-semibold uppercase text-[#8A7A2A]">Pausar</span><span class="rounded-[5px] border border-[#E5C4C0] bg-[#F6E3E1] px-2.5 text-[10.5px] font-semibold uppercase text-[#923428]">Cerrar</span></div>
+        </div>
+        <div class="caja p-3.5 text-[12px]">
+          <span class="rot">Contactos de la comunidad</span>
+          <p class="mt-1.5"><b>Ana Ruiz</b> 600 11 22 33 <span class="text-black/50">presidenta</span></p>
+          <p><b>Pedro Gil</b> 611 44 55 66 <span class="text-black/50">vecino 3ºB</span></p>
+          <p class="mt-2 text-[11.5px] text-black/40">+ añadir contacto</p>
+        </div>
+        <div class="caja col-span-2 p-3.5">
+          <span class="rot">Sali</span>
+          <p class="mt-1 text-[12.5px] leading-[1.5] text-black/50">Aquí contará Sali el resumen último y el estado de situación de la oportunidad: en qué punto está y qué se le puede vender, la edad del edificio y lo que eso permite, lo que han cobrado los vecinos, en qué zona cae y qué dice su IEE. Se monta cuando estén los cuatro bloques, porque lo escribe en serie.</p>
+          <span class="text-[11px] font-semibold text-[#3f7a1c]">Ver más</span>
+        </div>
+      </div>
+    </div>
+    <div id="barra-ahora"></div>
+
+    <div class="mt-6">
+      <div id="pest-ahora"></div>
+      <div class="rounded-[0_10px_10px_10px] bg-[#104269] p-[11px]">
+        <div class="mb-[10px] grid gap-[10px]" style="grid-template-columns:minmax(200px,auto) 1fr minmax(200px,auto)">
+          <div class="caja px-3 py-2"><span class="rot">Para la junta</span><label class="flex items-center gap-2 text-[13.5px]"><input type="checkbox"> Necesita 3D</label><p class="text-[11.5px] text-black/55">Márcalo antes de la viabilidad: Alex dirá cuál encaja.</p></div>
+          <div class="caja px-3 py-2"><span class="rot">Qué hace falta para darles precio</span>
+            <label class="flex items-center gap-2 text-[13.5px]"><input type="checkbox" checked> Necesita Polycam <span class="text-[11.5px] text-black/50">· automático, según lo que quieren</span></label>
+            <div class="ml-6 text-[11.5px] text-black/60">ESCANEO PREVISTO 21/10 10:00 · RECIBIDO todavía no ha llegado</div>
+            <label class="mt-1 flex items-center gap-2 text-[13.5px]"><input type="checkbox" checked> Necesita viabilidad <span class="text-[11.5px] text-black/50">· automático, según lo que quieren</span></label>
+          </div>
+          <div class="caja px-3 py-2 text-[12.5px] text-black/75"><span class="rot">La ficha</span><b>ACC-0123</b><br>Centro · Sol<br><span class="font-mono text-[12px]">0847105VK4704F</span></div>
+        </div>
+        <div class="mb-[10px] flex gap-1"><span class="pill-on rounded-full border px-3 py-1 text-[12px] font-semibold">Vista ficha</span><span class="rounded-full border border-black/25 bg-white px-3 py-1 text-[12px] font-semibold text-black/70">Vista informe</span></div>
+        <div class="contenido"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================== PROPUESTA ============================== -->
+<div id="propuesta" class="vista">
+  <div class="h-[56px] border-b border-black/10 bg-white"></div>
+  <main class="mx-auto max-w-[1648px] px-6 pb-16 pt-4">
+    <!-- 1 · Volver y el letrero en la misma línea: el hueco vacío desaparece -->
+    <div class="flex h-[26px] items-center justify-between">
+      <div class="text-[13px] font-semibold text-carbon/70">← Oportunidades abiertas</div>
+      <!-- aquí saldría GANADA · 12/03/26 o PERDIDA cuando toque -->
+    </div>
+
+    <!-- 2 · LA CABECERA PLEGADA: una franja con lo que se mira siempre -->
+    <div class="caja mt-2 overflow-hidden">
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5">
+        <h1 class="text-[19px] font-bold uppercase leading-tight">Mayor 25 Madrid <span class="ml-1.5 align-middle text-[11px] text-[#1F4E99]">ASCENSOR + SUBV</span></h1>
+        <div class="flex items-center gap-2 border-l border-black/10 pl-6">
+          <span class="text-[10px] font-bold uppercase tracking-[0.06em] text-black/50">Pendientes de</span>
+          <span class="text-[14px] font-bold uppercase">Enviar el Polycam para la viabilidad</span>
+        </div>
+        <div class="ml-auto flex items-center gap-4">
+          <span class="text-[12px] text-black/60">Ana Ruiz · <b class="tabular-nums text-black/80">600 11 22 33</b></span>
+          <span class="flex items-center gap-1.5 text-[9.5px] font-bold uppercase text-black/55">Abierta <i class="inline-block h-2.5 w-2.5 rounded-full bg-[#3BB54A]"></i></span>
+          <button id="abrir" class="rounded-md border border-black/20 px-2.5 py-1 text-[11.5px] font-semibold text-black/70 hover:border-black/50">▾ Ver toda la cabecera</button>
+        </div>
+      </div>
+
+      <!-- Lo que se abre: lo de siempre, tal cual está hoy -->
+      <div id="desplegada" class="hidden border-t border-black/10 bg-[#fafafa] p-3">
+        <div class="grid gap-[10px]" style="grid-template-columns:0.85fr 1fr">
+          <div class="caja p-3">
+            <div class="text-[11.5px] text-black/50 underline">Dirección mal apuntada, la corrijo</div>
+            <div class="mt-2 rounded-[6px] border border-black/25 px-2.5 py-1 text-[12px] font-semibold uppercase">En la misma dirección: 1 opp cerrada ▾</div>
+            <div class="mt-2 rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2 text-[12px] leading-[1.6]">
+              <p><span class="mr-2 text-[10px] font-bold uppercase text-[#76749D]">Administración</span><b>Luis Pérez</b> — Fincas Centro · 91 555 12 34</p>
+              <p class="font-bold text-[#76749D]">Nos llega a través de <span class="font-normal text-black/70">Fincas Centro</span></p>
+              <p class="font-bold text-[#76749D]">Mi contacto en la comunidad es <span class="font-normal text-black/70">Ana Ruiz · 600 11 22 33 (presidenta)</span></p>
+              <p class="font-bold text-[#76749D]">Dicen que están interesados en — <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Ascensor ×</span> <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Subvenciones ×</span> <span class="text-black/60">+ añadir</span></p>
+            </div>
+          </div>
+          <div class="grid gap-[10px]" style="grid-template-columns:1fr 300px">
+            <div class="caja p-3 text-[12px]"><span class="rot">Sali</span><p class="mt-1 leading-[1.5] text-black/50">Aquí contará Sali el resumen y el estado de situación… (cuando esté montada).</p></div>
+            <div class="caja p-3 text-[12px]"><span class="rot">Contactos de la comunidad</span><p class="mt-1"><b>Ana Ruiz</b> 600 11 22 33</p><p><b>Pedro Gil</b> 611 44 55 66</p><p class="mt-1 text-[11.5px] text-black/40">+ añadir contacto</p></div>
+            <div class="col-span-2 flex gap-2"><span class="rounded-[5px] border border-[#E6DFA8] bg-[#FAF6D2] px-2.5 text-[10.5px] font-semibold uppercase text-[#8A7A2A]">Pausar</span><span class="rounded-[5px] border border-[#E5C4C0] bg-[#F6E3E1] px-2.5 text-[10.5px] font-semibold uppercase text-[#923428]">Cerrar</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- La barra de fases, pegada debajo de la franja -->
+      <div id="barra-prop"></div>
+    </div>
+
+    <div class="mt-4">
+      <div id="pest-prop"></div>
+      <div class="rounded-[0_10px_10px_10px] bg-[#104269] p-[11px]">
+        <!-- 3 · LA TIRA DEL BLOQUE 1: las tres cajas de antes, en una línea -->
+        <div class="caja mb-[10px] flex flex-wrap items-center gap-x-5 gap-y-1.5 px-3 py-2 text-[13px]">
+          <label class="flex items-center gap-1.5"><input type="checkbox"> Necesita 3D</label>
+          <span class="h-4 border-l border-black/15"></span>
+          <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita Polycam</label>
+          <span class="text-[11.5px] text-black/60">escaneo <b>21/10 10:00</b> · recibido: <span class="text-black/45">todavía no</span></span>
+          <span class="h-4 border-l border-black/15"></span>
+          <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita viabilidad</label>
+          <span class="text-[11px] text-black/40" title="automático, según lo que quieren · se puede cambiar a mano">(auto)</span>
+          <span class="ml-auto text-[12px] text-black/60"><b class="text-black/80">ACC-0123</b> · Centro · Sol · <span class="font-mono">0847105VK4704F</span></span>
+          <span class="flex gap-1"><span class="pill-on rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold">Ficha</span><span class="rounded-full border border-black/25 bg-white px-2.5 py-0.5 text-[11.5px] font-semibold text-black/70">Informe</span></span>
+        </div>
+        <div class="contenido"></div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ========================= SU PROPUESTA (16-oct) ========================= -->
+<div id="tuya" class="vista">
+  <!-- La barra negra de la app, con la salida dentro (como ya está en la app) -->
+  <div class="flex h-[56px] items-center gap-6 bg-[#2b2b2b] px-6 text-white">
+    <b class="text-[15px]">accesalia</b>
+    <span class="text-[14px] font-semibold text-white/75">← Oportunidades abiertas</span>
+  </div>
+  <main class="mx-auto max-w-[1648px] px-6 pb-16 pt-4">
+
+    <!-- 1 · LA TIRA DE INFO, con su "Ver toda la cabecera" -->
+    <div class="caja overflow-hidden">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3.5 py-2.5">
+        <span class="text-[12px] font-bold tabular-nums text-black/55">OPP-2026-0412</span>
+        <h1 class="text-[16px] font-bold uppercase leading-tight">Batalla de Torrijos 23 <span class="ml-1 align-middle text-[11px] text-[#1F4E99]">ASCENSOR + SUBV</span></h1>
+        <span class="rounded-md border border-black/30 px-1.5 py-0.5 text-[11px] font-semibold text-black/60">⌕ ir a otra opp</span>
+        <div class="flex items-center gap-2 border-l border-black/35 pl-3">
+          <span class="text-[10px] font-bold uppercase tracking-[0.06em] text-black/50">Pendientes de</span>
+          <span class="text-[12.5px] font-bold uppercase">Enviar el Polycam para la viabilidad</span>
+        </div>
+        <div class="flex items-center gap-2 border-l border-black/35 pl-3 text-[12px]">
+          <span class="text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Admin</span>
+          <b>Fermín Monge</b> <span class="tabular-nums text-black/70">91 555 12 34</span>
+        </div>
+        <span class="ml-auto flex items-center gap-1.5 border-l border-black/35 pl-3 text-[9.5px] font-bold uppercase text-black/55">Abierta <i class="inline-block h-2.5 w-2.5 rounded-full bg-[#3BB54A]"></i></span>
+        <button id="abrir2" class="rounded-md border border-black/25 whitespace-nowrap px-2 py-1 text-[11px] font-semibold text-black/70 hover:border-black/60">▾ Ver toda la cabecera</button>
+      </div>
+      <div id="desplegada2" class="hidden border-t border-black/15 bg-[#fafafa] p-3">
+        <div class="grid gap-[10px]" style="grid-template-columns:0.85fr 1fr">
+          <div class="caja p-3">
+            <div class="text-[11.5px] text-black/50 underline">Dirección mal apuntada, la corrijo</div>
+            <div class="mt-2 rounded-[6px] border border-black/25 px-2.5 py-1 text-[12px] font-semibold uppercase">En la misma dirección: 1 opp cerrada ▾</div>
+            <div class="mt-2 rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2 text-[12px] leading-[1.6]">
+              <p><span class="mr-2 text-[10px] font-bold uppercase text-[#76749D]">Administración</span><b>Fermín Monge</b> — Fincas Carabanchel · 91 555 12 34</p>
+              <p class="font-bold text-[#76749D]">Nos llega a través de <span class="font-normal text-black/70">Fermín Monge</span></p>
+              <p class="font-bold text-[#76749D]">Mi contacto en la comunidad es <span class="font-normal text-black/70">Toñi Cárdenas · 600 11 22 33 (presidenta)</span></p>
+              <p class="font-bold text-[#76749D]">Dicen que están interesados en — <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Ascensor ×</span> <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Subvenciones ×</span> <span class="text-black/60">+ añadir</span></p>
+            </div>
+          </div>
+          <div class="grid gap-[10px]" style="grid-template-columns:1fr 300px">
+            <div class="caja p-3 text-[12px]"><span class="rot">Sali</span><p class="mt-1 leading-[1.5] text-black/50">Aquí contará Sali el resumen último y el estado de situación de la oportunidad: en qué punto está y qué se le puede vender, la edad del edificio, lo que han cobrado los vecinos, en qué zona cae y qué dice su IEE.</p></div>
+            <div class="caja p-3 text-[12px]"><span class="rot">Contactos de la comunidad</span><p class="mt-1"><b>Toñi Cárdenas</b> 600 11 22 33 <span class="text-black/50">presidenta</span></p><p><b>Beatriz Martínez</b> 611 44 55 66 <span class="text-black/50">vecina 2ºA</span></p><p class="mt-1 text-[11.5px] text-black/40">+ añadir contacto</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 · LAS FASES: la barra al 70 %, y al lado días en esta fase y último contacto -->
+    <div class="mt-[10px] grid gap-[10px]" style="grid-template-columns:70% 1fr 1fr">
+      <div id="barra-tuya"></div>
+      <div class="flex flex-col justify-center rounded-[10px] bg-[#232323] px-4 text-white">
+        <span class="text-[10px] font-bold uppercase tracking-[0.07em] text-white/50">Días en esta fase</span>
+        <span class="text-[20px] font-bold tabular-nums">12</span>
+      </div>
+      <div class="flex flex-col justify-center rounded-[10px] bg-[#232323] px-4 text-white">
+        <span class="text-[10px] font-bold uppercase tracking-[0.07em] text-white/50">Último contacto</span>
+        <span class="text-[20px] font-bold tabular-nums">28/09/26</span>
+      </div>
+    </div>
+
+    <!-- 3 · LAS PESTAÑAS, y en el hueco de la derecha pausar y cerrar -->
+    <div class="mt-4">
+      <div class="flex items-end justify-between">
+        <div id="pest-tuya"></div>
+        <div class="mb-1.5 flex gap-2">
+          <span class="rounded-[5px] border border-[#E6DFA8] bg-[#FAF6D2] px-3 py-1 text-[11px] font-semibold uppercase text-[#8A7A2A]">Pausar</span>
+          <span class="rounded-[5px] border border-[#E5C4C0] bg-[#F6E3E1] px-3 py-1 text-[11px] font-semibold uppercase text-[#923428]">Cerrar</span>
+        </div>
+      </div>
+      <div class="rounded-[0_10px_10px_10px] bg-[#104269] p-[11px]">
+
+        <!-- 4 · LA TIRA DEL BLOQUE 1, la de su maqueta: dos estados; Ficha/Informe fuera, sobre el azul -->
+        <div class="mb-[10px] flex items-center gap-3">
+          <div id="tira-antes" class="caja flex flex-1 flex-wrap items-center gap-x-5 gap-y-1.5 px-3 py-2 text-[13px]">
+            <label class="flex items-center gap-1.5"><input type="checkbox"> Necesita 3D</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita Polycam</label>
+            <span class="-ml-2 text-[11.5px] text-black/60">escaneo <b>20/10 10:30</b> · recibido: <span class="text-black/45">todavía no</span></span>
+            <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita viabilidad</label>
+            <span class="-ml-2 rounded-full bg-[#7a2a26] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Pedir al arquitecto</span>
+          </div>
+          <div id="tira-despues" class="caja hidden flex-1 flex-wrap items-center gap-x-5 gap-y-1.5 px-3 py-2 text-[13px]">
+            <label class="flex items-center gap-1.5"><input type="checkbox"> Necesita 3D</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita Polycam</label>
+            <span class="-ml-2 rounded-full bg-[#3c6b2a] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Recibido Polycam</span>
+            <span class="-ml-3 rounded border border-black/25 px-1.5 text-[11px] text-black/45">dd/mm/aaaa</span>
+            <label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita viabilidad</label>
+            <span class="-ml-2 rounded-full bg-[#3c6b2a] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Recibida viabilidad del arquitecto</span>
+          </div>
+          <div class="flex items-center gap-2 border-l border-white/30 pl-3">
+            <span class="vista-b rounded-[4px] bg-[#7ac943] px-4 py-1 text-[10.5px] font-bold uppercase text-[#1d3a0e]">Ficha</span>
+            <span class="vista-b rounded-[4px] bg-[#e4e4e4] px-4 py-1 text-[10.5px] font-bold uppercase text-black/60">Informe</span>
+          </div>
+        </div>
+        <div class="mb-[10px] -mt-1 text-right text-[11px] text-white/60">
+          (maqueta: <button id="estado-tira" class="underline">ver la tira cuando ya ha llegado el Polycam</button>)
+        </div>
+
+        <!-- 5 · tres columnas: las cards · lo visto y las imágenes · el diario -->
+        <div class="grid items-start gap-[10px]" style="grid-template-columns:minmax(0,1fr) 250px 330px">
+
+          <!-- las cards, con su contenido de verdad (de la ficha de Batalla de Torrijos) -->
+          <div class="flex min-w-0 flex-col gap-[10px]">
+            <section class="caja p-3">
+              <div class="mb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#104269] underline">Lo que dice el Catastro</div>
+              <div class="grp border-[#104269] bg-[#e3e9f1]">El edificio</div>
+              <table class="t"><tbody>
+                <tr><td>Año de construcción</td><td>1975</td><td>Anterior a 2002: puede tener amianto, y hay que contarlo en el presupuesto.</td></tr>
+                <tr><td>Plantas</td><td>5 sobre rasante</td><td>A partir de cuatro plantas, el ascensor deja de ser un capricho: es lo que más se vende.</td></tr>
+                <tr><td>Aislamiento</td><td>Sin aislamiento</td><td>Anterior a la NBE-CT-79: se construyó sin ninguna exigencia de aislamiento. Todo lo que se haga mejora.</td></tr>
+                <tr><td>Superficie construida</td><td>2636 m²</td><td></td></tr>
+                <tr><td>Superficie del suelo</td><td>818 m²</td><td></td></tr>
+                <tr><td>Tipo de parcela</td><td>Parcela con varios inmuebles (división horizontal)</td><td></td></tr>
+                <tr><td>Portales</td><td>CL BATALLA DE TORRIJOS 23, CL GENERAL RICARDOS 232</td><td>Son varios portales en una misma finca: hay que decidir cuáles entran en el encargo.</td></tr>
+                <tr><td>Escaleras</td><td>1, 2</td><td>Podéis empezar por una y ampliar después: es lo habitual.</td></tr>
+                <tr><td>Patios</td><td class="font-normal text-black/50">Pendiente de ver</td><td></td></tr>
+              </tbody></table>
+              <div class="grp mt-2 border-[#104269] bg-[#e3e9f1]">Usos</div>
+              <table class="t"><tbody>
+                <tr><td>Viviendas</td><td>18 de 21 inmuebles</td><td></td></tr>
+                <tr><td>% residencial</td><td>86% por número · 54% por superficie</td><td>Por debajo del 70%: conviene comprobar si eso deja fuera alguna convocatoria.</td></tr>
+                <tr><td>Locales y oficinas</td><td>2 (2 en planta baja)</td><td>Los locales de planta baja pagan derrama y suelen ser los que más se resisten en la junta.</td></tr>
+                <tr><td>Garaje o trasteros</td><td>No</td><td></td></tr>
+                <tr><td>Superficie media por vivienda</td><td>78 m²</td><td></td></tr>
+              </tbody></table>
+            </section>
+
+            <section class="caja border-[#0C8124] p-3">
+              <div class="mb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#0C8124] underline">Lo que condiciona lo que puedo pedir</div>
+              <div class="grp border-[#0C8124] bg-[#e6f1e3]">IEE</div>
+              <table class="t"><tbody>
+                <tr><td>IEE</td><td class="font-normal">no nos consta</td><td>Solo sabemos de los edificios que ha barrido el radar del registro. Que no conste no quiere decir que no lo tengan. <span class="rounded border border-[#0C8124] px-1.5 text-[#0C8124]">Consultar IEE</span></td></tr>
+              </tbody></table>
+              <div class="grp mt-2 border-[#0C8124] bg-[#e6f1e3]">Zona y ayudas</div>
+              <table class="t"><tbody>
+                <tr><td>Zona</td><td>ZETU</td><td>ZETU es la zona de máxima subvención: hasta el 75% en accesibilidad y salubridad, y hasta el 50% en conservación.</td></tr>
+                <tr><td>Ámbito APIRU</td><td>Vista Alegre · 11.05</td><td>Área Preferente de Impulso a la Regeneración Urbana: barrio señalado como prioritario.</td></tr>
+                <tr><td>Ámbito ARRU</td><td>No</td><td></td></tr>
+                <tr><td>Licencia</td><td>—</td><td>Aparece en el ámbito APIRU. Pendiente de confirmar qué significa exactamente.</td></tr>
+              </tbody></table>
+              <div class="grp mt-2 border-[#0C8124] bg-[#e6f1e3]">Lo ya concedido</div>
+              <table class="t"><tbody>
+                <tr><td>¿Ya le concedieron algo a este edificio?</td><td>No</td><td></td></tr>
+                <tr><td>Subvenciones concedidas a 800 m</td><td>10 · 688.459 €</td><td>Dinero que ya ha caído en el barrio. Es el mejor argumento que hay delante de una junta.</td></tr>
+                <tr><td>CO₂ evitado cerca</td><td>44.873 kg/año</td><td></td></tr>
+              </tbody></table>
+              <div class="mt-2 rounded-[8px] border border-[#d9d9d9] px-2.5 py-2">
+                <div class="flex justify-between"><span class="rot">Subvenciones ya concedidas a menos de 800 m</span><span class="text-[12px]"><b>688.459 €</b> <span class="text-[11px] text-black/50">en 10 obras</span></span></div>
+                <table class="t2"><thead><tr><th>Dirección</th><th class="text-right">Concedido</th><th class="text-right">Viv.</th><th>Convocatoria</th><th class="text-right">Año</th></tr></thead><tbody>
+                  <tr><td>CALLE OCA 102</td><td class="text-right">207.900 €</td><td class="text-right">33</td><td>NGEU_MRR_Programa 3</td><td class="text-right">2022</td></tr>
+                  <tr><td>CALLE ALGODRE 8</td><td class="text-right">123.034 €</td><td class="text-right">23</td><td>REHABILITA 2023</td><td class="text-right">2023</td></tr>
+                  <tr><td>CALLE NTRA. SRA. DE LA LUZ 41</td><td class="text-right">114.468 €</td><td class="text-right">24</td><td>Plan MAD-RE 18</td><td class="text-right">2018</td></tr>
+                  <tr><td>CALLE ALGODRE 8</td><td class="text-right">91.360 €</td><td class="text-right">23</td><td>NGEU_MRR_Programa 3</td><td class="text-right">2022</td></tr>
+                  <tr><td>CALLE RAMON SERRANO 12</td><td class="text-right">33.243 €</td><td class="text-right">11</td><td>Plan MAD-RE 17</td><td class="text-right">2017</td></tr>
+                  <tr><td>CALLE AVEFRIA 35</td><td class="text-right">28.774 €</td><td class="text-right">8</td><td>REHABILITA 2020</td><td class="text-right">2020</td></tr>
+                  <tr><td>PASEO MARCELINO CAMACHO 51</td><td class="text-right">28.216 €</td><td class="text-right">40</td><td>Plan MAD-RE 17</td><td class="text-right">2017</td></tr>
+                  <tr><td>AV. NTRA. SRA. DE VALVANERA 77</td><td class="text-right">27.172 €</td><td class="text-right">13</td><td>Fomento Efic. Energética</td><td class="text-right">2020</td></tr>
+                </tbody></table>
+              </div>
+            </section>
+
+            <section class="caja border-[#820707] p-3">
+              <div class="mb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#820707] underline">Lo que condiciona lo que puedo hacer</div>
+              <div class="grp border-[#820707] bg-[#f6e3e1]">Restricciones</div>
+              <table class="t"><tbody>
+                <tr><td>¿Hay ascensor ya?</td><td>—</td><td>No lo dice ningún dato. Se ve en la foto aérea: el casetón de la azotea. Si no hay casetón, no hay ascensor.</td></tr>
+                <tr><td>¿Modelo de ascensor obligatorio?</td><td>No</td><td>Sin modelo impuesto: se puede proyectar el que convenga.</td></tr>
+              </tbody></table>
+              <div class="grp mt-2 border-[#820707] bg-[#f6e3e1]">Protección</div>
+              <table class="t"><tbody>
+                <tr><td>¿Está protegido?</td><td>No</td><td>Sin protección: no hay trámite de Patrimonio.</td></tr>
+                <tr><td>Ficha del catálogo</td><td>—</td><td></td></tr>
+                <tr><td>Conjunto homogéneo</td><td>—</td><td></td></tr>
+                <tr><td>Qué está protegido</td><td>—</td><td></td></tr>
+                <tr><td>¿Es BIC?</td><td>—</td><td>Bien de Interés Cultural: la protección más alta que existe.</td></tr>
+              </tbody></table>
+            </section>
+
+            <section class="caja p-3"><span class="rot">Fotos de la opp</span><div class="mt-2 flex gap-2"><div class="h-[64px] w-[64px] rounded-[8px] bg-black/10"></div><div class="h-[64px] w-[64px] rounded-[8px] bg-black/10"></div><div class="flex h-[64px] w-[64px] items-center justify-center rounded-[8px] border border-dashed border-black/25 text-[18px] text-black/30">+</div></div></section>
+          </div>
+
+          <!-- en medio: arriba lo que hemos visto, debajo las miniaturas apiladas -->
+          <div class="flex flex-col gap-[10px]">
+            <section class="rounded-[10px] bg-[#E4EED9] px-3 py-2.5">
+              <div class="border-b border-black/15 pb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#1c1c1c] underline">Lo que hemos visto nosotros</div>
+              <div class="mt-2 flex flex-col gap-2.5 text-[12.5px]">
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Tiene ascensor?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Portal accesible?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Tiene patios?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <span class="text-right text-[10.5px] text-black/40">sin mirar</span>
+              </div>
+            </section>
+            <section class="caja p-2.5">
+              <span class="rot">Las imágenes <span class="font-normal normal-case tracking-normal text-black/40">· pincha para ampliar</span></span>
+              <div class="mt-2 flex flex-col gap-2">
+                <div><img src="bloque1-arriba/croquis.png" class="h-[120px] w-full cursor-zoom-in rounded-[8px] border border-[#d9d9d9] object-cover"><div class="text-center text-[10px] text-black/40">Croquis catastral</div></div>
+                <div><img src="bloque1-arriba/aerea.png" class="h-[120px] w-full cursor-zoom-in rounded-[8px] border border-[#d9d9d9] object-cover"><div class="text-center text-[10px] text-black/40">Vista aérea</div></div>
+                <div class="flex h-[60px] items-center justify-center rounded-[8px] border border-dashed border-black/20 text-[10.5px] text-black/40">Polycam · llega solo por el buzón</div>
+              </div>
+              <div class="mt-2 text-[11px] underline">Visor oficial del Catastro</div>
+            </section>
+          </div>
+
+          <!-- el diario: grabar en una línea -->
+          <div class="flex flex-col gap-[10px]">
+            <div class="caja flex items-center gap-2 p-2.5">
+              <div class="h-[34px] flex-1 rounded-lg border border-black/30 px-2.5 py-1.5 text-[12.5px] text-black/40">Grabar aquí lo que ha pasado…</div>
+              <span class="rounded-[6px] bg-[#5680A1] px-3 py-1.5 text-[11.5px] font-bold uppercase text-white">Guardar</span>
+            </div>
+            <div class="caja text-[13px]"><div class="px-4 pt-3"><span class="rot">Lo que va pasando</span></div>
+              <div class="divide-y divide-black/5">
+                <div class="px-4 py-2.5"><div class="text-[12px] text-black/55"><b class="text-black/80">28/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">visita</span> <span class="text-[#3f7a1c]">Beatriz Martínez</span></div><p class="mt-1 leading-snug">Hemos ido a ver el portal. El foso da problemas, hay contadores que habría que mover.</p></div>
+                <div class="px-4 py-2.5"><div class="text-[12px] text-black/55"><b class="text-black/80">27/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">llamada</span> <span class="text-[#3f7a1c]">Fermín Monge</span></div><p class="mt-1 leading-snug">Me llama Fermín: el martes me lleva a ver tres portales que tienen ascensor.</p></div>
+                <div class="px-4 py-2.5"><div class="text-[12px] text-black/55"><b class="text-black/80">22/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">correo</span> <span class="text-[#3f7a1c]">Beatriz Martínez</span></div><p class="mt-1 leading-snug">Me pasa el acta de la última junta. Aprobaron pedir presupuestos.</p></div>
+                <div class="px-4 py-2.5"><div class="text-[12px] text-black/55"><b class="text-black/80">15/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">llamada</span> <span class="text-[#3f7a1c]">Toñi Cárdenas</span></div><p class="mt-1 leading-snug">La comisión quiere ver el 3D antes de convocar. Quedamos en pasarlo la semana que viene.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ========================= REDUCIR ESPACIOS (su propuesta, 16-oct) ========================= -->
+<div id="espacios" class="vista">
+  <!-- La barra negra de la app, con la salida dentro (como ya está en la app) -->
+  <div class="flex h-[56px] items-center gap-6 bg-[#2b2b2b] px-6 text-white">
+    <b class="text-[15px]">accesalia</b>
+    <span class="text-[14px] font-semibold text-white/75">← Oportunidades abiertas</span>
+  </div>
+  <main class="mx-auto max-w-[1648px] px-6 pb-16 pt-4">
+
+    <!-- 1 · LA CABECERA: el nombre sobre el verde, sin caja; pendientes y admin en su cajita -->
+    <div class="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+      <span class="text-[11px] font-bold tabular-nums text-black/60">DAN-2026-0412</span>
+      <h1 class="text-[20px] font-bold uppercase leading-none text-white" style="text-shadow:0 1px 0 rgba(0,0,0,.15)">Batalla de Torrijos 23 Torrelodones</h1>
+      <span class="text-[11px] font-bold uppercase text-[#1F4E99]">ASC + SUBV + CSS + OTRA</span>
+      <span class="rounded-md border border-black/20 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-black/60">⌕ ir a otra opp</span>
+      <div class="ml-auto flex items-center gap-2.5 rounded-[8px] bg-white px-2.5 py-1">
+        <span class="text-[10px] font-bold uppercase tracking-[0.06em] text-black/50">Pendientes de</span>
+        <span class="-ml-1 text-[11.5px] font-bold uppercase">Enviar el Polycam para la viabilidad</span>
+        <span class="h-4 border-l border-black/35"></span>
+        <span class="text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Admin</span>
+        <span class="-ml-1 text-[11.5px]"><b>Fermín Monge</b> <span class="tabular-nums text-black/70">91 555 12 34</span></span>
+        <button id="abrir3" class="whitespace-nowrap rounded-md border border-black/25 px-2 py-0.5 text-[11px] font-semibold text-black/70 hover:border-black/60">▾ Ver completa</button>
+      </div>
+    </div>
+    <div class="mt-2 overflow-hidden rounded-[10px]">
+      <div id="desplegada3" class="hidden border border-[#d9d9d9] bg-[#fafafa] p-3 rounded-[10px]">
+        <div class="grid gap-[10px]" style="grid-template-columns:0.85fr 1fr">
+          <div class="caja p-3">
+            <div class="text-[11.5px] text-black/50 underline">Dirección mal apuntada, la corrijo</div>
+            <div class="mt-2 rounded-[6px] border border-black/25 px-2.5 py-1 text-[12px] font-semibold uppercase">En la misma dirección: 1 opp cerrada ▾</div>
+            <div class="mt-2 rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2 text-[12px] leading-[1.6]">
+              <p><span class="mr-2 text-[10px] font-bold uppercase text-[#76749D]">Administración</span><b>Fermín Monge</b> — Fincas Carabanchel · 91 555 12 34</p>
+              <p class="font-bold text-[#76749D]">Nos llega a través de <span class="font-normal text-black/70">Fermín Monge</span></p>
+              <p class="font-bold text-[#76749D]">Mi contacto en la comunidad es <span class="font-normal text-black/70">Toñi Cárdenas · 600 11 22 33 (presidenta)</span></p>
+              <p class="font-bold text-[#76749D]">Dicen que están interesados en — <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Ascensor ×</span> <span class="rounded-full bg-[#D8ECC4] px-2 text-[10.5px] font-normal text-[#4a4a4a]">Subvenciones ×</span> <span class="text-black/60">+ añadir</span></p>
+            </div>
+          </div>
+          <div class="grid gap-[10px]" style="grid-template-columns:1fr 300px">
+            <div class="caja p-3 text-[12px]"><span class="rot">Sali</span><p class="mt-1 leading-[1.5] text-black/50">Aquí contará Sali el resumen último y el estado de situación de la oportunidad: en qué punto está y qué se le puede vender, la edad del edificio, lo que han cobrado los vecinos, en qué zona cae y qué dice su IEE.</p></div>
+            <div class="caja p-3 text-[12px]"><span class="rot">Contactos de la comunidad</span><p class="mt-1"><b>Toñi Cárdenas</b> 600 11 22 33 <span class="text-black/50">presidenta</span></p><p><b>Beatriz Martínez</b> 611 44 55 66 <span class="text-black/50">vecina 2ºA</span></p><p class="mt-1 text-[11.5px] text-black/40">+ añadir contacto</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 · LAS FASES: la barra al 70 %, y al lado días en esta fase y último contacto -->
+    <div class="mt-[8px] grid gap-[10px]" style="grid-template-columns:70% 1fr 1fr">
+      <div id="barra-esp"></div>
+      <div class="flex flex-col justify-center rounded-[10px] bg-[#232323] px-4 text-white">
+        <span class="text-[10px] font-bold uppercase tracking-[0.07em] text-white/50">Días en esta fase</span>
+        <span class="text-[20px] font-bold tabular-nums">12</span>
+      </div>
+      <div class="flex flex-col justify-center rounded-[10px] bg-[#232323] px-4 text-white">
+        <span class="text-[10px] font-bold uppercase tracking-[0.07em] text-white/50">Último contacto</span>
+        <span class="text-[20px] font-bold tabular-nums">28/09/26</span>
+      </div>
+    </div>
+
+    <!-- 3 · LAS PESTAÑAS hasta el borde del diario; en su hueco, el estado con pausar y cerrar -->
+    <div class="mt-3">
+      <div class="flex items-end gap-[10px]">
+        <div class="flex flex-1 gap-1.5">
+          <span class="tab flex-1 bg-[#104269] text-white">1 · Toma de datos <span class="font-normal text-white/60">· Falta el Polycam</span></span>
+          <span class="tab flex-1 bg-white/60 text-black/60">2 · Documentación</span>
+          <span class="tab flex-1 bg-white/60 text-black/60">3 · Decisión de los vecinos</span>
+          <span class="tab flex-1 bg-white/60 text-black/60">4 · Cierre</span>
+        </div>
+        <div class="mb-1.5 flex w-[340px] items-center gap-2.5 rounded-[8px] bg-white px-3 py-1.5">
+          <span class="text-[9.5px] font-bold uppercase tracking-[0.07em] text-black/45">Estado</span>
+          <span class="h-4 border-l border-black/35"></span>
+          <span class="flex items-center gap-1.5 text-[13px] font-bold uppercase">Abierta <i class="inline-block h-2.5 w-2.5 rounded-full bg-[#3BB54A]"></i></span>
+          <span class="ml-auto rounded-[5px] border border-[#E6DFA8] bg-[#FAF6D2] px-2.5 py-0.5 text-[10.5px] font-semibold uppercase text-[#8A7A2A]">Pausar</span>
+          <span class="rounded-[5px] border border-[#E5C4C0] bg-[#F6E3E1] px-2.5 py-0.5 text-[10.5px] font-semibold uppercase text-[#923428]">Cerrar</span>
+        </div>
+      </div>
+      <div class="rounded-[0_10px_10px_10px] bg-[#104269] p-[11px]">
+
+        <!-- 4 · LA TIRA DEL BLOQUE 1: crema, partida en sus tres áreas; Ficha/Informe encima del diario -->
+        <div class="mb-[8px] grid items-center gap-[10px]" style="grid-template-columns:minmax(0,1fr) 205px 340px">
+          <div class="col-span-2">
+            <div id="tira-antes3" class="grid items-center rounded-[8px] bg-[#f6ecd2] py-1.5 text-[13px]" style="grid-template-columns:1fr 2.2fr 1.6fr">
+              <label class="flex items-center justify-center gap-1.5"><input type="checkbox"> Necesita 3D</label>
+              <div class="flex items-center justify-center gap-2 border-l border-black/30"><label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita Polycam</label><span class="text-[11.5px] text-black/60">escaneo <b>20/10 10:30</b> · recibido: <span class="text-black/45">todavía no</span></span></div>
+              <div class="flex items-center justify-center gap-2 border-l border-black/30"><label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita viabilidad</label><span class="rounded-full bg-[#7a2a26] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Pedir al arquitecto</span></div>
+            </div>
+            <div id="tira-despues3" class="hidden items-center rounded-[8px] bg-[#f6ecd2] py-1.5 text-[13px]" style="grid-template-columns:1fr 2.2fr 1.6fr">
+              <label class="flex items-center justify-center gap-1.5"><input type="checkbox"> Necesita 3D</label>
+              <div class="flex items-center justify-center gap-2 border-l border-black/30"><label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita Polycam</label><span class="rounded-full bg-[#3c6b2a] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Recibido Polycam</span><span class="rounded border border-black/25 bg-white px-1.5 text-[11px] text-black/45">dd/mm/aaaa</span></div>
+              <div class="flex items-center justify-center gap-2 border-l border-black/30"><label class="flex items-center gap-1.5"><input type="checkbox" checked> Necesita viabilidad</label><span class="rounded-full bg-[#3c6b2a] px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white">Recibida viabilidad</span></div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <span class="rounded-[4px] bg-[#7ac943] px-4 py-1 text-[10.5px] font-bold uppercase text-[#1d3a0e]">Ficha</span>
+            <span class="rounded-[4px] bg-[#e4e4e4] px-4 py-1 text-[10.5px] font-bold uppercase text-black/60">Informe</span>
+          </div>
+        </div>
+        <div class="mb-[6px] -mt-1 text-[11px] text-white/60">(maqueta: <button id="estado-tira3" class="underline">ver la tira cuando ya ha llegado el Polycam</button>)</div>
+
+        <!-- 5 · tres columnas: las cards · lo visto y las imágenes · el diario -->
+        <div class="grid items-start gap-[10px]" style="grid-template-columns:minmax(0,1fr) 205px 340px">
+
+          <!-- las cards, con su contenido de verdad (de la ficha de Batalla de Torrijos) -->
+          <div class="flex min-w-0 flex-col gap-[10px]">
+            <section class="caja px-2.5 py-2">
+              <div class="mb-1 text-[13px] font-bold uppercase tracking-[0.06em] text-[#104269] underline">Lo que dice el Catastro</div>
+              <div class="grp border-[#104269] bg-[#e3e9f1]">El edificio</div>
+              <table class="t t3"><tbody>
+                <tr><td>Año de construcción</td><td>1975</td><td>Anterior a 2002: puede tener amianto, y hay que contarlo en el presupuesto.</td></tr>
+                <tr><td>Plantas</td><td>5 sobre rasante</td><td>A partir de cuatro plantas, el ascensor deja de ser un capricho: es lo que más se vende.</td></tr>
+                <tr><td>Aislamiento</td><td>Sin aislamiento</td><td>Anterior a la NBE-CT-79: se construyó sin ninguna exigencia de aislamiento. Todo lo que se haga mejora.</td></tr>
+                <tr><td>Superficie construida</td><td>2636 m²</td><td></td></tr>
+                <tr><td>Superficie del suelo</td><td>818 m²</td><td></td></tr>
+                <tr><td>Tipo de parcela</td><td>Parcela con varios inmuebles (división horizontal)</td><td></td></tr>
+                <tr><td>Portales</td><td>CL BATALLA DE TORRIJOS 23, CL GENERAL RICARDOS 232</td><td>Son varios portales en una misma finca: hay que decidir cuáles entran en el encargo.</td></tr>
+                <tr><td>Escaleras</td><td>1, 2</td><td>Podéis empezar por una y ampliar después: es lo habitual.</td></tr>
+                <tr><td>Patios</td><td class="font-normal text-black/50">Pendiente de ver</td><td></td></tr>
+              </tbody></table>
+              <div class="grp mt-1.5 border-[#104269] bg-[#e3e9f1]">Usos</div>
+              <table class="t t3"><tbody>
+                <tr><td>Viviendas</td><td>18 de 21 inmuebles</td><td></td></tr>
+                <tr><td>% residencial</td><td>86% por número · 54% por superficie</td><td>Por debajo del 70%: conviene comprobar si eso deja fuera alguna convocatoria.</td></tr>
+                <tr><td>Locales y oficinas</td><td>2 (2 en planta baja)</td><td>Los locales de planta baja pagan derrama y suelen ser los que más se resisten en la junta.</td></tr>
+                <tr><td>Garaje o trasteros</td><td>No</td><td></td></tr>
+                <tr><td>Superf. media/vivienda</td><td>78 m²</td><td></td></tr>
+              </tbody></table>
+            </section>
+
+            <section class="caja border-[#0C8124] px-2.5 py-2">
+              <div class="mb-1 text-[13px] font-bold uppercase tracking-[0.06em] text-[#0C8124] underline">Lo que condiciona lo que puedo pedir</div>
+              <div class="grp border-[#0C8124] bg-[#e6f1e3]">IEE</div>
+              <table class="t t3"><tbody>
+                <tr><td>IEE</td><td class="font-normal">no nos consta</td><td>Solo sabemos de los edificios que ha barrido el radar del registro. Que no conste no quiere decir que no lo tengan. <span class="rounded border border-[#0C8124] px-1.5 text-[#0C8124]">Consultar IEE</span></td></tr>
+              </tbody></table>
+              <div class="grp mt-1.5 border-[#0C8124] bg-[#e6f1e3]">Zona y ayudas</div>
+              <table class="t t3"><tbody>
+                <tr><td>Zona</td><td>ZETU</td><td>ZETU es la zona de máxima subvención: hasta el 75% en accesibilidad y salubridad, y hasta el 50% en conservación.</td></tr>
+                <tr><td>Ámbito APIRU</td><td>Vista Alegre · 11.05</td><td>Área Preferente de Impulso a la Regeneración Urbana: barrio señalado como prioritario.</td></tr>
+                <tr><td>Ámbito ARRU</td><td>No</td><td></td></tr>
+                <tr><td>Licencia</td><td>—</td><td>Aparece en el ámbito APIRU. Pendiente de confirmar qué significa exactamente.</td></tr>
+              </tbody></table>
+              <div class="grp mt-1.5 border-[#0C8124] bg-[#e6f1e3]">Lo ya concedido</div>
+              <table class="t t3"><tbody>
+                <tr><td>¿Ya le concedieron algo a este edificio?</td><td>No</td><td></td></tr>
+                <tr><td>Subvenciones concedidas a 800 m</td><td>10 · 688.459 €</td><td>Dinero que ya ha caído en el barrio. Es el mejor argumento que hay delante de una junta.</td></tr>
+                <tr><td>CO₂ evitado cerca</td><td>44.873 kg/año</td><td></td></tr>
+              </tbody></table>
+              <div class="mt-2 rounded-[8px] border border-[#d9d9d9] px-2.5 py-2">
+                <div class="flex justify-between"><span class="rot">Subvenciones ya concedidas a menos de 800 m</span><span class="text-[12px]"><b>688.459 €</b> <span class="text-[11px] text-black/50">en 10 obras</span></span></div>
+                <table class="t2"><thead><tr><th>Dirección</th><th class="text-right">Concedido</th><th class="text-right">Viv.</th><th>Convocatoria</th><th class="text-right">Año</th></tr></thead><tbody>
+                  <tr><td>CALLE OCA 102</td><td class="text-right">207.900 €</td><td class="text-right">33</td><td>NGEU_MRR_Programa 3</td><td class="text-right">2022</td></tr>
+                  <tr><td>CALLE ALGODRE 8</td><td class="text-right">123.034 €</td><td class="text-right">23</td><td>REHABILITA 2023</td><td class="text-right">2023</td></tr>
+                  <tr><td>CALLE NTRA. SRA. DE LA LUZ 41</td><td class="text-right">114.468 €</td><td class="text-right">24</td><td>Plan MAD-RE 18</td><td class="text-right">2018</td></tr>
+                  <tr><td>CALLE ALGODRE 8</td><td class="text-right">91.360 €</td><td class="text-right">23</td><td>NGEU_MRR_Programa 3</td><td class="text-right">2022</td></tr>
+                  <tr><td>CALLE RAMON SERRANO 12</td><td class="text-right">33.243 €</td><td class="text-right">11</td><td>Plan MAD-RE 17</td><td class="text-right">2017</td></tr>
+                  <tr><td>CALLE AVEFRIA 35</td><td class="text-right">28.774 €</td><td class="text-right">8</td><td>REHABILITA 2020</td><td class="text-right">2020</td></tr>
+                  <tr><td>PASEO MARCELINO CAMACHO 51</td><td class="text-right">28.216 €</td><td class="text-right">40</td><td>Plan MAD-RE 17</td><td class="text-right">2017</td></tr>
+                  <tr><td>AV. NTRA. SRA. DE VALVANERA 77</td><td class="text-right">27.172 €</td><td class="text-right">13</td><td>Fomento Efic. Energética</td><td class="text-right">2020</td></tr>
+                </tbody></table>
+              </div>
+            </section>
+
+            <section class="caja border-[#820707] px-2.5 py-2">
+              <div class="mb-1 text-[13px] font-bold uppercase tracking-[0.06em] text-[#820707] underline">Lo que condiciona lo que puedo hacer</div>
+              <div class="grp border-[#820707] bg-[#f6e3e1]">Restricciones</div>
+              <table class="t t3"><tbody>
+                <tr><td>¿Hay ascensor ya?</td><td>—</td><td>No lo dice ningún dato. Se ve en la foto aérea: el casetón de la azotea. Si no hay casetón, no hay ascensor.</td></tr>
+                <tr><td>¿Modelo de ascensor obligatorio?</td><td>No</td><td>Sin modelo impuesto: se puede proyectar el que convenga.</td></tr>
+              </tbody></table>
+              <div class="grp mt-1.5 border-[#820707] bg-[#f6e3e1]">Protección</div>
+              <table class="t t3"><tbody>
+                <tr><td>¿Está protegido?</td><td>No</td><td>Sin protección: no hay trámite de Patrimonio.</td></tr>
+                <tr><td>Ficha del catálogo</td><td>—</td><td></td></tr>
+                <tr><td>Conjunto homogéneo</td><td>—</td><td></td></tr>
+                <tr><td>Qué está protegido</td><td>—</td><td></td></tr>
+                <tr><td>¿Es BIC?</td><td>—</td><td>Bien de Interés Cultural: la protección más alta que existe.</td></tr>
+              </tbody></table>
+            </section>
+
+            <section class="caja px-2.5 py-2"><span class="rot">Fotos de la opp</span><div class="mt-2 flex gap-2"><div class="h-[64px] w-[64px] rounded-[8px] bg-black/10"></div><div class="h-[64px] w-[64px] rounded-[8px] bg-black/10"></div><div class="flex h-[64px] w-[64px] items-center justify-center rounded-[8px] border border-dashed border-black/25 text-[18px] text-black/30">+</div></div></section>
+          </div>
+
+          <!-- en medio: arriba lo que hemos visto, debajo las miniaturas apiladas -->
+          <div class="flex flex-col gap-[10px]">
+            <section class="rounded-[10px] bg-[#E4EED9] px-3 py-2.5">
+              <div class="border-b border-black/15 pb-1 text-[10px] font-bold uppercase tracking-normal text-[#1c1c1c] underline">Lo que hemos visto nosotros</div>
+              <div class="mt-2 flex flex-col gap-2.5 text-[12.5px]">
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Tiene ascensor?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Portal accesible?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <div class="flex items-center justify-between"><b class="text-[#0C8124]">¿Tiene patios?</b><span class="flex gap-1"><span class="sn">Sí</span><span class="sn">No</span></span></div>
+                <span class="text-right text-[10.5px] text-black/40">sin mirar</span>
+              </div>
+            </section>
+            <section class="caja p-2.5">
+              <span class="rot">Las imágenes <span class="font-normal normal-case tracking-normal text-black/40">· pincha para ampliar</span></span>
+              <div class="mt-2 flex flex-col gap-2">
+                <div><img src="bloque1-arriba/croquis.png" class="h-[120px] w-full cursor-zoom-in rounded-[8px] border border-[#d9d9d9] object-cover"><div class="text-center text-[10px] text-black/40">Croquis catastral</div></div>
+                <div><img src="bloque1-arriba/aerea.png" class="h-[120px] w-full cursor-zoom-in rounded-[8px] border border-[#d9d9d9] object-cover"><div class="text-center text-[10px] text-black/40">Vista aérea</div></div>
+                <div class="flex h-[60px] items-center justify-center rounded-[8px] border border-dashed border-black/20 text-[10.5px] text-black/40">Polycam · llega solo por el buzón</div>
+              </div>
+              <div class="mt-2 text-[11px] underline">Visor oficial del Catastro</div>
+            </section>
+          </div>
+
+          <!-- el diario: grabar en una línea -->
+          <div class="flex flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2">
+            <div class="flex items-center gap-2">
+              <div class="h-[34px] flex-1 rounded-lg border border-black/30 bg-white px-2.5 py-1.5 text-[12.5px] text-black/40">Añadir una nueva nota</div>
+              <span class="rounded-[6px] bg-[#5680A1] px-3 py-1.5 text-[11.5px] font-bold uppercase text-white">Guardar</span>
+            </div>
+            <div class="text-[13px]"><div class="px-2 pt-1.5"><span class="rot">Lo que va pasando</span></div>
+              <div class="divide-y divide-black/5">
+                <div class="px-2 py-2"><div class="text-[12px] text-black/55"><b class="text-black/80">28/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">visita</span> <span class="text-[#3f7a1c]">Beatriz Martínez</span></div><p class="mt-1 leading-snug">Hemos ido a ver el portal. El foso da problemas, hay contadores que habría que mover.</p></div>
+                <div class="px-2 py-2"><div class="text-[12px] text-black/55"><b class="text-black/80">27/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">llamada</span> <span class="text-[#3f7a1c]">Fermín Monge</span></div><p class="mt-1 leading-snug">Me llama Fermín: el martes me lleva a ver tres portales que tienen ascensor.</p></div>
+                <div class="px-2 py-2"><div class="text-[12px] text-black/55"><b class="text-black/80">22/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">correo</span> <span class="text-[#3f7a1c]">Beatriz Martínez</span></div><p class="mt-1 leading-snug">Me pasa el acta de la última junta. Aprobaron pedir presupuestos.</p></div>
+                <div class="px-2 py-2"><div class="text-[12px] text-black/55"><b class="text-black/80">15/09</b> <span class="rounded-full border border-black/5 bg-[#f7f7f5] px-2 text-[11px]">llamada</span> <span class="text-[#3f7a1c]">Toñi Cárdenas</span></div><p class="mt-1 leading-snug">La comisión quiere ver el 3D antes de convocar. Quedamos en pasarlo la semana que viene.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Piezas que se repiten -->
+<template id="t-barra">
+  <div class="mt-[10px] rounded-[10px] bg-[#232323] px-4 pb-3 pt-3 PROP">
+    <div class="mb-1.5 grid gap-1.5 text-[10.5px] font-semibold text-white/50" style="grid-template-columns:repeat(10,1fr)">
+      <span>1 Alta</span><span>2 Cita</span><span class="text-white">3 Polycam</span><span>4 Viabilidad</span><span>5 Documentos</span><span>6 Envío</span><span>7 Junta</span><span>8 Voto</span><span>9 Firma</span><span>10 Cobro</span>
+    </div>
+    <div class="grid items-center gap-1.5" style="grid-template-columns:repeat(10,1fr)">
+      <span class="h-2 rounded bg-[#8CCB4E]"></span><span class="h-2 rounded bg-[#8CCB4E]"></span><span class="h-3.5 rounded border-2 border-[#B5E08A] bg-[#4E8A25]"></span>
+      <span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span><span class="h-2 rounded bg-white/25"></span>
+    </div>
+  </div>
+</template>
+<template id="t-pest">
+  <div class="flex gap-1">
+    <span class="tab bg-[#104269] text-white">1 · Toma de datos <span class="font-normal text-white/60">· Falta el Polycam</span></span>
+    <span class="tab bg-white/60 text-black/60">2 · Documentación</span>
+    <span class="tab bg-white/60 text-black/60">3 · Decisión de los vecinos</span>
+    <span class="tab bg-white/60 text-black/60">4 · Cierre</span>
+  </div>
+</template>
+<template id="t-contenido">
+  <div class="grid items-start gap-[10px]" style="grid-template-columns:1fr 358px">
+    <div class="flex min-w-0 flex-col gap-[10px]">
+      <div class="grid gap-[10px]" style="grid-template-columns:2.4fr minmax(280px,1fr)">
+        <section class="caja p-3">
+          <span class="rot">Las imágenes</span>
+          <div class="mt-2 grid grid-cols-3 gap-2.5">
+            <div class="aspect-[4/3] rounded-[10px] bg-[repeating-linear-gradient(45deg,#e8e8e8,#e8e8e8_6px,#f4f4f4_6px,#f4f4f4_12px)]"></div>
+            <div class="aspect-[4/3] rounded-[10px] bg-[#9fb59a]"></div>
+            <div class="flex aspect-[4/3] items-center justify-center rounded-[10px] border border-dashed border-black/20 text-[11px] text-black/40">Polycam · llega solo por el buzón</div>
+          </div>
+        </section>
+        <section class="rounded-[10px] bg-[#E4EED9] px-3 py-2.5 text-[12.5px]">
+          <div class="border-b border-black/15 pb-1 text-[12px] font-bold uppercase tracking-[0.09em] underline">Lo que hemos visto nosotros</div>
+          <p class="mt-2.5">¿Tiene ascensor? <b>No</b> <span class="text-black/45">· Ana, 14/10</span></p>
+          <p class="mt-2">¿Portal accesible? <b>Dos escalones</b></p>
+          <p class="mt-2">Patios: <b>1</b></p>
+        </section>
+      </div>
+      <section class="caja p-3">
+        <div class="mb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#104269]">Lo que dice el Catastro</div>
+        <table class="w-full"><tbody>
+          <tr><td class="w-[200px] text-black/50">Año de construcción</td><td><b>1962</b></td><td class="text-black/50">pre aislamiento</td></tr>
+          <tr><td class="text-black/50">Viviendas</td><td><b>24</b></td><td></td></tr>
+          <tr><td class="text-black/50">Plantas</td><td><b>B+6</b></td><td></td></tr>
+          <tr><td class="text-black/50">Superficie construida</td><td><b>2.340 m²</b></td><td></td></tr>
+          <tr><td class="text-black/50">Locales</td><td><b>2</b></td><td></td></tr>
+        </tbody></table>
+      </section>
+      <section class="caja border-l-4 border-l-[#0C8124] p-3">
+        <div class="mb-1 text-[11px] font-bold uppercase tracking-[0.09em] text-[#0C8124]">Lo que condiciona lo que puedo pedir</div>
+        <table class="w-full"><tbody>
+          <tr><td class="w-[200px] text-black/50">IEE</td><td><b>Desfavorable</b> · 2019</td><td class="text-black/50">accesibilidad sin resolver</td></tr>
+          <tr><td class="text-black/50">Zona</td><td><b>APIRU</b></td><td></td></tr>
+          <tr><td class="text-black/50">Subvenciones a 800 m</td><td><b>1.240.000 €</b> en 18 obras</td><td></td></tr>
+        </tbody></table>
+      </section>
+    </div>
+    <div class="flex flex-col gap-[10px]">
+      <div class="caja p-4"><span class="rot mb-2">Grabar aquí</span><div class="h-[88px] rounded-lg border border-black/30"></div><div class="mt-2 flex justify-end"><span class="rounded-[6px] bg-[#5680A1] px-3.5 py-1.5 text-[12px] font-bold uppercase text-white">Guardar</span></div></div>
+      <div class="caja p-4 text-[13px]"><span class="rot mb-2">Lo que va pasando</span><p><b class="text-[12px]">14/10/26</b> Llamada con Ana: quieren ascensor, en la junta de noviembre…</p><p class="mt-3"><b class="text-[12px]">09/10/26</b> Alta de la opp por Fincas Centro.</p></div>
+    </div>
+  </div>
+</template>
+
+<script>
+  const t = (id) => document.getElementById(id).innerHTML;
+  document.getElementById("barra-ahora").innerHTML = t("t-barra");
+  document.getElementById("barra-prop").innerHTML = t("t-barra").replace("mt-[10px] rounded-[10px]", "rounded-none").replace("pt-3", "pt-2").replace("pb-3", "pb-2.5");
+  document.getElementById("pest-ahora").innerHTML = t("t-pest");
+  document.getElementById("pest-prop").innerHTML = t("t-pest");
+  document.querySelectorAll(".contenido").forEach((c) => (c.innerHTML = t("t-contenido")));
+
+  const ver = (v) => {
+    document.querySelectorAll(".vista").forEach((x) => x.classList.toggle("on", x.id === v));
+    document.querySelectorAll(".sel").forEach((b) => b.classList.toggle("bg-white/20", b.dataset.v === v));
+    history.replaceState(null, "", "#ver-" + v);
+  };
+  document.querySelectorAll(".sel").forEach((b) => (b.onclick = () => ver(b.dataset.v)));
+  document.getElementById("barra-tuya").innerHTML = t("t-barra").replace("mt-[10px] ", "h-full ");
+  document.getElementById("pest-tuya").innerHTML = t("t-pest");
+  document.getElementById("barra-esp").innerHTML = t("t-barra").replace("mt-[10px] ", "h-full ");
+  ver(["ahora", "propuesta", "tuya"].includes(location.hash.replace("#ver-", "")) ? location.hash.replace("#ver-", "") : "espacios");
+  const abrir3 = document.getElementById("abrir3");
+  abrir3.onclick = () => {
+    const d = document.getElementById("desplegada3");
+    d.classList.toggle("hidden");
+    abrir3.textContent = d.classList.contains("hidden") ? "▾ Ver completa" : "▴ Plegar";
+  };
+  const et3 = document.getElementById("estado-tira3");
+  et3.onclick = () => {
+    const a = document.getElementById("tira-antes3"), d = document.getElementById("tira-despues3");
+    const antes = !a.classList.contains("hidden");
+    a.classList.toggle("hidden", antes); a.classList.toggle("grid", !antes);
+    d.classList.toggle("hidden", !antes); d.classList.toggle("grid", antes);
+    et3.textContent = antes ? "volver a la tira de antes del Polycam" : "ver la tira cuando ya ha llegado el Polycam";
+  };
+  const abrir2 = document.getElementById("abrir2");
+  abrir2.onclick = () => {
+    const d = document.getElementById("desplegada2");
+    d.classList.toggle("hidden");
+    abrir2.textContent = d.classList.contains("hidden") ? "▾" : "▴";
+  };
+
+  const abrir = document.getElementById("abrir");
+  abrir.onclick = () => {
+    const d = document.getElementById("desplegada");
+    d.classList.toggle("hidden");
+    abrir.textContent = d.classList.contains("hidden") ? "▾ Ver toda la cabecera" : "▴ Plegar";
+  };
+  const et = document.getElementById("estado-tira");
+  et.onclick = () => {
+    const a = document.getElementById("tira-antes"), d = document.getElementById("tira-despues");
+    const ahora = a.classList.contains("hidden");
+    a.classList.toggle("hidden", !ahora); a.classList.toggle("flex", ahora);
+    d.classList.toggle("hidden", ahora); d.classList.toggle("flex", !ahora);
+    et.textContent = ahora ? "ver la tira cuando ya ha llegado el Polycam" : "volver a la tira de antes del Polycam";
+  };
+</script>
+</body>
+</html>
