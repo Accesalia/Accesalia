@@ -133,6 +133,8 @@ export type Gestion = {
   estado: string;
   /** Si se anulo por duplicada: la buena (16-oct-2026). */
   duplicadaDe: { id: string; codigo: string | null; nombre: string | null } | null;
+  /** Si se anulo por error de alta: por que. */
+  motivoAnulacion: string | null;
   comercial: string | null;
   /** Para elegirlo en la ficha: ninguna de las 1.228 migradas lo tiene aun. */
   comercialId: string | null;
@@ -248,6 +250,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comercial_id: string | null;
       comercial: { nombre: string } | null;
       duplicada: { id: string; codigo: string | null; nombre: string | null } | null;
+      motivo_anulacion: string | null;
       puesto: { cargo: string | null; telefono_empresa: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string; municipio: string | null } | null } | null;
       contacto_provisional: string | null;
       telefono_provisional: string | null;
@@ -261,7 +264,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     `oportunidades?select=id,codigo,nombre,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
-      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),` +
+      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),motivo_anulacion,` +
       `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia,municipio)),` +
       `contacto_provisional,telefono_provisional,` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
@@ -325,6 +328,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     comunidadId: op.comunidad_id,
     estado: op.estado,
     duplicadaDe: op.duplicada ?? null,
+    motivoAnulacion: op.motivo_anulacion,
     comercial: op.comercial?.nombre ?? null,
     comercialId: op.comercial_id,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,
@@ -587,10 +591,33 @@ export async function comercialesActivos(): Promise<{ id: string; nombre: string
  *  niega si la duplicada ya tiene hoja, presupuesto, proforma o factura.
  *  Devuelve lo que se movio ("2 notas, 1 cita"). */
 export async function anularPorDuplicada(oportunidadId: string, buenaId: string, quien: string): Promise<string> {
-  const r = await fetch(`${URL_BASE}/rest/v1/rpc/anular_por_duplicada`, {
+  const movido = (await rpc("anular_por_duplicada", { p_opp: oportunidadId, p_buena: buenaId, p_quien: quien })) as string;
+  recalcularLuego(buenaId);
+  return movido;
+}
+
+/** ANULARLA POR ERROR DE ALTA (Monica, 16-oct-2026): una prueba, una direccion
+ *  equivocada, una que no era nuestra. Sin buena: lo que tenga se queda con
+ *  ella. Igual que la duplicada, no se borra y deja de salir en todas partes. */
+export async function anularPorError(oportunidadId: string, motivo: string, quien: string): Promise<void> {
+  if (!motivo.trim()) throw new Error("Escribe por qué se anula.");
+  await rpc("anular_por_error", { p_opp: oportunidadId, p_motivo: motivo.trim(), p_quien: quien });
+}
+
+/** Reabrir una anulada (por si alguien se equivoco): vuelve a abierta con sus
+ *  portales. Lo que se paso a la buena en una duplicada se queda alli. */
+export async function reabrirAnulada(oportunidadId: string, quien: string): Promise<void> {
+  await rpc("reabrir_anulada", { p_opp: oportunidadId, p_quien: quien });
+  recalcularLuego(oportunidadId);
+}
+
+/** Una funcion de la base; si se niega, su frase tal cual, que esta escrita
+ *  para leerla ("tiene hoja de encargo: no se anula"). */
+async function rpc(nombre: string, args: Record<string, unknown>): Promise<unknown> {
+  const r = await fetch(`${URL_BASE}/rest/v1/rpc/${nombre}`, {
     method: "POST",
     headers: { ...cabeceras, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_opp: oportunidadId, p_buena: buenaId, p_quien: quien }),
+    body: JSON.stringify(args),
   });
   if (!r.ok) {
     const t = await r.text();
@@ -602,6 +629,6 @@ export async function anularPorDuplicada(oportunidadId: string, buenaId: string,
     }
     throw new Error(dice);
   }
-  recalcularLuego(buenaId);
-  return (await r.json()) as string;
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
 }

@@ -6,6 +6,8 @@ import { informeEdificio } from "../../../../lib/informeEdificio";
 import { barrerNuestrasDirecciones, direccionDeAcceso } from "../../../../lib/ieePorDireccion";
 import {
   anularPorDuplicada,
+  anularPorError,
+  reabrirAnulada,
   pausar,
   cerrar,
   reabrir,
@@ -325,10 +327,17 @@ export async function accionVolverAConsultar(oppId: string, referencia: string):
   }
 }
 
-/** ANULAR POR DUPLICADA (Monica, 16-oct-2026). La buena se elige de las otras
- *  opps de la direccion o se escribe su codigo. Hecho, se va a la buena. */
-export async function accionAnularDuplicada(id: string, fd: FormData) {
+/** ANULAR, Y LUEGO LA RAZON (Monica, 16-oct-2026): "no duplicada, sino anular,
+ *  y luego ya eliges la razon". Por error: con su porque, se queda en esta.
+ *  Duplicada: la buena se elige de las otras opps de la direccion o se escribe
+ *  su codigo, y se va a la buena. */
+export async function accionAnular(id: string, fd: FormData) {
   const yo = await permiso(id);
+  if (fd.get("razon") === "error") {
+    await anularPorError(id, String(fd.get("motivo") ?? ""), yo.id);
+    refrescar(id);
+    return;
+  }
   let buena = String(fd.get("buena") ?? "").trim();
   const codigo = String(fd.get("codigo") ?? "").trim().toUpperCase();
   if (!buena && codigo) {
@@ -347,4 +356,10 @@ export async function accionAnularDuplicada(id: string, fd: FormData) {
   refrescar(id);
   refrescar(buena);
   redirect(`/comercial/oportunidades/${buena}`);
+}
+
+export async function accionReabrirAnulada(id: string) {
+  const yo = await permiso(id);
+  await reabrirAnulada(id, yo.id);
+  refrescar(id);
 }

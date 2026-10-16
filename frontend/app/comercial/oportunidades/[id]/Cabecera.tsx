@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
-import { accionAnadirInteres, accionAnularDuplicada, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReactivar } from "./acciones";
+import { accionAnadirInteres, accionAnular, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReabrirAnulada, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { TiraFases } from "./BarraFases";
 import { CabeceraPlegable } from "./CabeceraPlegable";
@@ -297,14 +297,21 @@ export function Estado({ id, g, cab }: { id: string; g: Gestion; cab: DatosCabec
         <span className="text-[9.5px] font-bold uppercase tracking-[0.07em] text-carbon/45">Estado</span>
         <span className="h-4 border-l border-carbon/35" />
         <span className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-bold uppercase text-carbon/60">
-          Anulada por duplicada
+          {g.duplicadaDe ? "Anulada por duplicada" : "Anulada por error"}
           <i className="inline-block h-2.5 w-2.5 rounded-full bg-carbon/25" />
         </span>
-        {g.duplicadaDe && (
-          <Link href={`/comercial/oportunidades/${g.duplicadaDe.id}`} className="ml-auto text-[12.5px] font-semibold text-accion-marco underline">
+        {g.duplicadaDe ? (
+          <Link href={`/comercial/oportunidades/${g.duplicadaDe.id}`} className="text-[12.5px] font-semibold text-accion-marco underline">
             Ir a la buena: {[g.duplicadaDe.codigo, g.duplicadaDe.nombre].filter(Boolean).join(" · ")}
           </Link>
+        ) : (
+          g.motivoAnulacion && <span className="min-w-0 truncate text-[12.5px] text-carbon/70" title={g.motivoAnulacion}>{g.motivoAnulacion}</span>
         )}
+        <form action={accionReabrirAnulada.bind(null, id)} className="ml-auto">
+          <button className="rounded-[5px] border border-carbon/25 bg-white px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-carbon/60 transition hover:border-carbon/50">
+            Reabrir
+          </button>
+        </form>
       </div>
     );
   const [texto, punto, color] = e.ganada
@@ -385,19 +392,26 @@ function Botones({ id, g, porCobrar, cerrada, otras }: { id: string; g: Gestion;
             <input type="radio" name="tipo" value="perdida" defaultChecked /> Perdida
           </label>
           <label className="mt-1 flex items-center gap-2 text-[13px] text-carbon">
-            <input type="radio" name="tipo" value="otra" /> Otra razón (duplicada, error de alta, no localizable…)
+            <input type="radio" name="tipo" value="otra" /> Otra razón (no localizable…)
           </label>
           <span className={ROTULO + " mt-2.5 block"}>¿Por qué?</span>
           <textarea name="motivo" required rows={3} placeholder="se han ido con otro arquitecto, no hay dinero…" className={CAMPO + " mt-1 resize-y"} />
           <button className={BOTON + " mt-2 w-full"}>Cerrarla</button>
         </form>
       </details>
-      {/* ANULAR POR DUPLICADA (16-oct-2026): ni perdida ni cerrada. Lo suyo pasa
-          a la buena y esta deja de salir en todas partes. */}
+      {/* ANULAR, Y LUEGO LA RAZON (16-oct-2026): ni perdida ni cerrada. No se
+          borra, pero deja de salir en todas partes. */}
       <details className="relative">
-        <summary className={PASTILLA + " cursor-pointer list-none border-carbon/25 bg-white text-carbon/60 hover:border-carbon/50"}>Duplicada</summary>
-        <form action={accionAnularDuplicada.bind(null, id)} className={CAJA + " absolute right-0 top-full z-30 mt-2 w-[360px] p-3"}>
-          <span className={ROTULO}>¿Cuál es la buena?</span>
+        <summary className={PASTILLA + " cursor-pointer list-none border-carbon/25 bg-white text-carbon/60 hover:border-carbon/50"}>Anular</summary>
+        <form action={accionAnular.bind(null, id)} className={CAJA + " absolute right-0 top-full z-30 mt-2 w-[360px] p-3"}>
+          <span className={ROTULO}>¿Por qué se anula?</span>
+          <label className="mt-1.5 flex items-center gap-2 text-[13px] text-carbon">
+            <input type="radio" name="razon" value="error" defaultChecked /> Creada por error
+          </label>
+          <textarea name="motivo" rows={2} placeholder="dirección equivocada, era una prueba, no es nuestra…" className={CAMPO + " mt-1 resize-y"} />
+          <label className="mt-2.5 flex items-center gap-2 text-[13px] text-carbon">
+            <input type="radio" name="razon" value="duplicada" /> Duplicada de otra. ¿Cuál es la buena?
+          </label>
           {otras.filter((o) => !o.cerrada).length > 0 && (
             <select name="buena" defaultValue="" className={CAMPO + " mt-1"}>
               <option value="">— de esta dirección —</option>
@@ -413,10 +427,10 @@ function Botones({ id, g, porCobrar, cerrada, otras }: { id: string; g: Gestion;
           )}
           <input name="codigo" placeholder="o su código: ALV-2026-155" className={CAMPO + " mt-1.5"} />
           <p className="mt-2 text-[11.5px] leading-snug text-carbon/65">
-            Esta se anula: no se borra, pero deja de salir en listas, carteras y estadísticas. Sus notas, citas, viabilidades y
-            documentos pasan a la buena. Si tiene hoja, presupuesto o factura, no se puede.
+            No se borra, pero deja de salir en listas, carteras y estadísticas, y se puede reabrir. Si es duplicada, sus notas,
+            citas, viabilidades y documentos pasan a la buena. Con hoja, presupuesto o factura no se puede.
           </p>
-          <button className={BOTON + " mt-2 w-full"}>Anular esta como duplicada</button>
+          <button className={BOTON + " mt-2 w-full"}>Anularla</button>
         </form>
       </details>
     </>
