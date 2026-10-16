@@ -55,7 +55,7 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
           { clave: "buscar", titulo: "Buscar dirección" },
           { clave: "contratado", titulo: "Todo lo contratado" },
           { clave: "proximos", titulo: "Próximos hitos" },
-          { clave: "facturas", titulo: "Facturas emitidas" },
+          { clave: "facturas", titulo: "Facturas emitidas", href: "/facturacion/cobrar/facturas" },
           // No esta en la maqueta: se queda hasta que «Buscar dirección» la sustituya.
           { clave: "por-cobrar", titulo: "Lo que queda por cobrar", href: "/facturacion/cobrar/por-cobrar" },
         ],
