@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../lib/sesion";
-import { fechaDeHito, fraccionarHito, libroDeHito, notaDeHito, pausarHito, puedeVerCobros, puedeVerEcobalance, puedeVerLibro } from "../../lib/cobros";
+import { cambiarHito, fechaDeHito, fraccionarHito, libroDeHito, notaDeHito, pausarHito, puedeVerCobros, puedeVerEcobalance, puedeVerLibro } from "../../lib/cobros";
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -26,6 +26,7 @@ async function hacer(oppId: string, f: () => Promise<void>): Promise<Resultado> 
     revalidatePath("/facturacion");
     revalidatePath(`/ecobalance/${oppId}`);
     revalidatePath("/ecobalance");
+    revalidatePath("/facturacion/cobrar/modificar");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
@@ -45,6 +46,12 @@ export async function accionPausa(oppId: string, hitoId: string, pausar: boolean
 export async function accionFecha(oppId: string, hitoId: string, fecha: string | null) {
   await permiso(hitoId);
   return hacer(oppId, () => fechaDeHito(hitoId, fecha));
+}
+
+/** Modificar Hitos (Cobrar): fecha o importe, con el porque. */
+export async function accionCambiarHito(oppId: string, hitoId: string, cambio: { fecha?: string | null; importe?: number }, motivo: string) {
+  const yo = await permiso(hitoId);
+  return hacer(oppId, () => cambiarHito(hitoId, cambio, motivo, yo));
 }
 
 export async function accionFraccionar(oppId: string, hitoId: string, partes: { importe: number; fecha: string | null }[], motivo: string) {

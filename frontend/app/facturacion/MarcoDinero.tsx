@@ -43,7 +43,7 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
         titulo: "Para hacer",
         items: [
           { clave: "nuevas", titulo: "Nuevas Hojas Encargo Firmadas", href: "/facturacion/cobrar", cuenta: c.nuevas },
-          { clave: "modificar", titulo: "Modificar Hitos" },
+          { clave: "modificar", titulo: "Modificar Hitos", href: "/facturacion/cobrar/modificar" },
           { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/proximos?ver=ya", cuenta: c.facturable },
           { clave: "proforma", titulo: "Generar Proforma", href: "/facturacion/proformas" },
           { clave: "sin-justificante", titulo: "Facturas sin justificante", href: "/facturacion/cobrar/sin-justificante", cuenta: c.sinJustificante },
@@ -52,7 +52,7 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
       {
         titulo: "Consultar",
         items: [
-          { clave: "buscar", titulo: "Buscar dirección" },
+          { clave: "buscar", titulo: "Buscar dirección", href: "/facturacion/cobrar/buscar" },
           { clave: "contratado", titulo: "Todo lo contratado", href: "/facturacion/cobrar/contratado" },
           { clave: "proximos", titulo: "Próximos hitos", href: "/facturacion/cobrar/proximos" },
           { clave: "facturas", titulo: "Facturas emitidas", href: "/facturacion/cobrar/facturas" },

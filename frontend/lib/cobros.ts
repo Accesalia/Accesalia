@@ -372,6 +372,32 @@ export async function fechaDeHito(hitoId: string, fecha: string | null) {
   await pedir(`hitos_cobro?id=eq.${hitoId}`, { method: "PATCH", body: JSON.stringify({ fecha_prevista: fecha, actualizado_en: new Date().toISOString() }) });
 }
 
+/** MODIFICAR FECHA O IMPORTE DE UN HITO (maqueta validada, Monica, 12-oct-2026:
+ *  "a veces tambien baja importes: mejor cobrar menos que no cobrar"). Siempre con
+ *  el PORQUE, obligatorio: queda en sus notas de facturacion con lo que habia. */
+export async function cambiarHito(hitoId: string, cambio: { fecha?: string | null; importe?: number }, motivo: string, yo: Yo) {
+  if (!motivo.trim()) throw new Error("Escribe de dónde viene el cambio.");
+  const h = await hojaDeHito(hitoId);
+  const [antes] = await leer<{ fecha_prevista: string | null; importe: number | null }[]>(`hitos_cobro?select=fecha_prevista,importe&id=eq.${hitoId}`);
+  const cuerpo: Record<string, unknown> = { actualizado_en: new Date().toISOString(), editado_en: new Date().toISOString(), editado_por: yo.id };
+  const dicho: string[] = [];
+  if (cambio.fecha !== undefined) {
+    if (cambio.fecha && !/^\d{4}-\d{2}-\d{2}$/.test(cambio.fecha)) throw new Error("Fecha no válida.");
+    cuerpo.fecha_prevista = cambio.fecha;
+    dicho.push(`FECHA PREVISTA: ${antes?.fecha_prevista ?? "sin fecha"} → ${cambio.fecha ?? "sin fecha"}`);
+  }
+  if (cambio.importe !== undefined) {
+    if (h.facturas) throw new Error("Este hito ya tiene factura: su importe no se cambia.");
+    if (h.subhitos) throw new Error("Este hito está fraccionado: cambia el de sus subhitos.");
+    if (!(cambio.importe > 0)) throw new Error("El importe tiene que ser mayor que cero.");
+    cuerpo.importe = Math.round(cambio.importe * 100) / 100;
+    dicho.push(`IMPORTE: ${antes?.importe ?? "a éxito"} → ${cuerpo.importe}`);
+  }
+  if (!dicho.length) throw new Error("No hay nada que cambiar.");
+  await pedir(`hitos_cobro?id=eq.${hitoId}`, { method: "PATCH", body: JSON.stringify(cuerpo) });
+  await apuntarNota(hitoId, h.hojaId, `${dicho.join(" · ")}: ${motivo.trim()}`, yo);
+}
+
 /** FRACCIONAR un hito en subhitos pactados con la comunidad, con su importe y su
  *  fecha. La nota del porque es obligatoria ("hable con el admin", "no tienen
  *  caja"). Solo un hito entero: sin subhitos ya y sin facturas propias. */
