@@ -6,7 +6,7 @@ import { areasDe } from "../Areas";
 import { AreasBarra, type PestanaArea } from "../AreasBarra";
 
 // EL MARCO DE COBRAR (maqueta validada por Monica, 12-oct-2026): las cuatro areas
-// arriba, en la barra negra, y a la izquierda el menu de Cobrar. Lo que aun no
+// arriba, en una franja bajo la barra negra (16-oct), y a la izquierda el menu de Cobrar. Lo que aun no
 // esta montado sale en gris con «luego»: se ve que va a existir, pero no lleva
 // a ningun sitio.
 
