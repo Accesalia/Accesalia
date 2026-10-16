@@ -51,6 +51,7 @@ import { esDeGoogle, vincularSolos } from "./revisionPolycam";
 import { nombreDeOpp } from "./direccionOpp";
 
 import { ImapFlow } from "imapflow";
+import nodemailer from "nodemailer";
 import { simpleParser, type Attachment, type ParsedMail } from "mailparser";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -445,6 +446,8 @@ export type Repaso = {
   atascados: { uid: number; desde: string; ultimo: string }[];
   /** Apartados que esta pasada no ha reintentado (aun no ha pasado la hora). */
   esperan: number;
+  /** Correos llegados sin escaneo a cuyo remitente se le ha pedido que lo reenvie. */
+  reclamados: number;
 };
 
 const ESPERA_CORREO_MS = 60_000;
@@ -712,8 +715,9 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   });
 
   const r: Repaso = {
-    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [], atascados: [], esperan: 0,
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [], atascados: [], esperan: 0, reclamados: 0,
   };
+  const porReclamar: Reclamo[] = [];
 
   await cliente.connect();
   // Primero se rescata lo que Gmail aparto, para que entre en ESTA pasada.
@@ -808,6 +812,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
           };
 
           const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
+          let nuevo = false; // primera vez que se ve este correo
 
           // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
           // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
@@ -815,8 +820,10 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
           // pidio -"se guardan los datos... y el archivo que tenga"-.
           if (!adjuntos.length) {
             const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
-            if (id) r.guardados++;
-            else r.repetidos++;
+            if (id) {
+              r.guardados++;
+              nuevo = true;
+            } else r.repetidos++;
           }
 
           // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
@@ -830,6 +837,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
               continue;
             }
             r.guardados++;
+            nuevo = true;
             // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
             // carpeta y dos ficheros con el mismo nombre no se pisan.
             const ruta = `${id}/${limpioNombre(nombre)}${extension(nombre)}`;
@@ -841,6 +849,22 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
             );
             await apuntarRuta(id, ruta);
             r.ficheros++;
+          }
+
+          // SI FALTA ALGO, SE LE PIDE (Monica, 16-oct-2026: "el comercial no ha
+          // debido saber adjuntar el polycam", "o sin direccion en el asunto").
+          // Solo la primera vez que se ve el correo, para no escribirle en cada
+          // pasada. Lo que si trajo se queda guardado igual.
+          const faltaEscaneo = !adjuntos.length && !comun.ruta_polycam;
+          const faltaDireccion = !asuntoConDireccion(correo.subject ?? "");
+          if (nuevo && (faltaEscaneo || faltaDireccion) && sePuedeReclamar(quienVino, usuario, correo)) {
+            porReclamar.push({
+              para: quienVino!,
+              asunto: correo.subject?.trim() || "",
+              idCorreo: correo.messageId ?? null,
+              faltaEscaneo,
+              faltaDireccion,
+            });
           }
 
           // Hecho: leido, y fuera la etiqueta de "no supe colocarlo", que ya no
@@ -876,6 +900,17 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
     else await cliente.logout();
   }
 
+  // Fuera de la conexion IMAP: un SMTP lento no puede atascar el buzon.
+  for (const q of porReclamar) {
+    enPaso(`pedir el escaneo a ${q.para}`);
+    try {
+      await reclamar(usuario, clave, q);
+      r.reclamados++;
+    } catch (e) {
+      r.errores.push(`pedir el escaneo a ${q.para} · ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
   // LA APP VINCULA SOLA lo que no tiene duda (Monica, 14-oct-2026). Si falla, no
   // tumba la pasada: lo vera Alex en "necesito un humano".
   if (r.guardados) {
@@ -886,6 +921,72 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   return r;
 }
 
+
+// ------------------------------------------------- pedir lo que no llego
+
+type Reclamo = { para: string; asunto: string; idCorreo: string | null; faltaEscaneo: boolean; faltaDireccion: boolean };
+
+/** Si el asunto trae algo que pueda ser una direccion. Una direccion lleva
+ *  numero de portal ("MERCURIO 36", "Badajoz 4, Getafe"): un asunto vacio o sin
+ *  ningun numero ("polycam", "escaneo de hoy") no dice de que edificio es. */
+function asuntoConDireccion(asunto: string): boolean {
+  const limpio = asunto.replace(/^\s*((re|fwd?|rv|reenviar)\s*:\s*)+/i, "").trim();
+  return /[a-zñáéíóú]{3,}/i.test(limpio) && /\d/.test(limpio);
+}
+
+/** A quien NO se le contesta: los robots (Polycam, que ya trae enlace), el
+ *  propio buzon, los no-reply y las respuestas automaticas (vacaciones,
+ *  rebotes). Contestar a una automatica es como empiezan los bucles de correo. */
+function sePuedeReclamar(remitente: string | null, buzon: string, correo: ParsedMail): boolean {
+  const mail = correoLlano(remitente ?? "");
+  if (!mail.includes("@")) return false;
+  if (REMITENTES_ROBOT.has(mail) || mail === correoLlano(buzon)) return false;
+  if (/no-?reply|mailer-daemon|postmaster/i.test(mail)) return false;
+  // Una respuesta ("Re: ...") no se vuelve a reclamar: si contesta a nuestro
+  // aviso sin el fichero, no se le escribe otra vez. Asi no hay bucle posible.
+  if (/^\s*re\s*:/i.test(correo.subject ?? "")) return false;
+  const auto = String(correo.headers.get("auto-submitted") ?? "no").toLowerCase();
+  if (auto !== "no") return false;
+  if (correo.headers.get("x-autoreply") || correo.headers.get("x-autorespond")) return false;
+  return true;
+}
+
+function textoReclamo(cual: string, q: Reclamo): string {
+  const falta =
+    q.faltaEscaneo && q.faltaDireccion
+      ? "no trae el escaneo de Polycam (ni el fichero adjunto ni el enlace) y en el asunto no viene la dirección del edificio"
+      : q.faltaEscaneo
+        ? "no trae el escaneo de Polycam: ni el fichero adjunto ni el enlace"
+        : "en el asunto no viene la dirección del edificio, y sin ella no sabemos de cuál es el escaneo";
+  const como = q.faltaEscaneo
+    ? "Desde Polycam: abre el escaneo, Exportar → GLB, y compártelo por correo a esta misma dirección, con la dirección del edificio en el asunto (calle, número y municipio). " +
+      "Si pesa demasiado para adjuntarlo, vale también el enlace de Polycam."
+    : "Reenvíalo con la dirección del edificio en el asunto (calle, número y municipio), con el escaneo adjunto.";
+  return `Hola:\n\nNos ha llegado tu correo ${cual}, pero ${falta}.\n\n¿Puedes volver a enviarlo? ${como}\n\nGracias,\nAccesalia`;
+}
+
+/** La respuesta, desde el mismo buzon y en el mismo hilo: asi le basta con
+ *  contestar con el fichero adjunto. */
+async function reclamar(usuario: string, clave: string, q: Reclamo): Promise<void> {
+  const transporte = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: { user: usuario, pass: clave.replace(/\s+/g, "") },
+  });
+  const cual = q.asunto ? `«${q.asunto}»` : "sin asunto";
+  await transporte.sendMail({
+    from: `"Accesalia · Polycam" <${usuario}>`,
+    to: q.para,
+    subject: q.asunto
+      ? (/^re:/i.test(q.asunto) ? q.asunto : `Re: ${q.asunto}`)
+      : q.faltaEscaneo ? "Falta el escaneo de Polycam" : "Falta la dirección del escaneo",
+    inReplyTo: q.idCorreo ?? undefined,
+    references: q.idCorreo ?? undefined,
+    headers: { "Auto-Submitted": "auto-replied" },
+    text: textoReclamo(cual, q),
+  });
+}
 
 // --------------------------------------------------------------- la bandeja
 
