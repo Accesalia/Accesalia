@@ -4,9 +4,10 @@ import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
 // EL REPASO NOCTURNO DE LOS DIRECTORIOS (Monica, 16-oct-2026).
 //
-// El directorio de personas (directorio_personas) se pone al dia solo, con las
-// reglas de la base, cada vez que cambia algo de lo que lo compone. Esto es la
-// red de seguridad: lo recalcula ENTERO y dice cuantas filas estaban mal. Si
+// Los directorios de personas y de sitios (directorio_personas,
+// directorio_sitios) se ponen al dia solos, con las
+// reglas de la base, cada vez que cambia algo de lo que los compone. Esto es la
+// red de seguridad: los recalcula ENTEROS y dice cuantas filas estaban mal. Si
 // alguna lo estaba, un cambio se escapo a las reglas: hay que buscar cual.
 //
 // La llama el reloj de Vercel de madrugada, y se puede pedir a mano (direccion)
@@ -31,19 +32,23 @@ export async function GET(req: Request) {
   const empezada = Date.now();
   const quien = esElReloj(req) ? "reloj" : "persona";
   try {
-    const r = await fetch(`${URL_BASE}/rest/v1/rpc/directorio_personas_repaso`, {
-      method: "POST",
-      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" },
-      body: "{}",
-      cache: "no-store",
-    });
-    if (!r.ok) throw new Error(`directorio_personas_repaso ${r.status}: ${await r.text()}`);
-    const personas = (await r.json()) as { filas: number; corregidas: number };
+    const repasar = async (funcion: string) => {
+      const r = await fetch(`${URL_BASE}/rest/v1/rpc/${funcion}`, {
+        method: "POST",
+        headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" },
+        body: "{}",
+        cache: "no-store",
+      });
+      if (!r.ok) throw new Error(`${funcion} ${r.status}: ${await r.text()}`);
+      return (await r.json()) as { filas: number; corregidas: number };
+    };
+    const personas = await repasar("directorio_personas_repaso");
+    const sitios = await repasar("directorio_sitios_repaso");
     const dice =
-      `personas: ${personas.filas} filas · ${personas.corregidas} corregidas` +
-      (personas.corregidas ? " (algun cambio no avisa: revisar)" : "");
-    await apuntarPasada({ tarea: TAREA, empezada, ok: true, dice, detalle: { personas }, quien });
-    return NextResponse.json({ ok: true, personas });
+      `personas: ${personas.filas} filas · ${personas.corregidas} corregidas; sitios: ${sitios.filas} filas · ${sitios.corregidas} corregidas` +
+      (personas.corregidas || sitios.corregidas ? " (algun cambio no avisa: revisar)" : "");
+    await apuntarPasada({ tarea: TAREA, empezada, ok: true, dice, detalle: { personas, sitios }, quien });
+    return NextResponse.json({ ok: true, personas, sitios });
   } catch (e) {
     const dice = e instanceof Error ? e.message : String(e);
     await apuntarPasada({ tarea: TAREA, empezada, ok: false, dice, quien });

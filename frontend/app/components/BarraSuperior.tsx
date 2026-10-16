@@ -3,6 +3,7 @@ import Image from "next/image";
 import { quienSoy } from "../../lib/sesion";
 import { salir } from "../entrar/acciones";
 import { BotonLlamada } from "./postit/BotonLlamada";
+import { BuscadorGlobal } from "./BuscadorGlobal";
 import { cuantosPendientes, misAvisos } from "../../lib/misPendientes";
 import { puedeRevisar } from "../../lib/revisionOferta";
 
@@ -46,25 +47,9 @@ export async function BarraSuperior() {
 
         <div className="flex-1" />
 
-        {yo && (
-          <form
-            action="/consulta"
-            role="search"
-            className="hidden w-72 min-w-[9rem] shrink items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 transition focus-within:border-lima md:flex"
-          >
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/60">
-              <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.6" />
-              <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-            <input type="hidden" name="que" value="opp" />
-            <input
-              name="q"
-              aria-label="Buscar una oportunidad"
-              placeholder="Buscar una oportunidad…"
-              className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
-            />
-          </form>
-        )}
+        {/* EL BUSCADOR DE LOS DOS DIRECTORIOS (16-oct-2026): sitios con sus
+            trabajos, y personas, al escribir (components/BuscadorGlobal). */}
+        {yo && <BuscadorGlobal />}
 
         {yo && (
           <div className="flex items-center gap-3">
