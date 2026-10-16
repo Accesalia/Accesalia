@@ -24,3 +24,19 @@ export async function accionQuierenDe(ids: string[]): Promise<Record<string, str
   for (const f of filas) if (f.tipo) (de[f.oportunidad_id] ??= []).push(f.tipo.nombre);
   return de;
 }
+
+/** LOS ADMINISTRADORES PARA ELEGIR, al ponerle administrador a una opp desde la
+ *  cartera (Monica, 16-oct-2026: "el boton de añadir el admin ahi mismo"). Los
+ *  puestos vigentes de administraciones del directorio, con su pista. Se pide al
+ *  pulsar, no al cargar la pantalla. */
+export async function accionAdminsParaElegir(): Promise<{ valor: string; texto: string; pista?: string }[]> {
+  const yo = await quienSoy();
+  if (!yo) return [];
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/directorio_personas?select=fila,nombre,pista&vigente=is.true&donde_tipo=eq.administracion&nombre=neq.&order=nombre.asc&limit=5000`,
+    { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
+  );
+  if (!r.ok) return [];
+  const filas = (await r.json()) as { fila: string; nombre: string; pista: string | null }[];
+  return filas.map((f) => ({ valor: f.fila, texto: f.nombre, pista: f.pista || undefined }));
+}

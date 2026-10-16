@@ -7,11 +7,14 @@ import { useState } from "react";
 // gris, Sali, los contactos), con el texto a la vista para que se sepa que esta.
 export function CabeceraPlegable({
   izquierda,
+  ir,
   caja,
   panel,
 }: {
   /** El codigo, el nombre de la opp y lo que quieren: sobre el verde, sin caja. */
   izquierda: React.ReactNode;
+  /** Ir a otra opp: pegado a la cajita de la derecha (Monica, 16-oct-2026). */
+  ir?: React.ReactNode;
   /** Pendientes de y el admin, en su cajita blanca. */
   caja: React.ReactNode;
   /** Lo que se abre. */
@@ -22,7 +25,9 @@ export function CabeceraPlegable({
     <>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {izquierda}
-        <div className="ml-auto flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-[8px] bg-white px-2.5 py-1">
+        <div className="ml-auto flex min-w-0 items-center gap-2">
+        {ir}
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-[8px] bg-white px-2.5 py-1">
           {caja}
           <button
             type="button"
@@ -32,6 +37,7 @@ export function CabeceraPlegable({
           >
             {abierta ? "▴ Plegar" : "▾ Ver completa"}
           </button>
+        </div>
         </div>
       </div>
       {abierta && <div className="mt-2">{panel}</div>}

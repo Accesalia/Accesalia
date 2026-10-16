@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { CarteraGestores, Etiqueta, GestorCartera, OppDeGestor, Resultado } from "../../lib/carteraGestores";
 import type { OppEntrada } from "../../lib/entradaDiario";
-import type { Opcion } from "../components/Elegir";
+import { Elegir, type Opcion } from "../components/Elegir";
 import { ModalEntrada } from "./ModalEntrada";
 import type { GuardadoEntrada } from "./acciones";
-import { accionQuierenDe } from "./accionesCartera";
+import { accionAdminsParaElegir, accionQuierenDe } from "./accionesCartera";
+import { accionCompletar } from "./oportunidades/[id]/acciones";
 
 // LA CARTERA DE ADMINISTRADORES, HERRAMIENTA DE TRABAJO (Monica, 15-oct-2026).
 // Habla de la cartera, no de las opps: "a quien mimar y a quien ignorar". Lo que
@@ -368,7 +370,7 @@ export function CarteraLateral({ c }: { c: CarteraGestores }) {
     <section className="overflow-hidden rounded-2xl border border-amber-200 bg-amber-50/60">
       <div className="border-b border-amber-200 px-4 pb-2.5 pt-3">
         <div className="text-[14px] font-bold text-amber-900">Opps sin administrador · {c.sinGestor.length}</div>
-        <div className="text-[12px] text-amber-900/80">Pónselo y cuentan en tu cartera. Pincha para ir a la opp.</div>
+        <div className="text-[12px] text-amber-900/80">Pónselo aquí mismo con «+ administrador» y cuenta en tu cartera. Pincha el nombre para ir a la opp.</div>
       </div>
       {c.sinGestor.length === 0 ? (
         <p className="px-4 py-5 text-[12px] text-carbon/65">Ninguna: todas tienen su administrador.</p>
@@ -376,13 +378,14 @@ export function CarteraLateral({ c }: { c: CarteraGestores }) {
         <>
           <ul className="max-h-[46rem] divide-y divide-amber-200/70 overflow-y-auto">
             {vistas.map((o) => (
-              <li key={o.id}>
-                <Link href={`/comercial/oportunidades/${o.id}`} className="block px-4 py-1.5 transition hover:bg-white/70">
+              <li key={o.id} className="flex flex-wrap items-start gap-2 px-4 py-1.5 transition hover:bg-white/70">
+                <Link href={`/comercial/oportunidades/${o.id}`} className="min-w-0 flex-1">
                   <span className="block truncate text-[13px] font-semibold text-carbon">{o.nombre ?? o.codigo ?? "(sin nombre)"}</span>
                   <span className="block truncate text-[11.5px] text-carbon/70">
                     {[o.quieren.join(" · ") || null, o.apertura ? `abierta el ${fecha(o.apertura)}` : null].filter(Boolean).join(" — ")}
                   </span>
                 </Link>
+                <PonerAdmin oppId={o.id} />
               </li>
             ))}
           </ul>
@@ -394,5 +397,64 @@ export function CarteraLateral({ c }: { c: CarteraGestores }) {
         </>
       )}
     </section>
+  );
+}
+
+/** PONERLE ADMINISTRADOR A LA OPP AHI MISMO (Monica, 16-oct-2026). Se elige de
+ *  las personas de administraciones y se guarda al elegir, con la misma accion
+ *  que "Completar" en la ficha de la opp. La lista se pide al pulsar. */
+function PonerAdmin({ oppId }: { oppId: string }) {
+  const router = useRouter();
+  const [abierto, setAbierto] = useState(false);
+  const [opciones, setOpciones] = useState<Opcion[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [ocupado, empezar] = useTransition();
+
+  const abrir = () =>
+    empezar(async () => {
+      setError(null);
+      if (!opciones) setOpciones(await accionAdminsParaElegir());
+      setAbierto(true);
+    });
+  const poner = (puesto: string) =>
+    empezar(async () => {
+      setError(null);
+      const r = await accionCompletar(oppId, { contacto: null, contactoNombre: null, contactoTelefono: null, siguientePaso: null, administrador: puesto });
+      if (!r.ok) return setError(r.error);
+      setAbierto(false);
+      router.refresh();
+    });
+
+  if (!abierto)
+    return (
+      <button
+        type="button"
+        onClick={abrir}
+        disabled={ocupado}
+        className="mt-0.5 shrink-0 whitespace-nowrap rounded-md border border-amber-400 bg-white px-2 py-0.5 text-[11.5px] font-semibold text-amber-900 transition hover:border-amber-600 disabled:opacity-50"
+      >
+        {ocupado ? "…" : "+ administrador"}
+      </button>
+    );
+  return (
+    <div className="basis-full">
+      <Elegir
+        id={`admin-${oppId}`}
+        nombre=""
+        opciones={opciones ?? []}
+        alElegir={(v) => v && poner(v)}
+        vacio="busca al administrador…"
+        conPista
+        abrirAlMontar
+        desactivado={ocupado}
+      />
+      <div className="mt-0.5 flex items-center gap-2 text-[11px]">
+        <button type="button" onClick={() => setAbierto(false)} className="text-carbon/60 underline hover:text-carbon">
+          cancelar
+        </button>
+        {ocupado && <span className="text-carbon/60">guardando…</span>}
+        {error && <span className="text-alerta">{error}</span>}
+      </div>
+    </div>
   );
 }

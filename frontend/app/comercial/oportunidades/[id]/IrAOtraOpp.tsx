@@ -15,7 +15,7 @@ import { accionBuscarOpps } from "./acciones";
 // Al pulsarlo se abre el buscador justo debajo.
 type Fila = { id: string; nombre: string; detalle: string };
 
-export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
+export function IrAOtraOpp({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [filas, setFilas] = useState<Fila[]>([]);
@@ -63,7 +63,7 @@ export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
         title="Ir a otra oportunidad"
         className="group -mx-1.5 inline-flex items-center gap-2 rounded-lg px-1.5 py-0.5 text-left transition hover:bg-white/15"
       >
-        <span>{children}</span>
+        {children && <span>{children}</span>}
         <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-carbon/20 bg-white px-2 py-px text-[11px] font-semibold text-carbon/60 transition group-hover:border-carbon/45 group-hover:text-carbon">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
             <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.8" />
@@ -75,7 +75,7 @@ export function IrAOtraOpp({ children }: { children: React.ReactNode }) {
       </button>
 
       {abierto && (
-        <div className="absolute left-0 top-full z-40 mt-1 w-[min(520px,90vw)] rounded-lg border border-carbon/25 bg-white p-2 shadow-lg">
+        <div className="absolute right-0 top-full z-40 mt-1 w-[min(520px,90vw)] rounded-lg border border-carbon/25 bg-white p-2 shadow-lg">
           <input
             autoFocus
             value={q}

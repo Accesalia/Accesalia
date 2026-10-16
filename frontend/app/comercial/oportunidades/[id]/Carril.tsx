@@ -139,13 +139,16 @@ export function Pestanas({ hitos, visto, id }: { hitos: HitoGestion[]; visto: nu
         // datos · Falta el Polycam".
         const clase =
           "flex min-w-[150px] flex-1 items-baseline gap-1.5 overflow-hidden whitespace-nowrap rounded-t-[10px] px-3.5 py-2 " +
-          (activo ? "text-white" : "mb-1.5 rounded-b-[10px] border border-[#dcdcdc] bg-[#fbfbfb] transition hover:border-[#104269]");
+          // Pegadas al panel, como en su maqueta: las que no se ven, en blanco
+          // translucido sobre el verde, NO en el blanco de las tarjetas ("parecen
+          // botones mal puestos", 16-oct-2026).
+          (activo ? "text-white" : "bg-white/55 transition hover:bg-white/80");
         const dentro = (
           <>
-            <span className={"text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon")}>
+            <span className={"text-[13px] font-bold leading-[1.2] " + (activo ? "text-white" : "text-carbon/70")}>
               {b.n} · {b.titulo}
             </span>
-            <span className={"truncate text-[11.5px] " + (activo ? "text-[#cfcfcf]" : "text-[#8a8a8a]")}>· {b.pie}</span>
+            <span className={"truncate text-[11.5px] " + (activo ? "text-[#cfcfcf]" : "text-carbon/50")}>· {b.pie}</span>
           </>
         );
         return activo ? (

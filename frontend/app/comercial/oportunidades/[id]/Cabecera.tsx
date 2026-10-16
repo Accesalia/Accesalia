@@ -79,20 +79,20 @@ export function Cabecera({
         izquierda={
           <>
             {g.codigo && <span className="text-[11px] font-bold tabular-nums text-carbon/60">{g.codigo}</span>}
-            {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren.
-                Es a la vez el SELECTOR para ir a otra opp (15-oct-2026). */}
-            <IrAOtraOpp>
+            {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren. */}
               <h1 className="whitespace-nowrap text-[19px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_0_rgba(0,0,0,0.15)]">
                 {g.direccion}
                 {cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#1F4E99] [text-shadow:none]">{cab.quieren}</span>}
               </h1>
-            </IrAOtraOpp>
             {/* El aviso de la direccion (provisional...) no se esconde en el panel. */}
             {g.aviso && (
               <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">{g.aviso}</span>
             )}
           </>
         }
+        // IR A OTRA OPP, pegado a la cajita de la derecha y no al nombre
+        // (Monica, 16-oct-2026).
+        ir={<IrAOtraOpp />}
         caja={
           <>
             <span className="text-[10px] font-bold uppercase tracking-[0.03em] text-carbon/50">Pendientes de</span>
