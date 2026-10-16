@@ -400,9 +400,10 @@ async function vivasConFase(comercialId: string | null, fase: string | null) {
  *  Y se cuenta con `leerBarra`, el mismo codigo que pinta la barrita de cada
  *  tarjeta: si el recuento tuviera su propia idea de "en que fase esta", los dos
  *  numeros acabarian discrepando y nadie sabria cual creer. */
-async function agregadoFases(comercialId: string | null, pasos: Paso[]): Promise<AgregadoFase[]> {
+async function agregadoFases(filas: Awaited<ReturnType<typeof vivasConFase>>, pasos: Paso[]): Promise<AgregadoFase[]> {
   // La fase actual ya viene guardada en el estado de la opp: aqui solo se cuenta.
-  const filas = await vivasConFase(comercialId, null);
+  // Las vivas llegan ya leidas: son las mismas que la lista (16-oct-2026: se
+  // pedian dos veces seguidas).
   const cuenta = new Map<string, number>();
   for (const o of filas) if (o.fase_actual) cuenta.set(o.fase_actual, (cuenta.get(o.fase_actual) ?? 0) + 1);
   return pasos.map((p) => ({ clave: p.clave, cuantas: cuenta.get(p.clave) ?? 0 }));
@@ -421,12 +422,14 @@ async function oportunidadesPendientes(
   pasos: Paso[],
   pagina: number,
   fase: string | null = null,
+  /** Las vivas de todas las fases, si ya se han leido (las del recuento). */
+  todasLasVivas?: Awaited<ReturnType<typeof vivasConFase>>,
 ): Promise<{ lista: OportunidadCuadro[]; total: number }> {
   // Solo las de una fase, si se pide ("Opps por fases", Monica, 12-oct-2026).
   // Primero TODAS, pero ligeras: solo para contarlas de verdad y saber cuales
   // caen en esta pagina. Luego, enteras, solo esas.
   // Abierta y con fase: eso lo dice el estado de la opp (estado_oportunidad).
-  const vivas = (await vivasConFase(comercialId, fase))
+  const vivas = (fase || !todasLasVivas ? await vivasConFase(comercialId, fase) : todasLasVivas)
     .map((o) => ({ ...o, id: o.oportunidad_id }))
     // Las mas recientes arriba; sin fecha de apertura, al final.
     .sort((a, b) =>
@@ -438,13 +441,15 @@ async function oportunidadesPendientes(
   const ids = vivas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA).map((o) => o.id);
   if (!ids.length) return { lista: [], total };
   const orden = new Map(ids.map((id, i) => [id, i]));
-  const filas = (
-    await rest<OportunidadCruda[]>(
+  // Las opps de la pagina y sus fases, a la vez (16-oct-2026).
+  const [crudas, fases] = await Promise.all([
+    rest<OportunidadCruda[]>(
       `oportunidades?select=${SEL_OPORTUNIDAD}&id=in.(${ids.join(",")})` +
         "&negociacion_oportunidad.order=creado_en.desc&negociacion_oportunidad.limit=1&vivos.hasta=is.null",
-    )
-  ).sort((a, b) => orden.get(a.id)! - orden.get(b.id)!);
-  const fases = await fasesDe(ids);
+    ),
+    fasesDe(ids),
+  ]);
+  const filas = crudas.sort((a, b) => orden.get(a.id)! - orden.get(b.id)!);
 
   // UNA OPORTUNIDAD ESTA ABIERTA HASTA QUE EL DINERO ESTA EN LA CUENTA, no hasta
   // que se firma (Monica, 28-sep-2026, corrigiendome: aqui ponia "lo firmado ya
@@ -579,15 +584,18 @@ async function carteraDe(comercialId: string | null): Promise<{ cartera: Cartera
   // EL NUMERO DE LA CARTERA (Monica, 14-oct-2026: "no esta bien conectada"): eran
   // las 5 primeras EMPRESAS del modelo viejo. La cartera va por GESTOR: los
   // consolidados que lleva, los mismos que lista la pestaña (cartera_gestores).
-  const cuenta = await fetch(`${URL_BASE}/rest/v1/puesto?select=id&consolidado=is.true&hasta=is.null&contrata_id=is.null${f}`, {
-    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Prefer: "count=exact", Range: "0-0" },
-    cache: "no-store",
-  });
+  // Las dos a la vez (16-oct-2026).
+  const [cuenta, empresas] = await Promise.all([
+    fetch(`${URL_BASE}/rest/v1/puesto?select=id&consolidado=is.true&hasta=is.null&contrata_id=is.null${f}`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Prefer: "count=exact", Range: "0-0" },
+      cache: "no-store",
+    }),
+    rest<{ id: string; nombre_accesalia: string; comunidades: { count: number }[] }[]>(
+      `empresa?select=id,nombre_accesalia,comunidades:comunidad_admin_responsable(count)` +
+        `&tipo=eq.administracion_fincas&comunidades.vigente=is.true${f}&limit=2000`,
+    ),
+  ]);
   const gestores = Number(cuenta.headers.get("content-range")?.split("/")[1] ?? 0) || 0;
-  const empresas = await rest<{ id: string; nombre_accesalia: string; comunidades: { count: number }[] }[]>(
-    `empresa?select=id,nombre_accesalia,comunidades:comunidad_admin_responsable(count)` +
-      `&tipo=eq.administracion_fincas&comunidades.vigente=is.true${f}&limit=2000`,
-  );
   const conN = empresas
     .map((e) => ({ id: e.id, nombre: e.nombre_accesalia, n: e.comunidades?.[0]?.count ?? 0 }))
     .sort((a, b) => b.n - a.n);
@@ -619,17 +627,20 @@ export async function cuadroComercial(
    *  demas no se calculan (13-oct-2026: la app ya iba lenta). */
   conCartera = false,
 ): Promise<CuadroComercial> {
-  const [pasos, u, { cartera }, gestores] = await Promise.all([
+  // Todo lo que no depende de nada, a la vez (16-oct-2026); despues, lo que
+  // necesita los pasos o los gestores.
+  const [pasos, u, { cartera }, gestores, vivas, tareas, entradas] = await Promise.all([
     pasosComerciales(),
     umbrales(),
     carteraDe(comercialId),
     conCartera ? carteraGestores(comercialId) : Promise.resolve(undefined),
-  ]);
-  const [oportunidades, agregado, tareas, entradas, mapa] = await Promise.all([
-    oportunidadesPendientes(comercialId, pasos, pagina, fase),
-    agregadoFases(comercialId, pasos),
+    vivasConFase(comercialId, null),
     agenda(comercialId),
     diario(comercialId),
+  ]);
+  const [oportunidades, agregado, mapa] = await Promise.all([
+    oportunidadesPendientes(comercialId, pasos, pagina, fase, vivas),
+    agregadoFases(vivas, pasos),
     // El mapa: todas las comunidades, o las de los gestores de su cartera.
     !conCartera ? Promise.resolve(datosMapa([])) : comercialId ? mapaDePuestos(gestores?.puestoIds ?? []) : mapaDe(null),
   ]);

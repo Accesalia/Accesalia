@@ -10,7 +10,7 @@ import { Grabar } from "./Grabar";
 import { CarteraConsolidados, CarteraLateral } from "./CarteraGestores";
 import { BuscarOportunidad } from "./BuscarOportunidad";
 import { CANALES, opcionesEntrada } from "../../lib/entradaDiario";
-import { cuantasPendientes } from "../../lib/pendientes";
+import { misAvisos } from "../../lib/misPendientes";
 import {
   Agenda,
   Pestana,
@@ -119,18 +119,32 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   const accesos = !ver;
   const seccion: Seccion = SECCIONES.includes(ver as Seccion) ? (ver as Seccion) : "agenda";
   const faseElegida = seccion === "fases" && fase ? fase : null;
-  const cuadro = esDemo ? await cuadroDemo() : await cuadroComercial(elegido?.id ?? null, pagina, faseElegida, seccion === "administradores");
+  // TODO A LA VEZ (16-oct-2026: "cambiar de pestaña sigue tardando 2-3 s"): en
+  // cuanto se sabe que comercial se mira, el cuadro, las listas de la ventana de
+  // grabar, las notas por colocar y lo de la pestaña se piden juntos, no uno
+  // detras de otro.
+  //  - Las listas de la ventana: en la demo no se ofrece nada (lo de ahi es
+  //    inventado y no existe en la base).
+  //  - Las notas por colocar salen de los avisos de la barra (misAvisos), que ya
+  //    se han pedido para esta misma pantalla.
+  //  - La agenda de ESE comercial (14-oct-2026): solo con un comercial elegido;
+  //    "todas las carteras" no es la agenda de nadie.
+  //  - Las alertas (15-oct-2026) y Opps por fases (15-oct-2026), solo en su pestaña.
+  const [cuadro, [paraGrabar, pendientes], equipoAgenda, alertas, porFases] = await Promise.all([
+    esDemo ? cuadroDemo() : cuadroComercial(elegido?.id ?? null, pagina, faseElegida, seccion === "administradores"),
+    esDemo
+      ? Promise.resolve<[Awaited<ReturnType<typeof opcionesEntrada>>, number]>([{ oportunidades: [], personas: [] }, 0])
+      : Promise.all([opcionesEntrada(), misAvisos(yo).then((a) => a.notas)]),
+    seccion === "agenda" && elegido && !esDemo ? equipoDeComercial(elegido.id) : Promise.resolve(null),
+    seccion === "alertas" && !esDemo ? resumenComercial(elegido?.id ?? null).then((r) => r.filas) : Promise.resolve([]),
+    seccion === "fases" && !esDemo ? oppsPorFases(elegido?.id ?? null) : Promise.resolve([]),
+  ]);
   // La cartera POR GESTOR, conectada a la base (13-oct-2026). La demo sigue con la suya.
   const carteraNueva = seccion === "administradores" && !esDemo && !!cuadro.gestores;
   const nombre = esDemo ? "Fantasma" : elegido && direccion ? elegido.nombre : yo.nombre;
 
   const hoy = FECHA_LARGA.format(new Date());
   const hoyISO = new Date().toLocaleDateString("sv-SE");
-  // Las listas de la ventana de grabar una entrada. En la demo no se ofrece
-  // nada: lo que se ve ahi es inventado y no existe en la base.
-  const [paraGrabar, pendientes] = esDemo
-    ? [{ oportunidades: [], personas: [] }, 0]
-    : await Promise.all([opcionesEntrada(), cuantasPendientes(yo).catch(() => 0)]);
   const pill = (activo: boolean) =>
     "rounded-full border px-3.5 py-1.5 text-sm transition " +
     (activo ? "border-lima bg-lima font-semibold text-carbon" : "border-black/10 bg-white text-carbon/65 hover:border-lima");
@@ -162,16 +176,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     return "/comercial?" + q.toString();
   };
 
-  // LA AGENDA DE ESE COMERCIAL (Monica, 14-oct-2026): su hoja del dia, con sus
-  // citas. Solo cuando hay un comercial elegido: cada persona tiene la suya, y
-  // "todas las carteras" no es la agenda de nadie.
-  const equipoAgenda = seccion === "agenda" && elegido && !esDemo ? await equipoDeComercial(elegido.id) : null;
-  // LAS ALERTAS (Monica, 15-oct-2026): pestaña de aqui, no pagina aparte. En la
-  // demo no hay: lo de la demo es inventado.
-  const alertas = seccion === "alertas" && !esDemo ? (await resumenComercial(elegido?.id ?? null)).filas : [];
-  // OPPS POR FASES (Monica, 15-oct-2026): todas las abiertas, fase > copy > opps,
-  // con el mapa al lado. Sin la columna del diario: la lista necesita el ancho.
-  const porFases = seccion === "fases" && !esDemo ? await oppsPorFases(elegido?.id ?? null) : [];
+  // OPPS POR FASES: sin la columna del diario, la lista necesita el ancho.
   const sinDiario = seccion === "fases";
   // El "vista" de la direccion ya era el cambio agenda / calendario; el de dia o
   // semana va en "hoja".
