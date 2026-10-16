@@ -216,7 +216,7 @@ export async function enviarFactura(
       method: "POST",
       body: JSON.stringify({
         factura_id: fa.id, fecha_cobro: l.justificante?.diaCargo ?? fecha, importe: l.justificante?.importe ?? total, tipo: "cargo_en_cuenta",
-        justificante: `almacen:facturas/${rutaJ}`, fichero_origen: justificante.nombre, subido_por: yo.id,
+        justificante: `almacen:facturas/${rutaJ}`, fichero_origen: null, subido_por: yo.id, // fichero_origen es solo de la carga desde Drive (hilo 68)
       }),
     });
   }
