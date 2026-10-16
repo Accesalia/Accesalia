@@ -20,7 +20,6 @@
 // programa: se dicta con el del teclado.
 
 import "server-only";
-import { fichasCortas } from "./fichaCorta";
 import { nombreDeOpp } from "./direccionOpp";
 import { CANALES } from "./tipoDeNota";
 import { apuntarFotos } from "./fotos";
@@ -81,23 +80,21 @@ export type OppEntrada = OpcionEntrada & { comercialId: string | null; comercial
  *  otro comercial, y entonces se le avisa) y las personas de las tres listas.
  *  Las personas llevan delante de que lista son: puesto: o persona:. */
 export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; personas: OpcionEntrada[] }> {
-  const [ops, puestos, sueltas, fichas] = await Promise.all([
+  const [ops, personas] = await Promise.all([
     leerTodo<{ id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comercial_id: string | null; comunidad_id: string | null;
            comunidad: { nombre: string } | null; comercial: { nombre: string } | null }>(
       `oportunidades?select=id,codigo,nombre,comunidad_provisional,comercial_id,comunidad_id,comunidad:comunidad_id(nombre),comercial:comercial_id(nombre)` +
         `&estado=eq.abierta&order=fecha_apertura.desc.nullslast,id.asc`,
     ),
-    leerTodo<{ id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null }>(
-      `puesto?select=id,cargo,persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)&hasta=is.null&contrata_id=is.null&order=id.asc`,
+    // LAS PERSONAS, DEL DIRECTORIO (16-oct-2026): una lectura de la tabla ya
+    // calculada, con su pista de una linea (lo que sabemos de cada una, 15-oct),
+    // en vez de bajar todos los puestos, todas las personas y montar las fichas.
+    // Los puestos vigentes que no son de contrata, y las personas sin puesto:
+    // lo mismo que antes.
+    leerTodo<{ fila: string; nombre: string; pista: string; donde_tipo: string }>(
+      `directorio_personas?select=fila,nombre,pista,donde_tipo&vigente=is.true&donde_tipo=neq.contrata&nombre=neq.&order=fila.asc`,
     ),
-    leerTodo<{ id: string; nombre: string; apellidos: string | null; puesto: { id: string }[] }>(
-      `persona?select=id,nombre,apellidos,puesto(id)&order=id.asc`,
-    ),
-    // Lo que sabemos de cada una, en una linea (Monica, 15-oct-2026).
-    fichasCortas().catch(() => null),
   ]);
-
-  const completo = (p: { nombre: string; apellidos: string | null }) => [p.nombre, p.apellidos].filter(Boolean).join(" ");
   return {
     oportunidades: ops.map((o) => ({
       valor: o.id,
@@ -110,18 +107,11 @@ export async function opcionesEntrada(): Promise<{ oportunidades: OppEntrada[]; 
     })),
     // Una persona suelta puede ser una docena de Jose Luises: la pista dice de
     // donde es (Monica, 28-sep-2026).
-    personas: [
-      ...puestos
-        .filter((p) => p.persona?.nombre)
-        .map((p) => ({
-          valor: "puesto:" + p.id,
-          texto: completo(p.persona!),
-          pista: fichas?.porPuesto.get(p.id) ?? p.empresa?.nombre_accesalia ?? p.cargo ?? "administrador",
-        })),
-      ...sueltas
-        .filter((p) => !p.puesto.length)
-        .map((p) => ({ valor: "persona:" + p.id, texto: completo(p), pista: fichas?.porPersona.get(p.id) ?? "agenda" })),
-    ],
+    personas: personas.map((p) => ({
+      valor: p.fila,
+      texto: p.nombre,
+      pista: p.pista || (p.donde_tipo === "sin_puesto" ? "agenda" : "administrador"),
+    })),
   };
 }
 

@@ -12,6 +12,10 @@
       "schedule": "0 2 * * *"
     },
     {
+      "path": "/api/directorios/repaso",
+      "schedule": "30 2 * * *"
+    },
+    {
       "path": "/api/iee/barrido",
       "schedule": "0 3 * * *"
     },
