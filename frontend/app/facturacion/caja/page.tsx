@@ -1,43 +1,122 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarraSuperior } from "../../components/BarraSuperior";
-import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
-import { datosCaja, puedeVerCobros } from "../../../lib/cobros";
+import { puedeVerCobros } from "../../../lib/cobros";
+import { datosAsignar, type TrabajoNube } from "../../../lib/nubes";
+import { MarcoDinero } from "../MarcoDinero";
 import { Cronograma } from "./Cronograma";
-import { Areas } from "../Areas";
+import { Decidir } from "./Decidir";
 
 export const dynamic = "force-dynamic";
 
-// CRONOGRAMA Y PREVISION DE CAJA · la semilla (Monica, 11-oct-2026). Junta todo
-// lo que consume tiempo de tecnico (proyectos y requerimientos), se arrastra
-// arriba o abajo, se asigna el tecnico, y una linea de corte en la fecha que se
-// elija dice cuanto se habra cobrado. Las duraciones son las de por defecto y
-// se cambian aqui; cuando esten las tablas de proyecto, saldran de alli.
+// ASIGNAR (Monica, 16-oct-2026; maqueta area-dinero-v1, marco 7): un selector
+// Nube | Proyectos. NUBE: a la izquierda lo pendiente de decidir (nube si / no,
+// lo marca Alexandra); a la derecha lo asignado como nube, lo que va a llegar.
+// «Ver proceso nubes» lleva a la pantalla de Abraham (../nubes). PROYECTOS: de
+// momento el cronograma de la app (11-oct), a rehacer en el siguiente paso; le
+// llega lo marcado «nube no» y lo que ya tiene la nube lista. Ver lib/nubes.ts.
 
-export default async function PaginaCaja() {
+const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "Europe/Madrid" });
+const hoyIso = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+const ddmmaa = (v: string) => v.slice(0, 10).split("-").reverse().join("/");
+const ddmm = (v: string) => ddmmaa(v).slice(0, 5);
+function validada(v: string | null) {
+  if (!v) return "";
+  const dia = new Date(v).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+  return dia === hoyIso() ? "validada hoy" : `validada el ${FECHA.format(new Date(v)).replace(".", "")}`;
+}
+const frase = (t: string | null) => (t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : null);
+const detalle = (t: TrabajoNube) => [t.hoja, frase(t.bloque), validada(t.validada)].filter(Boolean).join(" · ");
+function estadoNube(t: TrabajoNube) {
+  const n = t.decision;
+  if (n?.escaneado) return `escaneado el ${ddmm(n.escaneado)}`;
+  if (n?.prevista) return `escaneo previsto el ${ddmm(n.prevista)}`;
+  return "sin fecha de escaneo";
+}
+
+function Cnt({ n, on }: { n: number; on?: boolean }) {
+  return <span className={`rounded-[10px] px-2 py-px text-[12px] font-extrabold ${on ? "bg-white/20" : "bg-black/[.08]"}`}>{n}</span>;
+}
+
+export default async function PaginaAsignar({ searchParams }: { searchParams: Promise<{ ver?: string }> }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/facturacion/caja");
   if (!puedeVerCobros(yo)) redirect("/menu");
-  const d = await datosCaja();
+  const ver = (await searchParams).ver === "proyectos" ? "proyectos" : "nube";
+  const d = await datosAsignar();
+  // Al cronograma: lo que no necesita nube va directo; lo que si, cuando esta lista.
+  // Lo que aun no se ha decidido espera (sale como «esperando su nube»).
+  const listos = new Set(d.aProyectos.map((t) => t.oppId));
+  const caja = { ...d.caja, trabajos: d.caja.trabajos.map((t) => (listos.has(t.oppId) ? { ...t, faro: false } : { ...t, faro: true, nube: t.nube && { ...t.nube, lista: null } })) };
+
+  const sw = (clave: "nube" | "proyectos", titulo: string, n?: number) => (
+    <Link
+      href={clave === "nube" ? "/facturacion/caja" : "/facturacion/caja?ver=proyectos"}
+      className={`inline-flex items-center gap-2 rounded-[9px] px-[26px] py-2 text-[15px] font-bold ${ver === clave ? "bg-carbon text-white" : "text-[#55594f] hover:text-carbon"}`}
+    >
+      {titulo}
+      {n != null && <Cnt n={n} on={ver === clave} />}
+    </Link>
+  );
+
   return (
-    <div className="min-h-screen">
-      <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1700px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        <Volver siNoHay="/facturacion" />
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-black/10 pb-4">
-          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
-            <h1 className="text-3xl font-bold leading-tight text-carbon">Cronograma y previsión de caja</h1>
-            <span
-              className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/60"
-              title="Las duraciones son las de por defecto y lo que se cambia aquí no se guarda todavía: se enganchará a las tablas de proyecto y requerimientos."
-            >
-              Semilla · no se guarda
-            </span>
-          </div>
-          <Areas yo={yo} activa="asignar" />
+    <MarcoDinero yo={yo} area="asignar">
+      <div className="mb-[18px] flex items-center gap-6">
+        <h1 className="text-[30px] font-[750] leading-[1.1] tracking-[-.5px] text-carbon">Asignar</h1>
+        <div className="inline-flex rounded-xl bg-[#e3e6df] p-1">
+          {sw("nube", "Nube")}
+          {sw("proyectos", "Proyectos", d.aProyectos.length)}
         </div>
-        <Cronograma d={d} />
-      </main>
-    </div>
+      </div>
+
+      {ver === "nube" ? (
+        <div className="grid grid-cols-2 items-start gap-[22px]">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[16px] font-extrabold">
+              Pendiente de decidir <Cnt n={d.pendientes.length} />
+            </div>
+            <div className="-mt-1 mb-2.5 text-[14.5px] text-carbon/65">Líneas validadas que implican técnico. ¿Necesitan nube de puntos?</div>
+            <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
+              <Decidir filas={d.pendientes.map((t) => ({ oppId: t.oppId, nombre: t.nombre, detalle: detalle(t) }))} />
+            </div>
+          </div>
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[16px] font-extrabold">
+              Asignado como nube <Cnt n={d.enNube.length} />
+              <Link href="/facturacion/nubes" className="ml-auto inline-flex h-8 items-center rounded-[9px] border border-[#d6dad2] bg-white px-3 text-[13px] font-bold text-carbon-soft hover:border-carbon/40">
+                Ver proceso nubes →
+              </Link>
+            </div>
+            <div className="-mt-1 mb-2.5 text-[14.5px] text-carbon/65">Lo que está en manos de Abraham: lo que va a llegar a Proyectos.</div>
+            <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
+              {d.enNube.length ? (
+                d.enNube.map((t) => (
+                  <div key={t.oppId} className="flex items-center justify-between gap-3.5 border-b border-[#f0f2ee] px-4 py-[13px] last:border-0">
+                    <div className="min-w-0">
+                      <div className="text-[14.5px] font-bold">{t.nombre}</div>
+                      <div className="mt-0.5 text-[12.5px] text-[#7b8077]">
+                        {t.decision?.decidida ? `recibida el ${ddmmaa(new Date(t.decision.decidida).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }))} · ` : ""}
+                        {estadoNube(t)}
+                      </div>
+                    </div>
+                    <span className="inline-flex h-[22px] shrink-0 items-center rounded-full bg-[#e2eaf3] px-2.5 text-[12px] font-bold text-[#3b5f86]">en nube</span>
+                  </div>
+                ))
+              ) : (
+                <p className="p-[26px] text-center text-[#7b8077]">Nada asignado como nube.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="mb-3 rounded-[10px] border border-[#f0dfa8] bg-[#fffaeb] px-3.5 py-3 text-[13.5px] text-[#6b5210]">
+            De momento, el cronograma tal como está en la app. <b>Siguiente paso:</b> arriba «Proyectos a asignar» por direcciones, cada una a mano
+            a un técnico; abajo lo asignado, agrupado por técnico y plegable.
+          </div>
+          <Cronograma d={caja} />
+        </>
+      )}
+    </MarcoDinero>
   );
 }

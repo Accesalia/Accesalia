@@ -1,37 +1,58 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
-import { datosCaja, puedeVerCobros } from "../../../lib/cobros";
-import { Nubes } from "./Nubes";
+import { datosAsignar, puedeDecidirNube, puedeVerNubes } from "../../../lib/nubes";
+import { MarcoDinero } from "../MarcoDinero";
+import { ProcesoNubes } from "./Nubes";
 
 export const dynamic = "force-dynamic";
 
-// NUBES DE PUNTOS (Monica, 12-oct-2026). Entra aqui lo firmado y cobrado que
-// tiene la entrega por hacer; sale al cronograma de tecnicos cuando su nube
-// esta lista. Ver Nubes.tsx.
+// ASIGNAR › PROCESO DE NUBES (Monica, 16-oct-2026; maqueta area-dinero-v1,
+// marco 7): lo que facturacion marco «nube si» hasta que la nube esta lista.
+// Abraham (funcion escaneo) y Alexandra lo ven igual; a quien no lleva el area
+// del dinero se le pinta sin su marco.
 
 export default async function PaginaNubes() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/facturacion/nubes");
-  if (!puedeVerCobros(yo)) redirect("/menu");
-  const d = await datosCaja();
-  // Lo cobrado que va a FARO: "una hoja se firma y se marca cobrada", y lo que
-  // se cobro es un proyecto tecnico (bloques.va_a_faro), no un IEE ni una subvencion.
-  const trabajos = d.trabajos.filter((t) => t.cobradoDesde && t.faro);
-  return (
-    <div className="min-h-screen">
-      <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        <Salida href="/facturacion">← Facturación y asignación</Salida>
-        <div className="mt-3 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon">Nubes de puntos</h1>
-          <p className="mt-1 text-carbon/65">
-            Lo firmado y cobrado, hasta que su nube está lista. Entonces pasa al cronograma de técnicos.
-          </p>
+  if (!puedeVerNubes(yo)) redirect("/menu");
+  const { enNube } = await datosAsignar();
+  const filas = enNube.map((t) => ({
+    oppId: t.oppId, nombre: t.nombre, recibida: t.decision?.decidida ?? null, prevista: t.decision?.prevista ?? null,
+    escaneado: t.decision?.escaneado ?? null, notas: t.decision?.notas ?? null,
+  }));
+  const cuerpo = (
+    <>
+      <div className="mb-[22px]">
+        <h1 className="text-[30px] font-[750] leading-[1.1] tracking-[-.5px] text-carbon">Proceso de nubes</h1>
+        <div className="mt-1.5 text-[14.5px] text-carbon/65">
+          Lo pendiente de escanear y de tener la nube lista · al marcar «nube lista», sale de aquí y pasa a Proyectos a asignar
         </div>
-        <Nubes trabajos={trabajos} />
-      </main>
-    </div>
+      </div>
+      <ProcesoNubes filas={filas} />
+    </>
+  );
+  if (!puedeDecidirNube(yo))
+    return (
+      <div className="min-h-screen">
+        <BarraSuperior />
+        <main className="mx-auto w-full max-w-[1500px] px-4 pb-16 pt-5 text-sm sm:px-6">
+          <Salida href="/menu">← Menú</Salida>
+          <div className="mt-3">{cuerpo}</div>
+        </main>
+      </div>
+    );
+  return (
+    <MarcoDinero yo={yo} area="asignar">
+      <div className="mb-3.5 flex items-center gap-3.5">
+        <Link href="/facturacion/caja" className="inline-flex h-8 items-center rounded-[9px] border border-[#d6dad2] bg-white px-3 text-[13px] font-bold text-carbon-soft hover:border-carbon/40">
+          ← Volver a Nube / Proyectos
+        </Link>
+        <span className="text-[12.5px] text-carbon/65">Alexandra lo ve exactamente igual que Abraham</span>
+      </div>
+      {cuerpo}
+    </MarcoDinero>
   );
 }
