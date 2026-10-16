@@ -82,3 +82,19 @@ alter table trabajos_tecnico
   add column terminado_en  timestamptz,
   add column terminado_por uuid references equipo(id);
 comment on column trabajos_tecnico.terminado_en is 'Proyecto: redaccion entregada (el tecnico queda libre; el cobro sigue por visado y OK). Requerimiento: hecho (sale de la lista).';
+
+-- 6. EL RESTO DE OBRAS, 3 DIAS (Monica, 16-oct-2026). Aerotermia y fotovoltaica
+--    NO tienen fila a proposito: van SIEMPRE dentro del SATE envolvente completa
+--    (las calcula una ingenieria; nosotros las metemos en el proyecto con la
+--    estructura: «somos el pegamento final»), asi que no suman dias.
+insert into tiempos_estandar (contexto, clave, dias, descripcion) values
+  ('proyecto', 'sustitucion_ascensor',   3, 'Sustitucion de ascensor'),
+  ('proyecto', 'cota_cero',              3, 'Cota cero'),
+  ('proyecto', 'cambio_puertas',         3, 'Cambio de puertas'),
+  ('proyecto', 'cambio_cabina',          3, 'Cambio de cabina'),
+  ('proyecto', 'anadir_parada',          3, 'Anadir parada'),
+  ('proyecto', 'accesibilidad_portal',   3, 'Accesibilidad portal'),
+  ('proyecto', 'arreglo_fachada',        3, 'Arreglo fachada'),
+  ('proyecto', 'arreglo_cubierta',       3, 'Arreglo cubierta'),
+  ('proyecto', 'otros_proyecto_tecnico', 3, 'Otros - proyecto tecnico')
+on conflict (contexto, clave) do update set dias = excluded.dias, descripcion = excluded.descripcion;
