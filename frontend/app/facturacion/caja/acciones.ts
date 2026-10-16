@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
 import { buscarOpps } from "../../../lib/consulta";
-import { corregir, estimar, nuevoRequerimiento, ordenar, puedeAsignar, puedeEstimar, terminar, type Dificultad } from "../../../lib/trabajosTecnico";
+import { corregir, estimar, nuevoRequerimiento, ordenar, puedeAsignar, puedeEstimar, type Dificultad } from "../../../lib/trabajosTecnico";
 
 // ASIGNAR › PROYECTOS y la bandeja de Alex: lo que se guarda en trabajos_tecnico.
 // Estimar, Alex (estimacion_proyectos); el resto, quien asigna (Alexandra).
@@ -39,9 +39,6 @@ export async function accionOrdenar(tecnicoId: string | null, ids: string[]) {
 }
 export async function accionRequerimiento(oppId: string, nombre: string, dias: number) {
   return con("asignar", (yo) => nuevoRequerimiento(oppId, nombre, dias, yo));
-}
-export async function accionTerminar(id: string, hecho: boolean) {
-  return con("asignar", (yo) => terminar(id, hecho, yo));
 }
 
 /** El buscador del requerimiento: las opps por su direccion. */

@@ -6,7 +6,8 @@
 //      se atasque y pida otro») y dias (por defecto los del tipo); cambia o da OK
 //   -> POR ASIGNAR: Alexandra elige el tecnico A MANO (nunca se preasigna)
 //   -> LA LISTA DE CADA TECNICO: se ordena, se pasa a otro, se cambian dias y
-//      dificultad (queda el registro) y se marca la redaccion entregada.
+//      dificultad (queda el registro). Lo hecho lo marcara la app al subir el
+//      tecnico los planos en PDF (terminado_en; la subida aun no esta montada).
 // Los requerimientos van igual, colgados de su direccion: no se cobran pero
 // ocupan al tecnico. Tablas: trabajos_tecnico y trabajos_tecnico_cambios.
 //
@@ -221,7 +222,9 @@ export async function nuevoRequerimiento(oppId: string, nombre: string, dias: nu
   });
 }
 
-/** Proyecto: redaccion entregada. Requerimiento: hecho. (null = deshacer) */
+/** HECHO (Monica, 16-oct-2026): «no lo rellena nadie, lo rellena la app cuando
+ *  el tecnico SUBE los planos en PDF». La subida aun no esta montada: esto es lo
+ *  que llamara. Proyecto: redaccion hecha; requerimiento: hecho. */
 export async function terminar(id: string, hecho: boolean, yo: Yo) {
   await pedir(`trabajos_tecnico?id=eq.${uuid(id)}`, {
     method: "PATCH",

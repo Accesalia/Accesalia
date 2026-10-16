@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CobroFijo } from "../../../lib/cobros";
 import type { Trabajo } from "../../../lib/trabajosTecnico";
-import { accionBuscarOpp, accionCorregir, accionOrdenar, accionRequerimiento, accionTerminar } from "./acciones";
+import { accionBuscarOpp, accionCorregir, accionOrdenar, accionRequerimiento } from "./acciones";
 
 // ASIGNAR › PROYECTOS (Monica, 16-oct-2026). Sustituye al cronograma del 11-oct,
 // que repartia solo: aqui NADA SE PREASIGNA.
@@ -16,8 +16,9 @@ import { accionBuscarOpp, accionCorregir, accionOrdenar, accionRequerimiento, ac
 //   Debajo, POR ASIGNAR: lo que Alex ya estimo, y los requerimientos. Se elige
 //   el tecnico a mano.
 //   Debajo, CADA TECNICO con su lista: se arrastra (o ▲▼) para ordenar o pasar
-//   a otro, se cambian dias y dificultad (el tecnico avisa de que tarda mas) y
-//   se marca la redaccion entregada. Se pliegan uno a uno o todos.
+//   a otro y se cambian dias y dificultad (el tecnico avisa de que tarda mas).
+//   Se pliegan uno a uno o todos. Lo HECHO no lo marca nadie: lo pondra la app
+//   cuando el tecnico suba los planos en PDF (aun no montado).
 // Lo que se guarda: tecnico, orden, dias, dificultad y entregada. Lo que es
 // solo simulacion (quien esta disponible, cuanto tarda cada uno, visado y OK de
 // cada fila, la linea de corte), no.
@@ -160,10 +161,6 @@ export function Proyectos(props: {
     setPorAsignar((l) => l.map(aplicar));
     guardar(() => accionCorregir(t.id!, cambios));
   };
-  const entregar = (t: Trabajo) => {
-    const que = t.tipo === "requerimiento" ? `¿Requerimiento «${t.nombre}» hecho? Sale de la lista.` : `¿Redacción de ${t.direccion} entregada? El técnico queda libre y el cobro cuenta desde hoy.`;
-    if (window.confirm(que)) guardar(() => accionTerminar(t.id!, true));
-  };
 
   const xDe = (dt: Date) => Math.round(((dt.getTime() - hoy.getTime()) / DIA) * PX);
   const meses = useMemo(() => {
@@ -241,9 +238,6 @@ export function Proyectos(props: {
             <span className="w-[104px]" />
           )}
           <span className="w-[70px] text-right tabular-nums">{t.tipo === "requerimiento" ? <span className="text-ajeno">no cobra</span> : `${EUR.format(t.entrega)} €`}</span>
-          <button type="button" onClick={() => entregar(t)} className="ml-auto whitespace-nowrap text-[11.5px] font-semibold text-lima-dark hover:underline" title={t.tipo === "requerimiento" ? "Hecho" : "Redacción entregada"}>
-            {t.tipo === "requerimiento" ? "✓ hecho" : "✓ entregada"}
-          </button>
         </div>
         <div className="relative h-9 shrink-0" style={{ width: HORIZONTE * PX }}>
           <Barra x={xDe(p.ini)} w={xDe(p.fin) - xDe(p.ini)} cls={t.tipo === "requerimiento" ? "bg-ajeno" : "bg-lima"} t={`${t.tipo === "requerimiento" ? "Requerimiento" : "Proyecto"} · ${ddmm(p.ini)} → ${ddmm(p.fin)}`} />
@@ -436,7 +430,7 @@ export function Proyectos(props: {
           {!props.tecnicos.length && <p className="px-4 py-8 text-center text-carbon/60">No hay técnicos con la función de proyecto.</p>}
         </div>
       </div>
-      <p className="mt-2 text-[12px] text-carbon/60">Se guarda el técnico, el orden, los días, la dificultad y lo entregado; lo demás (disponibles, «tarda ×», visado, OK y la línea de corte) es simulación.</p>
+      <p className="mt-2 text-[12px] text-carbon/60">Se guarda el técnico, el orden, los días y la dificultad; lo demás (disponibles, «tarda ×», visado, OK y la línea de corte) es simulación.</p>
     </>
   );
 }
