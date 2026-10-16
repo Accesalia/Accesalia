@@ -19,12 +19,12 @@
 //     direccion. Cada comercial, los suyos; direccion, todos.
 
 import "server-only";
+import { cache } from "react";
 import type { Yo } from "./sesion";
 import { comercialDe, puedeEntrar } from "./sesion";
 import { autoresQueVeo } from "./pendientes";
 import { TEXTO_FALTA, type Falta } from "./completa";
-import { cuantosPorRevisar } from "./recibidos";
-import { contarPendientes, puedeRevisar } from "./revisionOferta";
+import { puedeRevisar } from "./revisionOferta";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -70,31 +70,52 @@ export function tarjetasQueVeo(yo: Yo) {
   };
 }
 
-/** El numero del boton. Si algo falla, 0: el boton nunca tumba la barra. */
-export async function cuantosPendientes(yo: Yo): Promise<number> {
+/** TODOS LOS AVISOS DE UNA PERSONA, EN UNA LLAMADA (Monica, 16-oct-2026: "se
+ *  trata de corregir la raiz"). Antes la barra hacia 8-10 peticiones en 3 tandas
+ *  en cada pantalla; ahora los cuenta la base (funcion mis_avisos, migracion
+ *  20261016120000) con las mismas reglas de arriba, y la barra, el menu y quien
+ *  mas lo pida en la misma pantalla comparten la respuesta (cache de React). */
+export type Avisos = {
+  notas: number;
+  opps: number;
+  llamadas: number;
+  ausencias: number;
+  posibles: number;
+  recibidos: number;
+  ofertas: number;
+  /** Escaneados de Polycam sin portal (la mesa de viabilidades). */
+  polycam: number;
+};
+const SIN_AVISOS: Avisos = { notas: 0, opps: 0, llamadas: 0, ausencias: 0, posibles: 0, recibidos: 0, ofertas: 0, polycam: 0 };
+
+export const misAvisos = cache(async (yo: Yo): Promise<Avisos> => {
   try {
-    const f = await filtros(yo);
-    // Las vacaciones por resolver, a quien las resuelve (RRHH y direccion), sin
-    // las suyas (10-oct-2026).
-    const ausencias = puedeEntrar(yo, "rrhh", "trabajar")
-      ? leer(`rrhh_ausencias?select=id&estado=eq.solicitada&persona_id=neq.${yo.id}&limit=1`, true)
-      : Promise.resolve({ total: 0 });
-    const [n, o, l, a, p] = await Promise.all([
-      leer(`notas_pendientes?select=id&estado=eq.pendiente${f.notas}&limit=1`, true),
-      f.opps === null ? Promise.resolve({ total: 0 }) : leer(`oportunidades_por_completar?select=id${f.opps}&limit=1`, true),
-      f.llamadas ? leer(`llamadas?select=id&estado=eq.por_colocar&limit=1`, true) : Promise.resolve({ total: 0 }),
-      ausencias,
-      f.posibles === null ? Promise.resolve({ total: 0 }) : leer(`${SEL_POSIBLES}${f.posibles}&limit=1`, true),
-    ]);
-    // Los documentos que suben las comunidades, a quien los revisa (12-oct-2026).
-    const recibidos = await cuantosPorRevisar(yo);
-    // Las ofertas esperando el ok, a quien las revisa: suman tambien aqui ademas
-    // de su aviso propio en la barra (Monica, 14-oct-2026).
-    const ofertas = puedeRevisar(yo) ? await contarPendientes().catch(() => 0) : 0;
-    return n.total + o.total + l.total + a.total + p.total + recibidos + ofertas;
+    const mio = veTodo(yo) ? null : await comercialDe(yo.id);
+    const r = await fetch(`${URL_BASE}/rest/v1/rpc/mis_avisos`, {
+      method: "POST",
+      headers: { ...CAB, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        p_equipo: yo.id,
+        p_ve_todas: veTodo(yo),
+        p_comercial: mio?.id ?? null,
+        p_llamadas: colocaLlamadas(yo),
+        p_ausencias: puedeEntrar(yo, "rrhh", "trabajar"),
+        p_ofertas: puedeRevisar(yo),
+      }),
+      cache: "no-store",
+    });
+    if (!r.ok) return SIN_AVISOS;
+    return { ...SIN_AVISOS, ...((await r.json()) as Partial<Avisos>) };
   } catch {
-    return 0;
+    return SIN_AVISOS;
   }
+});
+
+/** El numero del boton PENDIENTES. Si algo falla, 0: el boton nunca tumba la barra.
+ *  Las ofertas suman tambien aqui ademas de su aviso propio (14-oct-2026). */
+export async function cuantosPendientes(yo: Yo): Promise<number> {
+  const a = await misAvisos(yo);
+  return a.notas + a.opps + a.llamadas + a.ausencias + a.posibles + a.recibidos + a.ofertas;
 }
 
 export type ItemPendiente = {

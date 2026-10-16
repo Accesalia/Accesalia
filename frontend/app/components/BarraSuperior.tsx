@@ -3,8 +3,8 @@ import Image from "next/image";
 import { quienSoy } from "../../lib/sesion";
 import { salir } from "../entrar/acciones";
 import { BotonLlamada } from "./postit/BotonLlamada";
-import { cuantosPendientes } from "../../lib/misPendientes";
-import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
+import { cuantosPendientes, misAvisos } from "../../lib/misPendientes";
+import { puedeRevisar } from "../../lib/revisionOferta";
 
 // Cabecera de toda la app: logo, el buscador, quien ha entrado (con su boton de
 // salir) y el boton MENU. Montada de cero el 11-sep-2026.
@@ -20,7 +20,8 @@ export async function BarraSuperior() {
   const pendientes = yo ? await cuantosPendientes(yo) : 0;
   // LAS OFERTAS ESPERANDO EL OK (Monica, 14-oct-2026): destacado y aparte de
   // PENDIENTES, porque la oferta se envia en caliente. Solo a quien las revisa.
-  const ofertas = yo && puedeRevisar(yo) ? await contarPendientes().catch(() => 0) : 0;
+  // Las dos cuentas salen de la misma llamada (misAvisos, 16-oct-2026).
+  const ofertas = yo && puedeRevisar(yo) ? (await misAvisos(yo)).ofertas : 0;
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-carbon text-white">

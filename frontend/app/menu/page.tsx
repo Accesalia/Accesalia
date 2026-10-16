@@ -2,8 +2,8 @@ import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
-import { cuantosPendientes } from "../../lib/revisionPolycam";
-import { contarPendientes, FUNCION_REVISION } from "../../lib/revisionOferta";
+import { FUNCION_REVISION } from "../../lib/revisionOferta";
+import { misAvisos, type Avisos } from "../../lib/misPendientes";
 
 export const dynamic = "force-dynamic";
 
@@ -138,7 +138,7 @@ type Puerta = {
   /** Las claves de las funciones que abren esta puerta (basta una). */
   funciones: string[];
   /** Lo que hay esperando, para no tener que entrar a mirar. */
-  cuantos?: () => Promise<number>;
+  cuantos?: (a: Avisos) => number;
   comoSeCuenta?: (n: number) => string;
 };
 
@@ -151,7 +151,7 @@ const PUERTAS: Puerta[] = [
     desc: "Las ofertas que esperan tu ok antes de salir a la comunidad: sus hojas, la viabilidad y el presupuesto",
     href: "/comercial/revision",
     funciones: [FUNCION_REVISION],
-    cuantos: contarPendientes,
+    cuantos: (a) => a.ofertas,
     comoSeCuenta: (n) => (n === 1 ? "1 esperando tu ok" : `${n} esperando tu ok`),
   },
   {
@@ -180,7 +180,7 @@ const PUERTAS: Puerta[] = [
     desc: "Los escaneados del buzón: de qué portal es cada uno, y su viabilidad",
     href: "/viabilidades",
     funciones: ["viabilidades"],
-    cuantos: cuantosPendientes,
+    cuantos: (a) => a.polycam,
     comoSeCuenta: (n) => (n === 1 ? "1 escaneado esperando" : `${n} escaneados esperando`),
   },
   {
@@ -204,8 +204,9 @@ export default async function Menu() {
   const puertas = PUERTAS.filter(
     (p) => !yo || yo.veTodo || yo.funciones.some((f) => p.funciones.includes(f.clave)),
   );
-  // Solo se cuenta lo que se va a pintar.
-  const cuentas = await Promise.all(puertas.map((p) => (p.cuantos ? p.cuantos() : Promise.resolve(0))));
+  // Las cuentas salen de la misma llamada que la barra (misAvisos, 16-oct-2026).
+  const avisos = yo ? await misAvisos(yo) : null;
+  const cuentas = puertas.map((p) => (p.cuantos && avisos ? p.cuantos(avisos) : 0));
 
   return (
     <div className="min-h-screen">
