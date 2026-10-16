@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { equipoDeComercial, listarComerciales } from "../../lib/comercial";
-import { cuadroComercial, POR_PAGINA } from "../../lib/cuadroComercial";
+import { cuadroComercial, cuadroPortada, POR_PAGINA } from "../../lib/cuadroComercial";
 import { cuadroDemo, ID_FANTASMA } from "../../lib/cuadroDemo";
 import { comercialDe, quienSoy, puedeEntrar } from "../../lib/sesion";
 import { guardarEntrada } from "./acciones";
@@ -131,13 +131,15 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   //    "todas las carteras" no es la agenda de nadie.
   //  - Las alertas (15-oct-2026) y Opps por fases (15-oct-2026), solo en su pestaña.
   const [cuadro, [paraGrabar, pendientes], equipoAgenda, alertas, porFases] = await Promise.all([
-    esDemo ? cuadroDemo() : cuadroComercial(elegido?.id ?? null, pagina, faseElegida, seccion === "administradores"),
-    esDemo
+    // La portada de botones solo pinta dos numeros: su carga ligera, sin el
+    // cuadro, la agenda ni las listas de la ventana (que no se ven ahi).
+    esDemo ? cuadroDemo() : accesos ? cuadroPortada(elegido?.id ?? null) : cuadroComercial(elegido?.id ?? null, pagina, faseElegida, seccion === "administradores"),
+    esDemo || accesos
       ? Promise.resolve<[Awaited<ReturnType<typeof opcionesEntrada>>, number]>([{ oportunidades: [], personas: [] }, 0])
       : Promise.all([opcionesEntrada(), misAvisos(yo).then((a) => a.notas)]),
-    seccion === "agenda" && elegido && !esDemo ? equipoDeComercial(elegido.id) : Promise.resolve(null),
-    seccion === "alertas" && !esDemo ? resumenComercial(elegido?.id ?? null).then((r) => r.filas) : Promise.resolve([]),
-    seccion === "fases" && !esDemo ? oppsPorFases(elegido?.id ?? null) : Promise.resolve([]),
+    !accesos && seccion === "agenda" && elegido && !esDemo ? equipoDeComercial(elegido.id) : Promise.resolve(null),
+    !accesos && seccion === "alertas" && !esDemo ? resumenComercial(elegido?.id ?? null).then((r) => r.filas) : Promise.resolve([]),
+    !accesos && seccion === "fases" && !esDemo ? oppsPorFases(elegido?.id ?? null) : Promise.resolve([]),
   ]);
   // La cartera POR GESTOR, conectada a la base (13-oct-2026). La demo sigue con la suya.
   const carteraNueva = seccion === "administradores" && !esDemo && !!cuadro.gestores;

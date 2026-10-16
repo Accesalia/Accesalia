@@ -663,6 +663,37 @@ export async function cuadroComercial(
   };
 }
 
+/** LA PORTADA DE BOTONES (16-oct-2026: "solo abrir el area desde el menu ya
+ *  tarda mucho"). Solo pinta dos numeros -los gestores de la cartera y las
+ *  abiertas-, y calculaba el cuadro entero (sin comercial elegido, el de TODAS
+ *  las carteras). Aqui, solo esos dos, a la vez; lo demas va vacio porque la
+ *  portada no lo ensena. */
+export async function cuadroPortada(comercialId: string | null): Promise<CuadroComercial> {
+  const f = comercialId ? `&opp.comercial_id=eq.${comercialId}` : "";
+  const [{ cartera }, abiertas] = await Promise.all([
+    carteraDe(comercialId),
+    fetch(
+      `${URL_BASE}/rest/v1/estado_oportunidad?select=oportunidad_id,opp:oportunidades!inner(id)&opp.estado=eq.abierta&fase=not.is.null${f}`,
+      { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" },
+    ).then((r) => Number(r.headers.get("content-range")?.split("/")[1] ?? 0) || 0),
+  ]);
+  return {
+    demo: false,
+    pasos: [],
+    agregado: [],
+    agenda: [],
+    diario: [],
+    oportunidades: [],
+    totalOportunidades: abiertas,
+    firmadas: [],
+    cifras: CIFRAS_SIN_DATO,
+    cartera,
+    mapa: datosMapa([]),
+    umbralParado: 0,
+    umbralSinContacto: 0,
+  };
+}
+
 // ------------------------------------------------- al desplegar una oportunidad
 
 /** Lo que se ve al DESPLEGAR una oportunidad real en la lista: su diario y a
