@@ -19,7 +19,9 @@ import { accionBuscarOpp, accionCorregir, accionOrdenar, accionRequerimiento } f
 //   a otro y se cambian dias y dificultad (el tecnico avisa de que tarda mas).
 //   Se pliegan uno a uno o todos. Lo HECHO no lo marca nadie: lo pondra la app
 //   cuando el tecnico suba los planos en PDF (aun no montado).
-// Lo que se guarda: tecnico, orden, dias, dificultad y entregada. Lo que es
+// LAS CIFRAS SON BASE IMPONIBLE, con «+ IVA» a la vista (Monica, 16-oct-2026:
+// «como minimo dejemos la cifra asi, pero que sea obvio que es BI»).
+// Lo que se guarda: tecnico, orden, dias y dificultad. Lo que es
 // solo simulacion (quien esta disponible, cuanto tarda cada uno, visado y OK de
 // cada fila, la linea de corte), no.
 
@@ -261,7 +263,7 @@ export function Proyectos(props: {
           <div className="text-[11px] font-bold uppercase tracking-wide text-lima-dark">Cobrado previsto a</div>
           <div className="flex flex-wrap items-baseline gap-3">
             <input type="date" value={corte} onChange={(e) => e.target.value && setCorte(e.target.value)} className="rounded-md border border-lima/60 bg-white px-2 py-0.5 text-[13px]" />
-            <span className="text-2xl font-bold tabular-nums text-carbon">{EUR.format(simulado + pactado)} €</span>
+            <span className="text-2xl font-bold tabular-nums text-carbon">{EUR.format(simulado + pactado)} €<span className="ml-1 text-[13px] font-semibold text-carbon/60">+ IVA</span></span>
           </div>
           <div className="text-[12px] text-carbon/75">
             {EUR.format(simulado)} € de entregas según lo asignado · {EUR.format(pactado)} € de cobros pactados con fecha
@@ -270,12 +272,12 @@ export function Proyectos(props: {
         </div>
         <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
           <div className="text-[11px] font-bold uppercase tracking-wide text-carbon/70">Pactado y ya vencido</div>
-          <div className="text-xl font-bold tabular-nums">{EUR.format(vencido)} €</div>
+          <div className="text-xl font-bold tabular-nums">{EUR.format(vencido)} €<span className="ml-1 text-[13px] font-semibold text-carbon/60">+ IVA</span></div>
           <div className="text-[12px] text-carbon/65">lo nuestro está hecho y no se ha cobrado: si apretamos, entra</div>
         </div>
         <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
           <div className="text-[11px] font-bold uppercase tracking-wide text-carbon/70">Depende de fuera</div>
-          <div className="text-xl font-bold tabular-nums">{EUR.format(props.sinFecha.importe)} €</div>
+          <div className="text-xl font-bold tabular-nums">{EUR.format(props.sinFecha.importe)} €<span className="ml-1 text-[13px] font-semibold text-carbon/60">+ IVA</span></div>
           <div className="text-[12px] text-carbon/65">{props.sinFecha.hitos} hitos de fases posteriores (licencia, CFO, concesión…)</div>
         </div>
         <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-[12.5px]">
@@ -321,7 +323,7 @@ export function Proyectos(props: {
           <b className="text-[16px]">
             Por asignar <span className="ml-1 rounded-[10px] bg-black/[.08] px-2 py-px text-[12px] font-extrabold">{porAsignar.length}</span>
           </b>
-          <span className="text-[13px] text-carbon/65">{EUR.format(sinAsignarEur)} € a la entrega esperando técnico</span>
+          <span className="text-[13px] text-carbon/65">{EUR.format(sinAsignarEur)} € + IVA a la entrega esperando técnico</span>
           <NuevoRequerimiento alCrear={() => router.refresh()} />
         </div>
         {porAsignar.length ? (
@@ -358,7 +360,7 @@ export function Proyectos(props: {
             <div className="flex w-[720px] shrink-0 gap-2 px-2 py-1.5">
               <span className="w-[268px] pl-8">Trabajo</span><span className="w-[64px]">Dific.</span>
               <span className="w-12 text-right">Pry.</span><span className="w-12 text-right">Vis.</span><span className="w-12 text-right">OK</span>
-              <span className="w-[70px] text-right">€ entrega</span>
+              <span className="w-[70px] text-right">€ + IVA</span>
             </div>
             <div
               className="relative h-7 shrink-0 cursor-pointer"
@@ -383,7 +385,7 @@ export function Proyectos(props: {
           {entregados.length > 0 && (
             <div className="flex border-b border-black/10 bg-[#f6f6f3]">
               <div className="w-[720px] shrink-0 px-2 py-1.5 text-[12px] text-carbon/75">
-                <b>Redacción entregada, esperando visado y OK</b> · {entregados.length} · {EUR.format(entregados.reduce((s, p) => s + p.t.entrega, 0))} €
+                <b>Redacción entregada, esperando visado y OK</b> · {entregados.length} · {EUR.format(entregados.reduce((s, p) => s + p.t.entrega, 0))} € + IVA
               </div>
               <div className="relative h-8 shrink-0" style={{ width: HORIZONTE * PX }}>
                 {entregados.map((p) => p.cobro && <span key={p.t.oppId} title={`${p.t.direccion} · cobro ${ddmm(p.cobro)} · ${EUR.format(p.t.entrega)} €`} className={"absolute top-2 h-4 w-1.5 rounded-sm " + (p.cobro <= corteD ? "bg-lima-dark" : "bg-carbon/40")} style={{ left: xDe(p.cobro) }} />)}
@@ -412,7 +414,7 @@ export function Proyectos(props: {
                     <span className="text-carbon/65">
                       {items.length} trabajo{items.length === 1 ? "" : "s"}
                       {libre && libre > hoy ? ` · libre el ${ddmm(libre)}` : " · libre ya"}
-                      {cobra > 0 ? ` · ${EUR.format(cobra)} € hasta el corte` : ""}
+                      {cobra > 0 ? ` · ${EUR.format(cobra)} € + IVA hasta el corte` : ""}
                       {a.factor !== 1 ? ` · tarda ×${a.factor}` : ""}
                       {!a.activo ? " · no disponible" : ""}
                     </span>
