@@ -113,7 +113,22 @@ const pct = (g: number, p: number) => (g + p > 0 ? Math.round((100 * g) / (g + p
 /** La cartera de un comercial, o la de todos (null). */
 export async function carteraGestores(comercialId: string | null): Promise<CarteraGestores> {
   const SEL = "puesto_id,persona_id,nombre,administracion,telefono,en_curso,ganadas,perdidas,total,dias_medios,creado_en,desde";
-  const [consolidados, posibles] = await Promise.all([
+  // LA HERRAMIENTA (Monica, 15-oct-2026): dinero, ultima opp nueva, ultimo
+  // contacto y proxima cita de cada gestor, ya calculados en la base.
+  type Resumen = {
+    puesto_id: string; consolidado_en: string | null; importe_firmado: number | string | null; ultima_opp_nueva: string | null;
+    ultimo_contacto: string | null; ultimo_contacto_fuente: GestorCartera["fuenteContacto"];
+    proxima_cita_inicio: string | null; proxima_cita_asunto: string | null; proxima_cita_tipo: string | null; proxima_cita_con: string[] | null;
+  };
+  type OppVista = { puesto_id: string; oportunidad_id: string; codigo: string | null; direccion: string | null; resultado: Resultado;
+                    fecha_apertura: string | null; primera_firma: string | null };
+  // TODO DE UNA VEZ Y A LA VEZ (16-oct-2026: "abrir el area me ha llevado 7
+  // segundos"). Antes, las opps de los gestores y su resumen se pedian por
+  // trozos de 120 gestores, y cada trozo obligaba a la base a calcular la vista
+  // ENTERA (el resumen, 5 veces a la vez: la base se atascaba y todo lo demas
+  // de la pantalla iba lento). Ahora cada vista se pide una sola vez, entera, y
+  // se cruza aqui; y todo a la vez, sin esperar a la lista de gestores.
+  const [consolidados, posibles, oppsVista, resumenes, sinGestor] = await Promise.all([
     restTodo<Fila>(
       `cartera_gestores?select=${SEL}&consolidado=is.true${comercialId ? `&comercial_id=eq.${comercialId}` : "&comercial_id=not.is.null"}`,
       "nombre.asc,puesto_id.asc",
@@ -123,49 +138,30 @@ export async function carteraGestores(comercialId: string | null): Promise<Carte
         (comercialId ? `&comercial_captador_id=eq.${comercialId}` : "&comercial_captador_id=not.is.null"),
       "creado_en.desc,puesto_id.asc",
     ),
-  ]);
-
-  // Sus oportunidades, para desplegarlas: por tramos de gestores (la lista de
-  // ids no cabe entera en una direccion).
-  const ids = consolidados.filter((c) => c.total > 0).map((c) => c.puesto_id);
-  const opps: (OppDeGestor & { puesto: string })[] = [];
-  for (let i = 0; i < ids.length; i += 120) {
-    const trozo = await restTodo<{ puesto_id: string; oportunidad_id: string; codigo: string | null; direccion: string | null; resultado: Resultado;
-                                    fecha_apertura: string | null; primera_firma: string | null }>(
-      `oportunidades_de_gestor?select=puesto_id,oportunidad_id,codigo,direccion,resultado,fecha_apertura,primera_firma&puesto_id=in.(${ids.slice(i, i + 120).join(",")})`,
+    restTodo<OppVista>(
+      "oportunidades_de_gestor?select=puesto_id,oportunidad_id,codigo,direccion,resultado,fecha_apertura,primera_firma",
       "fecha_apertura.desc.nullslast,oportunidad_id.asc",
-    );
-    opps.push(
-      ...trozo.map((o) => ({
-        puesto: o.puesto_id,
-        id: o.oportunidad_id,
-        codigo: o.codigo,
-        direccion: o.direccion,
-        resultado: o.resultado,
-        apertura: o.fecha_apertura,
-        firma: o.primera_firma,
-      })),
-    );
-  }
-  // LA HERRAMIENTA (Monica, 15-oct-2026): dinero, ultima opp nueva, ultimo
-  // contacto y proxima cita de cada gestor, ya calculados en la base.
-  type Resumen = {
-    puesto_id: string; consolidado_en: string | null; importe_firmado: number | string | null; ultima_opp_nueva: string | null;
-    ultimo_contacto: string | null; ultimo_contacto_fuente: GestorCartera["fuenteContacto"];
-    proxima_cita_inicio: string | null; proxima_cita_asunto: string | null; proxima_cita_tipo: string | null; proxima_cita_con: string[] | null;
-  };
-  const todosIds = consolidados.map((c) => c.puesto_id);
-  const [resumenes, sinGestor] = await Promise.all([
-    Promise.all(
-      Array.from({ length: Math.ceil(todosIds.length / 120) }, (_, k) =>
-        restTodo<Resumen>(`cartera_gestor_resumen?select=*&puesto_id=in.(${todosIds.slice(k * 120, k * 120 + 120).join(",")})`, "puesto_id.asc"),
-      ),
-    ).then((x) => x.flat()),
+    ),
+    restTodo<Resumen>("cartera_gestor_resumen?select=*", "puesto_id.asc"),
     restTodo<{ oportunidad_id: string; codigo: string | null; nombre: string | null; fecha_apertura: string | null; quieren: string[] | null }>(
       `opps_abiertas_sin_gestor?select=oportunidad_id,codigo,nombre,fecha_apertura,quieren${comercialId ? `&comercial_id=eq.${comercialId}` : ""}`,
       "fecha_apertura.desc.nullslast,oportunidad_id.asc",
     ),
   ]);
+
+  // Sus oportunidades, para desplegarlas: las de los gestores de esta cartera.
+  const conOpps = new Set(consolidados.filter((c) => c.total > 0).map((c) => c.puesto_id));
+  const opps: (OppDeGestor & { puesto: string })[] = oppsVista
+    .filter((o) => conOpps.has(o.puesto_id))
+    .map((o) => ({
+      puesto: o.puesto_id,
+      id: o.oportunidad_id,
+      codigo: o.codigo,
+      direccion: o.direccion,
+      resultado: o.resultado,
+      apertura: o.fecha_apertura,
+      firma: o.primera_firma,
+    }));
   const resumenDe = new Map(resumenes.map((r) => [r.puesto_id, r]));
 
   const oppsDe = new Map<string, OppDeGestor[]>();
