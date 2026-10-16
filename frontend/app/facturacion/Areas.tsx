@@ -8,7 +8,7 @@ import { librosFiscales } from "../../lib/fiscal";
 // COBRAR, PAGAR, PREVER y ASIGNAR. En la entrada salen grandes; dentro de cada
 // area, arriba y en pequeno, para saltar de una a otra.
 
-export type Area = "cobrar" | "pagar" | "prever" | "asignar";
+export type Area = "cobrar" | "pagar" | "prever" | "asignar" | "panoramica";
 
 const AREAS: { clave: Area; titulo: string; href: string; desc: string; ve: (yo: Yo) => boolean }[] = [
   {
@@ -29,6 +29,13 @@ const AREAS: { clave: Area; titulo: string; href: string; desc: string; ve: (yo:
   {
     clave: "asignar", titulo: "Asignar", href: "/facturacion/caja",
     desc: "El trabajo de los técnicos y cuándo se alcanza cada hito.",
+    ve: puedeVerCobros,
+  },
+  // VISTA PANORAMICA (Monica, 16-oct-2026): el quinto boton. De un vistazo, lo que
+  // va a entrar y lo que ya ha entrado, por opp y linea, entre fechas de firma.
+  {
+    clave: "panoramica", titulo: "Vista Panorámica", href: "/facturacion/panoramica",
+    desc: "Lo firmado, lo cobrado y lo que queda por ingresar, por opp y línea.",
     ve: puedeVerCobros,
   },
 ];
