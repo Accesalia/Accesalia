@@ -668,3 +668,30 @@ export async function cambiarDireccion(
   // Y su clave (13-oct-2026): la de su direccion, la que se eligio unir, o una nueva.
   await claveDesdeAccesos(oppId, null, r.unirA ?? null);
 }
+
+// ------------------------------------------- ¿ya hay una opp aqui?
+
+export type OppViva = { id: string; codigo: string | null; nombre: string; comercial: string | null; estado: string };
+
+/** LAS OPPS VIVAS (abiertas o pausadas) DE ESE EDIFICIO, para avisar al dar de
+ *  alta (Monica, 16-oct-2026): Valladolid 13 se dio de alta dos veces, una de
+ *  Alvaro y otra de Daniel. Avisa, NO bloquea: una comunidad puede tener varias
+ *  opps a la vez (un proyecto y su subvencion). El edificio se busca por los
+ *  portales elegidos, por la parcela y por la clave a la que se une. */
+export async function oppsVivasEnElEdificio(d: { portalIds: string[]; parcela: string | null; clave: string | null }): Promise<OppViva[]> {
+  const ors: string[] = [];
+  if (d.portalIds.length) ors.push(`ficha_catastro_portal_id.in.(${d.portalIds.join(",")})`);
+  if (d.parcela) ors.push(`ref_catastral.eq.${encodeURIComponent(d.parcela)}`);
+  if (d.clave) ors.push(`clave_id.eq.${d.clave}`);
+  if (!ors.length) return [];
+  type Fila = { opps: { opp: { id: string; codigo: string | null; nombre: string | null; estado: string; comercial: { nombre: string } | null } | null; hasta: string | null }[] };
+  const filas = await leer<Fila[]>(
+    `accesos?select=opps:relacion_oportunidad_accesos(hasta,opp:opp_id(id,codigo,nombre,estado,comercial:comercial_id(nombre)))&or=(${ors.join(",")})`,
+  );
+  const vivas = new Map<string, OppViva>();
+  for (const f of filas)
+    for (const r of f.opps)
+      if (!r.hasta && r.opp && (r.opp.estado === "abierta" || r.opp.estado === "pausada"))
+        vivas.set(r.opp.id, { id: r.opp.id, codigo: r.opp.codigo, nombre: r.opp.nombre ?? r.opp.codigo ?? "", comercial: r.opp.comercial?.nombre ?? null, estado: r.opp.estado });
+  return [...vivas.values()];
+}

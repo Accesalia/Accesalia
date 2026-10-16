@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { crearOportunidad, type DatosOportunidad } from "../../../../lib/altaOportunidad";
+import { crearOportunidad, oppsVivasEnElEdificio, type DatosOportunidad, type OppViva } from "../../../../lib/altaOportunidad";
 import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { cerrarPendienteEnAlta } from "../../../../lib/pendientes";
 import { cerrarApunteEnAlta } from "../../../../lib/apuntesSatelite";
@@ -120,4 +120,11 @@ export async function guardarOportunidad(fd: FormData) {
   // sentido: lo siguiente que se hace con una oportunidad recien creada es
   // mirarle el edificio y quedar para tomar datos, y las dos cosas estan ahi.
   redirect("/comercial/oportunidades/" + hecho.id);
+}
+
+/** ¿Ya hay una opp viva en ese edificio? Para el aviso del alta (16-oct-2026). */
+export async function accionOppsVivas(d: { portalIds: string[]; parcela: string | null; clave: string | null }): Promise<OppViva[]> {
+  const yo = await quienSoy();
+  if (!yo) return [];
+  return oppsVivasEnElEdificio(d).catch(() => []);
 }

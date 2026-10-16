@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Elegir, type Opcion } from "../../../components/Elegir";
 import { Marcar } from "../../../components/Marcar";
-import type { OpcionesOportunidad } from "../../../../lib/altaOportunidad";
+import type { OpcionesOportunidad, OppViva } from "../../../../lib/altaOportunidad";
+import { accionOppsVivas } from "./acciones";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 import { columnasDeInteres } from "../../../../lib/columnasInteres";
@@ -227,6 +228,21 @@ export function Formulario({
   // se cierra sin terminar lo escrito se queda como provisional.
   const [ventana, setVentana] = useState(false);
   const [resuelta, setResuelta] = useState<DireccionResuelta | null>(null);
+  // "¿YA HAY UNA OPP AQUI?" (Monica, 16-oct-2026): Valladolid 13 se dio de alta
+  // dos veces. Avisa con enlace a la que hay; no bloquea, que una comunidad puede
+  // tener varias opps a la vez.
+  const [vivas, setVivas] = useState<OppViva[]>([]);
+  useEffect(() => {
+    setVivas([]);
+    if (!resuelta) return;
+    let vale = true;
+    accionOppsVivas({ portalIds: resuelta.portalIds, parcela: resuelta.parcela, clave: resuelta.unirA })
+      .then((v) => vale && setVivas(v))
+      .catch(() => {});
+    return () => {
+      vale = false;
+    };
+  }, [resuelta]);
   // Una direccion escrita y sin buscar no se guarda por despiste (Monica,
   // 5-oct-2026: la de Fresnedillas se quedo sin accesos porque "ni se me
   // ocurrio" abrir la ventana). Al guardar, se abre sola; si se cierra sin
@@ -453,6 +469,7 @@ export function Formulario({
                 ) : resuelta ? (
                   // Ya buscada: se ve con el nombre y se puede deshacer, como lo
                   // que se crea nuevo en esta misma pantalla.
+                  <>
                   <div className="flex h-[40px] items-center gap-2 rounded-lg border border-accion bg-[#eef3f8] px-3 text-[15px]">
                     <span className="min-w-0 flex-1 truncate font-semibold text-accion-marco" title={resuelta.nombre}>
                       ✓ {resuelta.nombre}
@@ -473,6 +490,25 @@ export function Formulario({
                       ×
                     </button>
                   </div>
+                  {vivas.length > 0 && (
+                    <div className="mt-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12.5px] leading-snug text-amber-900">
+                      <span className="font-semibold">
+                        {vivas.length === 1 ? "Ya hay una opp viva en este edificio:" : `Ya hay ${vivas.length} opps vivas en este edificio:`}
+                      </span>{" "}
+                      {vivas.map((o, i) => (
+                        <span key={o.id}>
+                          {i > 0 && " · "}
+                          <Link href={`/comercial/oportunidades/${o.id}`} target="_blank" className="font-semibold underline">
+                            {o.codigo ? `${o.codigo} ` : ""}
+                            {o.nombre}
+                          </Link>
+                          {o.comercial ? ` (${o.comercial}${o.estado === "pausada" ? ", pausada" : ""})` : o.estado === "pausada" ? " (pausada)" : ""}
+                        </span>
+                      ))}
+                      . Si es la misma, no la crees otra vez.
+                    </div>
+                  )}
+                  </>
                 ) : (
                   <div className="relative">
                     <input
