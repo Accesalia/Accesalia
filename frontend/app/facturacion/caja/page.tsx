@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../../lib/sesion";
 import { puedeVerCobros } from "../../../lib/cobros";
-import { datosAsignar, type TrabajoNube } from "../../../lib/nubes";
+import type { TrabajoNube } from "../../../lib/nubes";
+import { datosProyectos } from "../../../lib/trabajosTecnico";
 import { MarcoDinero } from "../MarcoDinero";
-import { Cronograma } from "./Cronograma";
+import { Proyectos } from "./Proyectos";
 import { Decidir } from "./Decidir";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +13,9 @@ export const dynamic = "force-dynamic";
 // ASIGNAR (Monica, 16-oct-2026; maqueta area-dinero-v1, marco 7): un selector
 // Nube | Proyectos. NUBE: a la izquierda lo pendiente de decidir (nube si / no,
 // lo marca Alexandra); a la derecha lo asignado como nube, lo que va a llegar.
-// «Ver proceso nubes» lleva a la pantalla de Abraham (../nubes). PROYECTOS: de
-// momento el cronograma de la app (11-oct), a rehacer en el siguiente paso; le
-// llega lo marcado «nube no» y lo que ya tiene la nube lista. Ver lib/nubes.ts.
+// «Ver proceso nubes» lleva a la pantalla de Abraham (../nubes). PROYECTOS: lo
+// que Alex ya estimo, por asignar a mano, y la lista de cada tecnico con la
+// simulacion de cobro (Proyectos.tsx, lib/trabajosTecnico.ts).
 
 const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "Europe/Madrid" });
 const hoyIso = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
@@ -43,12 +44,8 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
   if (!yo) redirect("/entrar?volver=/facturacion/caja");
   if (!puedeVerCobros(yo)) redirect("/menu");
   const ver = (await searchParams).ver === "proyectos" ? "proyectos" : "nube";
-  const d = await datosAsignar();
-  // Al cronograma: lo que no necesita nube va directo; lo que si, cuando esta lista.
-  // Lo que aun no se ha decidido espera (sale como «esperando su nube»).
-  const listos = new Set(d.aProyectos.map((t) => t.oppId));
-  const caja = { ...d.caja, trabajos: d.caja.trabajos.map((t) => (listos.has(t.oppId) ? { ...t, faro: false } : { ...t, faro: true, nube: t.nube && { ...t.nube, lista: null } })) };
-
+  const p = await datosProyectos();
+  const d = p.asignar;
   const sw = (clave: "nube" | "proyectos", titulo: string, n?: number) => (
     <Link
       href={clave === "nube" ? "/facturacion/caja" : "/facturacion/caja?ver=proyectos"}
@@ -65,7 +62,7 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
         <h1 className="text-[30px] font-[750] leading-[1.1] tracking-[-.5px] text-carbon">Asignar</h1>
         <div className="inline-flex rounded-xl bg-[#e3e6df] p-1">
           {sw("nube", "Nube")}
-          {sw("proyectos", "Proyectos", d.aProyectos.length)}
+          {sw("proyectos", "Proyectos", p.porAsignar.length)}
         </div>
       </div>
 
@@ -110,11 +107,17 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
         </div>
       ) : (
         <>
-          <div className="mb-3 rounded-[10px] border border-[#f0dfa8] bg-[#fffaeb] px-3.5 py-3 text-[13.5px] text-[#6b5210]">
-            De momento, el cronograma tal como está en la app. <b>Siguiente paso:</b> arriba «Proyectos a asignar» por direcciones, cada una a mano
-            a un técnico; abajo lo asignado, agrupado por técnico y plegable.
-          </div>
-          <Cronograma d={caja} />
+          <Proyectos
+            porAsignar={p.porAsignar}
+            asignados={p.asignados}
+            entregados={p.entregados}
+            tecnicos={d.caja.tecnicos}
+            fijos={d.caja.fijos}
+            sinFecha={d.caja.sinFecha}
+            visadoDias={p.visadoDias}
+            esperandoNube={d.pendientes.length + d.enNube.length}
+            porEstimar={p.porEstimar.length}
+          />
         </>
       )}
     </MarcoDinero>

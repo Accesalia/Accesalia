@@ -184,6 +184,24 @@ const PUERTAS: Puerta[] = [
     comoSeCuenta: (n) => (n === 1 ? "1 escaneado esperando" : `${n} escaneados esperando`),
   },
   {
+    // PROYECTOS POR ESTIMAR (Monica, 16-oct-2026): la bandeja de Alex antes de
+    // asignar: dificultad y dias de cada proyecto con la nube lista o sin nube.
+    nombre: "Proyectos por estimar",
+    color: "melocoton",
+    desc: "Los proyectos con la nube lista o sin nube: su dificultad y sus días, antes de asignarlos",
+    href: "/proyectos/estimar",
+    funciones: ["estimacion_proyectos"],
+  },
+  {
+    // PROCESO DE NUBES (Monica, 13-oct-2026): la lista de Abraham; Alexandra la
+    // ve igual desde Asignar.
+    nombre: "Proceso de nubes",
+    color: "turquesa",
+    desc: "Lo que necesita nube de puntos: escaneo previsto, notas, escaneado y nube lista",
+    href: "/facturacion/nubes",
+    funciones: ["escaneo"],
+  },
+  {
     // El catalogo de bloques (Monica, 3-oct-2026): direccion y la secretaria
     // comercial. Direccion ya lo ve todo; la llave que hace falta es la otra.
     nombre: "Modificar plantilla de Hoja de Encargo",
