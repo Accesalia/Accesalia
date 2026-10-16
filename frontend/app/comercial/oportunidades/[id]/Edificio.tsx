@@ -375,12 +375,16 @@ export function EdificioVista({
           Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
       <section className={CAJA}>
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <div className={ROT + " mb-[3px] text-[#104269]"}>Lo que dice el Catastro</div>
-          {/* La referencia y el distrito, que antes iban en "La ficha" (16-oct-2026). */}
-          <span className="text-[11px] text-[#8a8a8a]">
-            {distrito && <>{distrito} · </>}
-            <span className="font-mono">{referencia}</span>
-          </span>
+          {/* LA REFERENCIA, EN EL TITULO (Monica, 16-oct-2026): "asi sabemos a que
+              referencia corresponden ESOS datos, por si hay que comprobarlo". */}
+          <div className="mb-[3px] flex flex-wrap items-baseline gap-x-2">
+            <span className={ROT + " text-[#104269]"}>Lo que dice el Catastro</span>
+            <span className="text-[12px] font-semibold text-[#104269]">
+              — ref <span className="font-mono">{referencia}</span>
+            </span>
+          </div>
+          {/* El distrito, que antes iba en "La ficha" (16-oct-2026). */}
+          {distrito && <span className="text-[11px] text-[#8a8a8a]">{distrito}</span>}
           {/* Solo si falta algo: si esta todo, no se ofrece (15-oct-2026). */}
           {i.fallos.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-amber-900/80">
