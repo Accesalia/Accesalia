@@ -38,6 +38,35 @@ async function leer<T>(path: string): Promise<T[]> {
     if (x.length < 1000) return out;
   }
 }
+/** Lo que lee cargar(), de una vez (funcion datos_alertas de la base). */
+type DatosAlertas = {
+  juntas: { oportunidad_id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }[];
+  tres: { oportunidad_id: string; tipo_3d: string | null; estado: string | null; creado_en: string }[];
+  citas: { oportunidad_id: string; inicio: string; creado_en: string }[];
+  viab: { id: string; oportunidad_id: string; enviada_en: string | null; url_pdf: string | null }[];
+  revs: { oportunidad_id: string; numero: number; estado: string; enviada_en: string; resuelta_en: string | null; comentario: string | null; resuelve: { nombre: string } | null }[];
+  notas: { oportunidad_id: string; fecha: string | null; creado_en: string }[];
+  inter: { oportunidad_id: string; fecha_evento: string | null; creado_en: string }[];
+  llam: { donde_oportunidad_id: string; creado_en: string }[];
+  admins: { comunidad_id: string; empresa: { nombre_accesalia: string } | null; puesto: { telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null } | null }[];
+  puestos: { figura_legal_propietaria_id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }[];
+  conPoly: { acceso_id: string; polycam: { fecha: string | null; creado_en: string } | null }[];
+  cobros: { hoja_encargo_id: string; es_porcentaje: boolean | null; hitos: { estado: string }[] }[];
+  polyViab: { fecha: string | null; creado_en: string; v: { oportunidad_id: string } }[];
+  solicitudes: { oportunidad_id: string; pedida_en: string }[];
+};
+
+async function datosAlertas(opps: string[], comunidades: string[], accesos: string[], hojas: string[]): Promise<DatosAlertas> {
+  const r = await fetch(`${URL_BASE}/rest/v1/rpc/datos_alertas`, {
+    method: "POST",
+    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_opps: opps, p_comunidades: comunidades, p_accesos: accesos, p_hojas: hojas }),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`Supabase datos_alertas ${r.status}: ${await r.text()}`);
+  return (await r.json()) as DatosAlertas;
+}
+
 /** Por tramos de ids, todos a la vez: la lista entera no cabe en una direccion.
  *  150 por tramo (unos 5.600 caracteres de ids): menos peticiones a la vez. */
 async function porTramos<T>(ids: string[], hacer: (tramo: string) => string): Promise<T[]> {
@@ -46,7 +75,16 @@ async function porTramos<T>(ids: string[], hacer: (tramo: string) => string): Pr
   return (await Promise.all(tramos.map((t) => leer<T>(hacer(t.join(",")))))).flat();
 }
 
-const hoyISO = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+/** El dia de hoy en Madrid. Se recuerda un minuto: formatear con zona horaria
+ *  es caro y se pregunta decenas de miles de veces por carga (cada nota, cada
+ *  llamada...): con todas las carteras era mas de un segundo solo en esto
+ *  (16-oct-2026). */
+let hoyCache = { dia: "", en: 0 };
+const hoyISO = () => {
+  const ahora = Date.now();
+  if (ahora - hoyCache.en > 60_000) hoyCache = { dia: new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }), en: ahora };
+  return hoyCache.dia;
+};
 const ddmmaa = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
 /** Una fecha con hora, al dia de Madrid; una fecha sola, tal cual. */
 const aDia = (v: string) => (v.length <= 10 ? v : new Date(v).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }));
@@ -157,35 +195,13 @@ async function cargar(ops: OppCruda[]) {
   for (const o of ops) for (const h of o.hojas) if (h.estado === "devuelta_firmada") firmadasDe.set(h.id, o.id);
 
   const hoy = hoyISO();
-  const [juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestosCom, conPoly, cobros, polyViab, funciones, necesidades, solicitudes] = await Promise.all([
-    porTramos<{ oportunidad_id: string; fecha_junta: string | null; celebrada: boolean; resultado: string | null; creado_en: string }>(ids,
-      (t) => `juntas?select=oportunidad_id,fecha_junta,celebrada,resultado,creado_en&oportunidad_id=in.(${t})`),
-    porTramos<{ oportunidad_id: string; tipo_3d: string | null; estado: string | null; creado_en: string }>(ids,
-      (t) => `modelos_3d_venta?select=oportunidad_id,tipo_3d,estado,creado_en&oportunidad_id=in.(${t})`),
-    porTramos<{ oportunidad_id: string; inicio: string; creado_en: string }>(ids,
-      (t) => `citas?select=oportunidad_id,inicio,creado_en&tipo=eq.escaneo_polycam&estado=neq.anulada&oportunidad_id=in.(${t})`).catch(() => []),
-    porTramos<{ id: string; oportunidad_id: string; enviada_en: string | null; url_pdf: string | null }>(ids,
-      (t) => `viabilidades?select=id,oportunidad_id,enviada_en,url_pdf&oportunidad_id=in.(${t})`),
-    porTramos<{ oportunidad_id: string; numero: number; estado: string; enviada_en: string; resuelta_en: string | null; comentario: string | null; resuelve: { nombre: string } | null }>(ids,
-      (t) => `revisiones_oferta?select=oportunidad_id,numero,estado,enviada_en,resuelta_en,comentario,resuelve:resuelta_por(nombre)&oportunidad_id=in.(${t})`).catch(() => []),
-    porTramos<{ oportunidad_id: string; fecha: string | null; creado_en: string }>(ids, (t) => `notas_oportunidad?select=oportunidad_id,fecha,creado_en&oportunidad_id=in.(${t})`),
-    porTramos<{ oportunidad_id: string; fecha_evento: string | null; creado_en: string }>(ids,
-      (t) => `interacciones?select=oportunidad_id,fecha_evento,creado_en&oportunidad_id=in.(${t})`).catch(() => []),
-    porTramos<{ donde_oportunidad_id: string; creado_en: string }>(ids,
-      (t) => `llamadas?select=donde_oportunidad_id,creado_en&donde_oportunidad_id=in.(${t})`).catch(() => []),
-    porTramos<{ comunidad_id: string; empresa: { nombre_accesalia: string } | null; puesto: { telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null } | null }>(
-      [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))],
-      (t) => `comunidad_admin_responsable?select=comunidad_id,empresa:empresa_id(nombre_accesalia),puesto:puesto_id(telefono_empresa,persona:persona_id(nombre,apellidos,telefono_personal))&vigente=is.true&comunidad_id=in.(${t})`),
-    porTramos<{ figura_legal_propietaria_id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }>(
-      [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))],
-      (t) => `puesto?select=figura_legal_propietaria_id,cargo,persona:persona_id(nombre,apellidos,telefono_personal)&hasta=is.null&figura_legal_propietaria_id=in.(${t})`),
-    porTramos<{ acceso_id: string; polycam: { fecha: string | null; creado_en: string } | null }>([...accesoDe.keys()],
-      (t) => `relacion_polycam_acceso?select=acceso_id,polycam:polycam_id(fecha,creado_en)&acceso_id=in.(${t})`).catch(() => []),
-    porTramos<{ hoja_encargo_id: string; es_porcentaje: boolean | null; hitos: { estado: string }[] }>([...firmadasDe.keys()],
-      (t) => `lineas_facturacion?select=hoja_encargo_id,es_porcentaje,hitos:hitos_cobro(estado)&quitada_en=is.null&hoja_encargo_id=in.(${t})`),
-    // El Polycam tambien puede colgar de una viabilidad suya (la mesa).
-    porTramos<{ fecha: string | null; creado_en: string; v: { oportunidad_id: string } }>(ids,
-      (t) => `escaneados_polycam?select=fecha,creado_en,v:viabilidad_id!inner(oportunidad_id)&v.oportunidad_id=in.(${t})`).catch(() => []),
+  // TODO DE UNA VEZ (16-oct-2026): una sola llamada a la base (datos_alertas)
+  // con las mismas filas y la misma forma que las 14 consultas por tramos de
+  // antes. Con todas las carteras eran ~170 peticiones a la vez y la base las
+  // atendia en cola: 3 s. Lo de las funciones y las necesidades va a la vez.
+  const comunidades = [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))];
+  const [datos, funciones, necesidades] = await Promise.all([
+    datosAlertas(ids, comunidades, [...accesoDe.keys()], [...firmadasDe.keys()]),
     // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
     // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
     // funciones vigentes del equipo: si cambia la persona, cambia sola.
@@ -194,9 +210,8 @@ async function cargar(ops: OppCruda[]) {
     ).catch(() => []),
     // Lo que necesita (Polycam, viabilidad) y si se pidio la viabilidad sin Polycam.
     necesidadesDeMuchas(ids),
-    porTramos<{ oportunidad_id: string; pedida_en: string }>(ids,
-      (t) => `solicitudes_viabilidad?select=oportunidad_id,pedida_en&estado=neq.anulada&oportunidad_id=in.(${t})`).catch(() => []),
   ]);
+  const { juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestos: puestosCom, conPoly, cobros, polyViab, solicitudes } = datos;
   // la primera solicitud de cada opp
   const solicitudDe = new Map<string, string>();
   for (const x of solicitudes) if (!solicitudDe.has(x.oportunidad_id) || x.pedida_en < solicitudDe.get(x.oportunidad_id)!) solicitudDe.set(x.oportunidad_id, x.pedida_en);
