@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { buscarAMano, desvincular, vincular, type Busqueda } from "../../../lib/revisionPolycam";
+import { buscarAMano, descartar, desvincular, vincular, type Busqueda } from "../../../lib/revisionPolycam";
 import { quienSoy } from "../../../lib/sesion";
 
 const DONDE = "/viabilidades";
@@ -45,6 +45,18 @@ export async function accionCorregirDireccion(polycamId: string): Promise<{ ok: 
   await haceViabilidades();
   try {
     await desvincular(polycamId);
+    revalidatePath(DONDE);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** "DESCARTAR" (Monica, 16-oct-2026): no es un escaneo de ningun edificio. */
+export async function accionDescartar(polycamId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await haceViabilidades();
+  try {
+    await descartar(polycamId, yo.id);
     revalidatePath(DONDE);
     return { ok: true };
   } catch (e) {

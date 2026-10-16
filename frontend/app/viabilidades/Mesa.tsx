@@ -6,7 +6,7 @@ import { accionBuscar, accionVincular } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
 import { accionEmpezar, accionEmpezarSolicitud } from "./acciones";
 import type { SolicitudPendiente } from "../../lib/solicitudViabilidad";
-import { CorregirDireccion, MaterialPedido, ResueltoPorDaniel } from "./BotonesMesa";
+import { CorregirDireccion, Descartar, MaterialPedido, ResueltoPorDaniel } from "./BotonesMesa";
 import { Salida } from "../components/Salida";
 
 // ============================================================================
@@ -286,6 +286,7 @@ export function Mesa({
                             Polycam
                           </a>
                         )}
+                        <Descartar escaneoId={e.id} />
                       </div>
                     </div>
                   </div>

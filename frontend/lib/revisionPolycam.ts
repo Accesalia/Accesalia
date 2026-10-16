@@ -328,7 +328,7 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
 
   const [escaneados, vinculos, accesos, citas, oppsDe] = await Promise.all([
     leerTodo<Escaneado>(
-      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo",
+      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo&descartado_en=is.null",
       "creado_en",
     ),
     leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
@@ -451,6 +451,20 @@ export async function vincularSolos(): Promise<number> {
   return n;
 }
 
+/** "DESCARTAR" (Monica, 16-oct-2026): ese correo no es un escaneo de ningun
+ *  edificio. No se borra: se apunta cuando y quien, y deja de salir. Solo si
+ *  no esta vinculado, que lo vinculado ya tiene dueño. */
+export async function descartar(polycamId: string, quien: string): Promise<void> {
+  const v = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?select=polycam_id&polycam_id=eq.${polycamId}&limit=1`, { headers: cab, cache: "no-store" });
+  if (v.ok && ((await v.json()) as unknown[]).length) throw new Error("Está vinculado a un edificio: primero «corregir dirección».");
+  const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?id=eq.${polycamId}&viabilidad_id=is.null`, {
+    method: "PATCH",
+    headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ descartado_en: new Date().toISOString(), descartado_por: quien }),
+  });
+  if (!r.ok) throw new Error(`escaneados_polycam ${r.status}: ${await r.text()}`);
+}
+
 /** "CORREGIR DIRECCION": deshace lo que vinculo la app y lo devuelve a "necesito
  *  un humano". Solo si aun no se ha empezado su viabilidad. */
 export async function desvincular(polycamId: string): Promise<void> {
@@ -543,7 +557,7 @@ function conAgenda(
 export async function cuantosPendientes(): Promise<number> {
   try {
     const [escaneados, vinculos] = await Promise.all([
-      leerTodo<{ id: string; remitente: string | null }>("escaneados_polycam?select=id,remitente"),
+      leerTodo<{ id: string; remitente: string | null }>("escaneados_polycam?select=id,remitente&descartado_en=is.null"),
       leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
     ]);
     const yaVinculados = new Set(vinculos.map((v) => v.polycam_id));

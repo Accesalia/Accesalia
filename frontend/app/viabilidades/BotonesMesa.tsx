@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { accionResolverDaniel } from "./acciones";
-import { accionCorregirDireccion } from "./revision-polycam/acciones";
+import { accionCorregirDireccion, accionDescartar } from "./revision-polycam/acciones";
 import { accionEnlaceMaterial } from "../comercial/viabilidad-sin-polycam/acciones";
 
 // Los dos botones de la tarjeta de la mesa que hacen algo sin salir de ella
@@ -37,6 +37,27 @@ export function CorregirDireccion({ escaneoId }: { escaneoId: string }) {
         className="rounded-[8px] border border-[#9db6cf] bg-[#e3ecf5] px-3 py-1 text-[11.5px] font-semibold leading-tight text-[#3f5f80] transition hover:bg-[#d5e2ef] disabled:opacity-50"
       >
         corregir dirección
+      </button>
+      {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
+    </span>
+  );
+}
+
+/** "Descartar" (Monica, 16-oct-2026): el correo no es un escaneo de ningun
+ *  edificio. No se borra, deja de salir. */
+export function Descartar({ escaneoId }: { escaneoId: string }) {
+  const { error, pendiente, hacer } = useAccion();
+  return (
+    <span className="inline-flex flex-col items-end">
+      <button
+        type="button"
+        disabled={pendiente}
+        onClick={() => {
+          if (window.confirm("¿Descartar este correo? No es un escaneo de ningún edificio y deja de salir aquí (no se borra).")) hacer(() => accionDescartar(escaneoId));
+        }}
+        className="rounded-[8px] border border-[#CDBAB0] bg-white px-3 py-1 text-[11.5px] font-semibold leading-tight text-[#7a2420] transition hover:bg-[#f3ebe7] disabled:opacity-50"
+      >
+        descartar
       </button>
       {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
     </span>
