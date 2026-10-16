@@ -913,10 +913,11 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
 
   // LA APP VINCULA SOLA lo que no tiene duda (Monica, 14-oct-2026). Si falla, no
   // tumba la pasada: lo vera Alex en "necesito un humano".
-  if (r.guardados) {
-    enPaso("vincular solos los que no tienen duda");
-    await vincularSolos().catch((e) => r.errores.push(`vincular solos · ${e instanceof Error ? e.message : String(e)}`));
-  }
+  // EN CADA PASADA, no solo cuando entra correo (16-oct-2026): uno que vuelve
+  // de "corregir direccion" y el asunto ya decide, la mesa lo esconde como "se
+  // vincula solo", y sin correo nuevo se quedaba ahi sin vincular nunca.
+  enPaso("vincular solos los que no tienen duda");
+  await vincularSolos().catch((e) => r.errores.push(`vincular solos · ${e instanceof Error ? e.message : String(e)}`));
   enPaso("hecho");
   return r;
 }
