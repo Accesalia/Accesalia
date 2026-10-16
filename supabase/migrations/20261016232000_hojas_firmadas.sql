@@ -11,8 +11,8 @@
 --   factura_linea_hitos.importe (base) ponen en cada hoja: la parte de la hoja = esa base / la base de la factura.
 --   Nunca se suma el total de la factura entero a cada hoja.
 -- * Cobrado = justificante subido (tabla cobros, contra la factura, total con IVA; Daniel: el total ya va sin el
---   IRPF). Las devoluciones van en negativo. Una factura esta cobrada si lo cobrado llega a su total (1 euro de
---   margen: comisiones y centimos del banco).
+--   IRPF). Las devoluciones van en negativo. Una factura esta cobrada si lo cobrado llega a su total con un margen
+--   del 1 % (o 1 euro): las comisiones del confirming y los centimos del banco.
 -- * Estado de la hoja:
 --     alerta  = alguna factura tiene una devolucion despues de la cual no ha entrado nada, y no esta cobrada;
 --     total   = no le quedan hitos por facturar, tiene facturas y todas estan cobradas;
@@ -74,7 +74,8 @@ facturas_vivas as (
 -- cada factura, su estado de cobro
 fac as (
   select fv.*,
-         case when fv.cobrado >= fv.total - 1 then 'cobrada'
+         -- cobrada si falta menos del 1 % o de 1 euro: comisiones del confirming y centimos del banco (Monica, 16-oct)
+         case when fv.cobrado >= fv.total - greatest(1, fv.total * 0.01) then 'cobrada'
               when fv.devuelta then 'devuelta'
               when fv.cobrado > 0 then 'parcial'
               else 'sin_cobro' end as estado_cobro
