@@ -13,8 +13,9 @@ import { AreasBarra, type PestanaArea } from "./AreasBarra";
 // van dentro:
 //   <MarcoDinero yo={yo} area="pagar" activo="impuestos">...</MarcoDinero>
 // Lo que aun no esta montado sale en gris con «luego»: se ve que va a existir,
-// pero no lleva a ningun sitio. Prever y Asignar no llevan menu lateral (asi en la
-// maqueta): su pantalla ocupa todo el ancho.
+// pero no lleva a ningun sitio. Asignar no lleva menu lateral (asi en la maqueta):
+// su pantalla ocupa todo el ancho. En Pagar puede haber DOS entradas activas a la
+// vez (Impuestos + la empresa): `activo` admite una lista.
 
 export type ItemMenu = { clave: string; titulo: string; href?: string; cuenta?: number };
 export type GrupoMenu = { titulo: string; items: ItemMenu[] };
@@ -72,6 +73,33 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
           { clave: "gastos-fijos", titulo: "Gastos fijos" },
         ],
       },
+      {
+        titulo: "Empresa",
+        items: [
+          { clave: "emp-todas", titulo: "Las dos", href: "/pagar" },
+          { clave: "emp-accesalia", titulo: "Accesalia", href: "/pagar?empresa=accesalia" },
+          { clave: "emp-daniel", titulo: "Daniel de Soto", href: "/pagar?empresa=daniel_autonomo" },
+        ],
+      },
+    ];
+  if (area === "prever")
+    return [
+      {
+        titulo: "Previsión",
+        items: [
+          { clave: "llegamos", titulo: "¿Llegamos?", href: "/prever" },
+          { clave: "entradas", titulo: "Entradas previstas" },
+          { clave: "salidas", titulo: "Salidas previstas" },
+        ],
+      },
+      {
+        titulo: "Supuestos",
+        items: [
+          { clave: "saldo-minimo", titulo: "Saldo mínimo" },
+          { clave: "retraso", titulo: "Retraso por pagador" },
+          { clave: "escenarios", titulo: "Escenarios" },
+        ],
+      },
     ];
   return null;
 }
@@ -85,8 +113,8 @@ export async function MarcoDinero({
 }: {
   yo: Yo;
   area: Area;
-  /** La entrada del menu lateral en la que se esta. */
-  activo?: string;
+  /** La entrada (o entradas) del menu lateral en la que se esta. */
+  activo?: string | string[];
   /** Contadores ya calculados por la pagina (si no, se calculan aqui). */
   cuentas?: Record<string, number | undefined>;
   children: React.ReactNode;
@@ -104,6 +132,7 @@ export async function MarcoDinero({
     aviso: a.clave === "pagar",
   }));
   const menu = menuDe(area, c);
+  const activos = new Set(Array.isArray(activo) ? activo : activo ? [activo] : []);
   return (
     <div className="flex min-h-screen flex-col">
       <BarraSuperior />
@@ -119,10 +148,10 @@ export async function MarcoDinero({
                     <Link
                       key={it.clave}
                       href={it.href}
-                      className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[14.5px] ${it.clave === activo ? "bg-[#eef7e4] font-bold text-[#2f5d14]" : "font-medium text-carbon/85 hover:bg-black/[.03]"}`}
+                      className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[14.5px] ${activos.has(it.clave) ? "bg-[#eef7e4] font-bold text-[#2f5d14]" : "font-medium text-carbon/85 hover:bg-black/[.03]"}`}
                     >
                       <span>{it.titulo}</span>
-                      {it.cuenta ? <span className={`text-[12.5px] font-bold ${it.clave === activo ? "text-lima-dark" : "text-carbon/55"}`}>{it.cuenta}</span> : null}
+                      {it.cuenta ? <span className={`text-[12.5px] font-bold ${activos.has(it.clave) ? "text-lima-dark" : "text-carbon/55"}`}>{it.cuenta}</span> : null}
                     </Link>
                   ) : (
                     <div key={it.clave} className="flex items-center justify-between gap-2 px-3 py-2 text-[14.5px] text-carbon/40" title="Se monta cuando esté su pantalla">
