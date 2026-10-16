@@ -45,7 +45,9 @@ export async function GET(req: NextRequest) {
       : { data: { user: null }, error: new Error("sin codigo") };
 
   if (error || !data.user?.email) {
-    return NextResponse.redirect(new URL("/entrar?error=caducado", origen));
+    // El gancho hook_quien_soy no da pase a quien ya no esta en el equipo (16-oct-2026).
+    const sinAcceso = (error?.message ?? "").toLowerCase().includes("acceso");
+    return NextResponse.redirect(new URL(`/entrar?error=${sinAcceso ? "sin_acceso" : "caducado"}`, origen));
   }
   if (!(await personaPorCorreo(data.user.email))) {
     await supabase.auth.signOut();

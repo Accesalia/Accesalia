@@ -40,13 +40,20 @@ export async function middleware(req: NextRequest) {
     },
   );
 
-  const { data } = await supabase.auth.getUser();
+  // EL PASE SE COMPRUEBA AQUI MISMO, sin viajes (16-oct-2026): va firmado con
+  // la clave publica del proyecto y trae dentro quien eres (gancho
+  // hook_quien_soy). Si esta a punto de caducar, getClaims lo renueva, y al
+  // renovarlo la base vuelve a mirar si sigue en el equipo: quien se da de baja
+  // se queda fuera como mucho en una hora. Para echar a alguien YA, RRHH
+  // (equipo.sesion_cerrada_en, abajo).
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims as { email?: string; iat?: number; yo?: { id: string } } | undefined;
 
   const ruta = req.nextUrl.pathname;
   const esPublico = PUBLICO.some((p) => ruta === p || ruta.startsWith(p));
   if (process.env.LOGIN_OBLIGATORIO !== "1" || esPublico) return res;
 
-  if (!data.user) {
+  if (!claims?.email) {
     const a = req.nextUrl.clone();
     a.pathname = "/entrar";
     a.search = ruta === "/" ? "" : `?volver=${encodeURIComponent(ruta + req.nextUrl.search)}`;
@@ -54,9 +61,11 @@ export async function middleware(req: NextRequest) {
   }
 
   // Tener sesion no basta: el correo tiene que ser de alguien del equipo EN
-  // ACTIVO, y se mira en cada visita. Asi, quien deja la empresa se queda
-  // fuera el mismo dia que se le da de baja, aunque su sesion siga viva.
-  if (!(await esDelEquipo(data.user.email))) {
+  // ACTIVO. Con el pase nuevo (trae `yo`) eso ya lo miro la base al emitirlo, y
+  // aqui solo queda ver si le han echado despues. Sin el (gancho aun apagado),
+  // se pregunta a equipo en cada visita, como antes.
+  const dentro = claims.yo?.id ? !(await echadoDespues(claims.yo.id, claims.iat ?? 0)) : await esDelEquipo(claims.email);
+  if (!dentro) {
     await supabase.auth.signOut();
     const a = req.nextUrl.clone();
     a.pathname = "/entrar";
@@ -66,6 +75,28 @@ export async function middleware(req: NextRequest) {
     return fuera;
   }
   return res;
+}
+
+/** LOS ECHADOS, guardados un minuto en esta maquina: una sola consulta por
+ *  minuto, no una por toque. Solo los de las ultimas dos horas (un pase dura
+ *  una hora: los de antes ya no tienen pase vivo). */
+let echados: { hasta: number; lista: Map<string, number> } = { hasta: 0, lista: new Map() };
+async function echadoDespues(equipoId: string, emitidoEn: number): Promise<boolean> {
+  if (Date.now() > echados.hasta) {
+    const url = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
+    const secreto = process.env.SUPABASE_SECRET_KEY ?? "";
+    const desde = new Date(Date.now() - 2 * 3600_000).toISOString();
+    const r = await fetch(`${url}/rest/v1/equipo?select=id,sesion_cerrada_en&sesion_cerrada_en=gte.${desde}`, {
+      headers: { apikey: secreto, Authorization: `Bearer ${secreto}` },
+      cache: "no-store",
+    }).catch(() => null);
+    if (r?.ok) {
+      const filas = (await r.json()) as { id: string; sesion_cerrada_en: string }[];
+      echados = { hasta: Date.now() + 60_000, lista: new Map(filas.map((f) => [f.id, Date.parse(f.sesion_cerrada_en)])) };
+    }
+  }
+  const cuando = echados.lista.get(equipoId);
+  return cuando !== undefined && emitidoEn * 1000 <= cuando;
 }
 
 async function esDelEquipo(email: string | undefined): Promise<boolean> {

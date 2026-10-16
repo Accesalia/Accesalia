@@ -13,7 +13,7 @@ import {
 } from "../../lib/rrhh";
 import { documentosDe, PERSONALES, TIPO_DOC } from "../../lib/rrhhDocumentos";
 import { BotonEnviar } from "../components/Aviso";
-import { bajaEmpleado, deshacerBaja, guardarFicha, registrarAusencia } from "./acciones";
+import { bajaEmpleado, deshacerBaja, echarYa, guardarFicha, registrarAusencia } from "./acciones";
 import { ListaDocumentos, mesAnterior } from "./Documentos";
 import { ChipEstado, ChipTipo, diasTxt, EUR, fechaLarga, tramo } from "./Piezas";
 import { SubirDocumento } from "./SubirDocumento";
@@ -366,8 +366,23 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
         </div>
       </div>
 
+      {/* ECHAR YA (Monica, 16-oct-2026): una baja se nota en la app como mucho
+          en una hora (al renovarse su pase); esto la saca en el acto. */}
+      {persona.activo && (
+        <form action={echarYa} className="mt-6 flex flex-wrap items-center gap-3 border-t border-black/5 pt-4">
+          <input type="hidden" name="persona" value={id} />
+          <BotonEnviar
+            pendiente="Echando…"
+            className="rounded-full border border-alerta/40 bg-white px-4 py-1.5 text-sm font-semibold text-alerta transition hover:bg-alerta hover:text-white"
+          >
+            Echar de la app ya
+          </BotonEnviar>
+          <span className="text-xs text-carbon/55">Cierra sus sesiones al momento, aunque tenga la app abierta. No le da de baja.</span>
+        </form>
+      )}
+
       {persona.activo && !persona.fechaBaja && (
-        <details className="group mt-6 border-t border-black/5 pt-4">
+        <details className="group mt-4 pt-1">
           <summary className="cursor-pointer list-none text-sm font-semibold text-carbon/55 hover:text-alerta [&::-webkit-details-marker]:hidden">
             Dar de baja…
           </summary>

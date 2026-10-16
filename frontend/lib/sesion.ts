@@ -9,6 +9,7 @@
 //   - la funcion de direccion lo ve todo, tambien las areas que se creen luego.
 
 import "server-only";
+import { cache } from "react";
 import { clienteSesion, loginConfigurado } from "./auth/servidor";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
@@ -44,6 +45,10 @@ export type Yo = {
   funciones: { clave: string; nombre: string }[];
   veTodo: boolean;
   areas: Record<string, Nivel>;
+  /** La cartera comercial que abre (la suya o la que comparte) y si es suya.
+   *  Vienen en el pase; sin el (personaPorCorreo), se piden aparte. */
+  comercial?: { id: string; nombre: string } | null;
+  carteraPropia?: boolean;
 };
 
 /** La persona del equipo con ese correo, si esta activa. Si no, null: no entra. */
@@ -88,14 +93,26 @@ export async function personaPorCorreo(email: string): Promise<Yo | null> {
   };
 }
 
-/** Quien ha entrado, o null si nadie (o si su correo ya no tiene acceso). */
-export async function quienSoy(): Promise<Yo | null> {
+/** Quien ha entrado, o null si nadie (o si su correo ya no tiene acceso).
+ *
+ *  SE LEE DEL PASE, SIN VIAJES (Monica, 16-oct-2026: "preguntar una vez, en el
+ *  login, deberia ser mas que suficiente para TODA la app"). La base mete quien
+ *  eres en el pase al emitirlo (gancho hook_quien_soy, migracion
+ *  20261016090000): aqui solo se comprueba su firma, en el sitio (getClaims, con
+ *  la clave publica). Y una sola vez por pantalla (cache de React): el marco, la
+ *  barra y la pantalla comparten la misma lectura.
+ *
+ *  Mientras el gancho no este encendido, el pase no trae `yo` y se pregunta a
+ *  `equipo` como antes. */
+export const quienSoy = cache(async (): Promise<Yo | null> => {
   if (!loginConfigurado()) return null;
   const supabase = await clienteSesion();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user?.email) return null;
-  return personaPorCorreo(data.user.email);
-}
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims as { email?: string; yo?: Yo } | undefined;
+  if (claims?.yo?.id) return claims.yo;
+  if (!claims?.email) return null;
+  return personaPorCorreo(claims.email);
+});
 
 /** La cartera comercial que abre esta persona, si abre alguna.
  *
@@ -104,6 +121,9 @@ export async function quienSoy(): Promise<Yo | null> {
  *  3-oct-2026), asi que entra en la de Daniel y la ve como si fuera el. Ver
  *  `relacion_cartera_compartida`. */
 export async function comercialDe(personaId: string): Promise<{ id: string; nombre: string } | null> {
+  // La de quien ha entrado ya viene en su pase.
+  const yo = await quienSoy().catch(() => null);
+  if (yo?.id === personaId && yo.comercial !== undefined) return yo.comercial;
   const pedir = async (path: string) => {
     const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
       headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
@@ -129,6 +149,8 @@ export async function comercialDe(personaId: string): Promise<{ id: string; nomb
 export async function eligeComercialAlDarDeAlta(
   yo: Yo,
 ): Promise<{ elige: boolean; mio: { id: string; nombre: string } | null }> {
+  if (yo.carteraPropia !== undefined && yo.comercial !== undefined)
+    return { elige: puedeEntrar(yo, "comercial", "supervisar") || !yo.carteraPropia, mio: yo.comercial };
   const r = await fetch(
     `${URL_BASE}/rest/v1/comerciales?select=id&equipo_id=eq.${yo.id}&activo=is.true&limit=1`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },

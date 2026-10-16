@@ -14,6 +14,7 @@ import {
   type TipoDia,
   darDeAlta,
   darDeBaja,
+  echarDeLaApp,
   crearAusencia,
   darFuncionTemporal,
   funcionesSinSuplente,
@@ -239,6 +240,13 @@ export async function bajaEmpleado(fd: FormData) {
   if (!ultimo || !motivo) redirect(`/rrhh?p=${personaId}&error=baja#ficha`);
   await darDeBaja(personaId, ultimo, detalle ? `${motivo}: ${detalle}` : motivo, hoyMadrid());
   redirect(`/rrhh?p=${personaId}&aviso=baja#ficha`);
+}
+
+export async function echarYa(fd: FormData) {
+  await gestor();
+  const personaId = String(fd.get("persona") ?? "");
+  await echarDeLaApp(personaId);
+  redirect(`/rrhh?p=${personaId}&aviso=echado#ficha`);
 }
 
 export async function deshacerBaja(fd: FormData) {

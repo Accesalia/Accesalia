@@ -362,6 +362,16 @@ export async function darDeBaja(personaId: string, ultimoDia: string, motivo: st
   await escribir(`rrhh_horarios?${q}&${abierto}`, "PATCH", { hasta: ultimoDia });
   await escribir(`rrhh_salarios?${q}&${abierto}`, "PATCH", { hasta: ultimoDia });
   await escribir(`rrhh_ausencias?${q}&estado=eq.solicitada&desde=gt.${ultimoDia}`, "PATCH", { estado: "anulada", resuelta_en: new Date().toISOString() });
+  // Si el ultimo dia ya paso, fuera de la app en el acto (16-oct-2026).
+  if (ultimoDia < hoy) await echarDeLaApp(personaId);
+}
+
+/** ECHAR DE LA APP YA (Monica, 16-oct-2026). Quien ha entrado lleva quien es en
+ *  su pase, y el pase vale hasta una hora: una baja se nota al renovarlo. Esto
+ *  no espera: borra sus sesiones (no puede renovar) y apunta la hora, y la
+ *  puerta deja de aceptar el pase que aun tenga (en un minuto como mucho). */
+export function echarDeLaApp(personaId: string) {
+  return rest<unknown>("rpc/cerrar_sesiones", { method: "POST", body: JSON.stringify({ p_equipo_id: personaId }) });
 }
 
 /** Deshacer una baja (por error, o porque al final se queda). No reabre lo que se cerro: se revisa en la ficha. */

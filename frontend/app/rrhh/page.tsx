@@ -31,6 +31,7 @@ const AVISOS: Record<string, string> = {
   alta: "Alta hecha. Esta es su ficha.",
   alta_sin_docs: "Alta hecha, pero algún documento no se ha subido. Súbelo aquí, en su ficha.",
   baja: "Baja registrada.",
+  echado: "Fuera de la app: sus sesiones están cerradas y en un minuto deja de poder entrar, aunque tuviera la app abierta.",
   baja_anulada: "Baja deshecha: vuelve a estar en activo. Revisa sus funciones y su contrato en la ficha.",
   descartado: "PDF descartado.",
   dia: "Día guardado en el calendario.",
