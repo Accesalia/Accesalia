@@ -181,6 +181,7 @@ function Opp({ o }: { o: OppPanoramica }) {
             {o.opp.nombre}
           </Link>
           {o.comercial && <span className="ml-2 text-[13px] text-carbon/60">{o.comercial}</span>}
+          <div className="mt-0.5 text-[12.5px] text-carbon/65">{firmas(o)}</div>
         </div>
         <Barra total={o.firmado} facturado={o.facturado} cobrado={o.cobrado} alto="h-3" />
         <div className="text-right tabular-nums">
@@ -199,12 +200,19 @@ function Opp({ o }: { o: OppPanoramica }) {
   );
 }
 
+/** Cuando se firmo: una fecha, o la primera y la ultima si la opp tiene varias hojas. */
+function firmas(o: OppPanoramica): string {
+  const f = [...new Set(o.lineas.map((l) => l.fecha_firma).filter((x): x is string => !!x))].sort();
+  if (!f.length) return "";
+  return f.length === 1 ? `Firmada el ${fecha(f[0])}` : `Firmadas del ${fecha(f[0])} al ${fecha(f[f.length - 1])}`;
+}
+
 function Linea({ l }: { l: LineaPanoramica }) {
   const total = l.importe ?? 0;
   return (
-    <div className="grid grid-cols-[110px_1fr_90px_260px_170px] items-center gap-5 text-[13.5px]">
-      <span className="text-[12.5px] text-carbon/60" title={`Firmada el ${fecha(l.fecha_firma)}`}>
-        {l.hoja}
+    <div className="grid grid-cols-[175px_1fr_90px_260px_170px] items-center gap-5 text-[13.5px]">
+      <span className="whitespace-nowrap text-[12.5px] text-carbon/65">
+        {l.hoja} · <b className="font-semibold text-carbon/80">{fecha(l.fecha_firma)}</b>
       </span>
       <span className="min-w-0 truncate text-carbon/90" title={l.descripcion ?? ""}>
         {l.descripcion || "Línea sin concepto"}
