@@ -20,7 +20,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
   const facturas = await facturasEmitidas(anio);
   return (
     <MarcoDinero yo={yo} area="cobrar" activo="facturas">
-      <FacturasEmitidas facturas={facturas} anio={anio} anios={[hoy, hoy - 1]} />
+      <FacturasEmitidas facturas={facturas} anio={anio} anios={Array.from({ length: hoy - 2018 }, (_, i) => hoy - i)} />
     </MarcoDinero>
   );
 }

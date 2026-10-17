@@ -22,6 +22,7 @@ const ESTADO: Record<EstadoCobro, { t: string; c: string }> = {
   parcial: { t: "cobrada en parte", c: "bg-[#fbefd0] text-[#875f07]" },
   devuelta: { t: "devuelta", c: "bg-[#f6dfdd] text-alerta" },
   sin_justificante: { t: "sin justificante", c: "bg-[#fbefd0] text-[#875f07]" },
+  no_se_guardaba: { t: "no se guardaba", c: "bg-black/[.05] text-carbon/55" },
   anulada: { t: "—", c: "text-carbon/40" },
 };
 const TIPO_COBRO: Record<string, string> = {

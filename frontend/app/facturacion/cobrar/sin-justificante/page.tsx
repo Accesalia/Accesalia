@@ -25,7 +25,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
       <FacturasEmitidas
         facturas={facturas}
         anio={anio}
-        anios={[hoy, hoy - 1]}
+        anios={Array.from({ length: hoy - 2018 }, (_, i) => hoy - i)}
         titulo="Facturas sin justificante"
         filtroInicial="sin-justificante"
         ruta="/facturacion/cobrar/sin-justificante"
