@@ -58,6 +58,20 @@ const AREAS: { clave: string; titulo: string }[] = [
   { clave: "3PPTOS", titulo: "3 presupuestos" },
 ];
 const LICENCIA = "TRAMITACION LICENCIAS";
+// QUE INCLUYE, el cuadro de elegibles de Monica (16 y 17-oct-2026): tres
+// bloques con una raya entre ellos -proyecto, obra y servicios-. En proyecto,
+// primero que se hace (el basico y de ejecucion, solo arriba) y, debajo, lo que
+// va con el y lo que se contrata aparte. Solo ordena la pantalla: se puede
+// marcar todo, y el orden de la hoja es el del catalogo. Un bloque nuevo de
+// proyecto sale en "Aparte"; uno de obra, al final de obra.
+const PRY_PRINCIPAL = "REDACCION PROYECTO";
+const PRY_OTROS = ["INFORME TECNICO", "INFORME PERICIAL", "MEMORIA TECNICA", "CONSULTA URBANISTICA", "MODIFICACION DE PROYECTO"];
+const PRY_VA_CON = ["TOMA DE DATOS Y MODELADO 3D", "VISADO", LICENCIA];
+const PRY_APARTE = ["CEE", "MEDICIONES Y CIEGO"];
+const OBRA = ["DF", "CERTIFICADO FIN DE OBRA", "CSS"];
+/** Lo que va DENTRO de otro y no sale como etiqueta: el inicio de obra va con
+ *  la DF, no se contrata suelto. Se marca y se desmarca con ella. */
+const DENTRO_DE: Record<string, { de: string; nota: string }> = { "INICIO DE OBRA": { de: "DF", nota: "incluye el inicio de obra" } };
 
 type Actuacion = { clave: number; tipoId: string; accesoIds: string[] };
 type Estado = {
@@ -97,6 +111,9 @@ const BTN = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13
 const BTN_PRIM = "rounded-xl border border-lima bg-lima px-3.5 py-[7px] text-[13px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50";
 /** El secundario es un borde, como manda la guia de estilo. */
 const BTN_SEC = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13px] font-semibold text-carbon/70 transition hover:border-carbon/40 disabled:opacity-50";
+/** Un grupo de "Que incluye" (proyecto, obra, servicios), con raya debajo. */
+const GRUPO = "grid grid-cols-[84px_1fr] items-start gap-2 border-b border-black/15";
+const AREA = "pt-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]";
 const CHIP = "inline-flex items-center gap-1.5 rounded-full border px-3 py-[5px] text-[13px] font-semibold";
 const DOC = "cursor-pointer rounded-lg border px-[9px] py-1 text-xs font-semibold";
 
@@ -735,7 +752,6 @@ function Generador({
   // POR SEPARADO O CONJUNTO, de un golpe: las lineas de proyecto que se cobran.
   // Cada una sigue teniendo su casilla, por si una va aparte.
   const deProyecto = cobrados.filter((l) => l.b.naturaleza === "proyecto");
-  const todasJuntas = deProyecto.length >= 2 && deProyecto.every((l) => st.junto[l.clave]);
 
   const contrata = datos.contratas.find((c) => c.id === st.aQuien) ?? null;
   const persona = st.aQuien.startsWith("persona:") ? datos.personas.find((x) => `persona:${x.id}` === st.aQuien) ?? null : null;
@@ -751,8 +767,11 @@ function Generador({
     setSt((s) => {
       const on = { ...s.on };
       const modo = { ...s.modo };
-      if (on[b.id]) on[b.id] = false;
-      else marcarConAtajos(bloques, on, modo, b);
+      if (on[b.id]) {
+        on[b.id] = false;
+        // Lo que va dentro (el inicio de obra) se va con quien lo lleva.
+        for (const x of bloques) if (DENTRO_DE[x.codigo]?.de === b.codigo) on[x.id] = false;
+      } else marcarConAtajos(bloques, on, modo, b);
       return { ...s, on, modo };
     });
   // Un bloque que no va suelto (el visado) solo se puede marcar si esta marcado
@@ -774,8 +793,29 @@ function Generador({
         el.title = "Se cambia en las casillas de la izquierda";
       }
     }
+    // EL NOMBRE DE CADA LINEA SE ESCRIBE EN EL PAPEL (Monica, 17-oct-2026): en
+    // la tabla de importes, la celda del nombre se edita; la cifra no. Se
+    // recoge al salir de la celda (escribiendo no se repinta nada, y asi no se
+    // pierde el cursor). Vacia, vuelve el nombre que propone la app.
+    const alSalir = (e: FocusEvent) => {
+      const td = (e.target as HTMLElement).closest?.<HTMLElement>("[data-n]");
+      if (!td) return;
+      const clave = td.dataset.n as string;
+      const valor = (td.textContent ?? "").trim();
+      setSt((s) => ({ ...s, texto: { ...s.texto, [clave]: valor } }));
+    };
+    const alTeclear = (e: KeyboardEvent) => {
+      const td = (e.target as HTMLElement).closest?.<HTMLElement>("[data-n]");
+      if (td && e.key === "Enter") (e.preventDefault(), td.blur());
+    };
+    p.addEventListener("focusout", alSalir);
+    p.addEventListener("keydown", alTeclear);
     const fecha = p.querySelector<HTMLElement>('[data-p="fecha"]');
     if (fecha) fecha.textContent = fechaLarga();
+    return () => {
+      p.removeEventListener("focusout", alSalir);
+      p.removeEventListener("keydown", alTeclear);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -849,13 +889,15 @@ function Generador({
     // lo tienen, o "incluido en el conjunto" si va a precio unico-.
     const des = p.querySelector<HTMLElement>('[data-p="desglose"]');
     const precio = (n: number) => `${eur(n)} € + ${eur(n * 0.21)} IVA = ${eur(n * 1.21)} €`;
+    // La celda del nombre, editable en el papel (la recoge alSalir).
+    const editable = (clave: string) => ` data-n="${esc(clave)}" contenteditable="true" title="Haz clic para cambiar el nombre"`;
     if (des) {
       const filas: string[] = [];
       if (hayConjunto) {
-        filas.push(`<tr><td><b>${esc(nombreConjunto)}</b></td><td class="r"><b>${precio(importeConjunto)}</b></td></tr>`);
+        filas.push(`<tr><td${editable("CONJUNTO")}><b>${esc(nombreConjunto)}</b></td><td class="r"><b>${precio(importeConjunto)}</b></td></tr>`);
         for (const l of enConjunto) {
           const n = importeDe(l);
-          filas.push(`<tr><td style="padding-left:16px">${esc(nombreLinea(l))}</td><td class="r">${n > 0 ? precio(n) : "<i>incluido en el conjunto</i>"}</td></tr>`);
+          filas.push(`<tr><td style="padding-left:16px"${editable(l.clave)}>${esc(nombreLinea(l))}</td><td class="r">${n > 0 ? precio(n) : "<i>incluido en el conjunto</i>"}</td></tr>`);
         }
       }
       for (const l of conLinea) {
@@ -863,7 +905,7 @@ function Generador({
         const valor = exitoDe(l.b)
           ? `${eur(pctDe(l.b))} % de ${esc(l.b.exito?.base ?? "")} + IVA`
           : modoDe(l.b) === "se_cobra" ? precio(importeDe(l)) : "<i>incluido</i>";
-        filas.push(`<tr><td>${esc(nombreLinea(l))}</td><td class="r">${valor}</td></tr>`);
+        filas.push(`<tr><td${editable(l.clave)}>${esc(nombreLinea(l))}</td><td class="r">${valor}</td></tr>`);
       }
       des.innerHTML = `<table>${filas.join("")}</table>` + `<div class="totalbanda">Total Honorarios Profesionales: ${eur(total)} €${esc(masExito)} + IVA</div>`;
     }
@@ -934,10 +976,39 @@ function Generador({
   const opcionesTipo = datos.tipos.map((t) => ({ valor: t.id, texto: t.nombre }));
   // "Que se hace" en las cuatro columnas del alta de la opp (14-oct-2026).
   const gruposTipo = columnasDeInteres(datos.tipos);
-  // Los bloques por area; uno sin area (uno nuevo del catalogo) sale al final.
-  const porArea = [...AREAS, { clave: "", titulo: "Otros" }]
-    .map((a) => ({ ...a, bloques: bloques.filter((b) => (a.clave ? b.area === a.clave : !AREAS.some((x) => x.clave === b.area))) }))
+  // Proyecto y obra, con su orden; lo que no esta en las listas, al final.
+  const deLista = (cs: string[]) => cs.map((c) => bloques.find((b) => b.codigo === c)).filter((b): b is BloqueHoja => !!b);
+  const sinLista = (area: string, puestos: string[]) => bloques.filter((b) => b.area === area && !puestos.includes(b.codigo) && !DENTRO_DE[b.codigo]);
+  const pryPrincipal = deLista([PRY_PRINCIPAL]);
+  const pryOtros = deLista(PRY_OTROS);
+  const pryVaCon = deLista(PRY_VA_CON);
+  const pryAparte = [...deLista(PRY_APARTE), ...sinLista("PRY", [PRY_PRINCIPAL, ...PRY_OTROS, ...PRY_VA_CON, ...PRY_APARTE])];
+  const obra = [...deLista(OBRA), ...sinLista("OBR", OBRA)];
+  // Los servicios, por area; uno sin area (uno nuevo del catalogo) sale al final.
+  const servicios = [...AREAS.filter((a) => a.clave !== "PRY" && a.clave !== "OBR"), { clave: "", titulo: "Otros" }]
+    .map((a) => ({ ...a, bloques: bloques.filter((b) => !DENTRO_DE[b.codigo] && (a.clave ? b.area === a.clave : !AREAS.some((x) => x.clave === b.area))) }))
     .filter((a) => a.bloques.length);
+  const notaDentro = (b: BloqueHoja) => Object.values(DENTRO_DE).find((x) => x.de === b.codigo)?.nota;
+  const chip = (b: BloqueHoja) => (
+    <button
+      key={b.id}
+      type="button"
+      onClick={() => toggle(b)}
+      disabled={!b.suelto && !st.on[b.id] && !arrastrado(b)}
+      title={
+        b.suelto
+          ? undefined
+          : "No se contrata suelto: va con " +
+            bloques.filter((x) => x.marcaTambien.includes(b.id)).map((x) => x.nombreCorto).join(" o ")
+      }
+      className={
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 " +
+        (st.on[b.id] ? "border-lima bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/50 hover:border-carbon hover:text-carbon")
+      }
+    >
+      {st.on[b.id] && "✓"} {b.nombreCorto}
+    </button>
+  );
   // A quien va: su comunidad (si la tiene), el particular titular de sus accesos
   // o una contrata. Tener CP no es condicion para hacer la hoja (13-oct-2026).
   const opcionesAQuien = [
@@ -945,6 +1016,137 @@ function Generador({
     ...datos.personas.map((x) => ({ valor: `persona:${x.id}`, texto: x.nombre, pista: "particular, titular" })),
     ...datos.contratas.map((c) => ({ valor: c.id, texto: c.nombre, pista: c.cif ?? "contrata" })),
   ];
+
+  // LA FORMA DE PAGO de una linea que se cobra. A MANO (14-oct-2026): si no es
+  // ninguna de la lista, se escribe; sus hitos se revisaran en facturacion al firmar.
+  const pagoUI = (l: Linea) => (
+    <Elegir
+      id={`pago-${l.clave}`}
+      nombre=""
+      clase="min-w-0 flex-[1.3] text-xs"
+      opciones={[...FORMAS_PAGO.map((f) => ({ valor: f, texto: f })), { valor: A_MANO, texto: "Otra: escribirla a mano…" }]}
+      valor={st.mano[l.clave] ? A_MANO : pagoDe(l)}
+      alElegir={(v) =>
+        v === A_MANO
+          ? poner({ mano: { ...st.mano, [l.clave]: true }, pago: { ...st.pago, [l.clave]: st.pago[l.clave] ?? pagoDe(l) } })
+          : v && poner({ pago: { ...st.pago, [l.clave]: v }, mano: { ...st.mano, [l.clave]: false } })
+      }
+    />
+  );
+  const pagoAMano = (l: Linea) =>
+    st.mano[l.clave] && (
+      <div className="mt-1.5">
+        <input
+          type="text"
+          value={st.pago[l.clave] ?? ""}
+          placeholder="30% a la contratación · 70% a la entrega del Proyecto"
+          onChange={(e) => poner({ pago: { ...st.pago, [l.clave]: e.target.value } })}
+          className="w-full rounded-[10px] border border-amber-400 bg-amber-50 px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
+        />
+        <p className="mt-0.5 text-[11px] text-amber-900/80">Escrita a mano: al recibirla firmada, facturación revisará sus hitos.</p>
+      </div>
+    );
+
+  // LO INCLUIDO VA DENTRO DE QUIEN LO TRAE (maqueta de Monica, 17-oct-2026): el
+  // IEE, el libro y el CEE, incluidos, en la caja gris de la documentacion
+  // tecnica que los arrastra. Si uno pasa a cobrarse, sale a su propia linea.
+  const padreDe = (l: Linea) =>
+    modoDe(l.b) !== "incluido"
+      ? null
+      : conLinea.find((x) => x.b.id !== l.b.id && x.b.marcaTambien.includes(l.b.id) && modoDe(x.b) === "se_cobra" && !dentro(x) && conLinea.find((y) => y.b.id === x.b.id) === x) ?? null;
+
+  // El importe (o el % a exito). Sin cobrar, sigue ahi, en gris y sin tocar.
+  const importeUI = (l: Linea) => {
+    const b = l.b;
+    const cobra = modoDe(b) === "se_cobra";
+    return (
+      <label className={"flex shrink-0 items-center gap-1 text-[13px] " + (cobra ? "" : "text-carbon/40")}>
+        <input
+          type="text"
+          inputMode="decimal"
+          disabled={!cobra}
+          value={!cobra ? "—" : exitoDe(b) ? st.pct[b.id] ?? EUR.format(b.exito!.porcentaje) : st.imp[l.clave] ?? (b.importe != null ? EUR.format(b.importe) : "")}
+          placeholder="0"
+          onChange={(e) => poner(exitoDe(b) ? { pct: { ...st.pct, [b.id]: e.target.value } } : { imp: { ...st.imp, [l.clave]: e.target.value } })}
+          className="w-[86px] rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
+        />
+        {exitoDe(b) ? "%" : "€"}
+      </label>
+    );
+  };
+  const nombreUI = (l: Linea, chico = false) => (
+    <span className={"min-w-0 font-bold uppercase tracking-[.02em] text-carbon " + (chico ? "text-[12px]" : "text-[13px]")}>
+      {l.b.nombreCorto}
+      {l.tipo && <span className="font-semibold text-carbon/65"> · {l.tipo}</span>}
+    </span>
+  );
+  const interruptorUI = (l: Linea) => <Interruptor valor={modoDe(l.b)} alCambiar={(v) => poner({ modo: { ...st.modo, [l.b.id]: v } })} />;
+
+  // UNA LINEA DE IMPORTES (maqueta de Monica, 17-oct-2026): QUE, CUANTO y COMO
+  // SE COBRA, en una fila; debajo, se cobra / incluido / no aparece. Lo demas
+  // (el nombre en la hoja) se escribe en el papel.
+  const linea = (l: Linea, enCaja = false) => {
+    const b = l.b;
+    const m = modoDe(b);
+    // El interruptor es del bloque: sale en su primera linea.
+    const primera = conLinea.find((x) => x.b.id === b.id) === l;
+    const cobra = m === "se_cobra";
+    const hijos = conLinea.filter((c) => padreDe(c) === l);
+    // Arriba QUE y como va (se cobra / incluido / no aparece); debajo, solo si
+    // se cobra, CUANTO y COMO SE COBRA. Lo que no se cobra ahorra la fila
+    // entera (Monica, 17-oct-2026).
+    const cuerpo = (
+      <>
+        <div className="flex items-center gap-2">
+          <div className="flex-1">{nombreUI(l)}</div>
+          {/* Con el conjunto puesto, cada proyecto puede ir dentro o aparte. */}
+          {hayConjunto && b.naturaleza === "proyecto" && cobra && (
+            <button
+              type="button"
+              onClick={() => poner({ junto: { ...st.junto, [l.clave]: !enCaja } })}
+              className="shrink-0 text-[11px] font-semibold text-lima-dark underline-offset-2 hover:underline"
+            >
+              {enCaja ? "sacar del conjunto" : "meter en el conjunto"}
+            </button>
+          )}
+          {primera && interruptorUI(l)}
+        </div>
+        {cobra && (
+          <div className="mt-2 flex items-center gap-2">
+            {importeUI(l)}
+            {exitoDe(b) && <span className="text-xs text-carbon/70">de {b.exito?.base ?? "la base"}, a la {MOMENTO[b.exito?.hito ?? ""] ?? b.exito?.hito}</span>}
+            {/* Dentro del conjunto, la forma de pago es la del conjunto. */}
+            {!exitoDe(b) && !enCaja && (
+              <>
+                <span className="text-carbon/40">—</span>
+                {pagoUI(l)}
+              </>
+            )}
+          </div>
+        )}
+        {cobra && !exitoDe(b) && !enCaja && pagoAMano(l)}
+      </>
+    );
+    return (
+      <div key={l.clave} className="border-b border-black/20 py-3 last:border-b-0">
+        {hijos.length ? (
+          <div className="rounded-xl bg-[#ebeae5] p-3">
+            {cuerpo}
+            <div className="mt-2 flex flex-col gap-1.5 pl-5">
+              {hijos.map((h) => (
+                <div key={h.clave} className="flex items-center gap-2">
+                  <div className="flex-1">{nombreUI(h, true)}</div>
+                  {conLinea.find((x) => x.b.id === h.b.id) === h && interruptorUI(h)}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          cuerpo
+        )}
+      </div>
+    );
+  };
 
   return (
     <section id="generador" className="mt-4 rounded-[18px] border border-[#b9d9a0] bg-form p-4">
@@ -1045,34 +1247,49 @@ function Generador({
           {/* ---------- que incluye ---------- */}
           <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
             <div className={TITULO + " mb-2.5"}>Qué incluye</div>
-            <div className="flex flex-col gap-2">
-            {porArea.map((a) => (
-            <div key={a.clave} className="grid grid-cols-[96px_1fr] items-start gap-2">
-              <span className="pt-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{a.titulo}</span>
-            <div className="flex flex-wrap gap-1.5">
-              {a.bloques.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => toggle(b)}
-                  disabled={!b.suelto && !st.on[b.id] && !arrastrado(b)}
-                  title={
-                    b.suelto
-                      ? undefined
-                      : "No se contrata suelto: va con " +
-                        bloques.filter((x) => x.marcaTambien.includes(b.id)).map((x) => x.nombreCorto).join(" o ")
-                  }
-                  className={
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 " +
-                    (st.on[b.id] ? "border-lima bg-lima-soft text-lima-dark" : "border-black/10 bg-white text-carbon/50 hover:border-carbon hover:text-carbon")
-                  }
-                >
-                  {st.on[b.id] && "✓"} {b.nombreCorto}
-                </button>
-              ))}
-            </div>
-            </div>
-            ))}
+            <div className="flex flex-col">
+              {/* PROYECTO */}
+              <div className={GRUPO + " pb-3"}>
+                <span className={AREA}>Proyecto</span>
+                <div className="border-l border-black/25 pl-2.5">
+                  <div className="flex flex-wrap gap-1.5">{pryPrincipal.map(chip)}</div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">{pryOtros.map(chip)}</div>
+                  <div className="mt-2.5 grid grid-cols-[72px_1fr] gap-y-1.5 border-t border-black/25 pt-2">
+                    {([["Va con él", pryVaCon], ["Aparte", pryAparte]] as const).map(([t, bs]) =>
+                      bs.length ? (
+                        <div key={t} className="contents">
+                          <span className="pt-[5px] text-[11px] text-carbon/65">{t}</span>
+                          <div className="flex flex-wrap gap-1.5 border-l border-black/25 pl-2.5">{bs.map(chip)}</div>
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* OBRA: cada cosa en su linea */}
+              <div className={GRUPO + " py-3"}>
+                <span className={AREA}>Obra</span>
+                <div className="flex flex-col items-start gap-1.5 border-l border-black/25 pl-2.5">
+                  {obra.map((b) => (
+                    <div key={b.id} className="flex flex-wrap items-center gap-2">
+                      {chip(b)}
+                      {notaDentro(b) && <span className="text-[11px] text-carbon/65">{notaDentro(b)}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* SERVICIOS: subvenciones, IEE, CAES... como estaban */}
+              <div className={GRUPO + " border-b-0 pt-3"}>
+                <span className={AREA}>Servicios</span>
+                <div className="grid grid-cols-[112px_1fr] items-start gap-x-2 gap-y-1.5 border-l border-black/25 pl-2.5">
+                  {servicios.map((a) => (
+                    <div key={a.clave} className="contents">
+                      <span className="pt-[5px] text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{a.titulo}</span>
+                      <div className="flex flex-wrap gap-1.5">{a.bloques.map(chip)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1080,160 +1297,59 @@ function Generador({
           <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
             <div className={TITULO + " mb-2.5"}>Importes y forma de pago</div>
             {conLinea.length === 0 && <p className="text-xs text-carbon/60">Marca arriba lo que incluye la hoja.</p>}
-            {/* VARIOS PROYECTOS: cada uno con su importe, o un proyecto conjunto
-                (un parrafo y una linea, a precio unico o la suma). 14-oct-2026. */}
+            {/* VARIOS PROYECTOS (16-oct-2026): con dos o mas, se elige si se
+                reflejan como proyecto conjunto (un parrafo y una linea, a precio
+                unico o la suma). Marcado, van juntos en su cajita; si no, sueltos. */}
             {deProyecto.length >= 2 && (
-              <div className="mb-1.5 flex items-center gap-2 text-xs text-carbon/70">
-                <span className="font-semibold">{deProyecto.length} proyectos:</span>
-                <span className="inline-flex overflow-hidden rounded-[9px] border border-black/20">
-                  {([[false, "Cada uno con su importe"], [true, "Proyecto conjunto"]] as const).map(([si, t], i) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => poner({ junto: { ...st.junto, ...Object.fromEntries(deProyecto.map((l) => [l.clave, si])) } })}
-                      className={"px-2 py-1 text-[11px] font-semibold " + (i > 0 ? "border-l border-black/10 " : "") + (todasJuntas === si ? "bg-carbon text-white" : "bg-white text-carbon/60")}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </span>
-              </div>
+              <label className="mb-1.5 flex cursor-pointer items-center gap-2 text-[13px] font-semibold">
+                <input
+                  type="checkbox"
+                  checked={hayConjunto}
+                  onChange={(e) => poner({ junto: { ...st.junto, ...Object.fromEntries(deProyecto.map((l) => [l.clave, e.target.checked])) } })}
+                  className="accent-[#7ac943]"
+                />
+                Reflejar como proyecto conjunto
+              </label>
             )}
             {conLinea.map((l) => {
-              const b = l.b;
-              const m = modoDe(b);
-              // El interruptor es del bloque: sale en su primera linea.
-              const primera = conLinea.find((x) => x.b.id === b.id) === l;
+              // Lo incluido sale dentro de la caja de quien lo trae.
+              if (padreDe(l)) return null;
+              if (!dentro(l)) return linea(l);
+              // La cajita del conjunto sale donde iria su primera linea.
+              if (enConjunto[0] !== l) return null;
               return (
-                <div key={l.clave} className="grid grid-cols-[1fr_auto_92px] items-center gap-2 border-b border-dashed border-[#e2e2e2] py-1.5">
-                  <span className="text-[13px] font-semibold">
-                    {b.nombreCorto}
-                    {l.tipo && <span className="font-normal text-carbon/70"> · {l.tipo}</span>}
-                    {/* VA EN EL CONJUNTO. Solo para lo que es proyecto: con SATE
-                        y ascensor juntos, cada uno conserva su importe y la linea
-                        condensada es la suma. */}
-                    {b.naturaleza === "proyecto" && m === "se_cobra" && (
-                      <label className="ml-2 cursor-pointer text-[11px] font-normal text-carbon/55">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(st.junto[l.clave])}
-                          onChange={(e) => poner({ junto: { ...st.junto, [l.clave]: e.target.checked } })}
-                          className="mr-1 align-middle"
-                        />
-                        va en el conjunto
-                      </label>
-                    )}
-                  </span>
-                  {primera ? <Interruptor valor={m} alCambiar={(v) => poner({ modo: { ...st.modo, [b.id]: v } })} /> : <span />}
-                  {exitoDe(b) ? (
+                /* LA LINEA DEL PROYECTO CONJUNTO (Monica, 6-oct-2026). Su importe
+                   viene con la suma, PERO ES EDITABLE: "a veces el proyecto
+                   conjunto tiene un precio UNICO, y otras se desglosa".
+                   La hoja enseña las tres lineas; la viabilidad, solo esta. */
+                <div key="CONJUNTO" className="my-2 rounded-xl border border-lima/40 bg-lima-soft/40 p-2.5">
+                  <div className="text-[13px] font-semibold">Proyecto conjunto</div>
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
+                    <span className="text-xs text-carbon/65">Importe del conjunto</span>
                     <label className="flex items-center gap-1 text-[13px]">
                       <input
                         type="text"
                         inputMode="decimal"
-                        value={st.pct[b.id] ?? EUR.format(b.exito!.porcentaje)}
-                        onChange={(e) => poner({ pct: { ...st.pct, [b.id]: e.target.value } })}
-                        className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none"
+                        value={st.imp.CONJUNTO ?? EUR.format(sumaConjunto)}
+                        onChange={(e) => poner({ imp: { ...st.imp, CONJUNTO: e.target.value } })}
+                        className="w-[110px] rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none"
                       />
-                      %
+                      €
                     </label>
-                  ) : (
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      disabled={m !== "se_cobra"}
-                      value={m === "se_cobra" ? st.imp[l.clave] ?? (b.importe != null ? EUR.format(b.importe) : "") : "—"}
-                      placeholder="€"
-                      onChange={(e) => poner({ imp: { ...st.imp, [l.clave]: e.target.value } })}
-                      className="w-full rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
-                    />
-                  )}
-                  {m === "se_cobra" && (
-                    <div className="col-span-3">
-                      {/* EL TEXTO, escrito una vez: viaja a la hoja y a la
-                          viabilidad. "Proyecto de bajada a cota cero de 5
-                          ascensores." */}
-                      <input
-                        type="text"
-                        value={st.texto[l.clave] ?? ""}
-                        placeholder={`Cómo se llama en el documento — "${nombreLinea({ ...l, clave: "" }).toLowerCase()}…"`}
-                        onChange={(e) => poner({ texto: { ...st.texto, [l.clave]: e.target.value } })}
-                        className="mb-1 w-full rounded-[10px] border border-black/15 bg-white px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
-                      />
-                    </div>
-                  )}
-                  {exitoDe(b) && primera && (
-                    <div className="col-span-3 text-xs text-carbon/65">
-                      A éxito: <b className="text-carbon/80">{textoExito(b)}</b>. Sale así en la hoja.
-                    </div>
-                  )}
-                  {m === "se_cobra" && !exitoDe(b) && (
-                    <div className="col-span-3 flex items-center gap-1.5 text-xs text-carbon/65">
-                      <span className="shrink-0">Forma de pago</span>
-                      {/* A MANO (14-oct-2026): si no es ninguna de la lista, se
-                          escribe; sus hitos se revisaran en facturacion al firmar. */}
-                      <Elegir
-                        id={`pago-${l.clave}`}
-                        nombre=""
-                        clase="min-w-0 flex-1"
-                        opciones={[...FORMAS_PAGO.map((f) => ({ valor: f, texto: f })), { valor: A_MANO, texto: "Otra: escribirla a mano…" }]}
-                        valor={st.mano[l.clave] ? A_MANO : pagoDe(l)}
-                        alElegir={(v) =>
-                          v === A_MANO
-                            ? poner({ mano: { ...st.mano, [l.clave]: true }, pago: { ...st.pago, [l.clave]: st.pago[l.clave] ?? pagoDe(l) } })
-                            : v && poner({ pago: { ...st.pago, [l.clave]: v }, mano: { ...st.mano, [l.clave]: false } })
-                        }
-                      />
-                    </div>
-                  )}
-                  {m === "se_cobra" && !exitoDe(b) && st.mano[l.clave] && (
-                    <div className="col-span-3">
-                      <input
-                        type="text"
-                        value={st.pago[l.clave] ?? ""}
-                        placeholder="30% a la contratación · 70% a la entrega del Proyecto"
-                        onChange={(e) => poner({ pago: { ...st.pago, [l.clave]: e.target.value } })}
-                        className="w-full rounded-[10px] border border-amber-400 bg-amber-50 px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
-                      />
-                      <p className="mt-0.5 text-[11px] text-amber-900/80">Escrita a mano: al recibirla firmada, facturación revisará sus hitos.</p>
-                    </div>
-                  )}
+                  </div>
+                  <p className="mt-1 text-[11px] leading-snug text-carbon/65">
+                    Sale la suma de las líneas de dentro. Cámbialo si el conjunto va a precio único.
+                  </p>
+                  {/* El conjunto se paga como una sola cosa: la forma de pago de su primera linea. */}
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="flex-1 text-xs text-carbon/65">Forma de pago</span>
+                    {pagoUI(enConjunto[0])}
+                  </div>
+                  {pagoAMano(enConjunto[0])}
+                  <div className="mt-2 rounded-lg border border-black/10 bg-white/70 px-2.5">{enConjunto.map((x) => linea(x, true))}</div>
                 </div>
               );
             })}
-            {/* LA LINEA DEL PROYECTO CONJUNTO (Monica, 6-oct-2026).
-                Aparece cuando hay dos o mas marcadas como "va en el conjunto".
-                Su importe viene prerrellenado con la suma, PERO ES EDITABLE:
-                "a veces el proyecto conjunto tiene un precio UNICO, y otras se
-                desglosa; de ahi que la mano del comercial sea la que retoca al
-                final, solo el sabe cual es cada caso".
-                La hoja enseña las tres lineas; la viabilidad, solo esta. */}
-            {enConjunto.length >= 2 && (
-              <div className="mt-2 rounded-xl border border-lima/40 bg-lima-soft/40 p-2.5">
-                <div className="text-[11px] font-bold uppercase tracking-wide text-lima-dark/80">
-                  Proyecto conjunto · {enConjunto.map((l) => l.b.nombreCorto + (l.tipo ? ` (${l.tipo.toLowerCase()})` : "")).join(" + ")}
-                </div>
-                <input
-                  type="text"
-                  value={st.texto.CONJUNTO ?? ""}
-                  placeholder="Proyecto conjunto de bajada a cota cero de 5 ascensores y arreglo de cubierta"
-                  onChange={(e) => poner({ texto: { ...st.texto, CONJUNTO: e.target.value } })}
-                  className="mt-1.5 w-full rounded-[10px] border border-black/15 bg-white px-2.5 py-1 text-[12.5px] focus:border-lima focus:outline-none"
-                />
-                <div className="mt-1.5 flex items-center justify-between gap-2">
-                  <span className="text-xs text-carbon/65">Importe del conjunto</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={st.imp.CONJUNTO ?? EUR.format(sumaConjunto)}
-                    onChange={(e) => poner({ imp: { ...st.imp, CONJUNTO: e.target.value } })}
-                    className="w-[110px] rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none"
-                  />
-                </div>
-                <p className="mt-1 text-[11px] leading-snug text-carbon/55">
-                  Sale la suma de las líneas de arriba. Cámbialo si el conjunto va a precio único.
-                </p>
-              </div>
-            )}
 
             <div className="mt-2 flex justify-between font-bold">
               <span>Total honorarios</span>
@@ -1261,12 +1377,12 @@ function Generador({
         {/* ---------- la hoja, como papel ---------- */}
         <div className="xl:sticky xl:top-[76px]">
           <div className="mb-1.5 text-xs text-carbon/65">
-            La hoja tal como saldrá. <b>Haz clic en cualquier texto para cambiarlo</b> en esta hoja (el catálogo no se toca). Los importes se cambian en las casillas.
+            La hoja tal como saldrá. <b>Haz clic en cualquier texto para cambiarlo</b> en esta hoja (el catálogo no se toca). Los importes se cambian en las casillas; el nombre de cada línea, aquí en la tabla.
           </div>
           <div
             ref={papel}
             suppressContentEditableWarning
-            className="hoja-papel max-h-[calc(100vh-110px)] overflow-auto rounded px-[46px] py-[38px] shadow-[0_2px_10px_rgba(0,0,0,.12)] [&_[contenteditable=true]:focus]:outline-none"
+            className="hoja-papel max-h-[calc(100vh-110px)] overflow-auto rounded px-[46px] py-[38px] shadow-[0_2px_10px_rgba(0,0,0,.12)] [&_[contenteditable=true]:focus]:outline-none [&_[data-n]:hover]:bg-lima-soft [&_[data-n]:focus]:bg-lima-soft"
           />
         </div>
       </div>
@@ -1308,6 +1424,8 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const MOMENTO: Record<string, string> = { concesion: "concesión", adjudicacion: "adjudicación", presentacion: "presentación", licencia: "licencia", cfo: "fin de obra" };
 const frase = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
+const TONO: Record<Desglose, string> = { se_cobra: "bg-carbon text-white", incluido: "bg-[#a6a6a6] text-carbon", no_aparece: "bg-[#e2e2e2] text-carbon/80" };
+
 function Interruptor({ valor, alCambiar }: { valor: Desglose; alCambiar: (v: Desglose) => void }) {
   const op: [Desglose, string][] = [
     ["se_cobra", "Se cobra"],
@@ -1321,7 +1439,14 @@ function Interruptor({ valor, alCambiar }: { valor: Desglose; alCambiar: (v: Des
           key={v}
           type="button"
           onClick={() => alCambiar(v)}
-          className={"px-2 py-1 text-[11px] font-semibold " + (i > 0 ? "border-l border-black/10 " : "") + (valor === v ? "bg-carbon text-white" : "bg-white text-carbon/60")}
+          // TRES OPCIONES, TRES TONOS (Monica, 16-oct-2026): lo que se cobra en
+          // negro, lo incluido en gris medio, lo que no aparece en gris claro.
+          // De un vistazo se distingue lo que lleva importe.
+          className={
+            "px-2 py-1 text-[11px] font-semibold " +
+            (i > 0 ? "border-l border-black/10 " : "") +
+            (valor !== v ? "bg-white text-carbon/60" : TONO[v])
+          }
         >
           {t}
         </button>
