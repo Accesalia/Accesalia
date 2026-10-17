@@ -18,9 +18,16 @@ export type Pago = {
   vigilar: string;       // el dia que hay que tenerlo hecho (domiciliado: unos dias antes)
   importe: number | null;
   estimado: boolean;
+  /** Lo previsto (importe_estimado) y lo real (importe), por separado: la desviacion. */
+  previsto: number | null;
+  real: number | null;
+  /** Que impuesto es (la obligacion), para agrupar en su tarjeta. */
+  obligacion: string;
   sinCargo: boolean;     // se presenta pero no se paga (informativas, cuentas)
   estado: "pendiente" | "hecho" | "fraccionado";
   estadoTexto: string;
   notas: string | null;
 };
 
+/** Una obligacion con lo que es en cristiano (obligaciones_fiscales.explicacion). */
+export type Obligacion = { id: string; empresa: Empresa; modelo: string; nombre: string; domiciliado: boolean; explicacion: string | null };

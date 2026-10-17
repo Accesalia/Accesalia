@@ -77,9 +77,10 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
       {
         titulo: "Empresa",
         items: [
-          { clave: "emp-todas", titulo: "Las dos", href: "/pagar" },
-          { clave: "emp-accesalia", titulo: "Accesalia", href: "/pagar?empresa=accesalia" },
+          // Cada empresa por separado; juntas solo para la caja (Monica, 17-oct-2026).
+          { clave: "emp-accesalia", titulo: "Accesalia", href: "/pagar" },
           { clave: "emp-daniel", titulo: "Daniel de Soto", href: "/pagar?empresa=daniel_autonomo" },
+          { clave: "emp-todas", titulo: "Las dos juntas", href: "/pagar?empresa=todas" },
         ],
       },
     ];

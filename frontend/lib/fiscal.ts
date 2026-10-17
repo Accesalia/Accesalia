@@ -10,7 +10,7 @@
 
 import "server-only";
 import type { Yo } from "./sesion";
-import { EMPRESAS, type Empresa, type LibroFiscal, type Pago } from "./fiscalTextos";
+import { EMPRESAS, type Empresa, type LibroFiscal, type Obligacion, type Pago } from "./fiscalTextos";
 export * from "./fiscalTextos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -34,6 +34,7 @@ export const librosFiscales = (yo: Yo) => (["accesalia", "ecobalance"] as LibroF
 type FilaVencimiento = {
   id: string; ejercicio: number; periodo: string; fecha_limite: string; fecha_domiciliacion: string | null;
   estado: string; importe_estimado: number | null; importe: number | null; notas: string | null;
+  obligacion_id: string;
   obligacion: { empresa: Empresa; modelo: string; nombre: string; organismo: string; domiciliado: boolean };
   plazos: { numero: number; fecha: string; importe: number; estado: string }[];
 };
@@ -52,7 +53,7 @@ const ESTADO_TEXTO: Record<string, string> = {
 export async function calendarioFiscal(libro: LibroFiscal): Promise<Pago[]> {
   const empresas = EMPRESAS[libro].join(",");
   const filas = await leer<FilaVencimiento[]>(
-    "vencimientos_fiscales?select=id,ejercicio,periodo,fecha_limite,fecha_domiciliacion,estado,importe_estimado,importe,notas," +
+    "vencimientos_fiscales?select=id,obligacion_id,ejercicio,periodo,fecha_limite,fecha_domiciliacion,estado,importe_estimado,importe,notas," +
       "obligacion:obligacion_id!inner(empresa,modelo,nombre,organismo,domiciliado),plazos:vencimiento_plazos(numero,fecha,importe,estado)" +
       `&obligacion.empresa=in.(${empresas})&order=fecha_limite`,
   );
@@ -65,6 +66,7 @@ export async function calendarioFiscal(libro: LibroFiscal): Promise<Pago[]> {
       clave: v.id, empresa: o.empresa, modelo: o.modelo, nombre: o.nombre, periodo,
       fecha: v.fecha_limite, vigilar: v.fecha_domiciliacion ?? v.fecha_limite,
       importe: v.importe ?? v.importe_estimado, estimado: v.importe == null && v.importe_estimado != null,
+      previsto: v.importe_estimado != null ? Number(v.importe_estimado) : null, real: v.importe != null ? Number(v.importe) : null, obligacion: v.obligacion_id,
       sinCargo: !o.domiciliado,
       estado: v.estado === "fraccionado" ? "fraccionado" : hecho ? "hecho" : "pendiente",
       estadoTexto: ESTADO_TEXTO[v.estado] ?? v.estado, notas: v.notas,
@@ -74,10 +76,20 @@ export async function calendarioFiscal(libro: LibroFiscal): Promise<Pago[]> {
       out.push({
         clave: `${v.id}-${p.numero}`, empresa: o.empresa, modelo: o.modelo, nombre: o.nombre, periodo,
         plazo: `plazo ${p.numero} de ${n}`, fecha: p.fecha, vigilar: p.fecha,
-        importe: Number(p.importe), estimado: false, sinCargo: false,
+        importe: Number(p.importe), estimado: false, sinCargo: false, previsto: Number(p.importe), real: p.estado === "pagado" ? Number(p.importe) : null, obligacion: v.obligacion_id,
         estado: p.estado === "pagado" ? "hecho" : "pendiente", estadoTexto: p.estado === "pagado" ? "Pagado" : "Pendiente", notas: null,
       });
     }
   }
   return out.sort((a, b) => a.fecha.localeCompare(b.fecha) || a.empresa.localeCompare(b.empresa));
+}
+
+/** Las obligaciones de un libro, con su explicacion. La explicacion se lee
+ *  aparte: si la columna aun no existe en la base, la pantalla sigue sin ella. */
+export async function obligacionesFiscales(libro: LibroFiscal): Promise<Obligacion[]> {
+  const empresas = EMPRESAS[libro].join(",");
+  const base = await leer<Omit<Obligacion, "explicacion">[]>(`obligaciones_fiscales?select=id,empresa,modelo,nombre,domiciliado&empresa=in.(${empresas})`);
+  const textos = await leer<{ id: string; explicacion: string | null }[]>(`obligaciones_fiscales?select=id,explicacion&empresa=in.(${empresas})`).catch(() => []);
+  const de = new Map(textos.map((t) => [t.id, t.explicacion]));
+  return base.map((o) => ({ ...o, explicacion: de.get(o.id) ?? null }));
 }

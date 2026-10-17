@@ -1,278 +1,188 @@
-import Link from "next/link";
-import { EMPRESA_LABEL, type Empresa, type Pago } from "../../lib/fiscalTextos";
+import { EMPRESA_LABEL, type Empresa, type Obligacion, type Pago } from "../../lib/fiscalTextos";
 
-// PAGAR › IMPUESTOS (Monica, 16-oct-2026), la pantalla de la maqueta validada
-// (docs/figma/area-dinero-v1.html, marco 5): "¿que me toca pagar y cuando?".
-// Arriba, en negro, esta semana; debajo tres columnas (esta semana, el resto del
-// mes y el mes que viene) y el ano en una tabla de meses por empresa.
-// Todo sale del calendario fiscal (lib/fiscal.ts). Donde no hay importe, «por
-// saber»: no se estima nada que no este en la base.
+// PAGAR › IMPUESTOS, rehecha (Monica, 17-oct-2026): «se ve que esta todo, pero
+// cuesta la misma vida saber que pone, es mucho ruido, todo es igual... todo es
+// exageradamente grande y griton». Cada empresa por separado (juntas solo para
+// la caja de un dia). Dos columnas:
+//   - IZQUIERDA, una tarjeta por impuesto: que es en cristiano, cuando se paga,
+//     y fecha a fecha lo previsto, lo real cuando se paga y la desviacion
+//     («para saber que rango debemos considerar la proxima vez»);
+//   - DERECHA, el calendario de pagos mes a mes: pasado en gris, este mes en
+//     burdeos, lo que viene en azul.
+// Solo impuestos: la Seguridad Social y la cuota de autonomo van a «La caja del mes».
 
 export const hoyMadrid = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
-
-const DIA_SEM = new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-const DIA_LARGO = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
-const SEMANA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", timeZone: "UTC" });
-const MES = new Intl.DateTimeFormat("es-ES", { month: "long", timeZone: "UTC" });
-const MES_ANIO = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric", timeZone: "UTC" });
 const fecha = (iso: string) => new Date(iso + "T00:00:00Z");
+const DIA_MES = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" });
+const DIA_SEM = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", timeZone: "UTC" });
+const MES = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric", timeZone: "UTC" });
+const diaMes = (iso: string) => DIA_MES.format(fecha(iso)).replace(".", "");
 const mayus = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
-const diaSem = (iso: string) => DIA_SEM.format(fecha(iso)).replace(",", "");
-const sumar = (iso: string, n: number) => new Date(Date.parse(iso) + n * 86400000).toISOString().slice(0, 10);
-const dias = (de: string, a: string) => Math.round((Date.parse(a) - Date.parse(de)) / 86400000);
-const mesMas = (iso: string, n: number) => {
-  const d = new Date(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1 + n, 1));
-  return d.toISOString().slice(0, 7);
-};
+const EUR = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
 const EUR0 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" });
-const EUR2 = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
+const sumar = (iso: string, n: number) => new Date(Date.parse(iso) + n * 86400000).toISOString().slice(0, 10);
+const mesMas = (iso: string, n: number) => new Date(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1 + n, 1)).toISOString().slice(0, 7);
 
-// Los nombres cortos, como en la maqueta: «303 IVA · 3T», «IVA 2T 2/6 · 5.847».
-const CORTO: Record<string, string> = {
-  "303": "IVA", "111": "Retenciones", "115": "Alquiler", "202": "Sociedades", "200": "Sociedades", "130": "IRPF", "100": "Renta",
-  "390": "Resumen del IVA", "190": "Resumen de retenciones", "180": "Resumen del alquiler", "347": "Operaciones con terceros", "349": "Intracomunitarias",
-  SS: "Seguros sociales", RETA: "Cuota de autónomo", IVTM: "Circulación de los coches", CUENTAS: "Depósito de cuentas",
-};
-const corto = (p: Pago) => CORTO[p.modelo] ?? p.nombre;
-const esNumero = (p: Pago) => /^\d+$/.test(p.modelo);
-/** «3T-2026» → «3T»; «2P-2026» → «2.º pago»; «sept 2026» → «sept»; «Año 2025» se queda. */
-function periodoCorto(p: Pago) {
-  const t = p.periodo.match(/^(\d)T-\d{4}$/);
-  if (t) return `${t[1]}T`;
-  const pg = p.periodo.match(/^(\d)P-\d{4}$/);
-  if (pg) return `${pg[1]}.º pago`;
-  const m = p.periodo.match(/^([a-zé]+)\.? \d{4}$/i);
-  if (m) return m[1];
-  return p.periodo;
-}
-const plazoCorto = (p: Pago) => p.plazo?.replace(/^plazo (\d+) de (\d+)$/, "$1/$2") ?? "";
-/** La fila de una lista: «303 IVA · 3T», «303 IVA 2T · plazo 2 de 6», «Seguros sociales sept». */
-function texto(p: Pago) {
-  if (p.plazo) return `${esNumero(p) ? p.modelo + " " : ""}${corto(p)} ${periodoCorto(p)} · ${p.plazo}`;
-  if (esNumero(p)) return `${p.modelo} ${corto(p)} · ${periodoCorto(p)}`;
-  return `${corto(p)} ${periodoCorto(p)}`;
-}
-/** La pastilla de la tabla del ano: «303 · ?», «IVA 2T 2/6 · 5.847», «SS sept · ?». */
-function pastilla(p: Pago) {
-  const imp = p.importe != null ? EUR0.format(p.importe) : "?";
-  if (p.plazo) return `${corto(p)} ${periodoCorto(p)} ${plazoCorto(p)} · ${imp}`;
-  if (p.modelo === "SS") return `SS ${periodoCorto(p)} · ${imp}`;
-  if (p.modelo === "RETA") return `RETA · ${imp}`;
-  if (esNumero(p)) return `${p.modelo} · ${imp}`;
-  return `${corto(p)} · ${imp}`;
-}
+const NO_ES_IMPUESTO = ["SS", "RETA"];
+const CORTA: Record<Empresa, string> = { accesalia: "Acc.", daniel_autonomo: "Dan.", ecobalance: "Eco." };
+const periodoCorto = (p: Pago) => p.periodo.replace(/^(\d)T-\d{4}$/, "$1T").replace(/^(\d)P-\d{4}$/, "$1.º pago").replace(/^Año /, "");
+const nombreCorto = (p: Pago) =>
+  ({ "303": "IVA", "111": "Retenciones", "115": "Alquiler", "202": "Sociedades (a cuenta)", "200": "Sociedades", "130": "IRPF", "100": "Renta", IVTM: "Circulación" })[p.modelo] ?? p.nombre;
 
-const cuenta = (l: Pago[]) => l.filter((p) => !p.sinCargo && p.estado !== "fraccionado");
-const sabido = (l: Pago[]) => l.reduce((s, p) => s + (p.importe ?? 0), 0);
-const porSaber = (l: Pago[]) => l.filter((p) => p.importe == null).length;
-const totalTexto = (l: Pago[]) => {
-  const n = porSaber(l);
-  const s = sabido(l);
-  if (!l.length) return "";
-  if (!s) return n ? "? €" : "0 €";
-  return `${EUR0.format(s)} €${n ? " + ?" : ""}`;
-};
+/** Lo que va a salir: lo real si ya se sabe; si no, lo previsto. */
+const cifra = (p: Pago) => p.real ?? p.previsto;
 
-function ChipEmpresa({ e, corta }: { e: Empresa; corta?: boolean }) {
-  const t = corta ? { accesalia: "Acc.", daniel_autonomo: "Dan.", ecobalance: "Eco." }[e] : e === "daniel_autonomo" ? "Daniel" : EMPRESA_LABEL[e];
-  const color = e === "daniel_autonomo" ? "bg-[#e2eaf3] text-[#3b5f86]" : "bg-[#e3f2d4] text-[#2f5d14]";
-  return <span className={`inline-flex h-[22px] items-center whitespace-nowrap rounded-full px-2.5 text-[12px] font-bold ${color}`}>{t}</span>;
-}
+// --------------------------------------------------------------- las tarjetas
 
-function Importe({ p, hoy }: { p: Pago; hoy: string }) {
-  if (p.importe == null) return <span className="text-carbon/65">por saber</span>;
+function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; hoy: string; conEmpresa: boolean }) {
+  // Cuando se paga: los dias del proximo año, sin repetir.
+  const proximos = pagos.filter((p) => !p.plazo && p.fecha >= hoy && p.fecha <= sumar(hoy, 365));
+  const cuando = [...new Set(proximos.map((p) => diaMes(p.fecha)))];
+  const filas = pagos.filter((p) => !p.plazo);
   return (
-    <span className={`font-bold tabular-nums ${p.fecha < hoy ? "text-alerta" : "text-carbon"}`}>
-      {EUR2.format(p.importe)}
-      {p.estimado ? <span className="font-normal text-carbon/65"> estimado</span> : null}
-    </span>
-  );
-}
-
-const PANEL = "overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white";
-const PTIT = "flex items-center justify-between gap-3 border-b border-[#eef0eb] px-5 py-4";
-const PUNTO = { rojo: "bg-[#c0443f]", ambar: "bg-[#e8a317]", crema: "bg-[#f2d27a]", gris: "bg-[#cfd3cb]" };
-
-function Columna({ titulo, punto, total, pagos, hoy, conDia, vacio }: {
-  titulo: string; punto: keyof typeof PUNTO; total: string; pagos: Pago[]; hoy: string; conDia?: boolean; vacio: string;
-}) {
-  return (
-    <div className={PANEL}>
-      <div className={PTIT}>
-        <b className="flex items-center text-[16px] text-carbon"><span className={`mr-2 inline-block h-2.5 w-2.5 rounded-full ${PUNTO[punto]}`} />{titulo}</b>
-        <span className="font-bold tabular-nums">{total}</span>
+    <section className="break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-[14.5px] font-bold text-carbon">
+          {o.nombre} <span className="font-normal text-carbon/55">· modelo {o.modelo}</span>
+        </h3>
+        {conEmpresa && <span className="text-[12px] text-carbon/60">{o.empresa === "daniel_autonomo" ? "Daniel" : EMPRESA_LABEL[o.empresa]}</span>}
       </div>
-      {!pagos.length && <p className="px-5 py-4 text-carbon/65">{vacio}</p>}
-      <table className="w-full border-collapse text-[14px]">
-        <tbody>
-          {pagos.map((p) => (
-            <tr key={p.clave} className="border-b border-[#f0f2ee] last:border-0">
-              <td className="px-3.5 py-3 align-top">
-                {(conDia || p.fecha < hoy) && <span className={p.fecha < hoy ? "font-bold text-alerta" : ""}>{diaSem(p.fecha)} · </span>}
-                {texto(p)}
-                {p.fecha < hoy && <span className="text-[12.5px] text-alerta"> · se pasó</span>}
-              </td>
-              <td className="px-2 py-3 align-top"><ChipEmpresa e={p.empresa} corta={conDia} /></td>
-              <td className="whitespace-nowrap px-3.5 py-3 text-right align-top"><Importe p={p} hoy={hoy} /></td>
+      {o.explicacion && <p className="mt-1 text-[12.5px] leading-snug text-carbon/70">{o.explicacion}</p>}
+      {cuando.length > 0 && <p className="mt-1.5 text-[12.5px] text-carbon/80">Se paga: {cuando.join(" · ")}</p>}
+      {filas.length > 0 && (
+        <table className="mt-2 w-full border-collapse text-[12.5px] tabular-nums">
+          <thead>
+            <tr className="text-[10.5px] uppercase tracking-wide text-carbon/50">
+              <th className="py-1 text-left font-semibold">Periodo</th>
+              <th className="py-1 text-left font-semibold">Fecha</th>
+              <th className="py-1 text-right font-semibold">Previsto</th>
+              <th className="py-1 text-right font-semibold">Real</th>
+              <th className="py-1 text-right font-semibold">Desviación</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** «cierre del 3.er trimestre + plazos de aplazamientos»: de que va el dia. */
-function deQueVa(l: Pago[]) {
-  const partes: string[] = [];
-  const t = l.find((p) => !p.plazo && /^\dT-/.test(p.periodo));
-  if (t) partes.push(`cierre del ${t.periodo[0]}.${["", "er", "º", "er", "º"][Number(t.periodo[0])] ?? "º"} trimestre`);
-  if (l.some((p) => p.plazo)) partes.push("plazos de aplazamientos");
-  if (!partes.length) partes.push([...new Set(l.map(corto))].slice(0, 3).join(", ").toLowerCase());
-  return partes.join(" + ");
-}
-
-function FranjaSemana({ semana, hoy }: { semana: Pago[]; hoy: string }) {
-  const proximos = semana.filter((p) => p.fecha >= hoy);
-  const dia = (proximos[0] ?? semana[0])?.fecha;
-  const delDia = semana.filter((p) => p.fecha === dia);
-  const domiciliar = semana.filter((p) => p.vigilar !== p.fecha).map((p) => p.vigilar).sort()[0];
-  const quedan = domiciliar ? dias(hoy, domiciliar) : null;
-  const n = porSaber(semana);
-  return (
-    <div className="mb-6 grid items-center gap-[30px] rounded-2xl bg-carbon px-7 py-[22px] text-white" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1fr" }}>
-      <div>
-        <div className="text-[12px] font-bold uppercase tracking-[.1em] text-[#f2c14e]">Esta semana</div>
-        <div className="mt-1 text-[26px] font-[750]">{dia ? mayus(DIA_LARGO.format(fecha(dia)).replace(",", "")) : "Nada que pagar"}</div>
-        <div className="mt-0.5 text-white/70">{dia ? deQueVa(delDia) : "en los próximos siete días"}</div>
-      </div>
-      <div>
-        <div className="text-[12px] text-white/60">Pagos</div>
-        <div className="text-[30px] font-[750] tabular-nums">{semana.length}</div>
-      </div>
-      <div>
-        <div className="text-[12px] text-white/60">Ya sabido</div>
-        <div className="text-[30px] font-[750] tabular-nums">{EUR0.format(sabido(semana))} €</div>
-        {n > 0 && <div className="text-[12.5px] text-[#f2c14e]">+ {n} con el importe por saber</div>}
-      </div>
-      {domiciliar && quedan != null && quedan < 0 ? (
-        <div className="rounded-xl border border-[#e9b9b6]/60 bg-[#c0443f]/25 px-4 py-3">
-          <div className="text-[12px] font-bold text-[#f3b7b3]">PARA DOMICILIAR</div>
-          <div className="text-[20px] font-[750]">se pasó el {SEMANA.format(fecha(domiciliar))}</div>
-          <div className="text-[12.5px] text-white/75">ya no da para domiciliar · hablar con GMA</div>
-        </div>
-      ) : domiciliar && quedan != null ? (
-        <div className="rounded-xl border border-[#f2c14e]/50 bg-[#f2c14e]/[.14] px-4 py-3">
-          <div className="text-[12px] font-bold text-[#f2c14e]">PARA DOMICILIAR</div>
-          <div className="text-[20px] font-[750]">antes del {SEMANA.format(fecha(domiciliar))}</div>
-          <div className="text-[12.5px] text-white/70">{quedan === 0 ? "es hoy" : quedan === 1 ? "queda 1 día" : `quedan ${quedan} días`} · pedir a GMA</div>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-white/15 px-4 py-3 text-white/70">Nada que domiciliar esta semana.</div>
+          </thead>
+          <tbody>
+            {filas.map((p) => {
+              const desv = p.real != null && p.previsto != null ? p.real - p.previsto : null;
+              const pasado = p.fecha < hoy;
+              return (
+                <tr key={p.clave} className={`border-t border-black/5 ${pasado ? "text-carbon/50" : "text-carbon"}`}>
+                  <td className="py-1">{periodoCorto(p)}</td>
+                  <td className="py-1">{diaMes(p.fecha)}</td>
+                  <td className="py-1 text-right">{p.previsto != null ? EUR.format(p.previsto) : <span className="text-carbon/45">por saber</span>}</td>
+                  <td className="py-1 text-right">
+                    {p.estado === "fraccionado" ? <span className="text-carbon/60">aplazado</span> : p.real != null ? EUR.format(p.real) : p.estado === "hecho" ? <span className="text-carbon/50">pagado</span> : ""}
+                  </td>
+                  <td className={`py-1 text-right ${desv == null ? "" : desv > 0 ? "text-[#8e2f2d]" : "text-[#3f7a1c]"}`}>
+                    {desv == null ? "" : `${desv > 0 ? "+" : ""}${EUR.format(desv)}`}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
-    </div>
+    </section>
   );
 }
 
-function Celda({ pagos }: { pagos: Pago[] }) {
-  const sinPago = pagos.filter((p) => p.sinCargo && p.estado !== "hecho");
-  const resto = pagos.filter((p) => !(p.sinCargo && p.estado !== "hecho"));
+// --------------------------------------------------------------- el calendario
+
+function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empresas: Empresa[] }) {
+  const mesHoy = hoy.slice(0, 7);
+  const meses = Array.from({ length: 13 }, (_, i) => mesMas(hoy, i - 1));
+  const varias = empresas.length > 1;
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {resto.map((p) => {
-        const hecho = p.estado === "hecho";
-        const color = hecho ? "bg-[#e3f2d4] text-[#2f5d14]" : p.importe == null ? "bg-[#fbefd0] text-[#875f07]" : "bg-[#f0f1ee] text-[#55594f]";
+    <div className="rounded-xl border border-black/10 bg-white px-4 py-3">
+      <h3 className="text-[14.5px] font-bold text-carbon">Calendario de pagos</h3>
+      <p className="mb-2 text-[12px] text-carbon/60">
+        <span className="text-carbon/45">gris</span>, ya pasado · <span className="text-[#8e2f2d]">burdeos</span>, este mes · <span className="text-[#3b5f86]">azul</span>, lo que viene. ≈ previsto; sin ≈, ya validado.
+      </p>
+      {meses.map((m) => {
+        const del = pagos.filter((p) => p.fecha.startsWith(m));
+        if (!del.length) return null;
+        const color = m < mesHoy ? "text-carbon/45" : m === mesHoy ? "text-[#8e2f2d]" : "text-[#3b5f86]";
+        const total = (lista: Pago[]) => lista.reduce((s, p) => s + (cifra(p) ?? 0), 0);
+        const faltan = del.filter((p) => cifra(p) == null).length;
         return (
-          <span key={p.clave} title={`${diaSem(p.fecha)} · ${p.nombre} · ${p.periodo}${p.plazo ? ` · ${p.plazo}` : ""} · ${p.estadoTexto}`} className={`inline-flex h-[22px] items-center whitespace-nowrap rounded-full px-2.5 text-[12px] font-bold ${color}`}>
-            {hecho ? "✓ " : ""}
-            {hecho && p.sinCargo ? `${esNumero(p) ? p.modelo : corto(p)} presentado` : pastilla(p)}
-          </span>
+          <div key={m} className={`border-t border-black/10 py-2 ${color}`}>
+            <div className="flex items-baseline justify-between gap-3">
+              <b className="text-[13px]">{mayus(MES.format(fecha(m + "-01")))}</b>
+              <span className="text-[12.5px] font-semibold tabular-nums">
+                {varias &&
+                  empresas.map((e) => {
+                    const de = del.filter((p) => p.empresa === e);
+                    return de.length ? <span key={e} className="mr-3 font-normal">{CORTA[e]} {EUR0.format(total(de))} €</span> : null;
+                  })}
+                {EUR0.format(total(del))} €{faltan ? " + ?" : ""}
+              </span>
+            </div>
+            <ul className="mt-0.5">
+              {del.map((p) => (
+                <li key={p.clave} className="flex items-baseline gap-2 text-[12.5px] tabular-nums">
+                  <span className="w-12 shrink-0">{diaMes(p.fecha)}</span>
+                  <span className="min-w-0 flex-1">
+                    {p.estado === "hecho" ? "✓ " : ""}
+                    {nombreCorto(p)} {periodoCorto(p)}
+                    {p.plazo ? ` · ${p.plazo}` : ""}
+                    {varias ? <span className="opacity-70"> · {CORTA[p.empresa]}</span> : null}
+                  </span>
+                  <span className="shrink-0">{cifra(p) == null ? "?" : `${p.real == null && !p.plazo ? "≈ " : ""}${EUR.format(cifra(p)!)}`}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         );
       })}
-      {sinPago.length > 0 && (
-        <span title={sinPago.map((p) => p.nombre).join(" · ")} className="inline-flex h-[22px] items-center whitespace-nowrap rounded-full border border-[#d6dad2] bg-white px-2.5 text-[12px] font-bold text-[#55594f]">
-          {sinPago.map((p) => (esNumero(p) ? p.modelo : corto(p))).join(" · ")} sin pago
-        </span>
-      )}
     </div>
   );
 }
 
-function Anio({ pagos, empresas, hoy, todo, hrefTodo }: { pagos: Pago[]; empresas: Empresa[]; hoy: string; todo: boolean; hrefTodo: string }) {
-  const ultimo = pagos.reduce((m, p) => (p.fecha.slice(0, 7) > m ? p.fecha.slice(0, 7) : m), hoy.slice(0, 7));
-  const meses: string[] = [];
-  for (let m = mesMas(hoy, -1); m <= ultimo && (todo || meses.length < 6); m = mesMas(m + "-01", 1)) meses.push(m);
-  const mesActual = hoy.slice(0, 7);
-  return (
-    <div className={PANEL}>
-      <div className={PTIT}>
-        <b className="text-[16px]">El año, mes a mes</b>
-        <span className="text-[12.5px] text-carbon/65">✓ hecho · en ámbar, el importe por saber · pasa el ratón por una pastilla para ver el detalle</span>
-      </div>
-      <table className="w-full border-collapse text-[14px] tabular-nums">
-        <thead>
-          <tr>
-            <th className="w-[150px] border-b border-[#e9ece5] bg-[#fafbf9] px-3.5 py-[11px] text-left text-[11.5px] font-bold uppercase tracking-[.08em] text-[#7b8077]">Mes</th>
-            {empresas.map((e) => (
-              <th key={e} className="border-b border-[#e9ece5] bg-[#fafbf9] px-3.5 py-[11px] text-left text-[11.5px] font-bold uppercase tracking-[.08em] text-[#7b8077]">{e === "daniel_autonomo" ? "Daniel de Soto" : EMPRESA_LABEL[e]}</th>
-            ))}
-            <th className="w-[160px] border-b border-[#e9ece5] bg-[#fafbf9] px-3.5 py-[11px] text-right text-[11.5px] font-bold uppercase tracking-[.08em] text-[#7b8077]">Total del mes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {meses.map((m) => {
-            const del = pagos.filter((p) => p.fecha.startsWith(m) && p.estado !== "fraccionado");
-            const cuentan = cuenta(del);
-            const pasado = cuentan.length > 0 && cuentan.every((p) => p.estado === "hecho");
-            const actual = m === mesActual;
-            const nombre = mayus(m.slice(0, 4) === hoy.slice(0, 4) ? MES.format(fecha(m + "-01")) : MES_ANIO.format(fecha(m + "-01")));
-            return (
-              <tr key={m} className={actual ? "bg-[#f3f9ec]" : ""}>
-                <td className={`border-b border-[#f0f2ee] px-3.5 py-3 align-top ${m < mesActual ? "text-[#7b8077]" : ""}`}>{actual ? <b>{nombre}</b> : nombre}</td>
-                {empresas.map((e) => (
-                  <td key={e} className="border-b border-[#f0f2ee] px-3.5 py-3 align-top">
-                    <Celda pagos={del.filter((p) => p.empresa === e)} />
-                  </td>
-                ))}
-                <td className={`border-b border-[#f0f2ee] px-3.5 py-3 text-right align-top ${pasado ? "text-[#7b8077]" : "font-bold"}`}>
-                  {pasado ? `✓ ${EUR0.format(sabido(cuentan))}` : totalTexto(cuentan)}
-                </td>
-              </tr>
-            );
-          })}
-          {!todo && meses[meses.length - 1] < ultimo && (
-            <tr>
-              <td colSpan={empresas.length + 2} className="px-3.5 py-3 text-[#7b8077]">
-                … hasta {MES_ANIO.format(fecha(ultimo + "-01"))} ·{" "}
-                <Link href={hrefTodo} className="font-semibold text-lima-dark hover:underline">ver el calendario completo</Link>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+// --------------------------------------------------------------- la pantalla
 
-export function Impuestos({ pagos, empresas, hoy, todo, hrefTodo }: { pagos: Pago[]; empresas: Empresa[]; hoy: string; todo: boolean; hrefTodo: string }) {
-  const pendientes = cuenta(pagos).filter((p) => p.estado === "pendiente");
-  const finSemana = sumar(hoy, 7);
-  const mes = hoy.slice(0, 7);
-  const siguiente = mesMas(hoy, 1);
-  // Lo que se paso sin hacer va con esta semana, en rojo: es lo primero que hay que mirar.
-  const semana = pendientes.filter((p) => p.fecha <= finSemana);
-  const restoMes = pendientes.filter((p) => p.fecha > finSemana && p.fecha.startsWith(mes));
-  const proximoMes = pendientes.filter((p) => p.fecha > finSemana && p.fecha.startsWith(siguiente));
-  const diaSemana = semana.find((p) => p.fecha >= hoy)?.fecha;
+export function Impuestos({ pagos, obligaciones, empresas, hoy }: { pagos: Pago[]; obligaciones: Obligacion[]; empresas: Empresa[]; hoy: string }) {
+  const deEmpresas = pagos.filter((p) => empresas.includes(p.empresa) && !NO_ES_IMPUESTO.includes(p.modelo));
+  // Lo que sale de la cuenta: lo que se paga (no lo que solo se presenta) y lo
+  // fraccionado plazo a plazo (el vencimiento aplazado no, que ya va en sus plazos).
+  const salen = deEmpresas.filter((p) => !p.sinCargo && p.estado !== "fraccionado");
+  // Las tarjetas: los impuestos que se pagan, con lo del ultimo trimestre y el año que viene.
+  const ventana = deEmpresas.filter((p) => p.fecha >= sumar(hoy, -100) && p.fecha <= sumar(hoy, 365));
+  const conPago = obligaciones
+    .filter((o) => empresas.includes(o.empresa) && o.domiciliado && !NO_ES_IMPUESTO.includes(o.modelo))
+    .map((o) => ({ o, pagos: ventana.filter((p) => p.obligacion === o.id) }))
+    .filter((x) => x.pagos.length)
+    .sort((a, b) => a.o.empresa.localeCompare(b.o.empresa) || a.pagos[0].fecha.localeCompare(b.pagos[0].fecha));
+  const soloSePresentan = obligaciones.filter((o) => empresas.includes(o.empresa) && !o.domiciliado);
+  const presentar = ventana.filter((p) => p.sinCargo && p.fecha >= hoy);
+
+  // El unico aviso de arriba: si hay algo que domiciliar en los proximos 10 dias (o se paso).
+  const domiciliar = salen.filter((p) => p.estado === "pendiente" && p.vigilar !== p.fecha && p.vigilar <= sumar(hoy, 10) && p.fecha >= hoy);
+  const limite = domiciliar.map((p) => p.vigilar).sort()[0];
+
   return (
     <>
-      <FranjaSemana semana={semana} hoy={hoy} />
-      <div className="mb-6 grid gap-5" style={{ gridTemplateColumns: "1.3fr 1fr 1fr" }}>
-        <Columna titulo={`Esta semana${diaSemana ? ` · ${diaSem(diaSemana)}` : ""}`} punto="ambar" total={totalTexto(semana)} pagos={semana} hoy={hoy} vacio="Nada en los próximos siete días." />
-        <Columna titulo="Este mes" punto="crema" total={restoMes.length ? (sabido(restoMes) ? totalTexto(restoMes) : `+ ${restoMes.length} pagos`) : ""} pagos={restoMes} hoy={hoy} conDia vacio="Nada más este mes." />
-        <Columna titulo="Próximo mes" punto="gris" total={totalTexto(proximoMes)} pagos={proximoMes} hoy={hoy} conDia vacio="Nada el mes que viene." />
+      {limite && (
+        <p className={`mb-4 text-[13.5px] ${limite < hoy ? "text-[#8e2f2d]" : "text-carbon/80"}`}>
+          <b>Para domiciliar:</b> {domiciliar.length} pago{domiciliar.length === 1 ? "" : "s"} del {diaMes(domiciliar[0].fecha)} tenían que estar domiciliados {limite < hoy ? `el ${DIA_SEM.format(fecha(limite))}, y ya pasó: hablar con GMA` : `antes del ${DIA_SEM.format(fecha(limite))}`}.
+        </p>
+      )}
+      <div className="grid items-start gap-5" style={{ gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)" }}>
+        <div className="flex flex-col gap-3">
+          {conPago.map(({ o, pagos: ps }) => (
+            <Tarjeta key={o.id} o={o} pagos={ps} hoy={hoy} conEmpresa={empresas.length > 1} />
+          ))}
+          {soloSePresentan.length > 0 && (
+            <section className="rounded-xl border border-black/10 bg-white px-4 py-3 text-[12.5px] text-carbon/75">
+              <h3 className="text-[14.5px] font-bold text-carbon">Solo se presentan, no se pagan</h3>
+              <p className="mt-1">
+                {soloSePresentan.map((o) => `${o.modelo} ${o.nombre.toLowerCase()}`).join(" · ")}
+              </p>
+              {presentar.length > 0 && <p className="mt-1">Próximos: {presentar.map((p) => `${p.modelo} el ${diaMes(p.fecha)}`).join(" · ")}</p>}
+            </section>
+          )}
+          {!conPago.length && <p className="text-carbon/65">No hay impuestos con pago en este libro.</p>}
+        </div>
+        <Calendario pagos={salen} hoy={hoy} empresas={empresas} />
       </div>
-      <Anio pagos={pagos} empresas={empresas} hoy={hoy} todo={todo} hrefTodo={hrefTodo} />
     </>
   );
 }
