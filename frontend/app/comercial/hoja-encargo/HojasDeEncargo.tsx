@@ -106,14 +106,22 @@ type Estado = {
 
 const ETQ = "mb-[3px] block text-[10px] font-bold uppercase tracking-[.06em] text-carbon/70";
 const TARJETA = "rounded-2xl border border-[#cfcfcf] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,.04)]";
-const TITULO = "text-xs font-bold uppercase tracking-[.08em] text-carbon/70";
+const TIT = "text-xs font-bold uppercase tracking-[.08em]";
+const TITULO = TIT + " text-carbon/70";
+// LAS TRES CARDS DEL GENERADOR, tres cosas (Monica, 17-oct-2026). El color va
+// de ACENTO, no de fondo: una franja arriba y el titulo. Quien y que, azul
+// tinta; lo que contratan, teja; lo que tiene precio, berenjena.
+const CARD = "rounded-2xl border border-[#e2ded6] border-t-4 p-4 shadow-[0_1px_2px_rgba(0,0,0,.04)] ";
+const CARD_QUIEN = CARD + "border-t-[#24476b] bg-[#eef3f8]";
+const CARD_CONTRATAN = CARD + "border-t-[#b4532a] bg-[#fbf1ea]";
+const CARD_PRECIO = CARD + "border-t-[#5b2a4e] bg-[#f7eef4]";
 const BTN = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13px] font-semibold text-carbon/80 transition hover:border-carbon disabled:opacity-50";
 const BTN_PRIM = "rounded-xl border border-lima bg-lima px-3.5 py-[7px] text-[13px] font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50";
 /** El secundario es un borde, como manda la guia de estilo. */
 const BTN_SEC = "rounded-xl border border-black/15 bg-white px-3.5 py-[7px] text-[13px] font-semibold text-carbon/70 transition hover:border-carbon/40 disabled:opacity-50";
 /** Un grupo de "Que incluye" (proyecto, obra, servicios), con raya debajo. */
 const GRUPO = "grid grid-cols-[84px_1fr] items-start gap-2 border-b border-black/15";
-const AREA = "pt-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]";
+const AREA = "pt-1 text-[10px] font-bold uppercase tracking-[0.09em] text-[#9a4422]";
 const CHIP = "inline-flex items-center gap-1.5 rounded-full border px-3 py-[5px] text-[13px] font-semibold";
 const DOC = "cursor-pointer rounded-lg border px-[9px] py-1 text-xs font-semibold";
 
@@ -1128,9 +1136,9 @@ function Generador({
       </>
     );
     return (
-      <div key={l.clave} className="border-b border-black/20 py-3 last:border-b-0">
+      <div key={l.clave} className="border-b border-[#e6d8e1] py-3 last:border-b-0">
         {hijos.length ? (
-          <div className="rounded-xl bg-[#ebeae5] p-3">
+          <div className="rounded-xl bg-[#f1e8ee] p-3">
             {cuerpo}
             <div className="mt-2 flex flex-col gap-1.5 pl-5">
               {hijos.map((h) => (
@@ -1202,8 +1210,8 @@ function Generador({
             </div>
           )}
           {/* ---------- cabecera ---------- */}
-          <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
-            <div className={TITULO + " mb-2.5"}>Cabecera</div>
+          <div className={CARD_QUIEN}>
+            <div className={TIT + " mb-2.5 text-[#24476b]"}>Cabecera: quién se lo hacemos y qué le hacemos</div>
             <Elegir id="aquien" nombre="A quién" opciones={opcionesAQuien} valor={st.aQuien} alElegir={(v) => poner({ aQuien: v || aQuienPorDefecto(datos) })} conPista />
             <span className={ETQ + " mt-2.5"}>Qué + dónde</span>
             {st.actuaciones.map((a, i) => (
@@ -1245,8 +1253,8 @@ function Generador({
           </div>
 
           {/* ---------- que incluye ---------- */}
-          <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
-            <div className={TITULO + " mb-2.5"}>Qué incluye</div>
+          <div className={CARD_CONTRATAN}>
+            <div className={TIT + " mb-2.5 text-[#b4532a]"}>Lo que van a contratar</div>
             <div className="flex flex-col">
               {/* PROYECTO */}
               <div className={GRUPO + " pb-3"}>
@@ -1284,7 +1292,7 @@ function Generador({
                 <div className="grid grid-cols-[112px_1fr] items-start gap-x-2 gap-y-1.5 border-l border-black/25 pl-2.5">
                   {servicios.map((a) => (
                     <div key={a.clave} className="contents">
-                      <span className="pt-[5px] text-[10px] font-bold uppercase tracking-[0.09em] text-[#237812]">{a.titulo}</span>
+                      <span className="pt-[5px] text-[10px] font-bold uppercase tracking-[0.09em] text-[#9a4422]">{a.titulo}</span>
                       <div className="flex flex-wrap gap-1.5">{a.bloques.map(chip)}</div>
                     </div>
                   ))}
@@ -1294,8 +1302,8 @@ function Generador({
           </div>
 
           {/* ---------- importes y forma de pago ---------- */}
-          <div className="rounded-2xl border border-[#cfcfcf] bg-form-card p-4">
-            <div className={TITULO + " mb-2.5"}>Importes y forma de pago</div>
+          <div className={CARD_PRECIO}>
+            <div className={TIT + " mb-2.5 text-[#5b2a4e]"}>Solo de lo que tiene precio: cuánto cobramos y cómo lo cobramos</div>
             {conLinea.length === 0 && <p className="text-xs text-carbon/60">Marca arriba lo que incluye la hoja.</p>}
             {/* VARIOS PROYECTOS (16-oct-2026): con dos o mas, se elige si se
                 reflejan como proyecto conjunto (un parrafo y una linea, a precio
@@ -1322,7 +1330,7 @@ function Generador({
                    viene con la suma, PERO ES EDITABLE: "a veces el proyecto
                    conjunto tiene un precio UNICO, y otras se desglosa".
                    La hoja enseña las tres lineas; la viabilidad, solo esta. */
-                <div key="CONJUNTO" className="my-2 rounded-xl border border-lima/40 bg-lima-soft/40 p-2.5">
+                <div key="CONJUNTO" className="my-2 rounded-xl border border-[#dcc6d4] bg-white p-2.5">
                   <div className="text-[13px] font-semibold">Proyecto conjunto</div>
                   <div className="mt-1.5 flex items-center justify-between gap-2">
                     <span className="text-xs text-carbon/65">Importe del conjunto</span>
@@ -1346,12 +1354,12 @@ function Generador({
                     {pagoUI(enConjunto[0])}
                   </div>
                   {pagoAMano(enConjunto[0])}
-                  <div className="mt-2 rounded-lg border border-black/10 bg-white/70 px-2.5">{enConjunto.map((x) => linea(x, true))}</div>
+                  <div className="mt-2 rounded-lg border border-[#eadde6] bg-[#fdfbfc] px-2.5">{enConjunto.map((x) => linea(x, true))}</div>
                 </div>
               );
             })}
 
-            <div className="mt-2 flex justify-between font-bold">
+            <div className="mt-1 flex justify-between border-t-2 border-[#5b2a4e]/40 pt-2.5 font-bold text-[#4a2240]">
               <span>Total honorarios</span>
               <span>
                 {eur(total)} € + IVA = {eur(total * 1.21)} €{masExito}
@@ -1424,7 +1432,8 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const MOMENTO: Record<string, string> = { concesion: "concesión", adjudicacion: "adjudicación", presentacion: "presentación", licencia: "licencia", cfo: "fin de obra" };
 const frase = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
-const TONO: Record<Desglose, string> = { se_cobra: "bg-carbon text-white", incluido: "bg-[#a6a6a6] text-carbon", no_aparece: "bg-[#e2e2e2] text-carbon/80" };
+// En la card del precio, tres tonos de berenjena: cuanto mas oscuro, mas dinero.
+const TONO: Record<Desglose, string> = { se_cobra: "bg-[#5b2a4e] text-white", incluido: "bg-[#cfb3c6] text-carbon", no_aparece: "bg-[#f0e6ec] text-carbon/80" };
 
 function Interruptor({ valor, alCambiar }: { valor: Desglose; alCambiar: (v: Desglose) => void }) {
   const op: [Desglose, string][] = [
@@ -1433,7 +1442,7 @@ function Interruptor({ valor, alCambiar }: { valor: Desglose; alCambiar: (v: Des
     ["no_aparece", "No aparece"],
   ];
   return (
-    <span className="inline-flex overflow-hidden rounded-[9px] border border-black/20">
+    <span className="inline-flex shrink-0 overflow-hidden rounded-[9px] border border-[#dcc6d4] bg-white">
       {op.map(([v, t], i) => (
         <button
           key={v}
