@@ -13,8 +13,9 @@
 // Lo de Ecobalance: las lineas que emite Ecobalance (3 presupuestos, CAES), las
 // comisiones (de la contrata y del administrador) y el beneficio neto.
 //
-// COBRADO = JUSTIFICANTE SUBIDO (tabla cobros), no el estado de Factusol; y un
-// hito completado cuenta como cobrado (hasta 2023, la factura garantiza el cobro).
+// COBRADO, factura por factura: hasta 2023 inclusive la factura garantiza el
+// cobro; desde 2024, justificante subido (tabla cobros), no el estado de Factusol.
+// «Completado» en un hito quiere decir FACTURADO, no cobrado.
 // Lo que aun no se guarda en ningun sitio (comision del administrador, costes
 // para el beneficio) sale como hueco.
 
@@ -134,14 +135,13 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
       fact += parte;
       const total = Number(f.total ?? 0);
       const cobradoF = f.cobros.reduce((s, c) => s + Number(c.importe ?? 0), 0);
+      // HASTA 2023 INCLUSIVE la factura garantiza el cobro (no hay justificantes);
+      // DESDE 2024, cobrado = justificante subido, con el 1 % de margen (Monica).
       // La parte cobrada de este hito, en la proporcion en que esta cobrada la factura.
-      if (total > 0) cob += parte * Math.min(1, cobradoF / total);
+      if (f.anio <= 2023) cob += parte;
+      else if (total > 0) cob += parte * (cobradoF >= total * 0.99 ? 1 : Math.min(1, cobradoF / total));
       nums.push(`${f.anio}/${f.serie}-${f.numero}`);
     }
-    // COMPLETADO = COBRADO. Hasta 2023 no hay justificantes y «la factura garantiza
-    // el cobro» (Monica, 17-oct-2026): esos hitos se dejaron completados con su
-    // factura. Desde 2025, completado es justificante subido. Se fia de la base.
-    if (h.estado === "completado" && fact > 0) cob = Math.max(cob, fact);
     facturado[libro] += fact;
     cobrado[libro] += cob;
     const imp = h.importe != null ? Number(h.importe) : null;
