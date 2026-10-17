@@ -15,7 +15,8 @@ Los cargos DEVUELTOS (el nombre lo dice: "devuelta", "devolucion", "cobro indebi
 como alerta; las comisiones de devolucion, aparte; la "repeticion" de un cargo devuelto si es cobro.
 
 Este script LEE (no escribe nada): saca de cada justificante su fecha, su factura y su importe, y los casa con las
-facturas de la base. Deja un CSV para revisar. Solo 2025 y 2026: las facturas de antes no estan en la base.
+facturas de la base. Deja un CSV para revisar. Por defecto 2025 y 2026; --anios 2023-2024 (o 2023,2024) para
+otros (17-oct-2026: se cargan 2020-2024; antes de 2023 no hay justificantes).
 Lo sube subir_justificantes.py, a partir de este CSV.
 """
 import sys, os, re, csv, glob, collections, datetime
@@ -26,7 +27,18 @@ from produccion import arrancar  # noqa: E402
 
 RAIZ = r"G:\Mi unidad\MONICA ACCESALIA\FACTURAS Y GASTOS ACC Y DAN\FACTURAS ACC Y DAN"
 EMPRESA = {'ACCESALIA': 'accesalia', 'DANIEL': 'daniel'}
-SALIDA = sys.argv[1] if len(sys.argv) > 1 else 'justificantes_de_cobro.csv'
+def _anios():
+    if '--anios' not in sys.argv: return ('2025', '2026')
+    v = sys.argv[sys.argv.index('--anios') + 1]
+    if '-' in v:
+        a, z = (int(x) for x in v.split('-'))
+        return tuple(str(x) for x in range(a, z + 1))
+    return tuple(x.strip() for x in v.split(','))
+
+
+ANIOS = _anios()
+_SUELTOS = [x for i, x in enumerate(sys.argv[1:], 1) if not x.startswith('--') and sys.argv[i - 1] != '--anios']
+SALIDA = _SUELTOS[0] if _SUELTOS else 'justificantes_de_cobro.csv'
 
 # La factura en el nombre: "fac 30-2025", "fac 215--2025", "Fac 289- 2025", "fac 288 BERASTEGUI" (sin año).
 FAC = re.compile(r'fac\.?\s*(\d{1,4})\s*-*\s*(20\d\d)\b', re.I)
@@ -114,7 +126,7 @@ def leer(ruta):
     elif CONFIRMING.search(plano) and not re.search(r'Fecha Pago', plano):
         # el aviso de confirming: cobro a su vencimiento, la fecha mas tardia del aviso
         formato = 'confirming (aviso)'
-        fs = [f for f in fechas_sueltas(plano) if f[:4] in ('2025', '2026', '2027')]
+        fs = [f for f in fechas_sueltas(plano) if f[:4] in ANIOS + (str(int(max(ANIOS)) + 1),)]
         dia = max(fs) if fs else None
     else:
         for nombre, rx in FECHAS:
@@ -179,7 +191,7 @@ def main():
 
     filas, cuenta = [], collections.Counter()
     for quien, emp in EMPRESA.items():
-        for anio in ('2025', '2026'):
+        for anio in ANIOS:
             for carpeta in glob.glob(os.path.join(RAIZ, quien, anio, '*', '*')):
                 nombre = os.path.basename(carpeta).lower()
                 if not os.path.isdir(carpeta) or 'justif' not in nombre:

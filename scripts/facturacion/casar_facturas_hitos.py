@@ -96,6 +96,8 @@ def main():
     # (12-oct) solo las que AUN no estan casadas: al relanzarlo no se repiten enlaces ni subhitos
     ya_casadas = {x['factura_linea_id'] for x in b.leer('factura_linea_hitos?select=factura_linea_id&order=factura_linea_id,hito_cobro_id')}
     FL = [fl for fl in FL if fl['id'] not in ya_casadas]
+    # (17-oct) y solo las LEIDAS: con 2019-2024 ya en la base, una linea sin leer no debe casarse a ciegas por la referencia
+    FL = [fl for fl in FL if fl['id'] in leidas]
     lineas_de_factura = lineas_por_factura(b)
     def palabras(nombre):
         ws = set(k(nombre).split())
@@ -123,7 +125,10 @@ def main():
             x = dict(x, direccion=direccion_de_factura(fl['factura_id'], leidas, lineas_de_factura, fl['factura'].get('referencia')))
         f = fl['factura']
         imp = float(fl['base'] or 0)
-        r = {'estado_factura': f['estado'], 'fecha_factura': f['fecha'], 'linea': fl['id'], 'factura': '%s %s %s/%s-%s' % (f['empresa_emisora'], f['tipo'], f['anio'], f['serie'], f['numero']),
+        # (17-oct, Monica) "en 2023 no descargabamos los justificantes; de ese año hacia atras, la factura garantiza el
+        # cobro": hasta 2023 una factura no anulada cuenta como cobrada (su hito queda completado al casarla).
+        estado_f = 'cobrada' if (f['anio'] or 0) <= 2023 and f['estado'] != 'anulada' else f['estado']
+        r = {'estado_factura': estado_f, 'fecha_factura': f['fecha'], 'linea': fl['id'], 'factura': '%s %s %s/%s-%s' % (f['empresa_emisora'], f['tipo'], f['anio'], f['serie'], f['numero']),
              'cliente': f['pagador_nombre'], 'importe': imp, 'concepto': x.get('concepto'), 'plazo': x.get('plazo'),
              'direccion': x.get('direccion'), 'fecha_hoja': x.get('fecha_hoja'), 'texto': ' '.join((fl['concepto'] or '').split())[:200]}
         fam = FAMILIA.get(x.get('concepto'), 'proyecto')
