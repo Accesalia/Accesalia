@@ -56,6 +56,7 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
           { clave: "contratado", titulo: "Todo lo contratado", href: "/facturacion/cobrar/contratado" },
           { clave: "proximos", titulo: "Próximos hitos", href: "/facturacion/cobrar/proximos" },
           { clave: "facturas", titulo: "Facturas emitidas", href: "/facturacion/cobrar/facturas" },
+          { clave: "ficha-financiera", titulo: "Ficha financiera", href: "/ficha-financiera" },
           // No esta en la maqueta: se queda hasta que «Buscar dirección» la sustituya.
           { clave: "por-cobrar", titulo: "Lo que queda por cobrar", href: "/facturacion/cobrar/por-cobrar" },
         ],

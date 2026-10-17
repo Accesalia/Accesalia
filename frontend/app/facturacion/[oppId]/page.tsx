@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { Volver } from "../../components/Volver";
@@ -24,7 +25,15 @@ export default async function PaginaCobro({ params, searchParams }: { params: Pr
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1600px] px-4 pb-16 pt-5 text-sm sm:px-6">
-        <Volver siNoHay="/facturacion/cobrar/por-cobrar" />
+        <div className="flex items-center justify-between gap-4">
+          <Volver siNoHay="/facturacion/cobrar/por-cobrar" />
+          {/* LA FICHA FINANCIERA de la opp (Monica, 17-oct-2026; la monto el hilo 41). */}
+          {d && (
+            <Link href={`/ficha-financiera/${oppId}`} className="text-[13.5px] font-semibold text-lima-dark hover:underline">
+              Ficha financiera →
+            </Link>
+          )}
+        </div>
         {d ? <Cobro d={d} proformas={proformas} /> : <p className="mt-6 text-carbon/70">Esa oportunidad no existe.</p>}
       </main>
     </div>
