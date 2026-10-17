@@ -146,7 +146,7 @@ export function FacturasEmitidas({
           const on = abierta === f.id;
           const e = ESTADO[f.estadoCobro];
           return (
-            <div key={f.id} className="border-b border-black/5 last:border-0">
+            <div key={f.id} className="border-b border-black/15 last:border-0">
               <div
                 onClick={() => setAbierta(on ? null : f.id)}
                 className={`grid cursor-pointer grid-cols-[70px_80px_minmax(0,1.1fr)_minmax(0,1.9fr)_100px_110px_44px] items-baseline gap-x-3 px-4 py-2.5 text-[13.5px] ${on ? "bg-[#f3f9ec]" : "hover:bg-[#fafbf9]"} ${f.estadoCobro === "anulada" ? "opacity-55" : ""}`}

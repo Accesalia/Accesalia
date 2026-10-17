@@ -1,4 +1,5 @@
 import { detalleCobro } from "../../../../lib/cobros";
+import { opcionesFicha } from "../../../../lib/fichaFinanciera";
 import { Buscador } from "./Buscador";
 import { HojasDeLaOpp } from "./HojasDeLaOpp";
 
@@ -7,11 +8,12 @@ import { HojasDeLaOpp } from "./HojasDeLaOpp";
 // de Accesalia y Daniel: las lineas de Ecobalance no las ve Alexandra.
 
 export async function Pantalla({ ruta, oppId, modificar, titulo }: { ruta: string; oppId: string | null; modificar: boolean; titulo: string }) {
-  const d = oppId ? await detalleCobro(oppId, "accesalia") : null;
+  // La lista del buscador: las opps con hoja firmada, como en la ficha financiera.
+  const [d, opciones] = await Promise.all([oppId ? detalleCobro(oppId, "accesalia") : null, opcionesFicha()]);
   return (
     <>
       {!d && <h1 className="mb-4 text-[28px] font-bold leading-tight text-carbon">{titulo}</h1>}
-      <Buscador ruta={ruta} inicial={d?.opp.nombre ?? undefined} />
+      <Buscador ruta={ruta} opciones={opciones} inicial={d?.opp.nombre ?? undefined} />
       {oppId && !d && <p className="mt-6 text-[14px] text-carbon/60">No se ha encontrado esa dirección.</p>}
       {d && (
         <>

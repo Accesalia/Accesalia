@@ -12,9 +12,12 @@ import "server-only";
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { puedeVerEcobalance } from "./cobros";
+import { JUSTIFICANTES_DESDE } from "./facturasEmitidas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
+/** Sus facturas y justificantes, en el almacen privado de las facturas. */
+const ALMACEN = "facturas";
 const CAB = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" };
 
 async function leer<T>(path: string): Promise<T[]> {
@@ -132,7 +135,17 @@ export type Deuda = {
   fechaPago: string | null;
   /** Por que no hay comision o no se puede calcular. */
   aviso: string | null;
+  /** EL PASO (Monica): firmada = le debemos → primera parte cobrada = pedirle
+   *  factura → su factura → pagada (justificante). «la_paga_la_contrata»: la de
+   *  contrata que va directa de la contrata a el; no la pagamos nosotros. */
+  paso: Paso | null;
+  /** En B: sin factura; de «le debemos» pasa a «pagada». */
+  enB: boolean;
+  /** Su factura y el justificante del pago, con enlace firmado (una hora). */
+  factura: string | null;
+  justificante: string | null;
 };
+export type Paso = "le_debemos" | "pedir_factura" | "su_factura" | "pagada" | "la_paga_la_contrata";
 export type OppComision = {
   id: string;
   nombre: string;
@@ -142,6 +155,8 @@ export type OppComision = {
   nuestras: Deuda[];
   contrata: Deuda | null;
   nota: string | null;
+  /** Hemos cobrado ya algo de esta opp (la primera parte): toca pedirle factura. */
+  cobradaAlgo: boolean;
   /** Lo que queda por pagarle en esta opp. */
   pendiente: number;
 };
@@ -181,23 +196,30 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   const [lineas, licit, apuntes, notas] = await Promise.all([
     porTramos<{
       descripcion: string | null; bloque: { area: string | null; codigo: string | null } | null; hoja: { oportunidad_id: string } | null;
-      hitos: { fl: { importe: number | null; linea: { factura: { estado: string } | null } | null }[] }[];
+      hitos: { fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] }[];
     }>(ids, (t) =>
       `lineas_facturacion?select=descripcion,bloque:bloque_id(area,codigo),hoja:hoja_encargo_id!inner(oportunidad_id),` +
-      `hitos:hitos_cobro(fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado))))&hoja.oportunidad_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
+      `hitos:hitos_cobro(fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
     porTramos<{ oportunidad_id: string; p: { importe_pem: number | null; estado: string }[] }>(ids,
       (t) => `licitaciones?select=oportunidad_id,p:presupuestos_licitacion(importe_pem,estado)&oportunidad_id=in.(${t})`).catch(() => []),
-    leer<{ oportunidad_id: string; sobre: Sobre; base: number | null; importe: number | null; importe_a_mano: boolean; pagada: boolean; fecha_pago: string | null }>(
-      `comisiones_opp?select=oportunidad_id,sobre,base,importe,importe_a_mano,pagada,fecha_pago&acuerdo_id=eq.${a.id}`),
+    leer<{
+      oportunidad_id: string; sobre: Sobre; base: number | null; importe: number | null; importe_a_mano: boolean; pagada: boolean; fecha_pago: string | null;
+      factura_url: string | null; justificante_url: string | null;
+    }>(`comisiones_opp?select=oportunidad_id,sobre,base,importe,importe_a_mano,pagada,fecha_pago,factura_url,justificante_url&acuerdo_id=eq.${a.id}`),
     leer<{ oportunidad_id: string; texto: string }>(`comision_notas_opp?select=oportunidad_id,texto&acuerdo_id=eq.${a.id}`),
   ]);
   const fact = new Map<string, { proyecto: number; subvenciones: number; tieneSubv: boolean }>();
+  // Cobrada la primera parte: alguna factura suya cobrada, con la regla de siempre
+  // (hasta 2023 la factura garantiza el cobro; desde 2024, con justificante).
+  const cobradas = new Set<string>();
   for (const l of lineas) {
     const o = l.hoja?.oportunidad_id;
     if (!o) continue;
     const f = fact.get(o) ?? { proyecto: 0, subvenciones: 0, tieneSubv: false };
     const subv = esSubvencion(l.bloque, l.descripcion);
     if (subv) f.tieneSubv = true;
+    if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
+      cobradas.add(o);
     const suma = l.hitos.flatMap((h) => h.fl).filter((x) => x.linea?.factura?.estado !== "anulada").reduce((s, x) => s + (Number(x.importe) || 0), 0);
     if (subv) f.subvenciones += suma;
     else f.proyecto += suma;
@@ -211,6 +233,17 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   const apunteDe = new Map(apuntes.map((x) => [`${x.oportunidad_id}|${x.sobre}`, x]));
   const notaDe = new Map(notas.map((x) => [x.oportunidad_id, x.texto]));
 
+  // Los PDF de sus facturas y justificantes, con su enlace firmado.
+  const rutas = apuntes.flatMap((x) => [x.factura_url, x.justificante_url]).filter((x): x is string => !!x);
+  const enlace = new Map<string, string>();
+  if (rutas.length) {
+    const r = await fetch(`${URL_BASE}/storage/v1/object/sign/${ALMACEN}`, {
+      method: "POST", headers: CAB, body: JSON.stringify({ expiresIn: 3600, paths: rutas }), cache: "no-store",
+    });
+    if (r.ok)
+      for (const x of (await r.json()) as { path: string; signedURL: string | null }[]) if (x.signedURL) enlace.set(x.path, `${URL_BASE}/storage/v1${x.signedURL}`);
+  }
+
   const deuda = (oppId: string, sobre: Sobre, base: number | null, aplica: boolean): Deuda | null => {
     const c = a.condiciones[sobre];
     if (!c) return null;
@@ -222,7 +255,22 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     else if (c.valor == null) aviso = "el acuerdo no dice cuánto";
     else importe = c.forma === "eur" ? c.valor : base != null ? r2((base * c.valor) / 100) : null;
     if (ap?.importe_a_mano && ap.importe != null) importe = Number(ap.importe);
-    return { sobre, base, importe, aMano: !!ap?.importe_a_mano, pagada: !!ap?.pagada, fechaPago: ap?.fecha_pago ?? null, aviso: ap?.importe_a_mano ? null : aviso };
+    const pagada = !!ap?.pagada;
+    const paso: Paso | null =
+      pagada ? "pagada"
+      : ap?.factura_url ? "su_factura"
+      : !importe ? null
+      : sobre === "contrata" && c.via === "directo" ? "la_paga_la_contrata"
+      // Lo nuestro: se le pide factura cuando hemos cobrado la primera parte. Lo de
+      // la contrata (via nosotros): no sabemos cuando paga la contrata; se queda en
+      // «le debemos» hasta que llegue su factura.
+      : sobre !== "contrata" && cobradas.has(oppId) && !c.enB ? "pedir_factura"
+      : "le_debemos";
+    return {
+      sobre, base, importe, aMano: !!ap?.importe_a_mano, pagada, fechaPago: ap?.fecha_pago ?? null, aviso: ap?.importe_a_mano ? null : aviso, paso, enB: c.enB,
+      factura: ap?.factura_url ? (enlace.get(ap.factura_url) ?? null) : null,
+      justificante: ap?.justificante_url ? (enlace.get(ap.justificante_url) ?? null) : null,
+    };
   };
 
   return firmadas
@@ -240,7 +288,8 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
         nuestras,
         contrata,
         nota: notaDe.get(o.id) ?? null,
-        pendiente: r2(todas.filter((d) => !d.pagada && d.importe).reduce((s, d) => s + (d.importe ?? 0), 0)),
+        cobradaAlgo: cobradas.has(o.id),
+        pendiente: r2(todas.filter((d) => !d.pagada && d.importe && d.paso !== "la_paga_la_contrata").reduce((s, d) => s + (d.importe ?? 0), 0)),
       };
     })
     .sort((x, y) => (y.firmada ?? "").localeCompare(x.firmada ?? ""));
@@ -259,6 +308,28 @@ export async function apuntarDeuda(yo: Yo, acuerdoId: string, oppId: string, sob
     fila.importe = d.importe;
     fila.importe_a_mano = d.importe != null;
   }
+  await pedir("comisiones_opp?on_conflict=oportunidad_id,acuerdo_id,sobre", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify(fila),
+  });
+}
+
+/** SU FACTURA o EL JUSTIFICANTE del pago: el PDF al almacen, y su ruta en la fila.
+ *  Subir el justificante da la comision por pagada (con la fecha que se diga). */
+export async function subirDocumento(yo: Yo, acuerdoId: string, oppId: string, sobre: Sobre, que: "factura" | "justificante", nombre: string, pdf: Uint8Array, fecha: string | null) {
+  if (!/^[0-9a-f-]{36}$/.test(acuerdoId) || !/^[0-9a-f-]{36}$/.test(oppId) || !SOBRES.includes(sobre)) throw new Error("Datos raros.");
+  const limpio = nombre.normalize("NFD").replace(/[^\w.-]+/g, "_").slice(-80);
+  const ruta = `comisiones/${acuerdoId}/${oppId}/${sobre}-${que}-${Date.now()}-${limpio}`;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN}/${ruta}`, {
+    method: "POST",
+    headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/pdf", "x-upsert": "true" },
+    body: pdf as unknown as BodyInit,
+  });
+  if (!r.ok) throw new Error(`No se ha podido guardar el PDF: ${r.status} ${await r.text()}`);
+  const fila: Record<string, unknown> = { oportunidad_id: oppId, acuerdo_id: acuerdoId, sobre, editado_por: yo.id };
+  if (que === "factura") fila.factura_url = ruta;
+  else Object.assign(fila, { justificante_url: ruta, pagada: true, fecha_pago: fecha ?? new Date().toISOString().slice(0, 10) });
   await pedir("comisiones_opp?on_conflict=oportunidad_id,acuerdo_id,sobre", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },

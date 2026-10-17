@@ -6,6 +6,7 @@ import { leerProforma, listaProformas, paraEnviarProforma, proformasPorHito, ref
 import { EnviarFactura } from "./EnviarFactura";
 import { MarcoDinero } from "../../MarcoDinero";
 import { Buscador } from "../modificar/Buscador";
+import { opcionesFicha } from "../../../../lib/fichaFinanciera";
 import { Copiar } from "../../proforma/[id]/AccionesProforma";
 import { MarcarHitos } from "./MarcarHitos";
 
@@ -27,6 +28,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
   if (!puedeVerCobros(yo)) redirect("/menu");
   const { opp } = await searchParams;
   const oppId = opp && /^[0-9a-f-]{36}$/.test(opp) ? opp : null;
+  const opciones = opcionesFicha();
   const [d, enProforma, lista] = oppId
     ? await Promise.all([detalleCobro(oppId, "accesalia"), proformasPorHito(oppId), listaProformas("accesalia", { oppId })])
     : [null, {}, []];
@@ -39,7 +41,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
   return (
     <MarcoDinero yo={yo} area="cobrar" activo="proforma">
       {!d && <h1 className="mb-4 text-[28px] font-bold leading-tight text-carbon">Generar Proforma</h1>}
-      <Buscador ruta="/facturacion/cobrar/proforma" inicial={d?.opp.nombre ?? undefined} />
+      <Buscador ruta="/facturacion/cobrar/proforma" opciones={await opciones} inicial={d?.opp.nombre ?? undefined} />
       {oppId && !d && <p className="mt-6 text-[14px] text-carbon/60">No se ha encontrado esa dirección.</p>}
       {!oppId && (
         <p className="mt-4 text-[13.5px] text-carbon/55">
