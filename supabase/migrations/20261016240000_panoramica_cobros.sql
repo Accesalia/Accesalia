@@ -43,13 +43,15 @@ enlaces as (
   group by 1, 2
 ),
 fac as (
-  select f.id, f.total, coalesce(c.cobrado, 0) as cobrado
+  select f.id, f.anio, f.total, coalesce(c.cobrado, 0) as cobrado
   from facturas f left join (select factura_id, sum(importe) as cobrado from cobros group by factura_id) c on c.factura_id = f.id
   where f.id in (select factura_id from enlaces)
 ),
 -- la parte cobrada de cada factura (1 si esta cobrada con el margen del 1 %)
 fac_ratio as (
-  select id, case when total <= 0 then 0
+  -- hasta 2023 inclusive la factura garantiza el cobro: no se descargaban justificantes (Monica, 17-oct)
+  select id, case when anio <= 2023 then 1
+                  when total <= 0 then 0
                   when cobrado >= total - greatest(1, total * 0.01) then 1
                   else greatest(cobrado, 0) / total end as ratio
   from fac

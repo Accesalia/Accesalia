@@ -10,6 +10,8 @@
 --   lineas_facturacion -> hoja. Una factura que cubre varias hojas (hay 29) se REPARTE por lo que sus
 --   factura_linea_hitos.importe (base) ponen en cada hoja: la parte de la hoja = esa base / la base de la factura.
 --   Nunca se suma el total de la factura entero a cada hoja.
+-- * Hasta 2023 inclusive, una factura no anulada cuenta como COBRADA aunque no tenga justificante: entonces no se
+--   descargaban, y la factura garantiza el cobro (Monica, 17-oct-2026). El justificante se exige desde 2024.
 -- * Cobrado = justificante subido (tabla cobros, contra la factura, total con IVA; Daniel: el total ya va sin el
 --   IRPF). Las devoluciones van en negativo. Una factura esta cobrada si lo cobrado llega a su total con un margen
 --   del 1 % (o 1 euro): las comisiones del confirming y los centimos del banco.
@@ -75,7 +77,9 @@ facturas_vivas as (
 fac as (
   select fv.*,
          -- cobrada si falta menos del 1 % o de 1 euro: comisiones del confirming y centimos del banco (Monica, 16-oct)
-         case when fv.cobrado >= fv.total - greatest(1, fv.total * 0.01) then 'cobrada'
+         -- hasta 2023 inclusive la factura garantiza el cobro: no se descargaban justificantes (Monica, 17-oct)
+         case when fv.anio <= 2023 then 'cobrada'
+              when fv.cobrado >= fv.total - greatest(1, fv.total * 0.01) then 'cobrada'
               when fv.devuelta then 'devuelta'
               when fv.cobrado > 0 then 'parcial'
               else 'sin_cobro' end as estado_cobro
@@ -84,7 +88,9 @@ fac as (
 -- la parte de cada factura que es de cada hoja
 por_hoja as (
   select e.hoja_id, f.id as factura_id, f.estado_cobro, f.empresa_emisora,
-         case when f.base > 0 then sum(e.base_linea) / f.base else 1 end as parte, f.base, f.total, f.cobrado
+         case when f.base > 0 then sum(e.base_linea) / f.base else 1 end as parte, f.base, f.total,
+         -- una factura cobrada (con el margen, o de 2023 o antes) cuenta entera
+         case when f.estado_cobro = 'cobrada' then f.total else f.cobrado end as cobrado
   from enlaces e join fac f on f.id = e.factura_id
   group by e.hoja_id, f.id, f.estado_cobro, f.empresa_emisora, f.base, f.total, f.cobrado
 ),
