@@ -27,6 +27,13 @@ export default async function Negocio() {
             href="/negocio/trabajo-contratado"
             color="verde"
           />
+          {/* La ficha financiera de una direccion (Monica, 17-oct-2026): su ficha de 2025, con datos vivos. */}
+          <TarjetaAcceso
+            nombre="Ficha financiera"
+            desc="Una dirección en una hoja: lo contratado, comisiones, subvenciones, financiación, CAES, por dónde va el cobro y el resumen; con PDF"
+            href="/ficha-financiera"
+            color="verde"
+          />
         </RejillaAccesos>
       </main>
     </div>
