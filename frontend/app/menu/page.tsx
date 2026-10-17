@@ -53,7 +53,7 @@ const AREAS: Area[] = [
     // las hojas firmadas con 3 presupuestos y las que llevan CAES.
     nombre: "Ecobalance",
     color: "verde",
-    desc: "Las direcciones con 3 presupuestos o CAES en una hoja firmada. Solo Ecobalance y dirección",
+    desc: "3 presupuestos, CAES, impuestos y comisiones de administradores. Solo Ecobalance y dirección",
     href: "/ecobalance",
     ve: (yo) => !!yo && (yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion_ecobalance")),
   },
