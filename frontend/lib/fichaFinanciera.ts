@@ -222,3 +222,24 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
       .map((n) => ({ fecha: (n.fecha ?? n.creado_en).slice(0, 10), texto: n.texto, autor: n.autor, tipo: n.tipo })),
   };
 }
+
+/** LA LISTA DEL DESPLEGABLE (Monica, 17-oct-2026: «un espacio en blanco es
+ *  intimidante»): todas las opps con hoja firmada, la ultima firma primero, para
+ *  elegir por aproximacion («algo de Fontarron...»). Se filtra en el navegador. */
+export type OpcionFicha = { id: string; nombre: string; detalle: string; firma: string | null; buscar: string };
+const sinTildes = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+export async function opcionesFicha(): Promise<OpcionFicha[]> {
+  const filas = await leer<{ id: string; nombre: string | null; codigo: string | null; adm: { empresa: { nombre_accesalia: string | null } | null } | null; hojas: { fecha_firma: string | null }[] }[]>(
+    "oportunidades?select=id,nombre,codigo,adm:administrador_puesto_id(empresa:empresa_id(nombre_accesalia)),hojas:hojas_encargo!inner(fecha_firma)" +
+      "&estado=neq.anulada&hojas.estado=eq.devuelta_firmada",
+  );
+  return filas
+    .map((o) => {
+      const firma = o.hojas.map((h) => h.fecha_firma).filter((f): f is string => !!f).sort().pop() ?? null;
+      const nombre = nombreDeOpp(o);
+      const adm = o.adm?.empresa?.nombre_accesalia ?? null;
+      const detalle = [firma ? `firmada el ${firma.split("-").reverse().join("/")}` : null, o.codigo, adm].filter(Boolean).join(" · ");
+      return { id: o.id, nombre, detalle, firma, buscar: sinTildes(`${nombre} ${o.codigo ?? ""} ${adm ?? ""}`) };
+    })
+    .sort((a, b) => (b.firma ?? "").localeCompare(a.firma ?? ""));
+}
