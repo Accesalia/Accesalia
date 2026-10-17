@@ -54,11 +54,11 @@ export type NotaHito = { fecha: string; texto: string };
 /** COBRADO = JUSTIFICANTE SUBIDO (Monica, 12-oct-2026), de la tabla `cobros`
  *  (hilo 68): cada fila un ingreso, una devolucion (negativa) o un confirming. */
 export type Cobro = { id: string; fecha: string | null; importe: number | null; tipo: string };
-/** "no_se_guardaba": antes de 2023 no se descargaban los justificantes (Monica,
- *  17-oct-2026): sin justificante es lo normal, no una alerta. */
-export type EstadoCobro = "cobrada" | "parcial" | "devuelta" | "sin_justificante" | "no_se_guardaba" | "anulada";
-/** Desde que año se guardan los justificantes de cobro. */
-export const JUSTIFICANTES_DESDE = 2023;
+/** "cobrada_factura": HASTA 2023 no se descargaban los justificantes y "la
+ *  factura garantiza el cobro" (Monica, 17-oct-2026): se da por cobrada. */
+export type EstadoCobro = "cobrada" | "cobrada_factura" | "parcial" | "devuelta" | "sin_justificante" | "anulada";
+/** Desde que año se guardan los justificantes de cobro (antes, manda la factura). */
+export const JUSTIFICANTES_DESDE = 2024;
 export type FacturaEmitida = {
   id: string;
   empresa: Empresa;
@@ -168,7 +168,7 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
     // fila sin importe leido cuenta como cobrada (hay justificante, falta leerlo).
     const estadoCobro: EstadoCobro =
       f.estado === "anulada" || f.tipo === "abono" ? "anulada"
-      : !susCobros.length ? (f.anio < JUSTIFICANTES_DESDE ? "no_se_guardaba" : "sin_justificante")
+      : !susCobros.length ? (f.anio < JUSTIFICANTES_DESDE ? "cobrada_factura" : "sin_justificante")
       : cobrado >= total - 1 || susCobros.some((c) => c.importe == null) ? "cobrada"
       : susCobros.some((c) => c.tipo === "devolucion") ? "devuelta"
       : "parcial";

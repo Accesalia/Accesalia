@@ -22,7 +22,7 @@ const ESTADO: Record<EstadoCobro, { t: string; c: string }> = {
   parcial: { t: "cobrada en parte", c: "bg-[#fbefd0] text-[#875f07]" },
   devuelta: { t: "devuelta", c: "bg-[#f6dfdd] text-alerta" },
   sin_justificante: { t: "sin justificante", c: "bg-[#fbefd0] text-[#875f07]" },
-  no_se_guardaba: { t: "no se guardaba", c: "bg-black/[.05] text-carbon/55" },
+  cobrada_factura: { t: "cobrada (por la factura)", c: "bg-[#eef5e8] text-[#4d6b3a]" },
   anulada: { t: "—", c: "text-carbon/40" },
 };
 const TIPO_COBRO: Record<string, string> = {
@@ -46,7 +46,8 @@ export function FacturasEmitidas({
   // Las cifras, CON IVA: lo cobrado sale de los justificantes, que llevan el IVA.
   const vivas = deEmpresa.filter((f) => f.estadoCobro !== "anulada");
   const emitido = vivas.reduce((s, f) => s + f.total, 0);
-  const cobrado = vivas.reduce((s, f) => s + Math.min(f.cobrado, f.total), 0);
+  // Hasta 2023, la factura da por cobrado: suma su total.
+  const cobrado = vivas.reduce((s, f) => s + (f.estadoCobro === "cobrada_factura" ? f.total : Math.min(f.cobrado, f.total)), 0);
   const sinJustificante = vivas.filter((f) => f.estadoCobro === "sin_justificante");
   const devueltas = vivas.filter((f) => f.estadoCobro === "devuelta");
   const sinCasar = vivas.filter((f) => f.sinCasar > 0.5);
@@ -87,7 +88,7 @@ export function FacturasEmitidas({
       {/* LAS TRES CIFRAS, como en «Todo lo contratado», con IVA: cobrado = justificante subido. */}
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <Cifra titulo="Emitido" valor={eur0(emitido)} sub={`${vivas.length} facturas · con IVA`} />
-        <Cifra titulo="Cobrado, con justificante" valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
+        <Cifra titulo={anio != null && anio < 2024 ? "Cobrado (lo da la factura)" : "Cobrado, con justificante"} valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
         <Cifra
           titulo="Sin justificante de cobro"
           valor={eur0(sinJustificante.reduce((s, f) => s + f.total, 0))}
