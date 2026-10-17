@@ -19,6 +19,7 @@ const PESTANAS: { clave: Cuando; titulo: string }[] = [
   { clave: "mes", titulo: "Este mes" },
   { clave: "adelante", titulo: "Más adelante" },
   { clave: "pausa", titulo: "En pausa" },
+  { clave: "antigua", titulo: "Firmadas antes de 2025" },
 ];
 
 export function ProximosHitos({ hitos, previos, inicial }: { hitos: HitoProximo[]; previos: number; inicial: Cuando }) {
@@ -116,9 +117,9 @@ export function ProximosHitos({ hitos, previos, inicial }: { hitos: HitoProximo[
             <span className="truncate text-[12.5px] text-carbon/60">{h.proforma ?? "—"}</span>
           </label>
         ))}
-        {previos > 0 && (
-          <div className="px-5 py-3 text-[12.5px] text-carbon/50">
-            Aparte, {previos} hitos pendientes de hojas firmadas antes de 2025: sus facturas aún no están en la app, así que no se puede saber si se emitieron.
+        {tab === "antigua" && previos > 0 && (
+          <div className="px-5 py-3 text-[12.5px] text-carbon/55">
+            Hitos de hojas firmadas antes de 2025 sin factura enlazada. Las facturas de 2022 a 2024 ya están casadas con sus hitos, pero las de 2020 y 2021 se quedaron sueltas: un hito de aquí puede estar cobrado con una de ellas. Para revisar con calma, no para facturar.
           </div>
         )}
       </div>

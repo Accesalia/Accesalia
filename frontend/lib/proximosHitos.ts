@@ -16,8 +16,10 @@
 //   - esta semana / este mes / mas adelante: por su fecha prevista;
 //   - sin fecha: "mas adelante", diciendo que no tiene (los disparadores de
 //     entrega, licencia o fin de obra aun no se leen de proyecto).
-// LO FIRMADO ANTES DE 2025 VA APARTE ("previo"): sus facturas aun no estan en la
-// app, asi que sus encargos parecerian sin facturar. Solo se cuenta.
+// LO FIRMADO ANTES DE 2025 VA EN SU PESTAÑA ("antigua", 17-oct-2026): las facturas
+// de 2022-2024 ya estan casadas con sus hitos (hilo e3), pero 2020-2021 se quedan
+// como facturas sueltas, sin hito. Un hito antiguo sin factura enlazada puede
+// estar cobrado con una suelta: se revisa aparte, sin mezclarlo con lo de ahora.
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
@@ -44,7 +46,7 @@ async function porTramos<T>(ids: string[], hacer: (t: string) => string): Promis
   return (await Promise.all(tramos.map((t) => leer<T>(hacer(t.join(",")))))).flat();
 }
 
-export type Cuando = "ya" | "semana" | "mes" | "adelante" | "pausa";
+export type Cuando = "ya" | "semana" | "mes" | "adelante" | "pausa" | "antigua";
 export type HitoProximo = {
   id: string;
   oppId: string | null;
@@ -99,8 +101,8 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
   // Los candidatos: pendientes, y si tienen subhitos, los subhitos (no el padre).
   const conHijos = new Set(lineas.flatMap((l) => l.hitos.map((h) => h.hito_padre_id).filter(Boolean)));
   const todos = lineas.flatMap((l) => l.hitos.filter((h) => h.estado === "pendiente" && !conHijos.has(h.id)).map((h) => ({ l, h })));
-  const cand = todos.filter(({ l }) => (l.hoja?.fecha_firma ?? "9999") >= DESDE);
-  const previos = todos.length - cand.length;
+  const cand = todos;
+  const esAntigua = (l: Linea) => (l.hoja?.fecha_firma ?? "9999") < DESDE;
   const ids = cand.map((c) => c.h.id);
   // Fuera lo ya facturado (factura no anulada); y la proforma emitida que lo lleve.
   const [facturados, proformas] = await Promise.all([
@@ -134,6 +136,7 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
     } else {
       cuando = "adelante"; fecha = null; porQue = h.importe == null ? "a éxito" : "sin fecha prevista";
     }
+    if (esAntigua(l)) cuando = "antigua";
     const opp = l.hoja?.opp ?? null;
     out.push({
       id: h.id,
@@ -151,5 +154,5 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
     });
   }
   // Lo mas antiguo primero dentro de lo que ya se puede; lo mas cercano, en lo demas.
-  return { hitos: out.sort((a, b) => (a.fecha ?? "9999").localeCompare(b.fecha ?? "9999")), previos };
+  return { hitos: out.sort((a, b) => (a.fecha ?? "9999").localeCompare(b.fecha ?? "9999")), previos: out.filter((h) => h.cuando === "antigua").length };
 }
