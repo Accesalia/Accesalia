@@ -230,7 +230,21 @@ export function FichaFinanciera({ f, vista }: { f: Ficha; vista: Vista }) {
             {l.hitos.length ? <Hitos hitos={l.hitos} /> : <Hueco>sin hitos</Hueco>}
           </Fila>
         ))}
-        {!verLineas.length && <div className="px-2.5 py-2">—</div>}
+        {!verLineas.length && !f.sueltas.length && <div className="px-2.5 py-2">—</div>}
+        {f.sueltas.length > 0 && (
+          <Fila et="Facturas sin hito" ancho="30%">
+            <div className="flex flex-wrap gap-1.5">
+              {f.sueltas.map((x) => (
+                <span key={x.numero} className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-semibold ${x.cobrada ? ESTADO.cobrado : ESTADO.facturado}`}>
+                  {x.cobrada ? "✓ " : ""}
+                  {x.numero} · {fecha(x.fecha)} · {EUR.format(x.base)}
+                  <span className="ml-1 font-normal opacity-75">· {x.cobrada ? "cobrada" : "sin justificante"}</span>
+                </span>
+              ))}
+            </div>
+            <div className="mt-1 text-[12px] text-carbon/60">Facturas de esta dirección que no pagan ningún hito de sus hojas (sueltas o por casar).</div>
+          </Fila>
+        )}
       </Caja>
 
       {/* 9. RESUMEN FINANCIERO */}
@@ -239,7 +253,10 @@ export function FichaFinanciera({ f, vista }: { f: Ficha; vista: Vista }) {
         {[
           ["Ingresos totales previstos (sin IVA):", eur(previsto(verLineas)) + (aExito ? " + lo de a éxito" : "")],
           ["Ingresos totales facturados:", eur((vista.accesalia ? f.facturado.accesalia : 0) + (vista.ecobalance ? f.facturado.ecobalance : 0))],
-          ["Ingresos cobrados (con justificante):", eur((vista.accesalia ? f.cobrado.accesalia : 0) + (vista.ecobalance ? f.cobrado.ecobalance : 0))],
+          ["Ingresos cobrados:", eur((vista.accesalia ? f.cobrado.accesalia : 0) + (vista.ecobalance ? f.cobrado.ecobalance : 0))],
+          ...(f.sueltas.length
+            ? [["Facturado sin hito (aparte):", `${eur(f.sueltas.reduce((a, x) => a + x.base, 0))} · ${f.sueltas.length} factura${f.sueltas.length === 1 ? "" : "s"}`]]
+            : []),
         ].map(([a, b]) => (
           <div key={a} className="flex py-1 text-[14.5px]">
             <div className="w-[48%] font-serif font-bold" style={{ color: VERDE }}>{a}</div>

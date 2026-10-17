@@ -65,6 +65,8 @@ export type Ficha = {
   lineas: LineaFicha[];
   financiacion: { entidad: string; estado: string; importe: number | null; firma: string | null; notas: string | null }[];
   facturado: { accesalia: number; ecobalance: number };
+  /** Facturas de la opp que no pagan ningun hito («sueltas»: 2020-21 sin casar por decision de Monica, y las que quedan por casar). */
+  sueltas: { numero: string; fecha: string | null; base: number; cobrada: boolean; ecobalance: boolean }[];
   cobrado: { accesalia: number; ecobalance: number };
   ivaPct: number;
   notas: { fecha: string; texto: string; autor: string | null; tipo: string | null }[];
@@ -105,7 +107,8 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
   // Cada uno ve lo suyo: las lineas de Ecobalance solo quien ve Ecobalance; las otras, quien ve Accesalia.
   const lineasVistas = lineasCrudas.filter((l) => (l.emisor === ECOBALANCE ? vista.ecobalance : vista.accesalia));
   const idsLinea = lineasVistas.map((l) => l.id);
-  const [hitos, notas] = await Promise.all([
+  const emisoras = [...(vista.accesalia ? ["accesalia", "daniel"] : []), ...(vista.ecobalance ? ["ecobalance"] : [])];
+  const [hitos, notas, facturasOpp] = await Promise.all([
     idsLinea.length
       ? leer<{ id: string; linea_facturacion_id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; fecha_prevista: string | null; hito_padre_id: string | null; enlaces: { importe: number | null; linea: { factura: FilaFactura | null } | null }[] }[]>(
           `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,hito_padre_id,` +
@@ -118,6 +121,10 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
           `notas_facturacion?select=fecha,creado_en,texto,autor,tipo,linea_facturacion_id&hoja_encargo_id=in.(${idsHoja.join(",")})&order=creado_en.desc&limit=40`,
         )
       : Promise.resolve([]),
+    leer<(FilaFactura & { fecha: string | null; empresa_emisora: string; tipo: string; enlaces: { hito_cobro_id: string }[] })[]>(
+      `facturas?select=id,anio,serie,numero,fecha,base,total,estado,empresa_emisora,tipo,cobros(importe),enlaces:factura_lineas(factura_linea_hitos(hito_cobro_id))` +
+        `&oportunidad_id=eq.${oppId}&estado=neq.anulada&empresa_emisora=in.(${emisoras.join(",")})&order=fecha.asc`,
+    ).catch(() => []),
   ]);
 
   // Lo facturado y lo cobrado de cada hito, por la parte de cada factura que le toca.
@@ -194,6 +201,20 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
       : [],
     facturado,
     cobrado,
+    sueltas: facturasOpp
+      .filter((x) => !(x.enlaces as unknown as { factura_linea_hitos: unknown[] }[]).some((l) => l.factura_linea_hitos.length))
+      .map((x) => {
+        const total = Number(x.total ?? 0);
+        const cob = x.cobros.reduce((a, c) => a + Number(c.importe ?? 0), 0);
+        return {
+          numero: `${x.anio}/${x.serie}-${x.numero}${x.tipo === "abono" ? " (abono)" : ""}`,
+          fecha: x.fecha,
+          base: Number(x.base ?? 0),
+          // La misma regla: hasta 2023 la factura garantiza el cobro; desde 2024, justificante.
+          cobrada: x.anio <= 2023 || (total !== 0 && cob >= total * 0.99),
+          ecobalance: x.empresa_emisora === ECOBALANCE,
+        };
+      }),
     ivaPct: Number(params[0]?.valor ?? 21),
     // Las notas de una linea que no se ve, tampoco.
     notas: notas
