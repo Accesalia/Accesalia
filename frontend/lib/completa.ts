@@ -18,6 +18,7 @@
 // de datos, no las vamos a limitar".
 
 import "server-only";
+import { comunidadesDeOpp, ponerAdministrador } from "./adminComunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -104,7 +105,13 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
     cambio.siguiente_paso = d.siguientePaso;
   }
   const [la, ida] = (d.administrador ?? "").split(":");
-  if (la === "puesto" && ida) cambio.administrador_puesto_id = ida;
+  if (la === "puesto" && ida) {
+    cambio.administrador_puesto_id = ida;
+    // EL ADMINISTRADOR ES DE LA COMUNIDAD (Monica, 18-oct-2026): va tambien a las
+    // comunidades de la opp (por sus accesos) que no tienen administrador. Las que
+    // ya tienen otro no se tocan: eso se decide en el alta, con su aviso.
+    await adminACadaComunidad(oppId, ida).catch((e) => console.error("adminACadaComunidad", e));
+  }
   if (!Object.keys(cambio).length) return;
 
   const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?id=eq.${oppId}`, {
@@ -160,4 +167,16 @@ export async function ponerAdminEnComunidad(oppId: string): Promise<void> {
     }),
   });
   if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+}
+
+
+/** El administrador (por su puesto) a las comunidades de la opp que no tienen (18-oct-2026). */
+async function adminACadaComunidad(oppId: string, puestoId: string): Promise<void> {
+  if (!/^[0-9a-f-]{36}$/.test(puestoId)) return;
+  const [p] = await leer<{ persona_id: string | null }[]>(`puesto?select=persona_id&id=eq.${puestoId}&limit=1`);
+  if (!p?.persona_id) return;
+  for (const c of await comunidadesDeOpp(oppId)) {
+    if (c.admin) continue;
+    await ponerAdministrador(c.id, p.persona_id, { cambia: false, nota: "Puesto desde «Completar» en la ficha de la oportunidad (18-oct-2026)." });
+  }
 }

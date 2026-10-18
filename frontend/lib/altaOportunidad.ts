@@ -18,6 +18,7 @@
 // lo que se teclea en un buscador que no encuentra nada NO se vuelve a escribir.
 
 import "server-only";
+import { comunidadesDeOpp, ponerAdministrador } from "./adminComunidad";
 import { fichasCortas } from "./fichaCorta";
 import { recalcularLuego } from "./estadoOportunidad";
 
@@ -298,6 +299,11 @@ export type DatosOportunidad = {
   /** La clave a la que se une: la elegida de la lista, o la que comparte
    *  parcela si el comercial dijo "unir" (13-oct-2026). */
   claveUnir: string | null;
+  /** EL ADMINISTRADOR DE CADA COMUNIDAD (Monica, 18-oct-2026): lo que decidio el
+   *  comercial en el alta para las comunidades que ya existian. «arriba» = el
+   *  administrador elegido (o creado) arriba; `cambia` = contesto «si, ha
+   *  cambiado» al aviso. Las que no vienen aqui toman el de arriba si no tienen. */
+  adminsComunidad?: { comunidadId: string; personaId: string; cambia: boolean }[];
 };
 
 export type ResultadoOportunidad = { id: string; codigo: string | null; notaId: string };
@@ -513,6 +519,12 @@ export async function crearOportunidad(
   // 10 · y su clave (el sitio, 13-oct-2026): la de su direccion, la que eligio
   //      el comercial (de la lista, o "unir" por compartir parcela), o una nueva.
   await claveDesdeAccesos(op.id, autorId, d.claveUnir);
+  // 11 · EL ADMINISTRADOR, A CADA COMUNIDAD (Monica, 18-oct-2026: «el admin no
+  //      pertenece a una opp, sino a una comunidad»). Con los accesos ya en su
+  //      comunidad, cada una recibe el suyo: el que decidio el comercial en el
+  //      alta o, si no dijo nada, el de arriba. Una comunidad que ya tenia otro
+  //      solo cambia si el comercial dijo «si, ha cambiado».
+  await adminsAComunidades(op.id, administradorId, d.adminsComunidad ?? []).catch((e) => console.error("adminsAComunidades", e));
 
   // Nace con su estado: si no, no saldria en ninguna lista hasta la noche.
   recalcularLuego(op.id);
@@ -694,4 +706,21 @@ export async function oppsVivasEnElEdificio(d: { portalIds: string[]; parcela: s
       if (!r.hasta && r.opp && (r.opp.estado === "abierta" || r.opp.estado === "pausada"))
         vivas.set(r.opp.id, { id: r.opp.id, codigo: r.opp.codigo, nombre: r.opp.nombre ?? r.opp.codigo ?? "", comercial: r.opp.comercial?.nombre ?? null, estado: r.opp.estado });
   return [...vivas.values()];
+}
+
+
+/** El administrador de cada comunidad de una opp recien creada (18-oct-2026).
+ *  `arriba` es la persona elegida o creada en el campo «El administrador». */
+async function adminsAComunidades(
+  oppId: string,
+  arriba: string | null,
+  decididos: { comunidadId: string; personaId: string; cambia: boolean }[],
+): Promise<void> {
+  for (const c of await comunidadesDeOpp(oppId)) {
+    const d = decididos.find((x) => x.comunidadId === c.id);
+    const persona = d ? (d.personaId === "arriba" ? arriba : d.personaId) : arriba;
+    if (!persona) continue;
+    // Sin decision del comercial, una comunidad que ya tiene administrador no se toca.
+    await ponerAdministrador(c.id, persona, { cambia: d?.cambia ?? false, nota: "Puesto en el alta de una oportunidad (18-oct-2026: el administrador es de la comunidad)." });
+  }
 }

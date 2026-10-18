@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { Elegir, type Opcion } from "../../../components/Elegir";
 import { Marcar } from "../../../components/Marcar";
 import type { OpcionesOportunidad, OppViva } from "../../../../lib/altaOportunidad";
-import { accionOppsVivas } from "./acciones";
+import { accionComunidadesAlta, accionOppsVivas } from "./acciones";
+import type { ComunidadConAdmin } from "../../../../lib/adminComunidad";
 import { PASOS_DE_ARRANQUE, QUE_ES } from "../../../../lib/oportunidadVocabulario";
 import { VentanaDireccion, type DireccionResuelta } from "./VentanaDireccion";
 import { columnasDeInteres } from "../../../../lib/columnasInteres";
@@ -250,6 +251,23 @@ export function Formulario({
   const [provisionalAdrede, setProvisionalAdrede] = useState(false);
 
   const [admin, setAdmin] = useState(inicial?.admin ?? "");
+  // EL ADMINISTRADOR ES DE LA COMUNIDAD (Monica, 18-oct-2026). De que comunidades
+  // son los portales elegidos y quien las lleva: si la comunidad ya tiene otro
+  // administrador, aviso y decide el comercial; si son varias, uno por cada una.
+  const [comunidades, setComunidades] = useState<ComunidadConAdmin[]>([]);
+  const [decision, setDecision] = useState<Record<string, { personaId: string; cambia: boolean | null }>>({});
+  useEffect(() => {
+    setComunidades([]);
+    setDecision({});
+    if (!resuelta?.portalIds.length) return;
+    let vale = true;
+    accionComunidadesAlta(resuelta.portalIds)
+      .then((r) => vale && setComunidades(r.comunidades))
+      .catch(() => {});
+    return () => {
+      vale = false;
+    };
+  }, [resuelta]);
   const [quien, setQuien] = useState("");
 
   const [hablaLlamo, setHablaLlamo] = useState(false);
@@ -640,6 +658,14 @@ export function Formulario({
             </div>
             {/* "Fue el mismo administrador" ya no se marca: se deduce. */}
             <input type="hidden" name="quien_es_admin" value={quienEsAdmin ? "on" : ""} />
+            <AdminsDeComunidades
+              comunidades={comunidades}
+              arriba={adminNuevo ? "arriba" : admin}
+              nombreArriba={adminNuevo ? adminNuevo.nombre : administradores.find((a) => a.valor === admin)?.texto ?? ""}
+              administradores={administradores}
+              decision={decision}
+              setDecision={setDecision}
+            />
 
             <div className="my-[17px] ml-[10px] border-t border-raya" />
 
@@ -910,6 +936,102 @@ function ModalContacto({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+/** EL ADMINISTRADOR DE CADA COMUNIDAD (Monica, 18-oct-2026). Solo sale cuando
+ *  hace falta decidir algo:
+ *   - UNA comunidad que ya tiene OTRO administrador: «la lleva X, ¿ha cambiado?»
+ *     y decide el comercial (si, queda el nuevo y el anterior pasa al historial;
+ *     no, se queda el que estaba);
+ *   - VARIAS comunidades: una linea por cada una con su administrador («si hay 7,
+ *     que pregunte los 7»), ya puesto el que tiene o, si no tiene, el de arriba.
+ *  En el caso normal (una comunidad sin administrador o con el mismo) no sale
+ *  nada: el de arriba va a la comunidad al guardar. */
+export function AdminsDeComunidades({
+  comunidades,
+  arriba,
+  nombreArriba,
+  administradores,
+  decision,
+  setDecision,
+}: {
+  comunidades: ComunidadConAdmin[];
+  /** La persona elegida arriba, o «arriba» si se esta creando. */
+  arriba: string;
+  nombreArriba: string;
+  administradores: Opcion[];
+  decision: Record<string, { personaId: string; cambia: boolean | null }>;
+  setDecision: (d: Record<string, { personaId: string; cambia: boolean | null }>) => void;
+}) {
+  const varias = comunidades.length > 1;
+  const una = comunidades.length === 1 ? comunidades[0] : null;
+  const choca = !!(una && una.admin && arriba && una.admin.personaId !== arriba);
+  // Lo que se manda al guardar: una entrada por comunidad.
+  const filas = comunidades.map((c) => {
+    const d = decision[c.id];
+    const personaId = d?.personaId || (varias ? c.admin?.personaId || arriba : arriba);
+    return { comunidadId: c.id, personaId, cambia: d?.cambia === true };
+  }).filter((f) => f.personaId);
+  const oculto = <input type="hidden" name="admins_comunidad" value={JSON.stringify(filas)} />;
+  if (!varias && !choca) return oculto;
+  const opcionesConArriba: Opcion[] = arriba === "arriba" ? [{ valor: "arriba", texto: `${nombreArriba} (el que estás creando)` }, ...administradores] : administradores;
+  const poner = (id: string, cambio: Partial<{ personaId: string; cambia: boolean | null }>) =>
+    setDecision({ ...decision, [id]: { personaId: decision[id]?.personaId ?? "", cambia: decision[id]?.cambia ?? null, ...cambio } });
+  const BOTON = "rounded-md border px-2.5 py-1 text-[12.5px] font-semibold";
+  return (
+    <div className="ml-[137px] mt-3 w-fit max-w-[640px] rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[12.5px] leading-snug text-amber-900">
+      {oculto}
+      {una && choca ? (
+        <>
+          <span className="font-semibold">
+            {una.nombre} la lleva {una.admin!.nombre}.
+          </span>{" "}
+          ¿Ha cambiado de administrador?
+          <div className="mt-1.5 flex gap-2">
+            <button type="button" onClick={() => poner(una.id, { personaId: arriba, cambia: true })} className={`${BOTON} ${decision[una.id]?.cambia === true ? "border-amber-800 bg-amber-800 text-white" : "border-amber-400 bg-white"}`}>
+              Sí, ahora es {nombreArriba || "el de arriba"}
+            </button>
+            <button type="button" onClick={() => poner(una.id, { personaId: arriba, cambia: false })} className={`${BOTON} ${decision[una.id]?.cambia === false ? "border-amber-800 bg-amber-800 text-white" : "border-amber-400 bg-white"}`}>
+              No, sigue {una.admin!.nombre}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <span className="font-semibold">Esta dirección es de {comunidades.length} comunidades.</span> Cada una con su administrador:
+          <table className="mt-1.5 w-auto border-collapse">
+            <tbody>
+              {comunidades.map((c) => {
+                const elegido = decision[c.id]?.personaId || c.admin?.personaId || arriba;
+                const otro = !!(c.admin && elegido && elegido !== c.admin.personaId);
+                return (
+                  <tr key={c.id} className="align-top">
+                    <td className="max-w-[220px] py-1 pr-3 font-semibold">{c.nombre}</td>
+                    <td className="w-[230px] py-1 pr-3">
+                      <Elegir id={`admin-${c.id}`} nombre="" opciones={opcionesConArriba} valor={elegido} alElegir={(v) => poner(c.id, { personaId: v })} vacio="sin administrador" marco="border-amber-400" conPista />
+                    </td>
+                    <td className="py-1 text-[12px]">
+                      {otro ? (
+                        <label className="inline-flex items-center gap-1.5">
+                          <input type="checkbox" checked={decision[c.id]?.cambia === true} onChange={(e) => poner(c.id, { personaId: elegido, cambia: e.target.checked })} />
+                          ha cambiado (antes, {c.admin!.nombre})
+                        </label>
+                      ) : c.admin ? (
+                        <span className="opacity-75">la lleva ya</span>
+                      ) : (
+                        <span className="opacity-75">sin administrador hasta ahora</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }

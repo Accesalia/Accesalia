@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { comunidadesDePortales, type ComunidadConAdmin } from "../../../../lib/adminComunidad";
 import { revalidatePath } from "next/cache";
 import { crearOportunidad, oppsVivasEnElEdificio, type DatosOportunidad, type OppViva } from "../../../../lib/altaOportunidad";
 import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
@@ -100,6 +101,7 @@ export async function guardarOportunidad(fd: FormData) {
     portalIds: (texto(fd, "portal_ids") ?? "").split(",").filter(Boolean),
     referenciaCatastral: texto(fd, "referencia_opp"),
     claveUnir: texto(fd, "clave_unir"),
+    adminsComunidad: leerAdminsComunidad(texto(fd, "admins_comunidad")),
   };
 
   const hecho = await crearOportunidad(datos, yo.id);
@@ -127,4 +129,26 @@ export async function accionOppsVivas(d: { portalIds: string[]; parcela: string 
   const yo = await quienSoy();
   if (!yo) return [];
   return oppsVivasEnElEdificio(d).catch(() => []);
+}
+
+/** Lo que decidio el comercial para el administrador de cada comunidad (18-oct-2026). */
+function leerAdminsComunidad(v: string | null): { comunidadId: string; personaId: string; cambia: boolean }[] {
+  if (!v) return [];
+  try {
+    const l = JSON.parse(v) as { comunidadId?: unknown; personaId?: unknown; cambia?: unknown }[];
+    return l
+      .filter((x) => typeof x.comunidadId === "string" && /^[0-9a-f-]{36}$/.test(x.comunidadId) && typeof x.personaId === "string" && (x.personaId === "arriba" || /^[0-9a-f-]{36}$/.test(x.personaId)))
+      .map((x) => ({ comunidadId: x.comunidadId as string, personaId: x.personaId as string, cambia: x.cambia === true }));
+  } catch {
+    return [];
+  }
+}
+
+/** De que comunidades son los portales elegidos y quien las administra: para el
+ *  aviso «esta comunidad la lleva X, ¿ha cambiado?» y el administrador de cada
+ *  una cuando son varias (18-oct-2026). */
+export async function accionComunidadesAlta(portalIds: string[]): Promise<{ comunidades: ComunidadConAdmin[]; sinComunidad: number }> {
+  const yo = await quienSoy();
+  if (!yo) return { comunidades: [], sinComunidad: 0 };
+  return comunidadesDePortales(portalIds).catch(() => ({ comunidades: [], sinComunidad: 0 }));
 }
