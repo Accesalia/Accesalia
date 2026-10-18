@@ -31,6 +31,8 @@ def lin(proy, css):
     if css: ls.append(('Coordinacion de Seguridad y Salud', 'CSS', css, CSS))
     return ls
 
+E620 = 'Va en la PD-2024-0005 («CFO visado %s», 620 = CFO 500 + CSS 120)'
+AJUSTES = {}   # (opp, numero de pedido de compra) -> [(linea, hito, importe_nuevo, nota)]
 # (opp, fecha, ficheros, numeros, lineas, facturas [(emisor, anio, num, base, [(linea, hito, importe)])], anular [(linea, hito, nota)], nota)
 PEDIDOS = [
     ('DAN-2020-046', '2020-10-05', ['AERONAVE 33 MADRID CODIGOS DE PEDIDO 05-10-2020.pdf'], [('Pedido Fain', '95002394'), ('Grafo/Orden', '4008559'), ('Pedido de compra', '200696')],
@@ -49,13 +51,13 @@ PEDIDOS = [
      'La 101-2021 (licencia) se anuló con la rectificativa 7-2022 y se volvió a emitir como 213-2022.'),
     ('DAN-2019-049', '2021-04-14', ['ETRURIA 26-28 Y LUCANO 65 MADRID CODIGOS DE PEDIDO ARQUITECTO 1 14-04-2021.pdf'], [('Pedido Fain', '95002511'), ('Grafo/Orden', '4008858'), ('Pedido de compra', '215919')],
      lin(2500, 600), [('daniel', 2021, 33, 1250, [(P, 'entrega', 1250)]), ('accesalia', 2022, 220, 750, [(P, 'licencia', 750)]), ('accesalia', 2023, 57, 480, [(C, 'pss', 480)])],
-     [(P, 'cfo', 'ETRURIA 26'), (C, 'cfo', 'ETRURIA 26')], 'Portal ETRURIA 26.'),
+     [(P, 'cfo', E620 % 'Etruria 26'), (C, 'cfo', E620 % 'Etruria 26')], 'Portal ETRURIA 26.'),
     ('DAN-2019-049', '2021-04-14', ['ETRURIA, 26-28 Y LUCANO, 65 MADRID CODIGOS DE PEDIDO ARQUITECTO 2.pdf'], [('Pedido Fain', '95002511'), ('Grafo/Orden', '4008859'), ('Pedido de compra', '216195')],
      lin(2500, 600), [('daniel', 2021, 34, 1250, [(P, 'entrega', 1250)]), ('accesalia', 2022, 219, 750, [(P, 'licencia', 750)]), ('accesalia', 2023, 58, 480, [(C, 'pss', 480)])],
-     [(P, 'cfo', 'ETRURIA 28'), (C, 'cfo', 'ETRURIA 28')], 'Portal ETRURIA 28.'),
+     [(P, 'cfo', E620 % 'Etruria 28'), (C, 'cfo', E620 % 'Etruria 28')], 'Portal ETRURIA 28.'),
     ('DAN-2019-049', '2021-04-14', ['ETRURIA, 26-28 Y LUCANO, 65 MADRID CODIGOS DE PEDIDO 3.pdf'], [('Pedido Fain', '95002511'), ('Grafo/Orden', '4008860'), ('Pedido de compra', '216196')],
      lin(2500, 600), [('daniel', 2021, 35, 1250, [(P, 'entrega', 1250)]), ('accesalia', 2022, 218, 750, [(P, 'licencia', 750)]), ('accesalia', 2023, 59, 480, [(C, 'pss', 480)])],
-     [(P, 'cfo', 'LUCANO 65'), (C, 'cfo', 'LUCANO 65')], 'Portal LUCANO 65.'),
+     [(P, 'cfo', E620 % 'Lucano 65'), (C, 'cfo', E620 % 'Lucano 65')], 'Portal LUCANO 65.'),
     ('DAN-2020-005', '2021-04-13', ['GALICIA 2 LEGANES CODIGOS DE PEDIDO ARQUITECTO 13-04-2021.pdf'], [('Pedido Fain', '95002502'), ('Grafo/Orden', '4008837'), ('Pedido de compra', '215724')],
      lin(2500, 600), [('daniel', 2021, 26, 1250, [(P, 'entrega', 1250)]), ('daniel', 2022, 28, 1230, [(P, 'licencia', 750), (C, 'pss', 480)]),
                       ('daniel', 2024, 86, 500, [(P, 'cfo', 500)]), ('daniel', 2024, 86, 120, [(C, 'cfo', 120)])], [],
@@ -80,8 +82,21 @@ PEDIDOS = [
                       ('daniel', 2022, 66, 480, [(C, 'cfo', 120), (P, 'cfo', 360)]), ('daniel', 2024, 48, 140, [(P, 'cfo', 140)])], [],
      'La CSS del 80 % se facturó dos veces (27-2022 y 66-2022); el sobrante de la segunda (360) cubre parte del CFO y la 48-2024 cobra el resto (140). Suma 3.100 = el pedido.'),
 ]
-# Los cuatro que no cuadran, a la espera de Monica: Quilichao 6, Gobernador 8, Aeronave 33 (CSS) y Mendiguchia 27.
-# Aeronave entra (la CSS queda pendiente: nunca se facturo); los otros tres, cuando ella diga.
+# Respuestas de Monica (18-oct): Gobernador 8 «se anulo una (la primera emitida)»: la 4-2022 queda anulada y vale la
+# 14-2022. Mendiguchia 27 «quedo asi por acuerdo»: el CFO del proyecto se queda en los 340 facturados y el 20 % de la
+# CSS se anula. Quilichao 6 (no aparece la factura de la entrega): al final. Aeronave 33 «no hubo CSS»: se quita su linea.
+PEDIDOS += [
+    ('DAN-2020-019', '2020-03-24', ['GOBERNADOR, 8 CODIGOS DE PEDIDO ARQUITECTO.pdf'], [('Pedido Fain', '95002305'), ('Grafo/Orden', '4008304'), ('Pedido de compra', '188572')],
+     lin(2700, 600), [('daniel', 2020, 17, 1350, [(P, 'entrega', 1350)]), ('daniel', 2021, 64, 810, [(P, 'licencia', 810)]), ('daniel', 2022, 14, 480, [(C, 'pss', 480)]),
+                      ('daniel', 2024, 2, 540, [(P, 'cfo', 540)]), ('daniel', 2024, 2, 120, [(C, 'cfo', 120)])], [],
+     'La CSS del 80 % se facturó dos veces: la primera (4-2022) se anuló (Mónica, 18-oct) y vale la 14-2022. Suma 3.300 = el pedido.'),
+    ('DAN-2021-002', '2021-10-04', ['MENDIGUCHIA CARRICHE 27 LEGANES CODIGOS DE PEDIDO.JPG'], [('Pedido Fain', '95002600'), ('Grafo/Orden', '4009102'), ('Pedido de compra', '230000')],
+     lin(3500, 600), [('accesalia', 2021, 68, 1750, [(P, 'entrega', 1750)]), ('accesalia', 2022, 133, 1050, [(P, 'licencia', 1050)]), ('accesalia', 2022, 228, 480, [(C, 'pss', 480)]),
+                      ('accesalia', 2024, 40, 340, [(P, 'cfo', 340)])],
+     [(C, 'cfo', 'Quedó así por acuerdo: el resto de la CSS no se cobra (Mónica, 18-oct-2026)')],
+     'La última factura (40-2024, 340) cobra los «restantes» de proyecto y CSS; quedó así por acuerdo (Mónica, 18-oct): 3.620 de 4.100.'),
+]
+AJUSTES[('DAN-2021-002', '230000')] = [(P, 'cfo', 340, 'Quedó así por acuerdo: el CFO se cobró en 340 € «restantes» (pedido: 700) (Mónica, 18-oct-2026)')]
 
 
 def n(s):
@@ -125,6 +140,8 @@ for opp, fecha, ficheros, numeros, lineas, facturas, anular, notaped in PEDIDOS:
     print('== %s %s %s | %s' % (opp, o['nombre'], fecha, ficheros[0][:60]))
     for f in ficheros:
         assert os.path.exists(CARPETA + f), f
+    if desc in ya:
+        print('   ya estaba'); continue
     usados = []
     for e, an, nu, base, partes in facturas:
         _, fl = linea_factura(e, an, nu, base)
@@ -136,7 +153,7 @@ for opp, fecha, ficheros, numeros, lineas, facturas, anular, notaped in PEDIDOS:
     fact = sum(base for *_, base, _ in facturas)
     tot = sum(imp for _, _, imp, _ in lineas)
     print('   lineas %s | facturado %s de %s%s' % (' + '.join('%s %s' % (d[:12], imp) for d, _, imp, _ in lineas), fact, tot,
-                                                  ' (el 20 % final va en la PD-2024-0005)' if anular else ''))
+                                                  ' (el 20 % final va en la PD-2024-0005)' if any('PD-2024-0005' in x[2] for x in anular) else ''))
     for e, an, nu, base, partes in facturas:
         print('     %s %s/%s %s -> %s' % (e[:3], an, nu, base, ', '.join('%s %s %s' % ('proy' if li == P else 'css', t, i) for li, t, i in partes)))
     total_enl += len(facturas)
@@ -170,8 +187,13 @@ for opp, fecha, ficheros, numeros, lineas, facturas, anular, notaped in PEDIDOS:
                                          'estado': 'pendiente', 'notas': 'Norma de FAIN %s.' % M})
         hitos_de.append(hs)
         b.insertar('codigos_cliente_linea', [{'linea_facturacion_id': lf['id'], 'etiqueta': e, 'valor': val, 'orden': k + 1} for k, (e, val) in enumerate(numeros)])
-    for li, t, portal in anular:
-        b.actualizar('hitos_cobro?id=eq.%s' % hitos_de[li][t]['id'], {'estado': 'anulado', 'notas': 'Va en la PD-2024-0005 («CFO visado %s», 620 = CFO 500 + CSS 120) %s.' % (portal, M)})
+    for li, t, texto in anular:
+        b.actualizar('hitos_cobro?id=eq.%s' % hitos_de[li][t]['id'], {'estado': 'anulado', 'notas': '%s %s.' % (texto, M)})
+    for li, t, nuevo, texto in AJUSTES.get((opp, dict(numeros).get('Pedido de compra')), []):
+        b.actualizar('hitos_cobro?id=eq.%s' % hitos_de[li][t]['id'], {'importe': nuevo, 'notas': texto})
+        hitos_de[li][t]['importe'] = nuevo
+        b.insertar('notas_facturacion', [{'hoja_encargo_id': h['id'], 'hito_cobro_id': hitos_de[li][t]['id'], 'fecha': HOY, 'origen': 'factusol', 'tipo': 'nota',
+                                          'autor': 'Revisión a mano con Mónica (%s)' % HOY, 'texto': texto}])
     cubierto = {}
     for e, an, nu, base, partes in facturas:
         cob, fl = linea_factura(e, an, nu, base)
@@ -191,14 +213,28 @@ for opp, fecha, ficheros, numeros, lineas, facturas, anular, notaped in PEDIDOS:
                                           'autor': 'Revisión a mano con Mónica (%s)' % HOY, 'texto': notaped}])
     print('   ESCRITO', codigo)
 
+if ESCRIBIR:
+    f = b.leer('facturas?select=id,estado,notas&tipo=eq.factura&empresa_emisora=eq.daniel&anio=eq.2022&serie=eq.1&numero=eq.4')[0]
+    if f['estado'] != 'anulada':
+        b.actualizar('facturas?id=eq.' + f['id'], {'estado': 'anulada', 'notas': ((f['notas'] or '') + ' Anulada: CSS de Gobernador 8 facturada dos veces; vale la 14-2022 %s.' % M).strip()})
+        print('== daniel 4-2022 (Gobernador 8) -> anulada')
+    for x in b.leer('lineas_facturacion?select=id,quitada_en,h:hoja_encargo_id(id,descripcion)&descripcion=eq.Coordinacion%20de%20Seguridad%20y%20Salud&origen=eq.pedido'):
+        if x['h'] and '95002394' in (x['h']['descripcion'] or '') and not x['quitada_en']:
+            b.actualizar('lineas_facturacion?id=eq.' + x['id'], {'quitada_en': HOY + 'T12:00:00+00:00'})
+            b.insertar('notas_facturacion', [{'hoja_encargo_id': x['h']['id'], 'hito_cobro_id': None, 'fecha': HOY, 'origen': 'factusol', 'tipo': 'nota',
+                                              'autor': 'Revisión a mano con Mónica (%s)' % HOY, 'texto': 'No hubo CSS: se quita la línea del pedido (Mónica, 18-oct-2026).'}])
+            print('== Aeronave 33: linea de CSS quitada')
+
 # Etruria 28 y Lucano 65: su 20 % final (CFO 500 + CSS 120) a la PD-2024-0005, como hizo e3 con la 262-2024
 for num, portal in ((263, 'Etruria 28'), (264, 'Lucano 65')):
     hit = [x for x in b.leer('hitos_cobro?select=id,importe,estado,l:linea_facturacion_id(descripcion,h:hoja_encargo_id(numero_hoja))&hito=eq.otro&importe=eq.620')
            if x['l'] and x['l']['h'] and x['l']['h']['numero_hoja'] == 'PD-2024-0005' and x['l']['descripcion'] == 'CFO visado %s' % portal]
     assert len(hit) == 1, portal
+    if b.leer('factura_linea_hitos?hito_cobro_id=eq.%s&select=importe' % hit[0]['id']):
+        print('== PD-2024-0005 «CFO visado %s»: ya estaba' % portal); continue
     partes = [linea_factura('accesalia', 2024, num, 500), linea_factura('accesalia', 2024, num, 120)]
     print('== PD-2024-0005 «CFO visado %s» <- acc 2024/%s (500 + 120)' % (portal, num))
-    if ESCRIBIR:
+    if ESCRIBIR and not b.leer('factura_linea_hitos?hito_cobro_id=eq.%s&select=importe' % hit[0]['id']):
         for (cob, fl), i in zip(partes, (500, 120)):
             b.insertar('factura_linea_hitos', [{'factura_linea_id': fl['id'], 'hito_cobro_id': hit[0]['id'], 'importe': i, 'como': 'a_mano'}])
         b.actualizar('hitos_cobro?id=eq.' + hit[0]['id'], {'estado': 'completado'})
