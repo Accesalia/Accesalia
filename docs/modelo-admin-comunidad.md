@@ -71,6 +71,29 @@ los hilos. Lo coordina el hilo 41.
 5. Más adelante: retirar también `oportunidades.comunidad_id`. Lo leen muchas
    pantallas.
 
+## Lo que dicen los hilos (18-oct)
+
+- **68** (Todo lo contratado, Panorámica): no le afecta; solo lee id, nombre,
+  estado y comercial de la opp.
+- **ad** (generador de hojas, lib/hojaEncargo.ts): usa `oportunidades.comunidad_id`
+  para tres cosas: el permiso por comunidad (l. 224), el «a quién va» con su CIF
+  en el conforme (l. 243) y el error si la hoja va a la comunidad y no la tiene,
+  copiándola en `hojas_encargo.comunidad_id` (l. 527-546). Le afecta el paso 5.
+  **Pregunta abierta para Mónica:** si una opp abarca dos comunidades, ¿la hoja
+  va a cada una por separado (una hoja por comunidad, que es quien vota y paga)
+  o se elige a cuál va?
+- **85** (Cobrar, Comisiones, Alertas): no lleva ninguno de los seis ficheros de
+  la lista. Lee `oportunidades.comunidad_id` en lib/comisionesAdmin.ts:188 (las
+  opps de un administrador, que tendrían que ir comunidad → accesos → opp),
+  lib/resumenComercial.ts (alertas, opps por fases y el mapa; y la función
+  `datos_alertas` de e3) y lib/cobros.ts (solo el nombre de la comunidad).
+  Adaptará lo suyo cuando exista la vista base. **Avisarle antes de quitar la
+  columna.**
+- **71** (ficha financiera): leerá de la vista base cuando exista y quitará el
+  respaldo de `administrador_puesto_id`.
+- **e3**: lo consulta con Mónica antes de comprometerse con la vista base; no toca
+  las vistas ni los triggers mientras tanto.
+
 ## Quién hace qué
 
 Pendiente de confirmar con cada hilo:
