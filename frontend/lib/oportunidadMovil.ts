@@ -90,7 +90,6 @@ export async function crearOportunidadDesdeMovil(yo: Yo, d: NuevaDesdeMovil, com
     puesto_id: lc === "puesto" ? idc : null,
     contacto_provisional: !conContacto && d.contactoNombre?.trim() ? d.contactoNombre.trim() : null,
     telefono_provisional: !conContacto && d.contactoNombre?.trim() ? d.contactoTelefono?.trim() || null : null,
-    administrador_puesto_id: la === "puesto" ? ida : null,
     siguiente_paso: d.paso && PASOS.includes(d.paso) ? d.paso : null,
   });
 

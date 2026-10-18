@@ -126,28 +126,14 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
  *  oportunidad tiene administrador y su comunidad no tiene administracion
  *  responsable, se PROPONE ponerle esa. No se pone sola: lo decide quien mira. */
 export async function propuestaAdminComunidad(
-  oppId: string,
+  _oppId: string,
 ): Promise<{ comunidadId: string; puestoId: string; empresaId: string | null; quien: string } | null> {
-  const [o] = await leer<{
-    comunidad_id: string | null;
-    administrador_puesto_id: string | null;
-    adm: { empresa_id: string | null; persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string } | null } | null;
-  }[]>(
-    `oportunidades?select=comunidad_id,administrador_puesto_id,` +
-      `adm:administrador_puesto_id(empresa_id,persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia))&id=eq.${oppId}&limit=1`,
-  );
-  if (!o?.comunidad_id || !o.administrador_puesto_id) return null;
-  const tiene = await leer<{ id: string }[]>(
-    `comunidad_admin_responsable?select=id&comunidad_id=eq.${o.comunidad_id}&vigente=is.true&limit=1`,
-  );
-  if (tiene.length) return null;
-  const persona = [o.adm?.persona?.nombre, o.adm?.persona?.apellidos].filter(Boolean).join(" ");
-  return {
-    comunidadId: o.comunidad_id,
-    puestoId: o.administrador_puesto_id,
-    empresaId: o.adm?.empresa_id ?? null,
-    quien: [persona, o.adm?.empresa?.nombre_accesalia].filter(Boolean).join(" · ") || "el administrador de la oportunidad",
-  };
+  // RETIRADA (18-oct-2026): el administrador ya no se guarda en la opp, asi que no
+  // hay nada que proponer pasar a la comunidad. El alta y «Completar» lo ponen
+  // directamente en la comunidad (lib/adminComunidad.ts). Se deja la firma para
+  // no tocar la ficha de la opp; la columna oportunidades.administrador_puesto_id
+  // se retira (zz_muerta_).
+  return null;
 }
 
 /** Aceptar la propuesta: la administracion de la comunidad pasa a ser esta. */
