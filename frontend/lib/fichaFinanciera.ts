@@ -74,7 +74,7 @@ export type Ficha = {
   /** Las comisiones del administrador en esta opp, con su acuerdo (solo quien ve Ecobalance). */
   comisionAdmin: { persona: string | null; verificado: boolean; condiciones: Partial<Record<Sobre, Condicion>>; deudas: Deuda[]; nota: string | null } | null;
   /** El comercial de la casa y lo que tiene pactado (solo direccion). */
-  comercial: { nombre: string; pacto: string | null } | null;
+  comercial: { nombre: string; pacto: string | null; pct: number | null } | null;
   financiacion: { entidad: string; estado: string; importe: number | null; firma: string | null; notas: string | null }[];
   facturado: { accesalia: number; ecobalance: number };
   /** Facturas de la opp que no pagan ningun hito («sueltas»: 2020-21 sin casar por decision de Monica, y las que quedan por casar). */
@@ -92,10 +92,10 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
     leer<{
       id: string; nombre: string | null; codigo: string | null; comunidad_id: string | null; quien_lo_trae: string | null;
       adm: { persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string | null } | null } | null;
-      comercial: { nombre: string | null; apellidos: string | null; notas_comision: string | null } | null;
+      comercial: { nombre: string | null; apellidos: string | null; notas_comision: string | null; comision_pct: number | null } | null;
     }[]>(
       `oportunidades?select=id,nombre,codigo,comunidad_id,quien_lo_trae,adm:administrador_puesto_id(persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)),` +
-        `comercial:comercial_id(nombre,apellidos,notas_comision)&id=eq.${oppId}`,
+        `comercial:comercial_id(nombre,apellidos,notas_comision,comision_pct)&id=eq.${oppId}`,
     ),
     leer<{ id: string; numero_hoja: string | null; fecha_firma: string | null; pagador_tipo: string | null; version_firmada_id: string | null; contrata: { nombre: string } | null; actuaciones: { tipo: { nombre: string; naturaleza: string | null; padre: { nombre: string; padre: { nombre: string } | null } | null } | null }[] }[]>(
       `hojas_encargo?select=id,numero_hoja,fecha_firma,pagador_tipo,version_firmada_id,contrata:pagador_contrata_id(nombre),` +
@@ -280,7 +280,7 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
     comisionAdmin,
     comercial:
       vista.todo && o.comercial
-        ? { nombre: [o.comercial.nombre, o.comercial.apellidos].filter(Boolean).join(" "), pacto: o.comercial.notas_comision }
+        ? { nombre: [o.comercial.nombre, o.comercial.apellidos].filter(Boolean).join(" "), pacto: o.comercial.notas_comision, pct: o.comercial.comision_pct != null ? Number(o.comercial.comision_pct) : null }
         : null,
     financiacion: vista.accesalia
       ? finan.map((f) => ({ entidad: f.entidad?.nombre_accesalia ?? f.entidad_nombre ?? "—", estado: f.estado, importe: f.importe != null ? Number(f.importe) : null, firma: f.fecha_firma, notas: f.notas }))

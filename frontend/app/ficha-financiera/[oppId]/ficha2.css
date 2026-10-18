@@ -1,8 +1,8 @@
 /* LA FICHA FINANCIERA (Monica, 17/18-oct-2026): su ficha de 2025 puesta al dia,
    a dos columnas, con sus colores (su Figma): fondo tostado, titulos crema,
    cuadros blancos, acentos teja, sombreado rosado, letra 42dot Sans.
-   Cada tabla va dentro de un marco blanco («paspartu»: que la letra no quede
-   cruda sobre el fondo). Jerarquia: titulo > linea > hito > parte > detalle. */
+   Las secciones van en su paspartu (panel crema): que la letra no quede cruda
+   sobre el fondo. Jerarquia: titulo > linea > hito > parte > detalle. */
 
 .ff2 {
   --fondo: #934c09; --crema: #f8f8ee; --acento: #a75907; --raya: #e6ded3; --raya-fuerte: #d6c2ad;
@@ -22,8 +22,14 @@
 .ff2 .dato { font-size: 14.5px; color: var(--tinta); }
 .ff2 .peq { font-size: 12px; color: var(--gris); }
 
-/* El paspartu: marco blanco y, dentro, la tabla con rayas suaves. */
-.ff2 .marco { background: var(--paspartu, #fffffe); padding: 9px 11px; border-radius: 3px; }
+/* EL PASPARTU (su Figma, 18-oct): panel crema con esquinas redondas que lleva
+   dentro el titulo en teja y la tabla con borde teja. Todas las secciones menos
+   direccion, resumen (lleva el suyo) y notas. */
+.ff2 .panel { background: #f6e9cb; border-radius: 9px; padding: 14px 16px 18px; }
+.ff2 .panel h2 { color: #ba6114; margin-left: 2px; }
+.ff2 .panel table { background: #fffcf9; border: 1.5px solid #ba6114; }
+.ff2 .panel .et { color: #884907; }
+.ff2 .panel tr.notas td { border-top-color: #ba6114; }
 .ff2 table { border-collapse: collapse; width: 100%; background: #fffffe; }
 .ff2 td { border: 1px solid var(--raya); padding: 4px 8px; height: 28px; vertical-align: middle; }
 .ff2 td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -60,13 +66,13 @@
 .ff2 .he td.cab span { font-weight: 400; color: var(--gris); }
 .ff2 .he tr.primera td.cab { border-top: none; }
 .ff2 .he tr.linea td { border-top: 1.5px solid var(--raya-fuerte); padding-top: 7px; }
-.ff2 .he tr.linea .que, .ff2 .he tr.linea .cuanto { font-size: 15px; font-weight: 700; color: var(--tinta); }
+.ff2 .he tr.linea .que, .ff2 .he tr.linea .cuanto { font-size: 14.5px; font-weight: 700; color: var(--tinta); }
 .ff2 .he tr.hito td { border-top: 1px dotted var(--raya); height: 25px; }
 .ff2 .he tr.hito .que { padding-left: 22px; font-size: 13.5px; color: var(--tinta-suave); }
 .ff2 .he tr.hito .cuanto { font-size: 13.5px; color: var(--tinta-suave); }
 .ff2 .he tr.parte .que { padding-left: 44px; font-size: 12.5px; color: var(--gris); }
 .ff2 .he tr.parte .cuanto { font-size: 12.5px; color: var(--gris); }
-.ff2 .he td.det { white-space: nowrap; }
+.ff2 .he td.det { white-space: nowrap; font-size: 11.5px; }
 .ff2 .he tr.incl td { border-top: 1px dotted var(--raya); padding: 5px 8px 7px; }
 .ff2 .eco { font-size: 10.5px; font-weight: 700; color: #3b5f86; margin-left: 5px; letter-spacing: 0.3px; }
 

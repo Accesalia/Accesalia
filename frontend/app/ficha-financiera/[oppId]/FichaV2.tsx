@@ -39,9 +39,9 @@ function SiNo({ si }: { si: boolean | null }) {
 }
 function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="panel">
       <h2>{titulo}</h2>
-      <div className="marco">{children}</div>
+      {children}
     </div>
   );
 }
@@ -105,9 +105,22 @@ export function FichaFinancieraV2({ f, vista }: { f: Ficha; vista: Vista }) {
         comisiones.push([`Administrador, ${SOBRE[d.sobre]}`, pacto(c, d.sobre) ?? ""]);
       }
     }
+  // EL COMERCIAL: su % de lo facturado de importe fijo (lo de a exito no comisiona, de momento);
+  // lo gana cuando Accesalia cobra. Solo lo de Accesalia.
+  const fijoAccesalia = f.lineas.filter((l) => !l.ecobalance && !l.exito).reduce((s, l) => s + (l.base ?? 0), 0);
+  const cobradoAccesalia = f.cobrado.accesalia + f.sueltas.filter((x) => !x.ecobalance && x.cobrada).reduce((s, x) => s + x.base, 0);
+  const pctCom = f.comercial?.pct ?? null;
+  const comComercial = pctCom != null ? Math.round(fijoAccesalia * pctCom) / 100 : null;
+  const comDevengada = pctCom != null ? Math.round(Math.min(cobradoAccesalia, fijoAccesalia) * pctCom) / 100 : null;
   if (vista.todo && f.comercial) {
-    faltan = true;
-    comisiones.push([`Comercial (${f.comercial.nombre.split(" ")[0]})`, "sin % guardado"]);
+    const quien = `Comercial (${f.comercial.nombre.split(" ")[0]})`;
+    if (comComercial != null) {
+      comisionesSuma += comComercial;
+      comisiones.push([quien, eur(comComercial)]);
+    } else {
+      faltan = true;
+      comisiones.push([quien, "sin % guardado"]);
+    }
   }
 
   const adjudicada = f.contrata;
@@ -179,8 +192,8 @@ export function FichaFinancieraV2({ f, vista }: { f: Ficha; vista: Vista }) {
           <Seccion titulo={`${num()} Hojas de encargo e hitos de facturación`}>
             <table className="he">
               <colgroup>
-                <col style={{ width: "46%" }} />
-                <col style={{ width: "18%" }} />
+                <col style={{ width: "50%" }} />
+                <col style={{ width: "16%" }} />
                 <col />
               </colgroup>
               <tbody>
@@ -267,7 +280,7 @@ export function FichaFinancieraV2({ f, vista }: { f: Ficha; vista: Vista }) {
 
         {/* ===================== COLUMNA 2 ===================== */}
         <div className="col">
-          <div className="marco">
+          <div className="panel">
             <table>
               <tbody>
                 <tr><td className="et" style={{ width: 165 }}>Categoría:</td><td className="dato">{(f.categoriasProyecto.length ? f.categoriasProyecto : f.categorias).join(" · ")}</td></tr>
@@ -439,8 +452,18 @@ export function FichaFinancieraV2({ f, vista }: { f: Ficha; vista: Vista }) {
                   {f.comercial ? (
                     <>
                       <tr><td className="et" style={{ width: 160 }}>Comercial:</td><td className="dato">{f.comercial.nombre}</td></tr>
-                      <tr><td className="et">Comisión:</td><td className="dato">{f.comercial.pacto ? <span className="peq">{f.comercial.pacto}</span> : ""}</td></tr>
-                      <tr><td className="et">Importe:</td><td className="dato"><span className="hueco">sin % guardado</span></td></tr>
+                      <tr>
+                        <td className="et">Comisión:</td>
+                        <td className="dato">{pctCom != null ? <>{EUR.format(pctCom).replace(",00", "")} % de lo facturado <span className="peq">· solo importes fijos</span></> : <span className="hueco">sin % guardado</span>}</td>
+                      </tr>
+                      <tr><td className="et">Importe:</td><td className="dato">{eur(comComercial)}</td></tr>
+                      <tr>
+                        <td className="et">Devengada:</td>
+                        <td className="dato">
+                          {eur(comDevengada)}
+                          {comComercial != null && comDevengada != null && <span className="peq"> · {comDevengada >= comComercial ? "todo cobrado" : `pendiente ${eur(comComercial - comDevengada)}`}</span>}
+                        </td>
+                      </tr>
                       <tr><td className="et">Pagada:</td><td className="et"><Caja si={false} />Fecha:</td></tr>
                     </>
                   ) : (
