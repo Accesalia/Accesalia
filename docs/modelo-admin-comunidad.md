@@ -79,9 +79,9 @@ los hilos. Lo coordina el hilo 41.
   para tres cosas: el permiso por comunidad (l. 224), el «a quién va» con su CIF
   en el conforme (l. 243) y el error si la hoja va a la comunidad y no la tiene,
   copiándola en `hojas_encargo.comunidad_id` (l. 527-546). Le afecta el paso 5.
-  **Pregunta abierta para Mónica:** si una opp abarca dos comunidades, ¿la hoja
-  va a cada una por separado (una hoja por comunidad, que es quien vota y paga)
-  o se elige a cuál va?
+  **Decidido por Mónica:** una hoja por comunidad. «Una hoja de encargo va
+  siempre a UN ÚNICO pagador, igual que una factura.» Una opp con dos
+  comunidades lleva dos hojas.
 - **85** (Cobrar, Comisiones, Alertas): no lleva ninguno de los seis ficheros de
   la lista. Lee `oportunidades.comunidad_id` en lib/comisionesAdmin.ts:188 (las
   opps de un administrador, que tendrían que ir comunidad → accesos → opp),
@@ -96,10 +96,10 @@ los hilos. Lo coordina el hilo 41.
 
 ## Quién hace qué
 
-Pendiente de confirmar con cada hilo:
-- La vista base y la capa rápida (directorios, cartera, consolidación): el hilo
-  de datos (**e3**), que montó las tablas de la velocidad.
-- Alta de opp, satélite y «Completar»: el hilo que los lleve.
+Mónica: «el que creáis que tiene más claro el dato».
+- La vista base y la capa rápida (directorios, cartera, consolidación): **e3**,
+  que montó admin_de_oportunidad, los directorios y sus triggers.
+- Alta de opp, satélite y «Completar» (paso 2): **41** (no tenían dueño).
 - La ficha financiera: el hilo **71**.
 - Las demás pantallas que leen el administrador (correo, fichas, negocio):
   cada una, su hilo.
