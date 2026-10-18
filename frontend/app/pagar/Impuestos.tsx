@@ -36,10 +36,13 @@ const cifra = (p: Pago) => p.real ?? p.previsto;
 // --------------------------------------------------------------- las tarjetas
 
 function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; hoy: string; conEmpresa: boolean }) {
-  // Cuando se paga: los dias del proximo año, sin repetir.
-  const proximos = pagos.filter((p) => !p.plazo && p.fecha >= hoy && p.fecha <= sumar(hoy, 365));
-  const cuando = [...new Set(proximos.map((p) => diaMes(p.fecha)))];
+  // LA TABLA GIRADA (Monica, 18-oct-2026: «mucho ruido visual»): los periodos en
+  // columnas y debajo Fecha, Previsto, Real y Desviacion, cada fila con su nombre
+  // una sola vez. Sin la linea «Se paga:», que repetia la fila Fecha.
   const filas = pagos.filter((p) => !p.plazo);
+  const desv = (p: Pago) => (p.real != null && p.previsto != null ? p.real - p.previsto : null);
+  const gris = (p: Pago) => (p.fecha < hoy ? "text-carbon/45" : "");
+  const etiqueta = "py-1 pr-2 text-left text-[10.5px] font-semibold uppercase tracking-wide text-carbon/45";
   return (
     <section className="w-fit min-w-[440px] max-w-[600px] break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
       <div className="flex items-baseline justify-between gap-3">
@@ -48,37 +51,53 @@ function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; 
         </h3>
         {conEmpresa && <span className="text-[12px] text-carbon/60">{o.empresa === "daniel_autonomo" ? "Daniel" : EMPRESA_LABEL[o.empresa]}</span>}
       </div>
-      {o.explicacion && <p className="mt-1 text-[12.5px] leading-snug text-carbon/70">{o.explicacion}</p>}
-      {cuando.length > 0 && <p className="mt-1.5 text-[12.5px] text-carbon/80">Se paga: {cuando.join(" · ")}</p>}
+      {o.explicacion && <p className="mt-0.5 text-[12px] leading-snug text-carbon/60">{o.explicacion}</p>}
       {filas.length > 0 && (
-        <table className="mt-2 w-auto border-collapse whitespace-nowrap text-[12.5px] tabular-nums [&_td]:pr-6 [&_th]:pr-6 [&_td:last-child]:pr-0 [&_th:last-child]:pr-0">
+        <table className="mt-2 w-auto border-collapse whitespace-nowrap text-[12.5px] tabular-nums [&_td]:pl-5 [&_td]:text-right">
           <thead>
-            <tr className="text-[10.5px] uppercase tracking-wide text-carbon/50">
-              <th className="py-1 text-left font-semibold">Periodo</th>
-              <th className="py-1 text-left font-semibold">Fecha</th>
-              <th className="py-1 text-right font-semibold">Previsto</th>
-              <th className="py-1 text-right font-semibold">Real</th>
-              <th className="py-1 text-right font-semibold">Desviación</th>
+            <tr className="border-b border-black/[.07]">
+              <th />
+              {filas.map((p) => (
+                <th key={p.clave} className={`pb-1 pl-5 text-right text-[12.5px] font-bold ${p.fecha < hoy ? "text-carbon/45" : "text-carbon"}`}>
+                  {periodoCorto(p)}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody>
-            {filas.map((p) => {
-              const desv = p.real != null && p.previsto != null ? p.real - p.previsto : null;
-              const pasado = p.fecha < hoy;
-              return (
-                <tr key={p.clave} className={`border-t border-black/5 ${pasado ? "text-carbon/50" : "text-carbon"}`}>
-                  <td className="py-1">{periodoCorto(p)}</td>
-                  <td className="py-1">{diaMes(p.fecha)}</td>
-                  <td className="py-1 text-right">{p.previsto != null ? EUR.format(p.previsto) : <span className="text-carbon/45">por saber</span>}</td>
-                  <td className="py-1 text-right">
-                    {p.estado === "fraccionado" ? <span className="text-carbon/60">aplazado</span> : p.real != null ? EUR.format(p.real) : p.estado === "hecho" ? <span className="text-carbon/50">pagado</span> : ""}
+          <tbody className="[&_tr+tr]:border-t [&_tr+tr]:border-black/5">
+            <tr>
+              <th className={etiqueta}>Fecha</th>
+              {filas.map((p) => (
+                <td key={p.clave} className={`py-1 ${gris(p)}`}>{diaMes(p.fecha)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th className={etiqueta}>Previsto</th>
+              {filas.map((p) => (
+                <td key={p.clave} className={`py-1 ${p.fecha < hoy ? "text-carbon/45" : "font-semibold text-carbon"}`}>
+                  {p.previsto != null ? EUR.format(p.previsto) : <span className="font-normal text-carbon/45">por saber</span>}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th className={etiqueta}>Real</th>
+              {filas.map((p) => (
+                <td key={p.clave} className={`py-1 ${gris(p)}`}>
+                  {p.estado === "fraccionado" ? <span className="text-carbon/60">aplazado</span> : p.real != null ? EUR.format(p.real) : p.estado === "hecho" ? <span className="text-carbon/50">pagado</span> : ""}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th className={etiqueta}>Desviación</th>
+              {filas.map((p) => {
+                const d = desv(p);
+                return (
+                  <td key={p.clave} className={`py-1 ${d == null ? "" : d > 0 ? "text-[#8e2f2d]" : "text-[#3f7a1c]"}`}>
+                    {d == null ? "" : `${d > 0 ? "+" : ""}${EUR.format(d)}`}
                   </td>
-                  <td className={`py-1 text-right ${desv == null ? "" : desv > 0 ? "text-[#8e2f2d]" : "text-[#3f7a1c]"}`}>
-                    {desv == null ? "" : `${desv > 0 ? "+" : ""}${EUR.format(desv)}`}
-                  </td>
-                </tr>
-              );
-            })}
+                );
+              })}
+            </tr>
           </tbody>
         </table>
       )}
