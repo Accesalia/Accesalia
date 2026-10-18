@@ -162,7 +162,7 @@ export function Llegamos({ meses, vencido, porCobrar, sinFecha }: {
               <b className="text-[16px]">{mayus(MES_LARGO.format(fechaMes(sig.mes)))}, qué entra y qué sale</b>
               <span className="font-bold tabular-nums">{sig.entra - sig.sale >= 0 ? "+" : "−"}{EUR0.format(Math.abs(sig.entra - sig.sale))} € + ?</span>
             </div>
-            <table className="w-full border-collapse text-[14px] tabular-nums">
+            <table className="w-auto border-collapse text-[14px] tabular-nums [&_td:first-child]:max-w-[340px] [&_td:first-child]:pr-6 [&_th:first-child]:pr-6">
               <tbody>
                 <tr><th className={TH}>Sale</th><th className={TH + " text-right"}>{EUR0.format(sig.sale)} + ?</th></tr>
                 <FilaHueco que="Nóminas" falta="engancharlas a las nóminas de RRHH" />

@@ -67,8 +67,8 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
       </div>
 
       {ver === "nube" ? (
-        <div className="grid grid-cols-2 items-start gap-[22px]">
-          <div>
+        <div className="flex flex-wrap items-start gap-[22px]">
+          <div className="w-[560px]">
             <div className="mb-2 flex items-center gap-2 text-[16px] font-extrabold">
               Pendiente de decidir <Cnt n={d.pendientes.length} />
             </div>
@@ -77,10 +77,10 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
               <Decidir filas={d.pendientes.map((t) => ({ oppId: t.oppId, nombre: t.nombre, detalle: detalle(t) }))} />
             </div>
           </div>
-          <div>
+          <div className="w-[520px]">
             <div className="mb-2 flex items-center gap-2 text-[16px] font-extrabold">
               Asignado como nube <Cnt n={d.enNube.length} />
-              <Link href="/facturacion/nubes" className="ml-auto inline-flex h-8 items-center rounded-[9px] border border-[#d6dad2] bg-white px-3 text-[13px] font-bold text-carbon-soft hover:border-carbon/40">
+              <Link href="/facturacion/nubes" className="ml-4 inline-flex h-8 items-center rounded-[9px] border border-[#d6dad2] bg-white px-3 text-[13px] font-bold text-carbon-soft hover:border-carbon/40">
                 Ver proceso nubes →
               </Link>
             </div>
@@ -88,8 +88,8 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
             <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
               {d.enNube.length ? (
                 d.enNube.map((t) => (
-                  <div key={t.oppId} className="flex items-center justify-between gap-3.5 border-b border-[#f0f2ee] px-4 py-[13px] last:border-0">
-                    <div className="min-w-0">
+                  <div key={t.oppId} className="flex items-center gap-3.5 border-b border-[#f0f2ee] px-4 py-[13px] last:border-0">
+                    <div className="min-w-0 flex-1">
                       <div className="text-[14.5px] font-bold">{t.nombre}</div>
                       <div className="mt-0.5 text-[12.5px] text-[#7b8077]">
                         {t.decision?.decidida ? `recibida el ${ddmmaa(new Date(t.decision.decidida).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }))} · ` : ""}

@@ -25,8 +25,8 @@ function Fila({ f, alSalir }: { f: FilaDecidir; alSalir: () => void }) {
   };
   const BTN = "inline-flex h-8 items-center rounded-[9px] border px-3 text-[13px] font-bold disabled:opacity-50";
   return (
-    <div className={`flex items-center justify-between gap-3.5 border-b border-[#f0f2ee] px-4 py-[13px] transition-opacity duration-[350ms] last:border-0 ${sale ? "opacity-0" : ""}`}>
-      <div className="min-w-0">
+    <div className={`flex items-center gap-3.5 border-b border-[#f0f2ee] px-4 py-[13px] transition-opacity duration-[350ms] last:border-0 ${sale ? "opacity-0" : ""}`}>
+      <div className="min-w-0 flex-1">
         <div className="text-[14.5px] font-bold">{f.nombre}</div>
         <div className="mt-0.5 text-[12.5px] text-[#7b8077]">{f.detalle}</div>
         {error && <div className="text-[12px] text-alerta">No se guardó: {error}</div>}

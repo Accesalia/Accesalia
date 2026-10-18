@@ -318,8 +318,8 @@ export function Proyectos(props: {
       </div>
 
       {/* POR ASIGNAR */}
-      <section className="mt-3 overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
-        <div className="flex items-center justify-between gap-3 border-b border-[#eef0eb] px-5 py-3.5">
+      <section className="mt-3 w-fit overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
+        <div className="flex items-center gap-5 border-b border-[#eef0eb] px-5 py-3.5">
           <b className="text-[16px]">
             Por asignar <span className="ml-1 rounded-[10px] bg-black/[.08] px-2 py-px text-[12px] font-extrabold">{porAsignar.length}</span>
           </b>
@@ -337,7 +337,7 @@ export function Proyectos(props: {
               <span className={CHIP + " " + COLOR_DIF[t.dificultad]}>{t.dificultad}</span>
               <span className="w-[70px] text-right tabular-nums">{coma(t.dias)} {t.dias === 1 ? "día" : "días"}</span>
               <span className="h-2 rounded-full bg-lima/70" style={{ width: Math.max(6, (t.dias ?? 0) * 14) }} title={`${coma(t.dias)} días de redacción`} />
-              <span className="ml-auto w-[90px] text-right font-bold tabular-nums">{t.tipo === "requerimiento" ? <span className="font-normal text-ajeno">no cobra</span> : `${EUR.format(t.entrega)} €`}</span>
+              <span className="w-[90px] text-right font-bold tabular-nums">{t.tipo === "requerimiento" ? <span className="font-normal text-ajeno">no cobra</span> : `${EUR.format(t.entrega)} €`}</span>
               {t.contrata && <span className={CHIP + " bg-amber-50 text-amber-900/80"}>contrata</span>}
               <SelectorTecnico t={t} vacio="Elegir técnico…" />
             </div>

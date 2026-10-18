@@ -10,6 +10,7 @@ import { EMPRESA_LABEL, type Empresa, type Obligacion, type Pago } from "../../l
 //   - DERECHA, el calendario de pagos mes a mes: pasado en gris, este mes en
 //     burdeos, lo que viene en azul.
 // Solo impuestos: la Seguridad Social y la cuota de autonomo van a «La caja del mes».
+// TABLAS A SU CONTENIDO (regla 8 de la guia, 18-oct-2026): nada estirado al ancho.
 
 export const hoyMadrid = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
 const fecha = (iso: string) => new Date(iso + "T00:00:00Z");
@@ -40,7 +41,7 @@ function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; 
   const cuando = [...new Set(proximos.map((p) => diaMes(p.fecha)))];
   const filas = pagos.filter((p) => !p.plazo);
   return (
-    <section className="break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
+    <section className="w-fit min-w-[440px] max-w-[600px] break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-[14.5px] font-bold text-carbon">
           {o.nombre} <span className="font-normal text-carbon/55">· modelo {o.modelo}</span>
@@ -50,7 +51,7 @@ function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; 
       {o.explicacion && <p className="mt-1 text-[12.5px] leading-snug text-carbon/70">{o.explicacion}</p>}
       {cuando.length > 0 && <p className="mt-1.5 text-[12.5px] text-carbon/80">Se paga: {cuando.join(" · ")}</p>}
       {filas.length > 0 && (
-        <table className="mt-2 w-full border-collapse text-[12.5px] tabular-nums">
+        <table className="mt-2 w-auto border-collapse whitespace-nowrap text-[12.5px] tabular-nums [&_td]:pr-6 [&_th]:pr-6 [&_td:last-child]:pr-0 [&_th:last-child]:pr-0">
           <thead>
             <tr className="text-[10.5px] uppercase tracking-wide text-carbon/50">
               <th className="py-1 text-left font-semibold">Periodo</th>
@@ -92,7 +93,7 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
   const meses = Array.from({ length: 13 }, (_, i) => mesMas(hoy, i - 1));
   const varias = empresas.length > 1;
   return (
-    <div className="rounded-xl border border-black/10 bg-white px-4 py-3">
+    <div className="w-[400px] shrink-0 rounded-xl border border-black/10 bg-white px-4 py-3">
       <h3 className="text-[14.5px] font-bold text-carbon">Calendario de pagos</h3>
       <p className="mb-2 text-[12px] text-carbon/60">
         <span className="text-carbon/45">gris</span>, ya pasado · <span className="text-[#8e2f2d]">burdeos</span>, este mes · <span className="text-[#3b5f86]">azul</span>, lo que viene. ≈ previsto; sin ≈, ya validado.
@@ -165,13 +166,13 @@ export function Impuestos({ pagos, obligaciones, empresas, hoy }: { pagos: Pago[
           <b>Para domiciliar:</b> {domiciliar.length} pago{domiciliar.length === 1 ? "" : "s"} del {diaMes(domiciliar[0].fecha)} tenían que estar domiciliados {limite < hoy ? `el ${DIA_SEM.format(fecha(limite))}, y ya pasó: hablar con GMA` : `antes del ${DIA_SEM.format(fecha(limite))}`}.
         </p>
       )}
-      <div className="grid items-start gap-5" style={{ gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)" }}>
+      <div className="flex flex-wrap items-start gap-5">
         <div className="flex flex-col gap-3">
           {conPago.map(({ o, pagos: ps }) => (
             <Tarjeta key={o.id} o={o} pagos={ps} hoy={hoy} conEmpresa={empresas.length > 1} />
           ))}
           {soloSePresentan.length > 0 && (
-            <section className="rounded-xl border border-black/10 bg-white px-4 py-3 text-[12.5px] text-carbon/75">
+            <section className="w-fit max-w-[600px] rounded-xl border border-black/10 bg-white px-4 py-3 text-[12.5px] text-carbon/75">
               <h3 className="text-[14.5px] font-bold text-carbon">Solo se presentan, no se pagan</h3>
               <p className="mt-1">
                 {soloSePresentan.map((o) => `${o.modelo} ${o.nombre.toLowerCase()}`).join(" · ")}

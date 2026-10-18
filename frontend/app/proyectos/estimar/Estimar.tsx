@@ -70,9 +70,9 @@ export function Estimar({ filas }: { filas: FilaEstimar[] }) {
   const [quedan, setQuedan] = useState(filas);
   const TH = "border-b border-[#e9ece5] bg-[#fafbf9] px-3.5 py-[11px] text-left text-[11.5px] font-bold uppercase tracking-[.08em] text-[#7b8077]";
   return (
-    <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
+    <div className="w-fit overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
       {quedan.length ? (
-        <table className="w-full border-collapse text-[14px] tabular-nums">
+        <table className="w-auto border-collapse text-[14px] tabular-nums">
           <thead>
             <tr>
               <th className={TH}>Proyecto</th>

@@ -46,10 +46,10 @@ function Fila({ f, alSalir }: { f: FilaProceso; alSalir: () => void }) {
       <td className={TD}>
         <input type="date" className={IN} value={prevista} onChange={(e) => { setPrevista(e.target.value); guardar("fecha_prevista_escaneo", e.target.value || null); }} aria-label="Escaneo previsto" />
       </td>
-      <td className={TD + " w-[34%]"}>
+      <td className={TD}>
         <input
           type="text"
-          className={IN + " w-full placeholder:text-carbon/55"}
+          className={IN + " w-[300px] placeholder:text-carbon/55"}
           value={notas}
           placeholder="Notas…"
           onChange={(e) => setNotas(e.target.value)}
@@ -77,9 +77,9 @@ function Fila({ f, alSalir }: { f: FilaProceso; alSalir: () => void }) {
 export function ProcesoNubes({ filas }: { filas: FilaProceso[] }) {
   const [quedan, setQuedan] = useState(filas);
   return (
-    <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
+    <div className="w-fit overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
       {quedan.length ? (
-        <table className="w-full border-collapse text-[14px] tabular-nums">
+        <table className="w-auto border-collapse text-[14px] tabular-nums">
           <thead>
             <tr>
               <th className={TH}>Dirección</th>
