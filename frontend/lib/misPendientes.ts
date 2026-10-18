@@ -85,8 +85,11 @@ export type Avisos = {
   ofertas: number;
   /** Escaneados de Polycam sin portal (la mesa de viabilidades). */
   polycam: number;
+  /** 1 si queda alguna opp abierta de 2025-26 sin administrador, 0 si no
+   *  (Monica, 18-oct-2026: su cifra «atura», pero si solo queda eso, que haya señal). */
+  sin_admin: number;
 };
-const SIN_AVISOS: Avisos = { notas: 0, opps: 0, llamadas: 0, ausencias: 0, posibles: 0, recibidos: 0, ofertas: 0, polycam: 0 };
+const SIN_AVISOS: Avisos = { notas: 0, opps: 0, llamadas: 0, ausencias: 0, posibles: 0, recibidos: 0, ofertas: 0, polycam: 0, sin_admin: 0 };
 
 export const misAvisos = cache(async (yo: Yo): Promise<Avisos> => {
   try {
@@ -115,7 +118,7 @@ export const misAvisos = cache(async (yo: Yo): Promise<Avisos> => {
  *  Las ofertas suman tambien aqui ademas de su aviso propio (14-oct-2026). */
 export async function cuantosPendientes(yo: Yo): Promise<number> {
   const a = await misAvisos(yo);
-  return a.notas + a.opps + a.llamadas + a.ausencias + a.posibles + a.recibidos + a.ofertas;
+  return a.notas + a.opps + a.llamadas + a.ausencias + a.posibles + a.recibidos + a.ofertas + a.sin_admin;
 }
 
 export type ItemPendiente = {
