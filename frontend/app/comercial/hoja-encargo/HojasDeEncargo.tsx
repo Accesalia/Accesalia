@@ -797,12 +797,23 @@ function Generador({
   // SIEMPRE, pague quien pague la hoja: el acuerdo es del administrador con
   // nosotros, no con la comunidad (Monica, 18-oct-2026).
   const comision = datos.comision;
-  const sobreDe = (b: BloqueHoja) => (b.area === "SUBV" || /^TRAMITACION SUBVENCIONES/.test(b.codigo) ? "subvenciones" : "proyecto");
+  // QUE COBRA (Monica, 18-oct-2026, como claseComision de lib/comisionesAdmin.ts):
+  // el proyecto basico y de ejecucion (y los SATE con cesion de CAES) y las
+  // subvenciones. Los servicios NUNCA: ni CSS («jamas»), ni DF, CFO, IEE, LEE,
+  // CEE, licencias, consulta, informes, financiacion... Una hoja solo de
+  // servicios no lleva comision.
+  const sobreDe = (b: BloqueHoja): "proyecto" | "subvenciones" | null =>
+    b.area === "SUBV" || /^TRAMITACION SUBVENCIONES/.test(b.codigo)
+      ? "subvenciones"
+      : b.codigo === "REDACCION PROYECTO" || /CON CESION DE CAES$/.test(b.codigo)
+        ? "proyecto"
+        : null;
   /** El precio sin comision: el de la tarifa o, si no hay, el del catalogo. */
   const baseDe = (l: Linea) => propuesta(l)?.valor ?? l.b.importe;
   const comisionDe = (l: Linea): number => {
     if (!comision || modoDe(l.b) !== "se_cobra" || exitoDe(l.b)) return 0;
-    const c = comision[sobreDe(l.b)];
+    const so = sobreDe(l.b);
+    const c = so ? comision[so] : null;
     if (!c) return 0;
     if (c.forma === "eur") {
       const primera = conLinea.find((x) => modoDe(x.b) === "se_cobra" && !exitoDe(x.b) && sobreDe(x.b) === sobreDe(l.b));
