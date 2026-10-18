@@ -3,13 +3,14 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { Volver } from "../components/Volver";
 import { misPendientes, posiblesDe, tarjetasQueVeo } from "../../lib/misPendientes";
-import { puedeEntrar, quienSoy } from "../../lib/sesion";
+import { comercialDe, puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { solicitudesPendientes } from "../../lib/rrhh";
 import { cuantosPorRevisar } from "../../lib/recibidos";
 import { cuantosApuntes } from "../../lib/apuntesSatelite";
 import { direccionesVistas } from "../../lib/informeCostes";
 import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
+import { oppsSinAdministrador } from "../../lib/adminComunidad";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,7 @@ const C = {
   ciruela: { fondo: "#EEE5F3", tono: "#5B2A86" },
   arena: { fondo: "#F1ECE0", tono: "#6B5214" },
   pizarra: { fondo: "#E6EBEE", tono: "#2E4756" },
+  oliva: { fondo: "#EEF0DE", tono: "#5A6410" },
 } satisfies Record<string, Color>;
 
 type Tarjeta = {
@@ -162,6 +164,14 @@ export default async function Pendientes() {
     comercial ? direccionesVistas().catch(() => null) : Promise.resolve(null),
     revisa ? contarPendientes().catch(() => null) : Promise.resolve(null),
   ]);
+  // OPPS SIN ADMINISTRADOR (Monica, 18-oct-2026): las abiertas de 2025-26 cuya
+  // comunidad no tiene administrador. Las suyas; direccion, todas.
+  const sinAdmin = comercial
+    ? await (yo.veTodo ? Promise.resolve(null) : comercialDe(yo.id))
+        .then((m) => oppsSinAdministrador(m?.id ?? null, yo.veTodo))
+        .then((l) => l.length)
+        .catch(() => null)
+    : null;
   const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
   // Las direcciones con informe: las tuyas; direccion y supervision, todas (como su lista).
   const todasVistas = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar");
@@ -188,6 +198,13 @@ export default async function Pendientes() {
       pie: "Falta mirar el Catastro, la persona de contacto o algo más: hay que completarlas.",
       numero: opps.length, href: "/pendientes/oportunidades", color: C.azul,
     },
+    ...(comercial
+      ? [{
+          clave: "sin_admin", marco: "a_medio_crear" as const, titulo: "Opps sin administrador",
+          pie: "Abiertas de 2025-26 cuya comunidad no tiene administrador: ponle el suyo.",
+          numero: sinAdmin, href: "/pendientes/sin-administrador", color: C.oliva,
+        }]
+      : []),
     // -------------------------------------------- lo que necesita un humano
     {
       clave: "notas", marco: "humano", titulo: "Notas del diario que no he sabido colocar",

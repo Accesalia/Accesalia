@@ -134,3 +134,18 @@ export async function ponerAdministrador(
   });
   return actual ? "cambiado" : "puesto";
 }
+
+/** OPPS SIN ADMINISTRADOR, para Pendientes (Monica, 18-oct-2026: «sí, buena
+ *  idea»): las abiertas de 2025-26 cuya comunidad no tiene administrador, de cada
+ *  comercial (direccion, todas). Lee la vista opps_abiertas_sin_gestor, que ya va
+ *  por la vista base (administradores_de_oportunidad). */
+export type OppSinAdmin = { id: string; codigo: string | null; nombre: string | null; apertura: string | null; comercialId: string | null };
+export async function oppsSinAdministrador(comercialId: string | null, todas: boolean): Promise<OppSinAdmin[]> {
+  if (!todas && !comercialId) return [];
+  const filas = await leer<{ oportunidad_id: string; codigo: string | null; nombre: string | null; fecha_apertura: string | null; comercial_id: string | null }[]>(
+    "opps_abiertas_sin_gestor?select=oportunidad_id,codigo,nombre,fecha_apertura,comercial_id&fecha_apertura=gte.2025-01-01" +
+      (todas ? "" : `&comercial_id=eq.${comercialId}`) +
+      "&order=fecha_apertura.desc.nullslast&limit=2000",
+  );
+  return filas.map((f) => ({ id: f.oportunidad_id, codigo: f.codigo, nombre: f.nombre, apertura: f.fecha_apertura, comercialId: f.comercial_id }));
+}
