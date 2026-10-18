@@ -195,11 +195,11 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   // 2. Lo facturado de cada una (por los hitos casados), proyecto y subvenciones aparte; la obra adjudicada; lo ya apuntado.
   const [lineas, licit, apuntes, notas] = await Promise.all([
     porTramos<{
-      descripcion: string | null; bloque: { area: string | null; codigo: string | null } | null; hoja: { oportunidad_id: string } | null;
+      descripcion: string | null; bloque: { area: string | null; codigo: string | null } | null; hoja: { id: string; oportunidad_id: string } | null;
       hitos: { fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] }[];
     }>(ids, (t) =>
-      `lineas_facturacion?select=descripcion,bloque:bloque_id(area,codigo),hoja:hoja_encargo_id!inner(oportunidad_id),` +
-      `hitos:hitos_cobro(fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
+      `lineas_facturacion?select=descripcion,bloque:bloque_id(area,codigo),hoja:hoja_encargo_id!inner(id,oportunidad_id,estado),` +
+      `hitos:hitos_cobro(fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
     porTramos<{ oportunidad_id: string; p: { importe_pem: number | null; estado: string }[] }>(ids,
       (t) => `licitaciones?select=oportunidad_id,p:presupuestos_licitacion(importe_pem,estado)&oportunidad_id=in.(${t})`).catch(() => []),
     leer<{
@@ -208,16 +208,21 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     }>(`comisiones_opp?select=oportunidad_id,sobre,base,importe,importe_a_mano,pagada,fecha_pago,factura_url,justificante_url&acuerdo_id=eq.${a.id}`),
     leer<{ oportunidad_id: string; texto: string }>(`comision_notas_opp?select=oportunidad_id,texto&acuerdo_id=eq.${a.id}`),
   ]);
-  const fact = new Map<string, { proyecto: number; subvenciones: number; tieneSubv: boolean }>();
+  // Lo facturado de cada clase y las HOJAS firmadas que la llevan: un importe fijo
+  // va una vez por hoja (Monica, 18-oct: «dos hojas de una opp son dos comisiones»).
+  type Fact = { proyecto: number; subvenciones: number; tieneSubv: boolean; hojasP: Set<string>; hojasS: Set<string> };
+  const nuevo = (): Fact => ({ proyecto: 0, subvenciones: 0, tieneSubv: false, hojasP: new Set(), hojasS: new Set() });
+  const fact = new Map<string, Fact>();
   // Cobrada la primera parte: alguna factura suya cobrada, con la regla de siempre
   // (hasta 2023 la factura garantiza el cobro; desde 2024, con justificante).
   const cobradas = new Set<string>();
   for (const l of lineas) {
     const o = l.hoja?.oportunidad_id;
     if (!o) continue;
-    const f = fact.get(o) ?? { proyecto: 0, subvenciones: 0, tieneSubv: false };
+    const f = fact.get(o) ?? nuevo();
     const subv = esSubvencion(l.bloque, l.descripcion);
     if (subv) f.tieneSubv = true;
+    if (l.hoja) (subv ? f.hojasS : f.hojasP).add(l.hoja.id);
     if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
       cobradas.add(o);
     const suma = l.hitos.flatMap((h) => h.fl).filter((x) => x.linea?.factura?.estado !== "anulada").reduce((s, x) => s + (Number(x.importe) || 0), 0);
@@ -244,7 +249,7 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
       for (const x of (await r.json()) as { path: string; signedURL: string | null }[]) if (x.signedURL) enlace.set(x.path, `${URL_BASE}/storage/v1${x.signedURL}`);
   }
 
-  const deuda = (oppId: string, sobre: Sobre, base: number | null, aplica: boolean): Deuda | null => {
+  const deuda = (oppId: string, sobre: Sobre, base: number | null, aplica: boolean, hojas = 1): Deuda | null => {
     const c = a.condiciones[sobre];
     if (!c) return null;
     const ap = apunteDe.get(`${oppId}|${sobre}`);
@@ -253,7 +258,7 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     if (c.estado === "pendiente") aviso = "pendiente de negociar";
     else if (!aplica) aviso = sobre === "contrata" ? "sin obra adjudicada todavía" : "no hay nada de esto en la hoja";
     else if (c.valor == null) aviso = "el acuerdo no dice cuánto";
-    else importe = c.forma === "eur" ? c.valor : base != null ? r2((base * c.valor) / 100) : null;
+    else importe = c.forma === "eur" ? c.valor * Math.max(1, hojas) : base != null ? r2((base * c.valor) / 100) : null;
     if (ap?.importe_a_mano && ap.importe != null) importe = Number(ap.importe);
     const pagada = !!ap?.pagada;
     const paso: Paso | null =
@@ -275,8 +280,8 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
 
   return firmadas
     .map((o) => {
-      const f = fact.get(o.id) ?? { proyecto: 0, subvenciones: 0, tieneSubv: false };
-      const nuestras = [deuda(o.id, "proyecto", r2(f.proyecto), true), deuda(o.id, "subvenciones", r2(f.subvenciones), f.tieneSubv)].filter((d): d is Deuda => !!d);
+      const f = fact.get(o.id) ?? nuevo();
+      const nuestras = [deuda(o.id, "proyecto", r2(f.proyecto), true, f.hojasP.size), deuda(o.id, "subvenciones", r2(f.subvenciones), f.tieneSubv, f.hojasS.size)].filter((d): d is Deuda => !!d);
       const contrata = deuda(o.id, "contrata", obra.get(o.id) ?? null, obra.has(o.id));
       const todas = [...nuestras, ...(contrata ? [contrata] : [])];
       return {
