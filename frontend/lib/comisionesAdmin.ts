@@ -163,6 +163,20 @@ export type OppComision = {
 
 const esSubvencion = (bloque: { area: string | null; codigo: string | null } | null, desc: string | null) =>
   bloque?.area === "SUBV" || /^TRAMITACION SUBVENCIONES/.test(bloque?.codigo ?? "") || (!bloque && /subvenci/i.test(desc ?? ""));
+/** QUE COBRA UN ADMINISTRADOR (Monica, 18-oct): el proyecto basico y de ejecucion y las
+ *  subvenciones; los servicios NUNCA (CSS «jamas», DF, CFO, IEE, LEE, CEE, licencias,
+ *  financiacion...), salvo pacto expreso, «que no ha pasado en años». Una linea vieja sin
+ *  bloque cuenta como proyecto si su texto lo dice y no es un servicio. */
+const claseComision = (bloque: { area: string | null; codigo: string | null } | null, desc: string | null): "proyecto" | "subvenciones" | null => {
+  if (esSubvencion(bloque, desc)) return "subvenciones";
+  const t = (desc ?? "").trim();
+  // El proyecto: su bloque, los SATE con cesion de CAES (son proyecto), o una linea que
+  // dice «Proyecto para / basico / de…» aunque su bloque este mal puesto.
+  if (bloque?.codigo === "REDACCION PROYECTO" || /CON CESION DE CAES$/.test(bloque?.codigo ?? "")) return "proyecto";
+  if (/^proyecto\b/i.test(t) && !/seguridad|direcci[oó]n facultativa|fin de obra|modificaci[oó]n/i.test(t)) return "proyecto";
+  if (!bloque && /proyecto/i.test(t) && !/seguridad|direcci[oó]n facultativa|fin de obra|modificaci[oó]n/i.test(t)) return "proyecto";
+  return null;
+};
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
 /** LAS OPPS FIRMADAS CON EL, con lo que se le debe en cada una. */
@@ -218,13 +232,16 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     const o = l.hoja?.oportunidad_id;
     if (!o) continue;
     const f = fact.get(o) ?? nuevo();
-    const subv = esSubvencion(l.bloque, l.descripcion);
+    const clase = claseComision(l.bloque, l.descripcion);
+    if (clase) fact.set(o, f);
+    if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
+      cobradas.add(o);
+    if (!clase) continue; // un servicio: no lleva comision del administrador
+    const subv = clase === "subvenciones";
     if (subv) f.tieneSubv = true;
     // Una hoja cuenta si la linea tiene importe: una hoja rehecha a 0 € no genera comision.
     const importeLinea = l.hitos.reduce((t, h) => t + (Number(h.importe) || 0), 0);
     if (l.hoja && importeLinea > 0) (subv ? f.hojasS : f.hojasP).add(l.hoja.id);
-    if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
-      cobradas.add(o);
     const suma = l.hitos.flatMap((h) => h.fl).filter((x) => x.linea?.factura?.estado !== "anulada").reduce((s, x) => s + (Number(x.importe) || 0), 0);
     if (subv) f.subvenciones += suma;
     else f.proyecto += suma;
@@ -256,9 +273,9 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     let importe: number | null = null;
     let aviso: string | null = null;
     if (c.estado === "pendiente") aviso = "pendiente de negociar";
-    else if (!aplica) aviso = sobre === "contrata" ? "sin obra adjudicada todavía" : "no hay nada de esto en la hoja";
+    else if (!aplica) aviso = sobre === "contrata" ? "sin obra adjudicada todavía" : sobre === "proyecto" ? "sin proyecto en la hoja (los servicios no comisionan)" : "no hay nada de esto en la hoja";
     else if (c.valor == null) aviso = "el acuerdo no dice cuánto";
-    else importe = c.forma === "eur" ? c.valor * Math.max(1, hojas) : base != null ? r2((base * c.valor) / 100) : null;
+    else importe = c.forma === "eur" ? c.valor * hojas : base != null ? r2((base * c.valor) / 100) : null;
     if (ap?.importe_a_mano && ap.importe != null) importe = Number(ap.importe);
     const pagada = !!ap?.pagada;
     const paso: Paso | null =
@@ -281,7 +298,7 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   return firmadas
     .map((o) => {
       const f = fact.get(o.id) ?? nuevo();
-      const nuestras = [deuda(o.id, "proyecto", r2(f.proyecto), true, f.hojasP.size), deuda(o.id, "subvenciones", r2(f.subvenciones), f.tieneSubv, f.hojasS.size)].filter((d): d is Deuda => !!d);
+      const nuestras = [deuda(o.id, "proyecto", r2(f.proyecto), f.hojasP.size > 0, f.hojasP.size), deuda(o.id, "subvenciones", r2(f.subvenciones), f.tieneSubv, f.hojasS.size)].filter((d): d is Deuda => !!d);
       const contrata = deuda(o.id, "contrata", obra.get(o.id) ?? null, obra.has(o.id));
       const todas = [...nuestras, ...(contrata ? [contrata] : [])];
       return {
