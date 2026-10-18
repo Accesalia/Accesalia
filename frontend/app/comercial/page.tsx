@@ -386,6 +386,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               { texto: "Alertas", detalle: "Lo que se ha pasado de plazo, por cómo se desbloquea", cuantas: null, donde: aqui("alertas"), icono: <IconoAlerta /> },
               { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
               { texto: "¿Qué hay de lo mío?", detalle: "Cómo voy: firmas, cobros y comisión", cuantas: null, donde: aqui("comovoy"), icono: <IconoBalanza /> },
+              { texto: direccion ? "Comisiones de los comerciales" : "Mis comisiones", detalle: "Lo firmado, lo cobrado y su parte, opp a opp: devengada, pagada y por pagar", cuantas: null, donde: `/comercial/comisiones${conC}`, icono: <IconoBalanza /> },
               { texto: "Plantillas de mail", detalle: "Ver, crear y retocar: las generales y las tuyas", cuantas: null, donde: "/comercial/plantillas", icono: <IconoSobre /> },
               { texto: "Correos enviados", detalle: "Lo mandado a las comunidades: cuándo, a quién y qué llevaba", cuantas: null, donde: "/comercial/correos-enviados", icono: <IconoSobre /> },
               { texto: "Direcciones vistas que no llegaron a mayores", detalle: "Los informes emitidos sin oportunidad, con día y hora", cuantas: null, donde: "/comercial/direcciones-vistas", icono: <IconoOjo /> },

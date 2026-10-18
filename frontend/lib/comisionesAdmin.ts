@@ -197,9 +197,15 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     // y las opps que trae el (un comercial externo, una persona de contrata)
     traidas = (await leer<{ id: string }>(`oportunidades?select=id&quien_lo_trae=eq.${a.personaId}`)).map((o) => o.id);
   }
-  type O = { id: string; nombre: string | null; codigo: string | null; estado: string; hojas: { estado: string; fecha_firma: string | null }[] };
-  const SELO = "id,nombre,codigo,estado,hojas:hojas_encargo(estado,fecha_firma)";
-  const ops = await porTramos<O>([...new Set([...deSusComunidades, ...traidas])], (t) => `oportunidades?select=${SELO}&id=in.(${t})`);
+  const ops = await porTramos<OppBase>([...new Set([...deSusComunidades, ...traidas])], (t) => `oportunidades?select=${SELO}&id=in.(${t})`);
+  return deudasDeOpps(a, ops);
+}
+
+type OppBase = { id: string; nombre: string | null; codigo: string | null; estado: string; hojas: { estado: string; fecha_firma: string | null }[] };
+const SELO = "id,nombre,codigo,estado,hojas:hojas_encargo(estado,fecha_firma)";
+
+/** Lo que se le debe a un acuerdo en cada una de esas opps (solo las firmadas). */
+async function deudasDeOpps(a: Acuerdo, ops: OppBase[]): Promise<OppComision[]> {
   const firmadas = [...new Map(ops.filter((o) => o.hojas.some((h) => h.estado === "devuelta_firmada")).map((o) => [o.id, o])).values()];
   const ids = firmadas.map((o) => o.id);
   if (!ids.length) return [];
@@ -315,6 +321,38 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
       };
     })
     .sort((x, y) => (y.firmada ?? "").localeCompare(x.firmada ?? ""));
+}
+
+/** LA COMISION DEL ADMINISTRADOR DE CADA OPP (para las comisiones de nuestros
+ *  comerciales, que se calculan sin ella): por la vista administradores_de_oportunidad,
+ *  el acuerdo verificado y vigente de su administrador y lo que se le debe. */
+export async function comisionAdminPorOpp(oppIds: string[]): Promise<Map<string, { acuerdoId: string; persona: string | null; opp: OppComision }>> {
+  const out = new Map<string, { acuerdoId: string; persona: string | null; opp: OppComision }>();
+  if (!oppIds.length) return out;
+  const [adms, acuerdos, traen] = await Promise.all([
+    porTramos<{ oportunidad_id: string; empresa_id: string | null; puesto_id: string | null }>(oppIds,
+      (t) => `administradores_de_oportunidad?select=oportunidad_id,empresa_id,puesto_id&oportunidad_id=in.(${t})`),
+    listaAcuerdos().then((l) => l.filter((x) => x.vigente && !x.noCobra && x.revision === "verificado")),
+    porTramos<{ id: string; quien_lo_trae: string | null }>(oppIds, (t) => `oportunidades?select=id,quien_lo_trae&id=in.(${t})&quien_lo_trae=not.is.null`),
+  ]);
+  const personas = acuerdos.filter((x) => x.alcance === "lo_suyo" && x.personaId).map((x) => x.personaId!);
+  const puestos = personas.length ? await leer<{ id: string; persona_id: string }>(`puesto?select=id,persona_id&persona_id=in.(${personas.join(",")})`) : [];
+  const deAcuerdo = new Map<string, Set<string>>();
+  for (const x of acuerdos) {
+    const suyos = new Set(puestos.filter((p) => p.persona_id === x.personaId).map((p) => p.id));
+    const emp = new Set(x.empresas.map((e) => e.id));
+    const ids = new Set<string>();
+    for (const d of adms) if (x.alcance === "empresas" ? d.empresa_id && emp.has(d.empresa_id) : d.puesto_id && suyos.has(d.puesto_id)) ids.add(d.oportunidad_id);
+    if (x.alcance === "lo_suyo") for (const t of traen) if (t.quien_lo_trae === x.personaId) ids.add(t.id);
+    if (ids.size) deAcuerdo.set(x.id, ids);
+  }
+  for (const x of acuerdos) {
+    const ids = deAcuerdo.get(x.id);
+    if (!ids) continue;
+    const ops = await porTramos<OppBase>([...ids], (t) => `oportunidades?select=${SELO}&id=in.(${t})`);
+    for (const o of await deudasDeOpps(x, ops)) if (!out.has(o.id)) out.set(o.id, { acuerdoId: x.id, persona: x.persona, opp: o });
+  }
+  return out;
 }
 
 // ------------------------------------------------------------ lo que se apunta

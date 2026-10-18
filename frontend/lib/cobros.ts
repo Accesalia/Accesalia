@@ -76,16 +76,16 @@ export * from "./cobrosCalculo";
 
 // ------------------------------------------------------ las lecturas
 
-type FilaHito = {
+export type FilaHito = {
   id: string; linea_facturacion_id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null;
   estado: string; fecha_prevista: string | null; en_pausa_desde: string | null; notas: string | null; hito_padre_id: string | null;
 };
-type FilaEnlace = {
+export type FilaEnlace = {
   hito_cobro_id: string; importe: number | null;
   linea: { factura: { id: string; anio: number; serie: string; numero: number; tipo: string; fecha: string | null; estado: string; url_pdf: string | null; empresa_emisora: string } | null } | null;
 };
 
-function montarHitos(filas: FilaHito[], enlaces: Map<string, FacturaDeHito[]>, notas: Map<string, Hito["notas"]>): Map<string, Hito[]> {
+export function montarHitos(filas: FilaHito[], enlaces: Map<string, FacturaDeHito[]>, notas: Map<string, Hito["notas"]>): Map<string, Hito[]> {
   const hijos = new Map<string, FilaHito[]>();
   for (const f of filas) if (f.hito_padre_id) hijos.set(f.hito_padre_id, [...(hijos.get(f.hito_padre_id) ?? []), f]);
   const uno = (f: FilaHito): Hito => ({
@@ -108,7 +108,7 @@ function montarHitos(filas: FilaHito[], enlaces: Map<string, FacturaDeHito[]>, n
   return porLinea;
 }
 
-function enlacesPorHito(filas: FilaEnlace[]): Map<string, FacturaDeHito[]> {
+export function enlacesPorHito(filas: FilaEnlace[]): Map<string, FacturaDeHito[]> {
   const m = new Map<string, FacturaDeHito[]>();
   for (const e of filas) {
     const f = e.linea?.factura;
