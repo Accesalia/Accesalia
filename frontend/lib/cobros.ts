@@ -502,7 +502,10 @@ export async function datosCaja(): Promise<DatosCaja> {
       for (const x of ht.subhitos.length ? ht.subhitos : [ht]) {
         const c = cuentasDeHito(x);
         if (c.porFacturar <= 0 || c.enPausa) continue;
-        if ((h.fecha_firma ?? "") < "2025-01-01" && !x.facturas.length) continue;
+        // Excepcion (41 y 68, 18-oct): un subhito sin factura cuyo padre tiene otro
+        // subhito con factura es el «resto pendiente» de algo ya facturado: pendiente seguro.
+        const restoPendiente = ht.subhitos.length > 0 && x !== ht && ht.subhitos.some((s) => s !== x && s.facturas.length > 0);
+        if ((h.fecha_firma ?? "") < "2025-01-01" && !x.facturas.length && !restoPendiente) continue;
         if (x.fechaPrevista) fijos.push({ oppId: h.oportunidad_id, nombre, fecha: x.fechaPrevista, importe: c.porFacturar, tipo: x.tipo });
         // Solo es trabajo de tecnico la entrega de una linea que va a tecnico; la
         // de una subvencion o un IEE espera a otras cosas: va con lo de fuera.

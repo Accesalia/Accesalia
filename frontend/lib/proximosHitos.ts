@@ -112,6 +112,17 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
       (t) => `proforma_linea_hitos?select=hito_cobro_id,linea:proforma_linea_id(proforma:proforma_id(codigo,estado,factura_id))&hito_cobro_id=in.(${t})`).catch(() => []),
   ]);
   const yaFacturado = new Set(facturados.filter((f) => f.linea?.factura?.estado !== "anulada").map((f) => f.hito_cobro_id));
+  // Los subhitos ya facturados de cada padre (para saber cual es «resto pendiente»).
+  const hermanos = lineas.flatMap((l) => l.hitos).filter((h) => h.hito_padre_id);
+  const facturadosHermanos = hermanos.length
+    ? new Set(
+        (await porTramos<{ hito_cobro_id: string; linea: { factura: { estado: string } | null } | null }>(hermanos.map((h) => h.id),
+          (t) => `factura_linea_hitos?select=hito_cobro_id,linea:factura_linea_id(factura:factura_id(estado))&hito_cobro_id=in.(${t})`))
+          .filter((f) => f.linea?.factura?.estado !== "anulada").map((f) => f.hito_cobro_id),
+      )
+    : new Set<string>();
+  const restoPendiente = (h: { id: string; hito_padre_id: string | null }) =>
+    !!h.hito_padre_id && hermanos.some((x) => x.hito_padre_id === h.hito_padre_id && x.id !== h.id && facturadosHermanos.has(x.id));
   const proformaDe = new Map(
     proformas.filter((p) => p.linea?.proforma?.estado === "emitida" && !p.linea.proforma.factura_id).map((p) => [p.hito_cobro_id, p.linea!.proforma!.codigo]),
   );
@@ -136,7 +147,9 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
     } else {
       cuando = "adelante"; fecha = null; porQue = h.importe == null ? "a éxito" : "sin fecha prevista";
     }
-    if (esAntigua(l)) cuando = "antigua";
+    // Un subhito de «resto pendiente» (su padre tiene otro subhito ya facturado) no es
+    // historia: es lo que queda por facturar de algo vivo (41 y 68, 18-oct).
+    if (esAntigua(l) && !restoPendiente(h)) cuando = "antigua";
     const opp = l.hoja?.opp ?? null;
     out.push({
       id: h.id,
