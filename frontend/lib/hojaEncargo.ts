@@ -97,6 +97,15 @@ export async function oppsParaHoja(yo: Yo): Promise<OpcionOpp[]> {
 // --------------------------------------------------------- lo que se pinta
 
 /** `viviendas`: las de su portal en catastro, para el tramo de la tarifa. */
+/** Un acuerdo de comision con lo que cobra el administrador: por proyecto y por
+ *  subvenciones, en euros (una vez por hoja) o en % (de cada linea). */
+export type ComisionAdmin = {
+  acuerdoId: string;
+  persona: string;
+  proyecto: { forma: "eur" | "pct"; valor: number } | null;
+  subvenciones: { forma: "eur" | "pct"; valor: number } | null;
+};
+
 export type Acceso = { id: string; texto: string; portalId?: string | null; viviendas?: number | null };
 export type Oportunidad = {
   id: string;
@@ -203,6 +212,11 @@ export type DatosHoja = {
   tarifas: { generalId: string | null; precios: PrecioHoja[] };
   /** El PEM estimado de su ultima viabilidad: para los precios en % del PEM. */
   pem: number | null;
+  /** LA COMISION DEL ADMINISTRADOR de su comunidad (18-oct-2026), si tiene
+   *  acuerdo verificado, vigente y pactado. Se suma al precio sin que salga en
+   *  la hoja. `aviso`: algo no cuadra (dos acuerdos) y no se suma nada. */
+  comision: ComisionAdmin | null;
+  comisionAviso: string | null;
 };
 
 const textoAcceso = (a: { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null }) =>
@@ -230,6 +244,52 @@ export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<bo
   if (!cartera) return false;
   const o = await leer<{ id: string }[]>(`oportunidades?select=id&comunidad_id=eq.${comunidadId}&comercial_id=eq.${cartera}&limit=1`);
   return o.length > 0;
+}
+
+/** EL ACUERDO DE COMISION DE UNA OPP (con el hilo 85, 18-oct-2026): su
+ *  comunidad -> el administrador responsable vigente -> el acuerdo de su
+ *  administracion (alcance "empresas") o el de su persona (alcance "lo_suyo",
+ *  tambien si es quien la trajo). Solo los verificados, vigentes y que cobran,
+ *  y solo lo pactado de proyecto y subvenciones (lo de contrata no va en la hoja). */
+async function comisionDeOpp(oppId: string, comunidadId: string | null): Promise<{ comision: ComisionAdmin | null; aviso: string | null }> {
+  if (!comunidadId) return { comision: null, aviso: null };
+  const [responsables, [opp], acuerdos] = await Promise.all([
+    leer<{ empresa_id: string | null; puesto: { persona_id: string | null } | null }[]>(
+      `comunidad_admin_responsable?select=empresa_id,puesto:puesto_id(persona_id)&vigente=is.true&comunidad_id=eq.${comunidadId}`,
+    ),
+    leer<{ quien_lo_trae: string | null }[]>(`oportunidades?select=quien_lo_trae&id=eq.${oppId}`),
+    leer<{
+      id: string;
+      persona_id: string | null;
+      alcance: "empresas" | "lo_suyo";
+      persona: { nombre: string | null; apellidos: string | null } | null;
+      empresas: { empresa_id: string }[];
+      condiciones: { sobre: string; forma: "eur" | "pct"; valor: number | null; estado: string }[];
+    }[]>(
+      "comision_acuerdos?select=id,persona_id,alcance,persona:persona_id(nombre,apellidos),empresas:comision_acuerdo_empresas(empresa_id)," +
+        "condiciones:comision_condiciones(sobre,forma,valor,estado)&vigente=is.true&revision=eq.verificado&or=(no_cobra.is.null,no_cobra.is.false)",
+    ),
+  ]);
+  const empresas = new Set(responsables.map((x) => x.empresa_id).filter(Boolean));
+  const personas = new Set([...responsables.map((x) => x.puesto?.persona_id), opp?.quien_lo_trae].filter(Boolean));
+  const suyos = acuerdos.filter((a) =>
+    a.alcance === "empresas" ? a.empresas.some((e) => empresas.has(e.empresa_id)) : !!a.persona_id && personas.has(a.persona_id),
+  );
+  if (suyos.length > 1)
+    return { comision: null, aviso: "Esta comunidad tiene dos acuerdos de comisión con su administrador: no sumo nada. Que lo revisen en Comisiones de administradores." };
+  const a = suyos[0];
+  if (!a) return { comision: null, aviso: null };
+  const cond = (sobre: string) => {
+    const c = a.condiciones.find((x) => x.sobre === sobre && x.estado === "pactada" && x.valor != null);
+    return c ? { forma: c.forma, valor: Number(c.valor) } : null;
+  };
+  const proyecto = cond("proyecto");
+  const subvenciones = cond("subvenciones");
+  if (!proyecto && !subvenciones) return { comision: null, aviso: null };
+  return {
+    comision: { acuerdoId: a.id, persona: [a.persona?.nombre, a.persona?.apellidos].filter(Boolean).join(" ") || "el administrador", proyecto, subvenciones },
+    aviso: null,
+  };
 }
 
 export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
@@ -297,6 +357,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
   const o = opps[0];
   if (!o) return null;
   const c = o.comunidad;
+  const comision = await comisionDeOpp(o.id, c?.id ?? null);
   const vivos = o.accesos.filter((a) => !a.hasta && a.acceso).map((a) => a.acceso!);
   // Los titulares de sus accesos que son personas (particulares): a ellos puede ir la hoja.
   const titulares = [...new Set(vivos.map((a) => a.figura_legal_propietaria_id).filter((x): x is string => !!x && x !== c?.id))];
@@ -435,6 +496,8 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
     contratas: contratas.map((x) => ({ id: x.id, nombre: x.nombre, cif: x.cif, tarifaId: x.tarifa_id })),
     interes: interes.map((x) => x.tipo).filter((t): t is { id: string; nombre: string } => !!t),
     tarifas,
+    comision: comision.comision,
+    comisionAviso: comision.aviso,
     pem: (() => {
       const v = viabilidad[0];
       if (!v) return null;
@@ -467,6 +530,9 @@ export type Generar = {
     texto: string | null;
     /** Si esta linea va dentro del proyecto conjunto. */
     enConjunto: boolean;
+    /** La comision del administrador que va DENTRO de su importe, y su acuerdo. */
+    comisionImporte?: number | null;
+    comisionAcuerdoId?: string | null;
   }[];
   /** La linea condensada, cuando hay dos o mas cosas que van juntas. Su importe
    *  NO es siempre la suma: "a veces el proyecto conjunto tiene un precio unico,
@@ -679,6 +745,9 @@ export async function generarHoja(g: Generar, yo: Yo): Promise<{ hojaId: string;
         forma_pago_a_mano: k.desglose === "se_cobra" && k.formaPagoAMano,
         descripcion: k.texto,
         incluido_en_concepto_id: k.enConjunto ? conjuntoId : null,
+        // La comision del administrador, dentro del importe: no sale en el PDF.
+        comision_importe: k.desglose === "se_cobra" && k.comisionImporte ? k.comisionImporte : null,
+        comision_acuerdo_id: k.desglose === "se_cobra" && k.comisionImporte ? k.comisionAcuerdoId ?? null : null,
       })),
     );
   }

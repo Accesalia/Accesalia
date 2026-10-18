@@ -788,10 +788,33 @@ function Generador({
   };
   /** Lo que el precio de otro concepto marcado ya incluye (el ascensor incluye la DF): sale "Incluido". */
   const incluidoPorTarifa = (b: BloqueHoja) => bloques.some((x) => x.id !== b.id && st.on[x.id] && lineasDe(x).some((l) => propuesta(l)?.incluye.includes(b.id)));
-  /** El importe que sale si no se escribe: el de la tarifa o, si no hay, el del catalogo. */
+  // ------------------------- LA COMISION DEL ADMINISTRADOR (18-oct-2026)
+  // Si la comunidad tiene administrador con acuerdo, su comision se SUMA al
+  // precio propuesto, sin que salga en la hoja: la comunidad no la ve; el
+  // comercial si, en rojo. En euros va UNA vez por hoja (en la primera linea de
+  // su clase que se cobra); en % va en cada linea. Proyecto = lo de Accesalia y
+  // Daniel; subvenciones = las lineas de subvenciones (como lo cuenta el hilo 85).
+  // SIEMPRE, pague quien pague la hoja: el acuerdo es del administrador con
+  // nosotros, no con la comunidad (Monica, 18-oct-2026).
+  const comision = datos.comision;
+  const sobreDe = (b: BloqueHoja) => (b.area === "SUBV" || /^TRAMITACION SUBVENCIONES/.test(b.codigo) ? "subvenciones" : "proyecto");
+  /** El precio sin comision: el de la tarifa o, si no hay, el del catalogo. */
+  const baseDe = (l: Linea) => propuesta(l)?.valor ?? l.b.importe;
+  const comisionDe = (l: Linea): number => {
+    if (!comision || modoDe(l.b) !== "se_cobra" || exitoDe(l.b)) return 0;
+    const c = comision[sobreDe(l.b)];
+    if (!c) return 0;
+    if (c.forma === "eur") {
+      const primera = conLinea.find((x) => modoDe(x.b) === "se_cobra" && !exitoDe(x.b) && sobreDe(x.b) === sobreDe(l.b));
+      return primera?.clave === l.clave ? c.valor : 0;
+    }
+    return Math.round(((baseDe(l) ?? 0) * c.valor) / 100);
+  };
+  /** El importe que sale si no se escribe: el de la tarifa (o el del catalogo) mas la comision. */
   const importePropuesto = (l: Linea) => {
-    const v = propuesta(l)?.valor;
-    return v != null ? EUR.format(v) : l.b.importe != null ? EUR.format(l.b.importe) : "";
+    const base = baseDe(l);
+    const com = comisionDe(l);
+    return base != null || com ? EUR.format((base ?? 0) + com) : "";
   };
   const pctPropuesto = (b: BloqueHoja) => {
     const v = propuesta(lineasDe(b)[0])?.pct;
@@ -1036,6 +1059,9 @@ function Generador({
           texto: nombreLinea(l),
           formaPagoAMano: modoDe(l.b) === "se_cobra" && !exitoDe(l.b) && !!st.mano[l.clave],
           enConjunto: dentro(l) && modoDe(l.b) === "se_cobra",
+          // La comision del administrador que va dentro (no sale en el PDF).
+          comisionImporte: comisionDe(l) || null,
+          comisionAcuerdoId: comisionDe(l) ? comision?.acuerdoId ?? null : null,
         })),
         // La linea condensada, si la hay. Su importe puede NO ser la suma: "a
         // veces el proyecto conjunto tiene un precio unico, y otras se desglosa".
@@ -1199,13 +1225,19 @@ function Generador({
           </div>
         )}
         {cobra && !exitoDe(b) && !enCaja && pagoAMano(l)}
+        {/* LA COMISION DEL ADMINISTRADOR: solo la ve el comercial (18-oct-2026). */}
+        {comision && comisionDe(l) > 0 && (
+          <p className="mt-1 text-[12px] font-bold text-alerta">
+            OJO: lleva {eur(comisionDe(l))} € incluidos para el admin ({comision.persona}). No sale en la hoja; si cambias el importe, tenlo en cuenta.
+          </p>
+        )}
         {/* DE DONDE SALE EL PRECIO (18-oct-2026): la tarifa, o por que no la hay. */}
         {cobra &&
           (() => {
             const pr = propuesta(l);
             if (!pr) return null;
             if (pr.aviso) return <p className="mt-1 text-[11.5px] font-semibold text-amber-900">⚠ {pr.aviso}</p>;
-            const deTarifa = pr.forma === "pct_exito" ? pr.pct : pr.valor;
+            const deTarifa = pr.forma === "pct_exito" ? pr.pct : (pr.valor ?? 0) + comisionDe(l);
             const escrito = exitoDe(b) ? st.pct[b.id] : st.imp[l.clave];
             const cambiado = escrito != null && aNumero(escrito) !== deTarifa;
             return (
@@ -1385,6 +1417,19 @@ function Generador({
           {/* ---------- importes y forma de pago ---------- */}
           <div className={CARD_PRECIO}>
             <div className={TIT + " mb-2.5 text-[#5b2a4e]"}>Solo de lo que tiene precio: cuánto cobramos y cómo lo cobramos</div>
+            {/* LA COMISION, lo que no cuadra (18-oct-2026): dos acuerdos, o una
+                comision en euros sin linea con importe donde sumarse. */}
+            {datos.comisionAviso && (
+              <p className="mb-2 rounded-lg border border-alerta/40 bg-[#fbeeee] px-3 py-1.5 text-[12px] font-bold text-alerta">OJO: {datos.comisionAviso}</p>
+            )}
+            {comision &&
+              (["proyecto", "subvenciones"] as const)
+                .filter((so) => comision[so] && conLinea.some((x) => sobreDe(x.b) === so) && !conLinea.some((x) => sobreDe(x.b) === so && comisionDe(x) > 0))
+                .map((so) => (
+                  <p key={so} className="mb-2 rounded-lg border border-alerta/40 bg-[#fbeeee] px-3 py-1.5 text-[12px] font-bold text-alerta">
+                    OJO: {comision.persona} cobra comisión sobre {so} ({comision[so]!.forma === "eur" ? `${eur(comision[so]!.valor)} €` : `${eur(comision[so]!.valor)} %`}) y no hay ninguna línea de {so} con importe donde sumarla. Súmala a mano.
+                  </p>
+                ))}
             {conLinea.length === 0 && <p className="text-xs text-carbon/60">Marca arriba lo que incluye la hoja.</p>}
             {/* VARIOS PROYECTOS (16-oct-2026): con dos o mas, se elige si se
                 reflejan como proyecto conjunto (un parrafo y una linea, a precio
