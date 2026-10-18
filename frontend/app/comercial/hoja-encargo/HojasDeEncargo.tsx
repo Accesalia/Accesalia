@@ -708,12 +708,13 @@ function Generador({
   };
   const modoDe = (b: BloqueHoja): Desglose => {
     if (st.modo[b.id]) return st.modo[b.id];
+    if (incluidoPorTarifa(b)) return "incluido";
     return b.desglose;
   };
   // A EXITO (Subvenciones): sin importe fijo, un % de lo concedido que SALE en la
   // hoja, en el desglose y en la forma de pago (Monica, 14-oct-2026).
   const exitoDe = (b: BloqueHoja) => (b.exito && modoDe(b) === "se_cobra" ? b.exito : null);
-  const pctDe = (b: BloqueHoja) => aNumero(st.pct[b.id] ?? (b.exito ? EUR.format(b.exito.porcentaje) : "")) ?? 0;
+  const pctDe = (b: BloqueHoja) => aNumero(st.pct[b.id] ?? pctPropuesto(b)) ?? 0;
   const textoExito = (b: BloqueHoja) =>
     `${eur(pctDe(b))} % de ${b.exito?.base ?? "la base"}, a la ${MOMENTO[b.exito?.hito ?? ""] ?? b.exito?.hito ?? ""}`;
 
@@ -729,8 +730,73 @@ function Generador({
       ? tiposCab.map((t) => ({ clave: `${b.id}|${t}`, b, tipoId: t, tipo: nombreTipo(t) }))
       : [{ clave: b.id, b, tipoId: b.naturaleza === "proyecto" && tiposCab.length === 1 ? tiposCab[0] : null, tipo: null }];
   const importeDe = (l: Linea) =>
-    exitoDe(l.b) ? 0 : aNumero(st.imp[l.clave] ?? (l.b.importe != null ? EUR.format(l.b.importe) : "")) ?? 0;
+    exitoDe(l.b) ? 0 : aNumero(st.imp[l.clave] ?? importePropuesto(l)) ?? 0;
   const pagoDe = (l: Linea) => st.pago[l.clave] ?? st.pago[l.b.id] ?? l.b.formaPagoDefecto ?? FORMAS_PAGO[0];
+
+  // ------------------------------------------------ LAS TARIFAS (18-oct-2026)
+  // El precio que se PROPONE: el de la tarifa de quien paga (su convenio si es
+  // una contrata que lo tiene; si no, la general), para lo que se hace y las
+  // viviendas de sus portales. Siempre modificable: lo escrito a mano manda.
+  // Si no puede elegir (no sabe las viviendas, no hay PEM), lo dice y no inventa.
+  const tarifaId = datos.contratas.find((c) => c.id === st.aQuien)?.tarifaId ?? datos.tarifas.generalId;
+  /** Las viviendas donde se hace un tipo: las de los portales de su "donde". */
+  const viviendasDe = (tipoId: string | null): number | null => {
+    const acts = tipoId ? st.actuaciones.filter((a) => a.tipoId === tipoId) : st.actuaciones;
+    const ids = new Set(acts.flatMap((a) => a.accesoIds));
+    const elegidos = accesos.filter((a) => ids.has(a.id));
+    if (!elegidos.length || elegidos.some((a) => a.viviendas == null)) return null;
+    const porPortal = new Map(elegidos.map((a) => [a.portalId ?? a.id, a.viviendas as number]));
+    return [...porPortal.values()].reduce((s, n) => s + n, 0);
+  };
+  type Propuesta = { valor: number | null; pct: number | null; forma: string; incluye: string[]; donde: string; aviso: string | null };
+  const propuestas = new Map<string, Propuesta | null>();
+  const propuesta = (l: Linea): Propuesta | null => {
+    if (propuestas.has(l.clave)) return propuestas.get(l.clave)!;
+    const r = ((): Propuesta | null => {
+      const deBloque = tarifaId ? datos.tarifas.precios.filter((p) => p.tarifaId === tarifaId && p.bloqueId === l.b.id) : [];
+      if (!deBloque.length) return null;
+      // Que se hace: el de su linea (un proyecto por actuacion) o, si el precio
+      // va por tipo (la DF del SATE), el de la cabecera; si no, el general.
+      const tipos = l.tipoId ? [l.tipoId] : tiposCab;
+      const tipo = tipos.find((t) => deBloque.some((p) => p.tipoId === t)) ?? null;
+      const candidatos = deBloque.filter((p) => p.tipoId === tipo);
+      if (!candidatos.length) return null;
+      const tarifa = candidatos[0].tarifa;
+      const conTramo = candidatos.some((p) => p.desde != null || p.hasta != null);
+      const n = conTramo ? viviendasDe(tipo) : null;
+      if (conTramo && n == null)
+        return { valor: null, pct: null, forma: "fijo", incluye: [], donde: tarifa, aviso: "No sé las viviendas del edificio: no puedo elegir el tramo de la tarifa. Escribe el importe." };
+      const p = conTramo ? candidatos.find((x) => (x.desde ?? 0) <= n! && (x.hasta == null || n! <= x.hasta)) : candidatos[0];
+      if (!p) return { valor: null, pct: null, forma: "fijo", incluye: [], donde: tarifa, aviso: `La tarifa «${tarifa}» no tiene precio para ${n} viviendas. Escribe el importe.` };
+      const donde = `${tarifa}${conTramo ? ` · ${n} viviendas` : ""}`;
+      if (p.forma === "fijo") return { valor: p.importe, pct: null, forma: "fijo", incluye: p.incluye, donde, aviso: null };
+      if (p.forma === "pct_exito") return { valor: null, pct: p.porcentaje, forma: "pct_exito", incluye: p.incluye, donde, aviso: null };
+      // Un % del PEM: sobre el PEM estimado de la viabilidad.
+      if (datos.pem == null)
+        return { valor: null, pct: p.porcentaje, forma: "pct_pem", incluye: p.incluye, donde, aviso: `La tarifa es el ${eur(p.porcentaje ?? 0)} % del PEM y la viabilidad no tiene PEM. Escribe el importe.` };
+      return {
+        valor: Math.round((datos.pem * (p.porcentaje ?? 0)) / 100),
+        pct: p.porcentaje,
+        forma: "pct_pem",
+        incluye: p.incluye,
+        donde: `${donde} · ${eur(p.porcentaje ?? 0)} % de ${eur(datos.pem)} € de PEM`,
+        aviso: null,
+      };
+    })();
+    propuestas.set(l.clave, r);
+    return r;
+  };
+  /** Lo que el precio de otro concepto marcado ya incluye (el ascensor incluye la DF): sale "Incluido". */
+  const incluidoPorTarifa = (b: BloqueHoja) => bloques.some((x) => x.id !== b.id && st.on[x.id] && lineasDe(x).some((l) => propuesta(l)?.incluye.includes(b.id)));
+  /** El importe que sale si no se escribe: el de la tarifa o, si no hay, el del catalogo. */
+  const importePropuesto = (l: Linea) => {
+    const v = propuesta(l)?.valor;
+    return v != null ? EUR.format(v) : l.b.importe != null ? EUR.format(l.b.importe) : "";
+  };
+  const pctPropuesto = (b: BloqueHoja) => {
+    const v = propuesta(lineasDe(b)[0])?.pct;
+    return v != null ? EUR.format(v) : b.exito ? EUR.format(b.exito.porcentaje) : "";
+  };
 
   const marcados = bloques.filter((b) => st.on[b.id]);
   const conLinea = marcados.filter((b) => modoDe(b) !== "no_aparece").flatMap(lineasDe);
@@ -1073,7 +1139,7 @@ function Generador({
           type="text"
           inputMode="decimal"
           disabled={!cobra}
-          value={!cobra ? "—" : exitoDe(b) ? st.pct[b.id] ?? EUR.format(b.exito!.porcentaje) : st.imp[l.clave] ?? (b.importe != null ? EUR.format(b.importe) : "")}
+          value={!cobra ? "—" : exitoDe(b) ? st.pct[b.id] ?? pctPropuesto(b) : st.imp[l.clave] ?? importePropuesto(l)}
           placeholder="0"
           onChange={(e) => poner(exitoDe(b) ? { pct: { ...st.pct, [b.id]: e.target.value } } : { imp: { ...st.imp, [l.clave]: e.target.value } })}
           className="w-[86px] rounded-[10px] border border-black/20 bg-white px-2.5 py-1.5 text-right text-[13px] focus:border-lima focus:outline-none disabled:bg-[#f3f3f3] disabled:text-carbon/40"
@@ -1133,6 +1199,21 @@ function Generador({
           </div>
         )}
         {cobra && !exitoDe(b) && !enCaja && pagoAMano(l)}
+        {/* DE DONDE SALE EL PRECIO (18-oct-2026): la tarifa, o por que no la hay. */}
+        {cobra &&
+          (() => {
+            const pr = propuesta(l);
+            if (!pr) return null;
+            if (pr.aviso) return <p className="mt-1 text-[11.5px] font-semibold text-amber-900">⚠ {pr.aviso}</p>;
+            const deTarifa = pr.forma === "pct_exito" ? pr.pct : pr.valor;
+            const escrito = exitoDe(b) ? st.pct[b.id] : st.imp[l.clave];
+            const cambiado = escrito != null && aNumero(escrito) !== deTarifa;
+            return (
+              <p className="mt-1 text-[11.5px] text-carbon/60">
+                {cambiado ? `Cambiado a mano · la tarifa dice ${eur(deTarifa ?? 0)}${pr.forma === "pct_exito" ? " %" : " €"} (${pr.donde})` : `Precio de tarifa: ${pr.donde}`}
+              </p>
+            );
+          })()}
       </>
     );
     return (

@@ -38,6 +38,7 @@ import { comercialDe, type Yo } from "./sesion";
 import type { Desglose } from "./catalogoBloques";
 import { limpiarTexto } from "./catalogoBloques";
 import { pdfDeHoja } from "./pdf/HojaDoc";
+import { preciosParaHoja, type PrecioHoja } from "./tarifas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -95,7 +96,8 @@ export async function oppsParaHoja(yo: Yo): Promise<OpcionOpp[]> {
 
 // --------------------------------------------------------- lo que se pinta
 
-export type Acceso = { id: string; texto: string };
+/** `viviendas`: las de su portal en catastro, para el tramo de la tarifa. */
+export type Acceso = { id: string; texto: string; portalId?: string | null; viviendas?: number | null };
 export type Oportunidad = {
   id: string;
   codigo: string | null;
@@ -192,10 +194,15 @@ export type DatosHoja = {
   hojas: Hoja[];
   bloques: BloqueHoja[];
   tipos: { id: string; nombre: string }[];
-  contratas: { id: string; nombre: string; cif: string | null }[];
+  /** `tarifaId`: su convenio; vacio = la tarifa general. */
+  contratas: { id: string; nombre: string; cif: string | null; tarifaId: string | null }[];
   /** Lo que dijeron en el alta que les interesa (oportunidad_tipos): sale
    *  premarcado en las hojas base (14-oct-2026). */
   interes: { id: string; nombre: string }[];
+  /** LAS TARIFAS (18-oct-2026): los precios que valen hoy, para proponerlos en la hoja. */
+  tarifas: { generalId: string | null; precios: PrecioHoja[] };
+  /** El PEM estimado de su ultima viabilidad: para los precios en % del PEM. */
+  pem: number | null;
 };
 
 const textoAcceso = (a: { tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null }) =>
@@ -227,7 +234,7 @@ export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<bo
 
 export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
-  const [opps, hojas, bloques, tipos, contratas, interes] = await Promise.all([
+  const [opps, hojas, bloques, tipos, contratas, interes, tarifas, viabilidad] = await Promise.all([
     leer<{
       id: string;
       codigo: string | null;
@@ -237,11 +244,11 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       comunidad: { id: string; nombre: string; cif_comunidad: string | null; municipio: string | null } | null;
       accesos: {
         hasta: string | null;
-        acceso: { id: string; tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null; figura_legal_propietaria_id: string | null } | null;
+        acceso: { id: string; tipo_via: string | null; nombre_via: string | null; numero: string | null; escalera: string | null; municipio: string | null; figura_legal_propietaria_id: string | null; ficha_catastro_portal_id: string | null; portal: { viviendas: number | null } | null } | null;
       }[];
     }[]>(
       `oportunidades?select=id,codigo,nombre,estado,comercial:comercial_id(nombre),comunidad:comunidad_id(id,nombre,cif_comunidad,municipio),` +
-        `accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,tipo_via,nombre_via,numero,escalera,municipio,figura_legal_propietaria_id))` +
+        `accesos:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,tipo_via,nombre_via,numero,escalera,municipio,figura_legal_propietaria_id,ficha_catastro_portal_id,portal:ficha_catastro_portal_id(viviendas)))` +
         `&id=eq.${oppId}`,
     ),
     leer<{
@@ -279,8 +286,13 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
     leer<{ id: string; nombre: string }[]>(
       "tipos_proyecto?select=id,nombre&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
-    leer<{ id: string; nombre: string; cif: string | null }[]>("contratas?select=id,nombre,cif&order=nombre.asc&limit=1000"),
+    leer<{ id: string; nombre: string; cif: string | null; tarifa_id: string | null }[]>("contratas?select=id,nombre,cif,tarifa_id&order=nombre.asc&limit=1000"),
     leer<{ tipo: { id: string; nombre: string } | null }[]>(`oportunidad_tipos?select=tipo:tipo_id(id,nombre)&oportunidad_id=eq.${oppId}`),
+    preciosParaHoja(),
+    // El PEM: la suma de sus lineas de obra o, si no las tiene, el estimado.
+    leer<{ pem_estimado: number | null; obra: { importe: number | null }[] }[]>(
+      `viabilidades?select=pem_estimado,obra:viabilidad_conceptos(importe)&obra.grupo=eq.obra&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
+    ),
   ]);
   const o = opps[0];
   if (!o) return null;
@@ -302,7 +314,7 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
     comercial: o.comercial?.nombre ?? null,
     accesos: o.accesos
       .filter((a) => !a.hasta && a.acceso)
-      .map((a) => ({ id: a.acceso!.id, texto: textoAcceso(a.acceso!) }))
+      .map((a) => ({ id: a.acceso!.id, texto: textoAcceso(a.acceso!), portalId: a.acceso!.ficha_catastro_portal_id, viviendas: a.acceso!.portal?.viviendas ?? null }))
       .sort((a, b) => a.texto.localeCompare(b.texto, "es", { numeric: true })),
   }));
 
@@ -420,8 +432,15 @@ export async function datosHoja(oppId: string): Promise<DatosHoja | null> {
       };
     }),
     tipos,
-    contratas,
+    contratas: contratas.map((x) => ({ id: x.id, nombre: x.nombre, cif: x.cif, tarifaId: x.tarifa_id })),
     interes: interes.map((x) => x.tipo).filter((t): t is { id: string; nombre: string } => !!t),
+    tarifas,
+    pem: (() => {
+      const v = viabilidad[0];
+      if (!v) return null;
+      const obra = v.obra.reduce((s, l) => s + (Number(l.importe) || 0), 0);
+      return obra || (v.pem_estimado != null ? Number(v.pem_estimado) : null);
+    })(),
   };
 }
 

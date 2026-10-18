@@ -144,6 +144,47 @@ export async function datosTarifas(): Promise<DatosTarifas> {
   };
 }
 
+/** UN PRECIO VIGENTE, como lo usa el generador de hojas para proponer. */
+export type PrecioHoja = {
+  tarifaId: string;
+  tarifa: string;
+  bloqueId: string;
+  tipoId: string | null;
+  desde: number | null;
+  hasta: number | null;
+  forma: Forma;
+  importe: number | null;
+  porcentaje: number | null;
+  incluye: string[];
+};
+
+/** Los precios que valen hoy y cual es la tarifa general (la de comunidades,
+ *  particulares y contratas sin convenio). */
+export async function preciosParaHoja(): Promise<{ generalId: string | null; precios: PrecioHoja[] }> {
+  const [tarifas, filas] = await Promise.all([
+    leer<{ id: string; nombre: string; general: boolean }[]>("tarifas?select=id,nombre,general&activa=is.true"),
+    leer<Fila[]>(`precios_tarifa?select=${COLUMNAS}&limit=5000`),
+  ]);
+  const nombre = new Map(tarifas.map((t) => [t.id, t.nombre]));
+  return {
+    generalId: tarifas.find((t) => t.general)?.id ?? null,
+    precios: agrupar(filas)
+      .filter((p) => p.vigente && nombre.has(p.tarifaId))
+      .map((p) => ({
+        tarifaId: p.tarifaId,
+        tarifa: nombre.get(p.tarifaId)!,
+        bloqueId: p.bloqueId,
+        tipoId: p.tipoId,
+        desde: p.desde,
+        hasta: p.hasta,
+        forma: p.vigente!.forma,
+        importe: p.vigente!.importe,
+        porcentaje: p.vigente!.porcentaje,
+        incluye: p.vigente!.incluye,
+      })),
+  };
+}
+
 export type DatosPrecio = {
   tarifaId: string;
   bloqueId: string;
