@@ -167,27 +167,25 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 
 /** LAS OPPS FIRMADAS CON EL, con lo que se le debe en cada una. */
 export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
-  // 1. Sus comunidades: las de sus administraciones, o las de su cartera.
-  let comunidades: string[] = [];
+  // 1. Sus opps, por el administrador de sus comunidades. El administrador es de la
+  // COMUNIDAD y la opp llega a ella por sus accesos: vista administradores_de_oportunidad
+  // (modelo admin-comunidad, 18-oct; docs/modelo-admin-comunidad.md).
+  let deSusComunidades: string[] = [];
   let traidas: string[] = [];
   if (a.alcance === "empresas" && a.empresas.length) {
-    comunidades = (await leer<{ comunidad_id: string }>(
-      `comunidad_admin_responsable?select=comunidad_id&vigente=is.true&empresa_id=in.(${a.empresas.map((e) => e.id).join(",")})`,
-    )).map((x) => x.comunidad_id);
+    deSusComunidades = (await leer<{ oportunidad_id: string }>(
+      `administradores_de_oportunidad?select=oportunidad_id&empresa_id=in.(${a.empresas.map((e) => e.id).join(",")})`,
+    )).map((x) => x.oportunidad_id);
   } else if (a.alcance === "lo_suyo" && a.personaId) {
     const pts = (await leer<{ id: string }>(`puesto?select=id&persona_id=eq.${a.personaId}`)).map((p) => p.id);
     if (pts.length)
-      comunidades = (await leer<{ comunidad_id: string }>(`comunidad_admin_responsable?select=comunidad_id&vigente=is.true&puesto_id=in.(${pts.join(",")})`)).map((x) => x.comunidad_id);
+      deSusComunidades = (await leer<{ oportunidad_id: string }>(`administradores_de_oportunidad?select=oportunidad_id&puesto_id=in.(${pts.join(",")})`)).map((x) => x.oportunidad_id);
     // y las opps que trae el (un comercial externo, una persona de contrata)
     traidas = (await leer<{ id: string }>(`oportunidades?select=id&quien_lo_trae=eq.${a.personaId}`)).map((o) => o.id);
   }
-  comunidades = [...new Set(comunidades)];
   type O = { id: string; nombre: string | null; codigo: string | null; estado: string; hojas: { estado: string; fecha_firma: string | null }[] };
   const SELO = "id,nombre,codigo,estado,hojas:hojas_encargo(estado,fecha_firma)";
-  const ops = [
-    ...(await porTramos<O>(comunidades, (t) => `oportunidades?select=${SELO}&comunidad_id=in.(${t})`)),
-    ...(await porTramos<O>(traidas, (t) => `oportunidades?select=${SELO}&id=in.(${t})`)),
-  ];
+  const ops = await porTramos<O>([...new Set([...deSusComunidades, ...traidas])], (t) => `oportunidades?select=${SELO}&id=in.(${t})`);
   const firmadas = [...new Map(ops.filter((o) => o.hojas.some((h) => h.estado === "devuelta_firmada")).map((o) => [o.id, o])).values()];
   const ids = firmadas.map((o) => o.id);
   if (!ids.length) return [];
@@ -196,10 +194,10 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   const [lineas, licit, apuntes, notas] = await Promise.all([
     porTramos<{
       descripcion: string | null; bloque: { area: string | null; codigo: string | null } | null; hoja: { id: string; oportunidad_id: string } | null;
-      hitos: { fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] }[];
+      hitos: { importe: number | null; fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] }[];
     }>(ids, (t) =>
       `lineas_facturacion?select=descripcion,bloque:bloque_id(area,codigo),hoja:hoja_encargo_id!inner(id,oportunidad_id,estado),` +
-      `hitos:hitos_cobro(fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
+      `hitos:hitos_cobro(importe,fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
     porTramos<{ oportunidad_id: string; p: { importe_pem: number | null; estado: string }[] }>(ids,
       (t) => `licitaciones?select=oportunidad_id,p:presupuestos_licitacion(importe_pem,estado)&oportunidad_id=in.(${t})`).catch(() => []),
     leer<{
@@ -222,7 +220,9 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
     const f = fact.get(o) ?? nuevo();
     const subv = esSubvencion(l.bloque, l.descripcion);
     if (subv) f.tieneSubv = true;
-    if (l.hoja) (subv ? f.hojasS : f.hojasP).add(l.hoja.id);
+    // Una hoja cuenta si la linea tiene importe: una hoja rehecha a 0 € no genera comision.
+    const importeLinea = l.hitos.reduce((t, h) => t + (Number(h.importe) || 0), 0);
+    if (l.hoja && importeLinea > 0) (subv ? f.hojasS : f.hojasP).add(l.hoja.id);
     if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
       cobradas.add(o);
     const suma = l.hitos.flatMap((h) => h.fl).filter((x) => x.linea?.factura?.estado !== "anulada").reduce((s, x) => s + (Number(x.importe) || 0), 0);
