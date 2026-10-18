@@ -75,3 +75,101 @@ body {
   color: var(--color-carbon);
   -webkit-font-smoothing: antialiased;
 }
+
+/* LAS LINEAS GRISES SE TIENEN QUE VER (Monica, 18-oct-2026: «en TODAS las
+   pantallas las lineas grises apenas se ven; subimos el tono de gris»). Se sube
+   aqui, una vez para toda la app, en vez de pantalla a pantalla. Va fuera de
+   las capas de Tailwind, asi que gana a sus utilidades: border-black/5 (los
+   separadores de filas) pasa a 15 %; border-black/10 (bordes de tarjetas y
+   tablas), a 18 %. Para un gris mas claro a proposito, escribir otro tono. */
+.border-black\/5,
+.border-black\/\[\.06\],
+.border-black\/\[\.07\] {
+  border-color: rgb(0 0 0 / 0.15);
+}
+.border-black\/10 {
+  border-color: rgb(0 0 0 / 0.18);
+}
+.border-carbon\/5 {
+  border-color: rgb(43 43 43 / 0.15);
+}
+.border-carbon\/10 {
+  border-color: rgb(43 43 43 / 0.18);
+}
+.divide-black\/5 > :not(:last-child) {
+  border-color: rgb(0 0 0 / 0.15);
+}
+.divide-black\/10 > :not(:last-child) {
+  border-color: rgb(0 0 0 / 0.18);
+}
+
+/* Las mismas lineas, cuando la maqueta las trae en hexadecimal (aviso del hilo
+   41): los grises claros de linea pasan al mismo 15 %. */
+.border-\[\#f0f0f0\],
+.border-t-\[\#f0f0f0\],
+.border-b-\[\#f0f0f0\],
+.border-l-\[\#f0f0f0\],
+.border-r-\[\#f0f0f0\],
+.border-x-\[\#f0f0f0\],
+.border-y-\[\#f0f0f0\],
+.border-\[\#f0f2ee\],
+.border-t-\[\#f0f2ee\],
+.border-b-\[\#f0f2ee\],
+.border-l-\[\#f0f2ee\],
+.border-r-\[\#f0f2ee\],
+.border-x-\[\#f0f2ee\],
+.border-y-\[\#f0f2ee\],
+.border-\[\#eef0eb\],
+.border-t-\[\#eef0eb\],
+.border-b-\[\#eef0eb\],
+.border-l-\[\#eef0eb\],
+.border-r-\[\#eef0eb\],
+.border-x-\[\#eef0eb\],
+.border-y-\[\#eef0eb\],
+.border-\[\#eef0f2\],
+.border-t-\[\#eef0f2\],
+.border-b-\[\#eef0f2\],
+.border-l-\[\#eef0f2\],
+.border-r-\[\#eef0f2\],
+.border-x-\[\#eef0f2\],
+.border-y-\[\#eef0f2\],
+.border-\[\#e9ece5\],
+.border-t-\[\#e9ece5\],
+.border-b-\[\#e9ece5\],
+.border-l-\[\#e9ece5\],
+.border-r-\[\#e9ece5\],
+.border-x-\[\#e9ece5\],
+.border-y-\[\#e9ece5\],
+.border-\[\#e3e6df\],
+.border-t-\[\#e3e6df\],
+.border-b-\[\#e3e6df\],
+.border-l-\[\#e3e6df\],
+.border-r-\[\#e3e6df\],
+.border-x-\[\#e3e6df\],
+.border-y-\[\#e3e6df\],
+.border-\[\#e2e2e2\],
+.border-t-\[\#e2e2e2\],
+.border-b-\[\#e2e2e2\],
+.border-l-\[\#e2e2e2\],
+.border-r-\[\#e2e2e2\],
+.border-x-\[\#e2e2e2\],
+.border-y-\[\#e2e2e2\],
+.border-\[\#dfe6d3\],
+.border-t-\[\#dfe6d3\],
+.border-b-\[\#dfe6d3\],
+.border-l-\[\#dfe6d3\],
+.border-r-\[\#dfe6d3\],
+.border-x-\[\#dfe6d3\],
+.border-y-\[\#dfe6d3\] {
+  border-color: rgb(0 0 0 / 0.15);
+}
+.divide-\[\#f0f0f0\] > :not(:last-child),
+.divide-\[\#f0f2ee\] > :not(:last-child),
+.divide-\[\#eef0eb\] > :not(:last-child),
+.divide-\[\#eef0f2\] > :not(:last-child),
+.divide-\[\#e9ece5\] > :not(:last-child),
+.divide-\[\#e3e6df\] > :not(:last-child),
+.divide-\[\#e2e2e2\] > :not(:last-child),
+.divide-\[\#dfe6d3\] > :not(:last-child) {
+  border-color: rgb(0 0 0 / 0.15);
+}

@@ -44,14 +44,15 @@ function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; 
   const gris = (p: Pago) => (p.fecha < hoy ? "text-carbon/45" : "");
   const etiqueta = "py-1 pr-2 text-left text-[10.5px] font-semibold uppercase tracking-wide text-carbon/45";
   return (
-    <section className="w-fit min-w-[440px] max-w-[600px] break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
+    <section className="w-fit min-w-[480px] max-w-[600px] break-inside-avoid rounded-xl border border-black/10 bg-white px-4 py-3">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-[14.5px] font-bold text-carbon">
           {o.nombre} <span className="font-normal text-carbon/55">· modelo {o.modelo}</span>
         </h3>
         {conEmpresa && <span className="text-[12px] text-carbon/60">{o.empresa === "daniel_autonomo" ? "Daniel" : EMPRESA_LABEL[o.empresa]}</span>}
       </div>
-      {o.explicacion && <p className="mt-0.5 text-[12px] leading-snug text-carbon/60">{o.explicacion}</p>}
+      {/* La explicacion se ajusta al ancho de la tabla (Monica, 18-oct: «si tiene que ir en 3 lineas en vez de dos, cual es el problema»). */}
+      {o.explicacion && <p className="mt-0.5 w-0 min-w-full text-[12px] leading-snug text-carbon/60">{o.explicacion}</p>}
       {filas.length > 0 && (
         <table className="mt-2 w-auto border-collapse whitespace-nowrap text-[12.5px] tabular-nums [&_td]:pl-5 [&_td]:text-right">
           <thead>
@@ -64,7 +65,7 @@ function Tarjeta({ o, pagos, hoy, conEmpresa }: { o: Obligacion; pagos: Pago[]; 
               ))}
             </tr>
           </thead>
-          <tbody className="[&_tr+tr]:border-t [&_tr+tr]:border-black/5">
+          <tbody className="[&_tr+tr]:border-t [&_tr+tr]:border-black/15">
             <tr>
               <th className={etiqueta}>Fecha</th>
               {filas.map((p) => (
@@ -112,9 +113,9 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
   const meses = Array.from({ length: 13 }, (_, i) => mesMas(hoy, i - 1));
   const varias = empresas.length > 1;
   return (
-    <div className="w-[400px] shrink-0 rounded-xl border border-black/10 bg-white px-4 py-3">
-      <h3 className="text-[14.5px] font-bold text-carbon">Calendario de pagos</h3>
-      <p className="mb-2 text-[12px] text-carbon/60">
+    <div className="w-[460px] shrink-0 rounded-xl border border-black/10 bg-white px-6 py-5">
+      <h3 className="text-[15.25px] font-bold text-carbon">Calendario de pagos</h3>
+      <p className="mb-2.5 text-[12.6px] text-carbon/60">
         <span className="text-carbon/45">gris</span>, ya pasado · <span className="text-[#8e2f2d]">burdeos</span>, este mes · <span className="text-[#3b5f86]">azul</span>, lo que viene. ≈ previsto; sin ≈, ya validado.
       </p>
       {meses.map((m) => {
@@ -124,10 +125,10 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
         const total = (lista: Pago[]) => lista.reduce((s, p) => s + (cifra(p) ?? 0), 0);
         const faltan = del.filter((p) => cifra(p) == null).length;
         return (
-          <div key={m} className={`border-t border-black/10 py-2 ${color}`}>
+          <div key={m} className={`border-t border-black/10 py-3 ${color}`}>
             <div className="flex items-baseline justify-between gap-3">
-              <b className="text-[13px]">{mayus(MES.format(fecha(m + "-01")))}</b>
-              <span className="text-[12.5px] font-semibold tabular-nums">
+              <b className="text-[13.65px]">{mayus(MES.format(fecha(m + "-01")))}</b>
+              <span className="text-[13.1px] font-semibold tabular-nums">
                 {varias &&
                   empresas.map((e) => {
                     const de = del.filter((p) => p.empresa === e);
@@ -136,10 +137,10 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
                 {EUR0.format(total(del))} €{faltan ? " + ?" : ""}
               </span>
             </div>
-            <ul className="mt-0.5">
+            <ul className="mt-1">
               {del.map((p) => (
-                <li key={p.clave} className="flex items-baseline gap-2 text-[12.5px] tabular-nums">
-                  <span className="w-12 shrink-0">{diaMes(p.fecha)}</span>
+                <li key={p.clave} className="flex items-baseline gap-2 text-[13.1px] leading-[1.45] tabular-nums">
+                  <span className="w-[52px] shrink-0">{diaMes(p.fecha)}</span>
                   <span className="min-w-0 flex-1">
                     {p.estado === "hecho" ? "✓ " : ""}
                     {nombreCorto(p)} {periodoCorto(p)}
@@ -190,13 +191,30 @@ export function Impuestos({ pagos, obligaciones, empresas, hoy }: { pagos: Pago[
           {conPago.map(({ o, pagos: ps }) => (
             <Tarjeta key={o.id} o={o} pagos={ps} hoy={hoy} conEmpresa={empresas.length > 1} />
           ))}
+          {/* SOLO SE PRESENTAN (Monica, 18-oct: «cada cosa su linea, desglosadas y
+              explicadas»): una fila por modelo, que es y cuando toca presentarlo. */}
           {soloSePresentan.length > 0 && (
-            <section className="w-fit max-w-[600px] rounded-xl border border-black/10 bg-white px-4 py-3 text-[12.5px] text-carbon/75">
+            <section className="w-[480px] max-w-full rounded-xl border border-black/10 bg-white px-4 py-3">
               <h3 className="text-[14.5px] font-bold text-carbon">Solo se presentan, no se pagan</h3>
-              <p className="mt-1">
-                {soloSePresentan.map((o) => `${o.modelo} ${o.nombre.toLowerCase()}`).join(" · ")}
-              </p>
-              {presentar.length > 0 && <p className="mt-1">Próximos: {presentar.map((p) => `${p.modelo} el ${diaMes(p.fecha)}`).join(" · ")}</p>}
+              <table className="mt-1.5 w-full border-collapse text-[12.5px] tabular-nums">
+                <tbody className="[&_tr+tr]:border-t [&_tr+tr]:border-black/15">
+                  {soloSePresentan.map((o) => {
+                    const prox = presentar.filter((p) => p.obligacion === o.id).map((p) => p.fecha).sort()[0];
+                    const texto = (o.explicacion ?? "").replace(/\s*Solo se presenta: no se paga\.?$/, "");
+                    return (
+                      <tr key={o.id} className="align-baseline">
+                        <td className="whitespace-nowrap py-1.5 pr-3 font-bold text-carbon">{o.modelo}</td>
+                        <td className="py-1.5 pr-4">
+                          <span className="font-semibold text-carbon">{o.nombre}</span>
+                          {empresas.length > 1 && <span className="text-carbon/50"> · {o.empresa === "daniel_autonomo" ? "Daniel" : EMPRESA_LABEL[o.empresa]}</span>}
+                          {texto && texto !== o.nombre && texto !== `${o.nombre}.` && <span className="block text-[12px] leading-snug text-carbon/60">{texto}</span>}
+                        </td>
+                        <td className="whitespace-nowrap py-1.5 text-right text-carbon/80">{prox ? diaMes(prox) : <span className="text-carbon/40">—</span>}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </section>
           )}
           {!conPago.length && <p className="text-carbon/65">No hay impuestos con pago en este libro.</p>}

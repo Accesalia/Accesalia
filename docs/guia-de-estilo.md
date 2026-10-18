@@ -223,6 +223,12 @@ font-semibold uppercase tracking-wide text-carbon/40` con la palabra
    - Solo el texto largo de verdad (un concepto, una nota) puede crecer, y con
      tope (`max-w-[…]`), no hasta el borde.
    - Los importes, alineados a la derecha y pegados a su texto.
+9. **LAS LÍNEAS GRISES SE TIENEN QUE VER** (Mónica, 18-oct-2026: «en TODAS
+   las pantallas las líneas grises apenas se ven»). Está resuelto en
+   `app/globals.css` para toda la app: `border-black/5` (separadores) sale al
+   15 % y `border-black/10` (bordes de tarjetas) al 18 %, y también los grises
+   claros de la maqueta escritos en hexadecimal (`#f0f2ee`, `#e3e6df`…). Para
+   una línea nueva, usar esas clases; no inventar grises más claros.
 
 ## Lo que aún no está decidido
 
