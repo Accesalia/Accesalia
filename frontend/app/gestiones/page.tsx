@@ -35,6 +35,12 @@ const ACCESOS: Acceso[] = [
     href: "/comercial/bloques",
   },
   {
+    nombre: "Tarifas",
+    color: "arena",
+    desc: "Los precios habituales por tipo de cliente (comunidades, ascensoristas, rehabilitadores), que el generador de hojas propone",
+    href: "/comercial/tarifas",
+  },
+  {
     nombre: "Plantillas",
     color: "azul",
     desc: "Las plantillas de correo, generales y personales: verlas, crearlas y retocarlas",
