@@ -29,7 +29,7 @@ export default async function PaginaComisiones({ searchParams }: { searchParams:
   return (
     <div className="min-h-screen">
       <BarraSuperior />
-      <main className="mx-auto w-full max-w-[1400px] px-6 pb-16 pt-5">
+      <main className="mx-auto w-full max-w-[1180px] px-6 pb-16 pt-5 sm:px-12">
         <Salida href={`/comercial${direccion ? `?c=${elegido.id}` : ""}`}>← Área comercial</Salida>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>

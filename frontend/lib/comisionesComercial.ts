@@ -65,12 +65,14 @@ export type HitoComision = {
   fechaPago: string | null;
   sub: boolean;
 };
-export type LineaComision = { id: string; descripcion: string; importe: number; hitos: HitoComision[] };
+export type LineaComision = { id: string; hojaId: string; descripcion: string; importe: number; hitos: HitoComision[]; comision: number };
+/** Una hoja firmada: su codigo, que lleva en corto («Proyecto + CSS») y su total. */
+export type HojaComision = { id: string; codigo: string | null; fecha: string | null; que: string; total: number };
 export type OppComisionComercial = {
   id: string;
   nombre: string;
   codigo: string | null;
-  hojas: { codigo: string | null; fecha: string | null }[];
+  hojas: HojaComision[];
   primeraFactura: string | null;
   /** Lo firmado de Accesalia (suma de sus hitos con importe). */
   firmado: number;
@@ -98,6 +100,23 @@ const TEXTO: Record<string, string> = {
   adjudicacion: "a la adjudicación", fin_obra: "al fin de obra", inicio_obra: "al inicio de obra", presentacion: "a la presentación", otro: "otro plazo",
 };
 
+/** Lo que lleva una linea, en corto, para el titulo de su hoja («Proyecto + CSS»). */
+const CORTO: Record<string, string> = {
+  "REDACCION PROYECTO": "Proyecto", CSS: "CSS", DF: "DF", "CERTIFICADO FIN DE OBRA": "CFO", "TRAMITACION SUBVENCIONES": "Subvenciones",
+  "TRAMITACION SUBVENCIONES ACCESIBILIDAD": "Subvenciones", "TRAMITACION SUBVENCIONES EFICIENCIA ENERGETICA": "Subvenciones",
+  "DOCUMENTACION TECNICA SUBVENCIONES": "Doc. técnica subvenciones", "TRAMITACION LICENCIAS": "Licencias", "SATE CON CESION DE CAES": "SATE con CAES",
+  "SATE + ASCENSOR CON CESION DE CAES": "SATE + ascensor con CAES", "TOMA DE DATOS Y MODELADO 3D": "Toma de datos y 3D", LEE: "Libro del edificio",
+};
+function corto(b: { codigo: string; nombre_corto: string | null } | null, desc: string | null): string {
+  if (b) return CORTO[b.codigo] ?? b.nombre_corto ?? b.codigo;
+  const t = desc ?? "";
+  if (/seguridad/i.test(t)) return "CSS";
+  if (/subvenci/i.test(t)) return "Subvenciones";
+  if (/direcci[oó]n facultativa/i.test(t)) return "DF";
+  if (/proyecto/i.test(t)) return "Proyecto";
+  return "Otros";
+}
+
 /** TODO LO DE UN COMERCIAL: sus opps con hoja firmada, linea a linea y hito a hito. */
 export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]> {
   type O = { id: string; nombre: string | null; codigo: string | null; hojas: { id: string; numero_hoja: string | null; fecha_firma: string | null }[] };
@@ -106,8 +125,8 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
   );
   if (!ops.length) return [];
   const hojaIds = ops.flatMap((o) => o.hojas.map((h) => h.id));
-  const lineas = await porTramos<{ id: string; hoja_encargo_id: string; descripcion: string | null }>(hojaIds,
-    (t) => `lineas_facturacion?select=id,hoja_encargo_id,descripcion&hoja_encargo_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&order=creado_en`);
+  const lineas = await porTramos<{ id: string; hoja_encargo_id: string; descripcion: string | null; bloque: { codigo: string; nombre_corto: string | null } | null }>(hojaIds,
+    (t) => `lineas_facturacion?select=id,hoja_encargo_id,descripcion,bloque:bloque_id(codigo,nombre_corto)&hoja_encargo_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&order=creado_en`);
   const filas = await porTramos<FilaHito>(lineas.map((l) => l.id),
     (t) => `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id&linea_facturacion_id=in.(${t})`);
   const [enl, marcas, pagos, admin] = await Promise.all([
@@ -184,12 +203,15 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
       };
       const lineasC: LineaComision[] = susLineas.map((l) => {
         const hs = porLinea.get(l.id) ?? [];
+        // Un hito fraccionado: cuentan sus subhitos (el padre solo agrupa).
+        const hitos = hs.flatMap((h) => (h.subhitos.length ? h.subhitos.map((x) => hitoDe(x, true)) : [hitoDe(h, false)]));
         return {
           id: l.id,
+          hojaId: l.hoja_encargo_id,
           descripcion: (l.descripcion ?? "").split("\n")[0].trim(),
-          importe: r2(hs.reduce((s, h) => s + (Number(h.importe) || 0), 0)),
-          // Un hito fraccionado: cuentan sus subhitos (el padre solo agrupa).
-          hitos: hs.flatMap((h) => (h.subhitos.length ? h.subhitos.map((x) => hitoDe(x, true)) : [hitoDe(h, false)])),
+          importe: r2(hs.reduce((s, h) => s + (h.estado === "anulado" ? 0 : Number(h.importe) || 0), 0)),
+          hitos,
+          comision: r2(hitos.reduce((s, h) => s + (h.comision ?? 0), 0)),
         };
       });
       const hs = lineasC.flatMap((l) => l.hitos).filter((h) => h.comision != null);
@@ -204,7 +226,14 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
         id: o.id,
         nombre: nombreDeOpp(o),
         codigo: o.codigo,
-        hojas: o.hojas.map((h) => ({ codigo: h.numero_hoja, fecha: h.fecha_firma })).sort((a, b) => (a.fecha ?? "").localeCompare(b.fecha ?? "")),
+        hojas: o.hojas
+          .map((h) => {
+            const ls = susLineas.filter((l) => l.hoja_encargo_id === h.id);
+            const que = [...new Set(ls.map((l) => corto(l.bloque, l.descripcion)))].join(" + ");
+            return { id: h.id, codigo: h.numero_hoja, fecha: h.fecha_firma, que, total: r2(lineasC.filter((l) => l.hojaId === h.id).reduce((s, l) => s + l.importe, 0)) };
+          })
+          .filter((h) => h.que)
+          .sort((a, b) => (a.codigo ?? "").localeCompare(b.codigo ?? "")),
         primeraFactura,
         firmado,
         admin: ad && adminImporte > 0
