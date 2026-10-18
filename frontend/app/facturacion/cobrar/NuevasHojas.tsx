@@ -62,7 +62,9 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
         {filas.length} hojas firmadas · {pendientes} líneas por validar · cuando se vacía, todo está listo para trabajar
       </p>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-black/10 bg-white">
+      {/* REGLA 8 (Monica, 18-oct): la lista mide lo que su texto; con una hoja
+          abierta (el PDF al lado de lo extraido) se abre a todo el ancho. */}
+      <div className={`mt-5 overflow-hidden rounded-2xl border border-black/10 bg-white ${abierta ? "w-full" : "w-fit max-w-full"}`}>
         {filas.map((f) => {
           const on = abierta === f.id;
           return (
@@ -70,13 +72,13 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
               <button
                 type="button"
                 onClick={() => pinchar(f.id)}
-                className={`block w-full border-b border-black/5 px-[18px] py-3.5 text-left transition ${on ? "bg-[#f3f9ec] shadow-[inset_4px_0_0_#7ac943]" : "hover:bg-[#fafbf9]"}`}
+                className={`block w-full border-b border-black/5 py-3.5 pl-[18px] pr-8 text-left transition ${on ? "bg-[#f3f9ec] shadow-[inset_4px_0_0_#7ac943]" : "hover:bg-[#fafbf9]"}`}
               >
                 <div className="text-[15px] font-bold text-carbon">{f.direccion}</div>
                 <div className="mt-0.5 text-[13px] text-carbon/60">
                   {f.numero} · recibida firmada el {fecha(f.fechaFirma)} · hace {f.dias} días{f.comercial ? ` · ${f.comercial}` : ""}
                 </div>
-                <div className="mt-2.5 flex max-w-[360px] items-center gap-2.5 text-[12.5px] text-carbon/70">
+                <div className="mt-2.5 flex w-[360px] max-w-full items-center gap-2.5 text-[12.5px] text-carbon/70">
                   <span className="whitespace-nowrap">
                     {f.validadas} de {f.lineas} {f.lineas === 1 ? "línea" : "líneas"}
                   </span>

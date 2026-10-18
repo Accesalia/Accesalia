@@ -27,37 +27,50 @@ export function MarcarHitos({ documentos, enProforma }: { documentos: Documento[
     return null;
   };
 
+  const marcar = (id: string) =>
+    setMarcados((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+
+  // REGLA 8 (Monica, 18-oct): cada hoja mide lo que su tabla; el % y el importe
+  // pegados al texto del hito. La fila entera marca el hito.
   const fila = (h: Hito, sub: boolean) => {
     const no = porQueNo(h);
     const on = marcados.has(h.id);
     return (
-      <label key={h.id} className={`flex items-baseline gap-3 rounded-lg px-2 py-1.5 text-[13.5px] ${sub ? "ml-6" : ""} ${no ? "cursor-default" : "cursor-pointer hover:bg-[#f3f9ec]"} ${on ? "bg-[#f3f9ec]" : ""}`}>
-        <input
-          type="checkbox"
-          disabled={!!no}
-          checked={on}
-          onChange={() =>
-            setMarcados((s) => {
-              const n = new Set(s);
-              if (n.has(h.id)) n.delete(h.id);
-              else n.add(h.id);
-              return n;
-            })
-          }
-          className="h-4 w-4 accent-[#104269] disabled:opacity-30"
-        />
-        <span className={`min-w-0 flex-1 ${no ? "text-carbon/50" : "text-carbon/85"}`}>
-          {h.texto ?? TEXTO_HITO[h.tipo] ?? h.tipo}
-          {no && <span className="ml-2 text-[12px] font-semibold text-carbon/45">{no}</span>}
-        </span>
-        <span className="w-16 text-right tabular-nums text-carbon/50">{h.porcentaje != null ? `${Number(h.porcentaje).toLocaleString("es-ES")} %` : ""}</span>
-        <span className={`w-28 text-right tabular-nums ${no ? "text-carbon/45" : "font-semibold text-carbon"}`}>{h.importe != null ? `${eur(h.importe)} €` : "a éxito"}</span>
-      </label>
+      <tr
+        key={h.id}
+        onClick={() => !no && marcar(h.id)}
+        className={`align-baseline text-[13.5px] ${no ? "cursor-default" : "cursor-pointer hover:bg-[#f3f9ec]"} ${on ? "bg-[#f3f9ec]" : ""}`}
+      >
+        <td />
+        <td className="max-w-[600px] py-1.5 pl-3">
+          <div className={`flex items-baseline gap-2.5 ${sub ? "ml-5" : ""}`}>
+            <input
+              type="checkbox"
+              disabled={!!no}
+              checked={on}
+              onChange={() => marcar(h.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="h-4 w-4 shrink-0 translate-y-[2px] accent-[#104269] disabled:opacity-30"
+            />
+            <span className={no ? "text-carbon/50" : "text-carbon/85"}>
+              {h.texto ?? TEXTO_HITO[h.tipo] ?? h.tipo}
+              {no && <span className="ml-2 whitespace-nowrap text-[12px] font-semibold text-carbon/45">{no}</span>}
+            </span>
+          </div>
+        </td>
+        <td className="whitespace-nowrap py-1.5 pl-5 text-right text-carbon/50">{h.porcentaje != null ? `${Number(h.porcentaje).toLocaleString("es-ES")} %` : ""}</td>
+        <td className={`whitespace-nowrap py-1.5 pl-5 pr-5 text-right ${no ? "text-carbon/45" : "font-semibold text-carbon"}`}>{h.importe != null ? `${eur(h.importe)} €` : "a éxito"}</td>
+      </tr>
     );
   };
 
   return (
-    <>
+    <div className="w-fit max-w-full">
       <h2 className="mt-7 text-[16px] font-bold text-carbon">Marca los hitos que entran en la proforma</h2>
       {documentos.map((d) => (
         <section key={d.id} className="mt-3 overflow-hidden rounded-2xl border border-black/10 bg-white">
@@ -66,18 +79,27 @@ export function MarcarHitos({ documentos, enProforma }: { documentos: Documento[
             {d.titulo && ` · ${d.titulo}`}
             {d.fecha && ` · firmada el ${fecha(d.fecha)}`}
           </div>
-          {d.lineas.map((l, i) => (
-            <div key={l.id} className="border-b border-black/5 px-5 py-3 last:border-0">
-              <div className="flex items-baseline gap-3">
-                <span className="w-5 text-right text-[13px] font-bold text-carbon/40">{i + 1}</span>
-                <span className="min-w-0 flex-1 text-[14.5px] font-semibold text-carbon">{l.descripcion}</span>
-                <span className="whitespace-nowrap text-[14px] font-bold tabular-nums text-carbon">
-                  {l.esPorcentaje ? `${l.porcentaje ?? ""} % a éxito` : l.importe != null ? `${eur(l.importe)} € + IVA` : "—"}
-                </span>
-              </div>
-              <div className="mt-1 pl-6">{l.hitos.map((h) => (h.subhitos.length ? h.subhitos.map((s) => fila(s, true)) : fila(h, false)))}</div>
-            </div>
-          ))}
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse tabular-nums">
+              {d.lineas.map((l, i) => (
+                <tbody key={l.id} className="border-t border-black/[.07] first:border-0">
+                  <tr className="align-baseline">
+                    <td className="pl-5 pt-3 text-right text-[13px] font-bold text-carbon/40">{i + 1}</td>
+                    <td colSpan={2} className="max-w-[600px] pl-3 pt-3 text-[14.5px] font-semibold text-carbon">
+                      {l.descripcion}
+                    </td>
+                    <td className="whitespace-nowrap pl-5 pr-5 pt-3 text-right text-[14px] font-bold text-carbon">
+                      {l.esPorcentaje ? `${l.porcentaje ?? ""} % a éxito` : l.importe != null ? <>{eur(l.importe)} € <span className="text-[12px] font-semibold text-carbon/55">+ IVA</span></> : "—"}
+                    </td>
+                  </tr>
+                  {l.hitos.map((h) => (h.subhitos.length ? h.subhitos.map((s) => fila(s, true)) : fila(h, false)))}
+                  <tr>
+                    <td colSpan={4} className="pb-2" />
+                  </tr>
+                </tbody>
+              ))}
+            </table>
+          </div>
         </section>
       ))}
       <div className="sticky bottom-4 mt-4 flex items-center gap-4 rounded-2xl bg-carbon px-5 py-3.5 text-[14px] text-white shadow-lg">
@@ -92,6 +114,6 @@ export function MarcarHitos({ documentos, enProforma }: { documentos: Documento[
           )}
         </span>
       </div>
-    </>
+    </div>
   );
 }
