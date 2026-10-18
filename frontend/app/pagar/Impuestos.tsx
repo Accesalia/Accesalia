@@ -112,8 +112,10 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
   const mesHoy = hoy.slice(0, 7);
   const meses = Array.from({ length: 13 }, (_, i) => mesMas(hoy, i - 1));
   const varias = empresas.length > 1;
+  // Por dentro, lo de antes (368 px) mas el 5 % de la letra = 386 px; el aire de mas,
+  // solo en los bordes (Monica, 18-oct: «a los lados, NO entre las columnas internas»).
   return (
-    <div className="w-[460px] shrink-0 rounded-xl border border-black/10 bg-white px-6 py-5">
+    <div className="w-[434px] shrink-0 rounded-xl border border-black/10 bg-white px-6 py-5">
       <h3 className="text-[15.25px] font-bold text-carbon">Calendario de pagos</h3>
       <p className="mb-2.5 text-[12.6px] text-carbon/60">
         <span className="text-carbon/45">gris</span>, ya pasado · <span className="text-[#8e2f2d]">burdeos</span>, este mes · <span className="text-[#3b5f86]">azul</span>, lo que viene. ≈ previsto; sin ≈, ya validado.
