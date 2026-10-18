@@ -5,7 +5,7 @@
    sobre el fondo. Jerarquia: titulo > linea > hito > parte > detalle. */
 
 .ff2 {
-  --fondo: #934c09; --crema: #f8f8ee; --acento: #a75907; --raya: #e6ded3; --raya-fuerte: #d6c2ad;
+  --fondo: #934c09; --crema: #f8f8ee; --acento: #a75907; --raya: #d6c9b8; --raya-fuerte: #c4ab92;
   --tinta: #111111; --tinta-suave: #4a4038; --gris: #8a7d70; --sombreado: #f5e4dc;
   font-family: "42dot Sans", Arial, Helvetica, sans-serif;
   color: var(--tinta);
@@ -41,13 +41,14 @@
 
 .ff2 .dir { background: #fffffe; border-radius: 3px; padding: 10px 14px 12px; }
 .ff2 .dir .k { color: var(--acento); font-weight: 700; font-size: 12.5px; letter-spacing: 0.3px; }
-.ff2 .dir .v { display: block; font-size: 24px; margin-top: 1px; }
+.ff2 .dir .v { display: block; font-size: 24px; }
 .ff2 .dir .c { font-size: 13.5px; color: var(--gris); margin-top: 2px; }
 
 /* EL RESUMEN, destacado: velo gris transparente con borde blanco. */
-.ff2 .res { background: rgba(217, 217, 217, 0.57); border: 1.5px solid #fff; border-radius: 3px; padding: 12px 14px 14px; }
+.ff2 .res { background: rgba(217, 217, 217, 0.57); border: 1.5px solid #fff; border-radius: 3px; padding: 12px 14px 16px; }
 .ff2 .res h2 { margin: 0 0 7px 2px; }
-.ff2 .res .caja-res { background: #fffffe; border-top: 1.2px solid var(--acento); border-bottom: 1.2px solid var(--acento); }
+/* El cuadro interno, todo un 20 % mas pequeno y centrado: mas velo a los lados (Monica, 18-oct). */
+.ff2 .res .caja-res { zoom: 0.8; width: 80%; margin: 0 auto; background: #fffffe; border-top: 1.2px solid var(--acento); border-bottom: 1.2px solid var(--acento); }
 .ff2 .res .rosa { background: var(--sombreado); }
 .ff2 .res .f { display: flex; gap: 12px; padding: 5px 9px; align-items: baseline; }
 .ff2 .res .f + .f, .ff2 .res .rosa .f, .ff2 .res .rosa + .f { border-top: 1px solid var(--raya); }
@@ -79,6 +80,11 @@
 .ff2 .caja-notas { background: #fffffe; border-radius: 3px; min-height: 80px; padding: 10px 14px; font-size: 13.5px; line-height: 1.45; }
 .ff2 .caja-notas li + li { margin-top: 4px; }
 
+/* EL PDF / IMPRIMIR: la ficha entera en UN folio A4, tal cual se ve (Monica,
+   18-oct: «queda cortado»). Se escala la hoja de dos columnas para que quepa. */
+@page { size: A4 portrait; margin: 7mm; }
 @media print {
-  .ff2 .hoja { grid-template-columns: 1fr 1fr; max-width: none; padding: 12px; }
+  .ff2 { min-height: 100vh; }
+  .ff2 .hoja { zoom: 0.6; padding: 0; margin: 0 auto; grid-template-columns: 560px 420px; row-gap: 0; }
+  .ff2 .col > * { break-inside: avoid; }
 }

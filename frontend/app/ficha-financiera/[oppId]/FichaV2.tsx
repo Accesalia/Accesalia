@@ -136,7 +136,6 @@ export function FichaFinancieraV2({ f, vista }: { f: Ficha; vista: Vista }) {
         {/* ===================== COLUMNA 1 ===================== */}
         <div className="col">
           <div className="dir">
-            <span className="k">DIRECCIÓN:</span>
             <span className="v">{f.opp.nombre}</span>
             {f.opp.codigo && <div className="c">{f.opp.codigo}</div>}
           </div>
