@@ -9,6 +9,9 @@ import type { EstadoHoja, FacturaDeLinea, HojaFirmada, LineaHoja, PaginaHojas } 
 // Hoja (al pinchar, el PDF firmado en el visor) · Que cubre (cada linea, y
 // debajo sus facturas con su cobro y su justificante) · Estado · Quien factura.
 //
+// La tabla mide lo que sus columnas (regla 8 de la guia, 18-oct): solo «que cubre»
+// crece, con tope.
+//
 // Cada filtro, busqueda o pagina es UNA llamada a ./datos (50 hojas); el
 // buscador espera 0,3 s y cancela la anterior. El visor se abre encima, sin
 // salir de la lista.
@@ -153,8 +156,8 @@ export function HojasFirmadas({ inicial }: { inicial: PaginaHojas }) {
 
       {error && <div className="mt-4 rounded-xl bg-[#f6dfdd] px-4 py-2.5 text-[13.5px] font-semibold text-alerta">{error}</div>}
 
-      <div className={`mt-4 overflow-hidden rounded-2xl border border-[#e3e6df] bg-white transition-opacity ${cargando ? "opacity-60" : ""}`}>
-        <div className="grid grid-cols-[150px_1fr_190px_110px] gap-4 border-b border-[#e3e6df] bg-[#fafbf9] px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[.08em] text-[#6b7066]">
+      <div className={`mt-4 w-fit max-w-full overflow-hidden rounded-2xl border border-[#e3e6df] bg-white transition-opacity ${cargando ? "opacity-60" : ""}`}>
+        <div className="grid grid-cols-[150px_minmax(0,620px)_190px_110px] gap-4 border-b border-[#e3e6df] bg-[#fafbf9] px-5 py-2.5 text-[11.5px] font-bold uppercase tracking-[.08em] text-[#6b7066]">
           <div>Hoja</div>
           <div>Qué cubre · sus facturas</div>
           <div>Estado</div>
@@ -188,7 +191,7 @@ export function HojasFirmadas({ inicial }: { inicial: PaginaHojas }) {
 function Fila({ h, abrir }: { h: HojaFirmada; abrir: (v: Visor) => void }) {
   const est = ESTADO[h.estado];
   return (
-    <div className="grid grid-cols-[150px_1fr_190px_110px] gap-4 border-b border-black/5 px-5 py-3.5 last:border-b-0">
+    <div className="grid grid-cols-[150px_minmax(0,620px)_190px_110px] gap-4 border-b border-black/5 px-5 py-3.5 last:border-b-0">
       <div>
         {h.pdf ? (
           <button
@@ -264,7 +267,12 @@ function Factura({ fa, abrir }: { fa: FacturaDeLinea; abrir: (v: Visor) => void 
       )}
       <span className="tabular-nums text-carbon/75">{eur(fa.total)}</span>
       {fa.cobros.length === 0 ? (
-        <span className="font-semibold text-amber-800/80">sin justificante</span>
+        fa.estado_cobro === "cobrada" ? (
+          // hasta 2023 la factura garantiza el cobro: entonces no se descargaban justificantes (Monica, 17-oct)
+          <span className="font-semibold text-lima-dark">✓ cobrada (por la factura)</span>
+        ) : (
+          <span className="font-semibold text-amber-800/80">sin justificante</span>
+        )
       ) : (
         fa.cobros.map((c) => (
           <button

@@ -10,6 +10,8 @@ import type { LineaPanoramica, OppPanoramica, Panoramica as Datos } from "../../
 // (cada linea es un que y un cuanto) y una barra que se llena en verde segun se
 // cobra; en ambar, lo facturado que aun no ha entrado. Lo que mas queda, arriba.
 // Filtros: entre fechas de firma, comercial y quitar las cobradas enteras.
+// Las tarjetas miden lo que sus columnas (regla 8 de la guia, 18-oct): el concepto
+// de la linea con tope y el importe pegado a el; si sobra pantalla, a la derecha.
 // Cada gesto es UNA llamada a ./datos (40 opps); el cambio de fecha espera 0,4 s.
 
 const EUR0 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" } as Intl.NumberFormatOptions);
@@ -174,8 +176,8 @@ export function Panoramica({ inicial, desdeInicial }: { inicial: Datos; desdeIni
 
 function Opp({ o }: { o: OppPanoramica }) {
   return (
-    <div className="rounded-2xl border border-[#e3e6df] bg-white px-5 py-4">
-      <div className="grid grid-cols-[1fr_260px_170px] items-center gap-5">
+    <div className="w-fit max-w-full overflow-x-auto rounded-2xl border border-[#e3e6df] bg-white px-5 py-4">
+      <div className="grid grid-cols-[737px_220px_150px] items-center gap-4">
         <div className="min-w-0">
           <Link href={`/comercial/oportunidades/${o.opp.id}`} className="text-[15.5px] font-bold text-carbon hover:underline">
             {o.opp.nombre}
@@ -210,7 +212,7 @@ function firmas(o: OppPanoramica): string {
 function Linea({ l }: { l: LineaPanoramica }) {
   const total = l.importe ?? 0;
   return (
-    <div className="grid grid-cols-[175px_1fr_90px_260px_170px] items-center gap-5 text-[13.5px]">
+    <div className="grid grid-cols-[175px_440px_90px_220px_150px] items-center gap-4 text-[13.5px]">
       <span className="whitespace-nowrap text-[12.5px] text-carbon/65">
         {l.hoja} · <b className="font-semibold text-carbon/80">{fecha(l.fecha_firma)}</b>
       </span>
