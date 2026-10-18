@@ -175,3 +175,12 @@ d(115, 'A', 'Santa Teresa 8 · resto de CSS 100 (93-2023)', 'CSS del encargo ant
 d(201, 'A', 'Santa Teresa 8 · CSS 500 (45-2022)', 'CSS de PD-2023-0015: el «pss» pasa de 480 a 500 (se facturó 500 + 100)', hitos=[('b86fc4', 500)])
 d(116, 'NO', 'Santa Teresa 8 · resto de CSS 100 (94-2023)', 'Repetida: Mónica dice que se anuló (en Factusol sigue como cobrada)')
 for n in (112, 118, 120, 202): D[n]['accion'] = 'G'   # Galicia 8: se rehace entera (ver aplicar)
+d(241, 'SU', 'Ceferino Rodríguez 17 · Anylor, 35 % restante (daniel 2023/1-86)', 'Resuelto por e3 con Mónica: dice «ascensor» pero es el proyecto de SATE (concepto mal, con nota); va a la opp DAN-2021-094. La hoja del SATE no está en la app: suelta')
+# 18-oct, de e3: opps apuntadas (sin casar). PENDIENTE de revisar en la tanda siguiente:
+#  - Calle Madrid 2 Colmenar Viejo (#111, acc 2023/1-78): su opp DAN-2023-119 «C. MADRID» SI tiene hoja, HE-2023-0011 -> mirar si enlaza
+#  - FAIN pedido 95002426 (Emigdio de la Riva 29, Salamanca) -> opp DAN-2023-317 creada por e3 (acc 2023/1-164, deflexiones 300)
+#  - TKE Majadahonda: opps DAN-2017-156/157/158/159/166/167 y DAN-2016-145 -> buscar sus pedidos (TKE manda pedido con nº)
+# 18-oct, de e3: sueltas de 2022 con opp (sin casar). Opps NUEVAS: DAN-2021-139 Berardo Martin 12 (FAIN 95002546),
+#  DAN-2021-140 Francisco Medina 5, DAN-2021-142 Alejandro Dumas 17, DAN-2022-302 Cisneros 24, DAN-2022-304 Ampostas 34
+#  (FAIN 45002633), DAN-2022-305 Entre Arroyos 56 (NVR: hay papel firmado en la carpeta), DAN-2022-306 Monteperdido 10.
+#  Rio Duero 1 (FAIN 95002840) -> DAN-2022-036; Cadalso 2 -> DAN-2025-441 (PD-2022-0007).
