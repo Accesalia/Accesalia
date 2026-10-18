@@ -120,8 +120,19 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
       </p>
       {meses.map((m) => {
         const del = pagos.filter((p) => p.fecha.startsWith(m));
-        if (!del.length) return null;
         const color = m < mesHoy ? "text-carbon/45" : m === mesHoy ? "text-[#8e2f2d]" : "text-[#3b5f86]";
+        // UN MES SIN IMPUESTOS TAMBIEN SALE (Monica, 18-oct: «si algun mes no toca
+        // nada, hay que ponerlo o parece un error»).
+        if (!del.length)
+          return (
+            <div key={m} className={`border-t border-black/10 py-3 ${color}`}>
+              <div className="flex items-baseline justify-between gap-3">
+                <b className="text-[13.65px]">{mayus(MES.format(fecha(m + "-01")))}</b>
+                <span className="text-[13.1px] font-semibold tabular-nums">0 €</span>
+              </div>
+              <p className="mt-1 text-[13.1px] italic opacity-75">No toca pagar ningún impuesto este mes.</p>
+            </div>
+          );
         const total = (lista: Pago[]) => lista.reduce((s, p) => s + (cifra(p) ?? 0), 0);
         const faltan = del.filter((p) => cifra(p) == null).length;
         return (
