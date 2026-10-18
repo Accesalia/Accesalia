@@ -1,0 +1,169 @@
+﻿n;factura;direccion;propuesta;veredicto;que_hacer
+1;accesalia 2022/1-227;Abejuela 17;ajustar fin de obra a 1.250;DECIDIDO;"Mónica 17-oct: nos salimos de ese proyecto. La factura es la renuncia (1.250); lo que quedaba pendiente (1.250) se anula. Fin de la relación"
+2;accesalia 2023/1-131;Agapito Marazuela 26 Segovia;suelta;BIEN;No hay hoja
+3;accesalia 2022/1-1;Alejandro Dumas 17;suelta;CONTRATA;Anylor: a 68
+4;accesalia 2022/1-48;Alemania 11;crear pago de 5.000 en la HE-2021-0002;BIEN;La línea de proyecto de 5.000 no tiene pagos: crearle uno de 5.000 y enlazar
+5;accesalia 2022/1-93;Alfonso XIII 2 Parla;suelta;BIEN;No hay hoja
+6;daniel 2023/1-13;Alfredo Castro Camba 24;suelta;BIEN;Solo hay hoja de subvenciones de 2025
+7;accesalia 2022/1-159;Andalucía 10;suelta;BIEN;La hoja del proyecto (agosto 2022) no está en la app
+8;accesalia 2024/1-84;Andalucía 10;suelta;BIEN;Cobra la concesión de la hoja de agosto 2022, que no está en la app
+9;accesalia 2022/1-77;Andalucía 6;suelta;BIEN;La única hoja es de 2024 (y sin líneas)
+10;accesalia 2022/1-144;Andarrios 9 (Ostalazar);suelta;BIEN;No hay hoja
+11;accesalia 2022/1-144;Andarrios 9 (Ostalazar);suelta;BIEN;No hay hoja
+12;accesalia 2022/1-168;Ángeles 12;decide (falta hoja del proyecto);BIEN;"Las hojas de la app son la subvención y la CSS; el proyecto de 2.500 no tiene hoja: suelta"
+13;accesalia 2023/1-227;Ángeles 12;decide (falta hoja del proyecto);BIEN;Igual: suelta
+14;accesalia 2022/1-169;Ángeles 14;decide (falta hoja del proyecto);BIEN;Igual: suelta
+15;accesalia 2023/1-228;Ángeles 14;decide (falta hoja del proyecto);BIEN;Igual: suelta
+16;accesalia 2022/1-21;Ángeles 7;suelta;BIEN;La única hoja es de 2024
+17;accesalia 2022/1-64;Ángeles 7;suelta;BIEN;La única hoja es de 2024
+18;accesalia 2022/1-70;Aragón 11;suelta;BIEN;No hay hoja
+19;accesalia 2022/1-96;Armenteros 28;decide: ¿entrega del proyecto del PD-2021-0002?;ERROR;La factura dice tramitación de subvención: no es la entrega del proyecto. La hoja de la subvención es de 2023, posterior: suelta
+20;accesalia 2022/1-35;Av. Ángeles 75 Getafe;suelta;BIEN;No hay hoja
+21;accesalia 2023/1-92;Av. Carlos V 32;trozo de 3.750 del pago de 7.500;BIEN;Primera mitad del adelanto de 7.500 que la hoja pone en el proyecto
+22;accesalia 2023/1-114;Av. Carlos V 32;trozo de 3.750 del pago de 7.500;BIEN;Segunda mitad
+23;daniel 2023/1-58;Av. de los Andes 11;trozo nuevo de 492 del pago de 2.450;ERROR;"Ya existe el hijo ""resto"" de 1.015 sin facturar: hay que partir ESE (492 + 492 + 31), no crear hijos nuevos (la hoja sumaría de más)"
+24;daniel 2023/1-67;Av. de los Andes 11;trozo nuevo de 492;ERROR;Igual que la anterior
+25;daniel 2023/1-77;Av. de los Andes 11;trozo de 31 + 420 de la CSS;ERROR;"Los 420 de la CSS bien; los 31 van al hijo ""resto"", no a uno nuevo"
+26;accesalia 2022/1-24;Av. de los Estados 4;suelta;BIEN;La única hoja es de 2024
+27;accesalia 2022/1-25;Av. España 33 Getafe;crear pago de 4.500 en la HE-2022-0007;BIEN;La línea de 4.500 no tiene pagos: crearle uno y enlazar
+28;accesalia 2023/1-130;Av. Monte 89 Algete;suelta;ERROR;SÍ hay hoja (HE-2023-0062): esta factura de 2.920 es su pago del encargo, exacto
+29;accesalia 2023/1-178;Av. Monte 89 Algete;suelta;ERROR;Es el pago de la entrega de la HE-2023-0062 (2.920), exacto
+30;accesalia 2024/1-272;Avelino Fdez. de la Poza 11;enlazar a los seis pagos del 25%;BIEN;"El 50% inicial (2.950) son justo los dos pagos del 25% de cada línea (1.040+1.040+222,50+222,50+212,50+212,50), libres; el otro 50% ya lo cobraron las de 2025"
+31;accesalia 2022/1-121;Av. Albufera 250;crear un pago por línea (18.900 y 10.900);BIEN;Las dos líneas de proyecto no tienen pagos y suman justo los 29.800
+32;accesalia 2022/1-129;Av. Provincias 16 Fuenlabrada;suelta;BIEN;La única hoja es de la subvención y posterior
+33;daniel 2022/1-42;Av. Regiones 6 Fuenlabrada;crear pago de 1.800 en la HE-2022-0018;BIEN;La línea de 1.800 no tiene pagos
+34;accesalia 2023/1-68;Barberán y Collar 48 Alcalá;suelta;BIEN;"La opp existe pero sin hoja; paga Diseños y Desarrollos de Proyectos SL"
+35;accesalia 2024/1-174;Barrionuevo 6 Leganés;enlazar al pago del encargo (500);BIEN;"Encargo libre; la entrega ya la cobró la 2024/197"
+36;daniel 2022/1-39;Berardo Martín 12 Móstoles;suelta;BIEN;No hay opp ni hoja
+37;accesalia 2023/1-31;Brunete 11 Getafe;crear pago 50% visado (2.250) en la HE-2022-0042;BIEN;"La línea de 4.500 no tiene pagos; con #39 se crean 50% y 30%: falta crear también el 20% restante (900, pendiente) para que la línea cuadre"
+38;accesalia 2023/1-54;Brunete 11 Getafe;crear pago único de 1.500 (subvención);BIEN;La línea de 1.500 no tiene pagos
+39;accesalia 2024/1-60;Brunete 11 Getafe;crear pago 30% licencia (1.350);BIEN;Ver #37
+40;accesalia 2024/1-120;Calderón de la Barca 6 Leganés;entrega proyecto 1.125 + entrega certificado 537,50 + trozo de 420 del IEE;BIEN;"Cuadra exacto: el IEE tenía 1.120 de entrega con un trozo de 700 ya cobrado; quedan 420"
+41;accesalia 2024/1-199;Calderón de la Barca 8 Leganés;entrega certificado 537,50 + trozo de 345 del proyecto;BIEN;"Cuadra: la entrega del proyecto (1.125) tiene un trozo de 780 cobrado; quedan 345"
+42;daniel 2023/1-55;Cañada Toledana 2 Griñón;trozo de 1.000 del «otro 50%» (comienzo de obra);ERROR;La entrega (1.er 50%, 3.000) está enlazada a la 2026/33, que está ANULADA (y abonada): está libre. Este 1.000 y los 2.000 de la #52 son trozos de la ENTREGA, y hay que quitar el enlace de la 2026/33 anulada
+43;accesalia 2024/1-122;Cardenal Herrera Oria 283;no casar (anulada);BIEN;Factura anulada
+44;accesalia 2023/1-91;Castellón 1 Móstoles;trozo de 3.250 de la entrega de 6.500;BIEN;Mitad del adelanto
+45;accesalia 2023/1-135;Castellón 1 Móstoles;trozo de 3.250 de la entrega de 6.500;BIEN;Otra mitad
+46;daniel 2024/1-19;Castilla la Nueva 40 Fuenlabrada;ajustar 1.er tercio (833,33 y 200);BIEN;"Redondeo de céntimos; cada factura a su tercio, sin repetir"
+47;daniel 2024/1-33;Castilla la Nueva 40 Fuenlabrada;ajustar 2.º tercio;BIEN;Igual
+48;daniel 2024/1-53;Castilla la Nueva 40 Fuenlabrada;ajustar último tercio;BIEN;"Igual; la línea sigue sumando 2.500 y 600"
+49;accesalia 2023/1-90;Castilla la Vieja 8 Fuenlabrada;enlazar al encargo 3.250 de la HE-2023-0045;BIEN;"Cuadra. OJO: hay DOS hojas firmadas del mismo proyecto (HE-2023-0025 y HE-2023-0045); la vieja debería quedar como versión anterior: decide Mónica"
+50;accesalia 2023/1-136;Castilla la Vieja 8 Fuenlabrada;enlazar a la entrega 3.250 de la HE-2023-0045;BIEN;Igual que #49
+51;accesalia 2022/1-95;Cañada 46 Madrid;decide (¿suelta?);BIEN;"Suelta: la subvención de 2022 no tiene hoja; la de 2025 es otra convocatoria"
+52;daniel 2022/1-117;Cañada Toledana 2 Griñón;trozo de 2.000 del «otro 50%»;ERROR;Ver #42: es trozo de la ENTREGA (2.000 + 1.000 = 3.000 exactos)
+53;daniel 2023/1-86;Ceferino Rodríguez 17;decide;CONTRATA;Anylor: a 68
+54;accesalia 2024/2-146;Chucuri 12;"no casar (anulada); «casar la que la sustituyó»";BIEN a medias;No casar, bien. Pero NO hay factura que la sustituya: se anuló con abono (2024/6-4) «por acuerdo con el cliente» y la HE-2024-0074 sigue sin nada facturado
+55;daniel 2022/1-84;Comuneros de Castilla 25 Talavera;suelta;BIEN;"Pericial para juicio; sin opp ni hoja"
+56;daniel 2022/1-84;Comuneros de Castilla 25 Talavera;suelta;BIEN;Igual
+57;accesalia 2023/1-30;Comunidad de Madrid 9 Fuenlabrada;suelta;BIEN;La opp existe sin hoja
+58;accesalia 2023/1-88;Cobre 18 Torrejón;crear pago único de 4.700;BIEN;"La línea de 4.700 no tiene pagos; cliente particular"
+59;daniel 2022/1-36;Doctor Hernando 2 Segovia;suelta;BIEN;No hay opp ni hoja
+60;daniel 2022/1-30;Doctor Hernando 2A Segovia;suelta;BIEN;Igual
+61;daniel 2022/1-35;Doctor Hernando 4A Segovia;suelta;BIEN;Igual
+62;daniel 2022/1-77;Entre Arroyos 56;suelta;CONTRATA;NVR: a 68
+63;accesalia 2024/1-220;Av. Estados 4 Fuenlabrada;"decide (hoja 2022 no está; HE-2024-0090 vacía)";BIEN;Suelta: cobra el 30% final de la hoja de 2022 que no está en la app. Aparte: la HE-2024-0090 firmada no tiene ni una línea (¿qué es?)
+64;daniel 2022/1-75;Fátima 8 Fuenlabrada;crear pago de 400;CONTRATA;Constructive Solutions: a 68
+65;accesalia 2023/1-180;Feria 8;trozo de 1.000 de la entrega;BIEN;El adelanto de 8.000 = 4.000 (2023/127, encargo entero) + 1.000 (2023/160) + 1.000 (esta) + 2.000 (#66). Hay que mover la 2023/160 del encargo a la entrega y borrar el «resto» de 3.000 del encargo, que sobra: la propuesta lo dice
+66;accesalia 2023/1-234;Feria 8;trozo de 2.000 de la entrega;BIEN;Cierra la entrega con 1.000 + 1.000 + 2.000
+67;daniel 2022/1-108;Florencio García 11;suelta;CONTRATA;Anylor: a 68
+68;daniel 2022/1-89;Francia 50 Fuenlabrada;crear pagos 5.000 + 1.000 en la HE-2022-0048;BIEN;Las dos líneas sin pagos suman justo los 6.000
+69;daniel 2022/1-17;Francisco Medina 5 Guadalajara;—;CONTRATA;Anylor: a 68
+70;daniel 2022/1-17;Francisco Medina 5 Guadalajara;—;CONTRATA;Anylor: a 68
+71;accesalia 2022/1-201;Fray Melchor Cano 22 Leganés;decide (¿suelta?);BIEN;Suelta: la subvención de 2022 no tiene línea en la hoja
+72;accesalia 2022/1-214;Fray Melchor Cano 22 Leganés;trozo de 700 del pago de 2.450;BIEN + ARREGLO;El trozo de 700 bien. Pero el pago «licencia» de 1.050 tiene DOS facturas: la 2025/238 (licencia, bien) y la 2022/170 (anteproyecto 30%, error del cruce automático). La 2022/170 debe pasar a otro trozo de 1.050 del pago de 2.450 (quedan 700 pendientes = el 20% final)
+73;daniel 2022/1-76;Fuentebella 8 Parla;crear pago de 400;CONTRATA;Constructive Solutions: a 68
+74;daniel 2023/1-21;Gandhi 21;suelta;BIEN;La opp existe sin hoja
+75;daniel 2023/1-20;Gandhi 21;suelta;BIEN;Igual
+76;daniel 2024/1-93;García Llamas 43;enlazar al encargo 750;BIEN;Primera mitad de la memoria valorada
+77;daniel 2024/1-113;García Llamas 43;enlazar a la entrega 750;BIEN;Segunda mitad
+78;accesalia 2022/1-208;Goya 55;suelta;BIEN;La opp existe sin hoja
+79;daniel 2024/1-35;Hernán Cortés 13 Alcalá;decide (rehacer enlaces de 2025);BIEN (decide);"Diagnóstico correcto: adelanto 11.180 = encargo+entrega del ascensor (2.350+2.350) y de la envolvente (2.250+2.250) + subvención (1.980), cobrado en 2×25% y 4×12,5% (las dos 25% de agosto y sept. se anularon con abono). Las dos de 2025 están casadas a la subvención por 1.397,50 cada una (2.795 sobre una línea de 1.980): mal. Arreglo: cada 25% = 1.175 ascensor + 1.125 envolvente + 495 subvención (encargos); cada 12,5% = 587,50 + 562,50 + 247,50 (entregas); la subvención pasa a dos pagos de 990"
+80;daniel 2024/1-82;Hernán Cortés 13 Alcalá;decide;BIEN (decide);Ver #79
+81;daniel 2024/1-94;Hernán Cortés 13 Alcalá;no casar (anulada);BIEN;Anulada con abono 2024/6-2
+82;daniel 2024/1-109;Hernán Cortés 13 Alcalá;no casar (anulada);BIEN;Anulada con abono 2024/6-3
+83;daniel 2024/1-129;Hernán Cortés 13 Alcalá;decide;BIEN (decide);Ver #79 (lleva además 6,28 de gastos de devolución, que no es de la hoja)
+84;daniel 2024/1-138;Hernán Cortés 13 Alcalá;decide;BIEN (decide);Ver #79
+85;accesalia 2022/1-14;Honduras 4 Fuenlabrada;suelta;BIEN;La opp (2019) no tiene hoja
+86;accesalia 2022/1-197;Huerta del Bayo 13;crear pago único de 6.000;BIEN;La línea de 6.000 no tiene pagos
+87;daniel 2022/1-93;Huerta del Bayo 13;no casar (duplicada, abonada);BIEN;Rectificada por duplicidad
+88;accesalia 2022/1-22;Humilladero 5 Fuenlabrada;suelta;BIEN;La opp (2021) no tiene hoja
+89;accesalia 2023/1-74;Hungría 4 Fuenlabrada;entrega proyecto ascensor 2.150 + entrega dirección de obra 850;BIEN;Cuadra: 3.000 = 2.150 + 850
+90;accesalia 2024/1-224;Hungría 4 Fuenlabrada;inicio de obra 1.075 + 425;BIEN;25% de 6.000 = inicio de obra del proyecto y de la dirección de obra
+91;accesalia 2024/1-288;Hungría 4 Fuenlabrada;fin de obra 1.075 + 425;ERROR;Se anuló con el abono 2025/6-1 «por haberse duplicado por error» (visto el 17-oct al cruzar abonos): NO se casa. Ojo: tiene justificante de cargo del 23-dic-2024
+92;accesalia 2023/1-23;Iglesia 22 Alcorcón;decide (no encaja);BIEN;Suelta: el proyecto de Iglesia 22 no tiene hoja (las PD-2022-0032/33 son de Sta. María la Blanca 3 y 5, 3.500 cada una)
+93;accesalia 2024/1-51;Islas Británicas 26 Fuenlabrada;inicio de obra 1.075 + 425;BIEN;Cuadra
+94;accesalia 2023/1-65;Italia 11 Fuenlabrada;5.500 al pago de 7.000;BIEN;"La hoja tiene una sola línea con el adelanto de 7.000; las dos líneas de la factura (5.500 + 1.500) lo completan"
+95;accesalia 2023/1-65;Italia 11 Fuenlabrada;1.500 al pago de 7.000;BIEN;Igual
+96;daniel 2023/1-34;José María Pereda 43;suelta;BIEN;La opp (2021) no tiene hoja
+97;daniel 2024/1-9;José María Pereda 43;suelta;BIEN;Igual
+98;accesalia 2023/1-121;Juan Sebastián Elcano 4 Alcalá;suelta;ERROR;SÍ hay hoja: PD-2023-0008 (firmada el mismo día) tiene la tramitación de subvenciones de 1.800 con su pago libre: enlazar tal cual
+99;accesalia 2024/1-182;Leganés 14 Fuenlabrada;a la HE-2024-0103 (encargo 1.980);BIEN;Cuadra
+100;accesalia 2022/1-98;Llano Castellano 5;suelta;BIEN;La opp (2021) no tiene hoja
+101;daniel 2022/1-68;Málaga 22 Fuenlabrada;crear pago de 400;CONTRATA;Constructive Solutions: a 68
+102;daniel 2022/1-69;Málaga 28 Fuenlabrada;crear pago de 400;CONTRATA;Constructive Solutions: a 68
+103;accesalia 2023/1-219;Martín de los Heros 38;suelta (anulada);BIEN;Anulada y su hoja también
+104;accesalia 2022/1-188;Martín de los Heros 59 bis;suelta;BIEN;La opp existe sin hoja
+105;accesalia 2022/1-186;Martín de los Heros 59 bis;suelta;BIEN;Igual
+106;accesalia 2022/1-187;Martín de los Heros 59 bis;suelta;BIEN;Igual
+107;daniel 2022/1-24;Miguel de Unamuno 25 Fuenlabrada;suelta;BIEN;Sin hoja
+108;daniel 2022/1-25;Miguel de Unamuno 25 Fuenlabrada;suelta (repetida y abonada);BIEN;Duplicado de la 2022/1-24, anulado con abono
+109;accesalia 2022/1-37;Montejurra 25;decide;BIEN (decide);"Las dos facturas (2.000 + 2.095 = 4.095) son «pago parcial de 8.090»; la hoja HE-2022-0010 suma 7.440 en ocho líneas y sus pagos de entrega 3.720: no cuadra. Decide Mónica"
+110;accesalia 2022/1-43;Montejurra 25;decide;BIEN (decide);Ver #109
+111;daniel 2022/1-82;Monteperdido 10;—;CONTRATA;Inima: a 68
+112;daniel 2023/1-10;Moraña 24 Leganés;suelta;BIEN;La opp existe sin hoja
+113;accesalia 2022/1-239;Moraña 24 Leganés;suelta;BIEN;Igual
+114;daniel 2022/1-116;Moraña 24 Leganés;suelta;BIEN;Igual
+115;accesalia 2022/1-5;Móstoles 3 portal 2 Fuenlabrada;suelta;BIEN;Las hojas del portal 2 son posteriores y sin proyecto
+116;accesalia 2022/1-118;Nardos 2 Fuenlabrada;suelta;BIEN;Hojas posteriores, sin seguridad y salud
+117;daniel 2023/1-7;Natalio Tortuero 6 Azuqueca;crear pago único de 1.500 (subvención);BIEN (pregunta);La línea de 1.500 no tiene pagos. Paga Instalaciones Eléctricas Israel Fernández SL: ¿es contrata? APARTE: en la HE-2022-0115 el mismo pago de 2.150 tiene dos facturas (accesalia 2022/231 pendiente y daniel 2023/6 cobrada), el mismo 50% emitido dos veces
+118;accesalia 2022/1-23;Nazaret 32 bis Fuenlabrada;decide (la HE-2024-0092 no tiene líneas);BIEN (decide);La hoja de feb-2022 está dada de alta (HE-2024-0092) pero vacía: o se le cargan las líneas desde el papel o la factura queda suelta
+119;accesalia 2024/1-138;Nazaret 32 bis Fuenlabrada;decide;BIEN (decide);Ver #118
+120;accesalia 2022/1-107;Ofelia Nieto 16;suelta;BIEN;La opp (2019) no tiene hoja
+121;accesalia 2024/1-250;Paseo Olimpo 16 Fuenlabrada;decide (hoja de CSS no está);BIEN (decide);La hoja de seguridad y salud de 30-nov-2024 no está en la app: o se da de alta o suelta
+122;accesalia 2023/1-192;Oriente 6 Fuenlabrada;crear pago único de 6.000;BIEN;La línea de 6.000 no tiene pagos
+123;accesalia 2023/1-26;Pablo Casals 26 Parla;parte técnica 600 + 1.ª presentación 600;BIEN;Cuadra
+124;daniel 2022/1-52;Paseo Colón 8 Leganés;suelta;BIEN;La opp (2020) no tiene hoja
+125;accesalia 2022/1-12;Paseo San Antonio 3 Fuenlabrada;crear pago único de 5.000 en la HE-2021-0004;BIEN;La línea de 5.000 no tiene pagos
+126;accesalia 2022/1-161;Paseo San Illán 5;crear pagos 3.000 + 600;BIEN;"Proyecto y CSS sin pagos; suman los 3.600"
+127;accesalia 2022/1-172;Paseo San Illán 5;crear pago único de 1.250;BIEN;Subvención sin pagos
+128;accesalia 2024/1-281;Paseo Olimpo 16 Fuenlabrada;decide (no hay línea de DF);BIEN (pregunta);No hay línea de dirección facultativa. Paga «Aislamiento de Rehabilitación de Edificios SL», una constructora: ¿es contrata (a 68)?
+129;accesalia 2023/1-241;Paseo Granada 2 Fuenlabrada;1.er sexto al «resto» del encargo (1.583,32 → 1.583,33);BIEN;"Los seis sextos de 9.500 caben: encargo = sextos 1, 5 y 6; entrega = 2, 3 y 4 (el orden no es el natural, pero el dinero cuadra; 1 céntimo de redondeo). Hay que quitar el enlace de la 2023/223 anulada a la entrega: la propuesta lo dice"
+130;accesalia 2024/1-2;Paseo Granada 2 Fuenlabrada;trozo de 1.583,33 de la entrega;BIEN;Ver #129
+131;accesalia 2024/1-47;Paseo Granada 2 Fuenlabrada;trozo de 1.583,33 de la entrega;BIEN;Ver #129
+132;accesalia 2024/1-72;Paseo Granada 2 Fuenlabrada;trozo de 1.583,33 de la entrega;BIEN;Ver #129
+133;accesalia 2022/1-18;Pelayos 11 Fuenlabrada;crear pago único de 5.000 en la HE-2021-0003;BIEN;La línea de 5.000 no tiene pagos
+134;accesalia 2023/1-137;Pintor Velázquez 65 Móstoles;trozo de 3.900 de la concesión (21.570);BIEN (con nota);El adelanto fue de 7.500 (3.600 ya cobrados con la 2023/43 + estos 3.900), pero la hoja solo pone 3.600 de adelanto: manda la factura, los 3.900 salen del pago a la concesión, con nota
+135;accesalia 2022/1-7;Plaza de la Flor 6 Leganés;suelta;BIEN;Hojas posteriores, sin el proyecto
+136;accesalia 2022/1-76;Plaza de la Inmaculada 6 Leganés;suelta;BIEN;Hojas posteriores, sin el proyecto
+137;accesalia 2023/1-28;Plaza de las Floras 5 Leganés;decide (¿suelta?);BIEN;Suelta: la única hoja es la de la subvención
+138;accesalia 2022/1-237;Plaza de las Floras 7 Leganés;suelta;BIEN;La opp existe sin hoja
+139;daniel 2024/1-101;Plaza Nicaragua 3 Fuenlabrada;los tres pagos de la CSS (300+150+150);BIEN;Cobra de una vez los 600
+140;accesalia 2022/1-89;Plaza Parvillas 1;crear pagos 3.600 + 900;BIEN;"Proyecto y CSS sin pagos; suman los 4.500"
+141;accesalia 2022/1-10;Polvoranca 18 Leganés;suelta;BIEN;La única hoja es de 2025 (libro del edificio)
+142;accesalia 2022/1-54;Princesa 27;suelta;BIEN;La opp (2017) no tiene hoja
+143;accesalia 2022/1-6;Ramón Gómez de la Serna 103 (Colegio Alhambra);suelta;CONTRATA;Anylor: a 68
+144;accesalia 2022/1-26;Río Ebro 4 Leganés;suelta;BIEN;La única hoja (subvención) es posterior
+145;accesalia 2023/1-48;Rioja 57 Leganés;suelta (abonada);BIEN;"Anulada con el abono 2023/6-3; sin hoja"
+146;accesalia 2022/1-65;Rodrigo de Triana 5 Leganés;suelta;BIEN;La única hoja (subvención) es posterior
+147;accesalia 2022/1-4;San Andrés 1 Fuenlabrada;suelta;BIEN;"Hojas posteriores; las de San Andrés 1 de Leganés son otra dirección"
+148;accesalia 2023/1-14;San Andrés 1 Leganés;trozo de 1.750 del pago de 2.450;BIEN;"50% a la entrega; quedan 700 (el 20% final)"
+149;accesalia 2022/1-193;San Clemente 2 Leganés;decide (¿suelta?);BIEN;Suelta: la hoja no tiene subvención
+150;accesalia 2022/1-99;San Maximiliano 23;decide (¿suelta?);BIEN;Suelta: la hoja no tiene subvención
+151;accesalia 2022/1-2;San Telesforo 19;suelta;BIEN;La opp (2020) no tiene hoja
+152;accesalia 2022/1-38;Seminario 24 Leganés;crear pago único de 5.500;BIEN;La línea de 5.500 no tiene pagos
+153;accesalia 2022/1-198;Tenerife 8;decide (fecha imposible);BIEN (decide);Factura fechada el 4-nov-2022 que cita una hoja del 31-may-2023: o la fecha de Factusol está mal o el texto. Si es de 2023, sería un trozo de 3.600 del adelanto de 3.920 (con la 2023/174 de 320, cuadra)
+154;accesalia 2023/1-174;Tenerife 8;trozo de 320 del adelanto de 3.920;BIEN;Y quitar el enlace de la 2023/94 anulada: la propuesta lo dice
+155;accesalia 2024/1-123;Toledo 2 Alcorcón;los tres pagos de la CSS (225+112,50+112,50);BIEN;Cobra de una vez los 450
+156;daniel 2023/1-41;Torrejón 9 Fuenlabrada;al trozo pendiente de 1.650 de la entrega;BIEN;Cuadra (3.850 + 1.650 = 5.500)
+157;accesalia 2022/1-27;Travesía Isabel II 3 Parla;suelta;BIEN;La única hoja (CSS) es de 2023
+158;accesalia 2024/1-50;Virgen de Iciar 15 esc. 4 Alcorcón;suelta;ERROR;SÍ hay hoja: la HE-2024-0022 es justo la que cita la factura (7-feb-2024, IEE de la escalera 4, 850) con su pago libre: enlazar tal cual
+159;accesalia 2024/1-73;Virgen de Iciar 17 Alcorcón;trozo de 8.000 de la firma del proyecto;BIEN;Seis mensualidades de 8.000 = 48.000 de la hoja: las tres primeras son el 50% a la firma (8.000 + 8.000 + resto 1.910 y las firmas de las otras cuatro líneas), las tres últimas igual con la entrega. Cuadra al céntimo
+160;accesalia 2024/1-90;Virgen de Iciar 17 Alcorcón;trozo de 8.000 de la firma;BIEN;Ver #159
+161;accesalia 2024/1-117;Virgen de Iciar 17 Alcorcón;resto de la firma (1.910 + 995 + 2.950 + 700 + 1.445);BIEN;Ver #159
+162;accesalia 2024/1-143;Virgen de Iciar 17 Alcorcón;trozo de 8.000 de la entrega;BIEN;Ver #159
+163;accesalia 2024/1-159;Virgen de Iciar 17 Alcorcón;trozo de 8.000 de la entrega;BIEN;Ver #159
+164;accesalia 2024/1-185;Virgen de Iciar 17 Alcorcón;resto de la entrega;BIEN;Ver #159
+165;accesalia 2022/2-93;Virgen de la Fuencisla 8 Parla;suelta (anulada);BIEN;Anulada
+166;accesalia 2022/1-142;Virgen del Lluc 140;suelta;BIEN;La única hoja es de 2025 y sin firmar
+167;accesalia 2023/1-83;Virgen del Lluc 140;suelta;BIEN;Igual
+168;accesalia 2022/1-131;Virgen del Lluc 140;suelta;BIEN;Igual
