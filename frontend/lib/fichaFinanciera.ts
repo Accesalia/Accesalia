@@ -91,10 +91,9 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
   const [opps, hojas, licit, finan, params] = await Promise.all([
     leer<{
       id: string; nombre: string | null; codigo: string | null; comunidad_id: string | null; quien_lo_trae: string | null;
-      adm: { persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string | null } | null } | null;
       comercial: { nombre: string | null; apellidos: string | null; notas_comision: string | null; comision_pct: number | null } | null;
     }[]>(
-      `oportunidades?select=id,nombre,codigo,comunidad_id,quien_lo_trae,adm:administrador_puesto_id(persona:persona_id(nombre,apellidos),empresa:empresa_id(nombre_accesalia)),` +
+      `oportunidades?select=id,nombre,codigo,comunidad_id,quien_lo_trae,` +
         `comercial:comercial_id(nombre,apellidos,notas_comision,comision_pct)&id=eq.${oppId}`,
     ),
     leer<{ id: string; numero_hoja: string | null; fecha_firma: string | null; pagador_tipo: string | null; version_firmada_id: string | null; contrata: { nombre: string } | null; actuaciones: { tipo: { nombre: string; naturaleza: string | null; padre: { nombre: string; padre: { nombre: string } | null } | null } | null }[] }[]>(
@@ -126,7 +125,7 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
   const idsLinea = lineasVistas.map((l) => l.id);
   const emisoras = [...(vista.accesalia ? ["accesalia", "daniel"] : []), ...(vista.ecobalance ? ["ecobalance"] : [])];
   const versiones = hojas.map((h) => h.version_firmada_id).filter((v): v is string => !!v);
-  const [hitos, notas, facturasOpp, conceptos, admins] = await Promise.all([
+  const [hitos, notas, facturasOpp, conceptos, adminsVista] = await Promise.all([
     idsLinea.length
       ? leer<{ id: string; linea_facturacion_id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; fecha_prevista: string | null; hito_padre_id: string | null; enlaces: { importe: number | null; linea: { factura: FilaFactura | null } | null }[] }[]>(
           `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,hito_padre_id,` +
@@ -148,13 +147,29 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
           `conceptos_hoja?select=hoja_encargo_id,bloque_id,descripcion,bloque:bloque_id(nombre_corto,nombre)&version_hoja_id=in.(${versiones.join(",")})`,
         ).catch(() => [])
       : Promise.resolve([]),
-    // EL ADMINISTRADOR va con la COMUNIDAD (comunidad_admin_responsable), no con la opp.
-    o.comunidad_id
-      ? leer<{ empresa: { id: string; nombre_accesalia: string | null } | null; puesto: { persona: { id: string; nombre: string | null; apellidos: string | null } | null } | null }[]>(
-          `comunidad_admin_responsable?select=empresa:empresa_id(id,nombre_accesalia),puesto:puesto_id(persona:persona_id(id,nombre,apellidos))&comunidad_id=eq.${o.comunidad_id}&vigente=is.true`,
-        ).catch(() => [])
+    // LOS ADMINISTRADORES de la opp: opp → accesos → comunidad → administrador
+    // (vista administradores_de_oportunidad, Monica 18-oct). Puede haber VARIOS:
+    // una opp con accesos de dos comunidades.
+    leer<{ puesto_id: string | null; empresa_id: string | null }[]>(
+      `administradores_de_oportunidad?select=puesto_id,empresa_id&oportunidad_id=eq.${oppId}`,
+    ).catch(() => []),
+  ]);
+  const idsEmpresa = [...new Set(adminsVista.map((a) => a.empresa_id).filter((x): x is string => !!x))];
+  const idsPuesto = [...new Set(adminsVista.map((a) => a.puesto_id).filter((x): x is string => !!x))];
+  const [empresasAdm, puestosAdm] = await Promise.all([
+    idsEmpresa.length ? leer<{ id: string; nombre_accesalia: string | null }[]>(`empresa?select=id,nombre_accesalia&id=in.(${idsEmpresa.join(",")})`) : Promise.resolve([]),
+    idsPuesto.length
+      ? leer<{ id: string; persona: { id: string; nombre: string | null; apellidos: string | null } | null }[]>(`puesto?select=id,persona:persona_id(id,nombre,apellidos)&id=in.(${idsPuesto.join(",")})`)
       : Promise.resolve([]),
   ]);
+  const admins = [
+    ...new Map(
+      adminsVista.map((a) => [
+        `${a.empresa_id}|${a.puesto_id}`,
+        { empresa: empresasAdm.find((e) => e.id === a.empresa_id) ?? null, puesto: puestosAdm.find((x) => x.id === a.puesto_id) ?? null },
+      ]),
+    ).values(),
+  ];
 
   // Lo facturado y lo cobrado de cada hito, por la parte de cada factura que le toca.
   const facturado = { accesalia: 0, ecobalance: 0 };
@@ -231,9 +246,10 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
     return { numero: h.numero_hoja, firma: h.fecha_firma, paga: quienPaga(h), incluido };
   });
 
-  const admCom = admins[0] ?? null;
-  const admNombre = admCom?.empresa?.nombre_accesalia ?? null;
-  const admPersona = admCom?.puesto?.persona ?? null;
+  const nombreAdmin = (a: (typeof admins)[number]) => {
+    const p = a.puesto?.persona;
+    return [a.empresa?.nombre_accesalia, p ? [p.nombre, p.apellidos].filter(Boolean).join(" ") : null].filter(Boolean).join(" · ");
+  };
 
   // LA COMISION DEL ADMINISTRADOR: la misma cuenta que la pantalla de comisiones (lib/comisionesAdmin).
   let comisionAdmin: Ficha["comisionAdmin"] = null;
@@ -257,7 +273,6 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
     }
   }
   const adj = licit.flatMap((x) => x.presupuestos).find((p) => p.estado === "adjudicada");
-  const adm = o.adm;
   const lineaDe = new Map(lineasVistas.map((l) => [l.id, l]));
 
   return {
@@ -267,11 +282,7 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
     categorias: [...categorias],
     obras: [...obras],
     pagadores,
-    administrador: admNombre
-      ? [admNombre, admPersona ? [admPersona.nombre, admPersona.apellidos].filter(Boolean).join(" ") : null].filter(Boolean).join(" · ")
-      : adm
-        ? [adm.empresa?.nombre_accesalia, adm.persona ? [adm.persona.nombre, adm.persona.apellidos].filter(Boolean).join(" ") : null].filter(Boolean).join(" · ") || null
-        : null,
+    administrador: [...new Set(admins.map(nombreAdmin).filter(Boolean))].join(" / ") || null,
     contrata: adj ? { nombre: adj.contrata?.nombre ?? adj.contrata_externa_nombre ?? "—", pem: adj.importe_pem != null ? Number(adj.importe_pem) : null } : null,
     lineas,
     hojasInfo,
@@ -315,15 +326,35 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
 export type OpcionFicha = { id: string; nombre: string; detalle: string; firma: string | null; buscar: string };
 const sinTildes = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 export async function opcionesFicha(): Promise<OpcionFicha[]> {
-  const filas = await leer<{ id: string; nombre: string | null; codigo: string | null; adm: { empresa: { nombre_accesalia: string | null } | null } | null; hojas: { fecha_firma: string | null }[] }[]>(
-    "oportunidades?select=id,nombre,codigo,adm:administrador_puesto_id(empresa:empresa_id(nombre_accesalia)),hojas:hojas_encargo!inner(fecha_firma)" +
-      "&estado=neq.anulada&hojas.estado=eq.devuelta_firmada",
+  const filas = await leer<{ id: string; nombre: string | null; codigo: string | null; hojas: { fecha_firma: string | null }[] }[]>(
+    "oportunidades?select=id,nombre,codigo,hojas:hojas_encargo!inner(fecha_firma)&estado=neq.anulada&hojas.estado=eq.devuelta_firmada",
   );
+  // La administracion de cada una, por la vista administradores_de_oportunidad (puede haber varias).
+  const tramos: string[][] = [];
+  for (let i = 0; i < filas.length; i += 150) tramos.push(filas.slice(i, i + 150).map((o) => o.id));
+  const vista = (
+    await Promise.all(tramos.map((t) => leer<{ oportunidad_id: string; empresa_id: string | null }[]>(`administradores_de_oportunidad?select=oportunidad_id,empresa_id&oportunidad_id=in.(${t.join(",")})`)))
+  ).flat();
+  const idsEmp = [...new Set(vista.map((v) => v.empresa_id).filter((x): x is string => !!x))];
+  const tramosEmp: string[][] = [];
+  for (let i = 0; i < idsEmp.length; i += 150) tramosEmp.push(idsEmp.slice(i, i + 150));
+  const nombreEmp = new Map(
+    (await Promise.all(tramosEmp.map((t) => leer<{ id: string; nombre_accesalia: string | null }[]>(`empresa?select=id,nombre_accesalia&id=in.(${t.join(",")})`))))
+      .flat()
+      .map((e) => [e.id, e.nombre_accesalia]),
+  );
+  const admDe = new Map<string, string>();
+  for (const v of vista) {
+    const n = v.empresa_id ? nombreEmp.get(v.empresa_id) : null;
+    if (!n) continue;
+    const ya = admDe.get(v.oportunidad_id);
+    if (!ya?.split(" / ").includes(n)) admDe.set(v.oportunidad_id, ya ? `${ya} / ${n}` : n);
+  }
   return filas
     .map((o) => {
       const firma = o.hojas.map((h) => h.fecha_firma).filter((f): f is string => !!f).sort().pop() ?? null;
       const nombre = nombreDeOpp(o);
-      const adm = o.adm?.empresa?.nombre_accesalia ?? null;
+      const adm = admDe.get(o.id) ?? null;
       const detalle = [firma ? `firmada el ${firma.split("-").reverse().join("/")}` : null, o.codigo, adm].filter(Boolean).join(" · ");
       return { id: o.id, nombre, detalle, firma, buscar: sinTildes(`${nombre} ${o.codigo ?? ""} ${adm ?? ""}`) };
     })
