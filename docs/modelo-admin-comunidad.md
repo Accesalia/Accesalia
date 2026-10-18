@@ -103,3 +103,25 @@ Mónica: «el que creáis que tiene más claro el dato».
 - La ficha financiera: el hilo **71**.
 - Las demás pantallas que leen el administrador (correo, fichas, negocio):
   cada una, su hilo.
+
+## Hecho (18-oct)
+
+- **Paso 1** (e3, 00a47b2): vista base `administradores_de_oportunidad`, una fila
+  por opp y comunidad (2.840 filas, 2.838 opps). Leen de ella
+  `admin_de_oportunidad`, `cartera_gestores`, `opps_por_fases`, el directorio de
+  personas y la consolidación al firmar. En la base ya nada lee
+  `oportunidades.administrador_puesto_id`.
+- **Paso 2** (41, 34f4546 y 339fc0a): el alta pone el administrador en la
+  comunidad, con el aviso «la lleva X, ¿ha cambiado?» y una línea por comunidad
+  cuando hay varias; «Completar» lo pone en las comunidades sin administrador.
+  Ninguno lo guarda ya en la opp. Leen de la vista base el envío de correos, la
+  ficha de una administración y Negocio.
+- **71:** la ficha financiera lee de la vista base (varios administradores).
+- **85:** las comisiones (lib/comisionesAdmin.ts) leen de la vista base.
+  resumenComercial.ts y cobros.ts quedan para el paso 5.
+
+**Queda:** el paso 3 (autogestionada, con Mónica), el paso 4 (revisar las 6 opps
+contradictorias y las 102 sin accesos) y el paso 5. La columna
+`administrador_puesto_id` se retira (zz_muerta_) cuando Mónica decida qué hacer
+con las 2 opps que aún la tienen (San Juan 10 y Valladolid 13).
+`oportunidadMovil.crearDesdeMovil` ya no se usa (el satélite apunta, no crea).
