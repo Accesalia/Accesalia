@@ -207,6 +207,22 @@ font-semibold uppercase tracking-wide text-carbon/40` con la palabra
 
    Ejemplo real, la card «La comunidad» del alta: el CIF en su línea, y debajo,
    en una sola, el IBAN y los dos números del censo.
+8. **LAS TABLAS SE AJUSTAN A SU CONTENIDO, NO AL ANCHO DE LA PANTALLA**
+   (Mónica, 18-oct-2026: «esto es un infierno, tener que ir pantalla por
+   pantalla modificando EXACTAMENTE el mismo punto»). Es la base de TODOS los
+   hilos y de toda pantalla nueva, salvo que ella diga otra cosa. Manda la
+   lectura: el ojo no puede saltar de «al encargo» a «50 %» cruzando media
+   pantalla vacía. La regla 6 no quiere decir estirar columnas para llenar
+   el ancho.
+   - Cada columna lleva el ancho de lo que contiene: `w-auto`/`whitespace-nowrap`
+     y anchos fijos pequeños, nunca `1fr`/`minmax(0,1fr)` en columnas de datos
+     cortos (importes, %, fechas, estados).
+   - La tabla mide lo que suman sus columnas (`w-fit`, `inline-grid`,
+     `<table class="w-auto">`), alineada a la izquierda. Si sobra pantalla, sobra
+     a la derecha.
+   - Solo el texto largo de verdad (un concepto, una nota) puede crecer, y con
+     tope (`max-w-[…]`), no hasta el borde.
+   - Los importes, alineados a la derecha y pegados a su texto.
 
 ## Lo que aún no está decidido
 
