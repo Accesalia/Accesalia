@@ -64,7 +64,6 @@ type Opp = {
   comunidad_provisional: string | null;
   comunidad_id: string | null;
   puesto_id: string | null;
-  administrador_puesto_id: string | null;
   contacto_provisional: string | null;
   correo_provisional: string | null;
   comunidad: { nombre: string } | null;
@@ -75,7 +74,7 @@ type Opp = {
 export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
   const [o] = await pedir<Opp[]>(
-    `oportunidades?select=codigo,nombre,comunidad_provisional,comunidad_id,puesto_id,administrador_puesto_id,contacto_provisional,correo_provisional,` +
+    `oportunidades?select=codigo,nombre,comunidad_provisional,comunidad_id,puesto_id,contacto_provisional,correo_provisional,` +
       `comunidad:comunidad_id(nombre),comercial:comercial_id(id,nombre,apellidos,equipo:equipo_id(email))&id=eq.${oppId}`,
   );
   if (!o) return null;
@@ -113,7 +112,12 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
     const e = (email ?? "").trim().toLowerCase();
     if (CORREO_VALIDO.test(e) && !destinatarios.some((d) => d.email === e)) destinatarios.push({ email: e, quien });
   };
-  const puestos = [o.puesto_id, o.administrador_puesto_id].filter((x): x is string => !!x);
+  // LOS ADMINISTRADORES SON DE LA COMUNIDAD (18-oct-2026): los de todas las
+  // comunidades de la opp, por sus accesos (vista administradores_de_oportunidad).
+  const adminPuestos = (
+    await pedir<{ puesto_id: string | null }[]>(`administradores_de_oportunidad?select=puesto_id&oportunidad_id=eq.${oppId}&puesto_id=not.is.null`).catch(() => [])
+  ).map((a) => a.puesto_id as string);
+  const puestos = [...new Set([o.puesto_id, ...adminPuestos].filter((x): x is string => !!x))];
   const [correosPuesto, vecinos] = await Promise.all([
     puestos.length
       ? pedir<{ email: string; puesto_id: string; puesto: { persona: { nombre: string; apellidos: string | null } | null; empresa: { nombre_accesalia: string | null } | null } | null }[]>(
@@ -126,7 +130,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   for (const c of correosPuesto) {
     const p = c.puesto?.persona;
     const quien = [p ? [p.nombre, p.apellidos].filter(Boolean).join(" ") : null, c.puesto?.empresa?.nombre_accesalia].filter(Boolean).join(" · ");
-    pon(c.email, (c.puesto_id === o.administrador_puesto_id ? "Administrador · " : "Contacto · ") + (quien || "sin nombre"));
+    pon(c.email, (adminPuestos.includes(c.puesto_id) ? "Administrador · " : "Contacto · ") + (quien || "sin nombre"));
   }
   for (const v of vecinos) pon(v.email, [v.rol ? v.rol.charAt(0).toUpperCase() + v.rol.slice(1) : "Vecino", v.nombre].filter(Boolean).join(" · "));
   pon(o.correo_provisional, `Contacto provisional${o.contacto_provisional ? ` · ${o.contacto_provisional}` : ""}`);

@@ -188,7 +188,11 @@ export async function resumenAdministracion(id: string): Promise<ResumenAdminist
       `empresa?select=id,nombre_accesalia,nombre_legal,cif,telefono,direccion,municipio,estado,fecha_ultimo_contacto,comercial:comercial_id(nombre)&id=eq.${id}`,
     ),
     leer<{ comunidad_id: string }[]>(`comunidad_admin_responsable?select=comunidad_id&vigente=is.true&empresa_id=eq.${id}`),
-    leer<{ id: string }[]>(`oportunidades?select=id,puesto:administrador_puesto_id!inner(empresa_id)&estado=eq.abierta&puesto.empresa_id=eq.${id}`).catch(() => []),
+    // Las opps que lleva: las de las comunidades que administra, por sus accesos (18-oct-2026).
+    leer<{ oportunidad_id: string }[]>(`administradores_de_oportunidad?select=oportunidad_id&empresa_id=eq.${id}`)
+      .then((l) => [...new Set(l.map((x) => x.oportunidad_id))])
+      .then((ids) => (ids.length ? leer<{ id: string }[]>(`oportunidades?select=id&estado=eq.abierta&id=in.(${ids.join(",")})`) : []))
+      .catch(() => []),
   ]);
   if (!e) return null;
   return {

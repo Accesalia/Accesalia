@@ -72,11 +72,16 @@ const vacio = (id: string | null, nombre: string): PorComercial => ({
 export async function trabajoContratado(desde: string, hasta: string): Promise<TrabajoContratado> {
   const dentro = (f: string | null | undefined) => !!f && f.slice(0, 10) >= desde && f.slice(0, 10) <= hasta;
 
+  // De que administraciones es cada opp: las de sus comunidades, por sus accesos (18-oct-2026).
+  const empresasDeOpp = new Map<string, string[]>();
+  for (const f of await todo<{ oportunidad_id: string; empresa_id: string | null }>("administradores_de_oportunidad?select=oportunidad_id,empresa_id&empresa_id=not.is.null").catch(() => [])) {
+    empresasDeOpp.set(f.oportunidad_id, [...(empresasDeOpp.get(f.oportunidad_id) ?? []), f.empresa_id as string]);
+  }
   const [comerciales, opps, hojas, perdidas, admins, nubes] = await Promise.all([
     todo<{ id: string; nombre: string }>("comerciales?select=id,nombre&order=nombre.asc"),
     todo<{ id: string; codigo: string | null; comercial_id: string | null; estado: string; fecha_apertura: string | null; creado_en: string; nombre: string | null; comunidad_provisional: string | null;
-      comunidad: { nombre: string } | null; admin: { empresa_id: string | null } | null }>(
-      "oportunidades?select=id,codigo,comercial_id,estado,fecha_apertura,creado_en,nombre,comunidad_provisional,comunidad:comunidad_id(nombre),admin:administrador_puesto_id(empresa_id)&estado=neq.anulada",
+      comunidad: { nombre: string } | null }>(
+      "oportunidades?select=id,codigo,comercial_id,estado,fecha_apertura,creado_en,nombre,comunidad_provisional,comunidad:comunidad_id(nombre)&estado=neq.anulada",
     ),
     todo<{ id: string; numero_hoja: string | null; oportunidad_id: string | null; fecha_firma: string | null; version_firmada_id: string | null; versiones: { id: string; numero_version: number; importe_base: number | null }[] }>(
       "hojas_encargo?select=id,numero_hoja,oportunidad_id,fecha_firma,version_firmada_id,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,importe_base)&estado=eq.devuelta_firmada",
@@ -131,7 +136,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
 
   // Administradores nuevos y cuantos han firmado alguna hoja
   const empresasConFirma = new Set(
-    hojas.map((h) => (h.oportunidad_id ? oppDe.get(h.oportunidad_id)?.admin?.empresa_id : null)).filter((x): x is string => !!x),
+    hojas.flatMap((h) => (h.oportunidad_id ? empresasDeOpp.get(h.oportunidad_id) ?? [] : [])),
   );
   for (const a of admins.filter((x) => dentro(x.fecha_alta_cartera))) {
     sumar(a.comercial_id, (x) => x.adminsNuevos++);

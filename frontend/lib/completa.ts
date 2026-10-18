@@ -106,7 +106,7 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
   }
   const [la, ida] = (d.administrador ?? "").split(":");
   if (la === "puesto" && ida) {
-    cambio.administrador_puesto_id = ida;
+    // Ya no se guarda en la opp: solo en sus comunidades (18-oct-2026).
     // EL ADMINISTRADOR ES DE LA COMUNIDAD (Monica, 18-oct-2026): va tambien a las
     // comunidades de la opp (por sus accesos) que no tienen administrador. Las que
     // ya tienen otro no se tocan: eso se decide en el alta, con su aviso.
