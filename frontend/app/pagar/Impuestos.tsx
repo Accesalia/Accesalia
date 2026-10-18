@@ -130,7 +130,7 @@ function Calendario({ pagos, hoy, empresas }: { pagos: Pago[]; hoy: string; empr
                 <b className="text-[13.65px]">{mayus(MES.format(fecha(m + "-01")))}</b>
                 <span className="text-[13.1px] font-semibold tabular-nums">0 €</span>
               </div>
-              <p className="mt-1 text-[13.1px] italic opacity-75">No toca pagar ningún impuesto este mes.</p>
+              <p className="mt-1 text-[13.1px] italic opacity-75">Según el calendario fiscal, este mes no hay nada que pagar.</p>
             </div>
           );
         const total = (lista: Pago[]) => lista.reduce((s, p) => s + (cifra(p) ?? 0), 0);
