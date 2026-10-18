@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha financiera v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=42dot+Sans:wght@400;700&display=swap" rel="stylesheet">
+<!-- PROPUESTA (Monica, 17-oct-2026): su ficha de 2025 (estructura, conceptos y
+     aspecto) con el contenido de ahora, a DOS columnas (elegida por ella: «nos
+     deja mas aire»). Datos REALES de produccion: LOS PEÑASCALES 17 MADRID
+     (DAN-2025-357). Vuelta estetica: resumen destacado (transparencia con borde
+     blanco), una linea por comision, apartado de variables, jerarquia de letra
+     (titulo > linea > hito > detalle), cada linea de la hoja separada, notas sin
+     divisiones. Los COLORES son aun los de su ficha de 2025: los cambia con su CSS. -->
+<style>
+  :root {
+    /* SUS COLORES (Figma de Monica, 17-oct): fondo tostado, titulos crema,
+       cuadros blancos con borde crema, acentos teja, sombreado rosado. */
+    --fondo:#934C09; --verde:#F8F8EE; --titulo:#F8F8EE; --acento:#A75907; --raya:#E6DED3; --raya-fuerte:#d6c2ad;
+    --tinta:#111111; --tinta-suave:#4a4038; --gris:#8a7d70; --sombreado:#F5E4DC;
+    --letra:'42dot Sans', Arial, Helvetica, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fondo); font-family:var(--letra); color:var(--tinta); }
+  .hoja { max-width:1100px; margin:0 auto; padding:30px 32px 60px; display:grid; grid-template-columns:560px 400px; column-gap:40px; justify-content:center; align-items:start; }
+  .col > * + * { margin-top:30px; }
+
+  /* La jerarquia de letra: titulo de apartado > dato > etiqueta > detalle. */
+  h2 { font-family:var(--letra); color:var(--titulo); font-size:16px; font-weight:bold; margin:0 0 4px 8px; letter-spacing:.3px; }
+  .et { font-family:var(--letra); font-size:14px; color:var(--tinta-suave); }
+  .dato { font-size:15px; color:var(--tinta); }
+  .peq { font-size:12.5px; color:var(--gris); }
+
+  table { border-collapse:collapse; background:#FFFFFE; border:1.2px solid var(--verde); width:100%; }
+  td { border:1px solid var(--raya); padding:4px 8px; height:29px; vertical-align:middle; }
+  td.n { text-align:right; white-space:nowrap; font-variant-numeric: tabular-nums; }
+  /* Notas: sin divisiones, el texto a todo lo ancho. */
+  tr.notas td { border-top:1.5px solid var(--raya-fuerte); height:auto; padding:6px 8px 10px; vertical-align:top; }
+  tr.notas .et { display:block; margin-bottom:2px; }
+  .caja { display:inline-block; width:14px; height:14px; border:1.5px solid var(--tinta-suave); vertical-align:-2px; margin-right:5px; font-size:12px; line-height:11px; text-align:center; font-weight:bold; background:#fff; color:var(--tinta); }
+  .caja.si::after { content:"✔"; }
+
+  .dir { border:1.5px solid var(--verde); background:#fff; padding:8px 12px 10px; }
+  .dir .k { color:var(--acento); font-family:var(--letra); font-weight:bold; font-size:13px; letter-spacing:.3px; }
+  .dir .v { display:block; font-size:25px; margin-top:1px; color:var(--tinta); }
+  .dir .c { font-size:14px; color:var(--gris); margin-top:2px; }
+
+  /* EL RESUMEN, destacado: velo blanco transparente con borde blanco. */
+  .res { background:rgba(217,217,217,.57); border:1.5px solid #fff; border-radius:3px; padding:12px 16px 16px; }
+  .res .caja-res { background:#FFFFFE; border-top:1.2px solid var(--acento); border-bottom:1.2px solid var(--acento); }
+  .res .caja-res .rosa { background:var(--sombreado); }
+  .res h2 { margin:0 0 6px; }
+  .res .f { display:flex; gap:12px; padding:5px 8px; align-items:baseline; }
+  .res .f + .f, .res .rosa .f, .res .rosa + .f { border-top:1px solid var(--raya); }
+  .res .f.grueso { border-top:1.2px solid var(--acento); }
+  .res .k { width:205px; flex-shrink:0; font-family:var(--letra); font-weight:bold; color:var(--acento); font-size:14.5px; }
+  .res .v { font-variant-numeric: tabular-nums; }
+  .res .grande { font-size:19px; font-weight:bold; color:var(--tinta); }
+  .res .medio { font-size:16px; color:var(--tinta); }
+  .res .sub { display:flex; justify-content:space-between; width:250px; font-size:12.5px; color:var(--gris); margin-top:1px; }
+  .res .f.final .k { font-size:17px; }
+  .res .sub b { font-weight:normal; color:var(--tinta-suave); font-variant-numeric: tabular-nums; }
+  .res .nota { font-size:12.5px; color:var(--gris); }
+
+  /* HOJAS: la HE sombreada; cada linea, un bloque separado por una raya mas fuerte. */
+  .he td { border-left:none; border-right:none; }
+  .he td.cab { background:var(--sombreado); font-family:var(--letra); font-weight:bold; color:var(--acento); font-size:14px; border-top:2px solid var(--acento); }
+  .he td.peq { white-space:nowrap; }
+  .he tr.incl td.peq { white-space:normal; }
+  .he td.cab span { font-weight:normal; color:var(--gris); }
+  .he tr.primera td.cab { border-top:none; }
+  .he tr.linea td { border-top:1.5px solid var(--raya-fuerte); padding-top:7px; }
+  .he tr.linea .que { font-size:15.5px; font-weight:bold; color:var(--tinta); }
+  .he tr.linea .cuanto { font-size:15.5px; font-weight:bold; color:var(--tinta); }
+  .he tr.hito td { border-top:1px dotted var(--raya); height:26px; }
+  .he tr.hito .que { padding-left:24px; font-size:14px; color:var(--tinta-suave); }
+  .he tr.hito .cuanto { font-size:14px; color:var(--tinta-suave); }
+  .he tr.parte .que { padding-left:46px; font-size:13px; color:var(--gris); }
+  .he tr.parte .cuanto { font-size:13px; color:var(--gris); }
+  .he tr.incl td { border-top:1px dotted var(--raya); padding:5px 8px 7px; }
+  .eco { font-size:11px; font-weight:bold; color:#3b5f86; margin-left:5px; letter-spacing:.3px; }
+
+  .caja-notas { border:1.5px solid var(--verde); background:#fff; min-height:90px; padding:8px 12px; font-size:14px; color:var(--tinta); line-height:1.45; }
+</style>
+</head>
+<body>
+
+<div class="hoja">
+
+<!-- ===================== COLUMNA 1 ===================== -->
+<div class="col">
+  <div class="dir">
+    <span class="k">DIRECCIÓN:</span>
+    <span class="v">LOS PEÑASCALES 17 MADRID</span>
+    <div class="c">DAN-2025-357 · abierta</div>
+  </div>
+
+  <div class="res">
+    <h2>1. RESUMEN FINANCIERO</h2>
+    <div class="caja-res">
+    <div class="f"><span class="k">Ingresos previstos (sin IVA):</span><span class="v grande">5.480,00 €</span></div>
+    <div class="rosa">
+    <div class="f"><span class="k">Facturados:</span><span class="v medio">5.480,00 €</span></div>
+    <div class="f"><span class="k">Cobrados:</span><span class="v medio">5.480,00 €</span></div>
+    <div class="f"><span class="k">Pendiente de facturar:</span><span class="v medio">0,00 €</span></div>
+    <div class="f"><span class="k">Variables:</span>
+      <span class="v">
+        <span class="sub"><span>3 presupuestos</span><b>3 % del PEM, a éxito</b></span>
+        <span class="sub"><span>Subvenciones</span><b>no hay a éxito</b></span>
+        <span class="sub"><span>CAES</span><b>no hay</b></span>
+      </span>
+    </div>
+    </div>
+    <div class="f grueso"><span class="k">Comisiones previstas:</span>
+      <span class="v"><span class="medio">1.164,40 €</span>
+        <span class="sub"><span>Administrador, proyecto</span><b>1.000,00 €</b></span>
+        <span class="sub"><span>Administrador, contrata</span><b>3 % del PEM</b></span>
+        <span class="sub"><span>Comercial (Álvaro)</span><b>164,40 €</b></span>
+      </span>
+    </div>
+    <div class="f"><span class="k">Comisiones pagadas:</span><span class="v medio">0,00 €</span></div>
+    <div class="f grueso final"><span class="k">Beneficio neto esperado:</span><span class="v"><span class="grande">4.315,60 €</span><br><span class="nota">sin descontar las horas de técnico</span></span></div>
+    </div>
+  </div>
+
+  <div>
+    <h2>2. HOJAS DE ENCARGO E HITOS DE FACTURACIÓN</h2>
+    <table class="he">
+      <colgroup><col style="width:255px"><col style="width:95px"><col></colgroup>
+      <tr class="primera"><td class="cab" colspan="3">HE-2025-0604 <span>· firmada el 24/12/25 · paga la comunidad</span></td></tr>
+      <tr class="linea"><td class="que">Proyecto básico y de ejecución</td><td class="n cuanto">3.500,00 €</td><td class="n peq">4.235,00 € con IVA</td></tr>
+      <tr class="hito"><td class="que"><span class="caja si"></span>50 % al encargo</td><td class="n cuanto">1.750,00 €</td><td class="peq">2026/1-2 · 08/01/26 · cobrada</td></tr>
+      <tr class="hito"><td class="que"><span class="caja si"></span>50 % a la entrega</td><td class="n cuanto">1.750,00 €</td><td class="peq">2026/1-21 · 20/01/26 · cobrada</td></tr>
+      <tr class="linea"><td class="que">3 presupuestos<span class="eco">ECOBALANCE</span></td><td class="n cuanto">3 % PEM</td><td class="peq">a éxito, si gana la nuestra</td></tr>
+      <tr class="hito"><td class="que"><span class="caja"></span>100 % a la adjudicación</td><td class="n cuanto"></td><td class="peq">falta el PEM de MATEDECON</td></tr>
+      <tr class="incl"><td class="peq" colspan="3">Incluido sin cobrar aparte: CSS, dirección facultativa, fin de obra, licencias, toma de datos y 3D.</td></tr>
+
+      <tr><td class="cab" colspan="3">HE-2025-0746 <span>· firmada el 30/03/26 · paga la comunidad</span></td></tr>
+      <tr class="linea"><td class="que">Tramitación de subvenciones</td><td class="n cuanto">1.980,00 €</td><td class="n peq">2.395,80 € con IVA</td></tr>
+      <tr class="hito"><td class="que"><span class="caja si"></span>100 % al encargo, en 2 facturas</td><td class="n cuanto">1.980,00 €</td><td class="peq"></td></tr>
+      <tr class="hito parte"><td class="que">1ª parte</td><td class="n cuanto">990,00 €</td><td class="peq">2026/1-110 · 13/04/26 · cobrada</td></tr>
+      <tr class="hito parte"><td class="que">2ª parte</td><td class="n cuanto">990,00 €</td><td class="peq">2026/1-136 · 12/05/26 · cobrada</td></tr>
+      <tr class="incl"><td class="peq" colspan="3">Incluido sin cobrar aparte: CEE, IEE.</td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>NOTAS / INCIDENCIAS</h2>
+    <div class="caja-notas">La subvención se fraccionó al facturar en 2 facturas: lo dicen las facturas de Factusol; el porqué no consta.</div>
+  </div>
+</div>
+
+<!-- ===================== COLUMNA 2 ===================== -->
+<div class="col">
+  <table>
+    <tr><td class="et" style="width:168px">Categoría:</td><td class="dato">Accesibilidad</td></tr>
+    <tr><td class="et">Tipo de proyecto:</td><td class="dato">PLATAFORMA</td></tr>
+    <tr><td class="et">Quién lo paga:</td><td class="dato">La comunidad</td></tr>
+    <tr><td class="et">Firma hoja encargo:</td><td class="dato">24/12/25 <span class="peq">· subv. 30/03/26</span></td></tr>
+    <tr><td class="et">Administrador:</td><td class="dato">DEL BRIO Y BLANCO</td></tr>
+    <tr><td class="et">Contrata que ejecuta:</td><td class="dato">MATEDECON</td></tr>
+  </table>
+
+  <div>
+    <h2>3. ADMINISTRADOR</h2>
+    <table>
+      <tr><td class="dato" colspan="2">Carlos del Brío <span class="peq">· acuerdo verificado</span></td></tr>
+      <tr><td class="et" style="width:160px">Sobre proyecto:</td><td class="dato">1.000,00 € <span class="peq">fijo · pedirle factura</span></td></tr>
+      <tr><td class="et">Sobre subvenciones:</td><td class="peq">no pactada</td></tr>
+      <tr><td class="et">Sobre contrata:</td><td class="dato">3 % del PEM <span class="peq">· falta el PEM</span></td></tr>
+      <tr><td class="et">Pagada proyecto:</td><td class="et"><span class="caja"></span>Fecha:</td></tr>
+      <tr><td class="et">Pagada contrata:</td><td class="et"><span class="caja"></span>Fecha:</td></tr>
+      <tr class="notas"><td colspan="2"><span class="et">Notas:</span></td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>4. CONTRATA</h2>
+    <table>
+      <tr><td class="et" style="width:160px">Contrata elegida:</td><td class="dato">MATEDECON</td></tr>
+      <tr><td class="et">PEM adjudicado:</td><td class="dato"></td></tr>
+      <tr><td class="et">Nos paga:</td><td class="dato">3 % del PEM <span class="peq">· 3 presupuestos, a éxito</span></td></tr>
+      <tr><td class="et">Cuándo:</td><td class="dato">a la adjudicación</td></tr>
+      <tr><td class="et">Cobrada:</td><td class="et"><span class="caja"></span>Fecha:</td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>5. FINANCIACIÓN</h2>
+    <table>
+      <tr><td class="et" style="width:160px">Cdad quiere financiación</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No</td></tr>
+      <tr><td class="et">Firmada</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No</td></tr>
+      <tr><td class="et">Entidad:</td><td></td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>6. SUBVENCIONES</h2>
+    <table>
+      <tr><td class="et" style="width:160px">Contratada con:</td><td class="dato">La comunidad</td></tr>
+      <tr><td class="et">Precio pactado:</td><td class="et"><span class="caja si"></span><span class="dato">Fijo 1.980,00 €</span> &nbsp;<span class="caja"></span>A éxito</td></tr>
+      <tr><td class="et">Contratación:</td><td class="dato">30/03/26</td></tr>
+      <tr><td class="et">Cobrado honorario:</td><td class="et"><span class="caja si"></span>Fecha <span class="dato">12/05/26</span></td></tr>
+      <tr class="notas"><td colspan="2"><span class="et">Notas:</span><span class="dato">Cobrado en 2 facturas de 990 €.</span></td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>7. CAES</h2>
+    <table>
+      <tr><td class="et" style="width:160px">Cesión CAES contratada:</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja si"></span>No</td></tr>
+      <tr><td class="et">Contrato firmado:</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No</td></tr>
+    </table>
+  </div>
+
+  <div>
+    <h2>8. COMERCIAL INTERNO</h2>
+    <table>
+      <tr><td class="et" style="width:160px">Comercial:</td><td class="dato">Álvaro de Soto</td></tr>
+      <tr><td class="et">Comisión:</td><td class="dato">3 % de lo facturado <span class="peq">· solo importes fijos</span></td></tr>
+      <tr><td class="et">Importe:</td><td class="dato">164,40 €</td></tr>
+      <tr><td class="et">Devengada:</td><td class="dato">164,40 € <span class="peq">· todo cobrado</span></td></tr>
+      <tr><td class="et">Pagada:</td><td class="et"><span class="caja"></span>Fecha:</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha financiera — calco</title>
+<!-- EXPERIMENTO (Monica, 17-oct-2026): su ficha de 2025 calcada tal cual
+     (FF AV RAFAELA YBARRA 33 ... 29-07-2024.pdf), con los datos de esa opp
+     sacados de produccion (DAN-2024-180). Para ver si se lee bien o mal en pantalla. -->
+<style>
+  :root { --fondo:#f2f5dc; --verde:#4f8a2b; --titulo:#6aa84f; --raya:#dfe6d3; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#d9dccb; font-family: Arial, Helvetica, sans-serif; color:#111; }
+  .hoja { width:952px; min-height:1233px; margin:24px auto; background:var(--fondo); padding:126px 135px 80px 131px; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+  .et { font-family: Cambria, Georgia, "Times New Roman", serif; font-size:15.5px; }
+  .dato { font-size:17px; }
+  h2 { font-family: Calibri, "Segoe UI", Arial, sans-serif; color:var(--titulo); font-size:17px; font-weight:bold; margin:0 0 3px 9px; letter-spacing:.2px; }
+  .sec { margin-top:72px; }
+  table { border-collapse:collapse; background:#fff; border:2px solid var(--verde); }
+  td { border:1px solid var(--raya); padding:4px 8px; height:29.5px; vertical-align:middle; }
+  td.alto { height:61px; vertical-align:top; }
+  td.alto2 { height:60px; vertical-align:top; }
+  tr.cierre td { border-top:2px solid var(--verde); }
+  .w673 { width:673px; } .w585 { width:585px; }
+  .caja { display:inline-block; width:15px; height:15px; border:1.6px solid #111; vertical-align:-2px; margin-right:5px; font-size:13px; line-height:12px; text-align:center; font-weight:bold; }
+  .caja.si::after { content:"✔"; }
+  .op { margin-right:18px; white-space:nowrap; }
+  .dir { border:3px solid var(--verde); background:#fff; width:682px; margin-left:4px; height:59px; padding:6px 7px; }
+  .dir .k { color:var(--titulo); font-family: Calibri, "Segoe UI", Arial, sans-serif; font-weight:bold; font-size:15px; vertical-align:top; }
+  .dir .v { font-size:24px; margin-left:4px; position:relative; top:8px; }
+  .hitos { display:flex; margin-left:9px; }
+  .hitos .col { padding:0 8px; } .hitos .col + .col { border-left:1.5px solid #333; }
+  .hitos div.h { background:#fff; padding:5px 0; height:39px; font-family: Cambria, Georgia, serif; font-size:15.5px; }
+  .res { width:673px; border-top:1.5px solid var(--verde); border-bottom:1.5px solid var(--verde); background:#fff; }
+  .res .f { display:flex; padding:5px 8px; } .res .f.l { border-bottom:1.5px solid var(--verde); }
+  .res .k { width:310px; font-family: Cambria, Georgia, serif; font-weight:bold; color:var(--verde); font-size:15.5px; }
+  .res .bloque { background:var(--fondo); }
+  .notas { border:3px solid var(--verde); background:#fff; width:682px; margin-left:4px; height:188px; padding:12px 8px; font-size:17px; }
+</style>
+</head>
+<body>
+
+<!-- PAGINA 1 -->
+<div class="hoja">
+  <div class="dir"><span class="k">DIRECCION:</span><span class="v">AV RAFAELA YBARRA 33 MADRID</span></div>
+
+  <table class="w673" style="margin-top:37px">
+    <tr><td class="et" style="width:221px">Categoria de proyecto:</td><td class="dato">Accesibilidad</td></tr>
+    <tr><td class="et">Tipo de proyecto:</td><td class="dato">ASCENSOR Y PLATAFORMA</td></tr>
+    <tr><td class="et">Quien lo paga:</td><td class="dato">CEGA</td></tr>
+    <tr><td class="et">Fecha firma hoja encargo:</td><td class="dato">29/07/24</td></tr>
+    <tr><td class="et">Administrador:</td><td class="dato"></td></tr>
+    <tr><td class="et">Contrata elegida:</td><td class="dato"></td></tr>
+  </table>
+
+  <div class="sec">
+    <h2>2. HOJA DE ENCARGO RESUMEN</h2>
+    <table class="w585">
+      <tr class="et"><td style="width:177px">Qué se ha contratado</td><td style="width:122px">Contratado</td><td style="width:143px">Importe sin iva</td><td>Importe con IVA</td></tr>
+      <tr><td class="et">Proyecto técnico</td><td class="et"><span class="caja si"></span>Sí <span class="caja" style="margin-left:8px"></span>No</td><td class="dato">5.000,00 €</td><td class="dato">6.050,00 €</td></tr>
+      <tr><td class="et">Consulta urbanística</td><td class="et"><span class="caja"></span>Sí <span class="caja si" style="margin-left:8px"></span>No</td><td></td><td></td></tr>
+      <tr><td class="et">Memoria valorada</td><td class="et"><span class="caja"></span>Sí <span class="caja si" style="margin-left:8px"></span>No</td><td></td><td></td></tr>
+      <tr><td class="et">Dirección de obra</td><td class="et"><span class="caja si"></span>Sí <span class="caja" style="margin-left:8px"></span>No</td><td></td><td></td></tr>
+      <tr><td class="et">CSS</td><td class="et"><span class="caja si"></span>Sí <span class="caja" style="margin-left:8px"></span>No</td><td></td><td></td></tr>
+      <tr><td class="et">Subvenciones</td><td class="et"><span class="caja si"></span>Sí <span class="caja" style="margin-left:8px"></span>No</td><td class="dato">1.980,00 €</td><td class="dato">2.395,80 €</td></tr>
+      <tr><td class="et">CAES</td><td class="et"><span class="caja"></span>Sí <span class="caja si" style="margin-left:8px"></span>No</td><td></td><td></td></tr>
+      <tr class="cierre"><td class="et alto">Notas:</td><td class="alto"></td><td class="alto"></td><td class="alto"></td></tr>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h2>3. ADMINISTRADOR :</h2>
+    <table class="w673">
+      <tr><td class="et" style="width:332px">Comisión&nbsp; sobre proyecto (% o €):</td><td></td></tr>
+      <tr><td class="et">Comisión&nbsp; sobre subvenciones (% o €):</td><td></td></tr>
+      <tr><td class="et">Comisión pactada sobre contrata (% o €):</td><td><span class="caja" style="width:42px;height:22px;margin-left:12px"></span></td></tr>
+      <tr><td class="et">Pagada comisión proyecto:</td><td class="et"><span class="caja" style="width:21px;height:21px"></span>Fecha:</td></tr>
+      <tr><td class="et">Pagada comisión subvención:</td><td class="et"><span class="caja" style="width:21px;height:21px"></span>Fecha:</td></tr>
+      <tr><td class="et">Pagada comisión contrata:</td><td class="et"><span class="caja" style="width:21px;height:21px"></span>Fecha:</td></tr>
+      <tr class="cierre"><td class="et alto">Notas:</td><td class="alto"></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PAGINA 2 -->
+<div class="hoja">
+  <h2 style="margin-top:-12px">4. CONTRATA</h2>
+  <table class="w673">
+    <tr><td class="et" style="width:199px">Contrata elegida:</td><td class="dato"></td></tr>
+    <tr><td class="et">Comisión pactada:</td><td></td></tr>
+    <tr><td class="et alto2">Hitos de pago pactados:</td><td class="alto2"></td></tr>
+    <tr><td class="et">Cobrada comisión:</td><td class="et"><span class="caja"></span>&nbsp;&nbsp;&nbsp; Fecha:</td></tr>
+    <tr class="cierre"><td class="et alto">Notas:</td><td class="alto"></td></tr>
+  </table>
+
+  <div class="sec" style="margin-top:62px">
+    <h2>5. SUBVENCIONES</h2>
+    <table class="w673">
+      <tr><td class="et" style="width:321px">Contratada con Cdad / Empresa:</td><td class="dato">EMPRESA</td></tr>
+      <tr><td class="et">Precio pactado:</td><td class="et"><span class="op"><span class="caja si"></span>Fijo (€)</span> <span class="caja"></span>Porcentaje a éxito (%)</td></tr>
+      <tr><td class="et">Porcentaje éxito (%):</td><td></td></tr>
+      <tr><td class="et">Duración compromiso tramitación</td><td class="et">Validez hasta</td></tr>
+      <tr><td class="et">Fecha de contratación de tramitación:</td><td class="dato">17/01/25</td></tr>
+      <tr><td class="et">Cobrado honorario subvención:</td><td class="et"><span class="caja si" style="width:21px"></span>&nbsp;Fecha&nbsp; <span class="dato">30/04/25</span></td></tr>
+      <tr class="cierre"><td colspan="2" class="alto"><span class="et">Notas:</span> <span class="dato">Cobrado en 4 mensualidades del 25 % (facturas 2025/1-19, 41, 75 y 115). Todo cobrado.</span></td></tr>
+    </table>
+  </div>
+
+  <div class="sec" style="margin-top:62px">
+    <h2>6. FINANCIACION</h2>
+    <table class="w673">
+      <tr><td class="et" style="width:199px">Cdad quiere financiacion</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No</td></tr>
+      <tr><td class="et">Firmada Financiacion</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="caja"></span>Con otra entidad no colaboradora</td></tr>
+      <tr><td class="et">Entidad:</td><td></td></tr>
+      <tr class="cierre"><td class="et alto">Observaciones / notas:</td><td class="alto"></td></tr>
+    </table>
+  </div>
+
+  <div class="sec" style="margin-top:62px">
+    <h2>7. CAES</h2>
+    <table class="w673">
+      <tr><td class="et" style="width:336px">Cesión CAES contratada con la comunidad:</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja si"></span>No</td></tr>
+      <tr><td class="et">Contrato cesión de ahorros firmado:</td><td class="et"><span class="caja"></span>Sí &nbsp;<span class="caja"></span>No</td></tr>
+      <tr class="cierre"><td class="et alto">Observaciones / notas sobre CAES:</td><td class="alto"></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PAGINA 3 -->
+<div class="hoja" style="padding-top:158px">
+  <h2>7. HITOS DE FACTURACIÓN</h2>
+  <div class="hitos">
+    <div class="col">
+      <div class="h"><span class="caja si"></span>Hoja de encargo firmada</div>
+      <div class="h"><span class="caja si"></span>Factura inicial emitida</div>
+      <div class="h"><span class="caja si"></span>Factura inicial cobrada</div>
+      <div class="h"><span class="caja si"></span>Subvención cobrada</div>
+    </div>
+    <div class="col">
+      <div class="h"><span class="caja si"></span>Proyecto terminado</div>
+      <div class="h"><span class="caja"></span>Factura final emitida</div>
+      <div class="h"><span class="caja"></span>Factura final cobrada</div>
+    </div>
+    <div class="col" style="width:215px">
+      <div class="h" style="height:62px"><span class="caja"></span>Comisión administrador pagada</div>
+      <div class="h" style="height:62px"><span class="caja"></span>Comisión contrata cobrada</div>
+      <div class="h"><span class="caja"></span>Cesión CAES formalizada</div>
+    </div>
+  </div>
+
+  <div class="sec" style="margin-top:56px">
+    <h2>8. RESUMEN FINANCIERO</h2>
+    <div class="res">
+      <div class="f l"><span class="k">Ingresos totales previstos (sin IVA):</span><span class="dato">6.980,00 €</span></div>
+      <div class="bloque">
+        <div class="f"><span class="k">Ingresos totales facturados:</span><span class="dato">5.730,00 €</span></div>
+        <div class="f"><span class="k">Ingresos cobrados:</span><span class="dato">5.730,00 €</span></div>
+        <div class="f"><span class="k">Comisiones totales previstas:</span></div>
+        <div class="f l"><span class="k">Comisiones pagadas:</span></div>
+      </div>
+      <div class="f"><span class="k">Beneficio neto esperado:</span></div>
+    </div>
+  </div>
+
+  <div class="sec" style="margin-top:110px">
+    <h2>9. NOTAS / INCIDENCIAS</h2>
+    <div class="notas">Queda el 25 % del proyecto (1.250 €) al fin de obra.</div>
+  </div>
+</div>
+
+</body>
+</html>
