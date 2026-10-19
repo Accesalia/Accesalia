@@ -1,17 +1,20 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Lectura } from "../../../../lib/enviarFactura";
-import { accionEnviarFactura, accionLeerFactura } from "./acciones";
+import { accionBuscarEnDrive, accionEnviarFactura, accionLeerFactura } from "./acciones";
 
-// PASO 2: ENVIAR FACTURA Y REGISTRO DEL CARGO (maqueta validada). Se sueltan el
-// PDF de la factura de Factusol y el justificante del cargo; la app los lee y
-// dice que cuadra y que no (avisa, no bloquea); se marca a quien va y se envia.
+// PASO 2: ENVIAR FACTURA Y REGISTRO DEL CARGO (maqueta validada). Al abrirse,
+// la app BUSCA SOLA la factura (y su justificante) en la carpeta del Drive donde
+// la guarda Factusol (19-oct-2026); si no la encuentra, se sueltan los PDF a
+// mano como antes. La app los lee y dice que cuadra y que no (avisa, no
+// bloquea); se marca a quien va y se envia.
 
 type Dest = { email: string; quien: string };
+type DeDrive = { id: string; nombre: string } | null;
 
-function Caja({ titulo, sub, fichero, poner }: { titulo: string; sub: string; fichero: File | null; poner: (f: File | null) => void }) {
+function Caja({ titulo, sub, fichero, drive, poner }: { titulo: string; sub: string; fichero: File | null; drive: DeDrive; poner: (f: File | null) => void }) {
   const input = useRef<HTMLInputElement>(null);
   const [encima, setEncima] = useState(false);
   return (
@@ -28,11 +31,13 @@ function Caja({ titulo, sub, fichero, poner }: { titulo: string; sub: string; fi
         const f = e.dataTransfer.files[0];
         if (f) poner(f);
       }}
-      className={`cursor-pointer rounded-xl border-2 border-dashed px-4 py-3 text-[13px] transition ${encima ? "border-lima bg-lima-soft" : fichero ? "border-[#9fcf7a] bg-white" : "border-black/15 bg-white hover:border-carbon/40"}`}
+      className={`cursor-pointer rounded-xl border-2 border-dashed px-4 py-3 text-[13px] transition ${encima ? "border-lima bg-lima-soft" : fichero || drive ? "border-[#9fcf7a] bg-white" : "border-black/15 bg-white hover:border-carbon/40"}`}
     >
       <input ref={input} type="file" accept="application/pdf" className="hidden" onChange={(e) => poner(e.target.files?.[0] ?? null)} />
       <div className="font-bold text-carbon">{titulo}</div>
-      <div className="mt-0.5 truncate text-carbon/55">{fichero ? `✓ ${fichero.name}` : sub}</div>
+      <div className="mt-0.5 truncate text-carbon/55" title={fichero?.name ?? drive?.nombre}>
+        {fichero ? `✓ ${fichero.name}` : drive ? `✓ del Drive: ${drive.nombre}` : sub}
+      </div>
     </div>
   );
 }
@@ -49,28 +54,58 @@ export function EnviarFactura({ proformaId, codigo, donde, total, destinatarios 
   const [nota, setNota] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [hecho, setHecho] = useState<string | null>(null);
+  const [driveF, setDriveF] = useState<DeDrive>(null);
+  const [driveJ, setDriveJ] = useState<DeDrive>(null);
+  const [buscando, setBuscando] = useState(true);
+  const [dice, setDice] = useState<string | null>(null);
   const [ocupado, empezar] = useTransition();
 
-  const datos = (f: File | null, j: File | null) => {
+  // Lo soltado a mano manda sobre lo encontrado en el Drive.
+  const datos = (f: File | null, j: File | null, df: DeDrive = driveF, dj: DeDrive = driveJ) => {
     const fd = new FormData();
     if (f) fd.set("factura", f);
+    else if (df) fd.set("drive_factura", df.id);
     if (j) fd.set("justificante", j);
+    else if (dj) fd.set("drive_justificante", dj.id);
     return fd;
   };
+  const rellenar = (l: Lectura, conJustificante: boolean) => {
+    setLectura(l);
+    const n = l.factura ? `${(l.factura.fecha ?? "").slice(0, 4)}/${l.factura.numero}` : "";
+    setAsunto(`Factura ${n} · ${donde} · Proforma ${codigo} · ${total} €`);
+    setCuerpo(
+      `Buenos días:\n\nOs adjuntamos la factura ${n} de ${donde}, correspondiente a la proforma ${codigo}, por un total de ${total} € (IVA incluido)` +
+        `${conJustificante ? ", y el justificante del cargo en cuenta" : ""}.\n\nUn saludo,\nAccesalia · Facturación`,
+    );
+  };
+
+  // Al abrirse: la factura y su justificante, de la carpeta del Drive.
+  useEffect(() => {
+    let vivo = true;
+    accionBuscarEnDrive(proformaId)
+      .then((r) => {
+        if (!vivo) return;
+        if (!r.ok) return setDice(`No se ha podido mirar la carpeta del Drive: ${r.error}`);
+        setDice(r.drive.dice);
+        setDriveF(r.drive.factura);
+        setDriveJ(r.drive.justificante);
+        if (r.drive.lectura) rellenar(r.drive.lectura, !!r.drive.justificante);
+      })
+      .finally(() => vivo && setBuscando(false));
+    return () => {
+      vivo = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proformaId]);
+
   // Al soltar un PDF se lee y se cuadra en el acto; con el numero, el asunto y el texto.
   const leer = (f: File | null, j: File | null) => {
-    if (!f) return setLectura(null);
+    if (!f && !driveF) return setLectura(null);
     empezar(async () => {
       setError(null);
       const r = await accionLeerFactura(proformaId, datos(f, j));
       if (!r.ok) return setError(r.error);
-      setLectura(r.lectura);
-      const n = r.lectura.factura ? `${(r.lectura.factura.fecha ?? "").slice(0, 4)}/${r.lectura.factura.numero}` : "";
-      setAsunto(`Factura ${n} · ${donde} · Proforma ${codigo} · ${total} €`);
-      setCuerpo(
-        `Buenos días:\n\nOs adjuntamos la factura ${n} de ${donde}, correspondiente a la proforma ${codigo}, por un total de ${total} € (IVA incluido)` +
-          `${j ? ", y el justificante del cargo en cuenta" : ""}.\n\nUn saludo,\nAccesalia · Facturación`,
-      );
+      rellenar(r.lectura, !!(j || driveJ));
     });
   };
 
@@ -94,9 +129,20 @@ export function EnviarFactura({ proformaId, codigo, donde, total, destinatarios 
   const avisos = lectura?.comprobaciones.filter((c) => !c.ok) ?? [];
   return (
     <div className="space-y-3">
+      {buscando ? (
+        <p className="text-[13px] text-carbon/55">Buscando la factura en la carpeta del Drive…</p>
+      ) : (
+        dice && <p className={`text-[13px] ${driveF ? "font-semibold text-[#2f5d14]" : "text-carbon/60"}`}>{driveF ? "Factura generada · " : ""}{dice}</p>
+      )}
       <div className="grid gap-2 sm:grid-cols-2">
-        <Caja titulo="Factura" sub="el PDF de Factusol · suéltalo aquí o pincha" fichero={factura} poner={(f) => (setFactura(f), leer(f, justificante))} />
-        <Caja titulo="Justificante del cargo" sub="el alta del recibo de CaixaBank" fichero={justificante} poner={(j) => (setJustificante(j), leer(factura, j))} />
+        <Caja titulo="Factura" sub="el PDF de Factusol · suéltalo aquí o pincha" fichero={factura} drive={driveF} poner={(f) => (setFactura(f), leer(f, justificante))} />
+        <Caja
+          titulo="Justificante del cargo"
+          sub={driveF ? "aún no está en la carpeta · o suéltalo aquí" : "el alta del recibo de CaixaBank"}
+          fichero={justificante}
+          drive={driveJ}
+          poner={(j) => (setJustificante(j), leer(factura, j))}
+        />
       </div>
 
       {ocupado && !lectura && <p className="text-[13px] text-carbon/55">Leyendo…</p>}

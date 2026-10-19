@@ -23,6 +23,7 @@ import { puedeVerLibro } from "./cobros";
 import { enviarCorreo, type Area } from "./correo";
 import { crearEntrada } from "./entradaDiario";
 import { recalcularLuego } from "./estadoOportunidad";
+import { descargar, facturasDelAnio, justificanteDe } from "./driveFacturas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -141,6 +142,60 @@ export async function leerYCuadrar(
       );
   }
   return { factura: f, justificante: j, comprobaciones: c, referencia: factura.nombre.replace(/\.pdf$/i, "").replace(/^Factura\s+\d+\s*-\s*\d+\s*/i, "").trim() };
+}
+
+export type EnDrive = {
+  factura: { id: string; nombre: string } | null;
+  justificante: { id: string; nombre: string } | null;
+  lectura: Lectura | null;
+  /** Como se ha casado, o por que no se ha encontrado. */
+  dice: string;
+};
+
+/** BUSCAR LA FACTURA EN LA CARPETA DEL DRIVE (19-oct-2026): entre las facturas de la
+ *  carpeta del año que la app aun no tiene, la de este cliente (NIF) por este total.
+ *  No escribe nada. Si no esta, se puede seguir soltando el PDF a mano. */
+export async function buscarEnDrive(yo: Yo, proformaId: string): Promise<EnDrive> {
+  const p = await proformaDe(yo, proformaId);
+  const nada = (dice: string): EnDrive => ({ factura: null, justificante: null, lectura: null, dice });
+  if (p.empresa === "ecobalance") return nada("Las facturas de Ecobalance no se buscan todavía en el Drive: suelta el PDF.");
+  const hoy = new Date().getFullYear();
+  const anios = [...new Set([Number(p.fecha.slice(0, 4)), hoy])].filter((a) => a <= hoy);
+  const ya = await pedir<{ anio: number; serie: string; numero: number }[]>(
+    `facturas?select=anio,serie,numero&tipo=eq.factura&empresa_emisora=eq.${p.empresa}&anio=in.(${anios.join(",")})`,
+  );
+  const tiene = new Set(ya.map((f) => `${f.anio}-${f.serie}-${f.numero}`));
+  const candidatas = (await Promise.all(anios.map(async (a) => (await facturasDelAnio(p.empresa, a)).map((f) => ({ ...f, anio: a })))))
+    .flat()
+    .filter((f) => !tiene.has(`${f.anio}-${f.serie}-${f.numero}`) && f.modificado.slice(0, 10) >= p.fecha)
+    .sort((a, b) => b.modificado.localeCompare(a.modificado))
+    .slice(0, 25);
+  if (!candidatas.length) return nada("En la carpeta del Drive no hay ninguna factura nueva desde la proforma: ¿está ya hecha en Factusol y guardada?");
+  const leidas = await Promise.all(
+    candidatas.map(async (f) => {
+      const t = await texto(await descargar(f.id)).catch(() => "");
+      return { f, l: leerFactura(t, p.emisora.nif, p.total) };
+    }),
+  );
+  const porTotal = leidas.filter((x) => x.l?.total != null && Math.abs(x.l.total - p.total) < 0.01);
+  const porNif = porTotal.filter((x) => soloNif(p.pagador.nif) && soloNif(x.l?.nifCliente) === soloNif(p.pagador.nif));
+  const elegida = porNif.length === 1 ? porNif[0] : !porNif.length && porTotal.length === 1 ? porTotal[0] : null;
+  if (!elegida)
+    return nada(
+      porNif.length > 1 || porTotal.length > 1
+        ? `Hay ${Math.max(porNif.length, porTotal.length)} facturas nuevas por ${EUR.format(p.total)} € en la carpeta y no se sabe cuál es: suelta el PDF.`
+        : `En la carpeta del Drive no hay ninguna factura nueva de este cliente por ${EUR.format(p.total)} €.`,
+    );
+  const f = elegida.f;
+  const j = await justificanteDe(p.empresa, f.anio, f.numero).catch(() => null);
+  const [pf, pj] = await Promise.all([descargar(f.id), j ? descargar(j.id) : Promise.resolve(null)]);
+  const lectura = await leerYCuadrar(yo, proformaId, { nombre: f.nombre, contenido: pf }, j && pj ? { nombre: j.nombre, contenido: pj } : null);
+  return {
+    factura: { id: f.id, nombre: f.nombre },
+    justificante: j ? { id: j.id, nombre: j.nombre } : null,
+    lectura,
+    dice: porNif.length ? "Encontrada en la carpeta del Drive (mismo cliente y mismo total)." : "Encontrada en la carpeta del Drive por el total (el NIF no se ha podido casar: revísalo).",
+  };
 }
 
 async function subir(ruta: string, pdf: Uint8Array) {
