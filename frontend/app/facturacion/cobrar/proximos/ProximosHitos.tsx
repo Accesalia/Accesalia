@@ -91,7 +91,7 @@ export function ProximosHitos({ hitos, previos, inicial }: { hitos: HitoProximo[
             <input type="checkbox" checked={marcados.has(h.id)} onChange={() => marcar(h.id)} className="h-4 w-4 accent-[#104269]" />
             <span className="min-w-0 truncate font-semibold text-carbon">
               {h.oppId ? (
-                <Link href={`/facturacion/${h.oppId}`} onClick={(e) => e.stopPropagation()} className="hover:underline">
+                <Link href={`/facturacion/${h.oppId}?desde=proximos`} onClick={(e) => e.stopPropagation()} className="hover:underline">
                   {h.direccion}
                 </Link>
               ) : (

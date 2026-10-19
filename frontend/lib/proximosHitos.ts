@@ -54,6 +54,8 @@ export type HitoProximo = {
   hoja: string | null;
   /** "Proyecto ascensor · a la firma". */
   que: string;
+  /** El tipo de hito (entrega, licencia...). */
+  tipo: string;
   /** Por que ya, o cuando: "Firmada 10 oct", "prevista 24 oct", "sin fecha". */
   porQue: string;
   cuando: Cuando;
@@ -67,14 +69,14 @@ export type HitoProximo = {
   validada: boolean;
 };
 
-export const PLAZO: Record<string, string> = {
+const PLAZO: Record<string, string> = {
   encargo: "al encargo", firma: "a la firma", entrega: "a la entrega", licencia: "a la licencia", inicio_obra: "al inicio de obra",
   cfo: "al fin de obra", pss: "al plan de seguridad", presentacion: "a la presentación", concesion: "a la concesión",
   adjudicacion: "a la adjudicación", otro: "otro plazo",
 };
 const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-export const dia = (iso: string) => `${Number(iso.slice(8, 10))} ${MES[Number(iso.slice(5, 7)) - 1]}${iso.slice(0, 4) !== new Date().toISOString().slice(0, 4) ? ` ${iso.slice(2, 4)}` : ""}`;
-export const corta = (d: string | null) => (d ?? "").split(/\s+[—–-]\s+|\s*\(/)[0].trim().slice(0, 50);
+const dia = (iso: string) => `${Number(iso.slice(8, 10))} ${MES[Number(iso.slice(5, 7)) - 1]}${iso.slice(0, 4) !== new Date().toISOString().slice(0, 4) ? ` ${iso.slice(2, 4)}` : ""}`;
+const corta = (d: string | null) => (d ?? "").split(/\s+[—–-]\s+|\s*\(/)[0].trim().slice(0, 50);
 const hoyISO = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
 
 type Linea = {
@@ -157,6 +159,7 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
       direccion: opp ? nombreDeOpp(opp) : "—",
       hoja: l.hoja?.numero_hoja ?? null,
       que: `${corta(l.descripcion)} · ${h.porcentaje ? `${Number(h.porcentaje).toLocaleString("es-ES")} % ` : ""}${PLAZO[h.hito] ?? h.hito}${h.hito_padre_id ? " (parte)" : ""}`,
+      tipo: h.hito,
       porQue,
       cuando,
       fecha,

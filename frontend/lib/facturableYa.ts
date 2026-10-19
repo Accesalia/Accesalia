@@ -9,14 +9,13 @@
 //     estado, fecha) | factura (numero con año, fecha) | cargo (pendiente/devuelto).
 //   - Estados de la proforma: pendiente de validar → (anulada) → se puede cobrar →
 //     proforma ok (la factura cuadra) o DESCUADRA → cobrada (fuera de la lista).
-//     «Se puede cobrar» aun no tiene donde guardarse: falta su marca en la base.
 //   - Alerta: enviada y sin respuesta en 3 dias laborables.
 // Las celdas vacias van vacias: sin «sin proforma» ni guiones.
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
 import { adminsDeComunidades } from "./adminComunidad";
-import { proximosHitos, PLAZO, corta } from "./proximosHitos";
+import { proximosHitos } from "./proximosHitos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -67,10 +66,15 @@ function laborablesDesde(iso: string): number {
   }
   return n;
 }
+// EL HITO, CON SU NOMBRE Y NADA MAS (Monica, 19-oct-2026: «es un HITO, con una palabra sobra»).
+const HITO: Record<string, string> = {
+  encargo: "Encargo", firma: "Firma", entrega: "Entrega", licencia: "Licencia", inicio_obra: "Inicio de obra", cfo: "Fin de obra",
+  pss: "Plan de seguridad", presentacion: "Presentación", concesion: "Concesión", adjudicacion: "Adjudicación", otro: "Otro",
+};
 const EMPRESA: Record<string, string> = { accesalia: "Accesalia", daniel: "Daniel", daniel_autonomo: "Daniel", ecobalance: "Ecobalance" };
 
 type FilaPf = {
-  id: string; codigo: string; fecha: string; total: number; oportunidad_id: string | null; pagador_nombre: string;
+  id: string; codigo: string; fecha: string; total: number; se_puede_cobrar_en: string | null; oportunidad_id: string | null; pagador_nombre: string;
   factura: { id: string; empresa_emisora: string; anio: number; serie: string; numero: number; fecha: string; total: number; estado: string } | null;
   lineas: { hitos: { importe: number; hito: { hito: string; porcentaje: number | null; fecha_prevista: string | null; hito_padre_id: string | null;
     linea: { descripcion: string | null; hoja: { numero_hoja: string | null; fecha_firma: string | null } | null } | null } | null }[] }[];
@@ -80,7 +84,7 @@ export async function facturableYa(): Promise<Facturable> {
   const [{ hitos }, proformas] = await Promise.all([
     proximosHitos(),
     leer<FilaPf>(
-      "proformas?select=id,codigo,fecha,total,oportunidad_id,pagador_nombre," +
+      "proformas?select=id,codigo,fecha,total,se_puede_cobrar_en,oportunidad_id,pagador_nombre," +
         "factura:factura_id(id,empresa_emisora,anio,serie,numero,fecha,total,estado)," +
         "lineas:proforma_lineas(hitos:proforma_linea_hitos(importe,hito:hito_cobro_id(hito,porcentaje,fecha_prevista,hito_padre_id," +
         "linea:linea_facturacion_id(descripcion,hoja:hoja_encargo_id(numero_hoja,fecha_firma)))))" +
@@ -110,7 +114,7 @@ export async function facturableYa(): Promise<Facturable> {
   for (const h of sueltos)
     filas.push({
       clave: `h-${h.id}`, oppId: h.oppId!, hojas: h.hoja ? [h.hoja] : [], paga: h.paga === "Comunidad" ? null : h.paga,
-      hitos: [{ que: h.que, fecha: h.fecha, importe: h.importe }], proforma: null, factura: null, cargo: null, rojo: false,
+      hitos: [{ que: HITO[h.tipo] ?? h.tipo, fecha: h.fecha, importe: h.importe }], proforma: null, factura: null, cargo: null, rojo: false,
     });
   proformas.forEach((p, i) => {
     if (!p.oportunidad_id) return;
@@ -125,6 +129,9 @@ export async function facturableYa(): Promise<Facturable> {
     if (f) {
       estado = Math.abs(Number(f.total) - Number(p.total)) < 0.01 ? "ok" : "descuadra";
       fecha = f.fecha;
+    } else if (p.se_puede_cobrar_en) {
+      estado = "se_puede_cobrar";
+      fecha = p.se_puede_cobrar_en;
     } else if (enviada) {
       estado = "pendiente";
       fecha = enviada.slice(0, 10);
@@ -145,7 +152,7 @@ export async function facturableYa(): Promise<Facturable> {
         const firma = t?.linea?.hoja?.fecha_firma ?? null;
         const alcanzado = t && (t.hito === "encargo" || t.hito === "firma") ? firma : (t?.fecha_prevista ?? null);
         return {
-          que: `${corta(t?.linea?.descripcion ?? null)} · ${t?.porcentaje ? `${Number(t.porcentaje).toLocaleString("es-ES")} % ` : ""}${PLAZO[t?.hito ?? ""] ?? t?.hito ?? ""}${t?.hito_padre_id ? " (parte)" : ""}`,
+          que: HITO[t?.hito ?? ""] ?? t?.hito ?? "",
           fecha: alcanzado,
           importe: Number(x.importe),
         };

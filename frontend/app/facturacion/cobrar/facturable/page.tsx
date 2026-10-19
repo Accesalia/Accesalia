@@ -17,7 +17,7 @@ export default async function Pagina() {
   const datos = await facturableYa();
   return (
     <MarcoDinero yo={yo} area="cobrar" activo="facturable" cuentas={{ facturable: datos.opps.length }}>
-      <TablaFacturable datos={datos} enlace={(id) => `/facturacion/${id}`} />
+      <TablaFacturable datos={datos} enlace={(id) => `/facturacion/${id}?desde=facturable`} />
     </MarcoDinero>
   );
 }

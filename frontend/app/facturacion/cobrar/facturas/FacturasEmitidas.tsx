@@ -158,7 +158,7 @@ export function FacturasEmitidas({
                 </span>
                 <span className="min-w-0 truncate font-semibold text-carbon" title={f.pagador ?? undefined}>
                   {f.oppId ? (
-                    <Link href={`/facturacion/${f.oppId}`} onClick={(ev) => ev.stopPropagation()} className="hover:underline">
+                    <Link href={`/facturacion/${f.oppId}?desde=facturas`} onClick={(ev) => ev.stopPropagation()} className="hover:underline">
                       {f.direccion}
                     </Link>
                   ) : (
