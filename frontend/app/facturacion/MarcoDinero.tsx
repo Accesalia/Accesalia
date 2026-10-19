@@ -44,7 +44,7 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
         items: [
           { clave: "nuevas", titulo: "Nuevas Hojas Encargo Firmadas", href: "/facturacion/cobrar", cuenta: c.nuevas },
           { clave: "modificar", titulo: "Modificar Hitos", href: "/facturacion/cobrar/modificar" },
-          { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/proximos?ver=ya", cuenta: c.facturable },
+          { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/facturable", cuenta: c.facturable },
           { clave: "proforma", titulo: "Generar Proforma", href: "/facturacion/cobrar/proforma" },
           { clave: "sin-justificante", titulo: "Facturas sin justificante", href: "/facturacion/cobrar/sin-justificante", cuenta: c.sinJustificante },
         ],

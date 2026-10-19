@@ -67,14 +67,14 @@ export type HitoProximo = {
   validada: boolean;
 };
 
-const PLAZO: Record<string, string> = {
+export const PLAZO: Record<string, string> = {
   encargo: "al encargo", firma: "a la firma", entrega: "a la entrega", licencia: "a la licencia", inicio_obra: "al inicio de obra",
   cfo: "al fin de obra", pss: "al plan de seguridad", presentacion: "a la presentación", concesion: "a la concesión",
   adjudicacion: "a la adjudicación", otro: "otro plazo",
 };
 const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-const dia = (iso: string) => `${Number(iso.slice(8, 10))} ${MES[Number(iso.slice(5, 7)) - 1]}${iso.slice(0, 4) !== new Date().toISOString().slice(0, 4) ? ` ${iso.slice(2, 4)}` : ""}`;
-const corta = (d: string | null) => (d ?? "").split(/\s+[—–-]\s+|\s*\(/)[0].trim().slice(0, 50);
+export const dia = (iso: string) => `${Number(iso.slice(8, 10))} ${MES[Number(iso.slice(5, 7)) - 1]}${iso.slice(0, 4) !== new Date().toISOString().slice(0, 4) ? ` ${iso.slice(2, 4)}` : ""}`;
+export const corta = (d: string | null) => (d ?? "").split(/\s+[—–-]\s+|\s*\(/)[0].trim().slice(0, 50);
 const hoyISO = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
 
 type Linea = {
