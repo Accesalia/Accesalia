@@ -40,18 +40,18 @@ def fases_de(t):
 
 facturas = b.leer('facturas?select=id,empresa_emisora,anio,numero,fecha,estado,oportunidad_id,lineas:factura_lineas(id,concepto,base,'
                   'enl:factura_linea_hitos(hito_cobro_id))&pagador_nombre=ilike.*thyssen*&estado=neq.anulada&order=fecha')
+ya = {h['oportunidad_id'] for h in b.leer('hojas_encargo?select=oportunidad_id&pagador_contrata_id=eq.' + TKE)}
 por_opp = collections.defaultdict(list)
 for f in facturas:
-    if not f['oportunidad_id']: continue
+    if not f['oportunidad_id'] or f['oportunidad_id'] in ya: continue
     for l in f['lineas']:
         if float(l['base'] or 0) > 0:
             assert not l['enl'], (f['anio'], f['numero'])
             por_opp[f['oportunidad_id']].append((f, l))
-ya = {h['oportunidad_id'] for h in b.leer('hojas_encargo?select=oportunidad_id&pagador_contrata_id=eq.' + TKE)}
 
 plan = []
 for oid, items in por_opp.items():
-    assert oid not in ya, oid
+    if oid in ya: continue  # ya hecha (si se corta a medias, se vuelve a lanzar)
     o = b.leer('oportunidades?select=id,codigo,nombre,comunidad_id&id=eq.' + oid)[0]
     trozos, totales = [], set()
     for f, l in items:
