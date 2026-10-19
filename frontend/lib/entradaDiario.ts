@@ -150,6 +150,9 @@ export type DatosEntrada = {
   persona: string | null;
   /** La direccion escrita que NO estaba en la lista y se marco "revisar". */
   dondeTexto: string | null;
+  /** La persona escrita que NO estaba en la lista y se guardo "asi, para
+   *  revisar despues" (satelite, 19-oct-2026). */
+  quienTexto?: string | null;
   /** Quien la escribe: sale de la sesion, no del formulario. */
   autorId: string;
   autorNombre: string;
@@ -203,8 +206,8 @@ async function grabarNota(d: DatosEntrada): Promise<Destino> {
     return { donde: "oportunidad", id: await crear("notas_oportunidad", { ...comun, oportunidad_id: d.oportunidadId, ...quien }) };
   }
 
-  // 2 · direccion escrita que no esta: a la bandeja, tal cual.
-  if (d.dondeTexto?.trim()) {
+  // 2 · direccion o persona escrita que no esta: a la bandeja, tal cual.
+  if (d.dondeTexto?.trim() || d.quienTexto?.trim()) {
     return {
       donde: "pendientes",
       id: await crear("notas_pendientes", {
@@ -213,7 +216,8 @@ async function grabarNota(d: DatosEntrada): Promise<Destino> {
         texto,
         fecha,
         canal: d.canal,
-        donde_texto: d.dondeTexto.trim(),
+        donde_texto: d.dondeTexto?.trim() || null,
+        quien_texto: d.quienTexto?.trim() || null,
         ...quien,
       }),
     };

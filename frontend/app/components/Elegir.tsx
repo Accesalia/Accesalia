@@ -36,6 +36,9 @@ export function Elegir({
   conPista,
   dosLineas,
   noEsta,
+  crearNueva,
+  guardarAsi,
+  grande,
   grupos,
 }: {
   id: string;
@@ -66,6 +69,15 @@ export function Elegir({
    *  saber que lo buscado no aparece (Monica, 8-oct-2026: la direccion que no
    *  esta puede ser nueva o una errata, y se pregunta). Sin esto, no sale. */
   noEsta?: (escrito: string) => void;
+  /** EL SATELITE (Monica, 19-oct-2026): al final de la lista, siempre que se
+   *  haya escrito algo, "No es ninguna, ¿la creo nueva?" (o "No está en la
+   *  lista, ¿la creo nueva?" si no sale ninguna) y "¿La guardo así y la
+   *  revisas después?". Sustituye a noEsta, que despistaba: salia debajo de
+   *  las coincidencias como si no hubiera ninguna. */
+  crearNueva?: (escrito: string) => void;
+  guardarAsi?: (escrito: string) => void;
+  /** Mas alto y con letra mas grande: para el movil, dedos gordos (19-oct). */
+  grande?: boolean;
   /** EN COLUMNAS, como el "de lo que vendemos, que quieren" del alta (Monica,
    *  14-oct-2026): cada grupo una columna con su titulo. Sin esto, la lista. */
   grupos?: { titulo: string; valores: string[] }[];
@@ -158,7 +170,8 @@ export function Elegir({
         className={
           (nombre !== "" ? "mt-1 " : "") +
           (dosLineas ? "min-h-[52px] " : "") +
-          "flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-1.5 text-left text-sm text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
+          (grande ? "min-h-[56px] rounded-xl px-3.5 py-3 text-[18px] " : "rounded-lg px-3 py-1.5 text-sm ") +
+          "flex w-full items-center justify-between gap-2 border bg-white text-left text-carbon transition focus:border-lima focus:outline-none disabled:bg-black/[.03] disabled:text-carbon/35 " +
           (marco ?? "border-black/10") + " " +
           (abierto ? "border-lima" : "")
         }
@@ -196,7 +209,10 @@ export function Elegir({
               }
             }}
             placeholder="Escribe para buscar…"
-            className="w-full border-b border-black/10 px-3 py-2 text-sm text-carbon outline-none placeholder:text-carbon/55"
+            className={
+              "w-full border-b border-black/10 text-carbon outline-none placeholder:text-carbon/55 " +
+              (grande ? "px-3.5 py-3.5 text-[18px]" : "px-3 py-2 text-sm")
+            }
           />
           {columnas ? (
             <div className="grid grid-cols-4 divide-x divide-black/10">
@@ -221,7 +237,7 @@ export function Elegir({
               ))}
             </div>
           ) : (
-          <ul className="max-h-60 overflow-auto py-1">
+          <ul className={(grande ? "max-h-[55vh] " : "max-h-60 ") + "overflow-auto py-1"}>
             {elegido !== "" && (
               <li>
                 <button
@@ -237,7 +253,7 @@ export function Elegir({
                 </button>
               </li>
             )}
-            {filtradas.length === 0 && <li className="px-3 py-2 text-sm text-carbon/65">No hay ninguna que coincida.</li>}
+            {filtradas.length === 0 && !crearNueva && <li className="px-3 py-2 text-sm text-carbon/65">No hay ninguna que coincida.</li>}
             {filtradas.map((o) => (
               <li key={o.valor}>
                 <button
@@ -248,7 +264,8 @@ export function Elegir({
                     setBusca("");
                   }}
                   className={
-                    "block w-full px-3 py-1.5 text-left text-sm hover:bg-lima-soft " +
+                    "block w-full text-left hover:bg-lima-soft " +
+                    (grande ? "border-b border-black/5 px-3.5 py-3 text-[17px] leading-snug " : "px-3 py-1.5 text-sm ") +
                     (o.valor === elegido ? "font-bold text-lima-dark" : "text-carbon")
                   }
                 >
@@ -257,6 +274,33 @@ export function Elegir({
                 </button>
               </li>
             ))}
+            {busca.trim() !== "" &&
+              [
+                crearNueva && {
+                  texto: filtradas.length ? "No es ninguna, ¿la creo nueva?" : "No está en la lista, ¿la creo nueva?",
+                  hacer: crearNueva,
+                },
+                guardarAsi && { texto: "¿La guardo así y la revisas después?", hacer: guardarAsi },
+              ]
+                .filter((x): x is { texto: string; hacer: (q: string) => void } => !!x)
+                .map((x, i) => (
+                  <li key={x.texto} className={i === 0 ? "border-t-2 border-[#8a6410]/30" : ""}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        x.hacer(busca.trim());
+                        setAbierto(false);
+                        setBusca("");
+                      }}
+                      className={
+                        "block w-full text-left font-semibold text-[#5c4208] hover:bg-form-nuevo " +
+                        (grande ? "bg-form-nuevo/60 px-3.5 py-3.5 text-[17px]" : "px-3 py-1.5 text-sm")
+                      }
+                    >
+                      {x.texto}
+                    </button>
+                  </li>
+                ))}
             {noEsta && busca.trim() !== "" && (
               <li className="border-t border-black/5">
                 <button

@@ -51,6 +51,22 @@ export async function accionAltaAdmin(id: string, d: { nombre: string; telefono:
   }
 }
 
+/** Un contacto (vecino, contratista, otro) que ya se ha colocado a mano: el
+ *  apunte queda cerrado. Aun no hay alta propia para ellos (19-oct-2026). */
+export async function accionHecho(id: string): Promise<Resultado> {
+  try {
+    const yo = await yoComercial();
+    const a = await apuntePendiente(yo, id);
+    if (!a || a.tipo !== "contacto") throw new Error("Ese apunte ya no está pendiente o no es tuyo.");
+    await cerrarApunte(yo, id, {});
+    revalidatePath("/pendientes");
+    revalidatePath("/pendientes/satelite");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
 export async function accionDescartar(id: string, motivo: string): Promise<Resultado> {
   try {
     const yo = await yoComercial();

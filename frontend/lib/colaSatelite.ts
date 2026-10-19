@@ -35,8 +35,26 @@ export type NuevaSat = {
   contacto: string | null;
   contactoNombre: string | null;
   contactoTelefono: string | null;
+  /** "Crear nueva opp" (19-oct-2026): el contacto puede traer correo. */
+  contactoCorreo?: string | null;
   tipos: string[];
   paso: string | null;
+};
+
+/** "CREAR NUEVO CONTACTO" (Monica, 19-oct-2026; antes "+ Crear nuevo adm"):
+ *  nombre, telefono o correo, y que es. "Si no, es casi imposible
+ *  reconstruirlo despues." */
+export type TipoContacto = "administrador" | "vecino" | "contratista" | "otro";
+export type ContactoSat = {
+  nombre: string;
+  telefono: string | null;
+  correo: string | null;
+  tipo: TipoContacto;
+  /** Si es "otro": lo que se escribio. */
+  otro: string | null;
+  /** La direccion de la que se hablaba, si se lanzo desde la nota. */
+  oportunidadId: string | null;
+  sobre: string | null;
 };
 
 export type NotaEnCola = {
@@ -54,6 +72,10 @@ export type NotaEnCola = {
   nueva?: NuevaSat | null;
   /** "+ Crear nuevo adm" (13-oct-2026): el administrador que nace con la nota. */
   nuevoAdmin?: { personaId: string; puestoId: string; nombre: string; telefono: string | null; correo: string | null } | null;
+  /** "Crear nuevo contacto" (19-oct-2026): sustituye a nuevoAdmin. */
+  nuevoContacto?: ContactoSat | null;
+  /** La persona escrita que no estaba: "¿La guardo así y la revisas después?". */
+  quienTexto?: string | null;
   /** Para enseñarla en la lista de "esperando" sin buscar en las listas. */
   resumen: string;
   fotos: { foto: Blob; mini: Blob }[];
@@ -147,6 +169,8 @@ export async function enviarCola(): Promise<ResultadoEnvio> {
           claveId: n.claveId ?? null,
           nueva: n.nueva ?? null,
           nuevoAdmin: n.nuevoAdmin ?? null,
+          nuevoContacto: n.nuevoContacto ?? null,
+          quienTexto: n.quienTexto ?? null,
           fotos: n.rutas ?? [],
         }),
       });

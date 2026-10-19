@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Apunte, TipoApunte } from "../../../lib/apuntesSatelite";
-import { accionAltaAdmin, accionDescartar } from "./acciones";
+import { accionAltaAdmin, accionDescartar, accionHecho } from "./acciones";
 
 // Cada apunte del satelite: lo que se mando desde el movil, quien y cuando, y
 // lo que se hace con el: completarlo y darlo de alta, o descartarlo.
@@ -34,7 +34,10 @@ function Fila({ a, tipo }: { a: Apunte; tipo: TipoApunte }) {
   const [completar, setCompletar] = useState(false);
   const [descartar, setDescartar] = useState(false);
   const [motivo, setMotivo] = useState("");
-  const d = a.datos as { telefono?: string | null; correo?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null; fotos?: unknown[] };
+  const d = a.datos as {
+    telefono?: string | null; correo?: string | null; tipoContacto?: string | null; sobre?: string | null;
+    contactoNombre?: string | null; contactoTelefono?: string | null; contactoCorreo?: string | null; fotos?: unknown[];
+  };
   const [nombre, setNombre] = useState(a.nombre ?? "");
   const [telefono, setTelefono] = useState(d.telefono ?? "");
   const [correo, setCorreo] = useState(d.correo ?? "");
@@ -47,8 +50,12 @@ function Fila({ a, tipo }: { a: Apunte; tipo: TipoApunte }) {
 
   const titulo = tipo === "oportunidad" ? a.direccion ?? "(sin dirección)" : a.nombre ?? "(sin nombre)";
   const detalle = [
-    tipo === "oportunidad" && (d.contactoNombre || d.contactoTelefono) ? `contacto: ${[d.contactoNombre, d.contactoTelefono].filter(Boolean).join(" · ")}` : null,
-    tipo === "administrador" ? [d.telefono, d.correo].filter(Boolean).join(" · ") : null,
+    tipo === "oportunidad" && (d.contactoNombre || d.contactoTelefono || d.contactoCorreo)
+      ? `contacto: ${[d.contactoNombre, d.contactoTelefono, d.contactoCorreo].filter(Boolean).join(" · ")}`
+      : null,
+    tipo === "contacto" && d.tipoContacto ? d.tipoContacto : null,
+    tipo !== "oportunidad" ? [d.telefono, d.correo].filter(Boolean).join(" · ") || null : null,
+    tipo !== "oportunidad" && d.sobre ? `sobre: ${d.sobre}` : null,
     d.fotos?.length ? `${d.fotos.length} ${d.fotos.length === 1 ? "foto" : "fotos"}` : null,
   ].filter(Boolean);
 
@@ -69,6 +76,10 @@ function Fila({ a, tipo }: { a: Apunte; tipo: TipoApunte }) {
             <Link href={`/comercial/oportunidades/nueva?apunte=${a.id}`} className={BTN_PRIM}>
               Completar y dar de alta
             </Link>
+          ) : tipo === "contacto" ? (
+            <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={() => hacer(accionHecho(a.id))}>
+              Ya lo he colocado
+            </button>
           ) : (
             <button type="button" className={BTN_PRIM} disabled={ocupado} onClick={() => setCompletar((x) => !x)}>
               Completar y dar de alta

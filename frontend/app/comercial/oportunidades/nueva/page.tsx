@@ -46,7 +46,7 @@ export default async function NuevaOportunidad({
   const delApunte = apunte
     ? await (async () => {
         const d = apunte.datos as {
-          administrador?: string | null; tipos?: string[]; paso?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null;
+          administrador?: string | null; tipos?: string[]; paso?: string | null; contactoNombre?: string | null; contactoTelefono?: string | null; contactoCorreo?: string | null;
           claveId?: string | null;
         };
         // Una direccion que ya tenemos, elegida en el satelite: el alta la trae elegida.
@@ -73,7 +73,7 @@ export default async function NuevaOportunidad({
             paso: d.paso ?? null,
             clave,
           },
-          contacto: [d.contactoNombre, d.contactoTelefono].filter(Boolean).join(" · ") || null,
+          contacto: [d.contactoNombre, d.contactoTelefono, d.contactoCorreo].filter(Boolean).join(" · ") || null,
           autor: apunte.autor,
         };
       })()

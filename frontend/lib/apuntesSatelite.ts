@@ -22,7 +22,9 @@ async function pedir<T>(ruta: string, init: RequestInit = {}): Promise<T> {
 }
 const uuid = (x: string | null | undefined): x is string => !!x && /^[0-9a-f-]{36}$/.test(x);
 
-export type TipoApunte = "oportunidad" | "administrador";
+// "contacto" (19-oct-2026): vecino, contratista u otro lanzado desde el
+// satelite; su tipo va en datos.tipoContacto. Se coloca a mano en la oficina.
+export type TipoApunte = "oportunidad" | "administrador" | "contacto";
 
 export type Apunte = {
   id: string;
@@ -128,6 +130,7 @@ export async function cuantosApuntes(yo: Yo): Promise<Record<TipoApunte, number>
   return {
     oportunidad: filas.filter((f) => f.tipo === "oportunidad").length,
     administrador: filas.filter((f) => f.tipo === "administrador").length,
+    contacto: filas.filter((f) => f.tipo === "contacto").length,
   };
 }
 

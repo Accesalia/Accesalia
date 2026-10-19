@@ -8,8 +8,8 @@ import { ListaApuntes } from "./ListaApuntes";
 export const dynamic = "force-dynamic";
 
 // LO QUE SE APUNTO EN EL SATELITE Y AUN NO ESTA CREADO (Monica, 13-oct-2026). A
-// esta lista llevan dos tarjetas de Pendientes: las opps y los administradores
-// nuevos lanzados desde el movil. Se completan y se dan de alta, o se descartan.
+// esta lista llevan tres tarjetas de Pendientes: las opps, los administradores
+// y los demas contactos (19-oct-2026) nuevos lanzados desde el movil. Se completan y se dan de alta, o se descartan.
 
 const TEXTO: Record<TipoApunte, { titulo: string; sub: string; color: string }> = {
   oportunidad: {
@@ -22,6 +22,11 @@ const TEXTO: Record<TipoApunte, { titulo: string; sub: string; color: string }> 
     sub: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
     color: "rgba(124, 109, 178, 0.22)",
   },
+  contacto: {
+    titulo: "Contactos nuevos que has apuntado desde el satélite",
+    sub: "Vecinos, contratistas y otros. Están apuntados con su nota: colócalos donde toque y márcalos como hechos.",
+    color: "rgba(124, 109, 178, 0.22)",
+  },
 };
 
 export default async function ApuntesSatelite({ searchParams }: { searchParams: Promise<{ tipo?: string }> }) {
@@ -29,7 +34,7 @@ export default async function ApuntesSatelite({ searchParams }: { searchParams: 
   if (!yo) redirect("/entrar?volver=/pendientes/satelite");
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/pendientes");
   const { tipo: t } = await searchParams;
-  const tipo: TipoApunte = t === "administrador" ? "administrador" : "oportunidad";
+  const tipo: TipoApunte = t === "administrador" || t === "contacto" ? t : "oportunidad";
   const apuntes = await misApuntes(yo, tipo);
   const x = TEXTO[tipo];
 

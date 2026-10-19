@@ -191,6 +191,11 @@ export default async function Pendientes() {
             pie: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
             numero: apuntes?.administrador ?? null, href: "/pendientes/satelite?tipo=administrador", color: C.verde,
           },
+          {
+            clave: "satelite_contactos", marco: "a_medio_crear" as const, titulo: "Contactos nuevos que has apuntado desde el satélite",
+            pie: "Vecinos, contratistas y otros: me pasaste el dato con su nota, colócalos donde toque.",
+            numero: apuntes?.contacto ?? null, href: "/pendientes/satelite?tipo=contacto", color: C.verde,
+          },
         ]
       : []),
     {
