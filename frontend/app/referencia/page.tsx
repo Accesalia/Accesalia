@@ -61,6 +61,12 @@ const ACCESOS: Acceso[] = [
     desc: "Catálogos, normas y planos de protección por municipio, con el enlace oficial y cuándo revisar si han cambiado",
     href: "/referencia/proteccion",
   },
+  {
+    nombre: "Tipos de proyecto y servicios",
+    color: "melocoton",
+    desc: "Lo que vendemos: los proyectos por un lado y los servicios por otro, como salen al dar de alta una oportunidad",
+    href: "/referencia/tipos",
+  },
 ];
 
 export default async function Referencia() {
