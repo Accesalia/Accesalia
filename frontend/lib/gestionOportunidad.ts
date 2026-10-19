@@ -135,6 +135,10 @@ export type Gestion = {
   duplicadaDe: { id: string; codigo: string | null; nombre: string | null } | null;
   /** Si se anulo por error de alta: por que. */
   motivoAnulacion: string | null;
+  /** La carpeta y la ficha ANTIGUAS de Dropbox, desde "Ascensores y
+   *  rehabilitaciones" (19-oct-2026). El enlace lo arma lib/dropbox.ts. */
+  dropboxCarpeta: string | null;
+  dropboxFicha: string | null;
   comercial: string | null;
   /** Para elegirlo en la ficha: ninguna de las 1.228 migradas lo tiene aun. */
   comercialId: string | null;
@@ -251,6 +255,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       comercial: { nombre: string } | null;
       duplicada: { id: string; codigo: string | null; nombre: string | null } | null;
       motivo_anulacion: string | null;
+      dropbox_carpeta: string | null;
+      dropbox_ficha: string | null;
       puesto: { cargo: string | null; telefono_empresa: string | null; persona: { nombre: string } | null; empresa: { nombre_accesalia: string; municipio: string | null } | null } | null;
       contacto_provisional: string | null;
       telefono_provisional: string | null;
@@ -264,7 +270,7 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     `oportunidades?select=id,codigo,nombre,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
       `portales:relacion_oportunidad_accesos(acceso:acceso_id(ref_catastral)),` +
       `pausas:historial_pausas_oportunidad(desde,motivo,condicion_reactivacion,pelota_en_tejado),` +
-      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),motivo_anulacion,` +
+      `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),motivo_anulacion,dropbox_carpeta,dropbox_ficha,` +
       `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia,municipio)),` +
       `contacto_provisional,telefono_provisional,` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
@@ -329,6 +335,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
     estado: op.estado,
     duplicadaDe: op.duplicada ?? null,
     motivoAnulacion: op.motivo_anulacion,
+    dropboxCarpeta: op.dropbox_carpeta,
+    dropboxFicha: op.dropbox_ficha,
     comercial: op.comercial?.nombre ?? null,
     comercialId: op.comercial_id,
     administracion: op.puesto?.empresa?.nombre_accesalia ?? null,

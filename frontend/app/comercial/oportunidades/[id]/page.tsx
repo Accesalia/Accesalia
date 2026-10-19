@@ -42,6 +42,7 @@ import { columnasDeInteres } from "../../../../lib/columnasInteres";
 import { necesidadesDe } from "../../../../lib/necesidadesOpp";
 import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
 import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
+import { DropboxAntiguo } from "./DropboxAntiguo";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -534,6 +535,8 @@ export default async function GestionOportunidad({
           </div>
         </div>
           </div>
+          {/* Lo antiguo de Dropbox, debajo de los bloques (19-oct-2026). */}
+          <DropboxAntiguo ficha={g.dropboxFicha} carpeta={g.dropboxCarpeta} />
         </div>
       </main>
     </div>
