@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BuscadorFacturacion } from "./BuscadorFacturacion";
 
 // LAS CUATRO AREAS, EN UNA FRANJA BAJO LA BARRA NEGRA (Monica, 16-oct-2026):
 // Cobrar, Pagar, Prever y Asignar, con su contador. Antes iban dentro de la barra
@@ -25,6 +26,8 @@ export function AreasBarra({ areas, activa }: { areas: PestanaArea[]; activa: st
           </Link>
         );
       })}
+      {/* LA FICHA DE FACTURACION DE UNA OPP (Monica, 19-oct-2026): se busca desde aqui. */}
+      <BuscadorFacturacion />
     </nav>
   );
 }
