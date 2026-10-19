@@ -44,9 +44,9 @@ function cuentasHoja(ls: LineaComision[]) {
   } as const;
 }
 
-function Caja({ titulo, valor, fuerte, tono }: { titulo: string; valor: number; fuerte?: boolean; tono?: "verde" | "ambar" }) {
+function Caja({ titulo, valor, fuerte, tono, crema }: { titulo: string; valor: number; fuerte?: boolean; tono?: "verde" | "ambar"; crema?: boolean }) {
   return (
-    <div className="min-w-[132px] rounded-xl border border-black/15 bg-white px-4 py-2 text-center">
+    <div className={`min-w-[132px] rounded-xl border border-black/15 px-4 py-2 text-center ${crema ? CREMA : "bg-white"}`}>
       <div className="text-[10.5px] font-bold uppercase tracking-wide text-carbon/55">{titulo}</div>
       <div className={`mt-0.5 tabular-nums ${fuerte ? "text-[18px] font-bold" : "text-[15px] font-semibold"} ${tono === "verde" ? "text-[#2f5d14]" : tono === "ambar" ? "text-[#875f07]" : "text-carbon"}`}>{eur0(valor)}</div>
     </div>
@@ -154,9 +154,11 @@ const TD = "border-l border-black/15 px-4 first:border-l-0 first:pl-0";
 
 function TablaHoja({ h, ls, comercial, editable }: { h: HojaComision; ls: LineaComision[]; comercial: Comercial; editable: boolean }) {
   return (
-    <section className="mt-5 first:mt-3">
-      <h4 className="text-[14px] font-bold text-carbon">
-        {h.codigo} <span className="font-normal text-carbon/55">· {h.que} · total</span> <span className="tabular-nums">{eur(h.total)}</span>
+    <section className="mt-6 first:mt-3">
+      <h4 className="flex flex-wrap items-baseline gap-x-2 rounded-lg border-l-4 border-[#5f86ad] bg-[#eaf0f6] px-4 py-2 text-[14px] font-bold text-[#1f3f5f]">
+        <span>{h.codigo}</span>
+        <span className="font-normal text-[#1f3f5f]/70">· {h.que} · firmada {dia(h.fecha)} · total</span>
+        <span className="tabular-nums">{eur(h.total)}</span>
       </h4>
       <div className="mt-2 overflow-x-auto">
         <table className="border-collapse text-[13px] tabular-nums">
@@ -221,6 +223,14 @@ function Opp({ o, comercial, editable }: { o: OppComisionComercial; comercial: C
           <span className="text-carbon/40 transition group-open:rotate-90">›</span>
           {o.codigo && <span className="text-[12px] text-carbon/50">{o.codigo}</span>}
           <b className="text-[15.5px] text-carbon">{o.nombre}</b>
+          {/* Para ver el administrador y el resto de datos sin abrir la card (Monica, 19-oct). */}
+          <Link
+            href={`/comercial/oportunidades/${o.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="ml-2 rounded-lg border border-[#104269]/30 px-2.5 py-0.5 text-[12px] font-semibold text-[#104269] hover:bg-[#eaf0f6]"
+          >
+            Ver opp →
+          </Link>
         </div>
         <table className="ml-5 mt-1.5 border-collapse">
           <tbody>
@@ -231,9 +241,9 @@ function Opp({ o, comercial, editable }: { o: OppComisionComercial; comercial: C
         </table>
         <div className="ml-5 mt-3 flex flex-wrap gap-2.5">
           <Caja titulo="Total contratado" valor={o.firmado} />
-          <Caja titulo="Mi parte" valor={o.suya} fuerte />
-          <Caja titulo="Ya cobrado" valor={o.devengada} tono="verde" />
-          <Caja titulo="Pendiente de cobrar" valor={Math.max(0, o.suya - o.devengada)} tono="ambar" />
+          <Caja titulo="Mi parte" valor={o.suya} fuerte crema />
+          <Caja titulo="Ya cobrado" valor={o.devengada} tono="verde" crema />
+          <Caja titulo="Pendiente de cobrar" valor={Math.max(0, o.suya - o.devengada)} tono="ambar" crema />
         </div>
         {o.fuera && (
           <div className="ml-5 mt-2 text-[12.5px] text-[#8e2f2d]">
@@ -278,10 +288,10 @@ export function Comisiones({ comercial, opps, vista, editable }: { comercial: Co
     <div className="mt-5">
       <div className="flex flex-wrap gap-3">
         <Caja titulo="Total contratado" valor={suma("firmado")} />
-        <Caja titulo="Mi parte" valor={suma("suya")} fuerte />
-        <Caja titulo="Ya cobrado" valor={suma("devengada")} tono="verde" />
-        <Caja titulo="Pendiente de cobrar" valor={Math.max(0, suma("suya") - suma("devengada"))} tono="ambar" />
-        <Caja titulo="Ya me han pagado" valor={suma("pagada")} />
+        <Caja titulo="Mi parte" valor={suma("suya")} fuerte crema />
+        <Caja titulo="Ya cobrado" valor={suma("devengada")} tono="verde" crema />
+        <Caja titulo="Pendiente de cobrar" valor={Math.max(0, suma("suya") - suma("devengada"))} tono="ambar" crema />
+        <Caja titulo="Ya me han pagado" valor={suma("pagada")} crema />
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href={`/comercial/comisiones?${q}`} className={tab(vista === "cuentan")}>
