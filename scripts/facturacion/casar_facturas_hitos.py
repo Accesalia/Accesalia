@@ -251,9 +251,19 @@ def escribir(b, res):
             for hid, imp in zip(r['hitos'], r['hito_importe']): enlazar(r, hid, float(imp))
 
     # LOS SUBHITOS: por hito, en orden de fecha, mientras quepan en el hito; y el resto, pendiente
+    # (19-oct, Reina 5 y 13 más) NUNCA trozos en un pago que ya tiene su factura (de antes o de esta pasada): el cruce
+    # casaba la exacta y ademas partia otra factura de la misma direccion (otro encargo) sobre el mismo pago.
+    con_factura = {h for (_, h) in ya} | {e['hito_cobro_id'] for e in enlaces}
+    fecha_hoja = {h['id']: (h.get('fecha_creacion') or h.get('fecha_firma')) for h in b.leer('hojas_encargo?select=id,fecha_creacion,fecha_firma&order=id')}
     trozos = collections.defaultdict(list)
     for r in orden:
         if r['veredicto'] == 'subhito' and r['hoja'] not in NO_SUBHITO and r.get('estado_factura') != 'anulada' and r['importe'] > 0:
+            if r['hito'] in con_factura:
+                continue
+            # ni una factura de mas de un año antes de su hoja: es de otro encargo (otra convocatoria de subvencion...)
+            fh = fecha_hoja.get(r.get('hoja_id'))
+            if fh and r.get('fecha_factura') and r['fecha_factura'] < (datetime.date.fromisoformat(fh) - datetime.timedelta(days=365)).isoformat():
+                continue
             trozos[r['hito']].append(r)
     subhitos, notas, padres = 0, [], {}
     for hid, rs in trozos.items():
