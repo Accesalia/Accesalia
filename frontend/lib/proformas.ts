@@ -9,8 +9,8 @@ import "server-only";
 //   - Se elige uno o varios hitos/subhitos de una oportunidad (de UNA empresa y
 //     UN pagador): la proforma lleva tantas lineas como haga falta y cada linea
 //     tantos hitos como se quiera.
-//   - Codigo ACC-PF-26-03-0001 / AUT-… (Daniel) / ECO-…: lo pone la base
-//     (proformas_numerar), correlativo por empresa y mes.
+//   - Codigo ACC-PF-26-0001 / AUT-… (Daniel) / ECO-…: lo pone la base
+//     (proformas_numerar), correlativo por empresa y AÑO, como las facturas (19-oct).
 //   - La emiten Alexandra (Accesalia y Daniel) y Ana (Ecobalance): cada una su libro.
 //   - Siempre se manda por correo: desde facturacion.accesalia@gmail.com o
 //     facturacion.ecobalance@gmail.com, y queda en el diario de la oportunidad.

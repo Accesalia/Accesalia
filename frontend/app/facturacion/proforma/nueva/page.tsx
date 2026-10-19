@@ -39,7 +39,7 @@ export default async function NuevaProforma({ searchParams }: { searchParams: Pr
         <Volver siNoHay={`/facturacion/${p.oppId}`} />
         <h1 className="mt-3 text-3xl font-bold text-carbon">Nueva proforma</h1>
         <p className="mt-1 text-carbon/70">
-          {p.donde} · la emite <b>{p.emisora.nombre}</b>. El número ({p.emisora.clave === "daniel" ? "AUT" : p.emisora.clave === "ecobalance" ? "ECO" : "ACC"}-PF-AA-MM-NNNN) se pone al emitirla.
+          {p.donde} · la emite <b>{p.emisora.nombre}</b>. El número ({p.emisora.clave === "daniel" ? "AUT" : p.emisora.clave === "ecobalance" ? "ECO" : "ACC"}-PF-AA-NNNN) se pone al emitirla.
         </p>
         <FormProforma p={p} />
       </main>

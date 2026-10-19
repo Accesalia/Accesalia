@@ -2,9 +2,10 @@
 """ENLAZAR LAS FACTURAS DE FACTUSOL CON SU PROFORMA (Monica, 12-oct-2026): "en Factusol, al generar una factura,
 vincularla a la proforma emitida en la app".
 
-La factura lleva el codigo de la proforma DELANTE en su Referencia ("ACC-PF-26-10-0003 · RIO LLOBREGAT 10 3 de 3").
+La factura lleva el codigo de la proforma DELANTE en su Referencia ("ACC-PF-26-0003 RIO LLOBREGAT 10 3 de 3").
+Numeracion anual desde el 19-oct-2026 (antes AA-MM-NNNN; no llego a emitirse ninguna con mes).
 Despues de volcar las facturas (volcar_facturas_factusol.py), esto:
-  1. busca en la Referencia de cada factura un codigo ACC-/AUT-/ECO-PF-AA-MM-NNNN de una proforma sin factura,
+  1. busca en la Referencia de cada factura un codigo ACC-/AUT-/ECO-PF-AA-NNNN de una proforma sin factura,
      de la MISMA empresa;
   2. apunta proformas.factura_id (y la oportunidad de la factura, si no la tenia);
   3. pasa los hitos de la proforma a las lineas de la factura (factura_linea_hitos): misma cantidad de lineas y
@@ -19,7 +20,7 @@ import sys, os, re, collections
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from produccion import arrancar  # noqa: E402
 
-CODIGO = re.compile(r'\b(ACC|AUT|ECO)-PF-(\d{2})-(\d{2})-(\d{4})\b', re.I)
+CODIGO = re.compile(r'\b(ACC|AUT|ECO)-PF-(\d{2})-(\d{4})\b', re.I)
 EMPRESA = {'ACC': 'accesalia', 'AUT': 'daniel', 'ECO': 'ecobalance'}
 
 
@@ -43,7 +44,7 @@ def main():
         m = CODIGO.search(f['referencia'] or '')
         if not m or f['id'] in ya:
             continue
-        codigo = '%s-PF-%s-%s-%s' % (m.group(1).upper(), m.group(2), m.group(3), m.group(4))
+        codigo = '%s-PF-%s-%s' % (m.group(1).upper(), m.group(2), m.group(3))
         num = '%s %s/%s-%s' % (f['empresa_emisora'], f['anio'], f['serie'], f['numero'])
         p = proformas.get(codigo)
         if not p:
