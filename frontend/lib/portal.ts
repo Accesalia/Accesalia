@@ -22,7 +22,7 @@ import "server-only";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { enviarCorreo } from "./correo";
-import { personaPorCorreo } from "./sesion";
+import { personaPorCorreo, quienSoy } from "./sesion";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -237,10 +237,20 @@ async function abrirSesion(email: string) {
   (await cookies()).set(COOKIE, `${valor}.${firma(valor)}`, { httpOnly: true, secure: true, sameSite: "lax", path: "/portal", maxAge: DIAS * 86400 });
 }
 
-/** El correo de quien esta dentro del portal, o null. */
+/** El correo de quien esta dentro del portal, o null.
+ *
+ *  DIRECCION ENTRA SIN ENLACE (Monica, 20-oct-2026: «acceso universal a
+ *  gerencia.accesalia@gmail.com a todos los portales, sin tener que generar
+ *  enlace, y sin que se vea en las fichas, para poder ver lo que sale»): si no
+ *  hay sesion del portal pero si de la APP (Google, ya verificada) y es de
+ *  direccion, se entra con ese correo. Sigue sin aparecer en ninguna lista.
+ *  Nadie mas se salta el enlace: escribir un correo en la puerta no basta. */
 export async function quienEstaEnElPortal(): Promise<string | null> {
   const v = (await cookies()).get(COOKIE)?.value;
-  if (!v) return null;
+  if (!v) {
+    const yo = await quienSoy().catch(() => null);
+    return yo?.veTodo && yo.email ? limpio(yo.email) : null;
+  }
   const [e, caduca, f] = v.split(".");
   if (!e || !caduca || !f) return null;
   const esperada = Buffer.from(firma(`${e}.${caduca}`));
