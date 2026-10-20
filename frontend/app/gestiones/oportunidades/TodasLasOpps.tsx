@@ -471,25 +471,33 @@ function Fila({
         <td className="border-b border-[#f0f0f0] px-2 py-1">
           <Elegir id={`c_${f.id}`} nombre="" opciones={opciones} valor={f.comercialId ?? ""} alElegir={comercial} desactivado={pendiente} clase="w-[170px]" />
         </td>
-        <td className={TD + " max-w-[260px] truncate"} title={f.admins.length ? adminsDe(f) : undefined}>
+        <td className={TD} title={f.admins.length ? adminsDe(f) : undefined}>
           {f.admins.length ? (
-            f.admins.map((a, i) => (
-              <span key={a.clave}>
-                {i > 0 && <span className="text-carbon/40"> / </span>}
-                {a.gestor ?? a.empresa}
-                {a.gestor && a.empresa && <span className="text-[12px] text-carbon/65"> · {a.empresa}</span>}
-                {a.puestoId && f.comercialId && a.cartera !== f.comercialId && (
-                  <button
-                    type="button"
-                    onClick={() => extra.abrirCuadro(f.id)}
-                    className="ml-1.5 rounded-[5px] border border-amber-300 bg-amber-50 px-1.5 py-px text-[11px] font-semibold text-amber-900 hover:border-amber-500"
-                    title="Este gestor es de la cartera de otro comercial: ¿pasarlo al que lleva la opp?"
-                  >
-                    cartera de {a.cartera ? nombreComercial.get(a.cartera) ?? "otro" : "nadie"}
-                  </button>
-                )}
+            // La etiqueta "cartera de X" va APARTE del texto, que es el que se
+            // corta: pegada detras, con un nombre largo se cortaba ella y no se
+            // veia (Monica, 20-oct-2026: solo salia en las de Olga · JIMECO).
+            <span className="flex items-center gap-1.5">
+              <span className="min-w-0 max-w-[260px] truncate">
+                {f.admins.map((a, i) => (
+                  <span key={a.clave}>
+                    {i > 0 && <span className="text-carbon/40"> / </span>}
+                    {a.gestor ?? a.empresa}
+                    {a.gestor && a.empresa && <span className="text-[12px] text-carbon/65"> · {a.empresa}</span>}
+                  </span>
+                ))}
               </span>
-            ))
+              {[...new Set(deOtraCartera(f, f.comercialId).map((a) => a.cartera))].map((c) => (
+                <button
+                  key={c ?? "nadie"}
+                  type="button"
+                  onClick={() => extra.abrirCuadro(f.id)}
+                  className="shrink-0 rounded-[5px] border border-amber-300 bg-amber-50 px-1.5 py-px text-[11px] font-semibold text-amber-900 hover:border-amber-500"
+                  title="Su gestor es de la cartera de otro comercial: ¿pasarlo al que lleva la opp?"
+                >
+                  cartera de {c ? nombreComercial.get(c) ?? "otro" : "nadie"}
+                </button>
+              ))}
+            </span>
           ) : (
             <span className="text-amber-700/70">por completar</span>
           )}
