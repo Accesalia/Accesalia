@@ -85,7 +85,9 @@ export function nombrePropuesto(elegidos: Portal[], todos: Portal[], municipio: 
       const delNumero = todos.filter((t) => t.nombre_via === via && t.numero === num);
       const conViv = delNumero.filter((t) => t.viviendas > 0);
       // Solo garaje o local (lo que no tiene viviendas): que se diga en el nombre.
-      const elegidasConViv = escaleras.filter((e) => conViv.some((t) => t.escalera === e));
+      // Las escaleras tambien de menor a mayor ("escaleras 1, 2 y 3", no "3, 1 y 2"; 20-oct-2026).
+      const elegidasConViv = escaleras.filter((e) => conViv.some((t) => t.escalera === e))
+        .sort((a, b) => a.length - b.length || a.localeCompare(b, "es"));
       if (conViv.length > 0 && elegidasConViv.length === 0) return `${n} (garaje o local)`;
       const todas = elegidasConViv.length >= conViv.length || elegidasConViv.every((e) => !e);
       return todas ? n : `${n} ${elegidasConViv.length > 1 ? "escaleras" : "escalera"} ${y(elegidasConViv)}`;

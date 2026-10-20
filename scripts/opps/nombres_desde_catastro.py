@@ -80,7 +80,7 @@ def propuesto(accs, antes=None):
     for via, nums in porvia.items():
         partes = []
         for num in sorted(nums, key=orden):
-            esc = nums[num]; n = re.sub(r'\((\w+)\)', r' \1', num)
+            esc = sorted(nums[num], key=lambda e: (len(e), e)); n =re.sub(r'\((\w+)\)', r' \1', num)
             delnum = {(t['escalera'] or ''): t for t in todos if t['nombre_via'] == via and t['numero'] == num}.values()
             conviv = [t for t in delnum if (t['viviendas'] or 0) > 0]
             eleg = [e for e in esc if any((t['escalera'] or '') == e for t in conviv)]
