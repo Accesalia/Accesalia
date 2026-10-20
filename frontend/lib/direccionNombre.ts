@@ -74,7 +74,11 @@ export function nombrePropuesto(elegidos: Portal[], todos: Portal[], municipio: 
     });
     return `${bonito(via)} ${y(partes)}`;
   });
-  return `${trozos.join(" + ")}, ${bonito(municipio)}`;
+  // El tipo de via: si es calle no se dice; si es otra cosa, al final y entre parentesis,
+  // para no afectar al orden alfabetico: "Paris 5, Fuenlabrada (plaza)" (Monica, 20-oct-2026).
+  const tipos = [...new Set(elegidos.map((p) => (p.tipo_via || "CL").toUpperCase()).filter((t) => t !== "CL"))]
+    .map((t) => (NOMBRE_TIPO[t] ?? t).toLowerCase());
+  return `${trozos.join(" + ")}, ${bonito(municipio)}${tipos.length ? ` (${tipos.join(", ")})` : ""}`;
 }
 
 // ============================================================ el aviso
