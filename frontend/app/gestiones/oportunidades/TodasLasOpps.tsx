@@ -80,6 +80,8 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   // de verdad, contando todas sus opps (no anuladas), no solo las filtradas:
   // una DIR con una abierta y una cerrada tiene dos.
   const [varias, setVarias] = useState(false);
+  // La opp cuyo cuadro "¿su administrador tambien pasa?" esta abierto.
+  const [cuadro, setCuadro] = useState<string | null>(null);
   const oppsDeDir = useMemo(() => {
     const n = new Map<string, number>();
     for (const f of iniciales) if (f.dir) n.set(f.dir.id, (n.get(f.dir.id) ?? 0) + 1);
@@ -216,7 +218,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     setCarteras((x) => ({ ...x, ...Object.fromEntries(puestoIds.map((p) => [p, comercialId])) }));
     router.refresh();
   };
-  const extra: Extra = { comerciales, nombreComercial, oppsDeGestor, alCambiar: cambiada, alPasarGestores: gestoresPasados };
+  const extra: Extra = { comerciales, nombreComercial, oppsDeGestor, alCambiar: cambiada, alPasarGestores: gestoresPasados, abrirCuadro: setCuadro };
 
   function cambiada(id: string, c: Partial<FilaTodas>) {
     setCambios((x) => ({ ...x, [id]: { ...x[id], ...c } }));
@@ -341,6 +343,12 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
           </div>
         )}
       </section>
+      {(() => {
+        const f = cuadro ? filas.find((x) => x.id === cuadro) : null;
+        return f && f.comercialId && deOtraCartera(f, f.comercialId).length > 0 ? (
+          <CuadroCartera key={f.id} f={f} extra={extra} alCerrar={() => setCuadro(null)} />
+        ) : null;
+      })()}
     </>
   );
 }
@@ -378,6 +386,10 @@ type Extra = {
   oppsDeGestor: Map<string, number>;
   alCambiar: (id: string, c: Partial<FilaTodas>) => void;
   alPasarGestores: (puestoIds: string[], comercialId: string) => void;
+  /** El cuadro de la cartera vive en la LISTA, no en la fila: si la opp sale
+   *  del filtro al cambiarle el comercial, la fila desaparece y el cuadro con
+   *  ella (20-oct-2026). */
+  abrirCuadro: (oppId: string) => void;
 };
 
 /** Los gestores de la opp cuya cartera es de OTRO comercial que el que la lleva:
@@ -400,8 +412,6 @@ function Fila({
   const [error, setError] = useState<string | null>(null);
   // Pausar y cerrar piden algo antes: se abre su ventana.
   const [pide, setPide] = useState<"pausada" | "cerrada" | null>(null);
-  // Tras cambiar el comercial, si sus gestores son de otra cartera, se pregunta.
-  const [preguntaCartera, setPreguntaCartera] = useState(false);
 
   // Se eligen los activos; el que ya no esta solo sale si es el de esta opp.
   const opciones: Opcion[] = [
@@ -417,7 +427,7 @@ function Fila({
       if (r.error) setError(r.error);
       else {
         alCambiar(f.id, { comercialId: v || null });
-        if (deOtraCartera(f, v || null).length) setPreguntaCartera(true);
+        if (deOtraCartera(f, v || null).length) extra.abrirCuadro(f.id);
       }
     });
   };
@@ -471,7 +481,7 @@ function Fila({
                 {a.puestoId && f.comercialId && a.cartera !== f.comercialId && (
                   <button
                     type="button"
-                    onClick={() => setPreguntaCartera(true)}
+                    onClick={() => extra.abrirCuadro(f.id)}
                     className="ml-1.5 rounded-[5px] border border-amber-300 bg-amber-50 px-1.5 py-px text-[11px] font-semibold text-amber-900 hover:border-amber-500"
                     title="Este gestor es de la cartera de otro comercial: ¿pasarlo al que lleva la opp?"
                   >
@@ -500,9 +510,6 @@ function Fila({
         </tr>
       )}
       {pide && <Ventana f={f} a={pide} pendiente={pendiente} alCancelar={() => setPide(null)} alAceptar={estado} error={error} />}
-      {preguntaCartera && f.comercialId && deOtraCartera(f, f.comercialId).length > 0 && (
-        <CuadroCartera f={f} extra={extra} alCerrar={() => setPreguntaCartera(false)} />
-      )}
     </>
   );
 }
@@ -541,8 +548,6 @@ function CuadroCartera({ f, extra, alCerrar }: { f: FilaTodas; extra: Extra; alC
   };
 
   return (
-    <tr>
-      <td colSpan={7} className="p-0">
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onMouseDown={(e) => e.target === e.currentTarget && !pendiente && alCerrar()}>
           <div className={CAJA + " w-[480px] max-w-full p-4 shadow-lg"}>
             <div className="text-[15px] font-bold text-carbon">¿Su administrador también pasa a {quien}?</div>
@@ -586,8 +591,6 @@ function CuadroCartera({ f, extra, alCerrar }: { f: FilaTodas; extra: Extra; alC
             </div>
           </div>
         </div>
-      </td>
-    </tr>
   );
 }
 
