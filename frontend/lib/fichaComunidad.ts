@@ -45,8 +45,25 @@ export const TIPO = {
   iee: "IEE - Informe de Evaluacion del Edificio",
 } as const;
 
-/** Donde vive el fichero de cada tipo, cuando ya se sube a algun sitio. */
-export const ALMACEN_DE_TIPO: Record<string, string> = { [TIPO.tarjeta]: "tarjeta-cif" };
+/** Donde vive el fichero de cada tipo. La tarjeta, en su almacen de siempre; los
+ *  demas, en el privado de la documentacion de la comunidad (el del portal). */
+export const ALMACEN_DE_TIPO: Record<string, string> = {
+  [TIPO.tarjeta]: "tarjeta-cif",
+  [TIPO.acta]: "documentos-comerciales",
+  [TIPO.dni]: "documentos-comerciales",
+  [TIPO.certificado]: "documentos-comerciales",
+  [TIPO.votacion]: "documentos-comerciales",
+};
+
+/** Los papeles que se suben desde la ficha. */
+export type ClavePapel = "tarjeta" | "acta" | "dni" | "certificado" | "votacion";
+export const PAPELES: Record<ClavePapel, { tipo: string; fecha: "emision" | "caducidad" | null }> = {
+  tarjeta: { tipo: TIPO.tarjeta, fecha: null },
+  acta: { tipo: TIPO.acta, fecha: "emision" },
+  dni: { tipo: TIPO.dni, fecha: "caducidad" },
+  certificado: { tipo: TIPO.certificado, fecha: "emision" },
+  votacion: { tipo: TIPO.votacion, fecha: "emision" },
+};
 
 export type Papel = { id: string; enAlmacen: boolean; emision: string | null; caduca: string | null } | null;
 
@@ -125,6 +142,9 @@ export type Ficha = {
   cuenta: { iban: string; desde: string | null; origen: string | null } | null;
   certificado: Papel;
   presidentes: Presidente[];
+  /** Acta y DNI subidos cuando aun no hay presidente apuntado. */
+  actaSuelta: Papel;
+  dniSuelto: Papel;
   presidentesAnteriores: Anterior[];
   vicepresidentes: Persona[];
   secretarios: Persona[];
@@ -254,10 +274,13 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
 
   // ---- la gente, por cargo
   const rolDe = (p: PersonaDeComunidad) => (p.rol ?? "").toLowerCase();
+  // El acta o el DNI subidos sin presidente apuntado (puesto vacio) van al
+  // primero que haya; si no hay ninguno, se enseñan sueltos.
+  const suelto = (tipo: string) => docsDe(tipo).find((d) => !d.puesto_id && !d.persona_id);
   const presidentes: Presidente[] = gente
     .filter((p) => rolDe(p) === "presidente")
-    .map((p) => {
-      const mio = (tipo: string) => docsDe(tipo).find((d) => d.puesto_id === p.id || d.persona_id === p.personaId);
+    .map((p, i) => {
+      const mio = (tipo: string) => docsDe(tipo).find((d) => d.puesto_id === p.id || d.persona_id === p.personaId) ?? (i === 0 ? suelto(tipo) : undefined);
       return { ...persona(p), desde: null, acta: papel(mio(TIPO.acta)), dni: papel(mio(TIPO.dni)) };
     });
   const presidentesAnteriores = anterioresP
@@ -329,7 +352,7 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
               rest<{ id: string; oportunidad_id: string; backend: string | null; storage_ref: string | null; fecha_emision: string | null;
                 fecha_caducidad: string | null; tipo_documento_id: string; puesto_id: string | null; persona_id: string | null; vigente: boolean | null; creado_en: string }[]>(
                 `documentos?select=id,oportunidad_id,backend,storage_ref,fecha_emision,fecha_caducidad,tipo_documento_id,puesto_id,persona_id,vigente,creado_en` +
-                  `&oportunidad_id=in.(${oppIds.join(",")})&tipo_documento_id=eq.${idTipo.get(TIPO.votacion)}`,
+                  `&oportunidad_id=in.(${oppIds.join(",")})&tipo_documento_id=eq.${idTipo.get(TIPO.votacion)}&vigente=is.true&order=creado_en.desc`,
               ),
               [],
               "las actas de votacion",
@@ -450,6 +473,8 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
     cuenta: cuentas[0] ?? null,
     certificado: papel(docsDe(TIPO.certificado)[0]),
     presidentes,
+    actaSuelta: presidentes.length ? null : papel(suelto(TIPO.acta)),
+    dniSuelto: presidentes.length ? null : papel(suelto(TIPO.dni)),
     presidentesAnteriores,
     vicepresidentes: gente.filter((p) => rolDe(p) === "vicepresidente").map(persona),
     secretarios: gente.filter((p) => rolDe(p) === "secretario").map(persona),
@@ -507,4 +532,115 @@ export async function firmarEnlace(almacen: string, ruta: string): Promise<strin
   if (!r.ok) return null;
   const { signedURL } = (await r.json()) as { signedURL?: string };
   return signedURL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${signedURL}` : null;
+}
+
+// ---------------------------------------------------------------- subir papeles
+//
+// SUBIR DESDE LA FICHA (Monica, 20-oct-2026): «poner que falta sin dar opcion de
+// subirla, mala cosa». Cada papel que falta se arrastra o se elige ahi mismo.
+// El navegador sube el fichero con un permiso de un solo uso y despues se
+// apunta en documentos. Si ya habia uno, el nuevo es su version siguiente y el
+// anterior deja de estar vigente: no se borra nada.
+
+const CAB_ESCRIBIR = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" };
+
+const limpio = (n: string) =>
+  n.normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9._-]+/g, "_").replace(/_+/g, "_").slice(-80) || "documento";
+
+const carpeta = (clave: ClavePapel, comunidadId: string) =>
+  clave === "tarjeta" ? `${comunidadId}/` : `comunidades/${comunidadId}/${clave}/`;
+
+/** Permiso de un solo uso para que el navegador suba UN fichero. */
+export async function permisoPapel(comunidadId: string, clave: ClavePapel, nombre: string): Promise<{ ruta: string; url: string }> {
+  const almacen = ALMACEN_DE_TIPO[PAPELES[clave].tipo];
+  const ruta = `${carpeta(clave, comunidadId)}${crypto.randomUUID().slice(0, 8)}-${limpio(nombre)}`;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${almacen}/${ruta}`, { method: "POST", headers: CAB_ESCRIBIR, cache: "no-store" });
+  if (!r.ok) throw new Error(`No se ha podido preparar la subida (${r.status}).`);
+  const { url } = (await r.json()) as { url: string };
+  return { ruta, url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${url}` };
+}
+
+export type DatosPapel = {
+  comunidadId: string;
+  clave: ClavePapel;
+  ruta: string;
+  fecha: string | null;
+  puestoId: string | null;
+  oportunidadId: string | null;
+};
+
+/** Apunta en documentos el fichero ya subido. */
+export async function registrarPapel(d: DatosPapel): Promise<void> {
+  const { tipo, fecha } = PAPELES[d.clave];
+  const almacen = ALMACEN_DE_TIPO[tipo];
+  if (!d.ruta.startsWith(carpeta(d.clave, d.comunidadId))) throw new Error("Ruta no válida.");
+  if (d.fecha && !/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)) throw new Error("La fecha no es válida.");
+
+  // que el fichero haya llegado de verdad
+  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${almacen}/${d.ruta}`, { headers: CAB_ESCRIBIR, cache: "no-store" });
+  if (!info.ok) throw new Error("El fichero no ha llegado. Vuelve a intentarlo.");
+
+  const [t] = await rest<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent(tipo)}`);
+  if (!t) throw new Error("Ese tipo de documento no está en el catálogo.");
+
+  // de quien es: el acta de votacion, de la opp; lo demas, de la comunidad
+  let filtro: string;
+  let personaId: string | null = null;
+  if (d.clave === "votacion") {
+    if (!d.oportunidadId || !/^[0-9a-f-]{36}$/.test(d.oportunidadId)) throw new Error("Falta la oportunidad.");
+    const suya = await rest<{ oportunidad_id: string }[]>(
+      `administradores_de_oportunidad?select=oportunidad_id&comunidad_id=eq.${d.comunidadId}&oportunidad_id=eq.${d.oportunidadId}&limit=1`,
+    );
+    if (!suya.length) throw new Error("Esa oportunidad no es de esta comunidad.");
+    filtro = `oportunidad_id=eq.${d.oportunidadId}`;
+  } else {
+    filtro = `comunidad_id=eq.${d.comunidadId}`;
+    if (d.puestoId) {
+      if (!/^[0-9a-f-]{36}$/.test(d.puestoId)) throw new Error("Persona no válida.");
+      const [p] = await rest<{ persona_id: string | null; figura_legal_propietaria_id: string | null }[]>(
+        `puesto?select=persona_id,figura_legal_propietaria_id&id=eq.${d.puestoId}`,
+      );
+      if (!p || p.figura_legal_propietaria_id !== d.comunidadId) throw new Error("Esa persona no es de esta comunidad.");
+      personaId = p.persona_id;
+      filtro += `&puesto_id=eq.${d.puestoId}`;
+    } else if (d.clave === "acta" || d.clave === "dni") {
+      filtro += "&puesto_id=is.null&persona_id=is.null";
+    }
+  }
+
+  // el que habia: el nuevo es su version siguiente
+  const [antes] = await rest<{ id: string; grupo_id: string; n_version: number }[]>(
+    `documentos?select=id,grupo_id,n_version&${filtro}&tipo_documento_id=eq.${t.id}&vigente=is.true&order=creado_en.desc&limit=1`,
+  );
+
+  const r = await fetch(`${URL_BASE}/rest/v1/documentos`, {
+    method: "POST",
+    headers: { ...CAB_ESCRIBIR, Prefer: "return=minimal" },
+    body: JSON.stringify({
+      comunidad_id: d.clave === "votacion" ? null : d.comunidadId,
+      oportunidad_id: d.clave === "votacion" ? d.oportunidadId : null,
+      puesto_id: d.clave === "votacion" ? null : d.puestoId,
+      persona_id: personaId,
+      tipo_documento_id: t.id,
+      fecha_emision: fecha === "emision" ? d.fecha : null,
+      fecha_caducidad: fecha === "caducidad" ? d.fecha : null,
+      grupo_id: antes?.grupo_id ?? crypto.randomUUID(),
+      n_version: (antes?.n_version ?? 0) + 1,
+      vigente: true,
+      naturaleza: "subido",
+      backend: "supabase",
+      storage_ref: d.ruta,
+    }),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`No se ha podido apuntar el documento (${r.status}): ${(await r.text()).slice(0, 200)}`);
+
+  if (antes) {
+    await fetch(`${URL_BASE}/rest/v1/documentos?id=eq.${antes.id}`, {
+      method: "PATCH",
+      headers: { ...CAB_ESCRIBIR, Prefer: "return=minimal" },
+      body: JSON.stringify({ vigente: false }),
+      cache: "no-store",
+    });
+  }
 }

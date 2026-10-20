@@ -2,9 +2,10 @@ import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { Salida } from "../../../components/Salida";
 import { fichaComunidad, type Ficha, type Papel } from "../../../../lib/fichaComunidad";
-import { quienSoy } from "../../../../lib/sesion";
+import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { autorizadosDe } from "../../../../lib/portal";
 import { accionAutorizar, accionQuitarAutorizado } from "./accionesPortal";
+import { Papel as Doc } from "./Papel";
 
 export const dynamic = "force-dynamic";
 
@@ -76,32 +77,6 @@ function Linea({ children, className = "" }: { children: React.ReactNode; classN
   return <div className={"flex flex-wrap items-baseline gap-x-7 gap-y-2 " + className}>{children}</div>;
 }
 
-/** Un documento: siempre con cara de documento. Si esta en el almacen, se abre. */
-function Doc({ et, p, comunidadId }: { et: string; p: Papel; comunidadId: string }) {
-  const base = "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-0.5 text-sm font-semibold ";
-  if (!p)
-    return (
-      <span className={base + "border-lima/30 bg-white text-lima-dark/55"} title="Todavía no está subido">
-        <span aria-hidden>📄</span>
-        {et}
-        <span className="font-medium text-amber-700/70">(falta)</span>
-      </span>
-    );
-  if (!p.enAlmacen)
-    return (
-      <span className={base + "border-lima/60 bg-lima-soft text-lima-dark"} title="Está apuntado, pero el fichero no está en el almacén">
-        <span aria-hidden>📄</span>
-        {et}
-      </span>
-    );
-  return (
-    <a href={`/administracion/comunidades/${comunidadId}/papel/${p.id}`} target="_blank" rel="noopener" className={base + "border-lima/60 bg-lima-soft text-lima-dark hover:bg-lima/30"}>
-      <span aria-hidden>📄</span>
-      {et}
-    </a>
-  );
-}
-
 function Pildora({ children, tono }: { children: React.ReactNode; tono: string }) {
   return <span className={"inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[13px] font-bold " + tono}>{children}</span>;
 }
@@ -163,6 +138,8 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
   const f = await fichaComunidad(id);
   if (!f) notFound();
   const autorizados = await autorizadosDe(id).catch(() => []);
+  // sube papeles quien puede dar acceso a su pagina de documentacion
+  const sube = !!(yo.veTodo || puedeEntrar(yo, "comercial", "trabajar") || puedeEntrar(yo, "administracion", "trabajar"));
 
   const hojas = f.opps.flatMap((o) => o.hojas);
   const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
@@ -226,7 +203,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
               <Linea className="mt-2.5">
                 <Dato et="Nombre fiscal (del CIF)" v={f.razonSocial} ancho="min-w-0 flex-1 basis-80" />
                 <Dato et="CIF" v={f.cif} />
-                <Doc et="Tarjeta CIF" p={f.tarjeta} comunidadId={f.id} />
+                <Doc et="Tarjeta CIF" clave="tarjeta" p={f.tarjeta} comunidadId={f.id} puedeSubir={sube} />
               </Linea>
               <Linea className="mt-2.5">
                 <Dato et="Domicilio fiscal" v={f.domicilioFiscal} />
@@ -237,7 +214,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                 <Dato et="IBAN" v={f.cuenta?.iban && <span className="tabular-nums">{f.cuenta.iban}</span>} />
                 {f.cuenta && <Dato et="Desde" v={fecha(f.cuenta.desde)} />}
                 {f.cuenta?.origen && <span className="text-[13px] text-carbon/65">sale de la {f.cuenta.origen}</span>}
-                <Doc et="Certificado de titularidad" p={f.certificado} comunidadId={f.id} />
+                <Doc et="Certificado de titularidad" clave="certificado" p={f.certificado} comunidadId={f.id} puedeSubir={sube} />
                 {f.certificado && <Dato et="Fecha cert." v={fecha(f.certificado.emision)} falta="—" />}
               </Linea>
 
@@ -248,11 +225,13 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                     <>
                       <Linea>
                         <span className="text-amber-700/60">nombre por completar</span>
-                        <Doc et="DNI" p={null} comunidadId={f.id} />
+                        <Doc et="DNI" clave="dni" p={f.dniSuelto} comunidadId={f.id} puedeSubir={sube} />
                       </Linea>
                       <Linea className="mt-2.5">
-                        <Doc et="Acta de nombramiento" p={null} comunidadId={f.id} />
-                        <AvisoActa acta={null} />
+                        <Doc et="Acta de nombramiento" clave="acta" p={f.actaSuelta} comunidadId={f.id} puedeSubir={sube} />
+                        <Dato et="Fecha del acta" v={fecha(f.actaSuelta?.emision)} falta="—" />
+                        <Dato et="Vigente hasta" v={fecha(vigenciaActa(f.actaSuelta))} falta="—" />
+                        <AvisoActa acta={f.actaSuelta} />
                       </Linea>
                     </>
                   ) : (
@@ -263,10 +242,10 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                           {p.telefono ? <span className="font-semibold text-lima-dark">{p.telefono}</span> : <span className="text-amber-700/60">sin teléfono</span>}
                           {p.email ? <span className="text-carbon/80">{p.email}</span> : <span className="text-amber-700/60">sin correo</span>}
                           <Dato et="DNI" v={p.documento} />
-                          <Doc et="DNI" p={p.dni} comunidadId={f.id} />
+                          <Doc et="DNI" clave="dni" p={p.dni} puestoId={p.puestoId} comunidadId={f.id} puedeSubir={sube} />
                         </Linea>
                         <Linea className="mt-2.5">
-                          <Doc et="Acta de nombramiento" p={p.acta} comunidadId={f.id} />
+                          <Doc et="Acta de nombramiento" clave="acta" p={p.acta} puestoId={p.puestoId} comunidadId={f.id} puedeSubir={sube} />
                           <Dato et="Fecha del acta" v={fecha(p.acta?.emision)} falta="—" />
                           <Dato et="Vigente hasta" v={fecha(vigenciaActa(p.acta))} falta="—" />
                           <AvisoActa acta={p.acta} />
@@ -462,7 +441,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                           {o.apertura && <span>abierta el {fecha(o.apertura)}</span>}
                           {o.comercial && <span>comercial: <b className="text-carbon/85">{o.comercial}</b></span>}
                           {o.accesos.length > 0 && <span>accesos: {o.accesos.join(", ")}</span>}
-                          <Doc et="Acta de votación" p={o.votacion} comunidadId={f.id} />
+                          <Doc et="Acta de votación" clave="votacion" p={o.votacion} oportunidadId={o.id} comunidadId={f.id} puedeSubir={sube} />
                         </div>
                         {o.hojas.length === 0 ? (
                           <p className="mt-2.5 text-[13px] text-carbon/65">Sin hojas de encargo.</p>
@@ -646,19 +625,19 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
             <Tarjeta titulo="Papeles y validez">
               <ul className="space-y-2">
                 <li className="flex items-center justify-between gap-3">
-                  <Doc et="Tarjeta CIF" p={f.tarjeta} comunidadId={f.id} />
+                  <Doc et="Tarjeta CIF" clave="tarjeta" p={f.tarjeta} comunidadId={f.id} puedeSubir={sube} />
                   <span className="text-[13px] text-carbon/65">{f.tarjeta ? "subida" : "no caduca"}</span>
                 </li>
                 <li className="flex items-center justify-between gap-3">
-                  <Doc et="Acta presidente" p={f.presidentes[0]?.acta ?? null} comunidadId={f.id} />
-                  <span className="text-[13px] text-carbon/65">{fecha(vigenciaActa(f.presidentes[0]?.acta ?? null)) ? `hasta ${fecha(vigenciaActa(f.presidentes[0]?.acta ?? null))}` : "caduca al año"}</span>
+                  <Doc et="Acta presidente" clave="acta" p={f.presidentes[0]?.acta ?? f.actaSuelta} puestoId={f.presidentes[0]?.puestoId ?? null} comunidadId={f.id} puedeSubir={sube} />
+                  <span className="text-[13px] text-carbon/65">{fecha(vigenciaActa(f.presidentes[0]?.acta ?? f.actaSuelta)) ? `hasta ${fecha(vigenciaActa(f.presidentes[0]?.acta ?? f.actaSuelta))}` : "caduca al año"}</span>
                 </li>
                 <li className="flex items-center justify-between gap-3">
-                  <Doc et="DNI presidente" p={f.presidentes[0]?.dni ?? null} comunidadId={f.id} />
-                  <span className="text-[13px] text-carbon/65">{f.presidentes[0]?.dni?.caduca ? `hasta ${fecha(f.presidentes[0].dni.caduca)}` : "caduca"}</span>
+                  <Doc et="DNI presidente" clave="dni" p={f.presidentes[0]?.dni ?? f.dniSuelto} puestoId={f.presidentes[0]?.puestoId ?? null} comunidadId={f.id} puedeSubir={sube} />
+                  <span className="text-[13px] text-carbon/65">{(f.presidentes[0]?.dni ?? f.dniSuelto)?.caduca ? `hasta ${fecha((f.presidentes[0]?.dni ?? f.dniSuelto)!.caduca)}` : "caduca"}</span>
                 </li>
                 <li className="flex items-center justify-between gap-3">
-                  <Doc et="Cert. de la cuenta" p={f.certificado} comunidadId={f.id} />
+                  <Doc et="Cert. de la cuenta" clave="certificado" p={f.certificado} comunidadId={f.id} puedeSubir={sube} />
                   <span className="text-[13px] text-carbon/65">{f.certificado?.emision ? `del ${fecha(f.certificado.emision)}` : "reciente"}</span>
                 </li>
               </ul>
