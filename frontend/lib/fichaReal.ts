@@ -66,7 +66,7 @@ type FilaHoja = {
 };
 
 type FilaPersona = { nombre: string; rol: string | null; telefono: string | null; email: string | null; notas: string | null };
-type FilaObs = { id: string; fecha: string | null; fase: string | null; texto: string; autor: string | null };
+type FilaNota = { id: string; fecha: string | null; texto: string; autor: string | null; oportunidades: { codigo: string } | null };
 
 const num = (x: string | null) => (x === null ? 0 : Number(x));
 
@@ -89,7 +89,7 @@ export async function fichaReal(comunidadId: string): Promise<FichaComercial | n
   if (!comunidad) return null;
 
   const avisos: string[] = [];
-  const [hojas, personas, observaciones] = await Promise.all([
+  const [hojas, personas, notas] = await Promise.all([
     intenta(rest<FilaHoja[]>(
       "hojas_encargo?select=id,numero_hoja,estado,fecha_creacion,fecha_firma,descripcion,emisor,quien_lo_trae,comercial_interno," +
         // OJO: hay DOS relaciones entre hojas_encargo y versiones_hoja (la version
@@ -101,7 +101,9 @@ export async function fichaReal(comunidadId: string): Promise<FichaComercial | n
     ), "la hoja de encargo", avisos),
     // UNA SOLA AGENDA (15-oct-2026): de persona + puesto, no de personas_comunidad.
     intenta(personasDeComunidad(comunidadId).then((ps) => ps.map((p) => ({ nombre: p.nombre, rol: p.rol, telefono: p.telefono, email: p.email, notas: p.notas }) as FilaPersona)), "las personas", avisos),
-    intenta(rest<FilaObs[]>(`observaciones_expediente?select=id,fecha,fase,texto,autor&comunidad_id=eq.${comunidadId}&order=fecha.desc.nullslast&limit=60`), "el histórico", avisos),
+    // EL DIARIO DE SUS OPPS (20-oct-2026): de la comunidad solo cuelgan sus datos. Las observaciones que colgaban de
+    // ella (observaciones_expediente) se pasaron al diario de su opp y la tabla se jubilo.
+    intenta(rest<FilaNota[]>(`notas_oportunidad?select=id,fecha,texto,autor,oportunidades!inner(codigo)&oportunidades.comunidad_id=eq.${comunidadId}&order=fecha.desc.nullslast&limit=60`), "el diario", avisos),
   ]);
 
   // La hoja que manda: la ultima creada. (Aun no hay varias por comunidad casi
@@ -181,12 +183,11 @@ export async function fichaReal(comunidadId: string): Promise<FichaComercial | n
     olfato: [],
     administrador: null,
     hitos,
-    // OJO: esto NO es el diario comercial. Son las observaciones del expediente
-    // (licencia y obra, sobre todo). Se ensenan como historico, etiquetadas.
-    diario: observaciones.map((o) => ({
+    // El diario de las opps de la comunidad, cada nota con el codigo de su opp.
+    diario: notas.map((o) => ({
       id: o.id,
       fecha: o.fecha ?? "",
-      tipo: o.fase ?? "histórico",
+      tipo: o.oportunidades?.codigo ?? "diario",
       con: o.autor,
       texto: o.texto,
       revisar: false,

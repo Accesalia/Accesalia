@@ -227,7 +227,7 @@ export default async function FichaCompleta({
         </Bloque>
 
         {/* --------------------------------- diario --------------------------------- */}
-        <Bloque titulo={real ? "Histórico del expediente" : "Toda la historia con esta comunidad"} de={real ? "observaciones_expediente · licencia y obra, no comercial" : "interacciones · interaccion_comunidad"}>
+        <Bloque titulo={real ? "Diario de sus opps" : "Toda la historia con esta comunidad"} de={real ? "notas_oportunidad · el diario de cada opp de esta comunidad" : "interacciones · interaccion_comunidad"}>
           <DiarioCompleto entradas={f.diario} />
         </Bloque>
       </main>
