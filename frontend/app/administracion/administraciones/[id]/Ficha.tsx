@@ -149,8 +149,32 @@ function Notas({ nombre, notas, abierta, alAbrir }: { nombre: string; notas: Not
   );
 }
 
-type Fila = PersonaFicha & { clave: string; nueva: boolean; quitada: boolean };
-const filaDe = (p: PersonaFicha): Fila => ({ ...p, clave: p.puestoId, nueva: false, quitada: false });
+type Fila = PersonaFicha & { clave: string; nueva: boolean; quitada: boolean; jefeAntes: boolean };
+const filaDe = (p: PersonaFicha): Fila => ({ ...p, clave: p.puestoId, nueva: false, quitada: false, jefeAntes: p.jefe });
+
+/** PASAR DE JEFE A EMPLEADO, O AL REVES (Monica, 20-oct-2026: "apuntamos un
+ *  nombre y no sabemos si es jefe o currito"). La persona cambia de caja en el
+ *  momento; se guarda con Guardar, como todo. */
+function Mover({ aJefe, alPulsar }: { aJefe: boolean; alPulsar: () => void }) {
+  const t = aJefe ? "Es el jefe: pasarlo arriba" : "No es el jefe: pasarlo a «quién más trabaja allí»";
+  return (
+    <button
+      type="button"
+      onClick={alPulsar}
+      title={t}
+      aria-label={t}
+      className="shrink-0 self-end whitespace-nowrap rounded-lg border border-black/10 bg-white px-2 py-0.5 text-[12px] font-semibold leading-tight text-carbon/65 transition hover:border-lima hover:text-lima-dark"
+    >
+      {aJefe ? "↑ jefe" : "↓ empleado"}
+    </button>
+  );
+}
+
+/** Se ha movido de caja y aun no se ha guardado. */
+const Movido = ({ f }: { f: Fila }) =>
+  !f.nueva && f.jefe !== f.jefeAntes ? (
+    <span className="text-xs text-amber-800/80">{f.jefe ? "pasa a jefe al guardar" : "deja de ser jefe al guardar"}</span>
+  ) : null;
 const filaNueva = (jefe: boolean): Fila => ({
   puestoId: "",
   personaId: null,
@@ -167,6 +191,7 @@ const filaNueva = (jefe: boolean): Fila => ({
   clave: nuevaClave(),
   nueva: true,
   quitada: false,
+  jefeAntes: jefe,
 });
 
 export function Ficha({
@@ -278,7 +303,9 @@ export function Ficha({
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-end gap-2">
+                  <Movido f={f} />
                   {f.quitada && <span className="text-xs text-alerta">ya no trabaja aquí: se quita al guardar</span>}
+                  {!f.quitada && <Mover aJefe={false} alPulsar={() => cambiar(f.clave, { jefe: false })} />}
                   <Quitar alPulsar={() => quitar(f)} titulo={f.nueva ? "Quitar esta línea" : f.quitada ? "Deshacer" : "Ya no trabaja aquí"} />
                 </div>
               </div>
@@ -325,8 +352,14 @@ export function Ficha({
                           ✎
                         </button>
                       )}
+                      {!f.quitada && <Mover aJefe alPulsar={() => cambiar(f.clave, { jefe: true })} />}
                       <Quitar alPulsar={() => quitar(f)} titulo={f.nueva ? "Quitar esta línea" : f.quitada ? "Deshacer" : "Ya no trabaja aquí"} />
                     </div>
+                    {!f.nueva && f.jefe !== f.jefeAntes && (
+                      <p className="sm:col-span-12">
+                        <Movido f={f} />
+                      </p>
+                    )}
                     {/* Las notas, solo si hay (o si se acaba de pulsar el lapiz). */}
                     {(f.notas.length > 0 || notaAbierta.has(f.clave)) && (
                       <div className="sm:col-span-12">

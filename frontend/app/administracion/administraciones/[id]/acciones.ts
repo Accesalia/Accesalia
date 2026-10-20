@@ -39,10 +39,13 @@ export async function guardar(id: string, fd: FormData) {
       puestoId: k.startsWith("n") ? null : k,
       jefe: c("jefe") === "1",
       nombre: c("nombre") ?? "",
-      cargo: c("cargo"),
+      // Lo que la pantalla no enseña a esa persona no llega, y no se toca: el
+      // empleado no tiene casilla de colegiado ni el jefe de cargo (20-oct-2026:
+      // guardar borraba el colegiado de los empleados).
+      cargo: fd.has(`p_${k}_cargo`) ? c("cargo") : undefined,
       telefono: c("tel"),
       correo: c("mail"),
-      colegiado: c("col"),
+      colegiado: fd.has(`p_${k}_col`) ? c("col") : undefined,
       comercialId: fd.has(`p_${k}_comercial`) ? c("comercial") : undefined,
       quitar: c("quitar") === "1",
       notaNueva: c("nota"),

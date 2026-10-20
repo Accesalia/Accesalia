@@ -304,12 +304,15 @@ export async function opcionesFicha(): Promise<OpcionesFicha> {
 export type PersonaGuardar = {
   /** null = nueva. */
   puestoId: string | null;
+  /** Jefe o empleado: se puede cambiar de uno a otro (Monica, 20-oct-2026:
+   *  "apuntamos un nombre y no sabemos si es jefe o currito"). */
   jefe: boolean;
   nombre: string;
-  cargo: string | null;
+  /** undefined = la pantalla no lo enseña a esta persona: no se toca. */
+  cargo?: string | null;
   telefono: string | null;
   correo: string | null;
-  colegiado: string | null;
+  colegiado?: string | null;
   /** undefined = la pantalla no lo enseña (el jefe): no se toca. */
   comercialId?: string | null;
   /** "Ya no trabaja aqui": se le cierra el puesto, no se borra. */
@@ -418,8 +421,15 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
       }
       const puesto = cambios(
         { cargo: viejo.cargo, telefono_empresa: viejo.telefono, numero_colegiado: viejo.colegiado, comercial_id: viejo.comercialId } as Record<string, unknown>,
-        { cargo: p.jefe ? viejo.cargo : p.cargo, telefono_empresa: p.telefono, numero_colegiado: p.colegiado, comercial_id: p.comercialId === undefined ? viejo.comercialId : p.comercialId },
+        {
+          cargo: p.cargo === undefined ? viejo.cargo : p.cargo,
+          telefono_empresa: p.telefono,
+          numero_colegiado: p.colegiado === undefined ? viejo.colegiado : p.colegiado,
+          comercial_id: p.comercialId === undefined ? viejo.comercialId : p.comercialId,
+        },
       );
+      // De empleado a jefe, o al reves: la marca "el que manda" del puesto.
+      if (p.jefe !== viejo.jefe) puesto.cargo_clave = p.jefe ? "el que manda" : null;
       if (Object.keys(puesto).length) await escribir("PATCH", `puesto?id=eq.${viejo.puestoId}`, puesto);
       await ponerCorreo("puesto_id", viejo.puestoId, viejo.correo, p.correo);
       await ponerNota({ puesto_id: viejo.puestoId }, p.notaNueva, yo);
@@ -429,10 +439,10 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
       const puesto = await escribir("POST", "puesto", {
         persona_id: persona!.id,
         empresa_id: id,
-        cargo: p.jefe ? null : p.cargo,
+        cargo: p.cargo ?? null,
         cargo_clave: p.jefe ? "el que manda" : null,
         telefono_empresa: p.telefono,
-        numero_colegiado: p.colegiado,
+        numero_colegiado: p.colegiado ?? null,
         comercial_id: p.comercialId ?? null,
         desde: hoy(),
       });
