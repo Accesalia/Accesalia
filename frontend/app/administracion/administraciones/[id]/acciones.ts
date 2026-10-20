@@ -82,6 +82,7 @@ export async function guardar(id: string, fd: FormData) {
       respetar: fd.get("respetar") === "on",
       duenoContrataId: texto(fd, "de_quien_es"),
       servicioReservado: reservado && RESERVADO.includes(reservado) ? reservado : null,
+      condicionesNotas: texto(fd, "condiciones_notas"),
     },
     personas,
     departamentos,

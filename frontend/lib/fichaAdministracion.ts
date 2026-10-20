@@ -129,6 +129,7 @@ export type FichaAdministracion = {
     respetar: boolean;
     duenoContrataId: string | null;
     servicioReservado: string | null;
+    condicionesNotas: string | null;
   } | null;
   personas: PersonaFicha[];
   departamentos: DepartamentoFicha[];
@@ -171,9 +172,9 @@ export async function leerFicha(id: string): Promise<FichaAdministracion | null>
     ),
     leer<{
       canal_id: string | null; quien_lo_trae: string | null; quien_comercial_id: string | null; notas: string | null;
-      condiciona_oferta: boolean | null; dueno_contrata_id: string | null; servicio_reservado: string | null;
+      condiciona_oferta: boolean | null; dueno_contrata_id: string | null; servicio_reservado: string | null; condiciones_notas: string | null;
     }[]>(
-      `administracion_origen?select=canal_id,quien_lo_trae,quien_comercial_id,notas,condiciona_oferta,dueno_contrata_id,servicio_reservado&empresa_id=eq.${id}&order=creado_en.asc&limit=1`,
+      `administracion_origen?select=canal_id,quien_lo_trae,quien_comercial_id,notas,condiciona_oferta,dueno_contrata_id,servicio_reservado,condiciones_notas&empresa_id=eq.${id}&order=creado_en.asc&limit=1`,
     ),
     leer<{ acuerdo_id: string }[]>(`comision_acuerdo_empresas?select=acuerdo_id&empresa_id=eq.${id}&limit=1`),
     leer<{ oportunidad_id: string }[]>(`administradores_de_oportunidad?select=oportunidad_id&empresa_id=eq.${id}`),
@@ -241,6 +242,7 @@ export async function leerFicha(id: string): Promise<FichaAdministracion | null>
           respetar: !!o.condiciona_oferta,
           duenoContrataId: o.dueno_contrata_id,
           servicioReservado: o.servicio_reservado,
+          condicionesNotas: limpio(o.condiciones_notas),
         }
       : null,
     personas,
@@ -343,6 +345,7 @@ export type FichaGuardar = {
     respetar: boolean;
     duenoContrataId: string | null;
     servicioReservado: string | null;
+    condicionesNotas: string | null;
   };
   personas: PersonaGuardar[];
   departamentos: DepartamentoGuardar[];
@@ -390,8 +393,8 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
 
   // 2 · como le conocimos y las condiciones (una fila, la primera)
   const o = antes.origen;
-  const origenAntes = { canal_id: o?.canalId ?? null, ...columnasQuien(o?.quien ?? null), notas: o?.notas ?? null, condiciona_oferta: o?.respetar ?? false, dueno_contrata_id: o?.duenoContrataId ?? null, servicio_reservado: o?.servicioReservado ?? null };
-  const origenAhora = { canal_id: d.origen.canalId, ...columnasQuien(d.origen.quien), notas: d.origen.notas, condiciona_oferta: d.origen.respetar, dueno_contrata_id: d.origen.duenoContrataId, servicio_reservado: d.origen.servicioReservado };
+  const origenAntes = { canal_id: o?.canalId ?? null, ...columnasQuien(o?.quien ?? null), notas: o?.notas ?? null, condiciona_oferta: o?.respetar ?? false, dueno_contrata_id: o?.duenoContrataId ?? null, servicio_reservado: o?.servicioReservado ?? null, condiciones_notas: o?.condicionesNotas ?? null };
+  const origenAhora = { canal_id: d.origen.canalId, ...columnasQuien(d.origen.quien), notas: d.origen.notas, condiciona_oferta: d.origen.respetar, dueno_contrata_id: d.origen.duenoContrataId, servicio_reservado: d.origen.servicioReservado, condiciones_notas: d.origen.condicionesNotas };
   const origen = cambios(origenAntes as Record<string, unknown>, origenAhora);
   if (Object.keys(origen).length) {
     if (o) await escribir("PATCH", `administracion_origen?empresa_id=eq.${id}`, origen);

@@ -189,7 +189,8 @@ export function Ficha({
   const [estadoComision, setEstadoComision] = useState<string>(ficha.comisionEstado);
   const o = ficha.origen;
   const [respetar, setRespetar] = useState(o?.respetar ?? false);
-  const hayCondiciones = !!(o?.respetar || o?.duenoContrataId || o?.servicioReservado);
+  const hayCondiciones = !!(o?.respetar || o?.duenoContrataId || o?.servicioReservado || o?.condicionesNotas);
+  const [verNotasCondiciones, setVerNotasCondiciones] = useState(!!o?.condicionesNotas);
   const [verCondiciones, setVerCondiciones] = useState(hayCondiciones);
   const [verNotasOrigen, setVerNotasOrigen] = useState(!!o?.notas);
   const [enviando, setEnviando] = useState(false);
@@ -448,6 +449,23 @@ export function Ficha({
                   </label>
                   <Elegir id="de_quien_es" nombre="Nos llegó por" tinta="font-extrabold text-[#720808]" opciones={contratas} defecto={o?.duenoContrataId ?? undefined} />
                   <Elegir id="servicio_reservado" nombre="No ofrecerle jamás" opciones={RESERVADO} tinta="font-extrabold text-[#720808]" defecto={o?.servicioReservado ?? undefined} />
+                  {/* Sus notas, aparte de las de "como le conocimos". Muy importantes. */}
+                  <div className="sm:col-span-3">
+                    {verNotasCondiciones ? (
+                      <label className="flex items-start gap-2" htmlFor="condiciones_notas">
+                        <span className="shrink-0 pt-2 text-[10px] font-extrabold uppercase tracking-wide text-[#720808]">Notas</span>
+                        <textarea
+                          id="condiciones_notas"
+                          name="condiciones_notas"
+                          rows={1}
+                          defaultValue={o?.condicionesNotas ?? ""}
+                          className={caja + " min-h-9 flex-1 resize-y"}
+                        />
+                      </label>
+                    ) : (
+                      <Anadir texto="+ añadir nota" alPulsar={() => setVerNotasCondiciones(true)} />
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="mt-1">
