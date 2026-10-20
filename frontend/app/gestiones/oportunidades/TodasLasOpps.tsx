@@ -35,6 +35,8 @@ type Orden = "nombre" | "municipio" | "codigo" | "apertura" | "admin";
 /** "Belén Gómez · SM Fincas"; sin gestor, la administracion sola. */
 const textoAdmin = (a: FilaTodas["admins"][number]) => [a.gestor, a.empresa].filter(Boolean).join(" · ") || "—";
 const adminsDe = (f: FilaTodas) => f.admins.map(textoAdmin).join(" / ");
+const SIN_MUNICIPIO = "(sin municipio)";
+const anioDe = (f: FilaTodas) => f.apertura?.slice(0, 4) ?? "(sin fecha)";
 
 export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTodas[]; comerciales: ComercialLista[] }) {
   const router = useRouter();
@@ -53,56 +55,74 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
 
   const nombreComercial = useMemo(() => new Map(comerciales.map((c) => [c.id, c.nombre])), [comerciales]);
 
-  // Las opciones de los filtros salen de lo que hay, con cuantas tiene cada una.
-  const opcionesComercial: Opcion[] = useMemo(() => {
-    const n = (id: string | null) => filas.filter((f) => f.comercialId === id).length;
-    return [
-      { valor: "", texto: "Todos" },
-      { valor: SIN, texto: "Sin asignar", pista: String(n(null)) },
-      ...comerciales.filter((c) => c.activo || n(c.id) > 0).map((c) => ({ valor: c.id, texto: c.nombre, pista: String(n(c.id)) + (c.activo ? "" : " · ya no está") })),
-    ];
-  }, [filas, comerciales]);
-  const opcionesMunicipio: Opcion[] = useMemo(() => {
-    const n = new Map<string, number>();
-    for (const f of filas) for (const m of f.municipio ? f.municipio.split(", ") : ["(sin municipio)"]) n.set(m, (n.get(m) ?? 0) + 1);
-    return [{ valor: "", texto: "Todos" }, ...[...n].sort((a, b) => a[0].localeCompare(b[0], "es")).map(([m, k]) => ({ valor: m, texto: m, pista: String(k) }))];
-  }, [filas]);
-  // El filtro del administrador: un gestor cada opcion, con su administracion
-  // de pista (asi buscando "SM Fincas" salen todos los suyos).
-  const opcionesAdmin: Opcion[] = useMemo(() => {
-    const n = new Map<string, { a: FilaTodas["admins"][number]; k: number }>();
-    for (const f of filas) for (const a of f.admins) n.set(a.clave, { a, k: (n.get(a.clave)?.k ?? 0) + 1 });
-    const sin = filas.filter((f) => f.admins.length === 0).length;
-    return [
-      { valor: "", texto: "Todos" },
-      { valor: SIN, texto: "Sin administrador", pista: String(sin) },
-      ...[...n.values()]
-        .sort((x, y) => (x.a.gestor ?? x.a.empresa ?? "").localeCompare(y.a.gestor ?? y.a.empresa ?? "", "es"))
-        .map(({ a, k }) => ({ valor: a.clave, texto: a.gestor ?? a.empresa ?? "—", pista: [a.gestor ? a.empresa : null, String(k)].filter(Boolean).join(" · ") })),
-    ];
-  }, [filas]);
-  const opcionesAnio: Opcion[] = useMemo(() => {
-    const n = new Map<string, number>();
-    for (const f of filas) {
-      const a = f.apertura?.slice(0, 4) ?? "(sin fecha)";
-      n.set(a, (n.get(a) ?? 0) + 1);
-    }
-    return [{ valor: "", texto: "Todos" }, ...[...n].sort((a, b) => b[0].localeCompare(a[0])).map(([a, k]) => ({ valor: a, texto: a, pista: String(k) }))];
-  }, [filas]);
-
-  // Todos los filtros menos el del estado: asi las pastillas cuentan lo que hay
-  // en cada estado DENTRO de lo filtrado.
-  const sinEstado = useMemo(() => {
+  // LOS FILTROS SE SUMAN (Monica, 20-oct-2026: "si selecciono un comercial me
+  // muestra todos los admin, no solo los de ese comercial"). Cada desplegable
+  // cuenta sobre lo que dejan pasar TODOS LOS DEMAS filtros (y el buscador),
+  // menos el suyo: asi enseña sus otras opciones sin tener que quitarlo. Solo
+  // salen las que tienen alguna; la elegida se queda aunque se quede en 0.
+  type Filtro = "comercial" | "admin" | "municipio" | "anio" | "estado";
+  const pasa = useMemo(() => {
     const palabras = palabrasDe(q);
-    return filas.filter((f) => {
-      if (comercial === SIN ? f.comercialId !== null : comercial && f.comercialId !== comercial) return false;
-      if (municipio && (municipio === "(sin municipio)" ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
-      if (anio && (f.apertura?.slice(0, 4) ?? "(sin fecha)") !== anio) return false;
-      if (admin === SIN ? f.admins.length > 0 : admin && !f.admins.some((a) => a.clave === admin)) return false;
+    return (f: FilaTodas, salvo?: Filtro) => {
+      if (salvo !== "estado" && estado && f.estado !== estado) return false;
+      if (salvo !== "comercial" && (comercial === SIN ? f.comercialId !== null : comercial && f.comercialId !== comercial)) return false;
+      if (salvo !== "municipio" && municipio && (municipio === SIN_MUNICIPIO ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
+      if (salvo !== "anio" && anio && anioDe(f) !== anio) return false;
+      if (salvo !== "admin" && (admin === SIN ? f.admins.length > 0 : admin && !f.admins.some((a) => a.clave === admin))) return false;
       if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)}` })) return false;
       return true;
-    });
-  }, [filas, q, comercial, municipio, anio, admin, nombreComercial]);
+    };
+  }, [q, estado, comercial, municipio, anio, admin, nombreComercial]);
+
+  const opcionesComercial: Opcion[] = useMemo(() => {
+    const n = new Map<string | null, number>();
+    for (const f of filas) if (pasa(f, "comercial")) n.set(f.comercialId, (n.get(f.comercialId) ?? 0) + 1);
+    const hay = (id: string | null, v: string) => (n.get(id) ?? 0) > 0 || comercial === v;
+    return [
+      { valor: "", texto: "Todos" },
+      ...(hay(null, SIN) ? [{ valor: SIN, texto: "Sin asignar", pista: String(n.get(null) ?? 0) }] : []),
+      ...comerciales.filter((c) => hay(c.id, c.id)).map((c) => ({ valor: c.id, texto: c.nombre, pista: String(n.get(c.id) ?? 0) + (c.activo ? "" : " · ya no está") })),
+    ];
+  }, [filas, pasa, comerciales, comercial]);
+
+  // El del administrador: un gestor cada opcion, con su administracion de
+  // pista (asi buscando "SM Fincas" salen todos los suyos).
+  const opcionesAdmin: Opcion[] = useMemo(() => {
+    const todos = new Map<string, FilaTodas["admins"][number]>();
+    const n = new Map<string, number>();
+    let sin = 0;
+    for (const f of filas) {
+      for (const a of f.admins) todos.set(a.clave, a);
+      if (!pasa(f, "admin")) continue;
+      if (!f.admins.length) sin += 1;
+      for (const a of f.admins) n.set(a.clave, (n.get(a.clave) ?? 0) + 1);
+    }
+    return [
+      { valor: "", texto: "Todos" },
+      ...(sin > 0 || admin === SIN ? [{ valor: SIN, texto: "Sin administrador", pista: String(sin) }] : []),
+      ...[...todos.values()]
+        .filter((a) => (n.get(a.clave) ?? 0) > 0 || a.clave === admin)
+        .sort((x, y) => (x.gestor ?? x.empresa ?? "").localeCompare(y.gestor ?? y.empresa ?? "", "es"))
+        .map((a) => ({ valor: a.clave, texto: a.gestor ?? a.empresa ?? "—", pista: [a.gestor ? a.empresa : null, String(n.get(a.clave) ?? 0)].filter(Boolean).join(" · ") })),
+    ];
+  }, [filas, pasa, admin]);
+
+  const opcionesMunicipio: Opcion[] = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const f of filas) if (pasa(f, "municipio")) for (const m of f.municipio ? f.municipio.split(", ") : [SIN_MUNICIPIO]) n.set(m, (n.get(m) ?? 0) + 1);
+    if (municipio && !n.has(municipio)) n.set(municipio, 0);
+    return [{ valor: "", texto: "Todos" }, ...[...n].sort((a, b) => a[0].localeCompare(b[0], "es")).map(([m, k]) => ({ valor: m, texto: m, pista: String(k) }))];
+  }, [filas, pasa, municipio]);
+
+  const opcionesAnio: Opcion[] = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const f of filas) if (pasa(f, "anio")) n.set(anioDe(f), (n.get(anioDe(f)) ?? 0) + 1);
+    if (anio && !n.has(anio)) n.set(anio, 0);
+    return [{ valor: "", texto: "Todos" }, ...[...n].sort((a, b) => b[0].localeCompare(a[0])).map(([a, k]) => ({ valor: a, texto: a, pista: String(k) }))];
+  }, [filas, pasa, anio]);
+
+  // Las pastillas del estado cuentan dentro de todo lo demas.
+  const sinEstado = useMemo(() => filas.filter((f) => pasa(f, "estado")), [filas, pasa]);
 
   const lista = useMemo(() => {
     const l = estado ? sinEstado.filter((f) => f.estado === estado) : sinEstado;
