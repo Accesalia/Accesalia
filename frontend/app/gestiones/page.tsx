@@ -16,6 +16,15 @@ export const dynamic = "force-dynamic";
 type Acceso = { nombre: string; desc: string; href: string; color: ColorAcceso; soloDireccion?: boolean };
 
 const ACCESOS: Acceso[] = [
+  // TODAS LAS OPPS (Monica, 20-oct-2026): el listado entero con filtros y
+  // buscador; desde ahi se cambia el comercial o el estado. De direccion.
+  {
+    nombre: "Todas las oportunidades",
+    color: "verde",
+    desc: "El listado de todas las opps, con filtros y buscador: cambiar su comercial o su estado desde la misma lista",
+    href: "/gestiones/oportunidades",
+    soloDireccion: true,
+  },
   {
     nombre: "Asignar funciones a personas",
     color: "lila",
