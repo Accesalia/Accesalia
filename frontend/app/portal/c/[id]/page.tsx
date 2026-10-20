@@ -302,7 +302,12 @@ export default async function ComunidadEnElPortal({
                                         <span aria-hidden>📄</span>
                                         {todas.length > 1 ? `ver ${k + 1}` : "ver la hoja"}
                                       </a>
-                                    ) : null,
+                                    ) : (
+                                      // sin enlace (la nota de responsabilidad): al menos su codigo, para trazarla
+                                      <span key={x.hojaId} className="text-[12px] tabular-nums text-[#6f6f6f]">
+                                        {x.numero}
+                                      </span>
+                                    ),
                                   )}
                                 </span>
                               </td>
