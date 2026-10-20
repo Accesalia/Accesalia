@@ -117,21 +117,35 @@ export type FilaOpp = {
 };
 
 export async function listadoOportunidades(): Promise<FilaOpp[]> {
-  const [opps, porComunidad, catalogo] = await Promise.all([
-    oportunidades(),
-    adminDeComunidad(),
-    leer<{ clave: string; nombre: string; orden: number }[]>("hitos_comerciales?select=clave,nombre,orden&order=orden.asc"),
-  ]);
+  const [opps, porComunidad] = await Promise.all([oportunidades(), adminDeComunidad()]);
   const vivas = opps.filter((o) => o.estado === "abierta" || o.estado === "pausada");
+  const puntos = await puntosDeOpps(vivas);
+  return vivas.map((o) => ({
+    id: o.id,
+    nombre: nombreDeOpp(o),
+    codigo: o.codigo,
+    comunidadId: o.comunidad_id,
+    comercialId: o.comercial_id,
+    ...puntos.get(o.id)!,
+    admin: adminDe(o, porComunidad),
+  }));
+}
+
+/** "En que punto esta" cada una: el bloque por el que va, con el mismo calculo
+ *  que el carril de la oportunidad. Lo usan este listado y la ficha de una
+ *  administracion (sus opps abiertas). */
+export async function puntosDeOpps(opps: { id: string; estado: string }[]): Promise<Map<string, { punto: string; bloque: number }>> {
+  const catalogo = await leer<{ clave: string; nombre: string; orden: number }[]>("hitos_comerciales?select=clave,nombre,orden&order=orden.asc");
 
   // Los hitos de las vivas, por tandas de ids (la URL no admite miles).
   const hitos = new Map<string, Map<string, { estado: string; fecha: string | null }>>();
   // Las fases salen del ESTADO DE LA OPP (estado_oportunidad, 15-oct-2026); sin
   // fechas, que este listado no las enseña.
-  const deEstado = await hitosDeEstado(vivas.map((o) => o.id), false);
+  const deEstado = await hitosDeEstado(opps.map((o) => o.id), false);
   for (const [id, hs] of deEstado) hitos.set(id, new Map(hs.map((h) => [h.hito, h])));
 
-  return vivas.map((o) => {
+  const out = new Map<string, { punto: string; bloque: number }>();
+  for (const o of opps) {
     const suyos = hitos.get(o.id) ?? new Map();
     const lista = catalogo.map((c) => {
       const h = suyos.get(c.clave);
@@ -139,17 +153,12 @@ export async function listadoOportunidades(): Promise<FilaOpp[]> {
     });
     const bloques = bloquesDe(lista);
     const ahora = bloques.find((b) => b.activo) ?? [...bloques].reverse().find((b) => b.pie.startsWith("Hecho")) ?? bloques[0];
-    return {
-      id: o.id,
-      nombre: nombreDeOpp(o),
-      codigo: o.codigo,
-      comunidadId: o.comunidad_id,
-      comercialId: o.comercial_id,
+    out.set(o.id, {
       punto: o.estado === "pausada" ? "Pausada" : `${ahora.n} · ${ahora.titulo} — ${ahora.pie}`,
       bloque: o.estado === "pausada" ? 0 : ahora.n,
-      admin: adminDe(o, porComunidad),
-    };
-  });
+    });
+  }
+  return out;
 }
 
 // ------------------------------------------- el listado de administradores

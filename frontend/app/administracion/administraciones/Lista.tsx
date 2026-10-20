@@ -227,10 +227,13 @@ export function Lista({ empresas, gestores, comerciales }: { empresas: FilaEmpre
               return (
                 <tr key={f.clave} className="odd:bg-white even:bg-[#fafaf8] hover:bg-[#f1f5ee]">
                   <td className={TD + " max-w-[340px] truncate font-semibold text-carbon"} title={f.nombre}>
-                    {/* La ficha de la administracion aun no existe (su maqueta esta
-                        a medias, 20-oct-2026): cuando exista, aqui va su enlace. El
-                        gestor abre su ficha de persona. */}
-                    {g?.personaId ? (
+                    {/* La administracion abre su ficha (20-oct-2026); el gestor,
+                        su ficha de persona. */}
+                    {e ? (
+                      <Link href={`/administracion/administraciones/${e.id}`} className="hover:underline">
+                        {f.nombre}
+                      </Link>
+                    ) : g?.personaId ? (
                       <Link href={`/consulta/personas/${g.personaId}`} className="hover:underline">
                         {f.nombre}
                       </Link>
