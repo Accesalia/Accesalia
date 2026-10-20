@@ -41,7 +41,12 @@ export type Caja = {
 /** LO QUE HABEIS CONTRATADO (Monica, 21-oct-2026): la semilla de «Mi
  *  expediente». Cada hoja firmada que paga la comunidad, con su fecha y lo que
  *  incluye; sin el PDF, que no se abre desde fuera. */
-export type Contratado = { hojaId: string; numero: string | null; firma: string | null; lineas: { que: string; importe: number | null }[]; total: number };
+export type Contratado = {
+  hojaId: string; numero: string | null; firma: string | null; lineas: { que: string; importe: number | null }[]; total: number;
+  /** La version con su PDF firmado: LA COMUNIDAD SI PUEDE VERLA (21-oct-2026),
+   *  es el papel que ella misma firmo. Es la unica excepcion. */
+  versionId: string | null;
+};
 
 export type Expediente = { id: string; nombre: string; codigo: string | null; cajas: Caja[]; contratado: Contratado[] };
 
@@ -135,10 +140,18 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
       };
       const contratado: Contratado[] = o.hojas
         .filter((h) => h.pagador === "comunidad" && h.estado === "devuelta_firmada")
-        .map((h) => ({ hojaId: h.id, numero: h.numero, firma: h.firma, lineas: h.lineas, total: h.total }));
+        .map((h) => ({ hojaId: h.id, numero: h.numero, firma: h.firma, lineas: h.lineas, total: h.total, versionId: h.firmada?.versionId ?? null }));
       return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...hojas, votacion], contratado };
     });
 
   const todas = [...comunidad, ...expedientes.flatMap((e) => e.cajas)];
   return { ficha, comunidad, expedientes, pendientes: todas.filter((c) => c.estado === "pendiente" || c.estado === "rechazado").length };
+}
+
+/** El PDF firmado de una hoja de ESTA comunidad, para enseñarselo a ella: solo
+ *  si es una hoja firmada que paga la comunidad, de uno de sus expedientes. */
+export async function hojaFirmadaParaLaComunidad(comunidadId: string, hojaId: string): Promise<{ hojaId: string; versionId: string } | null> {
+  const doc = await documentacionDe(comunidadId);
+  const h = doc?.expedientes.flatMap((e) => e.contratado).find((x) => x.hojaId === hojaId);
+  return h?.versionId ? { hojaId: h.hojaId, versionId: h.versionId } : null;
 }

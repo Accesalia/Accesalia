@@ -250,31 +250,48 @@ export default async function ComunidadEnElPortal({
                   <h2 className={"text-[15px] font-bold " + ACENTO}>
                     {e.nombre} <span className="text-[12px] font-normal text-[#6f6f6f]">{e.codigo}</span>
                   </h2>
-                  <div className="mt-2.5 rounded-[14px] bg-white p-4 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
+                  <div className="mt-2.5 w-fit max-w-full rounded-[14px] bg-white p-4 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
                     <h3 className="text-[15px] font-bold text-[#111]">Lo que habéis contratado</h3>
                     {e.contratado.length === 0 ? (
                       <p className="mt-2 text-[13px] text-[#6f6f6f]">Todavía no hay ninguna hoja de encargo firmada.</p>
                     ) : (
-                      <div className="mt-3 space-y-4">
-                        {e.contratado.map((h) => (
-                          <div key={h.hojaId} className="border-t border-black/10 pt-3 first:border-0 first:pt-0">
-                            <div className="text-[13.5px] text-[#1b1b1b]">
-                              <b className="font-semibold">Hoja de encargo {h.numero}</b>
-                              {h.firma && <span className="text-[#6f6f6f]"> · firmada el {dia(h.firma)}</span>}
-                            </div>
-                            <table className="mt-1 w-auto text-[13px]">
-                              <tbody>
-                                {h.lineas.map((l, i) => (
-                                  <tr key={i} className="align-baseline">
-                                    <td className="max-w-[34rem] py-0.5 pr-6 text-[#1b1b1b]">{l.que}</td>
-                                    <td className="whitespace-nowrap py-0.5 text-right tabular-nums text-[#1b1b1b]">{l.importe !== null ? `${EUR.format(l.importe)} €` : ""}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        ))}
-                      </div>
+                      /* CASI UNA TABLA (Monica, 21-oct-2026): firmada el / lo que
+                         incluye, en corto, con solo el total / el papel firmado.
+                         Compacta: es solo el principio de un expediente largo. */
+                      <table className="mt-2 w-auto text-[13px] text-[#1b1b1b]">
+                        <thead>
+                          <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">
+                            <th className="py-1 pr-5">Firmada el</th>
+                            <th className="py-1 pr-5">Lo que incluye</th>
+                            <th className="py-1" />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {e.contratado.map((h) => (
+                            <tr key={h.hojaId} className="border-t border-black/10 align-baseline">
+                              <td className="whitespace-nowrap py-1.5 pr-5 tabular-nums">{h.firma ? CORTA.format(new Date(`${h.firma}T12:00:00`)) : "—"}</td>
+                              <td className="max-w-[36rem] py-1.5 pr-5" title={h.lineas.map((l) => l.que).join(" + ")}>
+                                {h.lineas.map((l) => l.que.split(" (")[0]).join(" + ") || `Hoja de encargo ${h.numero ?? ""}`}
+                                {h.total > 0 && <b className="ml-2 whitespace-nowrap font-semibold tabular-nums">{EUR.format(h.total)} €</b>}
+                              </td>
+                              <td className="whitespace-nowrap py-1.5">
+                                {h.versionId ? (
+                                  <a
+                                    href={`/portal/c/${id}/hoja/${h.hojaId}`}
+                                    target="_blank"
+                                    rel="noopener"
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#3f7a1c]/50 bg-[#eef7e4] px-2.5 py-0.5 font-semibold text-[#3f7a1c] hover:bg-[#dcefc9]"
+                                  >
+                                    <span aria-hidden>📄</span>Ver la hoja firmada
+                                  </a>
+                                ) : (
+                                  <span className="text-[12px] text-[#6f6f6f]">{h.numero}</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     )}
                   </div>
                 </div>
