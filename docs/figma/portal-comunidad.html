@@ -17,11 +17,11 @@
      la pagina, fuera de ella, la leyenda de los cuatro estados de una ventanita
      (pendiente, recibido, validado, rechazado con su comentario), para diseñarlos.
      El color de acento es UNA variable (--acento): el azul del Sabadell es #0060f0.
-     21-oct (Daniel): fondo azul profundo (--fondo) y tarjetas en crema muy suave (--blanco el marco y los paneles, --caja las ventanitas). -->
+     21-oct (Daniel): ventanitas blancas con sombra, titulo grande y estado a la derecha (su captura «portal de comunidades version daniel.png»); fondo azul profundo (--fondo) y tarjetas en crema muy suave (--blanco el marco y los paneles, --caja las ventanitas). -->
 <style>
   :root{
     --acento:#3f7a1c; --acento-claro:#eef7e4;
-    --negro:#202020; --fondo:#12305a; --blanco:#fbf7ee; --caja:#fffcf5; --sobre-fondo:#f3efe4; --tinta:#1b1b1b; --gris:#6f6f6f; --gris-claro:#9a9a9a;
+    --negro:#202020; --fondo:#12305a; --blanco:#fdf6dc; --caja:#ffffff; --sobre-fondo:#f3efe4; --tinta:#1b1b1b; --gris:#6f6f6f; --gris-claro:#9a9a9a;
     --raya:#e3e3e3; --rojo:#c8102e; --ok:#3a9a4a; --ambar:#b45309;
     --letra:"Roboto", ui-sans-serif, system-ui, Arial, sans-serif;
   }
@@ -55,31 +55,28 @@
 
   .pide{margin:24px 16px 14px;font-size:15px}
   .rejilla{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:0 0}
-  .caja{background:var(--caja);box-shadow:0 1px 4px rgba(0,0,0,.14);padding:18px 14px 16px;min-height:142px;display:flex;flex-direction:column}
-  .caja.alta{min-height:206px}
-  .caja h3{margin:0;font-weight:400;font-size:15px;line-height:1.45;display:flex;gap:6px}
-  .caja h3 .marca{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ok);color:var(--ok);font-size:10px;display:inline-flex;align-items:center;justify-content:center;margin-top:3px}
-  .caja h3 .marca.no{border-color:var(--gris-claro);color:transparent}
-  .caja h3 .marca.rev{border-color:var(--ambar);color:var(--ambar)}
-  .caja h3 .marca.mal{border-color:var(--rojo);color:var(--rojo)}
-  .caja h3 .punto{flex:none;width:6px;height:6px;border-radius:50%;background:var(--rojo);margin:8px 4px 0 2px}
-  .ficheros{margin:14px 0 0 12px}
-  .fich{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--gris);padding:3px 0}
-  .fich .puntos{color:#555;font-size:15px;letter-spacing:-1px;padding:0 4px}
-  .fich .v{font-size:11px;color:var(--gris-claro);margin-left:6px}
-  .versiones{margin:2px 0 0 12px;font-size:11.5px;color:var(--gris-claro)}
-  .versiones a{color:var(--gris)}
-  .nota{margin:10px 0 0 12px;font-size:12px;line-height:1.4;padding:6px 8px;border-left:3px solid var(--rojo);background:#fdf1f2;color:#7a1020}
-  .nota.rev{border-left-color:var(--ambar);background:#fff8eb;color:#7a4307}
-  .estado{margin:8px 0 0 12px;font-size:11.5px;font-weight:600}
-  .estado.ok{color:var(--ok)} .estado.rev{color:var(--ambar)} .estado.mal{color:var(--rojo)}
-  .adjuntar{margin-top:auto;padding:14px 0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:6px}
-  .adjuntar .mas{width:13px;height:13px;border:1px solid var(--acento);border-radius:50%;color:var(--acento);font-size:10px;display:inline-flex;align-items:center;justify-content:center}
-  .adjuntar a{text-decoration:underline;white-space:nowrap}
-  .adjuntar .mas{flex:none}
-  .adjuntar .ayuda{margin-left:auto;font-size:11px;color:var(--gris);text-align:right;line-height:1.25}
-  .caja.otros{border:1px solid var(--rojo);box-shadow:none}
-
+  /* LA VENTANITA (Daniel, 21-oct-2026): blanca con sombra que se vea sobre el
+     crema; arriba el documento, grande y en negrita; debajo la explicacion y
+     los ficheros con sus tres puntitos; abajo «+ Adjuntar documento» y, a la
+     derecha, el estado: check verde «todo ok», cruz roja «pendiente o
+     incorrecto», triangulo ambar «en revision». */
+  .caja{background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.18),0 1px 3px rgba(0,0,0,.10);padding:20px 22px 16px;min-height:170px;display:flex;flex-direction:column}
+  .caja.alta{min-height:200px}
+  .caja h3{margin:0;font-weight:800;font-size:23px;line-height:1.2;color:#111}
+  .caja .expl{margin:6px 0 0;font-size:13px;color:var(--gris)}
+  .ficheros{margin:10px 0 0}
+  .fich{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#555;padding:2px 0}
+  .fich .puntos{color:#555;font-size:16px;padding:0 4px}
+  .nota{margin:10px 0 0;font-size:12.5px;line-height:1.4;padding:6px 8px;border-left:3px solid var(--rojo);background:#fdf1f2;color:#7a1020}
+  .pie{margin-top:auto;padding-top:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+  .adjuntar{font-size:14.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .adjuntar .mas{flex:none;width:14px;height:14px;border:1px solid var(--acento);border-radius:50%;color:var(--acento);font-size:10px;display:inline-flex;align-items:center;justify-content:center}
+  .adjuntar a{text-decoration:underline}
+  .estado{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;width:78px;margin-right:-4px;text-align:center}
+  .estado svg{width:44px;height:44px}
+  .estado span{font-size:11px;font-weight:600;line-height:1.2}
+  .estado.ok span{color:var(--ok)} .estado.mal span{color:var(--rojo)} .estado.rev span{color:#a16207}
+  .caja.otros{outline:1.5px solid var(--rojo)}
   .adicionales{margin:30px 0 14px 0}
   .adicionales b{font-size:15px}
   .adicionales p{margin:4px 0 0;color:var(--gris);font-size:14.5px}
@@ -132,24 +129,25 @@
     <p class="pide">Documentación solicitada para la <b>COMUNIDAD DE PROPIETARIOS SANTA MARÍA LA BLANCA 3 Y 5 · IGLESIA 22</b></p>
 
     <div class="rejilla">
-      <div class="caja">
-        <h3><span class="marca">✓</span>Tarjeta del CIF</h3>
-        <div class="ficheros">
-          <div class="fich"><span>Tarjeta del CIF (PDF)</span><span class="puntos">⋮</span></div>
-        </div>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+      <div class="caja ">
+        <h3>Tarjeta del CIF</h3>
+        <div class="ficheros"><div class="fich"><span>Tarjeta del CIF (PDF)</span><span class="puntos">⋮</span></div></div>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado ok"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#3a9a4a" stroke-width="2.5"/><path d="M12.5 22.5l6.5 7 13-15" fill="none" stroke="#3a9a4a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>todo ok</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>DNI del presidente</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">por las dos caras</span></div>
+      <div class="caja ">
+        <h3>DNI del presidente</h3>
+        <p class="expl">por las dos caras</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Acta de nombramiento del presidente</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">la última junta</span></div>
+      <div class="caja ">
+        <h3>Acta de nombramiento del presidente</h3>
+        <p class="expl">la de la última junta</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Certificado de titularidad de la cuenta</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">del banco, reciente</span></div>
+      <div class="caja ">
+        <h3>Certificado de titularidad de la cuenta</h3>
+        <p class="expl">del banco, reciente</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
     </div>
 
@@ -159,24 +157,25 @@
     </div>
     <div class="rejilla">
       <div class="caja alta">
-        <h3><span class="marca">✓</span>IEE · Informe de Evaluación del Edificio</h3>
-        <div class="ficheros">
-          <div class="fich"><span>IEE registrado en el Ayuntamiento</span><span class="puntos">⋮</span></div>
-        </div>
-        <div class="estado ok">ya lo tenemos</div>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+        <h3>IEE</h3>
+        <p class="expl">Informe de Evaluación del Edificio</p>
+        <div class="ficheros"><div class="fich"><span>registrado en el Ayuntamiento</span><span class="puntos">⋮</span></div></div>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado ok"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#3a9a4a" stroke-width="2.5"/><path d="M12.5 22.5l6.5 7 13-15" fill="none" stroke="#3a9a4a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>todo ok</span></span></div>
       </div>
       <div class="caja alta">
-        <h3><span class="marca no">✓</span>CEE · Certificado de Eficiencia Energética</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+        <h3>CEE</h3>
+        <p class="expl">Certificado de Eficiencia Energética</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
       <div class="caja alta">
-        <h3><span class="marca no">✓</span>Listado de vecinos mayores de 70 o con discapacidad</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">suma en la ayuda</span></div>
+        <h3>Vecinos mayores de 70 o con discapacidad</h3>
+        <p class="expl">el listado: suma en la ayuda</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
       <div class="caja alta otros">
-        <h3><span class="punto"></span>Otros documentos</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+        <h3>Otros documentos</h3>
+        <p class="expl">lo que no esté en ninguna otra</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span></div>
       </div>
     </div>
   </section>
@@ -227,44 +226,52 @@
     </div>
     <p class="pide">Documentación solicitada para <b>SANTA MARÍA LA BLANCA 3 Y 5</b>. Lo de la comunidad (DNI y acta del presidente, CIF) vale para todos sus expedientes: no hace falta subirlo otra vez.</p>
     <div class="rejilla">
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Acta de la junta que aprueba la obra y el presupuesto</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">firmada</span></div>
+      <div class="caja ">
+        <h3>Acta de la junta</h3>
+        <p class="expl">la que aprueba la obra y el presupuesto, firmada</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Presupuesto aceptado, firmado</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+      <div class="caja ">
+        <h3>Presupuesto aceptado</h3>
+        <p class="expl">firmado</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Los tres presupuestos firmados</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">1 de 3</span></div>
+      <div class="caja ">
+        <h3>Los tres presupuestos</h3>
+        <p class="expl">firmados · 1 de 3</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Otorgamiento de representación</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">para tramitar en vuestro nombre</span></div>
+      <div class="caja ">
+        <h3>Otorgamiento de representación</h3>
+        <p class="expl">para tramitar en vuestro nombre</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Solicitud de licencia</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+      <div class="caja ">
+        <h3>Solicitud de licencia</h3>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Inicio de obra o certificado de no inicio</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+      <div class="caja ">
+        <h3>Inicio de obra</h3>
+        <p class="expl">o certificado de no inicio</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Certificado final de obra (CFO)</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">al acabar</span></div>
+      <div class="caja ">
+        <h3>Certificado final de obra</h3>
+        <p class="expl">CFO, al acabar</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
       <div class="caja otros">
-        <h3><span class="punto"></span>Otros documentos</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
+        <h3>Otros documentos</h3>
+        <p class="expl">lo que no esté en ninguna otra</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span></div>
       </div>
     </div>
     <div class="adicionales"><b>Documentos adicionales:</b><p>Si quieres agilizar el proceso puedes subir estos documentos que necesitaremos más adelante.</p></div>
     <div class="rejilla">
-      <div class="caja">
-        <h3><span class="marca no">✓</span>Vecinos en situación de especial vulnerabilidad</h3>
-        <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a><span class="ayuda">suma en la ayuda</span></div>
+      <div class="caja ">
+        <h3>Vecinos en situación de especial vulnerabilidad</h3>
+        <p class="expl">suma en la ayuda</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
       </div>
     </div>
   </section>
@@ -274,28 +281,29 @@
 <div class="leyenda">
   <h4>Leyenda (no es parte de la página): los cuatro estados de una ventanita</h4>
   <div class="rejilla">
-    <div class="caja">
-      <h3><span class="marca no">✓</span>Pendiente</h3>
-      <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
-    </div>
-    <div class="caja">
-      <h3><span class="marca rev">…</span>Recibido</h3>
-      <div class="ficheros"><div class="fich"><span>acta_junta_2026.pdf</span><span class="puntos">⋮</span></div></div>
-      <div class="estado rev">recibido el 20/10/2026 · lo estamos revisando</div>
-      <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
-    </div>
-    <div class="caja">
-      <h3><span class="marca">✓</span>Validado</h3>
-      <div class="ficheros"><div class="fich"><span>dni_presidente.pdf</span><span class="puntos">⋮</span></div></div>
-      <div class="estado ok">validado · vale hasta 03/2031</div>
-      <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
-    </div>
-    <div class="caja">
-      <h3><span class="marca mal">✕</span>Rechazado</h3>
-      <div class="ficheros"><div class="fich"><span>dni_presidente.jpg</span><span class="puntos">⋮</span></div></div>
-      <div class="nota">Está caducado. Súbenos el DNI en vigor, por las dos caras.</div>
-      <div class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></div>
-    </div>
+      <div class="caja ">
+        <h3>Todo ok</h3>
+        <p class="expl">validado · vale hasta 03/2031</p>
+        <div class="ficheros"><div class="fich"><span>dni_presidente.pdf</span><span class="puntos">⋮</span></div></div>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado ok"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#3a9a4a" stroke-width="2.5"/><path d="M12.5 22.5l6.5 7 13-15" fill="none" stroke="#3a9a4a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>todo ok</span></span></div>
+      </div>
+      <div class="caja ">
+        <h3>En revisión</h3>
+        <p class="expl">recibido el 20/10/2026: lo estamos revisando</p>
+        <div class="ficheros"><div class="fich"><span>acta_junta_2026.pdf</span><span class="puntos">⋮</span></div></div>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado rev"><svg viewBox="0 0 44 44"><path d="M22 5L40 37H4z" fill="#fde68a" stroke="#d97706" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 16v10" stroke="#92400e" stroke-width="3.2" stroke-linecap="round"/><circle cx="22" cy="31.5" r="1.9" fill="#92400e"/></svg><span>en revisión</span></span></div>
+      </div>
+      <div class="caja ">
+        <h3>Pendiente</h3>
+        <p class="expl">todavía no está subido</p>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
+      </div>
+      <div class="caja ">
+        <h3>Incorrecto</h3>
+        <div class="ficheros"><div class="fich"><span>dni_presidente.jpg</span><span class="puntos">⋮</span></div></div>
+        <div class="nota">Está caducado. Súbenos el DNI en vigor, por las dos caras.</div>
+        <div class="pie"><span class="adjuntar"><span class="mas">+</span><a href="#">Adjuntar documento</a></span><span class="estado mal"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.5" fill="none" stroke="#c8102e" stroke-width="2.5"/><path d="M15 15l14 14M29 15L15 29" stroke="#c8102e" stroke-width="3.2" stroke-linecap="round"/></svg><span>pendiente o incorrecto</span></span></div>
+      </div>
   </div>
 </div>
 </body>
