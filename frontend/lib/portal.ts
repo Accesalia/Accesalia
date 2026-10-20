@@ -33,7 +33,12 @@ export const ALMACEN_PORTAL = "documentos-comerciales";
 async function pedir<T>(ruta: string, init: RequestInit = {}): Promise<T> {
   const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, { ...init, headers: { ...CAB, ...(init.headers ?? {}) }, cache: "no-store" });
   if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
-  return (r.status === 204 ? null : await r.json()) as T;
+  // Con «return=minimal» la base contesta sin cuerpo (201 al crear, 204 al
+  // cambiar): leerlo como JSON rompia la puerta del portal («Unexpected end of
+  // JSON input», 20-oct-2026) despues de apuntar la entrada y antes de mandar
+  // el correo.
+  const texto = await r.text();
+  return (texto ? JSON.parse(texto) : null) as T;
 }
 const limpio = (e: string) => e.trim().toLowerCase();
 const CORREO_VALIDO = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
