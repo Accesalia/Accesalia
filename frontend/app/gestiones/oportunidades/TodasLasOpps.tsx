@@ -55,6 +55,16 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   // VER POR DIR (Monica, 20-oct-2026): la misma lista, agrupada por DIR, cada
   // una con sus opps colgando como un arbol. Los filtros y el orden, los mismos.
   const [porDir, setPorDir] = useState(false);
+  // SOLO LAS DIR CON VARIAS OPPS (Monica, 20-oct-2026: "es muy util"). Varias
+  // de verdad, contando todas sus opps (no anuladas), no solo las filtradas:
+  // una DIR con una abierta y una cerrada tiene dos.
+  const [varias, setVarias] = useState(false);
+  const oppsDeDir = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const f of iniciales) if (f.dir) n.set(f.dir.id, (n.get(f.dir.id) ?? 0) + 1);
+    return n;
+  }, [iniciales]);
+  const dirsConVarias = useMemo(() => [...oppsDeDir.values()].filter((k) => k > 1).length, [oppsDeDir]);
 
   const nombreComercial = useMemo(() => new Map(comerciales.map((c) => [c.id, c.nombre])), [comerciales]);
 
@@ -67,6 +77,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   const pasa = useMemo(() => {
     const palabras = palabrasDe(q);
     return (f: FilaTodas, salvo?: Filtro) => {
+      if (porDir && varias && (!f.dir || (oppsDeDir.get(f.dir.id) ?? 0) < 2)) return false;
       if (salvo !== "estado" && estado && f.estado !== estado) return false;
       if (salvo !== "comercial" && (comercial === SIN ? f.comercialId !== null : comercial && f.comercialId !== comercial)) return false;
       if (salvo !== "municipio" && municipio && (municipio === SIN_MUNICIPIO ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
@@ -75,7 +86,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)} ${f.dir?.codigo ?? ""} ${f.dir?.nombre ?? ""}` })) return false;
       return true;
     };
-  }, [q, estado, comercial, municipio, anio, admin, nombreComercial]);
+  }, [q, estado, comercial, municipio, anio, admin, nombreComercial, porDir, varias, oppsDeDir]);
 
   const opcionesComercial: Opcion[] = useMemo(() => {
     const n = new Map<string | null, number>();
@@ -196,6 +207,16 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
           >
             {porDir ? "Ver la lista" : "Ver por DIR"}
           </button>
+          {porDir && (
+            <button
+              type="button"
+              onClick={() => { setVarias((x) => !x); setCuantas(DE_UNA_VEZ); }}
+              className={pill(varias) + " mb-1"}
+              title="Solo las DIR que tienen más de una opp"
+            >
+              Solo DIR con varias opps <b>{dirsConVarias}</b>
+            </button>
+          )}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <span className={ROT + " mr-1"}>Estado</span>
