@@ -224,7 +224,7 @@ export default async function ComunidadEnElPortal({
                 Documentación solicitada para <b>{exp ? exp.nombre.toUpperCase() : f.nombre.toUpperCase()}</b>
                 {exp && <>. Lo de la comunidad (CIF, DNI y acta del presidente) vale para todos sus expedientes: no hace falta subirlo otra vez.</>}
               </p>
-              <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
                 {(exp ? exp.cajas : doc.comunidad).map((x) => (
                   <Ventanita key={`${x.clave}-${x.hojaId ?? ""}`} c={x} comunidadId={id} />
                 ))}
