@@ -82,7 +82,7 @@ function Simbolo({ estado }: { estado: Estado }) {
 
 function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
-    <div className="flex min-h-[170px] flex-col bg-white p-4 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
+    <div className="flex min-h-[170px] flex-col rounded-[14px] bg-white p-4 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
       <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
         <h3 className="text-[22px] font-extrabold leading-tight text-[#111]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
@@ -113,7 +113,7 @@ function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
 
 function Otros({ comunidadId, oportunidadId = null }: { comunidadId: string; oportunidadId?: string | null }) {
   return (
-    <div className="flex min-h-[170px] flex-col border border-[#c8102e] bg-white p-4">
+    <div className="flex min-h-[170px] flex-col rounded-[14px] border border-[#c8102e] bg-white p-4">
       <Adjuntar comunidadId={comunidadId} clave="otro" oportunidadId={oportunidadId}>
         <h3 className="text-[22px] font-extrabold leading-tight text-[#111]">Otros documentos</h3>
         <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">lo que no esté en ninguna otra</p>
