@@ -128,7 +128,7 @@ const PAPELES_COMUNIDAD: { clave: ClavePortal; titulo: string; explicacion: stri
 export async function documentacionDe(comunidadId: string): Promise<Documentacion | null> {
   const [ficha, recs] = await Promise.all([fichaComunidad(comunidadId), recibidosDe(comunidadId).catch(() => [] as Recibido[])]);
   if (!ficha) return null;
-  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada" && h.tipoDocumento !== "nota_responsabilidad").map((h) => h.id));
+  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
   const hitos = await hitosDe(firmadas).catch(() => []);
 
   const pres = ficha.presidentes[0] ?? null;
@@ -150,11 +150,12 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
   // Los expedientes vivos: los abiertos o en pausa.
   const expedientes: Expediente[] = ficha.opps
     .filter((o) => o.estado === "abierta" || o.estado === "pausada")
-    // LA NOTA DE RESPONSABILIDAD NO SE ENSEÑA NUNCA en el portal (Monica, 21-oct-2026).
-    .map((o) => ({ ...o, hojas: o.hojas.filter((h) => h.tipoDocumento !== "nota_responsabilidad") }))
     .map((o) => {
       const hojas: Caja[] = o.hojas
-        .filter((h) => h.pagador === "comunidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
+        // LA NOTA DE RESPONSABILIDAD: su DOCUMENTO no se enseña nunca (Monica,
+        // 21-oct-2026), asi que no se pide subirla. Lo contratado con ella y sus
+        // etapas SI se ven: no enseñar un papel no es borrar su rastro.
+        .filter((h) => h.pagador === "comunidad" && h.tipoDocumento !== "nota_responsabilidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
         .map((h) => ({
           clave: "hoja_firmada" as const,
           titulo: `Hoja de encargo ${h.numero ?? ""}`.trim(),
@@ -173,7 +174,15 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
       };
       const contratado: Contratado[] = o.hojas
         .filter((h) => h.pagador === "comunidad" && h.estado === "devuelta_firmada")
-        .map((h) => ({ hojaId: h.id, numero: h.numero, firma: h.firma, lineas: h.lineas, total: h.total, versionId: h.firmada?.versionId ?? null }));
+        .map((h) => ({
+          hojaId: h.id,
+          numero: h.numero,
+          firma: h.firma,
+          lineas: h.lineas,
+          total: h.total,
+          // de la nota se ve lo contratado, nunca el papel
+          versionId: h.tipoDocumento === "nota_responsabilidad" ? null : (h.firmada?.versionId ?? null),
+        }));
       // las etapas: las de los hitos de lo firmado (de cualquier pagador), en su orden
       const suyas = new Set(o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
       const mios = hitos.filter((x) => suyas.has(x.hoja));
