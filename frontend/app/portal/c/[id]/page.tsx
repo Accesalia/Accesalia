@@ -88,7 +88,7 @@ function Simbolo({ estado }: { estado: Estado }) {
 
 function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
-    <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
+    <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
       <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
         <h3 className="text-[15px] font-bold leading-snug text-[#111]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
@@ -230,7 +230,7 @@ export default async function ComunidadEnElPortal({
                 ))}
               </div>
 
-              <p className="mb-3.5 mt-6 text-[15px] text-[#1b1b1b]">
+              <p className="mb-3.5 mt-6 text-[14px] text-[#1b1b1b]">
                 Documentación solicitada para <b>{exp ? exp.nombre.toUpperCase() : f.nombre.toUpperCase()}</b>
                 {exp && <>. Lo de la comunidad (CIF, DNI y acta del presidente) vale para todos sus expedientes: no hace falta subirlo otra vez.</>}
               </p>
@@ -244,25 +244,25 @@ export default async function ComunidadEnElPortal({
           ) : (
             /* ---------------- mi expediente: de momento, lo contratado ---------------- */
             <div className="mt-6 space-y-5">
-              {doc.expedientes.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Ahora mismo no hay ningún expediente en marcha.</p>}
+              {doc.expedientes.length === 0 && <p className="text-[14px] text-[#1b1b1b]">Ahora mismo no hay ningún expediente en marcha.</p>}
               {doc.expedientes.map((e) => (
                 <div key={e.id}>
-                  <h2 className={"text-[18px] font-bold " + ACENTO}>
+                  <h2 className={"text-[15px] font-bold " + ACENTO}>
                     {e.nombre} <span className="text-[12px] font-normal text-[#6f6f6f]">{e.codigo}</span>
                   </h2>
-                  <div className="mt-2.5 bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
-                    <h3 className="text-[20px] font-extrabold text-[#111]">Lo que habéis contratado</h3>
+                  <div className="mt-2.5 rounded-[14px] bg-white p-4 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
+                    <h3 className="text-[15px] font-bold text-[#111]">Lo que habéis contratado</h3>
                     {e.contratado.length === 0 ? (
-                      <p className="mt-2 text-[14px] text-[#6f6f6f]">Todavía no hay ninguna hoja de encargo firmada.</p>
+                      <p className="mt-2 text-[13px] text-[#6f6f6f]">Todavía no hay ninguna hoja de encargo firmada.</p>
                     ) : (
                       <div className="mt-3 space-y-4">
                         {e.contratado.map((h) => (
                           <div key={h.hojaId} className="border-t border-black/10 pt-3 first:border-0 first:pt-0">
-                            <div className="text-[14.5px] text-[#1b1b1b]">
-                              <b>Hoja de encargo {h.numero}</b>
+                            <div className="text-[13.5px] text-[#1b1b1b]">
+                              <b className="font-semibold">Hoja de encargo {h.numero}</b>
                               {h.firma && <span className="text-[#6f6f6f]"> · firmada el {dia(h.firma)}</span>}
                             </div>
-                            <table className="mt-1.5 w-auto text-[14px]">
+                            <table className="mt-1 w-auto text-[13px]">
                               <tbody>
                                 {h.lineas.map((l, i) => (
                                   <tr key={i} className="align-baseline">
@@ -279,7 +279,7 @@ export default async function ComunidadEnElPortal({
                   </div>
                 </div>
               ))}
-              <p className="text-[13px] text-[#6f6f6f]">
+              <p className="text-[12.5px] text-[#6f6f6f]">
                 Aquí iréis viendo cómo avanza cada expediente: el proyecto, el visado, la licencia, los requerimientos y sus respuestas, las actas de obra…
               </p>
             </div>
