@@ -48,7 +48,36 @@ export type Contratado = {
   versionId: string | null;
 };
 
-export type Expediente = { id: string; nombre: string; codigo: string | null; cajas: Caja[]; contratado: Contratado[] };
+/** LAS ETAPAS DEL EXPEDIENTE (Monica, 21-oct-2026), como en el Sabadell: salen de
+ *  lo firmado (los hitos de sus lineas). Hecha = su hito esta «completado», que
+ *  hoy quiere decir facturado o cobrado. */
+export type Etapa = { clave: string; nombre: string; hecha: boolean };
+
+export type Expediente = { id: string; nombre: string; codigo: string | null; cajas: Caja[]; contratado: Contratado[]; etapas: Etapa[] };
+
+// El orden de las etapas y como se dicen a la comunidad.
+const ETAPAS: { hitos: string[]; nombre: string }[] = [
+  { hitos: ["firma", "encargo"], nombre: "Hoja de encargo firmada" },
+  { hitos: ["entrega"], nombre: "Entrega del proyecto" },
+  { hitos: ["presentacion"], nombre: "Subvención presentada" },
+  { hitos: ["licencia"], nombre: "Licencia concedida" },
+  { hitos: ["concesion"], nombre: "Subvención concedida" },
+  { hitos: ["adjudicacion"], nombre: "Obra adjudicada" },
+  { hitos: ["pss"], nombre: "Plan de seguridad firmado" },
+  { hitos: ["inicio_obra"], nombre: "Inicio de obra" },
+  { hitos: ["cfo"], nombre: "Certificado final de obra" },
+];
+
+async function hitosDe(hojaIds: string[]): Promise<{ hoja: string; hito: string; estado: string }[]> {
+  if (!hojaIds.length) return [];
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/hitos_cobro?select=hito,estado,linea:lineas_facturacion!inner(hoja_encargo_id,quitada_en)` +
+      `&linea.hoja_encargo_id=in.(${hojaIds.join(",")})&linea.quitada_en=is.null&estado=neq.anulado`,
+    { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
+  );
+  if (!r.ok) throw new Error(`hitos_cobro ${r.status}`);
+  return ((await r.json()) as { hito: string; estado: string; linea: { hoja_encargo_id: string } }[]).map((x) => ({ hoja: x.linea.hoja_encargo_id, hito: x.hito, estado: x.estado }));
+}
 
 export type Documentacion = {
   ficha: Ficha;
@@ -99,6 +128,8 @@ const PAPELES_COMUNIDAD: { clave: ClavePortal; titulo: string; explicacion: stri
 export async function documentacionDe(comunidadId: string): Promise<Documentacion | null> {
   const [ficha, recs] = await Promise.all([fichaComunidad(comunidadId), recibidosDe(comunidadId).catch(() => [] as Recibido[])]);
   if (!ficha) return null;
+  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
+  const hitos = await hitosDe(firmadas).catch(() => []);
 
   const pres = ficha.presidentes[0] ?? null;
   const bueno: Record<ClavePortal, Papel> = {
@@ -141,7 +172,17 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
       const contratado: Contratado[] = o.hojas
         .filter((h) => h.pagador === "comunidad" && h.estado === "devuelta_firmada")
         .map((h) => ({ hojaId: h.id, numero: h.numero, firma: h.firma, lineas: h.lineas, total: h.total, versionId: h.firmada?.versionId ?? null }));
-      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...hojas, votacion], contratado };
+      // las etapas: las de los hitos de lo firmado (de cualquier pagador), en su orden
+      const suyas = new Set(o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
+      const mios = hitos.filter((x) => suyas.has(x.hoja));
+      const etapas: Etapa[] = suyas.size
+        ? ETAPAS.filter((e, i) => i === 0 || mios.some((x) => e.hitos.includes(x.hito))).map((e, i) => ({
+            clave: e.hitos[0],
+            nombre: e.nombre,
+            hecha: i === 0 || mios.some((x) => e.hitos.includes(x.hito) && x.estado === "completado"),
+          }))
+        : [];
+      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...hojas, votacion], contratado, etapas };
     });
 
   const todas = [...comunidad, ...expedientes.flatMap((e) => e.cajas)];

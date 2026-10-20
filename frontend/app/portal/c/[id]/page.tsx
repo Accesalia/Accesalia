@@ -25,6 +25,18 @@ const dia = (iso: string | null) => (iso ? FECHA.format(new Date(iso.length === 
 
 const ACENTO = "text-[#3f7a1c]";
 
+/** Las hojas iguales (misma fecha, mismos conceptos y total: una por portal, como
+ *  Santa Maria la Blanca 3 y 5, que firmo cada una la suya) van en una fila, con
+ *  un «ver» para cada una. */
+function agrupar<T extends { hojaId: string; firma: string | null; total: number; lineas: { que: string }[] }>(hs: T[]): { h: T; todas: T[] }[] {
+  const g = new Map<string, T[]>();
+  for (const h of hs) {
+    const k = [h.firma, h.total, h.lineas.map((l) => l.que).join("|")].join("·");
+    g.set(k, [...(g.get(k) ?? []), h]);
+  }
+  return [...g.values()].map((todas) => ({ h: todas[0], todas }));
+}
+
 /* ---------------------------------------------------------------- el estado */
 
 const ICONO: Record<Estado, { texto: string; color: string; svg: React.ReactNode }> = {
@@ -90,7 +102,7 @@ function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
     <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
       <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
-        <h3 className="text-[15px] font-bold leading-snug text-[#111]">{c.titulo}</h3>
+        <h3 className="text-[15px] font-semibold leading-snug text-[#4a4a4a]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
         {c.fichero && (
           <p className="mt-3 truncate text-[12.5px] text-[#555]" title={c.fichero}>
@@ -121,7 +133,7 @@ function Otros({ comunidadId, oportunidadId = null }: { comunidadId: string; opo
   return (
     <div className="flex min-h-[138px] flex-col rounded-[14px] border border-[#c8102e] bg-white p-3.5">
       <Adjuntar comunidadId={comunidadId} clave="otro" oportunidadId={oportunidadId}>
-        <h3 className="text-[15px] font-bold leading-snug text-[#111]">Otros documentos</h3>
+        <h3 className="text-[15px] font-semibold leading-snug text-[#4a4a4a]">Otros documentos</h3>
         <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">lo que no esté en ninguna otra</p>
       </Adjuntar>
     </div>
@@ -243,50 +255,56 @@ export default async function ComunidadEnElPortal({
             </>
           ) : (
             /* ---------------- mi expediente: de momento, lo contratado ---------------- */
-            <div className="mt-6 space-y-5">
+            <div className="mt-5 space-y-4">
               {doc.expedientes.length === 0 && <p className="text-[14px] text-[#1b1b1b]">Ahora mismo no hay ningún expediente en marcha.</p>}
               {doc.expedientes.map((e) => (
                 <div key={e.id}>
                   <h2 className={"text-[15px] font-bold " + ACENTO}>
                     {e.nombre} <span className="text-[12px] font-normal text-[#6f6f6f]">{e.codigo}</span>
                   </h2>
-                  <div className="mt-2.5 w-fit max-w-full rounded-[14px] bg-white p-4 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
-                    <h3 className="text-[15px] font-bold text-[#111]">Lo que habéis contratado</h3>
+                  <div className="mt-1.5 w-fit max-w-full rounded-[14px] bg-white px-4 py-3 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
+                    <h3 className="text-[13.5px] font-semibold text-[#4a4a4a]">Lo que habéis contratado</h3>
                     {e.contratado.length === 0 ? (
                       <p className="mt-2 text-[13px] text-[#6f6f6f]">Todavía no hay ninguna hoja de encargo firmada.</p>
                     ) : (
                       /* CASI UNA TABLA (Monica, 21-oct-2026): firmada el / lo que
                          incluye, en corto, con solo el total / el papel firmado.
                          Compacta: es solo el principio de un expediente largo. */
-                      <table className="mt-2 w-auto text-[13px] text-[#1b1b1b]">
+                      <table className="mt-1.5 w-auto text-[12.5px] text-[#1b1b1b]">
                         <thead>
-                          <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">
-                            <th className="py-1 pr-5">Firmada el</th>
-                            <th className="py-1 pr-5">Lo que incluye</th>
-                            <th className="py-1" />
+                          <tr className="text-left text-[10px] font-bold uppercase tracking-wide text-[#6f6f6f]">
+                            <th className="py-0.5 pr-4">Firmada el</th>
+                            <th className="py-0.5 pr-4">Lo que incluye</th>
+                            <th className="py-0.5" />
                           </tr>
                         </thead>
                         <tbody>
-                          {e.contratado.map((h) => (
+                          {agrupar(e.contratado).map(({ h, todas }) => (
                             <tr key={h.hojaId} className="border-t border-black/10 align-baseline">
-                              <td className="whitespace-nowrap py-1.5 pr-5 tabular-nums">{h.firma ? CORTA.format(new Date(`${h.firma}T12:00:00`)) : "—"}</td>
-                              <td className="max-w-[36rem] py-1.5 pr-5" title={h.lineas.map((l) => l.que).join(" + ")}>
+                              <td className="whitespace-nowrap py-1 pr-4 tabular-nums">{h.firma ? CORTA.format(new Date(`${h.firma}T12:00:00`)) : "—"}</td>
+                              <td className="max-w-[32rem] py-1 pr-4" title={h.lineas.map((l) => l.que).join(" + ")}>
                                 {h.lineas.map((l) => l.que.split(" (")[0]).join(" + ") || `Hoja de encargo ${h.numero ?? ""}`}
-                                {h.total > 0 && <b className="ml-2 whitespace-nowrap font-semibold tabular-nums">{EUR.format(h.total)} €</b>}
+                                {todas.length > 1 && <span className="ml-1.5 text-[#6f6f6f]">×{todas.length}</span>}
+                                {h.total > 0 && <b className="ml-2 whitespace-nowrap font-semibold tabular-nums">{EUR.format(h.total * todas.length)} €</b>}
                               </td>
-                              <td className="whitespace-nowrap py-1.5">
-                                {h.versionId ? (
-                                  <a
-                                    href={`/portal/c/${id}/hoja/${h.hojaId}`}
-                                    target="_blank"
-                                    rel="noopener"
-                                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#3f7a1c]/50 bg-[#eef7e4] px-2.5 py-0.5 font-semibold text-[#3f7a1c] hover:bg-[#dcefc9]"
-                                  >
-                                    <span aria-hidden>📄</span>Ver la hoja firmada
-                                  </a>
-                                ) : (
-                                  <span className="text-[12px] text-[#6f6f6f]">{h.numero}</span>
-                                )}
+                              <td className="whitespace-nowrap py-1">
+                                <span className="flex flex-wrap gap-1.5">
+                                  {todas.map((x, k) =>
+                                    x.versionId ? (
+                                      <a
+                                        key={x.hojaId}
+                                        href={`/portal/c/${id}/hoja/${x.hojaId}`}
+                                        target="_blank"
+                                        rel="noopener"
+                                        title={`Hoja de encargo ${x.numero ?? ""}`}
+                                        className="inline-flex items-center gap-1 rounded-md border border-[#3f7a1c]/50 bg-[#eef7e4] px-2 py-px text-[12px] font-semibold text-[#3f7a1c] hover:bg-[#dcefc9]"
+                                      >
+                                        <span aria-hidden>📄</span>
+                                        {todas.length > 1 ? `ver ${k + 1}` : "ver la hoja"}
+                                      </a>
+                                    ) : null,
+                                  )}
+                                </span>
                               </td>
                             </tr>
                           ))}
@@ -331,21 +349,66 @@ export default async function ComunidadEnElPortal({
             </dl>
           </section>
 
-          <section className="bg-[#fdf6dc] p-6">
-            <h2 className={"mb-3 text-[16px] font-bold " + ACENTO}>Lo que falta</h2>
-            {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
-            <ul className="space-y-1">
-              {faltan.map((x) => (
-                <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
-                  <span className="w-3 text-[12px] text-[#c8102e]">●</span>
-                  <span>
-                    {x.titulo}
-                    {x.estado === "rechazado" && <span className="block text-[12.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {zona === "expediente" ? (
+            /* ETAPAS DEL EXPEDIENTE (Monica, 21-oct-2026), como en el Sabadell: la
+               mano con el pulgar arriba lo hecho, » lo siguiente, en gris lo que viene. */
+            <section className="bg-[#fdf6dc] p-6">
+              <h2 className={"mb-3 text-[16px] font-bold " + ACENTO}>Etapas del expediente</h2>
+              {doc.expedientes.every((e) => e.etapas.length === 0) && <p className="text-[15px] text-[#1b1b1b]">Todavía no hay nada firmado.</p>}
+              <div className="space-y-4">
+                {doc.expedientes
+                  .filter((e) => e.etapas.length)
+                  .map((e) => {
+                    const siguiente = e.etapas.findIndex((x) => !x.hecha);
+                    return (
+                      <div key={e.id}>
+                        {doc.expedientes.length > 1 && <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">{e.nombre}</div>}
+                        <ul className="space-y-1">
+                          {e.etapas.map((x, k) => (
+                            <li
+                              key={x.clave}
+                              className={
+                                "flex items-center gap-3 text-[15px] font-semibold " +
+                                (x.hecha ? "text-[#1b1b1b]" : k === siguiente ? ACENTO : "text-[#c9c9c9]")
+                              }
+                            >
+                              <span className="flex w-4 justify-center" aria-hidden>
+                                {x.hecha ? (
+                                  <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill="none" stroke="#3a9a4a" strokeWidth="1.8" strokeLinejoin="round">
+                                    <path d="M7 10v11H3V10h4zM7 10l4-8c1.7 0 3 1.3 3 3v3h5.5c1.2 0 2.1 1.1 1.9 2.3l-1.4 8c-.2 1-1 1.7-2 1.7H7" />
+                                  </svg>
+                                ) : k === siguiente ? (
+                                  <span className="text-[14px]">»</span>
+                                ) : (
+                                  <span className="h-[7px] w-[7px] rounded-full border border-[#c9c9c9]" />
+                                )}
+                              </span>
+                              {x.nombre}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+              </div>
+            </section>
+          ) : (
+            <section className="bg-[#fdf6dc] p-6">
+              <h2 className={"mb-3 text-[16px] font-bold " + ACENTO}>Lo que falta</h2>
+              {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
+              <ul className="space-y-1">
+                {faltan.map((x) => (
+                  <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
+                    <span className="w-3 text-[12px] text-[#c8102e]">●</span>
+                    <span>
+                      {x.titulo}
+                      {x.estado === "rechazado" && <span className="block text-[12.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </aside>
       </div>
     </MarcoPortal>
