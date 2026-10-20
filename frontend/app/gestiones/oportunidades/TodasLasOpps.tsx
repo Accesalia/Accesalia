@@ -37,6 +37,10 @@ const textoAdmin = (a: FilaTodas["admins"][number]) => [a.gestor, a.empresa].fil
 const adminsDe = (f: FilaTodas) => f.admins.map(textoAdmin).join(" / ");
 const SIN_MUNICIPIO = "(sin municipio)";
 const anioDe = (f: FilaTodas) => f.apertura?.slice(0, 4) ?? "(sin fecha)";
+// EL CAPTADOR (Monica, 20-oct-2026): las siglas del codigo (DAN-2025-001), que
+// son de quien la trajo y no cambian aunque la lleve otro.
+const SIN_CODIGO = "(sin código)";
+const captadorDe = (f: FilaTodas) => f.codigo?.split("-")[0]?.trim().toUpperCase() || SIN_CODIGO;
 
 export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTodas[]; comerciales: ComercialLista[] }) {
   const router = useRouter();
@@ -50,6 +54,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   const [municipio, setMunicipio] = useState("");
   const [anio, setAnio] = useState("");
   const [admin, setAdmin] = useState("");
+  const [captador, setCaptador] = useState("");
   const [orden, setOrden] = useState<{ por: Orden; baja: boolean }>({ por: "apertura", baja: true });
   const [cuantas, setCuantas] = useState(DE_UNA_VEZ);
   // VER POR DIR (Monica, 20-oct-2026): la misma lista, agrupada por DIR, cada
@@ -73,20 +78,21 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   // cuenta sobre lo que dejan pasar TODOS LOS DEMAS filtros (y el buscador),
   // menos el suyo: asi enseña sus otras opciones sin tener que quitarlo. Solo
   // salen las que tienen alguna; la elegida se queda aunque se quede en 0.
-  type Filtro = "comercial" | "admin" | "municipio" | "anio" | "estado";
+  type Filtro = "comercial" | "captador" | "admin" | "municipio" | "anio" | "estado";
   const pasa = useMemo(() => {
     const palabras = palabrasDe(q);
     return (f: FilaTodas, salvo?: Filtro) => {
       if (porDir && varias && (!f.dir || (oppsDeDir.get(f.dir.id) ?? 0) < 2)) return false;
       if (salvo !== "estado" && estado && f.estado !== estado) return false;
       if (salvo !== "comercial" && (comercial === SIN ? f.comercialId !== null : comercial && f.comercialId !== comercial)) return false;
+      if (salvo !== "captador" && captador && captadorDe(f) !== captador) return false;
       if (salvo !== "municipio" && municipio && (municipio === SIN_MUNICIPIO ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
       if (salvo !== "anio" && anio && anioDe(f) !== anio) return false;
       if (salvo !== "admin" && (admin === SIN ? f.admins.length > 0 : admin && !f.admins.some((a) => a.clave === admin))) return false;
       if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)} ${f.dir?.codigo ?? ""} ${f.dir?.nombre ?? ""}` })) return false;
       return true;
     };
-  }, [q, estado, comercial, municipio, anio, admin, nombreComercial, porDir, varias, oppsDeDir]);
+  }, [q, estado, comercial, captador, municipio, anio, admin, nombreComercial, porDir, varias, oppsDeDir]);
 
   const opcionesComercial: Opcion[] = useMemo(() => {
     const n = new Map<string | null, number>();
@@ -98,6 +104,18 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       ...comerciales.filter((c) => hay(c.id, c.id)).map((c) => ({ valor: c.id, texto: c.nombre, pista: String(n.get(c.id) ?? 0) + (c.activo ? "" : " · ya no está") })),
     ];
   }, [filas, pasa, comerciales, comercial]);
+
+  // El del captador: sus siglas, con el nombre de quien las lleva de pista.
+  const opcionesCaptador: Opcion[] = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const f of filas) if (pasa(f, "captador")) n.set(captadorDe(f), (n.get(captadorDe(f)) ?? 0) + 1);
+    if (captador && !n.has(captador)) n.set(captador, 0);
+    const quien = new Map(comerciales.filter((c) => c.iniciales).map((c) => [c.iniciales!.trim().toUpperCase(), c.nombre]));
+    return [
+      { valor: "", texto: "Todos" },
+      ...[...n].sort((a, b) => b[1] - a[1]).map(([k, c]) => ({ valor: k, texto: k, pista: [quien.get(k), String(c)].filter(Boolean).join(" · ") })),
+    ];
+  }, [filas, pasa, captador, comerciales]);
 
   // El del administrador: un gestor cada opcion, con su administracion de
   // pista (asi buscando "SM Fincas" salen todos los suyos).
@@ -164,9 +182,9 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     return [...m.values(), ...(sin ? [sin] : [])];
   }, [lista]);
 
-  const hayFiltro = q || estado || comercial || municipio || anio || admin;
+  const hayFiltro = q || estado || comercial || captador || municipio || anio || admin;
   const limpiar = () => {
-    setQ(""); setEstado(""); setComercial(""); setMunicipio(""); setAnio(""); setAdmin(""); setCuantas(DE_UNA_VEZ);
+    setQ(""); setEstado(""); setComercial(""); setCaptador(""); setMunicipio(""); setAnio(""); setAdmin(""); setCuantas(DE_UNA_VEZ);
   };
   const ordenarPor = (por: Orden) => setOrden((o) => (o.por === por ? { por, baja: !o.baja } : { por, baja: por === "apertura" }));
   const flecha = (por: Orden) => (orden.por === por ? (orden.baja ? " ↓" : " ↑") : "");
@@ -191,6 +209,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
             />
           </label>
           <Elegir id="f_comercial" nombre="Comercial" opciones={opcionesComercial} valor={comercial} alElegir={(v) => { setComercial(v); setCuantas(DE_UNA_VEZ); }} conPista clase="w-[220px]" />
+          <Elegir id="f_captador" nombre="Captador" opciones={opcionesCaptador} valor={captador} alElegir={(v) => { setCaptador(v); setCuantas(DE_UNA_VEZ); }} conPista clase="w-[170px]" />
           <Elegir id="f_admin" nombre="Administrador" opciones={opcionesAdmin} valor={admin} alElegir={(v) => { setAdmin(v); setCuantas(DE_UNA_VEZ); }} conPista clase="w-[260px]" />
           <Elegir id="f_municipio" nombre="Municipio" opciones={opcionesMunicipio} valor={municipio} alElegir={(v) => { setMunicipio(v); setCuantas(DE_UNA_VEZ); }} clase="w-[220px]" />
           <Elegir id="f_anio" nombre="Año de apertura" opciones={opcionesAnio} valor={anio} alElegir={(v) => { setAnio(v); setCuantas(DE_UNA_VEZ); }} clase="w-[140px]" />
