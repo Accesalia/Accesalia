@@ -1,0 +1,298 @@
+[
+ {
+  "codigo": "DAN-2021-024",
+  "estado": "abierta",
+  "antes": "EZEQUIEL SOLANA 85-87 MADRID",
+  "catastro": "Ezequiel Solana 85, Madrid",
+  "motivo": "el nombre dice 87, que no está en la parcela de sus portales",
+  "parcelas": "5656910VK4755F"
+ },
+ {
+  "codigo": "CAR-2026-011",
+  "estado": "abierta",
+  "antes": "SANTA GENOVEVA 18-20 MADRID",
+  "catastro": "Santa Genoveva 20, Madrid",
+  "motivo": "el nombre dice 18, que no está en la parcela de sus portales",
+  "parcelas": "5053112VK4755C"
+ },
+ {
+  "codigo": "DAN-2022-047",
+  "estado": "cerrada",
+  "antes": "Virgen de Iciar 15 escaleras 1, 2, 3, 5 y 6, Alcorcon",
+  "catastro": "Virgen de Iciar 15 escaleras 6, 1, 5, 2 y 3, Alcorcon",
+  "motivo": "el nombre dice 1, 2, 3, 5, 6, que no está en la parcela de sus portales",
+  "parcelas": "9665101VK2696N"
+ },
+ {
+  "codigo": "DAN-2025-139",
+  "estado": "abierta",
+  "antes": "AV DEL OESTE 1-3 ALCORCON",
+  "catastro": "Oeste 1 D, Alcorcon (avenida)",
+  "motivo": "el nombre dice 3, que no está en la parcela de sus portales",
+  "parcelas": "9463414VK2696S"
+ },
+ {
+  "codigo": "DAN-2017-165",
+  "estado": "abierta",
+  "antes": "SANTA BRIGIDA 1-4 MAJADAHONDA",
+  "catastro": "Santa Brigida 1, Majadahonda",
+  "motivo": "el nombre dice 3, 4, que no está en la parcela de sus portales",
+  "parcelas": "6605109VK2860N"
+ },
+ {
+  "codigo": "ALV-2026-191",
+  "estado": "abierta",
+  "antes": "NÉCTAR 31 PORTAL 1 - 2 - 3 MADRID",
+  "catastro": "Nectar 31 C y 31 E, Madrid",
+  "motivo": "el nombre dice 2, 3, que no está en la parcela de sus portales",
+  "parcelas": "8273821VK4787C"
+ },
+ {
+  "codigo": "ALV-2026-071",
+  "estado": "abierta",
+  "antes": "CARLOS SOLE 44-52 GARAJE MADRID",
+  "catastro": "Carlos Sole 44, Madrid",
+  "motivo": "el nombre dice 46, 48, 50, 52, que no está en la parcela de sus portales",
+  "parcelas": "4717707VK4741F"
+ },
+ {
+  "codigo": "DAN-2017-154",
+  "estado": "abierta",
+  "antes": "AV ESPAÑA 35-2 MAJADAHONDA",
+  "catastro": "España 35, Majadahonda (avenida)",
+  "motivo": "el nombre dice 2, que no está en la parcela de sus portales",
+  "parcelas": "6605115VK2860N"
+ },
+ {
+  "codigo": "CAR-2025-086",
+  "estado": "abierta",
+  "antes": "FARO 4-6 MADRID",
+  "catastro": "Faro 4, Madrid",
+  "motivo": "el nombre dice 6, que no está en la parcela de sus portales",
+  "parcelas": "8304902VK3780C"
+ },
+ {
+  "codigo": "ALV-2026-209",
+  "estado": "abierta",
+  "antes": "Dr Juan Jose Lopez Ibor 16 escalera 1, Madrid",
+  "catastro": "Doctor Juan Jose Lopez Ibor 16 escalera 1, Madrid",
+  "motivo": "el nombre dice 1, que no está en la parcela de sus portales",
+  "parcelas": "8505602VK3880F"
+ },
+ {
+  "codigo": "DAN-2026-194",
+  "estado": "abierta",
+  "antes": "PASEO DE EXTREMADURA 150 MADRID",
+  "catastro": "Extremadura 151, Madrid (paseo)",
+  "motivo": "el nombre dice 150, que no está en la parcela de sus portales",
+  "parcelas": "7135101VK3773E"
+ },
+ {
+  "codigo": "DAN-2025-382",
+  "estado": "abierta",
+  "antes": "CUESTA BLANCA 2 FASE 1 BLOQUE C ALCOBENDAS",
+  "catastro": "Cuestablanca 52, Alcobendas",
+  "parcelas": "4965806VK4846S",
+  "motivo": "el nombre dice fase/bloque/portal: no sé leer qué portales le faltan"
+ },
+ {
+  "codigo": "DAN-2025-373",
+  "estado": "abierta",
+  "antes": "VIENA 2, 4 ,6 MOSTOLES",
+  "catastro": "Viena 2, Mostoles",
+  "motivo": "el nombre dice 4, 6, que no está en la parcela de sus portales",
+  "parcelas": "7331403VK2673S"
+ },
+ {
+  "codigo": "DAN-2025-188",
+  "estado": "abierta",
+  "antes": "CALLE 1492 NO 6 SAN SEBASTIÁN DE LOS REYES",
+  "catastro": "Año 1492 6, San Sebastian de los Reyes",
+  "motivo": "el nombre dice 1492, que no está en la parcela de sus portales",
+  "parcelas": "6985603VK4868N"
+ },
+ {
+  "codigo": "DAN-2023-054",
+  "estado": "abierta",
+  "antes": "MANCOMUNIDAD LOS CASTILLOS Y VIÑAGRANDE ALCORCON",
+  "catastro": "Viñagrande 1, 3, 5, 7, 9, 13, 17 y 29 + Los Castillos 32, Alcorcon (avenida)",
+  "motivo": "sus portales son de 9 parcelas distintas",
+  "parcelas": "1771010VK3617S, 1771011VK3617S, 1771019VK3617S, 1771021VK3617S, 1771023VK3617S, 1771024VK3617S, 1771025VK3617S, 1771026VK3617S, 1771027VK3617S"
+ },
+ {
+  "codigo": "DAN-2025-383",
+  "estado": "abierta",
+  "antes": "CUESTA BLANCA 2 FASE 1 BLOQUE CH ALCOBENDAS",
+  "catastro": "Cuestablanca 76, Alcobendas",
+  "parcelas": "4965806VK4846S",
+  "motivo": "el nombre dice fase/bloque/portal: no sé leer qué portales le faltan"
+ },
+ {
+  "codigo": "DAN-2020-050",
+  "estado": "abierta",
+  "antes": "PLAZA DE VALSAIN 3 Y 4 MADRID",
+  "catastro": "Valsain 3, Madrid (plaza)",
+  "motivo": "el nombre dice 4, que no está en la parcela de sus portales",
+  "parcelas": "4963502VK4746D"
+ },
+ {
+  "codigo": "DAN-2024-298",
+  "estado": "abierta",
+  "antes": "PLAZA DEL PAULAR 1 MADRID",
+  "catastro": "Paular 1 y 2, Madrid (plaza)",
+  "motivo": "sus portales son de 2 parcelas distintas",
+  "parcelas": "4963712VK4746D, 4963713VK4746D"
+ },
+ {
+  "codigo": "DAN-2021-036",
+  "estado": "abierta",
+  "antes": "MERCEDES ARTEAGA 45-47 MADRID",
+  "catastro": "Mercedes Arteaga 47, Madrid",
+  "motivo": "el nombre dice 45, que no está en la parcela de sus portales",
+  "parcelas": "8716615VK3781F"
+ },
+ {
+  "codigo": "DAN-2026-084",
+  "estado": "abierta",
+  "antes": "SALAMANCA 1-3-5-7 Y EMPECINADO 23 MOSTOLES",
+  "catastro": "Salamanca 1, Mostoles",
+  "motivo": "el nombre dice 3, 5, 7, 23, que no está en la parcela de sus portales",
+  "parcelas": "7241301VK2674S"
+ },
+ {
+  "codigo": "DAN-2024-279",
+  "estado": "abierta",
+  "antes": "JULIO PALACIOS 2-4-6 MADRID",
+  "catastro": "Julio Palacios 2, Madrid",
+  "motivo": "el nombre dice 4, 6, que no está en la parcela de sus portales",
+  "parcelas": "1318804VK4811G"
+ },
+ {
+  "codigo": "DAN-2024-126",
+  "estado": "abierta",
+  "antes": "AV AVIACION 91 A 101 MADRID",
+  "catastro": "Aviacion 91, Madrid (avenida)",
+  "motivo": "el nombre dice 93, 95, 97, 99, 101, que no está en la parcela de sus portales",
+  "parcelas": "4698618VK3649H"
+ },
+ {
+  "codigo": "CAR-2026-013",
+  "estado": "abierta",
+  "antes": "RONDA DE TOLEDO 40 MADRID",
+  "catastro": "Toledo 30, Madrid (ronda)",
+  "motivo": "el nombre dice 40, que no está en la parcela de sus portales",
+  "parcelas": "0231602VK4703A"
+ },
+ {
+  "codigo": "ALV-2026-041",
+  "estado": "abierta",
+  "antes": "NURIA 28-32 MADRID",
+  "catastro": "Nuria 28, Madrid",
+  "motivo": "el nombre dice 30, 32, que no está en la parcela de sus portales",
+  "parcelas": "0229939VK4802G"
+ },
+ {
+  "codigo": "DAN-2023-009",
+  "estado": "abierta",
+  "antes": "AV GIBRALTAR 4-6-8 GETAFE",
+  "catastro": "De Gibraltar 4, 6 y 8, Getafe (avenida)",
+  "motivo": "sus portales son de 3 parcelas distintas",
+  "parcelas": "8527402VK3682N, 8527403VK3682N, 8527407VK3682N"
+ },
+ {
+  "codigo": "DAN-2017-155",
+  "estado": "abierta",
+  "antes": "AV ESPAÑA 35-6 MAJADAHONDA",
+  "catastro": "España 35, Majadahonda (avenida)",
+  "motivo": "el nombre dice 6, que no está en la parcela de sus portales",
+  "parcelas": "6605119VK2860N"
+ },
+ {
+  "codigo": "DAN-2026-146",
+  "estado": "abierta",
+  "antes": "LAS ROSAS DE ARAVACA C/HUMERA 42-44-46-48-50-52-54",
+  "catastro": "Humera 42, 44, 46, 48, 50, 52 y 54, Madrid",
+  "motivo": "sus portales son de 7 parcelas distintas",
+  "parcelas": "3782103VK3738B, 3782104VK3738B, 3782105VK3738B, 3782106VK3738B, 3782107VK3738B, 3782108VK3738B, 3782109VK3738B"
+ },
+ {
+  "codigo": "DAN-2024-130",
+  "estado": "abierta",
+  "antes": "CAMARENA 157-159 MADRID",
+  "catastro": "Camarena 157, Madrid",
+  "motivo": "el nombre dice 159, que no está en la parcela de sus portales",
+  "parcelas": "6114360VK3761C"
+ },
+ {
+  "codigo": "DAN-2026-100",
+  "estado": "abierta",
+  "antes": "CARONDELET 16 – CHALET 23 MADRID",
+  "catastro": "Carondelet 16, Madrid (avenida)",
+  "motivo": "el nombre dice 23, que no está en la parcela de sus portales",
+  "parcelas": "5481214VK4758A"
+ },
+ {
+  "codigo": "CAR-2026-012",
+  "estado": "abierta",
+  "antes": "SANTA PRISCA 2-4 MADRID",
+  "catastro": "Santa Prisca 2, Madrid",
+  "motivo": "el nombre dice 4, que no está en la parcela de sus portales",
+  "parcelas": "5053183VK4755C"
+ },
+ {
+  "codigo": "DAN-2021-128",
+  "estado": "abierta",
+  "antes": "MANRESA 25-27 MADRID",
+  "catastro": "Manresa 25, Madrid",
+  "motivo": "el nombre dice 27, que no está en la parcela de sus portales",
+  "parcelas": "1427910VK4812G"
+ },
+ {
+  "codigo": "ALV-2026-005",
+  "estado": "abierta",
+  "antes": "AV PRINCIPES ESPAÑA 17-19 COSLADA",
+  "catastro": "Principes de España 17 y 19, Coslada (avenida)",
+  "motivo": "sus portales son de 2 parcelas distintas",
+  "parcelas": "3754118VK5735S, 3754119VK5735S"
+ },
+ {
+  "codigo": "DAN-2025-006",
+  "estado": "abierta",
+  "antes": "CARLOS V 47- 49 MOSTOLES",
+  "catastro": "Carlos V 47, Mostoles (avenida)",
+  "motivo": "el nombre dice 49, que no está en la parcela de sus portales",
+  "parcelas": "7231601VK2673S"
+ },
+ {
+  "codigo": "ALV-2026-210",
+  "estado": "abierta",
+  "antes": "Mancomunidad Los Sauces 7 - Lilos 6, Alcorcon",
+  "catastro": "Los Sauces 7, Alcorcon",
+  "motivo": "el nombre dice 6, que no está en la parcela de sus portales",
+  "parcelas": "9158901VK2695N"
+ },
+ {
+  "codigo": "CAR-2025-030",
+  "estado": "abierta",
+  "antes": "VELAZQUEZ 21-31 SAN LORENZO DEL ESCORIAL",
+  "catastro": "Velazquez 21 y 31, San Lorenzo del Escorial",
+  "motivo": "sus portales son de 2 parcelas distintas",
+  "parcelas": "3446103VK0934N, 3446108VK0934N"
+ },
+ {
+  "codigo": "CAR-2025-049",
+  "estado": "abierta",
+  "antes": "VEREDA DE GANAPANES 31-33-35 MADRID",
+  "catastro": "Ganapanes 31, 33 y 35, Madrid (camino)",
+  "motivo": "sus portales son de 3 parcelas distintas",
+  "parcelas": "9308804VK3890G, 9308805VK3890G, 9308806VK3890G"
+ },
+ {
+  "codigo": "ALV-2026-014",
+  "estado": "abierta",
+  "antes": "ABREVADERO 2 PORTAL 16 VILLAVICIOSA DE ODON",
+  "catastro": "Abrevadero 16, Villaviciosa de Odon",
+  "parcelas": "3880701VK2637N",
+  "motivo": "el nombre dice fase/bloque/portal: no sé leer qué portales le faltan"
+ }
+]
