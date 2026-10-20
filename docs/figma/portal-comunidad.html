@@ -16,11 +16,12 @@
      Datos REALES: CP Santa Maria la Blanca 3 y 5 / Iglesia 22, Alcorcon. Debajo de
      la pagina, fuera de ella, la leyenda de los cuatro estados de una ventanita
      (pendiente, recibido, validado, rechazado con su comentario), para diseñarlos.
-     El color de acento es UNA variable (--acento): el azul del Sabadell es #0060f0. -->
+     El color de acento es UNA variable (--acento): el azul del Sabadell es #0060f0.
+     21-oct (Daniel): fondo azul profundo (--fondo) y tarjetas en crema muy suave (--blanco el marco y los paneles, --caja las ventanitas). -->
 <style>
   :root{
     --acento:#3f7a1c; --acento-claro:#eef7e4;
-    --negro:#202020; --fondo:#f5f5f5; --blanco:#fff; --tinta:#1b1b1b; --gris:#6f6f6f; --gris-claro:#9a9a9a;
+    --negro:#202020; --fondo:#12305a; --blanco:#fbf7ee; --caja:#fffcf5; --sobre-fondo:#f3efe4; --tinta:#1b1b1b; --gris:#6f6f6f; --gris-claro:#9a9a9a;
     --raya:#e3e3e3; --rojo:#c8102e; --ok:#3a9a4a; --ambar:#b45309;
     --letra:"Roboto", ui-sans-serif, system-ui, Arial, sans-serif;
   }
@@ -38,7 +39,7 @@
   .barra .avatar{width:32px;height:32px;border-radius:50%;background:#d9d9d9;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
 
   main{padding:18px 24px 40px;display:grid;grid-template-columns:minmax(0,1fr) 468px;gap:26px;align-items:start;max-width:2000px}
-  .codigo{grid-column:1/-1;color:var(--acento);font-weight:700;font-size:19px;margin:4px 0 0}
+  .codigo{grid-column:1/-1;color:var(--sobre-fondo);font-weight:700;font-size:19px;margin:4px 0 0}
 
   .marco{background:var(--blanco);padding:0 24px 28px}
   .marco-cab{display:flex;align-items:center;border-bottom:1px solid var(--raya);padding:14px 16px;margin:0 -0px}
@@ -54,7 +55,7 @@
 
   .pide{margin:24px 16px 14px;font-size:15px}
   .rejilla{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:0 0}
-  .caja{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.14);padding:18px 14px 16px;min-height:142px;display:flex;flex-direction:column}
+  .caja{background:var(--caja);box-shadow:0 1px 4px rgba(0,0,0,.14);padding:18px 14px 16px;min-height:142px;display:flex;flex-direction:column}
   .caja.alta{min-height:206px}
   .caja h3{margin:0;font-weight:400;font-size:15px;line-height:1.45;display:flex;gap:6px}
   .caja h3 .marca{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ok);color:var(--ok);font-size:10px;display:inline-flex;align-items:center;justify-content:center;margin-top:3px}
@@ -84,7 +85,7 @@
   .adicionales p{margin:4px 0 0;color:var(--gris);font-size:14.5px}
 
   .lado > * + *{margin-top:26px}
-  .panel{background:#fff;padding:24px}
+  .panel{background:var(--blanco);padding:24px}
   .quien{display:flex;gap:40px;align-items:center;padding-bottom:16px;border-bottom:1.5px solid var(--acento)}
   .quien .foto{width:60px;height:60px;border-radius:50%;background:#bdbdbd;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px}
   .quien b{color:var(--acento);font-size:17px;display:block}
@@ -104,7 +105,7 @@
   .etapas small{display:block;font-weight:400;font-size:13.5px;color:var(--tinta);margin:2px 0 4px}
   ul{list-style:none;margin:0;padding:0}
 
-  .leyenda{max-width:1500px;margin:30px 24px 60px;padding:20px;border:2px dashed #bbb;background:#fafafa}
+  .leyenda{max-width:1500px;margin:30px 24px 60px;padding:20px;border:2px dashed #bbb;background:var(--blanco)}
   .leyenda h4{margin:0 0 14px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--gris)}
   .leyenda .rejilla{grid-template-columns:repeat(4,minmax(0,280px))}
 </style>
@@ -216,7 +217,7 @@
 
 <!-- ============ la pestaña de un expediente, al pulsarla (sus documentos de su Word) ============ -->
 <div style="padding:0 24px;max-width:calc(100% - 494px)">
-  <p class="codigo" style="font-size:13px;color:var(--gris);font-weight:600;margin:10px 0 8px">AL PULSAR LA PESTAÑA DE UN EXPEDIENTE</p>
+  <p class="codigo" style="font-size:13px;color:var(--sobre-fondo);opacity:.8;font-weight:600;margin:10px 0 8px">AL PULSAR LA PESTAÑA DE UN EXPEDIENTE</p>
   <section class="marco">
     <div class="marco-cab"><h2>Documentación</h2><span class="pend">7 documentos pendientes</span></div>
     <div class="pestanas">
