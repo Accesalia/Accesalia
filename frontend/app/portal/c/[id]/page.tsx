@@ -69,11 +69,11 @@ const ICONO: Record<Estado, { texto: string; color: string; svg: React.ReactNode
 function Simbolo({ estado }: { estado: Estado }) {
   const i = ICONO[estado];
   return (
-    <span className="flex w-[76px] flex-none flex-col items-center gap-0.5 text-center">
-      <svg viewBox="0 0 44 44" className="h-[34px] w-[34px]" aria-hidden>
+    <span className="flex w-[66px] flex-none flex-col items-center gap-0.5 text-center">
+      <svg viewBox="0 0 44 44" className="h-[28px] w-[28px]" aria-hidden>
         {i.svg}
       </svg>
-      <span className={"text-[10.5px] font-semibold leading-tight " + i.color}>{i.texto}</span>
+      <span className={"text-[10px] font-semibold leading-tight " + i.color}>{i.texto}</span>
     </span>
   );
 }
@@ -82,9 +82,9 @@ function Simbolo({ estado }: { estado: Estado }) {
 
 function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
-    <div className="flex min-h-[170px] flex-col rounded-[14px] bg-white p-4 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
+    <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
       <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
-        <h3 className="text-[22px] font-extrabold leading-tight text-[#111]">{c.titulo}</h3>
+        <h3 className="text-[16px] font-extrabold leading-snug text-[#111]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
         {c.fichero && (
           <p className="mt-3 truncate text-[12.5px] text-[#555]" title={c.fichero}>
@@ -113,9 +113,9 @@ function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
 
 function Otros({ comunidadId, oportunidadId = null }: { comunidadId: string; oportunidadId?: string | null }) {
   return (
-    <div className="flex min-h-[170px] flex-col rounded-[14px] border border-[#c8102e] bg-white p-4">
+    <div className="flex min-h-[138px] flex-col rounded-[14px] border border-[#c8102e] bg-white p-3.5">
       <Adjuntar comunidadId={comunidadId} clave="otro" oportunidadId={oportunidadId}>
-        <h3 className="text-[22px] font-extrabold leading-tight text-[#111]">Otros documentos</h3>
+        <h3 className="text-[16px] font-extrabold leading-snug text-[#111]">Otros documentos</h3>
         <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">lo que no esté en ninguna otra</p>
       </Adjuntar>
     </div>
@@ -183,7 +183,7 @@ export default async function ComunidadEnElPortal({
         {f.municipio && <span className="font-normal text-[#f3efe4]/75"> · {f.municipio}</span>}
       </h1>
 
-      <div className="mt-4 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_440px]">
+      <div className="mt-4 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         {/* ======================= el marco grande ======================= */}
         <section className="min-w-0 bg-[#fdf6dc] px-4 pb-7 sm:px-6">
           <div className="flex flex-wrap items-end gap-x-8 gap-y-2 border-b border-black/10 pt-3">
@@ -213,12 +213,12 @@ export default async function ComunidadEnElPortal({
               {/* la comunidad y cada expediente */}
               <div className="mt-5 flex flex-wrap gap-1.5 border-b border-black/10">
                 <Link href={url({})} className={"-mb-px border-b-[3px] px-4 pb-2 pt-1 " + (!exp ? "border-[#3f7a1c]" : "border-transparent")}>
-                  <span className={"block text-[16.5px] font-bold " + ACENTO}>La comunidad</span>
+                  <span className={"block text-[15px] font-bold " + ACENTO}>La comunidad</span>
                   <span className="block text-[11.5px] text-[#6f6f6f]">papeles de siempre</span>
                 </Link>
                 {doc.expedientes.map((e) => (
                   <Link key={e.id} href={url({ p: e.id })} className={"-mb-px border-b-[3px] px-4 pb-2 pt-1 " + (exp?.id === e.id ? "border-[#3f7a1c]" : "border-transparent")}>
-                    <span className={"block text-[16.5px] font-bold " + ACENTO}>{e.nombre}</span>
+                    <span className={"block text-[15px] font-bold " + ACENTO}>{e.nombre}</span>
                     <span className="block text-[11.5px] text-[#6f6f6f]">{e.codigo}</span>
                   </Link>
                 ))}
@@ -228,7 +228,7 @@ export default async function ComunidadEnElPortal({
                 Documentación solicitada para <b>{exp ? exp.nombre.toUpperCase() : f.nombre.toUpperCase()}</b>
                 {exp && <>. Lo de la comunidad (CIF, DNI y acta del presidente) vale para todos sus expedientes: no hace falta subirlo otra vez.</>}
               </p>
-              <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                 {(exp ? exp.cajas : doc.comunidad).map((x) => (
                   <Ventanita key={`${x.clave}-${x.hojaId ?? ""}`} c={x} comunidadId={id} />
                 ))}
@@ -289,19 +289,19 @@ export default async function ComunidadEnElPortal({
               </span>
               <span>
                 <b className={"block text-[17px] " + ACENTO}>Tu comunidad</b>
-                <span className="text-[12.5px] text-[#1b1b1b]">
+                <span className="text-[14px] text-[#1b1b1b]">
                   {[f.cif && `CIF ${f.cif}`, cat?.viviendas != null && `${cat.viviendas} viviendas`, cat?.anio].filter(Boolean).join(" · ")}
                 </span>
               </span>
             </div>
-            <dl className="mt-3 text-[14px] leading-relaxed text-[#1b1b1b]">
-              <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Administración</dt>
+            <dl className="mt-3 text-[15.5px] leading-relaxed text-[#1b1b1b]">
+              <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Administración</dt>
               <dd>{f.administraciones.length ? [f.administraciones.map((a) => a.empresa).join(", "), gestores.join(" y ")].filter(Boolean).join(" · ") : "—"}</dd>
-              <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Presidente</dt>
+              <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Presidente</dt>
               <dd className={presi ? "" : "text-[#b45309]"}>{presi ? presi.nombre : "sin apuntar: súbenos el acta de nombramiento"}</dd>
               {f.accesos.length > 0 && (
                 <>
-                  <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Accesos</dt>
+                  <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Accesos</dt>
                   <dd>{[...new Set(f.accesos.map((a) => a.texto))].join(" · ")}</dd>
                 </>
               )}
@@ -310,14 +310,14 @@ export default async function ComunidadEnElPortal({
 
           <section className="bg-[#fdf6dc] p-6">
             <h2 className={"mb-3 text-[17px] font-bold " + ACENTO}>Lo que falta</h2>
-            {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
+            {faltan.length === 0 && <p className="text-[16px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
             <ul className="space-y-1">
               {faltan.map((x) => (
-                <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
+                <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[16px] font-semibold text-[#1b1b1b]">
                   <span className="w-3 text-[12px] text-[#c8102e]">●</span>
                   <span>
                     {x.titulo}
-                    {x.estado === "rechazado" && <span className="block text-[12.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
+                    {x.estado === "rechazado" && <span className="block text-[13.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
                   </span>
                 </li>
               ))}

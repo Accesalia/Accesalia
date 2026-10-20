@@ -82,7 +82,7 @@ export function Adjuntar({
           type="button"
           disabled={subiendo}
           onClick={() => input.current?.click()}
-          className="flex items-center gap-1.5 whitespace-nowrap text-[14.5px] text-[#3f7a1c] disabled:opacity-60"
+          className="flex items-center gap-1.5 whitespace-nowrap text-[13.5px] text-[#3f7a1c] disabled:opacity-60"
         >
           <span className="inline-flex h-[13px] w-[13px] flex-none items-center justify-center rounded-full border border-[#3f7a1c] text-[10px]">+</span>
           <span className="underline">{subiendo ? "Subiendo…" : "Adjuntar documento"}</span>

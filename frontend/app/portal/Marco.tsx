@@ -11,10 +11,7 @@ import { accionSalir } from "./acciones";
 export function MarcoPortal({ email, ancho = false, children }: { email: string | null; ancho?: boolean; children: ReactNode }) {
   if (ancho)
     return (
-      // A TAMAÑO DE PERSONA (Monica, 21-oct-2026: «ahora es para gigantes»): en
-      // pantalla de ordenador, todo al 80 %, para que salgan las proporciones de
-      // la maqueta (4 ventanitas en fila). En el movil, a tamaño normal.
-      <div className="min-h-screen bg-[#12305a] lg:min-h-[125vh] lg:[zoom:0.8]">
+      <div className="min-h-screen bg-[#12305a]">
         <header className="bg-[#202020]">
           <div className="flex h-[63px] items-center gap-4 px-4 text-white sm:px-6">
             <span className="text-[19px] font-extrabold tracking-wide">
