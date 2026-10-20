@@ -55,6 +55,12 @@ export function Lista({ empresas, gestores, comerciales }: { empresas: FilaEmpre
   const deEmpresa = useMemo(() => new Map(empresas.map((e) => [e.id, e])), [empresas]);
   const deGestor = useMemo(() => new Map(gestores.map((g) => [g.puestoId, g])), [gestores]);
 
+  const gestoresDe = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const g of gestores) m.set(g.empresaId, [...(m.get(g.empresaId) ?? []), g.nombre]);
+    return m;
+  }, [gestores]);
+
   const filas: Fila[] = useMemo(
     () =>
       vista === "empresa"
@@ -66,7 +72,9 @@ export function Lista({ empresas, gestores, comerciales }: { empresas: FilaEmpre
             comerciales: e.comerciales,
             contacto: e.ultimoContacto,
             firmadas: e.firmadas,
-            buscar: `${e.jefes.join(" ")} ${e.municipio ?? ""}`,
+            // Tambien por TODOS sus gestores, no solo el jefe (Monica, 20-oct-2026:
+            // buscando a una gestora no salia su administracion).
+            buscar: `${e.jefes.join(" ")} ${e.municipio ?? ""} ${(gestoresDe.get(e.id) ?? []).join(" ")}`,
           }))
         : gestores.map((g) => ({
             clave: g.puestoId,
@@ -78,7 +86,7 @@ export function Lista({ empresas, gestores, comerciales }: { empresas: FilaEmpre
             firmadas: g.firmadas,
             buscar: `${g.cargo ?? ""} ${g.municipio ?? ""}`,
           })),
-    [vista, empresas, gestores],
+    [vista, empresas, gestores, gestoresDe],
   );
 
   // LOS FILTROS SE SUMAN: cada uno cuenta sobre lo que dejan los demas.
@@ -172,7 +180,7 @@ export function Lista({ empresas, gestores, comerciales }: { empresas: FilaEmpre
             <input
               value={q}
               onChange={(e) => { setQ(e.target.value); setCuantas(DE_UNA_VEZ); }}
-              placeholder={vista === "empresa" ? "administración, jefe, comercial o municipio…" : "gestor, administración, comercial o cargo…"}
+              placeholder={vista === "empresa" ? "administración, gestor, comercial o municipio…" : "gestor, administración, comercial o cargo…"}
               className={CAMPO + " mt-1"}
             />
           </label>
