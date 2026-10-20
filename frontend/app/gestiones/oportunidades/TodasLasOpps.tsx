@@ -52,6 +52,9 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   const [admin, setAdmin] = useState("");
   const [orden, setOrden] = useState<{ por: Orden; baja: boolean }>({ por: "apertura", baja: true });
   const [cuantas, setCuantas] = useState(DE_UNA_VEZ);
+  // VER POR DIR (Monica, 20-oct-2026): la misma lista, agrupada por DIR, cada
+  // una con sus opps colgando como un arbol. Los filtros y el orden, los mismos.
+  const [porDir, setPorDir] = useState(false);
 
   const nombreComercial = useMemo(() => new Map(comerciales.map((c) => [c.id, c.nombre])), [comerciales]);
 
@@ -69,7 +72,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       if (salvo !== "municipio" && municipio && (municipio === SIN_MUNICIPIO ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
       if (salvo !== "anio" && anio && anioDe(f) !== anio) return false;
       if (salvo !== "admin" && (admin === SIN ? f.admins.length > 0 : admin && !f.admins.some((a) => a.clave === admin))) return false;
-      if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)}` })) return false;
+      if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)} ${f.dir?.codigo ?? ""} ${f.dir?.nombre ?? ""}` })) return false;
       return true;
     };
   }, [q, estado, comercial, municipio, anio, admin, nombreComercial]);
@@ -136,6 +139,20 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     });
   }, [sinEstado, estado, orden]);
 
+  // Las DIR, en el orden en que sale su primera opp en la lista ordenada. Las
+  // opps sin accesos no tienen DIR: van juntas al final.
+  const grupos = useMemo(() => {
+    const m = new Map<string, { dir: FilaTodas["dir"]; opps: FilaTodas[] }>();
+    for (const f of lista) {
+      const k = f.dir?.id ?? "";
+      if (!m.has(k)) m.set(k, { dir: f.dir, opps: [] });
+      m.get(k)!.opps.push(f);
+    }
+    const sin = m.get("");
+    m.delete("");
+    return [...m.values(), ...(sin ? [sin] : [])];
+  }, [lista]);
+
   const hayFiltro = q || estado || comercial || municipio || anio || admin;
   const limpiar = () => {
     setQ(""); setEstado(""); setComercial(""); setMunicipio(""); setAnio(""); setAdmin(""); setCuantas(DE_UNA_VEZ);
@@ -171,6 +188,14 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
               Quitar filtros
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => { setPorDir((x) => !x); setCuantas(DE_UNA_VEZ); }}
+            className={pill(porDir) + " ml-auto mb-1"}
+            title={porDir ? "Volver a la lista de opps" : "Agrupar las opps por su DIR"}
+          >
+            {porDir ? "Ver la lista" : "Ver por DIR"}
+          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <span className={ROT + " mr-1"}>Estado</span>
@@ -191,7 +216,10 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
           <thead className="bg-[#f4f4f1]">
             <tr>
               <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("nombre")} className="uppercase">Oportunidad · {lista.length}{flecha("nombre")}</button>
+                <button type="button" onClick={() => ordenarPor("nombre")} className="uppercase">
+                  {porDir ? `DIR · ${grupos.length} / oportunidad · ${lista.length}` : `Oportunidad · ${lista.length}`}
+                  {flecha("nombre")}
+                </button>
               </th>
               <th className={TH}>
                 <button type="button" onClick={() => ordenarPor("municipio")} className="uppercase">Municipio{flecha("municipio")}</button>
@@ -217,16 +245,23 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
                 </td>
               </tr>
             )}
-            {lista.slice(0, cuantas).map((f) => (
-              <Fila key={f.id} f={f} comerciales={comerciales} alCambiar={cambiada} />
-            ))}
+            {!porDir &&
+              lista.slice(0, cuantas).map((f) => <Fila key={f.id} f={f} comerciales={comerciales} alCambiar={cambiada} />)}
+            {porDir &&
+              grupos.slice(0, cuantas).map((g) => (
+                <Grupo key={g.dir?.id ?? "sin"} dir={g.dir} n={g.opps.length}>
+                  {g.opps.map((f, i) => (
+                    <Fila key={f.id} f={f} comerciales={comerciales} alCambiar={cambiada} rama={i === g.opps.length - 1 ? "ultima" : "medio"} />
+                  ))}
+                </Grupo>
+              ))}
           </tbody>
         </table>
-        {lista.length > cuantas && (
+        {(porDir ? grupos.length : lista.length) > cuantas && (
           <div className="border-t border-[#f0f0f0] px-3 py-2.5 text-sm text-carbon/65">
-            Se ven {cuantas} de {lista.length}.{" "}
+            Se ven {cuantas} de {porDir ? `${grupos.length} DIR` : lista.length}.{" "}
             <button type="button" onClick={() => setCuantas((n) => n + DE_UNA_VEZ)} className="font-semibold text-carbon underline">
-              Ver {Math.min(DE_UNA_VEZ, lista.length - cuantas)} más
+              Ver {Math.min(DE_UNA_VEZ, (porDir ? grupos.length : lista.length) - cuantas)} más
             </button>
           </div>
         )}
@@ -235,7 +270,45 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   );
 }
 
-function Fila({ f, comerciales, alCambiar }: { f: FilaTodas; comerciales: ComercialLista[]; alCambiar: (id: string, c: Partial<FilaTodas>) => void }) {
+/** La cabecera de una DIR: su numero (solo desde la primera firma) y su nombre,
+ *  que ya lleva el municipio. Debajo, sus opps como ramas. */
+function Grupo({ dir, n, children }: { dir: FilaTodas["dir"]; n: number; children: React.ReactNode }) {
+  return (
+    <>
+      <tr className="bg-[#f4f4f1]">
+        <td colSpan={7} className="border-b border-t border-[#d9d9d9] px-3 py-2">
+          <span className="flex items-center gap-2.5 whitespace-nowrap">
+            {dir ? (
+              <>
+                <span className={"rounded-[5px] px-2 py-0.5 text-[11.5px] font-bold " + (dir.codigo ? "bg-carbon text-white" : "border border-carbon/25 bg-white text-carbon/65")}>
+                  {dir.codigo ?? "DIR sin número"}
+                </span>
+                <span className="text-[14px] font-bold text-carbon">{dir.nombre}</span>
+              </>
+            ) : (
+              <span className="text-[14px] font-bold text-amber-800/80">Sin DIR: opps sin portales</span>
+            )}
+            <span className="text-[12px] text-carbon/65">· {n === 1 ? "1 opp" : `${n} opps`}</span>
+          </span>
+        </td>
+      </tr>
+      {children}
+    </>
+  );
+}
+
+function Fila({
+  f,
+  comerciales,
+  alCambiar,
+  rama,
+}: {
+  f: FilaTodas;
+  comerciales: ComercialLista[];
+  alCambiar: (id: string, c: Partial<FilaTodas>) => void;
+  /** En "Ver por DIR": la linea que baja de la DIR y sale hacia esta opp. */
+  rama?: "medio" | "ultima";
+}) {
   const [pendiente, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);
   // Pausar y cerrar piden algo antes: se abre su ventana.
@@ -276,11 +349,17 @@ function Fila({ f, comerciales, alCambiar }: { f: FilaTodas; comerciales: Comerc
   const e = ESTADOS.find((x) => x.valor === f.estado);
   return (
     <>
-      <tr className={"odd:bg-white even:bg-[#fafaf8] hover:bg-[#f1f5ee] " + (pendiente ? "opacity-60" : "")}>
+      <tr className={(rama ? "bg-white" : "odd:bg-white even:bg-[#fafaf8]") + " hover:bg-[#f1f5ee] " + (pendiente ? "opacity-60" : "")}>
         {/* El nombre aun no lleva a ningun sitio: la ficha de la opp que va a
             abrir esta por hacer (Monica, 20-oct-2026). Cuando exista, aqui va su
             enlace. */}
-        <td className={TD + " max-w-[380px] truncate font-semibold text-carbon"} title={f.nombre}>
+        <td className={TD + " relative max-w-[380px] truncate font-semibold text-carbon" + (rama ? " pl-9" : "")} title={f.nombre}>
+          {rama && (
+            <>
+              <span aria-hidden className={"absolute left-5 top-0 w-px bg-carbon/35 " + (rama === "ultima" ? "h-1/2" : "bottom-0")} />
+              <span aria-hidden className="absolute left-5 top-1/2 h-px w-3 bg-carbon/35" />
+            </>
+          )}
           {f.nombre}
         </td>
         <td className={TD + " max-w-[220px] truncate"} title={f.municipio || undefined}>

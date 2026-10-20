@@ -13,6 +13,10 @@
 // Sale de la vista base administradores_de_oportunidad (opp -> accesos ->
 // comunidad -> admin), nunca de un campo de la opp. Una opp con varias
 // comunidades puede tener varios: salen todos.
+//
+// LA DIR de cada opp, para "Ver por DIR" (Monica, 20-oct-2026): la clave de sus
+// accesos (accesos.clave_id). Si una clave fue absorbida, manda la que la
+// absorbio.
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
@@ -47,24 +51,40 @@ export type FilaTodas = {
   /** Sus administradores: el gestor (si se sabe) y su administracion. La clave
    *  es el puesto del gestor, o "e:<empresa>" si solo se sabe la empresa. */
   admins: { clave: string; gestor: string | null; empresa: string | null }[];
+  /** Su DIR: el codigo solo lo tiene desde la primera firma. Sin accesos, null. */
+  dir: { id: string; codigo: string | null; nombre: string } | null;
 };
 
 export type ComercialLista = { id: string; nombre: string; activo: boolean };
 
 export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales: ComercialLista[] }> {
-  const [opps, rel, comerciales, adm] = await Promise.all([
+  const [opps, rel, comerciales, adm, claves] = await Promise.all([
     todo<{ id: string; codigo: string | null; nombre: string | null; estado: FilaTodas["estado"]; fecha_apertura: string | null; comercial_id: string | null }>(
       "oportunidades?select=id,codigo,nombre,estado,fecha_apertura,comercial_id&estado=neq.anulada&order=fecha_apertura.desc.nullslast,id.asc",
     ),
-    todo<{ opp_id: string; acceso: { municipio: string | null } | null }>(
-      "relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(municipio)&hasta=is.null&order=opp_id,acceso_id",
+    todo<{ opp_id: string; acceso: { municipio: string | null; clave_id: string | null } | null }>(
+      "relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(municipio,clave_id)&hasta=is.null&order=opp_id,acceso_id",
     ),
     todo<ComercialLista>("comerciales?select=id,nombre,activo&order=nombre.asc"),
     todo<{ oportunidad_id: string; puesto_id: string | null; empresa_id: string | null; p: { persona: { nombre: string | null; apellidos: string | null } | null } | null; e: { nombre_accesalia: string | null } | null }>(
       "administradores_de_oportunidad?select=oportunidad_id,puesto_id,empresa_id,p:puesto_id(persona:persona_id(nombre,apellidos)),e:empresa_id(nombre_accesalia)" +
         "&or=(puesto_id.not.is.null,empresa_id.not.is.null)&order=oportunidad_id,comunidad_id",
     ),
+    todo<{ id: string; codigo: string | null; nombre: string | null; absorbida_por: string | null }>("claves?select=id,codigo,nombre,absorbida_por&order=id"),
   ]);
+
+  const porClave = new Map(claves.map((c) => [c.id, c]));
+  const viva = (id: string) => {
+    let c = porClave.get(id);
+    for (let i = 0; c?.absorbida_por && i < 10; i++) c = porClave.get(c.absorbida_por) ?? c;
+    return c;
+  };
+  const dirs = new Map<string, FilaTodas["dir"]>();
+  for (const r of rel) {
+    if (dirs.has(r.opp_id) || !r.acceso?.clave_id) continue;
+    const c = viva(r.acceso.clave_id);
+    if (c) dirs.set(r.opp_id, { id: c.id, codigo: c.codigo, nombre: c.nombre?.trim() || "Sin nombre" });
+  }
 
   const admins = new Map<string, FilaTodas["admins"]>();
   for (const a of adm) {
@@ -93,6 +113,7 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
       apertura: o.fecha_apertura,
       estado: o.estado,
       admins: admins.get(o.id) ?? [],
+      dir: dirs.get(o.id) ?? null,
     })),
     comerciales,
   };
