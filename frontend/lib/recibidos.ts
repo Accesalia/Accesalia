@@ -12,6 +12,8 @@ import { puedeEntrar, comercialDe, type Yo } from "./sesion";
 import { apuntarFirmada } from "./hojaEncargo";
 import { crearLineasDeHoja } from "./lineasDeHoja";
 import { ALMACEN_PORTAL } from "./portal";
+import { registrarPapel, type ClavePapel } from "./fichaComunidad";
+import { personasDeComunidad } from "./personasComunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -25,7 +27,9 @@ async function pedir<T>(ruta: string, init: RequestInit = {}): Promise<T> {
 
 export type Recibido = {
   id: string;
-  tipo: "hoja_firmada" | "otro";
+  /** hoja_firmada, otro, o un papel de su ventanita del portal (21-oct-2026). */
+  tipo: "hoja_firmada" | "otro" | ClavePapel;
+  oportunidad_id: string | null;
   descripcion: string | null;
   nombre_fichero: string | null;
   subido_por_email: string;
@@ -36,17 +40,28 @@ export type Recibido = {
 };
 
 const SEL =
-  "id,tipo,descripcion,nombre_fichero,subido_por_email,subido_por_nombre,creado_en,comunidad:comunidad_id(id,nombre)," +
+  "id,tipo,oportunidad_id,descripcion,nombre_fichero,subido_por_email,subido_por_nombre,creado_en,comunidad:comunidad_id(id,nombre)," +
   "hoja:hoja_encargo_id(id,numero_hoja,opp:oportunidad_id(id,codigo,comercial_id))";
 
 const veTodos = (yo: Yo) => yo.veTodo || puedeEntrar(yo, "comercial", "supervisar");
+
+/** Los papeles de la comunidad (tarjeta, DNI, actas, certificado) los revisa
+ *  quien puede subirlos desde la ficha: comercial o administracion trabajando. */
+export const esPapel = (tipo: string): tipo is ClavePapel => ["tarjeta", "dni", "acta", "certificado", "votacion"].includes(tipo);
+const revisaPapeles = (yo: Yo) => veTodos(yo) || puedeEntrar(yo, "comercial", "trabajar") || puedeEntrar(yo, "administracion", "trabajar");
+
+/** Lo que llega por el portal de UNA comunidad (para su ficha): lo pendiente y lo ultimo revisado. */
+export async function recibidosDeComunidad(comunidadId: string): Promise<(Recibido & { estado: string; motivo_rechazo: string | null; revisado_en: string | null })[]> {
+  if (!/^[0-9a-f-]{36}$/.test(comunidadId)) return [];
+  return pedir(`portal_recibidos?select=${SEL},estado,motivo_rechazo,revisado_en&comunidad_id=eq.${comunidadId}&order=creado_en.desc&limit=30`);
+}
 
 /** Lo que le toca revisar a esta persona. */
 export async function porRevisar(yo: Yo): Promise<Recibido[]> {
   const todos = await pedir<Recibido[]>(`portal_recibidos?select=${SEL}&estado=eq.por_revisar&order=creado_en.asc`);
   if (veTodos(yo)) return todos;
   const mio = await comercialDe(yo.id);
-  return mio ? todos.filter((r) => r.tipo === "hoja_firmada" && r.hoja?.opp?.comercial_id === mio.id) : [];
+  return todos.filter((r) => (esPapel(r.tipo) ? revisaPapeles(yo) : !!mio && r.tipo === "hoja_firmada" && r.hoja?.opp?.comercial_id === mio.id));
 }
 
 export async function cuantosPorRevisar(yo: Yo): Promise<number> {
@@ -66,18 +81,33 @@ async function uno(id: string): Promise<(Recibido & { ruta: string; estado: stri
 /** ¿Puede esta persona revisar este documento? */
 async function puedeRevisar(yo: Yo, r: Recibido): Promise<boolean> {
   if (veTodos(yo)) return true;
+  if (esPapel(r.tipo)) return revisaPapeles(yo);
   const mio = await comercialDe(yo.id);
   return !!mio && r.tipo === "hoja_firmada" && r.hoja?.opp?.comercial_id === mio.id;
 }
 
-/** "Es la firmada": la hoja queda firmada y nacen sus lineas de cobro. */
-export async function aceptar(id: string, yo: Yo): Promise<void> {
+/** "Es la firmada": la hoja queda firmada y nacen sus lineas de cobro.
+ *  Un papel de la comunidad queda apuntado en su sitio (el acta y el DNI, con
+ *  su presidente; el acta de votacion, con su opp), sin mover el fichero.
+ *  El acta de nombramiento necesita su fecha: de ahi sale la vigencia. */
+export async function aceptar(id: string, yo: Yo, fecha: string | null = null): Promise<void> {
   const r = await uno(id);
   if (!r || r.estado !== "por_revisar") throw new Error("Ya no está por revisar.");
   if (!(await puedeRevisar(yo, r))) throw new Error("Esto lo revisa otra persona.");
   if (r.tipo === "hoja_firmada" && r.hoja) {
     await apuntarFirmada(r.hoja.id, r.ruta);
     await crearLineasDeHoja(r.hoja.id);
+  }
+  if (esPapel(r.tipo) && r.comunidad) {
+    if (r.tipo === "acta" && !fecha) throw new Error("Pon la fecha del acta.");
+    const presi =
+      r.tipo === "acta" || r.tipo === "dni"
+        ? ((await personasDeComunidad(r.comunidad.id)).find((p) => (p.rol ?? "").toLowerCase() === "presidente")?.id ?? null)
+        : null;
+    await registrarPapel(
+      { comunidadId: r.comunidad.id, clave: r.tipo, ruta: r.ruta, fecha, puestoId: presi, oportunidadId: r.oportunidad_id },
+      true,
+    );
   }
   await pedir(`portal_recibidos?id=eq.${id}`, {
     method: "PATCH",

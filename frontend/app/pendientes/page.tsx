@@ -242,8 +242,8 @@ export default async function Pendientes() {
     // tiene algo que revisar, y siempre a quien lo revisa todo.
     ...(recibidos > 0 || veo.supervisa
       ? [{
-          clave: "recibidos", marco: "documentacion" as const, titulo: "Hojas de encargo recibidas firmadas",
-          pie: "Han llegado vía portal y necesitan revisión para darles el ok.",
+          clave: "recibidos", marco: "documentacion" as const, titulo: "Documentos recibidos por el portal",
+          pie: "Hojas firmadas y papeles de la comunidad que han llegado vía portal y necesitan revisión para darles el ok.",
           numero: recibidos, href: "/comercial/recibidos", color: C.frambuesa,
         }]
       : []),

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { cerrarSesion, pedirEntrada, permisoSubida, puedeEntrarEn, quienEstaEnElPortal, registrarSubida, usarEntrada } from "../../lib/portal";
+import { cerrarSesion, pedirEntrada, permisoSubida, puedeEntrarEn, quienEstaEnElPortal, registrarSubida, usarEntrada, type ClavePortal } from "../../lib/portal";
 import { personaPorCorreo } from "../../lib/sesion";
 import { aceptarSiEsSuComercial } from "../../lib/recibidos";
 
@@ -54,6 +54,8 @@ export async function accionPermisoSubida(comunidadId: string, nombre: string, t
 export async function accionRegistrar(d: {
   comunidadId: string;
   hojaId: string | null;
+  clave?: ClavePortal | null;
+  oportunidadId?: string | null;
   descripcion: string | null;
   ruta: string;
   nombreFichero: string;
@@ -61,7 +63,7 @@ export async function accionRegistrar(d: {
 }): Promise<R<{ aceptada: boolean }>> {
   try {
     const email = await dentro(d.comunidadId);
-    if (!d.hojaId && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
+    if (!d.hojaId && !d.clave && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
     const id = await registrarSubida({ ...d, email });
     // Si lo sube el comercial de esa hoja, queda aceptada al momento.
     const aceptada = d.hojaId ? await aceptarSiEsSuComercial(id, await personaPorCorreo(email)) : false;

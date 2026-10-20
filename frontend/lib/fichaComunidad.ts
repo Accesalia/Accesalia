@@ -55,6 +55,11 @@ export const ALMACEN_DE_TIPO: Record<string, string> = {
   [TIPO.votacion]: "documentos-comerciales",
 };
 
+/** Lo que llega del PORTAL se queda donde lo subio la comunidad (su almacen,
+ *  carpeta portal/): al aceptarlo no se mueve, se apunta. */
+export const almacenDe = (tipo: string, ruta: string | null): string | null =>
+  ruta?.startsWith("portal/") ? "documentos-comerciales" : (ALMACEN_DE_TIPO[tipo] ?? null);
+
 /** Los papeles que se suben desde la ficha. */
 export type ClavePapel = "tarjeta" | "acta" | "dni" | "certificado" | "votacion";
 export const PAPELES: Record<ClavePapel, { tipo: string; fecha: "emision" | "caducidad" | null }> = {
@@ -65,7 +70,7 @@ export const PAPELES: Record<ClavePapel, { tipo: string; fecha: "emision" | "cad
   votacion: { tipo: TIPO.votacion, fecha: "emision" },
 };
 
-export type Papel = { id: string; enAlmacen: boolean; emision: string | null; caduca: string | null } | null;
+export type Papel = { id: string; enAlmacen: boolean; emision: string | null; caduca: string | null; creado: string } | null;
 
 export type Persona = {
   puestoId: string;
@@ -265,9 +270,10 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
     d
       ? {
           id: d.id,
-          enAlmacen: d.backend === "supabase" && !!d.storage_ref && !!ALMACEN_DE_TIPO[nombreTipo.get(d.tipo_documento_id) ?? ""],
+          enAlmacen: d.backend === "supabase" && !!d.storage_ref && !!almacenDe(nombreTipo.get(d.tipo_documento_id) ?? "", d.storage_ref),
           emision: d.fecha_emision,
           caduca: d.fecha_caducidad,
+          creado: d.creado_en,
         }
       : null;
   const docsDe = (tipo: string) => docs.filter((d) => d.tipo_documento_id === idTipo.get(tipo) && d.vigente !== false);
@@ -337,10 +343,10 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
         intenta(
           rest<{ id: string; oportunidad_id: string; numero_hoja: string | null; descripcion: string | null; estado: string | null;
             fecha_firma: string | null; fecha_creacion: string | null; pagador_tipo: string | null; version_firmada_id: string | null;
-            lineas_facturacion: { descripcion: string | null; importe: string | null }[];
+            lineas_facturacion: { descripcion: string | null; importe: string | null; quitada_en: string | null }[];
             versiones_hoja: { id: string; numero_version: number; pdfs_firmados: string[] | null }[] }[]>(
             "hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,estado,fecha_firma,fecha_creacion,pagador_tipo,version_firmada_id," +
-              "lineas_facturacion(descripcion,importe)," +
+              "lineas_facturacion(descripcion,importe,quitada_en)," +
               "versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)" +
               `&oportunidad_id=in.(${oppIds.join(",")})&order=fecha_firma.asc.nullslast,fecha_creacion.asc`,
           ),
@@ -386,7 +392,8 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
         hojas: hojas
           .filter((h) => h.oportunidad_id === o.id && h.estado !== "anulada")
           .map((h) => {
-            const lineas = h.lineas_facturacion.map((l) => ({ que: l.descripcion ?? "sin concepto", importe: num(l.importe) }));
+            // las quitadas de la hoja no cuentan
+            const lineas = h.lineas_facturacion.filter((l) => !l.quitada_en).map((l) => ({ que: l.descripcion ?? "sin concepto", importe: num(l.importe) }));
             const vs = [...h.versiones_hoja].sort((a, b) => b.numero_version - a.numero_version);
             const v = vs.find((x) => x.id === h.version_firmada_id && x.pdfs_firmados?.length) ?? vs.find((x) => x.pdfs_firmados?.length);
             return {
@@ -517,7 +524,7 @@ export async function rutaDePapel(comunidadId: string, docId: string): Promise<{
     );
     if (!suyas.length) return null;
   }
-  const almacen = ALMACEN_DE_TIPO[d.tipo?.nombre ?? ""];
+  const almacen = almacenDe(d.tipo?.nombre ?? "", d.storage_ref);
   return almacen ? { almacen, ruta: d.storage_ref } : null;
 }
 
@@ -570,11 +577,12 @@ export type DatosPapel = {
   oportunidadId: string | null;
 };
 
-/** Apunta en documentos el fichero ya subido. */
-export async function registrarPapel(d: DatosPapel): Promise<void> {
+/** Apunta en documentos el fichero ya subido: desde la ficha, o al aceptar lo
+ *  que la comunidad subio por el portal (que se queda en su carpeta portal/). */
+export async function registrarPapel(d: DatosPapel, desdePortal = false): Promise<void> {
   const { tipo, fecha } = PAPELES[d.clave];
-  const almacen = ALMACEN_DE_TIPO[tipo];
-  if (!d.ruta.startsWith(carpeta(d.clave, d.comunidadId))) throw new Error("Ruta no válida.");
+  const almacen = desdePortal ? "documentos-comerciales" : ALMACEN_DE_TIPO[tipo];
+  if (!d.ruta.startsWith(desdePortal ? `portal/${d.comunidadId}/` : carpeta(d.clave, d.comunidadId))) throw new Error("Ruta no válida.");
   if (d.fecha && !/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)) throw new Error("La fecha no es válida.");
 
   // que el fichero haya llegado de verdad

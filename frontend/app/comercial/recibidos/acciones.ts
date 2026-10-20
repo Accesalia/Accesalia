@@ -13,13 +13,17 @@ async function yo() {
 }
 const refrescar = () => {
   revalidatePath("/comercial/recibidos");
+  // la ficha de la comunidad y su portal enseñan lo revisado
+  revalidatePath("/administracion/comunidades/[id]", "page");
+  revalidatePath("/portal/c/[id]", "page");
   revalidatePath("/pendientes");
   revalidatePath("/facturacion");
 };
 
-export async function accionAceptar(id: string): Promise<{ ok: boolean; error?: string }> {
+export async function accionAceptar(id: string, fecha: string | null = null): Promise<{ ok: boolean; error?: string }> {
   try {
-    await aceptar(id, await yo());
+    if (fecha && !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) throw new Error("La fecha no es válida.");
+    await aceptar(id, await yo(), fecha);
     refrescar();
     return { ok: true };
   } catch (e) {

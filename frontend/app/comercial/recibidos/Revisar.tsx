@@ -4,8 +4,19 @@ import { useState, useTransition } from "react";
 import { accionAceptar, accionRechazar, accionVer } from "./acciones";
 
 // Los botones de cada documento recibido: verlo, darlo por bueno o rechazarlo.
-export function Revisar({ id, esHoja }: { id: string; esHoja: boolean }) {
+// Los papeles con fecha la piden al darlos por buenos (el acta, obligatoria:
+// de ahi sale hasta cuando vale el presidente).
+const FECHA: Record<string, { et: string; obligatoria: boolean }> = {
+  acta: { et: "Fecha del acta", obligatoria: true },
+  dni: { et: "Caduca el", obligatoria: false },
+  certificado: { et: "Fecha del certificado", obligatoria: false },
+  votacion: { et: "Fecha de la junta", obligatoria: false },
+};
+
+export function Revisar({ id, esHoja, tipo = null }: { id: string; esHoja: boolean; tipo?: string | null }) {
   const [motivo, setMotivo] = useState<string | null>(null);
+  const [fecha, setFecha] = useState("");
+  const pide = tipo ? FECHA[tipo] : undefined;
   const [error, setError] = useState<string | null>(null);
   const [haciendo, empezar] = useTransition();
   const hacer = (f: () => Promise<{ ok: boolean; error?: string }>) => {
@@ -30,7 +41,13 @@ export function Revisar({ id, esHoja }: { id: string; esHoja: boolean }) {
       </button>
       {motivo === null ? (
         <>
-          <button type="button" disabled={haciendo} onClick={() => hacer(() => accionAceptar(id))} className="rounded-lg bg-lima px-3 py-1 text-[13px] font-bold text-carbon hover:bg-lima-dark hover:text-white disabled:opacity-50">
+          {pide && (
+            <label className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-carbon/60">
+              {pide.et}
+              <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="h-[28px] rounded-md border border-black/20 px-1.5 text-[12.5px] font-normal normal-case" />
+            </label>
+          )}
+          <button type="button" disabled={haciendo || (!!pide?.obligatoria && !fecha)} onClick={() => hacer(() => accionAceptar(id, fecha || null))} className="rounded-lg bg-lima px-3 py-1 text-[13px] font-bold text-carbon hover:bg-lima-dark hover:text-white disabled:opacity-50">
             {esHoja ? "Es la firmada" : "Correcto"}
           </button>
           <button type="button" disabled={haciendo} onClick={() => setMotivo("")} className="text-[12.5px] text-carbon/65 underline hover:text-carbon">

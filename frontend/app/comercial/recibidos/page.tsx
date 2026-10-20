@@ -6,6 +6,14 @@ import { quienSoy } from "../../../lib/sesion";
 import { porRevisar } from "../../../lib/recibidos";
 import { Revisar } from "./Revisar";
 
+const PAPEL: Record<string, string> = {
+  tarjeta: "Tarjeta del CIF",
+  dni: "DNI del presidente",
+  acta: "Acta de nombramiento del presidente",
+  certificado: "Certificado de titularidad de la cuenta",
+  votacion: "Acta de votación",
+};
+
 export const dynamic = "force-dynamic";
 
 // DOCUMENTOS RECIBIDOS POR REVISAR (Monica, 12-oct-2026): lo que las comunidades
@@ -35,7 +43,7 @@ export default async function Recibidos() {
                 <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-[14px]">
                   <div className="min-w-0">
                     <div className="font-semibold text-carbon">
-                      {r.tipo === "hoja_firmada" ? `Hoja de encargo ${r.hoja?.numero_hoja ?? ""} firmada` : (r.descripcion ?? "Documento")}
+                      {r.tipo === "hoja_firmada" ? `Hoja de encargo ${r.hoja?.numero_hoja ?? ""} firmada` : (PAPEL[r.tipo] ?? r.descripcion ?? "Documento")}
                     </div>
                     <div className="text-[13px] text-carbon/65">
                       {r.comunidad ? (
@@ -47,7 +55,7 @@ export default async function Recibidos() {
                       {CUANDO.format(new Date(r.creado_en))} · {r.nombre_fichero}
                     </div>
                   </div>
-                  <Revisar id={r.id} esHoja={r.tipo === "hoja_firmada"} />
+                  <Revisar id={r.id} esHoja={r.tipo === "hoja_firmada"} tipo={r.tipo} />
                 </li>
               ))}
             </ul>

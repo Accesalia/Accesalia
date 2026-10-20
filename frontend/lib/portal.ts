@@ -321,9 +321,17 @@ export async function permisoSubida(comunidadId: string, nombre: string): Promis
   return { ruta, url: `${publica}/storage/v1${url}` };
 }
 
+/** Los papeles que pide el portal, cada uno en su ventanita (21-oct-2026). */
+export const CLAVES_PORTAL = ["tarjeta", "dni", "acta", "certificado", "votacion"] as const;
+export type ClavePortal = (typeof CLAVES_PORTAL)[number];
+
 export async function registrarSubida(d: {
   comunidadId: string;
   hojaId: string | null;
+  /** Que papel es (su ventanita). Sin el, y sin hoja, es «otro». */
+  clave?: ClavePortal | null;
+  /** El acta de votacion va a su opp. */
+  oportunidadId?: string | null;
   descripcion: string | null;
   ruta: string;
   nombreFichero: string;
@@ -339,13 +347,22 @@ export async function registrarSubida(d: {
     const ok = (await hojasPorFirmar(d.comunidadId)).some((h) => h.hojaId === d.hojaId);
     if (!ok) throw new Error("Esa hoja de encargo ya no está pendiente de firma.");
   }
+  if (d.clave && !CLAVES_PORTAL.includes(d.clave)) throw new Error("Documento no válido.");
+  if (d.clave === "votacion") {
+    if (!d.oportunidadId || !/^[0-9a-f-]{36}$/.test(d.oportunidadId)) throw new Error("Falta el expediente.");
+    const suya = await pedir<{ oportunidad_id: string }[]>(
+      `administradores_de_oportunidad?select=oportunidad_id&comunidad_id=eq.${d.comunidadId}&oportunidad_id=eq.${d.oportunidadId}&limit=1`,
+    );
+    if (!suya.length) throw new Error("Ese expediente no es de esta comunidad.");
+  }
   const [f] = await pedir<{ id: string }[]>("portal_recibidos", {
     method: "POST",
     headers: { Prefer: "return=representation" },
     body: JSON.stringify({
       comunidad_id: d.comunidadId,
       hoja_encargo_id: d.hojaId,
-      tipo: d.hojaId ? "hoja_firmada" : "otro",
+      tipo: d.hojaId ? "hoja_firmada" : (d.clave ?? "otro"),
+      oportunidad_id: d.clave === "votacion" ? d.oportunidadId : null,
       descripcion: d.descripcion,
       ruta: d.ruta,
       nombre_fichero: d.nombreFichero,

@@ -6,6 +6,8 @@ import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { autorizadosDe } from "../../../../lib/portal";
 import { accionAutorizar, accionQuitarAutorizado } from "./accionesPortal";
 import { Papel as Doc } from "./Papel";
+import { recibidosDeComunidad } from "../../../../lib/recibidos";
+import { Revisar } from "../../../comercial/recibidos/Revisar";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,13 @@ export const dynamic = "force-dynamic";
 const EUR = new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 });
 const eur = (n: number) => `${EUR.format(n)} €`;
 const fecha = (iso: string | null | undefined) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : null);
+const PAPEL_PORTAL: Record<string, string> = {
+  tarjeta: "Tarjeta del CIF",
+  dni: "DNI del presidente",
+  acta: "Acta de nombramiento del presidente",
+  certificado: "Certificado de titularidad de la cuenta",
+  votacion: "Acta de votación",
+};
 const ESTADO_HOJA: Record<string, { texto: string; tono: string }> = {
   devuelta_firmada: { texto: "firmada", tono: "bg-lima text-carbon" },
   enviada_comunidad: { texto: "enviada, sin firmar", tono: "bg-amber-50 text-amber-800" },
@@ -136,7 +145,9 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
 
   const f = await fichaComunidad(id);
   if (!f) notFound();
-  const autorizados = await autorizadosDe(id).catch(() => []);
+  const [autorizados, recibidos] = await Promise.all([autorizadosDe(id).catch(() => []), recibidosDeComunidad(id).catch(() => [])]);
+  const porRevisar = recibidos.filter((r) => r.estado === "por_revisar");
+  const revisados = recibidos.filter((r) => r.estado !== "por_revisar").slice(0, 8);
   // sube papeles quien puede dar acceso a su pagina de documentacion
   const sube = !!(yo.veTodo || puedeEntrar(yo, "comercial", "trabajar") || puedeEntrar(yo, "administracion", "trabajar"));
 
@@ -551,6 +562,39 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                 </p>
               </Tarjeta>
             </div>
+
+            {/* ---------------- subidos desde el portal (21-oct) ---------------- */}
+            {/* Lo que la comunidad sube por su portal llega aqui, por revisar. Al
+                darlo por bueno queda en su sitio (el acta y el DNI con su
+                presidente, el acta de votacion con su opp) y en el portal pasa
+                a «revisado · todo ok»; si no, «revisado · rechazado» con el motivo. */}
+            <Tarjeta titulo="Subidos desde el portal" de={porRevisar.length ? <b className="text-amber-800">{porRevisar.length} por revisar</b> : "nada por revisar"}>
+              {recibidos.length === 0 ? (
+                <p className="text-[13px] text-carbon/65">La comunidad todavía no ha subido nada por su portal.</p>
+              ) : (
+                <ul className="divide-y divide-black/5 text-[14px]">
+                  {[...porRevisar, ...revisados].map((r) => (
+                    <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 py-2">
+                      <span className="min-w-0">
+                        <b className="text-carbon">
+                          {r.tipo === "hoja_firmada" ? `Hoja de encargo ${r.hoja?.numero_hoja ?? ""} firmada` : (PAPEL_PORTAL[r.tipo] ?? r.descripcion ?? "Documento")}
+                        </b>
+                        <span className="block text-[12.5px] text-carbon/65">
+                          {[r.subido_por_nombre ?? r.subido_por_email, fecha(r.creado_en), r.nombre_fichero].filter(Boolean).join(" · ")}
+                        </span>
+                      </span>
+                      {r.estado === "por_revisar" ? (
+                        <Revisar id={r.id} esHoja={r.tipo === "hoja_firmada"} tipo={r.tipo} />
+                      ) : (
+                        <span className={"text-[12.5px] font-semibold " + (r.estado === "aceptado" ? "text-lima-dark" : "text-alerta")}>
+                          {r.estado === "aceptado" ? "revisado · todo ok" : `revisado · rechazado${r.motivo_rechazo ? `: ${r.motivo_rechazo}` : ""}`}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Tarjeta>
           </div>
 
           {/* ======================== columna derecha ======================== */}
