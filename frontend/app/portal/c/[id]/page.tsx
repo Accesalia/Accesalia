@@ -84,7 +84,7 @@ function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
     <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_1px_4px_rgba(0,0,0,.14)]">
       <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
-        <h3 className="text-[16px] font-extrabold leading-snug text-[#111]">{c.titulo}</h3>
+        <h3 className="text-[15px] font-bold leading-snug text-[#111]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
         {c.fichero && (
           <p className="mt-3 truncate text-[12.5px] text-[#555]" title={c.fichero}>
@@ -115,7 +115,7 @@ function Otros({ comunidadId, oportunidadId = null }: { comunidadId: string; opo
   return (
     <div className="flex min-h-[138px] flex-col rounded-[14px] border border-[#c8102e] bg-white p-3.5">
       <Adjuntar comunidadId={comunidadId} clave="otro" oportunidadId={oportunidadId}>
-        <h3 className="text-[16px] font-extrabold leading-snug text-[#111]">Otros documentos</h3>
+        <h3 className="text-[15px] font-bold leading-snug text-[#111]">Otros documentos</h3>
         <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">lo que no esté en ninguna otra</p>
       </Adjuntar>
     </div>
@@ -288,20 +288,20 @@ export default async function ComunidadEnElPortal({
                 ⌂
               </span>
               <span>
-                <b className={"block text-[17px] " + ACENTO}>Tu comunidad</b>
-                <span className="text-[14px] text-[#1b1b1b]">
+                <b className={"block text-[16px] " + ACENTO}>Tu comunidad</b>
+                <span className="text-[13px] text-[#1b1b1b]">
                   {[f.cif && `CIF ${f.cif}`, cat?.viviendas != null && `${cat.viviendas} viviendas`, cat?.anio].filter(Boolean).join(" · ")}
                 </span>
               </span>
             </div>
-            <dl className="mt-3 text-[15.5px] leading-relaxed text-[#1b1b1b]">
-              <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Administración</dt>
+            <dl className="mt-3 text-[14.5px] leading-relaxed text-[#1b1b1b]">
+              <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Administración</dt>
               <dd>{f.administraciones.length ? [f.administraciones.map((a) => a.empresa).join(", "), gestores.join(" y ")].filter(Boolean).join(" · ") : "—"}</dd>
-              <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Presidente</dt>
+              <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Presidente</dt>
               <dd className={presi ? "" : "text-[#b45309]"}>{presi ? presi.nombre : "sin apuntar: súbenos el acta de nombramiento"}</dd>
               {f.accesos.length > 0 && (
                 <>
-                  <dt className="mt-2.5 text-[12px] font-bold uppercase tracking-wide text-[#6f6f6f]">Accesos</dt>
+                  <dt className="mt-2.5 text-[11px] font-bold uppercase tracking-wide text-[#6f6f6f]">Accesos</dt>
                   <dd>{[...new Set(f.accesos.map((a) => a.texto))].join(" · ")}</dd>
                 </>
               )}
@@ -309,15 +309,15 @@ export default async function ComunidadEnElPortal({
           </section>
 
           <section className="bg-[#fdf6dc] p-6">
-            <h2 className={"mb-3 text-[17px] font-bold " + ACENTO}>Lo que falta</h2>
-            {faltan.length === 0 && <p className="text-[16px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
+            <h2 className={"mb-3 text-[16px] font-bold " + ACENTO}>Lo que falta</h2>
+            {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
             <ul className="space-y-1">
               {faltan.map((x) => (
-                <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[16px] font-semibold text-[#1b1b1b]">
+                <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
                   <span className="w-3 text-[12px] text-[#c8102e]">●</span>
                   <span>
                     {x.titulo}
-                    {x.estado === "rechazado" && <span className="block text-[13.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
+                    {x.estado === "rechazado" && <span className="block text-[12.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
                   </span>
                 </li>
               ))}
