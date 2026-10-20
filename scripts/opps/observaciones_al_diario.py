@@ -65,6 +65,9 @@ for x in obs:
         for g in ('p:%s' % x['proyecto_id'] if x['proyecto_id'] else None, 'f:%s' % x['ficha_ref'] if x['ficha_ref'] else None):
             if g: fue[g].add(d[0])
 
+# Las 3 que decidió Mónica (20-oct): Alfonso XII 18 -> la de 2023 (la nota es del 12-ene-2023 y la opp se abre el 13);
+# Julián Besteiro -> «la de 2025»; Quintana 9 -> «la de 286».
+DECIDIDAS = {'CP ALFONSO XII 18 MOSTOLES': 'DAN-2023-316', 'CP JULIAN BESTEIRO 15G MADRID': 'CAR-2025-007', 'CP QUINTANA 9 MADRID': 'DAN-2024-286'}
 entran, dudas, cuenta = [], [], collections.Counter()
 for x in obs:
     if not (x['texto'] or '').strip(): cuenta['vacía'] += 1; continue
@@ -76,6 +79,8 @@ for x in obs:
         if g: pista |= fue.get(g, set())
     if len(pista) == 1 and ops[next(iter(pista))] in cands:
         entran.append((x, ops[next(iter(pista))], 'las otras notas de su ficha están en el diario de esta opp')); continue
+    if coms.get(x['comunidad_id']) in DECIDIDAS:
+        entran.append((x, [o for o in cands if o['codigo'] == DECIDIDAS[coms[x['comunidad_id']]]][0], 'la decidió Mónica')); continue
     dudas.append((x, cands, 'su comunidad no tiene opp' if not cands else 'su comunidad tiene %d opps' % len(cands)))
 for _, _, como in entran: cuenta['entra: ' + como] += 1
 for _, _, por in dudas: cuenta['a Mónica: ' + ('sin opp' if 'no tiene' in por else 'varias opps')] += 1
