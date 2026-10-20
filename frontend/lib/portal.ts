@@ -312,7 +312,9 @@ const nombreLimpio = (n: string) =>
 /** Permiso de un solo uso para que el navegador suba el fichero al almacen. */
 export async function permisoSubida(comunidadId: string, nombre: string): Promise<{ ruta: string; url: string }> {
   const ruta = `portal/${comunidadId}/${randomBytes(6).toString("hex")}-${nombreLimpio(nombre)}`;
-  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${ALMACEN_PORTAL}/${ruta}`, { method: "POST", headers: CAB, cache: "no-store" });
+  // Sin "Content-Type": pedir el permiso va sin cuerpo, y con JSON el almacen
+  // contesta 400 (20-oct-2026; lo mismo que CAB_ALMACEN en lib/citas.ts).
+  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${ALMACEN_PORTAL}/${ruta}`, { method: "POST", headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" });
   if (!r.ok) throw new Error(`No se ha podido preparar la subida (${r.status}).`);
   const { url } = (await r.json()) as { url: string };
   const publica = process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE;
@@ -330,7 +332,7 @@ export async function registrarSubida(d: {
 }): Promise<string> {
   // Que el fichero haya llegado de verdad, y a la carpeta de su comunidad.
   if (!d.ruta.startsWith(`portal/${d.comunidadId}/`)) throw new Error("Ruta no válida.");
-  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${ALMACEN_PORTAL}/${d.ruta}`, { headers: CAB, cache: "no-store" });
+  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${ALMACEN_PORTAL}/${d.ruta}`, { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" });
   if (!info.ok) throw new Error("El fichero no ha llegado. Vuelve a intentarlo.");
   const tam = Number(((await info.json()) as { size?: number }).size ?? 0) || null;
   if (d.hojaId) {

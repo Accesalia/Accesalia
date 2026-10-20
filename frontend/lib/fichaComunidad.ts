@@ -554,7 +554,8 @@ const carpeta = (clave: ClavePapel, comunidadId: string) =>
 export async function permisoPapel(comunidadId: string, clave: ClavePapel, nombre: string): Promise<{ ruta: string; url: string }> {
   const almacen = ALMACEN_DE_TIPO[PAPELES[clave].tipo];
   const ruta = `${carpeta(clave, comunidadId)}${crypto.randomUUID().slice(0, 8)}-${limpio(nombre)}`;
-  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${almacen}/${ruta}`, { method: "POST", headers: CAB_ESCRIBIR, cache: "no-store" });
+  // sin "Content-Type": va sin cuerpo y con JSON el almacen contesta 400
+  const r = await fetch(`${URL_BASE}/storage/v1/object/upload/sign/${almacen}/${ruta}`, { method: "POST", headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" });
   if (!r.ok) throw new Error(`No se ha podido preparar la subida (${r.status}).`);
   const { url } = (await r.json()) as { url: string };
   return { ruta, url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${url}` };
@@ -577,7 +578,7 @@ export async function registrarPapel(d: DatosPapel): Promise<void> {
   if (d.fecha && !/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)) throw new Error("La fecha no es válida.");
 
   // que el fichero haya llegado de verdad
-  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${almacen}/${d.ruta}`, { headers: CAB_ESCRIBIR, cache: "no-store" });
+  const info = await fetch(`${URL_BASE}/storage/v1/object/info/${almacen}/${d.ruta}`, { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" });
   if (!info.ok) throw new Error("El fichero no ha llegado. Vuelve a intentarlo.");
 
   const [t] = await rest<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent(tipo)}`);
