@@ -25,7 +25,25 @@ export const NOMBRE_TIPO: Record<string, string> = {
 };
 
 
-const MINUSCULAS = new Set(["DE", "DEL", "LA", "LAS", "EL", "LOS", "Y"]);
+const MINUSCULAS = new Set(["DE", "DEL", "LA", "LAS", "EL", "LOS", "Y", "A", "EN"]);
+
+// Las abreviaturas de Catastro, enteras; las tildes, como Catastro (Monica, 20-oct-2026).
+const ABREVIATURAS: Record<string, string> = {
+  NTRA: "NUESTRA", NTRO: "NUESTRO", SRA: "SEÑORA", SR: "SEÑOR", STA: "SANTA", STO: "SANTO", FCO: "FRANCISCO",
+  FCA: "FRANCISCA", CGDOR: "CORREGIDOR", DR: "DOCTOR", DRA: "DOCTORA", GRAL: "GENERAL", PDTE: "PRESIDENTE",
+  MTRO: "MAESTRO", HNOS: "HERMANOS", VDA: "VIUDA", PROF: "PROFESOR", ARQ: "ARQUITECTO", ING: "INGENIERO",
+  CAP: "CAPITAN", CTE: "COMANDANTE", TTE: "TENIENTE", CNEL: "CORONEL", MQS: "MARQUES", MARQ: "MARQUES",
+  CDE: "CONDE", DQUE: "DUQUE", PDRE: "PADRE", MA: "MARIA", JE: "JOSE", D: "DE",
+};
+
+/** "NTRA SRA D L ALMUDENA" -> "NUESTRA SEÑORA DE LA ALMUDENA"; "RECONQUISTA (DE LA)" -> "DE LA RECONQUISTA". */
+export function viaEntera(via: string): string {
+  const m = via.trim().match(/^(.*?)\s*\((DE LA|DE LAS|DE LOS|DEL|LA|LAS|LOS|EL)\)\s*$/);
+  const v = m ? `${m[2]} ${m[1]}` : via.trim();
+  return v.split(/\s+/).filter(Boolean)
+    .map((p, i, ps) => (p === "L" && ps[i - 1] === "D" ? "LA" : ABREVIATURAS[p] ?? p))
+    .join(" ");
+}
 
 /** "PRESIDENTE CARMONA" -> "Presidente Carmona"; "LILOS LOS" -> "Los Lilos". */
 export function bonito(nombre: string): string {
@@ -72,7 +90,7 @@ export function nombrePropuesto(elegidos: Portal[], todos: Portal[], municipio: 
       const todas = elegidasConViv.length >= conViv.length || elegidasConViv.every((e) => !e);
       return todas ? n : `${n} ${elegidasConViv.length > 1 ? "escaleras" : "escalera"} ${y(elegidasConViv)}`;
     });
-    return `${bonito(via)} ${y(partes)}`;
+    return `${bonito(viaEntera(via))} ${y(partes)}`;
   });
   // El tipo de via: si es calle no se dice; si es otra cosa, al final y entre parentesis,
   // para no afectar al orden alfabetico: "Paris 5, Fuenlabrada (plaza)" (Monica, 20-oct-2026).
