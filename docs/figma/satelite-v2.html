@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Satélite v2</title>
+<!--
+  SATELITE v2 (20-oct-2026): la pantalla 1 de MONICA, clonada de su Figma
+  (captura "nueva pantalla satelite" + su CSS). Sus medidas, colores y copys
+  tal cual. Las demas pantallas se hacen "a juego" despues, una a una.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Literata:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#d9ddd5;color:#2b2b2b;font-family:'Inter',sans-serif;padding:40px}
+.fila{display:flex;gap:48px;align-items:flex-start}
+.fig-t{font-size:13px;font-weight:700;line-height:18px;letter-spacing:1.56px;text-transform:uppercase;color:#5c5c5c}
+.fig-s{font-size:12.2px;line-height:18px;color:#6b6b6b;margin-top:2px;margin-bottom:12px}
+
+/* el telefono */
+.movil{position:relative;width:390px;height:844px;background:#b9bab9;border-radius:28px;box-shadow:0 10px 40px rgba(0,0,0,.18);overflow:hidden}
+
+/* cabecera */
+.h1{position:absolute;left:16px;top:16px;font-size:19.4px;line-height:28px;font-weight:800;letter-spacing:-.2px;color:#2b2b2b}
+.red{position:absolute;right:16px;top:18.6px;height:22.8px;padding:0 10px;border-radius:999px;background:#eef7e4;font-size:11.8px;font-weight:700;color:#3f7a1c;display:flex;align-items:center}
+.quien{position:absolute;left:16px;top:47px;font-size:12.3px;line-height:18px;color:rgba(43,43,43,.65)}
+
+/* crear: arriba */
+.crear{position:absolute;top:65px;height:54px;background:#fff5cc;border:2px solid #876f0d;box-shadow:2px 4px 4px rgba(0,0,0,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;color:#066728;font-weight:900}
+.crear b{font-size:19px;line-height:19px;font-weight:900}
+.crear span{font-size:14px;line-height:20px;text-align:center}
+.crear.c1{left:49px;right:209px}
+.crear.c2{left:207px;right:53px}
+
+/* la nota: la tarjeta amarilla */
+.card{position:absolute;left:6px;right:6px;top:134px;height:598px;background:#fff5cc;border:2px solid #876f0d;box-shadow:2px 4px 3px rgba(0,0,0,.3);border-radius:20px}
+.card-t{position:absolute;left:18px;top:12px;display:flex;align-items:center;gap:8px;color:#066728;font-weight:900;font-size:14px;line-height:20px}
+.card-t b{font-size:19px;line-height:19px}
+
+.panel{position:absolute;background:#e4d3a6;border-top:1px solid rgba(0,0,0,.5);box-shadow:2px 4px 4px rgba(0,0,0,.5);border-radius:10px}
+.num{position:absolute;left:23px;font-family:'Literata',serif;font-weight:700;font-size:36px;line-height:18px;letter-spacing:.78px;color:#7c4a0b}
+.p-t{position:absolute;font-weight:800;letter-spacing:.78px;text-transform:uppercase;color:#7c4a0b}
+
+.p1{left:15px;right:19px;top:42px;height:261px}
+.p1 .num{top:20px}
+.p1 .p-t{left:56px;top:13px;font-size:16px;line-height:18px}
+.nota{position:absolute;left:13px;right:12px;top:51px;height:194px;background:#fff;border:2px solid rgba(152,117,13,.88);border-radius:14px;padding:17px 15px;font-size:17px;line-height:26px;color:rgba(43,43,43,.5)}
+
+.p2{left:17px;right:17px;top:321px;height:167px}
+.p2 .num{top:22px}
+.p2 .p-t{left:58px;top:10px;font-size:13px;line-height:15px}
+.p2 .p-t small{display:block;font-size:10px;line-height:15px}
+.lado{position:absolute;top:59px;width:192px}
+.lado.dir{left:6px}
+.lado.per{left:177px}
+.etq{display:flex;align-items:center;gap:6px;height:21px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.lado.dir .etq{padding-left:17px;color:rgba(13,82,21,.7)}
+.lado.per .etq{padding-left:29px;color:rgba(114,48,132,.7)}
+.busca{margin-top:4px;height:56px;width:160px;background:#fff;border-radius:14px;display:flex;align-items:center;font-size:17.3px;line-height:25px;color:rgba(43,43,43,.5);white-space:nowrap;overflow:hidden}
+.lado.dir .busca{border:2px solid #56834d;padding-left:5px;width:155px}
+.lado.per .busca{border:2px solid #9d6b9a;padding-left:11px;width:156px}
+
+.fotos{position:absolute;left:50%;transform:translateX(-50%);top:494px;width:344px;height:90px;border-top:1px solid rgba(0,0,0,.1)}
+.f-t{position:absolute;left:98px;top:13px;display:flex;align-items:center;gap:6px;height:21px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(131,79,14,.7)}
+.f-b{position:absolute;top:45px;height:46px;background:#fff;border:1px solid rgba(131,79,14,.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:rgba(43,43,43,.8)}
+.f-b.cam{left:38px;width:132px}
+.f-b.gal{left:182px;width:109px}
+
+/* guardar, abajo */
+.pie{position:absolute;left:0;right:0;top:733.6px;height:116px;background:#b9bab9;border-top:1px solid rgba(0,0,0,.1)}
+.falta{position:absolute;left:0;right:0;top:13px;text-align:center;font-size:13.5px;line-height:19px;font-weight:600;color:#7a5a12}
+.guardar{position:absolute;left:16px;right:16px;top:35.9px;height:58px;border-radius:16px;background:#cfe8bd;display:flex;align-items:center;justify-content:center;font-size:18.4px;font-weight:800;color:rgba(43,43,43,.45)}
+
+/* ===== las ventanas flotantes (20-oct-2026) ===== */
+.velo{position:absolute;inset:0;background:rgba(30,30,30,.55)}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:330px;background:#d5d7db;border-top:1px solid rgba(0,0,0,.15);display:flex;flex-direction:column;gap:9px;padding:12px 6px 30px}
+.teclado .fila-t{display:flex;gap:5px;justify-content:center}
+.teclado .t{width:33px;height:44px;border-radius:6px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:19px;color:#2b2b2b}
+.teclado .esp{width:190px}
+.hoja{position:absolute;left:6px;right:6px;top:10px;height:494px;background:#fff5cc;border:2px solid #876f0d;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 6px 18px}
+.hoja-cab .etq{padding:0!important;font-size:13px}
+.cerrar{height:40px;padding:0 14px;border-radius:12px;background:#fff;border:1.5px solid rgba(131,79,14,.45);display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#7c4a0b}
+.cerrar b{font-size:20px;line-height:1;font-weight:700}
+.campo-q{margin:0 12px;height:56px;border-radius:14px;background:#fff;display:flex;align-items:center;padding:0 14px;font-size:18px;color:#2b2b2b}
+.campo-q::after{content:"|";color:#56834d;margin-left:1px;font-weight:300}
+.res{flex:1;margin:10px 12px 0;background:#fff;border-radius:14px;border:1px solid rgba(131,79,14,.25);overflow:hidden}
+.res .op{padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08);font-size:17px;line-height:1.3;color:#2b2b2b}
+.res .op span{display:block;font-size:13px;color:rgba(43,43,43,.6)}
+.res .op mark{background:#e5f0dc;color:#0d5215;font-weight:700;border-radius:3px}
+.salidas{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.salida{height:50px;border-radius:12px;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15.5px;font-weight:800}
+.salida.nueva{background:#fff5cc;border:2px solid #876f0d;color:#066728;box-shadow:2px 4px 4px rgba(0,0,0,.2)}
+.salida.nueva b{font-size:19px;font-weight:900}
+.salida.asi{background:#fff;border:1px solid rgba(131,79,14,.45);color:#7c4a0b;font-weight:700}
+
+/* lo elegido, en su campo: crece hacia abajo */
+.elegido{margin-top:4px;min-height:56px;border-radius:14px;display:flex;align-items:flex-start;gap:4px;padding:7px 4px 7px 10px}
+.elegido .tx{flex:1;font-size:14.5px;line-height:18px;font-weight:700;color:#2b2b2b}
+.elegido .tx span{display:block;font-size:11.5px;font-weight:600;margin-top:2px}
+.elegido .x{font-size:20px;line-height:20px;color:rgba(43,43,43,.55);padding:0 4px}
+.lado.dir .elegido{background:#e5f0dc;border:2px solid #56834d;width:155px}
+.lado.dir .elegido .tx span{color:#0d5215}
+
+/* la ventana de crear */
+.ventana{position:absolute;left:10px;right:10px;top:24px;bottom:24px;background:#fff5cc;border:2px solid #876f0d;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}
+.v-cab{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 8px 18px}
+.v-cab .t{display:flex;align-items:center;gap:8px;color:#066728;font-weight:900;font-size:16px}
+.v-cab .t b{font-size:20px}
+.v-cuerpo{flex:1;padding:0 12px;display:flex;flex-direction:column;gap:12px}
+.vp{position:relative;background:#e4d3a6;border-top:1px solid rgba(0,0,0,.5);box-shadow:2px 4px 4px rgba(0,0,0,.5);border-radius:10px;padding:12px 12px 14px}
+.vp .vh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.vp .n{font-family:'Literata',serif;font-weight:700;font-size:30px;line-height:24px;color:#7c4a0b}
+.vp .tt{font-weight:800;font-size:14px;letter-spacing:.78px;text-transform:uppercase;color:#7c4a0b}
+.in{height:48px;border-radius:12px;background:#fff;border:2px solid rgba(152,117,13,.88);display:flex;align-items:center;padding:0 12px;font-size:16.5px;color:#2b2b2b;margin-top:6px}
+.in.vacio{color:rgba(43,43,43,.5)}
+.dos{display:flex;gap:6px}
+.dos .in{flex:1;min-width:0}
+.chips{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-top:8px}
+.chip{height:40px;border-radius:10px;background:#fff;border:1px solid rgba(131,79,14,.4);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#7c4a0b}
+.chip.on{background:#7c4a0b;border-color:#7c4a0b;color:#fff}
+.v-nota{height:96px;border-radius:12px;background:#fff;border:2px solid rgba(152,117,13,.88);padding:10px 12px;font-size:16.5px;line-height:23px;color:#2b2b2b}
+.v-pie{padding:12px}
+.v-pie .guardar{position:static;height:56px}
+.aviso{margin-top:6px;font-size:12.5px;line-height:17px;color:#7a5a12;background:#fff3d6;border:1px solid #f0d58f;border-radius:10px;padding:6px 9px}
+
+/* lo elegido deja de ser buscador: queda como TEXTO (Monica, 20-oct) */
+.p2b{padding:10px 16px 16px 14px}
+.p2b .cab2{display:flex;align-items:flex-start;gap:12px;padding-left:9px}
+.p2b .num{position:static;line-height:30px}
+.p2b .p-t{position:static;font-size:13px;line-height:15px;padding-top:3px}
+.p2b .p-t small{display:block;font-size:10px;line-height:15px}
+.ya{margin-top:14px}
+.ya .etq{padding:0 0 0 10px!important}
+.ya-tx{display:flex;align-items:flex-start;gap:8px;padding:6px 0 0 14px}
+.ya-tx .t{flex:1;font-size:17px;line-height:22px;font-weight:800;color:#0d3d14}
+.ya-tx .t span{display:block;font-size:12px;line-height:16px;font-weight:700;color:#3f7a1c;margin-top:3px}
+.ya-tx .x{font-size:22px;line-height:22px;color:rgba(43,43,43,.55);padding:0 4px}
+.fila-p{display:flex;align-items:center;gap:12px;margin-top:22px;padding-left:10px}
+.fila-p .etq{padding:0!important;white-space:nowrap}
+.fila-p .busca{flex:1;margin-top:0;height:44px;width:auto;border:2px solid #9d6b9a;padding-left:12px}
+.v-cuerpo{gap:22px!important}
+.in.corto{width:50%}
+</style>
+</head>
+<body>
+<div class="fila">
+
+<div>
+  <div class="fig-t">1 · Al abrir</div>
+  <div class="fig-s">Lo primero que se ve es la nota. Crear, arriba y fino.</div>
+  <div class="movil">
+    <div class="h1">Nota rápida</div>
+    <div class="red">con conexión</div>
+    <div class="quien">Mónica</div>
+
+    <div class="crear c1"><b>+</b><span>Nuevo<br>contacto</span></div>
+    <div class="crear c2"><b>+</b><span>Nueva<br>opp</span></div>
+
+    <div class="card">
+      <div class="card-t"><b>+</b>Nueva Nota</div>
+
+      <div class="panel p1">
+        <div class="num">1.</div>
+        <div class="p-t" style="top:20px">Qué ha pasado</div>
+        <div class="nota">Escríbelo o díctalo con el micro del teclado.</div>
+      </div>
+
+      <div class="panel p2">
+        <div class="num">2.</div>
+        <div class="p-t">Sobre que va:<small>persona o direccion (o ambas)</small></div>
+        <div class="lado dir">
+          <div class="etq">📍 Dirección</div>
+          <div class="busca">buscar dirección…</div>
+        </div>
+        <div class="lado per">
+          <div class="etq">👤 Persona</div>
+          <div class="busca">buscar persona…</div>
+        </div>
+      </div>
+
+      <div class="fotos">
+        <div class="f-t">📷 Añadir fotos</div>
+        <div class="f-b cam">📷 Hacer foto</div>
+        <div class="f-b gal">🖼️ Galería</div>
+      </div>
+    </div>
+
+    <div class="pie">
+      <div class="falta">Escribe la nota</div>
+      <div class="guardar">Guardar</div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="fig-t">2 · Buscando</div>
+  <div class="fig-s">Ventana de la mitad hacia arriba: el teclado no tapa nada. Las salidas, fijas al pie.</div>
+  <div class="movil">
+    <div class="h1">Nota rápida</div>
+    <div class="red">con conexión</div>
+    <div class="quien">Mónica</div>
+
+    <div class="crear c1"><b>+</b><span>Nuevo<br>contacto</span></div>
+    <div class="crear c2"><b>+</b><span>Nueva<br>opp</span></div>
+
+    <div class="card">
+      <div class="card-t"><b>+</b>Nueva Nota</div>
+
+      <div class="panel p1">
+        <div class="num">1.</div>
+        <div class="p-t" style="top:20px">Qué ha pasado</div>
+        <div class="nota">Escríbelo o díctalo con el micro del teclado.</div>
+      </div>
+
+      <div class="panel p2">
+        <div class="num">2.</div>
+        <div class="p-t">Sobre que va:<small>persona o direccion (o ambas)</small></div>
+        <div class="lado dir">
+          <div class="etq">📍 Dirección</div>
+          <div class="busca">buscar dirección…</div>
+        </div>
+        <div class="lado per">
+          <div class="etq">👤 Persona</div>
+          <div class="busca">buscar persona…</div>
+        </div>
+      </div>
+
+      <div class="fotos">
+        <div class="f-t">📷 Añadir fotos</div>
+        <div class="f-b cam">📷 Hacer foto</div>
+        <div class="f-b gal">🖼️ Galería</div>
+      </div>
+    </div>
+
+    <div class="pie">
+      <div class="falta">Escribe la nota</div>
+      <div class="guardar">Guardar</div>
+    </div>
+  <div class="velo"></div>
+    <div class="hoja">
+      <div class="hoja-cab"><div class="etq" style="color:rgba(13,82,21,.85)">📍 Dirección</div><div class="cerrar"><b>×</b> Cerrar</div></div>
+      <div class="campo-q" style="border:2px solid #56834d">medite</div>
+      <div class="res">
+        <div class="op">CP <mark>Medite</mark> 4, Madrid<span>DAN-2025-101 · Daniel</span></div>
+        <div class="op">CP <mark>Medite</mark>rráneo 12, Alcalá de Henares<span>ALV-2026-022 · Álvaro</span></div>
+      </div>
+      <div class="salidas">
+        <div class="salida nueva"><b>+</b> No es ninguna, ¿la creo nueva?</div>
+        <div class="salida asi">¿La guardo así y la revisas después?</div>
+      </div>
+    </div>
+    <div class="teclado"><div class="fila-t"><div class="t">q</div><div class="t">w</div><div class="t">e</div><div class="t">r</div><div class="t">t</div><div class="t">y</div><div class="t">u</div><div class="t">i</div><div class="t">o</div><div class="t">p</div></div><div class="fila-t"><div class="t">a</div><div class="t">s</div><div class="t">d</div><div class="t">f</div><div class="t">g</div><div class="t">h</div><div class="t">j</div><div class="t">k</div><div class="t">l</div><div class="t">ñ</div></div><div class="fila-t"><div class="t">z</div><div class="t">x</div><div class="t">c</div><div class="t">v</div><div class="t">b</div><div class="t">n</div><div class="t">m</div></div><div class="fila-t"><div class="t esp"></div></div></div>
+  </div>
+</div>
+
+<div>
+  <div class="fig-t">3 · Lista para guardar</div>
+  <div class="fig-s">Lo elegido deja de ser buscador y queda como texto, con su aspa. Lo que falta, en su fila.</div>
+  <div class="movil">
+    <div class="h1">Nota rápida</div>
+    <div class="red">con conexión</div>
+    <div class="quien">Mónica</div>
+
+    <div class="crear c1"><b>+</b><span>Nuevo<br>contacto</span></div>
+    <div class="crear c2"><b>+</b><span>Nueva<br>opp</span></div>
+
+    <div class="card">
+      <div class="card-t"><b>+</b>Nueva Nota</div>
+
+      <div class="panel p1" style="height:209px">
+        <div class="num">1.</div>
+        <div class="p-t" style="top:20px">Qué ha pasado</div>
+        <div class="nota" style="color:#2b2b2b;height:142px">La presidenta quiere ascensor, junta en noviembre. Le preocupa la derrama.</div>
+      </div>
+
+      <div class="panel p2 p2b" style="top:268px;height:220px">
+        <div class="cab2"><div class="num">2.</div><div class="p-t">Sobre que va:<small>persona o direccion (o ambas)</small></div></div>
+        <div class="ya">
+          <div class="etq" style="color:rgba(13,82,21,.7)">📍 Dirección</div>
+          <div class="ya-tx"><div class="t">CP Mediterráneo 12, Alcalá de Henares<span>ALV-2026-022</span></div><div class="x">×</div></div>
+        </div>
+        <div class="fila-p">
+          <div class="etq" style="color:rgba(114,48,132,.7)">👤 Persona</div>
+          <div class="busca">buscar persona…</div>
+        </div>
+      </div>
+
+      <div class="fotos">
+        <div class="f-t">📷 Añadir fotos</div>
+        <div class="f-b cam">📷 Hacer foto</div>
+        <div class="f-b gal">🖼️ Galería</div>
+      </div>
+    </div>
+
+    <div class="pie">
+      
+      <div class="guardar" style="background:#7ac943;color:#2b2b2b;box-shadow:0 2px 6px rgba(63,122,28,.3)">Guardar</div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="fig-t">4 · Nuevo contacto</div>
+  <div class="fig-s">Ventana flotante grande. Se sale con Cerrar, tocando fuera o con atrás.</div>
+  <div class="movil">
+    <div class="h1">Nota rápida</div>
+    <div class="red">con conexión</div>
+    <div class="quien">Mónica</div>
+
+    <div class="crear c1"><b>+</b><span>Nuevo<br>contacto</span></div>
+    <div class="crear c2"><b>+</b><span>Nueva<br>opp</span></div>
+
+    <div class="card">
+      <div class="card-t"><b>+</b>Nueva Nota</div>
+
+      <div class="panel p1">
+        <div class="num">1.</div>
+        <div class="p-t" style="top:20px">Qué ha pasado</div>
+        <div class="nota">Escríbelo o díctalo con el micro del teclado.</div>
+      </div>
+
+      <div class="panel p2">
+        <div class="num">2.</div>
+        <div class="p-t">Sobre que va:<small>persona o direccion (o ambas)</small></div>
+        <div class="lado dir">
+          <div class="etq">📍 Dirección</div>
+          <div class="busca">buscar dirección…</div>
+        </div>
+        <div class="lado per">
+          <div class="etq">👤 Persona</div>
+          <div class="busca">buscar persona…</div>
+        </div>
+      </div>
+
+      <div class="fotos">
+        <div class="f-t">📷 Añadir fotos</div>
+        <div class="f-b cam">📷 Hacer foto</div>
+        <div class="f-b gal">🖼️ Galería</div>
+      </div>
+    </div>
+
+    <div class="pie">
+      <div class="falta">Escribe la nota</div>
+      <div class="guardar">Guardar</div>
+    </div>
+  <div class="velo"></div>
+    <div class="ventana">
+      <div class="v-cab"><div class="t"><b>+</b>Nuevo contacto</div><div class="cerrar"><b>×</b> Cerrar</div></div>
+      <div class="v-cuerpo">
+        <div class="vp">
+          <div class="vh"><div class="n">1.</div><div class="tt">Quién es</div></div>
+          <div class="in">Pepe Gotera</div>
+          <div class="in corto">600 123 456</div>
+          <div class="in vacio">correo</div>
+          <div class="chips"><div class="chip">Admin.</div><div class="chip on">Vecino</div><div class="chip">Contrat.</div><div class="chip">Otro</div></div>
+        </div>
+        <div class="vp">
+          <div class="vh"><div class="n">2.</div><div class="tt">Notas</div></div>
+          <div class="v-nota">Vecino del 3.º B, dice que el presidente es quien decide.</div>
+        </div>
+      </div>
+      <div class="v-pie"><div class="guardar" style="background:#7ac943;color:#2b2b2b">Guardar contacto</div></div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="fig-t">5 · Nueva opp</div>
+  <div class="fig-s">Igual: dónde, contacto y notas.</div>
+  <div class="movil">
+    <div class="h1">Nota rápida</div>
+    <div class="red">con conexión</div>
+    <div class="quien">Mónica</div>
+
+    <div class="crear c1"><b>+</b><span>Nuevo<br>contacto</span></div>
+    <div class="crear c2"><b>+</b><span>Nueva<br>opp</span></div>
+
+    <div class="card">
+      <div class="card-t"><b>+</b>Nueva Nota</div>
+
+      <div class="panel p1">
+        <div class="num">1.</div>
+        <div class="p-t" style="top:20px">Qué ha pasado</div>
+        <div class="nota">Escríbelo o díctalo con el micro del teclado.</div>
+      </div>
+
+      <div class="panel p2">
+        <div class="num">2.</div>
+        <div class="p-t">Sobre que va:<small>persona o direccion (o ambas)</small></div>
+        <div class="lado dir">
+          <div class="etq">📍 Dirección</div>
+          <div class="busca">buscar dirección…</div>
+        </div>
+        <div class="lado per">
+          <div class="etq">👤 Persona</div>
+          <div class="busca">buscar persona…</div>
+        </div>
+      </div>
+
+      <div class="fotos">
+        <div class="f-t">📷 Añadir fotos</div>
+        <div class="f-b cam">📷 Hacer foto</div>
+        <div class="f-b gal">🖼️ Galería</div>
+      </div>
+    </div>
+
+    <div class="pie">
+      <div class="falta">Escribe la nota</div>
+      <div class="guardar">Guardar</div>
+    </div>
+  <div class="velo"></div>
+    <div class="ventana">
+      <div class="v-cab"><div class="t"><b>+</b>Nueva opp</div><div class="cerrar"><b>×</b> Cerrar</div></div>
+      <div class="v-cuerpo">
+        <div class="vp">
+          <div class="vh"><div class="n">1.</div><div class="tt">Dónde</div></div>
+          <div class="in" style="border-color:#56834d">Calle Mediterráneo 8, Getafe</div>
+          <div class="aviso">Ya hay una parecida: <b>CP Mediterráneo 12, Alcalá de Henares</b>. Si es esa, cierra y búscala.</div>
+        </div>
+        <div class="vp">
+          <div class="vh"><div class="n">2.</div><div class="tt">Contacto</div></div>
+          <div class="in" style="border-color:#9d6b9a">Carmen López</div>
+          <div class="in corto" style="border-color:#9d6b9a">611 222 333</div>
+          <div class="in vacio" style="border-color:#9d6b9a">correo</div>
+        </div>
+        <div class="vp">
+          <div class="vh"><div class="n">3.</div><div class="tt">Notas</div></div>
+          <div class="v-nota" style="height:74px">Quieren ascensor y fachada. Llamar el lunes.</div>
+        </div>
+      </div>
+      <div class="v-pie"><div class="guardar" style="background:#7ac943;color:#2b2b2b">Guardar opp</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
