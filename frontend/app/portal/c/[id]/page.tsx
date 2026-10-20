@@ -69,11 +69,17 @@ const ICONO: Record<Estado, { texto: string; color: string; svg: React.ReactNode
 function Simbolo({ estado }: { estado: Estado }) {
   const i = ICONO[estado];
   return (
-    <span className="flex w-[66px] flex-none flex-col items-center gap-0.5 text-center">
+    <span className="flex w-[58px] flex-none flex-col items-center gap-0.5 text-center">
       <svg viewBox="0 0 44 44" className="h-[28px] w-[28px]" aria-hidden>
         {i.svg}
       </svg>
-      <span className={"text-[10px] font-semibold leading-tight " + i.color}>{i.texto}</span>
+      <span className={"text-[10px] font-semibold leading-tight " + i.color}>
+        {i.texto.split(" · ").map((t, n) => (
+          <span key={n} className="block">
+            {t}
+          </span>
+        ))}
+      </span>
     </span>
   );
 }
