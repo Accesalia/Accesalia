@@ -30,7 +30,7 @@ hoja = lambda n: b.leer('hojas_encargo?select=id,numero_hoja,tipo_documento,esta
                         'versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,notas,pdfs_firmados)&numero_hoja=eq.' + n)[0]
 
 opp = b.leer('oportunidades?select=id,codigo,nombre,comunidad_id&codigo=eq.DAN-2023-238')[0]
-assert not b.leer('contratas?select=id&cif=eq.B83336891', False)
+YA = b.leer('contratas?select=id&cif=eq.B83336891', False)  # 1er intento (20-oct): la contrata entró y el resto no (un «%» en el texto)
 print('1. contrata nueva INTEGRA ASCENSORES (B83336891) y contrato %s %s: proyecto de ascensor 4.000 (encargo 2.000 + entrega 2.000), firmado 2025-11-21'
       % (opp['codigo'], opp['nombre']))
 t = hoja('HE-2025-0784')
@@ -52,14 +52,15 @@ if not ESCRIBIR:
 
 # 1
 cid, hid, vid, lid = (str(uuid.uuid4()) for _ in range(4))
-b.insertar('contratas', [dict(id=cid, nombre='INTEGRA ASCENSORES', razon_social='INTEGRA ASCENSORES', cif='B83336891', tipo='ascensorista', activa=True,
+if YA: cid = YA[0]['id']
+else: b.insertar('contratas', [dict(id=cid, nombre='INTEGRA ASCENSORES', razon_social='INTEGRA ASCENSORES', cif='B83336891', tipo='ascensorista', activa=True,
            direccion='Av. Real de Pinto 91B15, Madrid', notas_comercial='Alta desde su contrato de subcontratación del proyecto de ascensor de Ángeles 6 Getafe '
            '(21-nov-2025; el fichero del Drive dice OTIS) (Mónica, %s).' % HOY)])
 import json, urllib.request
 req = urllib.request.Request(b.url + '/rest/v1/rpc/siguiente_codigo', data=json.dumps({'p_tipo': 'HE', 'p_anio': 2025}).encode(),
                              headers=dict(b.cab, **{'Content-Type': 'application/json'}), method='POST')
 num = json.loads(urllib.request.urlopen(req).read())
-nota = 'Contrato de subcontratación de INTEGRA ASCENSORES (21-nov-2025, Drive: «OTIS ANGELES 6 GETAFE PRY ASC.pdf»): 4.000 €, 50 % inicio y 50 % finalización (Mónica, %s).' % HOY
+nota = 'Contrato de subcontratación de INTEGRA ASCENSORES (21-nov-2025, Drive: «OTIS ANGELES 6 GETAFE PRY ASC.pdf»): 4.000 €, 50 %% inicio y 50 %% finalización (Mónica, %s).' % HOY
 b.insertar('hojas_encargo', [dict(id=hid, numero_hoja=num, oportunidad_id=opp['id'], comunidad_id=opp['comunidad_id'], pagador_tipo='contrata', pagador_contrata_id=cid,
            emisor='accesalia', fecha_creacion='2025-11-21', fecha_firma='2025-11-21', estado='devuelta_firmada', fecha_estado='2025-11-21T00:00:00+00:00',
            tipo_documento='contrato', descripcion='Contrato INTEGRA ASCENSORES · proyecto de ascensor · ' + opp['nombre'])])
@@ -76,7 +77,7 @@ print('1.', num)
 # 2
 v = t['versiones_hoja'][0]
 ruta = 'almacen:documentos-comerciales/' + b.subir('documentos-comerciales', 'hojas-encargo/%s/firmada-v1-1-%s.pdf' % (t['id'], v['id'][:8]), open(F_TORRE, 'rb').read(), reemplazar=True)
-nota2 = 'Pedido de FAIN por correo (14-jul-2025): pedido 95003572, grafo/orden 4010746, pedido de compra 380625; CSS 600 €, 80 % acta del PSS y 20 % fin de obra. Sustituye a la nota de responsabilidad (Mónica, %s).' % HOY
+nota2 = 'Pedido de FAIN por correo (14-jul-2025): pedido 95003572, grafo/orden 4010746, pedido de compra 380625; CSS 600 €, 80 %% acta del PSS y 20 %% fin de obra. Sustituye a la nota de responsabilidad (Mónica, %s).' % HOY
 b.actualizar('hojas_encargo?id=eq.' + t['id'], dict(tipo_documento='pedido', responsable_id=None, motivo_sin_firma=None, fecha_firma='2025-07-14',
              fecha_estado='2025-07-14T00:00:00+00:00', descripcion='Pedido FAIN 95003572 · CSS · Torrecilla del Leal 21'))
 b.actualizar('versiones_hoja?id=eq.' + v['id'], {'pdfs_firmados': [ruta], 'notas': '\n'.join(x for x in (v['notas'], nota2) if x)})
