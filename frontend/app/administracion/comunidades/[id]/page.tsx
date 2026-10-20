@@ -27,7 +27,6 @@ export const dynamic = "force-dynamic";
 const EUR = new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 });
 const eur = (n: number) => `${EUR.format(n)} €`;
 const fecha = (iso: string | null | undefined) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : null);
-const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano", direccion: "dirección" } as const;
 const ESTADO_HOJA: Record<string, { texto: string; tono: string }> = {
   devuelta_firmada: { texto: "firmada", tono: "bg-lima text-carbon" },
   enviada_comunidad: { texto: "enviada, sin firmar", tono: "bg-amber-50 text-amber-800" },
@@ -500,27 +499,45 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
 
             {/* ---------------- su pagina de documentacion (12-oct) ---------------- */}
             <div id="portal">
-              <Tarjeta titulo="Su página de documentación" de="quién puede entrar y subir">
-                <ul className="divide-y divide-black/5 text-[14px]">
-                  {autorizados.map((a) => (
-                    <li key={a.email} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
-                      <span>
-                        <b className="text-carbon">{a.email}</b>
-                        {a.nombre && <span className="text-carbon/65"> · {a.nombre}</span>}
-                        {a.motivo && <span className="text-carbon/55"> · {a.motivo}</span>}
-                      </span>
-                      <span className="flex items-center gap-2 text-[12.5px]">
-                        <span className="rounded-full bg-black/5 px-2 py-0.5 font-semibold text-carbon/65">{ROL_PORTAL[a.rol]}</span>
-                        {a.rol === "manual" && a.id && (
-                          <form action={accionQuitarAutorizado.bind(null, id, a.id)}>
-                            <button type="submit" className="text-alerta underline">quitar</button>
-                          </form>
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                  {autorizados.length === 0 && <li className="py-2 text-carbon/65">Nadie todavía: no tenemos el correo de los gestores ni del presidente.</li>}
-                </ul>
+              <Tarjeta titulo="Su página de documentación" de="quién de la comunidad puede entrar a su portal y subir">
+                {/* CUATRO GRUPOS EXPLICITOS (Monica, 20-oct-2026), para que no se
+                    confunda con quien de Accesalia ve la ficha. Del comercial, SOLO
+                    el nombre: «no queremos que lo bombardeen porque ya que está
+                    ahí, se lo mando también por mail». */}
+                <div className="grid w-fit grid-cols-[auto_auto] gap-x-6 text-[14px]">
+                  {(
+                    [
+                      ["Comercial de Accesalia", "comercial", "ninguno: no tiene opps abiertas"],
+                      ["Administrador de la finca", "administrador", "sin correo apuntado"],
+                      ["Presidente en activo de la comunidad", "presidente", "sin correo apuntado"],
+                      ["Otras personas autorizadas", "manual", "ninguna"],
+                    ] as const
+                  ).map(([et, rol, vacio]) => {
+                    const suyos = autorizados.filter((a) => a.rol === rol);
+                    return (
+                      <div key={rol} className="col-span-2 grid grid-cols-subgrid border-t border-black/5 py-2 first:border-0">
+                        <span className="pt-0.5 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}</span>
+                        <ul className="space-y-1">
+                          {suyos.length === 0 && <li className="text-amber-700/60">{vacio}</li>}
+                          {rol === "comercial"
+                            ? suyos.length > 0 && <li className="font-semibold text-carbon">{[...new Set(suyos.map((a) => a.nombre ?? "sin nombre"))].join(", ")}</li>
+                            : suyos.map((a) => (
+                                <li key={a.email} className="flex flex-wrap items-baseline gap-x-2">
+                                  {a.nombre && <b className="font-semibold text-carbon">{a.nombre}</b>}
+                                  <span className="text-carbon/80">{a.email}</span>
+                                  {a.motivo && <span className="text-[13px] text-carbon/60">· {a.motivo}</span>}
+                                  {rol === "manual" && a.id && (
+                                    <form action={accionQuitarAutorizado.bind(null, id, a.id)}>
+                                      <button type="submit" className="text-[12.5px] text-alerta underline">quitar</button>
+                                    </form>
+                                  )}
+                                </li>
+                              ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
                 <form action={accionAutorizar.bind(null, id)} className="mt-3 grid gap-2 border-t border-black/5 pt-3 sm:grid-cols-[1.3fr_1fr_1fr_auto]">
                   <input name="email" type="email" required placeholder="correo" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
                   <input name="nombre" placeholder="nombre" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
