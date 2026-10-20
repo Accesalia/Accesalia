@@ -36,9 +36,11 @@ const PUERTAS: Puerta[] = [
   {
     nombre: "Administraciones de fincas",
     color: "azul",
-    desc: "Las administraciones, su gente y las comunidades que llevan.",
-    href: null,
-    cuenta: "279 en la app",
+    // La lista, por administracion o por gestor (20-oct-2026). La ficha de cada
+    // una, despues: su maqueta esta a medias.
+    desc: "La lista de administraciones y sus gestores: quién las lleva, desde cuándo y cuántas firmadas. Y dar de alta uno nuevo.",
+    href: "/administracion/administraciones",
+    cuenta: "355 en la app",
   },
 ];
 
