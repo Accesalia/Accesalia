@@ -1,144 +1,202 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
-import { fichaComunidad, type FichaComunidad } from "../../../../lib/administracion";
+import { Salida } from "../../../components/Salida";
+import { fichaComunidad, type Ficha, type Papel } from "../../../../lib/fichaComunidad";
 import { quienSoy } from "../../../../lib/sesion";
 import { autorizadosDe } from "../../../../lib/portal";
 import { accionAutorizar, accionQuitarAutorizado } from "./accionesPortal";
 
-const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano", direccion: "dirección" } as const;
-import { Salida } from "../../../components/Salida";
-
 export const dynamic = "force-dynamic";
 
-// LA FICHA DE COMUNIDAD. Estructura dictada por Monica el 25-sep-2026.
+// LA FICHA DE COMUNIDAD (Monica, 20-oct-2026). Es la «propuesta» del 25-sep
+// (que sigue en ./propuesta) con lo que le faltaba: lo de la ficha antigua
+// (./anterior: CP, municipio, provincia, IBAN, su pagina de documentacion) y lo
+// hablado el 20-oct. Maqueta: docs/figma/ficha-comunidad.html.
 //
-// PRINCIPIO DE DISEÑO SUYO, que manda en toda la pantalla: "eso de poner campos
-// apilados y tener que hacer scroll kilometrico lo vamos a evitar". Un codigo
-// postal son cinco cifras y no ocupa una linea. Por eso: columna izquierda
-// ancha con los datos en lineas compuestas, y columna derecha estrecha con las
-// "zonas calientes" (estado, lo que falta, notas).
+// Lo que manda, de la propuesta: las NOTAS primero ("lo primero que quiero ver
+// son las excepciones"); el ADMINISTRADOR arriba a la derecha; los huecos en
+// ambar suave, nunca en rojo. De la comunidad SOLO sus datos: lo contratado se
+// enseña por sus opps (las HOJAS, agrupadas por opp) y el acta de votacion es de
+// la opp. SUS COLORES (Figma, 20-oct), SOLO EN ESTA PANTALLA: el fondo #DDE6D0 y
+// las tarjetas de dentro (#F0F5E9; la opp #E6ECDC; el presidente con borde
+// #9A9C96), por contraste.
 //
-// ORDEN DE LAS SECCIONES: hoy es este, pero ella avisa de que no es fijo y de
-// que cada perfil podra ver primero unas u otras ("lo que necesita saber un
-// tecnico, o el director de obra, o la chica de facturacion es diferente").
-//
-// LOS HUECOS SE AVISAN EN SUAVE, no en rojo: "que se pueda trabajar sin estres
-// en fichas incompletas". Y solo deberian marcarse en las comunidades ACTIVAS,
-// porque hay huecos que nunca se rellenaran (si no nos contrataron, ¿para que
-// queremos el acta del presidente?). El estado de la relacion aun no existe en
-// la base, asi que de momento se avisa de eso mismo.
+// Solo se mira: la abre cualquiera que haya entrado (es el destino del buscador).
 
 const EUR = new Intl.NumberFormat("es-ES", { useGrouping: "always", maximumFractionDigits: 0 });
 const eur = (n: number) => `${EUR.format(n)} €`;
-const fecha = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : null);
-
+const fecha = (iso: string | null | undefined) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : null);
+const ROL_PORTAL = { administrador: "administrador", presidente: "presidente", comercial: "comercial", manual: "a mano", direccion: "dirección" } as const;
 const ESTADO_HOJA: Record<string, { texto: string; tono: string }> = {
   devuelta_firmada: { texto: "firmada", tono: "bg-lima text-carbon" },
   enviada_comunidad: { texto: "enviada, sin firmar", tono: "bg-amber-50 text-amber-800" },
   borrador: { texto: "borrador", tono: "bg-black/5 text-carbon/60" },
-  anulada: { texto: "anulada", tono: "bg-black/5 text-carbon/40" },
 };
 
-function Seccion({ n, titulo, nota, children }: { n: number; titulo: string; nota?: string; children: React.ReactNode }) {
+/* ------------------------------------------------------------------ piezas */
+
+function Tarjeta({ titulo, de, der, children }: { titulo: string; de?: React.ReactNode; der?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="mt-6 first:mt-0">
-      <div className="mb-2 flex flex-wrap items-baseline gap-2">
-        <span className="text-sm font-bold tabular-nums text-carbon/25">{n}</span>
-        <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/60">{titulo}</h2>
-        {nota && <span className="text-xs text-carbon/40">{nota}</span>}
+    <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-baseline gap-2">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-carbon/70">{titulo}</h2>
+        {de && <span className="text-xs text-carbon/55">{de}</span>}
+        {der && <span className="ml-auto">{der}</span>}
       </div>
-      <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">{children}</div>
+      {children}
     </section>
   );
 }
 
-/** Un dato en una linea compartida. Si falta, se dice en suave, sin alarmar. */
-function Dato({ etiqueta, valor, ancho = "" }: { etiqueta: string; valor: React.ReactNode; ancho?: string }) {
-  const vacio = valor === null || valor === undefined || valor === "";
+/** Una tarjeta de dentro, con SU verde de contraste. */
+function Dentro({ titulo, de, borde = "border-lima/25", children }: { titulo: string; de?: string; borde?: string; children: React.ReactNode }) {
   return (
-    <div className={ancho}>
-      <div className="text-xs uppercase tracking-wide text-carbon/40">{etiqueta}</div>
-      <div className={"text-base " + (vacio ? "text-amber-700/45" : "text-carbon/85")}>{vacio ? "por completar" : valor}</div>
+    <div className={"rounded-xl border bg-[#F0F5E9] p-4 " + borde}>
+      <h3 className="mb-2.5 flex flex-wrap items-baseline gap-2 text-sm font-bold text-carbon/85">
+        {titulo}
+        {de && <span className="text-xs font-normal text-carbon/55">{de}</span>}
+      </h3>
+      {children}
     </div>
   );
 }
 
-function Fila({ children, cols }: { children: React.ReactNode; cols: string }) {
-  return <div className={"grid gap-x-6 gap-y-3 border-b border-black/5 py-3 first:pt-0 last:border-0 last:pb-0 " + cols}>{children}</div>;
-}
-
-function Hueco({ texto, campos }: { texto: string; campos?: string[] }) {
+/** Un dato: etiqueta pequeña y el valor al lado. El hueco, en suave. */
+function Dato({ et, v, falta = "por completar", ancho = "" }: { et?: string; v: React.ReactNode; falta?: string; ancho?: string }) {
+  const vacio = v === null || v === undefined || v === "";
   return (
-    <div className="rounded-xl border border-dashed border-black/15 bg-hueso/40 px-4 py-3">
-      <p className="text-sm text-carbon/50">{texto}</p>
-      {campos && (
-        <ul className="mt-2 flex flex-wrap gap-1.5">
-          {campos.map((c) => (
-            <li key={c} className="rounded-md border border-dashed border-black/15 bg-white px-2 py-0.5 text-xs text-carbon/40">
-              {c}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <span className={"inline-flex min-w-0 items-baseline gap-1.5 " + ancho}>
+      {et && <span className="shrink-0 whitespace-nowrap text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et}:</span>}
+      <span className={vacio ? "text-amber-700/60" : "text-carbon/90"}>{vacio ? falta : v}</span>
+    </span>
   );
 }
 
-/** Lo que le falta a esta ficha, en tono suave: es una lista de tareas, no un reproche. */
-function loQueFalta(f: FichaComunidad): string[] {
+function Linea({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={"flex flex-wrap items-baseline gap-x-7 gap-y-2 " + className}>{children}</div>;
+}
+
+/** Un documento: siempre con cara de documento. Si esta en el almacen, se abre. */
+function Doc({ et, p, comunidadId }: { et: string; p: Papel; comunidadId: string }) {
+  const base = "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-0.5 text-sm font-semibold ";
+  if (!p)
+    return (
+      <span className={base + "border-lima/30 bg-white text-lima-dark/55"} title="Todavía no está subido">
+        <span aria-hidden>📄</span>
+        {et}
+        <span className="font-medium text-amber-700/70">(falta)</span>
+      </span>
+    );
+  if (!p.enAlmacen)
+    return (
+      <span className={base + "border-lima/60 bg-lima-soft text-lima-dark"} title="Está apuntado, pero el fichero no está en el almacén">
+        <span aria-hidden>📄</span>
+        {et}
+      </span>
+    );
+  return (
+    <a href={`/administracion/comunidades/${comunidadId}/papel/${p.id}`} target="_blank" rel="noopener" className={base + "border-lima/60 bg-lima-soft text-lima-dark hover:bg-lima/30"}>
+      <span aria-hidden>📄</span>
+      {et}
+    </a>
+  );
+}
+
+function Pildora({ children, tono }: { children: React.ReactNode; tono: string }) {
+  return <span className={"inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[13px] font-bold " + tono}>{children}</span>;
+}
+
+function Pronto({ title }: { title?: string }) {
+  return (
+    <span title={title} className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-carbon/45">
+      Próximamente
+    </span>
+  );
+}
+
+/* ----------------------------------------------- la validez del presidente */
+
+/** El cargo dura un año salvo que los estatutos digan otra cosa: si el acta no
+ *  trae su caducidad, se cuenta un año desde la fecha del acta. */
+function vigenciaActa(acta: Papel): string | null {
+  if (!acta) return null;
+  if (acta.caduca) return acta.caduca;
+  if (!acta.emision) return null;
+  const d = new Date(acta.emision);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function AvisoActa({ acta }: { acta: Papel }) {
+  const hasta = vigenciaActa(acta);
+  if (!acta) return <Pildora tono="border border-alerta/30 bg-[#fbeaea] text-alerta">sin acta, no se sabe si sigue</Pildora>;
+  if (!hasta) return <Pildora tono="bg-amber-50 text-amber-800">el acta no tiene fecha</Pildora>;
+  const dias = Math.round((new Date(hasta).getTime() - Date.now()) / 86_400_000);
+  if (dias < 0) return <Pildora tono="border border-alerta/30 bg-[#fbeaea] text-alerta">cargo caducado el {fecha(hasta)}</Pildora>;
+  if (dias <= 60) return <Pildora tono="bg-amber-50 text-amber-800">caduca el {fecha(hasta)}</Pildora>;
+  return null;
+}
+
+/* ------------------------------------------------------------ lo que falta */
+
+function loQueFalta(f: Ficha): string[] {
   const falta: string[] = [];
-  if (!f.administradores.some((a) => a.vigente)) falta.push("quién la administra");
+  if (!f.administraciones.length) falta.push("quién la administra");
+  if (!f.razonSocial) falta.push(f.tarjeta ? "el nombre fiscal (está en la tarjeta)" : "el nombre fiscal");
   if (!f.cif) falta.push("el CIF");
-  if (f.presidentes.length === 0) falta.push("el presidente");
-  else if (!f.presidentes.some((p) => p.telefono || p.email)) falta.push("cómo contactar al presidente");
-  if (f.edificio.anio === null) falta.push("el año de construcción");
-  if (f.edificio.viviendas === null) falta.push("el número de viviendas");
-  if (!f.edificio.catastro) falta.push("la referencia catastral");
+  if (!f.tarjeta) falta.push("la tarjeta del CIF");
+  if (!f.presidentes.length) falta.push("el presidente y su acta");
+  else if (!f.presidentes.some((p) => p.acta)) falta.push("el acta del presidente");
+  const gestores = f.administraciones.flatMap((a) => a.gestores);
+  if (gestores.length && !gestores.some((g) => g.telefono)) falta.push("el teléfono de los gestores");
+  if (f.cuenta && !f.certificado) falta.push("el certificado de la cuenta");
   return falta;
 }
 
-export default async function Ficha({ params }: { params: Promise<{ id: string }> }) {
+/* ------------------------------------------------------------------ página */
+
+export default async function FichaComunidad({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const yo = await quienSoy();
   if (!yo) redirect(`/entrar?volver=/administracion/comunidades/${id}`);
-  // Solo se mira (no tiene nada que guardar), asi que la abre cualquiera que
-  // haya entrado: es el destino del buscador y de los listados, que son de
-  // toda la casa (Monica, 7-oct-2026).
 
   const f = await fichaComunidad(id);
   if (!f) notFound();
   const autorizados = await autorizadosDe(id).catch(() => []);
 
-  const admin = f.administradores.find((a) => a.vigente) ?? null;
-  const anteriores = f.administradores.filter((a) => !a.vigente);
+  const hojas = f.opps.flatMap((o) => o.hojas);
+  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
+  const contratado = firmadas.reduce((s, h) => s + h.total, 0);
+  const abiertas = f.opps.filter((o) => o.estado === "abierta").length;
   const falta = loQueFalta(f);
-  const firmadas = f.encargos.filter((e) => e.estado === "devuelta_firmada").length;
+  const gestores = f.administraciones.flatMap((a) => a.gestores);
+  const cat = f.catastro[0] ?? null;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#DDE6D0]">
       <BarraSuperior />
       <main className="mx-auto max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
-        <Salida href="/administracion/comunidades">
-          ← Comunidades
-        </Salida>
-        <Link
-          href={`/administracion/comunidades/${id}/propuesta`}
-          className="ml-4 text-sm font-semibold text-lima-dark transition hover:underline"
-        >
-          Ver la propuesta nueva →
-        </Link>
+        <Salida href="/administracion/comunidades">← Comunidades</Salida>
 
-        {/* ===================== LA DIRECCION, cabecera absoluta ===================== */}
-        {/* Es UN solo campo de texto y no se descompone, a proposito. Al lado, lo
-            que ocupa poco: CP, municipio y provincia. */}
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-x-8 gap-y-3 border-b border-black/10 pb-4">
-          <h1 className="text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
-          <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
-            <Dato etiqueta="Código postal" valor={f.cp} />
-            <Dato etiqueta="Municipio" valor={f.municipio} />
-            <Dato etiqueta="Provincia" valor={f.provincia} />
+        {/* ===================== la cabecera, sobre el fondo ===================== */}
+        <div className="mt-3 border-b border-black/10 pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
+            <h1 className="min-w-0 text-3xl font-bold leading-tight text-carbon sm:text-4xl">{f.nombre}</h1>
+            <div className="ml-auto flex flex-wrap items-baseline gap-x-7 text-lg">
+              <Dato et="Comercial" v={f.comercial && <b className="font-semibold">{f.comercial}</b>} />
+              <Dato et="Tipo" v={f.tipos.length ? f.tipos.join(" + ") : null} />
+            </div>
           </div>
+          <Linea className="mt-2 text-[15px]">
+            <Dato et="CP" v={f.cp} />
+            <Dato et="Municipio" v={f.municipio} />
+            <Dato et="Provincia" v={f.provincia} />
+            {f.opps.length > 0 && (
+              <Pildora tono="border border-lima/40 bg-lima-soft text-lima-dark">
+                {f.opps.length} {f.opps.length === 1 ? "opp" : "opps"} · {abiertas} {abiertas === 1 ? "abierta" : "abiertas"}
+              </Pildora>
+            )}
+          </Linea>
         </div>
 
         {f.avisos.length > 0 && (
@@ -147,183 +205,323 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
           </div>
         )}
 
-        {/* ===================== izquierda ancha | derecha caliente ===================== */}
-        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          <div>
-            {/* --------------------------- 1. el edificio --------------------------- */}
-            <Seccion n={1} titulo="Datos del edificio" nota="lo que no cambia nunca">
-              <Fila cols="sm:grid-cols-3">
-                <Dato etiqueta="Año de construcción" valor={f.edificio.anio} />
-                <Dato etiqueta="Número de viviendas" valor={f.edificio.viviendas} />
-                <Dato etiqueta="Referencia catastral" valor={f.edificio.catastro} />
-              </Fila>
-            </Seccion>
+        <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          {/* ======================= columna izquierda ======================= */}
+          <div className="min-w-0 space-y-5">
+            {/* lo primero: las excepciones */}
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-sm font-bold uppercase tracking-wider text-carbon/70">Notas</span>
+              <span className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-md border border-lima/30 bg-white px-3 py-2.5">
+                <span className="text-sm text-carbon/50">Lo que haya que saber de esta comunidad y no salga en ningún otro sitio…</span>
+                <Pronto title="Las notas de la comunidad todavía no tienen dónde guardarse" />
+              </span>
+            </div>
 
-            {/* ------------------------ 2. el administrador ------------------------ */}
-            <Seccion n={2} titulo="Administrador de fincas">
-              {admin ? (
-                <>
-                  <Fila cols="sm:grid-cols-[1.4fr_1fr_1fr]">
-                    <Dato etiqueta="Administración" valor={admin.empresa} />
-                    <Dato etiqueta="Teléfono" valor={admin.telefono} />
-                    <Dato etiqueta="Desde" valor={fecha(admin.desde)} />
-                  </Fila>
-                  <Fila cols="sm:grid-cols-[1.4fr_1fr_1fr]">
-                    <Dato etiqueta="Persona que la lleva" valor={admin.persona?.nombre} />
-                    <Dato etiqueta="Cargo" valor={admin.persona?.cargo} />
-                    <Dato etiqueta="Su teléfono" valor={admin.persona?.telefono} />
-                  </Fila>
-                  {admin.notas && <p className="pt-3 text-base text-carbon/70">{admin.notas}</p>}
-                </>
-              ) : (
-                <Hueco texto="Esta comunidad no tiene administrador asignado. Son 646 de las 1.228, así que es el hueco más gordo que hay." />
-              )}
+            {/* ---------------- datos de la comunidad ---------------- */}
+            <Tarjeta titulo="Datos Comunidad">
+              <Linea>
+                <Dato et="Nombre" v={f.nombre} />
+                {!f.razonSocial && <Pildora tono="border border-amber-200 bg-amber-50 px-2 py-px text-[11px] text-amber-900">provisional</Pildora>}
+              </Linea>
+              <Linea className="mt-2.5">
+                <Dato et="Nombre fiscal (del CIF)" v={f.razonSocial} ancho="min-w-0 flex-1 basis-80" />
+                <Dato et="CIF" v={f.cif} />
+                <Doc et="Tarjeta CIF" p={f.tarjeta} comunidadId={f.id} />
+              </Linea>
+              <Linea className="mt-2.5">
+                <Dato et="Domicilio fiscal" v={f.domicilioFiscal} />
+              </Linea>
 
-              {anteriores.length > 0 && (
-                <div className="mt-4 border-t border-black/5 pt-3">
-                  <div className="text-xs uppercase tracking-wide text-carbon/40">Antes la llevaban</div>
-                  <ul className="mt-1.5 space-y-1">
-                    {anteriores.map((a, i) => (
-                      <li key={i} className="flex flex-wrap items-baseline gap-x-3 text-base text-carbon/70">
-                        <span className="font-semibold">{a.empresa ?? "sin nombre"}</span>
-                        <span className="text-sm text-carbon/45">
-                          {fecha(a.desde) ?? "?"} — {fecha(a.hasta) ?? "?"}
-                        </span>
-                        {a.notas && <span className="text-sm text-carbon/50">{a.notas}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-2 text-xs text-carbon/40">
-                    Importante en subvenciones: se tramitan dos o tres años después, y puede haber documentación enviada
-                    al administrador anterior.
-                  </p>
-                </div>
-              )}
-            </Seccion>
+              <div className="my-4 border-t border-black/5" />
+              <Linea>
+                <Dato et="IBAN" v={f.cuenta?.iban && <span className="tabular-nums">{f.cuenta.iban}</span>} />
+                {f.cuenta && <Dato et="Desde" v={fecha(f.cuenta.desde)} />}
+                {f.cuenta?.origen && <span className="text-[13px] text-carbon/65">sale de la {f.cuenta.origen}</span>}
+                <Doc et="Certificado de titularidad" p={f.certificado} comunidadId={f.id} />
+                {f.certificado && <Dato et="Fecha cert." v={fecha(f.certificado.emision)} falta="—" />}
+              </Linea>
 
-            {/* ------------------------- 3. la comunidad --------------------------- */}
-            <Seccion n={3} titulo="La comunidad de vecinos">
-              <Fila cols="sm:grid-cols-[1.6fr_1fr_1fr]">
-                <Dato etiqueta="Nombre fiscal (el de la tarjeta del CIF)" valor={null} />
-                <Dato etiqueta="CIF" valor={f.cif} />
-                <Dato etiqueta="Tarjeta del CIF" valor={null} />
-              </Fila>
-
-              <div className="border-b border-black/5 py-3">
-                <div className="text-xs uppercase tracking-wide text-carbon/40">Presidente</div>
-                {f.presidentes.length === 0 ? (
-                  <p className="text-base text-amber-700/45">por completar</p>
-                ) : (
-                  <ul className="mt-1 space-y-1">
-                    {f.presidentes.map((p, i) => (
-                      <li key={i} className="grid gap-x-6 gap-y-1 sm:grid-cols-[1.4fr_1fr_1fr_0.8fr]">
-                        <span className="text-base font-semibold text-carbon">{p.nombre}</span>
-                        <span className={"text-base " + (p.telefono ? "text-lima-dark" : "text-amber-700/45")}>
-                          {p.telefono ?? "sin teléfono"}
-                        </span>
-                        <span className={"truncate text-base " + (p.email ? "text-carbon/70" : "text-amber-700/45")}>
-                          {p.email ?? "sin correo"}
-                        </span>
-                        <span className={"text-base " + (p.documento ? "text-carbon/70" : "text-amber-700/45")}>
-                          {p.documento ?? "sin DNI"}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <div className="mt-3">
-                  <Hueco
-                    texto="El acta de nombramiento todavía no tiene dónde guardarse. Es la que hace falta para avisar cuando caduque el cargo."
-                    campos={["Acta de nombramiento", "Fecha del acta", "Vigencia hasta", "Aviso al caducar", "Presidentes anteriores"]}
-                  />
-                </div>
+              {/* el presidente, con su acta y su validez */}
+              <div className="mt-5">
+                <Dentro titulo="Presidente" de="el cargo dura un año salvo que los estatutos digan otra cosa" borde="border-[#9A9C96]">
+                  {f.presidentes.length === 0 ? (
+                    <>
+                      <Linea>
+                        <span className="text-amber-700/60">nombre por completar</span>
+                        <Doc et="DNI" p={null} comunidadId={f.id} />
+                      </Linea>
+                      <Linea className="mt-2.5">
+                        <Doc et="Acta de nombramiento" p={null} comunidadId={f.id} />
+                        <AvisoActa acta={null} />
+                      </Linea>
+                    </>
+                  ) : (
+                    f.presidentes.map((p) => (
+                      <div key={p.puestoId} className="pb-3 last:pb-0">
+                        <Linea>
+                          <b className="min-w-44 font-semibold text-carbon">{p.nombre}</b>
+                          {p.telefono ? <span className="font-semibold text-lima-dark">{p.telefono}</span> : <span className="text-amber-700/60">sin teléfono</span>}
+                          {p.email ? <span className="text-carbon/80">{p.email}</span> : <span className="text-amber-700/60">sin correo</span>}
+                          <Dato et="DNI" v={p.documento} />
+                          <Doc et="DNI" p={p.dni} comunidadId={f.id} />
+                        </Linea>
+                        <Linea className="mt-2.5">
+                          <Doc et="Acta de nombramiento" p={p.acta} comunidadId={f.id} />
+                          <Dato et="Fecha del acta" v={fecha(p.acta?.emision)} falta="—" />
+                          <Dato et="Vigente hasta" v={fecha(vigenciaActa(p.acta))} falta="—" />
+                          <AvisoActa acta={p.acta} />
+                        </Linea>
+                      </div>
+                    ))
+                  )}
+                  <div className="mt-2.5 border-t border-black/5 pt-2 text-[13px] text-carbon/65">
+                    {f.presidentesAnteriores.length === 0
+                      ? "Presidentes anteriores: ninguno apuntado"
+                      : <>Presidentes anteriores: {f.presidentesAnteriores.map((a) => `${a.nombre} (${fecha(a.desde) ?? "?"} — ${fecha(a.hasta) ?? "?"})`).join(" · ")}</>}
+                  </div>
+                </Dentro>
               </div>
 
-              <div className="py-3">
-                <div className="text-xs uppercase tracking-wide text-carbon/40">Otras personas de contacto</div>
-                {f.otrosContactos.length === 0 ? (
-                  <p className="mt-1 text-sm text-carbon/40">
-                    Ninguna. Aquí van la vecina, el cuñado o el hijo del presidente que es quien de verdad lo lleva, con
-                    una nota de por qué está ahí.
-                  </p>
-                ) : (
-                  <ul className="mt-1 space-y-1">
-                    {f.otrosContactos.map((p, i) => (
-                      <li key={i} className="grid gap-x-6 sm:grid-cols-[1.2fr_1fr_1fr_1.4fr]">
-                        <span className="text-base text-carbon">{p.nombre}</span>
-                        <span className="text-base text-lima-dark">{p.telefono ?? "—"}</span>
-                        <span className="truncate text-base text-carbon/70">{p.email ?? "—"}</span>
-                        <span className="text-sm text-carbon/55">{p.notas ?? p.rol ?? ""}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              {/* otros cargos y contactos: la excepcion, mas pequeño */}
+              <div className="mt-4 flex flex-wrap items-start gap-4">
+                <Dentro titulo="Otros cargos">
+                  <table className="w-auto">
+                    <tbody>
+                      {[
+                        ["Vicepresidente", f.vicepresidentes],
+                        ["Secretario", f.secretarios],
+                      ].map(([et, ps]) => (
+                        <tr key={et as string} className="border-t border-black/5 first:border-0">
+                          <td className="py-1.5 pr-4 text-[11px] font-bold uppercase tracking-wide text-carbon/55">{et as string}</td>
+                          <td className="py-1.5 pr-4">
+                            {(ps as Ficha["secretarios"]).length ? (
+                              (ps as Ficha["secretarios"]).map((p) => (
+                                <span key={p.puestoId} className="mr-4">
+                                  <b className="font-semibold">{p.nombre}</b>
+                                  {p.telefono && <span className="ml-2 font-semibold text-lima-dark">{p.telefono}</span>}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-amber-700/60">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Dentro>
+                <Dentro titulo="Otras personas de contacto">
+                  {f.otros.length === 0 ? (
+                    <p className="text-[13px] text-carbon/65">Ninguna apuntada.</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {f.otros.map((p) => (
+                        <li key={p.puestoId} className="flex flex-wrap gap-x-5 gap-y-1">
+                          <b className="font-semibold">{p.nombre}</b>
+                          {p.rol && <span className="text-[13px] text-carbon/65">{p.rol}</span>}
+                          {p.telefono && <span className="font-semibold text-lima-dark">{p.telefono}</span>}
+                          {p.email && <span className="text-carbon/80">{p.email}</span>}
+                          {p.notas && <span className="text-[13px] text-carbon/65">{p.notas}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Dentro>
               </div>
-            </Seccion>
 
-            {/* -------------------------- 4. lo comercial -------------------------- */}
-            <Seccion n={4} titulo="Datos comerciales" nota={`${f.encargos.length} ${f.encargos.length === 1 ? "encargo" : "encargos"}`}>
-              {f.encargos.length === 0 ? (
-                <Hueco texto="No hay ninguna hoja de encargo de esta comunidad." />
+              <Linea className="mt-4">
+                <Dato et="Mancomunidad" v={f.mancomunidades.length ? f.mancomunidades.join(", ") : "no forma parte de ninguna"} />
+                <Dato et="Subcomunidades" v={f.subcomunidades.length ? f.subcomunidades.join(", ") : "ninguna"} />
+              </Linea>
+            </Tarjeta>
+
+            {/* ---------------- accesos y edificio ---------------- */}
+            <Tarjeta titulo="Accesos y edificio" de="los portales que votan con esta comunidad" der={<Pronto title="Bloque a pensar" />}>
+              {f.accesos.length === 0 ? (
+                <p className="text-[13px] text-amber-700/70">Ningún acceso enlazado a esta comunidad.</p>
               ) : (
-                <ul className="divide-y divide-black/5">
-                  {f.encargos.map((e) => {
-                    const est = ESTADO_HOJA[e.estado ?? ""] ?? { texto: e.estado ?? "sin estado", tono: "bg-black/5 text-carbon/60" };
-                    const total = e.lineas.reduce((s, l) => s + (l.importe ?? 0), 0);
+                <table className="w-auto">
+                  <thead>
+                    <tr className="border-b border-black/5 text-left text-[11px] font-bold uppercase tracking-wide text-carbon/55">
+                      <th className="py-1.5 pr-5">Acceso</th>
+                      <th className="py-1.5 pr-5">Escalera</th>
+                      <th className="py-1.5 pr-5">Ref. catastral</th>
+                      <th className="py-1.5 pr-5">En la opp</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {f.accesos.map((a, i) => (
+                      <tr key={i} className="border-t border-black/5">
+                        <td className="whitespace-nowrap py-1.5 pr-5">{a.texto}</td>
+                        <td className="py-1.5 pr-5">{a.escalera || "—"}</td>
+                        <td className="py-1.5 pr-5 tabular-nums">{a.ref ?? <span className="text-amber-700/60">—</span>}</td>
+                        <td className="py-1.5 pr-5 text-[13px] text-carbon/65">{a.opps.join(", ") || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              <div className="mt-4 space-y-2">
+                <Desplegable nombre="Catastro" resumen={cat ? [cat.ref, cat.anio, cat.viviendas !== null && `${cat.viviendas} viviendas`, cat.inmuebles !== null && `${cat.inmuebles} inmuebles`].filter(Boolean).join(" · ") : null} abierto>
+                  {f.catastro.map((c) => (
+                    <div key={c.ref} className="space-y-2 pt-2">
+                      {f.catastro.length > 1 && <div className="text-sm font-semibold tabular-nums">{c.ref}</div>}
+                      <Linea>
+                        <Dato et="Año" v={c.anio} />
+                        <Dato et="Viviendas" v={c.viviendas} />
+                        <Dato et="Inmuebles" v={c.inmuebles} />
+                        <Dato et="Superficie" v={c.superficie !== null ? `${EUR.format(c.superficie)} m²` : null} />
+                        <Dato et="Plantas" v={c.plantas} />
+                      </Linea>
+                      <Linea>
+                        <Dato et="Usos" v={c.usos} />
+                      </Linea>
+                      <Linea>
+                        <Dato et="Ascensor" v={c.ascensor === null ? null : c.ascensor ? "sí" : "no"} falta="sin ver" />
+                        <Dato et="Portal accesible" v={c.portalAccesible === null ? null : c.portalAccesible ? "sí" : "no"} falta="sin ver" />
+                      </Linea>
+                    </div>
+                  ))}
+                </Desplegable>
+                <Desplegable
+                  nombre="Protección y condicionantes"
+                  resumen={f.proteccion.length ? f.proteccion.map((p) => p.grado ?? p.tipo).filter(Boolean).join(" · ") : f.condicionantes.length ? `${f.condicionantes.length} condicionantes` : null}
+                  vacio="sin protección en el catálogo"
+                >
+                  {f.proteccion.map((p, i) => (
+                    <p key={i} className="pt-2">
+                      <b className="font-semibold">{p.grado ?? "—"}</b> {p.denominacion && <span className="text-carbon/70">· {p.denominacion}</span>}
+                    </p>
+                  ))}
+                  {f.condicionantes.map((t, i) => (
+                    <p key={`c${i}`} className="pt-2 text-carbon/80">{t}</p>
+                  ))}
+                </Desplegable>
+                <Desplegable
+                  nombre="IEE"
+                  resumen={f.iee[0] ? [fecha(f.iee[0].emision), f.iee[0].valoracion].filter(Boolean).join(" · ") || "registrado" : null}
+                  vacio="no consta"
+                >
+                  {f.iee.map((x, i) => (
+                    <Linea key={i} className="pt-2">
+                      <Dato et="Código" v={x.codigo} falta="—" />
+                      <Dato et="Emitido" v={fecha(x.emision)} falta="—" />
+                      <Dato et="Valoración" v={x.valoracion} falta="—" />
+                      <Dato et="Validez" v={x.validez} falta="—" />
+                      <Dato et="Accesibilidad" v={x.accesibilidad} falta="—" />
+                    </Linea>
+                  ))}
+                </Desplegable>
+                <Desplegable
+                  nombre="Subvenciones"
+                  resumen={f.subvenciones.length ? `${f.subvenciones.length} en el registro público · ${eur(f.subvenciones.reduce((s, x) => s + (x.importe ?? 0), 0))}` : null}
+                  vacio="ninguna en el registro público"
+                >
+                  <table className="mt-1 w-auto">
+                    <tbody>
+                      {f.subvenciones.map((s, i) => (
+                        <tr key={i} className="border-t border-black/5 first:border-0">
+                          <td className="py-1.5 pr-5">{s.convocatoria ?? "—"}</td>
+                          <td className="py-1.5 pr-5 tabular-nums">{fecha(s.fecha) ?? "—"}</td>
+                          <td className="py-1.5 pr-5 text-right font-bold tabular-nums">{s.importe !== null ? eur(s.importe) : "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Desplegable>
+              </div>
+            </Tarjeta>
+
+            {/* ---------------- lo contratado: hojas agrupadas por opp ---------------- */}
+            <Tarjeta
+              titulo="Datos comerciales"
+              de={
+                <span className="text-sm font-black text-carbon">
+                  {f.opps.length} {f.opps.length === 1 ? "opp" : "opps"} · {hojas.length} {hojas.length === 1 ? "hoja" : "hojas"} de encargo
+                  {hojas.length > 0 && firmadas.length === hojas.length ? ", todas firmadas" : `, ${firmadas.length} firmadas`}
+                  {contratado > 0 && ` · ${eur(contratado)}`}
+                </span>
+              }
+            >
+              {f.opps.length === 0 ? (
+                <p className="text-[13px] text-carbon/65">Esta comunidad no está en ninguna oportunidad.</p>
+              ) : (
+                <div className="space-y-3.5">
+                  {f.opps.map((o) => {
+                    const total = o.hojas.filter((h) => h.estado === "devuelta_firmada").reduce((s, h) => s + h.total, 0);
                     return (
-                      <li key={e.id} className="py-3 first:pt-0 last:pb-0">
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                          <span className="text-lg font-bold text-carbon">{e.que ?? "sin descripción"}</span>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className={"rounded-full px-2.5 py-0.5 text-sm font-bold " + est.tono}>{est.texto}</span>
-                            {total > 0 && <span className="text-lg font-bold tabular-nums text-lima-dark">{eur(total)}</span>}
+                      <div key={o.id} className="rounded-[14px] border border-lima/35 bg-[#E6ECDC] p-4">
+                        <div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1.5">
+                          <a href={`/comercial/oportunidades/${o.id}`} className="text-[13px] font-bold text-carbon/55 hover:underline">{o.codigo}</a>
+                          <a href={`/comercial/oportunidades/${o.id}`} className="text-lg font-bold text-carbon hover:underline">{o.nombre}</a>
+                          {o.fase && <Pildora tono="border border-lima/40 bg-lima-soft text-lima-dark">{o.fase}</Pildora>}
+                          {total > 0 && <span className="ml-auto text-lg font-bold tabular-nums text-lima-dark">{eur(total)}</span>}
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-sm text-carbon/70">
+                          {o.apertura && <span>abierta el {fecha(o.apertura)}</span>}
+                          {o.comercial && <span>comercial: <b className="text-carbon/85">{o.comercial}</b></span>}
+                          {o.accesos.length > 0 && <span>accesos: {o.accesos.join(", ")}</span>}
+                          <Doc et="Acta de votación" p={o.votacion} comunidadId={f.id} />
+                        </div>
+                        {o.hojas.length === 0 ? (
+                          <p className="mt-2.5 text-[13px] text-carbon/65">Sin hojas de encargo.</p>
+                        ) : (
+                          <div className="mt-2.5 overflow-x-auto rounded-[10px] border border-black/5 bg-white px-3 py-1">
+                            <table className="w-auto text-sm">
+                              <thead>
+                                <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-carbon/55">
+                                  <th className="py-1.5 pr-4">Hoja</th>
+                                  <th className="py-1.5 pr-4">Qué</th>
+                                  <th className="py-1.5 pr-4">Firma</th>
+                                  <th className="py-1.5 pr-4">Paga</th>
+                                  <th className="py-1.5 pr-4 text-right">Importe</th>
+                                  <th className="py-1.5" />
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {o.hojas.map((h) => {
+                                  const est = ESTADO_HOJA[h.estado ?? ""] ?? { texto: h.estado ?? "sin estado", tono: "bg-black/5 text-carbon/60" };
+                                  return (
+                                    <tr key={h.id} className="border-t border-black/5 align-baseline">
+                                      <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{h.numero ?? "—"}</td>
+                                      <td className="max-w-[30rem] py-1.5 pr-4" title={h.lineas.map((l) => l.que).join(" + ")}>
+                                        {h.lineas.length ? h.lineas.map((l) => l.que).join(" + ") : h.que ?? "sin descripción"}
+                                      </td>
+                                      <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{fecha(h.firma) ?? "—"}</td>
+                                      <td className="whitespace-nowrap py-1.5 pr-4">{h.pagador ?? "—"}</td>
+                                      <td className="whitespace-nowrap py-1.5 pr-4 text-right font-bold tabular-nums">{h.total > 0 ? eur(h.total) : "—"}</td>
+                                      <td className="whitespace-nowrap py-1.5">
+                                        {h.firmada ? (
+                                          <a
+                                            href={`/administracion/comunidades/${f.id}/hoja/${h.id}/${h.firmada.versionId}`}
+                                            target="_blank"
+                                            rel="noopener"
+                                            className="inline-flex items-center gap-1.5 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-0.5 text-sm font-semibold text-lima-dark hover:bg-lima/30"
+                                          >
+                                            <span aria-hidden>📄</span>firmada
+                                          </a>
+                                        ) : (
+                                          <Pildora tono={est.tono}>{est.texto}</Pildora>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
                           </div>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm text-carbon/55">
-                          {e.fecha && <span>creada {fecha(e.fecha)}</span>}
-                          {e.versionEnviada && <span>enviada {fecha(e.versionEnviada)}</span>}
-                          {e.comercial && <span>comercial: <b className="text-carbon/75">{e.comercial}</b></span>}
-                          {e.loTrajo && <span>lo trajo: <b className="text-carbon/75">{e.loTrajo}</b></span>}
-                          <span>
-                            paga: <b className="text-carbon/75">{e.pagador ?? "sin decir"}</b>
-                          </span>
-                          <span className={e.firmados > 0 ? "font-semibold text-lima-dark" : "text-carbon/35"}>
-                            {e.firmados > 0 ? `${e.firmados} PDF firmado${e.firmados === 1 ? "" : "s"}` : "sin PDF firmado"}
-                          </span>
-                        </div>
-                        {e.lineas.length > 0 && (
-                          <ul className="mt-2 flex flex-wrap gap-2">
-                            {e.lineas.map((l, i) => (
-                              <li key={i} className="rounded-lg border border-black/5 bg-hueso/60 px-2.5 py-1 text-sm text-carbon/75">
-                                {l.que}
-                                {l.importe !== null && <b className="ml-1.5 tabular-nums text-carbon">{eur(l.importe)}</b>}
-                              </li>
-                            ))}
-                          </ul>
                         )}
-                      </li>
+                      </div>
                     );
                   })}
-                </ul>
+                </div>
               )}
-            </Seccion>
+            </Tarjeta>
 
-            {/* ---------------------- 5. datos economicos -------------------------- */}
-            <Seccion n={5} titulo="Datos económicos" nota="solo facturación">
-              <Fila cols="sm:grid-cols-[1.5fr_1fr]">
-                <Dato etiqueta="IBAN de la comunidad" valor={f.iban} />
-                <Dato etiqueta="Desde cuándo esta cuenta" valor={null} />
-              </Fila>
-              <p className="pt-3 text-xs text-carbon/40">
-                El IBAN cambia: las comunidades cambian de cuenta. Habrá que guardar desde cuándo vale cada uno.
-              </p>
-            </Seccion>
-
-            {/* SU PAGINA DE DOCUMENTACION (Monica, 12-oct-2026): quien puede entrar
-                y subir. El administrador, el presidente y el comercial, siempre;
-                el resto, a mano. VER su documentacion, caso a caso y mas adelante. */}
+            {/* ---------------- su pagina de documentacion (12-oct) ---------------- */}
             <div id="portal">
-              <Seccion n={6} titulo="Su página de documentación" nota="quién puede entrar y subir">
+              <Tarjeta titulo="Su página de documentación" de="quién puede entrar y subir">
                 <ul className="divide-y divide-black/5 text-[14px]">
                   {autorizados.map((a) => (
                     <li key={a.email} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
@@ -342,7 +540,7 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                       </span>
                     </li>
                   ))}
-                  {autorizados.length === 0 && <li className="py-2 text-carbon/60">Nadie todavía: no tenemos el correo del administrador ni del presidente.</li>}
+                  {autorizados.length === 0 && <li className="py-2 text-carbon/65">Nadie todavía: no tenemos el correo de los gestores ni del presidente.</li>}
                 </ul>
                 <form action={accionAutorizar.bind(null, id)} className="mt-3 grid gap-2 border-t border-black/5 pt-3 sm:grid-cols-[1.3fr_1fr_1fr_auto]">
                   <input name="email" type="email" required placeholder="correo" className="rounded-lg border border-carbon/30 px-2.5 py-1.5 text-sm" />
@@ -352,56 +550,161 @@ export default async function Ficha({ params }: { params: Promise<{ id: string }
                     Dar acceso
                   </button>
                 </form>
-                <p className="mt-2 text-xs text-carbon/55">
-                  Entran con su correo en {`${process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app"}/portal`}: les llega un enlace de un solo uso. Pueden subir
-                  documentos; ver, todavía nada.
+                <p className="mt-2 text-xs text-carbon/60">
+                  Entran con su correo en {`${process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app"}/portal`}: les llega un enlace de un solo uso.
                 </p>
-              </Seccion>
+              </Tarjeta>
             </div>
           </div>
 
-          {/* ======================= la columna caliente ======================= */}
-          <aside className="space-y-4 lg:sticky lg:top-20">
-            <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm">
-              <div className="text-sm font-bold uppercase tracking-wider text-carbon/60">Estado</div>
-              <ul className="mt-2 space-y-1.5 text-base">
-                <li className="flex items-baseline justify-between gap-3">
-                  <span className="text-carbon/60">Hojas firmadas</span>
-                  <b className={firmadas > 0 ? "text-lima-dark" : "text-carbon/30"}>{firmadas}</b>
+          {/* ======================== columna derecha ======================== */}
+          <aside className="space-y-5 lg:sticky lg:top-20">
+            {/* lo primero: con quien hay que hablar */}
+            <Tarjeta titulo="Administrador de fincas">
+              {f.administraciones.length === 0 ? (
+                <p className="text-amber-700/70">Sin administrador asignado.</p>
+              ) : (
+                f.administraciones.map((a, i) => (
+                  <div key={i} className={i ? "mt-4 border-t border-black/5 pt-4" : ""}>
+                    <div className="text-lg font-semibold text-carbon">{a.empresa ?? "sin nombre"}</div>
+                    <div className="mt-1.5">
+                      <Dato et="Tel. general" v={a.telefono && <span className="font-semibold text-lima-dark">{a.telefono}</span>} />
+                    </div>
+                    {a.direccion && <div className="mt-0.5 text-[13px] text-carbon/65">{a.direccion}</div>}
+                    <div className="mt-1.5">
+                      <Dato et="Desde" v={fecha(a.desde)} />
+                    </div>
+
+                    <div className="mt-3 border-t border-black/5 pt-3">
+                      <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-carbon/55">
+                        {a.gestores.length === 1 ? "Gestor que la lleva" : `Gestores que la llevan (${a.gestores.length})`}
+                      </div>
+                      {a.gestores.length === 0 && <p className="text-amber-700/60">por completar</p>}
+                      {a.gestores.map((g, j) => (
+                        <div key={j} className={j ? "mt-2.5 border-t border-black/5 pt-2.5" : ""}>
+                          <div className="font-semibold">
+                            {g.nombre}
+                            {g.cargo && <span className="ml-2 text-[13px] font-normal text-carbon/65">{g.cargo}</span>}
+                          </div>
+                          <div className="mt-0.5 flex flex-wrap gap-x-5">
+                            {g.telefono ? <span className="font-semibold text-lima-dark">{g.telefono}</span> : <span className="text-amber-700/60">sin teléfono</span>}
+                            {g.email ? <span className="break-all text-carbon/80">{g.email}</span> : <span className="text-amber-700/60">sin correo</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {f.adminAnteriores.length > 0 && (
+                <div className="mt-4 border-t border-black/5 pt-3">
+                  <div className="text-[11px] font-bold uppercase tracking-wide text-carbon/55">Antes la llevaban</div>
+                  <ul className="mt-1 space-y-1">
+                    {f.adminAnteriores.map((a, i) => (
+                      <li key={i} className="text-carbon/80">
+                        {a.empresa ?? "sin nombre"}
+                        <span className="ml-2 text-sm text-carbon/55">{fecha(a.desde) ?? "?"} — {fecha(a.hasta) ?? "?"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="mt-4 border-t border-black/5 pt-3">
+                <Dato et="Comercial Accesalia" v={f.comercial && <b className="font-semibold">{f.comercial}</b>} />
+                {f.comercial && gestores.some((g) => g.comercial === f.comercial) && (
+                  <div className="mt-0.5 text-[13px] text-carbon/65">
+                    de la cartera de {gestores.filter((g) => g.comercial === f.comercial).map((g) => g.nombre).join(" y ")}
+                  </div>
+                )}
+              </div>
+            </Tarjeta>
+
+            {/* el estado */}
+            <Tarjeta titulo="Estado de la relación">
+              <ul className="space-y-1.5">
+                <Fila et="Opps" v={f.opps.length ? `${abiertas} ${abiertas === 1 ? "abierta" : "abiertas"}${f.opps.length > abiertas ? ` de ${f.opps.length}` : ""}` : "ninguna"} />
+                <Fila et="Hojas firmadas" v={String(firmadas.length)} verde={firmadas.length > 0} />
+                <Fila et="Contratado" v={contratado > 0 ? eur(contratado) : "—"} />
+                <Fila et="Tiene proyecto" v={f.conProyecto ? "sí" : "no"} verde={f.conProyecto} />
+                <Fila et="Último contacto" v={fecha(f.ultimoContacto) ?? "—"} />
+              </ul>
+              <div className="mt-3 space-y-2 border-t border-black/5 pt-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-carbon/65">Nos debe</span>
+                  <Pronto title="Saldrá de la facturación de sus opps" />
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-carbon/65">Viva o cerrada</span>
+                  <Pronto title="Se calculará de lo contratado" />
+                </div>
+              </div>
+            </Tarjeta>
+
+            {/* los papeles con fecha */}
+            <Tarjeta titulo="Papeles y validez">
+              <ul className="space-y-2">
+                <li className="flex items-center justify-between gap-3">
+                  <Doc et="Tarjeta CIF" p={f.tarjeta} comunidadId={f.id} />
+                  <span className="text-[13px] text-carbon/65">{f.tarjeta ? "subida" : "no caduca"}</span>
                 </li>
-                <li className="flex items-baseline justify-between gap-3">
-                  <span className="text-carbon/60">Tiene proyecto</span>
-                  <b className={f.conProyecto ? "text-lima-dark" : "text-carbon/30"}>{f.conProyecto ? "sí" : "no"}</b>
+                <li className="flex items-center justify-between gap-3">
+                  <Doc et="Acta presidente" p={f.presidentes[0]?.acta ?? null} comunidadId={f.id} />
+                  <span className="text-[13px] text-carbon/65">{fecha(vigenciaActa(f.presidentes[0]?.acta ?? null)) ? `hasta ${fecha(vigenciaActa(f.presidentes[0]?.acta ?? null))}` : "caduca al año"}</span>
+                </li>
+                <li className="flex items-center justify-between gap-3">
+                  <Doc et="DNI presidente" p={f.presidentes[0]?.dni ?? null} comunidadId={f.id} />
+                  <span className="text-[13px] text-carbon/65">{f.presidentes[0]?.dni?.caduca ? `hasta ${fecha(f.presidentes[0].dni.caduca)}` : "caduca"}</span>
+                </li>
+                <li className="flex items-center justify-between gap-3">
+                  <Doc et="Cert. de la cuenta" p={f.certificado} comunidadId={f.id} />
+                  <span className="text-[13px] text-carbon/65">{f.certificado?.emision ? `del ${fecha(f.certificado.emision)}` : "reciente"}</span>
                 </li>
               </ul>
-              <p className="mt-3 border-t border-black/5 pt-3 text-xs leading-relaxed text-carbon/45">
-                Falta el estado de la relación: viva o cerrada. Se calculará de lo contratado —obra sin CFO, subvención
-                sin resolución, IEE sin su documento— y se podrá reactivar si vuelven a llamar.
-              </p>
-            </div>
+            </Tarjeta>
 
+            {/* lo que falta */}
             {falta.length > 0 && (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
                 <div className="text-sm font-bold uppercase tracking-wider text-amber-800/80">Le falta</div>
                 <ul className="mt-2 space-y-1 text-base text-amber-900/80">
                   {falta.map((x) => (
                     <li key={x}>· {x}</li>
                   ))}
                 </ul>
-                <p className="mt-3 text-xs leading-relaxed text-amber-900/50">
-                  Sin prisa. Cuando exista el estado, esto solo se marcará en las comunidades activas: si no nos
-                  contrataron, no hace falta completarla.
-                </p>
+                <p className="mt-3 text-xs leading-relaxed text-amber-900/60">Sin prisa. Solo hace falta en las comunidades activas.</p>
               </div>
             )}
-
-            <div className="rounded-2xl border border-dashed border-black/15 bg-hueso/40 p-4">
-              <div className="text-sm font-bold uppercase tracking-wider text-carbon/45">Notas</div>
-              <p className="mt-1.5 text-sm text-carbon/45">Todavía no hay dónde escribirlas.</p>
-            </div>
           </aside>
         </div>
       </main>
     </div>
+  );
+}
+
+function Fila({ et, v, verde = false }: { et: string; v: string; verde?: boolean }) {
+  return (
+    <li className="flex items-baseline justify-between gap-3">
+      <span className="text-carbon/65">{et}</span>
+      <b className={"tabular-nums " + (verde ? "text-lima-dark" : "text-carbon")}>{v}</b>
+    </li>
+  );
+}
+
+/** Un desplegable con su resumen a la vista: el dato se ve sin abrirlo. */
+function Desplegable({ nombre, resumen, vacio = "sin datos", abierto = false, children }: {
+  nombre: string; resumen: string | null; vacio?: string; abierto?: boolean; children: React.ReactNode;
+}) {
+  const hay = !!resumen;
+  return (
+    <details open={abierto && hay} className="group rounded-xl border border-black/10 bg-white">
+      <summary className={"flex list-none items-baseline gap-3.5 px-3.5 py-2.5 [&::-webkit-details-marker]:hidden " + (hay ? "cursor-pointer" : "cursor-default")}>
+        <span className="w-3 text-[13px] text-carbon/40">{hay ? <><span className="group-open:hidden">▸</span><span className="hidden group-open:inline">▾</span></> : "·"}</span>
+        <span className="min-w-[13rem] text-[15px] font-bold">{nombre}</span>
+        <span className={"text-sm " + (hay ? "text-carbon/75" : "text-amber-700/60")}>{resumen ?? vacio}</span>
+      </summary>
+      {hay && <div className="border-t border-black/5 px-3.5 pb-3.5 pl-10 text-[15px]">{children}</div>}
+    </details>
   );
 }
