@@ -21,14 +21,12 @@ export function Adjuntar({
   const [encima, setEncima] = useState(false);
   const [descripcion, setDescripcion] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [hecho, setHecho] = useState(false);
   const [subiendo, empezar] = useTransition();
   const esOtro = clave === "otro";
 
   const subir = (f: File | undefined) => {
     if (!f) return;
     setError(null);
-    setHecho(false);
     if (esOtro && !descripcion.trim()) return setError("Escribe primero qué documento es.");
     empezar(async () => {
       const p = await accionPermisoSubida(comunidadId, f.name, f.type, f.size);
@@ -47,7 +45,6 @@ export function Adjuntar({
       });
       if (!r.ok) return setError(r.error);
       setDescripcion("");
-      setHecho(true);
       router.refresh();
     });
   };
@@ -76,7 +73,6 @@ export function Adjuntar({
         />
       )}
       {error && <p className="mt-2 text-[12.5px] font-semibold text-[#c8102e]">{error}</p>}
-      {hecho && <p className="mt-2 text-[12.5px] font-semibold text-[#3f7a1c]">Recibido. Lo revisamos y te lo marcamos aquí.</p>}
       <div className="mt-auto flex items-end justify-between gap-2.5 pt-3">
         <button
           type="button"

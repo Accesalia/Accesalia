@@ -92,12 +92,12 @@ function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
           </p>
         )}
         {c.estado === "revision" && c.cuando && (
-          <p className="mt-1 text-[11.5px] font-semibold text-[#b45309]">
+          <p className="mt-1 text-[11.5px] text-[#b45309]">
             subido por {c.quien} el {CORTA.format(new Date(c.cuando))} · lo estamos revisando
           </p>
         )}
         {c.estado === "ok" && c.cuando && (
-          <p className="mt-1 text-[11.5px] font-semibold text-[#3a9a4a]">
+          <p className="mt-1 text-[11.5px] text-[#3a9a4a]">
             subido por {c.quien} el {CORTA.format(new Date(c.cuando))}
           </p>
         )}
