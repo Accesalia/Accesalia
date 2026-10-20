@@ -152,10 +152,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
     .filter((o) => o.estado === "abierta" || o.estado === "pausada")
     .map((o) => {
       const hojas: Caja[] = o.hojas
-        // LA NOTA DE RESPONSABILIDAD: su DOCUMENTO no se enseña nunca (Monica,
-        // 21-oct-2026), asi que no se pide subirla. Lo contratado con ella y sus
-        // etapas SI se ven: no enseñar un papel no es borrar su rastro.
-        .filter((h) => h.pagador === "comunidad" && h.tipoDocumento !== "nota_responsabilidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
+        .filter((h) => h.pagador === "comunidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
         .map((h) => ({
           clave: "hoja_firmada" as const,
           titulo: `Hoja de encargo ${h.numero ?? ""}`.trim(),
@@ -180,7 +177,9 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
           firma: h.firma,
           lineas: h.lineas,
           total: h.total,
-          // de la nota se ve lo contratado, nunca el papel
+          // LA NOTA DE RESPONSABILIDAD funciona EXACTAMENTE igual que cualquier hoja
+          // de encargo, con UNA unica excepcion: no hay enlace para verla (Monica,
+          // 21-oct-2026). Es lo unico que cambia.
           versionId: h.tipoDocumento === "nota_responsabilidad" ? null : (h.firmada?.versionId ?? null),
         }));
       // las etapas: las de los hitos de lo firmado (de cualquier pagador), en su orden
