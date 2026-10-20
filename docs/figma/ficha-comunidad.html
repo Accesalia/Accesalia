@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha de comunidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<!-- MAQUETA PARA FIGMA (Monica, 20-oct-2026). La «propuesta» del 25-sep
+     (/administracion/comunidades/[id]/propuesta) con lo que le faltaba: lo de la
+     ficha antigua (CP/municipio/provincia, IBAN, su pagina de documentacion) y lo
+     hablado el 20-oct (nombre provisional/fiscal, tarjeta del almacen, varios
+     gestores, comercial, acta del presidente con su validez, certificado de la
+     cuenta, otros cargos, mancomunidad, accesos y los cuatro desplegables, hojas
+     agrupadas por opp, actas de votacion en la opp, lo que nos debe).
+     Datos REALES de produccion: CP Santa Maria la Blanca 3 y 5 / Iglesia 22,
+     Alcorcon (d78890b9…). Lo que no hay en la base sale «por completar».
+     Colores: los de la app, con SUS retoques de Figma del 20-oct (fondo #DDE6D0, titulos Inter 16 #2D640C, presidente #F0F5E9 con borde #9A9C96, opp #E6ECDC, Roboto). Solo HTML+CSS, sin scripts. -->
+<style>
+  :root{
+    --carbon:#2b2b2b; --lima:#7ac943; --lima-dark:#3f7a1c; --lima-soft:#eef7e4;
+    --fondo:#DDE6D0; --hueso:#f7f7f5; --ajeno:#5b7fa6; --ajeno-soft:#e8eef5; --alerta:#9f3a38;
+    --ambar-fondo:#fffbeb; --ambar-borde:#fde68a; --ambar-txt:#92400e; --ambar-hueco:#b45309;
+    --raya:rgba(0,0,0,.15); --borde:rgba(0,0,0,.18);
+    --letra: "Roboto", ui-sans-serif, system-ui, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);font-family:var(--letra);color:var(--carbon);font-size:16px;line-height:1.4}
+  .barra{background:var(--carbon);color:#fff;height:52px;display:flex;align-items:center;padding:0 24px;gap:28px;font-size:14px}
+  .barra b{font-size:17px;letter-spacing:.3px}
+  .barra span{opacity:.7}
+  main{max-width:1300px;margin:0 auto;padding:20px 24px 64px}
+  .salida{font-size:14px;font-weight:600;color:rgba(43,43,43,.55);text-decoration:none}
+
+  /* cabecera sobre el fondo, sin tarjeta */
+  .cabecera{margin-top:12px;border-bottom:1px solid var(--borde);padding-bottom:14px}
+  .cab1{display:flex;align-items:baseline;gap:32px}
+  h1{margin:0;font-size:34px;line-height:1.15;font-weight:700;min-width:0}
+  .cab-der{margin-left:auto;display:flex;gap:28px;align-items:baseline;font-size:18px;white-space:nowrap}
+  .cab2{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 26px;align-items:baseline;font-size:15px;color:rgba(43,43,43,.8)}
+
+  .rejilla{margin-top:20px;display:grid;grid-template-columns:minmax(0,1fr) 22rem;gap:20px;align-items:start}
+  .col > * + *{margin-top:20px}
+
+  .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .tit{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tit h2{margin:0;font-family:'Inter',var(--letra);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1.12px;color:#2D640C}
+  .tit .de{font-size:12px;color:rgba(43,43,43,.55)}
+  .tit .der{margin-left:auto}
+
+  .dentro{background:#F0F5E9;border:1px solid rgba(122,201,67,.25);border-radius:12px;padding:14px 16px}
+  .dentro h3{margin:0 0 10px;font-size:14px;font-weight:700;color:rgba(43,43,43,.85);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .dentro h3 .de{font-weight:400;font-size:12px;color:rgba(43,43,43,.55)}
+
+  .linea{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+  .linea + .linea{margin-top:10px}
+  .sep{border-top:1px solid var(--raya);margin:14px 0}
+  .dato{display:inline-flex;gap:6px;align-items:baseline;min-width:0}
+  .et{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:rgba(43,43,43,.55);white-space:nowrap}
+  .v{color:rgba(43,43,43,.9)}
+  .falta{color:rgba(180,83,9,.6)}
+  .tel{font-weight:600;color:var(--lima-dark)}
+  .fuerte{font-weight:600}
+  .peq{font-size:13px;color:rgba(43,43,43,.65)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* documentos: siempre con cara de documento */
+  .doc{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(122,201,67,.6);background:var(--lima-soft);color:var(--lima-dark);border-radius:8px;padding:2px 10px;font-size:14px;font-weight:600;white-space:nowrap}
+  .doc.no{border-color:rgba(122,201,67,.3);background:#fff;color:rgba(63,122,28,.55)}
+  .doc.no::after{content:"(falta)";font-weight:500;color:rgba(180,83,9,.7)}
+  .doc .sube{font-weight:700;color:var(--lima-dark);text-decoration:underline}
+
+  .pildora{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700;white-space:nowrap}
+  .p-firmada{background:var(--lima);color:var(--carbon)}
+  .p-provisional{background:var(--ambar-fondo);border:1px solid var(--ambar-borde);color:var(--ambar-txt);font-size:11px;padding:1px 8px}
+  .p-ajeno{background:var(--ajeno-soft);color:var(--ajeno)}
+  .p-fase{background:var(--lima-soft);color:var(--lima-dark);border:1px solid rgba(122,201,67,.4)}
+  .p-pronto{background:rgba(0,0,0,.05);color:rgba(43,43,43,.45);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;padding:2px 8px}
+  .p-alerta{background:#fbeaea;color:var(--alerta);border:1px solid rgba(159,58,56,.3)}
+
+  .boton{display:inline-block;border-radius:10px;background:var(--lima);color:var(--carbon);font-weight:700;font-size:14px;padding:6px 14px;white-space:nowrap}
+  .boton2{display:inline-block;border-radius:10px;border:1px solid var(--borde);color:rgba(43,43,43,.65);font-weight:600;font-size:13px;padding:4px 12px;white-space:nowrap;background:#fff}
+
+  .notas{display:flex;gap:12px;align-items:baseline}
+  .notas .caja{flex:1;min-height:44px;border:1px solid rgba(122,201,67,.3);background:#fff;border-radius:6px;padding:10px 12px;color:rgba(43,43,43,.5);font-size:14px}
+
+  /* tablas ajustadas al contenido (guia, regla 8) */
+  table{border-collapse:collapse;width:auto}
+  td,th{padding:6px 14px 6px 0;text-align:left;vertical-align:baseline;white-space:nowrap}
+  th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:rgba(43,43,43,.55);border-bottom:1px solid var(--raya)}
+  tr + tr td{border-top:1px solid var(--raya)}
+  td.imp{text-align:right;font-weight:700}
+
+  /* desplegables */
+  .despl{border:1px solid var(--borde);border-radius:12px;background:#fff}
+  .despl + .despl{margin-top:8px}
+  .despl summary{list-style:none;cursor:pointer;display:flex;gap:14px;align-items:baseline;padding:10px 14px}
+  .despl summary::-webkit-details-marker{display:none}
+  .despl summary::before{content:"▸";color:rgba(43,43,43,.4);font-size:13px}
+  .despl[open] summary::before{content:"▾"}
+  .despl .nombre{font-weight:700;font-size:15px;min-width:13rem}
+  .despl .resumen{font-size:14px;color:rgba(43,43,43,.75)}
+  .despl .cuerpo{padding:4px 14px 14px 38px;border-top:1px solid var(--raya)}
+
+  /* opps y hojas */
+  .opp{border:1px solid rgba(122,201,67,.35);border-radius:14px;background:#E6ECDC;padding:14px 16px}
+  .opp + .opp{margin-top:14px}
+  .opp-cab{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+  .opp-cab .cod{font-size:13px;font-weight:700;color:rgba(43,43,43,.55)}
+  .opp-cab .nom{font-size:18px;font-weight:700}
+  .opp-cab .total{margin-left:auto;font-size:18px;font-weight:700;color:var(--lima-dark)}
+  .opp-sub{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:14px;color:rgba(43,43,43,.7);align-items:baseline}
+  .hojas{margin-top:10px;background:#fff;border:1px solid var(--raya);border-radius:10px;padding:4px 12px}
+  .hojas td{font-size:14px}
+  .hojas .que{white-space:normal;max-width:30rem}
+
+  .lista li{padding:3px 0}
+  ul{margin:0;padding:0;list-style:none}
+  .fila-der{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+  .falta-caja{background:rgba(255,251,235,.6);border:1px solid var(--ambar-borde);border-radius:16px;padding:20px}
+  .falta-caja h2{margin:0 0 8px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(146,64,14,.8)}
+  .falta-caja li{color:rgba(120,53,15,.8)}
+  .gestor + .gestor{margin-top:10px;padding-top:10px;border-top:1px solid var(--raya)}
+  input.campo{border:1px solid rgba(43,43,43,.3);border-radius:8px;padding:6px 10px;font-size:14px;font-family:var(--letra)}
+</style>
+</head>
+<body>
+<div class="barra"><b>ACCESALIA</b><span>Comercial</span><span>Gestiones</span><span style="opacity:1">Administración</span><span>Dinero</span></div>
+<main>
+  <a class="salida" href="#">← Comunidades</a>
+
+  <!-- ======================= CABECERA ======================= -->
+  <div class="cabecera">
+    <div class="cab1">
+      <h1>CP Santa María la Blanca 3 y 5 · La Iglesia 22</h1>
+      <div class="cab-der">
+        <span class="dato"><span class="et">Comercial:</span><span class="v fuerte">Daniel</span></span>
+        <span class="dato"><span class="et">Tipo:</span><span class="v">Ascensor + Subvención + DF y CSS</span></span>
+      </div>
+    </div>
+    <div class="cab2">
+      <span>C/ Santa María la Blanca 3 y 5 · C/ La Iglesia 22</span>
+      <span class="dato"><span class="et">CP:</span><span class="v">28921</span></span>
+      <span class="dato"><span class="et">Municipio:</span><span class="v">Alcorcón</span></span>
+      <span class="dato"><span class="et">Provincia:</span><span class="v">Madrid</span></span>
+      <span class="pildora p-fase">2 opps abiertas · en cobro</span>
+    </div>
+  </div>
+
+  <div class="rejilla">
+    <!-- ======================= IZQUIERDA ======================= -->
+    <div class="col">
+
+      <!-- lo primero, las excepciones -->
+      <div class="notas">
+        <span class="et" style="font-size:14px;letter-spacing:.08em;color:rgba(43,43,43,.7)">Notas</span>
+        <div class="caja">Lo que haya que saber de esta comunidad y no salga en ningún otro sitio…</div>
+      </div>
+
+      <!-- ---------------- DATOS COMUNIDAD ---------------- -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Datos Comunidad</h2></div>
+
+        <div class="linea">
+          <span class="dato"><span class="et">Nombre:</span><span class="v">CP CDAD PROP CL SANTAMARIA LA BLANCA 3 Y 5 IGLESIA 22</span></span>
+          <span class="pildora p-provisional">provisional</span>
+        </div>
+        <div class="linea">
+          <span class="dato" style="flex:1;min-width:20rem"><span class="et">Nombre fiscal (del CIF):</span><span class="falta">por completar</span></span>
+          <span class="dato"><span class="et">CIF:</span><span class="v num">H80620081</span></span>
+          <span class="doc">📄 Tarjeta CIF</span>
+          <span class="boton2">Leer de la tarjeta</span>
+        </div>
+        <div class="linea">
+          <span class="dato"><span class="et">Domicilio fiscal:</span><span class="falta">por completar</span></span>
+        </div>
+
+        <div class="sep"></div>
+        <div class="linea">
+          <span class="dato"><span class="et">IBAN:</span><span class="v num">ES29 0081 0639 1800 0120 0626</span></span>
+          <span class="dato"><span class="et">Desde:</span><span class="falta">por completar</span></span>
+          <span class="peq">sale de la hoja HE-2022-0132</span>
+          <span class="doc no">📄 Certificado de titularidad</span>
+          <span class="dato"><span class="et">Fecha cert.:</span><span class="falta">—</span></span>
+        </div>
+
+        <!-- el presidente, con su acta y su validez -->
+        <div class="dentro" style="margin-top:18px;border-color:#9A9C96">
+          <h3>Presidente <span class="de">el cargo dura un año salvo que los estatutos digan otra cosa</span></h3>
+          <div class="linea">
+            <span class="dato" style="min-width:14rem"><span class="falta">nombre por completar</span></span>
+            <span class="falta">sin teléfono</span>
+            <span class="falta">sin correo</span>
+            <span class="dato"><span class="et">DNI:</span><span class="falta">por completar</span></span>
+            <span class="doc no">📄 DNI</span>
+          </div>
+          <div class="linea">
+            <span class="doc no">📄 Acta de nombramiento</span>
+            <span class="dato"><span class="et">Fecha del acta:</span><span class="falta">—</span></span>
+            <span class="dato"><span class="et">Vigente hasta:</span><span class="falta">—</span></span>
+            <span class="pildora p-alerta">sin acta, no se sabe si sigue</span>
+          </div>
+          <div class="sep" style="margin:10px 0 6px"></div>
+          <div class="peq">Presidentes anteriores: ninguno apuntado</div>
+        </div>
+
+        <!-- otros cargos y contactos: la excepcion, mas pequeño -->
+        <div style="display:grid;grid-template-columns:auto auto;gap:14px;margin-top:14px;justify-content:start">
+          <div class="dentro">
+            <h3>Otros cargos</h3>
+            <table>
+              <tr><td class="et">Vicepresidente</td><td class="falta">—</td></tr>
+              <tr><td class="et">Secretario</td><td class="falta">—</td><td class="peq">si es el administrador, se dice</td></tr>
+            </table>
+          </div>
+          <div class="dentro">
+            <h3>Otras personas de contacto</h3>
+            <p class="peq" style="margin:0">Ninguna apuntada.</p>
+          </div>
+        </div>
+
+        <div class="linea" style="margin-top:14px">
+          <span class="dato"><span class="et">Mancomunidad:</span><span class="v">no forma parte de ninguna</span></span>
+          <span class="dato"><span class="et">Subcomunidades:</span><span class="v">ninguna</span></span>
+        </div>
+      </section>
+
+      <!-- ---------------- ACCESOS Y EDIFICIO ---------------- -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Accesos y edificio</h2><span class="de">los portales que votan con esta comunidad</span><span class="der pildora p-pronto">bloque a pensar</span></div>
+
+        <table>
+          <tr><th>Acceso</th><th>Escalera</th><th>Ref. catastral</th><th>En la opp</th></tr>
+          <tr><td>C/ Santa María la Blanca 3</td><td>1</td><td class="num">9872103VK2697S</td><td class="peq">DAN-2021-137</td></tr>
+          <tr><td>C/ Santa María la Blanca 5</td><td>2</td><td class="num">9872103VK2697S</td><td class="peq">DAN-2021-137</td></tr>
+          <tr><td>C/ La Iglesia 22</td><td>3</td><td class="num">9872103VK2697S</td><td class="peq">DAN-2026-074</td></tr>
+        </table>
+
+        <div style="margin-top:16px">
+          <details class="despl" open>
+            <summary><span class="nombre">Catastro</span><span class="resumen">9872103VK2697S · 1993 · 41 viviendas · 113 inmuebles</span></summary>
+            <div class="cuerpo">
+              <div class="linea" style="margin-top:10px">
+                <span class="dato"><span class="et">Año:</span><span class="v">1993</span></span>
+                <span class="dato"><span class="et">Viviendas:</span><span class="v">41</span></span>
+                <span class="dato"><span class="et">Inmuebles:</span><span class="v">113</span></span>
+                <span class="dato"><span class="et">Superficie:</span><span class="v num">5.171 m²</span></span>
+                <span class="dato"><span class="et">Plantas:</span><span class="v">−2 a 3</span></span>
+              </div>
+              <div class="linea">
+                <span class="dato"><span class="et">Usos:</span><span class="v">41 residencial · 69 garaje y trastero · 2 comercial · 1 religioso</span></span>
+              </div>
+              <div class="linea">
+                <span class="dato"><span class="et">Ascensor:</span><span class="falta">sin ver</span></span>
+                <span class="dato"><span class="et">Portal accesible:</span><span class="falta">sin ver</span></span>
+              </div>
+            </div>
+          </details>
+          <details class="despl">
+            <summary><span class="nombre">Protección y condicionantes</span><span class="resumen falta">sin consultar</span></summary>
+          </details>
+          <details class="despl">
+            <summary><span class="nombre">IEE</span><span class="resumen falta">no consta</span></summary>
+          </details>
+          <details class="despl">
+            <summary><span class="nombre">Subvenciones</span><span class="resumen">3 tramitaciones firmadas en enero de 2023 · resolución por completar</span></summary>
+          </details>
+        </div>
+      </section>
+
+      <!-- ---------------- LO CONTRATADO: hojas agrupadas por opp ---------------- -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Datos comerciales</h2><span class="de" style="font-size:14px;font-weight:900;color:#2B2B2B">2 opps · 9 hojas de encargo, todas firmadas · 26.200 €</span></div>
+
+        <!-- opp 1 -->
+        <div class="opp">
+          <div class="opp-cab">
+            <span class="cod">DAN-2021-137</span>
+            <span class="nom">Santa María la Blanca 3 y 5, Alcorcón</span>
+            <span class="pildora p-fase">cobro · primera parte cobrada</span>
+            <span class="total num">16.200 €</span>
+          </div>
+          <div class="opp-sub">
+            <span>abierta el 01/12/2021</span>
+            <span>comercial: <b>Daniel</b></span>
+            <span>accesos: Santa María la Blanca 3 y 5</span>
+            <span class="doc no">📄 Acta de votación</span>
+          </div>
+          <div class="hojas">
+            <table>
+              <tr><th>Hoja</th><th>Qué</th><th>Firma</th><th>Paga</th><th style="text-align:right">Importe</th><th></th></tr>
+              <tr><td class="num">HE-2022-0138</td><td class="que">Proyecto + Coord. Seguridad y Salud · portal 3 <span class="pildora p-ajeno" style="font-size:11px">pedido FAIN</span></td><td class="num">25/01/2022</td><td>contrata</td><td class="imp num">4.100 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2022-0139</td><td class="que">Proyecto + Coord. Seguridad y Salud · portal 5 <span class="pildora p-ajeno" style="font-size:11px">pedido FAIN</span></td><td class="num">25/01/2022</td><td>contrata</td><td class="imp num">4.100 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2022-0130</td><td class="que">Tramitación de subvención de accesibilidad</td><td class="num">17/01/2023</td><td>comunidad</td><td class="imp num">1.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2022-0132</td><td class="que">Tramitación de subvención de accesibilidad</td><td class="num">17/01/2023</td><td>comunidad</td><td class="imp num">1.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2026-0244</td><td class="que">Dirección facultativa y CSS</td><td class="num">04/06/2026</td><td>comunidad</td><td class="imp num">2.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2026-0245</td><td class="que">Dirección facultativa y CSS</td><td class="num">04/06/2026</td><td>comunidad</td><td class="imp num">2.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- opp 2 -->
+        <div class="opp">
+          <div class="opp-cab">
+            <span class="cod">DAN-2026-074</span>
+            <span class="nom">La Iglesia 22, Alcorcón</span>
+            <span class="pildora p-fase">cobro · primera parte cobrada</span>
+            <span class="total num">10.000 €</span>
+          </div>
+          <div class="opp-sub">
+            <span>abierta el 20/02/2026</span>
+            <span>comercial: <b>Daniel</b></span>
+            <span>accesos: La Iglesia 22</span>
+            <span class="doc no">📄 Acta de votación</span>
+          </div>
+          <div class="hojas">
+            <table>
+              <tr><th>Hoja</th><th>Qué</th><th>Firma</th><th>Paga</th><th style="text-align:right">Importe</th><th></th></tr>
+              <tr><td class="num">HE-2022-0131</td><td class="que">Tramitación de subvención de accesibilidad</td><td class="num">17/01/2023</td><td>comunidad</td><td class="imp num">1.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2023-0181</td><td class="que">Proyecto de instalación de ascensor (proyecto, licencia y dirección de obra)</td><td class="num">23/01/2023</td><td>comunidad</td><td class="imp num">6.000 €</td><td><span class="doc">📄 firmada</span></td></tr>
+              <tr><td class="num">HE-2026-0248</td><td class="que">Dirección facultativa y CSS</td><td class="num">04/06/2026</td><td>comunidad</td><td class="imp num">2.500 €</td><td><span class="doc">📄 firmada</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------- SU PAGINA DE DOCUMENTACION (de la antigua) ---------------- -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Su página de documentación</h2><span class="de">quién puede entrar y subir</span></div>
+        <p class="peq" style="margin:0 0 10px">Nadie todavía: no tenemos el correo de las gestoras ni del presidente.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--raya);padding-top:12px">
+          <input class="campo" placeholder="correo" style="width:16rem">
+          <input class="campo" placeholder="nombre" style="width:11rem">
+          <input class="campo" placeholder="por qué (la nuera del presidente…)" style="width:16rem">
+          <span class="boton">Dar acceso</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================= DERECHA ======================= -->
+    <aside class="col">
+
+      <!-- con quien hay que hablar -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Administrador de fincas</h2></div>
+        <div class="v fuerte" style="font-size:18px">SERRANO LOBO</div>
+        <div class="linea" style="margin-top:6px">
+          <span class="dato"><span class="et">Tel. general:</span><span class="tel">685 135 437</span></span>
+        </div>
+        <div class="peq" style="margin-top:2px">916 198 303 (10-13 y 17-18 h) · C/ San José 9, Alcorcón</div>
+        <div class="linea" style="margin-top:6px"><span class="dato"><span class="et">Desde:</span><span class="falta">por completar</span></span></div>
+
+        <div class="sep"></div>
+        <div class="et" style="margin-bottom:8px">Gestoras que la llevan (2)</div>
+        <div class="gestor">
+          <div class="fuerte">Tamara</div>
+          <div class="linea" style="margin-top:4px">
+            <span class="falta">sin teléfono</span><span class="falta">sin correo</span>
+          </div>
+        </div>
+        <div class="gestor">
+          <div class="fuerte">Elisa</div>
+          <div class="linea" style="margin-top:4px">
+            <span class="falta">sin teléfono</span><span class="falta">sin correo</span>
+          </div>
+        </div>
+        <div style="margin-top:12px"><span class="boton2">+ otra gestora</span></div>
+
+        <div class="sep"></div>
+        <div class="linea">
+          <span class="dato"><span class="et">Comercial Accesalia:</span><span class="v fuerte">Daniel</span></span>
+        </div>
+        <div class="peq" style="margin-top:2px">de la cartera de Tamara y Elisa</div>
+      </section>
+
+      <!-- el estado -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Estado de la relación</h2></div>
+        <ul class="lista">
+          <li class="fila-der"><span class="peq" style="font-size:15px">Opps</span><b>2 abiertas</b></li>
+          <li class="fila-der"><span class="peq" style="font-size:15px">Hojas firmadas</span><b style="color:var(--lima-dark)">9</b></li>
+          <li class="fila-der"><span class="peq" style="font-size:15px">Contratado</span><b class="num">26.200 €</b></li>
+          <li class="fila-der"><span class="peq" style="font-size:15px">Tiene proyecto</span><b style="color:var(--lima-dark)">sí</b></li>
+          <li class="fila-der"><span class="peq" style="font-size:15px">Último contacto</span><b class="num">04/10/2026</b></li>
+        </ul>
+        <div class="sep"></div>
+        <div class="fila-der"><span class="peq" style="font-size:15px">Nos debe</span><span class="pildora p-pronto">próximamente</span></div>
+        <div class="fila-der" style="margin-top:8px"><span class="peq" style="font-size:15px">Viva o cerrada</span><span class="pildora p-pronto">próximamente</span></div>
+      </section>
+
+      <!-- papeles con fecha -->
+      <section class="tarjeta">
+        <div class="tit"><h2>Papeles y validez</h2></div>
+        <ul class="lista">
+          <li class="fila-der"><span class="doc">📄 Tarjeta CIF</span><span class="peq">subida</span></li>
+          <li class="fila-der"><span class="doc no">📄 Acta presidente</span><span class="peq">caduca al año</span></li>
+          <li class="fila-der"><span class="doc no">📄 DNI presidente</span><span class="peq">caduca</span></li>
+          <li class="fila-der"><span class="doc no">📄 Cert. de la cuenta</span><span class="peq">reciente</span></li>
+        </ul>
+      </section>
+
+      <!-- lo que falta -->
+      <div class="falta-caja">
+        <h2>Le falta</h2>
+        <ul class="lista">
+          <li>· el nombre fiscal (está en la tarjeta)</li>
+          <li>· el presidente y su acta</li>
+          <li>· el teléfono de las gestoras</li>
+          <li>· el certificado de la cuenta</li>
+        </ul>
+        <p style="margin:10px 0 0;font-size:12px;color:rgba(120,53,15,.55)">Sin prisa. Solo se marca en las comunidades activas.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+</body>
+</html>
