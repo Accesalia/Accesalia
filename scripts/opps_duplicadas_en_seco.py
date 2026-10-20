@@ -408,10 +408,103 @@ def excel(casados, fichas):
     return cuenta
 
 
+# --------------------------------------------------------------------------
+# SU RESPUESTA (20-oct-2026): seguro y vacias, adelante; Palomares, se juntan;
+# las tres sueltas, ok. Y el CRITERIO: «un proyecto y su subvencion NO son dos
+# opps, es una opp con dos hojas. Son dos opps cuando hay mucho tiempo entre una
+# y otra o (el que prima) cuando afectan a diferentes accesos.»
+# Con eso, lo que queda de cada duda, en el mismo orden que arriba:
+# --------------------------------------------------------------------------
+SALIDA_QUEDA = os.path.join(RAIZ, "docs", "opps", "opps_duplicadas_lo_que_queda.xlsx")
+
+DUDA_AHORA = [
+    ("Dos opps", "Portales distintos (la de 2023 es solo el 7). Con tu criterio, se quedan las dos."),
+    ("Pregunta", "En la base cuelgan de las mismas tres escaleras, y el mismo día. ¿Los dos huecos (1240×1290 y 1500×1480) son dos escaleras distintas o el mismo ascensor medido dos veces? Si es el mismo, se juntan."),
+    ("Pregunta", "¿El 244 bis es otro edificio? Si lo es, la 148 hay que colgarla de su portal; si no, se juntan."),
+    ("Falta un portal", "Me dijiste que sí: son dos edificios. Pero el portal de San Onofre 7 de Madrid no está en la base; hay que darlo de alta (desde Catastro) y colgar de él la 159. Aún no está hecho."),
+    ("Se juntan", "Con tu criterio, son una opp con dos hojas: se queda la DAN-2025-206 (ascensor); pasan a ella la hoja de subvenciones HE-2026-0120 y su presupuesto, y se anula la DAN-2025-207. ¿Lo hago?"),
+    ("Pregunta", "Sigue en pie: la 445 nació de la hoja HE-2025-0728, que pone «Málaga 8». ¿Es otro edificio o una errata de la hoja?"),
+    ("Pregunta", "Portales distintos: con tu criterio son dos opps. Pero la del conjunto (DAN-2026-041) está vacía. ¿Hay un encargo del conjunto o se anula por error?"),
+    ("Dos opps", "Portales distintos (una escalera en 2019, seis en 2025). Con tu criterio, se quedan las dos."),
+    ("Pregunta", "Portales distintos (17 y 19 en la 005, solo el 19 en la 024): son dos opps. Queda saber de cuál es la hoja de ascensor y subvenciones HE-2026-0021, que ahora está en la 005 junto a la rampa."),
+    ("Dos opps", "Ocho años entre una y otra, y la de 2024 es el expediente de legalización. Se quedan las dos."),
+    ("Hecho", "La 240 se junta en la 315 (me dijiste que sí). La 313 y la 060 se quedan."),
+    ("Dos opps", "Cada una afecta a portales distintos (el conjunto y cada portal con su CIF): se quedan todas."),
+    ("Hecho", "La HE-2022-0015 y las seis facturas pasan a la del ascensor (me dijiste que sí)."),
+]
+
+
+def meses(a, b):
+    if not a or not b:
+        return None
+    (ya, ma), (yb, mb) = (int(a[:4]), int(a[5:7])), (int(b[:4]), int(b[5:7]))
+    return abs((yb - ya) * 12 + mb - ma)
+
+
+def excel_lo_que_queda(casados, fichas):
+    wb = openpyxl.Workbook()
+    neg, ajuste = Font(bold=True), Alignment(wrap_text=True, vertical="top")
+    gris = PatternFill("solid", fgColor="EEEEEE")
+
+    def hoja(titulo, cab, filas, anchos):
+        ws = wb.create_sheet(titulo)
+        ws.append(cab)
+        for c in ws[1]:
+            c.font, c.fill = neg, gris
+        for f in filas:
+            ws.append(f)
+        for col, w in zip("ABCDEFGHIJ", anchos):
+            ws.column_dimensions[col].width = w
+        for fila in ws.iter_rows(min_row=2):
+            for c in fila:
+                c.alignment = ajuste
+        ws.freeze_panes = "B2"
+
+    hechas = [(c[0], c[1], c[2]) for c in casados if c[1]]
+    hechas.append((SEGURO, "DAN-2023-315", ["DAN-2022-240"]))
+    filas = []
+    for b, queda, anula in hechas:
+        f = next(x for x in fichas.values() if x["codigo"] == queda)
+        filas.append([f["nombre"], queda, ", ".join(anula), "Palomares (me dijiste que sí)" if queda == "DAN-2023-315" else b])
+    filas.append(["Camino Viejo de Leganes 237, Madrid", "DAN-2025-393", "", "Se suelta el portal «Camino Viejo de Leganés 237, LEGANÉS», que sobraba."])
+    filas.append(["Etruria 26 y 28 + Lucano 65, Madrid", "DAN-2019-049", "", "Recibe de la DAN-2022-104 la HE-2022-0015 y las facturas Accesalia 2022/1-218, 2022/1-219, 2023/1-58, 2023/1-59, 2024/1-263 y 2024/1-264. Queda una nota en el diario de las dos."])
+    hoja("Lo que se hace", ["Edificio", "Se queda", "Se anula", "Por qué"], filas, (40, 14, 14, 70))
+
+    dudas = [c for c in casados if c[0] == DUDA]
+    filas = []
+    for (b, q, a, texto, g), (estado, ahora) in zip(dudas, DUDA_AHORA):
+        ops = sorted(g, key=lambda o: (fichas[o]["apertura"] or "", fichas[o]["codigo"]))
+        filas.append([fichas[ops[-1]]["nombre"], " · ".join(fichas[o]["codigo"] for o in ops), estado, ahora, ""])
+    filas.sort(key=lambda f: {"Pregunta": 0, "Se juntan": 1, "Falta un portal": 2, "Dos opps": 3, "Hecho": 4}[f[2]])
+    hoja("Dudas, con tu criterio", ["Edificio", "Opps", "Cómo queda", "Qué falta", "Tu respuesta"], filas, (36, 30, 14, 80, 30))
+
+    filas = []
+    for b, q, a, texto, g in casados:
+        if b != DOS:
+            continue
+        ops = sorted(g, key=lambda o: (fichas[o]["apertura"] or "", fichas[o]["codigo"]))
+        accs = [fichas[o]["accesos"] for o in ops]
+        mismos = all(x == accs[0] for x in accs)
+        m = meses(fichas[ops[0]]["apertura"], fichas[ops[-1]]["apertura"])
+        aviso = "Mismos portales y menos de 2 años: mírala" if mismos and m is not None and m < 24 else ""
+        filas.append([fichas[ops[-1]]["nombre"],
+                      "\n".join("%s (%s)" % (fichas[o]["codigo"], fichas[o]["apertura"]) for o in ops),
+                      m, "sí" if mismos else "no", texto, aviso, ""])
+    filas.sort(key=lambda f: (f[5] == "", f[2] if f[2] is not None else 999))
+    hoja("Dos opps, para repasar", ["Edificio", "Opps", "Meses entre una y otra", "Mismos portales", "Por qué son dos", "Con tu criterio", "Tu respuesta"],
+         filas, (36, 26, 10, 10, 70, 24, 30))
+
+    del wb["Sheet"]
+    wb.save(SALIDA_QUEDA)
+
+
 if __name__ == "__main__":
     gs, fichas, parejas = recoger(arrancar())
     print(len(gs), "grupos,", len(parejas), "parejas,", len(fichas), "opps")
     if "--volcar" in sys.argv:
         volcar(gs, fichas)
-    cuenta = excel(casar(gs, fichas), fichas)
+    casados = casar(gs, fichas)
+    cuenta = excel(casados, fichas)
     print(dict(cuenta), "->", SALIDA)
+    excel_lo_que_queda(casados, fichas)
+    print("->", SALIDA_QUEDA)
