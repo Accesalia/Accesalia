@@ -154,7 +154,11 @@ export default async function ComunidadEnElPortal({
   const presi = f.presidentes[0] ?? null;
   const gestores = f.administraciones.flatMap((a) => a.gestores.map((g) => g.nombre)).filter(Boolean);
   const cat = f.catastro[0] ?? null;
-  const faltan = [...doc.comunidad, ...doc.expedientes.flatMap((e) => e.cajas.map((x) => ({ ...x, titulo: `${x.titulo} · ${e.nombre}` })))];
+  // LO QUE FALTA, SOLO LO QUE FALTA (Monica, 21-oct-2026): lo pendiente y lo
+  // rechazado. Lo bueno y lo que esta en revision ya no falta.
+  const faltan = [...doc.comunidad, ...doc.expedientes.flatMap((e) => e.cajas.map((x) => ({ ...x, titulo: `${x.titulo} · ${e.nombre}` })))].filter(
+    (x) => x.estado === "pendiente" || x.estado === "rechazado",
+  );
 
   return (
     <MarcoPortal email={email} ancho>
@@ -306,13 +310,15 @@ export default async function ComunidadEnElPortal({
 
           <section className="bg-[#fdf6dc] p-6">
             <h2 className={"mb-3 text-[17px] font-bold " + ACENTO}>Lo que falta</h2>
+            {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
             <ul className="space-y-1">
               {faltan.map((x) => (
                 <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
-                  <span className={"w-3 text-[12px] " + (x.estado === "ok" ? "text-[#3a9a4a]" : x.estado === "revision" ? "text-[#b45309]" : "text-[#c8102e]")}>
-                    {x.estado === "ok" ? "✓" : x.estado === "revision" ? "▲" : "●"}
+                  <span className="w-3 text-[12px] text-[#c8102e]">●</span>
+                  <span>
+                    {x.titulo}
+                    {x.estado === "rechazado" && <span className="block text-[12.5px] font-normal text-[#c8102e]">rechazado: hay que volver a subirlo</span>}
                   </span>
-                  {x.titulo}
                 </li>
               ))}
             </ul>
