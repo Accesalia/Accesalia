@@ -30,7 +30,7 @@ const pill = (on: boolean) =>
   (on ? "border-carbon bg-carbon font-semibold text-white" : "border-carbon/25 bg-white text-carbon/75 hover:border-carbon");
 const fecha = (v: string | null) => (v ? v.slice(0, 10).split("-").reverse().join("/") : "—");
 
-type Orden = "nombre" | "municipio" | "codigo" | "apertura" | "admin";
+type Orden = "nombre" | "municipio" | "codigo" | "apertura" | "admin" | "comercial" | "estado";
 
 /** "Belén Gómez · SM Fincas"; sin gestor, la administracion sola. */
 const textoAdmin = (a: FilaTodas["admins"][number]) => [a.gestor, a.empresa].filter(Boolean).join(" · ") || "—";
@@ -158,7 +158,12 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
 
   const lista = useMemo(() => {
     const l = estado ? sinEstado.filter((f) => f.estado === estado) : sinEstado;
-    const v = (f: FilaTodas) => (orden.por === "apertura" ? f.apertura ?? "" : orden.por === "admin" ? adminsDe(f) : (f[orden.por] ?? "").toString());
+    const v = (f: FilaTodas) =>
+      orden.por === "apertura" ? f.apertura ?? ""
+      : orden.por === "admin" ? adminsDe(f)
+      : orden.por === "comercial" ? nombreComercial.get(f.comercialId ?? "") ?? ""
+      : orden.por === "estado" ? String(ESTADOS.findIndex((e) => e.valor === f.estado))
+      : (f[orden.por] ?? "").toString();
     return [...l].sort((a, b) => {
       const x = v(a), y = v(b);
       // Lo vacio, siempre al final.
@@ -166,7 +171,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       const c = x.localeCompare(y, "es", { numeric: true });
       return orden.baja ? -c : c;
     });
-  }, [sinEstado, estado, orden]);
+  }, [sinEstado, estado, orden, nombreComercial]);
 
   // Las DIR, en el orden en que sale su primera opp en la lista ordenada. Las
   // opps sin accesos no tienen DIR: van juntas al final.
@@ -187,7 +192,9 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     setQ(""); setEstado(""); setComercial(""); setCaptador(""); setMunicipio(""); setAnio(""); setAdmin(""); setCuantas(DE_UNA_VEZ);
   };
   const ordenarPor = (por: Orden) => setOrden((o) => (o.por === por ? { por, baja: !o.baja } : { por, baja: por === "apertura" }));
-  const flecha = (por: Orden) => (orden.por === por ? (orden.baja ? " ↓" : " ↑") : "");
+  // Los titulos que ordenan llevan su flecha siempre, para que se vea que se
+  // pueden pinchar (Monica, 20-oct-2026, no veia el orden por administrador).
+  const flecha = (por: Orden) => (orden.por === por ? (orden.baja ? " ↓" : " ↑") : " ↕");
 
   const cambiada = (id: string, c: Partial<FilaTodas>) => {
     setCambios((x) => ({ ...x, [id]: { ...x[id], ...c } }));
@@ -251,30 +258,36 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       </section>
 
       {/* ---------------------------- la tabla ---------------------------- */}
-      <section className={CAJA + " mt-3 w-fit max-w-full overflow-x-auto"}>
+      {/* Sin overflow: una caja con scroll propio CORTA los desplegables de las
+          filas (con pocas filas solo se veia el primer comercial; 20-oct-2026). */}
+      <section className={CAJA + " mt-3 w-fit"}>
         <table className="w-auto border-collapse text-[13px]">
           <thead className="bg-[#f4f4f1]">
             <tr>
               <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("nombre")} className="uppercase">
+                <button type="button" onClick={() => ordenarPor("nombre")} className="uppercase hover:text-carbon hover:underline">
                   {porDir ? `DIR · ${grupos.length} / oportunidad · ${lista.length}` : `Oportunidad · ${lista.length}`}
                   {flecha("nombre")}
                 </button>
               </th>
               <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("municipio")} className="uppercase">Municipio{flecha("municipio")}</button>
+                <button type="button" onClick={() => ordenarPor("municipio")} className="uppercase hover:text-carbon hover:underline">Municipio{flecha("municipio")}</button>
               </th>
               <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("codigo")} className="uppercase">Código{flecha("codigo")}</button>
-              </th>
-              <th className={TH}>Comercial</th>
-              <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("admin")} className="uppercase">Administrador{flecha("admin")}</button>
+                <button type="button" onClick={() => ordenarPor("codigo")} className="uppercase hover:text-carbon hover:underline">Código{flecha("codigo")}</button>
               </th>
               <th className={TH}>
-                <button type="button" onClick={() => ordenarPor("apertura")} className="uppercase">Apertura{flecha("apertura")}</button>
+                <button type="button" onClick={() => ordenarPor("comercial")} className="uppercase hover:text-carbon hover:underline">Comercial{flecha("comercial")}</button>
               </th>
-              <th className={TH}>Estado</th>
+              <th className={TH}>
+                <button type="button" onClick={() => ordenarPor("admin")} className="uppercase hover:text-carbon hover:underline">Administrador{flecha("admin")}</button>
+              </th>
+              <th className={TH}>
+                <button type="button" onClick={() => ordenarPor("apertura")} className="uppercase hover:text-carbon hover:underline">Apertura{flecha("apertura")}</button>
+              </th>
+              <th className={TH}>
+                <button type="button" onClick={() => ordenarPor("estado")} className="uppercase hover:text-carbon hover:underline">Estado{flecha("estado")}</button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -393,7 +406,7 @@ function Fila({
         {/* El nombre aun no lleva a ningun sitio: la ficha de la opp que va a
             abrir esta por hacer (Monica, 20-oct-2026). Cuando exista, aqui va su
             enlace. */}
-        <td className={TD + " relative max-w-[380px] truncate font-semibold text-carbon" + (rama ? " pl-9" : "")} title={f.nombre}>
+        <td className={TD + " relative max-w-[320px] truncate font-semibold text-carbon" + (rama ? " pl-9" : "")} title={f.nombre}>
           {rama && (
             <>
               <span aria-hidden className={"absolute left-5 top-0 w-px bg-carbon/35 " + (rama === "ultima" ? "h-1/2" : "bottom-0")} />
@@ -402,14 +415,14 @@ function Fila({
           )}
           {f.nombre}
         </td>
-        <td className={TD + " max-w-[220px] truncate"} title={f.municipio || undefined}>
+        <td className={TD + " max-w-[180px] truncate"} title={f.municipio || undefined}>
           {f.municipio || <span className="text-amber-700/70">por completar</span>}
         </td>
         <td className={TD + " text-carbon/80"}>{f.codigo ?? "—"}</td>
         <td className="border-b border-[#f0f0f0] px-2 py-1">
           <Elegir id={`c_${f.id}`} nombre="" opciones={opciones} valor={f.comercialId ?? ""} alElegir={comercial} desactivado={pendiente} clase="w-[170px]" />
         </td>
-        <td className={TD + " max-w-[300px] truncate"} title={f.admins.length ? adminsDe(f) : undefined}>
+        <td className={TD + " max-w-[260px] truncate"} title={f.admins.length ? adminsDe(f) : undefined}>
           {f.admins.length ? (
             f.admins.map((a, i) => (
               <span key={a.clave}>
