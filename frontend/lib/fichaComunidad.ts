@@ -98,6 +98,8 @@ export type Acceso = { texto: string; escalera: string | null; ref: string | nul
 export type Hoja = {
   id: string;
   numero: string | null;
+  /** hoja_encargo, nota_responsabilidad... */
+  tipoDocumento: string | null;
   que: string | null;
   estado: string | null;
   firma: string | null;
@@ -342,10 +344,10 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
         ),
         intenta(
           rest<{ id: string; oportunidad_id: string; numero_hoja: string | null; descripcion: string | null; estado: string | null;
-            fecha_firma: string | null; fecha_creacion: string | null; pagador_tipo: string | null; version_firmada_id: string | null;
+            fecha_firma: string | null; fecha_creacion: string | null; pagador_tipo: string | null; version_firmada_id: string | null; tipo_documento: string | null;
             lineas_facturacion: { descripcion: string | null; importe: string | null; quitada_en: string | null }[];
             versiones_hoja: { id: string; numero_version: number; pdfs_firmados: string[] | null }[] }[]>(
-            "hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,estado,fecha_firma,fecha_creacion,pagador_tipo,version_firmada_id," +
+            "hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,estado,fecha_firma,fecha_creacion,pagador_tipo,version_firmada_id,tipo_documento," +
               "lineas_facturacion(descripcion,importe,quitada_en)," +
               "versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)" +
               `&oportunidad_id=in.(${oppIds.join(",")})&order=fecha_firma.asc.nullslast,fecha_creacion.asc`,
@@ -399,6 +401,7 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
             return {
               id: h.id,
               numero: h.numero_hoja,
+              tipoDocumento: h.tipo_documento,
               que: h.descripcion,
               estado: h.estado,
               firma: h.fecha_firma,

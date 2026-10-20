@@ -128,7 +128,7 @@ const PAPELES_COMUNIDAD: { clave: ClavePortal; titulo: string; explicacion: stri
 export async function documentacionDe(comunidadId: string): Promise<Documentacion | null> {
   const [ficha, recs] = await Promise.all([fichaComunidad(comunidadId), recibidosDe(comunidadId).catch(() => [] as Recibido[])]);
   if (!ficha) return null;
-  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
+  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada" && h.tipoDocumento !== "nota_responsabilidad").map((h) => h.id));
   const hitos = await hitosDe(firmadas).catch(() => []);
 
   const pres = ficha.presidentes[0] ?? null;
@@ -150,6 +150,8 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
   // Los expedientes vivos: los abiertos o en pausa.
   const expedientes: Expediente[] = ficha.opps
     .filter((o) => o.estado === "abierta" || o.estado === "pausada")
+    // LA NOTA DE RESPONSABILIDAD NO SE ENSEÑA NUNCA en el portal (Monica, 21-oct-2026).
+    .map((o) => ({ ...o, hojas: o.hojas.filter((h) => h.tipoDocumento !== "nota_responsabilidad") }))
     .map((o) => {
       const hojas: Caja[] = o.hojas
         .filter((h) => h.pagador === "comunidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
