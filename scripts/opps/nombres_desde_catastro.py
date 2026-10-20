@@ -30,7 +30,9 @@ def bonito(n):
     ps = n.strip().split(); k = len(ps)
     while k > 1 and ps[k - 1] in MIN: k -= 1
     if k < len(ps): ps = ps[k:] + ps[:k]
-    return ' '.join((p.lower() if i > 0 and p in MINUSC else p.lower().capitalize()) for i, p in enumerate(ps))
+    # los números romanos, en mayúsculas: «Alfonso XII», no «Alfonso Xii» (20-oct-2026)
+    romano = lambda p: len(p) >= 2 and re.fullmatch(r'X{0,3}(IX|IV|V?I{0,3})', p)
+    return ' '.join((p if romano(p) else p.lower() if i > 0 and p in MINUSC else p.lower().capitalize()) for i, p in enumerate(ps))
 
 
 ABREV = {'NTRA': 'NUESTRA', 'NTRO': 'NUESTRO', 'SRA': 'SEÑORA', 'SR': 'SEÑOR', 'STA': 'SANTA', 'STO': 'SANTO', 'FCO': 'FRANCISCO',

@@ -54,6 +54,8 @@ export function bonito(nombre: string): string {
   if (k < ps.length) ps = [...ps.slice(k), ...ps.slice(0, k)];
   return ps
     .map((p, i) => {
+      // Los numeros romanos, en mayusculas: "Alfonso XII", no "Alfonso Xii" (20-oct-2026).
+      if (p.length >= 2 && /^X{0,3}(IX|IV|V?I{0,3})$/.test(p)) return p;
       const l = p.toLowerCase();
       if (i > 0 && MINUSCULAS.has(p)) return l;
       return l.charAt(0).toUpperCase() + l.slice(1);
