@@ -17,7 +17,7 @@ const ESTADOS: { valor: Estado; texto: string; punto: string }[] = [
   { valor: "pausada", texto: "Pausada", punto: "bg-amber-400" },
   { valor: "cerrada", texto: "Cerrada", punto: "bg-carbon/35" },
 ];
-const SIN = "sin"; // "sin asignar", en el filtro de comercial
+const SIN = "sin"; // "sin asignar" / "sin administrador", en los filtros
 const DE_UNA_VEZ = 200; // filas pintadas de golpe; el resto, con "Ver más"
 
 const CAJA = "rounded-[10px] border border-[#d9d9d9] bg-white";
@@ -30,7 +30,11 @@ const pill = (on: boolean) =>
   (on ? "border-carbon bg-carbon font-semibold text-white" : "border-carbon/25 bg-white text-carbon/75 hover:border-carbon");
 const fecha = (v: string | null) => (v ? v.slice(0, 10).split("-").reverse().join("/") : "—");
 
-type Orden = "nombre" | "municipio" | "codigo" | "apertura";
+type Orden = "nombre" | "municipio" | "codigo" | "apertura" | "admin";
+
+/** "Belén Gómez · SM Fincas"; sin gestor, la administracion sola. */
+const textoAdmin = (a: FilaTodas["admins"][number]) => [a.gestor, a.empresa].filter(Boolean).join(" · ") || "—";
+const adminsDe = (f: FilaTodas) => f.admins.map(textoAdmin).join(" / ");
 
 export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTodas[]; comerciales: ComercialLista[] }) {
   const router = useRouter();
@@ -43,6 +47,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   const [comercial, setComercial] = useState("");
   const [municipio, setMunicipio] = useState("");
   const [anio, setAnio] = useState("");
+  const [admin, setAdmin] = useState("");
   const [orden, setOrden] = useState<{ por: Orden; baja: boolean }>({ por: "apertura", baja: true });
   const [cuantas, setCuantas] = useState(DE_UNA_VEZ);
 
@@ -62,6 +67,20 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     for (const f of filas) for (const m of f.municipio ? f.municipio.split(", ") : ["(sin municipio)"]) n.set(m, (n.get(m) ?? 0) + 1);
     return [{ valor: "", texto: "Todos" }, ...[...n].sort((a, b) => a[0].localeCompare(b[0], "es")).map(([m, k]) => ({ valor: m, texto: m, pista: String(k) }))];
   }, [filas]);
+  // El filtro del administrador: un gestor cada opcion, con su administracion
+  // de pista (asi buscando "SM Fincas" salen todos los suyos).
+  const opcionesAdmin: Opcion[] = useMemo(() => {
+    const n = new Map<string, { a: FilaTodas["admins"][number]; k: number }>();
+    for (const f of filas) for (const a of f.admins) n.set(a.clave, { a, k: (n.get(a.clave)?.k ?? 0) + 1 });
+    const sin = filas.filter((f) => f.admins.length === 0).length;
+    return [
+      { valor: "", texto: "Todos" },
+      { valor: SIN, texto: "Sin administrador", pista: String(sin) },
+      ...[...n.values()]
+        .sort((x, y) => (x.a.gestor ?? x.a.empresa ?? "").localeCompare(y.a.gestor ?? y.a.empresa ?? "", "es"))
+        .map(({ a, k }) => ({ valor: a.clave, texto: a.gestor ?? a.empresa ?? "—", pista: [a.gestor ? a.empresa : null, String(k)].filter(Boolean).join(" · ") })),
+    ];
+  }, [filas]);
   const opcionesAnio: Opcion[] = useMemo(() => {
     const n = new Map<string, number>();
     for (const f of filas) {
@@ -79,14 +98,15 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
       if (comercial === SIN ? f.comercialId !== null : comercial && f.comercialId !== comercial) return false;
       if (municipio && (municipio === "(sin municipio)" ? f.municipio !== "" : !f.municipio.split(", ").includes(municipio))) return false;
       if (anio && (f.apertura?.slice(0, 4) ?? "(sin fecha)") !== anio) return false;
-      if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""}` })) return false;
+      if (admin === SIN ? f.admins.length > 0 : admin && !f.admins.some((a) => a.clave === admin)) return false;
+      if (palabras.length && !casa(palabras, { nombre: `${f.nombre} ${f.codigo ?? ""}`, detalle: `${f.municipio} ${nombreComercial.get(f.comercialId ?? "") ?? ""} ${adminsDe(f)}` })) return false;
       return true;
     });
-  }, [filas, q, comercial, municipio, anio, nombreComercial]);
+  }, [filas, q, comercial, municipio, anio, admin, nombreComercial]);
 
   const lista = useMemo(() => {
     const l = estado ? sinEstado.filter((f) => f.estado === estado) : sinEstado;
-    const v = (f: FilaTodas) => (orden.por === "apertura" ? f.apertura ?? "" : (f[orden.por] ?? "").toString());
+    const v = (f: FilaTodas) => (orden.por === "apertura" ? f.apertura ?? "" : orden.por === "admin" ? adminsDe(f) : (f[orden.por] ?? "").toString());
     return [...l].sort((a, b) => {
       const x = v(a), y = v(b);
       // Lo vacio, siempre al final.
@@ -96,9 +116,9 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
     });
   }, [sinEstado, estado, orden]);
 
-  const hayFiltro = q || estado || comercial || municipio || anio;
+  const hayFiltro = q || estado || comercial || municipio || anio || admin;
   const limpiar = () => {
-    setQ(""); setEstado(""); setComercial(""); setMunicipio(""); setAnio(""); setCuantas(DE_UNA_VEZ);
+    setQ(""); setEstado(""); setComercial(""); setMunicipio(""); setAnio(""); setAdmin(""); setCuantas(DE_UNA_VEZ);
   };
   const ordenarPor = (por: Orden) => setOrden((o) => (o.por === por ? { por, baja: !o.baja } : { por, baja: por === "apertura" }));
   const flecha = (por: Orden) => (orden.por === por ? (orden.baja ? " ↓" : " ↑") : "");
@@ -118,11 +138,12 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
             <input
               value={q}
               onChange={(e) => { setQ(e.target.value); setCuantas(DE_UNA_VEZ); }}
-              placeholder="nombre, código, municipio o comercial…"
+              placeholder="nombre, código, municipio, comercial o administrador…"
               className={CAMPO + " mt-1"}
             />
           </label>
           <Elegir id="f_comercial" nombre="Comercial" opciones={opcionesComercial} valor={comercial} alElegir={(v) => { setComercial(v); setCuantas(DE_UNA_VEZ); }} conPista clase="w-[220px]" />
+          <Elegir id="f_admin" nombre="Administrador" opciones={opcionesAdmin} valor={admin} alElegir={(v) => { setAdmin(v); setCuantas(DE_UNA_VEZ); }} conPista clase="w-[260px]" />
           <Elegir id="f_municipio" nombre="Municipio" opciones={opcionesMunicipio} valor={municipio} alElegir={(v) => { setMunicipio(v); setCuantas(DE_UNA_VEZ); }} clase="w-[220px]" />
           <Elegir id="f_anio" nombre="Año de apertura" opciones={opcionesAnio} valor={anio} alElegir={(v) => { setAnio(v); setCuantas(DE_UNA_VEZ); }} clase="w-[140px]" />
           {hayFiltro && (
@@ -160,6 +181,9 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
               </th>
               <th className={TH}>Comercial</th>
               <th className={TH}>
+                <button type="button" onClick={() => ordenarPor("admin")} className="uppercase">Administrador{flecha("admin")}</button>
+              </th>
+              <th className={TH}>
                 <button type="button" onClick={() => ordenarPor("apertura")} className="uppercase">Apertura{flecha("apertura")}</button>
               </th>
               <th className={TH}>Estado</th>
@@ -168,7 +192,7 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
           <tbody>
             {lista.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-carbon/65">
+                <td colSpan={7} className="px-3 py-6 text-center text-carbon/65">
                   No hay ninguna con estos filtros.
                 </td>
               </tr>
@@ -246,6 +270,19 @@ function Fila({ f, comerciales, alCambiar }: { f: FilaTodas; comerciales: Comerc
         <td className="border-b border-[#f0f0f0] px-2 py-1">
           <Elegir id={`c_${f.id}`} nombre="" opciones={opciones} valor={f.comercialId ?? ""} alElegir={comercial} desactivado={pendiente} clase="w-[170px]" />
         </td>
+        <td className={TD + " max-w-[300px] truncate"} title={f.admins.length ? adminsDe(f) : undefined}>
+          {f.admins.length ? (
+            f.admins.map((a, i) => (
+              <span key={a.clave}>
+                {i > 0 && <span className="text-carbon/40"> / </span>}
+                {a.gestor ?? a.empresa}
+                {a.gestor && a.empresa && <span className="text-[12px] text-carbon/65"> · {a.empresa}</span>}
+              </span>
+            ))
+          ) : (
+            <span className="text-amber-700/70">por completar</span>
+          )}
+        </td>
         <td className={TD + " text-carbon/80"}>{fecha(f.apertura)}</td>
         <td className="border-b border-[#f0f0f0] px-2 py-1">
           <div className="flex items-center gap-2">
@@ -256,7 +293,7 @@ function Fila({ f, comerciales, alCambiar }: { f: FilaTodas; comerciales: Comerc
       </tr>
       {error && !pide && (
         <tr>
-          <td colSpan={6} className="border-b border-amber-300 bg-amber-50 px-3 py-1.5 text-[12.5px] text-amber-900">
+          <td colSpan={7} className="border-b border-amber-300 bg-amber-50 px-3 py-1.5 text-[12.5px] text-amber-900">
             {f.nombre}: {error}
           </td>
         </tr>
@@ -288,7 +325,7 @@ function Ventana({
   const [motivo, setMotivo] = useState("");
   return (
     <tr>
-      <td colSpan={6} className="p-0">
+      <td colSpan={7} className="p-0">
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onMouseDown={(e) => e.target === e.currentTarget && !pendiente && alCancelar()}>
           <div className={CAJA + " w-[380px] max-w-full p-4 shadow-lg"}>
             <div className="text-[15px] font-bold text-carbon">{a === "pausada" ? "Pausarla" : "Cerrarla"}</div>

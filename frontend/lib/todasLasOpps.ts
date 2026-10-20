@@ -8,6 +8,11 @@
 // "Todas" son todas menos las anuladas: una anulada no es nada (ver la ficha).
 // El municipio sale de sus accesos vivos, nunca del nombre: una opp puede tener
 // portales en dos municipios, y entonces salen los dos.
+//
+// EL ADMINISTRADOR, el gestor que la lleva (Monica, 20-oct-2026), con filtro.
+// Sale de la vista base administradores_de_oportunidad (opp -> accesos ->
+// comunidad -> admin), nunca de un campo de la opp. Una opp con varias
+// comunidades puede tener varios: salen todos.
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
@@ -39,12 +44,15 @@ export type FilaTodas = {
   comercialId: string | null;
   apertura: string | null;
   estado: "abierta" | "pausada" | "cerrada";
+  /** Sus administradores: el gestor (si se sabe) y su administracion. La clave
+   *  es el puesto del gestor, o "e:<empresa>" si solo se sabe la empresa. */
+  admins: { clave: string; gestor: string | null; empresa: string | null }[];
 };
 
 export type ComercialLista = { id: string; nombre: string; activo: boolean };
 
 export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales: ComercialLista[] }> {
-  const [opps, rel, comerciales] = await Promise.all([
+  const [opps, rel, comerciales, adm] = await Promise.all([
     todo<{ id: string; codigo: string | null; nombre: string | null; estado: FilaTodas["estado"]; fecha_apertura: string | null; comercial_id: string | null }>(
       "oportunidades?select=id,codigo,nombre,estado,fecha_apertura,comercial_id&estado=neq.anulada&order=fecha_apertura.desc.nullslast,id.asc",
     ),
@@ -52,7 +60,20 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
       "relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(municipio)&hasta=is.null&order=opp_id,acceso_id",
     ),
     todo<ComercialLista>("comerciales?select=id,nombre,activo&order=nombre.asc"),
+    todo<{ oportunidad_id: string; puesto_id: string | null; empresa_id: string | null; p: { persona: { nombre: string | null; apellidos: string | null } | null } | null; e: { nombre_accesalia: string | null } | null }>(
+      "administradores_de_oportunidad?select=oportunidad_id,puesto_id,empresa_id,p:puesto_id(persona:persona_id(nombre,apellidos)),e:empresa_id(nombre_accesalia)" +
+        "&or=(puesto_id.not.is.null,empresa_id.not.is.null)&order=oportunidad_id,comunidad_id",
+    ),
   ]);
+
+  const admins = new Map<string, FilaTodas["admins"]>();
+  for (const a of adm) {
+    const clave = a.puesto_id ?? `e:${a.empresa_id}`;
+    const gestor = [a.p?.persona?.nombre, a.p?.persona?.apellidos].map((x) => x?.trim()).filter(Boolean).join(" ") || null;
+    const l = admins.get(a.oportunidad_id) ?? [];
+    if (!l.some((x) => x.clave === clave)) l.push({ clave, gestor, empresa: a.e?.nombre_accesalia?.trim() || null });
+    admins.set(a.oportunidad_id, l);
+  }
 
   const municipios = new Map<string, Set<string>>();
   for (const r of rel) {
@@ -71,6 +92,7 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
       comercialId: o.comercial_id,
       apertura: o.fecha_apertura,
       estado: o.estado,
+      admins: admins.get(o.id) ?? [],
     })),
     comerciales,
   };
