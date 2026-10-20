@@ -14,6 +14,22 @@ insert into pares values
  ('195258a6-62a2-410a-b3c6-661fff67a638', '45f71a4a-d76b-4661-9498-f40d398d9237', 'Lopez de Hoyos 342B: sin carpeta; la opp es 342 y 342 C (CAR-2025-051)'),
  ('2f577c1b-6243-4eab-a015-d79d34aec9af', 'ad5ee872-4da7-45a7-936b-051966db6825', 'Geologos 2: carpeta conjunta «1 y 2» (CAR-2025-032)');
 
+-- El historico que la superviviente YA tiene (1er intento, 20-oct: accesos_comunidad_unico): la copia de la absorbida
+-- sobra. accesos_comunidad = uno por (comunidad, referencia); cotejo_catastro = uno por comunidad.
+delete from historico_de_tablas.accesos_comunidad h using pares p
+ where h.comunidad_id = p.absorbida
+   and exists (select 1 from historico_de_tablas.accesos_comunidad s where s.comunidad_id = p.superviviente and s.referencia = h.referencia);
+delete from historico_de_tablas.cotejo_catastro h using pares p
+ where h.comunidad_id = p.absorbida
+   and exists (select 1 from historico_de_tablas.cotejo_catastro s where s.comunidad_id = p.superviviente);
+-- dos absorbidas con la misma superviviente (Iglesia 4 Coslada y Madrid): de la segunda, lo que ya trae la primera
+delete from historico_de_tablas.cotejo_catastro h using pares p, pares q
+ where h.comunidad_id = p.absorbida and q.superviviente = p.superviviente and q.absorbida < p.absorbida
+   and exists (select 1 from historico_de_tablas.cotejo_catastro s where s.comunidad_id = q.absorbida);
+delete from historico_de_tablas.accesos_comunidad h using pares p, pares q
+ where h.comunidad_id = p.absorbida and q.superviviente = p.superviviente and q.absorbida < p.absorbida
+   and exists (select 1 from historico_de_tablas.accesos_comunidad s where s.comunidad_id = q.absorbida and s.referencia = h.referencia);
+
 do $$
 declare r record; p record; sobran int;
 begin
