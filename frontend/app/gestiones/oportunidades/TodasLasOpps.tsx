@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Elegir, type Opcion } from "../../components/Elegir";
 import { casa, palabrasDe } from "../../../lib/casarBusqueda";
 import type { ComercialLista, FilaTodas } from "../../../lib/todasLasOpps";
-import { accionComercial, accionEstado, type CambioEstado } from "./acciones";
+import { accionComercial, accionEstado, accionPasarGestores, type CambioEstado } from "./acciones";
 
 // El listado de todas las opps: buscador y filtros arriba, la tabla debajo
 // ajustada a su contenido (guia, regla 8). El comercial y el estado se cambian
@@ -46,7 +46,23 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   const router = useRouter();
   // Lo cambiado aqui se ve al momento, sin esperar a que se relea la lista.
   const [cambios, setCambios] = useState<Record<string, Partial<FilaTodas>>>({});
-  const filas = useMemo(() => iniciales.map((f) => ({ ...f, ...cambios[f.id] })), [iniciales, cambios]);
+  // La cartera de un gestor que se acaba de pasar a otro comercial (vale para
+  // todas sus opps de la lista, no solo para la que se toco).
+  const [carteras, setCarteras] = useState<Record<string, string>>({});
+  const filas = useMemo(
+    () =>
+      iniciales.map((f) => {
+        const g = { ...f, ...cambios[f.id] };
+        return Object.keys(carteras).length ? { ...g, admins: g.admins.map((a) => (a.puestoId && carteras[a.puestoId] ? { ...a, cartera: carteras[a.puestoId] } : a)) } : g;
+      }),
+    [iniciales, cambios, carteras],
+  );
+  // Cuantas opps tiene cada gestor, para decirlo al preguntar si se pasa.
+  const oppsDeGestor = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const f of iniciales) for (const a of f.admins) if (a.puestoId) n.set(a.puestoId, (n.get(a.puestoId) ?? 0) + 1);
+    return n;
+  }, [iniciales]);
 
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<Estado | "">("");
@@ -196,10 +212,16 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
   // pueden pinchar (Monica, 20-oct-2026, no veia el orden por administrador).
   const flecha = (por: Orden) => (orden.por === por ? (orden.baja ? " ↓" : " ↑") : " ↕");
 
-  const cambiada = (id: string, c: Partial<FilaTodas>) => {
-    setCambios((x) => ({ ...x, [id]: { ...x[id], ...c } }));
+  const gestoresPasados = (puestoIds: string[], comercialId: string) => {
+    setCarteras((x) => ({ ...x, ...Object.fromEntries(puestoIds.map((p) => [p, comercialId])) }));
     router.refresh();
   };
+  const extra: Extra = { comerciales, nombreComercial, oppsDeGestor, alCambiar: cambiada, alPasarGestores: gestoresPasados };
+
+  function cambiada(id: string, c: Partial<FilaTodas>) {
+    setCambios((x) => ({ ...x, [id]: { ...x[id], ...c } }));
+    router.refresh();
+  }
 
   return (
     <>
@@ -299,12 +321,12 @@ export function TodasLasOpps({ filas: iniciales, comerciales }: { filas: FilaTod
               </tr>
             )}
             {!porDir &&
-              lista.slice(0, cuantas).map((f) => <Fila key={f.id} f={f} comerciales={comerciales} alCambiar={cambiada} />)}
+              lista.slice(0, cuantas).map((f) => <Fila key={f.id} f={f} extra={extra} />)}
             {porDir &&
               grupos.slice(0, cuantas).map((g) => (
                 <Grupo key={g.dir?.id ?? "sin"} dir={g.dir} n={g.opps.length}>
                   {g.opps.map((f, i) => (
-                    <Fila key={f.id} f={f} comerciales={comerciales} alCambiar={cambiada} rama={i === g.opps.length - 1 ? "ultima" : "medio"} />
+                    <Fila key={f.id} f={f} extra={extra} rama={i === g.opps.length - 1 ? "ultima" : "medio"} />
                   ))}
                 </Grupo>
               ))}
@@ -350,22 +372,36 @@ function Grupo({ dir, n, children }: { dir: FilaTodas["dir"]; n: number; childre
   );
 }
 
+type Extra = {
+  comerciales: ComercialLista[];
+  nombreComercial: Map<string, string>;
+  oppsDeGestor: Map<string, number>;
+  alCambiar: (id: string, c: Partial<FilaTodas>) => void;
+  alPasarGestores: (puestoIds: string[], comercialId: string) => void;
+};
+
+/** Los gestores de la opp cuya cartera es de OTRO comercial que el que la lleva:
+ *  la opp esta "prestada" (se deriva, sin campo; Monica, 8-oct-2026). */
+const deOtraCartera = (f: FilaTodas, comercialId: string | null) =>
+  comercialId ? f.admins.filter((a) => a.puestoId && a.cartera !== comercialId) : [];
+
 function Fila({
   f,
-  comerciales,
-  alCambiar,
+  extra,
   rama,
 }: {
   f: FilaTodas;
-  comerciales: ComercialLista[];
-  alCambiar: (id: string, c: Partial<FilaTodas>) => void;
+  extra: Extra;
   /** En "Ver por DIR": la linea que baja de la DIR y sale hacia esta opp. */
   rama?: "medio" | "ultima";
 }) {
+  const { comerciales, nombreComercial, alCambiar } = extra;
   const [pendiente, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);
   // Pausar y cerrar piden algo antes: se abre su ventana.
   const [pide, setPide] = useState<"pausada" | "cerrada" | null>(null);
+  // Tras cambiar el comercial, si sus gestores son de otra cartera, se pregunta.
+  const [preguntaCartera, setPreguntaCartera] = useState(false);
 
   // Se eligen los activos; el que ya no esta solo sale si es el de esta opp.
   const opciones: Opcion[] = [
@@ -379,7 +415,10 @@ function Fila({
     empezar(async () => {
       const r = await accionComercial(f.id, v);
       if (r.error) setError(r.error);
-      else alCambiar(f.id, { comercialId: v || null });
+      else {
+        alCambiar(f.id, { comercialId: v || null });
+        if (deOtraCartera(f, v || null).length) setPreguntaCartera(true);
+      }
     });
   };
   const estado = (cambio: CambioEstado) => {
@@ -429,6 +468,16 @@ function Fila({
                 {i > 0 && <span className="text-carbon/40"> / </span>}
                 {a.gestor ?? a.empresa}
                 {a.gestor && a.empresa && <span className="text-[12px] text-carbon/65"> · {a.empresa}</span>}
+                {a.puestoId && f.comercialId && a.cartera !== f.comercialId && (
+                  <button
+                    type="button"
+                    onClick={() => setPreguntaCartera(true)}
+                    className="ml-1.5 rounded-[5px] border border-amber-300 bg-amber-50 px-1.5 py-px text-[11px] font-semibold text-amber-900 hover:border-amber-500"
+                    title="Este gestor es de la cartera de otro comercial: ¿pasarlo al que lleva la opp?"
+                  >
+                    cartera de {a.cartera ? nombreComercial.get(a.cartera) ?? "otro" : "nadie"}
+                  </button>
+                )}
               </span>
             ))
           ) : (
@@ -451,7 +500,94 @@ function Fila({
         </tr>
       )}
       {pide && <Ventana f={f} a={pide} pendiente={pendiente} alCancelar={() => setPide(null)} alAceptar={estado} error={error} />}
+      {preguntaCartera && f.comercialId && deOtraCartera(f, f.comercialId).length > 0 && (
+        <CuadroCartera f={f} extra={extra} alCerrar={() => setPreguntaCartera(false)} />
+      )}
     </>
+  );
+}
+
+/** ¿PASAR TAMBIEN EL ADMINISTRADOR, O SOLO LA OPP? (Monica, 20-oct-2026: "paso
+ *  opps de Alvaro a Oscar y a Oscar no le sale ni un administrador en su
+ *  cartera"). La cartera es del GESTOR (puesto.comercial_id), no de la opp: al
+ *  pasarlo, sus opps nuevas son del nuevo; si no, esta queda prestada. */
+function CuadroCartera({ f, extra, alCerrar }: { f: FilaTodas; extra: Extra; alCerrar: () => void }) {
+  const nuevo = f.comercialId!;
+  const gestores = deOtraCartera(f, nuevo);
+  const [marcados, setMarcados] = useState<Set<string>>(() => new Set(gestores.map((g) => g.puestoId!)));
+  const [pendiente, empezar] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const quien = extra.nombreComercial.get(nuevo) ?? "el nuevo comercial";
+
+  const marcar = (id: string, si: boolean) =>
+    setMarcados((m) => {
+      const x = new Set(m);
+      if (si) x.add(id);
+      else x.delete(id);
+      return x;
+    });
+  const pasar = () => {
+    const ids = [...marcados];
+    if (!ids.length) return alCerrar();
+    setError(null);
+    empezar(async () => {
+      const r = await accionPasarGestores(f.id, ids, nuevo);
+      if (r.error) setError(r.error);
+      else {
+        extra.alPasarGestores(ids, nuevo);
+        alCerrar();
+      }
+    });
+  };
+
+  return (
+    <tr>
+      <td colSpan={7} className="p-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onMouseDown={(e) => e.target === e.currentTarget && !pendiente && alCerrar()}>
+          <div className={CAJA + " w-[480px] max-w-full p-4 shadow-lg"}>
+            <div className="text-[15px] font-bold text-carbon">¿Su administrador también pasa a {quien}?</div>
+            <div className="mt-0.5 text-[12.5px] text-carbon/65">
+              {f.nombre} la lleva ahora {quien}, pero su administrador es de otra cartera.
+            </div>
+            <div className="mt-3 space-y-2">
+              {gestores.map((g) => {
+                const n = extra.oppsDeGestor.get(g.puestoId!) ?? 0;
+                const de = g.cartera ? extra.nombreComercial.get(g.cartera) ?? "otro comercial" : "nadie";
+                return (
+                  <label key={g.clave} className="flex items-start gap-2.5 rounded-lg border border-black/10 bg-hueso px-3 py-2 text-[13px] text-carbon">
+                    <input type="checkbox" className="mt-0.5" checked={marcados.has(g.puestoId!)} onChange={(e) => marcar(g.puestoId!, e.target.checked)} />
+                    <span>
+                      <b>{g.gestor ?? g.empresa}</b>
+                      {g.gestor && g.empresa && <span className="text-carbon/65"> · {g.empresa}</span>}
+                      <span className="block text-[12px] text-carbon/70">
+                        En la cartera de {de} · {n === 1 ? "1 opp" : `${n} opps`} con este gestor en total
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="mt-2.5 text-[12px] text-carbon/65">
+              Pasarlo cambia su cartera: sus opps nuevas serán de {quien}. Las que ya tiene siguen con quien las lleve.
+            </p>
+            {error && <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-[12.5px] text-amber-900">{error}</div>}
+            <div className="mt-3 flex justify-end gap-2">
+              <button type="button" disabled={pendiente} onClick={alCerrar} className="rounded-xl border border-black/10 px-4 py-2 text-sm font-semibold text-carbon/65 hover:text-carbon">
+                Solo la opp
+              </button>
+              <button
+                type="button"
+                disabled={pendiente || marcados.size === 0}
+                onClick={pasar}
+                className="rounded-xl bg-lima px-4 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-50"
+              >
+                {pendiente ? "Pasando…" : marcados.size === gestores.length ? `Pasar también a ${quien}` : `Pasar los marcados a ${quien}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
   );
 }
 

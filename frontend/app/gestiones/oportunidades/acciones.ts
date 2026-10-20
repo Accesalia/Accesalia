@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
 import { cambiarComercial, cerrar, pausar, reabrir, reactivar } from "../../../lib/gestionOportunidad";
 import { quedaPorCobrar } from "../../../lib/cabeceraOpp";
+import { pasarGestoresACartera } from "../../../lib/todasLasOpps";
 
 // Cambiar el comercial o el estado desde el listado de todas las opps. Las
 // mismas piezas que la ficha de la opp, con las mismas reglas: con algo por
@@ -61,6 +62,22 @@ export async function accionEstado(oppId: string, desde: string, cambio: CambioE
       await cerrar(oppId, { perdida: cambio.perdida, motivo: cambio.motivo, quien: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") });
     }
     refrescar(oppId);
+    return {};
+  } catch (e) {
+    return comoError(e);
+  }
+}
+
+/** PASAR TAMBIEN EL ADMINISTRADOR (Monica, 20-oct-2026): al dar una opp a otro
+ *  comercial, sus gestores siguen en la cartera del de antes; aqui se pasan a la
+ *  del nuevo los que se marquen. Solo gestores de ESA opp. */
+export async function accionPasarGestores(oppId: string, puestoIds: string[], comercialId: string): Promise<Resultado> {
+  try {
+    await permiso();
+    if (!UUID.test(oppId) || !UUID.test(comercialId) || !puestoIds.length || puestoIds.some((p) => !UUID.test(p))) throw new Error("Datos no válidos.");
+    await pasarGestoresACartera(oppId, puestoIds, comercialId);
+    refrescar(oppId);
+    revalidatePath("/administraciones");
     return {};
   } catch (e) {
     return comoError(e);

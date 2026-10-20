@@ -50,7 +50,15 @@ export type FilaTodas = {
   estado: "abierta" | "pausada" | "cerrada";
   /** Sus administradores: el gestor (si se sabe) y su administracion. La clave
    *  es el puesto del gestor, o "e:<empresa>" si solo se sabe la empresa. */
-  admins: { clave: string; gestor: string | null; empresa: string | null }[];
+  admins: {
+    clave: string;
+    gestor: string | null;
+    empresa: string | null;
+    /** El gestor (puesto) y de que comercial es su cartera (puesto.comercial_id).
+     *  Sin gestor, solo se sabe la empresa: no hay cartera que mirar. */
+    puestoId: string | null;
+    cartera: string | null;
+  }[];
   /** Su DIR: el codigo solo lo tiene desde la primera firma. Sin accesos, null. */
   dir: { id: string; codigo: string | null; nombre: string } | null;
 };
@@ -66,8 +74,8 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
       "relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(municipio,clave_id)&hasta=is.null&order=opp_id,acceso_id",
     ),
     todo<ComercialLista>("comerciales?select=id,nombre,activo,iniciales&order=nombre.asc"),
-    todo<{ oportunidad_id: string; puesto_id: string | null; empresa_id: string | null; p: { persona: { nombre: string | null; apellidos: string | null } | null } | null; e: { nombre_accesalia: string | null } | null }>(
-      "administradores_de_oportunidad?select=oportunidad_id,puesto_id,empresa_id,p:puesto_id(persona:persona_id(nombre,apellidos)),e:empresa_id(nombre_accesalia)" +
+    todo<{ oportunidad_id: string; puesto_id: string | null; empresa_id: string | null; p: { comercial_id: string | null; persona: { nombre: string | null; apellidos: string | null } | null } | null; e: { nombre_accesalia: string | null } | null }>(
+      "administradores_de_oportunidad?select=oportunidad_id,puesto_id,empresa_id,p:puesto_id(comercial_id,persona:persona_id(nombre,apellidos)),e:empresa_id(nombre_accesalia)" +
         "&or=(puesto_id.not.is.null,empresa_id.not.is.null)&order=oportunidad_id,comunidad_id",
     ),
     todo<{ id: string; codigo: string | null; nombre: string | null; absorbida_por: string | null }>("claves?select=id,codigo,nombre,absorbida_por&order=id"),
@@ -91,7 +99,7 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
     const clave = a.puesto_id ?? `e:${a.empresa_id}`;
     const gestor = [a.p?.persona?.nombre, a.p?.persona?.apellidos].map((x) => x?.trim()).filter(Boolean).join(" ") || null;
     const l = admins.get(a.oportunidad_id) ?? [];
-    if (!l.some((x) => x.clave === clave)) l.push({ clave, gestor, empresa: a.e?.nombre_accesalia?.trim() || null });
+    if (!l.some((x) => x.clave === clave)) l.push({ clave, gestor, empresa: a.e?.nombre_accesalia?.trim() || null, puestoId: a.puesto_id, cartera: a.p?.comercial_id ?? null });
     admins.set(a.oportunidad_id, l);
   }
 
@@ -117,4 +125,21 @@ export async function todasLasOpps(): Promise<{ filas: FilaTodas[]; comerciales:
     })),
     comerciales,
   };
+}
+
+/** Pasa gestores de una opp a la cartera de otro comercial (puesto.comercial_id).
+ *  Solo los que de verdad son administradores de esa opp: lo que llegue de la
+ *  pantalla no se cree a ciegas. El captador del gestor no se toca. */
+export async function pasarGestoresACartera(oppId: string, puestoIds: string[], comercialId: string): Promise<void> {
+  const suyos = await todo<{ puesto_id: string }>(
+    `administradores_de_oportunidad?select=puesto_id&oportunidad_id=eq.${oppId}&puesto_id=in.(${puestoIds.join(",")})`,
+  );
+  const validos = [...new Set(suyos.map((x) => x.puesto_id))];
+  if (validos.length !== new Set(puestoIds).size) throw new Error("Alguno de esos gestores no es administrador de esta opp.");
+  const r = await fetch(`${URL_BASE}/rest/v1/puesto?id=in.(${validos.join(",")})`, {
+    method: "PATCH",
+    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({ comercial_id: comercialId }),
+  });
+  if (!r.ok) throw new Error(`Supabase puesto ${r.status}: ${await r.text()}`);
 }
