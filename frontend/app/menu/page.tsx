@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
-import { RejillaAccesos } from "../components/Accesos";
 import { letraMenu } from "../components/letraMenu";
 import { GRUPOS, RotuloGrupo, TarjetaVelada, type Grupo, type Icono } from "./TarjetaVelada";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
@@ -256,7 +255,7 @@ export default async function Menu() {
       ...p,
       insignia:
         p.comoSeCuenta && cuentas[i] > 0 ? (
-          <span className="whitespace-nowrap rounded-full border border-ajeno/40 bg-ajeno-soft px-2.5 py-0.5 text-[11px] font-bold text-[#3f5f80]">
+          <span className="whitespace-nowrap rounded-full border border-ajeno/40 bg-ajeno-soft px-2 py-0.5 text-[10.5px] font-bold text-[#3f5f80]">
             {p.comoSeCuenta(cuentas[i])}
           </span>
         ) : null,
@@ -271,18 +270,20 @@ export default async function Menu() {
   return (
     <div className={`${letraMenu.variable} min-h-screen bg-[#2e3236]`}>
       <BarraSuperior />
-      <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-bold text-[#f3f4f1] sm:text-4xl">Áreas de Accesalia</h1>
-        <p className="mt-1 text-[#f3f4f1]/75">Elige con qué quieres trabajar.</p>
+      {/* Mas acotado (Monica, 21-oct tarde: «al 80 % se ve mas comodo»): menos ancho, tres columnas de tarjetas
+          alargadas, dos en tablet y una en el movil. */}
+      <main className="mx-auto max-w-[1060px] px-4 pb-12 pt-7 sm:px-6">
+        <h1 className="font-[family-name:var(--letra-menu)] text-[26px] font-extrabold tracking-[-0.02em] text-[#f3f4f1] sm:text-[30px]">Áreas de Accesalia</h1>
+        <p className="mt-0.5 text-[14px] text-[#f3f4f1]/75">Elige con qué quieres trabajar.</p>
 
         {grupos.map(({ g, botones }) => (
-          <section key={g} className="mt-8">
+          <section key={g} className="mt-6">
             <RotuloGrupo grupo={g} />
-            <RejillaAccesos>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {botones.map((b) => (
                 <TarjetaVelada key={b.nombre} nombre={b.nombre} desc={b.desc} href={b.href} grupo={b.grupo} icono={b.icono} insignia={b.insignia} />
               ))}
-            </RejillaAccesos>
+            </div>
           </section>
         ))}
       </main>

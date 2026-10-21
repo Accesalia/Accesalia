@@ -24,7 +24,7 @@ export function RotuloGrupo({ grupo }: { grupo: Grupo }) {
   const g = GRUPOS[grupo];
   return (
     <h2
-      className="mb-3 flex items-center gap-3 font-[family-name:var(--letra-menu)] text-[12.5px] font-bold uppercase tracking-[0.1em]"
+      className="mb-2.5 flex items-center gap-3 font-[family-name:var(--letra-menu)] text-[11.5px] font-bold uppercase tracking-[0.1em]"
       style={{ color: g.rotulo }}
     >
       {g.nombre}
@@ -53,26 +53,28 @@ export function TarjetaVelada({
   const g = GRUPOS[grupo];
   const cuerpo = (
     <>
-      <span
-        className="grid h-10 w-10 place-items-center rounded-full text-white"
-        style={{ background: g.solido, boxShadow: `0 4px 10px -4px ${g.solido}` }}
-      >
-        <Trazo className="h-[18px] w-[18px]">{ICONOS[icono]}</Trazo>
-      </span>
-      <div className="absolute right-[18px] top-[18px]">
+      <span className="flex items-center gap-3">
+        <span
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white"
+          style={{ background: g.solido, boxShadow: `0 3px 8px -3px ${g.solido}` }}
+        >
+          <Trazo className="h-[15px] w-[15px]">{ICONOS[icono]}</Trazo>
+        </span>
+        <h3 className="min-w-0 flex-1 text-balance font-[family-name:var(--letra-menu)] text-[14.5px] font-bold leading-snug tracking-[-0.01em] text-carbon">
+          {nombre}
+        </h3>
         {href ? (
           insignia
         ) : (
-          <span className="text-[10px] font-bold uppercase tracking-wide text-carbon/60">Próximamente</span>
+          <span className="shrink-0 text-[9.5px] font-bold uppercase tracking-wide text-carbon/60">Próximamente</span>
         )}
-      </div>
-      <h3 className="mt-3.5 text-balance font-[family-name:var(--letra-menu)] text-[17.5px] font-bold leading-snug tracking-[-0.01em] text-carbon">
-        {nombre}
-      </h3>
-      <p className="mt-2 pr-5 text-[13.5px] leading-[1.45] text-carbon/70">{desc}</p>
+      </span>
+      <p className="mt-2 pr-4 text-[12.5px] leading-[1.4] text-carbon/70">{desc}</p>
     </>
   );
-  const forma = "relative flex min-h-[168px] flex-col rounded-[20px] p-5 pb-[18px]";
+  // 21-oct (tarde): Monica la ve mejor al 80 %: mas pequeña, mas alargada (icono y titulo en una linea, como en el
+  // submenu, para que los dos niveles se parezcan mas) y la explicacion en menos lineas.
+  const forma = "relative flex flex-col rounded-2xl px-4 pb-3.5 pt-3.5";
   const velo = { background: `linear-gradient(155deg, ${g.velo} 0%, ${g.velo} 12%, #ffffff 72%)` };
   if (!href)
     return (
@@ -84,14 +86,14 @@ export function TarjetaVelada({
     <Link
       href={href}
       style={velo}
-      className={`${forma} group shadow-[0_2px_4px_rgba(0,0,0,.18),0_14px_30px_-14px_rgba(0,0,0,.5)] transition hover:-translate-y-[3px] hover:shadow-[0_4px_8px_rgba(0,0,0,.2),0_22px_40px_-14px_rgba(0,0,0,.6)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lima motion-reduce:transition-none`}
+      className={`${forma} group shadow-[0_2px_4px_rgba(0,0,0,.18),0_14px_30px_-14px_rgba(0,0,0,.5)] transition hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(0,0,0,.2),0_22px_40px_-14px_rgba(0,0,0,.6)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lima motion-reduce:transition-none`}
     >
       {cuerpo}
       <span
-        className="absolute bottom-3.5 right-4 -translate-x-1.5 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
+        className="absolute bottom-3 right-3.5 -translate-x-1.5 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
         style={{ color: g.solido }}
       >
-        <Trazo className="h-[18px] w-[18px]">
+        <Trazo className="h-[15px] w-[15px]">
           <path d="M5 12h14M13 6l6 6-6 6" />
         </Trazo>
       </span>
