@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Gastos del mes · maqueta</title>
+<!--
+  MAQUETA (21-oct-2026) de Prever › Gastos del mes, como la describio Monica:
+  arriba un cartel con lo que toca ese mes y el siguiente; debajo los gastos de Accesalia y de Daniel con
+  PREVISTO y REAL (el real, al subir el extracto); el total de las dos; «+ Añadir gasto» en cada empresa;
+  subir el extracto cuando se quiera (la semana, lo que va de mes, hasta hoy); y navegar a meses pasados y futuros.
+  Cifras de verdad: gastos_habituales (media ene-sep 2026) y movimientos_bancarios de septiembre de 2026.
+  Marcos de 1440 (su pantalla). Cuatro marcos: el mes en curso, un mes cerrado, añadir un gasto, subir el extracto.
+-->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#d9ddd5;color:#2b2b2b;font:14px/1.45 'Segoe UI',ui-sans-serif,system-ui,sans-serif;padding:30px 0 80px}
+.figma{width:1440px;margin:48px auto 12px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5c5c5c}
+.figma span{font-weight:400;letter-spacing:0;text-transform:none;color:#555;margin-left:12px}
+.marco{width:1440px;margin:0 auto;background:#eef5e8;box-shadow:0 10px 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden}
+.top{height:56px;background:#2b2b2b;display:flex;align-items:center;padding:0 24px;gap:36px;flex-shrink:0}
+.logo{color:#fff;font-weight:800;font-size:18px}.logo i{color:#7ac943;font-style:normal}
+.areas{display:flex;gap:4px;height:100%;align-items:flex-end}
+.area{height:44px;padding:0 22px;display:flex;align-items:center;color:rgba(255,255,255,.65);font-weight:600;font-size:14.5px;border-radius:10px 10px 0 0}
+.area.on{background:#eef5e8;color:#2b2b2b;font-weight:700}
+.cuerpo{display:flex;min-height:900px}
+.lado{width:230px;flex-shrink:0;background:#fff;border-right:1px solid #dfe3da;padding:20px 12px}
+.lado h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6f746b;margin:0 10px 8px}
+.it{display:flex;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:14px;color:#3a3a3a;font-weight:500}
+.it.on{background:#eef7e4;color:#2f5d14;font-weight:700}
+.it.luego{color:#8f8f8f}.it.luego small{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.cont{flex:1;padding:22px 32px 40px;min-width:0}
+.volver{font-size:13.5px;font-weight:600;color:#6b6b6b}
+.cab{display:flex;align-items:center;gap:24px;margin:8px 0 14px;border-bottom:1px solid rgba(0,0,0,.12);padding-bottom:14px}
+h1{font-size:30px;font-weight:750;letter-spacing:-.4px}
+.mes{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700}
+.mes .fl{width:34px;height:34px;border-radius:9px;border:1px solid #cfd5c9;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;color:#555}
+.mes .hoy{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#2b2b2b;color:#fff;border-radius:6px;padding:3px 8px}
+.mes .cerrado{background:#e3f2d4;color:#2f5d14}
+.der{margin-left:auto;display:flex;align-items:center;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:11px;font-weight:700;font-size:14px;border:1px solid #cfd5c9;background:#fff;color:#3a3a3a;white-space:nowrap}
+.btn.pri{background:#7ac943;border-color:#7ac943;color:#1f3a0c}
+.btn.peq{height:30px;padding:0 12px;font-size:13px;border-radius:8px}
+.fino{font-size:12.5px;color:#666}
+/* saldos */
+.saldos{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.saldo{background:#fff;border:1px solid #dfe3da;border-radius:12px;padding:9px 14px;display:flex;align-items:baseline;gap:10px}
+.saldo .l{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#666}
+.saldo .v{font-size:17px;font-weight:750;font-variant-numeric:tabular-nums}
+.saldo .neg{color:#9f3a38}
+.saldo .s{font-size:12px;color:#666}
+/* cartel */
+.cartel{background:#fffaeb;border:1px solid #f0d58a;border-radius:14px;padding:14px 18px;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.cartel h3{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a5a06;margin-bottom:6px}
+.cartel li{list-style:none;display:flex;gap:10px;align-items:baseline;padding:3px 0;font-size:14px;color:#4a3a0a}
+.cartel li b{font-weight:700;color:#2b2b2b}
+.cartel li .eur{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:#2b2b2b;white-space:nowrap}
+.cartel li .hacer{font-size:12.5px;color:#6b5210;display:block}
+.cartel .nada{font-size:13.5px;color:#6b5210}
+.punto{width:8px;height:8px;border-radius:50%;background:#e8a317;flex-shrink:0;transform:translateY(-1px)}
+.punto.verde{background:#7ac943}
+/* empresas */
+.dos{display:grid;grid-template-columns:auto auto;gap:14px;align-items:start;justify-content:start}
+.tarjeta{background:#fff;border:1px solid #d5dbcf;border-radius:16px;padding:14px 16px 12px}
+.tarjeta h2{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4a4a4a;margin:0 0 6px 4px;display:flex;justify-content:space-between}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums;width:auto}
+th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#666;font-weight:700;padding:6px 8px;border-bottom:1px solid #e2e6dd;text-align:left;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid #eef0eb;font-size:13.5px;white-space:nowrap}
+td.num,th.num{text-align:right}
+td.nom{min-width:200px;max-width:250px;white-space:normal}
+.falta,.candado{white-space:nowrap;display:inline-block}
+.mov div span:first-child{white-space:nowrap}
+td.cada{font-size:12px;color:#5f5f5f}
+td.pre{color:#2b2b2b}
+.cerr td.pre{color:#7a7a7a}
+td.real{font-weight:700}
+td.vacio{color:#9a9a9a;font-weight:400}
+td.dif{font-size:12px;font-weight:700}
+tr.pagado td{background:#f1f9e9}
+tr.pagado td.real{color:#2f5d14}
+.ok{color:#3f7a1c;font-weight:800}
+.porpasar{font-size:11px;font-weight:600;color:#875f07;background:#fbefd0;border-radius:5px;padding:1px 7px}
+.sube{color:#9f3a38}.baja{color:#3f7a1c}
+.candado{font-size:11px;margin-left:6px;color:#7a5a06;background:#fbefd0;border-radius:5px;padding:1px 6px;font-weight:700;letter-spacing:.03em}
+.falta{font-size:11px;margin-left:6px;color:#875f07;background:#fbefd0;border-radius:5px;padding:1px 6px;font-weight:600}
+tr.sinprever td{background:#fffaeb}
+tr.sinprever td.nom{color:#6b5210;font-weight:600}
+tr.total td{border-bottom:none;border-top:2px solid #2b2b2b;font-weight:800;font-size:14.5px;padding-top:9px}
+.anadir{margin:10px 4px 2px;font-size:13.5px;font-weight:700;color:#3f7a1c}
+.comun{margin-top:16px;display:inline-flex;gap:26px;align-items:flex-end;background:#2b2b2b;color:#fff;border-radius:14px;padding:12px 20px}
+.comun .l{font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#cfcfcf}
+.comun .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.comun .s{font-size:12px;color:#bdbdbd;display:block;white-space:nowrap}
+.comun .par{display:flex;flex-direction:column}
+.comun .l{white-space:nowrap;align-self:center}
+.nota-imp{margin-top:10px;font-size:12.5px;color:#666}
+/* formulario */
+.velo{position:relative}
+.modal{background:#fffcf0;border:1px solid #c9cfc2;border-radius:16px;padding:18px 20px;width:760px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.modal .tit{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.modal .tit b{font-size:17px}
+.modal .tit .der{gap:8px}
+.rej{display:grid;gap:12px}
+.campo label{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:4px}
+.caja{border:1px solid #cfd5c9;background:#fff;border-radius:10px;padding:7px 12px;font-size:14px;min-height:36px;display:flex;align-items:center;gap:8px}
+.caja.pista{color:#777}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg span{border:1px solid #cfd5c9;background:#fff;border-radius:9px;padding:6px 11px;font-size:13px;font-weight:600;color:#444}
+.seg span.on{background:#2b2b2b;border-color:#2b2b2b;color:#fff}
+.meses span{padding:5px 8px;font-size:12px}
+.meses span.on{background:#7ac943;border-color:#7ac943;color:#1f3a0c}
+.mov{border:1px solid #dfe3da;border-radius:10px;background:#fff;font-size:13px}
+.mov div{display:flex;gap:14px;padding:6px 10px;border-bottom:1px solid #eef0eb}
+.mov div:last-child{border-bottom:none}
+.mov div.on{background:#eef7e4;font-weight:700}
+.mov .i{margin-left:auto;font-variant-numeric:tabular-nums}
+.check{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.check i{width:16px;height:16px;border-radius:4px;border:1.5px solid #7a7a7a;display:inline-block}
+.check i.on{background:#7ac943;border-color:#3f7a1c}
+/* subir */
+.soltar{border:2px dashed #9fbf84;background:#f5fbf0;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:16px}
+.soltar .ic{font-size:30px}
+.res3{display:grid;grid-template-columns:repeat(3,auto);gap:12px;justify-content:start;margin-bottom:16px}
+.res{background:#fff;border:1px solid #d5dbcf;border-radius:14px;padding:12px 16px;min-width:300px}
+.res b{display:block;font-size:14.5px}
+.res .ok{color:#3f7a1c;font-weight:700;font-size:13px}
+.res .n{font-size:13px;color:#444;margin-top:4px}
+.pregunta td{vertical-align:middle}
+.sel{border:1px solid #cfd5c9;background:#fff;border-radius:8px;padding:4px 10px;font-size:13px;color:#777;display:inline-block;min-width:200px}
+.sel.on{color:#2b2b2b;border-color:#7ac943;background:#f5fbf0;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ====================================================================== 1 -->
+<div class="figma">1 · El mes en curso <span>Octubre 2026, con un extracto subido hasta el 15: lo que ya pasó, en «Real»; lo que falta, «por pasar». El cartel avisa de este mes y del siguiente.</span></div>
+<div class="marco" id="m1"></div>
+
+<!-- ====================================================================== 2 -->
+<div class="figma">2 · Un mes cerrado <span>Septiembre 2026, con el extracto subido: previsto (en gris) frente a real, y lo que salió y no estaba en la lista.</span></div>
+<div class="marco" id="m2"></div>
+
+<!-- ====================================================================== 3 -->
+<div class="figma">3 · + Añadir gasto <span>Se despliega encima, en crema. Lo de «en el banco aparece como» es lo que luego le dice a la app qué sumar en «Real».</span></div>
+<div class="marco" id="m3"></div>
+
+<!-- ====================================================================== 4 -->
+<div class="figma">4 · Subir el extracto <span>Se sueltan los Excel tal cual vienen del banco. Solo pregunta lo que no conoce.</span></div>
+<div class="marco" id="m4"></div>
+
+<script>
+const eur = v => v == null ? '—' : Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const eur2 = v => (v < 0 ? '−' : '') + eur(Math.trunc(Math.abs(v))) + ',' + Math.round((Math.abs(v) % 1) * 100).toString().padStart(2, '0');
+
+// [nombre, cada, previsto, real septiembre, solo direccion, nota]
+const ACC = [
+  ['Nóminas', 'mes', 32495, 39001, false],
+  ['Seguridad Social', 'mes', 14615, 15658],
+  ['Nómina de Daniel', 'mes', 3500, 10500, true, 'cobró tres juntas'],
+  ['Sofise (seguro de Daniel como arquitecto)', '3 meses · mar jun sep dic', 1503, 6277, false, null, [3,6,9,12]],
+  ['COAM', 'mes', 1367, 2935],
+  ['Software y apps', 'mes', 966, 561],
+  ['Material de oficina', 'mes', 899, 46],
+  ['Alquiler del local', 'mes', 872, 865],
+  ['Tickets restaurante (empleados)', 'mes', 818, 695],
+  ['Préstamo BBVA', 'mes', 751, 1115],
+  ['FARO (renting Siemens)', 'mes · hasta may-27', 603, 603],
+  ['Pequeños gastos', 'mes', 569, 552],
+  ['Préstamo La Caixa', 'mes', 479, 479],
+  ['GMA (gestoría)', 'mes', 472, 472],
+  ['Jeep', 'mes', 444, 867, false, 'dos cuotas'],
+  ['Préstamo La Caixa (feb-2026)', 'mes', 311, 311],
+  ['Luz del local', 'mes', 269, 147],
+  ['Zoe', 'mes', 244, 244],
+  ['Restaurantes', 'mes', 236, 26],
+  ['Combustible', 'mes', 180, 257],
+  ['Asisa', 'mes', 159, null, false, '¿baja? no sale desde marzo'],
+  ['Servicio de prevención (Quirón)', 'mes', 117, 117],
+  ['Simyo (teléfono)', 'mes', 103, 100],
+  ['Gastos bancarios', 'mes', 99, 109],
+  ['Dropbox', 'mes', 81, 82],
+  ['Prosegur', 'mes', 73, 74],
+  ['Monday', 'mes', 56, 72],
+  ['Agua', 'mes', 13, null],
+];
+const DAN = [
+  ['Casa', 'mes', 10344, 14000, true],
+  ['Comisiones pagadas en mano', 'mes', 4500, 9100, true],
+  ['Préstamo La Caixa 60.000 (¿crédito de la casa?)', 'mes', 984, 958, true],
+  ['Mutualidad de Daniel (HNA)', 'mes', 497, 497],
+  ['Seguros de Daniel', 'mes', 247, 214],
+  ['Curso de gestión de Daniel', 'plazos · 2 de 4 · el 3.º en dic', 1976, 1976, true, null, [9,12]],
+];
+const SINPREVER_ACC = 763, SINPREVER_DAN = 3561;
+const DIA = {'Nóminas':30,'Seguridad Social':30,'Nómina de Daniel':29,'COAM':18,'Software y apps':16,'Material de oficina':13,
+  'Alquiler del local':7,'Tickets restaurante (empleados)':24,'Préstamo BBVA':4,'FARO (renting Siemens)':7,'Pequeños gastos':18,
+  'Préstamo La Caixa':1,'GMA (gestoría)':22,'Jeep':20,'Préstamo La Caixa (feb-2026)':1,'Luz del local':11,'Zoe':15,'Restaurantes':20,
+  'Combustible':20,'Asisa':6,'Servicio de prevención (Quirón)':23,'Simyo (teléfono)':28,'Gastos bancarios':16,'Dropbox':22,'Prosegur':30,
+  'Monday':9,'Agua':12,'Casa':17,'Comisiones pagadas en mano':12,'Préstamo La Caixa 60.000 (¿crédito de la casa?)':1,
+  'Mutualidad de Daniel (HNA)':4,'Seguros de Daniel':1};
+const CORTE = 15;   // el mes en curso: extracto subido hasta el 15
+
+function barra(area){
+  return `<div class="top"><div class="logo">ACCES<i>ALIA</i></div><div class="areas">
+  ${['Cobrar','Pagar','Prever','Asignar'].map(a=>`<div class="area ${a===area?'on':''}">${a}</div>`).join('')}</div></div>`;
+}
+function lado(){
+  return `<div class="lado"><h4>Prever</h4>
+  <div class="it on">Gastos del mes</div>
+  <div class="it luego">El dinero del mes <small>próximamente</small></div>
+  <div class="it">Movimientos del banco</div></div>`;
+}
+function saldos(fecha){
+  return `<div class="saldos">
+   <div class="saldo"><span class="l">Caixa Accesalia</span><span class="v neg">−20.411</span><span class="s">línea de crédito: quedan 29.589 de 50.000</span></div>
+   <div class="saldo"><span class="l">BBVA Accesalia</span><span class="v">129</span></div>
+   <div class="saldo"><span class="l">Caixa Daniel</span><span class="v">528</span></div>
+   <div class="saldo"><span class="s">a ${fecha}, del último extracto</span></div></div>`;
+}
+function tabla(filas, cerrado, sinprever, titulo, mes){
+  let tp = 0, tr = 0;
+  const rows = filas.map(([n, cada, p, r, dir, nota, meses]) => {
+    if (meses && !meses.includes(mes)) p = null;
+    tp += (p || 0); tr += (r || 0);
+    let dif = '';
+    if (cerrado && r != null && p != null) { const d = r - p; if (Math.abs(d) >= Math.max(50, p * .1)) dif = `<span class="${d>0?'sube':'baja'}">${d>0?'+':'−'}${eur(Math.abs(d))}</span>`; }
+    const pagado = !cerrado && p != null && r != null && DIA[n] <= CORTE, pend = !cerrado && p != null && !pagado;
+    return `<tr class="${pagado?'pagado':pend?'pend':''}"><td class="nom">${pagado?'<span class="ok">✓</span> ':''}${n}${dir?'<span class="candado">dirección</span>':''}${nota&&cerrado?`<span class="falta">${nota}</span>`:''}</td>
+      <td class="cada">${cada}</td><td class="num pre">${eur(p)}</td>
+      <td class="num real ${r==null||(!cerrado&&!(p!=null&&DIA[n]<=CORTE))?'vacio':''}">${cerrado?eur(r):(p==null?'—':(DIA[n]<=CORTE&&r!=null?eur(r):DIA[n]<=CORTE?'<span class="falta">¿no pasó? · día '+DIA[n]+'</span>':'<span class="porpasar">día '+DIA[n]+'</span>'))}</td>${cerrado?`<td class="num dif">${dif}</td>`:''}</tr>`;
+  }).join('');
+  if (cerrado) tr += sinprever;
+  const sp = cerrado ? `<tr class="sinprever"><td class="nom">Sin prever (salió del banco y no está en la lista)</td><td class="cada"><a style="color:#3f7a1c;font-weight:700">ver y ordenar →</a></td><td class="num pre">—</td><td class="num real">${eur(sinprever)}</td><td></td></tr>` : '';
+  return `<div class="tarjeta"><h2><span>${titulo}</span></h2><table>
+   <tr><th>Gasto</th><th>Cada</th><th class="num">Previsto</th><th class="num">Real</th>${cerrado?'<th class="num">Diferencia</th>':''}</tr>
+   ${rows}${sp}
+   ${!cerrado ? `<tr><td class="nom"><b style="color:#2f5d14">✓ Pagado</b> · <b style="color:#875f07">Queda por pagar</b></td><td></td><td></td><td class="num" style="font-weight:700">${eur(filas.reduce((a,x)=>a+((x[6]&&!x[6].includes(mes))||DIA[x[0]]>CORTE?0:(x[3]||0)),0))} · ${eur(filas.reduce((a,x)=>a+((x[6]&&!x[6].includes(mes))||DIA[x[0]]<=CORTE?0:x[2]),0))}</td></tr>` : ''}
+   <tr class="total"><td>Total ${titulo}</td><td></td><td class="num">${eur(tp)}</td><td class="num">${cerrado?eur(tr):'—'}</td>${cerrado?`<td class="num dif"><span class="${tr>tp?'sube':'baja'}">${tr>tp?'+':'−'}${eur(Math.abs(tr-tp))}</span></td>`:''}</tr>
+   </table><div class="anadir">+ Añadir gasto</div></div>`;
+}
+function totales(cerrado, mes){
+  const s = (f) => f.reduce((a, x) => a + (x[6] && !x[6].includes(mes) ? 0 : x[2]), 0), r = (f) => f.reduce((a, x) => a + (x[3]||0), 0);
+  const p = s(ACC) + s(DAN), re = r(ACC) + r(DAN) + SINPREVER_ACC + SINPREVER_DAN;
+  const queda = [...ACC, ...DAN].reduce((a,x)=>a+((x[6]&&!x[6].includes(mes))||(DIA[x[0]]<=CORTE&&x[3]!=null)?0:x[2]),0);
+  const pag = [...ACC, ...DAN].reduce((a,x)=>a+((x[6]&&!x[6].includes(mes))||DIA[x[0]]>CORTE?0:(x[3]||0)),0);
+  return `<div class="comun"><span class="l">Total de las dos</span><span class="par"><span class="v">${eur(p)}</span><span class="s">previsto</span></span>
+   ${!cerrado?`<span class="par"><span class="v" style="color:#a8e07a">${eur(pag)}</span><span class="s">pagado</span></span><span class="par"><span class="v" style="color:#f2d27a">${eur(queda)}</span><span class="s">queda por pagar este mes</span></span>`:''}
+   ${cerrado?`<span class="par"><span class="v">${eur(re)}</span><span class="s">real</span></span>`:''}</div>
+   <div class="nota-imp">Los impuestos no van aquí: están en Pagar › Impuestos y salen en «El dinero del mes».</div>`;
+}
+function pantalla(mes, estado, fecha, cartel, cerrado, n){
+  return barra('Prever') + `<div class="cuerpo">${lado()}<div class="cont">
+   <div class="volver">← Prever</div>
+   <div class="cab"><h1>Gastos del mes</h1>
+     <div class="mes"><span class="fl">◀</span>${mes}<span class="fl">▶</span><span class="hoy ${cerrado?'cerrado':''}">${estado}</span></div>
+     <div class="der"><span class="fino">${cerrado?'extracto subido el 30-sep':'último extracto: hasta el 15-oct · se puede subir cuando quiera'}</span><span class="btn pri">⬆ Subir extracto</span></div></div>
+   ${saldos(cerrado ? fecha : '15-oct')}${cartel}
+   <div class="dos">${tabla(ACC, cerrado, SINPREVER_ACC, 'Accesalia', n)}<div>${tabla(DAN, cerrado, SINPREVER_DAN, 'Daniel', n)}${totales(cerrado, n)}</div></div>
+  </div></div>`;
+}
+
+const CARTEL_OCT = `<div class="cartel"><div><h3>Este mes · octubre</h3>
+  <li><span class="punto"></span><span><b>Intereses de la línea de crédito</b> · cada 3 meses, el día 1</span><span class="eur">~200</span></li>
+  <li><span class="punto"></span><span><b>Licencias Revit</b> (por puesto) <span class="falta">¿en qué mes se renueva?</span><span class="hacer">→ revisar cuántos puestos hacen falta</span></span><span class="eur">—</span></li></div>
+  <div><h3>El mes que viene · noviembre</h3><div class="nada">Nada fuera de lo de todos los meses.</div>
+  <h3 style="margin-top:10px">Y en diciembre</h3>
+  <li><span class="punto verde"></span><span><b>Sofise</b> · recibo trimestral</span><span class="eur">~1.503</span></li>
+  <li><span class="punto verde"></span><span><b>Curso de gestión de Daniel</b> · plazo 3 de 4</span><span class="eur">~1.976</span></li></div></div>`;
+const CARTEL_SEP = `<div class="cartel"><div><h3>Este mes · septiembre</h3>
+  <li><span class="punto verde"></span><span><b>Sofise</b> · recibo trimestral <span class="falta">llegó otro de 4.744</span></span><span class="eur">1.503 → 6.277</span></li>
+  <li><span class="punto verde"></span><span><b>Curso de gestión de Daniel</b> · plazo 2 de 4</span><span class="eur">1.976</span></li></div>
+  <div><h3>El mes que viene · octubre</h3>
+  <li><span class="punto"></span><span><b>Intereses de la línea de crédito</b> · el día 1</span><span class="eur">~200</span></li>
+  <li><span class="punto"></span><span><b>Licencias Revit</b> <span class="falta">¿mes?</span></span><span class="eur">—</span></li></div></div>`;
+
+document.getElementById('m1').innerHTML = pantalla('Octubre 2026', 'mes en curso', '30-sep', CARTEL_OCT, false, 10);
+document.getElementById('m2').innerHTML = pantalla('Septiembre 2026', 'cerrado', '30-sep', CARTEL_SEP, true, 9);
+
+// ---- 3: añadir gasto
+document.getElementById('m3').innerHTML = barra('Prever') + `<div class="cuerpo">${lado()}<div class="cont">
+  <div class="volver">← Prever</div>
+  <div class="cab"><h1>Gastos del mes</h1><div class="mes"><span class="fl">◀</span>Octubre 2026<span class="fl">▶</span><span class="hoy">mes en curso</span></div></div>
+  <div class="modal">
+   <div class="tit"><b>Nuevo gasto</b><div class="der"><span class="btn peq pri">Guardar</span><span class="btn peq">Cancelar</span></div></div>
+   <div class="rej" style="grid-template-columns:2fr 1fr 1fr">
+    <div class="campo"><label>Nombre</label><div class="caja">Licencia Scene</div></div>
+    <div class="campo"><label>Es de</label><div class="seg"><span class="on">Accesalia</span><span>Daniel</span></div></div>
+    <div class="campo"><label>Importe esperado</label><div class="caja">2.700 €</div></div>
+   </div>
+   <div class="rej" style="grid-template-columns:1fr;margin-top:12px">
+    <div class="campo"><label>Cada cuánto</label><div class="seg"><span>Una vez</span><span>Cada mes</span><span>Cada 3 meses</span><span>Cada 6 meses</span><span class="on">Cada año</span><span>A plazos</span></div></div>
+    <div class="campo"><label>En qué mes</label><div class="seg meses">${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'].map(m=>`<span class="${m==='abr'?'on':''}">${m}</span>`).join('')}</div></div>
+   </div>
+   <div class="rej" style="grid-template-columns:1fr 1fr;margin-top:12px">
+    <div class="campo"><label>En el banco aparece como</label><div class="caja">FARO EUROPE</div>
+      <div class="fino" style="margin:8px 0 4px">o elíjalo de lo que ya ha salido:</div>
+      <div class="mov"><div class="on"><span>07-abr-2026</span><span>PEDIDO 08050064 · FARO EUROPE GMBH</span><span class="i">−2.450,00</span></div>
+      <div><span>20-mar-2025</span><span>TRF.INTERNACIONAL · FARO EUROPE GMBH</span><span class="i">−2.175,00</span></div></div></div>
+    <div class="campo"><label>Qué hay que hacer antes</label><div class="caja pista" style="min-height:70px;align-items:flex-start">pedir la renovación a FARO; comprobar que sigue haciendo falta</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+       <span class="check"><i class="on"></i>Avisar el mes anterior</span>
+       <span class="check"><i></i>Solo lo ve dirección</span></div></div>
+   </div>
+  </div></div></div>`;
+
+// ---- 4: subir el extracto
+const preg = [
+  ['03-oct', 'CLICK ONLINE MARK · Recibos varios', -302.50, 'Software y apps', true],
+  ['09-oct', 'NUEVO PROVEEDOR SL · pago factura 12', -1210.00, '', false],
+  ['14-oct', 'AMZN Mktp ES', -47.90, 'Material de oficina', true],
+  ['22-oct', 'TRANSF. A SU FAVOR · CP ALCALÁ 230', 2420.00, 'Accesalia 2026/1-301', true],
+];
+document.getElementById('m4').innerHTML = barra('Prever') + `<div class="cuerpo">${lado()}<div class="cont">
+  <div class="volver">← Gastos del mes</div>
+  <div class="cab"><h1>Subir el extracto</h1><div class="mes">Octubre 2026</div></div>
+  <div class="soltar"><span class="ic">⬆</span><div><b>Suelte aquí los Excel del banco, tal cual se descargan</b><div class="fino">La Caixa (Movimientos_cuenta_…xls) y BBVA (Histórico movimientos….xlsx). Da igual que se pisen con los de antes: no se duplica nada.</div></div></div>
+  <div class="res3">
+   <div class="res"><b>Caixa Accesalia</b><span class="ok">✓ el saldo cuadra con el anterior</span><div class="n">172 movimientos nuevos (1 al 31-oct) · 168 reconocidos · <b style="display:inline;color:#875f07">4 por saber</b></div></div>
+   <div class="res"><b>Caixa Daniel</b><span class="ok">✓ el saldo cuadra con el anterior</span><div class="n">38 movimientos nuevos · todos reconocidos</div></div>
+   <div class="res"><b>BBVA Accesalia</b><span class="ok">✓ el saldo cuadra con el anterior</span><div class="n">3 movimientos nuevos · todos reconocidos</div></div>
+  </div>
+  <div class="tarjeta" style="display:inline-block"><h2><span>Lo que no conozco · 4</span></h2>
+   <table class="pregunta"><tr><th>Fecha</th><th>Lo que pone el banco</th><th class="num">Importe</th><th>¿Qué es?</th><th>¿Se repite?</th><th></th></tr>
+   ${preg.map(([f, t, i, q, ok]) => `<tr><td>${f}</td><td class="nom">${t}</td><td class="num">${eur2(i)}</td>
+     <td><span class="sel ${ok?'on':''}">${q || 'elegir o escribir…'}</span></td>
+     <td><div class="seg"><span class="${ok&&i<0?'on':''}">sí</span><span>no</span></div></td>
+     <td class="fino">${i<0 && !ok ? '+ crear gasto habitual' : ''}</td></tr>`).join('')}
+   </table>
+   <div class="fino" style="margin:10px 4px 2px">Lo que conteste se guarda como regla: el mes que viene ya no se lo pregunto.</div></div>
+  </div></div>`;
+</script>
+</body>
+</html>
