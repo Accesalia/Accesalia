@@ -44,12 +44,9 @@ export default async function PaginaGastos({ searchParams }: { searchParams: Pro
           <span className="text-[12.5px] text-carbon/65">
             {g.hasta ? `último extracto: hasta el ${g.hasta.slice(8, 10)}-${g.hasta.slice(5, 7)}-${g.hasta.slice(0, 4)}` : "aún no hay extractos"}
           </span>
-          <span
-            title="Subir el extracto desde aquí: lo siguiente que se monta. Mientras tanto, mándamelo y lo cargo."
-            className="inline-flex h-9 cursor-default items-center gap-2 rounded-xl bg-lima/50 px-4 text-[13.5px] font-bold text-carbon/70"
-          >
-            ⬆ Subir extracto <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9.5px] uppercase tracking-wide text-carbon/60">próximamente</span>
-          </span>
+          <Link href="/prever/extracto" className="inline-flex h-9 items-center gap-2 rounded-xl bg-lima px-4 text-[13.5px] font-bold text-carbon hover:bg-lima-dark hover:text-white">
+            ⬆ Subir extracto
+          </Link>
         </div>
       </div>
       <Gastos g={g} />
