@@ -80,6 +80,9 @@ export default async function Historico({ searchParams }: { searchParams: Promis
         {ver === "daniel" && <Tabla titulo="De lo facturado, a Accesalia" sub="Las facturas de Daniel a Accesalia: en «Las dos juntas» no cuentan." p={x.internas} anos={h.anos} tono="suave" />}
         <Tabla titulo="Gastos" sub={`Lo que salió del banco y es gasto de la actividad (los gastos llevan IVA).${ver === "accesalia" ? " Incluye lo que le factura Daniel." : ""} Sin impuestos ni lo personal de Daniel, que van aparte.`} p={x.gastos} anos={h.anos} />
         <Tabla titulo="Resultado" sub="Facturado − gastos, en los meses con extracto." p={x.resultado} anos={h.anos} tono="resultado" />
+        <Tabla titulo="Resultado afinado, sin el IVA de los gastos"
+          sub="Lo facturado va sin IVA y los gastos del banco lo llevan: aquí se le quita el 21 % a lo que lleva IVA (proveedores, alquiler, coches, software, material…). Las nóminas, la SS, los préstamos, los seguros, el banco y las tasas no llevan IVA y se quedan igual. Da mejor idea de cómo evoluciona el negocio."
+          p={x.resultadoSinIva} anos={h.anos} tono="resultado" />
         <Tabla titulo="Impuestos pagados" sub="Aparte: no restan en el resultado (el IVA se cobra al cliente y se pasa a Hacienda)." p={x.impuestos} anos={h.anos} tono="suave" />
         <Tabla titulo="Personal de Daniel" sub="Aparte: la casa y los gastos suyos no son gasto de la actividad." p={x.personal} anos={h.anos} tono="suave" />
       </main>

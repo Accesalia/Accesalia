@@ -32,12 +32,14 @@ export type Historico = {
   anos: number[];
   /** Los meses con extracto (enteros) de cada una: desde / hasta, AAAA-MM. */
   conGastos: Record<Clave, { desde: string; hasta: string } | null>;
-  e: Record<Clave, { facturado: PorAno; gastos: PorAno; impuestos: PorAno; personal: PorAno; internas: PorAno; resultado: PorAno }>;
+  e: Record<Clave, { facturado: PorAno; gastos: PorAno; impuestos: PorAno; personal: PorAno; internas: PorAno; resultado: PorAno; gastosSinIva: PorAno; resultadoSinIva: PorAno }>;
 };
 
 const ACCESALIA_NIF = "B86374055";
 const CUENTA_EMPRESA: Record<string, "accesalia" | "daniel"> = { caixa_accesalia: "accesalia", bbva_accesalia: "accesalia", caixa_daniel: "daniel" };
 const vacio = (): (number | null)[] => Array(12).fill(null);
+/** Lo que no lleva IVA (o no se recupera): se queda tal cual en el resultado afinado. */
+const SIN_IVA = /^(NÓMINA|SEGURIDAD SOCIAL|PRÉSTAMO|LÍNEA DE CRÉDITO|CAIXA BANK CRÉDITO|SEGUROS|ASISA|HNA|CASER|GASTOS BANCARIOS|TICKETS RESTAURANTE|COMISIONES PAGADAS|AYUNTAMIENTO|MULTAS|ADELANTOS|SANCIÓN|AYUDA DE VERANO)/;
 const sumar = (p: PorAno, y: number, m: number, v: number) => {
   p[y] ??= vacio();
   p[y][m] = (p[y][m] ?? 0) + v;
@@ -52,7 +54,7 @@ export async function historico(): Promise<Historico> {
       "movimientos_bancarios?select=cuenta,fecha,importe,clase,tipo,mes_imputado&clase=in.(gasto,devolucion)",
     ),
   ]);
-  const e = Object.fromEntries((["accesalia", "daniel", "las_dos"] as Clave[]).map((k) => [k, { facturado: {}, gastos: {}, impuestos: {}, personal: {}, internas: {}, resultado: {} }])) as Historico["e"];
+  const e = Object.fromEntries((["accesalia", "daniel", "las_dos"] as Clave[]).map((k) => [k, { facturado: {}, gastos: {}, impuestos: {}, personal: {}, internas: {}, resultado: {}, gastosSinIva: {}, resultadoSinIva: {} }])) as Historico["e"];
   const anos = new Set<number>();
 
   for (const f of facturas) {
@@ -64,6 +66,7 @@ export async function historico(): Promise<Historico> {
     if (interna) {
       sumar(e.daniel.internas, y, m, v);
       sumar(e.accesalia.gastos, y, m, v);   // para Accesalia, lo que le factura Daniel es gasto
+      sumar(e.accesalia.gastosSinIva, y, m, v);   // (ya es base, sin IVA)
     }
   }
   // las dos juntas: lo de Accesalia + lo de Daniel que no es a Accesalia
@@ -104,22 +107,27 @@ export async function historico(): Promise<Historico> {
     anos.add(y);
     if (tipo.startsWith("IMPUESTOS")) sumar(e[emp].impuestos, y, m, v);
     else if (/^(CASA|PERSONAL DE DANIEL|PRÉSTAMO DE MÓNICA)/.test(tipo)) sumar(e[emp].personal, y, m, v);
-    else sumar(e[emp].gastos, y, m, v);
+    else {
+      sumar(e[emp].gastos, y, m, v);
+      // EL RESULTADO AFINADO (Monica, 21-oct): los gastos del banco llevan IVA y lo facturado no; a lo que lleva IVA
+      // se le quita el 21 %. Sin IVA: nominas, SS, prestamos, seguros, banco, tasas, comisiones en mano…
+      sumar(e[emp].gastosSinIva, y, m, SIN_IVA.test(tipo) ? v : v / 1.21);
+    }
   }
   // Los meses con extracto: ahi los gastos son 0 si no salio nada, no «sin dato»; fuera, sin dato
   for (const k of ["accesalia", "daniel"] as const)
-    for (const p of [e[k].gastos, e[k].impuestos, e[k].personal])
+    for (const p of [e[k].gastos, e[k].gastosSinIva, e[k].impuestos, e[k].personal])
       for (const y of anos) {
         p[y] ??= vacio();
         p[y] = p[y].map((v, m) => (enTramo(cubre[k], y, m) ? v ?? 0 : null));
       }
   for (const y of anos) {
-    for (const nombre of ["gastos", "impuestos", "personal"] as const) {
+    for (const nombre of ["gastos", "gastosSinIva", "impuestos", "personal"] as const) {
       e.las_dos[nombre][y] = Array.from({ length: 12 }, (_, m) => {
         const a = e.accesalia[nombre][y]?.[m], d = e.daniel[nombre][y]?.[m];
         if (a == null || d == null) return null;   // juntas, solo los meses que tienen las DOS
         // en las dos juntas, lo que Daniel factura a Accesalia no es gasto del grupo
-        return (a ?? 0) + (d ?? 0) - (nombre === "gastos" ? e.daniel.internas[y]?.[m] ?? 0 : 0);
+        return (a ?? 0) + (d ?? 0) - (nombre === "gastos" || nombre === "gastosSinIva" ? e.daniel.internas[y]?.[m] ?? 0 : 0);
       });
     }
     for (const k of ["accesalia", "daniel", "las_dos"] as Clave[])
@@ -129,6 +137,8 @@ export async function historico(): Promise<Historico> {
         if (!e[k].facturado[y]?.some((v) => v != null)) return null;   // un año sin facturas en la app (Accesalia 2018-19): sin resultado
         return (e[k].facturado[y]?.[m] ?? 0) - g;
       });
+    for (const k of ["accesalia", "daniel", "las_dos"] as Clave[])
+      e[k].resultadoSinIva[y] = e[k].resultado[y].map((r, m) => (r == null ? null : (e[k].facturado[y]?.[m] ?? 0) - (e[k].gastosSinIva[y]?.[m] ?? 0)));
   }
   const juntas = cubre.accesalia && cubre.daniel
     ? { desde: [cubre.accesalia.desde, cubre.daniel.desde].sort()[1], hasta: [cubre.accesalia.hasta, cubre.daniel.hasta].sort()[0] } : null;

@@ -25,7 +25,7 @@ import sys, os, re, glob, datetime, collections, io, warnings
 import pandas as pd
 import openpyxl
 warnings.filterwarnings("ignore")
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+sys.stdout.reconfigure(encoding='utf-8')
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from produccion import arrancar  # noqa: E402
 
