@@ -17,6 +17,9 @@ const MES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio
 const mesDe = (m: string) => MES_LARGO[Number(m.slice(5, 7)) - 1];
 const fecha = (iso: string) => `${iso.slice(8, 10)}-${iso.slice(5, 7)}`;
 
+/** En la tabla del mes, corto (Monica, 21-oct: «pongamos solo trimestral»): los meses se ven en la lista de gastos. */
+const CADA_CORTO: Record<Cada, string> = { mensual: "mensual", trimestral: "trimestral", semestral: "semestral", anual: "anual", una_vez: "una vez", plazos: "a plazos" };
+
 function cadaTexto(g: Gasto) {
   const ms = g.meses?.length ? " · " + g.meses.map((m) => MESES[m - 1]).join(" ") : "";
   switch (g.cada) {
@@ -151,7 +154,7 @@ function Tabla({ b, g, editar, ponerSinPrever }: { b: BloqueEmpresa; g: GastosMe
                   {f.gasto.solo_direccion && <Chip tono="dir">dirección</Chip>}
                   {f.apuntes > 1 && f.gasto.cada === "mensual" && <Chip title="Salió más de una vez este mes">{f.apuntes} cargos</Chip>}
                 </td>
-                <td className={`${TD} text-[12px] text-carbon/65`}>{cadaTexto(f.gasto)}</td>
+                <td className={`${TD} text-[12px] text-carbon/65`}>{CADA_CORTO[f.gasto.cada]}</td>
                 <td className={`${TD} text-right ${g.cerrado ? "text-carbon/55" : "text-carbon"}`}>{e0(f.previsto)}</td>
                 <td className={`${TD} text-right font-bold ${pagado ? "text-lima-dark" : ""}`}><Real f={f} g={g} /></td>
                 {g.cerrado && (

@@ -170,8 +170,9 @@ export async function gastosDelMes(mes: string, yo: Yo): Promise<GastosMes> {
       else if (toca) estado = !futuro && (cerrado || (g.dia ?? 31) <= diaCorte) ? "no_paso" : "pendiente";
       filas.push({ gasto: g, previsto, real, estado, apuntes: r?.n ?? 0 });
     }
-    // Lo de todos los meses primero; dentro, por importe
-    filas.sort((a, b) => (b.previsto ?? b.real ?? 0) - (a.previsto ?? a.real ?? 0));
+    // Por PREVISTO, de mayor a menor (Monica, 21-oct): lo gordo arriba, y si un mes algo se dispara no cambia el orden.
+    // Lo que no tocaba y salio igual, al final, por su importe habitual.
+    filas.sort((a, b) => (b.previsto ?? -1) - (a.previsto ?? -1) || (b.gasto.importe ?? 0) - (a.gasto.importe ?? 0));
     const sinPrever = visibles
       .filter((m) => !m.gasto_habitual_id && EMPRESA_DE_CUENTA[m.cuenta] === empresa && !(m.tipo ?? "").startsWith("IMPUESTOS"))
       .map((m) => ({ id: m.id, fecha: m.fecha, concepto: m.concepto, mas_datos: m.mas_datos, importe: -Number(m.importe), tipo: m.tipo }));
