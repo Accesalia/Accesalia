@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
-import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
+import { Manrope } from "next/font/google";
+import { RejillaAccesos } from "../components/Accesos";
+import { GRUPOS, RotuloGrupo, TarjetaVelada, type Grupo, type Icono } from "./TarjetaVelada";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
 import { FUNCION_REVISION } from "../../lib/revisionOferta";
 import { misAvisos, type Avisos } from "../../lib/misPendientes";
 
 export const dynamic = "force-dynamic";
+
+// La letra de los titulos del menu, con mas caracter (Monica, 21-oct-2026).
+const letraMenu = Manrope({ subsets: ["latin"], weight: ["700", "800"], variable: "--letra-menu" });
 
 // Menu principal, montado de cero el 11-sep-2026. Monica archivo todas las
 // pantallas y se vuelven a montar, una a una, solo las que ella dice. Aqui
@@ -16,12 +21,13 @@ export const dynamic = "force-dynamic";
 // RRHH, todos (cada uno su espacio); el area comercial, direccion y quien es
 // comercial.
 
-type Area = { nombre: string; desc: string; href: string | null; color: ColorAcceso; ve: (yo: Yo | null, comercial: boolean) => boolean };
+type Area = { nombre: string; desc: string; href: string | null; grupo: Grupo; icono: Icono; ve: (yo: Yo | null, comercial: boolean) => boolean };
 
 const AREAS: Area[] = [
   {
     nombre: "Área comercial",
-    color: "azul",
+    grupo: "trabajo",
+    icono: "comercial",
     desc: "Cuadro de mando del comercial: agenda, diario, oportunidades pendientes de firma, cartera y mapa",
     href: "/comercial",
     ve: (yo, comercial) => !yo || yo.veTodo || comercial || puedeEntrar(yo, "comercial"),
@@ -31,7 +37,8 @@ const AREAS: Area[] = [
     // estudio para trabajar de verdad es poder dar de alta y mantener las
     // administraciones y las comunidades. Dentro habra mas puertas.
     nombre: "Área Administración",
-    color: "verde",
+    grupo: "trabajo",
+    icono: "administracion",
     desc: "Las administraciones de fincas y las comunidades de vecinos: consultarlas, abrir su ficha y dar de alta",
     href: "/administracion",
     ve: (yo) => !yo || yo.veTodo || puedeEntrar(yo, "administracion"),
@@ -43,7 +50,8 @@ const AREAS: Area[] = [
     // los tecnicos y se ve la caja. Direccion, facturacion (Alexandra, Ana) y
     // control de produccion.
     nombre: "Facturación y asignación",
-    color: "ambar",
+    grupo: "dinero",
+    icono: "euro",
     desc: "Cobrar, pagar, prever y asignar: las hojas firmadas, los impuestos, la caja del mes y el trabajo de los técnicos",
     href: "/facturacion",
     ve: (yo) => !yo || yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "control_produccion"),
@@ -52,7 +60,8 @@ const AREAS: Area[] = [
     // ECOBALANCE (Monica, 12-oct-2026): solo Ana, Daniel y Monica. Sus listas:
     // las hojas firmadas con 3 presupuestos y las que llevan CAES.
     nombre: "Ecobalance",
-    color: "verde",
+    grupo: "dinero",
+    icono: "hoja",
     desc: "3 presupuestos, CAES, impuestos y comisiones de administradores. Solo Ecobalance y dirección",
     href: "/ecobalance",
     ve: (yo) => !!yo && (yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion_ecobalance")),
@@ -61,31 +70,35 @@ const AREAS: Area[] = [
   // Montados con lo que hay; lo que aun no tiene dato sale como hueco con su nota.
   {
     nombre: "Negocio",
-    color: "lila",
+    grupo: "direccion",
+    icono: "grafica",
     desc: "Trabajo contratado entre fechas: opps abiertas y ganadas, importes, % de éxito y administradores nuevos, por comercial",
     href: "/negocio",
     ve: (yo) => !!yo && yo.veTodo,
   },
   {
     nombre: "Control interno",
-    color: "rosa",
+    grupo: "direccion",
+    icono: "reloj",
     desc: "Los técnicos entre fechas: proyectos hechos, requerimientos, tiempos y desviaciones; informes de Sali",
     href: "/control-interno",
     ve: (yo) => !!yo && yo.veTodo,
   },
   {
     nombre: "Resultados económicos",
-    color: "melocoton",
+    grupo: "direccion",
+    icono: "grafica",
     desc: "Facturado, gastos, horas, beneficio, morosidad, retrasos de cobro, administradores y zonas",
     href: "/resultados-economicos",
     ve: (yo) => !!yo && yo.veTodo,
   },
-  { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, color: "arena", ve: () => true },
+  { nombre: "Contratas", desc: "Las empresas contratistas y su gente", href: null, grupo: "trabajo", icono: "casco", ve: () => true },
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
     // y llega a su ficha (Monica, 7-oct-2026).
     nombre: "Buscar y consultar",
-    color: "turquesa",
+    grupo: "todos",
+    icono: "lupa",
     desc: "Buscar una dirección o un administrador, y los listados de oportunidades y administradores de un vistazo",
     href: "/consulta",
     ve: () => true,
@@ -94,14 +107,16 @@ const AREAS: Area[] = [
     // Para todo el mundo (Monica, 10-oct-2026): catalogos y tablas de consulta.
     // El primero, los modelos de ascensor en 3D para enseñarlos en una junta.
     nombre: "Documentación de referencia",
-    color: "lila",
+    grupo: "todos",
+    icono: "libro",
     desc: "Catálogos para consultar: los modelos de ascensor en 3D, y más que vendrán",
     href: "/referencia",
     ve: () => true,
   },
   {
     nombre: "RRHH",
-    color: "rosa",
+    grupo: "todos",
+    icono: "persona",
     desc: "Tus días y tus solicitudes. Para RRHH y dirección, además: vacaciones del equipo y fichas",
     href: "/rrhh",
     ve: () => true,
@@ -132,7 +147,8 @@ const AREAS: Area[] = [
 
 type Puerta = {
   nombre: string;
-  color: ColorAcceso;
+  grupo: Grupo;
+  icono: Icono;
   desc: string;
   href: string;
   /** Las claves de las funciones que abren esta puerta (basta una). */
@@ -147,7 +163,8 @@ const PUERTAS: Puerta[] = [
     // REVISION DE OFERTAS (Monica, 14-oct-2026): el ok al paquete antes de que
     // el comercial lo mande a la comunidad. Por su funcion (hoy Daniel y Monica).
     nombre: "Revisión de ofertas",
-    color: "rosa",
+    grupo: "direccion",
+    icono: "check",
     desc: "Las ofertas que esperan tu ok antes de salir a la comunidad: sus hojas, la viabilidad y el presupuesto",
     href: "/comercial/revision",
     funciones: [FUNCION_REVISION],
@@ -158,7 +175,8 @@ const PUERTAS: Puerta[] = [
     // GESTIONES DE LA APP (Monica, 14-oct-2026): lo que se puede tocar de la app,
     // en un sitio: funciones de cada persona, bloques, plantillas, RRHH...
     nombre: "Gestiones de la app",
-    color: "lila",
+    grupo: "direccion",
+    icono: "ajustes",
     desc: "Lo que se puede tocar de la app en un solo sitio: funciones de cada persona, bloques, plantillas y RRHH",
     href: "/gestiones",
     funciones: ["direccion"],
@@ -169,14 +187,16 @@ const PUERTAS: Puerta[] = [
     // y yo". La llave es la misma que pide el radar: supervisar el area
     // comercial (Alejandra) o direccion.
     nombre: "Ir al radar",
-    color: "turquesa",
+    grupo: "trabajo",
+    icono: "radar",
     desc: "El radar de IEE: las direcciones de cada día, a quién se dieron y si salió oportunidad",
     href: "/comercial/alertas-iee",
     funciones: ["direccion", "supervision_comercial"],
   },
   {
     nombre: "Mesa de viabilidades",
-    color: "melocoton",
+    grupo: "trabajo",
+    icono: "escaner",
     desc: "Los escaneados del buzón: de qué portal es cada uno, y su viabilidad",
     href: "/viabilidades",
     funciones: ["viabilidades"],
@@ -187,7 +207,8 @@ const PUERTAS: Puerta[] = [
     // PROYECTOS POR ESTIMAR (Monica, 16-oct-2026): la bandeja de Alex antes de
     // asignar: dificultad y dias de cada proyecto con la nube lista o sin nube.
     nombre: "Proyectos por estimar",
-    color: "melocoton",
+    grupo: "trabajo",
+    icono: "reloj",
     desc: "Los proyectos con la nube lista o sin nube: su dificultad y sus días, antes de asignarlos",
     href: "/proyectos/estimar",
     funciones: ["estimacion_proyectos"],
@@ -196,7 +217,8 @@ const PUERTAS: Puerta[] = [
     // PROCESO DE NUBES (Monica, 13-oct-2026): la lista de Abraham; Alexandra la
     // ve igual desde Asignar.
     nombre: "Proceso de nubes",
-    color: "turquesa",
+    grupo: "trabajo",
+    icono: "nube",
     desc: "Lo que necesita nube de puntos: escaneo previsto, notas, escaneado y nube lista",
     href: "/facturacion/nubes",
     funciones: ["escaneo"],
@@ -205,7 +227,8 @@ const PUERTAS: Puerta[] = [
     // El catalogo de bloques (Monica, 3-oct-2026): direccion y la secretaria
     // comercial. Direccion ya lo ve todo; la llave que hace falta es la otra.
     nombre: "Modificar plantilla de Hoja de Encargo",
-    color: "arena",
+    grupo: "direccion",
+    icono: "plantilla",
     desc: "Los bloques que se marcan al generar una hoja: sus textos, su orden y sus importes por defecto",
     href: "/comercial/bloques",
     funciones: ["direccion", "secretaria"],
@@ -226,41 +249,45 @@ export default async function Menu() {
   const avisos = yo ? await misAvisos(yo) : null;
   const cuentas = puertas.map((p) => (p.cuantos && avisos ? p.cuantos(avisos) : 0));
 
+  // EL MENU AGRUPADO (Monica, 21-oct-2026): areas y puertas juntas en cuatro
+  // grupos, cada uno con su color; dentro de cada grupo, primero las areas y
+  // luego las puertas, como antes. Quien ve que no cambia: un grupo sin nada que
+  // ver no sale.
+  const botones = [
+    ...areas.map((a) => ({ ...a, insignia: null as React.ReactNode })),
+    ...puertas.map((p, i) => ({
+      ...p,
+      insignia:
+        p.comoSeCuenta && cuentas[i] > 0 ? (
+          <span className="whitespace-nowrap rounded-full border border-ajeno/40 bg-ajeno-soft px-2.5 py-0.5 text-[11px] font-bold text-[#3f5f80]">
+            {p.comoSeCuenta(cuentas[i])}
+          </span>
+        ) : null,
+    })),
+  ];
+  const grupos = (Object.keys(GRUPOS) as Grupo[])
+    .map((g) => ({ g, botones: botones.filter((b) => b.grupo === g) }))
+    .filter((x) => x.botones.length > 0);
+
+  // Fondo grafito, solo en el menu: da presencia y deja que los colores de los
+  // grupos sean lo unico que destaca (Monica, 21-oct-2026).
   return (
-    <div className="min-h-screen">
+    <div className={`${letraMenu.variable} min-h-screen bg-[#2e3236]`}>
       <BarraSuperior />
       <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-bold text-carbon sm:text-4xl">Áreas de Accesalia</h1>
-        <p className="mt-1 text-carbon/55">Elige con qué quieres trabajar.</p>
+        <h1 className="text-3xl font-bold text-[#f3f4f1] sm:text-4xl">Áreas de Accesalia</h1>
+        <p className="mt-1 text-[#f3f4f1]/75">Elige con qué quieres trabajar.</p>
 
-        <RejillaAccesos className="mt-8">
-          {areas.map((a) => (
-            <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} />
-          ))}
-        </RejillaAccesos>
-
-        {puertas.length > 0 && (
-          <section className="mt-10">
+        {grupos.map(({ g, botones }) => (
+          <section key={g} className="mt-8">
+            <RotuloGrupo grupo={g} />
             <RejillaAccesos>
-              {puertas.map((p, i) => (
-                <TarjetaAcceso
-                  key={p.href}
-                  nombre={p.nombre}
-                  desc={p.desc}
-                  href={p.href}
-                  color={p.color}
-                  insignia={
-                    p.comoSeCuenta && cuentas[i] > 0 ? (
-                      <span className="shrink-0 rounded-full border border-ajeno/40 bg-ajeno-soft px-2.5 py-0.5 text-[11px] font-bold text-[#3f5f80]">
-                        {p.comoSeCuenta(cuentas[i])}
-                      </span>
-                    ) : null
-                  }
-                />
+              {botones.map((b) => (
+                <TarjetaVelada key={b.nombre} nombre={b.nombre} desc={b.desc} href={b.href} grupo={b.grupo} icono={b.icono} insignia={b.insignia} />
               ))}
             </RejillaAccesos>
           </section>
-        )}
+        ))}
       </main>
     </div>
   );
