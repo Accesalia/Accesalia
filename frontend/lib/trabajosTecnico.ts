@@ -79,8 +79,8 @@ export type DatosProyectos = {
   visadoDias: number;
 };
 
-type Tiempos = { porObra: Map<string, number>; ahorro: number; minimo: number; visado: number };
-async function leerTiempos(): Promise<Tiempos> {
+export type Tiempos = { porObra: Map<string, number>; ahorro: number; minimo: number; visado: number };
+export async function leerTiempos(): Promise<Tiempos> {
   const filas = await todo<{ contexto: string; clave: string; dias: number }>("tiempos_estandar?select=contexto,clave,dias&activo=eq.true");
   const de = (c: string, k: string) => Number(filas.find((f) => f.contexto === c && f.clave === k)?.dias ?? NaN);
   return {
