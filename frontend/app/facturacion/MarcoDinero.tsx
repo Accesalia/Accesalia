@@ -90,6 +90,8 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
         titulo: "Previsión",
         items: [
           // La caja del mes (Monica, 17-oct-2026): el resumen financiero de un mes.
+          // El dinero del mes (Monica, 21-oct-2026): el resumen limpio y las proximas 8 semanas.
+          { clave: "dinero", titulo: "El dinero del mes", href: "/prever/dinero" },
           // Gastos del mes (Monica, 21-oct-2026): previsto y real de cada gasto, con el banco.
           { clave: "gastos", titulo: "Gastos del mes", href: "/prever/gastos" },
           { clave: "caja", titulo: "La caja del mes", href: "/prever/caja" },
