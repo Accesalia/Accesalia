@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../../lib/sesion";
-import { COLCHON, periodo, trabajoContratado, type Colchon } from "../../../lib/negocio";
+import { horasSemana, periodo, trabajoContratado, type Colchon, type UmbralesColchon } from "../../../lib/negocio";
+import { BotonUmbrales } from "./UmbralesColchon";
 import { BloqueTrabajo, PaginaTrabajo, Periodo } from "../../components/CabeceraTrabajo";
 import { eur, pct } from "../Piezas";
 
@@ -31,27 +32,27 @@ function Cifra({ titulo, valor, nota, primera }: { titulo: string; valor: React.
 }
 
 /** EL COLCHON DE PROYECTOS: la regla de 0 a 8 semanas con sus zonas y la aguja. */
-function CifraColchon({ c }: { c: Colchon }) {
+function CifraColchon({ c, u }: { c: Colchon; u: UmbralesColchon }) {
   const s = c.semanas;
-  const malo = s != null && (s < COLCHON.minimo || s > COLCHON.maximo);
-  const ideal = s != null && s >= COLCHON.ideal[0] && s <= COLCHON.ideal[1];
+  const malo = s != null && (s < u.minimo || s > u.maximo);
+  const ideal = s != null && s >= u.idealDesde && s <= u.idealHasta;
   const texto =
     s == null
       ? "Aún no hay proyectos en la cola de Asignar."
-      : s < COLCHON.minimo
-        ? `Poco colchón: con menos de ${COLCHON.minimo} semanas no da tiempo a reaccionar.`
-        : s > COLCHON.maximo
+      : s < u.minimo
+        ? `Poco colchón: con menos de ${u.minimo} semanas no da tiempo a reaccionar.`
+        : s > u.maximo
           ? `Colapso: hay trabajo en cola para ${N.format(s)} semanas de espera.`
           : ideal
             ? "Vamos bien, en lo ideal."
-            : `Vamos bien (lo ideal, de ${COLCHON.ideal[0]} a ${COLCHON.ideal[1]} semanas).`;
-  const tope = 8;
+            : `Vamos bien (lo ideal, de ${u.idealDesde} a ${u.idealHasta} semanas).`;
+  const tope = Math.max(8, Math.ceil(u.maximo + 2));
   const pos = (w: number) => `${(Math.min(w, tope) / tope) * 100}%`;
   const zonas = [
-    { hasta: COLCHON.minimo, color: "#e8b1aa" },
-    { hasta: COLCHON.ideal[0], color: "#bfe0a8" },
-    { hasta: COLCHON.ideal[1], color: "#4fae2c" },
-    { hasta: COLCHON.maximo, color: "#bfe0a8" },
+    { hasta: u.minimo, color: "#e8b1aa" },
+    { hasta: u.idealDesde, color: "#bfe0a8" },
+    { hasta: u.idealHasta, color: "#4fae2c" },
+    { hasta: u.maximo, color: "#bfe0a8" },
     { hasta: tope, color: "#e8b1aa" },
   ];
   return (
@@ -71,14 +72,17 @@ function CifraColchon({ c }: { c: Colchon }) {
         {s != null && <span className="absolute -top-[5px] h-[18px] w-[3px] -translate-x-1/2 rounded-[1px] bg-carbon" style={{ left: pos(s) }} />}
       </div>
       <div className="relative mt-[3px] h-4 text-[10.5px] text-carbon/60">
-        {[COLCHON.minimo, ...COLCHON.ideal, COLCHON.maximo].map((w) => (
+        {[u.minimo, u.idealDesde, u.idealHasta, u.maximo].map((w) => (
           <span key={w} className="absolute -translate-x-1/2" style={{ left: pos(w) }}>{w}</span>
         ))}
         <span className="absolute right-0">{tope}+ sem</span>
       </div>
       <div className="mt-1 text-[11.5px] text-carbon/60">
-        {c.proyectos} proyectos en cola · {N.format(Math.round(c.horas))} h frente a {COLCHON.horasSemana} h por semana
+        {c.proyectos} proyectos en cola · {N.format(Math.round(c.horas))} h frente a {horasSemana(u)} h por semana
         {c.sinHoras > 0 && ` · ${c.sinHoras} sin horas estimadas`}
+      </div>
+      <div className="mt-1.5">
+        <BotonUmbrales umbrales={u} />
       </div>
     </div>
   );
@@ -142,9 +146,9 @@ export default async function TrabajoContratado({ searchParams }: { searchParams
           <Cifra
             titulo="Horas de técnico"
             valor={`≈ ${N.format(Math.round(d.horasTecnico))} h`}
-            nota={`lo que piden los proyectos contratados, en tiempos estándar: ${N.format(d.horasTecnico / COLCHON.horasSemana)} semanas del equipo`}
+            nota={`lo que piden los proyectos contratados, en tiempos estándar: ${horasSemana(d.umbrales) ? N.format(d.horasTecnico / horasSemana(d.umbrales)) : "—"} semanas del equipo`}
           />
-          <CifraColchon c={d.colchon} />
+          <CifraColchon c={d.colchon} u={d.umbrales} />
         </div>
 
         <div className="mt-4 rounded-[7px] border-[1.5px] border-white/55 bg-white/[0.06] p-4">

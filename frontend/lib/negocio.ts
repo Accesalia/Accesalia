@@ -49,16 +49,52 @@ export type TipoContratado = { nombre: string; lineas: number; importe: number; 
 export type ColumnaContratada = { titulo: string; lineas: number; importe: number; tipos: TipoContratado[] };
 
 /** EL COLCHON DE PROYECTOS (Monica, 21-oct-2026): la cola frente a lo que el equipo
- *  puede sacar por semana. Pendiente de pasar a la base (parametros), con su ok. */
-export const COLCHON = {
-  /** 6 tecnicos x 30 h + 1 a media jornada x 15 h: no todo su tiempo es proyecto (RQ, repasos, revisiones). */
-  horasSemana: 6 * 30 + 15,
-  horasDia: 8,
-  /** Menos: no da tiempo a reaccionar. Mas: colapso. Lo ideal, entre 4 y 5. */
-  minimo: 3,
-  maximo: 6,
-  ideal: [4, 5] as [number, number],
+ *  puede sacar por semana. Los umbrales y la capacidad viven en parametros_alerta
+ *  (claves colchon_*) y se cambian desde la propia tarjeta; estos son los de partida. */
+export const COLCHON_DE_PARTIDA = {
+  minimo: 3, // semanas: por debajo, no da tiempo a reaccionar
+  idealDesde: 4,
+  idealHasta: 5,
+  maximo: 6, // semanas: por encima, colapso
+  tecnicos: 6,
+  horasTecnico: 30, // horas de proyecto por semana: no todo es proyecto (RQ, repasos, revisiones)
+  horasParcial: 15, // el tecnico a media jornada
+  horasDia: 8, // para pasar a horas los dias de los tiempos estandar
 };
+export type UmbralesColchon = typeof COLCHON_DE_PARTIDA;
+export const CLAVE_COLCHON: Record<keyof UmbralesColchon, string> = {
+  minimo: "colchon_minimo",
+  idealDesde: "colchon_ideal_desde",
+  idealHasta: "colchon_ideal_hasta",
+  maximo: "colchon_maximo",
+  tecnicos: "colchon_tecnicos",
+  horasTecnico: "colchon_horas_tecnico",
+  horasParcial: "colchon_horas_parcial",
+  horasDia: "colchon_horas_dia",
+};
+export const horasSemana = (u: UmbralesColchon) => u.tecnicos * u.horasTecnico + u.horasParcial;
+
+export async function umbralesColchon(): Promise<UmbralesColchon> {
+  const filas = await todo<{ clave: string; valor: number }>("parametros_alerta?select=clave,valor&activo=is.true&clave=like.colchon_*").catch(() => []);
+  const u = { ...COLCHON_DE_PARTIDA };
+  for (const k of Object.keys(CLAVE_COLCHON) as (keyof UmbralesColchon)[]) {
+    const f = filas.find((x) => x.clave === CLAVE_COLCHON[k]);
+    if (f && Number.isFinite(Number(f.valor))) u[k] = Number(f.valor);
+  }
+  return u;
+}
+
+/** Guardar los umbrales (solo direccion: la pantalla ya lo exige). */
+export async function guardarUmbralesColchon(u: UmbralesColchon) {
+  for (const k of Object.keys(CLAVE_COLCHON) as (keyof UmbralesColchon)[]) {
+    const r = await fetch(`${URL_BASE}/rest/v1/parametros_alerta?clave=eq.${CLAVE_COLCHON[k]}`, {
+      method: "PATCH",
+      headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ valor: u[k], actualizado_en: new Date().toISOString() }),
+    });
+    if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  }
+}
 export type Colchon = { proyectos: number; sinHoras: number; horas: number; semanas: number | null };
 
 export type TrabajoContratado = {
@@ -72,6 +108,7 @@ export type TrabajoContratado = {
   /** Lo que piden los proyectos contratados, en horas estandar. */
   horasTecnico: number;
   colchon: Colchon;
+  umbrales: UmbralesColchon;
   columnas: ColumnaContratada[];
   sinTipo: { lineas: number; importe: number; porBloque: { bloque: string; lineas: number; importe: number }[] };
   /** Lo que suman las lineas, para ver si cuadra con el total de las hojas. */
@@ -93,7 +130,7 @@ function trozos<T>(xs: T[], n = 150): T[][] {
 
 /** El colchon de hoy: los proyectos que esperan tecnico o lo tienen y no han terminado,
  *  con las mismas listas y los mismos dias que Asignar (lib/trabajosTecnico). */
-async function colchonDeHoy(): Promise<Colchon> {
+async function colchonDeHoy(u: UmbralesColchon): Promise<Colchon> {
   const [d, tiempos, actuaciones] = await Promise.all([
     datosProyectos(),
     leerTiempos(),
@@ -110,12 +147,12 @@ async function colchonDeHoy(): Promise<Colchon> {
   // Ya listos: los dias que puso Alex, o los calculados. Solo proyectos: los RQ ya van descontados de las horas.
   for (const t of [...d.porEstimar, ...d.porAsignar, ...d.asignados]) if (t.tipo === "proyecto") enCola.set(t.oppId, t.dias ?? t.diasCalculados);
   const dias = [...enCola.values()];
-  const horas = dias.reduce<number>((s, x) => s + (x ?? 0), 0) * COLCHON.horasDia;
+  const horas = dias.reduce<number>((s, x) => s + (x ?? 0), 0) * u.horasDia;
   return {
     proyectos: enCola.size,
     sinHoras: dias.filter((x) => x == null).length,
     horas,
-    semanas: enCola.size ? Math.round((horas / COLCHON.horasSemana) * 10) / 10 : null,
+    semanas: enCola.size && horasSemana(u) > 0 ? Math.round((horas / horasSemana(u)) * 10) / 10 : null,
   };
 }
 
@@ -129,6 +166,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     const ya = empresasDeOpp.get(f.oportunidad_id) ?? [];
     if (!ya.includes(f.empresa_id as string)) empresasDeOpp.set(f.oportunidad_id, [...ya, f.empresa_id as string]);
   }
+  const umbrales = await umbralesColchon();
   const [comerciales, opps, hojas, perdidas, admins, tipos, tiempos, colchon] = await Promise.all([
     todo<{ id: string; nombre: string }>("comerciales?select=id,nombre&order=nombre.asc"),
     todo<{ id: string; comercial_id: string | null; estado: string; fecha_apertura: string | null; creado_en: string }>(
@@ -143,7 +181,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     ),
     todo<{ id: string; nombre: string }>("tipos_proyecto?select=id,nombre&activo=eq.true&elegible=eq.true&order=orden.asc"),
     leerTiempos(),
-    colchonDeHoy(),
+    colchonDeHoy(umbrales),
   ]);
 
   const oppDe = new Map(opps.map((o) => [o.id, o]));
@@ -273,7 +311,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     return { titulo: c.titulo, lineas: ts.reduce((s, t) => s + t.lineas, 0), importe: ts.reduce((s, t) => s + t.importe, 0), tipos: ts };
   });
   // Las horas de lo contratado: cada opp con sus obras, como en Asignar.
-  const horasTecnico = [...clavesDeOpp.values()].reduce((s, c) => s + (diasDeObras([...c], tiempos) ?? 0), 0) * COLCHON.horasDia;
+  const horasTecnico = [...clavesDeOpp.values()].reduce((s, c) => s + (diasDeObras([...c], tiempos) ?? 0), 0) * umbrales.horasDia;
 
   const cierra = (x: PorComercial) => {
     x.exitoCerradas = x.ganadas + x.perdidas ? x.ganadas / (x.ganadas + x.perdidas) : null;
@@ -292,6 +330,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     hojas: delPeriodo.length,
     horasTecnico,
     colchon,
+    umbrales,
     columnas,
     sinTipo: { lineas: listaSinTipo.reduce((s, x) => s + x.lineas, 0), importe: listaSinTipo.reduce((s, x) => s + x.importe, 0), porBloque: listaSinTipo },
     importeLineas,
