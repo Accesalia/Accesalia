@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
-import { BarraSuperior } from "../components/BarraSuperior";
-import { RejillaAccesos, TarjetaAcceso, type ColorAcceso } from "../components/Accesos";
-import { Salida } from "../components/Salida";
+import { IndiceSubmenu, PaginaSubmenu, TarjetaIndice, type ColorVivo } from "../components/Submenu";
+import type { Icono } from "../components/Iconos";
 import { quienSoy } from "../../lib/sesion";
 import { puedeAsignarFunciones } from "../../lib/gestionFunciones";
 
@@ -13,7 +12,7 @@ export const dynamic = "force-dynamic";
 //
 // CRECEDERA: UN ACCESO NUEVO = UNA LINEA EN `ACCESOS`.
 
-type Acceso = { nombre: string; desc: string; href: string; color: ColorAcceso; soloDireccion?: boolean };
+type Acceso = { nombre: string; desc: string; href: string; color: ColorVivo; icono: Icono; soloDireccion?: boolean };
 
 const ACCESOS: Acceso[] = [
   // TODAS LAS OPPS (Monica, 20-oct-2026): el listado entero con filtros y
@@ -21,6 +20,7 @@ const ACCESOS: Acceso[] = [
   {
     nombre: "Todas las oportunidades",
     color: "verde",
+    icono: "lista",
     desc: "El listado de todas las opps, con filtros y buscador: cambiar su comercial o su estado desde la misma lista",
     href: "/gestiones/oportunidades",
     soloDireccion: true,
@@ -28,42 +28,49 @@ const ACCESOS: Acceso[] = [
   {
     nombre: "Asignar funciones a personas",
     color: "lila",
+    icono: "persona",
     desc: "Quién tiene cada función: dar una función a una persona o quitársela",
     href: "/gestiones/funciones",
   },
   {
     nombre: "Firmas digitales",
-    color: "turquesa",
+    color: "azul",
+    icono: "firma",
     desc: "Los certificados de Accesalia, Daniel y Ecobalance, y con cuál firma la app cada cosa",
     href: "/gestiones/firmas",
   },
   {
     nombre: "Catálogo de bloques",
-    color: "arena",
+    color: "bronce",
+    icono: "bloques",
     desc: "Los bloques que se marcan al generar una hoja de encargo: sus textos, su orden y sus importes",
     href: "/comercial/bloques",
   },
   {
     nombre: "Tarifas",
-    color: "arena",
+    color: "ambar",
+    icono: "euro",
     desc: "Los precios habituales por tipo de cliente (comunidades, ascensoristas, rehabilitadores), que el generador de hojas propone",
     href: "/comercial/tarifas",
   },
   {
     nombre: "Plantillas",
-    color: "azul",
+    color: "turquesa",
+    icono: "plantilla",
     desc: "Las plantillas de correo, generales y personales: verlas, crearlas y retocarlas",
     href: "/comercial/plantillas",
   },
   {
     nombre: "Alta de persona en RRHH",
-    color: "rosa",
+    color: "frambuesa",
+    icono: "personaMas",
     desc: "Dar de alta a alguien nuevo en el equipo, con sus datos y sus funciones",
     href: "/rrhh?alta=1#alta",
   },
   {
     nombre: "Subir convenio",
-    color: "melocoton",
+    color: "teja",
+    icono: "subir",
     desc: "Los documentos para toda la plantilla: el convenio, el calendario laboral y la normativa interna",
     href: "/rrhh#documentos",
   },
@@ -72,7 +79,8 @@ const ACCESOS: Acceso[] = [
   // direccion (ve_todo), como la propia pantalla.
   {
     nombre: "Relojes",
-    color: "ambar",
+    color: "azul",
+    icono: "reloj",
     desc: "Las tareas que la app hace sola (buzón del Polycam, edificios al día, censo de subvenciones…): cuándo pasaron y si fueron bien",
     href: "/relojes",
     soloDireccion: true,
@@ -80,6 +88,7 @@ const ACCESOS: Acceso[] = [
   {
     nombre: "Calendario",
     color: "verde",
+    icono: "calendario",
     desc: "El calendario de la empresa: festivos, cierres de oficina y la jornada del convenio",
     href: "/rrhh#calendario",
   },
@@ -90,20 +99,19 @@ export default async function Gestiones() {
   if (!yo) redirect("/entrar?volver=/gestiones");
   if (!yo.veTodo && !puedeAsignarFunciones(yo)) redirect("/menu");
 
+  // Submenu con la estetica de los submenus (21-oct-2026, ../components/Submenu).
   return (
-    <div className="min-h-screen">
-      <BarraSuperior />
-      <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-        <Salida href="/menu">← Áreas de Accesalia</Salida>
-        <h1 className="mt-3 text-3xl font-bold text-carbon sm:text-4xl">Gestiones de la app</h1>
-        <p className="mt-1 text-carbon/65">Lo que se puede tocar de la app, en un solo sitio.</p>
-
-        <RejillaAccesos className="mt-8">
-          {ACCESOS.filter((a) => !a.soloDireccion || yo.veTodo).map((a) => (
-            <TarjetaAcceso key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} />
-          ))}
-        </RejillaAccesos>
-      </main>
-    </div>
+    <PaginaSubmenu
+      grupo="direccion"
+      titulo="Gestiones de la app"
+      subtitulo="Lo que se puede tocar de la app, en un solo sitio."
+      salida={{ href: "/menu", texto: "← Áreas de Accesalia" }}
+    >
+      <IndiceSubmenu>
+        {ACCESOS.filter((a) => !a.soloDireccion || yo.veTodo).map((a) => (
+          <TarjetaIndice key={a.nombre} nombre={a.nombre} desc={a.desc} href={a.href} color={a.color} icono={a.icono} />
+        ))}
+      </IndiceSubmenu>
+    </PaginaSubmenu>
   );
 }

@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
-import { Manrope } from "next/font/google";
 import { RejillaAccesos } from "../components/Accesos";
+import { letraMenu } from "../components/letraMenu";
 import { GRUPOS, RotuloGrupo, TarjetaVelada, type Grupo, type Icono } from "./TarjetaVelada";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
 import { FUNCION_REVISION } from "../../lib/revisionOferta";
 import { misAvisos, type Avisos } from "../../lib/misPendientes";
 
 export const dynamic = "force-dynamic";
-
-// La letra de los titulos del menu, con mas caracter (Monica, 21-oct-2026).
-const letraMenu = Manrope({ subsets: ["latin"], weight: ["700", "800"], variable: "--letra-menu" });
 
 // Menu principal, montado de cero el 11-sep-2026. Monica archivo todas las
 // pantallas y se vuelven a montar, una a una, solo las que ella dice. Aqui
