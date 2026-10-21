@@ -36,7 +36,11 @@ def main():
     nuevas = filas[:pos[0]]
     print(f"{len(filas)} filas cosidas ({filas[0]['fecha']} → {filas[-1]['fecha']}); entran {len(nuevas)} "
           f"({nuevas[0]['fecha']} → {nuevas[-1]['fecha']}) y empalman con el primer apunte de la app {clave}")
+    cargar(b, nuevas, primera, '--escribir' in sys.argv)
 
+
+def cargar(b, nuevas, primera, escribir):
+    """Clasifica y mete delante de lo que hay (orden negativo) las filas `nuevas` (formato de leer_caixa)."""
     reglas = b.leer('reglas_movimientos?select=id,orden,sentido,patron,cuenta,tipo,se_repite,solo_direccion&activa=eq.true&order=orden')
     gastos = b.leer('gastos_habituales?select=id,empresa,como_aparece,tipos,meses&empresa=eq.daniel_autonomo')
     orden = int(primera['orden']) - len(nuevas)
@@ -98,9 +102,9 @@ def main():
                      como_se_sabe=f"sale de una cuenta nuestra y entra en otra el {a['fecha']}, mismo importe")
             break
     print('internos emparejados con Accesalia:', len(parejas))
-    if '--escribir' in sys.argv:
-        if b.leer(f'movimientos_bancarios?select=id&cuenta=eq.{CUENTA}&fecha=lt.2025-01-01&limit=1', por_tramos=False):
-            raise SystemExit('ya hay apuntes de antes de 2025: no se carga dos veces')
+    if escribir:
+        if b.leer(f"movimientos_bancarios?select=id&cuenta=eq.{CUENTA}&fecha=lt.{nuevas[-1]['fecha'].isoformat()}&fecha=gte.{nuevas[0]['fecha'].isoformat()}&limit=1", por_tramos=False):
+            raise SystemExit('ya hay apuntes de esas fechas: no se carga dos veces')
         claves = sorted({k for x in out for k in x})
         b.insertar('movimientos_bancarios', [{k: x.get(k) for k in claves} for x in out])
         for x, a in parejas:
