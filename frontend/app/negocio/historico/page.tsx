@@ -4,8 +4,11 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { historico, type Clave, type PorAno } from "../../../lib/historico";
+import { Sali } from "./Sali";
 
 export const dynamic = "force-dynamic";
+// Sali consulta antes de contestar: puede tardar mas de un minuto
+export const maxDuration = 300;
 
 // NEGOCIO › HISTÓRICO FACTURADO (Monica, 21-oct-2026). Solo direccion. Ver lib/historico.ts.
 
@@ -75,6 +78,8 @@ export default async function Historico({ searchParams }: { searchParams: Promis
           Facturado: base sin IVA, con los abonos restados. Gastos y resultado: desde que hay extractos del banco ({desde} a {hasta}).
           {ver === "las_dos" && " Juntas, sin duplicar lo de casa: lo que Daniel factura a Accesalia no es ingreso ni gasto del grupo, y los traspasos entre cuentas no cuentan."}
         </p>
+
+        <Sali pantalla="Negocio › Histórico facturado" />
 
         <Tabla titulo="Facturado" p={x.facturado} anos={h.anos} />
         {ver === "daniel" && <Tabla titulo="De lo facturado, a Accesalia" sub="Las facturas de Daniel a Accesalia: en «Las dos juntas» no cuentan." p={x.internas} anos={h.anos} tono="suave" />}
