@@ -22,12 +22,13 @@ export default async function Negocio() {
           color="verde"
           icono="firma"
         />
-        {/* La ficha financiera de una direccion (Monica, 17-oct-2026): su ficha de 2025, con datos vivos. */}
+        {/* La ficha financiera de una direccion (Monica, 17-oct-2026): su ficha de 2025, con datos vivos.
+            Ambar, que casa con el teja de la ficha (21-oct-2026). */}
         <TarjetaIndice
           nombre="Ficha financiera"
           desc="Una dirección en una hoja: lo contratado, comisiones, subvenciones, financiación, CAES, por dónde va el cobro y el resumen; con PDF"
           href="/ficha-financiera"
-          color="azul"
+          color="ambar"
           icono="ficha"
         />
         {/* Historico facturado (Monica, 21-oct-2026): facturado, gastos y resultado por mes y año, por empresa y juntas. */}
@@ -35,7 +36,7 @@ export default async function Negocio() {
           nombre="Histórico facturado"
           desc="Lo facturado por mes y año, por Accesalia, por Daniel y las dos juntas (sin duplicar lo de casa); los gastos del banco y el resultado"
           href="/negocio/historico"
-          color="ambar"
+          color="azul"
           icono="historico"
         />
       </IndiceSubmenu>
