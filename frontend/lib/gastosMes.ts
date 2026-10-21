@@ -123,7 +123,7 @@ export async function gastosDelMes(mes: string, yo: Yo): Promise<GastosMes> {
   const [gastosTodos, movs, cuentas] = await Promise.all([
     leer<Record<string, unknown>[]>(`gastos_habituales?select=${SELECT_GASTO}&empresa=in.(accesalia,daniel_autonomo)&order=importe.desc.nullslast`),
     leerTodo<{ id: string; cuenta: string; fecha: string; concepto: string; mas_datos: string | null; importe: string; tipo: string | null; gasto_habitual_id: string | null; solo_direccion: boolean }>(
-      `movimientos_bancarios?select=id,cuenta,fecha,concepto,mas_datos,importe,tipo,gasto_habitual_id,solo_direccion&clase=eq.gasto&fecha=gte.${ini}&fecha=lte.${fin}&order=fecha`,
+      `movimientos_bancarios?select=id,cuenta,fecha,concepto,mas_datos,importe,tipo,gasto_habitual_id,solo_direccion&clase=eq.gasto&or=(and(fecha.gte.${ini},fecha.lte.${fin},mes_imputado.is.null),mes_imputado.eq.${mes})&order=fecha`,
     ),
     leer<{ clave: string; banco: string; empresa: string; limite_credito: string | null }[]>("cuentas_propias?select=clave,banco,empresa,limite_credito&vigente=eq.true&order=clave"),
   ]);

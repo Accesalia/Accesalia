@@ -53,8 +53,10 @@ export default async function Historico({ searchParams }: { searchParams: Promis
   const ver: Clave = PESTANAS.some(([k]) => k === sp.ver) ? (sp.ver as Clave) : "accesalia";
   const h = await historico();
   const x = h.e[ver];
-  const desde = h.primerMesConGastos ? `${MESES[Number(h.primerMesConGastos.slice(5, 7)) - 1]} ${h.primerMesConGastos.slice(0, 4)}` : "—";
-  const hasta = h.ultimoMesConGastos ? `${MESES[Number(h.ultimoMesConGastos.slice(5, 7)) - 1]} ${h.ultimoMesConGastos.slice(0, 4)}` : "—";
+  const c = h.conGastos[ver];
+  const txt = (m: string) => `${MESES[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
+  const desde = c ? txt(c.desde) : "—";
+  const hasta = c ? txt(c.hasta) : "—";
 
   return (
     <div className="min-h-screen">

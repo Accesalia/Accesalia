@@ -211,11 +211,23 @@ async function cobrosLibres(empresa: string, desde: string): Promise<Cobro[]> {
   }));
 }
 
+const MESES_NOMINA: Record<string, number> = { ENERO: 1, FEBRERO: 2, MARZO: 3, ABRIL: 4, MAYO: 5, JUNIO: 6, JULIO: 7, AGOSTO: 8, SEPTIEMBRE: 9, SETIEMBRE: 9, SEPT: 9, OCTUBRE: 10, NOVIEMBRE: 11, DICIEMBRE: 12 };
+/** «Nomina Agosto 2025» pagada el 1-sep cuenta en agosto (Monica, 21-oct). Sin año, el del cargo (o el anterior si el mes va por delante). */
+function mesDeNomina(t: string, fecha: string): string | null {
+  const mo = t.match(new RegExp(String.raw`\b(${Object.keys(MESES_NOMINA).join("|")})\b(?:\D{0,4}(20\d\d))?`));
+  if (!mo) return null;
+  const mes = MESES_NOMINA[mo[1]];
+  let y = mo[2] ? Number(mo[2]) : Number(fecha.slice(0, 4));
+  if (!mo[2] && mes > Number(fecha.slice(5, 7)) + 1) y -= 1;
+  const mi = `${y}-${String(mes).padStart(2, "0")}`;
+  return mi === fecha.slice(0, 7) ? null : mi;
+}
+
 export function clasificar(n: Fila, cuenta: string, empresa: string, reglas: Regla[], gastos: GastoH[], cobros: Cobro[]) {
   const t = `${n.concepto} ${n.mas_datos}`.toUpperCase();
   const base = { clase: n.importe > 0 ? "ingreso" : "gasto", tipo: null as string | null, se_repite: null as string | null, como_se_sabe: null as string | null,
     regla_id: null as string | null, facturas: null as string | null, oportunidad_id: null as string | null, solo_direccion: false,
-    gasto_habitual_id: null as string | null, _cobros: null as string[] | null };
+    gasto_habitual_id: null as string | null, mes_imputado: null as string | null, _cobros: null as string[] | null };
   if (/^DETIR\d/.test(n.concepto.toUpperCase())) return { ...base, clase: "devolucion", como_se_sabe: "devolución de una remesa (DETIR)" };
 
   if (n.importe > 0) {
@@ -246,7 +258,7 @@ export function clasificar(n: Fila, cuenta: string, empresa: string, reglas: Reg
   if (!cand.length && tipo) cand = gastos.filter((g) => g.empresa === empresa && (g.tipos ?? []).map((x) => x.toUpperCase()).includes(tipo.toUpperCase()));
   cand.sort((a, b) => (a.meses?.includes(mes) ? 0 : 1) - (b.meses?.includes(mes) ? 0 : 1));
   return {
-    ...base, tipo, regla_id: rg?.id ?? null, se_repite: rg?.se_repite ?? null, solo_direccion: rg?.solo_direccion ?? false,
+    ...base, tipo, regla_id: rg?.id ?? null, mes_imputado: tipo === "NÓMINAS" ? mesDeNomina(t, n.fecha) : null, se_repite: rg?.se_repite ?? null, solo_direccion: rg?.solo_direccion ?? false,
     como_se_sabe: rg ? `regla: «${rg.patron}»` : cand.length ? "como aparece en el banco, su gasto habitual" : null,
     gasto_habitual_id: cand[0]?.id ?? null,
   };

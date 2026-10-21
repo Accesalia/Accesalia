@@ -30,8 +30,8 @@ export type Clave = "accesalia" | "daniel" | "las_dos";
 export type PorAno = Record<number, (number | null)[]>;
 export type Historico = {
   anos: number[];
-  primerMesConGastos: string | null;   // AAAA-MM
-  ultimoMesConGastos: string | null;
+  /** Los meses con extracto (enteros) de cada una: desde / hasta, AAAA-MM. */
+  conGastos: Record<Clave, { desde: string; hasta: string } | null>;
   e: Record<Clave, { facturado: PorAno; gastos: PorAno; impuestos: PorAno; personal: PorAno; internas: PorAno; resultado: PorAno }>;
 };
 
@@ -48,8 +48,8 @@ export async function historico(): Promise<Historico> {
     leer<{ empresa_emisora: string; fecha: string; base: string | null; pagador_nif: string | null; pagador_nombre: string | null }>(
       "facturas?select=empresa_emisora,fecha,base,pagador_nif,pagador_nombre&estado=neq.anulada&empresa_emisora=in.(accesalia,daniel)&fecha=gte.2019-01-01",
     ),
-    leer<{ cuenta: string; fecha: string; importe: string; clase: string; tipo: string | null }>(
-      "movimientos_bancarios?select=cuenta,fecha,importe,clase,tipo&clase=in.(gasto,devolucion)",
+    leer<{ cuenta: string; fecha: string; importe: string; clase: string; tipo: string | null; mes_imputado: string | null }>(
+      "movimientos_bancarios?select=cuenta,fecha,importe,clase,tipo,mes_imputado&clase=in.(gasto,devolucion)",
     ),
   ]);
   const e = Object.fromEntries((["accesalia", "daniel", "las_dos"] as Clave[]).map((k) => [k, { facturado: {}, gastos: {}, impuestos: {}, personal: {}, internas: {}, resultado: {} }])) as Historico["e"];
@@ -74,20 +74,31 @@ export async function historico(): Promise<Historico> {
     });
   }
 
-  // Meses con extracto: los que TODAS las cuentas cubren enteros (el BBVA llegaba al 5-oct y la Caixa al 30-sep:
-  // octubre a medias inflaba el resultado)
-  let primero: string | null = null;
-  const ultimaDe = new Map<string, string>();
+  // Meses con extracto, POR EMPRESA y con SU cuenta principal (la Caixa): Accesalia tiene desde 2018 y Daniel desde
+  // 2025. Solo meses enteros: el primero si el extracto empieza en sus primeros dias, el ultimo si llega a fin de mes
+  // (el BBVA llegaba al 5-oct y la Caixa al 30-sep: octubre a medias inflaba el resultado).
+  const PRINCIPAL = { accesalia: "caixa_accesalia", daniel: "caixa_daniel" } as const;
+  const primeraDe = new Map<string, string>(), ultimaDe = new Map<string, string>();
   for (const mv of movs) {
-    if (!primero || mv.fecha.slice(0, 7) < primero) primero = mv.fecha.slice(0, 7);
+    if (!primeraDe.has(mv.cuenta) || mv.fecha < primeraDe.get(mv.cuenta)!) primeraDe.set(mv.cuenta, mv.fecha);
     if ((ultimaDe.get(mv.cuenta) ?? "") < mv.fecha) ultimaDe.set(mv.cuenta, mv.fecha);
   }
-  const corte = [...ultimaDe.values()].sort()[0] ?? null;   // la cuenta que menos llega
-  const finMes = (iso: string) => new Date(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), 0)).toISOString().slice(0, 10);
-  const ultimo: string | null = !corte ? null : corte >= finMes(corte).slice(0, 8) + "28" ? corte.slice(0, 7)
-    : new Date(Date.UTC(Number(corte.slice(0, 4)), Number(corte.slice(5, 7)) - 2, 1)).toISOString().slice(0, 7);
+  const mesMasN = (mes: string, n: number) => new Date(Date.UTC(Number(mes.slice(0, 4)), Number(mes.slice(5, 7)) - 1 + n, 1)).toISOString().slice(0, 7);
+  const tramo = (cuenta: string) => {
+    const a = primeraDe.get(cuenta), z = ultimaDe.get(cuenta);
+    if (!a || !z) return null;
+    const desde = Number(a.slice(8, 10)) <= 5 ? a.slice(0, 7) : mesMasN(a.slice(0, 7), 1);
+    const hasta = Number(z.slice(8, 10)) >= 28 ? z.slice(0, 7) : mesMasN(z.slice(0, 7), -1);
+    return desde <= hasta ? { desde, hasta } : null;
+  };
+  const cubre = { accesalia: tramo(PRINCIPAL.accesalia), daniel: tramo(PRINCIPAL.daniel) };
+  const enTramo = (t: { desde: string; hasta: string } | null, y: number, m: number) => {
+    const k = `${y}-${String(m + 1).padStart(2, "0")}`;
+    return !!t && k >= t.desde && k <= t.hasta;
+  };
   for (const mv of movs) {
-    const y = Number(mv.fecha.slice(0, 4)), m = Number(mv.fecha.slice(5, 7)) - 1, v = -Number(mv.importe);
+    const cuando = mv.mes_imputado ?? mv.fecha.slice(0, 7);   // las nominas, en su mes
+    const y = Number(cuando.slice(0, 4)), m = Number(cuando.slice(5, 7)) - 1, v = -Number(mv.importe);
     const emp = CUENTA_EMPRESA[mv.cuenta];
     const tipo = mv.tipo ?? "";
     anos.add(y);
@@ -96,18 +107,17 @@ export async function historico(): Promise<Historico> {
     else sumar(e[emp].gastos, y, m, v);
   }
   // Los meses con extracto: ahi los gastos son 0 si no salio nada, no «sin dato»; fuera, sin dato
-  const conExtracto = (y: number, m: number) => !!primero && !!ultimo && `${y}-${String(m + 1).padStart(2, "0")}` >= primero && `${y}-${String(m + 1).padStart(2, "0")}` <= ultimo;
   for (const k of ["accesalia", "daniel"] as const)
     for (const p of [e[k].gastos, e[k].impuestos, e[k].personal])
       for (const y of anos) {
         p[y] ??= vacio();
-        p[y] = p[y].map((v, m) => (conExtracto(y, m) ? v ?? 0 : null));
+        p[y] = p[y].map((v, m) => (enTramo(cubre[k], y, m) ? v ?? 0 : null));
       }
   for (const y of anos) {
     for (const nombre of ["gastos", "impuestos", "personal"] as const) {
       e.las_dos[nombre][y] = Array.from({ length: 12 }, (_, m) => {
         const a = e.accesalia[nombre][y]?.[m], d = e.daniel[nombre][y]?.[m];
-        if (a == null && d == null) return null;
+        if (a == null || d == null) return null;   // juntas, solo los meses que tienen las DOS
         // en las dos juntas, lo que Daniel factura a Accesalia no es gasto del grupo
         return (a ?? 0) + (d ?? 0) - (nombre === "gastos" ? e.daniel.internas[y]?.[m] ?? 0 : 0);
       });
@@ -116,8 +126,11 @@ export async function historico(): Promise<Historico> {
       e[k].resultado[y] = Array.from({ length: 12 }, (_, m) => {
         const g = e[k].gastos[y]?.[m];
         if (g == null) return null;
+        if (!e[k].facturado[y]?.some((v) => v != null)) return null;   // un año sin facturas en la app (Accesalia 2018-19): sin resultado
         return (e[k].facturado[y]?.[m] ?? 0) - g;
       });
   }
-  return { anos: [...anos].sort(), primerMesConGastos: primero, ultimoMesConGastos: ultimo, e };
+  const juntas = cubre.accesalia && cubre.daniel
+    ? { desde: [cubre.accesalia.desde, cubre.daniel.desde].sort()[1], hasta: [cubre.accesalia.hasta, cubre.daniel.hasta].sort()[0] } : null;
+  return { anos: [...anos].sort(), conGastos: { accesalia: cubre.accesalia, daniel: cubre.daniel, las_dos: juntas }, e };
 }
