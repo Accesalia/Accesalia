@@ -34,6 +34,9 @@ const ICONOS = {
   reloj: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   nube: <path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z" />,
   plantilla: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></>,
+  firma: <><path d="M3 21h18" /><path d="M14.5 4.5l3 3L8 17H5v-3z" /></>,
+  ficha: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8" /><path d="M8 17v-3M12 17v-6M16 17v-4" /></>,
+  historico: <><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /><path d="M12 8v4l3 2" /></>,
 } as const;
 export type Icono = keyof typeof ICONOS;
 
