@@ -4,7 +4,7 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { historico, type Clave, type PorAno } from "../../../lib/historico";
-import { Sali } from "./Sali";
+import { Sali } from "../../components/sali/Sali";
 
 export const dynamic = "force-dynamic";
 // Sali consulta antes de contestar: puede tardar mas de un minuto

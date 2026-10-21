@@ -4,8 +4,11 @@ import { quienSoy } from "../../../lib/sesion";
 import { gastosDelMes, mesMas, puedeVerGastos } from "../../../lib/gastosMes";
 import { MarcoDinero } from "../../facturacion/MarcoDinero";
 import { Gastos } from "./Gastos";
+import { Sali } from "../../components/sali/Sali";
 
 export const dynamic = "force-dynamic";
+// Sali consulta antes de contestar: puede tardar mas de un minuto
+export const maxDuration = 300;
 
 // PREVER › GASTOS DEL MES (Monica, 21-oct-2026; maqueta validada: docs/figma/gastos-del-mes.html).
 // Un mes (?mes=AAAA-MM, por defecto este). Ver lib/gastosMes.ts.
@@ -52,6 +55,8 @@ export default async function PaginaGastos({ searchParams }: { searchParams: Pro
           </Link>
         </div>
       </div>
+      {/* Preguntale a Sali: solo direccion (Monica, 21-oct) */}
+      {yo.veTodo && <div className="mb-3"><Sali pantalla={`Prever › Gastos del mes (${mes})`} /></div>}
       <Gastos g={g} />
     </MarcoDinero>
   );

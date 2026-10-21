@@ -5,8 +5,11 @@ import { puedeVerGastos, mesMas } from "../../../lib/gastosMes";
 import { dineroDelMes } from "../../../lib/dineroMes";
 import { MarcoDinero } from "../../facturacion/MarcoDinero";
 import { Dinero } from "./Dinero";
+import { Sali } from "../../components/sali/Sali";
 
 export const dynamic = "force-dynamic";
+// Sali consulta antes de contestar: puede tardar mas de un minuto
+export const maxDuration = 300;
 
 // PREVER › EL DINERO DEL MES (Monica, 21-oct-2026). Ver lib/dineroMes.ts.
 
@@ -36,6 +39,8 @@ export default async function PaginaDinero({ searchParams }: { searchParams: Pro
           {d.hasta ? `saldos del último extracto, hasta el ${d.hasta.slice(8, 10)}-${d.hasta.slice(5, 7)}: lo de después es previsión` : "aún no hay extractos"}
         </span>
       </div>
+      {/* Preguntale a Sali: solo direccion (Monica, 21-oct) */}
+      {yo.veTodo && <div className="mb-3"><Sali pantalla={`Prever › El dinero del mes (${mes}, y las próximas 8 semanas)`} /></div>}
       <Dinero d={d} />
     </MarcoDinero>
   );
