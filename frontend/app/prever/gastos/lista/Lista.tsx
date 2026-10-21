@@ -113,7 +113,6 @@ function Fila({ x, editar, baja }: { x: GastoLista; editar: (g: Gasto) => void; 
 
 export function Lista({ l }: { l: ListaGastos }) {
   const [form, setForm] = useState<{ gasto: Gasto | null; empresa: EmpresaGasto } | null>(null);
-  const [verBajas, setVerBajas] = useState<Record<string, boolean>>({});
   const TH = "px-2 py-1.5 text-left text-[10.5px] font-bold uppercase tracking-wide text-carbon/60 whitespace-nowrap";
   const Cabecera = () => (
     <tr>
@@ -137,21 +136,24 @@ export function Lista({ l }: { l: ListaGastos }) {
               <thead><Cabecera /></thead>
               <tbody>{e.activos.map((x) => <Fila key={x.gasto.id} x={x} editar={(g) => setForm({ gasto: g, empresa: e.empresa })} />)}</tbody>
             </table>
-            {e.bajas.length > 0 && (
-              <div className="ml-2 mt-2">
-                <button type="button" onClick={() => setVerBajas((v) => ({ ...v, [e.empresa]: !v[e.empresa] }))} className="text-[12.5px] font-semibold text-carbon/65 hover:text-carbon">
-                  {verBajas[e.empresa] ? "▾" : "▸"} Los que ya no se incluyen · {e.bajas.length}
-                </button>
-                {verBajas[e.empresa] && (
-                  <table className="mt-1 w-auto border-collapse">
-                    <tbody>{e.bajas.map((x) => <Fila key={x.gasto.id} x={x} baja editar={(g) => setForm({ gasto: g, empresa: e.empresa })} />)}</tbody>
-                  </table>
-                )}
-              </div>
-            )}
           </section>
         ))}
       </div>
+      {l.empresas.some((e) => e.bajas.length) && (
+        <section className="mt-6 w-fit rounded-2xl border border-black/10 bg-[#f7f7f5] px-3 pb-3 pt-3">
+          <h2 className="mb-1 ml-2 text-[13px] font-extrabold uppercase tracking-widest text-carbon/70">Histórico · los que ya no se incluyen</h2>
+          <p className="mb-1 ml-2 text-[12px] text-carbon/60">Fuera de la lista viva. Para saber de dónde venía un gasto antiguo, o para recuperarlo.</p>
+          {l.empresas.filter((e) => e.bajas.length).map((e) => (
+            <div key={e.empresa} className="mt-2">
+              <h3 className="ml-2 text-[12px] font-bold uppercase tracking-wide text-carbon/60">{NOMBRE[e.empresa]}</h3>
+              <table className="w-auto border-collapse">
+                <thead><Cabecera /></thead>
+                <tbody>{e.bajas.map((x) => <Fila key={x.gasto.id} x={x} baja editar={(g) => setForm({ gasto: g, empresa: e.empresa })} />)}</tbody>
+              </table>
+            </div>
+          ))}
+        </section>
+      )}
       <p className="mt-3 text-[12px] text-carbon/60">
         «Media real»: lo pagado en los últimos 12 meses entre las veces que salió. «Al año»: el previsto por las veces que toca en un año.
       </p>
