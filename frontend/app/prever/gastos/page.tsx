@@ -44,6 +44,9 @@ export default async function PaginaGastos({ searchParams }: { searchParams: Pro
           <span className="text-[12.5px] text-carbon/65">
             {g.hasta ? `último extracto: hasta el ${g.hasta.slice(8, 10)}-${g.hasta.slice(5, 7)}-${g.hasta.slice(0, 4)}` : "aún no hay extractos"}
           </span>
+          <Link href="/prever/gastos/lista" className="inline-flex h-9 items-center rounded-xl border border-black/15 bg-white px-4 text-[13.5px] font-bold text-carbon/80 hover:border-carbon/40">
+            Gestionar la lista de gastos
+          </Link>
           <Link href="/prever/extracto" className="inline-flex h-9 items-center gap-2 rounded-xl bg-lima px-4 text-[13.5px] font-bold text-carbon hover:bg-lima-dark hover:text-white">
             ⬆ Subir extracto
           </Link>

@@ -261,3 +261,80 @@ export async function guardarGasto(d: DatosGasto, id: string | null, yo: Yo) {
 export async function quitarGasto(id: string, mes: string) {
   await escribir("PATCH", `gastos_habituales?id=eq.${id}`, { activo: false, hasta: finDeMes(mesMas(mes, -1)) });
 }
+
+// ------------------------------------------------------------------------------------------------ la lista de gastos
+// GESTIONAR LA LISTA DE GASTOS (Monica, 21-oct-2026): todos los gastos, toquen este mes o no, para cambiarlos de una
+// vez. De cada uno, lo que se sabe y lo que dice el banco: la ultima vez que salio, la media por vez del ultimo año,
+// la proxima vez que toca y lo que cuesta al año. Y lo que le falta: revisar el importe, no saber reconocerlo en el
+// banco, el mes, el importe, el dia.
+
+export type Falta = "revisar_importe" | "no_reconoce" | "falta_mes" | "falta_importe" | "falta_dia";
+export type GastoLista = {
+  gasto: Gasto;
+  ultima: { fecha: string; importe: number } | null;
+  mediaPorVez: number | null;      // ultimos 12 meses: lo pagado / las veces (meses) que salio
+  vecesAno: number;                // cuantas veces toca en un año
+  alAno: number | null;            // previsto x veces al año
+  proxima: string | null;          // AAAA-MM
+  faltas: Falta[];
+};
+export type ListaGastos = { hoy: string; verSoloDireccion: boolean; empresas: { empresa: EmpresaGasto; activos: GastoLista[]; bajas: GastoLista[]; alMes: number; alAno: number }[] };
+
+const VECES: Record<Cada, number> = { mensual: 12, trimestral: 4, semestral: 2, anual: 1, una_vez: 1, plazos: 0 };
+
+export async function listaGastos(yo: Yo, hoy: string): Promise<ListaGastos> {
+  const verSoloDireccion = yo.veTodo;
+  const haceUnAno = `${mesMas(hoy, -12)}-01`;
+  const [gastosTodos, movs] = await Promise.all([
+    leer<Record<string, unknown>[]>(`gastos_habituales?select=${SELECT_GASTO}&empresa=in.(accesalia,daniel_autonomo)`),
+    leerTodo<{ fecha: string; importe: string; gasto_habitual_id: string }>(
+      "movimientos_bancarios?select=fecha,importe,gasto_habitual_id&gasto_habitual_id=not.is.null&order=fecha",
+    ),
+  ]);
+  const gastos = gastosTodos.map(aGasto).filter((g) => verSoloDireccion || !g.solo_direccion);
+  const porGasto = new Map<string, { fecha: string; importe: number }[]>();
+  for (const m of movs) porGasto.set(m.gasto_habitual_id, [...(porGasto.get(m.gasto_habitual_id) ?? []), { fecha: m.fecha, importe: -Number(m.importe) }]);
+
+  const fila = (g: Gasto): GastoLista => {
+    const ms = porGasto.get(g.id) ?? [];
+    const ultimoMes = ms.length ? ms[ms.length - 1].fecha.slice(0, 7) : null;
+    const ultima = ultimoMes ? { fecha: ms[ms.length - 1].fecha, importe: ms.filter((m) => m.fecha.startsWith(ultimoMes)).reduce((s, m) => s + m.importe, 0) } : null;
+    const ano = ms.filter((m) => m.fecha >= haceUnAno);
+    const veces = new Set(ano.map((m) => m.fecha.slice(0, 7))).size;
+    const mediaPorVez = veces ? Math.round(ano.reduce((s, m) => s + m.importe, 0) / veces * 100) / 100 : null;
+    let proxima: string | null = null;
+    for (let i = 0; i < 36 && !proxima; i++) if (tocaEn(g, mesMas(hoy, i))) proxima = mesMas(hoy, i);
+    const vecesAno = g.cada === "plazos" ? Array.from({ length: 12 }, (_, i) => mesMas(hoy, i)).filter((m) => tocaEn(g, m)).length : VECES[g.cada];
+    const faltas: Falta[] = [];
+    if (g.importe == null) faltas.push("falta_importe");
+    if (g.cada !== "mensual" && g.cada !== "una_vez" && !g.meses?.length) faltas.push("falta_mes");
+    if (!g.como_aparece?.length && !g.tipos?.length) faltas.push("no_reconoce");
+    if (g.dia == null) faltas.push("falta_dia");
+    if (g.importe != null && mediaPorVez != null && Math.abs(mediaPorVez - g.importe) > Math.max(20, g.importe * 0.15)) faltas.push("revisar_importe");
+    return { gasto: g, ultima, mediaPorVez, vecesAno, alAno: g.importe == null ? null : Math.round(g.importe * vecesAno), proxima, faltas };
+  };
+  const empresas = EMPRESAS_GASTO.map((empresa) => {
+    const todos = gastos.filter((g) => g.empresa === empresa).map(fila);
+    const vivo = (x: GastoLista) => x.gasto.activo && (!x.gasto.hasta || x.gasto.hasta >= `${hoy}-01`);
+    const activos = todos.filter(vivo).sort((a, b) => (b.gasto.importe ?? -1) - (a.gasto.importe ?? -1));
+    const bajas = todos.filter((x) => !vivo(x)).sort((a, b) => (b.gasto.hasta ?? "").localeCompare(a.gasto.hasta ?? ""));
+    const alAno = activos.reduce((s, x) => s + (x.alAno ?? 0), 0);
+    return { empresa, activos, bajas, alMes: Math.round(alAno / 12), alAno };
+  });
+  return { hoy, verSoloDireccion, empresas };
+}
+
+/** Cambios sueltos desde la lista: avisar, notas, importe. */
+export async function cambiarGasto(id: string, cambio: { avisar?: boolean; notas?: string | null; importe?: number }) {
+  await escribir("PATCH", `gastos_habituales?id=eq.${id}`, cambio);
+}
+
+/** Dejar de incluirlo (como la Ford): se prevé hasta el mes que se diga, incluido; despues, no. */
+export async function dejarDeIncluir(id: string, ultimoMes: string) {
+  await escribir("PATCH", `gastos_habituales?id=eq.${id}`, { activo: false, hasta: finDeMes(ultimoMes) });
+}
+
+/** Volver a incluirlo. */
+export async function volverAIncluir(id: string) {
+  await escribir("PATCH", `gastos_habituales?id=eq.${id}`, { activo: true, hasta: null });
+}

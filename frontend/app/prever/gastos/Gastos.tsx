@@ -45,9 +45,9 @@ function Saldos({ g }: { g: GastosMes }) {
     <div className="mb-3 flex flex-wrap items-stretch gap-2">
       {g.saldos.map((s) => (
         <div key={s.clave} className="flex items-baseline gap-2 rounded-xl border border-black/10 bg-white px-3.5 py-2">
-          <span className="text-[10.5px] font-bold uppercase tracking-wide text-carbon/60">{s.nombre}</span>
-          <span className={`text-[16px] font-bold tabular-nums ${s.saldo < 0 ? "text-alerta" : "text-carbon"}`}>{EUR0.format(s.saldo)}</span>
-          {s.limite != null && <span className="text-[12px] text-carbon/65">línea de crédito: quedan {EUR0.format(s.limite + s.saldo)} de {EUR0.format(s.limite)}</span>}
+          <span className="text-[10.5px] font-bold uppercase tracking-wide text-carbon/60">Saldo {s.nombre}</span>
+          <span className={`text-[16px] font-bold tabular-nums ${s.saldo < 0 ? "text-alerta" : "text-carbon"}`}>{EUR2.format(s.saldo)} €</span>
+          {s.limite != null && <span className="text-[12px] text-carbon/65">línea de crédito: quedan {EUR2.format(s.limite + s.saldo)} de {EUR0.format(s.limite)}</span>}
           <span className="text-[11.5px] text-carbon/55">a {fecha(s.fecha)}</span>
         </div>
       ))}
@@ -255,7 +255,7 @@ const CADAS: { v: Cada; t: string }[] = [
   { v: "semestral", t: "Cada 6 meses" }, { v: "anual", t: "Cada año" }, { v: "plazos", t: "A plazos" },
 ];
 
-function Formulario({ g, gasto, empresa, apunte, cerrar }: { g: GastosMes; gasto: Gasto | null; empresa: EmpresaGasto; apunte?: Apunte; cerrar: () => void }) {
+export function Formulario({ mes, verSoloDireccion, gasto, empresa, apunte, cerrar }: { mes: string; verSoloDireccion: boolean; gasto: Gasto | null; empresa: EmpresaGasto; apunte?: Apunte; cerrar: () => void }) {
   const router = useRouter();
   const [pend, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -293,9 +293,9 @@ function Formulario({ g, gasto, empresa, apunte, cerrar }: { g: GastosMes; gasto
     });
   const quitar = () =>
     gasto &&
-    confirm(`¿Dejar de prever «${gasto.concepto}» desde ${mesDe(g.mes)}? Lo que ya salió del banco se queda.`) &&
+    confirm(`¿Dejar de prever «${gasto.concepto}» desde ${mesDe(mes)}? Lo que ya salió del banco se queda.`) &&
     empezar(async () => {
-      const r = await accionQuitarGasto(gasto.id, g.mes);
+      const r = await accionQuitarGasto(gasto.id, mes);
       if (!r.ok) return setError(r.error);
       cerrar();
       router.refresh();
@@ -390,7 +390,7 @@ function Formulario({ g, gasto, empresa, apunte, cerrar }: { g: GastosMes; gasto
         </div>
         <div className="mt-3 flex flex-wrap gap-5 text-[13.5px] text-carbon/85">
           <label className="flex items-center gap-2"><input type="checkbox" checked={d.avisar} onChange={(e) => pon("avisar", e.target.checked)} className="h-4 w-4 accent-lima" /> Avisar el mes anterior</label>
-          {g.verSoloDireccion && (
+          {verSoloDireccion && (
             <label className="flex items-center gap-2"><input type="checkbox" checked={d.solo_direccion} onChange={(e) => pon("solo_direccion", e.target.checked)} className="h-4 w-4 accent-lima" /> Solo lo ve dirección</label>
           )}
         </div>
@@ -415,7 +415,7 @@ export function Gastos({ g }: { g: GastosMes }) {
           <Total g={g} />
         </div>
       </div>
-      {form && <Formulario g={g} gasto={form.gasto} empresa={form.empresa} apunte={form.apunte} cerrar={() => setForm(null)} />}
+      {form && <Formulario mes={g.mes} verSoloDireccion={g.verSoloDireccion} gasto={form.gasto} empresa={form.empresa} apunte={form.apunte} cerrar={() => setForm(null)} />}
     </>
   );
 }
