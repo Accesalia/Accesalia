@@ -108,6 +108,7 @@ export async function historico(): Promise<Historico> {
     // Las devoluciones (recibos devueltos, facturas anuladas con su abono) NO son gasto: lo facturado ya las descuenta
     // con el abono, o se vuelven a cobrar. Restarlas aqui las contaba dos veces (Monica, 21-oct: «¿de donde viene?»)
     if (mv.clase === "devolucion" || tipo.startsWith("DEVOLUCIONES A CLIENTES")) continue;
+    if (tipo.includes("DEVUELTO")) continue;   // un cargo que el banco devolvio (la Ford, 4-dic-2025): ni salio de verdad
     if (tipo.startsWith("IMPUESTOS")) sumar(e[emp].impuestos, y, m, v);
     else if (/^(CASA|PERSONAL DE DANIEL|PRÉSTAMO DE MÓNICA)/.test(tipo)) sumar(e[emp].personal, y, m, v);
     else {
