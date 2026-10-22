@@ -1,0 +1,105 @@
+<title>Qué se guarda de la hoja</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Documento de revision: una tabla por cada cosa que se guarda. En verde lo que ya existe; en ambar lo que hay que
+   añadir o cambiar. Paleta de la app (docs/guia-de-estilo.md). */
+:root {
+  --papel: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --rejilla: #d5d9d0; --cab: #eef2ea;
+  --ok: #3f7a1c; --ok-bg: #eef7e4; --ambar: #fff3cc; --ambar-borde: #e9b92f; --ambar-txt: #6b4105;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--papel); color: var(--tinta); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.pagina { max-width: 1080px; margin: 0 auto; padding-block: 20px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size: 22px; margin: 0 0 4px; text-wrap: balance; }
+.sub { color: var(--tinta2); margin: 0 0 18px; max-width: 75ch; }
+h2 { font-size: 15px; margin: 26px 0 6px; text-transform: uppercase; letter-spacing: .05em; }
+h2 code { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--tinta2); font-weight: 600; }
+p.nota { color: var(--tinta2); margin: 0 0 8px; max-width: 80ch; }
+.marco { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid var(--rejilla); padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: var(--cab); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--tinta2); white-space: nowrap; }
+td.col { white-space: nowrap; font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
+td.est { white-space: nowrap; font-weight: 700; font-size: 12.5px; }
+tr.ok td.est { color: var(--ok); }
+tr.cambio td { background: var(--ambar); }
+tr.cambio td.est { color: var(--ambar-txt); }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--tinta2); margin-bottom: 6px; }
+.leyenda span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.leyenda .l1::before { background: var(--ok-bg); border: 1px solid var(--ok); }
+.leyenda .l2::before { background: var(--ambar); border: 1px solid var(--ambar-borde); }
+ol.dec { padding-left: 22px; max-width: 85ch; }
+ol.dec li { margin-bottom: 10px; }
+ol.dec b { display: block; }
+.pend { border-left: 4px solid var(--ambar-borde); padding: 6px 12px; background: #fffbea; max-width: 85ch; }
+</style>
+
+<div class="pagina">
+  <h1>Qué se guarda de la hoja de encargo</h1>
+  <p class="sub">Cada dato que genera la pantalla nueva (la del árbol) y dónde se guardaría. Para revisarlo punto por punto antes de tocar la base. 22-oct-2026.</p>
+  <div class="leyenda"><span class="l1">ya existe y vale</span><span class="l2">hay que añadirlo o cambiarlo: lo decides tú</span></div>
+
+  <h2>1 · La hoja <code>hojas_encargo</code></h2>
+  <div class="marco"><table>
+    <thead><tr><th>Dato</th><th>Dónde</th><th>Estado</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr class="ok"><td>De qué oportunidad es</td><td class="col">oportunidad_id</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>A quién va: comunidad, contrata o particular</td><td class="col">pagador_tipo · pagador_contrata_id · pagador_persona_id</td><td class="est">existe</td><td>Falta su sitio en la pantalla (por diseñar).</td></tr>
+      <tr class="cambio"><td>La comunidad</td><td class="col">comunidad_id</td><td class="est">cambiar</td><td>Es una copia de la de la opp. Debería salir de los accesos (la regla «el admin es de la comunidad»), no guardarse aparte.</td></tr>
+      <tr class="ok"><td>Qué empresa la emite</td><td class="col">emisor</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>Su código (HE-2026-0142)</td><td class="col">numero_hoja</td><td class="est">existe</td><td>Se da al generar por primera vez.</td></tr>
+      <tr class="ok"><td>Estado, firma, vigencia, quién la generó</td><td class="col">estado · fecha_firma · vigencia_meses · generada_por</td><td class="est">existe</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>2 · Cada versión <code>versiones_hoja</code></h2>
+  <div class="marco"><table>
+    <thead><tr><th>Dato</th><th>Dónde</th><th>Estado</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr class="ok"><td>La foto del papel y su PDF</td><td class="col">contenido_html · url_pdf_hoja</td><td class="est">existe</td><td>Una versión con PDF no se toca nunca.</td></tr>
+      <tr class="ok"><td>Base, IVA y total</td><td class="col">importe_base · iva_porcentaje · importe_total</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>Por qué cambia (de la v2 en adelante)</td><td class="col">motivo_cambio</td><td class="est">existe</td><td>Falta su sitio en la pantalla.</td></tr>
+      <tr class="ok"><td>Cuándo se generó y cuándo se envió</td><td class="col">fecha_generada · fecha_enviada</td><td class="est">existe</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>3 · Cada línea del árbol <code>conceptos_hoja</code></h2>
+  <p class="nota">Una fila por línea, colgada de su versión. Las cabeceras no son filas aparte: la cabecera es la línea principal de su paquete (la redacción del proyecto, la DF, la tramitación de la subvención, la documentación técnica) y lo demás cuelga de ella.</p>
+  <div class="marco"><table>
+    <thead><tr><th>Dato de la pantalla</th><th>Dónde</th><th>Estado</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr class="ok"><td>Qué es (el bloque del catálogo)</td><td class="col">bloque_id</td><td class="est">existe</td><td>Todas las líneas del árbol tienen ya su bloque (visado, inicio de obra, CFO, IEE…).</td></tr>
+      <tr class="ok"><td>El nombre que sale en la línea</td><td class="col">descripcion</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>De qué obra es</td><td class="col">tipo_proyecto_id</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>Importe · % a éxito · forma de pago · escrita a mano</td><td class="col">importe · porcentaje · forma_pago · forma_pago_a_mano</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>Comisión del administrador (invisible)</td><td class="col">comision_importe · comision_acuerdo_id</td><td class="est">existe</td><td>Falta su sitio en la pantalla.</td></tr>
+      <tr class="cambio"><td>Se cobra / incluido</td><td class="col">desglose</td><td class="est">cambiar</td><td>Hoy mezcla dos cosas en un campo (se cobra / incluido / no aparece). Pasaría a ser solo «se cobra o incluido».</td></tr>
+      <tr class="cambio"><td>Sale / no sale en el papel</td><td class="col">en_papel <i>(nuevo)</i></td><td class="est">añadir</td><td>Separado de lo anterior, como en la pantalla: así cabe «incluido y sale» y «incluido y no sale».</td></tr>
+      <tr class="cambio"><td>De qué cabecera cuelga</td><td class="col">incluido_en_concepto_id → cuelga_de</td><td class="est">cambiar</td><td>Ya existe, pero solo se usa para el proyecto conjunto. Valdría para todo el árbol: el visado cuelga del proyecto, el CFO de la DF, el IEE de la documentación técnica.</td></tr>
+      <tr class="cambio"><td>El orden de las líneas</td><td class="col">orden <i>(nuevo)</i></td><td class="est">añadir</td><td>Hoy se ordenan por la hora a la que se guardaron.</td></tr>
+      <tr class="cambio"><td>Las preguntas contestadas «no» (¿DF? No)</td><td class="col">¿?</td><td class="est">decidir</td><td>Hoy no quedan en ningún sitio: no se distingue «no la quieren» de «se olvidó».</td></tr>
+      <tr class="cambio"><td>La columna «incluido» de ahora</td><td class="col">incluido</td><td class="est">quitar</td><td>El generador la pone siempre a «sí»; su nota dice «gratis». Confunde.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>4 · Qué se hace y dónde <code>actuaciones_hoja</code> + <code>actuacion_accesos</code></h2>
+  <div class="marco"><table>
+    <thead><tr><th>Dato</th><th>Dónde</th><th>Estado</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr class="ok"><td>Las obras (ascensor, SATE fachada, las del conjunto…)</td><td class="col">tipo_proyecto_id</td><td class="est">existe</td><td></td></tr>
+      <tr class="ok"><td>En qué portales</td><td class="col">actuacion_accesos</td><td class="est">existe</td><td>Falta su sitio en la pantalla (el «dónde»).</td></tr>
+      <tr class="cambio"><td>A qué versión pertenecen</td><td class="col">version_hoja_id <i>(nuevo)</i></td><td class="est">cambiar</td><td>Hoy van por hoja y se borran y rehacen con cada versión: una v2 sin firmar pisa lo que se firmó en la v1.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Lo que tienes que decidir</h2>
+  <ol class="dec">
+    <li><b>«Sale en el papel», campo propio.</b> Separarlo de «se cobra / incluido», como está en la pantalla.</li>
+    <li><b>«Cuelga de» para todo el árbol.</b> Usar el campo que ya existe para el conjunto, en vez de crear otro.</li>
+    <li><b>Cómo guardar los «no».</b> Opción A: una fila más de la línea, marcada «no la quieren» (sin importe, no sale en el papel ni pasa a facturación). Opción B: no guardarlos. Yo iría por la A: una sola tabla y queda el rastro.</li>
+    <li><b>El qué y dónde, por versión.</b> Para que lo firmado no se pise nunca.</li>
+    <li><b>Un campo de orden.</b></li>
+  </ol>
+  <p class="pend"><b>Por diseñar en la pantalla</b> (los datos ya tienen sitio): a quién va, el dónde de cada obra, la comisión del administrador y el motivo del cambio de versión. Y aparte, para la firma: cómo pasan estas líneas a las líneas de facturación (las tres fases).</p>
+</div>
