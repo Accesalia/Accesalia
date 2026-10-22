@@ -25,6 +25,16 @@ const ACCESOS: Acceso[] = [
     href: "/gestiones/oportunidades",
     soloDireccion: true,
   },
+  // CREAR HOJA DE ENCARGO · PRUEBA (Monica, 22-oct-2026): la maqueta validada del generador en arbol sobre una
+  // opp de verdad, para probarla con la base. No guarda nada. Solo direccion.
+  {
+    nombre: "Crear hoja de encargo (prueba)",
+    color: "frambuesa",
+    icono: "hoja",
+    desc: "El generador nuevo, en árbol, sobre una oportunidad de verdad: para probarlo. Todavía no guarda nada",
+    href: "/gestiones/hoja-prueba",
+    soloDireccion: true,
+  },
   {
     nombre: "Asignar funciones a personas",
     color: "lila",
