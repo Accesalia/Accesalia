@@ -1,0 +1,362 @@
+<title>Hoja de encargo en árbol</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Patron CPQ: catalogo siempre a la vista (izquierda, estrecho) y la hoja como tabla tipo Excel (derecha).
+   Cada paquete = CABECERA en mayusculas con su subtotal; debajo, sangradas, todas sus lineas.
+   Las preguntas son filas en ambar dentro del paquete: al contestarlas, añaden lineas o no. */
+:root {
+  --fondo: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --apagado: rgba(43,43,43,.35);
+  --rejilla: #cfd4c9; --cab: #e6ecdf; --cab2: #f1f5ec; --par: #fafbf8; --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --ambar: #fff3cc; --ambar-borde: #e9b92f; --ambar-txt: #6b4105; --nosale: #1f4f86; --nosale-bg: #dde9f6;
+  --pry: #24476b; --pry-bg: #e7eef6; --doc: #5b2a4e; --doc-bg: #f4e9f1; --srv: #b4532a; --srv-bg: #fbece4;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--tinta); font: 13px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.pagina { max-width: 1600px; margin: 0 auto; padding-block: 14px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a.salida { color: var(--tinta2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
+.cab-opp { display: flex; flex-wrap: wrap; gap: 2px 20px; align-items: baseline; padding: 4px 0 10px; }
+.cab-opp h1 { font-size: 16px; margin: 0; }
+.cab-opp span { color: var(--tinta2); }
+.cab-opp b { color: var(--tinta); font-weight: 600; }
+.dos { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 760px) { .dos { grid-template-columns: minmax(0, 1fr); } }
+
+/* Catalogo */
+.cat { border-right: 1px solid var(--rejilla); padding-right: 10px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 8px); }
+.cat input { width: 100%; border: 1px solid var(--rejilla); border-radius: 4px; padding: 3px 6px; font: inherit; margin-bottom: 2px; }
+.cat .grupo { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; padding: 10px 2px 2px; font-weight: 800; border-bottom: 2px solid; }
+.cat .grupo.proyecto { color: var(--pry); } .cat .grupo.doc { color: var(--doc); } .cat .grupo.servicio { color: var(--srv); }
+.cat .bloque { border-left: 3px solid; padding-left: 6px; }
+.cat .bloque.proyecto { border-color: var(--pry); } .cat .bloque.doc { border-color: var(--doc); } .cat .bloque.servicio { border-color: var(--srv); }
+.cat .bloque.proyecto button { color: var(--pry); border-color: color-mix(in srgb, var(--pry) 45%, transparent); background: color-mix(in srgb, var(--pry) 10%, transparent); }
+.cat .bloque.doc button { color: var(--doc); border-color: color-mix(in srgb, var(--doc) 45%, transparent); background: color-mix(in srgb, var(--doc) 10%, transparent); }
+.cat .bloque.servicio button { color: var(--srv); border-color: color-mix(in srgb, var(--srv) 45%, transparent); background: color-mix(in srgb, var(--srv) 10%, transparent); }
+.item { display: flex; align-items: baseline; gap: 4px; padding: 3px 2px; border-bottom: 1px solid var(--rejilla); }
+.item:hover { background: var(--cab2); }
+.item > span { min-width: 0; }
+.item { gap: 14px; }
+.item button { margin-left: auto; }
+.item > span { white-space: nowrap; }
+.item button { order: 2; }
+.item.int > span { font-weight: 700; }
+.item .tag { display: block; font-size: 10px; color: var(--lima-dark); font-weight: 700; }
+.item button { font: inherit; font-size: 11px; font-weight: 600; border: 1px solid; border-radius: 4px; padding: 0 6px; cursor: pointer; white-space: nowrap; }
+.item:hover button { filter: brightness(.92); }
+
+/* La hoja */
+.der { min-width: 0; }
+.avisos { background: var(--ambar); border: 1px solid var(--ambar-borde); color: var(--ambar-txt); border-radius: 4px; padding: 4px 8px; margin-bottom: 6px; font-size: 12.5px; }
+.marco { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { border: 1px solid var(--rejilla); padding: 3px 6px; text-align: left; vertical-align: middle; }
+th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); font-weight: 700; white-space: nowrap; }
+td.que { white-space: nowrap; }
+td.papel, td.cobra, td.acc { width: 1%; white-space: nowrap; text-align: center; }
+td.imp { width: 1%; white-space: nowrap; text-align: right; }
+td.forma { width: 40%; }
+tr.linea:nth-of-type(even) td { background: var(--par); }
+tr.cabecera td { background: var(--cab); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+tr.cabecera.n1 td { background: var(--cab2); }
+tr.cabecera td.imp { text-transform: none; }
+tr.cabecera.top.proyecto td { background: var(--cab); } tr.cabecera.top.proyecto td:first-child { border-left: 4px solid var(--pry); }
+tr.cabecera.top.doc td { background: var(--cab); } tr.cabecera.top.doc td:first-child { border-left: 4px solid var(--doc); }
+tr.cabecera.top.servicio td { background: var(--cab); } tr.cabecera.top.servicio td:first-child { border-left: 4px solid var(--srv); }
+.clase { font-size: 9.5px; font-weight: 800; letter-spacing: .06em; margin-right: 8px; }
+.clase.proyecto { color: var(--pry); } .clase.doc { color: var(--doc); } .clase.servicio { color: var(--srv); }
+tr.linea.cobrable td.que { color: var(--tinta); font-weight: 600; }
+tr.linea.cobrable td.imp, tr.linea.cobrable input.imp { font-weight: 700; }
+tr.linea.incl td.que, tr.linea.incl td.imp { color: rgba(43,43,43,.55); }
+tr.linea.incl td.imp { font-style: italic; }
+tr.quitada td { color: var(--apagado); background: #fff !important; }
+tr.quitada td.que .txt { text-decoration: line-through; }
+tr.pregunta td { background: var(--ambar) !important; color: var(--ambar-txt); font-weight: 600; }
+tr.respondida td { color: var(--tinta2); font-style: italic; }
+tr.opcion td { background: #fff !important; }
+tr[data-d] > td:first-child { position: relative; }
+.g { position: absolute; border-color: rgba(43,43,43,.5); pointer-events: none; }
+.g.v { top: 0; bottom: 0; border-left: 1.5px solid; }
+.g.mitad { top: 0; bottom: 50%; border-left: 1.5px solid; }
+.g.h { top: 50%; width: 12px; border-top: 1.5px solid; }
+details.multi { display: inline-block; vertical-align: top; font-style: normal; }
+details.multi summary { cursor: pointer; border: 1px solid var(--rejilla); border-radius: 4px; padding: 0 6px; background: #fff; color: var(--tinta); list-style: none; }
+details.multi summary::after { content: " ▾"; color: var(--tinta2); }
+details.multi .pop { display: grid; grid-template-columns: repeat(3, max-content); gap: 2px 18px; margin-top: 4px; background: #fff; border: 1px solid var(--rejilla); border-radius: 4px; padding: 4px 8px; font-weight: 400; color: var(--tinta); }
+details.multi .pop button { grid-column: 1 / -1; justify-self: start; }
+details.multi .pop label { display: flex; gap: 6px; align-items: center; padding: 1px 0; white-space: nowrap; }
+details.multi .pop button { margin-top: 4px; font: inherit; font-weight: 600; border: 1px solid var(--rejilla); background: var(--cab2); border-radius: 4px; padding: 0 10px; cursor: pointer; }
+details.multi .pop button:disabled { opacity: .45; cursor: not-allowed; }
+.resp button:disabled { opacity: .45; cursor: not-allowed; }
+.resp button, .opc { font: inherit; font-weight: 600; border: 1px solid var(--ambar-borde); background: #fff; color: var(--ambar-txt); border-radius: 4px; padding: 0 9px; cursor: pointer; margin-left: 4px; }
+.opc { border-color: var(--lima-dark); color: var(--lima-dark); margin-left: 0; font-style: normal; }
+.sale { font: inherit; border: 0; background: none; color: var(--tinta2); padding: 0; cursor: pointer; }
+.sale:hover { text-decoration: underline; }
+.sale.no { color: var(--nosale); font-weight: 600; }
+select { font: inherit; border: 1px solid var(--rejilla); border-radius: 4px; padding: 1px 2px; background: #fff; }
+input[type="text"] { font: inherit; border: 1px solid var(--rejilla); border-radius: 4px; padding: 2px 5px; background: #fff; }
+input.imp { width: 76px; text-align: right; }
+input.forma { width: 100%; }
+.accion { font: inherit; font-size: 11.5px; border: 0; background: none; color: var(--tinta2); cursor: pointer; text-decoration: underline; }
+tr.total td { font-weight: 700; background: var(--cab); border-top: 2px solid var(--tinta); }
+.pie { display: flex; justify-content: flex-end; margin-top: 8px; }
+.generar { font: inherit; font-weight: 700; border: 0; background: var(--lima); color: var(--tinta); border-radius: 6px; padding: 5px 16px; cursor: pointer; }
+.generar:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 1px; }
+</style>
+
+<div class="pagina">
+  <a class="salida" href="#">← Bravo Murillo 112</a>
+  <div class="cab-opp">
+    <h1>Hoja de encargo · Bravo Murillo 112, Madrid</h1>
+    <span>Para: <b>Comunidad de propietarios</b></span>
+  </div>
+  <div class="dos">
+    <nav class="cat" id="cat" aria-label="Catálogo"></nav>
+    <div class="der">
+      <div id="avisos"></div>
+      <div class="marco"><table>
+        <thead><tr><th>Qué</th><th>En el papel</th><th>Se cobra</th><th>Importe</th><th>Cómo se cobra</th><th></th></tr></thead>
+        <tbody id="hoja"></tbody>
+      </table></div>
+      <div class="pie"><button type="button" class="generar" id="generar">Generar la hoja</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Maqueta: importes y formas de pago de ejemplo (en la app: tarifa + catalogo de bloques + sus reglas).
+let uid = 0;
+const ln = (nombre, o = {}) => ({ id: ++uid, t: "linea", nombre, cobra: false, importe: null, pct: null, forma: "", papel: true, quitada: false, ...o });
+const cab = (nombre, hijos, o = {}) => ({ id: ++uid, t: "cab", nombre, hijos, quitada: false, ...o });
+// Pregunta: opciones [{txt, crea?, nombre?}]. Al contestar, lo que crea se cuelga debajo; "nombre" cambia la cabecera.
+const preg = (texto, opciones, o = {}) => ({ id: ++uid, t: "preg", texto, opciones, resp: null, creado: [], ...o });
+// Opcion: "+ algo" que se añade con un clic.
+const opc = (nombre, crea) => ({ id: ++uid, t: "opc", nombre, crea, creado: [] });
+const P50 = "50 % a la contratación · 50 % a la entrega del proyecto";
+const ENT = "100 % a la entrega";
+
+const dfBloque = () => cab("Dirección facultativa", [
+  ln("Inicio de obra", { papel: false }),
+  ln("Dirección facultativa (visitas de obra)", { cobra: false, importe: 3000, forma: "50 % al inicio de obra · 50 % al CFO" }),
+  ln("Certificado de fin de obra (CFO)"),
+]);
+const css = () => ln("CSS", { cobra: true, importe: 900, forma: "100 % a la firma del Plan de Seguridad y Salud" });
+const caes = () => ln("Gestión de CAES", { cobra: true, importe: 1200, forma: "100 % a la venta de los CAES" });
+const fin = () => ln("Solicitud de financiación");
+const pregCaes = () => preg("¿Gestionamos los CAES?", [{ txt: "Sí", crea: () => [cab("CAES", [caes()])] }, { txt: "No" }], { caes: true });
+const tres = () => ln("Solicitud y análisis de 3 presupuestos", { papel: false });
+const restoProyecto = (efi) => [
+  ln("Toma de datos y modelado 3D"), ln("Visado colegial", { papel: false }), ln("Tramitación de licencias"),
+  preg("¿Lleva dirección facultativa?", [{ txt: "Sí", crea: () => [dfBloque()] }, { txt: "No" }]),
+  preg("¿Pedimos los 3 presupuestos?", [{ txt: "Sí", crea: () => [cab("3 presupuestos", [tres()])] }, { txt: "No" }]),
+  preg("¿Gestionamos la financiación?", [{ txt: "Sí", crea: () => [cab("Financiación", [fin()])] }, { txt: "No" }]),
+  ...(efi ? [pregCaes()] : []),
+  preg("¿Llevamos la CSS?", [{ txt: "Sí", crea: () => [cab("CSS", [css()])] }, { txt: "No" }]),
+];
+const redaccion = () => ln("Redacción del proyecto básico y de ejecución", { cobra: true, importe: 9800, forma: P50 });
+const proyecto = {
+  asc: () => cab("Proyecto de ascensor", [redaccion(), ...restoProyecto(false)]),
+  acc: () => cab("Proyecto de accesibilidad", [preg("¿Qué obra de accesibilidad?", ["Rampa", "Plataforma elevadora", "Cota cero", "Cambio de puertas", "Cambio de cabina", "Añadir parada", "Sustitución de ascensor"].map((x) => ({ txt: x, nombre: "Proyecto de " + x.toLowerCase() }))), redaccion(), ...restoProyecto(false)]),
+  efi: () => { const c = cab("Proyecto de SATE completo", [preg("Tipo de SATE", ["SATE completo", "SATE fachada", "SATE cubierta"].map((x) => ({ txt: x, nombre: "Proyecto de " + x }))), redaccion(), ...restoProyecto(true)]); c.hijos[0].resp = "SATE completo"; return c; },
+  con: () => {
+    const q = preg("¿Qué obras van juntas?", ["Ascensor", "SATE completo", "SATE fachada", "SATE cubierta", "Rampa", "Plataforma elevadora", "Cota cero", "Cambio de puertas", "Añadir parada", "Aerotermia", "Fotovoltaica"].map((x) => ({ txt: x })), { multi: true, marcadas: [] });
+    const c = cab("Proyecto conjunto", [q, redaccion(), ...restoProyecto(true)]);
+    // CAES solo si alguna de las obras es un SATE
+    todos(c.hijos).filter((x) => x.caes).forEach((x) => (x.cond = () => (q.resp ?? "").includes("SATE")));
+    return c;
+  },
+};
+const subvencion = () => {
+  const q = preg("¿De qué es?", [{ txt: "Accesibilidad", nombre: "Subvención de accesibilidad" }, { txt: "Eficiencia energética", nombre: "Subvención de eficiencia energética" }]);
+  const caesQ = pregCaes(); caesQ.cond = () => q.resp === "Eficiencia energética";
+  return cab("Subvención", [
+    q,
+    ln("Tramitación de la subvención", { cobra: true, pct: "3,5 % de lo concedido", forma: "A la concesión" }),
+    cab("Documentación técnica", [ln("IEE"), ln("Libro del edificio"), ln("Certificado de eficiencia energética")], { precio: ln("Documentación técnica", { cobra: true, importe: 1980, forma: "100 % a la contratación" }) }),
+    caesQ,
+  ]);
+};
+const suelto = (n, imp, forma, extra = []) => () => cab(n, [ln(n, { cobra: true, importe: imp, forma }), ...extra.map((f) => f())]);
+
+const CATALOGO = [
+  ["Proyectos", "proyecto", [["Proyecto · ascensor", proyecto.asc, true], ["Proyecto · accesibilidad", proyecto.acc], ["Proyecto · eficiencia energética", proyecto.efi], ["Proyecto conjunto", proyecto.con]]],
+  ["Documentos técnicos", "doc", [["Memoria técnica", suelto("Memoria técnica", 2400, ENT)], ["Informe técnico", suelto("Informe técnico", 900, ENT)], ["Informe pericial", suelto("Informe pericial", 1500, ENT)],
+    ["Consulta urbanística", suelto("Consulta urbanística", 700, "100 % a la contratación", [() => ln("Toma de datos y modelado 3D"), () => ln("Visado colegial", { papel: false }), () => ln("Tramitación de licencias")])],
+    ["Mediciones y ciego", suelto("Mediciones y ciego", 1300, ENT)], ["Modificación de proyecto", suelto("Modificación de proyecto", 1500, ENT)]]],
+  ["Servicios", "servicio", [["Subvención", subvencion, true], ["IEE", suelto("IEE", 600, ENT)], ["CSS", () => cab("CSS", [css()])],
+    ["Dirección facultativa", dfBloque], ["3 presupuestos", () => cab("3 presupuestos", [tres()])], ["Financiación", () => cab("Financiación", [fin()])], ["CAES", () => cab("CAES", [caes()])]]],
+];
+const hoja = [];
+let filtro = "";
+
+// --- recorrer
+const hijosDe = (n) => (n.t === "cab" ? n.hijos : n.t === "preg" || n.t === "opc" ? n.creado : []);
+const todos = (ns = hoja) => ns.flatMap((n) => [n, ...(n.precio ? [n.precio] : []), ...todos(hijosDe(n))]);
+const buscar = (id) => todos().find((n) => n.id === Number(id));
+const padreDe = (id, ns = hoja, p = null) => { for (const n of ns) { if (n.id === Number(id)) return p; const r = padreDe(id, hijosDe(n), n); if (r !== undefined) return r; } return undefined; };
+function subtotal(n) {
+  if (n.quitada) return 0;
+  if (n.t === "linea") return n.cobra && !n.pct ? n.importe || 0 : 0;
+  // solo lo que ya esta en la hoja: en una cabecera, hasta la primera pregunta sin contestar
+  let t = n.precio ? subtotal(n.precio) : 0;
+  for (const h of hijosDe(n)) { if (h.t === "preg" && h.resp == null && visible(h) && esDeObra(h)) break; t += subtotal(h); }
+  return t;
+}
+const mil = (x) => Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const eur = (x) => mil(x) + " €";
+
+// --- pintar
+function rama() { return ""; }
+const esDeObra = (h) => h.multi || h.opciones.some((o) => o.nombre); // la que dice qué es: va primero, sola
+const visible = (h) => !(h.cond && !h.cond()) && !(h.caes && h !== caesQueSePregunta());
+function porPasos(ns, nivel, q) {
+  let h = "";
+  for (const x of ns) { h += fila(x, nivel, q); if (x.t === "preg" && x.resp == null && visible(x) && esDeObra(x)) break; }
+  return h;
+}
+let pendientes = [];
+function filas(ns, nivel, quitadoArriba) {
+  return ns.map((n) => fila(n, nivel, quitadoArriba)).join("");
+}
+function fila(n, nivel, quitadoArriba) {
+  const q = quitadoArriba || n.quitada;
+  const accion = quitadoArriba ? "" : `<button type="button" class="accion" data-quitar="${n.id}">${n.quitada ? "poner" : "quitar"}</button>`;
+  if (n.t === "cab") {
+    const st = subtotal(n);
+    const pr = n.precio && !q ? celdasPrecio(n.precio, false) : null;
+    const etq = { proyecto: "PROYECTO", doc: "DOC. TÉCNICO", servicio: "SERVICIO" }[n.clase];
+    return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}<span class="txt">${n.nombre}</span>${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
+      (q ? "" : porPasos(n.hijos, nivel + 1, q));
+  }
+  if (n.t === "preg") {
+    if (n.cond && !n.cond()) return "";
+    if (n.caes && n !== caesQueSePregunta()) return "";
+    if (n.resp == null) pendientes.push(n.texto);
+    if (n.resp === "Sí" && n.creado.length) return filas(n.creado, nivel, q);
+    // Mas de dos respuestas: un desplegable en la propia fila (el tipo de obra), no una fila de botones.
+    if ((n.multi || n.opciones.some((o) => o.nombre)) && n.resp != null) return filas(n.creado, nivel, q);
+    if (n.multi) {
+      const lista = n.opciones.map((o, i) => `<label><input type="checkbox" data-marca="${n.id}:${i}"${n.marcadas.includes(o.txt) ? " checked" : ""}> ${o.txt}</label>`).join("");
+      return `<tr data-d="${nivel}" class="fuera ${n.resp == null ? "pregunta" : "respondida"}"><td colspan="6">${n.texto} ` +
+        `<details class="multi" data-id="${n.id}"${n.abierto ? " open" : ""}><summary>${n.resp ?? (n.marcadas.length ? n.marcadas.join(" + ") : "elegir las obras")}</summary><div class="pop">${lista}` +
+        `<button type="button" data-hecho="${n.id}"${n.marcadas.length < 2 ? " disabled" : ""}>Hecho</button></div></details></td></tr>`;
+    }
+    if (n.opciones.length > 2)
+      return `<tr data-d="${nivel}" class="fuera ${n.resp == null ? "pregunta" : "respondida"}"><td colspan="6">${n.texto} ` +
+        `<select data-elige="${n.id}">${n.resp == null ? `<option value="">elegir</option>` : ""}${n.opciones.map((o, i) => `<option value="${i}"${o.txt === n.resp ? " selected" : ""}>${o.txt}</option>`).join("")}</select></td></tr>` + filas(n.creado, nivel, q);
+    if (n.resp == null)
+      return `<tr data-d="${nivel}" class="fuera pregunta"><td colspan="6">${rama(nivel)}${n.texto}<span class="resp">${n.opciones.map((o, i) => `<button type="button" data-resp="${n.id}:${i}">${o.txt}</button>`).join("")}</span></td></tr>`;
+    const otras = n.opciones.length > 2 ? ` <button type="button" class="accion" data-cambiar="${n.id}">cambiar</button>` : ` <button type="button" class="accion" data-cambiar="${n.id}">cambiar</button>`;
+    const txt = n.opciones.some((o) => o.nombre) ? "" : `${n.texto} ${n.resp}`;
+    return (txt ? `<tr data-d="${nivel}" class="fuera respondida"><td colspan="6">${rama(nivel)}${txt}${otras}</td></tr>` : `<tr data-d="${nivel}" class="fuera respondida"><td colspan="6">${rama(nivel)}${n.texto}: ${n.resp}${otras}</td></tr>`) + filas(n.creado, nivel, q);
+  }
+  if (n.t === "opc") {
+    if (n.creado.length) return filas(n.creado, nivel, q);
+    return `<tr data-d="${nivel}" class="fuera opcion"><td colspan="6">${rama(nivel)}<button type="button" class="opc" data-opc="${n.id}">+ ${n.nombre}</button></td></tr>`;
+  }
+  // linea
+  const { papel, cobra, imp, forma } = celdasPrecio(n, q);
+  return `<tr data-d="${nivel}" class="linea ${n.cobra ? "cobrable" : "incl"}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}<span class="txt">${n.nombre}</span></td><td class="papel">${papel}</td><td class="cobra">${cobra}</td><td class="imp">${imp}</td><td class="forma">${forma}</td><td class="acc">${accion}</td></tr>`;
+}
+function celdasPrecio(n, q) {
+  const papel = q ? "" : `<button type="button" class="sale${n.papel ? "" : " no"}" data-papel="${n.id}">${n.papel ? "sale" : "no sale"}</button>`;
+  const cobra = q ? "" : n.pct ? "sí" : `<select data-cobra="${n.id}" aria-label="Se cobra"><option${n.cobra ? " selected" : ""}>sí</option><option${n.cobra ? "" : " selected"}>incluido</option></select>`;
+  const imp = q ? "" : n.pct ? n.pct : n.cobra ? `<input type="text" class="imp" data-imp="${n.id}" value="${n.importe ? mil(n.importe) : ""}" aria-label="Importe">` : "incluido";
+  const forma = q || !n.cobra ? "" : `<input type="text" class="forma" data-forma="${n.id}" value="${n.forma}" aria-label="Cómo se cobra">`;
+  return { papel, cobra, imp, forma };
+}
+
+function pintar() {
+  const total = hoja.reduce((s, n) => s + subtotal(n), 0);
+  pendientes = [];
+  const tb = document.getElementById("hoja");
+  tb.innerHTML = (hoja.length ? filas(hoja, 0, false) : `<tr><td colspan="6" style="color:var(--tinta2);font-style:italic">Aún no hay nada: añade desde el catálogo, a la izquierda.</td></tr>`) +
+    `<tr class="total"><td>Total</td><td></td><td></td><td class="imp">${eur(total)}</td><td>+ IVA</td><td></td></tr>`;
+  arbolDeLineas(tb);
+  const faltan = pendientes;
+  document.getElementById("avisos").innerHTML = faltan.length ? `<div class="avisos">Falta contestar: ${faltan.join(" · ")}</div>` : "";
+  document.getElementById("generar").disabled = faltan.length > 0 || !hoja.length;
+}
+function caesQueSePregunta() { return todos().find((x) => x.caes && !x.quitada && !estaQuitado(x.id) && (!x.cond || x.cond())) ?? null; }
+// EL ARBOL: una linea vertical baja de cada cabecera y se ramifica hacia cada una de sus lineas, hasta la ultima.
+const PASO = 22, X0 = 12;
+function arbolDeLineas(tb) {
+  const filas = [...tb.querySelectorAll("tr[data-d]")];
+  const d = filas.map((f) => Number(f.dataset.d));
+  const real = filas.map((f) => !f.classList.contains("fuera")); // las preguntas sin contestar y los "+" no son lineas: sin rama
+  const esUltima = (j) => { for (let m = j + 1; m < d.length; m++) { if (!real[m]) continue; if (d[m] < d[j]) return true; if (d[m] === d[j]) return false; } return true; };
+  // la rama de nivel k sigue abierta en la fila i si la ultima linea de verdad de ese nivel, antes de i, no es la ultima de su grupo
+  const abierta = (i, k) => { for (let j = i - 1; j >= 0; j--) { if (!real[j]) continue; if (d[j] < k) return false; if (d[j] === k) return !esUltima(j); } return false; };
+  const x = (k) => X0 + (k - 1) * PASO;
+  filas.forEach((f, i) => {
+    const td = f.firstElementChild;
+    td.style.paddingLeft = (6 + d[i] * PASO) + "px";
+    if (!d[i]) return;
+    let g = "";
+    const hasta = real[i] ? d[i] - 1 : d[i];
+    for (let k = 1; k <= hasta; k++) if (abierta(i, k)) g += `<i class="g v" style="left:${x(k)}px"></i>`;
+    if (real[i]) g += `<i class="g ${esUltima(i) ? "mitad" : "v"}" style="left:${x(d[i])}px"></i><i class="g h" style="left:${x(d[i])}px"></i>`;
+    td.insertAdjacentHTML("afterbegin", g);
+  });
+}
+function estaQuitado(id) { let p = padreDe(id); while (p) { if (p.quitada) return true; p = padreDe(p.id); } return false; }
+
+function pintarCatalogo() {
+  const f = filtro.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  let h = "";
+  CATALOGO.forEach(([g, clase, items], gi) => {
+    const vis = items.map((it, ii) => [it, ii]).filter(([[n]]) => n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().includes(f));
+    if (!vis.length) return;
+    h += `<div class="grupo ${clase}">${g}</div><div class="bloque ${clase}">` + vis.map(([[n, , int], ii]) => `<div class="item${int ? " int" : ""}"><span>${n}${int ? '<span class="tag">les interesa</span>' : ""}</span><button type="button" data-nuevo="${gi}:${ii}">Añadir</button></div>`).join("") + `</div>`;
+  });
+  const c = document.getElementById("cat"); const enf = document.activeElement?.id === "buscar";
+  c.innerHTML = h;
+  if (enf) { const b = document.getElementById("buscar"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); }
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.nuevo) { const [g, i] = b.dataset.nuevo.split(":").map(Number); const n = CATALOGO[g][2][i][1](); n.clase = CATALOGO[g][1]; hoja.push(n); }
+  else if (b.dataset.resp) {
+    const [id, i] = b.dataset.resp.split(":"); const p = buscar(id); const o = p.opciones[Number(i)];
+    p.resp = o.txt; p.creado = o.crea ? o.crea() : []; p.creado.forEach((c) => (c.dePreg = p.id));
+    if (o.nombre) padreDe(p.id).nombre = o.nombre;
+  }
+  else if (b.dataset.hecho) { const p = buscar(b.dataset.hecho); p.resp = p.marcadas.join(" + "); p.abierto = false; padreDe(p.id).nombre = "Proyecto conjunto: " + p.resp; }
+  else if (b.dataset.cambiar) { const p = buscar(b.dataset.cambiar); p.resp = null; p.creado = []; }
+  else if (b.dataset.opc) { const o = buscar(b.dataset.opc); o.creado = o.crea(); }
+  else if (b.dataset.quitar) {
+    const n = buscar(b.dataset.quitar); const p = padreDe(n.id);
+    if (n.dePreg) { const pr = buscar(n.dePreg); pr.resp = "No"; pr.creado = []; pintar(); return; }
+    if (!p && n.t === "cab") hoja.splice(hoja.indexOf(n), 1); // una cabecera de arriba se quita del todo
+    else if (p && p.t === "opc") p.creado = []; // lo que se añadio con "+" vuelve a ser "+"
+    else n.quitada = !n.quitada;
+  }
+  else if (b.dataset.papel) { const n = buscar(b.dataset.papel); n.papel = !n.papel; }
+  else return;
+  pintar();
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset.cobra) { buscar(t.dataset.cobra).cobra = t.value === "sí"; pintar(); }
+  if (t.dataset.elige) { const p = buscar(t.dataset.elige); const o = p.opciones[Number(t.value)]; if (!o) return; p.resp = o.txt; p.creado = o.crea ? o.crea() : []; if (o.nombre) padreDe(p.id).nombre = o.nombre; pintar(); }
+  if (t.dataset.marca) {
+    const [id, i] = t.dataset.marca.split(":"); const p = buscar(id); const x = p.opciones[Number(i)].txt;
+    p.marcadas = t.checked ? [...p.marcadas, x] : p.marcadas.filter((y) => y !== x);
+    const d = t.closest("details"); d.querySelector("summary").textContent = p.marcadas.length ? p.marcadas.join(" + ") : "elegir las obras";
+    d.querySelector("[data-hecho]").disabled = p.marcadas.length < 2;
+  }
+});
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.id === "buscar") { filtro = t.value; pintarCatalogo(); }
+  if (t.dataset.forma) buscar(t.dataset.forma).forma = t.value;
+});
+document.addEventListener("toggle", (e) => { const d = e.target; if (d.matches && d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
+document.addEventListener("focusout", (e) => {
+  const t = e.target;
+  if (t.dataset && t.dataset.imp) { buscar(t.dataset.imp).importe = Number(t.value.replace(/\./g, "").replace(",", ".")) || 0; pintar(); }
+});
+pintarCatalogo();
+pintar();
+</script>
