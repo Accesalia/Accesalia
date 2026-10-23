@@ -12,6 +12,7 @@ export function montarArbol(root, datos) {
   };
   const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   const D = datos.defectos || {};
+  const ACCESOS_OPP = datos.accesos || [];
   const INT = new Set(datos.interesa || []);
   const def = (codigo) => D[codigo] || {};
 
@@ -49,7 +50,11 @@ export function montarArbol(root, datos) {
     efi: () => { const c = cab("Proyecto de SATE completo", [preg("Tipo de SATE", ["SATE completo", "SATE fachada", "SATE cubierta"].map((x) => ({ txt: x, nombre: "Proyecto de " + x }))), redaccion(), ...restoProyecto(true)]); c.hijos[0].resp = "SATE completo"; return c; },
     con: () => {
       const q = preg("¿Qué obras van juntas?", ["Ascensor", "SATE completo", "SATE fachada", "SATE cubierta", "Rampa", "Plataforma elevadora", "Cota cero", "Cambio de puertas", "Añadir parada", "Aerotermia", "Fotovoltaica"].map((x) => ({ txt: x })), { multi: true, marcadas: [] });
-      const c = cab("Proyecto conjunto", [q, redaccion(), ...restoProyecto(true)]);
+        // Cada proyecto del conjunto es su propia linea, con su precio; el conjunto es la cabecera (su total = la suma)
+      // y decide si el papel desglosa los precios o solo da el total.
+      const resto = restoProyecto(true);
+      const c = cab("Proyecto conjunto", [q, ...resto], { conjunto: true, desglosar: true });
+      q.alHecho = () => { c.hijos = [q, ...q.marcadas.map((o) => ({ ...redaccion(), nombre: "Proyecto de " + (o.startsWith("SATE") ? o : o.toLowerCase()), desglose: o, conPortales: true })), ...resto]; };
       todos(c.hijos).filter((x) => x.caes).forEach((x) => (x.cond = () => (q.resp ?? "").includes("SATE")));
       return c;
     },
@@ -99,6 +104,15 @@ export function montarArbol(root, datos) {
   function rama() { return ""; }
   const esDeObra = (h) => h.multi || h.opciones.some((o) => o.nombre); // la que dice qué es: va primero, sola
   const visible = (h) => !(h.cond && !h.cond()) && !(h.caes && h !== caesQueSePregunta());
+  // PORTALES: con un solo acceso no se ve nada; con varios, «portales: todos ▾» en cada cabecera de arriba y en cada
+  // proyecto de un conjunto. Lo de dentro los hereda. Por defecto, todos.
+  function selPortales(n) {
+    if (ACCESOS.length < 2) return "";
+    const sel = n.portales;
+    const txt = !sel ? "todos" : ACCESOS.filter((a) => sel.includes(a.id)).map((a) => a.texto).join(", ");
+    const lista = ACCESOS.map((a) => `<label><input type="checkbox" data-portal="${n.id}:${a.id}"${!sel || sel.includes(a.id) ? " checked" : ""}> ${esc(a.texto)}</label>`).join("");
+    return ` <details class="multi portales" data-pid="${n.id}"${n.abiertoP ? " open" : ""}><summary>portales: ${esc(txt)}</summary><div class="pop">${lista}</div></details>`;
+  }
   function porPasos(ns, nivel, q) {
     let h = "";
     for (const x of ns) { h += fila(x, nivel, q); if (x.t === "preg" && x.resp == null && visible(x) && esDeObra(x)) break; }
@@ -115,7 +129,7 @@ export function montarArbol(root, datos) {
       const st = subtotal(n);
       const pr = n.precio && !q ? celdasPrecio(n.precio, false) : null;
       const etq = { proyecto: "PROYECTO", doc: "DOC. TÉCNICO", servicio: "SERVICIO" }[n.clase];
-      return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}<span class="txt">${n.nombre}</span>${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
+      return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}<span class="txt">${n.nombre}</span>${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}${n.conjunto && !q ? ` <select class="desglosa" data-desglosa="${n.id}" aria-label="Precios en el papel"><option value="si"${n.desglosar ? " selected" : ""}>desglosar precios</option><option value="no"${n.desglosar ? "" : " selected"}>solo el total</option></select>` : ""}${nivel === 0 && !q ? selPortales(n) : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
         (q ? "" : porPasos(n.hijos, nivel + 1, q));
     }
     if (n.t === "preg") {
@@ -146,7 +160,8 @@ export function montarArbol(root, datos) {
     }
     // linea
     const { papel, cobra, imp, forma } = celdasPrecio(n, q);
-    return `<tr data-d="${nivel}" class="linea ${n.cobra ? "cobrable" : "incl"}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}<span class="txt">${n.nombre}</span></td><td class="papel">${papel}</td><td class="cobra">${cobra}</td><td class="imp">${imp}</td><td class="forma">${forma}</td><td class="acc">${accion}</td></tr>`;
+    const oculto = n.conPortales && padreDe(n.id)?.desglosar === false && n.cobra ? `<span class="precio-oculto">no sale en el papel</span>` : "";
+    return `<tr data-d="${nivel}" class="linea ${n.cobra ? "cobrable" : "incl"}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}<span class="txt">${n.nombre}</span>${n.conPortales && !q ? selPortales(n) : ""}</td><td class="papel">${papel}</td><td class="cobra">${cobra}</td><td class="imp">${imp}${oculto}</td><td class="forma">${forma}</td><td class="acc">${accion}</td></tr>`;
   }
   function celdasPrecio(n, q) {
     const papel = q ? "" : `<button type="button" class="sale${n.papel ? "" : " no"}" data-papel="${n.id}">${n.papel ? "sale" : "no sale"}</button>`;
@@ -212,7 +227,7 @@ export function montarArbol(root, datos) {
       p.resp = o.txt; p.creado = o.crea ? o.crea() : []; p.creado.forEach((c) => (c.dePreg = p.id));
       if (o.nombre) padreDe(p.id).nombre = o.nombre;
     }
-    else if (b.dataset.hecho) { const p = buscar(b.dataset.hecho); p.resp = p.marcadas.join(" + "); p.abierto = false; padreDe(p.id).nombre = "Proyecto conjunto: " + p.resp; }
+    else if (b.dataset.hecho) { const p = buscar(b.dataset.hecho); p.resp = p.marcadas.join(" + "); p.abierto = false; padreDe(p.id).nombre = "Proyecto conjunto: " + p.resp; if (p.alHecho) p.alHecho(); }
     else if (b.dataset.cambiar) { const p = buscar(b.dataset.cambiar); p.resp = null; p.creado = []; }
     else if (b.dataset.opc) { const o = buscar(b.dataset.opc); o.creado = o.crea(); }
     else if (b.dataset.quitar) {
@@ -230,6 +245,15 @@ export function montarArbol(root, datos) {
     const t = e.target;
     if (t.dataset.cobra) { buscar(t.dataset.cobra).cobra = t.value === "sí"; pintar(); }
     if (t.dataset.elige) { const p = buscar(t.dataset.elige); const o = p.opciones[Number(t.value)]; if (!o) return; p.resp = o.txt; p.creado = o.crea ? o.crea() : []; if (o.nombre) padreDe(p.id).nombre = o.nombre; pintar(); }
+    if (t.dataset.desglosa) { buscar(t.dataset.desglosa).desglosar = t.value === "si"; pintar(); }
+    if (t.dataset.portal) {
+      const [id, aid] = t.dataset.portal.split(":"); const n = buscar(id);
+      let s = n.portales ? [...n.portales] : ACCESOS.map((a) => a.id);
+      s = t.checked ? [...new Set([...s, aid])] : s.filter((x) => x !== aid);
+      if (!s.length) { t.checked = true; return; } // siempre al menos un portal
+      n.portales = s.length === ACCESOS.length ? null : s;
+      t.closest("details").querySelector("summary").textContent = "portales: " + (!n.portales ? "todos" : ACCESOS.filter((a) => n.portales.includes(a.id)).map((a) => a.texto).join(", "));
+    }
     if (t.dataset.marca) {
       const [id, i] = t.dataset.marca.split(":"); const p = buscar(id); const x = p.opciones[Number(i)].txt;
       p.marcadas = t.checked ? [...p.marcadas, x] : p.marcadas.filter((y) => y !== x);
@@ -242,7 +266,7 @@ export function montarArbol(root, datos) {
     if (t.id === "buscar") { filtro = t.value; pintarCatalogo(); }
     if (t.dataset.forma) buscar(t.dataset.forma).forma = t.value;
   });
-  document_.addEventListener("toggle", (e) => { const d = e.target; if (d.matches && d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
+  document_.addEventListener("toggle", (e) => { const d = e.target; if (!d.matches) return; if (d.matches("details.portales")) buscar(d.dataset.pid).abiertoP = d.open; else if (d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
   document_.addEventListener("focusout", (e) => {
     const t = e.target;
     if (t.dataset && t.dataset.imp) { buscar(t.dataset.imp).importe = Number(t.value.replace(/\./g, "").replace(",", ".")) || 0; pintar(); }

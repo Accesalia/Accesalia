@@ -20,9 +20,9 @@ export function ElegirOpp({ opciones, valor }: { opciones: Opcion[]; valor: stri
 }
 
 /** La hoja en arbol de la maqueta validada, montada sobre los datos de la base. No guarda nada. */
-export function ArbolHoja({ defectos, interesa }: { defectos: Record<string, Defecto>; interesa: string[] }) {
+export function ArbolHoja({ defectos, interesa, accesos }: { defectos: Record<string, Defecto>; interesa: string[]; accesos: { id: string; texto: string }[] }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => (ref.current ? montarArbol(ref.current, { defectos, interesa }) : undefined), [defectos, interesa]);
+  useEffect(() => (ref.current ? montarArbol(ref.current, { defectos, interesa, accesos }) : undefined), [defectos, interesa, accesos]);
   return (
     <div className="ah rounded-lg bg-white p-3">
       <style dangerouslySetInnerHTML={{ __html: ESTILOS }} />

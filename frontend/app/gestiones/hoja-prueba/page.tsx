@@ -38,6 +38,8 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
       pct: b.exito?.porcentaje ?? null,
     };
   const interesa = [...new Set((d?.interes ?? []).map((t) => PAQUETE[t.nombre]).filter(Boolean))];
+  // Los accesos seleccionados en la opp (vivos), con su escalera: de ellos se eligen los portales de cada cosa.
+  const accesos = (d?.oportunidades.find((o) => o.id === d.opp.id)?.accesos ?? []).map((a) => ({ id: a.id, texto: a.texto }));
   const sinPaquete = (d?.interes ?? []).filter((t) => !PAQUETE[t.nombre]).map((t) => t.nombre);
 
   return (
@@ -60,7 +62,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
           )}
         </div>
         <div className="mt-4">
-          {d ? <ArbolHoja key={d.opp.id} defectos={defectos} interesa={interesa} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
+          {d ? <ArbolHoja key={d.opp.id} defectos={defectos} interesa={interesa} accesos={accesos} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
         </div>
       </main>
     </div>
