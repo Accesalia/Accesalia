@@ -221,6 +221,7 @@ export function montarArbol(root, datos) {
       ? `<div class="faltan"><b>Aún no se puede previsualizar ni guardar:</b><ul>${f.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
     document_.getElementById("generar").disabled = !listo || guardando;
     document_.getElementById("previsualizar").disabled = !listo;
+    const em = document_.getElementById("emitir"); if (em) em.disabled = !listo || guardando;
     if (!listo) { document_.getElementById("confirma").innerHTML = ""; }
     pintarPrevia(listo);
   }
@@ -548,6 +549,8 @@ export function montarArbol(root, datos) {
     else if (b.id === "no-guardar") document_.getElementById("confirma").innerHTML = "";
     else if (b.id === "previsualizar") { previaAbierta = true; avisar(); document_.getElementById("previa").scrollIntoView?.({ behavior: "smooth", block: "start" }); }
     else if (b.id === "cerrar-previa") { previaAbierta = false; avisar(); }
+    // GENERAR LA HOJA: el boton ya esta; se conecta con el ciclo de la hoja (borrador -> pendiente del ok de Daniel).
+    else if (b.id === "emitir") document_.getElementById("confirma").innerHTML = `<div class="confirma">«Generar la hoja» pedirá el ok de Daniel. Todavía no está conectado: de momento, guárdala como borrador.</div>`;
   }, { signal: ac.signal });
   if (datos.inicial && datos.inicial.length) cargar(datos.inicial);
   pintarCatalogo();

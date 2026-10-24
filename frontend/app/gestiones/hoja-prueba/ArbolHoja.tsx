@@ -68,7 +68,9 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, comunida
             <div className="pie">
               {aviso && <span className={`mr-2 text-sm ${aviso.ok ? "text-carbon/70" : "text-red-800"}`}>{aviso.texto}</span>}
               <button type="button" className="secundario" id="previsualizar" disabled>Previsualizar</button>
-              <button type="button" className="generar" id="generar" disabled>Guardar como borrador</button>
+              <button type="button" className="secundario" id="generar" disabled>Guardar como borrador</button>
+              {/* Ya en su sitio para no tocar la pantalla: se cablea con el ciclo de la hoja (pide el ok de Daniel). */}
+              <button type="button" className="generar" id="emitir" disabled title="Pide el ok de Daniel. Todavía no está conectado.">Generar la hoja</button>
             </div>
             <div id="faltan" />
             <div id="confirma" />
