@@ -78,6 +78,9 @@ export function montarArbol(root, datos) {
     ]);
   };
   const suelto = (n, codigo, extra = []) => () => cab(n, codigo, [linea(n, codigo, { cobra: true }), ...extra.map((f) => f())]);
+  // OTRO (Monica, 24-oct): «Nada encaja, lo pongo a mano». Los mismos datos que los demas (que es, si sale, si se cobra,
+  // cuanto y como), sin nada por defecto: el nombre lo escribe el comercial y va a he_lineas_compromisos.texto.
+  const otro = () => cab("Otro", "OTRO", [], { aMano: true, texto: "", precio: ln("Otro", "OTRO", { cobra: true, importe: null, forma: "" }) });
   const lleva = [() => ln("Toma de datos y modelado 3D", "TOMA DE DATOS Y MODELADO 3D"), () => ln("Visado colegial", "VISADO", { papel: false }), () => ln("Tramitación de licencias", "TRAMITACION LICENCIAS")];
 
   const CATALOGO = [
@@ -87,6 +90,7 @@ export function montarArbol(root, datos) {
       ["Mediciones y ciego", suelto("Mediciones y ciego", "MEDICIONES Y CIEGO")], ["Modificación de proyecto", suelto("Modificación de proyecto", "MODIFICACION DE PROYECTO")]]],
     ["Servicios", "servicio", [["Subvención", subvencion, INT.has("subv")], ["IEE", suelto("IEE", "IEE"), INT.has("iee")], ["CSS", () => cab("CSS", "CSS", [css()]), INT.has("css")],
       ["Dirección facultativa", dfBloque, INT.has("df")], ["3 presupuestos", () => cab("3 presupuestos", "TRAMITACION 3 PRESUPUESTOS", [tres()]), INT.has("tres")], ["Financiación", () => cab("Financiación", "SOLICITUD DE FINANCIACION", [fin()]), INT.has("fin")], ["CAES", () => cab("CAES", "GESTION DE CAES", [caes()]), INT.has("caes")]]],
+    ["Otro", "otro", [["Nada encaja, lo pongo a mano", otro]]],
   ];
   const hoja = [];
   let filtro = "";
@@ -138,8 +142,8 @@ export function montarArbol(root, datos) {
       // Conjunto con «solo el total»: en el papel solo sale el total, asi que la forma de pago va aqui, en el conjunto.
       if (n.conjunto && n.desglosar === false && !q)
         pr = { papel: "sale", cobra: "sí", imp: `<b>${eur(st)}</b>`, forma: selForma(n) };
-      const etq = { proyecto: "PROYECTO", doc: "DOC. TÉCNICO", servicio: "SERVICIO" }[n.clase];
-      return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}<span class="txt">${n.nombre}</span>${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}${n.conjunto && !q ? ` <select class="desglosa" data-desglosa="${n.id}" aria-label="Precios en el papel"><option value="si"${n.desglosar ? " selected" : ""}>desglosar precios</option><option value="no"${n.desglosar ? "" : " selected"}>solo el total</option></select>` : ""}${nivel === 0 && !q ? selPortales(n) : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
+      const etq = { proyecto: "PROYECTO", doc: "DOC. TÉCNICO", servicio: "SERVICIO", otro: "OTRO" }[n.clase];
+      return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}${n.aMano && !q ? `<input type="text" class="amano" data-texto="${n.id}" value="${esc(n.texto)}" placeholder="¿Qué es? Escríbelo como saldrá en la hoja" aria-label="Qué es">` : `<span class="txt">${n.nombre}</span>`}${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}${n.conjunto && !q ? ` <select class="desglosa" data-desglosa="${n.id}" aria-label="Precios en el papel"><option value="si"${n.desglosar ? " selected" : ""}>desglosar precios</option><option value="no"${n.desglosar ? "" : " selected"}>solo el total</option></select>` : ""}${nivel === 0 && !q ? selPortales(n) : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
         (q ? "" : porPasos(n.hijos, nivel + 1, q));
     }
     if (n.t === "preg") {
@@ -201,6 +205,7 @@ export function montarArbol(root, datos) {
   // Lo que falta para poder guardar: las preguntas sin contestar y, en lo que se cobra, su importe y su forma de pago.
   function faltas() {
     const f = pendientes.map((t) => `Te falta contestar: ${t}`);
+    for (const n of todos()) if (n.aMano && !n.quitada && !n.texto.trim()) f.push("Te falta escribir qué es lo que pones a mano (en «Otro»)");
     for (const x of recoger()) {
       if (!x.seCobra) continue;
       const n = buscar(x.ref);
@@ -247,7 +252,7 @@ export function montarArbol(root, datos) {
         out.push(f);
         continue;
       }
-      const f = { ref: n.id, padre, bloque: n.bloque, desglose: n.desglose || null, enPapel: true, desglosar: n.conjunto ? n.desglosar !== false : null, portales,
+      const f = { ref: n.id, padre, bloque: n.bloque, desglose: n.desglose || null, enPapel: true, desglosar: n.conjunto ? n.desglosar !== false : null, portales, texto: n.aMano ? n.texto.trim() || null : null,
         seCobra: false, importe: null, porcentaje: null, formaId: null, formaPropia: null };
       if (n.precio && !n.precio.quitada) Object.assign(f, precio(n.precio), { enPapel: !!n.precio.papel });
       // «Solo el total»: se cobra el conjunto, con su forma; el total no se guarda (es la suma de sus proyectos).
@@ -289,10 +294,10 @@ export function montarArbol(root, datos) {
     let parrafos = "";
     for (const f of fs) {
       if (!f.enPapel) continue;
-      const b = bloqueDe(f.bloque);
+      const b = f.texto ? { titulo: f.texto.toUpperCase(), puntos: [] } : bloqueDe(f.bloque);
       if (!b.titulo) continue;
       const tipo = f.bloque === "REDACCION PROYECTO" ? tipoDe(f) : null;
-      const clave = f.bloque + "|" + (tipo ?? "");
+      const clave = f.bloque + "|" + (tipo ?? "") + "|" + (f.texto ? f.ref : "");
       if (vistos.has(clave)) continue;
       vistos.add(clave);
       let titulo = b.titulo + (tipo ? " DE " + tipo.toUpperCase() : "");
@@ -373,8 +378,8 @@ export function montarArbol(root, datos) {
     if (guardando || faltas().length) return;
     document_.getElementById("confirma").innerHTML = "";
     guardando = true; avisar();
-    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }) =>
-      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }));
+    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto }) =>
+      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto: texto ?? null }));
     await datos.alGuardar?.(filas);
     guardando = false; avisar();
   }
@@ -444,6 +449,7 @@ export function montarArbol(root, datos) {
       }
       if (!n) continue;
       n.clase = clase;
+      if (n.aMano) { n.texto = g.texto || ""; n.nombre = n.texto || "Otro"; n.precio.nombre = n.nombre; }
       hoja.push(n);
       // El tipo se contesta con la cabecera ya en la hoja (la respuesta le pone su nombre).
       if (n.tipoG) deObra(n, n.tipoG);
@@ -536,6 +542,7 @@ export function montarArbol(root, datos) {
     const t = e.target;
     if (t.id === "buscar") { filtro = t.value; pintarCatalogo(); }
     if (t.dataset.propia) { buscar(t.dataset.propia).formaPropia = t.value; avisar(); }
+    if (t.dataset.texto) { const n = buscar(t.dataset.texto); n.texto = t.value; n.nombre = t.value.trim() || "Otro"; n.precio.nombre = n.nombre; avisar(); }
   });
   document_.addEventListener("toggle", (e) => { const d = e.target; if (!d.matches) return; if (d.matches("details.portales")) buscar(d.dataset.pid).abiertoP = d.open; else if (d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
   document_.addEventListener("focusout", (e) => {

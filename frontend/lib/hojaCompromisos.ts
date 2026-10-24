@@ -36,6 +36,7 @@ export type FilaHoja = {
   formaPropia: string | null;
   desglosar: boolean | null;
   portales: string[]; // accesos de esta fila (ya heredados)
+  texto: string | null; // solo en «Otro» (y si se cambia a mano): lo que es, como sale en la hoja
 };
 
 /** Las formas de pago vigentes y la que sale por defecto en cada bloque cuando paga la comunidad. Sin caso, en blanco. */
@@ -106,7 +107,7 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
       porcentaje: f.seCobra ? f.porcentaje : null,
       forma_pago_id: f.seCobra ? f.formaId : null,
       forma_pago_propia: f.seCobra && !f.formaId ? f.formaPropia?.trim() || null : null,
-      texto: null,
+      texto: f.texto?.trim() || null,
       desglosar_precios: f.desglosar,
     }));
     await pedir("he_lineas_compromisos", { method: "POST", body: JSON.stringify(lineas) });
@@ -131,7 +132,7 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
 
 export type LineaGuardada = {
   id: string; padre: string | null; bloque: string; nombreBloque: string; desglose: string | null; enPapel: boolean; seCobra: boolean;
-  importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[];
+  importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[]; texto: string | null;
 };
 export type BorradorGuardado = { id: string; creadoEn: string; actualizadoEn: string; estado: string; quien: string | null; lineas: LineaGuardada[] };
 
@@ -140,10 +141,10 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return [];
   const filas = await pedir<{
     id: string; creado_en: string; actualizado_en: string; estado: string; quien: { nombre: string } | null;
-    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null;
+    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null; texto: string | null;
       bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
   }[]>(
-    `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,` +
+    `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,` +
       `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
       `&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
   );
@@ -153,7 +154,7 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
       id: l.id, padre: l.padre_id, bloque: l.bloque?.codigo ?? "?", nombreBloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "?", desglose: l.desglose?.nombre ?? null,
       enPapel: l.en_papel, seCobra: l.se_cobra, importe: l.importe == null ? null : Number(l.importe), porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
       formaId: l.forma_pago_id, formaPropia: l.forma_pago_propia,
-      forma: l.forma?.nombre ?? l.forma_pago_propia ?? null, desglosar: l.desglosar_precios, portales: l.accesos.map((a) => a.acceso_id),
+      forma: l.forma?.nombre ?? l.forma_pago_propia ?? null, desglosar: l.desglosar_precios, portales: l.accesos.map((a) => a.acceso_id), texto: l.texto,
     })),
   }));
 }

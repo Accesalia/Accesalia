@@ -126,7 +126,7 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
             <tbody>
               {enArbol(b.lineas).map(({ l, nivel }) => (
                 <tr key={l.id}>
-                  <td className={`${td} ${nivel === 0 ? "font-bold" : ""}`} style={{ paddingLeft: 8 + nivel * 18 }}>{l.nombreBloque}</td>
+                  <td className={`${td} ${nivel === 0 ? "font-bold" : ""}`} style={{ paddingLeft: 8 + nivel * 18 }}>{l.texto ? <>{l.nombreBloque}: <i>{l.texto}</i></> : l.nombreBloque}</td>
                   <td className={td}>{l.desglose ?? ""}</td>
                   <td className={td}>{l.enPapel ? "sale" : "no sale"}</td>
                   <td className={td}>{l.seCobra ? "sí" : <i className="text-carbon/55">incluido</i>}</td>
