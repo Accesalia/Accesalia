@@ -78,7 +78,7 @@ const ACCESOS: Acceso[] = [
     color: "turquesa",
     icono: "plantilla",
     desc: "Las plantillas de correo, generales y personales: verlas, crearlas y retocarlas",
-    href: "/comercial/plantillas",
+    href: "/plantillas",
   },
   {
     nombre: "Alta de persona en RRHH",

@@ -17,7 +17,7 @@ export default async function Enviar({ params }: { params: Promise<{ id: string 
   const yo = await quienSoy();
   if (!yo) redirect(`/entrar?volver=/comercial/oportunidades/${id}/enviar`);
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
-  const [d, todas] = await Promise.all([paraEnviar(id), plantillasPara(yo)]);
+  const [d, todas] = await Promise.all([paraEnviar(id), plantillasPara(yo, "comercial")]);
   if (!d) notFound();
   // Al enviar, las plantillas que valen son las generales y las mias.
   const plantillas = todas

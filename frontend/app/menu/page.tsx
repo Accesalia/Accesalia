@@ -3,6 +3,7 @@ import { BarraSuperior } from "../components/BarraSuperior";
 import { letraMenu } from "../components/letraMenu";
 import { GRUPOS, RotuloGrupo, TarjetaVelada, type Grupo, type Icono } from "./TarjetaVelada";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
+import { puedeVerPlantillas } from "../../lib/plantillasCorreo";
 import { FUNCION_REVISION } from "../../lib/revisionOferta";
 import { misAvisos, type Avisos } from "../../lib/misPendientes";
 
@@ -108,6 +109,15 @@ const AREAS: Area[] = [
     desc: "Catálogos para consultar: los modelos de ascensor en 3D, y más que vendrán",
     href: "/referencia",
     ve: () => true,
+  },
+  {
+    // Para todos, cada uno las suyas (Monica, 24-oct-2026): las plantillas de su area (comercial, facturacion...).
+    nombre: "Plantillas",
+    grupo: "todos",
+    icono: "plantilla",
+    desc: "Los textos con los que se escribe desde la app: ver, crear y retocar los de tu área",
+    href: "/plantillas",
+    ve: (yo) => !yo || puedeVerPlantillas(yo),
   },
   {
     nombre: "RRHH",

@@ -34,15 +34,15 @@ export function FormPlantilla({
   accion,
   cancelar,
   inicial,
-  elegirClase,
+  areas,
   falta,
 }: {
   titulo: string;
   accion: (fd: FormData) => void | Promise<void>;
   cancelar: string;
   inicial?: { nombre: string; asunto: string; texto: string };
-  /** Solo al crear, y solo quien puede hacer generales. */
-  elegirClase: boolean;
+  /** Solo al crear: las areas que ve (y en cuales puede hacer generales). Al retocar, null: el area no cambia. */
+  areas: { valor: string; texto: string; general: boolean }[] | null;
   falta: boolean;
 }) {
   return (
@@ -58,7 +58,16 @@ export function FormPlantilla({
       </div>
       {falta && <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">Faltan datos: hacen falta los tres.</p>}
 
-      {elegirClase && (
+      {areas && areas.length > 1 && (
+        <label className="mt-4 block">
+          <span className={ETQ}>De qué área</span>
+          <select name="area" defaultValue={areas[0].valor} className={CAMPO + " max-w-[260px]"}>
+            {areas.map((a) => <option key={a.valor} value={a.valor}>{a.texto}</option>)}
+          </select>
+        </label>
+      )}
+      {areas && areas.length === 1 && <input type="hidden" name="area" value={areas[0].valor} />}
+      {areas?.some((a) => a.general) && (
         <fieldset className="mt-4">
           <legend className={ETQ}>Para quién</legend>
           <div className="mt-1 flex flex-wrap gap-4 text-sm text-carbon">
