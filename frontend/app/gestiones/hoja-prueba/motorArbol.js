@@ -54,7 +54,7 @@ export function montarArbol(root, datos) {
       // y decide si el papel desglosa los precios o solo da el total.
       const resto = restoProyecto(true);
       const c = cab("Proyecto conjunto", [q, ...resto], { conjunto: true, desglosar: true });
-      q.alHecho = () => { c.hijos = [q, ...q.marcadas.map((o) => ({ ...redaccion(), nombre: "Proyecto de " + (o.startsWith("SATE") ? o : o.toLowerCase()), desglose: o, conPortales: true })), ...resto]; };
+      q.alHecho = () => { c.hijos = [q, ...q.marcadas.map((o) => ({ ...redaccion(), nombre: "Proyecto de " + (o.startsWith("SATE") ? o : o.toLowerCase()), desglose: o, conPortales: true })), ...resto]; if (!c.forma) c.forma = c.hijos.find((h) => h.conPortales)?.forma ?? ""; };
       todos(c.hijos).filter((x) => x.caes).forEach((x) => (x.cond = () => (q.resp ?? "").includes("SATE")));
       return c;
     },
@@ -127,7 +127,10 @@ export function montarArbol(root, datos) {
     const accion = quitadoArriba ? "" : `<button type="button" class="accion" data-quitar="${n.id}">${n.quitada ? "poner" : "quitar"}</button>`;
     if (n.t === "cab") {
       const st = subtotal(n);
-      const pr = n.precio && !q ? celdasPrecio(n.precio, false) : null;
+      let pr = n.precio && !q ? celdasPrecio(n.precio, false) : null;
+      // Conjunto con «solo el total»: en el papel solo sale el total, asi que la forma de pago va aqui, en el conjunto.
+      if (n.conjunto && n.desglosar === false && !q)
+        pr = { papel: "sale", cobra: "sí", imp: `<b>${eur(st)}</b>`, forma: `<input type="text" class="forma" data-formacj="${n.id}" value="${esc(n.forma)}" aria-label="Cómo se cobra el conjunto">` };
       const etq = { proyecto: "PROYECTO", doc: "DOC. TÉCNICO", servicio: "SERVICIO" }[n.clase];
       return `<tr data-d="${nivel}" class="cabecera n${Math.min(nivel, 1)}${nivel === 0 && n.clase ? " top " + n.clase : ""}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}${nivel === 0 && etq ? `<span class="clase ${n.clase}">${etq}</span>` : ""}<span class="txt">${n.nombre}</span>${(() => { const e = n.hijos.find((h) => h.t === "preg" && h.resp != null && (h.multi || h.opciones.some((o) => o.nombre))); return e && !q ? ` <button type="button" class="accion" data-cambiar="${e.id}" style="text-transform:none;font-weight:400">cambiar</button>` : ""; })()}${n.dePreg && !q ? ` <button type="button" class="accion" data-quitar="${n.id}" style="text-transform:none;font-weight:400">Eliminar</button>` : ""}${n.conjunto && !q ? ` <select class="desglosa" data-desglosa="${n.id}" aria-label="Precios en el papel"><option value="si"${n.desglosar ? " selected" : ""}>desglosar precios</option><option value="no"${n.desglosar ? "" : " selected"}>solo el total</option></select>` : ""}${nivel === 0 && !q ? selPortales(n) : ""}</td>${pr ? `<td class="papel">${pr.papel}</td><td class="cobra">${pr.cobra}</td><td class="imp">${pr.imp}</td><td class="forma">${pr.forma}</td>` : `<td></td><td></td><td class="imp">${q || !st ? "" : eur(st)}</td><td></td>`}<td class="acc">${n.dePreg ? "" : accion}</td></tr>` +
         (q ? "" : porPasos(n.hijos, nivel + 1, q));
@@ -159,7 +162,9 @@ export function montarArbol(root, datos) {
       return `<tr data-d="${nivel}" class="fuera opcion"><td colspan="6">${rama(nivel)}<button type="button" class="opc" data-opc="${n.id}">+ ${n.nombre}</button></td></tr>`;
     }
     // linea
-    const { papel, cobra, imp, forma } = celdasPrecio(n, q);
+    let { papel, cobra, imp, forma } = celdasPrecio(n, q);
+    // Dentro de un conjunto con «solo el total», cada proyecto guarda su importe pero no su forma de pago: se cobra el conjunto.
+    if (n.conPortales && padreDe(n.id)?.desglosar === false) forma = "";
     const oculto = n.conPortales && padreDe(n.id)?.desglosar === false && n.cobra ? `<span class="precio-oculto">no sale en el papel</span>` : "";
     return `<tr data-d="${nivel}" class="linea ${n.cobra ? "cobrable" : "incl"}${q ? " quitada" : ""}"><td class="que">${rama(nivel)}<span class="txt">${n.nombre}</span>${n.conPortales && !q ? selPortales(n) : ""}</td><td class="papel">${papel}</td><td class="cobra">${cobra}</td><td class="imp">${imp}${oculto}</td><td class="forma">${forma}</td><td class="acc">${accion}</td></tr>`;
   }
@@ -265,6 +270,7 @@ export function montarArbol(root, datos) {
     const t = e.target;
     if (t.id === "buscar") { filtro = t.value; pintarCatalogo(); }
     if (t.dataset.forma) buscar(t.dataset.forma).forma = t.value;
+    if (t.dataset.formacj) buscar(t.dataset.formacj).forma = t.value;
   });
   document_.addEventListener("toggle", (e) => { const d = e.target; if (!d.matches) return; if (d.matches("details.portales")) buscar(d.dataset.pid).abiertoP = d.open; else if (d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
   document_.addEventListener("focusout", (e) => {
