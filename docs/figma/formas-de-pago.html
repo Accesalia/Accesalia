@@ -12,7 +12,7 @@
 }
 * { box-sizing: border-box; }
 body { background: var(--fondo); color: var(--tinta); font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-.pagina { max-width: 1240px; margin: 0 auto; padding-block: 16px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.pagina { max-width: 1480px; margin: 0 auto; padding-block: 16px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 a.salida { color: var(--tinta2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
 .cab-pag { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; border-bottom: 1px solid var(--rejilla); padding: 6px 0 10px; margin-bottom: 12px; }
 .cab-pag h1 { font-size: 18px; margin: 0; }
@@ -25,7 +25,7 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: v
 table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
 th, td { border: 1px solid var(--rejilla); padding: 4px 8px; text-align: left; vertical-align: top; }
 th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
-td.nombre { font-weight: 600; max-width: 260px; }
+td.nombre { font-weight: 600; min-width: 300px; white-space: nowrap; }
 td.papel { max-width: 340px; }
 td.nombre .papel { display: block; font-weight: 400; font-size: 12px; color: var(--tinta2); }
 td.notas { max-width: 230px; }
@@ -37,6 +37,8 @@ td.num, td.acc { white-space: nowrap; }
 .reglas { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .regla b { font-weight: 600; }
 .enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
+tbody tr:nth-child(even) td { background: #f5f7f2; }
+tbody tr:hover td { background: #edf3e6; }
 tr.apagada td { color: var(--apagado); }
 .vacio { color: var(--tinta2); font-style: italic; }
 
@@ -137,7 +139,8 @@ const formas = [
   F([exito("concesion")], 53, "Subvención: solo a éxito"),
   F([fijo("concesion", 100)], 51),
   F([fijo("entrega", 60), fijo("licencia", 20), fijo("cfo", 20)], 42),
-  F([fijo("encargo", 33.33), fijo("entrega", 33.33), fijo("licencia", 33.34)], 23, "Un tercio cada una"),
+  Object.assign(F([fijo("encargo", 33.33), fijo("entrega", 33.33), fijo("licencia", 33.34)], 23, "Un tercio cada una"),
+    { nombre: "⅓ encargo · ⅓ entrega · ⅓ licencia", texto: "⅓ a la contratación · ⅓ a la entrega del proyecto · ⅓ a la concesión de la licencia" }),
   F([fijo("presentacion", 100)], 22),
   F([fijo("entrega", 50), fijo("inicio_obra", 25), fijo("cfo", 25)], 20),
   F([fijo("encargo", 50), fijo("cfo", 50)], 11),
