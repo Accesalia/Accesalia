@@ -24,7 +24,8 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: v
 table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
 th, td { border: 1px solid var(--rejilla); padding: 4px 7px; text-align: left; vertical-align: middle; }
 th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
-td.nombre { font-weight: 600; white-space: nowrap; }
+td.nombre { font-weight: 600; max-width: 420px; }
+td.nombre .papel { display: block; font-weight: 400; font-size: 12px; color: var(--tinta2); }
 td.num { text-align: right; white-space: nowrap; width: 1%; }
 td.acc { width: 1%; white-space: nowrap; }
 td.papel { color: var(--tinta2); max-width: 380px; }
@@ -37,6 +38,10 @@ td.notas { max-width: 230px; }
 tr.apagada td { color: var(--apagado); }
 tr.apagada .hito { color: var(--apagado); background: #fafafa; }
 .vacio { color: var(--tinta2); font-style: italic; }
+.reglas { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+.regla b { font-weight: 600; }
+.tabla-reglas { width: auto; background: #fff; margin-top: 4px; }
+.choque { color: var(--ambar-txt); font-size: 12px; }
 
 /* El formulario de una nueva: en amarillo, lo que se esta creando */
 .nueva { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
@@ -69,13 +74,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 
   <h2>Vigentes</h2>
   <div class="marco"><table>
-    <thead><tr><th>Nombre</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <thead><tr><th>Nombre · cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
     <tbody id="vigentes"></tbody>
   </table></div>
 
   <h2>Desactivadas</h2>
   <div class="marco"><table>
-    <thead><tr><th>Nombre</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <thead><tr><th>Nombre · cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
     <tbody id="desactivadas"></tbody>
   </table></div>
 </div>
@@ -94,22 +99,25 @@ const MOMENTOS = {
   concesion: ["concesión", "a la concesión de la subvención"],
   adjudicacion: ["adjudicación", "a la adjudicación de la obra"],
 };
+const PAGADORES = ["cualquiera", "la comunidad", "un particular", "FAIN", "Elecnor", "Schindler", "Envoltermia", "Iberdrola"];
+const BLOQUES = ["Proyecto", "CSS", "DF", "IEE", "Libro del edificio", "CEE", "Doc. técnica subvenciones", "Subvención", "Memoria técnica", "Informe técnico", "Informe pericial", "Consulta urbanística", "3 presupuestos", "CAES"];
+const R = (pagador, bloque) => ({ pagador, bloque });
 const pct = (n) => String(n).replace(".", ",") + " %";
 const nombreDe = (hs) => hs.map((h) => h.tipo === "exito" ? `${MOMENTOS[h.m][0]} a éxito` : `${pct(h.p)} ${MOMENTOS[h.m][0]}`).join(" · ");
 const textoDe = (hs) => hs.map((h) => h.tipo === "exito" ? `el % a éxito, ${MOMENTOS[h.m][1]}` : `${pct(h.p)} ${MOMENTOS[h.m][1]}`).join(" · ");
-const F = (hs, lineas, notas = "") => ({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nombreDe(hs), texto: textoDe(hs), lineas, notas, activa: true });
+const F = (hs, lineas, notas = "", reglas = []) => ({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nombreDe(hs), texto: textoDe(hs), lineas, notas, reglas, activa: true });
 const fijo = (m, p) => ({ m, tipo: "fijo", p });
 const exito = (m) => ({ m, tipo: "exito", p: null });
 
 const formas = [
-  F([fijo("encargo", 100)], 325),
-  F([fijo("encargo", 50), fijo("entrega", 50)], 287, "La habitual de los proyectos"),
-  F([fijo("entrega", 50), fijo("licencia", 30), fijo("cfo", 20)], 150, "FAIN, proyectos"),
-  F([fijo("pss", 80), fijo("cfo", 20)], 141, "FAIN, CSS"),
-  F([fijo("entrega", 100)], 125),
-  F([fijo("adjudicacion", 100)], 100, "Los 3 presupuestos de Ecobalance"),
-  F([fijo("pss", 100)], 75, "La habitual de la CSS"),
-  F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo + el % a éxito"),
+  F([fijo("encargo", 100)], 325, "", [R("cualquiera", "IEE"), R("cualquiera", "Doc. técnica subvenciones")]),
+  F([fijo("encargo", 50), fijo("entrega", 50)], 287, "La habitual de los proyectos", [R("la comunidad", "Proyecto"), R("un particular", "Proyecto")]),
+  F([fijo("entrega", 50), fijo("licencia", 30), fijo("cfo", 20)], 150, "FAIN, proyectos", [R("FAIN", "Proyecto")]),
+  F([fijo("pss", 80), fijo("cfo", 20)], 141, "FAIN, CSS", [R("FAIN", "CSS")]),
+  F([fijo("entrega", 100)], 125, "", [R("Schindler", "Proyecto")]),
+  F([fijo("adjudicacion", 100)], 100, "Los 3 presupuestos de Ecobalance", [R("cualquiera", "3 presupuestos")]),
+  F([fijo("pss", 100)], 75, "La habitual de la CSS", [R("la comunidad", "CSS")]),
+  F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo + el % a éxito", [R("cualquiera", "Subvención")]),
   F([exito("concesion")], 53, "Subvención: solo a éxito"),
   F([fijo("concesion", 100)], 51),
   F([fijo("entrega", 60), fijo("licencia", 20), fijo("cfo", 20)], 42),
@@ -120,7 +128,7 @@ const formas = [
   F([fijo("encargo", 25), fijo("entrega", 50), fijo("cfo", 25)], 10),
 ];
 // Una de ejemplo ya desactivada: la vieja de la subvencion, que se partio en dos el 14-oct.
-const vieja = { id: "vieja", hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false };
+const vieja = { id: "vieja", reglas: [], hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false };
 formas.push(vieja);
 
 let nueva = null; // el formulario abierto
@@ -128,7 +136,10 @@ let nueva = null; // el formulario abierto
 const chips = (hs) => `<div class="hitos">${hs.map((h) => h.tipo === "exito"
   ? `<span class="hito exito">${MOMENTOS[h.m][0]} · <b>a éxito</b></span>`
   : `<span class="hito">${MOMENTOS[h.m][0]} · <b>${pct(h.p)}</b></span>`).join("")}</div>`;
-const fila = (f) => `<tr class="${f.activa ? "" : "apagada"}"><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${chips(f.hitos)}</td><td class="notas">${f.notas}</td><td class="num">${f.lineas ? f.lineas.toLocaleString("es-ES") : "—"}</td>` +
+const reglasDe = (rs) => rs.length ? `<div class="reglas">${rs.map((r) => `<span class="regla">${r.pagador === "cualquiera" ? "cualquier pagador" : `paga <b>${r.pagador}</b>`} · <b>${r.bloque}</b></span>`).join("")}</div>` : `<span class="vacio">—</span>`;
+// Si otra forma vigente ya sale por defecto con esa misma regla: se avisa (al guardar, la nueva la sustituye).
+const choqueDe = (r, yo) => formas.find((f) => f.activa && f !== yo && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
+const fila = (f) => `<tr class="${f.activa ? "" : "apagada"}"><td class="nombre">${f.nombre}<span class="papel">${f.texto}</span></td><td>${chips(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td><td class="num">${f.lineas ? f.lineas.toLocaleString("es-ES") : "—"}</td>` +
   `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">${f.activa ? "desactivar" : "reactivar"}</button></td></tr>`;
 
 function pintarListas() {
@@ -166,6 +177,14 @@ function pintarFormulario() {
     </tbody></table>
     <button type="button" class="enlace" id="mas" style="margin-top:6px">+ añadir hito</button>
     <div class="suma ${ok.ok ? "bien" : "mal"}">${ok.txt}</div>
+    <h2 style="margin-top:12px">Sale por defecto cuando</h2>
+    <table class="tabla-reglas"><thead><tr><th>Quién paga</th><th>Bloque</th><th></th></tr></thead><tbody>
+      ${nueva.reglas.map((r, i) => { const c = choqueDe(r, null); return `<tr><td><select id="rp${i}" data-r="${i}" data-campo="pagador" aria-label="Quién paga">${PAGADORES.map((x) => `<option${x === r.pagador ? " selected" : ""}>${x}</option>`).join("")}</select></td>
+        <td><select id="rb${i}" data-r="${i}" data-campo="bloque" aria-label="Bloque">${BLOQUES.map((x) => `<option${x === r.bloque ? " selected" : ""}>${x}</option>`).join("")}</select>
+        ${c ? `<span class="choque">ahora sale «${c.nombre}»: esta la sustituye</span>` : ""}</td>
+        <td><button type="button" class="enlace" data-quitar="${i}">quitar</button></td></tr>`; }).join("") || `<tr><td colspan="3" class="vacio">Ninguna: solo se elige a mano.</td></tr>`}
+    </tbody></table>
+    <button type="button" class="enlace" id="masregla" style="margin-top:6px">+ añadir regla</button>
     <div class="campos">
       <label class="campo">Nombre (para elegirla)<input type="text" id="nombre" value="${nueva.nombre}"></label>
       <label class="campo">Cómo sale en la hoja<input type="text" id="texto" value="${nueva.texto}"></label>
@@ -175,13 +194,17 @@ function pintarFormulario() {
 
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b || b.disabled) return;
-  if (b.id === "abrir") { nueva = { hitos: [fijo("encargo", 50), fijo("entrega", "")], nombre: "", texto: "", notas: "", nombreAMano: false, textoAMano: false }; }
+  if (b.id === "abrir") { nueva = { hitos: [fijo("encargo", 50), fijo("entrega", "")], reglas: [], nombre: "", texto: "", notas: "", nombreAMano: false, textoAMano: false }; }
   else if (b.id === "cancelar") nueva = null;
   else if (b.id === "mas") nueva.hitos.push(fijo("entrega", ""));
   else if (b.dataset.quita) nueva.hitos.splice(Number(b.dataset.quita), 1);
+  else if (b.id === "masregla") nueva.reglas.push(R("la comunidad", "Proyecto"));
+  else if (b.dataset.quitar) nueva.reglas.splice(Number(b.dataset.quitar), 1);
   else if (b.id === "guardar") {
     const hs = nueva.hitos.map((h) => ({ ...h, p: h.tipo === "exito" ? null : Number(String(h.p).replace(",", ".")) }));
-    formas.unshift({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
+    // Las reglas que ya tenia otra forma pasan a esta: cada regla da UNA forma por defecto.
+    for (const r of nueva.reglas) for (const f of formas) f.reglas = f.reglas.filter((x) => !(x.pagador === r.pagador && x.bloque === r.bloque));
+    formas.unshift({ id: Math.random().toString(36).slice(2), hitos: hs, reglas: nueva.reglas, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
     nueva = null;
   }
   else if (b.dataset.cambia) { const f = formas.find((x) => x.id === b.dataset.cambia); f.activa = !f.activa; }
@@ -189,7 +212,9 @@ document.addEventListener("click", (e) => {
   pintarFormulario(); pintarListas();
 });
 document.addEventListener("change", (e) => {
-  const t = e.target; if (!nueva || t.dataset.i === undefined) return;
+  const t = e.target; if (!nueva) return;
+  if (t.dataset.r !== undefined) { nueva.reglas[Number(t.dataset.r)][t.dataset.campo] = t.value; pintarFormulario(); return; }
+  if (t.dataset.i === undefined) return;
   const h = nueva.hitos[Number(t.dataset.i)];
   if (t.dataset.campo === "m") h.m = t.value;
   if (t.dataset.campo === "tipo") { h.tipo = t.value; if (h.tipo === "exito") { h.m = "concesion"; h.p = null; } else h.p = ""; }
