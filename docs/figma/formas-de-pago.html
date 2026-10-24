@@ -39,6 +39,14 @@ td.num, td.acc { white-space: nowrap; }
 .regla b { font-weight: 600; }
 .enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
 tbody tr:nth-child(even) td { background: #f5f7f2; }
+/* Las dos hermanas (la hoja y sus hitos): fondo gris comun y marco negro, para leerlas como espejo una de otra */
+.marco table td.g1, .marco table td.g2 { background: #eceee9; }
+.marco table tbody tr:nth-child(even) td.g1, .marco table tbody tr:nth-child(even) td.g2 { background: #e3e6df; }
+.marco table .g1 { border-left: 2px solid var(--tinta); }
+.marco table .g2 { border-right: 2px solid var(--tinta); }
+.marco table tbody tr:last-child td.g1, .marco table tbody tr:last-child td.g2 { border-bottom: 2px solid var(--tinta); }
+tr.grupo-cab th { background: none; border: 0; padding: 0 8px 3px; }
+tr.grupo-cab th.gr { background: #eceee9; color: var(--tinta); border: 2px solid var(--tinta); border-bottom: 0; padding: 3px 8px; letter-spacing: .07em; }
 tbody tr:hover td { background: #edf3e6; }
 tr.apagada td { color: var(--apagado); }
 .vacio { color: var(--tinta2); font-style: italic; }
@@ -90,13 +98,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 
   <h2>Vigentes</h2>
   <div class="marco"><table>
-    <thead><tr><th>Cómo le sale al comercial</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th></th></tr></thead>
+    <thead><tr class="grupo-cab"><th class="sin"></th><th colspan="2" class="gr">Lo que se ve en la hoja y lo que se cobra</th><th class="sin" colspan="3"></th></tr><tr><th>Cómo le sale al comercial</th><th class="g1">Cómo sale en la hoja</th><th class="g2">Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th></th></tr></thead>
     <tbody id="vigentes"></tbody>
   </table></div>
 
   <h2>Desactivadas</h2>
   <div class="marco"><table>
-    <thead><tr><th>Cómo le salía al comercial</th><th>Cómo salía en la hoja</th><th>Hitos</th><th>Notas</th><th>Salió en</th><th></th></tr></thead>
+    <thead><tr class="grupo-cab"><th class="sin"></th><th colspan="2" class="gr">Lo que se veía en la hoja y lo que se cobraba</th><th class="sin" colspan="3"></th></tr><tr><th>Cómo le salía al comercial</th><th class="g1">Cómo salía en la hoja</th><th class="g2">Hitos</th><th>Notas</th><th>Salió en</th><th></th></tr></thead>
     <tbody id="desactivadas"></tbody>
   </table></div>
 </div>
@@ -157,10 +165,10 @@ const choqueDe = (r) => formas.find((f) => f.activa && f.reglas.some((x) => x.pa
 
 function pintarListas() {
   const v = formas.filter((f) => f.activa), d = formas.filter((f) => !f.activa);
-  document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel">${frasesDe(f.hitos)}</td><td>${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
+  document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel g1">${frasesDe(f.hitos)}</td><td class="g2">${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
     `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">desactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
   // En las desactivadas, cuantas lineas la llevaron: es el rastro para el historico.
-  document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel">${frasesDe(f.hitos)}</td><td>${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
+  document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel g1">${frasesDe(f.hitos)}</td><td class="g2">${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
     `<td class="num">${f.lineas ? `${f.lineas.toLocaleString("es-ES")} líneas antes de desactivarla` : "ninguna línea"}</td><td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">reactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
 }
 
