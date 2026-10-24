@@ -6,7 +6,7 @@
    El formulario es una conversacion: preguntas en orden, con lo propuesto ya escrito. */
 :root {
   --fondo: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --apagado: rgba(43,43,43,.4);
-  --rejilla: #cfd4c9; --cab: #e6ecdf; --lima: #7ac943; --lima-dark: #3f7a1c;
+  --rejilla: #b9c0b3; --azul-fila: #e6eef8; --azul-hover: #d8e4f3; --marco-gr: #8b9187; --cab: #e6ecdf; --lima: #7ac943; --lima-dark: #3f7a1c;
   --nuevo: #fff5cc; --nuevo-borde: #e9c44a; --ambar-txt: #6b4105; --exito: #1f4f86;
   color-scheme: light;
 }
@@ -38,16 +38,17 @@ td.num, td.acc { white-space: nowrap; }
 .reglas { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .regla b { font-weight: 600; }
 .enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
-tbody tr:nth-child(even) td { background: #f5f7f2; }
+tbody tr:nth-child(even) td { background: var(--azul-fila); }
 /* Las dos hermanas (la hoja y sus hitos): fondo gris comun y marco negro, para leerlas como espejo una de otra */
-.marco table td.g1, .marco table td.g2 { background: #eceee9; }
-.marco table tbody tr:nth-child(even) td.g1, .marco table tbody tr:nth-child(even) td.g2 { background: #e3e6df; }
-.marco table .g1 { border-left: 2px solid var(--tinta); }
-.marco table .g2 { border-right: 2px solid var(--tinta); }
-.marco table tbody tr:last-child td.g1, .marco table tbody tr:last-child td.g2 { border-bottom: 2px solid var(--tinta); }
+.marco table td.g1, .marco table td.g2 { background: #f3f4f2; }
+.marco table tbody tr:nth-child(even) td.g1, .marco table tbody tr:nth-child(even) td.g2 { background: #e1e8f1; }
+.marco table tbody tr:hover td.g1, .marco table tbody tr:hover td.g2 { background: var(--azul-hover); }
+.marco table .g1 { border-left: 1.5px solid var(--marco-gr); }
+.marco table .g2 { border-right: 1.5px solid var(--marco-gr); }
+.marco table tbody tr:last-child td.g1, .marco table tbody tr:last-child td.g2 { border-bottom: 1.5px solid var(--marco-gr); }
 tr.grupo-cab th { background: none; border: 0; padding: 0 8px 3px; }
-tr.grupo-cab th.gr { background: #eceee9; color: var(--tinta); border: 2px solid var(--tinta); border-bottom: 0; padding: 3px 8px; letter-spacing: .07em; }
-tbody tr:hover td { background: #edf3e6; }
+tr.grupo-cab th.gr { background: #f3f4f2; color: var(--tinta2); border: 1.5px solid var(--marco-gr); border-bottom: 0; padding: 3px 8px; letter-spacing: .07em; }
+tbody tr:hover td { background: var(--azul-hover); }
 tr.apagada td { color: var(--apagado); }
 .vacio { color: var(--tinta2); font-style: italic; }
 
