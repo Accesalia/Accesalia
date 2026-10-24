@@ -26,7 +26,8 @@ table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nu
 th, td { border: 1px solid var(--rejilla); padding: 4px 8px; text-align: left; vertical-align: top; }
 th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
 td.nombre { font-weight: 600; min-width: 300px; white-space: nowrap; }
-td.papel { max-width: 340px; }
+td.papel { color: var(--tinta2); }
+td.papel .hito { white-space: nowrap; }
 td.nombre .papel { display: block; font-weight: 400; font-size: 12px; color: var(--tinta2); }
 td.notas { max-width: 230px; }
 td.num, td.acc { white-space: nowrap; }
@@ -125,7 +126,7 @@ const R = (pagador, bloque) => ({ pagador, bloque });
 const fijo = (m, p) => ({ m, p, exito: false });
 const exito = (m) => ({ m, p: null, exito: true });
 let sec = 0;
-const F = (hs, lineas, notas = "", reglas = []) => ({ id: "f" + ++sec, hitos: hs, nombre: nombreDe(hs), texto: hs.map(fraseDe).join(" · "), lineas, notas, reglas, activa: true });
+const F = (hs, lineas, notas = "", reglas = []) => { hs.forEach((h) => { if (!h.frase) h.frase = fraseDe(h); }); return { id: "f" + ++sec, hitos: hs, nombre: nombreDe(hs), lineas, notas, reglas, activa: true }; };
 
 const formas = [
   F([fijo("encargo", 100)], 325, "", [R("cualquiera", "IEE"), R("cualquiera", "Doc. técnica subvenciones")]),
@@ -133,32 +134,33 @@ const formas = [
   F([fijo("entrega", 50), fijo("licencia", 30), fijo("cfo", 20)], 150, "FAIN, proyectos", [R("FAIN", "Proyecto")]),
   F([fijo("pss", 80), fijo("cfo", 20)], 141, "FAIN, CSS", [R("FAIN", "CSS")]),
   F([fijo("entrega", 100)], 125, "", [R("Schindler", "Proyecto")]),
-  F([fijo("adjudicacion", 100)], 100, "Los 3 presupuestos de Ecobalance", [R("cualquiera", "3 presupuestos")]),
   F([fijo("pss", 100)], 75, "La habitual de la CSS", [R("la comunidad", "CSS")]),
   F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo y el % a éxito", [R("cualquiera", "Subvención")]),
   F([exito("concesion")], 53, "Subvención: solo a éxito"),
   F([fijo("concesion", 100)], 51),
   F([fijo("entrega", 60), fijo("licencia", 20), fijo("cfo", 20)], 42),
-  Object.assign(F([fijo("encargo", 33.33), fijo("entrega", 33.33), fijo("licencia", 33.34)], 23, "Un tercio cada una"),
-    { nombre: "⅓ encargo · ⅓ entrega · ⅓ licencia", texto: "⅓ a la contratación · ⅓ a la entrega del proyecto · ⅓ a la concesión de la licencia" }),
+  Object.assign(F([{ ...fijo("encargo", 33.33), frase: "⅓ a la contratación" }, { ...fijo("entrega", 33.33), frase: "⅓ a la entrega del proyecto" }, { ...fijo("licencia", 33.34), frase: "⅓ a la concesión de la licencia" }], 23, "Un tercio cada una"),
+    { nombre: "⅓ encargo · ⅓ entrega · ⅓ licencia" }),
   F([fijo("presentacion", 100)], 22),
   F([fijo("entrega", 50), fijo("inicio_obra", 25), fijo("cfo", 25)], 20),
   F([fijo("encargo", 50), fijo("cfo", 50)], 11),
   F([fijo("encargo", 25), fijo("entrega", 50), fijo("cfo", 25)], 10),
 ];
+// La de los 3 presupuestos (100 % a la adjudicacion) es de Ecobalance: va en SU tabla de formas de cobro, no aqui.
 // De ejemplo, una ya desactivada: la vieja de la subvencion, que se partio en dos el 14-oct.
-formas.push({ id: "vieja", reglas: [], hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false });
+formas.push({ id: "vieja", reglas: [], hitos: [{ ...fijo("encargo", 100), frase: "1.980 € a la contratación" }, { ...exito("concesion"), frase: "3 % de lo concedido" }], nombre: "1.980 € encargo · 3 % concesión", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false });
 
+const frasesDe = (hs) => `<div class="hitos">${hs.map((h) => `<span class="hito">${h.frase}</span>`).join("")}</div>`;
 const hitosDe = (hs) => `<div class="hitos">${hs.map((h, i) => `<span class="hito${h.exito ? " exito" : ""}"><span class="n">${i + 1}.</span>${MOMENTOS[h.m][0]} · <b>${h.exito ? "a éxito" : pct(h.p)}</b></span>`).join("")}</div>`;
 const reglasDe = (rs) => rs.length ? `<div class="reglas">${rs.map((r) => `<span class="regla"><b>${r.bloque}</b> · ${r.pagador === "cualquiera" ? "pague quien pague" : `si paga <b>${r.pagador}</b>`}</span>`).join("")}</div>` : `<span class="vacio">solo a mano</span>`;
 const choqueDe = (r) => formas.find((f) => f.activa && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
 
 function pintarListas() {
   const v = formas.filter((f) => f.activa), d = formas.filter((f) => !f.activa);
-  document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
+  document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel">${frasesDe(f.hitos)}</td><td>${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
     `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">desactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
   // En las desactivadas, cuantas lineas la llevaron: es el rastro para el historico.
-  document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
+  document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel">${frasesDe(f.hitos)}</td><td>${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
     `<td class="num">${f.lineas ? `${f.lineas.toLocaleString("es-ES")} líneas antes de desactivarla` : "ninguna línea"}</td><td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">reactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
 }
 
@@ -195,8 +197,8 @@ function pintarFormulario() {
     <div class="pregunta"><span class="q"><span class="num">1</span>¿Cómo debe aparecerle al comercial en pantalla?<span class="pista">Te propongo este nombre; puedes cambiarlo.</span></span>
       <input type="text" class="ancho" id="nombre" value="${nueva.nombre}"></div>
 
-    <div class="pregunta"><span class="q"><span class="num">2</span>¿Cómo debe salir en la hoja de encargo, para la comunidad o la contrata?<span class="pista">Se forma solo con lo que pongas en cada hito.</span></span>
-      <input type="text" class="ancho" id="texto" value="${nueva.texto}"></div>
+    <div class="pregunta"><span class="q"><span class="num">2</span>Así saldrá en la hoja de encargo, para la comunidad o la contrata:<span class="pista">Se forma con la frase de cada hito; se cambia en el punto 3.</span></span>
+      <div id="texto" style="font-weight:600">${nueva.hitos.map((h) => h.frase).join(" · ")}</div></div>
 
     <div class="pregunta"><span class="q"><span class="num">3</span>Vamos a definir qué hitos tiene.</span>
       <div class="sub"><span>¿Cuántos hitos son?</span><select id="cuantos" aria-label="Cuántos hitos">${[1, 2, 3, 4].map((x) => `<option${x === nueva.hitos.length ? " selected" : ""}>${x}</option>`).join("")}</select></div>
@@ -235,11 +237,11 @@ document.addEventListener("click", (e) => {
   else if (b.id === "masregla") nueva.reglas.push(R("la comunidad", "Proyecto"));
   else if (b.dataset.quitar) nueva.reglas.splice(Number(b.dataset.quitar), 1);
   else if (b.id === "guardar") {
-    const hs = nueva.hitos.map((h) => ({ m: h.m, exito: h.exito, p: h.exito ? null : Number(String(h.p).replace(",", ".")) }));
+    const hs = nueva.hitos.map((h) => ({ m: h.m, exito: h.exito, p: h.exito ? null : Number(String(h.p).replace(",", ".")), frase: h.frase }));
     const reglas = nueva.porDefecto ? nueva.reglas : [];
     // Cada caso (proyecto o servicio + quien paga) da UNA forma por defecto: si otra lo tenia, pasa a esta.
     for (const r of reglas) for (const f of formas) f.reglas = f.reglas.filter((x) => !(x.pagador === r.pagador && x.bloque === r.bloque));
-    formas.unshift({ id: "f" + ++sec, hitos: hs, reglas, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
+    formas.unshift({ id: "f" + ++sec, hitos: hs, reglas, nombre: nueva.nombre, notas: nueva.notas, lineas: 0, activa: true });
     nueva = null;
   }
   else if (b.dataset.cambia) { const f = formas.find((x) => x.id === b.dataset.cambia); f.activa = !f.activa; }
@@ -259,9 +261,8 @@ document.addEventListener("input", (e) => {
   const t = e.target; if (!nueva) return;
   const repinta = () => { const id = t.id, pos = t.selectionStart; pintarFormulario(); const n = document.getElementById(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } };
   if (t.dataset.campo === "p") { nueva.hitos[Number(t.dataset.i)].p = t.value.replace(",", "."); repinta(); }
-  else if (t.dataset.campo === "frase") { const h = nueva.hitos[Number(t.dataset.i)]; h.frase = t.value; h.fraseAMano = true; if (!nueva.textoAMano) { nueva.texto = nueva.hitos.map((x) => x.frase).join(" · "); document.getElementById("texto").value = nueva.texto; } }
+  else if (t.dataset.campo === "frase") { const h = nueva.hitos[Number(t.dataset.i)]; h.frase = t.value; h.fraseAMano = true; document.getElementById("texto").textContent = nueva.hitos.map((x) => x.frase).join(" · "); }
   else if (t.id === "nombre") { nueva.nombre = t.value; nueva.nombreAMano = true; }
-  else if (t.id === "texto") { nueva.texto = t.value; nueva.textoAMano = true; }
   else if (t.id === "notas") nueva.notas = t.value;
 });
 pintarListas();
