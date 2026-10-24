@@ -1,0 +1,4611 @@
+=== p1
+ 
+ 
+ 
+ 
+ 
+ 
+Instrucciones para la importación de datos 
+desde openoffice.org o calc o Microsoft office 
+excel 
+Versión 2024-EV 
+ 
+  
+  
+ 
+  
+=== p2
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+2 
+ 
+ 
+ 
+Contenido 
+ 
+Contenido ...................................................................................................................................... 2 
+Gestión comercial completa con control de stock ......................................................................... 4
+ 
+Ficheros que se pueden importar.................................................................................................. 4 
+Características generales de la importación ................................................................................. 5 
+Clientes .......................................................................................................................................... 6 
+Conceptos de facturación ............................................................................................................ 10 
+Direcciones de entrega de clientes ............................................................................................. 11 
+Actividades .................................................................................................................................. 13 
+Mandatos SEPA .......................................................................................................................... 13 
+Riesgos de clientes ..................................................................................................................... 13 
+Agentes ....................................................................................................................................... 14 
+Proveedores ................................................................................................................................ 15 
+Representantes ........................................................................................................................... 17 
+Formas de pago/cobro ................................................................................................................ 18 
+Secciones .................................................................................................................................... 18 
+Familias ....................................................................................................................................... 19 
+Artículos ....................................................................................................................................... 20 
+Precios de artículos por proveedor ............................................................................................. 23 
+Unidades de medida ................................................................................................................... 23 
+Compuestos ................................................................................................................................ 23 
+Tarifa de precios .......................................................................................................................... 24 
+Almacenes ................................................................................................................................... 24 
+Stocks .......................................................................................................................................... 25 
+Stocks de artículos con serie/lote................................................................................................ 25 
+Descuentos .................................................................................................................................. 25 
+Pedidos a proveedor ................................................................................................................... 26 
+Líneas de pedido a proveedor ..................................................................................................... 29 
+Números de serie/lote de líneas de pedido a proveedor ............................................................ 30 
+Entradas de mercancías ............................................................................................................. 31 
+Líneas de entrada de mercancías ............................................................................................... 35 
+Números de serie/lote de líneas de entrada de mercancías ...................................................... 36 
+Facturas recibidas ....................................................................................................................... 37 
+Líneas de facturas de proveedor................................................................................................. 41 
+Números de serie/lote de líneas de factura de proveedor .......................................................... 42 
+Presupuestos............................................................................................................................... 42 
+Líneas de presupuestos .............................................................................................................. 47 
+Números de serie/lote de líneas de presupuesto ........................................................................ 48 
+Pedidos de clientes ..................................................................................................................... 49 
+Líneas de pedidos de cliente ....................................................................................................... 53 
+Número de serie/lote de líneas de pedidos de cliente ................................................................ 54 
+Albaranes .................................................................................................................................... 55 
+Líneas de albarán ........................................................................................................................ 58 
+Números de serie/lote de líneas de albarán ............................................................................... 61 
+Facturas emitidas ........................................................................................................................ 61 
+Líneas de facturas emitidas ........................................................................................................ 67 
+Números de serie/lote de líneas de factura emitida .................................................................... 68 
+Recibos ........................................................................................................................................ 69 
+Cobros de albaranes ................................................................................................................... 70 
+Cobros de facturas ...................................................................................................................... 70 
+=== p3
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+3 
+ 
+ 
+ 
+Cobros de recibos ....................................................................................................................... 71 
+Pagos de facturas ....................................................................................................................... 71 
+Traspasos entre almacenes ........................................................................................................ 72 
+Líneas de traspaso entre almacenes .......................................................................................... 72 
+Números de serie/lote de líneas de traspaso entre almacenes .................................................. 72 
+Fabricaciones .............................................................................................................................. 73 
+Líneas de fabricación .................................................................................................................. 73 
+Tallas ........................................................................................................................................... 74 
+Colores ........................................................................................................................................ 74 
+Tallas y colores de artículos ........................................................................................................ 74 
+Stock de artículos con tallas y colores ........................................................................................ 74 
+Tarifas de precio de artículos con tallas y colores ...................................................................... 75 
+Códigos de EAN de tallas y colores ............................................................................................ 75 
+Condiciones especiales de cliente .............................................................................................. 76 
+Acciones comerciales .................................................................................................................. 76 
+Tarjetas de fidelización ................................................................................................................ 77 
+ 
+  
+=== p4
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+4 
+ 
+ 
+ 
+Gestión comercial completa con control de stock 
+ 
+Ficheros que se pueden importar 
+ 
+- Clientes 
+- Direcciones de entrega 
+- Actividades 
+- Agentes 
+- Proveedores 
+- Representantes 
+- Formas de pago/cobros 
+- Secciones 
+- Familias 
+- Artículos 
+- Unidades de medida 
+- Compuestos 
+- Almacenes 
+- Tarifa de precios 
+- Stocks 
+- Stocks con serie/lote 
+- Descuentos 
+- Pedidos a proveedor 
+- Líneas de pedido a proveedor 
+- Números de serie/lote de línea 
+de pedido a proveedor 
+- Entrada de mercancías 
+- Líneas de entrada de 
+mercancías 
+- Números de serie/lote de línea 
+de entrada de mercancías 
+- Facturas de proveedores 
+- Líneas de facturas de 
+proveedor 
+- Números de serie/lote de línea 
+de factura de proveedor 
+- Presupuestos 
+- Líneas de presupuestos 
+- Números de serie/lote de línea 
+de presupuesto 
+- Pedidos de clientes 
+- Precios por proveedor 
+- Riesgos de clientes 
+- Líneas de pedido de cliente 
+- Número de serie/lote de línea 
+de pedido de cliente 
+- Albaranes 
+- Líneas de albarán 
+- Número de serie/lote de línea 
+de albarán 
+- Facturas emitidas 
+- Líneas de facturas emitidas 
+- Número de serie/lote de línea 
+de factura emitida 
+- Recibos 
+- Cobros de albaranes 
+- Cobros de facturas 
+- Cobros de recibos 
+- Pagos de facturas 
+- Traspasos entre almacenes 
+- Líneas de traspaso entre 
+almacenes 
+- Número de serie/lote de línea 
+de traspaso 
+- Fabricaciones 
+- Líneas de fabricación 
+- Tallas 
+- Colores  
+- Tallas y colores de artículos 
+- Stock de artículos con tallas y 
+colores 
+- Tarifa de precios de tallas y 
+colores 
+- Códigos EAN para artículos 
+con tallas y colores 
+- Condiciones especiales de 
+cliente 
+- Acciones comerciales 
+- Tarjetas de fidelización 
+- Mandatos Sepa 
+ 
+  
+=== p5
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+5 
+ 
+ 
+ 
+Características generales de la importación 
+ 
+1. La estructura de cada uno de los ficheros a importar ha de estar grabada con formato Excel 
+(ficheros xls) o con formato OpenOffice.org Calc (ficheros ods). 
+ 
+2. Cada uno de los registros contenidos ha de estar en una fila distinta. 
+ 
+3. Cada uno de los campos debe estar en una columna independiente. 
+ 
+4. Los campos numéricos no pueden estar editados, es decir sólo pueden contener 
+caracteres numéricos, el punto decimal (,), y los signos + o -. 
+ 
+5. Los campos numéricos con decimales sólo deben tener 2 decimales excepto indicaciones . 
+ 
+6. Los campos numéricos que incluyan signo, éste debe consignarse al principio del campo.  
+ 
+7. Los campos de texto pueden estar en blanco. La longitud indicada es la máxima. 
+ 
+8. En caso de intentar guardar un campo más largo de la longitud máxima, el registro no será 
+guardado y se continuará con el resto. 
+ 
+9. En caso de intentar guardar un campo de texto en un campo numérico el valor será cero.  
+ 
+10. Las abreviaturas de los tipos de datos son: 
+ 
+- A: Alfanumérico 
+- N: Numérico 
+- ND: Numérico con decimal 
+- Formato fecha: DD/MM/AAAA 
+- Formato hora: HH:MM 
+=== p6
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+6 
+ 
+ 
+ 
+Clientes 
+ 
+El archivo ha de llamarse CLI.xls o CLI.ods   
+  
+Para importar los conceptos de facturación, utiliza el fichero de Conceptos de facturación 
+CLC.xls o CLC.ods 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+A Código 6 N Campo índice, no puede haber duplicados 
+B Código para 
+contabilidad 
+7 N  
+C NIF 18 A  
+D Nombre fiscal 50 A  
+E Nombre comercial 50 A  
+F Domicilio 50 A  
+G Población 30 A  
+H Código postal 10 N  
+I Provincia 40 A  
+J País 50 A  
+K Teléfono 50 A  
+L Fax 25 A  
+M Móvil 50 A  
+N Persona de contacto 50 A  
+O Agente comercial 5 N  
+P Banco 40 A  
+Q Entidad 4 A  
+R Oficina 4 A  
+S Dígito de control 2 A  
+T Cuenta 10 A  
+U Forma de pago 3 A  
+V % Financiación 3-2 ND  
+W % Pronto pago 3-2 ND  
+X Tarifa 2 N  
+Y Día de pago 1 2 N Valores entre 1 y 31 
+Z Día de pago 2 2 N 
+AA Día de pago 3 2 N 
+AB Tipo de cliente 3 A  
+AC Descuento fijo 1 3-2 ND  
+AD Descuento fijo 2 3-2 ND  
+AE Descuento fijo 3 3-2 ND  
+AF Tarifa especial 1 N 0=No, 1 = Si 
+AG Código de proveedor 10 A  
+AH Actividades 3 A  
+AI Tipo de portes 1 N 0=Debidos, 1=Pagados 
+AJ Texto de portes 30 A  
+AK Aplicarlo al cliente 1 N 0 = Si, 1 = No, 2 = Intracomunitario, 3 = 
+Importación 
+AL Tipo de IVA del cliente 1 N Tipo de IVA configurado en el programa 
+0=Sin asignar 
+1=Primer tipo 
+=== p7
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+7 
+ 
+ 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+2=Segundo tipo 
+3=Tercer tipo 
+4=Exento  
+AM Recargo de 
+equivalencia 
+1 N 0=No, 1 = Si 
+AN Fecha de alta Fecha  
+AO Fecha de nacimiento Fecha  
+AP E-mail 60 A  
+AQ Dirección web 60 A  
+AR Cuenta Skype 60 A  
+AS Mensaje emergente 50 A  
+AT Observaciones 255 A  
+AU Horario 30 A  
+AV Vacaciones desde 5 A  
+AW Vacaciones hasta 5 A  
+AX Crear recibos al 
+facturar 
+1 N 0=No, 1 = Si 
+AY No vender 1 N 0=No, 1 = Si 
+AZ No facturar 1 N 0=No, 1 = Si 
+BA No imprimir 1 N 0=No, 1 = Si 
+BB Moneda de facturación 1 N 0=Euros, 1=Pesetas 
+BC Tipo de documento 
+predeterminado 
+1 N  
+BD Domicilio del banco 100 A  
+BE Población del banco 50 A  
+BF IBAN del banco 50 A  
+BG SWIFT del banco 11 A  
+BH CAMPO OBSOLETO    
+BI CAMPO OBSOLETO    
+BJ CAMPO OBSOLETO    
+BK CAMPO OBSOLETO    
+BL CAMPO OBSOLETO    
+BM CAMPO OBSOLETO    
+BN CAMPO OBSOLETO    
+BO CAMPO OBSOLETO    
+BP CAMPO OBSOLETO    
+BQ CAMPO OBSOLETO    
+BR Ruta  3 A  
+BS Teléfono de contacto 50 A  
+BT Código usuario web 50 A  
+BU Clave usuario web 15 A  
+BV Subir a Internet 1 N 0=No, 1=Sí 
+BW Mensaje emergente 
+web 
+255 A  
+BX CAMPO OBSOLETO    
+BY CAMPO OBSOLETO    
+BZ CAMPO OBSOLETO    
+CA CAMPO OBSOLETO    
+CB CAMPO OBSOLETO    
+CC Factura electrónica 1 N 0=No, 1=Sí 
+=== p8
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+8 
+ 
+ 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+CD Transportista 5 N Código de transportista para el cliente 
+CE Número de copias de 
+factura a imprimir 
+5 N  
+CF Número de copias de 
+albaranes 
+5 N  
+CG Foto de cliente 255 A  
+CH Nombre de la persona 
+de contacto 1 
+50 A  
+CI Teléfono de la persona 
+de contacto 1 
+50 A  
+CJ E-mail de la persona de 
+contacto 1 
+60 A  
+CK Nombre de la persona 
+de contacto 2 
+50 A  
+CL Teléfono de la persona 
+de contacto 2 
+50 A  
+CM E-mail de la persona de 
+contacto 2 
+60 A  
+CN Nombre de la persona 
+de contacto 3 
+50 A  
+CO Teléfono de la persona 
+de contacto 3 
+50 A  
+CP E-mail de la persona de 
+contacto 3 
+60 A  
+CQ Nombre de la persona 
+de contacto 4 
+50 A  
+CR Teléfono de la persona 
+de contacto 4 
+50 A  
+CS E-mail de la persona de 
+contacto 4 
+60 A  
+CT Nombre de la persona 
+de contacto 5 
+50 A  
+CU Teléfono de la persona 
+de contacto 5 
+50 A  
+CV E-mail de la persona de 
+contacto 5 
+60 A  
+CW Retención 1 N 0 = No, 1= Si  
+CX Divisa 5 N  
+CY Mes no pago 2 N Valores entre 1 y 12. 
+CZ Identificación Fiscal 1 N 0 = Sin asignar 
+1 = NIF 
+2 = NIF/IVA (NIF operador 
+intracomunitario) 
+3 = Pasaporte 
+4 = Documento oficial de identificación 
+expedido por el territorio de residencia 
+5 = Certificado de residencia fiscal 
+6 = Otro documento probatorio 
+DA Tipo de impuesto 1 N 0 = I.V.A. 
+1 = I.G.I.C. 
+=== p9
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+9 
+ 
+ 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+DB Porcentaje de retención 2-2 N  
+DC % Descuento (en pie) 2-2 ND  
+DD Cuenta del plan 
+contable general a la 
+que está asociado el 
+cliente 
+3 A  
+DE Rappels 200 A  
+DF Porcentaje fijo de 
+rappel 
+2-2 ND  
+DG Pago de rappels 30 A  
+DH Plataforma EDI.  
+Código peticionario 
+13 A  
+DI Plataforma EDI. Código 
+receptor 
+13 A  
+DJ Plataforma EDI. Código 
+cliente 
+13 A  
+DK Plataforma EDI. Código 
+pagador 
+13 A  
+DL E-Mail comercial 60 A  
+DM E-Mail contabilidad 60 A  
+DN E-Mail administración 60 A  
+DO Perfil de Twitter 255 A  
+DP Estado 1 N 0 = Sin seleccionar 
+1 = Habitual 
+2 = Esporádico 
+3 = Dado de baja 
+4 = En captación 
+DQ CAMPO OBSOLETO    
+DR CAMPO OBSOLETO    
+DS CAMPO OBSOLETO    
+DT CAMPO OBSOLETO    
+DU CAMPO OBSOLETO    
+DV CAMPO OBSOLETO    
+DW CAMPO OBSOLETO    
+DX CAMPO OBSOLETO    
+DY CAMPO OBSOLETO    
+DZ CAMPO OBSOLETO    
+EA CAMPO OBSOLETO    
+EB CAMPO OBSOLETO    
+EC CAMPO OBSOLETO    
+ED CAMPO OBSOLETO    
+EE CAMPO OBSOLETO    
+EF CAMPO OBSOLETO    
+EG CAMPO OBSOLETO    
+EH CAMPO OBSOLETO    
+EI CAMPO OBSOLETO    
+EJ CAMPO OBSOLETO    
+EK CAMPO OBSOLETO    
+EL Porcentaje de comisión 
+del agente 
+3-2 ND  
+=== p10
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+10 
+ 
+ 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+EM Departamento 4 N  
+EN Subdepartamento 4 N  
+EO Fecha de baja Fecha 01/01/1900 
+ 
+ 
+Conceptos de facturación 
+ 
+El archivo ha de llamarse CLC.xls o CLC.ods 
+  
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código cliente 5 N Campos índice, no puede haber duplicados. 
+B Posición línea 5 N 
+C Código artículo 13 A  
+D Concepto facturación 65000 A  
+E Importe facturación 12-2 ND  
+F Unidades facturación 12-2 ND  
+G Mes de facturación 2 N 0 = Sin seleccionar, 1=Enero, 
+2=Febrero,….12= Diciembre 
+H Tipo de concepto de 
+facturación 
+1 N 0=Sin seleccionar, 1=Tipo 1, 2=Tipo 
+2,….6=Tipo 6 
+I Identificador 
+concepto facturación 
+15 A  
+ 
+J Estado concepto 
+facturación 
+1 N 0=Activo, 1=Inactivo 
+=== p11
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+11 
+ 
+ 
+ 
+Direcciones de entrega de clientes 
+ 
+El archivo ha de llamarse DIR.xls o DIR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de cliente 5 N Campo índice, no puede haber duplicados 
+B Código de dirección 4 N 
+C Descripción 100 A  
+D Dirección 100 A  
+E Población 30 A  
+F Código postal 10 A  
+G Provincia 40 A  
+H Teléfono 40 A  
+I Persona de contacto 40 A  
+J Código de agente 5 N  
+K Dirección por defecto 3 N 0=No 
+1=Albaranes 
+2=Facturas 
+3=Albaranes y Facturas 
+4=Presupuestos 
+6=Presupuestos y Facturas 
+8=Pedidos de cliente 
+9=Presupuestos y Pedidos de cliente 
+11=Pedidos de cliente y Facturas 
+13=Presupuestos, Pedidos de cliente y 
+Facturas 
+100=Dirección por defecto para sobres 
+102=Sobres de Facturas 
+104=Sobres de Presupuestos 
+106=Sobres de Presupuestos y sobres de 
+Facturas 
+108=Sobres de Pedidos de cliente 
+109=Sobres de Presupuestos y sobres de 
+Pedidos de cliente 
+113=Sobres de Presupuestos, sobres de 
+Pedidos de cliente y sobres de Facturas 
+L E-mail 60 A  
+M País 50 A  
+=== p12
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+12 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+N EDI Código 
+peticionario 
+13 A  
+O EDI Código receptor 13 A  
+P EDI Código cliente 13 A  
+Q EDI Código pagador 13 A  
+=== p13
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+13 
+ 
+ 
+ 
+Actividades 
+ 
+El archivo ha de llamarse ACT.xls o ACT.ods 
+ 
+Col. Descripción del campo Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+ 
+Mandatos SEPA 
+ 
+El archivo ha de llamarse MAS.xls o MAS.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código (referencia) 
+del mandato  
+35 A  
+B Descripción  50 A  
+C Cliente del mandato 5 N  
+D Fecha de la firma  Fecha  
+E Tipo de pago 1 N 0=Recurrente, 1=Único 
+F Estado del mandato 1 N 0=Pendiente, 1=En uso, 2=Finalizado 
+G Baco del mandato 3 N  
+H Tipo de cuaderno 
+ 
+1 N 0=Admitir este mandato en cualquier formato 
+1= Admitir solo en cuaderno C19-14 (CORE) 
+2= Admitir solo en cuaderno C19-15 (CORE1) 
+3= Admitir solo en cuaderno C19-44 (B2B) 
+ 
+ 
+Riesgos de clientes 
+ 
+El archivo ha de llamarse RIE.xls o RIE.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de cliente 5 N Campo índice, no puede haber duplicados 
+B Importe 12-2 ND  
+C Nº de póliza 50 A  
+D Fecha de solicitud Fecha 01/01/1900 
+E Fecha de concesión Fecha 01/01/1900 
+F Fecha de finalización Fecha 01/01/1900 
+  
+=== p14
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+14 
+ 
+ 
+ 
+Agentes 
+ 
+El archivo ha de llamarse AGE.xls o AGE.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 5 N Campo índice, no puede haber duplicados 
+B Nombre 100 A  
+C Domicilio 100 A  
+D Población  30 A  
+E Código postal 10 N  
+F Provincia 40 A  
+G DNI. 18 A  
+H Teléfono particular 30 A  
+I Móvil 18 A  
+J Zona 40 A  
+K Sueldo fijo 12-2 ND  
+L % comisiones 3-2 ND  
+M Observaciones 255 A  
+N Tipo de contrato 1 N Tipo de contrato (0:Externo, 1:Plantilla) 
+O IVA 2 N  
+P IRPF 2 N  
+Q Porcentaje de IRPF 2-2 ND  
+R Fecha de alta Fecha  
+S Fax 25 A  
+T E-mail 60 A  
+U Web 60 A  
+V País 50 A  
+W Persona de 
+contacto 
+50 A  
+X Ruta 3 A  
+Y Código usuario web 50 A  
+Z Clave usuario web 15 A  
+AA Subir a Internet 1 N 0=No, 1=Sí 
+AB Mensaje emergente 
+Web 
+255 A  
+AC Es jefe de equipo 1 N 0=No, 1=Sí 
+AD Porcentaje de 
+comisión sobre los 
+demás agentes 
+comerciales 
+3-2 ND  
+AE Código del jefe de 
+equipo 
+5 N  
+ 
+=== p15
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+15 
+ 
+ 
+ 
+Proveedores 
+ 
+El archivo ha de llamarse PRO.xls o PRO.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 5 N Campo índice, no puede haber duplicados 
+B Código para 
+contabilidad 
+7 N  
+C Proveedor/Acreedor 1 N Tipo: 0=Proveedor, 1=Acreedor 
+D NIF 18 A  
+E Nombre fiscal 50 A  
+F Nombre comercial 50 A  
+G Domicilio 100 A  
+H Población 30 A  
+I Código postal 10 N  
+J Provincia 40 A  
+K Teléfono 30 A  
+L Fax 25 A  
+M Móvil 50 A  
+N Persona de contacto 50 A  
+O Banco 40 A  
+P Entidad 4 A  
+Q Oficina 4 A  
+R Dígito de control 2 A  
+S Cuenta 10 A  
+T Forma de pago 3 A  
+U Semanas de aprov. 2 N  
+V Días de aprov. 2 N  
+W Tarifa en activo 30 A  
+X Descuento fijo 1 3-2 ND  
+Y Descuento fijo 2 3-2 ND  
+Z Descuento fijo 3 3-2 ND  
+AA Código de cliente 10 A  
+AB Tipo de portes 1 N Tipo de porte: 0=Debidos; 1=Pagados 
+AC Texto de portes 30 A  
+AD Aplicarlo al proveedor 1 N 0 = Si, 1 = No, 2 = Intracomunitario, 3 = 
+Importación, 4 = Agric, Ganad y Pesca 
+AE Rappels 200 A  
+AF % Rappel fijo 2-3 ND  
+AG Pago de rappel 30 A  
+AH Fecha de alta Fecha  
+AI Web 50 A  
+AJ e-Mail 60 A  
+AK Observaciones 255 A  
+AL Horario 30 A  
+AM Vacaciones desde 5 A  
+AN Vacaciones hasta 5 A  
+AO No vender sus art. 1 N 0=No, 1=Si 
+AP No pagar 1 N 0=No, 1=Si 
+=== p16
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+16 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AQ No imprimir 1 N 0=No, 1=Si 
+AR País 50 A  
+AS IBAN del banco 50 A  
+AT Télex 50 A  
+AU Domicilio del banco 100 A  
+AV Población del banco 50 A  
+AW Recargo de 
+equivalencia 
+1 N 0=No, 1=Si 
+AX Cuenta contable para 
+el enlace 
+10 A  
+AY Día de pago 1  2 N Valores entre 1 y 31 
+AZ Día de pago 2 2 N Valores entre 1 y 31 
+BA Día de pago 3 2 N Valores entre 1 y 31 
+BB SWIFT del banco 11 A  
+BC Mensaje emergente 50 A  
+BD Tipo de documento 
+predeterminado 
+1 N  
+BE Porcentaje de 
+retención 
+3-2 N  
+BF Nombre de la 
+persona de contacto 
+1 
+50 A  
+BG Teléfono de la 
+persona de contacto 
+1 
+50 A  
+BH E-mail de la persona 
+de contacto 1 
+60 A  
+BI Nombre de la 
+persona de contacto 
+2 
+50 A  
+BJ Teléfono de la 
+persona de contacto 
+2 
+50 A  
+BK E-mail de la persona 
+de contacto 2 
+60 A  
+BL Nombre de la 
+persona de contacto 
+3 
+50 A  
+BM Teléfono de la 
+persona de contacto 
+3 
+50 A  
+BN E-mail de la persona 
+de contacto 3 
+60 A  
+BO Nombre de la 
+persona de contacto 
+4 
+50 A  
+BP Teléfono de la 
+persona de contacto 
+4 
+50 A  
+=== p17
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+17 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BQ E-mail de la persona 
+de contacto 4 
+60 A  
+BR Nombre de la 
+persona de contacto 
+5 
+50 A  
+BS Teléfono de la 
+persona de contacto 
+5 
+50 A  
+BT E-mail de la persona 
+de contacto 5 
+60 A  
+BU Proveedor 
+homologado 
+  0=No, 1=Si 
+BV Identificación fiscal 1 N 0 = Sin asignar 
+1 = NIF 
+2 = NIF/IVA (NIF operador intracomunitario) 
+3 = Pasaporte 
+4 = Documento oficial de identificación 
+expedido por el territorio de residencia 
+5 = Certificado de residencia fiscal 
+6 = Otro documento probatorio 
+BW Tipo de impuesto 1 N 0 = I.V.A. 
+1 = I.G.I.C. 
+BX Código de usuario 
+Web 
+50 A  
+BY Contraseña 50 A  
+BZ Perfil de twitter 255 A  
+CA Perfil de Facebook 255 A  
+CB Tipo de IVA del 
+proveedor 
+1 N Tipo de IVA configurado en el programa 
+0=Sin asignar 
+1=Primer tipo 
+2=Segundo tipo 
+3=Tercer tipo 
+4=Exento 
+CC Departamento 4 N  
+CD Subdepartamento 4 N  
+ 
+Representantes 
+ 
+El archivo ha de llamarse REP.xls o REP.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 5 N Campo índice, no puede haber duplicados 
+B Nombre  40 A  
+C Domicilio 100 A  
+D Población 30 A  
+E Código postal 10 N  
+F Provincia 40 A  
+=== p18
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+18 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+G DNI 18 A  
+H Cargo 40 A  
+I Teléfono oficina 40 A  
+J Teléfono particular 18 A  
+K E-mail 40 A  
+L Observaciones 65000 A  
+ 
+Formas de pago/cobro 
+ 
+El archivo ha de llamarse FPA.xls o FPA.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 100 A  
+C Nº Vencimientos 1 N  
+D Pagos 
+proporcionales 
+1 N 0=No, 1=Si 
+E Días entre vtos. 1 3 N  
+F Días entre vtos. 2 3 N  
+G Días entre vtos. 3 3 N  
+H Días entre vtos. 4 3 N  
+I Días entre vtos. 5 3 N  
+J Días entre vtos. 6 3 N  
+K Proporción vto. 1 2-2 ND  
+L Proporción vto. 2 2-2 ND  
+M Proporción vto. 3 2-2 ND  
+N Proporción vto. 4 2-2 ND  
+O Proporción vto. 5 2-2 ND  
+P Proporción vto. 6 2-2 ND  
+Q Subir a Internet 1 N 0=No , 1=Sí 
+R Descripción web 50 A  
+S Efectivo 1 N 0=No , 1=Sí 
+T Forma de pago 1 N 0=Días, 1=Meses 
+U Código en factura-e 5 A  
+ 
+Secciones 
+ 
+El archivo ha de llamarse SEC.xls o SEC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción  50 A  
+C Subir a Internet 1 N 0=No, 1=Sí 
+=== p19
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+19 
+ 
+ 
+ 
+ 
+Familias 
+ 
+El archivo ha de llamarse FAM.xls o FAM.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+C Sección 3 A  
+D Texto predefinido 50 A  
+E Cuenta ventas 10 A  
+F Cuenta compras 10 A  
+G Subir a Internet 1 N 0=No, 1=Sí 
+H Departamento 4 N  
+I Subdepartamento 4 N  
+ 
+  
+=== p20
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+20 
+ 
+ 
+ 
+Artículos 
+ 
+El archivo ha de llamarse ART.xls o ART.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 13 A Campo índice, no puede haber duplicados 
+B Código de barras 13 A  
+C Código equivalente 18 A  
+D Código corto 5 N  
+E Familia 3 A  
+F Descripción 50 A  
+G Descrip. Etiquetas 30 A  
+H Descrip. Ticket 20 A  
+I Proveedor habitual 5 N  
+J Tipo de IVA 1 N Valores 0 al 3 según tabla en configuración 
+K Precio de costo 12-2 ND  
+L Descuento 1 2-2 ND  
+M Descuento 2 2-2 ND  
+N Descuento 3 2-2 ND  
+O Fecha de alta Fecha  
+P Máximo dto. 
+Aplicable 
+3-2 ND  
+Q Ubicación 30 A  
+R Unidades en línea 3 N  
+S Unidades por bulto 10-2 ND  
+T Dimensiones 30 A  
+U Mensaje 
+emergente en 
+ventas 
+50 A  
+V Observaciones 120 A  
+W No utilizar 1 N 0=No, 1=Si 
+X No imprimir 1 N 0=No, 1=Si 
+Y Artículo compuesto 1 N 0=No, 1=Si 
+Z Campo 
+programable 1 
+25 A  
+AA Campo 
+programable 2 
+25 A  
+AB Campo 
+programable 3 
+25 A  
+AC Referencia del 
+proveedor 
+30 A  
+AD Descripción larga 65000 A  
+AE Importe de portes 
+por unidad 
+12-3   
+AF Cuenta ventas 10 A  
+AG Cuenta compras 10 A  
+AH Cantidad por 
+defecto en las 
+salidas 
+3-2 ND  
+=== p21
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+21 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AI Imagen 255 A  
+AJ Subir a Internet 1 N 0=No, 1=Sí 
+AK Descripción web 65000   
+AL Mensaje 
+emergente web 
+255 A  
+AM Control del stock 1 N 0=No, 1=Sí 
+AN Imagen web 100 A  
+AO Control stock web 1 N 0=Artículo no disponible, 1=Consultar 
+Disponibilidad, 2=Artículo disponible, 3=Mostrar 
+el último stockaje 
+AP Última modificación Fecha  
+AQ Peso  12-2 ND  
+AR Fabricante 5 N Código de fabricante para el artículo 
+AS Articulo 
+concatenado 
+13 A Código del articulo concatenado 
+AT Garantía 50 A  
+AU Unidad de medida 4 N  
+AV Exportar a 
+MovilSOL / 
+N!PREVENTA 
+1 N 0 = No, 1 = Sí 
+AW Desligar del código 
+del artículo en las 
+ventas 
+1 N 0 = No, 1 = Sí 
+AX Mensaje 
+emergente en 
+compras 
+50 A  
+AY Cantidad por 
+defecto en las 
+compras 
+3-2 ND  
+AZ Campo 
+programable 4 
+25 A  
+BA Campo 
+programable 5 
+25 A  
+BB Primera 
+descripción auxiliar 
+65000 A  
+BC Segunda 
+descripción auxiliar 
+65000 A  
+BD Tercera 
+descripción auxiliar 
+65000 A  
+BE Departamento 4 N  
+BF Subdepartamento 4 N  
+ 
+=== p22
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+22 
+ 
+ 
+ 
+  
+=== p23
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+23 
+ 
+ 
+ 
+Precios de artículos por proveedor  
+ 
+El archivo ha de llamarse APV.xls o APV.ods 
+ 
+Para poder importar los precios de artículos por proveedor se tiene que importar junto con el 
+archivo de artículos (ART.xls o ART.ods). 
+ 
+Col
+. 
+Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de artículo 13 A  
+B Proveedor 5 N Código de proveedor 
+C Precio de costo 12-2 ND  
+D Descuento 1 3-2 ND  
+E Descuento 2 3-2 ND  
+F Descuento 3 3-2 ND  
+G Referencia 30 A  
+ 
+Unidades de medida 
+ 
+El archivo ha de llamarse UME.xls o UME.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de la 
+unidad 
+4 N Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+ 
+Compuestos 
+ 
+El archivo ha de llamarse COM.xls o COM.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de 
+compuesto 
+13 A  
+B Código de articulo 13 A  
+C Talla 3 A  
+D Color 3 A  
+E Costo 12-2 ND  
+F Unidades 12.2 ND  
+ 
+ 
+ 
+ 
+ 
+ 
+=== p24
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+24 
+ 
+ 
+ 
+Tarifa de precios 
+ 
+Para los precios de los artículos se utilizan dos archivos, uno con la descripción del nombre de 
+la tarifa TAR.xls o TAR.ods, y otro con cada uno de los precios de los artículos LTA.xls o 
+LTA.ods. 
+ 
+Debe de haber un precio por cada artículo que exista en la empresa, aunque se encuentre a 
+cero euros. 
+ 
+Descripción del nombre de la tarifa de precios: 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 2 N Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+C Margen 
+preestablecido 
+3-2 ND  
+D IVA incluido 1 N 0=No, 1=Sí 
+ 
+Descripción del archivo de precios: 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de tarifa 2 N Campos índice, no puede haber duplicados 
+B Artículo 13 A 
+C Margen  3-2 ND  
+D Precio 12-2 ND  
+ 
+Almacenes 
+ 
+El archivo ha de llamarse ALM.xls o ALM.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+C Observaciones 100 A  
+  
+=== p25
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+25 
+ 
+ 
+ 
+Stocks 
+ 
+El archivo ha de llamarse STO.xls o STO.ods 
+ 
+Debe haber al menos un registro por cada artículo y nombre de almacén existente en el 
+programa. 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de artículo 13 A Campos índice, no puede haber duplicados 
+B Código de almacén 3 A 
+C Stock mínimo 12-2 ND  
+D Stock máximo 12-2 ND  
+E Stock actual 12-2 ND  
+F Stock disponible 12-2 ND  
+ 
+Stocks de artículos con serie/lote 
+ 
+El archivo ha de llamarse CNS.xls o CNS.ods 
+ 
+Para poder importar el stock de la serie/lote de cada artículo, se utilizan dos archivos. Por un 
+lado, el archivo STO.xls o STO.ods para importar el stock del artículo y por otro lado el archivo 
+CNS. Xls o CNS.ods, para importar el stock del artículo de cada serie/lote. 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de almacén 3 A  
+ 
+Campos índice, no puede haber duplicados 
+B Código del artículo 13 A 
+C Número de 
+serie/lote 
+50 A 
+D Fecha de 
+fabricación 
+Fecha  
+E Fecha de consumo 
+preferente 
+Fecha  
+F Cantidad 12-2 ND  
+ 
+Descuentos 
+ 
+El archivo ha de llamarse DES.xls o DES.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de cliente 3 A Campos índice, no puede haber duplicados 
+B Artículo o familia o 
+sección 
+13 A 
+C Descripción 50 A Descripción del artículo o familia 
+=== p26
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+26 
+ 
+ 
+ 
+D No modificable 1 N 0=No, 1=Si 
+E % de descuento 3-2 ND  
+F Tipo de descuento 1 A O=Porcentaje, I=Importe 
+G Importe descuento 5-2 ND  
+H Aplicar descuento 
+a 
+1 N 0 = Artículo 
+1 = Familia 
+2 = Sección 
+ 
+Pedidos a proveedor 
+ 
+El archivo ha de llamarse PPR.xls o PPR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 12 A Referencia del proveedor 
+D Fecha Fecha Fecha del pedido 
+E Proveedor 5 N Código del proveedor 
+F Estado 1 N 0=Pendiente, 1=Pendiente parcial, 2=recibido 
+G Almacén 3 A Código del almacén 
+H Código de cliente 10 A Código de cliente para el proveedor 
+I Nombre del 
+proveedor 
+50 A Nombre del proveedor 
+J Domicilio del 
+proveedor 
+100 A Domicilio del proveedor 
+K Población 30 A Población del proveedor 
+L Código postal 10 A Código postal del proveedor 
+M Provincia 40 A Provincia del cliente 
+N N.I.F. 18 A N.I.F. del proveedor 
+O Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Importación 
+P Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+Q Teléfono del 
+proveedor 
+20 A Teléfono del proveedor 
+R Importe neto 1 12-2 ND  
+S Importe neto 2 12-2 ND  
+T Importe neto 3 12-2 ND  
+U Porcentaje de 
+descuento 1 
+2-2 ND  
+V Porcentaje de 
+descuento 2 
+2-2 ND  
+W Porcentaje de 
+descuento 3 
+2-2 ND  
+X Importe de 
+descuento 1 
+12-2 ND  
+=== p27
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+27 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+Y Importe de 
+descuento 2 
+12-2 ND  
+Z Importe de 
+descuento 3 
+12-2 ND  
+AA Porcentaje pronto 
+pago 1 
+2-2 ND  
+AB Porcentaje pronto 
+pago 2 
+2-2 ND  
+AC Porcentaje pronto 
+pago 3 
+2-2 ND  
+AD Importe pronto 
+pago 1 
+12-2 ND  
+AE Importe pronto 
+pago 2 
+12-2 ND  
+AF Importe pronto 
+pago 3 
+12-2 ND  
+AG Porcentaje portes 1 2-2 ND  
+AH Porcentaje portes 2 2-2 ND  
+AI Porcentaje portes 3 2-2 ND  
+AJ Importe portes 1 12-2 ND  
+AK Importe portes 2 12-2 ND  
+AL Importe portes 3 12-2 ND  
+AM Porcentaje de 
+financiación 1 
+2-2 ND  
+AN Porcentaje de 
+financiación 2 
+2-2 ND  
+AO Porcentaje de 
+financiación 3 
+2-2 ND  
+AP Importe de 
+financiación 1 
+12-2 ND  
+AQ Importe de 
+financiación 2 
+12-2 ND  
+AR Importe de 
+financiación 3 
+12-2 ND  
+AS Base imponible 1 12-2 ND  
+AT Base imponible 2 12-2 ND  
+AU Base imponible 3 12-2 ND  
+AV Porcentaje de IVA 
+1 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AW Porcentaje de IVA 
+2 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AX Porcentaje de IVA 
+3 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AY Importe de IVA 1 12-2 ND  
+AZ Importe de IVA 2 12-2 ND  
+BA Importe de IVA 3 12-2 ND  
+BB Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+=== p28
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+28 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BC Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BE Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+BF Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BG Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+BH Porcentaje de la 
+retención 
+2-2 ND  
+BI Importe de la 
+retención 
+12-2 ND  
+BJ Total  12-2 ND  
+BK Forma de pago 3 A Código de la forma de pago 
+BL Plazo de entrega 40 A  
+BM A la atención de 50 A  
+BN Portes 1 N 0=Pagados, 1=Debidos 
+BO Texto de portes 30 A  
+BP 1ª línea de 
+observaciones 
+100 A  
+BQ 2ª línea de 
+observaciones 
+100 A  
+BR Enviado al fichero 
+de compras 
+N 1 Reservado, siempre 0 
+BS Comentarios 
+después de las 
+líneas de detalle 
+65000 A  
+BT Domicilio de la 
+empresa 
+100 A  
+BU Código postal de la 
+empresa 
+10 A  
+BV Población de la 
+empresa 
+30 A  
+BW Provincia de la 
+empresa 
+40 A  
+BX Teléfono de la 
+empresa 
+20 A  
+BY Usuario que creó el 
+documento 
+N 1  
+BZ Último usuario que 
+modificó el 
+documento 
+N 1  
+=== p29
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+29 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CA Importe neto 
+exento 
+12-2 ND  
+CB Porcentaje de 
+descuento exento 
+2-2 ND  
+CC Importe de 
+descuento exento 
+12-2 ND  
+CD Porcentaje pronto 
+pago exento 
+2-2 ND  
+CE Importe de pronto 
+pago exento 
+12-2 ND  
+CF Porcentaje de 
+portes exento 
+2-2 ND  
+CG Importe de portes 
+exento 
+12-2 ND  
+CH Porcentaje de 
+financiación exento 
+2-2 ND  
+CI Importe de 
+financiación exento 
+12-2 ND  
+CJ Base imponible 
+exenta 
+12-2 ND  
+CK Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-mail 
+ 
+ 
+Líneas de pedido a proveedor 
+ 
+El archivo ha de llamarse LPP.xls o LPP.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Campo uso interno   Uso interno. Se debe dejar esta columna sin 
+contenido. 
+=== p30
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+30 
+ 
+ 
+ 
+M Campo uso interno   Uso interno. Se debe dejar esta columna sin 
+contenido. 
+N Pendiente 12-2 ND  
+O Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+P Campo uso interno   Uso interno. Se debe dejar esta columna sin 
+contenido. 
+Q Alto 5-2 ND  
+R Ancho 5-2 ND  
+S Fondo 5-2 ND  
+T Bultos 5-2 ND  
+U Talla 3 A  
+V Color 3 A  
+W Imagen asociada 255 A  
+ 
+ 
+ 
+Números de serie/lote de líneas de pedido a 
+proveedor 
+ 
+El archivo ha de llamarse SPP.xls o SPP.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+=== p31
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+31 
+ 
+ 
+ 
+Entradas de mercancías 
+ 
+El archivo ha de llamarse ENT.xls o ENT.xls 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 50 A Referencia del proveedor 
+D Fecha Fecha Fecha de la entrada 
+E Proveedor 5 N Código del proveedor 
+F Estado 1 N 0=Pendiente, 1=Facturado 
+G Almacén 3 A Código del almacén 
+H Albarán de entrada 20 A  
+I Código de cliente 10 A Código de cliente para el proveedor 
+J Nombre del 
+proveedor 
+50 A Nombre del proveedor 
+K Domicilio del 
+proveedor 
+100 A Domicilio del proveedor 
+L Población 30 A Población del proveedor 
+M Código postal 10 A Código postal del proveedor 
+N Provincia 40 A Provincia del cliente 
+O N.I.F. 18 A N.I.F. del proveedor 
+P Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Importación 
+Q Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+R Teléfono del 
+proveedor 
+20 A Teléfono del proveedor 
+S Importe neto 1 12-2 ND  
+T Importe neto 2 12-2 ND  
+U Importe neto 3 12-2 ND  
+V Porcentaje de 
+descuento 1 
+2-2 ND  
+W Porcentaje de 
+descuento 2 
+2-2 ND  
+X Porcentaje de 
+descuento 3 
+2-2 ND  
+Y Importe de 
+descuento 1 
+12-2 ND  
+Z Importe de 
+descuento 2 
+12-2 ND  
+AA Importe de 
+descuento 3 
+12-2 ND  
+AB Porcentaje pronto 
+pago 1 
+2-2 ND  
+AC Porcentaje pronto 
+pago 2 
+2-2 ND  
+=== p32
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+32 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AD Porcentaje pronto 
+pago 3 
+2-2 ND  
+AE Importe pronto 
+pago 1 
+12-2 ND  
+AF Importe pronto 
+pago 2 
+12-2 ND  
+AG Importe pronto 
+pago 3 
+12-2 ND  
+AH Porcentaje portes 1 2-2 ND  
+AI Porcentaje portes 2 2-2 ND  
+AJ Porcentaje portes 3 2-2 ND  
+AK Importe portes 1 12-2 ND  
+AL Importe portes 2 12-2 ND  
+AM Importe portes 3 12-2 ND  
+AN Porcentaje de 
+financiación 1 
+2-2 ND  
+AO Porcentaje de 
+financiación 2 
+2-2 ND  
+AP Porcentaje de 
+financiación 3 
+2-2 ND  
+AQ Importe de 
+financiación 1 
+12-2 ND  
+AR Importe de 
+financiación 2 
+12-2 ND  
+AS Importe de 
+financiación 3 
+12-2 ND  
+AT Base imponible 1 12-2 ND  
+AU Base imponible 2 12-2 ND  
+AV Base imponible 3 12-2 ND  
+AW Porcentaje de IVA 
+1 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AX Porcentaje de IVA 
+2 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AY Porcentaje de IVA 
+3 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AZ Importe de IVA 1 12-2 ND  
+BA Importe de IVA 2 12-2 ND  
+BB Importe de IVA 3 12-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BE Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BF Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+=== p33
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+33 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BG Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BH Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+BI Porcentaje de la 
+retención 
+2-2 ND  
+BJ Importe de la 
+retención 
+12-2 ND  
+BK Total  12-2 ND  
+BL Forma de pago 3 A Código de la forma de pago 
+BM Portes 1 N 0=Pagados, 1=Debidos 
+BN Texto de portes 30 A  
+BO 1ª línea de 
+observaciones 
+100 A  
+BP 2ª línea de 
+observaciones 
+100 A  
+BQ Agencia de 
+transportes 
+15 A  
+BR Fecha de entrega Fecha  
+BS Hora de entrega 20 A  
+BT Gasto proporcional 
+1 
+5-2 M  
+BU Gasto proporcional 
+2 
+5-2 M  
+BV Gasto proporcional 
+3 
+5-2 M  
+BW Gasto proporcional 
+4 
+5-2 M  
+BX Comentario 
+después de las 
+líneas de detalle 
+65000 A  
+BY Usuario que creó el 
+documento 
+1 N  
+BZ Último usuario que 
+modificó el 
+documento 
+1 N  
+CA Importe neto 
+exento 
+12-2 ND  
+CB Porcentaje de 
+descuento exento 
+2-2 ND  
+CC Importe de 
+descuento exento 
+12-2 ND  
+CD Porcentaje de 
+pronto pago exento 
+2-2 ND  
+CE Importe de pronto 
+pago exento 
+12-2 ND  
+CF Porcentaje de 
+portes exento 
+2-2 ND  
+=== p34
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+34 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CG Importe de portes 
+exento 
+12-2 ND  
+CH Porcentaje de 
+financiación exento 
+2-2 ND  
+CI Importe de 
+financiación exento 
+12-2 ND  
+CJ Base imponible 
+exenta 
+12-2 ND  
+CK Enviado por mail 1 N 0 = No enviado 1 = Solicitado envío por e-mail 
+=== p35
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+35 
+ 
+ 
+ 
+Líneas de entrada de mercancías 
+ 
+El archivo ha de llamarse LEN.xls o LEN.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+M Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+N Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+O Tipo de documento 1 A ‘’=No validada, V=Validada a partir de un 
+pedido a proveedor 
+P Tipo de pedido 1 N Si el campo anterior es V se debe indicar el 
+tipo y el código del pedido a proveedor que 
+generó la entrada 
+Q Código de pedido 6 N 
+R Ejercicio del que 
+proviene la 
+validación 
+4 A  
+S Alto 5-2 ND  
+T Ancho 5-2 ND  
+U Bultos 5 N  
+V Fondo 5-2 ND  
+W Talla 3 A  
+X Color 3 A  
+Y Imagen asociada 255 A  
+ 
+ 
+ 
+=== p36
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+36 
+ 
+ 
+ 
+Números de serie/lote de líneas de entrada de 
+mercancías 
+ 
+El archivo ha de llamarse SEN.xls o SEN.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+=== p37
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+37 
+ 
+ 
+ 
+Facturas recibidas 
+ 
+El archivo ha de llamarse FRE.xls o FRE.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Código exterior 20 A Código exterior de la factura 
+D Referencia 50 A Referencia del proveedor 
+E Fecha Fecha Fecha del pedido 
+F Proveedor 5 N Código del proveedor 
+G Estado 1 N 0=Pendiente, 1=Pagado parcial, 2=Pagado 
+H Código de cliente 10 A Código de cliente para el proveedor 
+I Nombre del 
+proveedor 
+50 A Nombre del proveedor 
+J Domicilio del 
+proveedor 
+100 A Domicilio del proveedor 
+K Población 30 A Población del proveedor 
+L Código postal 10 A Código postal del proveedor 
+M Provincia 40 A Provincia del cliente 
+N N.I.F. 18 A N.I.F. del proveedor 
+O Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Importación 
+P Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+Q Teléfono del 
+proveedor 
+20 A Teléfono del proveedor 
+R Importe neto 1 12-2 ND  
+S Importe neto 2 12-2 ND  
+T Importe neto 3 12-2 ND  
+U Porcentaje de 
+descuento 1 
+2-2 ND  
+V Porcentaje de 
+descuento 2 
+2-2 ND  
+W Porcentaje de 
+descuento 3 
+2-2 ND  
+X Importe de 
+descuento 1 
+12-2 ND  
+Y Importe de 
+descuento 2 
+12-2 ND  
+Z Importe de 
+descuento 3 
+12-2 ND  
+AA Porcentaje pronto 
+pago 1 
+2-2 ND  
+AB Porcentaje pronto 
+pago 2 
+2-2 ND  
+AC Porcentaje pronto 
+pago 3 
+2-2 ND  
+=== p38
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+38 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AD Importe pronto pago 
+1 
+12-2 ND  
+AE Importe pronto pago 
+2 
+12-2 ND  
+AF Importe pronto pago 
+3 
+12-2 ND  
+AG Porcentaje portes 1 2-2 ND  
+AH Porcentaje portes 2 2-2 ND  
+AI Porcentaje portes 3 2-2 ND  
+AJ Importe portes 1 12-2 ND  
+AK Importe portes 2 12-2 ND  
+AL Importe portes 3 12-2 ND  
+AM Porcentaje de 
+financiación 1 
+2-2 ND  
+AN Porcentaje de 
+financiación 2 
+2-2 ND  
+AO Porcentaje de 
+financiación 3 
+2-2 ND  
+AP Importe de 
+financiación 1 
+12-2 ND  
+AQ Importe de 
+financiación 2 
+12-2 ND  
+AR Importe de 
+financiación 3 
+12-2 ND  
+AS Base imponible 1 12-2 ND  
+AT Base imponible 2 12-2 ND  
+AU Base imponible 3 12-2 ND  
+AV Porcentaje de IVA 1 2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AW Porcentaje de IVA 2 2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AX Porcentaje de IVA 3 2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AY Importe de IVA 1 12-2 ND  
+AZ Importe de IVA 2 12-2 ND  
+BA Importe de IVA 3 12-2 ND  
+BB Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BE Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+BF Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BG Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+=== p39
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+39 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BH Porcentaje de la 
+retención 
+2-2 ND  
+BI Importe de la 
+retención 
+12-2 ND  
+BJ Total  12-2 ND  
+BK Forma de pago 3 A Código de la forma de pago 
+BL 1ª línea de 
+observaciones 
+100 A  
+BM 2ª línea de 
+observaciones 
+100 A  
+BN Traspasada a 
+contabilidad 
+1 N 0=No traspasada, 1=Traspasada 
+BO Fecha de entrega Fecha  
+BP Hora de entrega 50 A  
+BQ Portes 1 N 0=Pagados, 1=Debidos 
+BR Texto de portes 30 A  
+BS Agencia de 
+transportes 
+15 A  
+BT Comentarios 
+después de la línea 
+de detalle 
+6500 A  
+BU Factura deducible 1 N 0=Deducible, 1=No deducible, 2=Prorrata 
+BV Usuario que creó el 
+documento 
+1 N  
+BW Último usuario que 
+modificó el 
+documento 
+1 N  
+BX Almacén 3 A Código de almacén para la factura 
+BY Importe neto exento 12-2 ND  
+BZ Porcentaje de 
+descuento exento 
+2-2 ND  
+CA Importe de 
+descuento exento 
+12-2 ND  
+CB Porcentaje de 
+pronto pago exento  
+2-2 ND  
+CC Importe de pronto 
+pago exento 
+12-2 ND  
+CD Porcentaje de 
+portes exento 
+2-2 ND  
+CE Importe de portes 
+exento 
+12-2 ND  
+CF Porcentaje de 
+financiación exento 
+2-2 ND  
+CG Importe de 
+financiación exento 
+12-2 ND  
+CH Base imponible 
+exenta 
+12-2 ND  
+CI Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-mail 
+CJ Proveedor/Acreedor 1 N 0 = Proveedor, 1= Acreedor 
+=== p40
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+40 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CK Bien de inversión  1 N Otros datos 0 = No, 1 = Si. 
+CL Imagen 255 A  
+CM Tipo de retención 1 N 0 = Sin seleccionar 
+1 = Actividad profesional (dineraria) 
+2 = Actividad profesional (en especie) 
+3 = Actividad agrícola (dineraria) 
+4 = Actividad agrícola (en especie) 
+5 = Arrendamiento (dinerario) 
+6 =Arrendamiento (en especie) 
+7 = Actividad empresarial 
+8 = Premios por participación en juegos... 
+(dineraria) 
+9 = Premios por participación en juegos... (en 
+especie) 
+10 = Ganancias patrimoniales derivadas de 
+aprovechamientos forestales... (dineraria) 
+11 = Ganancias patrimoniales derivadas de 
+aprovechamientos forestales... (en especie) 
+12 = Contraprestaciones por la cesión de 
+derechos de imagen 
+CN Clave de operación 2 N 0 = Operación habitual 
+1 = (A) Asiento resumen de facturas 
+2 = (B) Asiento resumen de tickets 
+3 = (C) Facturas con varios asientos (Varios 
+tipos impositivo) 
+4 = (D) Factura rectificativa 
+… 
+ 
+ (Ver claves en Ficha del proveedor > icono 
+Comercial > Clave de operación) 
+CO Fecha de operación Fecha  
+CP Fecha de registro 
+contable 
+Fecha  
+CQ Clave de operación 
+intracomunitaria  
+1 N 0 = Sin seleccionar 
+1 = (A) Adquisiciones intracomunitarias sujetas 
+2 = (E) Entregas intracomunitarias exentas, 
+excepto las entregas en otros Estados 
+miembros 
+… 
+ 
+(Ver claves en Ficha del proveedor > icono 
+Comercial > Clave de op. intracomunitaria) 
+ 
+CR Régimen especial 
+de criterio de caja 
+1 N 0=No, 1=Sí 
+CS Departamento 4 N  
+CT Subdepartamento 4 N  
+=== p41
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+41 
+ 
+ 
+ 
+Líneas de facturas de proveedor 
+ 
+El archivo ha de llamarse LFR.xls o LFR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+M Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+N Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+O Tipo de documento 1 A ‘’=No validada, V=Validada a partir de un 
+pedido a proveedor, E=Validada a partir de 
+una entrada de mercancías 
+P Tipo de pedido 1 N Si el campo anterior es V o E se debe indicar 
+el tipo y el código del pedido a proveedor o 
+entrada de mercancías que generó la factura 
+recibida. 
+Q Código de pedido 6 N 
+R Ejercicio del que 
+proviene la 
+validación 
+4 A  
+S Alto 5-2 ND  
+T Ancho 5-2 ND  
+U Fondo 5-2 ND  
+V Bultos 5 N  
+W Talla 3 A  
+X Color 3 A  
+Y Imagen asociada 255 A  
+ 
+ 
+ 
+=== p42
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+42 
+ 
+ 
+ 
+Números de serie/lote de líneas de factura de 
+proveedor 
+ 
+El archivo ha de llamarse SFR.xls o SFR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+Presupuestos 
+ 
+El archivo ha de llamarse PRE.xls o PRE.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 50 A Referencia  
+D Fecha Fecha Fecha del pedido 
+E Agente 5 N Código del agente 
+F Código del 
+proveedor 
+10 A  
+G Código de cliente 5 N  
+H Nombre del cliente 50 A  
+I Domicilio del 
+cliente 
+100 A  
+J Población 30 A  
+K Código postal 10 A  
+L Provincia 40 A  
+M N.I.F. 18 A  
+N Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Exportación 
+O Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+P Teléfono del cliente 20 A  
+Q Almacén 3 A  
+=== p43
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+43 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+R Importe neto 1 12-2 ND  
+S Importe neto 2 12-2 ND  
+T Importe neto 3 12-2 ND  
+U Porcentaje de 
+descuento 1 
+2-2 ND  
+V Porcentaje de 
+descuento 2 
+2-2 ND  
+W Porcentaje de 
+descuento 3 
+2-2 ND  
+X Importe de 
+descuento 1 
+12-2 ND  
+Y Importe de 
+descuento 2 
+12-2 ND  
+Z Importe de 
+descuento 3 
+12-2 ND  
+AA Porcentaje pronto 
+pago 1 
+2-2 ND  
+AB Porcentaje pronto 
+pago 2 
+2-2 ND  
+AC Porcentaje pronto 
+pago 3 
+2-2 ND  
+AD Importe pronto 
+pago 1 
+12-2 ND  
+AE Importe pronto 
+pago 2 
+12-2 ND  
+AF Importe pronto 
+pago 3 
+12-2 ND  
+AG Porcentaje portes 1 2-2 ND  
+AH Porcentaje portes 2 2-2 ND  
+AI Porcentaje portes 3 2-2 ND  
+AJ Importe portes 1 12-2 ND  
+AK Importe portes 2 12-2 ND  
+AL Importe portes 3 12-2 ND  
+AM Porcentaje de 
+financiación 1 
+2-2 ND  
+AN Porcentaje de 
+financiación 2 
+2-2 ND  
+AO Porcentaje de 
+financiación 3 
+2-2 ND  
+AP Importe de 
+financiación 1 
+12-2 ND  
+AQ Importe de 
+financiación 2 
+12-2 ND  
+AR Importe de 
+financiación 3 
+12-2 ND  
+AS Base imponible 1 12-2 ND  
+AT Base imponible 2 12-2 ND  
+AU Base imponible 3 12-2 ND  
+=== p44
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+44 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AV Porcentaje de IVA 
+1 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AW Porcentaje de IVA 
+2 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AX Porcentaje de IVA 
+3 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AY Importe de IVA 1 12-2 ND  
+AZ Importe de IVA 2 12-2 ND  
+BA Importe de IVA 3 12-2 ND  
+BB Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BE Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+BF Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BG Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+BH Porcentaje de la 
+retención 
+2-2 ND  
+BI Importe de la 
+retención 
+12-2 ND  
+BJ Total  12-2 ND  
+BK Forma de pago 3 A Código de la forma de pago 
+BL Plazo de entrega 100 A  
+BM Tiempo de validez 50 A  
+BN Portes 1 N 0=Pagados, 1=Debidos 
+BO Texto de portes 30 A  
+BP 1ª línea de 
+observaciones 
+100 A  
+BQ 2ª línea de 
+observaciones 
+100 A  
+BR Dirección de 
+entrega 
+5 N  
+BS Estado del 
+presupuesto 
+1 N 0=Pend. De aceptar, 1=Acep/Ped, 2=Acep/Alb, 
+3=Acep/Fac 
+BT Imprimir 
+presupuesto 
+1 N 0=No, 1=Si 
+BU Imprimir hoja de 
+condiciones 1 
+1 N 0=No, 1=Si 
+BV Imprimir factura pro 
+forma 
+1 N 0=No, 1=Si 
+=== p45
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+45 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BW Imprimir hoja de 
+condiciones 2 
+1 N 0=No, 1=Si 
+BX Código de hoja de 
+condiciones 1 
+15 A  
+BY Código de hoja de 
+condiciones 2 
+   
+BZ Anotaciones 
+privadas del 
+documento 
+65000 A  
+CA Documentos 
+asociados al 
+documento 
+255 A  
+CB Comentarios 
+después de las 
+líneas de detalle 
+65000 A  
+CC Usuario que creó el 
+documento 
+1 N  
+CD Último usuario que 
+modificó el 
+documento 
+1 N  
+CE Fax del 
+presupuesto 
+25 A  
+CF Importe neto 
+exento 
+12-2 ND  
+CG Porcentaje de 
+descuento exento 
+2-2 ND  
+CH Importe de 
+descuento exento 
+12-2 ND  
+CI Porcentaje de 
+pronto pago exento 
+2-2 ND  
+CJ Importe de pronto 
+pago exento 
+12-2 ND  
+CK Porcentaje de 
+portes exento 
+2-2 ND  
+CL Importe de portes 
+exento 
+12-2 ND  
+CM Porcentaje de 
+financiación exento 
+2-2 ND  
+CN Importe de 
+financiación exento 
+12-2 ND  
+CO Base imponible 
+exenta 
+12-2 ND  
+CP Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-mail 
+CQ Permisos y 
+contraseña del 
+documento 
+150 A  
+CR Hora de creación Hora  
+CS Carpeta asociada 255 A  
+ 
+=== p46
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+46 
+ 
+ 
+ 
+  
+=== p47
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+47 
+ 
+ 
+ 
+Líneas de presupuestos 
+ 
+El archivo ha de llamarse LPS.xls o LPS.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+M Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+N Alto 5-2 DN  
+O Ancho 5-2 ND  
+P Fondo 5-2 ND  
+Q Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+R Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+S IVA incluido en la 
+línea 
+1 N 0=No, 1=Sí 
+T Precio IVA incluido 
+en la línea 
+5-2 ND  
+U Total IVA incluido 
+en la línea 
+5-2 ND  
+V Costo del articulo 5-2 ND Costo del artículo en el momento de la 
+creación de la línea 
+W Talla 3 A  
+X Color 3 A  
+Y Imagen asociada 255 A  
+ 
+ 
+=== p48
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+48 
+ 
+ 
+ 
+Números de serie/lote de líneas de presupuesto 
+ 
+El archivo ha de llamarse SPR.xls o SPR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+=== p49
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+49 
+ 
+ 
+ 
+Pedidos de clientes 
+ 
+El archivo ha de llamarse PCL.xls o PCL.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 50 A Referencia  
+D Fecha Fecha Fecha del pedido 
+E Agente 5 N Código del agente 
+F Código del 
+proveedor 
+10 A  
+G Código de cliente 5 N  
+H Nombre del cliente 50 A  
+I Domicilio del 
+cliente 
+100 A  
+J Población 30 A  
+K Código postal 10 A  
+L Provincia 40 A  
+M N.I.F. 18 A  
+N Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Exportación 
+O Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+P Teléfono del cliente 20 A  
+Q Estado 1 N 0=Pendiente, 1=Pendiente parcial, 2=Enviado, 
+3=En almacén 
+R Almacén 3 A  
+S Importe neto 1 12-2 ND  
+T Importe neto 2 12-2 ND  
+U Importe neto 3 12-2 ND  
+V Porcentaje de 
+descuento 1 
+2-2 ND  
+W Porcentaje de 
+descuento 2 
+2-2 ND  
+X Porcentaje de 
+descuento 3 
+2-2 ND  
+Y Importe de 
+descuento 1 
+12-2 ND  
+Z Importe de 
+descuento 2 
+12-2 ND  
+AA Importe de 
+descuento 3 
+12-2 ND  
+AB Porcentaje pronto 
+pago 1 
+2-2 ND  
+AC Porcentaje pronto 
+pago 2 
+2-2 ND  
+=== p50
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+50 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AD Porcentaje pronto 
+pago 3 
+2-2 ND  
+AE Importe pronto 
+pago 1 
+12-2 ND  
+AF Importe pronto 
+pago 2 
+12-2 ND  
+AG Importe pronto 
+pago 3 
+12-2 ND  
+AH Porcentaje portes 1 2-2 ND  
+AI Porcentaje portes 2 2-2 ND  
+AJ Porcentaje portes 3 2-2 ND  
+AK Importe portes 1 12-2 ND  
+AL Importe portes 2 12-2 ND  
+AM Importe portes 3 12-2 ND  
+AN Porcentaje de 
+financiación 1 
+2-2 ND  
+AO Porcentaje de 
+financiación 2 
+2-2 ND  
+AP Porcentaje de 
+financiación 3 
+2-2 ND  
+AQ Importe de 
+financiación 1 
+12-2 ND  
+AR Importe de 
+financiación 2 
+12-2 ND  
+AS Importe de 
+financiación 3 
+12-2 ND  
+AT Base imponible 1 12-2 ND  
+AU Base imponible 2 12-2 ND  
+AV Base imponible 3 12-2 ND  
+AW Porcentaje de IVA 
+1 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AX Porcentaje de IVA 
+2 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AY Porcentaje de IVA 
+3 
+2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AZ Importe de IVA 1 12-2 ND  
+BA Importe de IVA 2 12-2 ND  
+BB Importe de IVA 3 12-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BE Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BF Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+=== p51
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+51 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BG Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BH Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+BI Porcentaje de la 
+retención 
+2-2 ND  
+BJ Importe de la 
+retención 
+12-2 ND  
+BK Total  12-2 ND  
+BL Forma de pago 3 A Código de la forma de pago 
+BM Plazo de entrega 50 A  
+BN Portes 1 N 0=Pagados, 1=Debidos 
+BO Texto de portes 30 A  
+BP 1ª línea de 
+observaciones 
+50 A  
+BQ 2ª línea de 
+observaciones 
+50 A  
+BR Obra de entrega 3 N Código de obra de entrega para el cliente. 
+BS Pedido por 40 A  
+BT Anotaciones 
+privadas   
+65000 A  
+BU Documentos 
+externos asociados 
+255 A  
+BV Comentarios 
+después de las 
+líneas de detalle 
+65000 A  
+BW Usuario que creó el 
+documento 
+1 N  
+BX Último usuario que 
+modificó el 
+documento 
+1 N  
+BY Fax  25 A  
+BZ Importe neto 
+exento 
+12-2 ND  
+CA Porcentaje de 
+descuento exento 
+2-2 ND  
+CB Importe de 
+descuento exento 
+12-2 ND  
+CC Porcentaje de 
+pronto pago exento 
+2-2 ND  
+CD Importe de pronto 
+pago exento 
+12-2 ND  
+CE Porcentaje de 
+portes exento 
+2-2 ND  
+CF Importe de portes 4 12-2 ND  
+CG Porcentaje de 
+financiación exento 
+2-2 ND  
+CH Importe de 
+financiación exento 
+12-2 ND  
+=== p52
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+52 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CI Base imponible 
+exenta 
+12-2 ND  
+CJ Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-mail 
+CK Transportista 5 N Código de transportista 
+CL País del cliente  50 A  
+ 
+=== p53
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+53 
+ 
+ 
+ 
+Líneas de pedidos de cliente 
+ 
+El archivo ha de llamarse LPC.xls o LPC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Pendiente 12-2 ND Cantidad pendiente de enviar de la línea 
+M Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+N Documento que 
+creó el pedido 
+1 A ‘’ = No fue creado por ningún otro documento, 
+P =Creado a través de un presupuesto 
+O Tipo de documento 1 N Si el documento que creó es P entonces se 
+debe indicar el tipo y el código de presupuesto 
+que lo creó 
+P Código del 
+documento 
+6 N 
+Q Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+R Ejercicio del que se 
+validó el documento 
+4 A  
+S Alto 5-2 ND  
+T Ancho 5-2 ND  
+U Fondo 5-2 ND  
+V Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+W Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+X IVA incluido en la 
+línea 
+1 N 0=No, 1=Sí 
+Y Precio IVA incluido 
+en la línea 
+5-2 ND  
+Z Total IVA incluido 
+en la línea 
+5-2 ND  
+AA Precio de costo  5-2 ND Costo en el momento de la creación de la línea 
+AB Bultos 5-2 ND  
+=== p54
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+54 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AC Talla 3 A  
+AD Color 3 A  
+AE Imagen asociada  255 A  
+ 
+Número de serie/lote de líneas de pedidos de 
+cliente 
+ 
+El archivo ha de llamarse SPC.xls o SPC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+=== p55
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+55 
+ 
+ 
+ 
+Albaranes 
+ 
+El archivo ha de llamarse ALB.xls o ALB.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 12 A Referencia  
+D Fecha Fecha Fecha del pedido 
+E Estado 1 N 0=Pendiente, 1=Facturado 
+F Almacén 3 A Código del almacén 
+G Agente 5 N Código del agente 
+H Código del 
+proveedor 
+10 A Código del proveedor 
+I Código de cliente 5 N  
+J Nombre del cliente 50 A  
+K Domicilio del cliente 100 A  
+L Población 30 A  
+M Código postal 10 A  
+N Provincia 40 A  
+O N.I.F. 18 A  
+P Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 3= 
+Exportación 
+Q Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+R Teléfono del cliente 20 A  
+S Importe neto 1 12-2 ND  
+T Importe neto 2 12-2 ND  
+U Importe neto 3 12-2 ND  
+V Porcentaje de 
+descuento 1 
+2-2 ND  
+W Porcentaje de 
+descuento 2 
+2-2 ND  
+X Porcentaje de 
+descuento 3 
+2-2 ND  
+Y Importe de 
+descuento 1 
+12-2 ND  
+Z Importe de 
+descuento 2 
+12-2 ND  
+AA Importe de 
+descuento 3 
+12-2 ND  
+AB Porcentaje pronto 
+pago 1 
+2-2 ND  
+AC Porcentaje pronto 
+pago 2 
+2-2 ND  
+AD Porcentaje pronto 
+pago 3 
+2-2 ND  
+=== p56
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+56 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AE Importe pronto 
+pago 1 
+12-2 ND  
+AF Importe pronto 
+pago 2 
+12-2 ND  
+AG Importe pronto 
+pago 3 
+12-2 ND  
+AH Porcentaje portes 1 2-2 ND  
+AI Porcentaje portes 2 2-2 ND  
+AJ Porcentaje portes 3 2-2 ND  
+AK Importe portes 1 12-2 ND  
+AL Importe portes 2 12-2 ND  
+AM Importe portes 3 12-2 ND  
+AN Porcentaje de 
+financiación 1 
+2-2 ND  
+AO Porcentaje de 
+financiación 2 
+2-2 ND  
+AP Porcentaje de 
+financiación 3 
+2-2 ND  
+AQ Importe de 
+financiación 1 
+12-2 ND  
+AR Importe de 
+financiación 2 
+12-2 ND  
+AS Importe de 
+financiación 3 
+12-2 ND  
+AT Base imponible 1 12-2 ND  
+AU Base imponible 2 12-2 ND  
+AV Base imponible 3 12-2 ND  
+AW Porcentaje de IVA 1 2-2 ND Porcentaje de IVA asignado al tipo impositivo 1 
+AX Porcentaje de IVA 2 2-2 ND Porcentaje de IVA asignado al tipo impositivo 2 
+AY Porcentaje de IVA 3 2-2 ND Porcentaje de IVA asignado al tipo impositivo 3 
+AZ Importe de IVA 1 12-2 ND  
+BA Importe de IVA 2 12-2 ND  
+BB Importe de IVA 3 12-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BE Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BF Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+BG Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BH Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+=== p57
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+57 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+BI Porcentaje de la 
+retención 
+2-2 ND  
+BJ Importe de la 
+retención 
+12-2 ND  
+BK Total  12-2 ND  
+BL Forma de pago 3 A Código de la forma de pago 
+BM Portes 1 N 0=Pagados, 1=Debidos 
+BN Texto de portes 30 A  
+BO 1ª línea de 
+observaciones 
+100 A  
+BP 2ª línea de 
+observaciones 
+100 A  
+BQ Obra de entrega 3 N Código de obra de entrega para el cliente. 
+BR Remitido por 50 A  
+BS Embalado por 50 A  
+BT A la atención de 50 A  
+BU Referencia 50 A  
+BV Nº de su pedido 30 A  
+BW Fecha de su pedido Fecha  
+BX Cobrado 1 N 0=Pendiente, 1=Cobrado, 2=Cobrado parcial 
+BY Traspasado a 
+contabilidad 
+1 N 0=No, 1=Sí 
+BZ Impreso 1 A N=No, I=Sí 
+CA Transportista 5 N Código de transportista 
+CB Número expedición 
+1 
+20 A  
+CC Número expedición 
+2 
+20 A  
+CD Anotaciones 
+privadas 
+65000 A  
+CE Documentos 
+asociados al 
+documento 
+255 A  
+CF Banco del cliente 1 N Código de banco del cliente 
+CG Enviado a través 
+del fichero 
+1 N Reservado, siempre 0 
+CH Hora de creación Hora  
+CI Comentarios 
+después de las 
+líneas de detalle 
+65000 A  
+CJ Usuario que creó el 
+documento 
+1 N  
+CK Último usuario que 
+modificó el 
+documento 
+1 N  
+CL Fax 25 A  
+CM Importe neto exento 12-2 ND  
+CN Porcentaje de 
+descuento exento 
+2-2 ND  
+=== p58
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+58 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CO Importe de 
+descuento exento 
+12-2 ND  
+CP Porcentaje de 
+pronto pago exento 
+2-2 ND  
+CQ Importe de pronto 
+pago exento 
+12-2 ND  
+CR Porcentaje de 
+portes exento 
+2-2 ND  
+CS Importe de portes 
+exento 
+12-2 ND  
+CT Porcentaje de 
+financiación exento 
+2-2 ND  
+CU Importe de 
+financiación exento 
+12-2 ND  
+CV Base imponible 
+exento 
+12-2 ND  
+CW Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-mail 
+CX Permisos y 
+contraseña del 
+documento 
+150 A  
+CY Ticket, porcentaje 
+de descuento 
+12-2 ND  
+CZ Ticket, importe de 
+descuento 
+12-2 ND  
+DA Caja en que se creó 
+el documento 
+5 N  
+DB IBAN del banco 34 A  
+DC BIC del banco 11 A  
+DD Nombre del banco 40 A  
+DE Entidad de la 
+cuenta 
+4 A  
+DF Oficina de la cuenta 
+del cliente 
+4 A  
+DG Dígitos de control 
+de la cuenta del 
+cliente 
+2 A  
+DH Número de la 
+cuenta del cliente 
+10 A  
+ 
+Líneas de albarán 
+ 
+El archivo ha de llamarse LAL.xls o LAL.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+=== p59
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+59 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND  
+L Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+M Documento que 
+creó el pedido 
+1 A ‘’ = No fue creado por ningún otro documento, 
+P=presupuesto, C=Pedido de clientes 
+E=Entrada de mercancías 
+N Tipo de documento 1 N Si el documento que creó es P, C o E entonces 
+se debe indicar el tipo y el código del 
+documento que creó la línea. 
+O Código del 
+documento 
+6 N 
+P Precio de costo  12-2 ND Precio de costo del artículo cuando se crea la 
+línea 
+Q Bultos 3 N  
+R Comisión del 
+agente 
+2-2 ND  
+S Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+T Ejercicio del que 
+proviene la 
+validación 
+4 A  
+U Alto 5-2 ND  
+V Ancho 5-2 ND  
+W Fondo 5-2 ND  
+X Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+Y Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+Z IVA incluido en la 
+línea 
+1 N 0=No, 1=Sí 
+AA Precio IVA incluido 
+en la línea 
+5-2 ND  
+AB Total IVA incluido 
+en la línea 
+5-2 ND  
+AC Talla 3 A  
+AD Color 3 A  
+=== p60
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+60 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AE Imagen asociada 255 A  
+ 
+ 
+  
+=== p61
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+61 
+ 
+ 
+ 
+Números de serie/lote de líneas de albarán 
+ 
+El archivo ha de llamarse SAL.xls o SAL.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+Facturas emitidas 
+ 
+El archivo ha de llamarse FAC.xls o FAC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Referencia 50 A Referencia  
+D Fecha Fecha Fecha del pedido 
+E Estado 1 N 0=Pendiente, 1=Pendiente parcial, 
+2=Cobrada, 3=Devuelta, 4=Anulada 
+F Almacén 3 A Código del almacén 
+G Agente 5 N Código del agente 
+H Código del proveedor 10 A  
+I Código de cliente 5 N  
+J Nombre del cliente 50 A  
+K Domicilio del cliente 100 A  
+L Población 30 A  
+M Código postal 10 A  
+N Provincia 40 A  
+O N.I.F. 18 A  
+P Tipo de IVA 1 N 0=Con IVA, 1=Sin IVA, 2=Intracomunitario, 
+3= Exportación 
+Q Recargo de 
+equivalencia 
+1 N 0=Sin recargo, 1=Con recargo 
+R Teléfono del cliente 20 A  
+S Importe neto 1 12-2 ND  
+T Importe neto 2 12-2 ND  
+U Importe neto 3 12-2 ND  
+=== p62
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+62 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+V Porcentaje de 
+descuento 1 
+2-2 ND  
+W Porcentaje de 
+descuento 2 
+2-2 ND  
+X Porcentaje de 
+descuento 3 
+2-2 ND  
+Y Importe de descuento 
+1 
+12-2 ND  
+Z Importe de descuento 
+2 
+12-2 ND  
+AA Importe de descuento 
+3 
+12-2 ND  
+AB Porcentaje pronto 
+pago 1 
+2-2 ND  
+AC Porcentaje pronto 
+pago 2 
+2-2 ND  
+AD Porcentaje pronto 
+pago 3 
+2-2 ND  
+AE Importe pronto pago 
+1 
+12-2 ND  
+AF Importe pronto pago 
+2 
+12-2 ND  
+AG Importe pronto pago 
+3 
+12-2 ND  
+AH Porcentaje portes 1 2-2 ND  
+AI Porcentaje portes 2 2-2 ND  
+AJ Porcentaje portes 3 2-2 ND  
+AK Importe portes 1 12-2 ND  
+AL Importe portes 2 12-2 ND  
+AM Importe portes 3 12-2 ND  
+AN Porcentaje de 
+financiación 1 
+2-2 ND  
+AO Porcentaje de 
+financiación 2 
+2-2 ND  
+AP Porcentaje de 
+financiación 3 
+2-2 ND  
+AQ Importe de 
+financiación 1 
+12-2 ND  
+AR Importe de 
+financiación 2 
+12-2 ND  
+AS Importe de 
+financiación 3 
+12-2 ND  
+AT Base imponible 1 12-2 ND  
+AU Base imponible 2 12-2 ND  
+AV Base imponible 3 12-2 ND  
+AW Porcentaje de IVA 1 2-2 ND Porcentaje de IVA asignado al tipo 
+impositivo 1 
+AX Porcentaje de IVA 2 2-2 ND Porcentaje de IVA asignado al tipo 
+impositivo 2 
+=== p63
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+63 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AY Porcentaje de IVA 3 2-2 ND Porcentaje de IVA asignado al tipo 
+impositivo 3 
+AZ Importe de IVA 1 12-2 ND  
+BA Importe de IVA 2 12-2 ND  
+BB Importe de IVA 3 12-2 ND  
+BC Porcentaje de 
+recargo de 
+equivalencia 1 
+2-2 ND  
+BD Porcentaje de 
+recargo de 
+equivalencia 2 
+2-2 ND  
+BE Porcentaje de 
+recargo de 
+equivalencia 3 
+2-2 ND  
+BF Importe de recargo 
+de equivalencia 1 
+12-2 ND  
+BG Importe de recargo 
+de equivalencia 2 
+12-2 ND  
+BH Importe de recargo 
+de equivalencia 3 
+12-2 ND  
+BI Porcentaje de la 
+retención 
+2-2 ND  
+BJ Importe de la 
+retención 
+12-2 ND  
+BK Total  12-2 ND  
+BL Forma de pago 3 A Código de la forma de pago 
+BM Portes 1 N 0=Pagados, 1=Debidos 
+BN Texto de portes 30 A  
+BO 1ª línea de 
+observaciones 
+100 A  
+BP 2ª línea de 
+observaciones 
+100 A  
+BQ Obra de entrega 3 N Código de obra de entrega para el cliente. 
+BR Remitido por 50 A  
+BS Embalado por 50 A  
+BT A la atención de 50 A  
+BU Referencia 50 A  
+BV Nº de su pedido 50 A  
+BW Fecha de su pedido Fecha  
+BX Cobrado 1 N 0=Pendiente, 1=Girado 
+BY Tipo de creación 1 N Siempre 1 
+BZ Tipo de recibo 1 A Tipo de registro que se crea a través de esta 
+factura 
+CA Código del recibo que 
+se crea a partir de 
+esta factura 
+6 N  
+CB Traspasada 1 N 0=No traspasado a contabilidad, 
+1=Traspasada a contabilidad 
+CC Anotaciones privadas 65000 A  
+=== p64
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+64 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+CD Documentos externos 
+asociados al 
+documento 
+255 A  
+CE Impresa 1 N N=No, I=Sí 
+CF Banco del cliente 5 N Código del banco del cliente 
+CG Hora de creación Hora  
+CH Cometarios para 
+imprimir después de 
+las líneas de detalle 
+65000 A  
+CI Usuario que creó el 
+documento 
+1 N  
+CJ Último usuario que 
+modificó el 
+documento 
+1 N  
+CK Fax 25 A  
+CL Imagen 255 A  
+CM Importe neto exento 12-2 ND  
+CN Porcentaje de 
+descuento exento 
+2-2 ND  
+CO Importe de descuento 
+exento 
+12-2 ND  
+CP Porcentaje de pronto 
+pago exento 
+2-2 ND  
+CQ Importe de pronto 
+pago exento 
+12-2 ND  
+CR Porcentaje de portes 
+exento 
+2-2 ND  
+CS Importe de portes 
+exento 
+12-2 ND  
+CT Porcentaje de 
+financiación exento 
+2-2 ND  
+CU Importe de 
+financiación exento 
+12-2 ND  
+CV Base imponible 
+exenta 
+12-2 ND  
+CW Enviado por mail 1 N 0 = No enviado 1 = Solicitado envió por e-
+mail 
+CX Permisos y 
+contraseña del 
+documento 
+150 A  
+CY Ticket, porcentaje de 
+descuento 
+12-2 ND  
+CZ Ticket, importe de 
+descuento 
+12-2 ND  
+DA Caja en que se creó 
+el documento 
+5 N  
+DB IBAN del banco 34 A  
+DC BIC del banco 11 A  
+DD Nombre del banco 40 A  
+=== p65
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+65 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+DE Entidad de la cuenta 
+del cliente 
+4 A  
+DF Oficina de la cuenta 
+del cliente 
+4 A  
+DG Dígitos de control de 
+la cuenta del cliente 
+2 A  
+DH Número de la cuenta 
+del cliente 
+10 A  
+DI Clave de operación 2 N 0 = Operación habitual 
+1 = (A) Asiento resumen de facturas 
+2 = (B) Asiento resumen de tiques 
+3 = (C) Facturas con varios asientos (Varios 
+tipos impositivo) 
+4 = (D) Factura rectificativa 
+… 
+ 
+ (Ver claves en Ficha del cliente > icono 
+Comercial > Clave de operación)  
+DJ Fecha de operación Fecha  
+DK Tipo de retención 2 N 0 = Sin seleccionar 
+1 = Actividad profesional (dineraria) 
+2 = Actividad profesional (en especie) 
+3 = Actividad agrícola (dineraria) 
+4 = Actividad agrícola (en especie) 
+5 = Arrendamiento (dinerario) 
+6 =Arrendamiento (en especie) 
+7 = Actividad empresarial 
+8 = Premios por participación en juegos... 
+(dineraria) 
+9 = Premios por participación en juegos... 
+(en especie) 
+10 = Ganancias patrimoniales derivadas de 
+aprovechamientos forestales... (dineraria) 
+11 = Ganancias patrimoniales derivadas de 
+aprovechamientos forestales... (en especie) 
+12 = Contraprestaciones por la cesión de 
+derechos de imagen 
+DL Clave de operación 
+intracomunitaria 
+1 N 0 = Sin seleccionar 
+1 = (A) Adquisiciones intracomunitarias 
+sujetas 
+2 = (E) Entregas intracomunitarias exentas, 
+excepto las entregas en otros Estados 
+miembros 
+… 
+ 
+(Ver claves en Ficha del cliente > icono 
+Comercial > Clave de op. intracomunitaria) 
+ 
+DM Régimen especial de 
+criterio de caja 
+1 N 0=No, 1=Sí 
+=== p66
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+66 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+DN Departamento 4 N  
+DO Subdepartamento 4 N  
+=== p67
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+67 
+ 
+ 
+ 
+Líneas de facturas emitidas 
+ 
+El archivo ha de llamarse LFA.xls o LFA.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Artículo  13 A  
+E Descripción 65000 A  
+F Cantidad 12-2 ND  
+G Porcentaje 
+descuento 1 
+2-2 ND  
+H Porcentaje 
+descuento 2 
+2-2 ND  
+I Porcentaje 
+descuento 3 
+2-2 ND  
+J Precio del artículo 12-2 ND  
+K Total 12-2 ND cantidad * precio artículo 
+L Tipo de IVA 1 N 0=Primer tipo de IVA del documento. 
+1=Segundo tipo de IVA del documento. 
+2=Tercer tipo de IVA del documento. 
+3=Exento de IVA. 
+M Documento que 
+creó el pedido 
+1 A ‘’ = No fue creado por ningún otro documento, 
+P=presupuesto, C=cliente, A=Albarán 
+N Tipo de documento 1 N Si el documento que creó es P, C o A 
+entonces se debe indicar el tipo y el código de 
+presupuesto que lo creó 
+O Código del 
+documento 
+6 N 
+P Precio de costo  12-2 ND Precio de costo del artículo cuando se crea la 
+línea 
+Q Bultos 3 N  
+R Comisión del 
+agente 
+2-2 ND  
+S Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+T Ejercicio del que 
+proviene la 
+validación 
+4 A  
+U Alto 5-2 ND  
+V Ancho 5-2 ND  
+W Fondo 5-2 ND  
+X Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+Y Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+Z IVA incluido en la 
+línea 
+1 N 0=No, 1=Sí 
+=== p68
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+68 
+ 
+ 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+AA Precio IVA incluido 
+en la línea 
+5-2 ND  
+AB Total IVA incluido 
+en la línea 
+5-2 ND  
+AC Talla 3 A  
+AD Color 3 A  
+AE Imagen asociada 255 A  
+ 
+Números de serie/lote de líneas de factura emitida 
+ 
+El archivo ha de llamarse SFA.xls o SAF.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+ 
+ 
+=== p69
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+69 
+ 
+ 
+ 
+Recibos 
+ 
+El archivo ha de llamarse REC.xls o REC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Localidad de 
+expedición  
+30 A  
+E Importe 12-2 ND  
+F Fecha de 
+expedición 
+Fecha  
+G Fecha de 
+vencimiento 
+Fecha  
+H Concepto 1 60 A  
+I Concepto 2 60 A  
+J Nombre de la 
+entidad 
+40 A  
+K Entidad 4 A  
+L Oficina 4 A  
+M Dígitos de control 2 A  
+N Número de cuenta 10 A  
+O Estado del recibo 1 N 0=Sin cobrar, 1=Cobrado, 2=Cobrado parcial 
+P Código cliente 5 N  
+Q Nombre del cliente 50 A  
+R Domicilio del cliente 100 A  
+S Población del 
+cliente 
+50 A  
+T Provincia del cliente 30 A  
+U Código postal 10 A  
+V Agente del cliente 5 N  
+W NIF del cliente 18 A  
+ 
+ 
+ 
+=== p70
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+70 
+ 
+ 
+ 
+Cobros de albaranes 
+ 
+El archivo ha de llamarse LAC.xls o LAC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Fecha del cobro Fecha  
+E Importe del cobro 12-2 ND  
+F Concepto del cobro 40 A  
+G Contrapartida 1 N Código de la contrapartida 
+H Traspasada a 
+contabilidad 
+1 N 0=No, 1=Sí 
+I Anticipo 5 N Código del anticipo que se aplicó al cobro 
+J Tipo de línea 1 N 0=Normal, 1=Devolución 
+K Forma de pago 3 A Código de la forma de pago 
+L Observaciones 65000 A  
+ 
+Cobros de facturas 
+ 
+El archivo ha de llamarse LCO.xls o LCO.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Fecha del cobro Fecha  
+E Importe del cobro 12-2 ND  
+F Concepto del cobro 40 A  
+G Contrapartida 1 N Código de la contrapartida 
+H Traspasada a 
+contabilidad 
+1 N 0=No, 1=Sí 
+I Anticipo 5 N Código del anticipo que se aplicó al cobro 
+J Tipo de línea 1 N 0=Normal, 1=Devolución 
+K Forma de pago 3 A Código de la forma de pago 
+L Observaciones 65000 A  
+ 
+ 
+ 
+=== p71
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+71 
+ 
+ 
+ 
+Cobros de recibos 
+ 
+El archivo ha de llamarse LCR.xls o LCR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Recibo según forma 
+de pago 
+1 N 
+D Posición de la línea 5 A 
+E Fecha del cobro Fecha  
+F Importe del cobro 12-2 ND  
+G Concepto del cobro 40 A  
+H Contrapartida 1 N Código de la contrapartida 
+I Traspasada a 
+contabilidad 
+1 N 0=No, 1=Sí 
+J Anticipo 5 N Código del anticipo que se aplicó al cobro 
+K Tipo de la línea 1 N 0=Normal, 1=Devolución 
+L Observaciones 65000 A  
+ 
+Pagos de facturas 
+ 
+El archivo ha de llamarse LPF.xls o LPF.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Tipo de documento 1 N Campos índice, no puede haber duplicados. 
+B Número de 
+documento 
+6 N 
+C Posición de la línea 5 A 
+D Fecha del pago Fecha  
+E Importe del pago 12-2 ND  
+F Concepto del pago 40 A  
+G Contrapartida 1 N Código de la contrapartida 
+H Traspasada a 
+contabilidad 
+1 N 0=No, 1=Sí 
+I Anticipo 5 N Código del anticipo que se aplicó al cobro 
+ 
+=== p72
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+72 
+ 
+ 
+ 
+Traspasos entre almacenes 
+ 
+El archivo ha de llamarse TRA.xls o TRA.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de traspaso 6 N Campo índice, no puede haber duplicados. 
+B Fecha de traspaso Fecha  
+C Almacén de origen 3 A  
+D Almacén destino 3 A  
+E Comentarios 65000 A  
+ 
+Líneas de traspaso entre almacenes 
+ 
+El archivo ha de llamarse LTR.xls o LTR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de traspaso 6 N Campos índice, no puede haber duplicados. 
+B Línea de traspaso 10 N 
+C Código del artículo 
+traspasado 
+13 A  
+D Cantidad 
+traspasada 
+12-2 ND  
+E Talla 3 A  
+F Color 3 A  
+ 
+Números de serie/lote de líneas de traspaso entre 
+almacenes 
+ 
+El archivo ha de llamarse STR.xls o STR.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Campo de uso 
+interno 
+  Uso interno. Se debe indicar el valor fijo STR 
+B Número de 
+documento 
+6 N Campos índice, no puede haber duplicados. 
+C Posición de la línea 5 N 
+D Número de serie 50 A 
+E Cantidad 12-2 ND  
+F Fecha de 
+fabricación 
+Fecha  
+G Fecha de consumo Fecha  
+ 
+=== p73
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+73 
+ 
+ 
+ 
+Fabricaciones 
+ 
+El archivo ha de llamarse FCO.xls o FCO.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de 
+fabricación 
+6 N Campo índice, no puede haber duplicados. 
+B Fecha de 
+fabricación 
+Fecha  
+C Almacén de 
+fabricación 
+3 A  
+D Estado 1 N 0=Pendiente, 1=Fabricada 
+ 
+Líneas de fabricación 
+ 
+El archivo ha de llamarse LFC.xls o LFC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de 
+fabricación 
+6 N Campos índice, no puede haber duplicados. 
+B Línea de fabricación 10 N 
+C Artículo 13 A Código del artículo 
+D Descripción del 
+artículo 
+65000 A  
+E Unidades 
+fabricadas 
+12-2 ND  
+F Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+G Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+H Campo de uso 
+interno 
+  Uso interno. Se debe dejar esta columna sin 
+contenido. 
+I Observaciones 65000 A  
+J Talla 3 A  
+K Color 3 A  
+ 
+ 
+ 
+ 
+=== p74
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+74 
+ 
+ 
+ 
+Tallas 
+ 
+El archivo ha de llamarse CE1.xls o CE1.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+ 
+Colores 
+ 
+El archivo ha de llamarse CE2.xls o CE2.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 3 A Campo índice, no puede haber duplicados 
+B Descripción 50 A  
+C Color descriptivo 10 N  
+ 
+Tallas y colores de artículos   
+ 
+El archivo ha de llamarse ARC.xls o ARC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de artículo 13 A Campos índice, no puede haber duplicados 
+B Código de talla 3 A 
+C Código de color  3 A  
+ 
+Stock de artículos con tallas y colores  
+ 
+El archivo ha de llamarse STC.xls o STC.ods 
+ 
+Debe haber al menos un registro por cada artículo y nombre de almacén existente en el 
+programa. 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de artículo 13 A Campos índice, no puede haber duplicados 
+B Código de almacén 3 A 
+C Código de talla  3 A  
+D Código de color 3 A  
+E Stock mínimo 12-2 ND  
+=== p75
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+75 
+ 
+ 
+ 
+F Stock máximo 12-2 ND  
+G Stock actual 12-2 ND  
+H Stock disponible 12-2 ND  
+ 
+Tarifas de precio de artículos con tallas y colores 
+ 
+El archivo ha de llamarse LTC.xls o LTC.ods 
+ 
+Debe haber al menos un registro por cada tarifa y articulo existente en el programa. 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de tarifa 5 N Campos índice, no puede haber duplicados 
+B Código de articulo 13 A 
+C Código de talla  3 A  
+D Código de color 3 A  
+E Margen 12-2 ND  
+F Precio 12-2 ND  
+ 
+Códigos de EAN de tallas y colores 
+ 
+El archivo ha de llamarse EAC.xls o EAC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de articulo 13 A Campos índice, no puede haber duplicados 
+B Código de barras 13 A 
+C Código de talla 3 A  
+D Código de color 3 A  
+ 
+  
+=== p76
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+76 
+ 
+ 
+ 
+Condiciones especiales de cliente 
+ 
+El archivo ha de llamarse CEC.xls o CEC.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código de cliente 5 N Campos índice, no puede haber duplicados. 
+B Código de artículo 13 A 
+C Precio/Descuento 12-2 ND  
+D Tipo de descuento 1 N 0=Importe de venta, 1=% Descuento  
+E Descuento sobre 
+artículo/familia 
+1 N 0=Artículo, 1=Familia 
+ 
+Acciones comerciales 
+ 
+El archivo ha de llamarse ACO.xls o ACO.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 10 N Campos índice, no puede haber duplicados. 
+B Código de cliente 5 N 
+C Fecha Fecha  
+D Hora Hora   
+E Agente 5 N  
+F Campaña 1 N 0=No, 1=Sí 
+G Estado 1 N 0=Pendiente, 1=En curso, 2=Finalizada 
+H Tipo de acción 5 N  
+I Consulta 65000 A  
+J Persona de 
+contacto 
+50 A  
+K Fecha fin de acción Fecha  
+L Hora fin de acción Hora  
+ 
+  
+=== p77
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+77 
+ 
+ 
+ 
+Tarjetas de fidelización 
+ 
+El archivo ha de llamarse TFI.xls o TFI.ods 
+ 
+Col. Descripción del 
+campo 
+Tamaño Tipo Observación 
+A Código 5 N Campos índice, no puede haber duplicados. 
+B Tipo de tarjeta 5 N  
+C ID. Tarjeta 13 A  
+D Código de cliente 5 N  
+E Fecha de alta Fecha  
+F Validez hasta Fecha  
+G Total acumulado 12-2 ND Puntos o Saldo  
+  
+=== p78
+FACTUSOL – Importación de archivos Excel/Calc 
+ 
+Tel: + 34 953 22 79 33  
+sdelsol.com 
+GIP.F.01.13. Rev. 12 Fecha: 26-06-2024 
+78 
+ 
+ 
+ 
+ 
