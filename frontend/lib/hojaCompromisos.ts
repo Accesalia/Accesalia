@@ -39,13 +39,15 @@ export type FilaHoja = {
 };
 
 /** Las formas de pago vigentes y la que sale por defecto en cada bloque cuando paga la comunidad. Sin caso, en blanco. */
-export async function formasParaHoja(): Promise<{ formas: { id: string; nombre: string }[]; defecto: Record<string, string> }> {
-  const [formas, casos] = await Promise.all([
-    pedir<{ id: string; nombre: string }[]>("he_formas_pago?select=id,nombre&activa=is.true&order=orden.asc"),
+export async function formasParaHoja(): Promise<{ formas: { id: string; nombre: string; frases: string[] }[]; defecto: Record<string, string> }> {
+  const [filas, casos] = await Promise.all([
+    pedir<{ id: string; nombre: string; hitos: { orden: number; frase: string }[] }[]>("he_formas_pago?select=id,nombre,hitos:he_formas_pago_hitos(orden,frase)&activa=is.true&order=orden.asc"),
     pedir<{ forma_pago_id: string; pagador_tipo: string; bloque: { codigo: string } | null }[]>(
       "he_formas_pago_defecto?select=forma_pago_id,pagador_tipo,bloque:bloque_id(codigo)&pagador_tipo=in.(cualquiera,comunidad)",
     ),
   ]);
+  // Las frases de sus hitos, en orden: con ellas se escribe en el papel (el texto de la hoja = sus frases).
+  const formas = filas.map((f) => ({ id: f.id, nombre: f.nombre, frases: [...f.hitos].sort((a, b) => a.orden - b.orden).map((h) => h.frase) }));
   const defecto: Record<string, string> = {};
   // El caso de la comunidad manda sobre el de «pague quien pague».
   const peso = (c: { pagador_tipo: string }) => (c.pagador_tipo === "comunidad" ? 1 : 0);
@@ -53,7 +55,9 @@ export async function formasParaHoja(): Promise<{ formas: { id: string; nombre: 
   return { formas, defecto };
 }
 
-export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo): Promise<string> {
+/** Guarda la hoja en borrador. Con versionId SIGUE EL MISMO BORRADOR: se cambian sus lineas (aun no ha salido de casa,
+ *  no hay nada que conservar). Sin el, nace una version nueva. */
+export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, versionId: string | null = null): Promise<string> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) throw new Error("Oportunidad no válida.");
   if (!filas.length) throw new Error("La hoja está vacía.");
   const [[opp], bloques, tipos] = await Promise.all([
@@ -70,15 +74,26 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo):
     if (f.desglose && !idTipo.has(f.desglose)) throw new Error(`El tipo «${f.desglose}» no está en tipos de proyecto.`);
   }
 
-  const [version] = await pedir<{ id: string }[]>("he_versiones_hoja", {
-    method: "POST",
-    headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ oportunidad_id: opp.id, pagador_tipo: "comunidad", pagador_comunidad_id: opp.comunidad_id, comercial_id: opp.comercial_id, generada_por: yo.id, estado: "borrador" }),
-  });
+  let version: { id: string };
+  let viejas: string[] = [];
+  if (versionId) {
+    if (!/^[0-9a-f-]{36}$/.test(versionId)) throw new Error("Borrador no válido.");
+    const [v] = await pedir<{ id: string; oportunidad_id: string; estado: string }[]>(`he_versiones_hoja?select=id,oportunidad_id,estado&id=eq.${versionId}`);
+    if (!v || v.oportunidad_id !== opp.id) throw new Error("Ese borrador no es de esta oportunidad.");
+    if (v.estado !== "borrador") throw new Error("Esa hoja ya no está en borrador: no se puede cambiar.");
+    version = v;
+    viejas = (await pedir<{ id: string }[]>(`he_lineas_compromisos?select=id&version_id=eq.${v.id}&padre_id=is.null`)).map((x) => x.id);
+  } else {
+    [version] = await pedir<{ id: string }[]>("he_versiones_hoja", {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({ oportunidad_id: opp.id, pagador_tipo: "comunidad", pagador_comunidad_id: opp.comunidad_id, comercial_id: opp.comercial_id, generada_por: yo.id, estado: "borrador" }),
+    });
+  }
+  // Los ids se ponen aqui para colgar cada fila de la suya en un solo envio.
+  const uuid = new Map(filas.map((f) => [f.ref, crypto.randomUUID()]));
   try {
-    await pedir("he_estados_hoja", { method: "POST", body: JSON.stringify({ version_id: version.id, estado: "borrador", persona_id: yo.id }) });
-    // Los ids se ponen aqui para colgar cada fila de la suya en un solo envio.
-    const uuid = new Map(filas.map((f) => [f.ref, crypto.randomUUID()]));
+    if (!versionId) await pedir("he_estados_hoja", { method: "POST", body: JSON.stringify({ version_id: version.id, estado: "borrador", persona_id: yo.id }) });
     const lineas = filas.map((f) => ({
       id: uuid.get(f.ref),
       version_id: version.id,
@@ -98,37 +113,46 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo):
     const accesos = filas.flatMap((f) => [...new Set(f.portales)].map((a) => ({ linea_id: uuid.get(f.ref), acceso_id: a })));
     if (accesos.length) await pedir("he_lineas_compromisos_accesos", { method: "POST", body: JSON.stringify(accesos) });
   } catch (e) {
-    // A medias no vale: se quita la version entera (sus lineas caen con ella).
-    await pedir(`he_estados_hoja?version_id=eq.${version.id}`, { method: "DELETE" }).catch(() => {});
-    await pedir(`he_versiones_hoja?id=eq.${version.id}`, { method: "DELETE" }).catch(() => {});
+    // A medias no vale. Nueva: se quita entera (sus lineas caen con ella). El mismo borrador: fuera lo nuevo, queda lo de antes.
+    if (!versionId) {
+      await pedir(`he_estados_hoja?version_id=eq.${version.id}`, { method: "DELETE" }).catch(() => {});
+      await pedir(`he_versiones_hoja?id=eq.${version.id}`, { method: "DELETE" }).catch(() => {});
+    } else {
+      const nuevas = filas.filter((f) => f.padre == null).map((f) => uuid.get(f.ref));
+      await pedir(`he_lineas_compromisos?id=in.(${nuevas.join(",")})`, { method: "DELETE" }).catch(() => {});
+    }
     throw e;
   }
+  // Lo de antes del mismo borrador, fuera (lo de dentro cae con su cabecera).
+  if (viejas.length) await pedir(`he_lineas_compromisos?id=in.(${viejas.join(",")})`, { method: "DELETE" });
+  if (versionId) await pedir(`he_versiones_hoja?id=eq.${version.id}`, { method: "PATCH", body: JSON.stringify({ actualizado_en: new Date().toISOString() }) });
   return version.id;
 }
 
 export type LineaGuardada = {
-  id: string; padre: string | null; bloque: string; desglose: string | null; enPapel: boolean; seCobra: boolean;
-  importe: number | null; porcentaje: number | null; forma: string | null; desglosar: boolean | null; portales: string[];
+  id: string; padre: string | null; bloque: string; nombreBloque: string; desglose: string | null; enPapel: boolean; seCobra: boolean;
+  importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[];
 };
-export type BorradorGuardado = { id: string; creadoEn: string; quien: string | null; lineas: LineaGuardada[] };
+export type BorradorGuardado = { id: string; creadoEn: string; actualizadoEn: string; estado: string; quien: string | null; lineas: LineaGuardada[] };
 
 /** Lo guardado de una opp, leido tal cual de las tablas nuevas: para comprobar que guarda lo que se ve. */
 export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return [];
   const filas = await pedir<{
-    id: string; creado_en: string; quien: { nombre: string } | null;
-    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_propia: string | null; desglosar_precios: boolean | null;
-      bloque: { nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
+    id: string; creado_en: string; actualizado_en: string; estado: string; quien: { nombre: string } | null;
+    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null;
+      bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
   }[]>(
-    `he_versiones_hoja?select=id,creado_en,quien:generada_por(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_propia,desglosar_precios,` +
-      `bloque:bloque_id(nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
+    `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,` +
+      `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
       `&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
   );
   return filas.map((v) => ({
-    id: v.id, creadoEn: v.creado_en, quien: v.quien?.nombre ?? null,
+    id: v.id, creadoEn: v.creado_en, actualizadoEn: v.actualizado_en, estado: v.estado, quien: v.quien?.nombre ?? null,
     lineas: v.lineas.map((l) => ({
-      id: l.id, padre: l.padre_id, bloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "?", desglose: l.desglose?.nombre ?? null,
+      id: l.id, padre: l.padre_id, bloque: l.bloque?.codigo ?? "?", nombreBloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "?", desglose: l.desglose?.nombre ?? null,
       enPapel: l.en_papel, seCobra: l.se_cobra, importe: l.importe == null ? null : Number(l.importe), porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
+      formaId: l.forma_pago_id, formaPropia: l.forma_pago_propia,
       forma: l.forma?.nombre ?? l.forma_pago_propia ?? null, desglosar: l.desglosar_precios, portales: l.accesos.map((a) => a.acceso_id),
     })),
   }));

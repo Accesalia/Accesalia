@@ -11,8 +11,9 @@ export const dynamic = "force-dynamic";
 // CREAR HOJA DE ENCARGO · PRUEBA (Monica, 22-oct-2026): «en un apartado solo para mi, para probarlo con la base».
 // La maqueta validada (docs/figma/hoja-encargo-arbol.md) sobre una opp de verdad: lo que les interesa y el catalogo de
 // bloques salen de la base, con la misma lectura que el generador de hojas (datosHoja); las formas de pago, de
-// he_formas_pago con su caso por defecto (sin caso, en blanco). GUARDA EN BORRADOR en las tablas nuevas (24-oct) y
-// debajo enseña lo guardado, leido de la base, para comprobar que guarda lo que se ve. Solo direccion.
+// he_formas_pago con su caso por defecto (sin caso, en blanco). GUARDA EN BORRADOR en las tablas nuevas (24-oct),
+// PREVISUALIZA el papel y debajo enseña lo guardado, leido de la base; un borrador se abre para seguir editandolo
+// (?borrador=). Solo direccion.
 
 // Lo que les interesa (oportunidad_tipos) -> el paquete del catalogo que lo cubre.
 const PAQUETE: Record<string, string> = {
@@ -23,7 +24,7 @@ const PAQUETE: Record<string, string> = {
   "SATE envolvente completa": "efi", "SATE fachada": "efi", "SATE cubierta": "efi", Aerotermia: "efi", Fotovoltaica: "efi", "Eficiencia energética": "efi",
 };
 
-export default async function HojaPrueba({ searchParams }: { searchParams: Promise<{ opp?: string }> }) {
+export default async function HojaPrueba({ searchParams }: { searchParams: Promise<{ opp?: string; borrador?: string }> }) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/gestiones/hoja-prueba");
   if (!yo.veTodo) redirect("/gestiones");
@@ -42,10 +43,14 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
       importe: b.importe != null ? Number(b.importe) : null,
       forma: fp.defecto[b.codigo] ?? null,
       pct: b.exito?.porcentaje ?? null,
+      titulo: b.titulo,
+      puntos: b.puntos,
     };
   const interesa = [...new Set((d?.interes ?? []).map((t) => PAQUETE[t.nombre]).filter(Boolean))];
   // Los accesos seleccionados en la opp (vivos), con su escalera: de ellos se eligen los portales de cada cosa.
   const accesos = (d?.oportunidades.find((o) => o.id === d.opp.id)?.accesos ?? []).map((a) => ({ id: a.id, texto: a.texto }));
+  // El borrador abierto (solo si sigue en borrador): se carga en la hoja para seguir con el.
+  const abierto = guardadas.find((g) => g.id === sp.borrador && g.estado === "borrador") ?? null;
   const sinPaquete = (d?.interes ?? []).filter((t) => !PAQUETE[t.nombre]).map((t) => t.nombre);
 
   return (
@@ -67,19 +72,28 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
             </span>
           )}
         </div>
+        {d && abierto && (
+          <p className="mt-3 text-sm text-carbon/80">
+            Estás cambiando el <b>borrador del {cuando(abierto.creadoEn)}</b>: al guardar se queda en el mismo.{" "}
+            <a className="font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${d.opp.id}`}>Empezar una hoja nueva</a>
+          </p>
+        )}
         <div className="mt-4">
-          {d ? <ArbolHoja key={d.opp.id} oppId={d.opp.id} defectos={defectos} interesa={interesa} accesos={accesos} formas={fp.formas} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
+          {d ? <ArbolHoja key={`${d.opp.id}|${abierto?.id ?? ""}`} oppId={d.opp.id} defectos={defectos} interesa={interesa} accesos={accesos} formas={fp.formas}
+              comunidad={d.comunidad ? { nombre: d.comunidad.nombre, cif: d.comunidad.cif } : null} municipio={d.comunidad?.municipio ?? null}
+              borrador={abierto ? { id: abierto.id, lineas: abierto.lineas } : null} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
         </div>
-        {d && guardadas.length > 0 && <Guardadas borradores={guardadas} accesos={accesos} />}
+        {d && guardadas.length > 0 && <Guardadas oppId={d.opp.id} abierto={abierto?.id ?? null} borradores={guardadas} accesos={accesos} />}
       </main>
     </div>
   );
 }
 
+const cuando = (iso: string) => new Date(iso).toLocaleString("es-ES", { timeZone: "Europe/Madrid", dateStyle: "short", timeStyle: "short" });
 const mil = (x: number) => Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
 /** Lo guardado de esta opp, tal como ha quedado en he_lineas_compromisos: cada fila colgada de la suya. */
-function Guardadas({ borradores, accesos }: { borradores: BorradorGuardado[]; accesos: { id: string; texto: string }[] }) {
+function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abierto: string | null; borradores: BorradorGuardado[]; accesos: { id: string; texto: string }[] }) {
   const texto = new Map(accesos.map((a) => [a.id, a.texto]));
   const portales = (ids: string[]) =>
     accesos.length > 0 && ids.length === accesos.length && accesos.every((a) => ids.includes(a.id)) ? "todos" : ids.map((i) => texto.get(i) ?? "otro").join(", ");
@@ -98,8 +112,12 @@ function Guardadas({ borradores, accesos }: { borradores: BorradorGuardado[]; ac
       {borradores.map((b) => (
         <div key={b.id} className="mt-4">
           <p className="text-sm text-carbon/80">
-            <b>Borrador</b> del {new Date(b.creadoEn).toLocaleString("es-ES", { timeZone: "Europe/Madrid", dateStyle: "short", timeStyle: "short" })}
+            <b>Borrador</b> del {cuando(b.creadoEn)}
+            {b.actualizadoEn.slice(0, 16) !== b.creadoEn.slice(0, 16) && <> · cambiado el {cuando(b.actualizadoEn)}</>}
             {b.quien && <> · {b.quien}</>} · {b.lineas.length} filas
+            {b.estado === "borrador" && (b.id === abierto
+              ? <span className="ml-3 text-carbon/60">(es el que está abierto arriba)</span>
+              : <a className="ml-3 font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${oppId}&borrador=${b.id}`}>Seguir editando</a>)}
           </p>
           <table className="mt-1 border-collapse text-[13px] tabular-nums">
             <thead>
@@ -108,7 +126,7 @@ function Guardadas({ borradores, accesos }: { borradores: BorradorGuardado[]; ac
             <tbody>
               {enArbol(b.lineas).map(({ l, nivel }) => (
                 <tr key={l.id}>
-                  <td className={`${td} ${nivel === 0 ? "font-bold" : ""}`} style={{ paddingLeft: 8 + nivel * 18 }}>{l.bloque}</td>
+                  <td className={`${td} ${nivel === 0 ? "font-bold" : ""}`} style={{ paddingLeft: 8 + nivel * 18 }}>{l.nombreBloque}</td>
                   <td className={td}>{l.desglose ?? ""}</td>
                   <td className={td}>{l.enPapel ? "sale" : "no sale"}</td>
                   <td className={td}>{l.seCobra ? "sí" : <i className="text-carbon/55">incluido</i>}</td>

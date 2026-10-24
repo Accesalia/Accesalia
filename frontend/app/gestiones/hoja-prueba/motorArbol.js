@@ -3,6 +3,8 @@
 // para probarlo con la base»). Es la logica de la maqueta validada (docs/figma/hoja-encargo-arbol.html y su .md),
 // tal cual, con los importes del CATALOGO DE BLOQUES y las formas de pago de he_formas_pago (con su caso por defecto).
 // GUARDA EN BORRADOR (24-oct): cada fila lleva su bloque (y su tipo si lo pide) y recoger() la pasa a las tablas nuevas.
+// Y ademas (Monica, 24-oct): debajo del boton, POR QUE aun no deja guardar; con varios portales, confirmarlos antes de
+// guardar; PREVISUALIZAR el papel antes de guardar; y SEGUIR EDITANDO un borrador guardado (cargar() lo rehace).
 // Las reglas (que pregunta cada paquete) estan aqui de momento; al implementarlo de verdad pasan al catalogo.
 // Generado desde la maqueta: lo de debajo de «const hoja» es su codigo, cambiando document por la raiz.
 export function montarArbol(root, datos) {
@@ -187,6 +189,7 @@ export function montarArbol(root, datos) {
   }
   
   function pintar() {
+    const cf = document_.getElementById("confirma"); if (cf) cf.innerHTML = "";
     const total = hoja.reduce((s, n) => s + subtotal(n), 0);
     pendientes = [];
     const tb = document_.getElementById("hoja");
@@ -197,21 +200,29 @@ export function montarArbol(root, datos) {
   }
   // Lo que falta para poder guardar: las preguntas sin contestar y, en lo que se cobra, su importe y su forma de pago.
   function faltas() {
-    const f = pendientes.length ? [`Falta contestar: ${pendientes.join(" · ")}`] : [];
-    const sinDatos = [];
+    const f = pendientes.map((t) => `Te falta contestar: ${t}`);
     for (const x of recoger()) {
       if (!x.seCobra) continue;
-      const nombre = buscar(x.ref)?.nombre ?? "";
-      if (x.importe == null && x.porcentaje == null && !x.esTotal && !x.aExito) sinDatos.push(`el importe de «${nombre}»`);
-      if (!x.formaId && !x.formaPropia && !x.sinForma) sinDatos.push(`la forma de pago de «${nombre}»`);
+      const n = buscar(x.ref);
+      const nombre = n?.nombre ?? "";
+      if (x.importe == null && x.porcentaje == null && !x.esTotal && !x.aExito) f.push(`Te falta indicar el precio de «${nombre}»`);
+      if (!x.formaId && !x.formaPropia && !x.sinForma) {
+        const quien = n?.precio && !n.conjunto ? n.precio : n;
+        f.push(quien?.forma === "otra" ? `Te falta escribir cómo se cobra «${nombre}»` : `Te falta elegir cómo se cobra «${nombre}»`);
+      }
     }
-    if (sinDatos.length) f.push(`Falta ${sinDatos.join(" · ")}`);
     return f;
   }
   function avisar() {
     const f = faltas();
-    document_.getElementById("avisos").innerHTML = f.map((x) => `<div class="avisos">${esc(x)}</div>`).join("");
-    document_.getElementById("generar").disabled = !hoja.length || f.length > 0 || guardando;
+    document_.getElementById("avisos").innerHTML = pendientes.length ? `<div class="avisos">Falta contestar: ${esc(pendientes.join(" · "))}</div>` : "";
+    const listo = hoja.length > 0 && f.length === 0;
+    document_.getElementById("faltan").innerHTML = hoja.length && f.length
+      ? `<div class="faltan"><b>Aún no se puede previsualizar ni guardar:</b><ul>${f.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+    document_.getElementById("generar").disabled = !listo || guardando;
+    document_.getElementById("previsualizar").disabled = !listo;
+    if (!listo) { document_.getElementById("confirma").innerHTML = ""; }
+    pintarPrevia(listo);
   }
   // LO QUE SE GUARDA: una fila por cada fila de la tabla, colgada de la suya, con su bloque y los portales que le tocan
   // (los suyos o, si no, los de arriba; por defecto todos). Lo quitado y las preguntas no se guardan: solo lo que queda.
@@ -246,6 +257,199 @@ export function montarArbol(root, datos) {
     return out;
   }
   let guardando = false;
+
+  // ---- VISTA PREVIA: el papel tal como se va a generar (el mismo esqueleto y estilo que el generador de hojas).
+  let previaAbierta = false;
+  const P = datos.papel || {};
+  // Miles con punto siempre (el es-ES del navegador no lo pone en los de cuatro cifras) y dos decimales.
+  const eur2 = (x) => { const [e, d] = (Math.round(Number(x) * 100) / 100).toFixed(2).split("."); return mil(Number(e)) + "," + d; };
+  const precioIva = (x) => `${eur2(x)} € + ${eur2(x * 0.21)} IVA = ${eur2(x * 1.21)} €`;
+  const pctTxt = (x) => String(x).replace(".", ",") + " %";
+  const nombreAcc = (ids) => ACCESOS.filter((a) => ids.includes(a.id)).map((a) => a.texto).join(" · ");
+  const textoForma = (f, nodo) => {
+    if (f.formaPropia) return f.formaPropia;
+    const fp = FORMAS.find((x) => x.id === f.formaId);
+    if (!fp) return "";
+    const t = (fp.frases && fp.frases.length ? fp.frases : [fp.nombre]).join(" · ");
+    return f.porcentaje != null ? t.replace(/el % a éxito/, `el ${pctTxt(f.porcentaje)} de lo concedido`) : t;
+  };
+  function papel() {
+    const fs = recoger();
+    const nodo = (f) => buscar(f.ref);
+    const bloqueDe = (c) => D[c] || {};
+    // De que proyecto es cada fila (su tipo): el suyo o el de la fila de arriba del mismo bloque.
+    const porRef = new Map(fs.map((f) => [f.ref, f]));
+    const tipoDe = (f) => { let x = f; while (x) { if (x.desglose) return x.desglose; const pa = porRef.get(x.padre); x = pa && pa.bloque === f.bloque ? pa : null; } return null; };
+    // Cabecera: un «Proyecto para …» por proyecto (los de arriba y los de un conjunto).
+    const proyectos = fs.filter((f) => f.bloque === "REDACCION PROYECTO" && f.desglose);
+    const cab = proyectos.map((f) => `<div>Proyecto para <b>${esc(f.desglose)}</b> en edificio residencial existente en: <b>${esc(nombreAcc(f.portales) || "…")}</b>${P.municipio ? ", " + esc(P.municipio) : ""}</div>`).join("");
+    // Los parrafos: uno por bloque con texto que sale en el papel (el proyecto, uno por tipo).
+    const vistos = new Set();
+    let parrafos = "";
+    for (const f of fs) {
+      if (!f.enPapel) continue;
+      const b = bloqueDe(f.bloque);
+      if (!b.titulo) continue;
+      const tipo = f.bloque === "REDACCION PROYECTO" ? tipoDe(f) : null;
+      const clave = f.bloque + "|" + (tipo ?? "");
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      let titulo = b.titulo + (tipo ? " DE " + tipo.toUpperCase() : "");
+      let puntos = b.puntos || [];
+      if (f.bloque === "PROYECTO CONJUNTO") {
+        const tipos = fs.filter((x) => x.padre === f.ref && x.desglose).map((x) => (/^SATE/.test(x.desglose) ? x.desglose : x.desglose.toLowerCase()));
+        const lista = tipos.length > 1 ? tipos.slice(0, -1).join(", ") + " y " + tipos.at(-1) : tipos.join("");
+        puntos = puntos.map((x) => (/:\s*$/.test(x) ? x.trim() + " " + lista : x));
+      }
+      parrafos += `<div class="bloque"><b>${esc(titulo)}</b>${puntos.length ? `<ul>${puntos.map((y) => `<li>${esc(y.replace(/^•\s*/, ""))}</li>`).join("")}</ul>` : ""}</div>`;
+    }
+    // El desglose: cada linea que sale, con su precio, su % o «incluido»; el conjunto con los suyos debajo.
+    let total = 0, exito = [];
+    const filas = [];
+    for (const f of fs) {
+      const n = nodo(f);
+      if (!f.enPapel || !n) continue;
+      const esCab = n.t === "cab";
+      if (esCab && !n.precio && !f.esTotal && !n.conjunto) continue;
+      const dentro = !!(n.conPortales && porRef.get(f.padre)?.bloque === "PROYECTO CONJUNTO");
+      const soloTotal = dentro && porRef.get(f.padre)?.desglosar === false;
+      let valor;
+      if (n.conjunto) {
+        const suma = fs.filter((x) => x.padre === f.ref && x.seCobra && x.importe).reduce((t, x) => t + x.importe, 0);
+        valor = precioIva(suma);
+        if (n.desglosar !== false) { filas.push(`<tr><td><b>${esc(n.nombre)}</b></td><td class="r"><b>${valor}</b></td></tr>`); continue; }
+        total += suma;
+        filas.push(`<tr><td><b>${esc(n.nombre)}</b></td><td class="r"><b>${valor}</b></td></tr>`);
+        continue;
+      }
+      if (soloTotal) valor = "<i>incluido en el conjunto</i>";
+      else if (f.seCobra && f.porcentaje != null) { valor = `${pctTxt(f.porcentaje)} de lo concedido + IVA`; exito.push(pctTxt(f.porcentaje) + " de lo concedido"); }
+      else if (f.seCobra && f.aExito) valor = "a éxito";
+      else if (f.seCobra && f.importe) { valor = precioIva(f.importe); total += f.importe; }
+      else valor = "<i>incluido</i>";
+      filas.push(`<tr><td${dentro ? ' style="padding-left:16px"' : ""}>${esc(n.nombre)}</td><td class="r">${valor}</td></tr>`);
+    }
+    const desglose = `<table>${filas.join("")}</table><div class="totalbanda">Total Honorarios Profesionales: ${eur2(total)} €${exito.map((x) => " + " + x).join("")} + IVA</div>`;
+    // La forma de pago: de lo que se cobra en el papel (el conjunto con «solo el total», como una sola cosa).
+    const pagos = fs.filter((f) => f.seCobra && !f.sinForma && (f.formaId || f.formaPropia)).map((f) => `<li>${esc(nodo(f)?.nombre ?? "")}: ${esc(textoForma(f))}</li>`);
+    const pago = pagos.length ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul class="pago">${pagos.join("")}</ul>` : "";
+    const icio = fs.some((f) => f.bloque === "TRAMITACION LICENCIAS") ? P.icio || "" : "";
+    const caja = document.createElement("div");
+    caja.innerHTML = P.esqueleto || "";
+    const pon = (k, h) => { const el = caja.querySelector(`[data-p="${k}"]`); if (el) el.innerHTML = h; };
+    pon("cab", cab); pon("bloques", parrafos); pon("desglose", desglose); pon("icio", icio); pon("pago", pago);
+    const r = caja.querySelector('[data-p="razon"]'); if (r) r.textContent = P.razon || "";
+    const c = caja.querySelector('[data-p="cif"]'); if (c) c.textContent = P.cif || "";
+    return caja.innerHTML;
+  }
+  function pintarPrevia(listo) {
+    const el = document_.getElementById("previa");
+    if (!previaAbierta) { el.innerHTML = ""; return; }
+    el.innerHTML = `<div class="previa-cab"><b>Así quedará la hoja</b> <button type="button" class="accion" id="cerrar-previa">cerrar</button></div>` +
+      (listo ? `<div class="previa"><div class="hoja-papel">${papel()}</div></div>` : `<p class="faltan">Cuando no falte nada, aquí verás la hoja.</p>`);
+  }
+
+  // ---- CONFIRMAR LOS PORTALES (con mas de uno): salen todos por defecto, asi que se validan al guardar.
+  function confirmarPortales() {
+    const lineas = [];
+    const ver = (ns, arriba) => {
+      for (const n of ns) {
+        if (n.t === "preg" || n.t === "opc") { if (n.t !== "preg" || visible(n)) ver(n.creado, arriba); continue; }
+        if (n.quitada) continue;
+        const ps = n.portales || arriba;
+        if (n.t === "cab" && arriba === null) lineas.push([n.nombre, ps]);
+        if (n.conPortales) lineas.push(["— " + n.nombre, ps]);
+        if (n.t === "cab") ver(n.hijos, ps);
+      }
+    };
+    for (const n of hoja) { if (n.quitada) continue; const ps = n.portales || ACCESOS.map((a) => a.id); lineas.push([n.nombre, ps]); ver(n.hijos, ps); }
+    const todos = (ps) => ps.length === ACCESOS.length;
+    document_.getElementById("confirma").innerHTML = `<div class="confirma"><b>Vas a guardarlo así. ¿Seguro que cada cosa aplica a esos portales?</b><ul>` +
+      lineas.map(([n, ps]) => `<li>${esc(n)}: <b>${todos(ps) ? "todos" : "solo"}</b> · ${esc(nombreAcc(ps))}</li>`).join("") +
+      `</ul><button type="button" class="generar" id="si-guardar">Sí, guardar</button> <button type="button" class="secundario" id="no-guardar">No, voy a cambiarlos</button></div>`;
+  }
+  async function guardar() {
+    if (guardando || faltas().length) return;
+    document_.getElementById("confirma").innerHTML = "";
+    guardando = true; avisar();
+    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }) =>
+      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }));
+    await datos.alGuardar?.(filas);
+    guardando = false; avisar();
+  }
+
+  // ---- SEGUIR EDITANDO UN BORRADOR: se rehace el arbol desde lo guardado (los datos mandan). Cada cosa de arriba se
+  // monta como si se añadiera del catalogo, se contestan sus preguntas segun lo que se guardo debajo y se le ponen sus
+  // valores; lo que el paquete trae y no se guardo, sale quitado.
+  const DE_TIPO = Object.fromEntries(Object.entries(TIPO).map(([k, v]) => [v, k]));
+  function cargar(ls) {
+    const hijosG = (id) => ls.filter((l) => l.padre === id);
+    const todosP = (ps) => (ps.length === ACCESOS.length && ACCESOS.every((a) => ps.includes(a.id)) ? null : ps);
+    const contestar = (p, o) => { p.resp = o.txt; p.creado = o.crea ? o.crea() : []; p.creado.forEach((c) => (c.dePreg = p.id)); if (o.nombre) padreDe(p.id).nombre = o.nombre; if (o.desglose) padreDe(p.id).desglose = o.desglose; };
+    const deObra = (n, txt) => { const p = n.hijos.find((h) => h.t === "preg" && esDeObra(h)); const o = p?.opciones.find((x) => x.txt === txt); if (o) contestar(p, o); };
+    function aplicar(n, g) {
+      if (n.t === "linea") {
+        n.cobra = g.seCobra; n.papel = g.enPapel;
+        if (!n.pct) n.importe = g.importe;
+        n.forma = g.formaId || (g.formaPropia ? "otra" : ""); n.formaPropia = g.formaPropia || "";
+      } else {
+        if (n.precio) aplicar(n.precio, g);
+        if (n.conjunto) { n.desglosar = g.desglosar !== false; if (n.desglosar === false) { n.forma = g.formaId || (g.formaPropia ? "otra" : ""); n.formaPropia = g.formaPropia || ""; } }
+      }
+      if (n.conPortales || padreDe(n.id) == null) n.portales = todosP(g.portales);
+    }
+    function ajustar(n, g) {
+      aplicar(n, g);
+      if (n.t !== "cab") return;
+      const usados = new Set();
+      const tomar = (x) => { const c = hijosG(g.id).find((y) => !usados.has(y.id) && y.bloque === x.bloque && (!x.desglose || !y.desglose || y.desglose === x.desglose)); if (c) usados.add(c.id); return c; };
+      const recorrer = (lista) => {
+        for (const x of lista) {
+          if (x.t === "opc") continue;
+          if (x.t === "preg") {
+            if (!visible(x)) continue;
+            if (x.resp == null && !esDeObra(x)) {
+              const si = x.opciones.find((o) => o.crea);
+              const no = x.opciones.find((o) => !o.crea);
+              const bl = si ? si.crea()[0]?.bloque : null;
+              if (si && hijosG(g.id).some((y) => !usados.has(y.id) && y.bloque === bl)) contestar(x, si); else if (no) contestar(x, no);
+            }
+            recorrer(x.creado);
+            continue;
+          }
+          const c = tomar(x);
+          if (c) ajustar(x, c); else x.quitada = true;
+        }
+      };
+      recorrer(n.hijos);
+    }
+    for (const g of hijosG(null)) {
+      let n = null, clase = null;
+      if (g.bloque === "REDACCION PROYECTO") {
+        const t = DE_TIPO[g.desglose] ?? g.desglose;
+        if (g.desglose === "Ascensor") n = proyecto.asc();
+        else if (/^SATE/.test(g.desglose || "")) { n = proyecto.efi(); n.hijos[0].resp = null; n.tipoG = t; }
+        else { n = proyecto.acc(); n.tipoG = t; }
+        clase = "proyecto";
+      } else if (g.bloque === "PROYECTO CONJUNTO") {
+        n = proyecto.con(); clase = "proyecto";
+        const q = n.hijos[0];
+        q.marcadas = hijosG(g.id).filter((y) => y.bloque === "REDACCION PROYECTO" && y.desglose).map((y) => DE_TIPO[y.desglose] ?? y.desglose);
+        q.resp = q.marcadas.join(" + "); n.nombre = "Proyecto conjunto: " + q.resp; q.alHecho();
+      } else if (g.bloque === "TRAMITACION SUBVENCIONES") {
+        n = subvencion(); clase = "servicio";
+      } else {
+        for (const [, cl, items] of CATALOGO) for (const [, hacer] of items) { if (n) break; const m = hacer(); if (m.bloque === g.bloque && m.bloque !== "REDACCION PROYECTO") { n = m; clase = cl; } }
+      }
+      if (!n) continue;
+      n.clase = clase;
+      hoja.push(n);
+      // El tipo se contesta con la cabecera ya en la hoja (la respuesta le pone su nombre).
+      if (n.tipoG) deObra(n, n.tipoG);
+      if (g.bloque === "TRAMITACION SUBVENCIONES") deObra(n, g.desglose);
+      ajustar(n, g);
+    }
+  }
   function caesQueSePregunta() { return todos().find((x) => x.caes && !x.quitada && !estaQuitado(x.id) && (!x.cond || x.cond())) ?? null; }
   // EL ARBOL: una linea vertical baja de cada cabecera y se ramifica hacia cada una de sus lineas, hasta la ultima.
   const PASO = 22, X0 = 12;
@@ -337,14 +541,15 @@ export function montarArbol(root, datos) {
     const t = e.target;
     if (t.dataset && t.dataset.imp) { buscar(t.dataset.imp).importe = Number(t.value.replace(/\./g, "").replace(",", ".")) || 0; pintar(); }
   });
-  root.querySelector("#generar").addEventListener("click", async () => {
-    if (guardando || faltas().length) return;
-    guardando = true; avisar();
-    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }) =>
-      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales }));
-    await datos.alGuardar?.(filas);
-    guardando = false; avisar();
+  root.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "generar") { if (faltas().length) return; if (ACCESOS.length > 1) confirmarPortales(); else guardar(); }
+    else if (b.id === "si-guardar") guardar();
+    else if (b.id === "no-guardar") document_.getElementById("confirma").innerHTML = "";
+    else if (b.id === "previsualizar") { previaAbierta = true; avisar(); document_.getElementById("previa").scrollIntoView?.({ behavior: "smooth", block: "start" }); }
+    else if (b.id === "cerrar-previa") { previaAbierta = false; avisar(); }
   }, { signal: ac.signal });
+  if (datos.inicial && datos.inicial.length) cargar(datos.inicial);
   pintarCatalogo();
   pintar();
   return () => ac.abort();
