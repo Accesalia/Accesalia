@@ -2,11 +2,12 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* La lista de formas de pago de la hoja de encargo: vigentes arriba, añadir una nueva, desactivadas abajo.
-   Mismo lenguaje que la maqueta de la hoja (rejilla fina sobre blanco, letra compacta); lo nuevo en amarillo, como en la app. */
+   Mismo lenguaje que la maqueta de la hoja (rejilla fina sobre blanco, letra compacta); lo nuevo en amarillo, como en la app.
+   El formulario es una conversacion: preguntas en orden, con lo propuesto ya escrito. */
 :root {
-  --fondo: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --apagado: rgba(43,43,43,.38);
-  --rejilla: #cfd4c9; --cab: #e6ecdf; --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
-  --nuevo: #fff5cc; --nuevo-borde: #e9c44a; --ambar-txt: #6b4105; --exito: #1f4f86; --exito-bg: #e3ecf7;
+  --fondo: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --apagado: rgba(43,43,43,.4);
+  --rejilla: #cfd4c9; --cab: #e6ecdf; --lima: #7ac943; --lima-dark: #3f7a1c;
+  --nuevo: #fff5cc; --nuevo-borde: #e9c44a; --ambar-txt: #6b4105; --exito: #1f4f86;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -22,43 +23,55 @@ a.salida { color: var(--tinta2); text-decoration: none; font-size: 12.5px; font-
 h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--tinta2); margin: 18px 0 6px; }
 .marco { overflow-x: auto; }
 table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
-th, td { border: 1px solid var(--rejilla); padding: 4px 7px; text-align: left; vertical-align: middle; }
+th, td { border: 1px solid var(--rejilla); padding: 4px 8px; text-align: left; vertical-align: top; }
 th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
-td.nombre { font-weight: 600; max-width: 420px; }
+td.nombre { font-weight: 600; max-width: 260px; }
+td.papel { max-width: 340px; }
 td.nombre .papel { display: block; font-weight: 400; font-size: 12px; color: var(--tinta2); }
-td.num { text-align: right; white-space: nowrap; width: 1%; }
-td.acc { width: 1%; white-space: nowrap; }
-td.papel { color: var(--tinta2); max-width: 380px; }
 td.notas { max-width: 230px; }
-.hitos { display: flex; flex-wrap: nowrap; gap: 3px; }
-.hito { border: 1px solid var(--rejilla); border-radius: 4px; padding: 0 6px; white-space: nowrap; background: #fff; }
+td.num, td.acc { white-space: nowrap; }
+.hitos { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .hito b { font-weight: 700; }
-.hito.exito { background: var(--exito-bg); border-color: transparent; color: var(--exito); }
-.enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
-tr.apagada td { color: var(--apagado); }
-tr.apagada .hito { color: var(--apagado); background: #fafafa; }
-.vacio { color: var(--tinta2); font-style: italic; }
+.hito .n { color: var(--apagado); margin-right: 4px; }
+.hito.exito { color: var(--exito); }
 .reglas { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .regla b { font-weight: 600; }
-.tabla-reglas { width: auto; background: #fff; margin-top: 4px; }
-.choque { color: var(--ambar-txt); font-size: 12px; }
+.enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
+tr.apagada td { color: var(--apagado); }
+.vacio { color: var(--tinta2); font-style: italic; }
 
-/* El formulario de una nueva: en amarillo, lo que se esta creando */
-.nueva { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-.nueva-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
-.nueva-cab h3 { margin: 0; font-size: 14px; flex: 1 1 auto; }
-.campos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 8px 14px; margin-top: 10px; }
-@media (max-width: 720px) { .campos { grid-template-columns: minmax(0, 1fr); } }
-label.campo { display: grid; gap: 2px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); font-weight: 700; }
-label.campo.ancho { grid-column: 1 / -1; }
-input[type="text"], select { font: inherit; border: 1px solid var(--rejilla); border-radius: 4px; padding: 3px 6px; background: #fff; color: var(--tinta); }
-label.campo input { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 13px; width: 100%; }
-.tabla-hitos { width: auto; background: #fff; }
-.tabla-hitos input.pct { width: 64px; text-align: right; }
-.tabla-hitos input:disabled { background: #f3f3f0; color: var(--apagado); }
-.suma { margin-top: 6px; font-weight: 600; }
+/* El formulario, como una conversacion */
+.nueva { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; max-width: 900px; }
+.nueva-cab { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; }
+.nueva-cab div { flex: 1 1 380px; min-width: 0; }
+.nueva-cab h3 { margin: 0; font-size: 15px; }
+.aviso { margin: 3px 0 0; color: var(--ambar-txt); max-width: 70ch; }
+.intro { margin: 14px 0 6px; font-weight: 600; }
+.pregunta { margin: 12px 0 0; }
+.pregunta > .q { display: block; font-weight: 600; margin-bottom: 4px; }
+.pregunta > .q .num { color: var(--ambar-txt); margin-right: 6px; }
+.pista { color: var(--tinta2); font-size: 12px; margin-left: 6px; font-weight: 400; }
+input[type="text"], select { font: inherit; border: 1px solid var(--rejilla); border-radius: 4px; padding: 4px 7px; background: #fff; color: var(--tinta); }
+input.ancho { width: min(100%, 620px); }
+.hito-form { border-left: 3px solid var(--nuevo-borde); padding: 4px 0 6px 12px; margin: 10px 0 0 4px; }
+.hito-form h4 { margin: 0 0 4px; font-size: 13px; }
+.sub { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 4px 12px; align-items: center; margin-top: 4px; }
+@media (max-width: 640px) { .sub { grid-template-columns: minmax(0, 1fr); } }
+.sub input[type="text"]:not(.pct) { width: min(100%, 420px); }
+.sub select { justify-self: start; min-width: 160px; }
+.pct { width: 70px; text-align: right; }
+.check { display: inline-flex; gap: 5px; align-items: center; margin-left: 10px; color: var(--tinta2); }
+.suma { margin-top: 8px; font-weight: 600; }
 .suma.mal { color: var(--ambar-txt); }
 .suma.bien { color: var(--lima-dark); }
+.sino { display: inline-flex; border: 1px solid var(--rejilla); border-radius: 6px; overflow: hidden; }
+.sino button { font: inherit; font-weight: 600; border: 0; background: #fff; padding: 3px 14px; cursor: pointer; color: var(--tinta2); }
+.sino button + button { border-left: 1px solid var(--rejilla); }
+.sino button[aria-pressed="true"] { background: var(--lima); color: var(--tinta); }
+.casos { margin-top: 8px; }
+.caso { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 14px; padding: 6px 0; border-top: 1px dashed var(--nuevo-borde); }
+.caso label { display: grid; gap: 2px; font-weight: 600; }
+.choque { color: var(--ambar-txt); font-size: 12px; flex-basis: 100%; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 1px; }
 </style>
 
@@ -74,20 +87,20 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 
   <h2>Vigentes</h2>
   <div class="marco"><table>
-    <thead><tr><th>Nombre · cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <thead><tr><th>Cómo le sale al comercial</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th></th></tr></thead>
     <tbody id="vigentes"></tbody>
   </table></div>
 
   <h2>Desactivadas</h2>
   <div class="marco"><table>
-    <thead><tr><th>Nombre · cómo sale en la hoja</th><th>Hitos</th><th>Sale por defecto cuando</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <thead><tr><th>Cómo le salía al comercial</th><th>Cómo salía en la hoja</th><th>Hitos</th><th>Notas</th><th>Salió en</th><th></th></tr></thead>
     <tbody id="desactivadas"></tbody>
   </table></div>
 </div>
 
 <script>
 // Maqueta. Las formas son los repartos que de verdad se han firmado (de las lineas de facturacion), con cuantas lineas
-// los llevan; los nombres y los textos para el papel los forma la pagina con las frases de siempre de cada momento.
+// los llevan; los nombres, los textos para el papel y las reglas por defecto son de ejemplo.
 const MOMENTOS = {
   encargo: ["encargo", "a la contratación"],
   entrega: ["entrega", "a la entrega del proyecto"],
@@ -101,13 +114,16 @@ const MOMENTOS = {
 };
 const PAGADORES = ["cualquiera", "la comunidad", "un particular", "FAIN", "Elecnor", "Schindler", "Envoltermia", "Iberdrola"];
 const BLOQUES = ["Proyecto", "CSS", "DF", "IEE", "Libro del edificio", "CEE", "Doc. técnica subvenciones", "Subvención", "Memoria técnica", "Informe técnico", "Informe pericial", "Consulta urbanística", "3 presupuestos", "CAES"];
-const R = (pagador, bloque) => ({ pagador, bloque });
+const ORDINAL = ["Primer", "Segundo", "Tercer", "Cuarto"];
 const pct = (n) => String(n).replace(".", ",") + " %";
-const nombreDe = (hs) => hs.map((h) => h.tipo === "exito" ? `${MOMENTOS[h.m][0]} a éxito` : `${pct(h.p)} ${MOMENTOS[h.m][0]}`).join(" · ");
-const textoDe = (hs) => hs.map((h) => h.tipo === "exito" ? `el % a éxito, ${MOMENTOS[h.m][1]}` : `${pct(h.p)} ${MOMENTOS[h.m][1]}`).join(" · ");
-const F = (hs, lineas, notas = "", reglas = []) => ({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nombreDe(hs), texto: textoDe(hs), lineas, notas, reglas, activa: true });
-const fijo = (m, p) => ({ m, tipo: "fijo", p });
-const exito = (m) => ({ m, tipo: "exito", p: null });
+const vacioP = (p) => p === "" || p == null;
+const fraseDe = (h) => h.exito ? `el % a éxito, ${MOMENTOS[h.m][1]}` : `${vacioP(h.p) ? "…" : pct(h.p)} ${MOMENTOS[h.m][1]}`;
+const nombreDe = (hs) => hs.map((h) => h.exito ? `${MOMENTOS[h.m][0]} a éxito` : `${vacioP(h.p) ? "…" : pct(h.p)} ${MOMENTOS[h.m][0]}`).join(" · ");
+const R = (pagador, bloque) => ({ pagador, bloque });
+const fijo = (m, p) => ({ m, p, exito: false });
+const exito = (m) => ({ m, p: null, exito: true });
+let sec = 0;
+const F = (hs, lineas, notas = "", reglas = []) => ({ id: "f" + ++sec, hitos: hs, nombre: nombreDe(hs), texto: hs.map(fraseDe).join(" · "), lineas, notas, reglas, activa: true });
 
 const formas = [
   F([fijo("encargo", 100)], 325, "", [R("cualquiera", "IEE"), R("cualquiera", "Doc. técnica subvenciones")]),
@@ -117,7 +133,7 @@ const formas = [
   F([fijo("entrega", 100)], 125, "", [R("Schindler", "Proyecto")]),
   F([fijo("adjudicacion", 100)], 100, "Los 3 presupuestos de Ecobalance", [R("cualquiera", "3 presupuestos")]),
   F([fijo("pss", 100)], 75, "La habitual de la CSS", [R("la comunidad", "CSS")]),
-  F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo + el % a éxito", [R("cualquiera", "Subvención")]),
+  F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo y el % a éxito", [R("cualquiera", "Subvención")]),
   F([exito("concesion")], 53, "Subvención: solo a éxito"),
   F([fijo("concesion", 100)], 51),
   F([fijo("entrega", 60), fijo("licencia", 20), fijo("cfo", 20)], 42),
@@ -127,84 +143,100 @@ const formas = [
   F([fijo("encargo", 50), fijo("cfo", 50)], 11),
   F([fijo("encargo", 25), fijo("entrega", 50), fijo("cfo", 25)], 10),
 ];
-// Una de ejemplo ya desactivada: la vieja de la subvencion, que se partio en dos el 14-oct.
-const vieja = { id: "vieja", reglas: [], hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false };
-formas.push(vieja);
+// De ejemplo, una ya desactivada: la vieja de la subvencion, que se partio en dos el 14-oct.
+formas.push({ id: "vieja", reglas: [], hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false });
 
-let nueva = null; // el formulario abierto
-
-const chips = (hs) => `<div class="hitos">${hs.map((h) => h.tipo === "exito"
-  ? `<span class="hito exito">${MOMENTOS[h.m][0]} · <b>a éxito</b></span>`
-  : `<span class="hito">${MOMENTOS[h.m][0]} · <b>${pct(h.p)}</b></span>`).join("")}</div>`;
-const reglasDe = (rs) => rs.length ? `<div class="reglas">${rs.map((r) => `<span class="regla">${r.pagador === "cualquiera" ? "cualquier pagador" : `paga <b>${r.pagador}</b>`} · <b>${r.bloque}</b></span>`).join("")}</div>` : `<span class="vacio">—</span>`;
-// Si otra forma vigente ya sale por defecto con esa misma regla: se avisa (al guardar, la nueva la sustituye).
-const choqueDe = (r, yo) => formas.find((f) => f.activa && f !== yo && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
-const fila = (f) => `<tr class="${f.activa ? "" : "apagada"}"><td class="nombre">${f.nombre}<span class="papel">${f.texto}</span></td><td>${chips(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td><td class="num">${f.lineas ? f.lineas.toLocaleString("es-ES") : "—"}</td>` +
-  `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">${f.activa ? "desactivar" : "reactivar"}</button></td></tr>`;
+const hitosDe = (hs) => `<div class="hitos">${hs.map((h, i) => `<span class="hito${h.exito ? " exito" : ""}"><span class="n">${i + 1}.</span>${MOMENTOS[h.m][0]} · <b>${h.exito ? "a éxito" : pct(h.p)}</b></span>`).join("")}</div>`;
+const reglasDe = (rs) => rs.length ? `<div class="reglas">${rs.map((r) => `<span class="regla"><b>${r.bloque}</b> · ${r.pagador === "cualquiera" ? "pague quien pague" : `si paga <b>${r.pagador}</b>`}</span>`).join("")}</div>` : `<span class="vacio">solo a mano</span>`;
+const choqueDe = (r) => formas.find((f) => f.activa && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
 
 function pintarListas() {
   const v = formas.filter((f) => f.activa), d = formas.filter((f) => !f.activa);
-  document.getElementById("vigentes").innerHTML = v.map(fila).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
-  document.getElementById("desactivadas").innerHTML = d.map(fila).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
+  document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
+    `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">desactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
+  // En las desactivadas, cuantas lineas la llevaron: es el rastro para el historico.
+  document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
+    `<td class="num">${f.lineas ? `${f.lineas.toLocaleString("es-ES")} líneas antes de desactivarla` : "ninguna línea"}</td><td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">reactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
 }
 
-// Lo que pide el formulario: solo los hitos. Nombre y texto los propone la pagina (se pueden retocar).
+// EL FORMULARIO: las preguntas, en orden. Lo propuesto ya va escrito; si se cambia a mano, se respeta.
+let nueva = null;
+const nuevaVacia = () => ({ hitos: [fijo("encargo", 50), fijo("entrega", 50)], nombre: "", texto: "", nombreAMano: false, textoAMano: false, porDefecto: null, reglas: [R("la comunidad", "Proyecto")], notas: "" });
 function comprobar(n) {
-  const fijos = n.hitos.filter((h) => h.tipo === "fijo"), exitos = n.hitos.filter((h) => h.tipo === "exito");
+  const fijos = n.hitos.filter((h) => !h.exito), exitos = n.hitos.filter((h) => h.exito);
   const suma = Math.round(fijos.reduce((s, h) => s + (Number(h.p) || 0), 0) * 100) / 100;
-  if (!n.hitos.length) return { ok: false, txt: "Añade al menos un hito." };
-  if (exitos.length > 1) return { ok: false, txt: "Solo puede haber un hito a éxito." };
-  if (fijos.some((h) => !(Number(h.p) > 0))) return { ok: false, txt: "Cada hito fijo necesita su %." };
-  if (fijos.length && suma !== 100) return { ok: false, txt: suma < 100 ? `Los fijos suman ${pct(suma)}: faltan ${pct(Math.round((100 - suma) * 100) / 100)}.` : `Los fijos suman ${pct(suma)}: sobran ${pct(Math.round((suma - 100) * 100) / 100)}.` };
-  return { ok: true, txt: fijos.length ? "Los fijos suman 100 %." : "Solo a éxito: el % lo lleva cada línea." };
+  if (exitos.length > 1) return { ok: false, bien: false, txt: "Solo un hito puede ser a éxito." };
+  if (fijos.some((h) => !(Number(h.p) > 0))) return { ok: false, bien: false, txt: "Falta el porcentaje de algún hito." };
+  if (fijos.length && suma !== 100) return { ok: false, bien: false, txt: suma < 100 ? `Entre todos suman ${pct(suma)}: faltan ${pct(Math.round((100 - suma) * 100) / 100)} para llegar al 100 %.` : `Entre todos suman ${pct(suma)}: sobran ${pct(Math.round((suma - 100) * 100) / 100)}.` };
+  const txt = fijos.length ? "Entre todos suman el 100 %." : "Es solo a éxito: el % lo pone cada línea.";
+  return { ok: n.porDefecto != null, bien: true, txt };
 }
 function pintarFormulario() {
   const c = document.getElementById("formulario");
   if (!nueva) { c.innerHTML = ""; return; }
-  if (!nueva.nombreAMano) nueva.nombre = nombreDe(nueva.hitos.filter((h) => h.tipo === "exito" || Number(h.p) > 0));
-  if (!nueva.textoAMano) nueva.texto = textoDe(nueva.hitos.filter((h) => h.tipo === "exito" || Number(h.p) > 0));
+  nueva.hitos.forEach((h) => { if (!h.fraseAMano) h.frase = fraseDe(h); });
+  if (!nueva.nombreAMano) nueva.nombre = nombreDe(nueva.hitos);
+  if (!nueva.textoAMano) nueva.texto = nueva.hitos.map((h) => h.frase).join(" · ");
   const ok = comprobar(nueva);
-  const ops = (sel) => Object.entries(MOMENTOS).map(([k, [n]]) => `<option value="${k}"${k === sel ? " selected" : ""}>${n}</option>`).join("");
+  const ops = (lista, sel) => lista.map((x) => `<option${x === sel ? " selected" : ""}>${x}</option>`).join("");
+  const opsM = (sel) => Object.entries(MOMENTOS).map(([k, [n]]) => `<option value="${k}"${k === sel ? " selected" : ""}>${n}</option>`).join("");
   c.innerHTML = `<section class="nueva" aria-label="Nueva forma de pago">
-    <div class="nueva-cab"><h3>Nueva forma de pago</h3>
+    <div class="nueva-cab">
+      <div><h3>Estás creando una forma de pago nueva</h3>
+        <p class="aviso">Si haces esto es porque es habitual. No añadas todas: si no, la lista que elige el comercial será excesivamente larga.</p></div>
       <button type="button" class="boton sec" id="cancelar">Cancelar</button>
-      <button type="button" class="boton" id="guardar"${ok.ok ? "" : " disabled"}>Guardar</button></div>
-    <table class="tabla-hitos"><thead><tr><th>Momento</th><th>Tipo</th><th>%</th><th></th></tr></thead><tbody>
-      ${nueva.hitos.map((h, i) => `<tr><td><select id="m${i}" data-i="${i}" data-campo="m" aria-label="Momento">${ops(h.m)}</select></td>
-        <td><select id="t${i}" data-i="${i}" data-campo="tipo" aria-label="Tipo"><option value="fijo"${h.tipo === "fijo" ? " selected" : ""}>fijo</option><option value="exito"${h.tipo === "exito" ? " selected" : ""}>a éxito</option></select></td>
-        <td><input type="text" class="pct" id="p${i}" data-i="${i}" data-campo="p" value="${h.tipo === "exito" ? "" : h.p ?? ""}"${h.tipo === "exito" ? " disabled placeholder=\"el de la línea\"" : ""} inputmode="decimal" aria-label="Porcentaje"></td>
-        <td><button type="button" class="enlace" data-quita="${i}" aria-label="Quitar hito">quitar</button></td></tr>`).join("")}
-    </tbody></table>
-    <button type="button" class="enlace" id="mas" style="margin-top:6px">+ añadir hito</button>
-    <div class="suma ${ok.ok ? "bien" : "mal"}">${ok.txt}</div>
-    <h2 style="margin-top:12px">Sale por defecto cuando</h2>
-    <table class="tabla-reglas"><thead><tr><th>Quién paga</th><th>Bloque</th><th></th></tr></thead><tbody>
-      ${nueva.reglas.map((r, i) => { const c = choqueDe(r, null); return `<tr><td><select id="rp${i}" data-r="${i}" data-campo="pagador" aria-label="Quién paga">${PAGADORES.map((x) => `<option${x === r.pagador ? " selected" : ""}>${x}</option>`).join("")}</select></td>
-        <td><select id="rb${i}" data-r="${i}" data-campo="bloque" aria-label="Bloque">${BLOQUES.map((x) => `<option${x === r.bloque ? " selected" : ""}>${x}</option>`).join("")}</select>
-        ${c ? `<span class="choque">ahora sale «${c.nombre}»: esta la sustituye</span>` : ""}</td>
-        <td><button type="button" class="enlace" data-quitar="${i}">quitar</button></td></tr>`; }).join("") || `<tr><td colspan="3" class="vacio">Ninguna: solo se elige a mano.</td></tr>`}
-    </tbody></table>
-    <button type="button" class="enlace" id="masregla" style="margin-top:6px">+ añadir regla</button>
-    <div class="campos">
-      <label class="campo">Nombre (para elegirla)<input type="text" id="nombre" value="${nueva.nombre}"></label>
-      <label class="campo">Cómo sale en la hoja<input type="text" id="texto" value="${nueva.texto}"></label>
-      <label class="campo ancho">Notas (opcional)<input type="text" id="notas" value="${nueva.notas}" placeholder="Para qué es o quién la usa"></label>
-    </div></section>`;
+      <button type="button" class="boton" id="guardar"${ok.ok ? "" : " disabled"}>Guardar</button>
+    </div>
+    <p class="intro">Vamos a describir la nueva forma de pago:</p>
+
+    <div class="pregunta"><span class="q"><span class="num">1</span>¿Cómo debe aparecerle al comercial en pantalla?<span class="pista">Te propongo este nombre; puedes cambiarlo.</span></span>
+      <input type="text" class="ancho" id="nombre" value="${nueva.nombre}"></div>
+
+    <div class="pregunta"><span class="q"><span class="num">2</span>¿Cómo debe salir en la hoja de encargo, para la comunidad o la contrata?<span class="pista">Se forma solo con lo que pongas en cada hito.</span></span>
+      <input type="text" class="ancho" id="texto" value="${nueva.texto}"></div>
+
+    <div class="pregunta"><span class="q"><span class="num">3</span>Vamos a definir qué hitos tiene.</span>
+      <div class="sub"><span>¿Cuántos hitos son?</span><select id="cuantos" aria-label="Cuántos hitos">${[1, 2, 3, 4].map((x) => `<option${x === nueva.hitos.length ? " selected" : ""}>${x}</option>`).join("")}</select></div>
+      ${nueva.hitos.map((h, i) => `<div class="hito-form"><h4>${ORDINAL[i]} hito</h4>
+        <div class="sub"><span>¿En qué momento lo vamos a cobrar?</span><select id="m${i}" data-i="${i}" data-campo="m" aria-label="Momento">${opsM(h.m)}</select></div>
+        <div class="sub"><span>¿Qué porcentaje del importe de la línea vamos a cobrar aquí?</span>
+          <span><input type="text" class="pct" id="p${i}" data-i="${i}" data-campo="p" inputmode="decimal" value="${h.exito ? "" : h.p ?? ""}"${h.exito ? " disabled" : ""} aria-label="Porcentaje"> %
+          <label class="check"><input type="checkbox" id="e${i}" data-i="${i}" data-campo="exito"${h.exito ? " checked" : ""}> es a éxito (el % lo pone cada línea)</label></span></div>
+        <div class="sub"><span>¿Cómo quieres que aparezca en la hoja de encargo?<span class="pista">Mi propuesta es esta:</span></span><input type="text" id="f${i}" data-i="${i}" data-campo="frase" value="${h.frase}" aria-label="Cómo aparece en la hoja"></div>
+      </div>`).join("")}
+      <div class="suma ${ok.bien ? "bien" : "mal"}">${ok.txt}</div>
+    </div>
+
+    <div class="pregunta"><span class="q"><span class="num">4</span>¿Quieres que salga por defecto en algún caso?</span>
+      <span class="sino" role="group"><button type="button" data-def="si" aria-pressed="${nueva.porDefecto === true}">Sí</button><button type="button" data-def="no" aria-pressed="${nueva.porDefecto === false}">No</button></span>
+      ${nueva.porDefecto ? `<p style="margin:8px 0 0">Vamos a definir cuándo y con quién la pondremos por defecto:</p><div class="casos">
+        ${nueva.reglas.map((r, i) => { const ch = choqueDe(r); return `<div class="caso">
+          <label>¿A qué proyecto o servicio?<select id="rb${i}" data-r="${i}" data-campo="bloque">${ops(BLOQUES, r.bloque)}</select></label>
+          <label>¿Cuando el que paga es…?<select id="rp${i}" data-r="${i}" data-campo="pagador">${ops(PAGADORES, r.pagador)}</select></label>
+          ${nueva.reglas.length > 1 ? `<button type="button" class="enlace" data-quitar="${i}">quitar este caso</button>` : ""}
+          ${ch ? `<span class="choque">Ahora, en este caso sale «${ch.nombre}». Si guardas, saldrá esta en su lugar.</span>` : ""}</div>`; }).join("")}
+        <button type="button" class="enlace" id="masregla" style="margin-top:6px">+ añadir otro caso</button></div>` : ""}
+    </div>
+
+    <div class="pregunta"><span class="q">Notas<span class="pista">Opcional: para qué es o quién la usa.</span></span>
+      <input type="text" class="ancho" id="notas" value="${nueva.notas}"></div>
+  </section>`;
 }
 
+const ajustar = (n, k) => { while (n.hitos.length < k) n.hitos.push(fijo("cfo", "")); n.hitos.length = k; };
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b || b.disabled) return;
-  if (b.id === "abrir") { nueva = { hitos: [fijo("encargo", 50), fijo("entrega", "")], reglas: [], nombre: "", texto: "", notas: "", nombreAMano: false, textoAMano: false }; }
+  if (b.id === "abrir") nueva = nuevaVacia();
   else if (b.id === "cancelar") nueva = null;
-  else if (b.id === "mas") nueva.hitos.push(fijo("entrega", ""));
-  else if (b.dataset.quita) nueva.hitos.splice(Number(b.dataset.quita), 1);
+  else if (b.dataset.def) nueva.porDefecto = b.dataset.def === "si";
   else if (b.id === "masregla") nueva.reglas.push(R("la comunidad", "Proyecto"));
   else if (b.dataset.quitar) nueva.reglas.splice(Number(b.dataset.quitar), 1);
   else if (b.id === "guardar") {
-    const hs = nueva.hitos.map((h) => ({ ...h, p: h.tipo === "exito" ? null : Number(String(h.p).replace(",", ".")) }));
-    // Las reglas que ya tenia otra forma pasan a esta: cada regla da UNA forma por defecto.
-    for (const r of nueva.reglas) for (const f of formas) f.reglas = f.reglas.filter((x) => !(x.pagador === r.pagador && x.bloque === r.bloque));
-    formas.unshift({ id: Math.random().toString(36).slice(2), hitos: hs, reglas: nueva.reglas, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
+    const hs = nueva.hitos.map((h) => ({ m: h.m, exito: h.exito, p: h.exito ? null : Number(String(h.p).replace(",", ".")) }));
+    const reglas = nueva.porDefecto ? nueva.reglas : [];
+    // Cada caso (proyecto o servicio + quien paga) da UNA forma por defecto: si otra lo tenia, pasa a esta.
+    for (const r of reglas) for (const f of formas) f.reglas = f.reglas.filter((x) => !(x.pagador === r.pagador && x.bloque === r.bloque));
+    formas.unshift({ id: "f" + ++sec, hitos: hs, reglas, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
     nueva = null;
   }
   else if (b.dataset.cambia) { const f = formas.find((x) => x.id === b.dataset.cambia); f.activa = !f.activa; }
@@ -213,23 +245,21 @@ document.addEventListener("click", (e) => {
 });
 document.addEventListener("change", (e) => {
   const t = e.target; if (!nueva) return;
-  if (t.dataset.r !== undefined) { nueva.reglas[Number(t.dataset.r)][t.dataset.campo] = t.value; pintarFormulario(); return; }
-  if (t.dataset.i === undefined) return;
-  const h = nueva.hitos[Number(t.dataset.i)];
-  if (t.dataset.campo === "m") h.m = t.value;
-  if (t.dataset.campo === "tipo") { h.tipo = t.value; if (h.tipo === "exito") { h.m = "concesion"; h.p = null; } else h.p = ""; }
+  if (t.id === "cuantos") ajustar(nueva, Number(t.value));
+  else if (t.dataset.r !== undefined) nueva.reglas[Number(t.dataset.r)][t.dataset.campo] = t.value;
+  else if (t.dataset.campo === "m") nueva.hitos[Number(t.dataset.i)].m = t.value;
+  else if (t.dataset.campo === "exito") { const h = nueva.hitos[Number(t.dataset.i)]; h.exito = t.checked; if (h.exito) { h.p = null; if (h.m === "encargo") h.m = "concesion"; } else h.p = ""; }
+  else return;
   pintarFormulario();
 });
 document.addEventListener("input", (e) => {
   const t = e.target; if (!nueva) return;
-  if (t.dataset.campo === "p") {
-    nueva.hitos[Number(t.dataset.i)].p = t.value.replace(",", ".");
-    const id = t.id, pos = t.selectionStart; pintarFormulario();
-    const n = document.getElementById(id); n.focus(); n.setSelectionRange(pos, pos);
-  }
-  if (t.id === "nombre") { nueva.nombre = t.value; nueva.nombreAMano = true; }
-  if (t.id === "texto") { nueva.texto = t.value; nueva.textoAMano = true; }
-  if (t.id === "notas") nueva.notas = t.value;
+  const repinta = () => { const id = t.id, pos = t.selectionStart; pintarFormulario(); const n = document.getElementById(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } };
+  if (t.dataset.campo === "p") { nueva.hitos[Number(t.dataset.i)].p = t.value.replace(",", "."); repinta(); }
+  else if (t.dataset.campo === "frase") { const h = nueva.hitos[Number(t.dataset.i)]; h.frase = t.value; h.fraseAMano = true; if (!nueva.textoAMano) { nueva.texto = nueva.hitos.map((x) => x.frase).join(" · "); document.getElementById("texto").value = nueva.texto; } }
+  else if (t.id === "nombre") { nueva.nombre = t.value; nueva.nombreAMano = true; }
+  else if (t.id === "texto") { nueva.texto = t.value; nueva.textoAMano = true; }
+  else if (t.id === "notas") nueva.notas = t.value;
 });
 pintarListas();
 </script>
