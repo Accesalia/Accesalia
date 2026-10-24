@@ -33,6 +33,9 @@ export type Historico = {
   /** Los meses con extracto (enteros) de cada una: desde / hasta, AAAA-MM. */
   conGastos: Record<Clave, { desde: string; hasta: string } | null>;
   e: Record<Clave, { facturado: PorAno; gastos: PorAno; impuestos: PorAno; personal: PorAno; internas: PorAno; resultado: PorAno; gastosSinIva: PorAno; resultadoSinIva: PorAno }>;
+  /** LA CUENTA DE MONICA (24-oct-2026), las dos juntas y CON IVA, como en el banco:
+   *  negocio = lo facturado con su IVA − gastos − impuestos; cuenta = negocio − lo personal de Daniel. */
+  monica: { facturadoConIva: PorAno; negocio: PorAno; cuenta: PorAno };
 };
 
 const ACCESALIA_NIF = "B86374055";
@@ -47,8 +50,8 @@ const sumar = (p: PorAno, y: number, m: number, v: number) => {
 
 export async function historico(): Promise<Historico> {
   const [facturas, movs] = await Promise.all([
-    leer<{ empresa_emisora: string; fecha: string; base: string | null; pagador_nif: string | null; pagador_nombre: string | null }>(
-      "facturas?select=empresa_emisora,fecha,base,pagador_nif,pagador_nombre&estado=neq.anulada&empresa_emisora=in.(accesalia,daniel)&fecha=gte.2019-01-01",
+    leer<{ empresa_emisora: string; fecha: string; base: string | null; total: string | null; pagador_nif: string | null; pagador_nombre: string | null }>(
+      "facturas?select=empresa_emisora,fecha,base,total,pagador_nif,pagador_nombre&estado=neq.anulada&empresa_emisora=in.(accesalia,daniel)&fecha=gte.2019-01-01",
     ),
     leer<{ cuenta: string; fecha: string; importe: string; clase: string; tipo: string | null; mes_imputado: string | null }>(
       "movimientos_bancarios?select=cuenta,fecha,importe,clase,tipo,mes_imputado&clase=in.(gasto,devolucion)",
@@ -56,6 +59,7 @@ export async function historico(): Promise<Historico> {
   ]);
   const e = Object.fromEntries((["accesalia", "daniel", "las_dos"] as Clave[]).map((k) => [k, { facturado: {}, gastos: {}, impuestos: {}, personal: {}, internas: {}, resultado: {}, gastosSinIva: {}, resultadoSinIva: {} }])) as Historico["e"];
   const anos = new Set<number>();
+  const conIva: PorAno = {};   // las dos juntas: lo facturado con su IVA, sin lo de Daniel a Accesalia
 
   for (const f of facturas) {
     const y = Number(f.fecha.slice(0, 4)), m = Number(f.fecha.slice(5, 7)) - 1, v = Number(f.base ?? 0);
@@ -63,6 +67,7 @@ export async function historico(): Promise<Historico> {
     anos.add(y);
     sumar(e[emp].facturado, y, m, v);
     const interna = emp === "daniel" && ((f.pagador_nif ?? "").toUpperCase().startsWith(ACCESALIA_NIF) || /ACCESALIA|SOLUCIONES ACCESIBILIDAD/i.test(f.pagador_nombre ?? ""));
+    if (!interna) sumar(conIva, y, m, Number(f.total ?? f.base ?? 0));
     if (interna) {
       sumar(e.daniel.internas, y, m, v);
       sumar(e.accesalia.gastos, y, m, v);   // para Accesalia, lo que le factura Daniel es gasto
@@ -144,7 +149,17 @@ export async function historico(): Promise<Historico> {
     for (const k of ["accesalia", "daniel", "las_dos"] as Clave[])
       e[k].resultadoSinIva[y] = e[k].resultado[y].map((r, m) => (r == null ? null : (e[k].facturado[y]?.[m] ?? 0) - (e[k].gastosSinIva[y]?.[m] ?? 0)));
   }
+  // LA CUENTA DE MONICA: solo los meses que tienen extracto de las dos (como las demas juntas).
+  const monica: Historico["monica"] = { facturadoConIva: conIva, negocio: {}, cuenta: {} };
+  for (const y of anos) {
+    monica.negocio[y] = Array.from({ length: 12 }, (_, m) => {
+      const g = e.las_dos.gastos[y]?.[m], i = e.las_dos.impuestos[y]?.[m];
+      if (g == null || i == null || !e.las_dos.facturado[y]?.some((v) => v != null)) return null;
+      return (conIva[y]?.[m] ?? 0) - g - i;
+    });
+    monica.cuenta[y] = monica.negocio[y].map((n, m) => (n == null ? null : n - (e.las_dos.personal[y]?.[m] ?? 0)));
+  }
   const juntas = cubre.accesalia && cubre.daniel
     ? { desde: [cubre.accesalia.desde, cubre.daniel.desde].sort()[1], hasta: [cubre.accesalia.hasta, cubre.daniel.hasta].sort()[0] } : null;
-  return { anos: [...anos].sort(), conGastos: { accesalia: cubre.accesalia, daniel: cubre.daniel, las_dos: juntas }, e };
+  return { anos: [...anos].sort(), conGastos: { accesalia: cubre.accesalia, daniel: cubre.daniel, las_dos: juntas }, e, monica };
 }
