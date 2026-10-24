@@ -25,15 +25,17 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: v
 table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
 th, td { border: 1px solid var(--rejilla); padding: 4px 8px; text-align: left; vertical-align: top; }
 th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
-td.nombre { font-weight: 600; min-width: 300px; white-space: nowrap; }
-td.papel { color: var(--tinta2); }
+td.nombre { font-weight: 400; color: var(--tinta); min-width: 300px; white-space: nowrap; }
+td.papel { color: var(--tinta); font-weight: 600; }
 td.papel .hito { white-space: nowrap; }
 td.nombre .papel { display: block; font-weight: 400; font-size: 12px; color: var(--tinta2); }
 td.notas { max-width: 230px; }
 td.num, td.acc { white-space: nowrap; }
 .hitos { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .hito b { font-weight: 700; }
-.hito .n { color: var(--apagado); margin-right: 4px; }
+.hito .n { color: rgba(43,43,43,.5); margin-right: 4px; }
+td.g2 .hito { color: rgba(43,43,43,.78); }
+td.g2 .hito b { color: var(--tinta); }
 .hito.exito { color: var(--exito); }
 .reglas { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .regla b { font-weight: 600; }
