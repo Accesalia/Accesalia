@@ -164,12 +164,12 @@ formas.push({ id: "vieja", reglas: [], hitos: [{ ...fijo("encargo", 100), frase:
 const frasesDe = (hs) => `<div class="hitos">${hs.map((h) => `<span class="hito">${h.frase}</span>`).join("")}</div>`;
 const hitosDe = (hs) => `<div class="hitos">${hs.map((h, i) => `<span class="hito${h.exito ? " exito" : ""}"><span class="n">${i + 1}.</span>${MOMENTOS[h.m][0]} · <b>${h.exito ? "a éxito" : pct(h.p)}</b></span>`).join("")}</div>`;
 const reglasDe = (rs) => rs.length ? `<div class="reglas">${rs.map((r) => `<span class="regla"><b>${r.bloque}</b> · ${r.pagador === "cualquiera" ? "pague quien pague" : `si paga <b>${r.pagador}</b>`}</span>`).join("")}</div>` : `<span class="vacio">solo a mano</span>`;
-const choqueDe = (r) => formas.find((f) => f.activa && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
+const choqueDe = (r) => formas.find((f) => f.activa && f !== nueva?.original && f.reglas.some((x) => x.pagador === r.pagador && x.bloque === r.bloque));
 
 function pintarListas() {
   const v = formas.filter((f) => f.activa), d = formas.filter((f) => !f.activa);
   document.getElementById("vigentes").innerHTML = v.map((f) => `<tr><td class="nombre">${f.nombre}</td><td class="papel g1">${frasesDe(f.hitos)}</td><td class="g2">${hitosDe(f.hitos)}</td><td>${reglasDe(f.reglas)}</td><td class="notas">${f.notas}</td>` +
-    `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">desactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
+    `<td class="acc"><button type="button" class="enlace" data-edita="${f.id}">editar</button> · <button type="button" class="enlace" data-cambia="${f.id}">desactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
   // En las desactivadas, cuantas lineas la llevaron: es el rastro para el historico.
   document.getElementById("desactivadas").innerHTML = d.map((f) => `<tr class="apagada"><td class="nombre">${f.nombre}</td><td class="papel g1">${frasesDe(f.hitos)}</td><td class="g2">${hitosDe(f.hitos)}</td><td class="notas">${f.notas}</td>` +
     `<td class="num">${f.lineas ? `${f.lineas.toLocaleString("es-ES")} líneas antes de desactivarla` : "ninguna línea"}</td><td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">reactivar</button></td></tr>`).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
@@ -198,12 +198,14 @@ function pintarFormulario() {
   const opsM = (sel) => Object.entries(MOMENTOS).map(([k, [n]]) => `<option value="${k}"${k === sel ? " selected" : ""}>${n}</option>`).join("");
   c.innerHTML = `<section class="nueva" aria-label="Nueva forma de pago">
     <div class="nueva-cab">
-      <div><h3>Estás creando una forma de pago nueva</h3>
-        <p class="aviso">Si haces esto es porque es habitual. No añadas todas: si no, la lista que elige el comercial será excesivamente larga.</p></div>
+      <div>${nueva.editando ? `<h3>Estás modificando «${nueva.original.nombre}»</h3>
+        <p class="aviso">${nueva.original.lineas ? `Ya está en ${nueva.original.lineas.toLocaleString("es-ES")} líneas firmadas. Puedes cambiar el nombre, las notas y cuándo sale por defecto sin más. Si cambias los hitos o sus frases, al guardar la actual pasará a desactivadas con su historial y se creará esta como nueva: lo firmado no cambia.` : "Todavía no la lleva ninguna línea: se cambia tal cual."}</p>` :
+        `<h3>Estás creando una forma de pago nueva</h3>
+        <p class="aviso">Si haces esto es porque es habitual. No añadas todas: si no, la lista que elige el comercial será excesivamente larga.</p>`}</div>
       <button type="button" class="boton sec" id="cancelar">Cancelar</button>
       <button type="button" class="boton" id="guardar"${ok.ok ? "" : " disabled"}>Guardar</button>
     </div>
-    <p class="intro">Vamos a describir la nueva forma de pago:</p>
+    <p class="intro">${nueva.editando ? "Esta es la forma de pago tal como está; cambia lo que necesites:" : "Vamos a describir la nueva forma de pago:"}</p>
 
     <div class="pregunta"><span class="q"><span class="num">1</span>¿Cómo debe aparecerle al comercial en pantalla?<span class="pista">Te propongo este nombre; puedes cambiarlo.</span></span>
       <input type="text" class="ancho" id="nombre" value="${nueva.nombre}"></div>
@@ -243,6 +245,12 @@ const ajustar = (n, k) => { while (n.hitos.length < k) n.hitos.push(fijo("cfo", 
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b || b.disabled) return;
   if (b.id === "abrir") nueva = nuevaVacia();
+  else if (b.dataset.edita) {
+    const f = formas.find((x) => x.id === b.dataset.edita);
+    nueva = { editando: true, original: f, hitos: f.hitos.map((h) => ({ ...h, fraseAMano: true })), nombre: f.nombre, nombreAMano: true, textoAMano: true,
+      porDefecto: f.reglas.length > 0, reglas: f.reglas.length ? f.reglas.map((r) => ({ ...r })) : [R("la comunidad", "Proyecto")], notas: f.notas };
+    window.scrollTo({ top: 0 });
+  }
   else if (b.id === "cancelar") nueva = null;
   else if (b.dataset.def) nueva.porDefecto = b.dataset.def === "si";
   else if (b.id === "masregla") nueva.reglas.push(R("la comunidad", "Proyecto"));
@@ -252,7 +260,14 @@ document.addEventListener("click", (e) => {
     const reglas = nueva.porDefecto ? nueva.reglas : [];
     // Cada caso (proyecto o servicio + quien paga) da UNA forma por defecto: si otra lo tenia, pasa a esta.
     for (const r of reglas) for (const f of formas) f.reglas = f.reglas.filter((x) => !(x.pagador === r.pagador && x.bloque === r.bloque));
-    formas.unshift({ id: "f" + ++sec, hitos: hs, reglas, nombre: nueva.nombre, notas: nueva.notas, lineas: 0, activa: true });
+    const o = nueva.original;
+    const mismosHitos = o && JSON.stringify(o.hitos.map((h) => [h.m, h.exito, Number(h.p) || null, h.frase])) === JSON.stringify(hs.map((h) => [h.m, h.exito, Number(h.p) || null, h.frase]));
+    if (o && (mismosHitos || !o.lineas)) Object.assign(o, { hitos: hs, reglas, nombre: nueva.nombre, notas: nueva.notas });
+    else {
+      // Cambian los hitos de una forma ya usada: la de siempre queda desactivada con su historial y nace esta.
+      if (o) o.activa = false;
+      formas.unshift({ id: "f" + ++sec, hitos: hs, reglas, nombre: nueva.nombre, notas: nueva.notas, lineas: 0, activa: true });
+    }
     nueva = null;
   }
   else if (b.dataset.cambia) { const f = formas.find((x) => x.id === b.dataset.cambia); f.activa = !f.activa; }
