@@ -1,0 +1,210 @@
+<title>Formas de pago</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* La lista de formas de pago de la hoja de encargo: vigentes arriba, añadir una nueva, desactivadas abajo.
+   Mismo lenguaje que la maqueta de la hoja (rejilla fina sobre blanco, letra compacta); lo nuevo en amarillo, como en la app. */
+:root {
+  --fondo: #ffffff; --tinta: #2b2b2b; --tinta2: rgba(43,43,43,.66); --apagado: rgba(43,43,43,.38);
+  --rejilla: #cfd4c9; --cab: #e6ecdf; --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --nuevo: #fff5cc; --nuevo-borde: #e9c44a; --ambar-txt: #6b4105; --exito: #1f4f86; --exito-bg: #e3ecf7;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--tinta); font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.pagina { max-width: 1240px; margin: 0 auto; padding-block: 16px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a.salida { color: var(--tinta2); text-decoration: none; font-size: 12.5px; font-weight: 600; }
+.cab-pag { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; border-bottom: 1px solid var(--rejilla); padding: 6px 0 10px; margin-bottom: 12px; }
+.cab-pag h1 { font-size: 18px; margin: 0; }
+.cab-pag p { margin: 0; color: var(--tinta2); flex: 1 1 320px; }
+.boton { font: inherit; font-weight: 700; border: 0; background: var(--lima); color: var(--tinta); border-radius: 6px; padding: 5px 14px; cursor: pointer; }
+.boton:disabled { opacity: .45; cursor: not-allowed; }
+.boton.sec { background: #fff; border: 1px solid var(--rejilla); font-weight: 600; color: var(--tinta2); }
+h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--tinta2); margin: 18px 0 6px; }
+.marco { overflow-x: auto; }
+table { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
+th, td { border: 1px solid var(--rejilla); padding: 4px 7px; text-align: left; vertical-align: middle; }
+th { background: var(--cab); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); white-space: nowrap; }
+td.nombre { font-weight: 600; white-space: nowrap; }
+td.num { text-align: right; white-space: nowrap; width: 1%; }
+td.acc { width: 1%; white-space: nowrap; }
+td.papel { color: var(--tinta2); max-width: 380px; }
+td.notas { max-width: 230px; }
+.hitos { display: flex; flex-wrap: nowrap; gap: 3px; }
+.hito { border: 1px solid var(--rejilla); border-radius: 4px; padding: 0 6px; white-space: nowrap; background: #fff; }
+.hito b { font-weight: 700; }
+.hito.exito { background: var(--exito-bg); border-color: transparent; color: var(--exito); }
+.enlace { font: inherit; border: 0; background: none; color: var(--tinta2); text-decoration: underline; cursor: pointer; padding: 0; }
+tr.apagada td { color: var(--apagado); }
+tr.apagada .hito { color: var(--apagado); background: #fafafa; }
+.vacio { color: var(--tinta2); font-style: italic; }
+
+/* El formulario de una nueva: en amarillo, lo que se esta creando */
+.nueva { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+.nueva-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.nueva-cab h3 { margin: 0; font-size: 14px; flex: 1 1 auto; }
+.campos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 8px 14px; margin-top: 10px; }
+@media (max-width: 720px) { .campos { grid-template-columns: minmax(0, 1fr); } }
+label.campo { display: grid; gap: 2px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta2); font-weight: 700; }
+label.campo.ancho { grid-column: 1 / -1; }
+input[type="text"], select { font: inherit; border: 1px solid var(--rejilla); border-radius: 4px; padding: 3px 6px; background: #fff; color: var(--tinta); }
+label.campo input { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 13px; width: 100%; }
+.tabla-hitos { width: auto; background: #fff; }
+.tabla-hitos input.pct { width: 64px; text-align: right; }
+.tabla-hitos input:disabled { background: #f3f3f0; color: var(--apagado); }
+.suma { margin-top: 6px; font-weight: 600; }
+.suma.mal { color: var(--ambar-txt); }
+.suma.bien { color: var(--lima-dark); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 1px; }
+</style>
+
+<div class="pagina">
+  <a class="salida" href="#">← Gestiones de la app</a>
+  <div class="cab-pag">
+    <h1>Formas de pago</h1>
+    <p>Las que se eligen en cada línea de la hoja de encargo. De cada una salen solos sus hitos de cobro.</p>
+    <button type="button" class="boton" id="abrir">+ Añadir forma de pago</button>
+  </div>
+
+  <div id="formulario"></div>
+
+  <h2>Vigentes</h2>
+  <div class="marco"><table>
+    <thead><tr><th>Nombre</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <tbody id="vigentes"></tbody>
+  </table></div>
+
+  <h2>Desactivadas</h2>
+  <div class="marco"><table>
+    <thead><tr><th>Nombre</th><th>Cómo sale en la hoja</th><th>Hitos</th><th>Notas</th><th>Líneas firmadas</th><th></th></tr></thead>
+    <tbody id="desactivadas"></tbody>
+  </table></div>
+</div>
+
+<script>
+// Maqueta. Las formas son los repartos que de verdad se han firmado (de las lineas de facturacion), con cuantas lineas
+// los llevan; los nombres y los textos para el papel los forma la pagina con las frases de siempre de cada momento.
+const MOMENTOS = {
+  encargo: ["encargo", "a la contratación"],
+  entrega: ["entrega", "a la entrega del proyecto"],
+  licencia: ["licencia", "a la concesión de la licencia"],
+  pss: ["PSS", "a la firma del Plan de Seguridad y Salud"],
+  inicio_obra: ["inicio de obra", "al inicio de obra"],
+  cfo: ["CFO", "al certificado de fin de obra"],
+  presentacion: ["presentación", "a la presentación de la subvención"],
+  concesion: ["concesión", "a la concesión de la subvención"],
+  adjudicacion: ["adjudicación", "a la adjudicación de la obra"],
+};
+const pct = (n) => String(n).replace(".", ",") + " %";
+const nombreDe = (hs) => hs.map((h) => h.tipo === "exito" ? `${MOMENTOS[h.m][0]} a éxito` : `${pct(h.p)} ${MOMENTOS[h.m][0]}`).join(" · ");
+const textoDe = (hs) => hs.map((h) => h.tipo === "exito" ? `el % a éxito, ${MOMENTOS[h.m][1]}` : `${pct(h.p)} ${MOMENTOS[h.m][1]}`).join(" · ");
+const F = (hs, lineas, notas = "") => ({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nombreDe(hs), texto: textoDe(hs), lineas, notas, activa: true });
+const fijo = (m, p) => ({ m, tipo: "fijo", p });
+const exito = (m) => ({ m, tipo: "exito", p: null });
+
+const formas = [
+  F([fijo("encargo", 100)], 325),
+  F([fijo("encargo", 50), fijo("entrega", 50)], 287, "La habitual de los proyectos"),
+  F([fijo("entrega", 50), fijo("licencia", 30), fijo("cfo", 20)], 150, "FAIN, proyectos"),
+  F([fijo("pss", 80), fijo("cfo", 20)], 141, "FAIN, CSS"),
+  F([fijo("entrega", 100)], 125),
+  F([fijo("adjudicacion", 100)], 100, "Los 3 presupuestos de Ecobalance"),
+  F([fijo("pss", 100)], 75, "La habitual de la CSS"),
+  F([fijo("encargo", 100), exito("concesion")], 67, "Subvención: fijo al encargo + el % a éxito"),
+  F([exito("concesion")], 53, "Subvención: solo a éxito"),
+  F([fijo("concesion", 100)], 51),
+  F([fijo("entrega", 60), fijo("licencia", 20), fijo("cfo", 20)], 42),
+  F([fijo("encargo", 33.33), fijo("entrega", 33.33), fijo("licencia", 33.34)], 23, "Un tercio cada una"),
+  F([fijo("presentacion", 100)], 22),
+  F([fijo("entrega", 50), fijo("inicio_obra", 25), fijo("cfo", 25)], 20),
+  F([fijo("encargo", 50), fijo("cfo", 50)], 11),
+  F([fijo("encargo", 25), fijo("entrega", 50), fijo("cfo", 25)], 10),
+];
+// Una de ejemplo ya desactivada: la vieja de la subvencion, que se partio en dos el 14-oct.
+const vieja = { id: "vieja", hitos: [fijo("encargo", 100), exito("concesion")], nombre: "1.980 € encargo · 3 % concesión", texto: "1.980 € a la contratación · 3 % de lo concedido", lineas: 0, notas: "Se partió en la documentación técnica (1.980 €) y el % a éxito de la subvención (14-oct)", activa: false };
+formas.push(vieja);
+
+let nueva = null; // el formulario abierto
+
+const chips = (hs) => `<div class="hitos">${hs.map((h) => h.tipo === "exito"
+  ? `<span class="hito exito">${MOMENTOS[h.m][0]} · <b>a éxito</b></span>`
+  : `<span class="hito">${MOMENTOS[h.m][0]} · <b>${pct(h.p)}</b></span>`).join("")}</div>`;
+const fila = (f) => `<tr class="${f.activa ? "" : "apagada"}"><td class="nombre">${f.nombre}</td><td class="papel">${f.texto}</td><td>${chips(f.hitos)}</td><td class="notas">${f.notas}</td><td class="num">${f.lineas ? f.lineas.toLocaleString("es-ES") : "—"}</td>` +
+  `<td class="acc"><button type="button" class="enlace" data-cambia="${f.id}">${f.activa ? "desactivar" : "reactivar"}</button></td></tr>`;
+
+function pintarListas() {
+  const v = formas.filter((f) => f.activa), d = formas.filter((f) => !f.activa);
+  document.getElementById("vigentes").innerHTML = v.map(fila).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
+  document.getElementById("desactivadas").innerHTML = d.map(fila).join("") || `<tr><td colspan="6" class="vacio">Ninguna.</td></tr>`;
+}
+
+// Lo que pide el formulario: solo los hitos. Nombre y texto los propone la pagina (se pueden retocar).
+function comprobar(n) {
+  const fijos = n.hitos.filter((h) => h.tipo === "fijo"), exitos = n.hitos.filter((h) => h.tipo === "exito");
+  const suma = Math.round(fijos.reduce((s, h) => s + (Number(h.p) || 0), 0) * 100) / 100;
+  if (!n.hitos.length) return { ok: false, txt: "Añade al menos un hito." };
+  if (exitos.length > 1) return { ok: false, txt: "Solo puede haber un hito a éxito." };
+  if (fijos.some((h) => !(Number(h.p) > 0))) return { ok: false, txt: "Cada hito fijo necesita su %." };
+  if (fijos.length && suma !== 100) return { ok: false, txt: suma < 100 ? `Los fijos suman ${pct(suma)}: faltan ${pct(Math.round((100 - suma) * 100) / 100)}.` : `Los fijos suman ${pct(suma)}: sobran ${pct(Math.round((suma - 100) * 100) / 100)}.` };
+  return { ok: true, txt: fijos.length ? "Los fijos suman 100 %." : "Solo a éxito: el % lo lleva cada línea." };
+}
+function pintarFormulario() {
+  const c = document.getElementById("formulario");
+  if (!nueva) { c.innerHTML = ""; return; }
+  if (!nueva.nombreAMano) nueva.nombre = nombreDe(nueva.hitos.filter((h) => h.tipo === "exito" || Number(h.p) > 0));
+  if (!nueva.textoAMano) nueva.texto = textoDe(nueva.hitos.filter((h) => h.tipo === "exito" || Number(h.p) > 0));
+  const ok = comprobar(nueva);
+  const ops = (sel) => Object.entries(MOMENTOS).map(([k, [n]]) => `<option value="${k}"${k === sel ? " selected" : ""}>${n}</option>`).join("");
+  c.innerHTML = `<section class="nueva" aria-label="Nueva forma de pago">
+    <div class="nueva-cab"><h3>Nueva forma de pago</h3>
+      <button type="button" class="boton sec" id="cancelar">Cancelar</button>
+      <button type="button" class="boton" id="guardar"${ok.ok ? "" : " disabled"}>Guardar</button></div>
+    <table class="tabla-hitos"><thead><tr><th>Momento</th><th>Tipo</th><th>%</th><th></th></tr></thead><tbody>
+      ${nueva.hitos.map((h, i) => `<tr><td><select id="m${i}" data-i="${i}" data-campo="m" aria-label="Momento">${ops(h.m)}</select></td>
+        <td><select id="t${i}" data-i="${i}" data-campo="tipo" aria-label="Tipo"><option value="fijo"${h.tipo === "fijo" ? " selected" : ""}>fijo</option><option value="exito"${h.tipo === "exito" ? " selected" : ""}>a éxito</option></select></td>
+        <td><input type="text" class="pct" id="p${i}" data-i="${i}" data-campo="p" value="${h.tipo === "exito" ? "" : h.p ?? ""}"${h.tipo === "exito" ? " disabled placeholder=\"el de la línea\"" : ""} inputmode="decimal" aria-label="Porcentaje"></td>
+        <td><button type="button" class="enlace" data-quita="${i}" aria-label="Quitar hito">quitar</button></td></tr>`).join("")}
+    </tbody></table>
+    <button type="button" class="enlace" id="mas" style="margin-top:6px">+ añadir hito</button>
+    <div class="suma ${ok.ok ? "bien" : "mal"}">${ok.txt}</div>
+    <div class="campos">
+      <label class="campo">Nombre (para elegirla)<input type="text" id="nombre" value="${nueva.nombre}"></label>
+      <label class="campo">Cómo sale en la hoja<input type="text" id="texto" value="${nueva.texto}"></label>
+      <label class="campo ancho">Notas (opcional)<input type="text" id="notas" value="${nueva.notas}" placeholder="Para qué es o quién la usa"></label>
+    </div></section>`;
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  if (b.id === "abrir") { nueva = { hitos: [fijo("encargo", 50), fijo("entrega", "")], nombre: "", texto: "", notas: "", nombreAMano: false, textoAMano: false }; }
+  else if (b.id === "cancelar") nueva = null;
+  else if (b.id === "mas") nueva.hitos.push(fijo("entrega", ""));
+  else if (b.dataset.quita) nueva.hitos.splice(Number(b.dataset.quita), 1);
+  else if (b.id === "guardar") {
+    const hs = nueva.hitos.map((h) => ({ ...h, p: h.tipo === "exito" ? null : Number(String(h.p).replace(",", ".")) }));
+    formas.unshift({ id: Math.random().toString(36).slice(2), hitos: hs, nombre: nueva.nombre, texto: nueva.texto, notas: nueva.notas, lineas: 0, activa: true });
+    nueva = null;
+  }
+  else if (b.dataset.cambia) { const f = formas.find((x) => x.id === b.dataset.cambia); f.activa = !f.activa; }
+  else return;
+  pintarFormulario(); pintarListas();
+});
+document.addEventListener("change", (e) => {
+  const t = e.target; if (!nueva || t.dataset.i === undefined) return;
+  const h = nueva.hitos[Number(t.dataset.i)];
+  if (t.dataset.campo === "m") h.m = t.value;
+  if (t.dataset.campo === "tipo") { h.tipo = t.value; if (h.tipo === "exito") { h.m = "concesion"; h.p = null; } else h.p = ""; }
+  pintarFormulario();
+});
+document.addEventListener("input", (e) => {
+  const t = e.target; if (!nueva) return;
+  if (t.dataset.campo === "p") {
+    nueva.hitos[Number(t.dataset.i)].p = t.value.replace(",", ".");
+    const id = t.id, pos = t.selectionStart; pintarFormulario();
+    const n = document.getElementById(id); n.focus(); n.setSelectionRange(pos, pos);
+  }
+  if (t.id === "nombre") { nueva.nombre = t.value; nueva.nombreAMano = true; }
+  if (t.id === "texto") { nueva.texto = t.value; nueva.textoAMano = true; }
+  if (t.id === "notas") nueva.notas = t.value;
+});
+pintarListas();
+</script>
