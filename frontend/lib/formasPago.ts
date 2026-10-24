@@ -39,7 +39,10 @@ export type CasoDefecto = { bloqueId: string; pagador: string };
 export type Forma = { id: string; nombre: string; notas: string; activa: boolean; orden: number; hitos: HitoForma[]; casos: CasoDefecto[]; lineas: number; desactivadaEn: string | null };
 export type Opcion = { valor: string; texto: string };
 
-export const puedeGestionarFormas = (yo: Yo) => yo.veTodo;
+// Quien las gestiona (Monica, 24-oct-2026): direccion, facturacion y administracion. COMERCIAL NO: «si no, es un lio;
+// si un comercial quiere un cambio, que lo pida». La funcion de administracion aun no existe: cuando se cree con la
+// clave «administracion», entra sola.
+export const puedeGestionarFormas = (yo: Yo) => yo.veTodo || yo.funciones.some((f) => f.clave === "facturacion" || f.clave === "administracion");
 
 export async function formasDePago(): Promise<{ formas: Forma[]; bloques: Opcion[]; pagadores: Opcion[] }> {
   const [filas, bloques, contratas] = await Promise.all([

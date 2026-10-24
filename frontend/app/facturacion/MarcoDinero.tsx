@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Yo } from "../../lib/sesion";
 import { calendarioFiscal, librosFiscales } from "../../lib/fiscal";
 import { nuevasHojas } from "../../lib/nuevasHojas";
+import { puedeGestionarFormas } from "../../lib/formasPago";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { areasDe, type Area } from "./Areas";
 import { AreasBarra, type PestanaArea } from "./AreasBarra";
@@ -36,7 +37,7 @@ async function pagosDeLaSemana(yo: Yo): Promise<number> {
 
 /** LOS MENUS DE CADA AREA, los de la maqueta. Una entrada sin href = «luego».
  *  Cuando se monta una pantalla, se le pone aqui su href. */
-function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] | null {
+function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): GrupoMenu[] | null {
   if (area === "cobrar")
     return [
       {
@@ -61,6 +62,8 @@ function menuDe(area: Area, c: Record<string, number | undefined>): GrupoMenu[] 
           { clave: "por-cobrar", titulo: "Lo que queda por cobrar", href: "/facturacion/cobrar/por-cobrar" },
         ],
       },
+      // Las formas de pago de la hoja de encargo (24-oct-2026): las gestionan direccion, facturacion y administracion.
+      ...(puedeGestionarFormas(yo) ? [{ titulo: "Ajustes", items: [{ clave: "formas-pago", titulo: "Formas de pago", href: "/gestiones/formas-pago" }] }] : []),
       { titulo: "Más adelante", items: [{ clave: "morosidad", titulo: "Morosidad" }] },
     ];
   if (area === "pagar")
@@ -139,7 +142,7 @@ export async function MarcoDinero({
     cuenta: a.clave === "cobrar" ? nuevas : a.clave === "pagar" ? pagar : undefined,
     aviso: a.clave === "pagar",
   }));
-  const menu = menuDe(area, c);
+  const menu = menuDe(area, c, yo);
   const activos = new Set(Array.isArray(activo) ? activo : activo ? [activo] : []);
   return (
     <div className="flex min-h-screen flex-col">

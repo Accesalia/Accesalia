@@ -8,18 +8,18 @@ import { FormasDePago } from "./FormasDePago";
 export const dynamic = "force-dynamic";
 
 // FORMAS DE PAGO (Monica, 24-oct-2026): las que se eligen en cada linea de la hoja de encargo, con sus hitos y cuando
-// salen por defecto. Maqueta validada: docs/figma/formas-de-pago.html. De momento, solo direccion.
+// salen por defecto. Maqueta validada: docs/figma/formas-de-pago.html. Direccion, facturacion y administracion (no comercial).
 
 export default async function PaginaFormasDePago() {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/gestiones/formas-pago");
-  if (!puedeGestionarFormas(yo)) redirect("/gestiones");
+  if (!puedeGestionarFormas(yo)) redirect("/menu");
   const datos = await formasDePago();
   return (
     <div className="min-h-screen bg-white">
       <BarraSuperior />
       <main className="mx-auto max-w-[1480px] px-4 pb-16 pt-4 sm:px-6">
-        <Salida href="/gestiones">← Gestiones de la app</Salida>
+        {yo.veTodo ? <Salida href="/gestiones">← Gestiones de la app</Salida> : <Salida href="/facturacion/cobrar">← Cobrar</Salida>}
         <FormasDePago formas={datos.formas} bloques={datos.bloques} pagadores={datos.pagadores} />
       </main>
     </div>
