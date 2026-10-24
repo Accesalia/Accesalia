@@ -25,6 +25,16 @@ const ACCESOS: Acceso[] = [
     href: "/gestiones/oportunidades",
     soloDireccion: true,
   },
+  // FORMAS DE PAGO (Monica, 24-oct-2026): las que se eligen en cada linea de la hoja de encargo, con sus hitos y
+  // cuando salen por defecto. De momento, solo direccion.
+  {
+    nombre: "Formas de pago",
+    color: "ambar",
+    icono: "euro",
+    desc: "Las que se eligen en cada línea de la hoja de encargo: sus hitos de cobro, cómo salen en la hoja y cuándo salen por defecto",
+    href: "/gestiones/formas-pago",
+    soloDireccion: true,
+  },
   // CREAR HOJA DE ENCARGO · PRUEBA (Monica, 22-oct-2026): la maqueta validada del generador en arbol sobre una
   // opp de verdad, para probarla con la base. No guarda nada. Solo direccion.
   {
