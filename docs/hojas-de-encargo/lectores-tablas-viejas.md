@@ -133,3 +133,13 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   línea copiada (columna creada por facturación, migración 20261025230000). Conjunto «solo el total»: UNA línea cobrable
   (bloque PROYECTO CONJUNTO); si en lo viejo había varias fichas de facturación para él, caso para Mónica.
 - **hitos_cobro**: los de antes se conservan; los nuevos los genera facturación en ok_comercial desde he_formas_pago_hitos.
+
+## El día del cambio: enganches pendientes
+
+- **Entrada en facturación:** validarFirmada (lib/hojaEmitir.ts), al pasar a ok_comercial, tiene que llamar a
+  entrarEnFacturacion(versionId, yo) de lib/hojasNuevas.ts, que está en la rama facturacion-hojas-nuevas del hilo de
+  facturación (crea la ficha de facturación de cada línea que se cobra y sus hitos_cobro). Se sube con la migración.
+- **Facturación** lee las vistas facturacion_hojas y facturacion_lineas (migración de su rama, 29991231000000_…, que se
+  aplica ese día después de copiar las hojas y rellenar he_linea_id).
+- **Tipo de documento de las firmadas viejas** (hoja de encargo / pedido / nota de responsabilidad / contrato): pendiente
+  de decidir con Mónica dónde vive en lo nuevo antes de migrar (aviso de trazabilidad del hilo de facturación).
