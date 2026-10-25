@@ -150,6 +150,11 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
   (El portal solo enseña opps abiertas o en pausa, así que la regla de no enseñar la nota de responsabilidad no se
   echa de menos.)
+- **Migraciones de esta rama** (29991231000100 a 000500): se aplican DESPUÉS de copiar las hojas viejas a he_* y en
+  orden. La **000500** (notas de Sali y consolidación al firmar, sobre he_estados_hoja) BORRA las funciones de las hojas
+  viejas: **la ejecuta Mónica con SQL** (borrar está capado desde fuera). No se probó en prod antes (Mónica, 25-oct): se
+  comprueba ese día generando, enviando y validando una hoja y mirando el diario de la opp.
+- **Pregúntale a Sali:** desplegar la edge sali-dinero de esta rama (ya habla de las hojas nuevas).
 
 ## Decisiones del repaso campo a campo de la migración (Mónica, 25-oct, vía el hilo de facturación)
 
