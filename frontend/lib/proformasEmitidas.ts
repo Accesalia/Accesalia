@@ -16,6 +16,7 @@ import { hitosProformables, leerProforma, type Empresa, type Proforma } from "./
 import { puedeVerLibro, type Libro } from "./cobros";
 import { ficherosPedido, nombreCarpeta, zipCarpeta, type PedidoFactusol } from "./factusol/importar";
 import { hayAccesoDropbox, subirFichero } from "./dropboxApi";
+import { SEL_FICHA_HOJA, adaptarFichas } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -73,9 +74,9 @@ type FilaP = {
 export async function proformasEmitidas(libro: Libro): Promise<FilaEmitida[]> {
   const filas = await leer<FilaP>(
     "proformas?select=id,codigo,numero,anio,empresa,fecha,oportunidad_id,pagador_nombre,total,notas,se_puede_cobrar_en,ok_correo,factusol_en," +
-      "opp:oportunidad_id(nombre,codigo),lineas:proforma_lineas(hitos:proforma_linea_hitos(hito:hito_cobro_id(linea:linea_facturacion_id(pagador_tipo,hoja:hoja_encargo_id(pagador_tipo)))))" +
+      `opp:oportunidad_id(nombre,codigo),lineas:proforma_lineas(hitos:proforma_linea_hitos(hito:hito_cobro_id(linea:linea_facturacion_id(pagador_tipo,${SEL_FICHA_HOJA}))))` +
       `&estado=eq.emitida&factura_id=is.null&empresa=in.(${EMPRESAS_DE[libro].join(",")})&order=numero.desc`,
-  );
+  ).then(adaptarFichas);
   if (!filas.length) return [];
   const anios = [...new Set(filas.map((f) => f.anio))];
   const [pedidos, envios] = await Promise.all([

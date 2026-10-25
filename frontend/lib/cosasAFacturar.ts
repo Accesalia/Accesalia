@@ -374,7 +374,7 @@ export async function emitirCosas(yo: Yo, oppId: string, p: PedidoEmitir): Promi
     });
     // Lo facturado antes de tiempo: por que, y el correo en que lo piden, a las notas de facturacion del hito.
     const notas = xs.filter((x) => antes.has(x.id)).map((x) => ({
-      hoja_encargo_id: todos.get(x.id)!.hojaId, hito_cobro_id: x.id, linea_facturacion_id: todos.get(x.id)!.lineaId, fecha: new Date().toISOString().slice(0, 10),
+      hito_cobro_id: x.id, linea_facturacion_id: todos.get(x.id)!.lineaId, fecha: new Date().toISOString().slice(0, 10),
       origen: "persona", tipo: "nota", autor_id: yo.id, autor: [yo.nombre, yo.apellidos].filter(Boolean).join(" "),
       texto: `Facturado antes del hito: ${x.motivo!.trim()}${x.correo?.trim() ? `\n\nEl correo en que lo piden:\n${x.correo.trim()}` : ""}`,
     }));

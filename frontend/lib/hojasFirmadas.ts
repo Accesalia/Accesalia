@@ -31,7 +31,8 @@ export type LineaHoja = {
 export type HojaFirmada = {
   id: string; numero: string; fecha_firma: string | null; opp: { id: string; nombre: string };
   estado: EstadoHoja; quien: string[]; contratado: number; facturado: number; cobrado: number; falta_facturar: boolean;
-  pdf: { version: string; indice: number } | null; lineas: LineaHoja[];
+  /** La firmada (hojas nuevas): la version; se abre en /facturacion/firmada/<version>. */
+  pdf: { version: string } | null; lineas: LineaHoja[];
 };
 export type PaginaHojas = {
   total: number; por_estado: Partial<Record<EstadoHoja, number>>; anios: number[];
