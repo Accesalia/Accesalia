@@ -12,6 +12,7 @@
 import "server-only";
 import { datosHoja, type Documento } from "./hojaEncargo";
 import { fotosDeOportunidad, type Foto } from "./fotos";
+import { hojasDeOpp, type HojaHe } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -57,13 +58,16 @@ export type Documentacion = {
   viabilidad: ViabilidadResumen | null;
   presupuestos: PresupuestoApp[];
   hojas: HojaResumen[];
+  /** Las hojas del sistema nuevo (25-oct-2026), del lector unico. Las de arriba (las de siempre) se van el dia de la
+   *  migracion, cuando las viejas pasen a las tablas nuevas. */
+  hojasNuevas: HojaHe[];
   /** Las fotografias de la oportunidad: las de las notas del comercial, que
    *  son del repositorio comun y las ven tecnicos y administrativas (8-oct). */
   fotos: (Foto & { fecha: string })[];
 };
 
 export async function documentacionDe(oppId: string): Promise<Documentacion> {
-  const [viabs, datos, presupuestos, fotos, deLaApp] = await Promise.all([
+  const [viabs, datos, presupuestos, fotos, deLaApp, hojasNuevas] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
       necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
@@ -88,6 +92,8 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
     leer<{ id: string; codigo: string | null; fecha: string | null; base: number | null; url_pdf: string | null }[]>(
       `presupuestos?select=id,codigo,fecha,base,url_pdf&oportunidad_id=eq.${oppId}&origen=eq.app&or=(codigo.not.is.null,estado.eq.borrador)&order=creado_en.desc`,
     ).catch(() => []),
+    // Si las hojas nuevas fallan, el bloque se sigue viendo (y queda en los registros).
+    hojasDeOpp(oppId).catch((e) => { console.error("hojasDeOpp", oppId, e); return [] as HojaHe[]; }),
   ]);
 
   const v = viabs[0];
@@ -131,5 +137,5 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
     });
 
   const presus = deLaApp.map((p) => ({ id: p.id, codigo: p.codigo, fecha: p.fecha, base: Number(p.base) || 0, generado: !!p.url_pdf }));
-  return { viabilidad, presupuestos: presus, hojas, fotos };
+  return { viabilidad, presupuestos: presus, hojas, hojasNuevas, fotos };
 }

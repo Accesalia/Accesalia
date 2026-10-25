@@ -4,6 +4,8 @@ import type { Documentacion } from "../../../../lib/bloqueDocumentacion";
 import type { Gestion } from "../../../../lib/gestionOportunidad";
 import { ESTADOS_3D, TIPOS_3D } from "../../../../lib/gestionOportunidad";
 import { estadoDeHoja } from "../../../../lib/estadoHoja";
+import { FASE_HE } from "../../../../lib/hojasOpp";
+import { HojasNuevas } from "./HojasNuevas";
 import { Miniaturas } from "../../../components/Miniaturas";
 import type { InformeGuardado } from "../../../../lib/informeCostes";
 import type { CorreoEnviado } from "../../../../lib/envioCorreo";
@@ -244,9 +246,11 @@ export function Bloque2({
       {/* ------------------------------ las hojas de encargo */}
       <div className={CAJA + " mt-2.5"}>
         <div className={BANDA}>Hoja de encargo</div>
-        {d.hojas.length === 0 ? (
+        {/* Las del sistema nuevo, con lo que toca hacer en su fase (25-oct-2026). */}
+        {d.hojasNuevas.length > 0 && <HojasNuevas oppId={id} hojas={d.hojasNuevas} fases={FASE_HE} />}
+        {d.hojas.length === 0 ? (d.hojasNuevas.length > 0 ? null : (
           <p className="mt-2 text-[12px] text-amber-900/80">Todavía no hay ninguna hoja de esta oportunidad.</p>
-        ) : (
+        )) : (
           <ul className="mt-1.5 divide-y divide-[#eee]">
             {d.hojas.map((h) => {
               const e = estadoDeHoja(h.estado, h.enBorrador);

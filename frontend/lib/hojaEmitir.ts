@@ -203,3 +203,31 @@ export async function pdfDeHojaVersion(versionId: string): Promise<{ pdf: Uint8A
   if (!v.papel_html) return null;
   return { pdf: new Uint8Array(await pdfDeHoja(v.papel_html, "Hoja de encargo (pendiente del ok)", "Pendiente del ok de Daniel")), oppId: v.oportunidad_id, nombre };
 }
+
+// ------------------------------------------------------------ lo que hace el comercial desde la opp (25-oct-2026)
+
+/** Marcar enviada a la comunidad: solo con el ok de Daniel. (Cuando el envio por correo pase al sistema nuevo, lo marcara
+ *  el propio envio.) */
+export async function marcarEnviada(versionId: string, yo: Yo): Promise<void> {
+  const v = await versionDe(versionId);
+  if (v.estado !== "ok_daniel") throw new Error("Solo se envía una hoja con el ok de Daniel.");
+  await ponerEstado(v.id, "enviada", yo, null);
+}
+
+/** La comunidad no la firma: final, con su motivo («la hoja acaba en firma o en baja, nunca en el limbo», 13-oct). */
+export async function marcarNoFirmada(versionId: string, motivo: string, yo: Yo): Promise<void> {
+  const v = await versionDe(versionId);
+  if (!["ok_daniel", "enviada", "cambios_comunidad", "cambios_comercial", "firma_con_errores"].includes(v.estado))
+    throw new Error("Esta hoja no está esperando la firma.");
+  if (!motivo.trim()) throw new Error("Di por qué no la firman.");
+  await ponerEstado(v.id, "no_firmada", yo, motivo.trim());
+}
+
+/** Anular una hoja (por error, duplicada…): final, con su motivo. Un borrador no se anula: se descarta. */
+export async function anularHoja(versionId: string, motivo: string, yo: Yo): Promise<void> {
+  const v = await versionDe(versionId);
+  if (v.estado === "borrador") throw new Error("Un borrador no se anula: se descarta.");
+  if (["no_firmada", "anulada", "sustituida"].includes(v.estado)) throw new Error("Esta hoja ya está cerrada.");
+  if (!motivo.trim()) throw new Error("Di por qué se anula.");
+  await ponerEstado(v.id, "anulada", yo, motivo.trim());
+}
