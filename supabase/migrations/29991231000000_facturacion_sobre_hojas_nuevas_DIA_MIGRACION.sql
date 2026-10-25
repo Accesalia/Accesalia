@@ -6,7 +6,7 @@
 -- 1) Fichas y notas de facturacion dejan de estar obligadas a apuntar a una hoja vieja: las de las hojas nuevas no
 --    la tienen. Las notas cuelgan de la LINEA (Monica, 24-oct).
 -- 2) Una linea añadida a mano por facturacion (la app se la salto) no esta en la hoja: necesita saber de que version
---    es. PENDIENTE DEL OK DE MONICA: lineas_facturacion.he_version_id, SOLO para esas.
+--    es: lineas_facturacion.he_version_id, SOLO para esas (ok de Monica, 25-oct-2026).
 -- 3) Dos VISTAS de solo lectura (una forma de mirar lo mismo, no una copia), para que todas las pantallas del dinero
 --    lean la hoja nueva con los nombres de siempre:
 --      facturacion_hojas:  una fila por version firmada (la «hoja»): numero, fecha de firma, opp, pagador, fase, firmada.
@@ -17,7 +17,7 @@
 alter table public.lineas_facturacion alter column hoja_encargo_id drop not null;
 alter table public.notas_facturacion alter column hoja_encargo_id drop not null;
 
--- (2) PENDIENTE DEL OK DE MONICA
+-- (2) Con el ok de Monica (25-oct-2026)
 alter table public.lineas_facturacion add column he_version_id uuid references public.he_versiones_hoja(id);
 alter table public.lineas_facturacion add constraint lineas_facturacion_hoja_nueva_check
   check (he_linea_id is not null or he_version_id is not null or hoja_encargo_id is not null);
