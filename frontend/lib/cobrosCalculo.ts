@@ -40,6 +40,8 @@ export type Hito = {
   facturas: FacturaDeHito[];
   subhitos: Hito[];
   notas: { fecha: string | null; texto: string; autor: string | null }[];
+  /** Hito a exito cerrado a mano (25-oct-2026): ya no lleva mas concesiones. */
+  cerrado?: string | null;
 };
 export type LineaFacturable = { id: string; descripcion: string; importe: number | null; esPorcentaje: boolean; porcentaje: number | null; hitos: Hito[] };
 export type Documento = {

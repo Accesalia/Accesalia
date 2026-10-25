@@ -287,9 +287,14 @@ export async function enviarFactura(
     });
     const padres = await pedir<{ hito_padre_id: string | null }[]>(`hitos_cobro?select=hito_padre_id&id=in.(${hitos.join(",")})&hito_padre_id=not.is.null`);
     for (const pid of [...new Set(padres.map((x) => x.hito_padre_id).filter((x): x is string => !!x))]) {
-      const subs = await pedir<{ estado: string }[]>(`hitos_cobro?select=estado&hito_padre_id=eq.${pid}`);
+      const subs = await pedir<{ estado: string }[]>(`hitos_cobro?select=estado&hito_padre_id=eq.${pid}&estado=neq.anulado`);
       const hechos = subs.filter((s) => s.estado === "completado").length;
-      await pedir(`hitos_cobro?id=eq.${pid}`, { method: "PATCH", body: JSON.stringify({ estado: hechos === subs.length ? "completado" : hechos ? "parcial" : "pendiente" }) });
+      // Un hito a exito ABIERTO (sin importe y sin cerrar) nunca queda completado: puede llegar otra concesion
+      // (Monica, 25-oct-2026). Se completa al cerrarlo a mano, con todo cobrado.
+      const [padre] = await pedir<{ importe: number | null; cerrado_en: string | null }[]>(`hitos_cobro?select=importe,cerrado_en&id=eq.${pid}`);
+      const abierto = padre && padre.importe == null && !padre.cerrado_en;
+      const estado = hechos === subs.length && !abierto ? "completado" : hechos ? "parcial" : "pendiente";
+      await pedir(`hitos_cobro?id=eq.${pid}`, { method: "PATCH", body: JSON.stringify({ estado }) });
     }
   }
   // 6. Lo que no cuadraba, y el porque si se escribio: a sus notas de facturacion.

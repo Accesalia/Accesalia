@@ -69,6 +69,8 @@ function FilaHito({ h, modificar, abrir, sub }: { h: Hito; modificar: boolean; a
     : null;
   // Se puede modificar lo que no esta facturado; un hito fraccionado, en sus subhitos.
   const puede = modificar && !h.subhitos.length && !c.facturado && h.estado !== "anulado" && h.estado !== "completado";
+  // Un hito A EXITO abierto (25-oct-2026): siempre se le puede añadir una concesion o cerrarlo, aunque tenga partes.
+  const exitoAbierto = !sub && h.importe == null && !h.cerrado && h.estado !== "anulado";
   return (
     <>
       <tr className="align-baseline">
@@ -93,7 +95,18 @@ function FilaHito({ h, modificar, abrir, sub }: { h: Hito; modificar: boolean; a
         <td className="whitespace-nowrap py-1 pl-5 text-right font-semibold text-carbon">{h.importe != null ? `${eur(h.importe)} €` : "a éxito"}</td>
         <td className="whitespace-nowrap py-1 pl-5 text-[12.5px] text-carbon/55">{dia(h.fechaPrevista) ?? "sin fecha"}</td>
         <td className="whitespace-nowrap py-1 pl-5 pr-5">
-          {estado ? (
+          {exitoAbierto && modificar ? (
+            <span className="flex items-center gap-2">
+              <span className="rounded-full bg-[#e8eef5] px-2 py-0.5 text-[11.5px] font-bold text-[#5b7fa6]">
+                abierto{h.subhitos.length ? ` · ${h.subhitos.length} ${h.subhitos.length === 1 ? "concesión" : "concesiones"}` : ""}
+              </span>
+              <button type="button" onClick={() => abrir(h)} className="text-[13px] font-semibold text-lima-dark hover:underline">
+                + concesión
+              </button>
+            </span>
+          ) : h.cerrado && h.importe == null && !sub ? (
+            <span className="rounded-full bg-black/[.06] px-2 py-0.5 text-[11.5px] font-bold text-carbon/55">cerrado</span>
+          ) : estado ? (
             <span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${estado === "en pausa" ? "bg-[#fbefd0] text-[#875f07]" : estado === "anulado" ? "bg-black/[.06] text-carbon/50" : "bg-[#e3f1d6] text-[#2f5d14]"}`}>
               {estado}
             </span>

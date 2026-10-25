@@ -63,7 +63,7 @@ export const NOMBRE_EMPRESA: Record<string, string> = { accesalia: "Accesalia", 
 // ------------------------------------------------------------ las hojas de una opp, con sus lineas e hitos
 
 type LineaF = { id: string; descripcion: string | null; emisor: string; importe: number | null; quitada_en: string | null;
-  hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; notas: string | null; estado: string; hito_padre_id: string | null }[] };
+  hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; notas: string | null; estado: string; hito_padre_id: string | null; cerrado_en: string | null }[] };
 type HojaF = {
   id: string; numero_hoja: string; fecha_firma: string | null; pagador_tipo: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null;
   comunidad_id: string | null; oportunidad_id: string; codigos_contrata: Record<string, string> | null;
@@ -73,7 +73,7 @@ type HojaF = {
 const SEL_HOJA =
   "id,numero_hoja,fecha_firma,pagador_tipo,pagador_contrata_id,pagador_persona_id,comunidad_id,oportunidad_id,codigos_contrata," +
   "versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)," +
-  "lineas:lineas_facturacion(id,descripcion,emisor,importe,quitada_en,hitos:hitos_cobro(id,hito,orden,porcentaje,importe,notas,estado,hito_padre_id))";
+  "lineas:lineas_facturacion(id,descripcion,emisor,importe,quitada_en,hitos:hitos_cobro(id,hito,orden,porcentaje,importe,notas,estado,hito_padre_id,cerrado_en))";
 
 const pdfFirmado = (h: HojaF) => {
   const v = h.versiones.filter((x) => x.pdfs_firmados?.length).sort((a, b) => b.numero_version - a.numero_version)[0];
@@ -137,8 +137,12 @@ export type PagadorCosas = {
 export type HitoCosas = {
   id: string; hojaId: string; lineaId: string; linea: string; que: string; tipo: string; importe: number | null; ya: boolean; porque: string | null;
   empresa: "accesalia" | "daniel"; pagador: string;
+  /** Hito A EXITO (sin importe, 25-oct-2026): no se factura el; se le añade la concesion y se factura esa. */
+  aExito: boolean;
 };
-export type HojaCosas = { id: string; numero: string; firma: string | null; pdf: string | null; pagador: string; hitos: HitoCosas[] };
+/** Un hito a exito que ya tiene concesiones y sigue abierto: se le puede añadir otra. */
+export type AbiertoCosas = { id: string; linea: string; que: string; concesiones: number; porcentaje: number | null };
+export type HojaCosas = { id: string; numero: string; firma: string | null; pdf: string | null; pagador: string; hitos: HitoCosas[]; abiertos: AbiertoCosas[] };
 export type LineaCosas = { id: string; linea: string; empresa: "accesalia" | "daniel"; ultimaProforma: "accesalia" | "daniel" | null };
 export type DetalleCosas = {
   oppId: string; direccion: string; hojas: HojaCosas[]; pagadores: PagadorCosas[]; lineas: LineaCosas[];
@@ -256,9 +260,12 @@ export async function detalleCosas(oppId: string): Promise<DetalleCosas | null> 
   }
 
   const hojasOut: HojaCosas[] = hojas
-    .filter((h) => vivos.some((c) => c.h.id === h.id))
+    .filter((h) => vivos.some((c) => c.h.id === h.id) || h.lineas.some((l) => l.hitos.some((x) => x.importe == null && !x.hito_padre_id && !x.cerrado_en && x.estado !== "anulado")))
     .map((h) => ({
       id: h.id, numero: h.numero_hoja, firma: h.fecha_firma, pdf: pdfFirmado(h)?.url ?? null, pagador: clavePagador(pagadorDeHoja.get(h.id) ?? null),
+      abiertos: h.lineas.flatMap((l) => l.hitos
+        .filter((x) => x.importe == null && !x.hito_padre_id && !x.cerrado_en && x.estado !== "anulado" && l.hitos.some((y) => y.hito_padre_id === x.id))
+        .map((x) => ({ id: x.id, linea: (l.descripcion ?? "").split("\n")[0], que: textoHito(x), concesiones: l.hitos.filter((y) => y.hito_padre_id === x.id && y.estado !== "anulado").length, porcentaje: x.porcentaje }))),
       hitos: vivos.filter((c) => c.h.id === h.id)
         .sort((a, b) => a.l.id.localeCompare(b.l.id) || (a.x.orden ?? 0) - (b.x.orden ?? 0))
         .map((c) => {
@@ -266,6 +273,7 @@ export async function detalleCosas(oppId: string): Promise<DetalleCosas | null> 
           return {
             id: c.x.id, hojaId: h.id, lineaId: c.l.id, linea: p.linea, que: textoHito(c.x), tipo: c.x.hito, importe: p.disponible, ya: ya.has(c.x.id),
             porque: ya.get(c.x.id) ?? null, empresa: (p.empresa === "daniel" ? "daniel" : "accesalia") as "accesalia" | "daniel", pagador: clavePagador(p.pagador),
+            aExito: c.x.importe == null && !c.x.hito_padre_id && !c.x.cerrado_en,
           };
         }),
     }));
@@ -342,6 +350,7 @@ export async function emitirCosas(yo: Yo, oppId: string, p: PedidoEmitir): Promi
   for (const x of p.hitos) {
     const h = todos.get(x.id);
     if (!h) throw new Error("Algún hito ya no está para facturar: vuelve a abrir la dirección.");
+    if (h.aExito) throw new Error(`«${h.que}» es a éxito: se factura cada concesión, no el hito. Añade la concesión.`);
     if (!h.ya && !x.motivo?.trim()) throw new Error(`«${h.que}» aún no se ha alcanzado: falta por qué se factura antes.`);
     if (!(x.importe > 0)) throw new Error(`Falta el importe de «${h.que}».`);
   }

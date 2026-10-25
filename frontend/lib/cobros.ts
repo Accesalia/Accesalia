@@ -79,6 +79,7 @@ export * from "./cobrosCalculo";
 export type FilaHito = {
   id: string; linea_facturacion_id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null;
   estado: string; fecha_prevista: string | null; en_pausa_desde: string | null; notas: string | null; hito_padre_id: string | null;
+  cerrado_en?: string | null;
 };
 export type FilaEnlace = {
   hito_cobro_id: string; importe: number | null;
@@ -101,6 +102,7 @@ export function montarHitos(filas: FilaHito[], enlaces: Map<string, FacturaDeHit
     facturas: enlaces.get(f.id) ?? [],
     subhitos: (hijos.get(f.id) ?? []).sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)).map(uno),
     notas: notas.get(f.id) ?? [],
+    cerrado: f.cerrado_en ?? null,
   });
   const porLinea = new Map<string, Hito[]>();
   for (const f of filas.filter((x) => !x.hito_padre_id).sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)))
@@ -168,7 +170,7 @@ export async function detalleCobro(oppId: string, libro: Libro = "accesalia"): P
   const lids = lineas.map((l) => l.id);
   const filas = lids.length
     ? await leer<FilaHito[]>(
-        `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id&linea_facturacion_id=in.(${lids.join(",")})`,
+        `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id,cerrado_en&linea_facturacion_id=in.(${lids.join(",")})`,
       )
     : [];
   const hids = filas.map((h) => h.id);
@@ -268,7 +270,7 @@ export async function porCobrar(libro: Libro = "accesalia"): Promise<FilaPorCobr
     todo<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; emisor: string | null }>(
       "lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje,emisor",
     ),
-    todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id"),
+    todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id,cerrado_en"),
     todo<FilaEnlace>(
       "factura_linea_hitos?select=hito_cobro_id,importe,linea:factura_linea_id(factura:factura_id(id,anio,serie,numero,tipo,fecha,estado,url_pdf,empresa_emisora))",
     ),
@@ -419,6 +421,59 @@ export async function fraccionarHito(hitoId: string, partes: { importe: number; 
   await apuntarNota(hitoId, h.hojaId, `FRACCIONADO en ${partes.length} plazos: ${motivo.trim()}`, yo);
 }
 
+/** EL HITO A EXITO, ABIERTO (Monica, 25-oct-2026: una subvencion se puede cobrar mas de una vez, en varias
+ *  convocatorias). Un hito a exito no tiene importe: cada concesion es una PARTE suya (como un hito partido) con su
+ *  convocatoria, lo concedido y su importe = lo concedido × el % de la linea; se factura y se cobra como cualquier
+ *  hito. El hito sigue abierto hasta que alguien lo cierra a mano (cerrarExito). */
+async function exitoAbierto(hitoId: string) {
+  const [h] = await leer<{ id: string; hito: string; importe: number | null; hito_padre_id: string | null; estado: string; cerrado_en: string | null;
+    linea: { id: string; porcentaje: number | null; descripcion: string | null } | null }[]>(
+    `hitos_cobro?select=id,hito,importe,hito_padre_id,estado,cerrado_en,linea:linea_facturacion_id(id,porcentaje,descripcion)&id=eq.${hitoId}`,
+  );
+  if (!h?.linea) throw new Error("Ese hito no existe.");
+  if (h.hito_padre_id) throw new Error("Esto es una concesión: se añaden en su hito a éxito.");
+  if (h.linea.porcentaje == null || h.importe != null) throw new Error("Este hito no es a éxito: no lleva concesiones.");
+  if (h.cerrado_en) throw new Error("Este hito a éxito ya está cerrado.");
+  if (h.estado === "anulado") throw new Error("Este hito está anulado.");
+  return h as typeof h & { linea: NonNullable<typeof h.linea> };
+}
+
+export async function anadirConcesion(hitoId: string, c: { convocatoria: string; concedido: number; fecha: string }, yo: Yo) {
+  const h = await exitoAbierto(hitoId);
+  if (!c.convocatoria.trim()) throw new Error("Escribe de qué convocatoria es la concesión.");
+  if (!(c.concedido > 0)) throw new Error("Falta lo concedido.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(c.fecha)) throw new Error("Falta la fecha de la concesión.");
+  const pct = Number(h.linea.porcentaje);
+  const importe = Math.round(c.concedido * pct) / 100;
+  const ya = await leer<{ orden: number | null }[]>(`hitos_cobro?select=orden&hito_padre_id=eq.${hitoId}&order=orden.desc.nullslast&limit=1`);
+  const eur = (n: number) => n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  await pedir("hitos_cobro", {
+    method: "POST",
+    body: JSON.stringify({
+      linea_facturacion_id: h.linea.id, hito: h.hito, hito_padre_id: hitoId, orden: (ya[0]?.orden ?? 0) + 1, porcentaje: pct, importe, estado: "pendiente",
+      fecha_prevista: c.fecha, notas: `${c.convocatoria.trim()}: concedido ${eur(c.concedido)} € × ${eur(pct)} %`, creado_por: yo.id,
+    }),
+  });
+  const { hojaId } = await hojaDeHito(hitoId);
+  await apuntarNota(hitoId, hojaId, `CONCESIÓN añadida: ${c.convocatoria.trim()}, concedido ${eur(c.concedido)} € → ${eur(importe)} € a facturar`, yo);
+}
+
+/** Cerrar el hito a exito: ya no habra mas concesiones. Lo que tenga sin cobrar sigue su curso; si no tuvo ninguna, se
+ *  anula (no hay nada que cobrar). */
+export async function cerrarExito(hitoId: string, motivo: string, yo: Yo) {
+  if (!motivo.trim()) throw new Error("Escribe por qué se cierra («no hay más convocatorias», «pasó el plazo de la hoja»…).");
+  const h = await exitoAbierto(hitoId);
+  const partes = await leer<{ estado: string }[]>(`hitos_cobro?select=estado&hito_padre_id=eq.${hitoId}&estado=neq.anulado`);
+  const hechas = partes.filter((p) => p.estado === "completado").length;
+  const estado = !partes.length ? "anulado" : hechas === partes.length ? "completado" : hechas ? "parcial" : "pendiente";
+  await pedir(`hitos_cobro?id=eq.${hitoId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ cerrado_en: new Date().toISOString(), cerrado_por: yo.id, motivo_cierre: motivo.trim(), estado, editado_en: new Date().toISOString(), editado_por: yo.id }),
+  });
+  const { hojaId } = await hojaDeHito(h.id);
+  await apuntarNota(hitoId, hojaId, `A ÉXITO CERRADO (${partes.length} ${partes.length === 1 ? "concesión" : "concesiones"}): ${motivo.trim()}`, yo);
+}
+
 /** El PDF de una factura (almacen privado `facturas`). */
 export async function pdfDeFactura(id: string, yo?: Yo): Promise<{ pdf: Uint8Array; nombre: string } | null> {
   const [f] = await leer<{ url_pdf: string | null; anio: number; serie: string; numero: number; pagador_nombre: string | null; empresa_emisora: string }[]>(
@@ -474,7 +529,7 @@ export async function datosCaja(): Promise<DatosCaja> {
       // El cronograma y la caja son de Accesalia (y Daniel): lo de Ecobalance va en su libro.
       `lineas_facturacion?select=id,hoja_encargo_id,bloque:bloque_id(va_a_faro,va_a_tecnico)&emisor=in.(${EMISORES.accesalia.join(",")})`,
     ),
-    todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id"),
+    todo<FilaHito>("hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id,cerrado_en"),
     todo<FilaEnlace>("factura_linea_hitos?select=hito_cobro_id,importe,linea:factura_linea_id(factura:factura_id(id,anio,serie,numero,tipo,fecha,estado,url_pdf,empresa_emisora))"),
     leer<{ equipo: { id: string; nombre: string; apellidos: string | null; activo: boolean | null } | null }[]>(
       "equipo_funciones?select=equipo:equipo_id(id,nombre,apellidos,activo),funcion:funcion_id!inner(clave)&funcion.clave=eq.proyecto",

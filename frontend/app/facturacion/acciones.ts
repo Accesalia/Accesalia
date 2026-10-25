@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../lib/sesion";
-import { cambiarHito, fechaDeHito, fraccionarHito, libroDeHito, notaDeHito, pausarHito, puedeVerCobros, puedeVerEcobalance, puedeVerLibro } from "../../lib/cobros";
+import { cambiarHito, fechaDeHito, anadirConcesion, cerrarExito, fraccionarHito, libroDeHito, notaDeHito, pausarHito, puedeVerCobros, puedeVerEcobalance, puedeVerLibro } from "../../lib/cobros";
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -54,6 +54,14 @@ export async function accionCambiarHito(oppId: string, hitoId: string, cambio: {
   return hacer(oppId, () => cambiarHito(hitoId, cambio, motivo, yo));
 }
 
+export async function accionConcesion(oppId: string, hitoId: string, c: { convocatoria: string; concedido: number; fecha: string }) {
+  const yo = await permiso(hitoId);
+  return hacer(oppId, () => anadirConcesion(hitoId, c, yo));
+}
+export async function accionCerrarExito(oppId: string, hitoId: string, motivo: string) {
+  const yo = await permiso(hitoId);
+  return hacer(oppId, () => cerrarExito(hitoId, motivo, yo));
+}
 export async function accionFraccionar(oppId: string, hitoId: string, partes: { importe: number; fecha: string | null }[], motivo: string) {
   const yo = await permiso(hitoId);
   return hacer(oppId, () => fraccionarHito(hitoId, partes, motivo, yo));
