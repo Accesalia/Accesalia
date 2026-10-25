@@ -150,7 +150,10 @@ export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Pro
   for (const l of nuevas) {
     const r = await pedir("lineas_facturacion?select=id", {
       method: "POST", headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ he_linea_id: l.id, bloque_id: l.bloque_id, emisor: "accesalia", origen: "hoja", verificado: false, creada_por: yo?.id ?? null }),
+      body: JSON.stringify({
+        he_linea_id: l.id, bloque_id: l.bloque_id, emisor: "accesalia", origen: "hoja", verificado: false, creada_por: yo?.id ?? null,
+        es_porcentaje: l.importe == null && l.porcentaje != null,
+      }),
     });
     const [ficha] = (await r.json()) as { id: string }[];
     const importe = l.importe == null ? null : Number(l.importe);
@@ -173,4 +176,57 @@ export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Pro
     nHitos += filas.length;
   }
   return { fichas: nuevas.length, hitos: nHitos };
+}
+
+// ------------------------------------------------------------ LA HOJA DE FACTURACION, ENTERA
+
+/** Una hoja como la leen las pantallas del dinero: la version (vista facturacion_hojas) con su opp, su contrata, y sus
+ *  fichas de facturacion (vista facturacion_lineas) con el bloque y los hitos de cada una. */
+export type FichaLinea = {
+  id: string; hoja_id: string; he_linea_id: string | null; descripcion: string | null; importe: number | null; es_porcentaje: boolean; porcentaje: number | null;
+  bloque_id: string | null; emisor: string; validada_en: string | null; validada_por: string | null; editada_en: string | null; editada_por: string | null;
+  creada_por: string | null; quitada_en: string | null; origen: string | null; creado_en: string; extraido: unknown; forma_cobro: string | null;
+  bloque: { nombre: string; area: string | null; va_a_tecnico: boolean; va_a_faro: boolean } | null;
+  hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; notas: string | null; hito_padre_id: string | null;
+    fecha_cobro: string | null; fecha_prevista: string | null; en_pausa_desde: string | null; editado_por: string | null; creado_por: string | null }[];
+};
+export type HojaFacturacion = {
+  id: string; numero_hoja: string; fecha_firma: string | null; oportunidad_id: string | null; comunidad_id: string | null;
+  pagador_tipo: string | null; pagador_id: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null; comercial_id: string | null;
+  fase: string; firmada_documento_id: string | null; codigos_contrata: Record<string, string> | null;
+  contrata: { nombre: string; cif: string | null; codigos_exigidos: string[] | null; emisor_factura: string | null } | null;
+  opp: { id: string; nombre: string | null; codigo: string | null; comercial: { nombre: string; email: string | null } | null } | null;
+  lineas: FichaLinea[];
+};
+const SEL_HOJA_F =
+  "id,numero_hoja,fecha_firma,oportunidad_id,comunidad_id,pagador_tipo,pagador_id,pagador_contrata_id,pagador_persona_id,comercial_id,fase,firmada_documento_id,codigos_contrata," +
+  "contrata:pagador_contrata_id(nombre,cif,codigos_exigidos,emisor_factura)," +
+  "opp:oportunidad_id(id,nombre,codigo,comercial:comerciales!oportunidades_comercial_id_fkey(nombre,email))";
+const SEL_FICHA =
+  "id,hoja_id,he_linea_id,descripcion,importe,es_porcentaje,porcentaje,bloque_id,emisor,validada_en,validada_por,editada_en,editada_por,creada_por,quitada_en,origen,creado_en,extraido,forma_cobro," +
+  "hitos:hitos_cobro(id,hito,orden,porcentaje,importe,estado,notas,hito_padre_id,fecha_cobro,fecha_prevista,en_pausa_desde,editado_por,creado_por)";
+
+/** Las hojas (versiones firmadas) que se piden, o las de una opp, con sus fichas. Solo las fichas sin quitar, del libro
+ *  de Accesalia y Daniel salvo que se pida el de Ecobalance. */
+export async function hojasDeFacturacion(f: { ids?: string[]; oppId?: string; fases?: readonly string[]; emisores?: string[] }): Promise<HojaFacturacion[]> {
+  const fases = f.fases ? `&fase=${filtroFases(f.fases)}` : "";
+  const hojas = f.ids
+    ? (f.ids.length ? await porTramos<Omit<HojaFacturacion, "lineas">>(f.ids, (t) => `facturacion_hojas?select=${SEL_HOJA_F}&id=in.(${t})${fases}`) : [])
+    : await leerTodo<Omit<HojaFacturacion, "lineas">>(`facturacion_hojas?select=${SEL_HOJA_F}${f.oppId ? `&oportunidad_id=eq.${f.oppId}` : ""}${fases}&order=fecha_firma`);
+  if (!hojas.length) return [];
+  const emisores = f.emisores ?? ["accesalia", "daniel_autonomo"];
+  const fichas = await porTramos<Omit<FichaLinea, "bloque">>(hojas.map((h) => h.id),
+    (t) => `facturacion_lineas?select=${SEL_FICHA}&hoja_id=in.(${t})&quitada_en=is.null&emisor=in.(${emisores.join(",")})&order=creado_en`);
+  const bloques = [...new Set(fichas.map((x) => x.bloque_id).filter((x): x is string => !!x))];
+  const bloque = new Map(
+    (bloques.length ? await porTramos<{ id: string; nombre: string; area: string | null; va_a_tecnico: boolean; va_a_faro: boolean }>(bloques,
+      (t) => `bloques?select=id,nombre,area,va_a_tecnico,va_a_faro&id=in.(${t})`) : []).map((b) => [b.id, b]),
+  );
+  return hojas.map((h) => ({
+    ...h,
+    lineas: fichas.filter((x) => x.hoja_id === h.id).map((x) => {
+      const b = x.bloque_id ? bloque.get(x.bloque_id) : undefined;
+      return { ...x, bloque: b ? { nombre: b.nombre, area: b.area, va_a_tecnico: b.va_a_tecnico, va_a_faro: b.va_a_faro } : null };
+    }),
+  }));
 }

@@ -16,7 +16,8 @@ import "server-only";
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { enviarCorreo } from "./correo";
-import { estadosDeHojas, movimientosDe, resumenDestino } from "./recorridoHoja";
+import { movimientosDe, resumenDestino } from "./recorridoHoja";
+import { hojasDeFacturacion, urlFirmada } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -38,6 +39,7 @@ const hoy = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }
 
 export const EMISORES_ACCESALIA = ["accesalia", "daniel_autonomo"];
 /** Desde cuando entran hojas en la lista (lo anterior se valido en la carga). */
+/** (Lo de antes de la migracion: desde cuando entraban hojas en la lista. Ya no filtra: lo dice la fase.) */
 export const DESDE = "2025-01-01";
 
 export function puedeValidar(yo: Yo): boolean {
@@ -60,76 +62,43 @@ export type FilaNueva = {
   devuelta: string | null;
 };
 
-type HojaCruda = {
-  id: string; numero_hoja: string; fecha_firma: string; oportunidad_id: string | null;
-  opp: { nombre: string | null; codigo: string | null; comercial: { nombre: string } | null } | null;
-};
-type LineaCruda = { id: string; hoja_encargo_id: string; validada_en: string | null };
-
-const SEL_HOJA =
-  "id,numero_hoja,fecha_firma,oportunidad_id," +
-  "opp:oportunidad_id(nombre,codigo,comercial:comerciales!oportunidades_comercial_id_fkey(nombre))";
-
-async function leerTodo<T>(path: string): Promise<T[]> {
-  const out: T[] = [];
-  for (let d = 0; ; d += 1000) {
-    const x = (await (await pedir(path, { headers: { Range: `${d}-${d + 999}` } })).json()) as T[];
-    out.push(...x);
-    if (x.length < 1000) return out;
-  }
-}
-
-/** LA LISTA (cambiada el 25-oct-2026): las hojas con alguna linea sin validar, y las que ya tienen todas validadas pero
- *  aun no se ha elegido a donde van (o se devolvieron desde el diario). Salen al pulsar uno de los dos botones. */
+/** LA LISTA (hojas nuevas, dia de la migracion): las hojas que el comercial ya ha dado por buenas (ok_comercial) y aun
+ *  no tienen destino: con lineas por validar, o todas validadas sin elegir a donde van (hitos_validados; tambien las
+ *  devueltas desde el diario). Salen al pulsar uno de los dos botones. */
 export async function nuevasHojas(): Promise<FilaNueva[]> {
-  const [pend, validadas] = await Promise.all([
-    leerTodo<LineaCruda>(`lineas_facturacion?select=hoja_encargo_id&validada_en=is.null&quitada_en=is.null&emisor=in.${enLista(EMISORES_ACCESALIA)}`),
-    leerTodo<LineaCruda>(
-      `lineas_facturacion?select=hoja_encargo_id,hoja:hoja_encargo_id!inner(id)&validada_en=not.is.null&quitada_en=is.null&emisor=in.${enLista(EMISORES_ACCESALIA)}` +
-        `&hoja.estado=eq.devuelta_firmada&hoja.fecha_firma=gte.${DESDE}`,
-    ),
+  const hs = await hojasDeFacturacion({ fases: ["ok_comercial", "hitos_validados"] });
+  if (!hs.length) return [];
+  const ids = hs.map((h) => h.id);
+  const lids = hs.flatMap((h) => h.lineas.map((l) => l.id));
+  const [movs, dudas] = await Promise.all([
+    movimientosDe(ids),
+    lids.length ? leerTramos<{ linea_facturacion_id: string }>(lids, (t) => `notas_facturacion?select=linea_facturacion_id&linea_facturacion_id=in.(${t})&tipo=eq.duda&resuelta_en=is.null`) : [],
   ]);
-  const conPendientes = new Set(pend.map((l) => l.hoja_encargo_id));
-  const todasValidadas = [...new Set(validadas.map((l) => l.hoja_encargo_id))].filter((id) => !conPendientes.has(id));
-  const estados = await estadosDeHojas(todasValidadas);
-  const sinDestino = todasValidadas.filter((id) => (estados.get(id)?.fase ?? "nueva") === "nueva");
-  const ids = [...conPendientes, ...sinDestino];
-  if (!ids.length) return [];
   // Las devueltas desde el diario: con su motivo, para saber por que han vuelto.
-  const movs = await movimientosDe(ids);
   const devueltas = new Map<string, string>();
   for (const [id, m] of movs) {
     const ult = [...m].sort((a, b) => a.en.localeCompare(b.en)).filter((x) => ["a_cobro", "a_produccion", "devuelta"].includes(x.tipo)).at(-1);
     if (ult?.tipo === "devuelta") devueltas.set(id, ult.motivo ?? "");
   }
-  const out: FilaNueva[] = [];
-  for (let i = 0; i < ids.length; i += 150) {
-    const trozo = ids.slice(i, i + 150);
-    const [hojas, lineas, dudas] = await Promise.all([
-      leer<HojaCruda[]>(`hojas_encargo?select=${SEL_HOJA}&id=in.${enLista(trozo)}&estado=eq.devuelta_firmada&fecha_firma=gte.${DESDE}`),
-      leer<LineaCruda[]>(
-        `lineas_facturacion?select=id,hoja_encargo_id,validada_en&hoja_encargo_id=in.${enLista(trozo)}&quitada_en=is.null&emisor=in.${enLista(EMISORES_ACCESALIA)}`,
-      ),
-      leer<{ hoja_encargo_id: string }[]>(
-        `notas_facturacion?select=hoja_encargo_id&hoja_encargo_id=in.${enLista(trozo)}&tipo=eq.duda&resuelta_en=is.null`,
-      ),
-    ]);
-    const hoyMs = Date.parse(hoy());
-    for (const h of hojas) {
-      const ls = lineas.filter((l) => l.hoja_encargo_id === h.id);
-      out.push({
-        id: h.id, numero: h.numero_hoja, fechaFirma: h.fecha_firma,
-        dias: Math.max(0, Math.round((hoyMs - Date.parse(h.fecha_firma)) / 86400000)),
-        direccion: nombreDeOpp(h.opp), // la direccion es el nombre de la opp (13-oct-2026)
-        comercial: h.opp?.comercial?.nombre ?? null,
-        lineas: ls.length, validadas: ls.filter((l) => l.validada_en).length,
-        dudas: dudas.filter((d) => d.hoja_encargo_id === h.id).length,
-        devuelta: devueltas.get(h.id) ?? null,
-      });
-    }
-  }
-  // Las que mas tiempo llevan esperando, arriba.
-  return out.sort((a, b) => a.fechaFirma.localeCompare(b.fechaFirma) || a.numero.localeCompare(b.numero));
+  const hoyMs = Date.parse(hoy());
+  return hs
+    .map((h) => ({
+      id: h.id, numero: h.numero_hoja, fechaFirma: h.fecha_firma ?? hoy(),
+      dias: h.fecha_firma ? Math.max(0, Math.round((hoyMs - Date.parse(h.fecha_firma)) / 86400000)) : 0,
+      direccion: h.opp ? nombreDeOpp(h.opp) : "—", // la direccion es el nombre de la opp (13-oct-2026)
+      comercial: h.opp?.comercial?.nombre ?? null,
+      lineas: h.lineas.length, validadas: h.lineas.filter((l) => l.validada_en).length,
+      dudas: dudas.filter((d) => h.lineas.some((l) => l.id === d.linea_facturacion_id)).length,
+      devuelta: devueltas.get(h.id) ?? null,
+    }))
+    // Las que mas tiempo llevan esperando, arriba.
+    .sort((a, b) => a.fechaFirma.localeCompare(b.fechaFirma) || a.numero.localeCompare(b.numero));
+}
+
+async function leerTramos<T>(ids: string[], hacer: (t: string) => string): Promise<T[]> {
+  const out: T[] = [];
+  for (let i = 0; i < ids.length; i += 150) out.push(...((await leer<T[]>(hacer(ids.slice(i, i + 150).join(",")))) ?? []));
+  return out;
 }
 
 // ------------------------------------------------------------ una hoja abierta
@@ -150,6 +119,9 @@ export type LineaAbierta = {
   porcentaje: number | null;
   base: string | null;
   manual: boolean;
+  /** De la hoja firmada: el concepto, el importe y el % no se corrigen aqui (lo firmado no se toca; si no cuadra,
+   *  una duda). Solo las añadidas a mano se escriben enteras. Los hitos, siempre (son de facturacion). */
+  fija: boolean;
   validada: { en: string; por: string | null } | null;
   editada: { en: string; por: string | null } | null;
   creadaPor: string | null;
@@ -166,23 +138,10 @@ const TEXTO_HITO: Record<string, string> = {
 
 export async function hojaAbierta(hojaId: string): Promise<HojaAbierta | null> {
   if (!uuid(hojaId)) return null;
-  const [h] = await leer<{ id: string; numero_hoja: string; versiones: { id: string; numero_version: number; pdfs_firmados: string[] | null }[] }[]>(
-    `hojas_encargo?select=id,numero_hoja,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)&id=eq.${hojaId}`,
-  );
+  const [h] = await hojasDeFacturacion({ ids: [hojaId] });
   if (!h) return null;
-  const v = [...h.versiones].filter((x) => x.pdfs_firmados?.length).sort((a, b) => b.numero_version - a.numero_version)[0];
-  const pdf = v ? `/facturacion/documento/${h.id}/${v.id}/${v.pdfs_firmados!.length - 1}` : null;
-
-  type LC = {
-    id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean; porcentaje: number | null; base_porcentaje: string | null;
-    origen: string | null; validada_en: string | null; validada_por: string | null; editada_en: string | null; editada_por: string | null; creada_por: string | null;
-    hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; notas: string | null; hito_padre_id: string | null; editado_por: string | null; creado_por: string | null }[];
-  };
-  const lineas = await leer<LC[]>(
-    "lineas_facturacion?select=id,descripcion,importe,es_porcentaje,porcentaje,base_porcentaje,origen,validada_en,validada_por,editada_en,editada_por,creada_por," +
-      "hitos:hitos_cobro(id,hito,orden,porcentaje,importe,estado,notas,hito_padre_id,editado_por,creado_por)" +
-      `&hoja_encargo_id=eq.${hojaId}&quitada_en=is.null&emisor=in.${enLista(EMISORES_ACCESALIA)}&order=creado_en`,
-  );
+  const pdf = urlFirmada(h);
+  const lineas = h.lineas;
   const lids = lineas.map((l) => l.id);
   const dudas = lids.length
     ? await leer<{ id: string; linea_facturacion_id: string; texto: string; autor: string | null; fecha: string; enviada_a: "comercial" | "direccion" | null; enviada_en: string | null; enviada_para: string[] | null }[]>(
@@ -216,8 +175,9 @@ export async function hojaAbierta(hojaId: string): Promise<HojaAbierta | null> {
       importe: l.importe == null ? null : Number(l.importe),
       esPorcentaje: l.es_porcentaje,
       porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
-      base: l.base_porcentaje,
+      base: null,
       manual: l.origen === "manual",
+      fija: !!l.he_linea_id,
       validada: l.validada_en ? { en: l.validada_en, por: quien(l.validada_por) } : null,
       editada: l.editada_en ? { en: l.editada_en, por: quien(l.editada_por) } : null,
       creadaPor: quien(l.creada_por),
@@ -249,11 +209,12 @@ const nombreDe = (yo: Yo) => [yo.nombre, yo.apellidos].filter(Boolean).join(" ")
 /** La linea, si es del libro de Accesalia y de una hoja firmada. Cada cambio lo comprueba. */
 async function lineaDelLibro(lineaId: string) {
   if (!uuid(lineaId)) throw new Error("Línea no válida.");
-  const [l] = await leer<{ id: string; hoja_encargo_id: string; emisor: string; validada_en: string | null; extraido: unknown; descripcion: string | null; importe: number | null; porcentaje: number | null; es_porcentaje: boolean }[]>(
-    `lineas_facturacion?select=id,hoja_encargo_id,emisor,validada_en,extraido,descripcion,importe,porcentaje,es_porcentaje&id=eq.${lineaId}`,
+  const [f] = await leer<{ id: string; hoja_id: string; he_linea_id: string | null; emisor: string; validada_en: string | null; extraido: unknown; descripcion: string | null; importe: number | null; porcentaje: number | null; es_porcentaje: boolean }[]>(
+    `facturacion_lineas?select=id,hoja_id,he_linea_id,emisor,validada_en,extraido,descripcion,importe,porcentaje,es_porcentaje&id=eq.${lineaId}`,
   );
-  if (!l || !EMISORES_ACCESALIA.includes(l.emisor)) throw new Error("Esa línea no es de Accesalia.");
-  return l;
+  if (!f || !EMISORES_ACCESALIA.includes(f.emisor)) throw new Error("Esa línea no es de Accesalia.");
+  // hoja_encargo_id = la hoja (la version), como la llaman todas las funciones de aqui.
+  return { ...f, hoja_encargo_id: f.hoja_id };
 }
 
 /** La primera vez que alguien corrige una linea, se guarda lo que la app extrajo. */
@@ -282,6 +243,7 @@ export type CampoLinea = "concepto" | "importe" | "porcentaje";
 export async function corregirLinea(lineaId: string, campo: CampoLinea, valor: string, yo: Yo): Promise<string> {
   const l = await lineaDelLibro(lineaId);
   if (l.validada_en) throw new Error("La línea ya está validada: se cambia desde Modificar Hitos.");
+  if (l.he_linea_id) throw new Error("Esto es lo firmado y no se cambia aquí: si no cuadra, pon una duda.");
   await guardarExtraido(l);
   const cambio = campo === "concepto" ? { descripcion: valor.trim() } : campo === "importe" ? { importe: aNumero(valor) } : { porcentaje: aNumero(valor) };
   await pedir(`lineas_facturacion?id=eq.${lineaId}`, { method: "PATCH", body: JSON.stringify({ ...cambio, editada_en: ahora(), editada_por: yo.id }) });
@@ -334,7 +296,7 @@ export async function anadirLinea(hojaId: string, yo: Yo): Promise<string> {
   const r = await pedir("lineas_facturacion?select=id", {
     method: "POST",
     headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ hoja_encargo_id: hojaId, descripcion: "", origen: "manual", verificado: false, emisor: "accesalia", es_porcentaje: false, creada_por: yo.id, editada_en: ahora(), editada_por: yo.id }),
+    body: JSON.stringify({ he_version_id: hojaId, descripcion: "", origen: "manual", verificado: false, emisor: "accesalia", es_porcentaje: false, creada_por: yo.id, editada_en: ahora(), editada_por: yo.id }),
   });
   const [l] = (await r.json()) as { id: string }[];
   await pedir("hitos_cobro", {
@@ -348,6 +310,7 @@ export async function anadirLinea(hojaId: string, yo: Yo): Promise<string> {
 export async function quitarLinea(lineaId: string, yo: Yo): Promise<string> {
   const l = await lineaDelLibro(lineaId);
   if (l.validada_en) throw new Error("La línea ya está validada.");
+  if (l.he_linea_id) throw new Error("Esta línea es de la hoja firmada y no se quita: si sobra, pon una duda.");
   await pedir(`lineas_facturacion?id=eq.${lineaId}`, { method: "PATCH", body: JSON.stringify({ quitada_en: ahora(), quitada_por: yo.id }) });
   return l.hoja_encargo_id;
 }
@@ -368,6 +331,12 @@ export async function validarLinea(lineaId: string, yo: Yo): Promise<string> {
   }
   await pedir(`lineas_facturacion?id=eq.${lineaId}`, { method: "PATCH", body: JSON.stringify({ validada_en: ahora(), validada_por: yo.id }) });
   await avisarLineaAMano(lineaId, yo).catch(() => null);
+  // La ultima: la hoja pasa a «hitos validados» (su historial y su fase), y se abren los dos destinos.
+  const [h] = await hojasDeFacturacion({ ids: [l.hoja_encargo_id] });
+  if (h && h.fase === "ok_comercial" && h.lineas.length && h.lineas.every((x) => x.validada_en)) {
+    await pedir("he_estados_hoja", { method: "POST", body: JSON.stringify({ version_id: h.id, estado: "hitos_validados", persona_id: yo.id, lado: "facturacion" }) });
+    await pedir(`he_versiones_hoja?id=eq.${h.id}`, { method: "PATCH", body: JSON.stringify({ estado: "hitos_validados" }) });
+  }
   return l.hoja_encargo_id;
 }
 
@@ -375,11 +344,15 @@ export async function validarLinea(lineaId: string, yo: Yo): Promise<string> {
  *  pasaba»). Si la app se salto una linea de la hoja y facturacion la añade, al validarla (ya con su concepto, importe
  *  e hitos) sale un correo desde facturacion a direccion. El aviso no para nada: si no sale, la linea queda igual. */
 async function avisarLineaAMano(lineaId: string, yo: Yo) {
-  const [l] = await leer<{ origen: string | null; descripcion: string | null; importe: number | null; hoja: { id: string; numero_hoja: string; opp: { nombre: string | null; codigo: string | null } | null } | null;
+  const [f] = await leer<{ origen: string | null; descripcion: string | null; importe: number | null; hoja_id: string;
     hitos: { notas: string | null; hito: string; importe: number | null; estado: string }[] }[]>(
-    `lineas_facturacion?select=origen,descripcion,importe,hoja:hoja_encargo_id(id,numero_hoja,opp:oportunidad_id(nombre,codigo)),hitos:hitos_cobro(notas,hito,importe,estado)&id=eq.${lineaId}`,
+    `facturacion_lineas?select=origen,descripcion,importe,hoja_id,hitos:hitos_cobro(notas,hito,importe,estado)&id=eq.${lineaId}`,
   );
-  if (!l || l.origen !== "manual") return;
+  if (!f || f.origen !== "manual") return;
+  const [hoja] = await leer<{ id: string; numero_hoja: string; opp: { nombre: string | null; codigo: string | null } | null }[]>(
+    `facturacion_hojas?select=id,numero_hoja,opp:oportunidad_id(nombre,codigo)&id=eq.${f.hoja_id}`,
+  );
+  const l = { ...f, hoja: hoja ?? null };
   const direccion = await leer<{ hasta: string | null; equipo: { email: string | null; activo: boolean } | null }[]>(
     "equipo_funciones?select=hasta,equipo:equipo_id(email,activo),funciones!inner(clave)&funciones.clave=eq.direccion",
   );
@@ -409,7 +382,7 @@ export type EnvioDuda = "guardar" | "comercial" | "direccion";
 async function destinatariosDuda(hojaId: string, a: "comercial" | "direccion"): Promise<string[]> {
   if (a === "comercial") {
     const [h] = await leer<{ opp: { comercial: { email: string | null; equipo: { email: string | null } | null } | null } | null }[]>(
-      `hojas_encargo?select=opp:oportunidad_id(comercial:comerciales!oportunidades_comercial_id_fkey(email,equipo:equipo_id(email)))&id=eq.${hojaId}`,
+      `facturacion_hojas?select=opp:oportunidad_id(comercial:comerciales!oportunidades_comercial_id_fkey(email,equipo:equipo_id(email)))&id=eq.${hojaId}`,
     );
     const c = h?.opp?.comercial;
     const correo = c?.email || c?.equipo?.email;
@@ -431,14 +404,14 @@ export async function ponerDuda(lineaId: string, texto: string, envio: EnvioDuda
   const r = await pedir("notas_facturacion?select=id", {
     method: "POST",
     headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ hoja_encargo_id: l.hoja_encargo_id, linea_facturacion_id: lineaId, tipo: "duda", fecha: hoy(), texto: texto.trim(), origen: "persona", autor_id: yo.id, autor: nombreDe(yo) }),
+    body: JSON.stringify({ linea_facturacion_id: lineaId, tipo: "duda", fecha: hoy(), texto: texto.trim(), origen: "persona", autor_id: yo.id, autor: nombreDe(yo) }),
   });
   const [nota] = (await r.json()) as { id: string }[];
   if (envio === "guardar") return l.hoja_encargo_id;
 
   const para = await destinatariosDuda(l.hoja_encargo_id, envio);
   const [h] = await leer<{ numero_hoja: string; opp: { nombre: string | null; codigo: string | null } | null }[]>(
-    `hojas_encargo?select=numero_hoja,opp:oportunidad_id(nombre,codigo)&id=eq.${l.hoja_encargo_id}`,
+    `facturacion_hojas?select=numero_hoja,opp:oportunidad_id(nombre,codigo)&id=eq.${l.hoja_encargo_id}`,
   );
   const dir = h?.opp ? nombreDeOpp(h.opp) : "";
   const enlace = `${APP}/facturacion/cobrar?hoja=${l.hoja_encargo_id}`;
@@ -462,9 +435,9 @@ export async function ponerDuda(lineaId: string, texto: string, envio: EnvioDuda
 
 export async function resolverDuda(notaId: string, yo: Yo): Promise<string> {
   if (!uuid(notaId)) throw new Error("Duda no válida.");
-  const [n] = await leer<{ linea_facturacion_id: string | null; hoja_encargo_id: string }[]>(`notas_facturacion?select=linea_facturacion_id,hoja_encargo_id&id=eq.${notaId}&tipo=eq.duda`);
+  const [n] = await leer<{ linea_facturacion_id: string | null }[]>(`notas_facturacion?select=linea_facturacion_id&id=eq.${notaId}&tipo=eq.duda`);
   if (!n?.linea_facturacion_id) throw new Error("No se encuentra la duda.");
-  await lineaDelLibro(n.linea_facturacion_id);
+  const l = await lineaDelLibro(n.linea_facturacion_id);
   await pedir(`notas_facturacion?id=eq.${notaId}`, { method: "PATCH", body: JSON.stringify({ resuelta_en: ahora(), resuelta_por: yo.id }) });
-  return n.hoja_encargo_id;
+  return l.hoja_encargo_id;
 }

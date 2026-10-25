@@ -3,7 +3,8 @@ import "server-only";
 //
 // EL RECORRIDO DE UNA HOJA FIRMADA (Monica, 25-oct-2026; maqueta validada docs/figma/recorrido-hoja-firmada.html).
 // Despues de validar sus lineas en Nuevas hojas firmadas, la hoja va a un sitio u otro con un boton, y todo lo que se
-// hace con ella queda en movimientos_hoja (migracion 20261025150000). EL ESTADO ES EL ULTIMO MOVIMIENTO:
+// hace con ella queda en su historial, he_estados_hoja (desde el dia de la migracion; antes, movimientos_hoja).
+// EL ESTADO ES EL ULTIMO MOVIMIENTO:
 //   - nueva: sin destino, o devuelta a la lista            -> Nuevas hojas firmadas
 //   - a_cobro, sin cobrar el primer hito                    -> Primer cobro
 //   - a_cobro con el primer hito cobrado, o a_produccion    -> Bandeja de la secretaria comercial
@@ -14,6 +15,7 @@ import "server-only";
 
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
+import { FASES_FACTURACION, hojasDeFacturacion, leerTodo, urlFirmada, type HojaFacturacion } from "./hojasNuevas";
 import { sinArchivar, tiposCajon, type DocCajon, type GrupoTipos } from "./cajonDocumentos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -67,7 +69,23 @@ export type Mov = {
   id: string; hoja_encargo_id: string; tipo: TipoMov; en: string; por: string | null; lado: Lado;
   motivo: string | null; areas: string[] | null; tejado: Tejado | null; condicion: string | null;
 };
-const SEL_MOV = "id,hoja_encargo_id,tipo,en,por,lado,motivo,areas,tejado,condicion";
+// LAS HOJAS NUEVAS (dia de la migracion): el recorrido vive en el historial de la hoja, he_estados_hoja, con los
+// nombres de sus estados (a_cobro = primer_cobro, metida_produccion = ok_administracion). «La hoja» = la version.
+// Los estados que cambian la FASE la escriben tambien en he_versiones_hoja.estado; las pausas y la direccion
+// comprobada son solo filas del historial (la pausa no tapa la fase).
+const ESTADO_DE: Record<TipoMov, string> = {
+  a_cobro: "primer_cobro", a_produccion: "a_produccion", devuelta: "devuelta", direccion_comprobada: "direccion_comprobada",
+  metida_produccion: "ok_administracion", pausada: "pausada", pausa_levantada: "pausa_levantada", reanudada: "reanudada",
+};
+const TIPO_DE: Record<string, TipoMov> = Object.fromEntries(Object.entries(ESTADO_DE).map(([t, e]) => [e, t as TipoMov]));
+/** La fase en que queda la version tras cada movimiento (los que no la cambian, fuera). */
+const FASE_TRAS: Partial<Record<TipoMov, string>> = { a_cobro: "primer_cobro", a_produccion: "a_produccion", devuelta: "hitos_validados", metida_produccion: "ok_administracion" };
+type FilaEstado = { id: string; version_id: string; estado: string; fecha: string; persona_id: string | null; lado: Lado | null; nota: string | null; areas: string[] | null; tejado: Tejado | null; condicion: string | null };
+const SEL_EST = "id,version_id,estado,fecha,persona_id,lado,nota,areas,tejado,condicion";
+const aMov = (f: FilaEstado): Mov | null => {
+  const tipo = TIPO_DE[f.estado];
+  return tipo ? { id: f.id, hoja_encargo_id: f.version_id, tipo, en: f.fecha, por: f.persona_id, lado: f.lado ?? "app", motivo: f.nota, areas: f.areas, tejado: f.tejado, condicion: f.condicion } : null;
+};
 
 export type Fase = "nueva" | "a_cobro" | "a_produccion" | "produccion";
 export type Estado = {
@@ -105,11 +123,15 @@ export function estadoDe(movs: Mov[]): Estado {
 }
 
 export async function movimientosDe(hojaIds?: string[]): Promise<Map<string, Mov[]>> {
+  const estados = `in.(${Object.values(ESTADO_DE).join(",")})`;
   const filas = hojaIds
-    ? await porTramos<Mov>(hojaIds, (t) => `movimientos_hoja?select=${SEL_MOV}&hoja_encargo_id=in.(${t})&order=en`)
-    : await leer<Mov>(`movimientos_hoja?select=${SEL_MOV}&order=en`);
+    ? await porTramos<FilaEstado>(hojaIds, (t) => `he_estados_hoja?select=${SEL_EST}&version_id=in.(${t})&estado=${estados}&order=fecha`)
+    : await leer<FilaEstado>(`he_estados_hoja?select=${SEL_EST}&estado=${estados}&order=fecha`);
   const out = new Map<string, Mov[]>();
-  for (const f of filas) (out.get(f.hoja_encargo_id) ?? out.set(f.hoja_encargo_id, []).get(f.hoja_encargo_id)!).push(f);
+  for (const f of filas) {
+    const m = aMov(f);
+    if (m) (out.get(m.hoja_encargo_id) ?? out.set(m.hoja_encargo_id, []).get(m.hoja_encargo_id)!).push(m);
+  }
   return out;
 }
 
@@ -132,36 +154,24 @@ export async function hojasEnProduccion(): Promise<Map<string, Estado>> {
 }
 
 async function apuntar(yo: Yo | null, hojaId: string, tipo: TipoMov, lado: Lado, extra: Partial<Pick<Mov, "motivo" | "areas" | "tejado" | "condicion">> = {}) {
-  await pedir("movimientos_hoja", {
+  await pedir("he_estados_hoja", {
     method: "POST",
-    body: JSON.stringify({ hoja_encargo_id: hojaId, tipo, lado, por: yo?.id ?? null, motivo: extra.motivo?.trim() || null, areas: extra.areas ?? null, tejado: extra.tejado ?? null, condicion: extra.condicion?.trim() || null }),
+    body: JSON.stringify({
+      version_id: hojaId, estado: ESTADO_DE[tipo], lado, persona_id: yo?.id ?? null, nota: extra.motivo?.trim() || null,
+      areas: extra.areas ?? null, tejado: extra.tejado ?? null, condicion: extra.condicion?.trim() || null,
+    }),
   });
+  const fase = FASE_TRAS[tipo];
+  if (fase) await pedir(`he_versiones_hoja?id=eq.${hojaId}`, { method: "PATCH", body: JSON.stringify({ estado: fase }) });
 }
 
 // ------------------------------------------------------------ la hoja, con sus lineas e hitos
 
-type LineaH = {
-  id: string; descripcion: string | null; importe: number | null; validada_en: string | null; emisor: string; pagador_tipo: string | null; forma_cobro: string | null;
-  bloque: { area: string | null } | null;
-  hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; notas: string | null; hito_padre_id: string | null; fecha_cobro: string | null }[];
-};
-type HojaH = {
-  id: string; numero_hoja: string; fecha_firma: string | null; pagador_tipo: string | null; oportunidad_id: string | null;
-  contrata: { nombre: string } | null;
-  opp: { id: string; nombre: string | null; codigo: string | null; comercial: { nombre: string; email: string | null } | null } | null;
-  lineas: LineaH[];
-};
-const SEL_HOJA =
-  "id,numero_hoja,fecha_firma,pagador_tipo,oportunidad_id,contrata:pagador_contrata_id(nombre)," +
-  "opp:oportunidad_id(id,nombre,codigo,comercial:comerciales!oportunidades_comercial_id_fkey(nombre,email))," +
-  "lineas:lineas_facturacion(id,descripcion,importe,validada_en,emisor,pagador_tipo,forma_cobro,quitada_en,bloque:bloque_id(area)," +
-  "hitos:hitos_cobro(id,hito,orden,porcentaje,importe,estado,notas,hito_padre_id,fecha_cobro))";
+type HojaH = HojaFacturacion;
+type LineaH = HojaFacturacion["lineas"][number];
 
 async function hojas(ids: string[]): Promise<HojaH[]> {
-  if (!ids.length) return [];
-  type Cruda = Omit<HojaH, "lineas"> & { lineas: (LineaH & { quitada_en: string | null })[] };
-  const filas = await porTramos<Cruda>(ids, (t) => `hojas_encargo?select=${SEL_HOJA}&id=in.(${t})`);
-  return filas.map((h) => ({ ...h, lineas: h.lineas.filter((l) => !l.quitada_en && EMISORES.includes(l.emisor)) }));
+  return ids.length ? hojasDeFacturacion({ ids }) : [];
 }
 
 const PLAZO: Record<string, string> = {
@@ -394,7 +404,7 @@ export async function bandeja(): Promise<Bandeja> {
 
   // Las areas ya activas en cada opp: las de sus otras hojas en produccion y sin pausa.
   const opps = [...new Set(listas.map((h) => h.oportunidad_id).filter((x): x is string => !!x))];
-  const hermanas = opps.length ? await porTramos<{ id: string; numero_hoja: string; oportunidad_id: string }>(opps, (t) => `hojas_encargo?select=id,numero_hoja,oportunidad_id&oportunidad_id=in.(${t})`) : [];
+  const hermanas = opps.length ? await porTramos<{ id: string; numero_hoja: string; oportunidad_id: string }>(opps, (t) => `facturacion_hojas?select=id,numero_hoja,oportunidad_id&oportunidad_id=in.(${t})`) : [];
   const activas = new Map<string, Map<string, string>>(); // opp -> area -> hoja que la abrio
   for (const x of hermanas) {
     const e = estados.get(x.id);
@@ -403,9 +413,7 @@ export async function bandeja(): Promise<Bandeja> {
     for (const a of e.areas) if (!m.has(a)) m.set(a, x.numero_hoja);
   }
   // El PDF firmado (como en Nuevas hojas firmadas) y los documentos de la opp.
-  const [versiones, docs, tipos] = await Promise.all([
-    listas.length ? porTramos<{ id: string; hoja_encargo_id: string; numero_version: number; pdfs_firmados: string[] | null }>(listas.map((h) => h.id),
-      (t) => `versiones_hoja?select=id,hoja_encargo_id,numero_version,pdfs_firmados&hoja_encargo_id=in.(${t})`) : [],
+  const [docs, tipos] = await Promise.all([
     sinArchivar(),
     tiposCajon(),
   ]);
@@ -414,12 +422,11 @@ export async function bandeja(): Promise<Bandeja> {
 
   const porMeter: HojaBandeja[] = listas.map((h) => {
     const e = estados.get(h.id)!;
-    const v = versiones.filter((x) => x.hoja_encargo_id === h.id && x.pdfs_firmados?.length).sort((a, b) => b.numero_version - a.numero_version)[0];
     const cob = cobradoPrimero(h);
     const ya = h.oportunidad_id ? activas.get(h.oportunidad_id) : undefined;
     return {
       hojaId: h.id, oppId: h.oportunidad_id, direccion: h.opp ? nombreDeOpp(h.opp) : "—", hoja: h.numero_hoja, paga: pagaDe(h), firma: h.fecha_firma,
-      pdf: v ? `/facturacion/documento/${h.id}/${v.id}/${v.pdfs_firmados!.length - 1}` : null,
+      pdf: urlFirmada(h),
       por: (e.fase === "a_produccion" ? "a_produccion" : "cobrado") as HojaBandeja["por"],
       motivo: e.fase === "a_produccion" ? (e.destino!.motivo ?? "") : `Cobrado el primer hito${cob.fecha ? ` el ${fechaCorta(cob.fecha)}` : ""}`,
       quien: quienEs(n, e.destino!), cuando: e.destino!.en,
@@ -475,7 +482,9 @@ export type Diario = { filas: FilaDiario[]; avisos: { hojaId: string; direccion:
  *  de lo antiguo no sale: no es trabajo de nadie. */
 export async function diario(dias = 60): Promise<Diario> {
   const desde = new Date(Date.now() - dias * 86400000).toISOString();
-  const recientes = await leer<Mov>(`movimientos_hoja?select=${SEL_MOV}&en=gte.${desde}&lado=neq.app&order=en.desc`);
+  const recientes = (await leerTodo<FilaEstado>(
+    `he_estados_hoja?select=${SEL_EST}&fecha=gte.${desde}&lado=in.(facturacion,secretaria)&estado=in.(${Object.values(ESTADO_DE).join(",")})&order=fecha.desc`,
+  )).map(aMov).filter((m): m is Mov => !!m);
   const ids = [...new Set(recientes.map((m) => m.hoja_encargo_id))];
   const [todos, hs] = await Promise.all([movimientosDe(ids), hojas(ids)]);
   const porId = new Map(hs.map((h) => [h.id, h]));
