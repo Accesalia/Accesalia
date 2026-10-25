@@ -10,6 +10,9 @@
 // A QUIEN VA Y TARIFAS (Monica, 25-oct-2026): quien paga elige la tarifa (su convenio o la general) y la forma de pago por
 // defecto; cada linea propone el precio de la tarifa con el calculo del generador viejo (fijo, tramo de viviendas de SUS
 // portales, % del PEM o % a exito) y sale «incluido» lo que el precio de otra ya incluye. Lo escrito a mano manda.
+// LA COMISION DEL ADMINISTRADOR (25-oct-2026): se SUMA si o si al precio de proyecto o de subvenciones segun lo pactado
+// (en euros, una vez por hoja en la primera linea de su clase que se cobra; en %, en cada una), no sale en el papel y se
+// avisa debajo de la tabla. Cada linea guarda cuanto de su importe es comision.
 export function montarArbol(root, datos) {
   const ac = new AbortController();
   const document_ = {
@@ -24,6 +27,7 @@ export function montarArbol(root, datos) {
   const def = (codigo) => D[codigo] || {};
   const PRECIOS = datos.tarifas || [];
   const CASOS = datos.casos || [];
+  const COM = datos.comision || null;
   let PAG = datos.pagador || { tipo: "comunidad", contrataId: null, tarifaId: null, razon: "", cif: "" };
   // LA FORMA DE PAGO POR DEFECTO de un bloque segun quien paga: la de esa contrata, si no la de su tipo, si no «pague quien pague».
   const formaDefecto = (codigo) => {
@@ -200,7 +204,7 @@ export function montarArbol(root, datos) {
   function celdasPrecio(n, q) {
     const papel = q ? "" : `<button type="button" class="sale${n.papel ? "" : " no"}" data-papel="${n.id}">${n.papel ? "sale" : "no sale"}</button>`;
     const cobra = q ? "" : `<select data-cobra="${n.id}" aria-label="Se cobra"><option${n.cobra ? " selected" : ""}>sí</option><option${n.cobra ? "" : " selected"}>incluido</option></select>`;
-    const imp = q ? "" : !n.cobra ? "incluido" : n.pct ? n.pct : `<input type="text" class="imp" data-imp="${n.id}" value="${n.importe ? mil(n.importe) : ""}" aria-label="Importe"${n.origen ? ` title="${esc(n.origen)}"` : ""}>`;
+    const imp = q ? "" : !n.cobra ? "incluido" : n.pct ? n.pct : `<input type="text" class="imp" data-imp="${n.id}" value="${n.importe ? mil(n.importe) : ""}" aria-label="Importe"${n.origen || n.comision ? ` title="${esc([n.origen, n.comision ? `+ ${mil(n.comision)} € de comisión del admin` : ""].filter(Boolean).join(" "))}"` : ""}>`;
     const forma = q || !n.cobra ? "" : selForma(n);
     return { papel, cobra, imp, forma };
   }
@@ -215,6 +219,25 @@ export function montarArbol(root, datos) {
       `<tr class="total"><td>Total</td><td></td><td></td><td class="imp">${eur(total)}</td><td>+ IVA</td><td></td></tr>`;
     arbolDeLineas(tb);
     avisar();
+    pintarComision();
+  }
+  // EL AVISO DE LA COMISION, debajo de la tabla (Monica, 25-oct-2026): cuanto se ha sumado y por que.
+  function pintarComision() {
+    const el = document_.getElementById("comision"); if (!el) return;
+    const ls = activas();
+    const suma = ls.reduce((t, n) => t + (n.cobra && !n.pct ? n.comision || 0 : 0), 0);
+    const avisos = [];
+    if (datos.comisionAviso) avisos.push(`OJO: ${esc(datos.comisionAviso)}`);
+    if (suma > 0) avisos.push(`<b>OJO:</b> sumamos ${eur(suma)} a la tarifa habitual porque hay que pagárselos de comisión al admin (${esc(COM.persona)}).`);
+    // Pactada en euros y sin ninguna linea de su clase con importe donde sumarla: se dice.
+    for (const so of ["proyecto", "subvenciones"]) {
+      const c = COM && COM[so];
+      if (!c) continue;
+      const hay = ls.some((n) => COM.sobre[n.bloque] === so);
+      if (hay && !ls.some((n) => COM.sobre[n.bloque] === so && n.comision > 0 && n.cobra))
+        avisos.push(`<b>OJO:</b> ${esc(COM.persona)} cobra comisión sobre ${so} (${c.forma === "eur" ? eur(c.valor) : pctTexto(c.valor) + " %"}) y no hay ninguna línea de ${so} con importe donde sumarla. Súmala a mano.`);
+    }
+    el.innerHTML = avisos.map((a) => `<div class="avisos" style="margin-top:8px">${a}</div>`).join("");
   }
   // Lo que falta para poder guardar: las preguntas sin contestar y, en lo que se cobra, su importe y su forma de pago.
   function faltas() {
@@ -254,6 +277,7 @@ export function montarArbol(root, datos) {
       aExito: !!(n.cobra && n.pct),
       formaId: n.cobra && n.forma && n.forma !== "otra" ? n.forma : null,
       formaPropia: n.cobra && n.forma === "otra" ? n.formaPropia.trim() || null : null,
+      comision: n.cobra && !n.pct && n.comision > 0 ? n.comision : null,
     });
     for (const n of ns) {
       if (n.t === "preg" || n.t === "opc") { if (n.t === "preg" && !visible(n)) continue; recoger(n.creado, padre, arriba, soloTotal, out); continue; }
@@ -267,7 +291,7 @@ export function montarArbol(root, datos) {
         continue;
       }
       const f = { ref: n.id, padre, bloque: n.bloque, desglose: n.desglose || null, enPapel: true, desglosar: n.conjunto ? n.desglosar !== false : null, portales, texto: n.aMano ? n.texto.trim() || null : null,
-        seCobra: false, importe: null, porcentaje: null, formaId: null, formaPropia: null };
+        seCobra: false, importe: null, porcentaje: null, formaId: null, formaPropia: null, comision: null };
       if (n.precio && !n.precio.quitada) Object.assign(f, precio(n.precio), { enPapel: !!n.precio.papel });
       // «Solo el total»: se cobra el conjunto, con su forma; el total no se guarda (es la suma de sus proyectos).
       if (n.conjunto && n.desglosar === false) Object.assign(f, precio({ ...n, cobra: true, importe: null, pct: null }), { esTotal: true });
@@ -392,8 +416,8 @@ export function montarArbol(root, datos) {
     if (guardando || faltas().length) return;
     document_.getElementById("confirma").innerHTML = "";
     guardando = true; avisar();
-    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto }) =>
-      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto: texto ?? null }));
+    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto, comision }) =>
+      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto: texto ?? null, comision: comision ?? null }));
     await datos.alGuardar?.(filas);
     guardando = false; avisar();
   }
@@ -532,12 +556,25 @@ export function montarArbol(root, datos) {
       // Incluido si el precio de otra linea de la hoja ya lo incluye (el del ascensor incluye la DF y la CSS).
       const incluido = ls.some((m) => m !== n && props.get(m)?.incluye.includes(n.bloque));
       if (!n.manoCobra) n.cobra = n.cobraBase && !incluido;
-      if (!n.manoImp) {
-        if (p && p.pct != null) { n.pctNum = p.pct; n.pct = `${pctTexto(p.pct)} % de lo concedido`; }
-        else if (p) n.importe = p.valor;
-        else if (!n.pct) n.importe = n.importeBase;
-      }
+      if (p && p.pct != null) { if (!n.manoImp) { n.pctNum = p.pct; n.pct = `${pctTexto(p.pct)} % de lo concedido`; } }
+      // El precio sin comision: el de la tarifa o, si no hay, el del catalogo.
+      n.base = p ? p.valor : n.importeBase;
       if (!n.manoForma) n.forma = formaDefecto(n.bloque);
+    }
+    // La comision va sobre lo que se cobra con importe (no a exito) de proyecto o de subvenciones.
+    const yaEnEuros = new Set();
+    for (const n of ls) {
+      n.comision = 0;
+      if (!COM || n.bloque === "OTRO" || !n.cobra || n.pct) continue;
+      const so = COM.sobre[n.bloque];
+      const c = so ? COM[so] : null;
+      if (!c) continue;
+      if (c.forma === "eur") { if (!yaEnEuros.has(so)) { yaEnEuros.add(so); n.comision = Number(c.valor); } }
+      else n.comision = Math.round(((n.base ?? 0) * Number(c.valor)) / 100);
+    }
+    for (const n of ls) {
+      if (n.bloque === "OTRO" || n.manoImp || n.pct) continue;
+      n.importe = n.base == null && !n.comision ? null : (n.base ?? 0) + n.comision;
     }
     // El conjunto con «solo el total» lleva su propia forma de pago.
     for (const c of todos()) if (c.conjunto && !c.manoForma) c.forma = formaDefecto("PROYECTO CONJUNTO") || c.hijos.find((h) => h.conPortales)?.forma || "";

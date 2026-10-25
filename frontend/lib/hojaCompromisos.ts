@@ -10,6 +10,7 @@ import "server-only";
 //   - Los totales no se guardan: se calculan.
 
 import type { Yo } from "./sesion";
+import { comisionDeOpp } from "./hojaEncargo";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -37,6 +38,7 @@ export type FilaHoja = {
   desglosar: boolean | null;
   portales: string[]; // accesos de esta fila (ya heredados)
   texto: string | null; // solo en «Otro» (y si se cambia a mano): lo que es, como sale en la hoja
+  comision: number | null; // euros de comision del administrador que van DENTRO de su importe (no salen en el papel)
 };
 
 /** QUIEN PAGA LA HOJA (Monica, 25-oct-2026: «como la vieja»): su comunidad, un particular titular o una contrata.
@@ -89,6 +91,11 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
     pagador_contrata_id: pagador.tipo === "contrata" ? pagador.id : null,
     pagador_persona_id: pagador.tipo === "persona" ? pagador.id : null,
   };
+  // LA COMISION (25-oct-2026): el acuerdo se busca aqui, no viene del navegador. Si alguna linea la lleva y la comunidad
+  // ya no tiene acuerdo valido, no se guarda: que se revise antes.
+  const conComision = filas.some((f) => f.seCobra && (f.comision ?? 0) > 0);
+  const acuerdo = conComision ? (await comisionDeOpp(opp.id, opp.comunidad_id)).comision?.acuerdoId ?? null : null;
+  if (conComision && !acuerdo) throw new Error("La hoja lleva comisión del administrador pero su comunidad ya no tiene un acuerdo válido. Vuelve a abrir la hoja.");
   const idBloque = new Map(bloques.map((b) => [b.codigo, b.id]));
   const idTipo = new Map(tipos.map((t) => [t.nombre, t.id]));
   for (const f of filas) {
@@ -130,6 +137,8 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
       forma_pago_propia: f.seCobra && !f.formaId ? f.formaPropia?.trim() || null : null,
       texto: f.texto?.trim() || null,
       desglosar_precios: f.desglosar,
+      comision_importe: f.seCobra && (f.comision ?? 0) > 0 ? f.comision : null,
+      comision_acuerdo_id: f.seCobra && (f.comision ?? 0) > 0 ? acuerdo : null,
     }));
     await pedir("he_lineas_compromisos", { method: "POST", body: JSON.stringify(lineas) });
     const accesos = filas.flatMap((f) => [...new Set(f.portales)].map((a) => ({ linea_id: uuid.get(f.ref), acceso_id: a })));
@@ -153,7 +162,7 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
 
 export type LineaGuardada = {
   id: string; padre: string | null; bloque: string; nombreBloque: string; desglose: string | null; enPapel: boolean; seCobra: boolean;
-  importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[]; texto: string | null;
+  importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[]; texto: string | null; comision: number | null;
 };
 export type BorradorGuardado = { id: string; creadoEn: string; actualizadoEn: string; estado: string; quien: string | null; pagador: Pagador; aQuien: string | null; lineas: LineaGuardada[] };
 
@@ -164,11 +173,11 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
     id: string; creado_en: string; actualizado_en: string; estado: string; quien: { nombre: string } | null;
     pagador_tipo: Pagador["tipo"]; pagador_contrata_id: string | null; pagador_persona_id: string | null;
     contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
-    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null; texto: string | null;
+    lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null; texto: string | null; comision_importe: number | null;
       bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
   }[]>(
     `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
-      `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,` +
+      `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,comision_importe,` +
       `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
       `&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
   );
@@ -182,6 +191,7 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
       enPapel: l.en_papel, seCobra: l.se_cobra, importe: l.importe == null ? null : Number(l.importe), porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
       formaId: l.forma_pago_id, formaPropia: l.forma_pago_propia,
       forma: l.forma?.nombre ?? l.forma_pago_propia ?? null, desglosar: l.desglosar_precios, portales: l.accesos.map((a) => a.acceso_id), texto: l.texto,
+      comision: l.comision_importe == null ? null : Number(l.comision_importe),
     })),
   }));
 }

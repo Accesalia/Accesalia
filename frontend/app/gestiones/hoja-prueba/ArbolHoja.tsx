@@ -22,6 +22,15 @@ export type PrecioArbol = {
   forma: string; importe: number | null; porcentaje: number | null; incluye: string[];
 };
 
+/** La comision del administrador de la comunidad: por proyecto y por subvenciones, en euros (una vez por hoja) o en %
+ *  (de cada linea). sobre = sobre que cobra cada bloque, por su codigo. */
+export type ComisionArbol = {
+  persona: string;
+  proyecto: { forma: "eur" | "pct"; valor: number } | null;
+  subvenciones: { forma: "eur" | "pct"; valor: number } | null;
+  sobre: Record<string, "proyecto" | "subvenciones">;
+};
+
 const valorDe = (p: Pagador) => (p.tipo === "comunidad" ? "comunidad" : `${p.tipo}:${p.id}`);
 const pagadorDe = (v: string): Pagador => {
   const [tipo, id] = v.split(":");
@@ -40,10 +49,11 @@ export function ElegirOpp({ opciones, valor }: { opciones: Opcion[]; valor: stri
 
 /** La hoja en arbol de la maqueta validada, montada sobre los datos de la base. Guarda en borrador en las tablas nuevas,
  *  previsualiza el papel y, con un borrador, lo carga para seguir editandolo. */
-export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, pagadores, tarifas, pem, municipio, borrador }: {
+export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, pagadores, comision, comisionAviso, tarifas, pem, municipio, borrador }: {
   oppId: string; defectos: Record<string, Defecto>; interesa: string[];
   accesos: { id: string; texto: string; portalId: string | null; viviendas: number | null }[];
   formas: { id: string; nombre: string; frases: string[] }[]; casos: CasoForma[]; pagadores: PagadorOpcion[];
+  comision: ComisionArbol | null; comisionAviso: string | null;
   tarifas: { generalId: string | null; precios: PrecioArbol[] }; pem: number | null; municipio: string | null;
   borrador: { id: string; lineas: LineaGuardada[]; pagador: Pagador } | null;
 }) {
@@ -78,13 +88,13 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
       else router.replace(`/gestiones/hoja-prueba?opp=${oppId}&borrador=${r.id}`);
     };
     const m = montarArbol(ref.current, {
-      defectos, interesa, accesos, formas, casos, tarifas: tarifas.precios, pem, alGuardar, inicial: borrador?.lineas ?? null,
+      defectos, interesa, accesos, formas, casos, tarifas: tarifas.precios, pem, comision, comisionAviso, alGuardar, inicial: borrador?.lineas ?? null,
       pagador: pagadorMotor(aQuienRef.current),
       papel: { esqueleto: esqueletoHoja(), icio: CLAUSULA_ICIO, municipio },
     });
     motor.current = m;
     return () => { motor.current = null; m.quitar(); };
-  }, [oppId, defectos, interesa, accesos, formas, casos, tarifas, pem, municipio, borrador, router]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [oppId, defectos, interesa, accesos, formas, casos, tarifas, pem, comision, comisionAviso, municipio, borrador, router]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="ah rounded-lg bg-white p-3">
       <style dangerouslySetInnerHTML={{ __html: ESTILOS + ESTILO_PAPEL }} />
@@ -108,6 +118,7 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
                 <tbody id="hoja" />
               </table>
             </div>
+            <div id="comision" />
             <div className="pie">
               {aviso && <span className={`mr-2 text-sm ${aviso.ok ? "text-carbon/70" : "text-red-800"}`}>{aviso.texto}</span>}
               <button type="button" className="secundario" id="previsualizar" disabled>Previsualizar</button>

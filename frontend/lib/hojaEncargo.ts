@@ -251,7 +251,7 @@ export async function puedeVerComunidad(yo: Yo, comunidadId: string): Promise<bo
  *  administracion (alcance "empresas") o el de su persona (alcance "lo_suyo",
  *  tambien si es quien la trajo). Solo los verificados, vigentes y que cobran,
  *  y solo lo pactado de proyecto y subvenciones (lo de contrata no va en la hoja). */
-async function comisionDeOpp(oppId: string, comunidadId: string | null): Promise<{ comision: ComisionAdmin | null; aviso: string | null }> {
+export async function comisionDeOpp(oppId: string, comunidadId: string | null): Promise<{ comision: ComisionAdmin | null; aviso: string | null }> {
   if (!comunidadId) return { comision: null, aviso: null };
   const [responsables, [opp], acuerdos] = await Promise.all([
     leer<{ empresa_id: string | null; puesto: { persona_id: string | null } | null }[]>(

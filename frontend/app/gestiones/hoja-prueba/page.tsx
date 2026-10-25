@@ -59,6 +59,14 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
     : [];
   // LAS TARIFAS (las del generador viejo, 18-oct-2026), con el bloque por su codigo y el tipo por su nombre, como el arbol.
   const codigoBloque = new Map((d?.bloques ?? []).map((b) => [b.id, b.codigo]));
+  // LA COMISION DEL ADMINISTRADOR (18-oct-2026, sumada SI O SI, 25-oct): sobre que cobra cada bloque. Proyecto = el proyecto
+  // basico y de ejecucion (y los SATE con cesion de CAES); subvenciones = las de su area. Los servicios NUNCA.
+  const sobre: Record<string, "proyecto" | "subvenciones"> = {};
+  for (const b of d?.bloques ?? []) {
+    if (b.area === "SUBV" || /^TRAMITACION SUBVENCIONES/.test(b.codigo)) sobre[b.codigo] = "subvenciones";
+    else if (b.codigo === "REDACCION PROYECTO" || /CON CESION DE CAES$/.test(b.codigo)) sobre[b.codigo] = "proyecto";
+  }
+  const comision = d?.comision ? { persona: d.comision.persona, proyecto: d.comision.proyecto, subvenciones: d.comision.subvenciones, sobre } : null;
   const precios: PrecioArbol[] = (d?.tarifas.precios ?? [])
     .filter((p) => codigoBloque.has(p.bloqueId))
     .map((p) => ({
@@ -96,7 +104,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
         )}
         <div className="mt-4">
           {d ? <ArbolHoja key={`${d.opp.id}|${abierto?.id ?? ""}`} oppId={d.opp.id} defectos={defectos} interesa={interesa} accesos={accesos} formas={fp.formas}
-              casos={fp.casos} pagadores={pagadores} tarifas={{ generalId: d.tarifas.generalId, precios }} pem={d.pem} municipio={d.comunidad?.municipio ?? d.municipio}
+              casos={fp.casos} pagadores={pagadores} comision={comision} comisionAviso={d.comisionAviso} tarifas={{ generalId: d.tarifas.generalId, precios }} pem={d.pem} municipio={d.comunidad?.municipio ?? d.municipio}
               borrador={abierto ? { id: abierto.id, lineas: abierto.lineas, pagador: abierto.pagador } : null} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
         </div>
         {d && guardadas.length > 0 && <Guardadas oppId={d.opp.id} abierto={abierto?.id ?? null} borradores={guardadas} accesos={accesos} />}
@@ -137,7 +145,7 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
           </p>
           <table className="mt-1 border-collapse text-[13px] tabular-nums">
             <thead>
-              <tr><th className={th}>Bloque</th><th className={th}>Tipo</th><th className={th}>En el papel</th><th className={th}>Se cobra</th><th className={th}>Importe o %</th><th className={th}>Forma de pago</th><th className={th}>Precios del conjunto</th><th className={th}>Portales</th></tr>
+              <tr><th className={th}>Bloque</th><th className={th}>Tipo</th><th className={th}>En el papel</th><th className={th}>Se cobra</th><th className={th}>Importe o %</th><th className={th}>Forma de pago</th><th className={th}>Comisión dentro</th><th className={th}>Precios del conjunto</th><th className={th}>Portales</th></tr>
             </thead>
             <tbody>
               {enArbol(b.lineas).map(({ l, nivel }) => (
@@ -148,6 +156,7 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
                   <td className={td}>{l.seCobra ? "sí" : <i className="text-carbon/55">incluido</i>}</td>
                   <td className={`${td} text-right`}>{l.importe != null ? `${mil(l.importe)} €` : l.porcentaje != null ? `${String(l.porcentaje).replace(".", ",")} %` : ""}</td>
                   <td className={td}>{l.forma ?? ""}</td>
+                  <td className={`${td} text-right`}>{l.comision != null ? `${mil(l.comision)} €` : ""}</td>
                   <td className={td}>{l.desglosar == null ? "" : l.desglosar ? "desglosados" : "solo el total"}</td>
                   <td className={td}>{portales(l.portales)}</td>
                 </tr>
