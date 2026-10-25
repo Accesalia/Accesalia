@@ -22,7 +22,7 @@ export function RevisarHoja({ h }: { h: HojaParaRevisar }) {
   const [msg, setMsg] = useState<string | null>(null);
   const [ocupado, empezar] = useTransition();
   const caja = useRef<HTMLTextAreaElement>(null);
-  const pdf = `/gestiones/hoja-prueba/pdf/${h.id}`;
+  const pdf = `/comercial/hoja-encargo/pdf/${h.id}`;
   const pendiente = h.estado === "pendiente_ok_daniel";
   const marcar = (que: string) => {
     setNota((n) => (n.trim() ? n.replace(/\s*$/, "\n") : "") + `• ${que}: `);

@@ -6,7 +6,7 @@
 
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
-import { puedeVerOpp } from "../../../lib/hojaEncargo";
+import { puedeVerOpp } from "../../../lib/hojaGenerador";
 import { marcarNecesidades } from "../../../lib/necesidadesOpp";
 import { apuntarMaterial, enlaceMaterial, oppDeSolicitud, pedirViabilidad, permisoMaterial, type NuevaSolicitud } from "../../../lib/solicitudViabilidad";
 

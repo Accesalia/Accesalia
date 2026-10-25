@@ -36,7 +36,7 @@ export function Grabar({
   const [hoja, setHoja] = useState<false | "hoja" | "presupuesto">(false);
   const irAHoja = (id: string) => {
     if (!oportunidades.some((x) => x.valor === id)) return;
-    router.push(hoja === "presupuesto" ? `/comercial/presupuesto?opp=${id}` : `/comercial/hoja-encargo?opp=${id}&nueva=1`);
+    router.push(hoja === "presupuesto" ? `/comercial/presupuesto?opp=${id}` : `/comercial/hoja-encargo?opp=${id}`);
   };
   return (
     <>

@@ -1,7 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { quienSoy, type Yo } from "../../../../lib/sesion";
-import { puedeHacerHojas, puedeVerOpp } from "../../../../lib/hojaEncargo";
+import { puedeHacerHojas, puedeVerOpp } from "../../../../lib/hojaGenerador";
 import { oppDeViabilidad } from "../../../../lib/viabilidadComercial";
 
 /** Quien remata viabilidades: los mismos que hacen hojas (comercial,

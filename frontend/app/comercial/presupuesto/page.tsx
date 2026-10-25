@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { Volver } from "../../components/Volver";
 import { quienSoy } from "../../../lib/sesion";
-import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaEncargo";
+import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaGenerador";
 import { datosPresupuesto } from "../../../lib/presupuesto";
 import { Presupuesto } from "./Presupuesto";
 

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
-import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaEncargo";
+import { puedeHacerHojas, puedeVerOpp } from "../../../lib/hojaGenerador";
 import { borrarBorrador, guardarPresupuesto, oportunidadDePresupuesto, type GuardarPresupuesto } from "../../../lib/presupuesto";
 
 export type Resultado<T = object> = ({ ok: true } & T) | { ok: false; error: string };

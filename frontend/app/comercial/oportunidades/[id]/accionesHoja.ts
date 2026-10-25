@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../../lib/sesion";
-import { puedeHacerHojas, puedeVerOpp } from "../../../../lib/hojaEncargo";
+import { puedeHacerHojas, puedeVerOpp } from "../../../../lib/hojaGenerador";
 import { descartarBorrador, modificarHoja, oppDeVersion } from "../../../../lib/hojaCompromisos";
 import { anularHoja, marcarEnviada, marcarNoFirmada, validarFirmada } from "../../../../lib/hojaEmitir";
 import type { Yo } from "../../../../lib/sesion";

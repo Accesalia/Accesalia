@@ -96,7 +96,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   const documentos: DocEnviable[] = [
     ...viabs.map((v) => ({ clave: `viabilidad:${v.id}`, tipo: "Viabilidad", nombre: `Viabilidad ${v.numero ?? ""} v${v.version}`.trim(), enlace: `/comercial/viabilidad/${v.id}/pdf`, fecha: v.rematada_en })),
     ...pptos.map((p) => ({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: p.generado_en })),
-    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/gestiones/hoja-prueba/pdf/${v.id}`, fecha: v.fecha_emision })),
+    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.fecha_emision })),
     ...informes
       .filter((x) => x.tipo === "estimacion_costes")
       .map((x) => ({ clave: `costes:${x.id}`, tipo: "Estimación de costes", nombre: `Estimación de costes · ${x.datos.obra}`, enlace: `/referencia/estimacion/informe/${x.id}/pdf`, fecha: x.creado_en })),

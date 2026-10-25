@@ -105,7 +105,7 @@ function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string; v: Ver
   const [nota, setNota] = useState("");
   const [quien, setQuien] = useState<"comunidad" | "comercial" | "">("");
   const f = fases[v.estado] ?? { texto: v.estado, clase: "border-black/15 bg-hueso text-carbon/70" };
-  const pdf = `/gestiones/hoja-prueba/pdf/${v.id}`;
+  const pdf = `/comercial/hoja-encargo/pdf/${v.id}`;
   const hacer = (accion: () => Promise<{ ok: true; id?: string } | { ok: false; error: string }>, despues?: (id?: string) => void) =>
     empezar(async () => {
       setError(null);
@@ -147,7 +147,7 @@ function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string; v: Ver
           {v.firmadaDocumentoId && firmadas[v.firmadaDocumentoId]?.url && (
             <a href={firmadas[v.firmadaDocumentoId].url!} target="_blank" rel="noreferrer" className={ENLACE}>firmada</a>
           )}
-          {editable && <a href={`/gestiones/hoja-prueba?opp=${oppId}&borrador=${v.id}`} className={ENLACE}>seguir</a>}
+          {editable && <a href={`/comercial/hoja-encargo?opp=${oppId}&borrador=${v.id}`} className={ENLACE}>seguir</a>}
           {v.estado === "borrador" && (
             <button type="button" className={ENLACE} disabled={ocupado}
               onClick={() => confirm(v.codigo ? "¿Descartas este borrador? La versión anterior sigue valiendo." : "¿Descartas este borrador? Se borra entero.") && hacer(() => accionHojaDescartar(v.id))}>
@@ -183,7 +183,7 @@ function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string; v: Ver
             onClick={() =>
               pide === "no_firmada" ? hacer(() => accionHojaNoFirmada(v.id, nota))
                 : pide === "anular" ? hacer(() => accionHojaAnular(v.id, nota))
-                  : hacer(() => accionHojaModificar(v.id, quien as "comunidad" | "comercial", nota), (id) => router.push(`/gestiones/hoja-prueba?opp=${oppId}&borrador=${id}`))
+                  : hacer(() => accionHojaModificar(v.id, quien as "comunidad" | "comercial", nota), (id) => router.push(`/comercial/hoja-encargo?opp=${oppId}&borrador=${id}`))
             }>
             {pide === "modificar" ? "crear la versión nueva" : "guardar"}
           </button>

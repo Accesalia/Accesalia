@@ -1,5 +1,5 @@
 import { quienSoy } from "../../../../../lib/sesion";
-import { puedeHacerHojas, puedeVerOpp } from "../../../../../lib/hojaEncargo";
+import { puedeHacerHojas, puedeVerOpp } from "../../../../../lib/hojaGenerador";
 import { pdfGuardado } from "../../../../../lib/presupuesto";
 
 export const dynamic = "force-dynamic";
