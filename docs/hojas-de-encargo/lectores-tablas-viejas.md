@@ -166,3 +166,7 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
    pasa a una ficha nueva de la tramitación (mismos hitos y facturas; solo cambia linea_facturacion_id).
 6. **El árbol se construye** (padre_id con las reglas de los paquetes; «discrepo totalmente» de dejarlo plano). Lo que las
    reglas no sepan colocar, a una lista de revisión para Mónica; nada a ojo.
+
+7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): el bloque 2
+   lo enseñaba cuando no había presupuesto de la app. En lo nuevo no tiene casa: a las notas de la versión al migrar, o
+   casarlo con presupuestos (origen factusol) de la opp. Para decidir con Mónica.
