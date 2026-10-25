@@ -18,7 +18,7 @@ import {
   reactivar,
 } from "../../../../lib/gestionOportunidad";
 import { apuntarFotos } from "../../../../lib/fotos";
-import { puedeVerOpp } from "../../../../lib/hojaEncargo";
+import { puedeVerOpp } from "../../../../lib/hojaGenerador";
 import { apuntarEnCajon, archivarDocumento, permisosCajon } from "../../../../lib/cajonDocumentos";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";

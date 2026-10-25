@@ -4,7 +4,6 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DatosPresupuesto, HojaElegible, PresupuestoResumen } from "../../../lib/presupuesto";
 import { EMISOR, IVA, TEXTO_FORMA_PAGO, lineasDelPresupuesto, totales, type Cliente, type FormaPago } from "../../../lib/motorPresupuesto";
-import { estadoDeHoja } from "../../../lib/estadoHoja";
 import { accionBorrar, accionGuardar } from "./acciones";
 
 // LA PANTALLA DE CONSTRUIR EL PRESUPUESTO (Monica, 10-oct-2026):
@@ -252,7 +251,7 @@ export function Presupuesto({ datos, abrir }: { datos: DatosPresupuesto; abrir: 
 /** Una hoja con su casilla y lo minimo para saber si entra: que se cobra (con
  *  su precio), que va a exito y que va incluido. */
 function HojaCasilla({ h, marcada, bloqueada, alMarcar }: { h: HojaElegible; marcada: boolean; bloqueada: boolean; alMarcar: () => void }) {
-  const e = estadoDeHoja(h.estado, false);
+  const e = h.fase;
   const conPrecio = h.cobra.filter((x) => x.importe);
   const aExito = h.cobra.filter((x) => !x.importe || x.pct);
   return (

@@ -101,7 +101,7 @@ function Simbolo({ estado }: { estado: Estado }) {
 function Ventanita({ c, comunidadId }: { c: Caja; comunidadId: string }) {
   return (
     <div className="flex min-h-[138px] flex-col rounded-[14px] bg-white p-3.5 shadow-[0_2px_6px_rgba(0,0,0,.40)]">
-      <Adjuntar comunidadId={comunidadId} clave={c.clave} hojaId={c.hojaId} versionId={c.versionId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
+      <Adjuntar comunidadId={comunidadId} clave={c.clave} versionId={c.versionId} oportunidadId={c.oportunidadId} estado={<Simbolo estado={c.estado} />}>
         <h3 className="text-[15px] font-semibold leading-snug text-[#4a4a4a]">{c.titulo}</h3>
         {c.explicacion && <p className="mt-1.5 text-[12.5px] text-[#6f6f6f]">{c.explicacion}</p>}
         {c.fichero && (
@@ -248,7 +248,7 @@ export default async function ComunidadEnElPortal({
               </p>
               <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                 {(exp ? exp.cajas : doc.comunidad).map((x) => (
-                  <Ventanita key={`${x.clave}-${x.hojaId ?? x.versionId ?? ""}`} c={x} comunidadId={id} />
+                  <Ventanita key={`${x.clave}-${x.versionId ?? x.oportunidadId ?? ""}`} c={x} comunidadId={id} />
                 ))}
                 <Otros comunidadId={id} oportunidadId={exp?.id ?? null} />
               </div>
@@ -403,7 +403,7 @@ export default async function ComunidadEnElPortal({
               {faltan.length === 0 && <p className="text-[15px] text-[#1b1b1b]">Nada: lo tenemos todo. Gracias.</p>}
               <ul className="space-y-1">
                 {faltan.map((x) => (
-                  <li key={`${x.clave}-${x.hojaId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
+                  <li key={`${x.clave}-${x.versionId ?? ""}-${x.oportunidadId ?? ""}`} className="flex items-baseline gap-3 text-[15px] font-semibold text-[#1b1b1b]">
                     <span className="w-3 text-[12px] text-[#c8102e]">●</span>
                     <span>
                       {x.titulo}

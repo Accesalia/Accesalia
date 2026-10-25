@@ -216,3 +216,193 @@ export async function firmadasPorValidar(comercialId: string | null, todas: bool
     .filter((d) => d.opp && !usadas.has(d.id))
     .map((d) => ({ docId: d.id, nombre: d.nombre ?? "documento", subido: d.creado_en, opp: { id: d.opp!.id, nombre: d.opp!.nombre, codigo: d.opp!.codigo, comercial: d.opp!.comercial?.nombre ?? null } }));
 }
+
+// ------------------------------------------------- para la escalera de muchas opps (25-oct-2026)
+
+/** LO QUE LA ESCALERA PREGUNTA A UNA HOJA (lib/cabeceraOpp.ts): su fase y la PRIMERA vez que paso por cada momento
+ *  (generada = pidio el ok de Daniel, el ok, enviada, firmada), y los cambios pedidos que siguen abiertos. Una por
+ *  version; fuera las anuladas y las no firmadas (la hoja acaba en firma o en baja). */
+export type HojaCruda = {
+  id: string;
+  oppId: string;
+  fase: string;
+  generada: string | null;
+  okDaniel: string | null;
+  enviada: string | null;
+  firmada: string | null;
+  /** Daniel pidio cambios y la version sigue asi: cuando, quien y que. */
+  cambiosDaniel: { fecha: string; quien: string | null; nota: string | null } | null;
+  /** La comunidad o el comercial pidieron cambios (nace la version siguiente) y esta sigue asi: cuando. */
+  cambiosPedidos: string | null;
+};
+
+/** Las hojas crudas de muchas opps, por opp, de tramos de 150. */
+export async function hojasCrudasDe(oppIds: string[]): Promise<Map<string, HojaCruda[]>> {
+  const out = new Map<string, HojaCruda[]>();
+  const ids = [...new Set(oppIds.filter((x) => /^[0-9a-f-]{36}$/.test(x)))];
+  for (let i = 0; i < ids.length; i += 150) {
+    const filas = await leer<{ id: string; oportunidad_id: string; estado: string; estados: { estado: string; fecha: string; nota: string | null; persona: { nombre: string } | null }[] }[]>(
+      `he_versiones_hoja?select=id,oportunidad_id,estado,estados:he_estados_hoja(estado,fecha,nota,persona:persona_id(nombre))` +
+        `&oportunidad_id=in.(${ids.slice(i, i + 150).join(",")})&estado=not.in.(anulada,no_firmada)`,
+    );
+    for (const f of filas) {
+      const est = [...f.estados].sort((a, b) => a.fecha.localeCompare(b.fecha));
+      const primera = (e: string) => est.find((x) => x.estado === e)?.fecha ?? null;
+      const ultima = (e: string) => [...est].reverse().find((x) => x.estado === e) ?? null;
+      const cd = f.estado === "cambios_daniel" ? ultima("cambios_daniel") : null;
+      const cp = f.estado === "cambios_comunidad" || f.estado === "cambios_comercial" ? ultima(f.estado) : null;
+      const h: HojaCruda = {
+        id: f.id, oppId: f.oportunidad_id, fase: f.estado,
+        generada: primera("pendiente_ok_daniel"), okDaniel: primera("ok_daniel"), enviada: primera("enviada"), firmada: primera("firmada_recibida"),
+        cambiosDaniel: cd ? { fecha: cd.fecha, quien: cd.persona?.nombre ?? null, nota: cd.nota } : null,
+        cambiosPedidos: cp?.fecha ?? null,
+      };
+      out.set(f.oportunidad_id, [...(out.get(f.oportunidad_id) ?? []), h]);
+    }
+  }
+  return out;
+}
+
+/** ¿Esta firmada por la comunidad? (de firmada_recibida en adelante, sin errores). */
+export const estaFirmada = (h: HojaCruda) => FIRMADA.includes(h.fase);
+
+/** LOS COBROS de las hojas firmadas (versiones): por la ficha de facturacion de cada linea (lineas_facturacion.he_linea_id).
+ *  Los % a exito no cuentan para dar el dinero por cobrado. */
+export async function cobrosDeVersiones(versionIds: string[]): Promise<{ hay: boolean; alguno: boolean; todos: boolean }> {
+  if (!versionIds.length) return { hay: false, alguno: false, todos: false };
+  const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[] }[]>(
+    `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado),linea:he_linea_id!inner(version_id)` +
+      `&linea.version_id=in.(${versionIds.join(",")})&quitada_en=is.null`,
+  );
+  const hitos = lineas.filter((l) => !l.es_porcentaje).flatMap((l) => l.hitos).filter((h) => h.estado !== "anulado");
+  const cobrados = hitos.filter((h) => h.estado === "completado").length;
+  return { hay: hitos.length > 0, alguno: cobrados > 0, todos: hitos.length > 0 && cobrados === hitos.length };
+}
+
+/** Los hitos (sin los % a exito) de muchas versiones firmadas, por version: para los cobros de muchas opps de golpe. */
+export async function hitosDeVersiones(versionIds: string[]): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  for (let i = 0; i < versionIds.length; i += 150) {
+    const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[]; linea: { version_id: string } | null }[]>(
+      `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado),linea:he_linea_id!inner(version_id)` +
+        `&linea.version_id=in.(${versionIds.slice(i, i + 150).join(",")})&quitada_en=is.null`,
+    );
+    for (const l of lineas) {
+      if (l.es_porcentaje || !l.linea) continue;
+      out.set(l.linea.version_id, [...(out.get(l.linea.version_id) ?? []), ...l.hitos.map((h) => h.estado).filter((e) => e !== "anulado")]);
+    }
+  }
+  return out;
+}
+
+/** ¿UNA VIABILIDAD CON HONORARIOS ESTA SUPERADA? (25-oct-2026): si alguna hoja de la opp se genero (pidio el ok de Daniel)
+ *  despues de rematarse la viabilidad, sus honorarios ya no son los de la hoja: «Modificada en hoja de encargo X». Se
+ *  calcula, no se guarda. Devuelve la primera que la supero («HE-2026-0012 v2»), o null. */
+export async function superadaPor(oppId: string, rematadaEn: string | null, conHonorarios: boolean): Promise<string | null> {
+  if (!conHonorarios || !rematadaEn || !/^[0-9a-f-]{36}$/.test(oppId)) return null;
+  const filas = await leer<{ codigo_he: string | null; numero_version: number; estados: { estado: string; fecha: string }[] }[]>(
+    `he_versiones_hoja?select=codigo_he,numero_version,estados:he_estados_hoja(estado,fecha)&oportunidad_id=eq.${oppId}&estado=neq.anulada`,
+  );
+  const despues = filas
+    .map((f) => ({ f, generada: f.estados.filter((e) => e.estado === "pendiente_ok_daniel").map((e) => e.fecha).sort()[0] ?? null }))
+    .filter((x) => x.generada && x.generada > rematadaEn)
+    .sort((a, b) => a.generada!.localeCompare(b.generada!))[0];
+  return despues ? (despues.f.codigo_he ? `${despues.f.codigo_he} v${despues.f.numero_version}` : "una hoja posterior") : null;
+}
+
+export type LineaHojaHonorario = { versionId: string; codigo: string | null; numero: number; fecha: string | null; borrador: boolean;
+  lineas: { bloque: string; nombre: string; texto: string | null; importe: number }[] };
+
+/** LOS HONORARIOS DE LAS HOJAS DE UNA OPP (para la viabilidad, «para que CUADRE siempre»): de cada hoja, su version
+ *  actual, y de ella lo que se cobra con importe. El conjunto con «solo el total», UNA linea con la suma; lo de dentro
+ *  no se repite. */
+export async function honorariosDeHojas(oppId: string): Promise<LineaHojaHonorario[]> {
+  const hojas = await hojasDeOpp(oppId);
+  const vivas = hojas.map((h) => h.actual).filter((v) => !FINAL.includes(v.estado));
+  if (!vivas.length) return [];
+  const lineas = await leer<{ id: string; version_id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; texto: string | null; desglosar_precios: boolean | null;
+    bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[]>(
+    `he_lineas_compromisos?select=id,version_id,padre_id,se_cobra,importe,texto,desglosar_precios,bloque:bloque_id(codigo,nombre_corto,nombre)` +
+      `&version_id=in.(${vivas.map((v) => v.id).join(",")})&order=creado_en.asc`,
+  );
+  const porId = new Map(lineas.map((l) => [l.id, l]));
+  const soloTotal = (l: (typeof lineas)[number]) => l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false;
+  return vivas.map((v) => ({
+    versionId: v.id, codigo: v.codigo, numero: v.numero, fecha: v.fechas.pendiente_ok_daniel ?? v.creadaEn, borrador: v.estado === "borrador" || v.estado === "cambios_daniel",
+    lineas: lineas
+      .filter((l) => l.version_id === v.id && l.se_cobra && !(l.padre_id && soloTotal(porId.get(l.padre_id)!)))
+      .map((l) => ({
+        bloque: l.bloque?.codigo ?? "", nombre: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "Concepto", texto: l.texto,
+        importe: soloTotal(l) ? lineas.filter((h) => h.padre_id === l.id).reduce((t, h) => t + (Number(h.importe) || 0), 0) : Number(l.importe) || 0,
+      }))
+      .filter((l) => l.importe > 0),
+  }));
+}
+
+/** UNA HOJA PARA LA FICHA DE COMUNIDAD Y EL PORTAL (25-oct-2026): la version actual de cada hoja (sin anuladas ni
+ *  sustituidas), con lo que se cobra (que + importe), su firma y su firmada archivada. */
+export type HojaFicha = {
+  id: string;
+  oppId: string;
+  /** «HE-2026-0012 v2» (o null si aun no tiene codigo) */
+  numero: string | null;
+  /** Que se hace: los tipos de sus lineas. */
+  que: string | null;
+  fase: string;
+  firma: string | null;
+  pagadorTipo: string;
+  pagadorComunidadId: string | null;
+  total: number;
+  lineas: { que: string; importe: number | null }[];
+  /** La firmada validada, en el archivo de la opp. */
+  firmadaDocumentoId: string | null;
+};
+
+export async function hojasFichaDe(oppIds: string[]): Promise<HojaFicha[]> {
+  const ids = [...new Set(oppIds.filter((x) => /^[0-9a-f-]{36}$/.test(x)))];
+  const out: HojaFicha[] = [];
+  for (let i = 0; i < ids.length; i += 150) {
+    const filas = await leer<{
+      id: string; oportunidad_id: string; codigo_he: string | null; numero_version: number; estado: string; pagador_tipo: string; pagador_comunidad_id: string | null;
+      firmada_documento_id: string | null; estados: { estado: string; fecha: string }[];
+      lineas: { id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; texto: string | null; desglosar_precios: boolean | null;
+        bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null }[];
+    }[]>(
+      "he_versiones_hoja?select=id,oportunidad_id,codigo_he,numero_version,estado,pagador_tipo,pagador_comunidad_id,firmada_documento_id,estados:he_estados_hoja(estado,fecha)," +
+        "lineas:he_lineas_compromisos(id,padre_id,se_cobra,importe,texto,desglosar_precios,bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre))" +
+        `&oportunidad_id=in.(${ids.slice(i, i + 150).join(",")})&estado=not.in.(anulada,sustituida)&order=creado_en.asc`,
+    );
+    for (const f of filas) {
+      const porId = new Map(f.lineas.map((l) => [l.id, l]));
+      const soloTotal = (l: (typeof f.lineas)[number]) => l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false;
+      const nombre = (l: (typeof f.lineas)[number]) =>
+        (l.texto ?? "").trim() || `${l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "Concepto"}${l.desglose ? ` de ${l.desglose.nombre.toLowerCase()}` : ""}`;
+      const lineas = f.lineas
+        .filter((l) => l.se_cobra && !(l.padre_id && soloTotal(porId.get(l.padre_id)!)))
+        .map((l) => ({ que: nombre(l), importe: soloTotal(l) ? f.lineas.filter((h) => h.padre_id === l.id).reduce((t, h) => t + (Number(h.importe) || 0), 0) : l.importe == null ? null : Number(l.importe) }));
+      const tipos = [...new Set(f.lineas.filter((l) => l.bloque?.codigo === "REDACCION PROYECTO").map((l) => l.desglose?.nombre).filter((x): x is string => !!x))];
+      out.push({
+        id: f.id, oppId: f.oportunidad_id, numero: f.codigo_he ? `${f.codigo_he} v${f.numero_version}` : null, que: tipos.join(" + ") || null, fase: f.estado,
+        firma: FIRMADA.includes(f.estado) ? (f.estados.filter((e) => e.estado === "firmada_recibida").map((e) => e.fecha).sort()[0]?.slice(0, 10) ?? null) : null,
+        pagadorTipo: f.pagador_tipo, pagadorComunidadId: f.pagador_comunidad_id,
+        total: lineas.reduce((t, l) => t + (l.importe ?? 0), 0), lineas, firmadaDocumentoId: f.firmada_documento_id,
+      });
+    }
+  }
+  return out;
+}
+
+/** El enlace (diez minutos) para abrir la firmada de una version: el documento del archivo de la opp. */
+export async function enlaceFirmadaDeVersion(versionId: string): Promise<{ url: string; oppId: string; comunidadId: string | null } | null> {
+  if (!/^[0-9a-f-]{36}$/.test(versionId)) return null;
+  const [v] = await leer<{ oportunidad_id: string; pagador_comunidad_id: string | null; doc: { storage_ref: string | null } | null }[]>(
+    `he_versiones_hoja?select=oportunidad_id,pagador_comunidad_id,doc:firmada_documento_id(storage_ref)&id=eq.${versionId}`,
+  );
+  if (!v?.doc?.storage_ref) return null;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/sign/documentos-comerciales/${v.doc.storage_ref}`, {
+    method: "POST", headers: { ...CAB, "Content-Type": "application/json" }, body: JSON.stringify({ expiresIn: 600 }), cache: "no-store",
+  });
+  if (!r.ok) return null;
+  const { signedURL } = (await r.json()) as { signedURL: string };
+  return { url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${signedURL}`, oppId: v.oportunidad_id, comunidadId: v.pagador_comunidad_id };
+}

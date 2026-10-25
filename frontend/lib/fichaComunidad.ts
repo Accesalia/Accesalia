@@ -16,6 +16,7 @@
 //     leen por sus OPPS (vista administradores_de_oportunidad), no por comunidad_id.
 
 import "server-only";
+import { hojasFichaDe, type HojaFicha } from "./hojasOpp";
 import { personasDeComunidad, type PersonaDeComunidad } from "./personasComunidad";
 import { NOMBRE_TIPO, bonito, viaEntera } from "./direccionNombre";
 import { PASOS } from "./pasosEscalera";
@@ -96,19 +97,8 @@ export type AdminAnterior = { empresa: string | null; desde: string | null; hast
 
 export type Acceso = { texto: string; escalera: string | null; ref: string | null; opps: string[] };
 
-export type Hoja = {
-  id: string;
-  numero: string | null;
-  /** hoja_encargo, nota_responsabilidad... */
-  tipoDocumento: string | null;
-  que: string | null;
-  estado: string | null;
-  firma: string | null;
-  pagador: string | null;
-  total: number;
-  lineas: { que: string; importe: number | null }[];
-  firmada: { versionId: string; n: number } | null;
-};
+/** Una hoja de la opp (sistema nuevo, 25-oct-2026, del lector unico lib/hojasOpp.ts): su version actual. */
+export type Hoja = HojaFicha;
 export type Opp = {
   id: string;
   codigo: string | null;
@@ -343,19 +333,7 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
           [],
           "los accesos de las opps",
         ),
-        intenta(
-          rest<{ id: string; oportunidad_id: string; numero_hoja: string | null; descripcion: string | null; estado: string | null;
-            fecha_firma: string | null; fecha_creacion: string | null; pagador_tipo: string | null; version_firmada_id: string | null; tipo_documento: string | null;
-            lineas_facturacion: { descripcion: string | null; importe: string | null; quitada_en: string | null }[];
-            versiones_hoja: { id: string; numero_version: number; pdfs_firmados: string[] | null }[] }[]>(
-            "hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,estado,fecha_firma,fecha_creacion,pagador_tipo,version_firmada_id,tipo_documento," +
-              "lineas_facturacion(descripcion,importe,quitada_en)," +
-              "versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)" +
-              `&oportunidad_id=in.(${oppIds.join(",")})&order=fecha_firma.asc.nullslast,fecha_creacion.asc`,
-          ),
-          [],
-          "las hojas de encargo",
-        ),
+        intenta(hojasFichaDe(oppIds), [] as HojaFicha[], "las hojas de encargo"),
         idTipo.get(TIPO.votacion)
           ? intenta(
               rest<{ id: string; oportunidad_id: string; backend: string | null; storage_ref: string | null; fecha_emision: string | null;
@@ -392,26 +370,7 @@ export async function fichaComunidad(id: string): Promise<Ficha | null> {
         fase: clave ? (PASOS.find((p) => p.clave === clave)?.titulo ?? clave) : null,
         accesos: [...new Set(mios.map(textoAcceso))],
         votacion: papel(votaciones.find((d) => d.oportunidad_id === o.id) as (typeof docs)[number] | undefined),
-        hojas: hojas
-          .filter((h) => h.oportunidad_id === o.id && h.estado !== "anulada")
-          .map((h) => {
-            // las quitadas de la hoja no cuentan
-            const lineas = h.lineas_facturacion.filter((l) => !l.quitada_en).map((l) => ({ que: l.descripcion ?? "sin concepto", importe: num(l.importe) }));
-            const vs = [...h.versiones_hoja].sort((a, b) => b.numero_version - a.numero_version);
-            const v = vs.find((x) => x.id === h.version_firmada_id && x.pdfs_firmados?.length) ?? vs.find((x) => x.pdfs_firmados?.length);
-            return {
-              id: h.id,
-              numero: h.numero_hoja,
-              tipoDocumento: h.tipo_documento,
-              que: h.descripcion,
-              estado: h.estado,
-              firma: h.fecha_firma,
-              pagador: h.pagador_tipo,
-              total: lineas.reduce((s, l) => s + (l.importe ?? 0), 0),
-              lineas,
-              firmada: v ? { versionId: v.id, n: 0 } : null,
-            };
-          }),
+        hojas: hojas.filter((h) => h.oppId === o.id),
       };
     });
 

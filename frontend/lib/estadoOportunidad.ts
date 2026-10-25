@@ -16,6 +16,7 @@
 //     no avisa, y hay que recalcularlo a mano.
 
 import "server-only";
+import { FIRMADA } from "./hojasOpp";
 import { after } from "next/server";
 import { bloqueDeFase, pasoDe, type Clave, type Fase } from "./pasosEscalera";
 
@@ -174,13 +175,13 @@ export async function barrido(origen: Origen = "barrido"): Promise<{ total: numb
  *  Todo marcado como reconstruido: deducido, no medido. Lo medido no se toca. */
 export async function reconstruir(): Promise<{ opps: number; historial: number }> {
   const hoyISO = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
-  const [opps, hojas, versiones, juntas, cierres, citas, viabs, solicitudes, estados] = await Promise.all([
+  const [opps, versiones, juntas, cierres, citas, viabs, solicitudes, estados] = await Promise.all([
     todo<{ id: string; fecha_apertura: string | null; creado_en: string }>("oportunidades?select=id,fecha_apertura,creado_en&estado=neq.anulada", "id"),
-    todo<{ id: string; oportunidad_id: string | null; fecha_creacion: string | null; fecha_firma: string | null; estado: string }>(
-      "hojas_encargo?select=id,oportunidad_id,fecha_creacion,fecha_firma,estado&estado=neq.anulada",
+    // LAS HOJAS (25-oct-2026, sistema nuevo): cada version con la primera vez que paso por cada momento.
+    todo<{ id: string; oportunidad_id: string; creado_en: string; estado: string; estados: { estado: string; fecha: string }[] }>(
+      "he_versiones_hoja?select=id,oportunidad_id,creado_en,estado,estados:he_estados_hoja(estado,fecha)&estado=not.in.(anulada,no_firmada)",
       "id",
     ),
-    todo<{ hoja_encargo_id: string; fecha_enviada: string | null }>("versiones_hoja?select=hoja_encargo_id,fecha_enviada&fecha_enviada=not.is.null", "id"),
     todo<{ oportunidad_id: string | null; fecha_junta: string | null; resultado: string | null }>("juntas?select=oportunidad_id,fecha_junta,resultado", "id"),
     todo<{ oportunidad_id: string; fecha_cierre: string | null; creado_en: string }>("motivo_cierre_oportunidad?select=oportunidad_id,fecha_cierre,creado_en", "id"),
     todo<{ oportunidad_id: string | null; creado_en: string; inicio: string }>("citas?select=oportunidad_id,creado_en,inicio&tipo=eq.escaneo_polycam&estado=neq.anulada", "id"),
@@ -199,13 +200,9 @@ export async function reconstruir(): Promise<{ opps: number; historial: number }
     for (const x of xs) if (x.oportunidad_id) m.set(x.oportunidad_id, [...(m.get(x.oportunidad_id) ?? []), x]);
     return m;
   };
-  const hojaDe = new Map(hojas.map((h) => [h.id, h]));
-  const [hojasDe, juntasDe, cierreDe, citasDe, viabsDe, solDe] = [porOpp(hojas), porOpp(juntas), porOpp(cierres), porOpp(citas), porOpp(viabs), porOpp(solicitudes)];
-  const enviosDe = new Map<string, string[]>();
-  for (const v of versiones) {
-    const o = hojaDe.get(v.hoja_encargo_id)?.oportunidad_id;
-    if (o && v.fecha_enviada) enviosDe.set(o, [...(enviosDe.get(o) ?? []), v.fecha_enviada]);
-  }
+  const [hojasDe, juntasDe, cierreDe, citasDe, viabsDe, solDe] = [porOpp(versiones), porOpp(juntas), porOpp(cierres), porOpp(citas), porOpp(viabs), porOpp(solicitudes)];
+  const fechasDe = (v: (typeof versiones)[number], estado: string) => v.estados.filter((e) => e.estado === estado).map((e) => e.fecha);
+
   // Las fases en su orden (las de FASES, sin el 3D, que es un ramal), con la
   // clave que representa la entrada en cada una.
   const ENTRADA: [Fase, Clave][] = [
@@ -243,11 +240,11 @@ export async function reconstruir(): Promise<{ opps: number; historial: number }
         visita: cita ? dia(cita.creado_en) : null,
         polycam: visitaPasada,
         viabilidad_arquitecto: min((solDe.get(o.id) ?? []).map((s) => s.pedida_en)),
-        preparacion_documentos: min((viabsDe.get(o.id) ?? []).map((v) => v.enviada_en)) ?? min(hs.map((h) => h.fecha_creacion)),
-        envio_documentos: min(enviosDe.get(o.id) ?? []),
+        preparacion_documentos: min((viabsDe.get(o.id) ?? []).map((v) => v.enviada_en)) ?? min(hs.map((h) => h.creado_en)),
+        envio_documentos: min(hs.flatMap((h) => fechasDe(h, "enviada"))),
         junta: min(js.map((j) => j.fecha_junta)),
         firma: min(js.filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta)),
-        cobro: min(hs.filter((h) => h.estado === "devuelta_firmada").map((h) => h.fecha_firma)),
+        cobro: min(hs.filter((h) => FIRMADA.includes(h.estado)).flatMap((h) => fechasDe(h, "firmada_recibida"))),
       };
       // La fecha de entrada del paso actual: la del hecho que lo abre, con la
       // misma regla que las alertas; si no hay, la de la fase; si no, el alta.

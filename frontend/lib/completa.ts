@@ -49,7 +49,8 @@ export async function completitud(oppId: string): Promise<Completitud> {
       `oportunidades?select=fecha_apertura,creado_en,puesto_id,contacto_provisional,siguiente_paso&id=eq.${oppId}&limit=1`,
     ),
     leer<{ opp_id: string }[]>(`relacion_oportunidad_accesos?select=opp_id&opp_id=eq.${oppId}&hasta=is.null&limit=1`),
-    leer<{ id: string }[]>(`hojas_encargo?select=id&oportunidad_id=eq.${oppId}&estado=in.(enviada_comunidad,devuelta_firmada)&limit=1`),
+    // Con una hoja ya enviada (o firmada) no se revisa: ya esta en marcha (sistema nuevo, 25-oct-2026).
+    leer<{ id: string }[]>(`he_estados_hoja?select=id,v:version_id!inner(oportunidad_id)&v.oportunidad_id=eq.${oppId}&estado=in.(enviada,firmada_recibida)&limit=1`),
   ]);
   const o = ops[0];
   if (!o) return { aplica: false, falta: [] };

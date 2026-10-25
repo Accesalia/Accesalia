@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cerrarSesion, pedirEntrada, permisoSubida, puedeEntrarEn, quienEstaEnElPortal, registrarSubida, usarEntrada, type ClavePortal } from "../../lib/portal";
 import { personaPorCorreo } from "../../lib/sesion";
-import { aceptarSiEsSuComercial } from "../../lib/recibidos";
 
 // EL PORTAL DE LA COMUNIDAD: entrar por correo y subir documentos. En CADA
 // accion se mira quien esta dentro y si esa comunidad es suya.
@@ -53,7 +52,6 @@ export async function accionPermisoSubida(comunidadId: string, nombre: string, t
 
 export async function accionRegistrar(d: {
   comunidadId: string;
-  hojaId: string | null;
   versionId?: string | null;
   clave?: ClavePortal | null;
   oportunidadId?: string | null;
@@ -61,16 +59,14 @@ export async function accionRegistrar(d: {
   ruta: string;
   nombreFichero: string;
   nombre: string | null;
-}): Promise<R<{ aceptada: boolean }>> {
+}): Promise<R<{ id: string }>> {
   try {
     const email = await dentro(d.comunidadId);
-    if (!d.hojaId && !d.versionId && !d.clave && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
+    if (!d.versionId && !d.clave && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
     const id = await registrarSubida({ ...d, email });
-    // Si lo sube el comercial de esa hoja, queda aceptada al momento.
-    const aceptada = d.hojaId ? await aceptarSiEsSuComercial(id, await personaPorCorreo(email)) : false;
     revalidatePath(`/portal/c/${d.comunidadId}`);
     revalidatePath("/comercial/recibidos");
-    return { ok: true, aceptada };
+    return { ok: true, id };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

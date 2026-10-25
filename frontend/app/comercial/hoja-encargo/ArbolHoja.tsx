@@ -42,7 +42,7 @@ export function ElegirOpp({ opciones, valor }: { opciones: Opcion[]; valor: stri
   const router = useRouter();
   return (
     <div className="w-full max-w-[520px]">
-      <Elegir id="opp" nombre="Oportunidad" opciones={opciones} valor={valor ?? ""} vacio="Elige una oportunidad" conPista alElegir={(v) => router.push(`/gestiones/hoja-prueba?opp=${v}`)} />
+      <Elegir id="opp" nombre="Oportunidad" opciones={opciones} valor={valor ?? ""} vacio="Elige una oportunidad" conPista alElegir={(v) => router.push(`/comercial/hoja-encargo?opp=${v}`)} />
     </div>
   );
 }
@@ -85,7 +85,7 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
       setAviso({ ok: true, texto: "Guardada en borrador. Debajo, lo que ha quedado en la base." });
       // Lo guardado se queda abierto para seguir con el (cargado desde la base: asi se comprueba tambien la vuelta).
       if (borrador?.id === r.id) router.refresh();
-      else router.replace(`/gestiones/hoja-prueba?opp=${oppId}&borrador=${r.id}`);
+      else router.replace(`/comercial/hoja-encargo?opp=${oppId}&borrador=${r.id}`);
     };
     // GENERAR (25-oct-2026): se guarda y va al ok de Daniel con su presupuesto; se queda abierta la de la lista.
     const alGenerar = async (filas: FilaHoja[], papel: string) => {
@@ -94,7 +94,8 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
       const r = await accionGenerar(oppId, filas, borrador?.id ?? null, pagadorDe(aQuienRef.current), papel);
       if (!r.ok) return setAviso({ ok: false, texto: `No se ha generado: ${r.error}` });
       setAviso({ ok: true, texto: `Generada: espera el ok de Daniel.${r.avisos?.length ? " " + r.avisos.join(" · ") : ""}` });
-      router.replace(`/gestiones/hoja-prueba?opp=${oppId}`);
+      // Generada: a la opp, donde la hoja sale en el bloque 2 esperando el ok de Daniel.
+      router.push(`/comercial/oportunidades/${oppId}`);
     };
     const m = montarArbol(ref.current, {
       defectos, interesa, accesos, formas, casos, tarifas: tarifas.precios, pem, comision, comisionAviso, alGuardar, alGenerar, inicial: borrador?.lineas ?? null,

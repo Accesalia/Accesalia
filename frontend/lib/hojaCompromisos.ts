@@ -11,7 +11,7 @@ import "server-only";
 
 import type { Yo } from "./sesion";
 import { recalcularLuego } from "./estadoOportunidad";
-import { comisionDeOpp } from "./hojaEncargo";
+import { comisionDeOpp } from "./hojaGenerador";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";

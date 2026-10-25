@@ -179,7 +179,7 @@ export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Pro
   return { fichas: nuevas.length + eco, hitos: nHitos + eco };
 }
 
-/** LOS 3 PRESUPUESTOS → SU FICHA DE ECOBALANCE (como al firmar en la app de antes, lib/lineasDeHoja.ts): vaya como vaya
+/** LOS 3 PRESUPUESTOS → SU FICHA DE ECOBALANCE (como al firmar en la app de antes): vaya como vaya
  *  en el papel (incluido para la comunidad), Ecobalance cobra el % del PEM de parametros_economicos a la contrata que
  *  presentamos, a exito, hito «adjudicacion» (si gana). El comercial no ve este cobro. Una sola vez por linea. */
 async function fichaEcobalance(versionId: string, lineas: LineaHe[], yo: Yo | null): Promise<number> {

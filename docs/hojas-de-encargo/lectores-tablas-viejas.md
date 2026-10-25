@@ -63,12 +63,16 @@ lee he_lineas_compromisos y genera hitos_cobro una vez, en el ok comercial.
 
 ## 3. Comisiones (2) — H, con el área de comisiones a medio montar
 
+**HECHO en la rama (25-oct, c261130):** las dos leen las vistas del dinero (facturacion_hojas / facturacion_lineas) y las versiones firmadas.
+
 | Fichero | Para qué | Tam. |
 |---|---|---|
 | lib/comisionesComercial.ts | Comisiones del comercial | M |
 | lib/comisionesAdmin.ts | Comisiones de administradores (puede leer ya he_lineas_compromisos.comision_importe) | M |
 
 ## 4. Paneles y fichas financieras (4) — H
+
+**HECHO en la rama (25-oct, c261130 y 520577d):** negocio (importe por he_importe_version, tipos por la cabecera «Redacción proyecto»), ficha financiera, y las vistas cartera_gestor_resumen / resultado_oportunidad (migración 29991231000400). Asignar › Proyectos (trabajosTecnico) también: tiposFirmadosPorOpp. listaAdministraciones no lee nada viejo. Queda de la base solo lo del punto 4 (notas de Sali y disparadores) y la vista zz_muerta_fases_oportunidad, que se borra con las tablas viejas.
 
 | Fichero | Para qué | Tam. |
 |---|---|---|
@@ -148,6 +152,11 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
   (El portal solo enseña opps abiertas o en pausa, así que la regla de no enseñar la nota de responsabilidad no se
   echa de menos.)
+- **Migraciones de esta rama** (29991231000100 a 000500): se aplican DESPUÉS de copiar las hojas viejas a he_* y en
+  orden. La **000500** (notas de Sali y consolidación al firmar, sobre he_estados_hoja) BORRA las funciones de las hojas
+  viejas: **la ejecuta Mónica con SQL** (borrar está capado desde fuera). No se probó en prod antes (Mónica, 25-oct): se
+  comprueba ese día generando, enviando y validando una hoja y mirando el diario de la opp.
+- **Pregúntale a Sali:** desplegar la edge sali-dinero de esta rama (ya habla de las hojas nuevas).
 
 ## Decisiones del repaso campo a campo de la migración (Mónica, 25-oct, vía el hilo de facturación)
 

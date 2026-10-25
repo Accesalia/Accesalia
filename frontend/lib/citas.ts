@@ -141,7 +141,7 @@ export type CitaDelDia = Cita & {
   /** Con quien, compuesto al leer; `tipo` e `id` para repintarlo en el formulario
    *  (a_mano no tiene id de agenda: el suyo es el de la fila). */
   conQuien: { tipo: "puesto" | "persona" | "a_mano"; id: string; nombre: string; telefono: string | null; papel: string | null }[];
-  adjuntos: { tipo: "fichero" | "hoja" | "viabilidad" | "presupuesto" | "documento"; id: string; nombre: string }[];
+  adjuntos: { tipo: "fichero" | "viabilidad" | "presupuesto" | "documento"; id: string; nombre: string }[];
 };
 
 /** "2026-10-20" -> el dia siguiente, sin liarse con horas ni zonas. */
@@ -179,16 +179,17 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
            persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
            puesto: { cargo: string | null; telefono_empresa: string | null } | null;
            }[];
-    adj: { id: string; ruta_almacen: string | null; nombre: string | null; hoja_encargo_id: string | null; viabilidad_id: string | null;
+    adj: { id: string; ruta_almacen: string | null; nombre: string | null; viabilidad_id: string | null;
            presupuesto_id: string | null; documento_id: string | null;
-           hoja: { numero_hoja: string | null } | null; viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
+           viabilidad: { numero: string | null } | null; presupuesto: { codigo: string | null } | null }[];
   })[]>(
     `citas?select=${SEL},estado,direccion,notas,origen,tipo_cita:tipo(nombre,color),` +
       `opp:oportunidad_id(id,codigo,nombre),comunidad:comunidad_id(id,nombre),empresa:empresa_id(id,nombre_accesalia,nombre_legal),` +
       `persona:persona_id(id,nombre,apellidos),` +
       `con:citas_con_quien(id,persona_id,puesto_id,nombre,telefono,papel,persona:persona_id(nombre,apellidos,telefono_personal),puesto:puesto_id(cargo,telefono_empresa)),` +
-      `adj:citas_adjuntos(id,ruta_almacen,nombre,hoja_encargo_id,viabilidad_id,presupuesto_id,documento_id,` +
-      `hoja:hoja_encargo_id(numero_hoja),viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
+      // Una hoja adjunta a una cita (citas_adjuntos.hoja_encargo_id) no se uso nunca: fuera con las hojas viejas (25-oct-2026).
+      `adj:citas_adjuntos(id,ruta_almacen,nombre,viabilidad_id,presupuesto_id,documento_id,` +
+      `viabilidad:viabilidad_id(numero),presupuesto:presupuesto_id(codigo))` +
       `&inicio=gte.${desde}&inicio=lt.${hasta}${deQuien ? `&de_quien=eq.${deQuien}` : ""}&order=inicio.asc`,
   );
   return filas.map((f) => ({
@@ -222,9 +223,7 @@ export async function citasEntre(desdeDia: string, hastaDia: string, deQuien?: s
       papel: c.papel ?? c.puesto?.cargo ?? null,
     })),
     adjuntos: f.adj.map((a) =>
-      a.hoja_encargo_id
-        ? { tipo: "hoja" as const, id: a.hoja_encargo_id, nombre: a.nombre ?? `Hoja de encargo ${a.hoja?.numero_hoja ?? ""}`.trim() }
-        : a.viabilidad_id
+      a.viabilidad_id
           ? { tipo: "viabilidad" as const, id: a.viabilidad_id, nombre: a.nombre ?? `Viabilidad ${a.viabilidad?.numero ?? ""}`.trim() }
           : a.presupuesto_id
             ? { tipo: "presupuesto" as const, id: a.presupuesto_id, nombre: a.nombre ?? `Presupuesto ${a.presupuesto?.codigo ?? ""}`.trim() }

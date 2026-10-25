@@ -109,13 +109,14 @@ export function Bloque3({ g, d }: { g: Gestion; d: DecisionCierre }) {
           <Campo rotulo="Qué piden cambiar, en concreto" en={null}>
             <span className="text-[#a0a0a0]">Hoy solo cabe en el detalle de la junta.</span>
           </Campo>
-          <Campo rotulo="Versiones de la oferta revisadas" en="revisiones_oferta">
+          <Campo rotulo="Versiones de la oferta revisadas (el ok de Daniel, por hoja)" en="he_estados_hoja (pendiente_ok_daniel · ok_daniel · cambios_daniel)">
             {d.revisiones.length === 0 ? null : (
               <ul>
                 {d.revisiones.map((r) => (
-                  <li key={r.numero}>
-                    Revisión {r.numero} · {r.estado} · enviada {fecha(r.enviada_en)}
-                    {r.comentario && <span className="text-[#6a6a6a]"> — {r.comentario}</span>}
+                  <li key={r.clave}>
+                    {r.hoja} · {r.estado === "pendiente" ? "pide el ok" : r.estado === "ok" ? "ok" : "cambios"} · {fecha(r.fecha)}
+                    {r.quien && <> · {r.quien}</>}
+                    {r.nota && <span className="text-[#6a6a6a]"> — {r.nota}</span>}
                   </li>
                 ))}
               </ul>
@@ -141,30 +142,33 @@ export function Bloque4({ d }: { d: DecisionCierre }) {
       <Sali />
       <div className="grid gap-3 lg:grid-cols-2">
         <Caja titulo="Han dicho que SÍ">
-          <Campo rotulo="Hoja firmada y su fecha" en="hojas_encargo.fecha_firma">
+          <Campo rotulo="Hoja firmada y su fecha" en="he_estados_hoja (firmada_recibida)">
             {firmadas.length === 0
               ? null
               : firmadas.map((h) => (
                   <div key={h.id}>
-                    {h.numero_hoja ?? "sin número"} · firmada {fecha(h.fecha_firma)}
+                    {h.codigo} · firmada {fecha(h.fecha_firma)}
                   </div>
                 ))}
           </Campo>
-          <Campo rotulo="Qué versión se firmó y por cuánto" en="hojas_encargo.version_firmada_id → versiones_hoja">
-            {firmadas.filter((h) => h.version).map((h) => (
+          <Campo rotulo="Qué versión se firmó y por cuánto" en="he_versiones_hoja · he_lineas_compromisos (lo que se cobra)">
+            {firmadas.map((h) => (
               <div key={h.id}>
-                v{h.version!.numero_version}
-                {h.version!.importe_total != null && <> · {EUR.format(h.version!.importe_total)} €</>}
+                {h.codigo} · {EUR.format(h.importe)} €
               </div>
             ))}
           </Campo>
-          <Campo rotulo="Verificada (lo firmado = lo enviado)" en={null}>
-            <span className="text-[#a0a0a0]">El «ok» de revisiones_oferta es antes de enviar, no después de firmar.</span>
+          <Campo rotulo="Verificada (lo firmado = lo enviado)" en="he_estados_hoja (ok_comercial)">
+            {firmadas.filter((h) => h.verificada).map((h) => (
+              <div key={h.id}>
+                {h.codigo} · validada {fecha(h.verificada!.fecha)}{h.verificada!.quien && <> · {h.verificada!.quien}</>}
+              </div>
+            ))}
           </Campo>
           <Campo rotulo="Cambios a boli en la hoja firmada" en={null}>
             <span className="text-[#a0a0a0]">Hoy solo en el diario.</span>
           </Campo>
-          <Campo rotulo="Los cobros: hito, importe, factura, cobrado" en="hitos_cobro (por lineas_facturacion de la hoja)">
+          <Campo rotulo="Los cobros: hito, importe, factura, cobrado" en="hitos_cobro (por la ficha de facturación de cada línea de la hoja)">
             {d.cobros.length === 0
               ? null
               : d.cobros.map((c, i) => (
@@ -188,8 +192,8 @@ export function Bloque4({ d }: { d: DecisionCierre }) {
           <Campo rotulo="Fecha del cierre" en="motivo_cierre_oportunidad.fecha_cierre">
             {d.cierres[0]?.fecha_cierre ? fecha(d.cierres[0].fecha_cierre) : null}
           </Campo>
-          <Campo rotulo="Hoja que no se firmó y por qué" en="hojas_encargo.motivo_sin_firma">
-            {sinFirma.length === 0 ? null : sinFirma.map((h) => <div key={h.id}>{h.numero_hoja ?? "sin número"} — {h.motivo_sin_firma}</div>)}
+          <Campo rotulo="Hoja que no se firmó y por qué" en="he_estados_hoja (no_firmada / anulada, su nota)">
+            {sinFirma.length === 0 ? null : sinFirma.map((h) => <div key={h.id}>{h.codigo} — {h.motivo_sin_firma}</div>)}
           </Campo>
           <Campo rotulo="Y entonces qué hacemos (volver a llamar en 6 meses · avisar si sale subvención · nada)" en={null}>
             <span className="text-[#a0a0a0]">

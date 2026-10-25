@@ -65,7 +65,7 @@ function Hora({ min }: { min: number }) {
 const ENLACE = "font-semibold text-lima-dark underline decoration-lima/40 underline-offset-2 hover:decoration-lima-dark";
 
 function Adjunto({ a, oppId }: { a: CitaDelDia["adjuntos"][number]; oppId: string | null }) {
-  const href = a.tipo === "hoja" && oppId ? `/comercial/hoja-encargo?opp=${oppId}` : a.tipo === "viabilidad" ? `/viabilidades/${a.id}` : null;
+  const href = a.tipo === "viabilidad" ? `/viabilidades/${a.id}` : null;
   const caja = "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-semibold";
   const vivo = caja + " border-lima/60 bg-lima-soft text-lima-dark hover:border-lima-dark";
   if (href) return <Link href={href} className={vivo}>📄 {a.nombre}</Link>;
