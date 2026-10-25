@@ -63,12 +63,16 @@ lee he_lineas_compromisos y genera hitos_cobro una vez, en el ok comercial.
 
 ## 3. Comisiones (2) — H, con el área de comisiones a medio montar
 
+**HECHO en la rama (25-oct, c261130):** las dos leen las vistas del dinero (facturacion_hojas / facturacion_lineas) y las versiones firmadas.
+
 | Fichero | Para qué | Tam. |
 |---|---|---|
 | lib/comisionesComercial.ts | Comisiones del comercial | M |
 | lib/comisionesAdmin.ts | Comisiones de administradores (puede leer ya he_lineas_compromisos.comision_importe) | M |
 
 ## 4. Paneles y fichas financieras (4) — H
+
+**HECHO en la rama (25-oct, c261130 y 520577d):** negocio (importe por he_importe_version, tipos por la cabecera «Redacción proyecto»), ficha financiera, y las vistas cartera_gestor_resumen / resultado_oportunidad (migración 29991231000400). Asignar › Proyectos (trabajosTecnico) también: tiposFirmadosPorOpp. listaAdministraciones no lee nada viejo. Queda de la base solo lo del punto 4 (notas de Sali y disparadores) y la vista zz_muerta_fases_oportunidad, que se borra con las tablas viejas.
 
 | Fichero | Para qué | Tam. |
 |---|---|---|
