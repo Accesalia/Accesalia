@@ -1,4 +1,5 @@
 import "server-only";
+import { faseHe } from "./hojasOpp";
 // lib/fichas.ts
 //
 // LA FICHA DE PERSONA Y LA FICHA DE CONTRATA (Monica, 12-oct-2026).
@@ -274,8 +275,10 @@ export async function fichaContrata(id: string): Promise<FichaContrata | null> {
     leer<{ cargo: string | null; desde: string | null; hasta: string | null; telefono_empresa: string | null; persona: { id: string; nombre: string; apellidos: string | null } | null; correos: { email: string }[] }[]>(
       `puesto?select=cargo,desde,hasta,telefono_empresa,persona:persona_id(id,nombre,apellidos),correos:correo(email)&contrata_id=eq.${id}`,
     ),
-    leer<{ id: string; numero_hoja: string | null; estado: string | null; fecha_creacion: string | null; comunidad: { id: string; nombre: string } | null }[]>(
-      `hojas_encargo?select=id,numero_hoja,estado,fecha_creacion,comunidad:comunidad_id(id,nombre)&pagador_contrata_id=eq.${id}&order=fecha_creacion.desc.nullslast`,
+    // Las hojas que paga la contrata (sistema nuevo, 25-oct-2026): las vivas, sin las versiones sustituidas.
+    leer<{ id: string; codigo_he: string | null; numero_version: number; estado: string; creado_en: string; opp: { comunidad: { id: string; nombre: string } | null } | null }[]>(
+      `he_versiones_hoja?select=id,codigo_he,numero_version,estado,creado_en,opp:oportunidad_id(comunidad:comunidad_id(id,nombre))&pagador_contrata_id=eq.${id}` +
+        `&estado=not.in.(sustituida,anulada)&order=creado_en.desc`,
     ),
     leer<{ id: string; fecha_presupuesto: string | null; importe_pem: number | null; estado: string | null; rol_pretendido: string | null }[]>(
       `presupuestos_licitacion?select=id,fecha_presupuesto,importe_pem,estado,rol_pretendido&contrata_id=eq.${id}&order=fecha_presupuesto.desc.nullslast`,
@@ -320,7 +323,10 @@ export async function fichaContrata(id: string): Promise<FichaContrata | null> {
     },
     hojas: {
       total: hojas.length,
-      ultimas: hojas.slice(0, 10).map((h) => ({ id: h.id, numero: h.numero_hoja, comunidad: h.comunidad?.nombre ?? null, comunidadId: h.comunidad?.id ?? null, estado: h.estado, fecha: h.fecha_creacion })),
+      ultimas: hojas.slice(0, 10).map((h) => ({
+        id: h.id, numero: h.codigo_he ? `${h.codigo_he} v${h.numero_version}` : null, comunidad: h.opp?.comunidad?.nombre ?? null, comunidadId: h.opp?.comunidad?.id ?? null,
+        estado: faseHe(h.estado).texto, fecha: h.creado_en.slice(0, 10),
+      })),
     },
     licitaciones: { total: licit.length, ultimas: licit.slice(0, 10).map((l) => ({ id: l.id, fecha: l.fecha_presupuesto, pem: l.importe_pem, estado: l.estado, rol: l.rol_pretendido })) },
     comisiones: comis.map((x) => ({ id: x.id, beneficiario: x.beneficiario, porcentaje: x.porcentaje, importe: x.importe, base: x.base_calculo, vigente: x.vigente, notas: x.notas })),

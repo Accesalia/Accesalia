@@ -267,37 +267,6 @@ export async function cerrarSesion() {
 
 // ------------------------------------------------------------ lo que se les pide
 
-export type Pedido = { hojaId: string; codigo: string; version: number; descripcion: string | null; enviada: string | null; recibida: boolean; opp: string | null };
-
-/** Las hojas de encargo enviadas a esta comunidad y aun sin firmar.
- *
- *  POR COMUNIDAD -> SUS OPPS EN CURSO -> SUS HOJAS (Monica, 14-oct-2026): "una
- *  comunidad debe ver solo las opps en curso; no va por direccion, sino por
- *  comunidad-opp". Solo las opps ABIERTAS de esta comunidad, y de ellas las
- *  hojas enviadas y sin firmar que van A LA COMUNIDAD (las de una contrata las
- *  firma la contrata). Con el nombre de su opp, para que sepan de que obra es. */
-export async function hojasPorFirmar(comunidadId: string): Promise<Pedido[]> {
-  const opps = await pedir<{ id: string; nombre: string | null; codigo: string | null }[]>(
-    `oportunidades?select=id,nombre,codigo&comunidad_id=eq.${comunidadId}&estado=eq.abierta`,
-  );
-  if (!opps.length) return [];
-  const nombreDe = new Map(opps.map((o) => [o.id, o.nombre?.trim() || o.codigo || null]));
-  const [hojas, recibidas] = await Promise.all([
-    pedir<{ id: string; oportunidad_id: string | null; numero_hoja: string | null; descripcion: string | null; versiones: { numero_version: number; url_pdf_hoja: string | null; fecha_enviada: string | null }[] }[]>(
-      `hojas_encargo?select=id,oportunidad_id,numero_hoja,descripcion,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_enviada)` +
-        `&oportunidad_id=in.(${opps.map((o) => o.id).join(",")})&estado=eq.enviada_comunidad&pagador_tipo=eq.comunidad&order=creado_en.desc`,
-    ),
-    pedir<{ hoja_encargo_id: string }[]>(`portal_recibidos?select=hoja_encargo_id&comunidad_id=eq.${comunidadId}&tipo=eq.hoja_firmada&estado=eq.por_revisar`),
-  ]);
-  const ya = new Set(recibidas.map((r) => r.hoja_encargo_id));
-  return hojas.flatMap((h) => {
-    const v = [...h.versiones].filter((x) => x.url_pdf_hoja).sort((a, b) => b.numero_version - a.numero_version)[0];
-    return v
-      ? [{ hojaId: h.id, codigo: h.numero_hoja ?? "", version: v.numero_version, descripcion: h.descripcion, enviada: v.fecha_enviada, recibida: ya.has(h.id), opp: nombreDe.get(h.oportunidad_id ?? "") ?? null }]
-      : [];
-  });
-}
-
 /** Lo que ha subido ESTE correo a esta comunidad (para que lo vea en su lista). */
 export async function subidoPor(email: string, comunidadId: string) {
   return pedir<{ id: string; tipo: string; descripcion: string | null; nombre_fichero: string | null; estado: string; creado_en: string; hoja: { numero_hoja: string | null } | null }[]>(
@@ -328,7 +297,6 @@ export type ClavePortal = (typeof CLAVES_PORTAL)[number];
 
 export async function registrarSubida(d: {
   comunidadId: string;
-  hojaId: string | null;
   /** Que papel es (su ventanita). Sin el, y sin hoja, es «otro». */
   clave?: ClavePortal | null;
   /** Una hoja del sistema nuevo: la firmada se archiva en su opp (25-oct-2026). */
@@ -347,10 +315,6 @@ export async function registrarSubida(d: {
   if (!info.ok) throw new Error("El fichero no ha llegado. Vuelve a intentarlo.");
   const tam = Number(((await info.json()) as { size?: number }).size ?? 0) || null;
   if (d.versionId) return archivarFirmadaNueva(d.comunidadId, d.versionId, d.ruta, d.nombreFichero, d.email);
-  if (d.hojaId) {
-    const ok = (await hojasPorFirmar(d.comunidadId)).some((h) => h.hojaId === d.hojaId);
-    if (!ok) throw new Error("Esa hoja de encargo ya no está pendiente de firma.");
-  }
   if (d.clave && !CLAVES_PORTAL.includes(d.clave)) throw new Error("Documento no válido.");
   if (d.clave === "votacion") {
     if (!d.oportunidadId || !/^[0-9a-f-]{36}$/.test(d.oportunidadId)) throw new Error("Falta el expediente.");
@@ -364,8 +328,7 @@ export async function registrarSubida(d: {
     headers: { Prefer: "return=representation" },
     body: JSON.stringify({
       comunidad_id: d.comunidadId,
-      hoja_encargo_id: d.hojaId,
-      tipo: d.hojaId ? "hoja_firmada" : (d.clave ?? "otro"),
+      tipo: d.clave ?? "otro",
       oportunidad_id: d.clave === "votacion" ? d.oportunidadId : null,
       descripcion: d.descripcion,
       ruta: d.ruta,

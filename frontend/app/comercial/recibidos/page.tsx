@@ -43,7 +43,7 @@ export default async function Recibidos() {
                 <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-[14px]">
                   <div className="min-w-0">
                     <div className="font-semibold text-carbon">
-                      {r.tipo === "hoja_firmada" ? `Hoja de encargo ${r.hoja?.numero_hoja ?? ""} firmada` : (PAPEL[r.tipo] ?? r.descripcion ?? "Documento")}
+                      {PAPEL[r.tipo] ?? r.descripcion ?? "Documento"}
                     </div>
                     <div className="text-[13px] text-carbon/65">
                       {r.comunidad ? (
@@ -51,11 +51,11 @@ export default async function Recibidos() {
                           {r.comunidad.nombre}
                         </Link>
                       ) : null}
-                      {r.hoja?.opp?.codigo ? ` · ${r.hoja.opp.codigo}` : ""} · {r.subido_por_nombre ? `${r.subido_por_nombre} (${r.subido_por_email})` : r.subido_por_email} ·{" "}
+                       · {r.subido_por_nombre ? `${r.subido_por_nombre} (${r.subido_por_email})` : r.subido_por_email} ·{" "}
                       {CUANDO.format(new Date(r.creado_en))} · {r.nombre_fichero}
                     </div>
                   </div>
-                  <Revisar id={r.id} esHoja={r.tipo === "hoja_firmada"} tipo={r.tipo} />
+                  <Revisar id={r.id} esHoja={false} tipo={r.tipo} />
                 </li>
               ))}
             </ul>

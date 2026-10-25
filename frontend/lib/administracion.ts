@@ -14,6 +14,7 @@
 // "no quiero que se pueda descomponer, para evitar errores".
 
 import "server-only";
+import { FIRMADA } from "./hojasOpp";
 import { personasDeComunidad } from "./personasComunidad";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "http://127.0.0.1:54321";
@@ -52,12 +53,13 @@ export async function listarComunidades(q: string, tope = 60): Promise<{ filas: 
       id: string; nombre: string; municipio: string | null; cp: string | null;
       comunidad_admin_responsable: { vigente: boolean; empresa: { nombre_accesalia: string } | null }[];
       proyectos: { id: string }[];
-      hojas_encargo: { estado: string | null }[];
+      hojas: { estado: string }[];
     }[]
   >(
     "comunidades?select=id,nombre,municipio,cp," +
       "comunidad_admin_responsable(vigente,empresa(nombre_accesalia))," +
-      "proyectos(id),hojas_encargo(estado)" +
+      // Las hojas que paga la comunidad (sistema nuevo, 25-oct-2026).
+      "proyectos(id),hojas:he_versiones_hoja!he_versiones_hoja_pagador_comunidad_id_fkey(estado)" +
       `${filtro}&order=nombre&limit=${tope}`,
   );
 
@@ -71,7 +73,7 @@ export async function listarComunidades(q: string, tope = 60): Promise<{ filas: 
       cp: c.cp,
       administrador: c.comunidad_admin_responsable.find((x) => x.vigente)?.empresa?.nombre_accesalia ?? null,
       conProyecto: c.proyectos.length > 0,
-      conHojaFirmada: c.hojas_encargo.some((h) => h.estado === "devuelta_firmada"),
+      conHojaFirmada: c.hojas.some((h) => FIRMADA.includes(h.estado)),
     })),
   };
 }

@@ -1,3 +1,4 @@
+import { faseHe } from "../../../../lib/hojasOpp";
 import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { Salida } from "../../../components/Salida";
@@ -35,11 +36,6 @@ const PAPEL_PORTAL: Record<string, string> = {
   acta: "Acta de nombramiento del presidente",
   certificado: "Certificado de titularidad de la cuenta",
   votacion: "Acta de votación",
-};
-const ESTADO_HOJA: Record<string, { texto: string; tono: string }> = {
-  devuelta_firmada: { texto: "firmada", tono: "bg-lima text-carbon" },
-  enviada_comunidad: { texto: "enviada, sin firmar", tono: "bg-amber-50 text-amber-800" },
-  borrador: { texto: "borrador", tono: "bg-black/5 text-carbon/60" },
 };
 
 /* ------------------------------------------------------------------ piezas */
@@ -152,7 +148,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
   const sube = !!(yo.veTodo || puedeEntrar(yo, "comercial", "trabajar") || puedeEntrar(yo, "administracion", "trabajar"));
 
   const hojas = f.opps.flatMap((o) => o.hojas);
-  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
+  const firmadas = hojas.filter((h) => h.firma);
   const contratado = firmadas.reduce((s, h) => s + h.total, 0);
   const abiertas = f.opps.filter((o) => o.estado === "abierta").length;
   const falta = loQueFalta(f);
@@ -438,7 +434,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
               ) : (
                 <div className="space-y-3.5">
                   {f.opps.map((o) => {
-                    const total = o.hojas.filter((h) => h.estado === "devuelta_firmada").reduce((s, h) => s + h.total, 0);
+                    const total = o.hojas.filter((h) => h.firma).reduce((s, h) => s + h.total, 0);
                     return (
                       <div key={o.id} className="rounded-[14px] border border-lima/35 bg-[#E6ECDC] p-4">
                         <div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1.5">
@@ -470,7 +466,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                               </thead>
                               <tbody>
                                 {o.hojas.map((h) => {
-                                  const est = ESTADO_HOJA[h.estado ?? ""] ?? { texto: h.estado ?? "sin estado", tono: "bg-black/5 text-carbon/60" };
+                                  const est = faseHe(h.fase);
                                   return (
                                     <tr key={h.id} className="border-t border-black/5 align-baseline">
                                       <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{h.numero ?? "—"}</td>
@@ -478,12 +474,12 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                                         {h.lineas.length ? h.lineas.map((l) => l.que).join(" + ") : h.que ?? "sin descripción"}
                                       </td>
                                       <td className="whitespace-nowrap py-1.5 pr-4 tabular-nums">{fecha(h.firma) ?? "—"}</td>
-                                      <td className="whitespace-nowrap py-1.5 pr-4">{h.pagador ?? "—"}</td>
+                                      <td className="whitespace-nowrap py-1.5 pr-4">{h.pagadorTipo}</td>
                                       <td className="whitespace-nowrap py-1.5 pr-4 text-right font-bold tabular-nums">{h.total > 0 ? eur(h.total) : "—"}</td>
                                       <td className="whitespace-nowrap py-1.5">
-                                        {h.firmada ? (
+                                        {h.firma && h.firmadaDocumentoId ? (
                                           <a
-                                            href={`/administracion/comunidades/${f.id}/hoja/${h.id}/${h.firmada.versionId}`}
+                                            href={`/administracion/comunidades/${f.id}/hoja/${h.id}`}
                                             target="_blank"
                                             rel="noopener"
                                             className="inline-flex items-center gap-1.5 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-0.5 text-sm font-semibold text-lima-dark hover:bg-lima/30"
@@ -491,7 +487,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                                             <span aria-hidden>📄</span>firmada
                                           </a>
                                         ) : (
-                                          <Pildora tono={est.tono}>{est.texto}</Pildora>
+                                          <Pildora tono={est.clase}>{est.texto}</Pildora>
                                         )}
                                       </td>
                                     </tr>
@@ -577,7 +573,7 @@ export default async function FichaComunidad({ params }: { params: Promise<{ id:
                     <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 py-2">
                       <span className="min-w-0">
                         <b className="text-carbon">
-                          {r.tipo === "hoja_firmada" ? `Hoja de encargo ${r.hoja?.numero_hoja ?? ""} firmada` : (PAPEL_PORTAL[r.tipo] ?? r.descripcion ?? "Documento")}
+                          {r.tipo === "hoja_firmada" ? "Hoja de encargo firmada" : (PAPEL_PORTAL[r.tipo] ?? r.descripcion ?? "Documento")}
                         </b>
                         <span className="block text-[12.5px] text-carbon/65">
                           {[r.subido_por_nombre ?? r.subido_por_email, fecha(r.creado_en), r.nombre_fichero].filter(Boolean).join(" · ")}

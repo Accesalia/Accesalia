@@ -189,7 +189,8 @@ export async function comunidadPorId(id: string): Promise<FichaComunidad | null>
         es_contacto_principal: p.es_contacto_principal, notas: p.notas,
       }) as PersonaComunidad),
     ),
-    contar(`hojas_encargo?select=id&comunidad_id=eq.${id}`),
+    // Las hojas que paga la comunidad (sistema nuevo, 25-oct-2026): las vivas, sin las versiones sustituidas.
+    contar(`he_versiones_hoja?select=id&pagador_comunidad_id=eq.${id}&estado=not.in.(sustituida,anulada)`),
   ]);
 
   const viva = vinculos.find((v) => v.vigente) ?? null;

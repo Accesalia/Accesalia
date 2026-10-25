@@ -10,9 +10,9 @@ import type { ClavePortal } from "../../../../lib/portal";
 // En «Otros documentos» se pide antes que documento es.
 
 export function Adjuntar({
-  comunidadId, clave, hojaId = null, versionId = null, oportunidadId = null, estado = null, children,
+  comunidadId, clave, versionId = null, oportunidadId = null, estado = null, children,
 }: {
-  comunidadId: string; clave: ClavePortal | "hoja_firmada" | "otro"; hojaId?: string | null; versionId?: string | null; oportunidadId?: string | null;
+  comunidadId: string; clave: ClavePortal | "hoja_firmada" | "otro"; versionId?: string | null; oportunidadId?: string | null;
   /** El simbolo del estado, abajo a la derecha. */
   estado?: React.ReactNode; children: React.ReactNode;
 }) {
@@ -35,7 +35,6 @@ export function Adjuntar({
       if (!put.ok) return setError("No se ha podido subir el fichero. Vuelve a intentarlo.");
       const r = await accionRegistrar({
         comunidadId,
-        hojaId: clave === "hoja_firmada" ? hojaId : null,
         versionId: clave === "hoja_firmada" ? versionId : null,
         clave: clave === "hoja_firmada" || esOtro ? null : clave,
         oportunidadId: clave === "votacion" ? oportunidadId : null,

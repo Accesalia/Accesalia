@@ -338,3 +338,71 @@ export async function honorariosDeHojas(oppId: string): Promise<LineaHojaHonorar
       .filter((l) => l.importe > 0),
   }));
 }
+
+/** UNA HOJA PARA LA FICHA DE COMUNIDAD Y EL PORTAL (25-oct-2026): la version actual de cada hoja (sin anuladas ni
+ *  sustituidas), con lo que se cobra (que + importe), su firma y su firmada archivada. */
+export type HojaFicha = {
+  id: string;
+  oppId: string;
+  /** «HE-2026-0012 v2» (o null si aun no tiene codigo) */
+  numero: string | null;
+  /** Que se hace: los tipos de sus lineas. */
+  que: string | null;
+  fase: string;
+  firma: string | null;
+  pagadorTipo: string;
+  pagadorComunidadId: string | null;
+  total: number;
+  lineas: { que: string; importe: number | null }[];
+  /** La firmada validada, en el archivo de la opp. */
+  firmadaDocumentoId: string | null;
+};
+
+export async function hojasFichaDe(oppIds: string[]): Promise<HojaFicha[]> {
+  const ids = [...new Set(oppIds.filter((x) => /^[0-9a-f-]{36}$/.test(x)))];
+  const out: HojaFicha[] = [];
+  for (let i = 0; i < ids.length; i += 150) {
+    const filas = await leer<{
+      id: string; oportunidad_id: string; codigo_he: string | null; numero_version: number; estado: string; pagador_tipo: string; pagador_comunidad_id: string | null;
+      firmada_documento_id: string | null; estados: { estado: string; fecha: string }[];
+      lineas: { id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; texto: string | null; desglosar_precios: boolean | null;
+        bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null }[];
+    }[]>(
+      "he_versiones_hoja?select=id,oportunidad_id,codigo_he,numero_version,estado,pagador_tipo,pagador_comunidad_id,firmada_documento_id,estados:he_estados_hoja(estado,fecha)," +
+        "lineas:he_lineas_compromisos(id,padre_id,se_cobra,importe,texto,desglosar_precios,bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre))" +
+        `&oportunidad_id=in.(${ids.slice(i, i + 150).join(",")})&estado=not.in.(anulada,sustituida)&order=creado_en.asc`,
+    );
+    for (const f of filas) {
+      const porId = new Map(f.lineas.map((l) => [l.id, l]));
+      const soloTotal = (l: (typeof f.lineas)[number]) => l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false;
+      const nombre = (l: (typeof f.lineas)[number]) =>
+        (l.texto ?? "").trim() || `${l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "Concepto"}${l.desglose ? ` de ${l.desglose.nombre.toLowerCase()}` : ""}`;
+      const lineas = f.lineas
+        .filter((l) => l.se_cobra && !(l.padre_id && soloTotal(porId.get(l.padre_id)!)))
+        .map((l) => ({ que: nombre(l), importe: soloTotal(l) ? f.lineas.filter((h) => h.padre_id === l.id).reduce((t, h) => t + (Number(h.importe) || 0), 0) : l.importe == null ? null : Number(l.importe) }));
+      const tipos = [...new Set(f.lineas.filter((l) => l.bloque?.codigo === "REDACCION PROYECTO").map((l) => l.desglose?.nombre).filter((x): x is string => !!x))];
+      out.push({
+        id: f.id, oppId: f.oportunidad_id, numero: f.codigo_he ? `${f.codigo_he} v${f.numero_version}` : null, que: tipos.join(" + ") || null, fase: f.estado,
+        firma: FIRMADA.includes(f.estado) ? (f.estados.filter((e) => e.estado === "firmada_recibida").map((e) => e.fecha).sort()[0]?.slice(0, 10) ?? null) : null,
+        pagadorTipo: f.pagador_tipo, pagadorComunidadId: f.pagador_comunidad_id,
+        total: lineas.reduce((t, l) => t + (l.importe ?? 0), 0), lineas, firmadaDocumentoId: f.firmada_documento_id,
+      });
+    }
+  }
+  return out;
+}
+
+/** El enlace (diez minutos) para abrir la firmada de una version: el documento del archivo de la opp. */
+export async function enlaceFirmadaDeVersion(versionId: string): Promise<{ url: string; oppId: string; comunidadId: string | null } | null> {
+  if (!/^[0-9a-f-]{36}$/.test(versionId)) return null;
+  const [v] = await leer<{ oportunidad_id: string; pagador_comunidad_id: string | null; doc: { storage_ref: string | null } | null }[]>(
+    `he_versiones_hoja?select=oportunidad_id,pagador_comunidad_id,doc:firmada_documento_id(storage_ref)&id=eq.${versionId}`,
+  );
+  if (!v?.doc?.storage_ref) return null;
+  const r = await fetch(`${URL_BASE}/storage/v1/object/sign/documentos-comerciales/${v.doc.storage_ref}`, {
+    method: "POST", headers: { ...CAB, "Content-Type": "application/json" }, body: JSON.stringify({ expiresIn: 600 }), cache: "no-store",
+  });
+  if (!r.ok) return null;
+  const { signedURL } = (await r.json()) as { signedURL: string };
+  return { url: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? URL_BASE}/storage/v1${signedURL}`, oppId: v.oportunidad_id, comunidadId: v.pagador_comunidad_id };
+}

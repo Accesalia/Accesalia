@@ -35,7 +35,6 @@ export type Caja = {
   quien: string | null;
   cuando: string | null;
   motivo: string | null;
-  hojaId: string | null;
   oportunidadId: string | null;
   /** Una hoja del sistema nuevo (he_versiones_hoja): lo que se sube se archiva en su opp y lo valida el comercial. */
   versionId: string | null;
@@ -71,15 +70,16 @@ const ETAPAS: { hitos: string[]; nombre: string }[] = [
   { hitos: ["cfo"], nombre: "Certificado final de obra" },
 ];
 
-async function hitosDe(hojaIds: string[]): Promise<{ hoja: string; hito: string; estado: string }[]> {
-  if (!hojaIds.length) return [];
+/** Los hitos de lo firmado, por version (sistema nuevo, 25-oct-2026: la ficha de facturacion de cada linea de la hoja). */
+async function hitosDe(versionIds: string[]): Promise<{ hoja: string; hito: string; estado: string }[]> {
+  if (!versionIds.length) return [];
   const r = await fetch(
-    `${URL_BASE}/rest/v1/hitos_cobro?select=hito,estado,linea:lineas_facturacion!inner(hoja_encargo_id,quitada_en)` +
-      `&linea.hoja_encargo_id=in.(${hojaIds.join(",")})&linea.quitada_en=is.null&estado=neq.anulado`,
+    `${URL_BASE}/rest/v1/hitos_cobro?select=hito,estado,linea:lineas_facturacion!inner(quitada_en,he:he_linea_id!inner(version_id))` +
+      `&linea.he.version_id=in.(${versionIds.join(",")})&linea.quitada_en=is.null&estado=neq.anulado`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
   );
   if (!r.ok) throw new Error(`hitos_cobro ${r.status}`);
-  return ((await r.json()) as { hito: string; estado: string; linea: { hoja_encargo_id: string } }[]).map((x) => ({ hoja: x.linea.hoja_encargo_id, hito: x.hito, estado: x.estado }));
+  return ((await r.json()) as { hito: string; estado: string; linea: { he: { version_id: string } } }[]).map((x) => ({ hoja: x.linea.he.version_id, hito: x.hito, estado: x.estado }));
 }
 
 export type Documentacion = {
@@ -131,7 +131,7 @@ const PAPELES_COMUNIDAD: { clave: ClavePortal; titulo: string; explicacion: stri
 export async function documentacionDe(comunidadId: string): Promise<Documentacion | null> {
   const [ficha, recs] = await Promise.all([fichaComunidad(comunidadId), recibidosDe(comunidadId).catch(() => [] as Recibido[])]);
   if (!ficha) return null;
-  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
+  const firmadas = ficha.opps.flatMap((o) => o.hojas.filter((h) => h.firma).map((h) => h.id));
   const hitos = await hitosDe(firmadas).catch(() => []);
 
   const pres = ficha.presidentes[0] ?? null;
@@ -142,7 +142,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
     certificado: ficha.certificado,
     votacion: null,
   };
-  const vacia = { hojaId: null, oportunidadId: null, versionId: null };
+  const vacia = { oportunidadId: null, versionId: null };
 
   const comunidad: Caja[] = PAPELES_COMUNIDAD.map((p) => ({
     ...p,
@@ -160,41 +160,21 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
   );
   const expedientes: Expediente[] = vivos
     .map((o) => {
-      const hojas: Caja[] = o.hojas
-        .filter((h) => h.pagador === "comunidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
-        .map((h) => ({
-          clave: "hoja_firmada" as const,
-          titulo: `Hoja de encargo ${h.numero ?? ""}`.trim(),
-          explicacion: "firmada, la que os enviamos",
-          hojaId: h.id,
-          oportunidadId: o.id,
-          versionId: null,
-          ...estadoDe(h.estado === "devuelta_firmada" ? { creado: "0000" } : null, recs.filter((r) => r.tipo === "hoja_firmada" && r.hoja_encargo_id === h.id)),
-        }));
       const votacion: Caja = {
         clave: "votacion",
         titulo: "Acta de votación",
         explicacion: "la de la junta que aprueba la obra",
-        hojaId: null,
         oportunidadId: o.id,
         versionId: null,
         ...estadoDe(o.votacion, recs.filter((r) => r.tipo === "votacion" && r.oportunidad_id === o.id)),
       };
+      // Lo que esta comunidad firmo (sistema nuevo, 25-oct-2026): las hojas que paga ELLA, ya firmadas; con su firmada
+      // archivada, se puede ver (es el papel que ella misma firmo).
       const contratado: Contratado[] = o.hojas
-        .filter((h) => h.pagador === "comunidad" && h.estado === "devuelta_firmada")
-        .map((h) => ({
-          hojaId: h.id,
-          numero: h.numero,
-          firma: h.firma,
-          lineas: h.lineas,
-          total: h.total,
-          // LA NOTA DE RESPONSABILIDAD funciona EXACTAMENTE igual que cualquier hoja
-          // de encargo, con UNA unica excepcion: no hay enlace para verla (Monica,
-          // 21-oct-2026). Es lo unico que cambia.
-          versionId: h.tipoDocumento === "nota_responsabilidad" ? null : (h.firmada?.versionId ?? null),
-        }));
+        .filter((h) => h.pagadorTipo === "comunidad" && h.pagadorComunidadId === comunidadId && h.firma)
+        .map((h) => ({ hojaId: h.id, numero: h.numero, firma: h.firma, lineas: h.lineas, total: h.total, versionId: h.firmadaDocumentoId ? h.id : null }));
       // las etapas: las de los hitos de lo firmado (de cualquier pagador), en su orden
-      const suyas = new Set(o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id));
+      const suyas = new Set(o.hojas.filter((h) => h.firma).map((h) => h.id));
       const mios = hitos.filter((x) => suyas.has(x.hoja));
       const etapas: Etapa[] = suyas.size
         ? ETAPAS.filter((e, i) => i === 0 || mios.some((x) => e.hitos.includes(x.hito))).map((e, i) => ({
@@ -203,19 +183,19 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
             hecha: i === 0 || mios.some((x) => e.hitos.includes(x.hito) && x.estado === "completado"),
           }))
         : [];
-      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...(nuevas.get(o.id) ?? []), ...hojas, votacion], contratado, etapas };
+      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...(nuevas.get(o.id) ?? []), votacion], contratado, etapas };
     });
 
   const todas = [...comunidad, ...expedientes.flatMap((e) => e.cajas)];
   return { ficha, comunidad, expedientes, pendientes: todas.filter((c) => c.estado === "pendiente" || c.estado === "rechazado").length };
 }
 
-/** El PDF firmado de una hoja de ESTA comunidad, para enseñarselo a ella: solo
- *  si es una hoja firmada que paga la comunidad, de uno de sus expedientes. */
-export async function hojaFirmadaParaLaComunidad(comunidadId: string, hojaId: string): Promise<{ hojaId: string; versionId: string } | null> {
+/** El PDF firmado de una hoja de ESTA comunidad, para enseñarselo a ella: solo si es una hoja firmada que paga la
+ *  comunidad, de uno de sus expedientes, y con su firmada archivada. Devuelve la version. */
+export async function hojaFirmadaParaLaComunidad(comunidadId: string, versionId: string): Promise<string | null> {
   const doc = await documentacionDe(comunidadId);
-  const h = doc?.expedientes.flatMap((e) => e.contratado).find((x) => x.hojaId === hojaId);
-  return h?.versionId ? { hojaId: h.hojaId, versionId: h.versionId } : null;
+  const h = doc?.expedientes.flatMap((e) => e.contratado).find((x) => x.hojaId === versionId);
+  return h?.versionId ?? null;
 }
 
 /** LAS VENTANITAS DE LAS HOJAS NUEVAS (Monica, 25-oct-2026): cada hoja que paga ESTA comunidad y que tiene que firmar
@@ -228,7 +208,7 @@ async function cajasNuevas(oppId: string, comunidadId: string): Promise<Caja[]> 
   return suyas
     .filter((v) => ["enviada", "firma_con_errores", ...FIRMADA].includes(v.estado))
     .map((v) => {
-      const base = { clave: "hoja_firmada" as const, titulo: `Hoja de encargo ${v.codigo ?? ""} v${v.numero}`.replace("  ", " "), explicacion: "firmada, la que os enviamos", hojaId: null, oportunidadId: oppId, versionId: v.id };
+      const base = { clave: "hoja_firmada" as const, titulo: `Hoja de encargo ${v.codigo ?? ""} v${v.numero}`.replace("  ", " "), explicacion: "firmada, la que os enviamos", oportunidadId: oppId, versionId: v.id };
       const subida = firmadas.porValidar.find((d) => d.nombre.startsWith(nombreFirmadaPortal(v.codigo, v.numero)));
       if (FIRMADA.includes(v.estado)) {
         const d = v.firmadaDocumentoId ? firmadas.todas.get(v.firmadaDocumentoId) : null;
