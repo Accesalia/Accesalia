@@ -1,6 +1,7 @@
 import "server-only";
 import { columnasDeInteres } from "./columnasInteres";
-import { datosProyectos, diasDeObras, leerTiempos } from "./trabajosTecnico";
+import { datosProyectos, diasDeObras, leerTiempos, tiposFirmadosPorOpp } from "./trabajosTecnico";
+import { FIRMADA } from "./hojasOpp";
 // lib/negocio.ts
 //
 // NEGOCIO · TRABAJO CONTRATADO (Monica, 12-oct-2026). Indicadores de seguimiento
@@ -131,16 +132,8 @@ function trozos<T>(xs: T[], n = 150): T[][] {
 /** El colchon de hoy: los proyectos que esperan tecnico o lo tienen y no han terminado,
  *  con las mismas listas y los mismos dias que Asignar (lib/trabajosTecnico). */
 async function colchonDeHoy(u: UmbralesColchon): Promise<Colchon> {
-  const [d, tiempos, actuaciones] = await Promise.all([
-    datosProyectos(),
-    leerTiempos(),
-    todo<{ hoja: { oportunidad_id: string | null } | null; tipo: { clave: string } | null }>(
-      "actuaciones_hoja?select=hoja:hoja_encargo_id!inner(oportunidad_id),tipo:tipo_proyecto_id(clave)&hoja.estado=eq.devuelta_firmada",
-    ),
-  ]);
-  const obras = new Map<string, Set<string>>();
-  for (const a of actuaciones)
-    if (a.hoja?.oportunidad_id && a.tipo) obras.set(a.hoja.oportunidad_id, (obras.get(a.hoja.oportunidad_id) ?? new Set<string>()).add(a.tipo.clave));
+  const [d, tiempos, tipos] = await Promise.all([datosProyectos(), leerTiempos(), tiposFirmadosPorOpp()]);
+  const obras = new Map([...tipos].map(([opp, m]) => [opp, new Set(m.keys())]));
   const enCola = new Map<string, number | null>();
   // Antes de la nube (pendientes de decidir y en nube): los dias de sus obras.
   for (const t of [...d.asignar.pendientes, ...d.asignar.enNube]) enCola.set(t.oppId, diasDeObras([...(obras.get(t.oppId) ?? [])], tiempos));
@@ -172,9 +165,18 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     todo<{ id: string; comercial_id: string | null; estado: string; fecha_apertura: string | null; creado_en: string }>(
       "oportunidades?select=id,comercial_id,estado,fecha_apertura,creado_en&estado=neq.anulada",
     ),
-    todo<{ id: string; oportunidad_id: string | null; fecha_firma: string | null; version_firmada_id: string | null; versiones: { id: string; numero_version: number; importe_base: number | null }[] }>(
-      "hojas_encargo?select=id,oportunidad_id,fecha_firma,version_firmada_id,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,importe_base)&estado=eq.devuelta_firmada",
-    ),
+    // Las firmadas: las versiones del sistema nuevo (25-oct-2026), con su importe (vista he_importe_version) y el
+    // dia en que llego firmada (su historial).
+    Promise.all([
+      todo<{ version_id: string; oportunidad_id: string; importe: number }>(
+        `he_importe_version?select=version_id,oportunidad_id,importe&estado=in.(${FIRMADA.join(",")})`,
+      ),
+      todo<{ version_id: string; fecha: string }>("he_estados_hoja?select=version_id,fecha&estado=eq.firmada_recibida"),
+    ]).then(([vs, es]) => {
+      const firma = new Map<string, string>();
+      for (const e of es) if (!firma.has(e.version_id) || e.fecha < firma.get(e.version_id)!) firma.set(e.version_id, e.fecha);
+      return vs.map((v) => ({ id: v.version_id, oportunidad_id: v.oportunidad_id, importe: Number(v.importe) || 0, fecha_firma: firma.get(v.version_id)?.slice(0, 10) ?? null }));
+    }),
     todo<{ oportunidad_id: string; fecha_cierre: string | null }>("motivo_cierre_oportunidad?select=oportunidad_id,fecha_cierre&resultado_final=eq.perdido"),
     todo<{ id: string; comercial_id: string | null; fecha_alta_cartera: string | null; nombre_accesalia: string | null; nombre_legal: string | null }>(
       "empresa?select=id,comercial_id,fecha_alta_cartera,nombre_accesalia,nombre_legal&tipo=eq.administracion_fincas",
@@ -206,8 +208,7 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
 
   // Ganadas = hojas firmadas recibidas en el periodo (una opp cuenta una vez)
   type Hoja = (typeof hojas)[number];
-  const versionDe = (h: Hoja) => h.versiones.find((v) => v.id === h.version_firmada_id) ?? [...h.versiones].sort((a, b) => b.numero_version - a.numero_version)[0];
-  const importeDe = (h: Hoja) => Number(versionDe(h)?.importe_base) || 0;
+  const importeDe = (h: Hoja) => h.importe;
   const delPeriodo = hojas.filter((x) => dentro(x.fecha_firma) && x.oportunidad_id && oppDe.has(x.oportunidad_id));
   const ganadas = new Set<string>();
   const meses = new Map<string, { importe: number; firmadas: number; importeAnterior: number }>();
@@ -263,27 +264,38 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     }
   }
 
-  // LO CONTRATADO POR TIPO (Monica, 21-oct-2026): las lineas de la version firmada
-  // con lo que son (tipos_proyecto) y su importe. Cuenta una linea si tiene tipo o
-  // lleva dinero (importe o %); la que va dentro de otra no cuenta aparte. Las de
-  // 0 € sin tipo son lo incluido (fin de obra, toma de datos...) y no cuentan.
-  const oppDeVersion = new Map<string, string>();
-  for (const h of delPeriodo) {
-    const v = versionDe(h)?.id;
-    if (v) oppDeVersion.set(v, h.oportunidad_id!);
-  }
-  const lineas = (
+  // LO CONTRATADO POR TIPO (Monica, 21-oct-2026): lo que se cobra de las versiones
+  // firmadas, con lo que es (tipos_proyecto) y su importe. Una linea cuenta si se cobra
+  // y lleva dinero (importe o %) o tiene tipo (a exito); su tipo es el suyo o el de la cabecera de
+  // la que cuelga («Redaccion proyecto · Rampa»). Un proyecto conjunto con «solo el
+  // total» no cuenta como linea: cuentan sus proyectos, cada uno con su tipo y su importe
+  // (la misma suma, la regla de he_importe_version). Lo incluido no cuenta.
+  const oppDeVersion = new Map(delPeriodo.map((h) => [h.id, h.oportunidad_id!]));
+  type L = {
+    id: string; version_id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; porcentaje: number | null;
+    desglosar_precios: boolean | null; tipo: { id: string; clave: string | null } | null; bloque: { codigo: string; nombre: string } | null;
+  };
+  const todas = (
     await Promise.all(
       trozos([...oppDeVersion.keys()]).map((t) =>
-        todo<{ version_hoja_id: string; importe: number | null; porcentaje: number | null; tipo: { id: string; clave: string | null } | null; bloque: { nombre: string } | null }>(
-          `conceptos_hoja?select=version_hoja_id,importe,porcentaje,tipo:tipo_proyecto_id(id,clave),bloque:bloque_id(nombre)&incluido_en_concepto_id=is.null&version_hoja_id=in.(${t.join(",")})`,
+        todo<L>(
+          "he_lineas_compromisos?select=id,version_id,padre_id,se_cobra,importe,porcentaje,desglosar_precios,tipo:desglose_id(id,clave),bloque:bloque_id(codigo,nombre)" +
+            `&version_id=in.(${t.join(",")})`,
         ),
       ),
     )
   ).flat();
+  const linea = new Map(todas.map((l) => [l.id, l]));
+  const conjuntoSoloTotal = (l: L | undefined) => !!l && l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false;
+  const tipoDe = (l: L): L["tipo"] => {
+    for (let x: L | undefined = l; x; x = x.padre_id ? linea.get(x.padre_id) : undefined) if (x.tipo) return x.tipo;
+    return null;
+  };
+  const lineas = todas
+    .filter((l) => l.se_cobra && !conjuntoSoloTotal(l))
+    .map((l) => ({ ...l, tipo: tipoDe(l) }));
   const porTipo = new Map<string, TipoContratado>(tipos.map((t) => [t.id, { nombre: t.nombre, lineas: 0, importe: 0, aExito: 0 }]));
   const sinTipo = new Map<string, { bloque: string; lineas: number; importe: number }>();
-  const clavesDeOpp = new Map<string, Set<string>>();
   let importeLineas = 0;
   for (const l of lineas) {
     const imp = Number(l.importe) || 0;
@@ -295,8 +307,6 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
       t.lineas++;
       t.importe += imp;
       if (!(imp > 0)) t.aExito++;
-      const opp = oppDeVersion.get(l.version_hoja_id);
-      if (opp && l.tipo.clave) clavesDeOpp.set(opp, (clavesDeOpp.get(opp) ?? new Set<string>()).add(l.tipo.clave));
     } else {
       const b = l.bloque?.nombre ?? "Sin bloque";
       const x = sinTipo.get(b) ?? { bloque: b, lineas: 0, importe: 0 };
@@ -310,7 +320,9 @@ export async function trabajoContratado(desde: string, hasta: string): Promise<T
     const ts = c.valores.map((id) => porTipo.get(id)!);
     return { titulo: c.titulo, lineas: ts.reduce((s, t) => s + t.lineas, 0), importe: ts.reduce((s, t) => s + t.importe, 0), tipos: ts };
   });
-  // Las horas de lo contratado: cada opp con sus obras, como en Asignar.
+  // Las horas de lo contratado: cada opp con sus obras, como en Asignar (los tipos de sus proyectos firmados).
+  const firmados = await tiposFirmadosPorOpp();
+  const clavesDeOpp = new Map([...new Set(oppDeVersion.values())].filter((o) => firmados.has(o)).map((o) => [o, new Set(firmados.get(o)!.keys())]));
   const horasTecnico = [...clavesDeOpp.values()].reduce((s, c) => s + (diasDeObras([...c], tiempos) ?? 0), 0) * umbrales.horasDia;
 
   const cierra = (x: PorComercial) => {

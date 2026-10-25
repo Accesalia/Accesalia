@@ -23,6 +23,7 @@ import "server-only";
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { listaAcuerdos, oppsDelAcuerdo, type Condicion, type Deuda, type Sobre } from "./comisionesAdmin";
+import { FIRMADA } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -96,10 +97,27 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
       `oportunidades?select=id,nombre,codigo,comunidad_id,quien_lo_trae,` +
         `comercial:comercial_id(nombre,apellidos,notas_comision,comision_pct)&id=eq.${oppId}`,
     ),
-    leer<{ id: string; numero_hoja: string | null; fecha_firma: string | null; pagador_tipo: string | null; version_firmada_id: string | null; contrata: { nombre: string } | null; actuaciones: { tipo: { nombre: string; naturaleza: string | null; padre: { nombre: string; padre: { nombre: string } | null } | null } | null }[] }[]>(
-      `hojas_encargo?select=id,numero_hoja,fecha_firma,pagador_tipo,version_firmada_id,contrata:pagador_contrata_id(nombre),` +
-        `actuaciones:actuaciones_hoja(tipo:tipo_proyecto_id(nombre,naturaleza,padre:parent_id(nombre,padre:parent_id(nombre))))` +
-        `&oportunidad_id=eq.${oppId}&estado=eq.devuelta_firmada&order=fecha_firma.asc`,
+    // Las hojas firmadas: las versiones del sistema nuevo (25-oct-2026), con el dia en que llegaron firmadas y sus
+    // lineas (que se hace: el tipo de cada una; lo incluido: lo que no se cobra aparte).
+    leer<{
+      id: string; codigo_he: string | null; numero_version: number; pagador_tipo: string | null; contrata: { nombre: string } | null;
+      estados: { estado: string; fecha: string }[];
+      lineas: {
+        se_cobra: boolean; bloque_id: string | null; texto: string | null; bloque: { nombre_corto: string | null; nombre: string } | null;
+        tipo: { nombre: string; naturaleza: string | null; padre: { nombre: string; padre: { nombre: string } | null } | null } | null;
+      }[];
+    }[]>(
+      `he_versiones_hoja?select=id,codigo_he,numero_version,pagador_tipo,contrata:pagador_contrata_id(nombre),estados:he_estados_hoja(estado,fecha),` +
+        `lineas:he_lineas_compromisos(se_cobra,bloque_id,texto,bloque:bloque_id(nombre_corto,nombre),tipo:desglose_id(nombre,naturaleza,padre:parent_id(nombre,padre:parent_id(nombre))))` +
+        `&oportunidad_id=eq.${oppId}&estado=in.(${FIRMADA.join(",")})`,
+    ).then((vs) =>
+      vs
+        .map((v) => ({
+          ...v,
+          numero_hoja: v.codigo_he ? `${v.codigo_he}${v.numero_version > 1 ? ` · v${v.numero_version}` : ""}` : null,
+          fecha_firma: v.estados.filter((e) => e.estado === "firmada_recibida").map((e) => e.fecha.slice(0, 10)).sort()[0] ?? null,
+        }))
+        .sort((a, b) => (a.fecha_firma ?? "").localeCompare(b.fecha_firma ?? "")),
     ),
     leer<{ presupuestos: { estado: string; importe_pem: number | null; contrata_externa_nombre: string | null; contrata: { nombre: string } | null }[] }[]>(
       `licitaciones?select=presupuestos:presupuestos_licitacion(estado,importe_pem,contrata_externa_nombre,contrata:contrata_id(nombre))&oportunidad_id=eq.${oppId}`,
@@ -114,18 +132,25 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
   const idsHoja = hojas.map((h) => h.id);
   const numeroDe = new Map(hojas.map((h) => [h.id, h.numero_hoja]));
 
-  const lineasCrudas = idsHoja.length
-    ? await leer<{ id: string; hoja_encargo_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; base_porcentaje: string | null; emisor: string | null; bloque_id: string | null; bloque: { nombre_corto: string | null; nombre: string; area: string | null } | null }[]>(
-        `lineas_facturacion?select=id,hoja_encargo_id,descripcion,importe,es_porcentaje,porcentaje,base_porcentaje,emisor,bloque_id,bloque:bloque_id(nombre_corto,nombre,area)` +
-          `&hoja_encargo_id=in.(${idsHoja.join(",")})&quitada_en=is.null&order=creado_en.asc`,
-      )
-    : [];
+  // Las lineas de cobro: la ficha de facturacion de cada linea, por la vista del dinero (facturacion_lineas: lo de la
+  // hoja manda); la base del % es de la ficha de Alexandra.
+  type Cruda = { id: string; hoja_id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; emisor: string | null; bloque_id: string | null };
+  const [crudas, bloques] = idsHoja.length
+    ? await Promise.all([
+        leer<Cruda[]>(
+          `facturacion_lineas?select=id,hoja_id,descripcion,importe,es_porcentaje,porcentaje,emisor,bloque_id&hoja_id=in.(${idsHoja.join(",")})&quitada_en=is.null&order=creado_en.asc`,
+        ),
+        leer<{ id: string; nombre_corto: string | null; nombre: string; area: string | null }[]>("bloques?select=id,nombre_corto,nombre,area"),
+      ])
+    : [[], []];
+  const bloqueDe = new Map(bloques.map((b) => [b.id, b]));
+  const lineasCrudas = crudas.map((l) => ({ ...l, bloque: l.bloque_id ? bloqueDe.get(l.bloque_id) ?? null : null }));
   // Cada uno ve lo suyo: las lineas de Ecobalance solo quien ve Ecobalance; las otras, quien ve Accesalia.
   const lineasVistas = lineasCrudas.filter((l) => (l.emisor === ECOBALANCE ? vista.ecobalance : vista.accesalia));
   const idsLinea = lineasVistas.map((l) => l.id);
   const emisoras = [...(vista.accesalia ? ["accesalia", "daniel"] : []), ...(vista.ecobalance ? ["ecobalance"] : [])];
-  const versiones = hojas.map((h) => h.version_firmada_id).filter((v): v is string => !!v);
-  const [hitos, notas, facturasOpp, conceptos, adminsVista] = await Promise.all([
+  const idsTodas = lineasCrudas.map((l) => l.id);
+  const [hitos, notas, facturasOpp, adminsVista, bases] = await Promise.all([
     idsLinea.length
       ? leer<{ id: string; linea_facturacion_id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; fecha_prevista: string | null; hito_padre_id: string | null; enlaces: { importe: number | null; linea: { factura: FilaFactura | null } | null }[] }[]>(
           `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,hito_padre_id,` +
@@ -133,27 +158,27 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
             `&linea_facturacion_id=in.(${idsLinea.join(",")})&order=orden.asc`,
         )
       : Promise.resolve([]),
-    idsHoja.length
+    // Las notas de facturacion cuelgan de la linea (Monica, 24-oct).
+    idsTodas.length
       ? leer<{ fecha: string | null; creado_en: string; texto: string; autor: string | null; tipo: string | null; linea_facturacion_id: string | null }[]>(
-          `notas_facturacion?select=fecha,creado_en,texto,autor,tipo,linea_facturacion_id&hoja_encargo_id=in.(${idsHoja.join(",")})&order=creado_en.desc&limit=40`,
+          `notas_facturacion?select=fecha,creado_en,texto,autor,tipo,linea_facturacion_id&linea_facturacion_id=in.(${idsTodas.join(",")})&order=creado_en.desc&limit=40`,
         )
       : Promise.resolve([]),
     leer<(FilaFactura & { fecha: string | null; empresa_emisora: string; tipo: string; enlaces: { hito_cobro_id: string }[] })[]>(
       `facturas?select=id,anio,serie,numero,fecha,base,total,estado,empresa_emisora,tipo,cobros(importe),enlaces:factura_lineas(factura_linea_hitos(hito_cobro_id))` +
         `&oportunidad_id=eq.${oppId}&estado=neq.anulada&empresa_emisora=in.(${emisoras.join(",")})&order=fecha.asc`,
     ).catch(() => []),
-    versiones.length
-      ? leer<{ hoja_encargo_id: string; bloque_id: string | null; descripcion: string | null; bloque: { nombre_corto: string | null; nombre: string } | null }[]>(
-          `conceptos_hoja?select=hoja_encargo_id,bloque_id,descripcion,bloque:bloque_id(nombre_corto,nombre)&version_hoja_id=in.(${versiones.join(",")})`,
-        ).catch(() => [])
-      : Promise.resolve([]),
     // LOS ADMINISTRADORES de la opp: opp → accesos → comunidad → administrador
     // (vista administradores_de_oportunidad, Monica 18-oct). Puede haber VARIOS:
     // una opp con accesos de dos comunidades.
     leer<{ puesto_id: string | null; empresa_id: string | null }[]>(
       `administradores_de_oportunidad?select=puesto_id,empresa_id&oportunidad_id=eq.${oppId}`,
     ).catch(() => []),
+    idsTodas.length
+      ? leer<{ id: string; base_porcentaje: string | null }[]>(`lineas_facturacion?select=id,base_porcentaje&id=in.(${idsTodas.join(",")})`)
+      : Promise.resolve([]),
   ]);
+  const baseDe = new Map(bases.map((b) => [b.id, b.base_porcentaje]));
   const idsEmpresa = [...new Set(adminsVista.map((a) => a.empresa_id).filter((x): x is string => !!x))];
   const idsPuesto = [...new Set(adminsVista.map((a) => a.puesto_id).filter((x): x is string => !!x))];
   const [empresasAdm, puestosAdm] = await Promise.all([
@@ -209,20 +234,20 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
 
   const lineas: LineaFicha[] = lineasVistas.map((l) => ({
     id: l.id,
-    hoja: numeroDe.get(l.hoja_encargo_id) ?? null,
+    hoja: numeroDe.get(l.hoja_id) ?? null,
     bloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "Sin bloque",
     area: l.bloque?.area ?? null,
     descripcion: l.descripcion ?? "",
     ecobalance: l.emisor === ECOBALANCE,
     base: l.importe != null ? Number(l.importe) : null,
-    exito: l.es_porcentaje ? { porcentaje: l.porcentaje != null ? Number(l.porcentaje) : null, sobre: l.base_porcentaje } : null,
+    exito: l.es_porcentaje ? { porcentaje: l.porcentaje != null ? Number(l.porcentaje) : null, sobre: baseDe.get(l.id) ?? null } : null,
     hitos: hitos.filter((h) => h.linea_facturacion_id === l.id && !h.hito_padre_id).map((h) => porId.get(h.id)!),
   }));
 
   // Las obras y su categoria (la raiz del catalogo de tipos).
   const obras = new Set<string>(), categorias = new Set<string>();
   for (const h of hojas)
-    for (const a of h.actuaciones) {
+    for (const a of h.lineas) {
       if (!a.tipo) continue;
       obras.add(a.tipo.nombre);
       categorias.add(a.tipo.padre?.padre?.nombre ?? a.tipo.padre?.nombre ?? a.tipo.nombre);
@@ -232,16 +257,16 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
   // Las obras de verdad: los servicios (subvenciones, CSS, 3 presupuestos...) no son tipo de proyecto.
   const obrasP = new Set<string>(), categoriasP = new Set<string>();
   for (const h of hojas)
-    for (const a of h.actuaciones) {
+    for (const a of h.lineas) {
       if (!a.tipo || a.tipo.naturaleza === "servicio") continue;
       obrasP.add(a.tipo.nombre);
       categoriasP.add(a.tipo.padre?.padre?.nombre ?? a.tipo.padre?.nombre ?? a.tipo.nombre);
     }
-  // Lo incluido sin cobrar aparte: lo de la version firmada que no tiene linea de cobro.
+  // Lo incluido sin cobrar aparte: lo de la version firmada que no se cobra y no tiene linea de cobro.
   const hojasInfo = hojas.map((h) => {
-    const cobrados = new Set(lineasCrudas.filter((l) => l.hoja_encargo_id === h.id).map((l) => l.bloque_id));
+    const cobrados = new Set(lineasCrudas.filter((l) => l.hoja_id === h.id).map((l) => l.bloque_id));
     const incluido = [
-      ...new Set(conceptos.filter((c) => c.hoja_encargo_id === h.id && !cobrados.has(c.bloque_id)).map((c) => c.bloque?.nombre_corto ?? c.bloque?.nombre ?? c.descripcion ?? "")),
+      ...new Set(h.lineas.filter((c) => !c.se_cobra && !cobrados.has(c.bloque_id)).map((c) => c.bloque?.nombre_corto ?? c.bloque?.nombre ?? c.texto ?? "")),
     ].filter(Boolean);
     return { numero: h.numero_hoja, firma: h.fecha_firma, paga: quienPaga(h), incluido };
   });
@@ -326,9 +351,13 @@ export async function fichaFinanciera(oppId: string, vista: Vista): Promise<Fich
 export type OpcionFicha = { id: string; nombre: string; detalle: string; firma: string | null; buscar: string };
 const sinTildes = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 export async function opcionesFicha(): Promise<OpcionFicha[]> {
-  const filas = await leer<{ id: string; nombre: string | null; codigo: string | null; hojas: { fecha_firma: string | null }[] }[]>(
-    "oportunidades?select=id,nombre,codigo,hojas:hojas_encargo!inner(fecha_firma)&estado=neq.anulada&hojas.estado=eq.devuelta_firmada",
-  );
+  // Las opps con alguna version firmada (sistema nuevo, 25-oct-2026) y el dia en que llego firmada.
+  const filas = (
+    await leer<{ id: string; nombre: string | null; codigo: string | null; hojas: { estados: { fecha: string }[] }[] }[]>(
+      `oportunidades?select=id,nombre,codigo,hojas:he_versiones_hoja!inner(estados:he_estados_hoja(fecha))&estado=neq.anulada` +
+        `&hojas.estado=in.(${FIRMADA.join(",")})&hojas.estados.estado=eq.firmada_recibida`,
+    )
+  ).map((o) => ({ ...o, hojas: o.hojas.map((h) => ({ fecha_firma: h.estados.map((e) => e.fecha.slice(0, 10)).sort()[0] ?? null })) }));
   // La administracion de cada una, por la vista administradores_de_oportunidad (puede haber varias).
   const tramos: string[][] = [];
   for (let i = 0; i < filas.length; i += 150) tramos.push(filas.slice(i, i + 150).map((o) => o.id));

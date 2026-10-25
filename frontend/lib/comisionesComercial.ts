@@ -6,11 +6,13 @@
 //     el captador; su % es comerciales.comision_pct;
 //   - se devenga hito a hito CUANDO ACCESALIA COBRA, proporcional a lo cobrado;
 //   - sobre el precio SIN la comision del administrador (la de su acuerdo verificado;
-//     en las hojas nuevas, conceptos_hoja.comision_importe dice lo mismo);
+//     en las hojas nuevas, he_lineas_compromisos.comision_importe dice lo mismo);
 //   - solo cuenta desde el 1-ene-2026: una opp cuya primera factura es de 2025 o antes,
 //     no; y direccion puede marcar una opp como «no cuenta» (heredadas para gestion);
 //   - solo lo de importe fijo: lo «a exito» no lleva importe y no comisiona.
 // Lo de Ecobalance (3 presupuestos, CAES) no es de Accesalia: fuera.
+// Las hojas y sus lineas, por las vistas del dinero (facturacion_hojas / facturacion_lineas): las versiones firmadas
+// del sistema nuevo y la ficha de facturacion de cada linea (25-oct-2026).
 
 import "server-only";
 import type { Yo } from "./sesion";
@@ -18,6 +20,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { enlacesPorHito, montarHitos, type FilaEnlace, type FilaHito } from "./cobros";
 import type { Hito } from "./cobrosCalculo";
 import { comisionAdminPorOpp, type Paso } from "./comisionesAdmin";
+import { FIRMADA } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -119,14 +122,25 @@ function corto(b: { codigo: string; nombre_corto: string | null } | null, desc: 
 
 /** TODO LO DE UN COMERCIAL: sus opps con hoja firmada, linea a linea y hito a hito. */
 export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]> {
-  type O = { id: string; nombre: string | null; codigo: string | null; hojas: { id: string; numero_hoja: string | null; fecha_firma: string | null }[] };
-  const ops = await leer<O>(
-    `oportunidades?select=id,nombre,codigo,hojas:hojas_encargo!inner(id,numero_hoja,fecha_firma)&comercial_id=eq.${c.id}&estado=neq.anulada&hojas.estado=eq.devuelta_firmada`,
+  type H = { id: string; numero_hoja: string | null; fecha_firma: string | null; oportunidad_id: string };
+  const suyas = await leer<{ id: string; nombre: string | null; codigo: string | null }>(
+    `oportunidades?select=id,nombre,codigo&comercial_id=eq.${c.id}&estado=neq.anulada`,
   );
+  if (!suyas.length) return [];
+  const hojasTodas = await porTramos<H>(suyas.map((o) => o.id),
+    (t) => `facturacion_hojas?select=id,numero_hoja,fecha_firma,oportunidad_id&oportunidad_id=in.(${t})&fase=in.(${FIRMADA.join(",")})`);
+  const ops = suyas
+    .map((o) => ({ ...o, hojas: hojasTodas.filter((h) => h.oportunidad_id === o.id) }))
+    .filter((o) => o.hojas.length);
   if (!ops.length) return [];
-  const hojaIds = ops.flatMap((o) => o.hojas.map((h) => h.id));
-  const lineas = await porTramos<{ id: string; hoja_encargo_id: string; descripcion: string | null; bloque: { codigo: string; nombre_corto: string | null } | null }>(hojaIds,
-    (t) => `lineas_facturacion?select=id,hoja_encargo_id,descripcion,bloque:bloque_id(codigo,nombre_corto)&hoja_encargo_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&order=creado_en`);
+  const hojaIds = hojasTodas.map((h) => h.id);
+  const [crudas, bloques] = await Promise.all([
+    porTramos<{ id: string; hoja_id: string; descripcion: string | null; bloque_id: string | null }>(hojaIds,
+      (t) => `facturacion_lineas?select=id,hoja_id,descripcion,bloque_id&hoja_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&order=creado_en`),
+    leer<{ id: string; codigo: string; nombre_corto: string | null }>("bloques?select=id,codigo,nombre_corto"),
+  ]);
+  const bloqueDe = new Map(bloques.map((b) => [b.id, b]));
+  const lineas = crudas.map((l) => ({ ...l, bloque: l.bloque_id ? bloqueDe.get(l.bloque_id) ?? null : null }));
   const filas = await porTramos<FilaHito>(lineas.map((l) => l.id),
     (t) => `hitos_cobro?select=id,linea_facturacion_id,hito,orden,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,notas,hito_padre_id&linea_facturacion_id=in.(${t})`);
   const [enl, marcas, pagos, admin] = await Promise.all([
@@ -164,7 +178,7 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
 
   return ops
     .map((o) => {
-      const susLineas = lineas.filter((l) => o.hojas.some((h) => h.id === l.hoja_encargo_id));
+      const susLineas = lineas.filter((l) => o.hojas.some((h) => h.id === l.hoja_id));
       // Las hojas de 2026 por las fechas de sus facturas: la primera factura de la opp.
       const todas: Hito[] = susLineas.flatMap((l) => (porLinea.get(l.id) ?? []).flatMap((h) => (h.subhitos.length ? [h, ...h.subhitos] : [h])));
       const fechas = todas.flatMap((h) => h.facturas.filter((f) => f.estado !== "anulada").map((f) => f.fecha)).filter((x): x is string => !!x).sort();
@@ -207,7 +221,7 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
         const hitos = hs.flatMap((h) => (h.subhitos.length ? h.subhitos.map((x) => hitoDe(x, true)) : [hitoDe(h, false)]));
         return {
           id: l.id,
-          hojaId: l.hoja_encargo_id,
+          hojaId: l.hoja_id,
           descripcion: (l.descripcion ?? "").split("\n")[0].trim(),
           importe: r2(hs.reduce((s, h) => s + (h.estado === "anulado" ? 0 : Number(h.importe) || 0), 0)),
           hitos,
@@ -228,7 +242,7 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
         codigo: o.codigo,
         hojas: o.hojas
           .map((h) => {
-            const ls = susLineas.filter((l) => l.hoja_encargo_id === h.id);
+            const ls = susLineas.filter((l) => l.hoja_id === h.id);
             const que = [...new Set(ls.map((l) => corto(l.bloque, l.descripcion)))].join(" + ");
             return { id: h.id, codigo: h.numero_hoja, fecha: h.fecha_firma, que, total: r2(lineasC.filter((l) => l.hojaId === h.id).reduce((s, l) => s + l.importe, 0)) };
           })

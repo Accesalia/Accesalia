@@ -13,6 +13,7 @@ import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { puedeVerEcobalance } from "./cobros";
 import { JUSTIFICANTES_DESDE } from "./facturasEmitidas";
+import { FIRMADA } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -201,23 +202,30 @@ export async function oppsDelAcuerdo(a: Acuerdo): Promise<OppComision[]> {
   return deudasDeOpps(a, ops);
 }
 
-type OppBase = { id: string; nombre: string | null; codigo: string | null; estado: string; hojas: { estado: string; fecha_firma: string | null }[] };
-const SELO = "id,nombre,codigo,estado,hojas:hojas_encargo(estado,fecha_firma)";
+type OppBase = { id: string; nombre: string | null; codigo: string | null; estado: string };
+const SELO = "id,nombre,codigo,estado";
 
 /** Lo que se le debe a un acuerdo en cada una de esas opps (solo las firmadas). */
 async function deudasDeOpps(a: Acuerdo, ops: OppBase[]): Promise<OppComision[]> {
-  const firmadas = [...new Map(ops.filter((o) => o.hojas.some((h) => h.estado === "devuelta_firmada")).map((o) => [o.id, o])).values()];
+  // Las hojas firmadas (versiones del sistema nuevo, 25-oct-2026), por la vista del dinero.
+  const hojas = await porTramos<{ id: string; oportunidad_id: string; fecha_firma: string | null }>([...new Set(ops.map((o) => o.id))],
+    (t) => `facturacion_hojas?select=id,oportunidad_id,fecha_firma&oportunidad_id=in.(${t})&fase=in.(${FIRMADA.join(",")})`);
+  const hojaDe = new Map(hojas.map((h) => [h.id, h]));
+  const firmaDe = new Map<string, string | null>();
+  for (const h of hojas) {
+    const antes = firmaDe.get(h.oportunidad_id);
+    firmaDe.set(h.oportunidad_id, !antes ? h.fecha_firma : h.fecha_firma && h.fecha_firma < antes ? h.fecha_firma : antes);
+  }
+  const firmadas = [...new Map(ops.filter((o) => firmaDe.has(o.id)).map((o) => [o.id, o])).values()];
   const ids = firmadas.map((o) => o.id);
   if (!ids.length) return [];
 
   // 2. Lo facturado de cada una (por los hitos casados), proyecto y subvenciones aparte; la obra adjudicada; lo ya apuntado.
-  const [lineas, licit, apuntes, notas] = await Promise.all([
-    porTramos<{
-      descripcion: string | null; bloque: { area: string | null; codigo: string | null } | null; hoja: { id: string; oportunidad_id: string } | null;
-      hitos: { importe: number | null; fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] }[];
-    }>(ids, (t) =>
-      `lineas_facturacion?select=descripcion,bloque:bloque_id(area,codigo),hoja:hoja_encargo_id!inner(id,oportunidad_id,estado),` +
-      `hitos:hitos_cobro(importe,fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id)))))&hoja.oportunidad_id=in.(${t})&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
+  type Hito = { linea_facturacion_id: string; importe: number | null; fl: { importe: number | null; linea: { factura: { estado: string; anio: number; cobros: { id: string }[] } | null } | null }[] };
+  const [fichas, bloques, licit, apuntes, notas] = await Promise.all([
+    porTramos<{ id: string; hoja_id: string; descripcion: string | null; bloque_id: string | null }>(hojas.map((h) => h.id),
+      (t) => `facturacion_lineas?select=id,hoja_id,descripcion,bloque_id&hoja_id=in.(${t})&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`),
+    leer<{ id: string; area: string | null; codigo: string | null }>("bloques?select=id,area,codigo"),
     porTramos<{ oportunidad_id: string; p: { importe_pem: number | null; estado: string }[] }>(ids,
       (t) => `licitaciones?select=oportunidad_id,p:presupuestos_licitacion(importe_pem,estado)&oportunidad_id=in.(${t})`).catch(() => []),
     leer<{
@@ -226,6 +234,17 @@ async function deudasDeOpps(a: Acuerdo, ops: OppBase[]): Promise<OppComision[]> 
     }>(`comisiones_opp?select=oportunidad_id,sobre,base,importe,importe_a_mano,pagada,fecha_pago,factura_url,justificante_url&acuerdo_id=eq.${a.id}`),
     leer<{ oportunidad_id: string; texto: string }>(`comision_notas_opp?select=oportunidad_id,texto&acuerdo_id=eq.${a.id}`),
   ]);
+  const hitos = await porTramos<Hito>(fichas.map((l) => l.id),
+    (t) => `hitos_cobro?select=linea_facturacion_id,importe,fl:factura_linea_hitos(importe,linea:factura_linea_id(factura:factura_id(estado,anio,cobros(id))))&linea_facturacion_id=in.(${t})`);
+  const bloqueDe = new Map(bloques.map((b) => [b.id, b]));
+  const hitosDe = new Map<string, Hito[]>();
+  for (const h of hitos) hitosDe.set(h.linea_facturacion_id, [...(hitosDe.get(h.linea_facturacion_id) ?? []), h]);
+  const lineas = fichas.map((l) => ({
+    descripcion: l.descripcion,
+    bloque: l.bloque_id ? bloqueDe.get(l.bloque_id) ?? null : null,
+    hoja: hojaDe.get(l.hoja_id) ?? null,
+    hitos: hitosDe.get(l.id) ?? [],
+  }));
   // Lo facturado de cada clase y las HOJAS firmadas que la llevan: un importe fijo
   // va una vez por hoja (Monica, 18-oct: «dos hojas de una opp son dos comisiones»).
   type Fact = { proyecto: number; subvenciones: number; tieneSubv: boolean; hojasP: Set<string>; hojasS: Set<string> };
@@ -312,7 +331,7 @@ async function deudasDeOpps(a: Acuerdo, ops: OppBase[]): Promise<OppComision[]> 
         nombre: nombreDeOpp(o),
         codigo: o.codigo,
         enCurso: o.estado !== "cerrada",
-        firmada: o.hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.fecha_firma).filter((x): x is string => !!x).sort()[0] ?? null,
+        firmada: firmaDe.get(o.id) ?? null,
         nuestras,
         contrata,
         nota: notaDe.get(o.id) ?? null,

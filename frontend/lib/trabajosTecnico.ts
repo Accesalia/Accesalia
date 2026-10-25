@@ -19,6 +19,7 @@
 import "server-only";
 import type { Yo } from "./sesion";
 import { nombresDeOpps } from "./direccionOpp";
+import { FIRMADA } from "./hojasOpp";
 import { datosAsignar, type DatosAsignar, type TrabajoNube } from "./nubes";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -99,25 +100,33 @@ export function diasDeObras(claves: string[], t: Tiempos): number | null {
   return Math.round((dias[0] + extra) * 2) / 2;
 }
 
+/** Que se hace en cada opp: el tipo de los proyectos de sus hojas firmadas (clave → nombre), por la cabecera
+ *  «Redaccion proyecto» de cada uno (sistema nuevo, 25-oct-2026). Lo leen Asignar y el colchon de Negocio. */
+export async function tiposFirmadosPorOpp(): Promise<Map<string, Map<string, string>>> {
+  const filas = await todo<{ hoja: { oportunidad_id: string | null } | null; tipo: { clave: string; nombre: string } | null }>(
+    "he_lineas_compromisos?select=hoja:version_id!inner(oportunidad_id),tipo:desglose_id!inner(clave,nombre),bloque:bloque_id!inner(codigo)" +
+      `&bloque.codigo=eq.REDACCION PROYECTO&hoja.estado=in.(${FIRMADA.join(",")})`,
+  );
+  const out = new Map<string, Map<string, string>>();
+  for (const a of filas) {
+    const opp = a.hoja?.oportunidad_id;
+    if (!opp || !a.tipo) continue;
+    if (!out.has(opp)) out.set(opp, new Map());
+    out.get(opp)!.set(a.tipo.clave, a.tipo.nombre);
+  }
+  return out;
+}
+
 export async function datosProyectos(): Promise<DatosProyectos> {
-  const [asignar, filas, tiempos, actuaciones] = await Promise.all([
+  const [asignar, filas, tiempos, obrasDe] = await Promise.all([
     datosAsignar(),
     todo<FilaTrabajo>(
       "trabajos_tecnico?select=id,oportunidad_id,tipo,nombre,dificultad,dias,dias_calculados,estimado_en,tecnico_id,orden,asignado_en,terminado_en" +
         "&or=(tipo.eq.proyecto,terminado_en.is.null)",
     ),
     leerTiempos(),
-    todo<{ hoja: { oportunidad_id: string | null } | null; tipo: { clave: string; nombre: string } | null }>(
-      "actuaciones_hoja?select=hoja:hoja_encargo_id!inner(oportunidad_id),tipo:tipo_proyecto_id(clave,nombre)&hoja.estado=eq.devuelta_firmada",
-    ),
+    tiposFirmadosPorOpp(),
   ]);
-  const obrasDe = new Map<string, Map<string, string>>();
-  for (const a of actuaciones) {
-    const opp = a.hoja?.oportunidad_id;
-    if (!opp || !a.tipo) continue;
-    if (!obrasDe.has(opp)) obrasDe.set(opp, new Map());
-    obrasDe.get(opp)!.set(a.tipo.clave, a.tipo.nombre);
-  }
   const proyectoDe = new Map(filas.filter((f) => f.tipo === "proyecto").map((f) => [f.oportunidad_id, f]));
   const listos = new Map(asignar.aProyectos.map((t) => [t.oppId, t]));
   // Lo asignado cuya entrega ya se facturo ya no esta en «listos»: ha terminado del todo.
