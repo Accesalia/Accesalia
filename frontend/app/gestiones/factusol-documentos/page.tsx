@@ -5,6 +5,9 @@ import { puedeVerClientesFactusol } from "../../../lib/factusolClientes";
 import { cotejoFactusol, type Diferencia } from "../../../lib/factusolCotejo";
 import { ESTILOS_COBRO_AJUSTES } from "../estilosCobroAjustes";
 import { RevisarAhora } from "./RevisarAhora";
+import { MarcoDinero } from "../../facturacion/MarcoDinero";
+import { puedeVerCobros } from "../../../lib/cobros";
+
 
 export const dynamic = "force-dynamic";
 
@@ -50,9 +53,7 @@ export default async function PaginaDocumentosFactusol() {
   if (!yo) redirect("/entrar?volver=/gestiones/factusol-documentos");
   if (!puedeVerClientesFactusol(yo)) redirect("/menu");
   const c = await cotejoFactusol();
-  return (
-    <div className="min-h-screen">
-      <BarraSuperior />
+  const contenido = (
       <div className="cc">
         <style dangerouslySetInnerHTML={{ __html: ESTILOS_COBRO_AJUSTES }} />
         <main className="mx-auto max-w-[1300px] px-4 pb-16 pt-5 sm:px-6">
@@ -75,6 +76,18 @@ export default async function PaginaDocumentosFactusol() {
           <Tabla titulo="Pedidos hechos directamente en Factusol" explica="no tienen proforma en la app" filas={c.pedidosSinProforma} />
         </main>
       </div>
+  );
+  // Desde Cobrar (Monica, 25-oct-2026): dentro del marco del dinero, con su menu lateral; quien no lleva Cobrar, sola.
+  if (puedeVerClientesFactusol(yo) && puedeVerCobros(yo))
+    return (
+      <MarcoDinero yo={yo} area="cobrar" activo="factusol-documentos">
+        {contenido}
+      </MarcoDinero>
+    );
+  return (
+    <div className="min-h-screen">
+      <BarraSuperior />
+      {contenido}
     </div>
   );
 }
