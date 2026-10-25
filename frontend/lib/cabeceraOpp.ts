@@ -32,7 +32,7 @@ import { pasoDe, type Clave, type Paso } from "./pasosEscalera";
 import { BLOQUE_DE, OBRAS, SUBVENCION } from "./hojaBase";
 import { COLUMNAS_INTERES } from "./columnasInteres";
 import { aHoraMadrid } from "./citas";
-import type { EstadoRevision } from "./revisionOferta";
+import { cobrosDeVersiones, estaFirmada, hojasCrudasDe, type HojaCruda } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -95,20 +95,18 @@ function cobrables(nombres: string[], desglose: Map<string, string>): string | n
   return enUnaLinea(obras, resto);
 }
 
-/** Lo que se FIRMO: lo que se cobra en las hojas firmadas. Las actuaciones
- *  (tipo_proyecto_id) son las obras; los bloques cobrados, lo demas. */
-async function loFirmado(hojaIds: string[]): Promise<string | null> {
-  if (!hojaIds.length) return null;
-  const filas = await leer<
-    { importe: number | null; incluido: boolean; desglose: string | null; tipo: { nombre: string } | null; bloque: { codigo: string } | null }[]
-  >(
-    `conceptos_hoja?select=importe,incluido,desglose,tipo:tipo_proyecto_id(nombre),bloque:bloque_id(codigo)` +
-      `&hoja_encargo_id=in.(${hojaIds.join(",")})`,
+/** Lo que se FIRMO: lo que se cobra en las hojas firmadas (sus versiones, he_lineas_compromisos). Los tipos de los
+ *  proyectos son las obras; los bloques cobrados, lo demas. */
+async function loFirmado(versionIds: string[]): Promise<string | null> {
+  if (!versionIds.length) return null;
+  const filas = await leer<{ se_cobra: boolean; tipo: { nombre: string } | null; bloque: { codigo: string } | null }[]>(
+    `he_lineas_compromisos?select=se_cobra,tipo:desglose_id(nombre),bloque:bloque_id(codigo)&version_id=in.(${versionIds.join(",")})`,
   );
   const deCodigo = new Map<string, string>();
   for (const [n, c] of [...Object.entries(BLOQUE_DE), ...Object.entries(SUBVENCION)]) deCodigo.set(c, n);
-  const seCobra = (f: (typeof filas)[number]) => !f.incluido && (f.desglose === "se_cobra" || (f.importe ?? 0) > 0);
-  const obras = filas.filter((f) => f.tipo && OBRAS.has(f.tipo.nombre)).map((f) => f.tipo!.nombre);
+  const seCobra = (f: (typeof filas)[number]) => f.se_cobra;
+  // La obra es el tipo de un PROYECTO (el de una subvencion dice de que es la ayuda, no la obra).
+  const obras = filas.filter((f) => f.bloque?.codigo === "REDACCION PROYECTO" && f.tipo && OBRAS.has(f.tipo.nombre)).map((f) => f.tipo!.nombre);
   const resto = filas
     .filter(seCobra)
     .map((f) => (f.bloque ? deCodigo.get(f.bloque.codigo) : null))
@@ -118,13 +116,9 @@ async function loFirmado(hojaIds: string[]): Promise<string | null> {
 
 // ------------------------------------------------------------------ el estado
 
-export type HojaCruda = {
-  id: string;
-  estado: string;
-  fecha_firma: string | null;
-  fecha_estado: string | null;
-  versiones: { numero_version: number; url_pdf_hoja: string | null; fecha_generada: string | null; fecha_enviada: string | null }[];
-};
+// LA HOJA CRUDA (25-oct-2026, sistema nuevo): una por version, del lector unico (lib/hojasOpp.ts): su fase y la primera
+// vez que paso por cada momento. El ok y los cambios de Daniel son POR HOJA: ya no hay paquete de la opp.
+export type { HojaCruda } from "./hojasOpp";
 
 export type EstadoOpp = {
   /** Anulada por duplicada (16-oct-2026): no cuenta como nada, ni perdida. */
@@ -144,21 +138,12 @@ export type EstadoOpp = {
   motivoCierre: string | null;
 };
 
-async function cobrosDe(hojaIds: string[]): Promise<{ hay: boolean; alguno: boolean; todos: boolean }> {
-  if (!hojaIds.length) return { hay: false, alguno: false, todos: false };
-  const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[] }[]>(
-    `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado)&hoja_encargo_id=in.(${hojaIds.join(",")})&quitada_en=is.null`,
-  );
-  // Los % a exito no cuentan para dar el dinero por cobrado.
-  const hitos = lineas.filter((l) => !l.es_porcentaje).flatMap((l) => l.hitos).filter((h) => h.estado !== "anulado");
-  const cobrados = hitos.filter((h) => h.estado === "completado").length;
-  return { hay: hitos.length > 0, alguno: cobrados > 0, todos: hitos.length > 0 && cobrados === hitos.length };
-}
+const cobrosDe = cobrosDeVersiones;
 
 export type CierreCrudo = { fecha_cierre: string | null; resultado_final: string | null; motivo_perdido: string | null; creado_en: string };
 
 async function estadoDe(op: { estado: string; cierres: CierreCrudo[] }, hojas: HojaCruda[]): Promise<EstadoOpp> {
-  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
+  const firmadas = hojas.filter(estaFirmada);
   return estadoCon(op, hojas, await cobrosDe(firmadas.map((h) => h.id)));
 }
 
@@ -168,7 +153,7 @@ export function estadoCon(
   hojas: HojaCruda[],
   c: { alguno: boolean; todos: boolean },
 ): EstadoOpp {
-  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada");
+  const firmadas = hojas.filter(estaFirmada);
   const ganada = firmadas.length > 0;
   const cierre = [...op.cierres].sort((a, b) => b.creado_en.localeCompare(a.creado_en))[0];
   const anulada = op.estado === "anulada";
@@ -184,7 +169,7 @@ export function estadoCon(
     porCobrar: ganada && !c.todos,
     cobrada: c.todos,
     primerCobro: c.alguno,
-    fechaGanada: firmadas.map((h) => h.fecha_firma).filter((x): x is string => !!x).sort()[0] ?? null,
+    fechaGanada: firmadas.map((h) => h.firmada?.slice(0, 10)).filter((x): x is string => !!x).sort()[0] ?? null,
     fechaCierre: cerrada ? (cierre?.fecha_cierre ?? cierre?.creado_en ?? null) : null,
     motivoCierre: cerrada ? (cierre?.motivo_perdido ?? null) : null,
   };
@@ -209,9 +194,6 @@ export type Datos = {
   /** El arquitecto termino la viabilidad: la envio desde la mesa (enviada_en),
    *  o el comercial ya la remato (url_pdf). */
   arquitecto: boolean;
-  /** EL OK A LA OFERTA (revision_ofertas, del hilo de la hoja, 14-oct-2026): al
-   *  paquete entero, y caduca si algo del paquete cambia. */
-  revision: EstadoRevision | null;
   /** LO QUE NECESITA (lib/necesidadesOpp.ts, 15-oct-2026): sin Polycam se saltan
    *  A-B-C; sin viabilidad, D. Automatico segun lo que quieren, o a mano. */
   necesita: { polycam: boolean; viabilidad: boolean; tresd: boolean };
@@ -239,14 +221,18 @@ export function falta(d: Datos): Falta {
 
 function faltaTexto(d: Datos): Falta {
   const e = d.estado;
-  const r = d.revision?.ultima ?? null;
-  const generada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja));
-  const enviada = d.hojas.some((h) => h.estado === "enviada_comunidad" || h.versiones.some((v) => v.fecha_enviada));
+  // EL OK DE DANIEL ES POR HOJA (25-oct-2026): generada = paso por «pendiente del ok»; los cambios de Daniel y el ok,
+  // los de la fase en que esta cada version.
+  const generada = d.hojas.some((h) => h.generada);
+  const enviada = d.hojas.some((h) => h.enviada);
+  const conCambiosDaniel = (desde: string | null) =>
+    d.hojas.filter((h) => h.cambiosDaniel && (!desde || (h.generada ?? "").slice(0, 10) >= desde)).sort((a, b) => b.cambiosDaniel!.fecha.localeCompare(a.cambiosDaniel!.fecha))[0] ?? null;
+  const conOk = (desde: string | null) => d.hojas.some((h) => h.fase === "ok_daniel" && (!desde || (h.okDaniel ?? "").slice(0, 10) >= desde));
   // La revision pidio cambios: con lo que dijo quien reviso.
-  const cambiosRevision = (enBucle: boolean): Falta => ({
+  const cambiosRevision = (enBucle: boolean, h: (typeof d.hojas)[number]): Falta => ({
     clave: enBucle ? "nueva_oferta_cambios" : "revision_cambios",
     texto: "La revisión pidió cambios: corregir la oferta antes de enviarla",
-    extra: r?.comentario ? `${r.resueltaPor ? r.resueltaPor + ": " : ""}${r.comentario}` : null,
+    extra: h.cambiosDaniel?.nota ? `${h.cambiosDaniel.quien ? h.cambiosDaniel.quien + ": " : ""}${h.cambiosDaniel.nota}` : null,
   });
 
   if (e.perdida) return { clave: "perdida", texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
@@ -262,23 +248,24 @@ function faltaTexto(d: Datos): Falta {
   if (junta?.resultado === "favorable") return { clave: "junta_si_falta_firmada", texto: "La junta votó sí: pendiente de que nos envíen la hoja firmada", extra: null };
   if (junta?.resultado === "desfavorable") return { clave: "junta_no", texto: "La junta votó que no: cerrarla como perdida", extra: null };
 
-  // EL BUCLE DE MODIFICAR LA OFERTA: lo pide la junta, o la hoja quedo en
-  // "cambios solicitados". Desde ese momento, lo que se mueve es la NUEVA oferta.
-  const hojaCambios = d.hojas.find((h) => h.estado === "cambios_solicitados");
+  // EL BUCLE DE MODIFICAR LA OFERTA: lo pide la junta, o la comunidad o el comercial pidieron cambios en una hoja (y
+  // nace su version siguiente). Desde ese momento, lo que se mueve es la NUEVA oferta.
+  const hojaCambios = d.hojas.filter((h) => h.cambiosPedidos).sort((a, b) => b.cambiosPedidos!.localeCompare(a.cambiosPedidos!))[0] ?? null;
   const desde =
     junta && junta.resultado && MODIFICAR.has(junta.resultado)
       ? (junta.fecha_junta ?? junta.creado_en.slice(0, 10))
       : hojaCambios
-        ? (hojaCambios.fecha_estado ?? "").slice(0, 10)
+        ? hojaCambios.cambiosPedidos!.slice(0, 10)
         : null;
   if (desde !== null) {
     const despues = (f: string | null | undefined) => !!f && f.slice(0, 10) >= desde;
-    const nuevaGenerada = d.hojas.some((h) => h.versiones.some((v) => v.url_pdf_hoja && despues(v.fecha_generada)));
+    const nuevaGenerada = d.hojas.some((h) => despues(h.generada));
     if (!nuevaGenerada) return { clave: "nueva_oferta_elaborar", texto: "Pidieron modificar la oferta: pendiente de elaborar la nueva oferta", extra: null };
-    if (d.hojas.some((h) => h.versiones.some((v) => despues(v.fecha_enviada))))
+    if (d.hojas.some((h) => despues(h.enviada)))
       return { clave: "nueva_oferta_decision", texto: "Pendientes de la decisión sobre la nueva oferta", extra: null };
-    if (r && despues(r.enviadaEn) && r.estado === "cambios") return cambiosRevision(true);
-    if (r && despues(r.enviadaEn) && d.revision?.okVigente) return { clave: "nueva_oferta_enviar", texto: "Falta enviar la nueva oferta a la comunidad", extra: null };
+    const cambios = conCambiosDaniel(desde);
+    if (cambios) return cambiosRevision(true, cambios);
+    if (conOk(desde)) return { clave: "nueva_oferta_enviar", texto: "Falta enviar la nueva oferta a la comunidad", extra: null };
     return { clave: "nueva_oferta_ok", texto: "Falta el ok a la nueva oferta", extra: null };
   }
 
@@ -296,8 +283,9 @@ function faltaTexto(d: Datos): Falta {
   }
 
   if (enviada) return { clave: "falta_fecha_junta", texto: "Falta que confirmen la fecha de la junta", extra: null };
-  if (r?.estado === "cambios") return cambiosRevision(false);
-  if (d.revision?.okVigente) return { clave: "falta_enviar_doc", texto: "Falta enviar la doc a la comunidad", extra: null };
+  const cambios = conCambiosDaniel(null);
+  if (cambios) return cambiosRevision(false, cambios);
+  if (conOk(null)) return { clave: "falta_enviar_doc", texto: "Falta enviar la doc a la comunidad", extra: null };
   if (generada) return { clave: "falta_ok_oferta", texto: "Falta el ok a la oferta", extra: null };
   // D -> E: Alex la dio por hecha.
   if (d.arquitecto) return { clave: "preparar_docs", texto: "Preparar la HE, la VB y el presupuesto", extra: null };
@@ -324,7 +312,6 @@ function faltaTexto(d: Datos): Falta {
 const SEL_OPP =
   "id,nombre,codigo,estado,creado_en,fecha_apertura," +
   "cierres:motivo_cierre_oportunidad(fecha_cierre,resultado_final,motivo_perdido,creado_en)," +
-  "hojas:hojas_encargo(id,estado,fecha_firma,fecha_estado,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_generada,fecha_enviada))," +
   "tipos:oportunidad_tipos(tipo:tipo_id(nombre))";
 
 type OppCruda = {
@@ -335,7 +322,6 @@ type OppCruda = {
   creado_en: string;
   fecha_apertura: string | null;
   cierres: { fecha_cierre: string | null; resultado_final: string | null; motivo_perdido: string | null; creado_en: string }[];
-  hojas: HojaCruda[];
   tipos: { tipo: { nombre: string } | null }[];
 };
 
@@ -352,11 +338,10 @@ async function pasosGuardados(ids: string[]): Promise<Map<string, Falta>> {
 const SIN_CALCULAR: Falta = { clave: "cerrar_visita", texto: "Sin calcular todavía", extra: null };
 
 /** Su estado y lo que quieren. El paso lo pone quien llama, de la tabla. */
-async function leerUna(op: OppCruda, desglose: Map<string, string>) {
-  const hojas = op.hojas.filter((h) => h.estado !== "anulada");
+async function leerUna(op: OppCruda, hojas: HojaCruda[], desglose: Map<string, string>) {
   const estado = await estadoDe(op, hojas);
   const intereses = op.tipos.map((t) => t.tipo?.nombre).filter((n): n is string => !!n);
-  const firmadas = hojas.filter((h) => h.estado === "devuelta_firmada").map((h) => h.id);
+  const firmadas = hojas.filter(estaFirmada).map((h) => h.id);
   // Ganada: lo que se firmo. Si la hoja no lo dice (las importadas), lo que querian.
   const quieren = (estado.ganada ? await loFirmado(firmadas).catch(() => null) : null) ?? cobrables(intereses, desglose);
   return { estado, quieren };
@@ -397,11 +382,11 @@ async function otrasEnLaDireccion(oppId: string, desglose: Map<string, string>):
   if (!ids.length) return [];
   const opps = await leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=in.(${ids.join(",")})&estado=neq.anulada`);
   const porId = new Map(accesos.map((a) => [a.id, a]));
-  const pasos = await pasosGuardados(opps.map((o) => o.id));
+  const [pasos, hojasDe] = await Promise.all([pasosGuardados(opps.map((o) => o.id)), hojasCrudasDe(opps.map((o) => o.id))]);
 
   const filas = await Promise.all(
     opps.map(async (o) => {
-      const x = await leerUna(o, desglose);
+      const x = await leerUna(o, hojasDe.get(o.id) ?? [], desglose);
       const suyos = rel.filter((r) => r.opp_id === o.id).map((r) => porId.get(r.acceso_id)).filter((a): a is NonNullable<typeof a> => !!a);
       const estado: OtraOpp["estado"] = x.estado.ganada ? "ganada" : x.estado.perdida ? "perdida" : x.estado.cerrada ? "cerrada" : "abierta";
       const cuando = x.estado.ganada ? x.estado.fechaGanada : x.estado.fechaCierre;
@@ -431,15 +416,15 @@ export type DatosCabecera = {
 };
 
 export async function cabeceraDe(oppId: string): Promise<DatosCabecera | null> {
-  const [[op], desglose] = await Promise.all([leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=eq.${oppId}`), desgloses()]);
+  const [[op], desglose, hojasDe] = await Promise.all([leer<OppCruda[]>(`oportunidades?select=${SEL_OPP}&id=eq.${oppId}`), desgloses(), hojasCrudasDe([oppId])]);
   if (!op) return null;
-  const [una, pasos, otras] = await Promise.all([leerUna(op, desglose), pasosGuardados([oppId]), otrasEnLaDireccion(oppId, desglose).catch(() => [])]);
+  const [una, pasos, otras] = await Promise.all([leerUna(op, hojasDe.get(oppId) ?? [], desglose), pasosGuardados([oppId]), otrasEnLaDireccion(oppId, desglose).catch(() => [])]);
   return { ...una, falta: pasos.get(oppId) ?? SIN_CALCULAR, otras };
 }
 
 /** ¿Se puede cerrar o pausar? No, si esta firmada y queda dinero por cobrar. */
 export async function quedaPorCobrar(oppId: string): Promise<boolean> {
-  const hojas = await leer<{ id: string }[]>(`hojas_encargo?select=id&oportunidad_id=eq.${oppId}&estado=eq.devuelta_firmada`);
-  if (!hojas.length) return false;
-  return !(await cobrosDe(hojas.map((h) => h.id))).todos;
+  const firmadas = ((await hojasCrudasDe([oppId])).get(oppId) ?? []).filter(estaFirmada);
+  if (!firmadas.length) return false;
+  return !(await cobrosDe(firmadas.map((h) => h.id))).todos;
 }

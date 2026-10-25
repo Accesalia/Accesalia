@@ -20,7 +20,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { pasoDe, type Accion } from "./pasosEscalera";
 import { necesidadesDeMuchas } from "./necesidadesOpp";
 export type { Accion };
-import type { EstadoRevision } from "./revisionOferta";
+import { estaFirmada, hitosDeVersiones, hojasCrudasDe } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -44,23 +44,21 @@ type DatosAlertas = {
   tres: { oportunidad_id: string; tipo_3d: string | null; estado: string | null; creado_en: string }[];
   citas: { oportunidad_id: string; inicio: string; creado_en: string }[];
   viab: { id: string; oportunidad_id: string; enviada_en: string | null; url_pdf: string | null }[];
-  revs: { oportunidad_id: string; numero: number; estado: string; enviada_en: string; resuelta_en: string | null; comentario: string | null; resuelve: { nombre: string } | null }[];
   notas: { oportunidad_id: string; fecha: string | null; creado_en: string }[];
   inter: { oportunidad_id: string; fecha_evento: string | null; creado_en: string }[];
   llam: { donde_oportunidad_id: string; creado_en: string }[];
   admins: { comunidad_id: string; empresa: { nombre_accesalia: string } | null; puesto: { telefono_empresa: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null } | null }[];
   puestos: { figura_legal_propietaria_id: string; cargo: string | null; persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null }[];
   conPoly: { acceso_id: string; polycam: { fecha: string | null; creado_en: string } | null }[];
-  cobros: { hoja_encargo_id: string; es_porcentaje: boolean | null; hitos: { estado: string }[] }[];
   polyViab: { fecha: string | null; creado_en: string; v: { oportunidad_id: string } }[];
   solicitudes: { oportunidad_id: string; pedida_en: string }[];
 };
 
-async function datosAlertas(opps: string[], comunidades: string[], accesos: string[], hojas: string[]): Promise<DatosAlertas> {
+async function datosAlertas(opps: string[], comunidades: string[], accesos: string[]): Promise<DatosAlertas> {
   const r = await fetch(`${URL_BASE}/rest/v1/rpc/datos_alertas`, {
     method: "POST",
     headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_opps: opps, p_comunidades: comunidades, p_accesos: accesos, p_hojas: hojas }),
+    body: JSON.stringify({ p_opps: opps, p_comunidades: comunidades, p_accesos: accesos }),
     cache: "no-store",
   });
   if (!r.ok) throw new Error(`Supabase datos_alertas ${r.status}: ${await r.text()}`);
@@ -173,7 +171,6 @@ type OppCruda = {
   telefono_provisional: string | null;
   trajo: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
   cierres: CierreCrudo[];
-  hojas: HojaCruda[];
   portales: { hasta: string | null; acceso: { id: string; municipio: string | null } | null }[];
 };
 
@@ -181,7 +178,6 @@ const SEL =
   "id,codigo,nombre,estado,fecha_apertura,creado_en,comunidad_id,contacto_provisional,telefono_provisional," +
   "trajo:quien_lo_trae(nombre,apellidos,telefono_personal)," +
   "cierres:motivo_cierre_oportunidad(fecha_cierre,resultado_final,motivo_perdido,creado_en)," +
-  "hojas:hojas_encargo(id,estado,fecha_firma,fecha_estado,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,url_pdf_hoja,fecha_generada,fecha_enviada))," +
   "portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(id,municipio))";
 
 /** TODO LO QUE HACE FALTA PARA LA ESCALERA DE MUCHAS OPPS, por tramos: unas
@@ -191,8 +187,10 @@ async function cargar(ops: OppCruda[]) {
   const ids = ops.map((o) => o.id);
   const accesoDe = new Map<string, string>(); // acceso -> opp
   for (const o of ops) for (const p of o.portales) if (!p.hasta && p.acceso) accesoDe.set(p.acceso.id, o.id);
-  const firmadasDe = new Map<string, string>(); // hoja firmada -> opp
-  for (const o of ops) for (const h of o.hojas) if (h.estado === "devuelta_firmada") firmadasDe.set(h.id, o.id);
+  // LAS HOJAS (25-oct-2026): del lector unico, de una vez para todas.
+  const hojasDe = await hojasCrudasDe(ids);
+  const firmadasDe = new Map<string, string>(); // version firmada -> opp
+  for (const [opp, hs] of hojasDe) for (const h of hs) if (estaFirmada(h)) firmadasDe.set(h.id, opp);
 
   const hoy = hoyISO();
   // TODO DE UNA VEZ (16-oct-2026): una sola llamada a la base (datos_alertas)
@@ -200,8 +198,8 @@ async function cargar(ops: OppCruda[]) {
   // antes. Con todas las carteras eran ~170 peticiones a la vez y la base las
   // atendia en cola: 3 s. Lo de las funciones y las necesidades va a la vez.
   const comunidades = [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))];
-  const [datos, funciones, necesidades] = await Promise.all([
-    datosAlertas(ids, comunidades, [...accesoDe.keys()], [...firmadasDe.keys()]),
+  const [datos, funciones, necesidades, hitosVersion] = await Promise.all([
+    datosAlertas(ids, comunidades, [...accesoDe.keys()]),
     // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
     // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
     // funciones vigentes del equipo: si cambia la persona, cambia sola.
@@ -210,8 +208,10 @@ async function cargar(ops: OppCruda[]) {
     ).catch(() => []),
     // Lo que necesita (Polycam, viabilidad) y si se pidio la viabilidad sin Polycam.
     necesidadesDeMuchas(ids),
+    // Los cobros de lo firmado: por la ficha de facturacion de cada linea nueva.
+    hitosDeVersiones([...firmadasDe.keys()]),
   ]);
-  const { juntas, tres, citas, viab, revs, notas, inter, llam, admins, puestos: puestosCom, conPoly, cobros, polyViab, solicitudes } = datos;
+  const { juntas, tres, citas, viab, notas, inter, llam, admins, puestos: puestosCom, conPoly, polyViab, solicitudes } = datos;
   // la primera solicitud de cada opp
   const solicitudDe = new Map<string, string>();
   for (const x of solicitudes) if (!solicitudDe.has(x.oportunidad_id) || x.pedida_en < solicitudDe.get(x.oportunidad_id)!) solicitudDe.set(x.oportunidad_id, x.pedida_en);
@@ -230,7 +230,6 @@ async function cargar(ops: OppCruda[]) {
   const juntasDe = grupo(juntas, (x) => x.oportunidad_id);
   const tresDe = grupo(tres, (x) => x.oportunidad_id);
   const citaDe = grupo(citas, (x) => x.oportunidad_id);
-  const revDe = grupo(revs, (x) => x.oportunidad_id);
   const adminDe = grupo(admins, (x) => x.comunidad_id);
   const comDe = grupo(puestosCom, (x) => x.figura_legal_propietaria_id);
   // el Polycam de cada opp, con el dia que llego (el primero)
@@ -245,7 +244,7 @@ async function cargar(ops: OppCruda[]) {
   const polyOpp = new Set(polyFecha.keys());
   const arquitecto = new Set(viab.filter((v) => v.enviada_en || v.url_pdf).map((v) => v.oportunidad_id));
   const cobrosDe = new Map<string, { alguno: boolean; todos: boolean }>();
-  const hitosDe = grupo(cobros.filter((l) => !l.es_porcentaje).flatMap((l) => l.hitos.filter((h) => h.estado !== "anulado").map((h) => ({ opp: firmadasDe.get(l.hoja_encargo_id)!, h }))), (x) => x.opp);
+  const hitosDe = grupo([...hitosVersion].flatMap(([v, es]) => es.map((estado) => ({ opp: firmadasDe.get(v)!, h: { estado } }))), (x) => x.opp);
   for (const [opp, hs] of hitosDe) {
     const hechos = hs.filter((x) => x.h.estado === "completado").length;
     cobrosDe.set(opp, { alguno: hechos > 0, todos: hs.length > 0 && hechos === hs.length });
@@ -273,23 +272,18 @@ async function cargar(ops: OppCruda[]) {
   for (const j of juntas) toca(j.oportunidad_id, j.fecha_junta);
   for (const o of ops) {
     toca(o.id, o.fecha_apertura ?? o.creado_en);
-    for (const h of o.hojas) { toca(o.id, h.fecha_firma); for (const v of h.versiones) { toca(o.id, v.fecha_generada); toca(o.id, v.fecha_enviada); } }
+    for (const h of hojasDe.get(o.id) ?? []) { toca(o.id, h.firmada); toca(o.id, h.generada); toca(o.id, h.enviada); }
   }
 
   /** Los datos de la escalera de una opp, ya leidos. */
   const datosDe = (o: OppCruda) => {
-    const hojas = o.hojas.filter((h) => h.estado !== "anulada");
+    // Las anuladas y no firmadas ya vienen fuera (lib/hojasOpp.ts).
+    const hojas = hojasDe.get(o.id) ?? [];
     const estado = estadoCon(o, hojas, cobrosDe.get(o.id) ?? { alguno: false, todos: false });
-    const r = [...(revDe.get(o.id) ?? [])].sort((a, b) => b.numero - a.numero)[0];
-    const generadoTras = (f: string | null) => !!f && hojas.some((h) => h.versiones.some((v) => v.fecha_generada && v.fecha_generada > f.slice(0, 10)));
-    const revision = r
-      ? ({ ultima: { numero: r.numero, estado: r.estado, enviadaEn: r.enviada_en, resueltaEn: r.resuelta_en, comentario: r.comentario, resueltaPor: r.resuelve?.nombre ?? null },
-           okVigente: r.estado === "ok" && !generadoTras(r.resuelta_en), okCaducado: r.estado === "ok" && generadoTras(r.resuelta_en) } as unknown as EstadoRevision)
-      : null;
     const tresd = [...(tresDe.get(o.id) ?? [])].sort((a, b) => b.creado_en.localeCompare(a.creado_en))[0] ?? null;
     const d: Datos = {
       estado, hojas, juntas: juntasDe.get(o.id) ?? [], tresd, cita: citaDe.get(o.id)?.[0] ?? null,
-      polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id), revision,
+      polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id),
       necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true, tresd: necesidades.get(o.id)?.tresd ?? false },
       solicitud: solicitudDe.get(o.id) ?? null,
     };
@@ -300,7 +294,7 @@ async function cargar(ops: OppCruda[]) {
    *  paso y el texto de "lo que pasa". */
   const fechasDe = (o: OppCruda, hojas: HojaCruda[]) => ({
     abierta: (o.fecha_apertura ?? o.creado_en).slice(0, 10),
-    enviada: (hojas.flatMap((h) => h.versiones.map((v) => v.fecha_enviada)).filter(Boolean).sort().at(-1) ?? null) as string | null,
+    enviada: (hojas.map((h) => h.enviada?.slice(0, 10)).filter(Boolean).sort().at(-1) ?? null) as string | null,
     juntaSi: ((juntasDe.get(o.id) ?? []).filter((j) => j.resultado === "favorable").map((j) => j.fecha_junta).filter(Boolean).sort().at(-1) ?? null) as string | null,
     ultJunta: [...(juntasDe.get(o.id) ?? [])].filter((j) => j.fecha_junta).sort((a, b) => a.fecha_junta!.localeCompare(b.fecha_junta!)).at(-1)?.fecha_junta ?? null,
     polycam: polyFecha.get(o.id) ?? null,
@@ -498,12 +492,12 @@ export async function puntosMapa(comercialId: string | null): Promise<{ puntos: 
     codigo: string | null;
     estado: string;
     comunidad: { lat: number | null; lng: number | null } | null;
-    hojas: { estado: string }[];
     portales: { hasta: string | null; acceso: { portal: { ficha: { lat: number | null; lng: number | null } | null } | null } | null }[];
   }>(
-    `oportunidades?select=id,nombre,codigo,estado,comunidad:comunidad_id(lat,lng),hojas:hojas_encargo(estado),` +
+    `oportunidades?select=id,nombre,codigo,estado,comunidad:comunidad_id(lat,lng),` +
       `portales:relacion_oportunidad_accesos(hasta,acceso:acceso_id(portal:ficha_catastro_portal_id(ficha:ficha_id(lat,lng))))${f}&order=id`,
   );
+  const hojasDe = await hojasCrudasDe(ops.map((o) => o.id));
   const puntos: PuntoOpp[] = [];
   let sinPosicion = 0;
   for (const o of ops) {
@@ -511,7 +505,7 @@ export async function puntosMapa(comercialId: string | null): Promise<{ puntos: 
     const lat = o.comunidad?.lat ?? ficha?.lat ?? null;
     const lng = o.comunidad?.lng ?? ficha?.lng ?? null;
     if (lat == null || lng == null) { sinPosicion++; continue; }
-    const ganada = o.hojas.some((h) => h.estado === "devuelta_firmada");
+    const ganada = (hojasDe.get(o.id) ?? []).some(estaFirmada);
     puntos.push({ id: o.id, nombre: nombreDeOpp(o), lat, lng, estado: ganada ? "ganada" : o.estado === "cerrada" ? "perdida" : "en_curso" });
   }
   return { puntos, sinPosicion };
