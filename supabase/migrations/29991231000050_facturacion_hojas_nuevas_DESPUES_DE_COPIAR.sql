@@ -319,3 +319,37 @@ select jsonb_build_object(
 );
 $$;
 comment on function public.panoramica_cobros is 'Vista Panoramica: por opp y linea, firmado / facturado / cobrado / queda, entre fechas de firma y por comercial; una llamada, 40 opps por pagina. Reglas en la migracion 20261016240000.';
+
+
+-- LA COMPROBACION DEL DINERO (Monica, 25-oct-2026: «si algo no cuadra, no se aplica»). Con todo ya leyendo las hojas
+-- nuevas, hoja a hoja: las mismas fichas (mas las de la tramitacion de las subvenciones partidas), los mismos hitos y lo
+-- que suman, las mismas facturas y lo facturado; y los mismos totales en Hojas firmadas y Panoramica que antes de copiar.
+do $comprobacion$
+declare hay int; antes jsonb; ahora jsonb;
+begin
+  select count(*) into hay
+    from public.migr_he_foto f
+    join public.migr_he_versiones mv on mv.hoja_vieja = f.hoja_vieja and mv.referencia
+   where f.hoja_vieja is not null and (
+         f.fichas <> (select count(*) from public.lineas_facturacion l where l.he_version_id = mv.nueva and l.notas is distinct from 'Partida de la ficha de la subvención al migrar (decisión 5): aquí la tramitación a éxito.')
+      or f.hitos <> (select count(*) from public.hitos_cobro hc join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.he_version_id = mv.nueva)
+      or f.hitos_importe <> (select coalesce(sum(hc.importe), 0) from public.hitos_cobro hc join public.lineas_facturacion l on l.id = hc.linea_facturacion_id
+                              where l.he_version_id = mv.nueva and hc.estado <> 'anulado')
+      or f.facturas <> (select count(distinct fl.factura_id) from public.factura_linea_hitos flh join public.factura_lineas fl on fl.id = flh.factura_linea_id
+                          join public.hitos_cobro hc on hc.id = flh.hito_cobro_id join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.he_version_id = mv.nueva)
+      or f.facturado <> (select coalesce(sum(flh.importe), 0) from public.factura_linea_hitos flh
+                          join public.hitos_cobro hc on hc.id = flh.hito_cobro_id join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.he_version_id = mv.nueva));
+  if hay > 0 then raise exception 'NO CUADRA EL DINERO: % hojas con distintas fichas, hitos o facturas que antes de copiar', hay; end if;
+
+  select pantalla into antes from public.migr_he_foto where hoja_vieja is null;
+  ahora := jsonb_build_object('accesalia', public.hojas_firmadas('accesalia', null, null, null, null, 1, 1)->'sumas',
+                              'ecobalance', public.hojas_firmadas('ecobalance', null, null, null, null, 1, 1)->'sumas',
+                              'panoramica', public.panoramica_cobros(null, null, null, false, 1, 1)->'resumen');
+  if antes->'accesalia' <> ahora->'accesalia' or antes->'ecobalance' <> ahora->'ecobalance'
+     or (antes->'panoramica'->>'firmado')::numeric <> (ahora->'panoramica'->>'firmado')::numeric
+     or (antes->'panoramica'->>'facturado')::numeric <> (ahora->'panoramica'->>'facturado')::numeric
+     or (antes->'panoramica'->>'cobrado')::numeric <> (ahora->'panoramica'->>'cobrado')::numeric then
+    raise exception 'NO CUADRAN LAS PANTALLAS: antes % / ahora %', antes, ahora;
+  end if;
+end
+$comprobacion$;

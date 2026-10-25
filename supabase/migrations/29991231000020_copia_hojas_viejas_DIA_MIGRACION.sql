@@ -83,6 +83,12 @@ create table public.migr_he_dudas (
 );
 comment on table public.migr_he_versiones is 'VIDA CORTA (migracion 25-oct-2026): version vieja → he_versiones_hoja. Se borra con las tablas viejas.';
 comment on table public.migr_he_lineas is 'VIDA CORTA (migracion 25-oct-2026): concepto viejo → he_lineas_compromisos. Se borra con las tablas viejas.';
+create table public.migr_he_foto (
+  hoja_vieja uuid,
+  fichas int, hitos int, hitos_importe numeric, facturas int, facturado numeric,
+  pantalla jsonb                          -- (sin hoja) los totales de Hojas firmadas y Panoramica, antes de copiar
+);
+comment on table public.migr_he_foto is 'VIDA CORTA (migracion 25-oct-2026): el dinero de cada hoja antes de copiar, para comprobar despues. Se borra con las tablas viejas.';
 comment on table public.migr_he_dudas is 'VIDA CORTA (migracion 25-oct-2026): lo que la copia no puede decidir sola, para Monica. Se borra con las tablas viejas.';
 
 do $copia$
@@ -93,6 +99,26 @@ declare
   cab uuid; sub uuid; dfcab uuid; dtcab uuid; linea uuid; padre uuid;
   hay int;
 begin
+  -- ============================================================ 0 · LA FOTO DEL DINERO, ANTES DE TOCAR NADA
+  -- Por hoja: fichas, hitos, lo que suman, facturas y lo facturado; y los totales de las pantallas Hojas firmadas y
+  -- Panoramica. La migracion de despues de copiar (000050) lo vuelve a contar desde las hojas nuevas: si no sale igual,
+  -- no se aplica nada.
+  insert into public.migr_he_foto (hoja_vieja, fichas, hitos, hitos_importe, facturas, facturado)
+  select h.hoja,
+         (select count(*) from public.lineas_facturacion l where l.hoja_encargo_id = h.hoja),
+         (select count(*) from public.hitos_cobro hc join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.hoja_encargo_id = h.hoja),
+         (select coalesce(sum(hc.importe), 0) from public.hitos_cobro hc join public.lineas_facturacion l on l.id = hc.linea_facturacion_id
+           where l.hoja_encargo_id = h.hoja and hc.estado <> 'anulado'),
+         (select count(distinct fl.factura_id) from public.factura_linea_hitos flh join public.factura_lineas fl on fl.id = flh.factura_linea_id
+            join public.hitos_cobro hc on hc.id = flh.hito_cobro_id join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.hoja_encargo_id = h.hoja),
+         (select coalesce(sum(flh.importe), 0) from public.factura_linea_hitos flh
+            join public.hitos_cobro hc on hc.id = flh.hito_cobro_id join public.lineas_facturacion l on l.id = hc.linea_facturacion_id where l.hoja_encargo_id = h.hoja)
+    from (select distinct hoja_encargo_id as hoja from public.lineas_facturacion) h;
+  insert into public.migr_he_foto (hoja_vieja, pantalla)
+  values (null, jsonb_build_object('accesalia', public.hojas_firmadas('accesalia', null, null, null, null, 1, 1)->'sumas',
+                                   'ecobalance', public.hojas_firmadas('ecobalance', null, null, null, null, 1, 1)->'sumas',
+                                   'panoramica', public.panoramica_cobros(null, null, null, false, 1, 1)->'resumen'));
+
   select id into tipo_doc from public.tipos_documento where nombre = 'Hoja de encargo';
   if tipo_doc is null then raise exception 'Falta el tipo de documento «Hoja de encargo»'; end if;
   select id, equipo_id into daniel, daniel_eq from public.comerciales where nombre = 'Daniel' and apellidos = 'de Soto';
