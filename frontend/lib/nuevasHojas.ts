@@ -367,7 +367,38 @@ export async function validarLinea(lineaId: string, yo: Yo): Promise<string> {
     if (Math.abs(suma - Number(l.importe)) > 0.005) throw new Error("Los hitos no suman el importe de la línea.");
   }
   await pedir(`lineas_facturacion?id=eq.${lineaId}`, { method: "PATCH", body: JSON.stringify({ validada_en: ahora(), validada_por: yo.id }) });
+  await avisarLineaAMano(lineaId, yo).catch(() => null);
   return l.hoja_encargo_id;
+}
+
+/** EL AVISO DE UNA LINEA AÑADIDA A MANO (Monica, 25-oct-2026: «lo pusimos por hipoteticos fallos, con aviso a mi si
+ *  pasaba»). Si la app se salto una linea de la hoja y facturacion la añade, al validarla (ya con su concepto, importe
+ *  e hitos) sale un correo desde facturacion a direccion. El aviso no para nada: si no sale, la linea queda igual. */
+async function avisarLineaAMano(lineaId: string, yo: Yo) {
+  const [l] = await leer<{ origen: string | null; descripcion: string | null; importe: number | null; hoja: { id: string; numero_hoja: string; opp: { nombre: string | null; codigo: string | null } | null } | null;
+    hitos: { notas: string | null; hito: string; importe: number | null; estado: string }[] }[]>(
+    `lineas_facturacion?select=origen,descripcion,importe,hoja:hoja_encargo_id(id,numero_hoja,opp:oportunidad_id(nombre,codigo)),hitos:hitos_cobro(notas,hito,importe,estado)&id=eq.${lineaId}`,
+  );
+  if (!l || l.origen !== "manual") return;
+  const direccion = await leer<{ hasta: string | null; equipo: { email: string | null; activo: boolean } | null }[]>(
+    "equipo_funciones?select=hasta,equipo:equipo_id(email,activo),funciones!inner(clave)&funciones.clave=eq.direccion",
+  );
+  const para = [...new Set(direccion.filter((f) => (!f.hasta || f.hasta >= hoy()) && f.equipo?.activo && f.equipo.email).map((f) => f.equipo!.email!))];
+  if (!para.length) return;
+  const dir = l.hoja?.opp ? nombreDeOpp(l.hoja.opp) : "";
+  const eur = (n: number | null) => (n == null ? "a éxito" : `${Number(n).toLocaleString("es-ES", { minimumFractionDigits: 2 })} €`);
+  const hitos = l.hitos.filter((h) => h.estado !== "anulado").map((h) => `  · ${h.notas?.trim() || TEXTO_HITO[h.hito] || h.hito}: ${eur(h.importe)}`).join("\n");
+  await enviarCorreo({
+    desde: "facturacion",
+    para: para.join(", "),
+    asunto: `Línea añadida a mano · ${dir} · ${l.hoja?.numero_hoja ?? ""}`,
+    texto:
+      `${nombreDe(yo)} ha añadido a mano una línea que la app no había sacado de la hoja firmada ${l.hoja?.numero_hoja ?? ""} (${dir}), y la ha validado:\n\n` +
+      `«${l.descripcion?.trim() ?? ""}» — ${eur(l.importe)}\n${hitos}\n\n` +
+      `Si se repite, algo falla al leer las hojas.\n\nLa hoja, en la app: ${APP}/facturacion/cobrar?hoja=${l.hoja?.id ?? ""}`,
+    responderA: yo.email,
+    nombreRemitente: `${nombreDe(yo)} · Facturación`,
+  });
 }
 
 const APP = process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app";
