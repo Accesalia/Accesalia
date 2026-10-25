@@ -22,9 +22,9 @@ import { firmadoDe } from "./firmaDigital";
 import { exigirCompleta } from "./completa";
 import { nombreDeOpp } from "./direccionOpp";
 import type { Yo } from "./sesion";
-import type { Desglose } from "./catalogoBloques";
 import { lineasDelPresupuesto, totales, IVA, type Cliente, type FormaPago, type HojaMotor } from "./motorPresupuesto";
 import { pdfDePresupuesto } from "./pdf/PresupuestoDoc";
+import { faseHe } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -57,6 +57,8 @@ export type HojaElegible = HojaMotor & {
   importe: number;
   /** sustituida por otra hoja: se enseña, pero no se marca sola */
   sustituida: boolean;
+  /** su fase, como se dice y con su color (lib/hojasOpp.ts) */
+  fase: { texto: string; clase: string };
 };
 
 export type PresupuestoResumen = {
@@ -81,17 +83,6 @@ export type DatosPresupuesto = {
   presupuestos: PresupuestoResumen[];
 };
 
-type FilaConcepto = {
-  id: string;
-  version_hoja_id: string | null;
-  descripcion: string | null;
-  importe: number | null;
-  porcentaje: number | null;
-  desglose: Desglose | null;
-  incluido: boolean;
-  incluido_en_concepto_id: string | null;
-  bloque: { nombre_corto: string | null; nombre: string; desglose: Desglose } | null;
-};
 
 
 export async function oportunidadDePresupuesto(id: string): Promise<string | null> {
@@ -105,7 +96,10 @@ export async function comunidadDeOportunidad(oppId: string): Promise<string | nu
 }
 
 export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto | null> {
-  const [opps, hojas, sustituidas, presus] = await Promise.all([
+  // LAS HOJAS NUEVAS (25-oct-2026, «lo adaptamos para leer hojas nuevas»): las versiones de la opp que ya salieron (con
+  // el ok de Daniel y su PDF), con sus lineas de he_lineas_compromisos por el mismo motor. La sustituida se enseña, pero
+  // no se marca sola; las anuladas y no firmadas, fuera.
+  const [opps, versiones, presus] = await Promise.all([
     leer<{
       id: string; codigo: string | null; nombre: string | null;
       comunidad: { id: string; nombre: string; cif_comunidad: string | null; domicilio_fiscal: string | null; cp: string | null; municipio: string | null; provincia: string | null } | null;
@@ -113,31 +107,27 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
       `oportunidades?select=id,codigo,nombre,comunidad:comunidad_id(id,nombre,cif_comunidad,domicilio_fiscal,cp,municipio,provincia)&id=eq.${oppId}`,
     ),
     leer<{
-      id: string; numero_hoja: string | null; estado: string; descripcion: string | null; fecha_creacion: string | null; fecha_firma: string | null;
+      id: string; codigo_he: string | null; numero_version: number; estado: string; fecha_emision: string | null; creado_en: string;
       pagador_tipo: "comunidad" | "contrata" | "persona"; pagador_contrata_id: string | null; pagador_persona_id: string | null;
       contrata: { nombre: string; cif: string | null; domicilio_fiscal: string | null } | null;
       persona: { nombre: string; apellidos: string | null } | null;
-      versiones: { id: string; numero_version: number; fecha_generada: string | null; url_pdf_hoja: string | null }[];
-      conceptos: FilaConcepto[];
-      lineas: { id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null }[];
+      estados: { estado: string; fecha: string }[];
+      lineas: LineaHe[];
     }[]>(
-      `hojas_encargo?select=id,numero_hoja,estado,descripcion,fecha_creacion,fecha_firma,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
-        `contrata:pagador_contrata_id(nombre,cif,domicilio_fiscal),persona:pagador_persona_id(nombre,apellidos),` +
-        `versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,fecha_generada,url_pdf_hoja),` +
-        `conceptos:conceptos_hoja(id,version_hoja_id,descripcion,importe,porcentaje,desglose,incluido,incluido_en_concepto_id,bloque:bloque_id(nombre_corto,nombre,desglose)),` +
-        `lineas:lineas_facturacion(id,descripcion,importe,es_porcentaje,porcentaje)` +
-        `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=fecha_creacion.asc,creado_en.asc`,
+      `he_versiones_hoja?select=id,codigo_he,numero_version,estado,fecha_emision,creado_en,pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
+        `contrata:pagador_contrata_id(nombre,cif,domicilio_fiscal),persona:pagador_persona_id(nombre,apellidos),estados:he_estados_hoja(estado,fecha),` +
+        `lineas:he_lineas_compromisos(id,padre_id,se_cobra,en_papel,importe,porcentaje,texto,desglosar_precios,creado_en,bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre))` +
+        `&oportunidad_id=eq.${oppId}&pdf=not.is.null&estado=not.in.(anulada,no_firmada)&order=creado_en.asc`,
     ),
-    leer<{ hoja_antigua_id: string }[]>("sustituciones_hoja?select=hoja_antigua_id"),
     leer<{
       id: string; codigo: string | null; fecha: string | null; estado: string; base: number | null; url_pdf: string | null; forma_pago: FormaPago | null;
       pagador_nombre: string | null; pagador_nif: string | null; pagador_domicilio: string | null; pagador_cp: string | null; pagador_poblacion: string | null; pagador_provincia: string | null;
-      hojas: { hoja_encargo_id: string }[];
+      he_version_id: string | null; hojas: { he_version_id: string | null }[];
     }[]>(
       // Los de la app hechos aqui: con codigo o en borrador. Los 1.062 que se
       // generaron en retrospectiva para compararlos con Factusol no se enseñan.
-      `presupuestos?select=id,codigo,fecha,estado,base,url_pdf,forma_pago,pagador_nombre,pagador_nif,pagador_domicilio,pagador_cp,pagador_poblacion,pagador_provincia,` +
-        `hojas:presupuesto_hojas(hoja_encargo_id)&oportunidad_id=eq.${oppId}&origen=eq.app&or=(codigo.not.is.null,estado.eq.borrador)&order=creado_en.desc`,
+      `presupuestos?select=id,codigo,fecha,estado,base,url_pdf,forma_pago,pagador_nombre,pagador_nif,pagador_domicilio,pagador_cp,pagador_poblacion,pagador_provincia,he_version_id,` +
+        `hojas:presupuesto_hojas(he_version_id)&oportunidad_id=eq.${oppId}&origen=eq.app&or=(codigo.not.is.null,estado.eq.borrador)&order=creado_en.desc`,
     ),
   ]);
   const o = opps[0];
@@ -146,58 +136,28 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
   const c = o.comunidad;
   // La direccion del texto es el NOMBRE DE LA OPP (13-oct-2026).
   const direccion = nombreDeOpp(o);
-  const fuera = new Set(sustituidas.map((s) => s.hoja_antigua_id));
 
-  const elegibles: HojaElegible[] = [];
-  for (const h of hojas) {
-    const versiones = [...h.versiones].sort((a, b) => a.numero_version - b.numero_version);
-    // La ultima que SALIO (con PDF o enlace de Drive); un borrador no ha salido.
-    const v = versiones.filter((x) => x.url_pdf_hoja).at(-1) ?? null;
-    if (!v && h.estado === "borrador") continue;
-    const deVersion = h.conceptos.filter((k) => v && k.version_hoja_id === v.id);
-    const cs = (deVersion.length ? deVersion : h.conceptos).filter((k) => k.incluido);
-    const aparece = (k: FilaConcepto): Desglose =>
-      k.bloque?.desglose === "no_aparece" ? "no_aparece" : k.desglose ?? (k.importe ? "se_cobra" : "incluido");
-    const nombre = (k: FilaConcepto) => (k.descripcion ?? "").trim() || k.bloque?.nombre_corto || k.bloque?.nombre || "Proyecto";
-    let cobra;
-    if (h.estado === "devuelta_firmada" && h.lineas.length) {
-      // firmada: lo releido del papel manda en los importes
-      cobra = h.lineas.map((l) => ({
-        nombre: (l.descripcion ?? "").trim() || "Honorarios",
-        importe: l.es_porcentaje ? null : l.importe,
-        pct: l.es_porcentaje ? l.porcentaje : null,
-        lineaId: l.id,
-      }));
-    } else {
-      // Lo que va DENTRO de un proyecto conjunto no se cobra aparte: su precio
-      // ya esta en el del conjunto. Sale como incluido.
-      cobra = cs
-        .filter((k) => aparece(k) === "se_cobra" && !k.incluido_en_concepto_id)
-        .map((k) => ({ nombre: nombre(k), importe: k.importe, pct: k.porcentaje, lineaId: null }));
-    }
-    const incluidos = cs
-      .filter((k) => aparece(k) === "incluido" || (aparece(k) === "se_cobra" && k.incluido_en_concepto_id))
-      .map(nombre);
-    elegibles.push({
-      id: h.id,
-      codigo: h.numero_hoja,
-      versionId: v?.id ?? null,
-      fecha: v?.fecha_generada ?? h.fecha_creacion,
-      fechaFirma: h.estado === "devuelta_firmada" ? h.fecha_firma : null,
-      cobra,
-      incluidos,
-      titulo: (h.descripcion ?? "").trim() || "Hoja de encargo",
-      estado: h.estado,
-      importe: cobra.reduce((s, x) => s + (Number(x.importe) || 0), 0),
-      sustituida: fuera.has(h.id),
-    });
-  }
+  const elegibles: HojaElegible[] = versiones.map((v) => {
+    const fechaFirma = v.estados.filter((e) => e.estado === "firmada_recibida").map((e) => e.fecha).sort()[0] ?? null;
+    const m = hojaMotorDe(v.id, v.codigo_he, v.fecha_emision ?? v.creado_en, v.lineas);
+    const tipos = [...new Set(v.lineas.map((l) => l.desglose?.nombre).filter((x): x is string => !!x))];
+    return {
+      ...m,
+      fechaFirma: fechaFirma ? fechaFirma.slice(0, 10) : null,
+      codigo: v.codigo_he ? `${v.codigo_he} v${v.numero_version}` : null,
+      titulo: tipos.join(" + ") || "Hoja de encargo",
+      estado: v.estado,
+      importe: m.cobra.reduce((t, x) => t + (Number(x.importe) || 0), 0),
+      sustituida: v.estado === "sustituida",
+      fase: faseHe(v.estado),
+    };
+  });
 
   // Quien paga: el de la ultima hoja que no sea de la comunidad, si la hay
   // (una contrata que paga por ella, o el particular al que va); si no, la
   // comunidad; si no tiene, se escribe a mano.
-  const deContrata = [...hojas].reverse().find((h) => h.pagador_tipo === "contrata" && h.pagador_contrata_id && h.contrata);
-  const dePersona = [...hojas].reverse().find((h) => h.pagador_tipo === "persona" && h.pagador_persona_id && h.persona);
+  const deContrata = [...versiones].reverse().find((h) => h.pagador_tipo === "contrata" && h.pagador_contrata_id && h.contrata);
+  const dePersona = [...versiones].reverse().find((h) => h.pagador_tipo === "persona" && h.pagador_persona_id && h.persona);
   const vacio: Cliente = { nombre: "", nif: "", domicilio: "", cp: "", poblacion: "", provincia: "" };
   const cliente: Cliente = deContrata
     ? { ...vacio, nombre: deContrata.contrata!.nombre, nif: deContrata.contrata!.cif ?? "", domicilio: deContrata.contrata!.domicilio_fiscal ?? "" }
@@ -235,7 +195,8 @@ export async function datosPresupuesto(oppId: string): Promise<DatosPresupuesto 
       estado: p.estado,
       base: Number(p.base) || 0,
       borrador: !p.url_pdf,
-      hojaIds: p.hojas.map((x) => x.hoja_encargo_id),
+      // Las hojas que lleva: las marcadas (presupuesto_hojas) o, si salio con una hoja al generarla, la suya.
+      hojaIds: [...new Set([...p.hojas.map((x) => x.he_version_id), p.he_version_id].filter((x): x is string => !!x))],
       cliente: {
         nombre: p.pagador_nombre ?? "", nif: p.pagador_nif ?? "", domicilio: p.pagador_domicilio ?? "",
         cp: p.pagador_cp ?? "", poblacion: p.pagador_poblacion ?? "", provincia: p.pagador_provincia ?? "",
@@ -323,11 +284,11 @@ export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promis
       "presupuesto_lineas",
       lineas.map((l, k) => ({
         presupuesto_id: id, posicion: k + 1, concepto: l.concepto, cantidad: 1, precio: l.importe, base: l.importe,
-        iva_porcentaje: IVA, irpf_porcentaje: 0, total: l.importe, hoja_encargo_id: l.hojaId, linea_facturacion_id: l.lineaId,
+        iva_porcentaje: IVA, irpf_porcentaje: 0, total: l.importe,
       })),
     );
   if (elegidas.length)
-    await crear("presupuesto_hojas", elegidas.map((h) => ({ presupuesto_id: id, hoja_encargo_id: h.id, version_hoja_id: h.versionId })));
+    await crear("presupuesto_hojas", elegidas.map((h) => ({ presupuesto_id: id, he_version_id: h.id })));
 
   if (g.borrador) return { id: id!, codigo: null };
   return emitir(id!, g.cliente, g.formaPago, lineas);
