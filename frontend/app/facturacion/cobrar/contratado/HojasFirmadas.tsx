@@ -196,7 +196,7 @@ function Fila({ h, abrir }: { h: HojaFirmada; abrir: (v: Visor) => void }) {
         {h.pdf ? (
           <button
             type="button"
-            onClick={() => abrir({ titulo: `Hoja firmada ${h.numero}`, url: `/facturacion/documento/${h.id}/${h.pdf!.version}/${h.pdf!.indice}` })}
+            onClick={() => abrir({ titulo: `Hoja firmada ${h.numero}`, url: `/facturacion/firmada/${h.pdf!.version}` })}
             className="text-left text-[14.5px] font-bold text-lima-dark hover:underline"
           >
             📄 {h.numero}

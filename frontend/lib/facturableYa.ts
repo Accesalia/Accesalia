@@ -13,6 +13,7 @@
 // Las celdas vacias van vacias: sin «sin proforma» ni guiones.
 
 import "server-only";
+import { SEL_FICHA_HOJA, adaptarFichas } from "./hojasNuevas";
 import { nombreDeOpp } from "./direccionOpp";
 import { adminsDeComunidades } from "./adminComunidad";
 import { proximosHitos } from "./proximosHitos";
@@ -87,9 +88,9 @@ export async function facturableYa(): Promise<Facturable> {
       "proformas?select=id,codigo,fecha,total,se_puede_cobrar_en,oportunidad_id,pagador_nombre," +
         "factura:factura_id(id,empresa_emisora,anio,serie,numero,fecha,total,estado)," +
         "lineas:proforma_lineas(hitos:proforma_linea_hitos(importe,hito:hito_cobro_id(hito,porcentaje,fecha_prevista,hito_padre_id," +
-        "linea:linea_facturacion_id(descripcion,hoja:hoja_encargo_id(numero_hoja,fecha_firma)))))" +
+        `linea:linea_facturacion_id(${SEL_FICHA_HOJA}))))` +
         "&estado=eq.emitida&empresa=in.(accesalia,daniel)",
-    ),
+    ).then(adaptarFichas),
   ]);
   // Lo que ya se ha alcanzado, de una hoja que ya salio de Nuevas hojas firmadas con su boton (25-oct-2026: antes
   // bastaba con validar la linea), y aun sin proforma.

@@ -14,6 +14,7 @@ import "server-only";
 import type { Yo } from "./sesion";
 import { datosCaja, type DatosCaja, type TrabajoCaja } from "./cobros";
 import { hojasEnProduccion } from "./recorridoHoja";
+import { hojasDeFacturacion } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -65,15 +66,12 @@ export async function datosAsignar(): Promise<DatosAsignar> {
     todo<{ oportunidad_id: string; necesita_nube: boolean | null; decidida_en: string | null; fecha_prevista_escaneo: string | null; escaneado_en: string | null; nube_lista_en: string | null; notas: string | null }>(
       "nubes_puntos?select=oportunidad_id,necesita_nube,decidida_en,fecha_prevista_escaneo,escaneado_en,nube_lista_en,notas",
     ),
-    // Las lineas que llevan tecnico de las hojas en produccion (por tramos: son cientos).
-    Promise.all(
-      Array.from({ length: Math.ceil(ids.length / 150) }, (_, i) => ids.slice(i * 150, i * 150 + 150)).map((t) =>
-        todo<{ hoja_encargo_id: string; hoja: { numero_hoja: string | null; oportunidad_id: string | null } | null; bloque: { nombre: string; va_a_tecnico: boolean } | null }>(
-          "lineas_facturacion?select=hoja_encargo_id,hoja:hoja_encargo_id(numero_hoja,oportunidad_id),bloque:bloque_id!inner(nombre,va_a_tecnico)" +
-            `&bloque.va_a_tecnico=is.true&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&hoja_encargo_id=in.(${t.join(",")})`,
-        ),
-      ),
-    ).then((x) => x.flat()),
+    // Las lineas que llevan tecnico de las hojas en produccion (hojas nuevas: de las vistas, lib/hojasNuevas.ts).
+    hojasDeFacturacion({ ids }).then((hs) =>
+      hs.flatMap((h) => h.lineas.filter((l) => l.bloque?.va_a_tecnico).map((l) => ({
+        hoja_encargo_id: h.id, hoja: { numero_hoja: h.numero_hoja, oportunidad_id: h.oportunidad_id }, bloque: l.bloque ? { nombre: l.bloque.nombre, va_a_tecnico: l.bloque.va_a_tecnico } : null,
+      }))),
+    ),
   ]);
   const nubeDe = new Map(
     nubes.map((n) => [n.oportunidad_id, { necesita: n.necesita_nube, decidida: n.decidida_en, prevista: n.fecha_prevista_escaneo, escaneado: n.escaneado_en, lista: n.nube_lista_en, notas: n.notas }]),

@@ -139,8 +139,10 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
 - **Entrada en facturación:** validarFirmada (lib/hojaEmitir.ts), al pasar a ok_comercial, tiene que llamar a
   entrarEnFacturacion(versionId, yo) de lib/hojasNuevas.ts, que está en la rama facturacion-hojas-nuevas del hilo de
   facturación (crea la ficha de facturación de cada línea que se cobra y sus hitos_cobro). Se sube con la migración.
-- **Facturación** lee las vistas facturacion_hojas y facturacion_lineas (migración de su rama, 29991231000000_…, que se
-  aplica ese día después de copiar las hojas y rellenar he_linea_id).
+- **Facturación**, dos migraciones de su rama: 29991231000000_facturacion_hojas_nuevas_ANTES_DE_COPIAR.sql (crea
+  lineas_facturacion.he_version_id y quita los NOT NULL de hoja_encargo_id: la copia escribe ahí) y, después de copiar
+  las hojas y rellenar he_linea_id / he_version_id, 29991231000050_facturacion_hojas_nuevas_DESPUES_DE_COPIAR.sql (el
+  check, las vistas facturacion_hojas y facturacion_lineas, hojas_firmadas y panoramica_cobros).
 - **Tipo de documento de las firmadas viejas** (184 pedidos, 74 notas de responsabilidad, 18 contratos): DECIDIDO por
   Mónica (25-oct): van en **he_versiones_hoja.notas** («Migrada. En origen era un pedido / una nota de responsabilidad /
   un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
@@ -170,3 +172,28 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
 7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): VACÍO en
    las 2.423 versiones (comprobado 25-oct): no hay nada que migrar. Aparte, no de la hoja: en presupuestos hay 213 de origen
    factusol y solo 1 enlazado a una opp (visto por el hilo de facturación).
+
+## La copia de las hojas viejas, decidida y ensayada (Mónica, 25-oct, hilo de facturación)
+
+La copia es `supabase/migrations/29991231000020_copia_hojas_viejas_DIA_MIGRACION.sql` (rama facturacion-hojas-nuevas).
+Sustituye a la que escribió el hilo comercial: Mónica la dejó a este hilo («le falta contexto»). Ensayada en prod dentro
+de una transacción deshecha: cero diferencias y ninguna duda pendiente.
+
+- **Migrar es copiar.** Cada concepto pasa a una línea con su bloque, se cobra o incluido, en el papel, importe, %, texto
+  y tipo, tal cual. Fichas, hitos, facturas y cobros no se tocan. Se comprueba hoja a hoja; si algo no cuadra, se deshace.
+- **El árbol:** el orden del papel de la revisión de firmadas; con un solo proyecto o una sola subvención, todo con él;
+  las reglas del generador para cada paquete.
+- **Proyecto conjunto** cuando hay dos o más proyectos con precio (leídas las 21 hojas, una a una). Excepciones del papel:
+  Hungría 4 (HE-2023-0006), dos proyectos separados; Montejurra 25 (HE-2022-0010), un solo proyecto de envolvente completa.
+- **Descuento por cesión de CAES:** el precio del proyecto es el rebajado y la gestión de CAES queda contratada; la línea
+  sin descuento queda incluida con su importe en el texto.
+- **Hojas mal emitidas con dos opciones** (Carlota O'Neill 40 HE-2026-0183, Mezquita 1 HE-2026-0198): anuladas en prod con
+  su motivo; sus líneas pasan al bloque OTRO con su texto. Si la comunidad retoma algo, hoja nueva desde cero.
+- **En caso de duda, manda la factura:** los 4 conceptos que no casaban con lo facturado, corregidos en prod con nota en la
+  versión (HE-2022-0085, HE-2026-0203, HE-2025-0261, HE-2022-0047).
+- **Subvención partida:** los hitos de la concesión (a éxito o ya con su importe) pasan a la ficha de la tramitación.
+- **Faisanes 25 (HE-2024-0222):** fecha de firma = la de su primera factura (24-04-2024), con nota.
+- **Una sola casilla «de qué hoja es»** en fichas, notas de facturación y líneas de presupuesto: la de siempre
+  (hoja_encargo_id) se reapunta a la hoja en su casa nueva y pasa a llamarse he_version_id. Sin casillas nuevas.
+- **Ecobalance (3 presupuestos):** su ficha cobra su comisión aparte (la línea va incluida para la comunidad); en las hojas
+  nuevas, entrarEnFacturacion crea esa ficha como lo hacía la firma vieja.

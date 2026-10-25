@@ -313,6 +313,8 @@ const ENVIADA: Record<"comercial" | "direccion", string> = { comercial: "al come
 function Linea({ n, l, cambiar, hojaId }: { n: number; l: LineaAbierta; cambiar: Cambiar; hojaId: string }) {
   const [duda, setDuda] = useState<string | null>(null);
   const ok = !!l.validada;
+  // Lo firmado (concepto, importe, %) no se corrige aqui; los hitos si.
+  const fijo = ok || l.fija;
   const sumaHitos = l.hitos.reduce((s, h) => s + (h.importe ?? 0), 0);
   const cuadra = l.importe == null || l.esPorcentaje || Math.abs(sumaHitos - l.importe) < 0.005;
   const sePuedeValidar = !!l.concepto.trim() && l.hitos.length > 0 && cuadra;
@@ -327,23 +329,25 @@ function Linea({ n, l, cambiar, hojaId }: { n: number; l: LineaAbierta; cambiar:
       <div className={`grid grid-cols-[22px_1fr_auto_auto] items-baseline gap-2.5 border-b px-3.5 py-2.5 ${ok ? "border-[#d6ecc2] bg-[#f1f9e9]" : "border-[#f1e6c6] bg-[#fdf8ec]"}`}>
         <span className="text-[13px] font-extrabold text-lima-dark">{n}</span>
         <div className="text-[14px] font-bold text-carbon">
-          <Dato largo valor={l.concepto} pista="Concepto, como dice la hoja" apagado={ok} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "concepto", v))} />
+          <Dato largo valor={l.concepto} pista="Concepto, como dice la hoja" apagado={fijo} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "concepto", v))} />
         </div>
         <div className="whitespace-nowrap text-[14px] font-bold tabular-nums text-carbon">
           {l.esPorcentaje ? (
             <>
-              <Dato valor={pct(l.porcentaje)} pista="%" ancho="w-14" derecha apagado={ok} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "porcentaje", v))} /> %{" "}
+              <Dato valor={pct(l.porcentaje)} pista="%" ancho="w-14" derecha apagado={fijo} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "porcentaje", v))} /> %{" "}
               <span className="text-[12.5px] font-normal text-carbon/55">{l.base ? `del ${l.base}` : "a éxito"}</span>
             </>
           ) : (
             <>
-              <Dato valor={eur(l.importe)} pista="Importe" ancho="w-24" derecha apagado={ok} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "importe", v))} /> €{" "}
+              <Dato valor={eur(l.importe)} pista="Importe" ancho="w-24" derecha apagado={fijo} onGuardar={(v) => cambiar(accionCorregirLinea(l.id, "importe", v))} /> €{" "}
               <span className="text-[12.5px] font-normal text-carbon/55">+ IVA{l.porcentaje ? ` y ${pct(l.porcentaje)} %` : ""}</span>
             </>
           )}
         </div>
         {ok ? (
           <span className="rounded-full bg-[#cfe9b6] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#24500c]">✓ Validada</span>
+        ) : l.fija ? (
+          <span title="Es de la hoja firmada: no se quita. Si sobra, pon una duda." className="text-[11px] text-carbon/45">de la hoja</span>
         ) : (
           <button type="button" title="Quitar la línea (no está en la hoja)" onClick={() => confirm("¿Quitar esta línea? No está en la hoja firmada.") && cambiar(accionQuitarLinea(l.id))} className="text-[12px] text-carbon/35 hover:text-alerta">
             ✕

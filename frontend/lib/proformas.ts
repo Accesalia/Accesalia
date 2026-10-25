@@ -22,6 +22,7 @@ import "server-only";
 
 import type { Yo } from "./sesion";
 import { enFrase, nombreDeOpp, nombresDeOpps } from "./direccionOpp";
+import { SEL_FICHA_HOJA, fechasDeFirma, lineaDeFicha, numeroHoja, pagadorDeVersion, versionDeFicha, type FichaHoja } from "./hojasNuevas";
 import { puedeVerLibro, TEXTO_HITO, type Libro } from "./cobros";
 import { enviarCorreo, buzonListo, direccionDe, type Area } from "./correo";
 import { crearEntrada } from "./entradaDiario";
@@ -93,9 +94,8 @@ export type HitoProformable = {
 type FilaHito = {
   id: string; hito: string; porcentaje: number | null; importe: number | null; hito_padre_id: string | null; estado: string;
   padre: { hito: string; porcentaje: number | null } | null;
-  linea: { id: string; descripcion: string | null; importe: number | null; emisor: string | null; pagador_tipo: string | null; pagador_id: string | null;
-    bloque: { nombre: string } | null;
-    hoja: { numero_hoja: string | null; fecha_firma: string | null; oportunidad_id: string | null; pagador_tipo: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null; comunidad_id: string | null } | null } | null;
+  // Hojas nuevas (dia de la migracion): la ficha y, por ella, su linea de la hoja y su version.
+  linea: (FichaHoja & { pagador_tipo: string | null; pagador_id: string | null }) | null;
 };
 
 export async function hitosProformables(ids: string[]): Promise<HitoProformable[]> {
@@ -105,8 +105,7 @@ export async function hitosProformables(ids: string[]): Promise<HitoProformable[
   const [filas, hijos, facturas, enProf] = await Promise.all([
     pedir<FilaHito[]>(
       `hitos_cobro?select=id,hito,porcentaje,importe,hito_padre_id,estado,padre:hito_padre_id(hito,porcentaje),` +
-        `linea:linea_facturacion_id(id,descripcion,importe,emisor,pagador_tipo,pagador_id,bloque:bloque_id(nombre),` +
-        `hoja:hoja_encargo_id(numero_hoja,fecha_firma,oportunidad_id,pagador_tipo,pagador_contrata_id,pagador_persona_id,comunidad_id))&id=in.(${lista})`,
+        `linea:linea_facturacion_id(pagador_tipo,pagador_id,${SEL_FICHA_HOJA})&id=in.(${lista})`,
     ),
     pedir<{ hito_padre_id: string }[]>(`hitos_cobro?select=hito_padre_id&hito_padre_id=in.(${lista})`),
     pedir<{ hito_cobro_id: string; importe: number | null; linea: { factura: { estado: string } | null } | null }[]>(
@@ -117,6 +116,7 @@ export async function hitosProformables(ids: string[]): Promise<HitoProformable[
     ),
   ]);
   const conHijos = new Set(hijos.map((h) => h.hito_padre_id));
+  const firma = await fechasDeFirma(filas.map((h) => versionDeFicha(h.linea)?.id).filter((x): x is string => !!x));
   const suma = (m: Map<string, number>, k: string, v: number) => m.set(k, (m.get(k) ?? 0) + v);
   const fact = new Map<string, number>();
   for (const f of facturas) if (f.linea?.factura?.estado !== "anulada") suma(fact, f.hito_cobro_id, Number(f.importe) || 0);
@@ -128,23 +128,22 @@ export async function hitosProformables(ids: string[]): Promise<HitoProformable[
     .filter((h) => !conHijos.has(h.id) && h.estado !== "anulado" && h.linea)
     .map((h) => {
       const l = h.linea!;
+      const v = versionDeFicha(l);
+      const ld = lineaDeFicha(l);
       const imp = h.importe == null ? null : Number(h.importe);
       const facturado = fact.get(h.id) ?? 0;
       const enProforma = prof.get(h.id) ?? 0;
-      const pag = l.pagador_tipo && l.pagador_id ? { tipo: l.pagador_tipo, id: l.pagador_id }
-        : l.hoja?.pagador_tipo === "contrata" && l.hoja.pagador_contrata_id ? { tipo: "contrata", id: l.hoja.pagador_contrata_id }
-        // Una hoja que va a un particular (13-oct-2026): paga esa persona.
-        : l.hoja?.pagador_tipo === "persona" && l.hoja.pagador_persona_id ? { tipo: "persona", id: l.hoja.pagador_persona_id }
-        : l.hoja?.comunidad_id ? { tipo: "comunidad", id: l.hoja.comunidad_id } : null;
+      // Quien paga lo dice la hoja (por version); una ficha vieja con su pagador propio, ese.
+      const pag = l.pagador_tipo && l.pagador_id ? { tipo: l.pagador_tipo, id: l.pagador_id } : v ? pagadorDeVersion(v) : null;
       return {
         id: h.id,
-        oppId: l.hoja?.oportunidad_id ?? null,
+        oppId: v?.oportunidad_id ?? null,
         empresa: EMPRESA_DE_EMISOR[l.emisor ?? "accesalia"] ?? "accesalia",
-        documento: l.hoja?.numero_hoja ?? null,
-        documentoFirmado: l.hoja?.fecha_firma ?? null,
+        documento: v ? numeroHoja(v) : null,
+        documentoFirmado: v ? (firma.get(v.id) ?? null) : null,
         lineaId: l.id,
-        linea: ((l.descripcion ?? "").trim() || l.bloque?.nombre || "Línea").split("\n")[0],
-        lineaImporte: l.importe == null ? null : Number(l.importe),
+        linea: ld.concepto.split("\n")[0],
+        lineaImporte: ld.importe,
         tipo: h.hito_padre_id ? (h.padre?.hito ?? h.hito) : h.hito,
         esSubhito: !!h.hito_padre_id,
         porcentaje: h.hito_padre_id ? (h.padre?.porcentaje ?? null) : h.porcentaje == null ? null : Number(h.porcentaje),
