@@ -39,3 +39,7 @@ comment on column public.he_estados_hoja.areas is 'Las areas que abre (metida en
 comment on column public.he_estados_hoja.lado is 'Desde donde se hizo: facturacion, secretaria o la app. En una pausa decide quien la levanta.';
 comment on column public.he_estados_hoja.tejado is 'En una pausa: de quien depende (accesalia, cliente, tercero), como en las pausas de la opp.';
 comment on column public.he_estados_hoja.condicion is 'En una pausa: cuando se reanuda.';
+
+-- Matiz del hilo del recorrido (aplicado aparte como he_versiones_estado_comentario_pausa): pausa_levantada NO termina
+-- la pausa; solo «reanudada». Entre medias la hoja esta «para reanudar» en la bandeja de la secretaria, pero parada.
+comment on column public.he_versiones_hoja.estado is 'La FASE actual (la ultima fase del historial). La pausa no es una fase: trabajo parado = hay una «pausada» sin «reanudada» detras; con «pausa_levantada» entre medias esta «para reanudar» (bandeja de la secretaria) pero sigue parada.';
