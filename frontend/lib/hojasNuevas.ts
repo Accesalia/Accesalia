@@ -188,7 +188,7 @@ export type FichaLinea = {
   creada_por: string | null; quitada_en: string | null; origen: string | null; creado_en: string; extraido: unknown; forma_cobro: string | null;
   bloque: { nombre: string; area: string | null; va_a_tecnico: boolean; va_a_faro: boolean } | null;
   hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; estado: string; notas: string | null; hito_padre_id: string | null;
-    fecha_cobro: string | null; fecha_prevista: string | null; en_pausa_desde: string | null; editado_por: string | null; creado_por: string | null }[];
+    fecha_cobro: string | null; fecha_prevista: string | null; en_pausa_desde: string | null; editado_por: string | null; creado_por: string | null; cerrado_en: string | null }[];
 };
 export type HojaFacturacion = {
   id: string; numero_hoja: string; fecha_firma: string | null; oportunidad_id: string | null; comunidad_id: string | null;
@@ -204,7 +204,7 @@ const SEL_HOJA_F =
   "opp:oportunidad_id(id,nombre,codigo,comercial:comerciales!oportunidades_comercial_id_fkey(nombre,email))";
 const SEL_FICHA =
   "id,hoja_id,he_linea_id,descripcion,importe,es_porcentaje,porcentaje,bloque_id,emisor,validada_en,validada_por,editada_en,editada_por,creada_por,quitada_en,origen,creado_en,extraido,forma_cobro," +
-  "hitos:hitos_cobro(id,hito,orden,porcentaje,importe,estado,notas,hito_padre_id,fecha_cobro,fecha_prevista,en_pausa_desde,editado_por,creado_por)";
+  "hitos:hitos_cobro(id,hito,orden,porcentaje,importe,estado,notas,hito_padre_id,fecha_cobro,fecha_prevista,en_pausa_desde,editado_por,creado_por,cerrado_en)";
 
 /** Las hojas (versiones firmadas) que se piden, o las de una opp, con sus fichas. Solo las fichas sin quitar, del libro
  *  de Accesalia y Daniel salvo que se pida el de Ecobalance. */

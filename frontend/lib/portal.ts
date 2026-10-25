@@ -1,4 +1,5 @@
 import "server-only";
+import { nombreFirmadaPortal } from "./hojasOpp";
 // lib/portal.ts
 //
 // EL PORTAL DE LA COMUNIDAD (Monica, 12-oct-2026). Ver la memoria
@@ -330,6 +331,8 @@ export async function registrarSubida(d: {
   hojaId: string | null;
   /** Que papel es (su ventanita). Sin el, y sin hoja, es «otro». */
   clave?: ClavePortal | null;
+  /** Una hoja del sistema nuevo: la firmada se archiva en su opp (25-oct-2026). */
+  versionId?: string | null;
   /** El acta de votacion va a su opp. */
   oportunidadId?: string | null;
   descripcion: string | null;
@@ -343,6 +346,7 @@ export async function registrarSubida(d: {
   const info = await fetch(`${URL_BASE}/storage/v1/object/info/${ALMACEN_PORTAL}/${d.ruta}`, { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" });
   if (!info.ok) throw new Error("El fichero no ha llegado. Vuelve a intentarlo.");
   const tam = Number(((await info.json()) as { size?: number }).size ?? 0) || null;
+  if (d.versionId) return archivarFirmadaNueva(d.comunidadId, d.versionId, d.ruta, d.nombreFichero, d.email);
   if (d.hojaId) {
     const ok = (await hojasPorFirmar(d.comunidadId)).some((h) => h.hojaId === d.hojaId);
     if (!ok) throw new Error("Esa hoja de encargo ya no está pendiente de firma.");
@@ -374,3 +378,30 @@ export async function registrarSubida(d: {
   return f.id;
 }
 
+
+/** LA FIRMADA DE UNA HOJA NUEVA, A SU SITIO (Monica, 25-oct-2026): «si llega por el portal es fácil: se guarda en su
+ *  sitio de su opp» y la valida el comercial. Se archiva en el archivo de documentos de la opp con el tipo «Hoja de
+ *  encargo» y un nombre que dice de que hoja es; el fichero se queda donde lo subio (mismo almacen que el cajon). Solo
+ *  hojas que paga esta comunidad, de un expediente vivo y esperando la firma. */
+async function archivarFirmadaNueva(comunidadId: string, versionId: string, ruta: string, nombreFichero: string, email: string): Promise<string> {
+  if (!/^[0-9a-f-]{36}$/.test(versionId)) throw new Error("Hoja no válida.");
+  const [v] = await pedir<{ id: string; codigo_he: string | null; numero_version: number; estado: string; oportunidad_id: string; pagador_tipo: string; pagador_comunidad_id: string | null; opp: { estado: string; comunidad_id: string | null } | null }[]>(
+    `he_versiones_hoja?select=id,codigo_he,numero_version,estado,oportunidad_id,pagador_tipo,pagador_comunidad_id,opp:oportunidad_id(estado,comunidad_id)&id=eq.${versionId}`,
+  );
+  if (!v || v.pagador_tipo !== "comunidad" || v.pagador_comunidad_id !== comunidadId) throw new Error("Esa hoja de encargo no es de esta comunidad.");
+  if (!v.opp || !["abierta", "pausada"].includes(v.opp.estado)) throw new Error("Ese expediente ya no está en curso.");
+  if (!["ok_daniel", "enviada", "firma_con_errores"].includes(v.estado)) throw new Error("Esa hoja de encargo ya no está pendiente de firma.");
+  const [tipo] = await pedir<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent("Hoja de encargo")}`);
+  if (!tipo) throw new Error("Falta el tipo «Hoja de encargo» en el catálogo de documentos.");
+  const ext = (nombreFichero.match(/\.[A-Za-z0-9]{2,5}$/)?.[0] ?? ".pdf").toLowerCase();
+  const [doc] = await pedir<{ id: string }[]>("documentos", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      oportunidad_id: v.oportunidad_id, comunidad_id: comunidadId, tipo_documento_id: tipo.id, backend: "supabase", storage_ref: ruta, naturaleza: "subido",
+      nombre: `${nombreFirmadaPortal(v.codigo_he, v.numero_version)}${ext}`, archivado_en: new Date().toISOString(),
+      justificacion: `Subida desde el portal por ${limpio(email)} (fichero original: ${nombreFichero.slice(0, 120)}).`,
+    }),
+  });
+  return doc.id;
+}

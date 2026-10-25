@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { DetalleCosas, HitoCosas, ItemCheck, PagadorCosas } from "../../../../../lib/cosasAFacturar";
 import type { FormaCobro } from "../../../../../lib/condicionesCobro";
 import { accionCif, accionCodigo, accionEmisor, accionEmitir, accionEnviar, accionIban } from "../acciones";
+import { accionConcesion } from "../../../acciones";
 
 // LOS CUATRO PASOS (maqueta validada): 1 ¿lo tengo todo?, 2 ¿que facturo?, 3 ¿quien factura?, 4 la proforma, vista
 // antes de emitirla y partida sola por pagador y empresa. Emitida: el correo, con la proforma y la hoja firmada.
@@ -111,6 +112,16 @@ export function Cosas({ d }: { d: DetalleCosas }) {
               </div>
               {h.hitos.map((x) => {
                 const on = sel.has(x.id);
+                // A EXITO (25-oct-2026): no se factura el hito, sino cada concesion que se le añade.
+                if (x.aExito)
+                  return (
+                    <div key={x.id} className="hito-f antes">
+                      <span />
+                      <span className="que">{x.que}<small>{x.linea} · a éxito: se factura cada concesión</small></span>
+                      <span className="imp">a éxito</span>
+                      <Concesion oppId={d.oppId} hitoId={x.id} hacer={hacer} ocupado={ocupado} />
+                    </div>
+                  );
                 return (
                   <div key={x.id} className={`hito-f${x.ya ? "" : " antes"}`}>
                     <input type="checkbox" checked={on} aria-label="Facturar"
@@ -138,6 +149,14 @@ export function Cosas({ d }: { d: DetalleCosas }) {
                   </div>
                 );
               })}
+              {h.abiertos.map((a) => (
+                <div key={a.id} className="hito-f antes">
+                  <span />
+                  <span className="que">{a.que}<small>{a.linea} · a éxito, abierto · {a.concesiones} {a.concesiones === 1 ? "concesión" : "concesiones"}: puede llegar otra</small></span>
+                  <span className="imp">a éxito</span>
+                  <Concesion oppId={d.oppId} hitoId={a.id} hacer={hacer} ocupado={ocupado} otra />
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -204,6 +223,39 @@ export function Cosas({ d }: { d: DetalleCosas }) {
           )}
           {emitidas.length > 0 && error && <div className="aviso">{error}</div>}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------ una concesion de un hito a exito
+
+function Concesion({ oppId, hitoId, hacer, ocupado, otra }: { oppId: string; hitoId: string; hacer: (r: Resp) => void; ocupado: boolean; otra?: boolean }) {
+  const [abierta, setAbierta] = useState(false);
+  const [conv, setConv] = useState("");
+  const [concedido, setConcedido] = useState("");
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const n = Number(concedido.replace(/\./g, "").replace(",", ".")) || 0;
+  if (!abierta)
+    return (
+      <div className="antes-form" style={{ background: "transparent", border: 0, padding: 0 }}>
+        <button type="button" className="enlace" onClick={() => setAbierta(true)}>{otra ? "+ Añadir otra concesión" : "+ Añadir concesión"}</button>
+      </div>
+    );
+  return (
+    <div className="antes-form">
+      <b style={{ fontSize: 12.5 }}>Concesión</b>
+      <input type="text" value={conv} onChange={(e) => setConv(e.target.value)} placeholder="Convocatoria: «Plan PREE 2025, Comunidad de Madrid»" />
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input type="text" value={concedido} onChange={(e) => setConcedido(e.target.value)} placeholder="Lo concedido (€)" style={{ maxWidth: 170 }} />
+        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} style={{ maxWidth: 170 }} />
+      </div>
+      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+        <button type="button" className="btn sec peq" onClick={() => setAbierta(false)}>Cancelar</button>
+        <button type="button" className="btn peq" disabled={ocupado || !conv.trim() || !(n > 0)}
+          onClick={() => hacer(accionConcesion(oppId, hitoId, { convocatoria: conv, concedido: n, fecha }) as Resp)}>
+          Añadir: sale para facturar
+        </button>
       </div>
     </div>
   );

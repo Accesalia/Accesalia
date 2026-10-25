@@ -133,3 +133,40 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   línea copiada (columna creada por facturación, migración 20261025230000). Conjunto «solo el total»: UNA línea cobrable
   (bloque PROYECTO CONJUNTO); si en lo viejo había varias fichas de facturación para él, caso para Mónica.
 - **hitos_cobro**: los de antes se conservan; los nuevos los genera facturación en ok_comercial desde he_formas_pago_hitos.
+
+## El día del cambio: enganches pendientes
+
+- **Entrada en facturación:** validarFirmada (lib/hojaEmitir.ts), al pasar a ok_comercial, tiene que llamar a
+  entrarEnFacturacion(versionId, yo) de lib/hojasNuevas.ts, que está en la rama facturacion-hojas-nuevas del hilo de
+  facturación (crea la ficha de facturación de cada línea que se cobra y sus hitos_cobro). Se sube con la migración.
+- **Facturación** lee las vistas facturacion_hojas y facturacion_lineas (migración de su rama, 29991231000000_…, que se
+  aplica ese día después de copiar las hojas y rellenar he_linea_id).
+- **Tipo de documento de las firmadas viejas** (184 pedidos, 74 notas de responsabilidad, 18 contratos): DECIDIDO por
+  Mónica (25-oct): van en **he_versiones_hoja.notas** («Migrada. En origen era un pedido / una nota de responsabilidad /
+  un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
+  (El portal solo enseña opps abiertas o en pausa, así que la regla de no enseñar la nota de responsabilidad no se
+  echa de menos.)
+
+## Decisiones del repaso campo a campo de la migración (Mónica, 25-oct, vía el hilo de facturación)
+
+1. **he_versiones_hoja.sustituida_por** → he_versiones_hoja(id) (campo nuevo): las 54 sustituciones viejas son entre
+   HOJAS distintas (misma opp, otro número; 25 de las nuevas, firmadas con su número impreso): no se convierten en v2. En
+   lo nuevo también pasará (se anula la de Schindler y se emite otra a la comunidad). Pendiente de crear (este hilo).
+2. **A he_versiones_hoja.notas** al migrar, además del tipo de documento: la descripción de Monday, el responsable y el
+   motivo de las notas de responsabilidad, motivo_sin_firma, el emisor de las hojas NO firmadas (el de las firmadas ya
+   está en sus fichas de facturación), el código anterior PD-/NR- y las anuladas sin motivo («migrada sin motivo»).
+   «archivada» pasa a ANULADA con la nota «se archivó por falta de datos en la migración del histórico».
+3. **Tabla de correspondencia vieja → nueva**, DE VIDA CORTA: para migrar y comprobar; se BORRA al acabar, con las tablas
+   viejas. Nada convive: lo permanente (los códigos PD-/NR-) va a las notas.
+4. **Líneas de las firmadas:** los conceptos pasan como he_lineas_compromisos; cada ficha de facturación que salió de un
+   concepto queda con he_linea_id = su línea. Las 477 fichas sin concepto (salieron solo del PDF) quedan como líneas
+   añadidas a mano de su versión (lineas_facturacion.he_version_id), con su concepto, importe e hitos.
+5. **Subvención con importe y % (139 conceptos, 76 con ficha):** se PARTEN en dos líneas como el generador (documentación
+   técnica con importe, tramitación con %). La ficha también: el hito fijo se queda en la de doc. técnica y el de éxito
+   pasa a una ficha nueva de la tramitación (mismos hitos y facturas; solo cambia linea_facturacion_id).
+6. **El árbol se construye** (padre_id con las reglas de los paquetes; «discrepo totalmente» de dejarlo plano). Lo que las
+   reglas no sepan colocar, a una lista de revisión para Mónica; nada a ojo.
+
+7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): VACÍO en
+   las 2.423 versiones (comprobado 25-oct): no hay nada que migrar. Aparte, no de la hoja: en presupuestos hay 213 de origen
+   factusol y solo 1 enlazado a una opp (visto por el hilo de facturación).

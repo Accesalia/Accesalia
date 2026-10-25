@@ -17,6 +17,7 @@ import "server-only";
 
 import { fichaComunidad, type Ficha, type Papel } from "./fichaComunidad";
 import type { ClavePortal } from "./portal";
+import { FIRMADA, firmadasDeOpp, hojasDeOpp, nombreFirmadaPortal, type HojaHe } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -36,6 +37,8 @@ export type Caja = {
   motivo: string | null;
   hojaId: string | null;
   oportunidadId: string | null;
+  /** Una hoja del sistema nuevo (he_versiones_hoja): lo que se sube se archiva en su opp y lo valida el comercial. */
+  versionId: string | null;
 };
 
 /** LO QUE HABEIS CONTRATADO (Monica, 21-oct-2026): la semilla de «Mi
@@ -142,7 +145,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
     certificado: ficha.certificado,
     votacion: null,
   };
-  const vacia = { hojaId: null, oportunidadId: null };
+  const vacia = { hojaId: null, oportunidadId: null, versionId: null };
 
   const comunidad: Caja[] = PAPELES_COMUNIDAD.map((p) => ({
     ...p,
@@ -151,8 +154,14 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
   }));
 
   // Los expedientes vivos: los abiertos o en pausa.
-  const expedientes: Expediente[] = ficha.opps
-    .filter((o) => o.estado === "abierta" || o.estado === "pausada")
+  const vivos = ficha.opps.filter((o) => o.estado === "abierta" || o.estado === "pausada");
+  // Las hojas del sistema nuevo de cada uno (25-oct-2026), con las firmadas archivadas en su opp.
+  const nuevas = new Map(
+    await Promise.all(
+      vivos.map(async (o) => [o.id, await cajasNuevas(o.id, comunidadId).catch((e) => { console.error("portal hojas nuevas", o.id, e); return [] as Caja[]; })] as const),
+    ),
+  );
+  const expedientes: Expediente[] = vivos
     .map((o) => {
       const hojas: Caja[] = o.hojas
         .filter((h) => h.pagador === "comunidad" && (h.estado === "enviada_comunidad" || h.estado === "devuelta_firmada"))
@@ -162,6 +171,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
           explicacion: "firmada, la que os enviamos",
           hojaId: h.id,
           oportunidadId: o.id,
+          versionId: null,
           ...estadoDe(h.estado === "devuelta_firmada" ? { creado: "0000" } : null, recs.filter((r) => r.tipo === "hoja_firmada" && r.hoja_encargo_id === h.id)),
         }));
       const votacion: Caja = {
@@ -170,6 +180,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
         explicacion: "la de la junta que aprueba la obra",
         hojaId: null,
         oportunidadId: o.id,
+        versionId: null,
         ...estadoDe(o.votacion, recs.filter((r) => r.tipo === "votacion" && r.oportunidad_id === o.id)),
       };
       const contratado: Contratado[] = o.hojas
@@ -195,7 +206,7 @@ export async function documentacionDe(comunidadId: string): Promise<Documentacio
             hecha: i === 0 || mios.some((x) => e.hitos.includes(x.hito) && x.estado === "completado"),
           }))
         : [];
-      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...hojas, votacion], contratado, etapas };
+      return { id: o.id, nombre: o.nombre, codigo: o.codigo, cajas: [...(nuevas.get(o.id) ?? []), ...hojas, votacion], contratado, etapas };
     });
 
   const todas = [...comunidad, ...expedientes.flatMap((e) => e.cajas)];
@@ -208,4 +219,27 @@ export async function hojaFirmadaParaLaComunidad(comunidadId: string, hojaId: st
   const doc = await documentacionDe(comunidadId);
   const h = doc?.expedientes.flatMap((e) => e.contratado).find((x) => x.hojaId === hojaId);
   return h?.versionId ? { hojaId: h.hojaId, versionId: h.versionId } : null;
+}
+
+/** LAS VENTANITAS DE LAS HOJAS NUEVAS (Monica, 25-oct-2026): cada hoja que paga ESTA comunidad y que tiene que firmar
+ *  (enviada, o devuelta por firma con errores) o ya firmo. Lo que sube se archiva en su opp como «Hoja de encargo»
+ *  (lib/portal.ts, registrarSubida) y lo valida el comercial: mientras, «en revision»; con errores, «rechazado» con su
+ *  motivo; validada, «ok». */
+async function cajasNuevas(oppId: string, comunidadId: string): Promise<Caja[]> {
+  const [hojas, firmadas] = await Promise.all([hojasDeOpp(oppId), firmadasDeOpp(oppId)]);
+  const suyas = hojas.map((h: HojaHe) => h.actual).filter((v) => v.pagadorTipo === "comunidad" && v.pagadorComunidadId === comunidadId);
+  return suyas
+    .filter((v) => ["enviada", "firma_con_errores", ...FIRMADA].includes(v.estado))
+    .map((v) => {
+      const base = { clave: "hoja_firmada" as const, titulo: `Hoja de encargo ${v.codigo ?? ""} v${v.numero}`.replace("  ", " "), explicacion: "firmada, la que os enviamos", hojaId: null, oportunidadId: oppId, versionId: v.id };
+      const subida = firmadas.porValidar.find((d) => d.nombre.startsWith(nombreFirmadaPortal(v.codigo, v.numero)));
+      if (FIRMADA.includes(v.estado)) {
+        const d = v.firmadaDocumentoId ? firmadas.todas.get(v.firmadaDocumentoId) : null;
+        return { ...base, estado: "ok" as const, fichero: d?.nombre ?? "en nuestro archivo", quien: null, cuando: v.fechas.firmada_recibida ?? null, motivo: null };
+      }
+      if (subida) return { ...base, estado: "revision" as const, fichero: subida.nombre, quien: "la comunidad", cuando: subida.subido, motivo: null };
+      if (v.estado === "firma_con_errores")
+        return { ...base, estado: "rechazado" as const, fichero: null, quien: null, cuando: v.ultimo?.fecha ?? null, motivo: v.ultimo?.nota ?? null };
+      return { ...base, estado: "pendiente" as const, fichero: null, quien: null, cuando: null, motivo: null };
+    });
 }

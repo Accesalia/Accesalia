@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TEXTO_HITO, type Hito } from "../../../../lib/cobrosCalculo";
-import { accionCambiarHito, accionFraccionar } from "../../acciones";
+import { accionCambiarHito, accionCerrarExito, accionConcesion, accionFraccionar } from "../../acciones";
 
 // LA VENTANA DE «+ MODIFICAR» (maqueta validada): Modificar fecha · Modificar
 // importe · Dividir en subhitos (en 2, 3, 6 pagos o a mano, mes a mes). Y
@@ -11,7 +11,9 @@ import { accionCambiarHito, accionFraccionar } from "../../acciones";
 // facturacion ("Me llama el administrador: no tienen fondos y van a hacer una
 // derrama...").
 
-type Modo = "fecha" | "importe" | "dividir";
+// Y, en un hito A EXITO (25-oct-2026): «Añadir concesion» (cada convocatoria concedida es una parte suya, que se
+// factura y se cobra) y «Cerrar» (ya no habra mas: a mano, con su motivo).
+type Modo = "fecha" | "importe" | "dividir" | "concesion" | "cerrar";
 const r2 = (n: number) => Math.round(n * 100) / 100;
 const masMeses = (iso: string, n: number) => {
   const d = new Date(`${iso}T12:00:00Z`);
@@ -28,6 +30,12 @@ export function Modificar({ oppId, hito, cerrar }: { oppId: string; hito: Hito; 
   const [primera, setPrimera] = useState(hito.fechaPrevista ?? new Date().toISOString().slice(0, 10));
   const [partes, setPartes] = useState<{ importe: string; fecha: string }[] | null>(null);
   const [motivo, setMotivo] = useState("");
+  const aExito = hito.importe == null && !hito.cerrado;
+  const [convocatoria, setConvocatoria] = useState("");
+  const [concedido, setConcedido] = useState("");
+  const [fechaConcesion, setFechaConcesion] = useState(new Date().toISOString().slice(0, 10));
+  const numConcedido = Number(concedido.replace(/\./g, "").replace(",", ".")) || 0;
+  const aFacturar = hito.porcentaje != null ? Math.round(numConcedido * hito.porcentaje) / 100 : null;
   const [error, setError] = useState<string | null>(null);
   const [ocupado, empezar] = useTransition();
 
@@ -46,9 +54,13 @@ export function Modificar({ oppId, hito, cerrar }: { oppId: string; hito: Hito; 
   const guardar = () =>
     empezar(async () => {
       setError(null);
-      if (!motivo.trim()) return setError("Escribe de dónde viene el cambio.");
+      if (modo !== "concesion" && !motivo.trim()) return setError(modo === "cerrar" ? "Escribe por qué se cierra." : "Escribe de dónde viene el cambio.");
       const r =
-        modo === "fecha"
+        modo === "concesion"
+          ? await accionConcesion(oppId, hito.id, { convocatoria, concedido: numConcedido, fecha: fechaConcesion })
+          : modo === "cerrar"
+            ? await accionCerrarExito(oppId, hito.id, motivo)
+            : modo === "fecha"
           ? await accionCambiarHito(oppId, hito.id, { fecha: fecha || null }, motivo)
           : modo === "importe"
             ? await accionCambiarHito(oppId, hito.id, { importe: Number(importe.replace(",", ".")) }, motivo)
@@ -86,9 +98,44 @@ export function Modificar({ oppId, hito, cerrar }: { oppId: string; hito: Hito; 
           {pestana("fecha", "Modificar fecha")}
           {pestana("importe", "Modificar importe", hito.importe == null)}
           {pestana("dividir", "Dividir en subhitos", hito.importe == null)}
+          {aExito && pestana("concesion", "Añadir concesión")}
+          {aExito && pestana("cerrar", "Cerrar")}
         </div>
 
         <div className="mt-4 text-[13.5px]">
+          {modo === "concesion" && (
+            <div className="flex flex-col gap-3">
+              <div className="text-[12.5px] text-carbon/65">
+                Cada convocatoria concedida es un cobro suyo{hito.subhitos.length ? ` (lleva ${hito.subhitos.length})` : ""}. El hito sigue abierto por si llega otra.
+              </div>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">Convocatoria</span>
+                <input value={convocatoria} onChange={(e) => setConvocatoria(e.target.value)} placeholder="«Plan PREE 2025, Comunidad de Madrid»" className="w-full rounded-lg border border-black/15 px-3 py-2" />
+              </label>
+              <div className="flex flex-wrap items-end gap-4">
+                <label>
+                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">Lo concedido (€)</span>
+                  <input inputMode="decimal" value={concedido} onChange={(e) => setConcedido(e.target.value)} className="w-40 rounded-lg border border-black/15 px-3 py-2 text-right tabular-nums" />
+                </label>
+                <label>
+                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">Fecha de la concesión</span>
+                  <input type="date" value={fechaConcesion} onChange={(e) => setFechaConcesion(e.target.value)} className="rounded-lg border border-black/15 px-3 py-2" />
+                </label>
+                <div className="pb-2 text-[13px]">
+                  {aFacturar != null && numConcedido > 0 ? (
+                    <>A facturar: <b>{aFacturar.toLocaleString("es-ES", { minimumFractionDigits: 2 })} €</b> + IVA <span className="text-carbon/55">({hito.porcentaje?.toLocaleString("es-ES")} %)</span></>
+                  ) : (
+                    <span className="text-carbon/55">{hito.porcentaje != null ? `${hito.porcentaje.toLocaleString("es-ES")} % de lo concedido` : ""}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {modo === "cerrar" && (
+            <div className="text-[12.5px] text-carbon/65">
+              Ya no habrá más concesiones de esta línea{hito.subhitos.length ? `: se queda con las ${hito.subhitos.length} que tiene, y lo que falte por cobrar de ellas sigue su curso` : ": como no tuvo ninguna, se anula"}.
+            </div>
+          )}
           {modo === "fecha" && (
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">Nueva fecha prevista</span>
@@ -186,8 +233,8 @@ export function Modificar({ oppId, hito, cerrar }: { oppId: string; hito: Hito; 
           )}
         </div>
 
-        <label className="mt-5 block">
-          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">De dónde viene el cambio (obligatorio)</span>
+        <label className={`mt-5 block ${modo === "concesion" ? "hidden" : ""}`}>
+          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-carbon/55">{modo === "cerrar" ? "Por qué se cierra (obligatorio)" : "De dónde viene el cambio (obligatorio)"}</span>
           <textarea
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}

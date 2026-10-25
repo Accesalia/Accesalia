@@ -10,6 +10,7 @@ import "server-only";
 //   - Los totales no se guardan: se calculan.
 
 import type { Yo } from "./sesion";
+import { recalcularLuego } from "./estadoOportunidad";
 import { comisionDeOpp } from "./hojaEncargo";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -226,7 +227,11 @@ export async function oppDeVersion(versionId: string): Promise<string> {
 /** Cambia el estado de una version: la fila guarda el ultimo y el historial, todos. */
 export async function ponerEstado(versionId: string, estado: string, yo: Yo, nota: string | null) {
   await pedir("he_estados_hoja", { method: "POST", body: JSON.stringify({ version_id: versionId, estado, persona_id: yo.id, nota }) });
-  await pedir(`he_versiones_hoja?id=eq.${versionId}`, { method: "PATCH", body: JSON.stringify({ estado }) });
+  const [v] = await pedir<{ oportunidad_id: string }[]>(`he_versiones_hoja?id=eq.${versionId}`, {
+    method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify({ estado }),
+  });
+  // Cada paso de la hoja mueve la escalera de su opp: se recalcula su paso al momento (despues de responder).
+  recalcularLuego(v?.oportunidad_id);
 }
 
 /** DESCARTAR UN BORRADOR («así no se acumulan cosas inútiles», 14-oct-2026): solo lo que no ha salido de casa. Se borra
