@@ -8,8 +8,9 @@
 -- REGLA: MIGRAR ES COPIAR. Lo que ya estaba extraido, revisado y cuadrado no se vuelve a interpretar:
 --   · cada concepto (conceptos_hoja) pasa a UNA linea nueva (he_lineas_compromisos) con su bloque, si se cobra o va
 --     incluido, si sale en el papel, su importe, su %, su texto y su tipo, tal cual;
---   · las fichas de facturacion (lineas_facturacion), sus hitos, sus facturas y sus cobros NO se tocan: cada ficha solo
---     pasa a mirar a su linea nueva (he_linea_id) o, si no salio de un concepto, a su version (he_version_id);
+--   · las fichas de facturacion (lineas_facturacion), sus hitos, sus facturas y sus cobros NO se tocan: cada ficha pasa a
+--     mirar a su linea nueva (he_linea_id), si salio de un concepto, y su casilla de siempre «de que hoja es»
+--     (hoja_encargo_id) a la misma hoja en su casa nueva; igual las notas de facturacion y las lineas de presupuesto;
 --   · al final se COMPRUEBA todo (numero de lineas, importes, % y fichas, hoja a hoja). Si sale UNA diferencia, la
 --     copia entera se deshace y no se aplica nada.
 --
@@ -25,13 +26,23 @@
 --   SUBVENCION: cabecera (con su tipo) → la tramitacion (el %), la DOCUMENTACION TECNICA (cabecera con su precio) con
 --     IEE, libro del edificio y CEE debajo, y CAES si no hay proyecto.
 --     · La subvencion con importe y % en un solo concepto se parte en dos (decision 5 de Monica): documentacion tecnica
---       con el importe, tramitacion con el %. Su ficha tambien: el hito fijo se queda, los de a exito (y sus
---       concesiones) pasan a una ficha nueva de la tramitacion, con sus facturas.
+--       con el importe, tramitacion con el %. Su ficha tambien: el hito fijo se queda; los de la concesion (a exito o ya
+--       con su importe) y sus partes pasan a una ficha nueva de la tramitacion, con sus facturas.
 --     · La «Documentacion tecnica anexa» que en lo viejo llevaba el bloque de tramitacion con su importe (junto a otra
 --       con el %), es la documentacion tecnica: pasa con ese bloque, como en el generador.
+--   PROYECTO CONJUNTO: si la hoja lleva dos o mas proyectos con precio, como en el generador: cabecera «Proyecto
+--     conjunto» → cada proyecto con su precio, y lo comun (toma de datos, licencias, DF, CSS…) colgando del conjunto
+--     (Monica, 25-oct-2026, leidas una a una las 21 hojas). Excepciones leidas en el papel: HE-2023-0006 (Hungria 4) son
+--     dos proyectos separados, cada uno con lo suyo (va por el orden del papel); HE-2022-0010 (Montejurra 25) es un solo
+--     proyecto de envolvente completa (la demolicion de la cubierta va dentro, con su precio).
+--   DESCUENTO POR CESION DE CAES («Total honorarios con descuento por cesion de CAES: 8.500 €»): el precio del proyecto
+--     es el rebajado y la gestion de CAES queda contratada (Monica, 25-oct-2026). La linea con el precio sin descuento
+--     queda incluida, con su importe en el texto (es la redaccion con precio que no es de ascensor, plataforma ni
+--     accesibilidad: esas son otro proyecto, y la hoja es un conjunto); si la hoja no traia la linea de CAES, se pone.
 --   CONSULTA URBANISTICA: cabecera → su linea, y toma de datos, visado y licencias si no hay proyecto.
 --   LO DEMAS (memoria, informe, pericial, IEE o CSS sueltos…): con su cabecera arriba, como lo suelto del generador.
---   Sin bloque: OTRO con su texto.
+--   Sin bloque: OTRO con su texto. Las dos hojas mal emitidas con dos opciones (HE-2026-0183, HE-2026-0198, anuladas
+--     por Monica el 25-oct-2026): cada linea en OTRO con su texto, sin arbol.
 -- Los portales de cada linea: los de su tipo en la hoja vieja (actuacion_accesos); sin tipo, todos los de la hoja; si la
 -- hoja no tenia, los de la opp.
 -- La forma de pago de cada linea que se cobra: la de sus hitos si casan exactos con una de las formas de pago (el
@@ -243,24 +254,57 @@ begin
   -- cada concepto con su clase y su sitio en el papel
   create temp table _c on commit drop as
   select c.id, c.version_hoja_id as vv, mv.nueva as vn, mv.hoja_vieja as hv, mv.referencia as ref,
-         coalesce(b.codigo, 'OTRO') as cod, coalesce(c.bloque_id, (select id from public.bloques where codigo = 'OTRO')) as bloque_id,
+         case when hh.numero_hoja in ('HE-2026-0183', 'HE-2026-0198') then 'OTRO' else coalesce(b.codigo, 'OTRO') end as cod,
+         case when hh.numero_hoja in ('HE-2026-0183', 'HE-2026-0198') or c.bloque_id is null then (select id from public.bloques where codigo = 'OTRO')
+              else c.bloque_id end as bloque_id, hh.numero_hoja,
          c.desglose, c.importe, c.porcentaje, c.descripcion, c.forma_pago, c.tipo_proyecto_id, c.comision_importe, c.comision_acuerdo_id, c.creado_en,
          (select l.orden from public.revision_firmadas_lineas l join public.revision_firmadas rf on rf.id = l.firmada_id
            where l.concepto_hoja_id = c.id and rf.hoja_encargo_id = mv.hoja_vieja and mv.referencia order by l.orden limit 1) as ord,
          null::text as grupo, null::uuid as raiz
     from public.conceptos_hoja c
     join public.migr_he_versiones mv on mv.version_vieja = c.version_hoja_id
+    join public.hojas_encargo hh on hh.id = mv.hoja_vieja
     left join public.bloques b on b.id = c.bloque_id;
+  alter table _c add column caes_nueva boolean not null default false;
+
+  -- EL DESCUENTO POR CESION DE CAES: el precio con descuento es el del proyecto; el de sin descuento (la redaccion de la
+  -- envolvente con precio) queda incluido, con su importe en el texto. Lo que se quita de lo que se cobra, apuntado para
+  -- la comprobacion del final.
+  create temp table _ajuste (vv uuid primary key, importe numeric not null, lineas int not null) on commit drop;
+  insert into _ajuste
+  select c.vv, sum(c.importe), count(*) from _c c
+   where c.cod = 'REDACCION PROYECTO' and c.desglose = 'se_cobra' and c.importe is not null and c.porcentaje is null
+     and c.descripcion !~* 'ascensor|plataforma|elevador|accesib|rampa|cota cero|barrera'
+     and exists (select 1 from _c d where d.vv = c.vv and d.cod in ('SATE CON CESION DE CAES', 'SATE + ASCENSOR CON CESION DE CAES') and d.desglose = 'se_cobra' and d.importe is not null)
+   group by c.vv;
+  update _c c set desglose = 'incluido',
+         descripcion = concat_ws(' ', nullif(btrim(c.descripcion), ''), '(sin descuento: ' || to_char(c.importe, 'FM999G999G990D00') || ' €; se contrató con el descuento por cesión de CAES)'),
+         importe = null, forma_pago = null
+   where c.cod = 'REDACCION PROYECTO' and c.desglose = 'se_cobra' and c.importe is not null and c.porcentaje is null
+     and c.descripcion !~* 'ascensor|plataforma|elevador|accesib|rampa|cota cero|barrera' and c.vv in (select vv from _ajuste);
+  update _c c set cod = 'REDACCION PROYECTO', bloque_id = (select id from public.bloques where codigo = 'REDACCION PROYECTO'), caes_nueva = true
+   where c.cod in ('SATE CON CESION DE CAES', 'SATE + ASCENSOR CON CESION DE CAES') and c.desglose = 'se_cobra' and c.importe is not null;
   -- el orden del papel solo vale si lo tienen todas las lineas de la version
   create temp table _vo on commit drop as select vv, bool_and(ord is not null) as ordenada from _c group by vv;
 
   -- LAS RAICES (de que cuelga lo demas): proyecto, subvencion, consulta y lo suelto
   create temp table _r (id uuid primary key default gen_random_uuid(), vv uuid not null, vn uuid not null, hv uuid not null, grupo text not null,
-                        concepto uuid, ord int, creado_en timestamptz) on commit drop;
-  -- proyecto: la redaccion con importe fijo; si no hay, la que se cobra con %; si no, una cabecera para lo incluido
+                        concepto uuid, ord int, creado_en timestamptz, conjunto boolean not null default false) on commit drop;
+  -- proyecto: la redaccion con importe fijo; con dos o mas, el PROYECTO CONJUNTO (salvo Hungria 4, separados, y
+  -- Montejurra 25, uno solo: el de mas importe); si no hay, la que se cobra con %; si no, una cabecera para lo incluido
+  create temp table _np on commit drop as
+  select vv, max(numero_hoja) as numero_hoja, count(*) as n from _c
+   where cod = 'REDACCION PROYECTO' and desglose = 'se_cobra' and importe is not null group by vv;
   insert into _r (vv, vn, hv, grupo, concepto, ord, creado_en)
-  select vv, vn, hv, 'P', id, ord, creado_en from _c
-   where cod in ('REDACCION PROYECTO', 'SATE CON CESION DE CAES', 'SATE + ASCENSOR CON CESION DE CAES') and desglose = 'se_cobra' and importe is not null;
+  select c.vv, c.vn, c.hv, 'P', c.id, c.ord, c.creado_en from _c c join _np n on n.vv = c.vv
+   where c.cod = 'REDACCION PROYECTO' and c.desglose = 'se_cobra' and c.importe is not null and (n.n = 1 or n.numero_hoja = 'HE-2023-0006');
+  insert into _r (vv, vn, hv, grupo, concepto, ord, creado_en)
+  select distinct on (c.vv) c.vv, c.vn, c.hv, 'P', c.id, c.ord, c.creado_en from _c c join _np n on n.vv = c.vv
+   where c.cod = 'REDACCION PROYECTO' and c.desglose = 'se_cobra' and c.importe is not null and n.n > 1 and n.numero_hoja = 'HE-2022-0010'
+   order by c.vv, c.importe desc;
+  insert into _r (vv, vn, hv, grupo, conjunto)
+  select distinct c.vv, c.vn, c.hv, 'P', true from _c c join _np n on n.vv = c.vv
+   where n.n > 1 and n.numero_hoja not in ('HE-2023-0006', 'HE-2022-0010');
   insert into _r (vv, vn, hv, grupo, concepto, ord, creado_en)
   select distinct on (vv) vv, vn, hv, 'P', id, ord, creado_en from _c c
    where cod in ('REDACCION PROYECTO', 'SATE CON CESION DE CAES', 'SATE + ASCENSOR CON CESION DE CAES') and desglose = 'se_cobra'
@@ -324,7 +368,11 @@ begin
            (select count(*) from _r r2 where r2.vv = r.vv and r2.grupo = 'P') as n_p
       from _r r order by r.vv, r.ord nulls last, case r.grupo when 'P' then 1 when 'S' then 2 else 3 end, r.creado_en nulls last
   loop
-    if rz.grupo = 'P' then
+    if rz.grupo = 'P' and rz.conjunto then
+      insert into public.he_lineas_compromisos (version_id, bloque_id, en_papel, se_cobra, desglosar_precios)
+      values (rz.vn, (select id from public.bloques where codigo = 'PROYECTO CONJUNTO'), true, false, true)
+      returning id into cab;
+    elsif rz.grupo = 'P' then
       -- su tipo: el del concepto; si no, con un solo proyecto, el unico tipo de proyecto de la hoja vieja
       insert into public.he_lineas_compromisos (version_id, bloque_id, desglose_id, en_papel, se_cobra)
       values (rz.vn, (select id from public.bloques where codigo = 'REDACCION PROYECTO'),
@@ -457,6 +505,17 @@ begin
     insert into public.migr_he_lineas (concepto, papel, nueva) values (k.id, 'principal', linea);
   end loop;
 
+  -- EL DESCUENTO POR CESION DE CAES: la gestion de CAES queda contratada; si la hoja no traia su linea, se pone (dentro
+  -- del proyecto, como en el generador)
+  for rz in select distinct on (c.vv) c.vv, c.vn, c.raiz from _c c
+             where c.caes_nueva and not exists (select 1 from _c d where d.vv = c.vv and d.cod = 'GESTION DE CAES') order by c.vv loop
+    insert into public.he_lineas_compromisos (version_id, padre_id, bloque_id, en_papel, se_cobra)
+    values (rz.vn, (select id from _cab where raiz = rz.raiz and cod = '#'), (select id from public.bloques where codigo = 'GESTION DE CAES'), true, false)
+    returning id into padre;
+    insert into public.he_lineas_compromisos (version_id, padre_id, bloque_id, en_papel, se_cobra, texto)
+    values (rz.vn, padre, (select id from public.bloques where codigo = 'GESTION DE CAES'), true, false, 'Cesión de los CAES a cambio del descuento en los honorarios del proyecto (migrada).');
+  end loop;
+
   -- LOS PORTALES de cada fila: los de su tipo (el suyo o el de la fila de la que cuelga) en la hoja vieja; sin tipo,
   -- todos los de la hoja; si la hoja no tenia, los de la opp
   insert into public.he_lineas_compromisos_accesos (linea_id, acceso_id)
@@ -487,12 +546,10 @@ begin
 
   update public.lineas_facturacion lf set he_linea_id = ml.nueva
     from public.migr_he_lineas ml where ml.concepto = lf.concepto_hoja_id and ml.papel = 'principal';
-  update public.lineas_facturacion lf set he_version_id = mv.nueva
-    from public.migr_he_versiones mv where lf.concepto_hoja_id is null and mv.hoja_vieja = lf.hoja_encargo_id and mv.referencia;
   -- la subvencion partida: los hitos a exito (y sus concesiones) pasan a una ficha nueva de la tramitacion
   for m in select lf.*, ml.nueva as tram from public.lineas_facturacion lf
              join public.migr_he_lineas ml on ml.concepto = lf.concepto_hoja_id and ml.papel = 'exito' loop
-    if not exists (select 1 from public.hitos_cobro hc where hc.linea_facturacion_id = m.id and hc.importe is null and hc.hito_padre_id is null) then
+    if not exists (select 1 from public.hitos_cobro hc where hc.linea_facturacion_id = m.id and (hc.importe is null or hc.hito = 'concesion') and hc.hito_padre_id is null) then
       insert into public.migr_he_dudas (hoja_vieja, concepto, que)
       values (m.hoja_encargo_id, m.concepto_hoja_id, 'Subvención con importe y % sin hito a éxito en su ficha: la tramitación (el %) queda en la hoja sin ficha de facturación.');
       continue;
@@ -505,10 +562,11 @@ begin
       m.emisor, m.pagador_tipo, m.pagador_id, m.cuenta_id, m.forma_cobro, m.validada_en, m.validada_por,
       m.editada_en, m.editada_por, m.creada_por, m.quitada_en, m.quitada_por, m.extraido, m.desglose, m.tram)
     returning id into linea;
+    -- los de la concesion (a exito, o ya con su importe al llegar la concesion) y sus partes
     update public.hitos_cobro set linea_facturacion_id = linea
      where linea_facturacion_id = m.id and (
-       (importe is null and hito_padre_id is null)
-       or hito_padre_id in (select id from public.hitos_cobro where linea_facturacion_id = m.id and importe is null and hito_padre_id is null));
+       ((importe is null or hito = 'concesion') and hito_padre_id is null)
+       or hito_padre_id in (select id from public.hitos_cobro where linea_facturacion_id = m.id and (importe is null or hito = 'concesion') and hito_padre_id is null));
     update public.notas_facturacion set linea_facturacion_id = linea
      where linea_facturacion_id = m.id and hito_cobro_id in (select id from public.hitos_cobro where linea_facturacion_id = linea);
   end loop;
@@ -551,9 +609,12 @@ begin
            (select coalesce(sum(l.porcentaje), 0) from public.he_lineas_compromisos l where l.version_id = mv.nueva and l.se_cobra) as pct_nuevo,
            (select count(*) from public.conceptos_hoja c where c.version_hoja_id = mv.version_vieja and c.desglose <> 'se_cobra') as incl_viejo,
            (select count(*) from public.migr_he_lineas ml join public.conceptos_hoja c on c.id = ml.concepto join public.he_lineas_compromisos l on l.id = ml.nueva
-             where c.version_hoja_id = mv.version_vieja and c.desglose <> 'se_cobra' and not l.se_cobra and l.version_id = mv.nueva) as incl_nuevo
+             where c.version_hoja_id = mv.version_vieja and not l.se_cobra and l.version_id = mv.nueva) as incl_nuevo
       from public.migr_he_versiones mv) x
-   where n_viejo <> n_nuevo or imp_viejo <> imp_nuevo or pct_viejo <> pct_nuevo or incl_viejo <> incl_nuevo;
+   where n_viejo - coalesce((select a.lineas from _ajuste a where a.vv = x.version_vieja), 0) <> n_nuevo
+      or imp_viejo - coalesce((select a.importe from _ajuste a where a.vv = x.version_vieja), 0) <> imp_nuevo
+      or pct_viejo <> pct_nuevo
+      or incl_viejo + coalesce((select a.lineas from _ajuste a where a.vv = x.version_vieja), 0) <> incl_nuevo;
   if hay > 0 then raise exception 'NO CUADRA: % versiones con distintas lineas, importes o %% que lo viejo', hay; end if;
   -- cada linea, en su version
   select count(*) into hay from public.migr_he_lineas ml join public.conceptos_hoja c on c.id = ml.concepto
@@ -561,8 +622,9 @@ begin
    where l.version_id <> mv.nueva;
   if hay > 0 then raise exception 'NO CUADRA: % lineas en otra version', hay; end if;
   -- cada ficha, mirando a su linea o a su version (las de antes de la copia, y las partidas)
-  select count(*) into hay from public.lineas_facturacion where he_linea_id is null and he_version_id is null;
-  if hay > 0 then raise exception 'NO CUADRA: % fichas de facturacion sin linea ni version', hay; end if;
+  select count(*) into hay from public.lineas_facturacion lf
+   where not exists (select 1 from public.migr_he_versiones mv where mv.hoja_vieja = lf.hoja_encargo_id and mv.referencia);
+  if hay > 0 then raise exception 'NO CUADRA: % fichas de facturacion de una hoja sin version', hay; end if;
   -- ningun hito perdido: cada hito sigue en una ficha de su misma hoja vieja
   select count(*) into hay from public.hitos_cobro hc left join public.lineas_facturacion lf on lf.id = hc.linea_facturacion_id where lf.id is null;
   if hay > 0 then raise exception 'NO CUADRA: % hitos sin ficha', hay; end if;
@@ -590,5 +652,21 @@ begin
   select count(*) into hay from public.lineas_facturacion lf join public.he_lineas_compromisos l on l.id = lf.he_linea_id
    where lf.emisor <> 'ecobalance' and lf.concepto_hoja_id is null and coalesce(lf.porcentaje, -1) <> coalesce(l.porcentaje, -1);
   if hay > 0 then raise exception 'NO CUADRA: % fichas de tramitacion partidas con otro %% que su linea', hay; end if;
+
+  -- ============================================================ 5 · LA CASILLA «DE QUE HOJA ES», A LA HOJA EN SU CASA NUEVA
+  update public.lineas_facturacion lf set hoja_encargo_id = mv.nueva
+    from public.migr_he_versiones mv where mv.hoja_vieja = lf.hoja_encargo_id and mv.referencia;
+  update public.notas_facturacion nf set hoja_encargo_id = mv.nueva
+    from public.migr_he_versiones mv where mv.hoja_vieja = nf.hoja_encargo_id and mv.referencia;
+  update public.presupuesto_lineas pl set hoja_encargo_id = mv.nueva
+    from public.migr_he_versiones mv where mv.hoja_vieja = pl.hoja_encargo_id and mv.referencia;
+  select (select count(*) from public.lineas_facturacion t where not exists (select 1 from public.he_versiones_hoja n where n.id = t.hoja_encargo_id))
+       + (select count(*) from public.notas_facturacion t where t.hoja_encargo_id is not null and not exists (select 1 from public.he_versiones_hoja n where n.id = t.hoja_encargo_id))
+       + (select count(*) from public.presupuesto_lineas t where t.hoja_encargo_id is not null and not exists (select 1 from public.he_versiones_hoja n where n.id = t.hoja_encargo_id))
+    into hay;
+  if hay > 0 then raise exception 'NO CUADRA: % fichas, notas o lineas de presupuesto sin su hoja en la casa nueva', hay; end if;
+  -- y cada ficha que salio de una linea, en la misma hoja que su linea
+  select count(*) into hay from public.lineas_facturacion lf join public.he_lineas_compromisos l on l.id = lf.he_linea_id where l.version_id <> lf.hoja_encargo_id;
+  if hay > 0 then raise exception 'NO CUADRA: % fichas en una hoja distinta de la de su linea', hay; end if;
 end
 $copia$;

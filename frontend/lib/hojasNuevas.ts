@@ -135,12 +135,13 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Promise<{ fichas: number; hitos: number }> {
   if (!/^[0-9a-f-]{36}$/.test(versionId)) throw new Error("Versión no válida.");
   const lineas = await leerTodo<LineaHe>(`he_lineas_compromisos?select=${SEL_LINEA_HE}&version_id=eq.${versionId}`);
+  const eco = await fichaEcobalance(versionId, lineas, yo);
   const cobran = lineasQueSeCobran(lineas);
-  if (!cobran.length) return { fichas: 0, hitos: 0 };
+  if (!cobran.length) return { fichas: eco, hitos: eco };
   const ya = await porTramos<{ he_linea_id: string }>(cobran.map((l) => l.id), (t) => `lineas_facturacion?select=he_linea_id&he_linea_id=in.(${t})`);
   const hechas = new Set(ya.map((x) => x.he_linea_id));
   const nuevas = cobran.filter((l) => !hechas.has(l.id));
-  if (!nuevas.length) return { fichas: 0, hitos: 0 };
+  if (!nuevas.length) return { fichas: eco, hitos: eco };
   const formas = [...new Set(nuevas.map((l) => l.forma_pago_id).filter((x): x is string => !!x))];
   const hitosDe = new Map<string, HitoForma[]>();
   for (const h of formas.length ? await porTramos<HitoForma & { forma_pago_id: string }>(formas, (t) => `he_formas_pago_hitos?select=forma_pago_id,orden,momento,tipo,porcentaje,frase&forma_pago_id=in.(${t})&order=orden`) : [])
@@ -151,7 +152,7 @@ export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Pro
     const r = await pedir("lineas_facturacion?select=id", {
       method: "POST", headers: { Prefer: "return=representation" },
       body: JSON.stringify({
-        he_linea_id: l.id, bloque_id: l.bloque_id, emisor: "accesalia", origen: "hoja", verificado: false, creada_por: yo?.id ?? null,
+        he_linea_id: l.id, he_version_id: versionId, bloque_id: l.bloque_id, emisor: "accesalia", origen: "hoja", verificado: false, creada_por: yo?.id ?? null,
         es_porcentaje: l.importe == null && l.porcentaje != null,
       }),
     });
@@ -175,7 +176,38 @@ export async function entrarEnFacturacion(versionId: string, yo: Yo | null): Pro
     await pedir("hitos_cobro", { method: "POST", body: JSON.stringify(filas.map((f) => ({ ...f, linea_facturacion_id: ficha.id, creado_por: yo?.id ?? null }))) });
     nHitos += filas.length;
   }
-  return { fichas: nuevas.length, hitos: nHitos };
+  return { fichas: nuevas.length + eco, hitos: nHitos + eco };
+}
+
+/** LOS 3 PRESUPUESTOS → SU FICHA DE ECOBALANCE (como al firmar en la app de antes, lib/lineasDeHoja.ts): vaya como vaya
+ *  en el papel (incluido para la comunidad), Ecobalance cobra el % del PEM de parametros_economicos a la contrata que
+ *  presentamos, a exito, hito «adjudicacion» (si gana). El comercial no ve este cobro. Una sola vez por linea. */
+async function fichaEcobalance(versionId: string, lineas: LineaHe[], yo: Yo | null): Promise<number> {
+  const [[tres], [pct]] = await Promise.all([
+    leerTodo<{ id: string }>("bloques?select=id&codigo=eq.TRAMITACION%203%20PRESUPUESTOS"),
+    leerTodo<{ valor: number }>("parametros_economicos?select=valor&clave=eq.tres_presupuestos_pct"),
+  ]);
+  if (!tres || !pct) return 0;
+  // la linea de los 3 presupuestos (no su cabecera): la que no tiene hijas
+  const linea = lineas.find((l) => l.bloque_id === tres.id && !lineas.some((h) => h.padre_id === l.id));
+  if (!linea) return 0;
+  const ya = await leerTodo<{ id: string }>(`lineas_facturacion?select=id&he_linea_id=eq.${linea.id}&limit=1`);
+  if (ya.length) return 0;
+  const r = await pedir("lineas_facturacion?select=id", {
+    method: "POST", headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      he_linea_id: linea.id, he_version_id: versionId, bloque_id: tres.id, emisor: "ecobalance", origen: "regla", verificado: false, creada_por: yo?.id ?? null,
+      descripcion: `3 presupuestos: ${Number(pct.valor).toLocaleString("es-ES")} % del PEM del presupuesto firmado con la contrata que presentamos, a éxito (si gana)`,
+      importe: null, es_porcentaje: true, porcentaje: pct.valor, base_porcentaje: "PEM (presupuesto firmado con nuestra contrata)",
+    }),
+  });
+  const [ficha] = (await r.json()) as { id: string }[];
+  await pedir("hitos_cobro", {
+    method: "POST",
+    body: JSON.stringify([{ linea_facturacion_id: ficha.id, hito: "adjudicacion", orden: 1, porcentaje: 100, importe: null, estado: "pendiente",
+      notas: "A éxito: cuando la obra se adjudique a la contrata que presentamos.", creado_por: yo?.id ?? null }]),
+  });
+  return 1;
 }
 
 // ------------------------------------------------------------ LA HOJA DE FACTURACION, ENTERA
@@ -250,7 +282,8 @@ export type FichaHoja = {
 export const versionDeFicha = (f: FichaHoja | null | undefined): VersionHoja | null => f?.he?.version ?? f?.mano ?? null;
 /** Lo que la ficha cobra, como lo dice la hoja (o lo escrito a mano, si es añadida). */
 export function lineaDeFicha(f: FichaHoja): { concepto: string; importe: number | null; esPorcentaje: boolean; porcentaje: number | null } {
-  if (f.he) return {
+  // La de Ecobalance (los 3 presupuestos) cobra su comision aparte: la linea de la hoja va incluida para la comunidad.
+  if (f.he && f.emisor !== "ecobalance") return {
     concepto: conceptoDeLinea({ texto: f.he.texto, bloque: f.he.bloque ? { ...f.he.bloque, area: null, va_a_tecnico: false, va_a_faro: false } : null, desglose: f.he.desglose }),
     importe: f.he.importe == null ? null : Number(f.he.importe), esPorcentaje: f.he.importe == null && f.he.porcentaje != null,
     porcentaje: f.he.porcentaje == null ? null : Number(f.he.porcentaje),

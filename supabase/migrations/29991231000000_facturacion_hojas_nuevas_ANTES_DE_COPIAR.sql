@@ -3,14 +3,14 @@
 -- antes de la copia de los datos, porque la copia escribe en lo que esta crea. Despues de la copia va la 2 de 2
 -- (29991231000050_facturacion_hojas_nuevas_DESPUES_DE_COPIAR.sql) y luego las del hilo comercial (29991231000100-000500).
 --
--- 1) Fichas y notas de facturacion dejan de estar obligadas a apuntar a una hoja vieja: las de las hojas nuevas no
---    la tienen. Las notas cuelgan de la LINEA (Monica, 24-oct).
--- 2) Una linea añadida a mano por facturacion (la app se la salto) no esta en la hoja: necesita saber de que version
---    es: lineas_facturacion.he_version_id, SOLO para esas (ok de Monica, 25-oct-2026). La copia la rellena en las
---    fichas sin concepto; las demas llevan he_linea_id.
+-- UNA SOLA CASILLA «DE QUE HOJA ES» (Monica, 25-oct-2026: «reaprovechar la casilla de siempre»). Las fichas de
+-- facturacion, las notas de facturacion y las lineas de presupuesto ya dicen de que hoja son (hoja_encargo_id). La hoja
+-- no cambia: cambia su casa. Esa casilla esta atada a la tabla vieja de hojas, asi que antes de copiar se le quita la
+-- atadura; la copia escribe en ella la hoja en su casa nueva (he_versiones_hoja), y despues de copiar (la 2 de 2) se
+-- ata a la tabla nueva y pasa a llamarse he_version_id. No hay casilla nueva ni dos casillas para lo mismo.
+-- Las notas pueden ser solo de una linea o de un hito (sin hoja): esa casilla deja de ser obligatoria en las notas.
 
-alter table public.lineas_facturacion alter column hoja_encargo_id drop not null;
+alter table public.lineas_facturacion drop constraint lineas_facturacion_hoja_encargo_id_fkey;
+alter table public.notas_facturacion drop constraint notas_facturacion_hoja_encargo_id_fkey;
+alter table public.presupuesto_lineas drop constraint presupuesto_lineas_hoja_encargo_id_fkey;
 alter table public.notas_facturacion alter column hoja_encargo_id drop not null;
-
--- (2) Con el ok de Monica (25-oct-2026)
-alter table public.lineas_facturacion add column he_version_id uuid references public.he_versiones_hoja(id);

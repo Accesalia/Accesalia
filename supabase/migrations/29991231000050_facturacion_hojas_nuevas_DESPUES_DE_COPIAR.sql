@@ -4,17 +4,26 @@
 -- he_version_id), a la vez que se sube el codigo de la rama facturacion-hojas-nuevas. Detras van las del hilo
 -- comercial (29991231000100-000500).
 --
--- 1) Toda ficha apunta a algo: su linea nueva, su version (añadida a mano) o, hasta que se borren las tablas viejas,
---    su hoja vieja.
+-- 1) La casilla de siempre «de que hoja es» (fichas, notas de facturacion y lineas de presupuesto), que la copia ya
+--    relleno con la hoja en su casa nueva, se ata a he_versiones_hoja y pasa a llamarse he_version_id (Monica, 25-oct).
 -- 2) Dos VISTAS de solo lectura (una forma de mirar lo mismo, no una copia), para que todas las pantallas del dinero
 --    lean la hoja nueva con los nombres de siempre:
 --      facturacion_hojas:  una fila por version firmada (la «hoja»): numero, fecha de firma, opp, pagador, fase, firmada.
 --      facturacion_lineas: la ficha de Alexandra de cada linea + lo que la hoja dice de esa linea (concepto, importe,
---                          %, bloque). Lo de la hoja manda; lo de la ficha solo en las añadidas a mano.
+--                          %, bloque). Lo de la hoja manda; lo de la ficha solo en las añadidas a mano y en las de
+--                          Ecobalance (los 3 presupuestos: incluidos para la comunidad, su comision se cobra aparte).
 -- 3) Las dos funciones del dinero (hojas_firmadas, panoramica_cobros), iguales pero leyendo las vistas.
 
-alter table public.lineas_facturacion add constraint lineas_facturacion_hoja_nueva_check
-  check (he_linea_id is not null or he_version_id is not null or hoja_encargo_id is not null);
+-- la casilla de siempre, atada a la hoja en su casa nueva (la copia ya la relleno)
+alter table public.lineas_facturacion rename column hoja_encargo_id to he_version_id;
+alter table public.lineas_facturacion add constraint lineas_facturacion_he_version_id_fkey foreign key (he_version_id) references public.he_versiones_hoja(id);
+alter table public.notas_facturacion rename column hoja_encargo_id to he_version_id;
+alter table public.notas_facturacion add constraint notas_facturacion_he_version_id_fkey foreign key (he_version_id) references public.he_versiones_hoja(id) on delete cascade;
+alter table public.presupuesto_lineas rename column hoja_encargo_id to he_version_id;
+alter table public.presupuesto_lineas add constraint presupuesto_lineas_he_version_id_fkey foreign key (he_version_id) references public.he_versiones_hoja(id);
+comment on column public.lineas_facturacion.he_version_id is 'De que hoja (version) es esta ficha. Siempre. Si salio de una linea de la hoja, ademas he_linea_id.';
+comment on column public.notas_facturacion.he_version_id is 'De que hoja (version) es la nota, si es de la hoja entera.';
+comment on column public.presupuesto_lineas.he_version_id is 'De que hoja (version) sale esta linea de presupuesto.';
 
 create or replace view public.facturacion_hojas with (security_invoker = true) as
 select v.id, v.codigo_he, v.numero_version,
@@ -29,11 +38,11 @@ where v.estado in ('firmada_recibida','firma_con_errores','ok_comercial','hitos_
 
 create or replace view public.facturacion_lineas with (security_invoker = true) as
 select lf.id, coalesce(hl.version_id, lf.he_version_id) as hoja_id, lf.he_linea_id,
-       case when hl.id is null then lf.descripcion
+       case when hl.id is null or lf.emisor = 'ecobalance' then lf.descripcion
             else coalesce(nullif(trim(hl.texto), ''), coalesce(b.nombre_corto, b.nombre, 'Línea') || coalesce(' · ' || tp.nombre, '')) end as descripcion,
-       case when hl.id is null then lf.importe else hl.importe end as importe,
-       case when hl.id is null then lf.es_porcentaje else (hl.importe is null and hl.porcentaje is not null) end as es_porcentaje,
-       case when hl.id is null then lf.porcentaje else hl.porcentaje end as porcentaje,
+       case when hl.id is null or lf.emisor = 'ecobalance' then lf.importe else hl.importe end as importe,
+       case when hl.id is null or lf.emisor = 'ecobalance' then lf.es_porcentaje else (hl.importe is null and hl.porcentaje is not null) end as es_porcentaje,
+       case when hl.id is null or lf.emisor = 'ecobalance' then lf.porcentaje else hl.porcentaje end as porcentaje,
        coalesce(hl.bloque_id, lf.bloque_id) as bloque_id,
        lf.emisor, lf.validada_en, lf.validada_por, lf.editada_en, lf.editada_por, lf.creada_por, lf.quitada_en, lf.quitada_por,
        lf.origen, lf.creado_en, lf.extraido, lf.forma_cobro, lf.pagador_tipo, lf.pagador_id
