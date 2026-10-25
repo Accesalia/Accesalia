@@ -6,7 +6,7 @@ import { Elegir, type Opcion } from "../../components/Elegir";
 import { CLAUSULA_ICIO, ESTILO_PAPEL, esqueletoHoja } from "../../../lib/hojaPapel";
 import { ESTILOS } from "./estilosArbol";
 import { montarArbol } from "./motorArbol";
-import { accionGuardarBorrador } from "./acciones";
+import { accionGenerar, accionGuardarBorrador } from "./acciones";
 import type { CasoForma, FilaHoja, LineaGuardada, Pagador } from "../../../lib/hojaCompromisos";
 
 /** Lo que el catalogo de bloques da por defecto a cada linea, por el codigo del bloque (si no hay tarifa que lo diga).
@@ -87,8 +87,17 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
       if (borrador?.id === r.id) router.refresh();
       else router.replace(`/gestiones/hoja-prueba?opp=${oppId}&borrador=${r.id}`);
     };
+    // GENERAR (25-oct-2026): se guarda y va al ok de Daniel con su presupuesto; se queda abierta la de la lista.
+    const alGenerar = async (filas: FilaHoja[], papel: string) => {
+      setAviso(null);
+      if (!aQuienRef.current) return setAviso({ ok: false, texto: "No se ha generado: elige a quién va la hoja." });
+      const r = await accionGenerar(oppId, filas, borrador?.id ?? null, pagadorDe(aQuienRef.current), papel);
+      if (!r.ok) return setAviso({ ok: false, texto: `No se ha generado: ${r.error}` });
+      setAviso({ ok: true, texto: `Generada: espera el ok de Daniel.${r.avisos?.length ? " " + r.avisos.join(" · ") : ""}` });
+      router.replace(`/gestiones/hoja-prueba?opp=${oppId}`);
+    };
     const m = montarArbol(ref.current, {
-      defectos, interesa, accesos, formas, casos, tarifas: tarifas.precios, pem, comision, comisionAviso, alGuardar, inicial: borrador?.lineas ?? null,
+      defectos, interesa, accesos, formas, casos, tarifas: tarifas.precios, pem, comision, comisionAviso, alGuardar, alGenerar, inicial: borrador?.lineas ?? null,
       pagador: pagadorMotor(aQuienRef.current),
       papel: { esqueleto: esqueletoHoja(), icio: CLAUSULA_ICIO, municipio },
     });
@@ -123,8 +132,8 @@ export function ArbolHoja({ oppId, defectos, interesa, accesos, formas, casos, p
               {aviso && <span className={`mr-2 text-sm ${aviso.ok ? "text-carbon/70" : "text-red-800"}`}>{aviso.texto}</span>}
               <button type="button" className="secundario" id="previsualizar" disabled>Previsualizar</button>
               <button type="button" className="secundario" id="generar" disabled>Guardar como borrador</button>
-              {/* Ya en su sitio para no tocar la pantalla: se cablea con el ciclo de la hoja (pide el ok de Daniel). */}
-              <button type="button" className="generar" id="emitir" disabled title="Pide el ok de Daniel. Todavía no está conectado.">Generar la hoja</button>
+              {/* Va al ok de Daniel con su presupuesto (y la viabilidad, si la hay): 25-oct-2026. */}
+              <button type="button" className="generar" id="emitir" disabled title="Se guarda y va al ok de Daniel con su presupuesto">Generar la hoja</button>
             </div>
             <div id="faltan" />
             <div id="confirma" />

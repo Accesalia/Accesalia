@@ -72,6 +72,9 @@ export async function nombresDeTipos(): Promise<Map<string, string>> {
   return new Map(filas.map((t) => [t.id, t.nombre]));
 }
 
+/** Lo que el comercial puede seguir cambiando: el borrador y lo que Daniel le devuelve con cambios. */
+export const EDITABLE = ["borrador", "cambios_daniel"];
+
 /** Guarda la hoja en borrador. Con versionId SIGUE EL MISMO BORRADOR: se cambian sus lineas (aun no ha salido de casa,
  *  no hay nada que conservar). Sin el, nace una version nueva. */
 export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, versionId: string | null, pagador: Pagador): Promise<string> {
@@ -109,7 +112,8 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
     if (!/^[0-9a-f-]{36}$/.test(versionId)) throw new Error("Borrador no válido.");
     const [v] = await pedir<{ id: string; oportunidad_id: string; estado: string }[]>(`he_versiones_hoja?select=id,oportunidad_id,estado&id=eq.${versionId}`);
     if (!v || v.oportunidad_id !== opp.id) throw new Error("Ese borrador no es de esta oportunidad.");
-    if (v.estado !== "borrador") throw new Error("Esa hoja ya no está en borrador: no se puede cambiar.");
+    // Se cambia mientras no ha salido: en borrador o devuelta por Daniel con cambios (la misma version, 25-oct-2026).
+    if (!EDITABLE.includes(v.estado)) throw new Error("Esa hoja ya no está en borrador: no se puede cambiar.");
     version = v;
     viejas = (await pedir<{ id: string }[]>(`he_lineas_compromisos?select=id&version_id=eq.${v.id}&padre_id=is.null`)).map((x) => x.id);
   } else {
@@ -166,6 +170,8 @@ export type LineaGuardada = {
 };
 export type BorradorGuardado = {
   id: string; creadoEn: string; actualizadoEn: string; estado: string; codigo: string | null; numero: number; quien: string | null; pagador: Pagador; aQuien: string | null; lineas: LineaGuardada[];
+  /** El ultimo paso del historial: quien, cuando y su nota (los cambios que pide Daniel, p. ej.). */
+  ultimo: { estado: string; fecha: string; quien: string | null; nota: string | null } | null;
 };
 
 /** Lo guardado de una opp, leido tal cual de las tablas nuevas: para comprobar que guarda lo que se ve. */
@@ -175,11 +181,12 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
     id: string; creado_en: string; actualizado_en: string; estado: string; codigo_he: string | null; numero_version: number; quien: { nombre: string } | null;
     pagador_tipo: Pagador["tipo"]; pagador_contrata_id: string | null; pagador_persona_id: string | null;
     contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
+    estados: { estado: string; fecha: string; nota: string | null; persona: { nombre: string } | null }[];
     lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null; texto: string | null; comision_importe: number | null;
       bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
   }[]>(
     `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,codigo_he,numero_version,quien:generada_por(nombre),pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
-      `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,comision_importe,` +
+      `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),estados:he_estados_hoja(estado,fecha,nota,persona:persona_id(nombre)),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,comision_importe,` +
       `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
       `&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
   );
@@ -187,6 +194,10 @@ export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
     id: v.id, creadoEn: v.creado_en, actualizadoEn: v.actualizado_en, estado: v.estado, codigo: v.codigo_he, numero: v.numero_version, quien: v.quien?.nombre ?? null,
     pagador: v.pagador_tipo === "contrata" && v.pagador_contrata_id ? { tipo: "contrata", id: v.pagador_contrata_id }
       : v.pagador_tipo === "persona" && v.pagador_persona_id ? { tipo: "persona", id: v.pagador_persona_id } : { tipo: "comunidad" },
+    ultimo: (() => {
+      const e = [...v.estados].sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
+      return e ? { estado: e.estado, fecha: e.fecha, quien: e.persona?.nombre ?? null, nota: e.nota } : null;
+    })(),
     aQuien: v.contrata?.nombre ?? (v.persona ? [v.persona.nombre, v.persona.apellidos].filter(Boolean).join(" ") : null) ?? v.comunidad?.nombre ?? null,
     lineas: v.lineas.map((l) => ({
       id: l.id, padre: l.padre_id, bloque: l.bloque?.codigo ?? "?", nombreBloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "?", desglose: l.desglose?.nombre ?? null,
@@ -213,7 +224,7 @@ export async function oppDeVersion(versionId: string): Promise<string> {
 }
 
 /** Cambia el estado de una version: la fila guarda el ultimo y el historial, todos. */
-async function ponerEstado(versionId: string, estado: string, yo: Yo, nota: string | null) {
+export async function ponerEstado(versionId: string, estado: string, yo: Yo, nota: string | null) {
   await pedir("he_estados_hoja", { method: "POST", body: JSON.stringify({ version_id: versionId, estado, persona_id: yo.id, nota }) });
   await pedir(`he_versiones_hoja?id=eq.${versionId}`, { method: "PATCH", body: JSON.stringify({ estado }) });
 }

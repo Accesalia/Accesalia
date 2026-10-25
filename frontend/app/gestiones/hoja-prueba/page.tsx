@@ -2,8 +2,9 @@ import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
+import { puedeRevisar } from "../../../lib/revisionOferta";
 import { datosHoja, oppsParaHoja } from "../../../lib/hojaEncargo";
-import { borradoresDe, formasParaHoja, nombresDeTipos, type BorradorGuardado, type LineaGuardada } from "../../../lib/hojaCompromisos";
+import { EDITABLE, borradoresDe, formasParaHoja, nombresDeTipos, type BorradorGuardado, type LineaGuardada } from "../../../lib/hojaCompromisos";
 import { AccionesVersion } from "./AccionesVersion";
 import { ArbolHoja, ElegirOpp, type Defecto, type PagadorOpcion, type PrecioArbol } from "./ArbolHoja";
 
@@ -76,7 +77,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
       incluye: p.incluye.map((i) => codigoBloque.get(i)).filter((x): x is string => !!x),
     }));
   // El borrador abierto (solo si sigue en borrador): se carga en la hoja para seguir con el.
-  const abierto = guardadas.find((g) => g.id === sp.borrador && g.estado === "borrador") ?? null;
+  const abierto = guardadas.find((g) => g.id === sp.borrador && EDITABLE.includes(g.estado)) ?? null;
   const sinPaquete = (d?.interes ?? []).filter((t) => !PAQUETE[t.nombre]).map((t) => t.nombre);
 
   return (
@@ -108,7 +109,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
               casos={fp.casos} pagadores={pagadores} comision={comision} comisionAviso={d.comisionAviso} tarifas={{ generalId: d.tarifas.generalId, precios }} pem={d.pem} municipio={d.comunidad?.municipio ?? d.municipio}
               borrador={abierto ? { id: abierto.id, lineas: abierto.lineas, pagador: abierto.pagador } : null} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
         </div>
-        {d && guardadas.length > 0 && <Guardadas oppId={d.opp.id} abierto={abierto?.id ?? null} borradores={guardadas} accesos={accesos} />}
+        {d && guardadas.length > 0 && <Guardadas oppId={d.opp.id} abierto={abierto?.id ?? null} borradores={guardadas} accesos={accesos} puedoRevisar={puedeRevisar(yo)} />}
       </main>
     </div>
   );
@@ -118,7 +119,7 @@ const cuando = (iso: string) => new Date(iso).toLocaleString("es-ES", { timeZone
 const mil = (x: number) => Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
 /** Lo guardado de esta opp, tal como ha quedado en he_lineas_compromisos: cada fila colgada de la suya. */
-function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abierto: string | null; borradores: BorradorGuardado[]; accesos: { id: string; texto: string }[] }) {
+function Guardadas({ oppId, abierto, borradores, accesos, puedoRevisar }: { oppId: string; abierto: string | null; borradores: BorradorGuardado[]; accesos: { id: string; texto: string }[]; puedoRevisar: boolean }) {
   const texto = new Map(accesos.map((a) => [a.id, a.texto]));
   const portales = (ids: string[]) =>
     accesos.length > 0 && ids.length === accesos.length && accesos.every((a) => ids.includes(a.id)) ? "todos" : ids.map((i) => texto.get(i) ?? "otro").join(", ");
@@ -140,11 +141,14 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
             <b>{b.codigo ? `${b.codigo} v${b.numero}` : "Borrador"}</b>{b.codigo && <> · {b.estado.replace(/_/g, " ")}</>} · del {cuando(b.creadoEn)}
             {b.actualizadoEn.slice(0, 16) !== b.creadoEn.slice(0, 16) && <> · cambiado el {cuando(b.actualizadoEn)}</>}
             {b.quien && <> · {b.quien}</>}{b.aQuien && <> · para {b.aQuien}</>} · {b.lineas.length} filas
-            {b.estado === "borrador" && (b.id === abierto
+            {EDITABLE.includes(b.estado) && (b.id === abierto
               ? <span className="ml-3 text-carbon/60">(es el que está abierto arriba)</span>
               : <a className="ml-3 font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${oppId}&borrador=${b.id}`}>Seguir editando</a>)}
-            <AccionesVersion oppId={oppId} versionId={b.id} estado={b.estado} emitida={!!b.codigo} abierta={b.id === abierto} />
+            <AccionesVersion oppId={oppId} versionId={b.id} estado={b.estado} emitida={!!b.codigo} abierta={b.id === abierto} puedoRevisar={puedoRevisar} />
           </p>
+          {b.ultimo?.nota && b.ultimo.estado !== "borrador" && (
+            <p className="text-sm text-carbon/80"><b>{b.ultimo.estado.replace(/_/g, " ")}</b>{b.ultimo.quien && <> · {b.ultimo.quien}</>}: {b.ultimo.nota}</p>
+          )}
           <table className="mt-1 border-collapse text-[13px] tabular-nums">
             <thead>
               <tr><th className={th}>Bloque</th><th className={th}>Tipo</th><th className={th}>En el papel</th><th className={th}>Se cobra</th><th className={th}>Importe o %</th><th className={th}>Forma de pago</th><th className={th}>Comisión dentro</th><th className={th}>Precios del conjunto</th><th className={th}>Portales</th></tr>

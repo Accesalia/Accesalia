@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { generarHoja, resolverOkDaniel } from "../../../lib/hojaEmitir";
 import { quienSoy } from "../../../lib/sesion";
 import { descartarBorrador, guardarBorrador, modificarHoja, type FilaHoja, type Pagador } from "../../../lib/hojaCompromisos";
 
@@ -40,6 +41,31 @@ export async function accionModificar(versionId: string, pide: "comunidad" | "co
     const id = await modificarHoja(versionId, pide, nota, yo);
     revalidatePath("/gestiones/hoja-prueba");
     return { ok: true, id };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+// Generar la hoja (va al ok de Daniel con su presupuesto y la viabilidad) y el ok de Daniel (Monica, 25-oct-2026).
+export async function accionGenerar(oppId: string, filas: FilaHoja[], versionId: string | null, pagador: Pagador, papel: string): Promise<(Resultado & { avisos?: string[] })> {
+  try {
+    const yo = await quienSoy();
+    if (!yo?.veTodo) throw new Error("Solo dirección puede generar desde la prueba.");
+    const r = await generarHoja(oppId, filas, versionId, pagador, papel, yo);
+    revalidatePath("/gestiones/hoja-prueba");
+    return { ok: true, id: r.id, avisos: r.avisos };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+export async function accionOkDaniel(versionId: string, decision: "ok" | "cambios", nota: string): Promise<{ ok: true; avisos: string[] } | { ok: false; error: string }> {
+  try {
+    const yo = await quienSoy();
+    if (!yo) throw new Error("Entra de nuevo.");
+    const r = await resolverOkDaniel(versionId, decision, nota, yo);
+    revalidatePath("/gestiones/hoja-prueba");
+    return { ok: true, avisos: r.avisos };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

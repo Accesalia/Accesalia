@@ -394,7 +394,7 @@ export function montarArbol(root, datos) {
   }
 
   // ---- CONFIRMAR LOS PORTALES (con mas de uno): salen todos por defecto, asi que se validan al guardar.
-  function confirmarPortales() {
+  function confirmarPortales(modo = "guardar") {
     const lineas = [];
     const ver = (ns, arriba) => {
       for (const n of ns) {
@@ -410,15 +410,23 @@ export function montarArbol(root, datos) {
     const todos = (ps) => ps.length === ACCESOS.length;
     document_.getElementById("confirma").innerHTML = `<div class="confirma"><b>Vas a guardarlo así. ¿Seguro que cada cosa aplica a esos portales?</b><ul>` +
       lineas.map(([n, ps]) => `<li>${esc(n)}: <b>${todos(ps) ? "todos" : "solo"}</b> · ${esc(nombreAcc(ps))}</li>`).join("") +
-      `</ul><button type="button" class="generar" id="si-guardar">Sí, guardar</button> <button type="button" class="secundario" id="no-guardar">No, voy a cambiarlos</button></div>`;
+      `</ul><button type="button" class="generar" id="${modo === "emitir" ? "si-emitir" : "si-guardar"}">${modo === "emitir" ? "Sí, generar la hoja" : "Sí, guardar"}</button> <button type="button" class="secundario" id="no-guardar">No, voy a cambiarlos</button></div>`;
   }
   async function guardar() {
     if (guardando || faltas().length) return;
     document_.getElementById("confirma").innerHTML = "";
     guardando = true; avisar();
-    const filas = recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto, comision }) =>
-      ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto: texto ?? null, comision: comision ?? null }));
-    await datos.alGuardar?.(filas);
+    await datos.alGuardar?.(filasParaGuardar());
+    guardando = false; avisar();
+  }
+  const filasParaGuardar = () => recoger().map(({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto, comision }) =>
+    ({ ref, padre, bloque, desglose, enPapel, seCobra, importe, porcentaje, formaId, formaPropia, desglosar, portales, texto: texto ?? null, comision: comision ?? null }));
+  // GENERAR LA HOJA (25-oct-2026): se guarda tal cual y va al ok de Daniel con su papel (el que ve Daniel).
+  async function emitir() {
+    if (guardando || faltas().length) return;
+    document_.getElementById("confirma").innerHTML = "";
+    guardando = true; avisar();
+    await datos.alGenerar?.(filasParaGuardar(), papel());
     guardando = false; avisar();
   }
 
@@ -695,8 +703,8 @@ export function montarArbol(root, datos) {
     else if (b.id === "no-guardar") document_.getElementById("confirma").innerHTML = "";
     else if (b.id === "previsualizar") { previaAbierta = true; avisar(); document_.getElementById("previa").scrollIntoView?.({ behavior: "smooth", block: "start" }); }
     else if (b.id === "cerrar-previa") { previaAbierta = false; avisar(); }
-    // GENERAR LA HOJA: el boton ya esta; se conecta con el ciclo de la hoja (borrador -> pendiente del ok de Daniel).
-    else if (b.id === "emitir") document_.getElementById("confirma").innerHTML = `<div class="confirma">«Generar la hoja» pedirá el ok de Daniel. Todavía no está conectado: de momento, guárdala como borrador.</div>`;
+    else if (b.id === "emitir") { if (faltas().length) return; if (ACCESOS.length > 1) confirmarPortales("emitir"); else emitir(); }
+    else if (b.id === "si-emitir") emitir();
   }, { signal: ac.signal });
   if (datos.inicial && datos.inicial.length) { cargar(datos.inicial); marcarAMano(); }
   pintarCatalogo();
