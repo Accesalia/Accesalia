@@ -52,6 +52,8 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
           // Cosas a facturar (Monica, 25-oct-2026) sustituye a «Facturable ya» y a «Generar proforma» (sus pantallas siguen
           // en su sitio para lo que enlace a ellas, pero ya no en el menu).
           { clave: "cosas", titulo: "Cosas a facturar", href: "/facturacion/cobrar/cosas" },
+          // Cada proforma hasta que es factura: enviada, ok y su pedido en Factusol (25-oct-2026).
+          { clave: "emitidas", titulo: "Proformas emitidas", href: "/facturacion/cobrar/emitidas" },
           { clave: "sin-justificante", titulo: "Facturas sin justificante", href: "/facturacion/cobrar/sin-justificante", cuenta: c.sinJustificante },
         ],
       },
@@ -75,7 +77,12 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
       ...(puedeGestionarFormas(yo) || puedeVerClientesFactusol(yo)
         ? [{ titulo: "Ajustes", items: [
             ...(puedeGestionarFormas(yo) ? [{ clave: "formas-pago", titulo: "Formas de pago", href: "/gestiones/formas-pago" }, { clave: "condiciones-cobro", titulo: "Condiciones de cobro", href: "/gestiones/condiciones-cobro" }] : []),
-            ...(puedeVerClientesFactusol(yo) ? [{ clave: "clientes-factusol", titulo: "Clientes de Factusol", href: "/gestiones/clientes-factusol" }] : []),
+            ...(puedeVerClientesFactusol(yo)
+              ? [
+                  { clave: "clientes-factusol", titulo: "Clientes de Factusol", href: "/gestiones/clientes-factusol" },
+                  { clave: "factusol-documentos", titulo: "Pedidos y facturas de Factusol", href: "/gestiones/factusol-documentos" },
+                ]
+              : []),
           ] }]
         : []),
       { titulo: "Más adelante", items: [{ clave: "morosidad", titulo: "Morosidad" }] },

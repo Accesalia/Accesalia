@@ -37,7 +37,7 @@ export default async function PaginaCosas() {
             </p>
           </div>
           <div className="der">
-            <Link className="enlace" href="/facturacion/proformas">Proformas emitidas →</Link>
+            <Link className="enlace" href="/facturacion/cobrar/emitidas">Proformas emitidas →</Link>
           </div>
         </div>
         {filas.length ? (

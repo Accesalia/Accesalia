@@ -8,6 +8,7 @@ import "server-only";
 
 import { bajarFichero } from "./dropboxApi";
 import { guardarClientes, leerClientes, rutaFichero, type Empresa, type Resumen } from "./factusol/clientes";
+import { guardarDocumentos, leerFacturas, leerPedidos, type ResumenDocs } from "./factusol/documentos";
 import { puedeVerCobros } from "./cobros";
 import type { Yo } from "./sesion";
 
@@ -27,14 +28,25 @@ export const puedeVerClientesFactusol = (yo: Yo) => puedeVerCobros(yo) || yo.fun
 /** Relee los clientes de las tres empresas. El fichero es el del año en curso; si aun no existe (enero, antes de abrir
  *  el año en Factusol), el del año anterior. */
 export async function revisarClientes(): Promise<Resumen[]> {
+  return (await revisarFactusol()).clientes;
+}
+
+/** LA PASADA DE CADA NOCHE, AMPLIADA (Monica, 25-oct-2026): los clientes del año en curso y, de este año y del
+ *  anterior, los pedidos y las facturas (y abonos), para cotejarlos con la app. Un fichero por empresa y año. */
+export async function revisarFactusol(): Promise<{ clientes: Resumen[]; documentos: ResumenDocs[] }> {
   const anio = Number(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric" }).format(new Date()));
-  const out: Resumen[] = [];
+  const clientes: Resumen[] = [];
+  const documentos: ResumenDocs[] = [];
   for (const { clave } of EMPRESAS) {
-    const fichero = (await bajarFichero(rutaFichero(clave, anio))) ?? (await bajarFichero(rutaFichero(clave, anio - 1)));
+    const esteAnio = await bajarFichero(rutaFichero(clave, anio));
+    const anterior = await bajarFichero(rutaFichero(clave, anio - 1));
+    const fichero = esteAnio ?? anterior;
     if (!fichero) throw new Error(`No encuentro en el Dropbox el fichero de Factusol de ${clave} (${rutaFichero(clave, anio)}).`);
-    out.push(await guardarClientes(BASE, clave, leerClientes(fichero)));
+    clientes.push(await guardarClientes(BASE, clave, leerClientes(fichero)));
+    for (const [a, f] of [[anio - 1, anterior], [anio, esteAnio]] as const)
+      if (f) documentos.push(await guardarDocumentos(BASE, clave, a, leerPedidos(f), leerFacturas(f)));
   }
-  return out;
+  return { clientes, documentos };
 }
 
 export type FilaCliente = {

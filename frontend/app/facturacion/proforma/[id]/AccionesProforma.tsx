@@ -35,13 +35,13 @@ export function AccionesProforma({ id, envio, facturada }: { id: string; envio: 
   const [ocupado, empezar] = useTransition();
 
   const para = [...marcados, ...otro.split(/[,;\s]+/).filter(Boolean)];
-  const correr = (f: () => Promise<{ ok: boolean; error?: string }>, hecho: string) =>
+  const correr = (f: () => Promise<{ ok: boolean; error?: string; dice?: string }>, hecho: string) =>
     empezar(async () => {
       setError(null);
       setAviso(null);
       const r = await f();
       if (!r.ok) return setError(r.error ?? "Error");
-      setAviso(hecho);
+      setAviso(r.dice ?? hecho);
       setAnular(null);
       router.refresh();
     });

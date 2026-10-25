@@ -18,6 +18,7 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "@types/nodemailer": "^8.0.2",
+    "fflate": "^0.8.3",
     "imapflow": "^2.1.2",
     "mailparser": "^3.9.31",
     "maplibre-gl": "^6.9.0",

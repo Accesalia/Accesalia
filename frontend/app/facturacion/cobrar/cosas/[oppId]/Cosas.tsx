@@ -349,7 +349,9 @@ function Correo({ e, d, hacer, ocupado }: { e: Emitida; d: DetalleCosas; hacer: 
         <span className="pill p-cobro">Emitida</span>
       </div>
       {enviada ? (
-        <div>Enviada. Queda en el diario de la opp; el siguiente paso es el ok del cliente.</div>
+        <div>
+          Enviada. Queda en el diario de la opp. Ahora, a Factusol como pedido: <a className="enlace" href="/facturacion/cobrar/emitidas">Proformas emitidas →</a>
+        </div>
       ) : (
         <>
           <div>

@@ -9,7 +9,7 @@ import { pdfDeProforma } from "../../../lib/pdf/ProformaDoc";
 // LAS PROFORMAS (12-oct-2026). Cada accion comprueba el libro dentro de
 // lib/proformas: abrir la pantalla no es permiso para escribir.
 
-export type Resultado = { ok: true; id?: string } | { ok: false; error: string };
+export type Resultado = { ok: true; id?: string; dice?: string } | { ok: false; error: string };
 
 async function yo() {
   const y = await quienSoy();
@@ -35,10 +35,10 @@ export async function accionEmitirProforma(oppId: string, n: NuevaProforma): Pro
 
 export async function accionAnularProforma(id: string, motivo: string): Promise<Resultado> {
   try {
-    await anularProforma(await yo(), id, motivo);
+    const dice = await anularProforma(await yo(), id, motivo);
     const p = await leerProforma(id);
     refrescar(p?.oppId ?? null, id);
-    return { ok: true };
+    return { ok: true, dice };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

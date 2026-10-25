@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { quienSoy } from "../../../../lib/sesion";
 import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
-import { puedeVerClientesFactusol, revisarClientes } from "../../../../lib/factusolClientes";
+import { puedeVerClientesFactusol, revisarFactusol } from "../../../../lib/factusolClientes";
 
 // RELEER LOS CLIENTES DE FACTUSOL (Monica, 25-oct-2026). La llama el reloj de Vercel cada noche y el boton «Revisar
 // ahora» de Cobrar > Ajustes > Clientes de Factusol. Baja del Dropbox el fichero de cada empresa y pone al dia la copia.
+// Desde el 25-oct-2026 tambien los pedidos y las facturas (y abonos) de este año y del anterior.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,9 +24,13 @@ export async function GET(req: Request) {
   const empezada = Date.now();
   const quien = esElReloj(req) ? "reloj" : "persona";
   try {
-    const r = await revisarClientes();
-    const dice = r.map((x) => `${x.empresa}: ${x.leidos} (${x.nuevos} nuevos, ${x.quitados} quitados)`).join(" · ");
-    await apuntarPasada({ tarea: TAREA, empezada, ok: true, dice, detalle: r, quien });
+    const t = await revisarFactusol();
+    const r = t.clientes;
+    const dice = [
+      ...r.map((x) => `${x.empresa}: ${x.leidos} clientes (${x.nuevos} nuevos, ${x.quitados} quitados)`),
+      ...t.documentos.map((d) => `${d.empresa} ${d.anio}: ${d.pedidos} pedidos, ${d.facturas} facturas, ${d.abonos} abonos`),
+    ].join(" · ");
+    await apuntarPasada({ tarea: TAREA, empezada, ok: true, dice, detalle: t, quien });
     return NextResponse.json({ ok: true, resumen: r });
   } catch (e) {
     const dice = e instanceof Error ? e.message : String(e);

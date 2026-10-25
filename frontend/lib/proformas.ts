@@ -327,6 +327,7 @@ export async function crearProforma(yo: Yo, n: NuevaProforma): Promise<string> {
 export type Proforma = {
   id: string;
   codigo: string;
+  numero: number;
   empresa: Empresa;
   fecha: string;
   oppId: string | null;
@@ -341,22 +342,26 @@ export type Proforma = {
   /** Como se cobra y a que cuenta (25-oct-2026, Cosas a facturar). Las de antes no lo tienen. */
   formaCobro: "cargo_cuenta" | "transferencia" | "confirming" | null;
   cuenta: string | null;
+  /** Proformas emitidas (25-oct-2026): el ok (cuando y el correo pegado) y su pedido en Factusol. */
+  ok: { en: string; correo: string | null } | null;
+  factusol: { en: string; carpeta: string | null; cliente: number | null } | null;
   emisora: Emisora;
   lineas: { concepto: string; base: number; hitos: { id: string; tipo: string; importe: number; linea: string }[] }[];
   envios: { creado_en: string; para: string[]; ok: boolean; error: string | null }[];
 };
 
 type FilaProforma = {
-  id: string; codigo: string; empresa: Empresa; fecha: string; oportunidad_id: string | null; pagador_nombre: string; pagador_nif: string | null; pagador_domicilio: string | null;
+  id: string; codigo: string; numero: number; empresa: Empresa; fecha: string; oportunidad_id: string | null; pagador_nombre: string; pagador_nif: string | null; pagador_domicilio: string | null;
   base: number; iva_porcentaje: number; iva: number; irpf_porcentaje: number; irpf: number; total: number; estado: "emitida" | "anulada"; motivo_anulacion: string | null; notas: string | null;
   forma_cobro: Proforma["formaCobro"]; cuenta: string | null;
+  se_puede_cobrar_en: string | null; ok_correo: string | null; factusol_en: string | null; factusol_carpeta: string | null; factusol_cliente: number | null;
   factura: { id: string; anio: number; serie: string; numero: number; estado: string } | null;
   emisor: { nombre: string; apellidos: string | null } | null;
   opp: { codigo: string | null; nombre: string | null; comunidad: { nombre: string } | null } | null;
   lineas: { posicion: number; concepto: string; base: number; hitos: { importe: number; hito: { id: string; hito: string; hito_padre_id: string | null; padre: { hito: string } | null; linea: { descripcion: string | null } | null } | null }[] }[];
 };
 const SEL =
-  "id,codigo,empresa,fecha,oportunidad_id,pagador_nombre,pagador_nif,pagador_domicilio,base,iva_porcentaje,iva,irpf_porcentaje,irpf,total,estado,motivo_anulacion,notas,forma_cobro,cuenta," +
+  "id,codigo,numero,empresa,fecha,oportunidad_id,pagador_nombre,pagador_nif,pagador_domicilio,base,iva_porcentaje,iva,irpf_porcentaje,irpf,total,estado,motivo_anulacion,notas,forma_cobro,cuenta,se_puede_cobrar_en,ok_correo,factusol_en,factusol_carpeta,factusol_cliente," +
   "factura:factura_id(id,anio,serie,numero,estado),emisor:emitida_por(nombre,apellidos),opp:oportunidad_id(codigo,nombre,comunidad:comunidad_id(nombre))," +
   "lineas:proforma_lineas(posicion,concepto,base,hitos:proforma_linea_hitos(importe,hito:hito_cobro_id(id,hito,hito_padre_id,padre:hito_padre_id(hito),linea:linea_facturacion_id(descripcion))))";
 
@@ -373,6 +378,7 @@ export async function leerProforma(id: string): Promise<Proforma | null> {
   return {
     id: f.id,
     codigo: f.codigo,
+    numero: f.numero,
     empresa: f.empresa,
     fecha: f.fecha,
     oppId: f.oportunidad_id,
@@ -386,6 +392,8 @@ export async function leerProforma(id: string): Promise<Proforma | null> {
     notas: f.notas,
     formaCobro: f.forma_cobro,
     cuenta: f.cuenta,
+    ok: f.se_puede_cobrar_en ? { en: f.se_puede_cobrar_en, correo: f.ok_correo } : null,
+    factusol: f.factusol_en ? { en: f.factusol_en, carpeta: f.factusol_carpeta, cliente: f.factusol_cliente } : null,
     emisora: em,
     lineas: [...f.lineas]
       .sort((a, b) => a.posicion - b.posicion)
@@ -447,11 +455,14 @@ export async function anularProforma(yo: Yo, id: string, motivo: string) {
   if (!puedeVerLibro(yo, libroDeEmpresa(p.empresa))) throw new Error("Esta proforma es del otro libro de facturación.");
   if (p.factura) throw new Error(`Ya tiene factura (${p.factura.numero}): se anula la factura en Factusol, no la proforma.`);
   if (!motivo.trim()) throw new Error("Di por qué se anula.");
-  // No se borra: el numero queda gastado y se ve por que.
+  // No se borra: el numero queda gastado y se ve por que. Si ya esta en Factusol como pedido, la app no lo toca alli
+  // (Monica, 25-oct-2026: «basta el aviso»): lo dice y queda apuntado en la proforma.
+  const enFactusol = p.factusol ? ` · OJO: está en Factusol como pedido ${p.numero}: hay que borrarlo allí.` : "";
   await pedir(`proformas?id=eq.${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ estado: "anulada", motivo_anulacion: `${motivo.trim()} (${yo.nombre}, ${fechaEs(new Date().toISOString())})`, actualizado_en: new Date().toISOString() }),
+    body: JSON.stringify({ estado: "anulada", motivo_anulacion: `${motivo.trim()} (${yo.nombre}, ${fechaEs(new Date().toISOString())})${enFactusol}`, actualizado_en: new Date().toISOString() }),
   });
+  return enFactusol ? `Anulada. Está en Factusol como pedido ${p.numero}: bórralo allí.` : "Anulada.";
 }
 
 // --------------------------------------------------------------- enviar
