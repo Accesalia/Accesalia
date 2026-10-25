@@ -16,7 +16,7 @@ Tamaño: S = cambiar la consulta · M = cambiar la lógica · L = reescribir. Qu
 |---|---|---|---|---|---|
 | 1 | lib/hojaEncargo.ts | El generador viejo entero, el PDF de versión, el portal, la ficha de comunidad | Todo | L (se jubila; lo sustituyen hojaCompromisos + hojaEmitir) | H |
 | 2 | lib/revisionOferta.ts | Revisión de ofertas (/comercial/revision, contador, pendientes) | El paquete por opp y los estados de la hoja | L (pasa a he_estados_hoja: bandeja de Daniel) | H |
-| 3 | lib/presupuesto.ts | Presupuesto de la opp | Elegir hojas y sus conceptos; presupuesto_hojas | M (ya hay presupuestoDeVersion) | H |
+| 3 | lib/presupuesto.ts | Presupuesto de la opp | Elegir hojas y sus conceptos; presupuesto_hojas | M: **decidido 25-oct (opción A)**: el presupuesto se hace AL ENVIAR, con las hojas que van juntas (ok de Daniel + mismo pagador); se retira el presupuesto manual | H |
 | 4 | lib/viabilidadComercial.ts | Viabilidad del comercial y su PDF | Honorarios de la última versión; «superada por la versión X» | M | H |
 | 5 | lib/cabeceraOpp.ts | Cabecera de la ficha de la opp | Ganada/abierta, lo que quieren, ¿queda por cobrar? | M | H |
 | 6 | lib/bloquesDecisionCierre.ts | Ficha de la opp, bloques 3 y 4 | Revisiones, versión firmada e importe, motivo de no firma, hitos | M | H |
@@ -28,11 +28,11 @@ Tamaño: S = cambiar la consulta · M = cambiar la lógica · L = reescribir. Qu
 | 12 | lib/anexoEdificio.ts | Anexo de la viabilidad | Tipos de proyecto pedidos | S | H |
 | 13 | lib/catalogoBloques.ts | Catálogo de bloques | Cuántos usos tiene cada bloque | S | H |
 | 14 | lib/citas.ts | Agenda: adjuntos de una cita | Número de hoja (FK citas_adjuntos.hoja_encargo_id) | S + FK | H |
-| 15 | lib/fichaReal.ts | Ficha comercial vieja por comunidad (/comercial/ficha/[id]) | Versiones, PDF, importe, hitos | M, **o retirarla** (decidir) | H |
-| 16 | lib/cockpit.ts | Archivo: opp antigua | Lista de hojas y estado | S | H |
-| 17 | app/archivo/oportunidad-antigua/[id]/page.tsx | Archivo: opp antigua | Nº de hojas | S | H |
+| 15 | ~~lib/fichaReal.ts~~ | **RETIRADA 25-oct** (6c716dc): a archivo/; en su ruta, aviso «FALTA MONTARLA» | — | — | — |
+| 16 | ~~lib/cockpit.ts~~ | **RETIRADA 25-oct** (d9ad856) | — | — | — |
+| 17 | ~~app/archivo/oportunidad-antigua~~ | **RETIRADA 25-oct** (d9ad856, d9ab0a5) | — | — | — |
 | 18 | app/comercial/oportunidades/[id]/Bloque34.tsx | Bloques 3 y 4 | Solo rótulos de procedencia | S | H |
-| 19 | app/comercial/ficha/[id]/page.tsx | Ficha comercial vieja | Solo rótulos | S (va con el 15) | H |
+| 19 | ~~app/comercial/ficha/[id]/page.tsx~~ | **RETIRADA 25-oct**: ahora es el aviso «FALTA MONTARLA» | — | — | — |
 | 20 | lib/misPendientes.ts | Pendientes | SQL mis_avisos y vista oportunidades_por_completar | S + SQL | H |
 | 21 | lib/gestionOportunidad.ts | Anular una opp | SQL anular_por_duplicada / anular_por_error | S + SQL | H |
 
