@@ -35,7 +35,7 @@ export type BloqueCatalogo = {
   importe: number | null;
   orden: number | null;
   activo: boolean;
-  /** En cuantas hojas se ha usado (conceptos que lo apuntan). */
+  /** En cuantas hojas se ha usado (lineas de hoja que lo apuntan, he_lineas_compromisos). */
   usos: number;
 };
 
@@ -68,7 +68,7 @@ export const limpiarTexto = (t: string) =>
 export async function catalogoBloques(): Promise<BloqueCatalogo[]> {
   const r = await pedir(
     "bloques?select=id,codigo,nombre,nombre_corto,texto_plantilla,desglose,honorarios_defecto,orden,activo," +
-      "usos:conceptos_hoja(count)&order=activo.desc,orden.asc.nullslast,nombre.asc",
+      "usos:he_lineas_compromisos(count)&order=activo.desc,orden.asc.nullslast,nombre.asc",
   );
   const filas = (await r.json()) as {
     id: string;

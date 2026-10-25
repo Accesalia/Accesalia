@@ -79,14 +79,14 @@ type Catalogo = {
   tipos: { tipo_proyecto_id: string }[];
 };
 
-/** Lo que nos han pedido: las actuaciones de la ultima hoja de la oportunidad
- *  y, si no hay hoja, lo que se apunto al dar de alta la oportunidad. */
+/** Lo que nos han pedido: los tipos de proyecto de las ultimas hojas de la oportunidad (sistema nuevo: el desglose de
+ *  sus lineas de proyecto, 25-oct-2026) y, si no hay hoja, lo que se apunto al dar de alta la oportunidad. */
 async function pedidoDe(oppId: string): Promise<{ ids: Set<string>; nombres: string[] }> {
   const tipos = await leer<{ id: string; nombre: string; parent_id: string | null }[]>("tipos_proyecto?select=id,nombre,parent_id");
-  const hojas = await leer<{ actuaciones: { tipo: { id: string; nombre: string } | null }[] }[]>(
-    `hojas_encargo?select=actuaciones:actuaciones_hoja(tipo:tipo_proyecto_id(id,nombre))&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=creado_en.desc&limit=5`,
+  const hojas = await leer<{ lineas: { tipo: { id: string; nombre: string } | null; bloque: { codigo: string } | null }[] }[]>(
+    `he_versiones_hoja?select=lineas:he_lineas_compromisos(tipo:desglose_id(id,nombre),bloque:bloque_id(codigo))&oportunidad_id=eq.${oppId}&estado=not.in.(anulada,no_firmada)&order=creado_en.desc&limit=5`,
   );
-  let elegidos = hojas.flatMap((h) => h.actuaciones.map((a) => a.tipo).filter((t): t is { id: string; nombre: string } => !!t));
+  let elegidos = hojas.flatMap((h) => h.lineas.filter((l) => l.bloque?.codigo === "REDACCION PROYECTO").map((l) => l.tipo).filter((t): t is { id: string; nombre: string } => !!t));
   if (!elegidos.length) {
     const ot = await leer<{ tipo: { id: string; nombre: string } | null }[]>(`oportunidad_tipos?select=tipo:tipo_id(id,nombre)&oportunidad_id=eq.${oppId}`);
     elegidos = ot.map((x) => x.tipo).filter((t): t is { id: string; nombre: string } => !!t);
