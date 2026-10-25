@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // COBRAR › PRIMER COBRO (Monica, 25-oct-2026; maqueta validada docs/figma/recorrido-hoja-firmada.html, pantalla 2).
 // Lo que ha pasado a cobro desde Nuevas hojas firmadas y espera el pago del primer hito: lo mas importante de cobrar,
 // porque es lo que mete la hoja en produccion. Al cobrarse (justificante), la hoja pasa a la bandeja comercial.
-// «Preparar el cobro» abre el proceso de siempre (Generar proforma) con su direccion.
+// «Preparar el cobro» abre su direccion en Cosas a facturar.
 
 const EUR = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
 const hoyMs = () => Date.parse(new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" }));
@@ -61,7 +61,7 @@ export default async function PaginaPrimerCobro() {
                       {f.cobro.proformaId ? (
                         <Link className="btn peq sec" href={`/facturacion/proforma/${f.cobro.proformaId}`}>Abrir la proforma</Link>
                       ) : f.oppId ? (
-                        <Link className="btn peq" href={`/facturacion/cobrar/proforma?opp=${f.oppId}`}>Preparar el cobro</Link>
+                        <Link className="btn peq" href={`/facturacion/cobrar/cosas/${f.oppId}`}>Preparar el cobro</Link>
                       ) : null}
                     </td>
                   </tr>
@@ -72,7 +72,7 @@ export default async function PaginaPrimerCobro() {
         ) : (
           <p className="nota">Nada esperando el primer cobro. Las hojas llegan aquí desde Nuevas hojas firmadas, con «Pasa a cobro del primer hito».</p>
         )}
-        <p className="nota">«Preparar el cobro» abre Generar proforma con su dirección: marcas lo que se factura y sale la proforma.</p>
+        <p className="nota">«Preparar el cobro» abre su dirección en Cosas a facturar.</p>
 
         {sinContratar.length > 0 && (
           <>

@@ -104,7 +104,13 @@ export function ProformaDoc({ p }: { p: Proforma }) {
               <T style={[s.celda, { fontFamily: "Helvetica-Bold", fontSize: 11, minWidth: 90, textAlign: "right" }]}>{EUR.format(p.total)} euros</T>
             </View>
           </View>
-          {e.iban ? <T style={s.nota}>Forma de pago: transferencia a la cuenta {e.iban}, indicando {p.codigo} en el concepto.</T> : null}
+          {p.formaCobro === "cargo_cuenta" ? (
+            <T style={s.nota}>Forma de pago: cargo en cuenta{p.cuenta ? `, ${p.cuenta}` : ""}.</T>
+          ) : p.formaCobro === "confirming" ? (
+            <T style={s.nota}>Forma de pago: confirming.</T>
+          ) : (p.cuenta ?? e.iban) ? (
+            <T style={s.nota}>Forma de pago: transferencia a la cuenta {p.cuenta ?? e.iban}, indicando {p.codigo} en el concepto.</T>
+          ) : null}
           <T style={s.nota}>Documento proforma, sin validez como factura. La factura se emitirá al recibir su conformidad.</T>
         </View>
 

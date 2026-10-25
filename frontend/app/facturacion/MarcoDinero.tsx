@@ -49,8 +49,9 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
           // El recorrido de la hoja firmada (Monica, 25-oct-2026): lo pasado a cobro que espera el primer hito.
           { clave: "primer-cobro", titulo: "Primer cobro", href: "/facturacion/cobrar/primer-cobro", cuenta: c.primerCobro },
           { clave: "modificar", titulo: "Modificar Hitos", href: "/facturacion/cobrar/modificar" },
-          { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/facturable", cuenta: c.facturable },
-          { clave: "proforma", titulo: "Generar Proforma", href: "/facturacion/cobrar/proforma" },
+          // Cosas a facturar (Monica, 25-oct-2026) sustituye a «Facturable ya» y a «Generar proforma» (sus pantallas siguen
+          // en su sitio para lo que enlace a ellas, pero ya no en el menu).
+          { clave: "cosas", titulo: "Cosas a facturar", href: "/facturacion/cobrar/cosas" },
           { clave: "sin-justificante", titulo: "Facturas sin justificante", href: "/facturacion/cobrar/sin-justificante", cuenta: c.sinJustificante },
         ],
       },

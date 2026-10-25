@@ -64,6 +64,10 @@ async function parametro(clave: string): Promise<number> {
   return Number(p.valor);
 }
 
+/** Para ver la proforma antes de emitirla (Cosas a facturar): quien la emite y el IVA de los honorarios. */
+export const emisoraDe = (e: Empresa) => emisora(e);
+export const ivaHonorarios = () => parametro("iva_honorarios_pct");
+
 // ---------------------------------------------------- lo que se puede proformar
 
 export type HitoProformable = {
@@ -248,6 +252,10 @@ export type NuevaProforma = {
   ivaPct: number;
   irpfPct: number;
   notas: string;
+  /** Cosas a facturar (25-oct-2026): forma de pago y cuenta, y las lineas a 0 € (los codigos de la contrata). */
+  formaCobro?: Proforma["formaCobro"];
+  cuenta?: string | null;
+  lineasCiegas?: string[];
 };
 
 export async function crearProforma(yo: Yo, n: NuevaProforma): Promise<string> {
@@ -286,13 +294,20 @@ export async function crearProforma(yo: Yo, n: NuevaProforma): Promise<string> {
       base, iva_porcentaje: n.ivaPct, iva, irpf_porcentaje: n.irpfPct, irpf, total: r2(base + iva - irpf),
       emitida_por: yo.id,
       notas: n.notas.trim() || null,
+      forma_cobro: n.formaCobro ?? null,
+      cuenta: n.cuenta?.trim() || null,
     }),
   });
   try {
+    const ciegas = (n.lineasCiegas ?? []).map((c) => c.trim()).filter(Boolean);
     const filas = await pedir<{ id: string; posicion: number }[]>("proforma_lineas", {
       method: "POST",
       headers: { Prefer: "return=representation" },
-      body: JSON.stringify(lineas.map((l) => ({ proforma_id: pf.id, posicion: l.posicion, concepto: l.concepto.trim(), base: l.base }))),
+      body: JSON.stringify([
+        ...lineas.map((l) => ({ proforma_id: pf.id, posicion: l.posicion, concepto: l.concepto.trim(), base: l.base })),
+        // La linea a 0 € de los codigos de la contrata, al final y sin hitos.
+        ...ciegas.map((c, i) => ({ proforma_id: pf.id, posicion: lineas.length + i + 1, concepto: c, base: 0 })),
+      ]),
     });
     const idDe = new Map(filas.map((f) => [f.posicion, f.id]));
     await pedir("proforma_linea_hitos", {
@@ -323,6 +338,9 @@ export type Proforma = {
   factura: { id: string; numero: string; estado: string } | null;
   emitidaPor: string | null;
   notas: string | null;
+  /** Como se cobra y a que cuenta (25-oct-2026, Cosas a facturar). Las de antes no lo tienen. */
+  formaCobro: "cargo_cuenta" | "transferencia" | "confirming" | null;
+  cuenta: string | null;
   emisora: Emisora;
   lineas: { concepto: string; base: number; hitos: { id: string; tipo: string; importe: number; linea: string }[] }[];
   envios: { creado_en: string; para: string[]; ok: boolean; error: string | null }[];
@@ -331,13 +349,14 @@ export type Proforma = {
 type FilaProforma = {
   id: string; codigo: string; empresa: Empresa; fecha: string; oportunidad_id: string | null; pagador_nombre: string; pagador_nif: string | null; pagador_domicilio: string | null;
   base: number; iva_porcentaje: number; iva: number; irpf_porcentaje: number; irpf: number; total: number; estado: "emitida" | "anulada"; motivo_anulacion: string | null; notas: string | null;
+  forma_cobro: Proforma["formaCobro"]; cuenta: string | null;
   factura: { id: string; anio: number; serie: string; numero: number; estado: string } | null;
   emisor: { nombre: string; apellidos: string | null } | null;
   opp: { codigo: string | null; nombre: string | null; comunidad: { nombre: string } | null } | null;
   lineas: { posicion: number; concepto: string; base: number; hitos: { importe: number; hito: { id: string; hito: string; hito_padre_id: string | null; padre: { hito: string } | null; linea: { descripcion: string | null } | null } | null }[] }[];
 };
 const SEL =
-  "id,codigo,empresa,fecha,oportunidad_id,pagador_nombre,pagador_nif,pagador_domicilio,base,iva_porcentaje,iva,irpf_porcentaje,irpf,total,estado,motivo_anulacion,notas," +
+  "id,codigo,empresa,fecha,oportunidad_id,pagador_nombre,pagador_nif,pagador_domicilio,base,iva_porcentaje,iva,irpf_porcentaje,irpf,total,estado,motivo_anulacion,notas,forma_cobro,cuenta," +
   "factura:factura_id(id,anio,serie,numero,estado),emisor:emitida_por(nombre,apellidos),opp:oportunidad_id(codigo,nombre,comunidad:comunidad_id(nombre))," +
   "lineas:proforma_lineas(posicion,concepto,base,hitos:proforma_linea_hitos(importe,hito:hito_cobro_id(id,hito,hito_padre_id,padre:hito_padre_id(hito),linea:linea_facturacion_id(descripcion))))";
 
@@ -365,6 +384,8 @@ export async function leerProforma(id: string): Promise<Proforma | null> {
     factura: f.factura ? { id: f.factura.id, numero: `${f.factura.anio}/${f.factura.serie}-${f.factura.numero}`, estado: f.factura.estado } : null,
     emitidaPor: f.emisor ? [f.emisor.nombre, f.emisor.apellidos].filter(Boolean).join(" ") : null,
     notas: f.notas,
+    formaCobro: f.forma_cobro,
+    cuenta: f.cuenta,
     emisora: em,
     lineas: [...f.lineas]
       .sort((a, b) => a.posicion - b.posicion)
@@ -462,7 +483,11 @@ export async function paraEnviarProforma(p: Proforma): Promise<ParaEnviarProform
   };
 }
 
-export async function enviarProforma(yo: Yo, id: string, e: { para: string[]; asunto: string; cuerpo: string }, pdf: { nombre: string; contenido: Uint8Array }) {
+export async function enviarProforma(
+  yo: Yo, id: string, e: { para: string[]; asunto: string; cuerpo: string }, pdf: { nombre: string; contenido: Uint8Array },
+  /** Otros adjuntos (Cosas a facturar: la hoja de encargo firmada). */
+  otros: { nombre: string; contenido: Uint8Array }[] = [],
+) {
   const p = await leerProforma(id);
   if (!p) throw new Error("Esa proforma no existe.");
   if (!puedeVerLibro(yo, libroDeEmpresa(p.empresa))) throw new Error("Esta proforma es del otro libro de facturación.");
@@ -475,7 +500,7 @@ export async function enviarProforma(yo: Yo, id: string, e: { para: string[]; as
 
   const area = BUZON[p.empresa];
   const remitente = `${p.emisora.nombre} · Facturación`;
-  const r = await enviarCorreo({ desde: area, para: para.join(", "), asunto: e.asunto.trim(), texto: e.cuerpo.trim(), nombreRemitente: remitente, adjuntos: [pdf] });
+  const r = await enviarCorreo({ desde: area, para: para.join(", "), asunto: e.asunto.trim(), texto: e.cuerpo.trim(), nombreRemitente: remitente, adjuntos: [pdf, ...otros] });
   const enlace = `/facturacion/proforma/${p.id}`;
   let notaId: string | null = null;
   if (r.ok && p.oppId) {

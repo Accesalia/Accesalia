@@ -1,0 +1,562 @@
+<title>Cosas a facturar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+
+/* Recorrido de una hoja firmada (Monica, 25-oct-2026): Nuevas hojas firmadas (la pantalla que YA existe, completada
+   con los dos botones de destino y el envio de dudas), Diario de trabajo, Primer cobro y la Bandeja de la secretaria
+   comercial. Paleta y piezas de docs/guia-de-estilo.md y de la maqueta validada de Condiciones de cobro.
+   Hojas, lineas, importes e hitos: reales de la base del 25-oct. Lo que todavia no existe (movimientos, pausas,
+   proformas, documentos sueltos) va marcado «de ejemplo». */
+:root {
+  --fondo: #eef5e8; --tarjeta: #ffffff; --carbon: #2b2b2b; --carbon-70: rgba(43,43,43,.70); --carbon-65: rgba(43,43,43,.65); --carbon-55: rgba(43,43,43,.58);
+  --borde: rgba(43,43,43,.18); --linea: rgba(43,43,43,.15); --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --sel: #f3f9ec; --pdf: #e9ebe6; --extraido: #f0f1ee; --hover: #fafbf9;
+  --ok-borde: #bfe0a1; --ok-cab: #f1f9e9; --ok-cab-borde: #d6ecc2; --ok-pill: #cfe9b6; --ok-txt: #24500c;
+  --pend-borde: #ecdcae; --pend-cab: #fdf8ec; --pend-cab-borde: #f1e6c6;
+  --ambar-bg: #fff8e1; --ambar-borde: #f2d48a; --ambar-txt: rgba(120,70,5,.9); --duda-bg: #fffaeb; --duda-borde: #f0dfa8; --duda-txt: #6b5210; --duda-btn: #f2c14e;
+  --nuevo: #fff5cc; --nuevo-borde: #e9c44a;
+  --ajeno: #5b7fa6; --ajeno-soft: #e8eef5; --alerta: #9f3a38; --alerta-soft: #f6dfdd; --pausa: #6d5a8c; --pausa-soft: #ece7f3;
+  --fila-par: #f7faf4;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68); --carbon-55: rgba(238,240,234,.62);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #2a3523; --pdf: #2b2f28; --extraido: #22271f; --hover: #2a3026;
+  --ok-borde: #4d6b33; --ok-cab: #2a3a20; --ok-cab-borde: #3d5429; --ok-pill: #3d5a26; --ok-txt: #d6f0bd;
+  --pend-borde: #6e5c2c; --pend-cab: #352e1c; --pend-cab-borde: #574a26;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --duda-bg: #3a3020; --duda-borde: #7a6230; --duda-txt: #f0d9a4; --duda-btn: #c99a2e;
+  --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; --pausa: #c7b6e6; --pausa-soft: #33293f;
+  --fila-par: #2a3125; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68); --carbon-55: rgba(238,240,234,.62);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #2a3523; --pdf: #2b2f28; --extraido: #22271f; --hover: #2a3026;
+  --ok-borde: #4d6b33; --ok-cab: #2a3a20; --ok-cab-borde: #3d5429; --ok-pill: #3d5a26; --ok-txt: #d6f0bd;
+  --pend-borde: #6e5c2c; --pend-cab: #352e1c; --pend-cab-borde: #574a26;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --duda-bg: #3a3020; --duda-borde: #7a6230; --duda-txt: #f0d9a4; --duda-btn: #c99a2e;
+  --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; --pausa: #c7b6e6; --pausa-soft: #33293f;
+  --fila-par: #2a3125; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--carbon); font: 14px/1.45 var(--letra); }
+.pagina { max-width: 1300px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.maqueta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; font-size: 12px; color: var(--carbon-65); border-bottom: 1px dashed var(--borde); padding-bottom: 10px; margin-bottom: 14px; }
+.maqueta b { color: var(--carbon); }
+.maqueta a { color: var(--lima-dark); font-weight: 700; text-decoration: none; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--borde); }
+.maqueta a.on { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.maqueta .flecha { color: var(--carbon-55); }
+.salida { font-size: 14px; font-weight: 600; color: var(--carbon-65); text-decoration: none; }
+.salida:hover { color: var(--carbon); }
+h1 { font-size: 28px; line-height: 1.15; margin: 6px 0 0; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--carbon-65); font-size: 14.5px; max-width: 70ch; }
+.cab { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; border-bottom: 1px solid var(--borde); padding: 4px 0 14px; }
+.cab .der { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ceja { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-65); margin-top: 8px; }
+.ejemplo { display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--ambar-txt); background: var(--ambar-bg); border: 1px dashed var(--ambar-borde); border-radius: 999px; padding: 1px 8px; vertical-align: middle; }
+.nuevo-aqui { outline: 2px dashed var(--nuevo-borde); outline-offset: 3px; border-radius: 10px; }
+.etq-nuevo { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: var(--nuevo); color: var(--carbon); border: 1px solid var(--nuevo-borde); border-radius: 999px; padding: 0 7px; margin-left: 6px; vertical-align: middle; }
+button { font: inherit; cursor: pointer; }
+.btn { font-weight: 700; border: 0; border-radius: 12px; padding: 9px 18px; background: var(--lima); color: #2b2b2b; }
+.btn:hover:not(:disabled) { background: #3f7a1c; color: #fff; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.sec { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--carbon-70); }
+.btn.sec:hover:not(:disabled) { background: var(--tarjeta); color: var(--carbon); border-color: var(--carbon-55); }
+.btn.peq { padding: 4px 11px; font-size: 12.5px; border-radius: 9px; }
+.btn.pausa { background: var(--pausa-soft); color: var(--pausa); border: 1px solid var(--pausa); }
+.btn.pausa:hover:not(:disabled) { background: var(--pausa); color: #fff; }
+.enlace { border: 0; background: none; color: var(--lima-dark); font-weight: 700; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 2px; }
+textarea, input[type="text"], select { font: inherit; font-size: 13.5px; width: 100%; border: 1px solid var(--borde); border-radius: 10px; padding: 6px 10px; background: var(--tarjeta); color: var(--carbon); }
+textarea { resize: vertical; min-height: 52px; }
+::placeholder { color: var(--carbon-55); }
+.tab { font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; white-space: nowrap; }
+.p-cobro { background: var(--lima-soft); color: var(--lima-dark); }
+.p-prod { background: var(--ajeno-soft); color: var(--ajeno); }
+.p-dev { background: var(--alerta-soft); color: var(--alerta); }
+.p-pausa { background: var(--pausa-soft); color: var(--pausa); }
+.p-area { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--carbon-70); }
+.p-ambar { background: var(--ambar-bg); color: var(--ambar-txt); border: 1px solid var(--ambar-borde); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--carbon); color: var(--fondo); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: min(92vw, 640px); z-index: 10; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.toast a { color: var(--lima); }
+
+/* ---------- Nuevas hojas firmadas (la de siempre) ---------- */
+.lista { margin-top: 20px; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow: hidden; width: fit-content; max-width: 100%; }
+.lista.ancha { width: 100%; }
+.fila { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--linea); background: var(--tarjeta); color: var(--carbon); padding: 13px 32px 13px 18px; }
+.fila:hover { background: var(--hover); }
+.fila.on { background: var(--sel); box-shadow: inset 4px 0 0 var(--lima); }
+.fila .dir { font-size: 15px; font-weight: 700; }
+.fila .meta { font-size: 13px; color: var(--carbon-65); margin-top: 1px; }
+.barra { display: flex; align-items: center; gap: 10px; width: 360px; max-width: 100%; margin-top: 9px; font-size: 12.5px; color: var(--carbon-70); }
+.barra .rail { flex: 1; height: 6px; background: var(--linea); border-radius: 4px; overflow: hidden; }
+.barra .rail span { display: block; height: 100%; background: var(--lima); }
+.duda-pill { background: var(--ambar-bg); color: var(--ambar-txt); border-radius: 999px; padding: 1px 8px; font-weight: 700; font-size: 12px; }
+.pie-lista { padding: 18px 20px; text-align: center; font-size: 13px; color: var(--carbon-65); }
+.desplegada { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--borde); }
+@media (max-width: 960px) { .desplegada { grid-template-columns: 1fr; } }
+.lado-pdf { background: var(--pdf); padding: 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.lado-pdf .cabpdf { display: flex; justify-content: space-between; font-size: 13px; color: var(--carbon-70); gap: 10px; flex-wrap: wrap; }
+.lado-pdf .cabpdf a { color: var(--lima-dark); font-weight: 700; text-decoration: none; }
+.papel { background: var(--tarjeta); border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.12); padding: 26px 28px; min-height: 520px; font-size: 12.5px; color: var(--carbon-70); }
+.papel h4 { margin: 0 0 4px; font-size: 13px; color: var(--carbon); text-transform: uppercase; letter-spacing: .05em; }
+.papel .renglon { height: 7px; background: var(--linea); border-radius: 3px; margin: 7px 0; }
+.papel .firma { margin-top: 26px; font-style: italic; color: var(--carbon-55); }
+.lado-ext { background: var(--extraido); padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.lado-ext .titulo { font-size: 15px; }
+.lado-ext .titulo span { font-size: 12.5px; color: var(--carbon-55); }
+.linea { background: var(--tarjeta); border: 1px solid var(--pend-borde); border-radius: 10px; overflow: hidden; }
+.linea.ok { border-color: var(--ok-borde); }
+.l-cab { display: grid; grid-template-columns: 22px 1fr auto auto; gap: 10px; align-items: baseline; padding: 10px 14px; background: var(--pend-cab); border-bottom: 1px solid var(--pend-cab-borde); }
+.linea.ok .l-cab { background: var(--ok-cab); border-bottom-color: var(--ok-cab-borde); }
+.l-cab .n { font-weight: 800; color: var(--lima-dark); font-size: 13px; }
+.l-cab .con { font-weight: 700; font-size: 14px; }
+.l-cab .imp { font-weight: 700; white-space: nowrap; }
+.l-cab .imp small { font-weight: 400; color: var(--carbon-55); font-size: 12.5px; }
+.ok-pill { background: var(--ok-pill); color: var(--ok-txt); border-radius: 999px; padding: 1px 10px; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+.x { border: 0; background: none; color: var(--carbon-55); font-size: 12px; }
+.hitos { padding: 6px 14px 6px 46px; }
+.hitos .h { display: grid; grid-template-columns: 1fr 60px 100px; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--linea); font-size: 13px; }
+.hitos .h:last-child { border-bottom: 0; }
+.hitos .h.cab { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-55); }
+.hitos .h .d { text-align: right; }
+.duda { margin: 0 14px 6px 46px; background: var(--duda-bg); border: 1px solid var(--duda-borde); color: var(--duda-txt); border-radius: 8px; padding: 8px 12px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: space-between; align-items: flex-start; }
+.duda small { opacity: .8; font-size: 12px; }
+.duda .env { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; }
+.duda-form { margin: 0 14px 8px 46px; display: flex; flex-direction: column; gap: 8px; background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 10px; padding: 10px; }
+.duda-form .botones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.duda-form .botones .btn { background: var(--duda-btn); color: #2b2b2b; }
+.duda-form .botones .btn.sec { background: var(--tarjeta); color: var(--carbon-70); }
+.duda-form .ayuda { font-size: 12px; color: var(--carbon-65); }
+.l-pie { display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--linea); padding: 8px 14px; flex-wrap: wrap; }
+.l-pie .quien { margin-right: auto; font-size: 12px; color: var(--carbon-55); }
+.anadir { border: 1.5px dashed var(--borde); background: var(--hover); color: var(--lima-dark); border-radius: 10px; padding: 12px 14px; text-align: left; font-weight: 700; font-size: 13.5px; }
+.anadir span { font-weight: 400; color: var(--carbon-55); }
+/* lo nuevo: a donde va */
+.destino { border-radius: 12px; border: 1px solid var(--borde); background: var(--tarjeta); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.destino.cerrado { background: var(--hover); }
+.destino h3 { margin: 0; font-size: 15px; }
+.destino .falta { font-size: 13px; color: var(--carbon-65); }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .dos { grid-template-columns: 1fr; } }
+.opcion { text-align: left; border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--carbon); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.opcion b { font-size: 14.5px; }
+.opcion span { font-size: 12.5px; color: var(--carbon-65); }
+.opcion:hover:not(:disabled) { border-color: var(--lima-dark); }
+.opcion.cobro b { color: var(--lima-dark); }
+.opcion.prod b { color: var(--ajeno); }
+.opcion:disabled { opacity: .45; cursor: not-allowed; }
+.opcion.elegida { border-color: var(--lima-dark); box-shadow: inset 0 0 0 1px var(--lima-dark); }
+.resumen-cobro { font-size: 13px; color: var(--carbon-70); background: var(--lima-soft); border-radius: 10px; padding: 8px 12px; }
+.confirmar { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.confirmar .botones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.aviso { background: var(--ambar-bg); border: 1px solid var(--ambar-borde); color: var(--ambar-txt); border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+
+/* ---------- tablas (diario, primer cobro) ---------- */
+.sec-tit { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-70); margin: 24px 0 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.sec-tit .n { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--carbon-65); }
+.caja { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow-x: auto; width: fit-content; max-width: 100%; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); padding: 9px 12px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+td.nw { white-space: nowrap; }
+td.num { text-align: right; white-space: nowrap; }
+td .dir { font-weight: 700; white-space: nowrap; }
+td .hoja { font-size: 12.5px; color: var(--carbon-65); white-space: nowrap; }
+td.que { max-width: 44ch; }
+td.que .mot { display: block; font-size: 12.5px; color: var(--carbon-70); margin-top: 2px; }
+td.acc { white-space: nowrap; text-align: right; }
+td.resto { font-size: 12.5px; color: var(--carbon-70); max-width: 38ch; }
+tr.deshecha td { opacity: .5; }
+tr.abierto td { background: var(--nuevo); }
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; align-items: center; }
+.chip { font-size: 13px; font-weight: 600; border: 1px solid var(--borde); background: var(--tarjeta); color: var(--carbon-70); border-radius: 999px; padding: 4px 11px; }
+.chip[aria-pressed="true"] { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.dia { font-size: 13px; font-weight: 800; color: var(--carbon); margin: 22px 0 8px; }
+.dia span { font-weight: 600; color: var(--carbon-65); }
+.banda { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; background: var(--ambar-bg); border: 1px solid var(--ambar-borde); border-radius: 14px; padding: 10px 14px; margin-top: 16px; max-width: 980px; color: var(--ambar-txt); }
+.banda b { color: var(--carbon); }
+.form-en-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 860px; }
+@media (max-width: 640px) { .form-en-fila { grid-template-columns: 1fr; } }
+.form-en-fila .ancho { grid-column: 1 / -1; }
+.et { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); margin-bottom: 4px; }
+.opciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.opciones label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 4px 10px; cursor: pointer; }
+.opciones label small { font-weight: 400; color: var(--carbon-65); }
+.opciones label:has(input:checked) { border-color: var(--lima-dark); box-shadow: inset 0 0 0 1px var(--lima-dark); }
+.nota { font-size: 12.5px; color: var(--carbon-65); }
+.estado-cobro { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.e-sin { color: var(--ambar-txt); }
+.e-env { color: var(--ajeno); }
+.e-ok { color: var(--lima-dark); }
+
+/* ---------- Bandeja de la secretaria ---------- */
+.bandeja { margin-top: 8px; display: flex; flex-direction: column; gap: 0; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow: hidden; }
+.b-fila { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--linea); background: var(--tarjeta); color: var(--carbon); padding: 12px 18px; }
+.b-fila:hover { background: var(--hover); }
+.b-fila.on { background: var(--sel); box-shadow: inset 4px 0 0 var(--lima); }
+.b-fila .dir { font-weight: 700; font-size: 15px; }
+.b-fila .meta { font-size: 13px; color: var(--carbon-65); }
+.b-fila .por { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.b-abierta { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); border-bottom: 1px solid var(--borde); }
+@media (max-width: 960px) { .b-abierta { grid-template-columns: 1fr; } }
+.b-abierta .lado-pdf .papel { min-height: 420px; }
+.trabajo { background: var(--extraido); padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.paso { display: flex; flex-direction: column; gap: 8px; }
+.paso h4 { margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--carbon-70); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.paso h4 .hecho { color: var(--lima-dark); letter-spacing: 0; text-transform: none; font-size: 12.5px; }
+.tarj { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.tarj .grow { flex: 1 1 260px; min-width: 0; }
+.doc { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--lima-dark); background: var(--lima-soft); color: var(--lima-dark); border-radius: 999px; padding: 2px 11px; font-weight: 700; font-size: 13px; text-decoration: none; }
+.doc small { color: var(--carbon-65); font-weight: 400; }
+.vacio { font-size: 13px; color: var(--carbon-65); font-style: italic; }
+.b-linea { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.b-linea .arriba { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; flex-wrap: wrap; }
+.b-linea .con { font-weight: 700; flex: 1 1 260px; min-width: 0; }
+.b-linea .imp { font-weight: 700; white-space: nowrap; }
+.b-linea .hit { font-size: 12.5px; color: var(--carbon-65); }
+.areas { display: flex; gap: 6px; flex-wrap: wrap; }
+.area { border: 1.5px dashed var(--borde); background: var(--tarjeta); color: var(--carbon-70); border-radius: 10px; padding: 4px 11px; font-weight: 700; font-size: 13px; }
+.area.si { border-style: solid; border-color: var(--lima-dark); background: var(--lima-soft); color: var(--lima-dark); }
+.area.ya { border-style: solid; border-color: var(--ajeno); background: var(--ajeno-soft); color: var(--ajeno); cursor: default; }
+.area.pausada { border-style: solid; border-color: var(--pausa); background: var(--pausa-soft); color: var(--pausa); cursor: default; }
+.area small { font-weight: 500; }
+.otra-area { border: 0; background: none; color: var(--carbon-65); font-size: 12.5px; text-decoration: underline; text-underline-offset: 2px; padding: 4px 2px; }
+.cierre { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: flex-end; border-top: 1px solid var(--borde); padding-top: 12px; }
+.cierre .que-pasa { margin-right: auto; font-size: 13px; color: var(--carbon-70); max-width: 52ch; }
+.metida { background: var(--lima-soft); border: 1px solid var(--lima-dark); color: var(--lima-dark); border-radius: 10px; padding: 10px 12px; font-weight: 600; }
+.pausada-caja { background: var(--pausa-soft); border: 1px solid var(--pausa); border-radius: 10px; padding: 10px 12px; color: var(--carbon); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.pausada-caja b { color: var(--pausa); }
+/* ---------- Cajon de documentos de la opp (con la forma del apartado de fotos de la ficha) ---------- */
+.ficha-opp { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; max-width: 900px; }
+.apartado { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 11px 13px; display: flex; flex-direction: column; gap: 8px; }
+.ap-cab { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.ap-tit { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--carbon-65); }
+.ap-subir { margin-left: auto; border: 1px dashed var(--lima-dark); background: var(--tarjeta); color: var(--lima-dark); border-radius: 8px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+.ap-vacio { margin: 0; font-size: 12.5px; color: var(--carbon-65); }
+.soltar { border: 1.5px dashed var(--borde); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: var(--carbon-65); text-align: center; background: var(--hover); }
+.soltar.encima { border-color: var(--lima-dark); background: var(--lima-soft); color: var(--lima-dark); }
+.cj-fila { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; border: 1px solid var(--pend-borde); background: var(--pend-cab); border-radius: 8px; padding: 7px 10px; }
+.cj-fila .grow { flex: 1 1 280px; min-width: 0; }
+.cj-fila .quien { font-size: 12px; color: var(--carbon-65); }
+.cj-fila select { width: auto; max-width: 100%; }
+.cj-sub { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--carbon-65); margin-top: 4px; }
+.cj-arch { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 12.5px; color: var(--carbon-70); padding: 2px 0; }
+.cj-arch a { color: var(--lima-dark); font-weight: 700; text-decoration: none; }
+.cj-estado { font-size: 13px; font-weight: 700; color: var(--lima-dark); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- Cosas a facturar ---------- */
+.pasos { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; margin-top: 4px; }
+@media (max-width: 1000px) { .pasos { grid-template-columns: 1fr; } }
+.col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.paso-c { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.paso-c h3 { margin: 0; font-size: 15px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.paso-c h3 .num { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; background: var(--carbon); color: var(--fondo); font-size: 12px; }
+.paso-c h3 .ok { color: var(--lima-dark); font-size: 12.5px; }
+.paso-c h3 .mal { color: var(--ambar-txt); font-size: 12.5px; }
+.chk { display: grid; grid-template-columns: 22px minmax(120px, 190px) minmax(0, 1fr); gap: 6px 10px; align-items: baseline; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid var(--linea); }
+.chk:last-child { border-bottom: 0; }
+.chk .s { font-weight: 800; }
+.chk .s.si { color: var(--lima-dark); }
+.chk .s.no { color: var(--ambar-txt); }
+.chk .q { color: var(--carbon-70); font-weight: 600; }
+.chk .v { min-width: 0; overflow-wrap: anywhere; }
+.chk.falta { background: var(--ambar-bg); border-radius: 8px; padding: 6px 8px; border-bottom: 0; margin: 2px 0; }
+.chk input[type="text"] { max-width: 260px; }
+.hoja-g { border: 1px solid var(--linea); border-radius: 10px; overflow: hidden; }
+.hoja-g .hc { background: var(--extraido); padding: 7px 12px; font-size: 12.5px; color: var(--carbon-70); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hoja-g .hc a { color: var(--lima-dark); font-weight: 700; text-decoration: none; }
+.hito-f { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 7px 12px; border-top: 1px solid var(--linea); font-size: 13.5px; }
+.hito-f .que small { display: block; color: var(--carbon-65); font-size: 12px; }
+.hito-f .imp { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hito-f.antes { background: var(--hover); }
+.antes-form { grid-column: 2 / -1; display: flex; flex-direction: column; gap: 6px; background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 8px; padding: 8px 10px; }
+.quien-f { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13.5px; padding: 6px 0; border-bottom: 1px solid var(--linea); }
+.quien-f:last-child { border-bottom: 0; }
+.quien-f .grow { flex: 1 1 240px; min-width: 0; }
+.seg { display: inline-flex; border: 1px solid var(--borde); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: var(--tarjeta); color: var(--carbon-70); font-weight: 700; font-size: 12.5px; padding: 4px 10px; }
+.seg button[aria-pressed="true"] { background: var(--carbon); color: var(--fondo); }
+.aviso-q { font-size: 12.5px; color: var(--ajeno); background: var(--ajeno-soft); border-radius: 8px; padding: 6px 10px; }
+/* la proforma, en papel */
+.papel-pf { background: #fff; color: #2b2b2b; border: 1px solid rgba(0,0,0,.12); border-radius: 4px; box-shadow: 0 1px 6px rgba(0,0,0,.12); padding: 22px 24px; font-size: 12px; display: flex; flex-direction: column; gap: 10px; }
+.papel-pf .top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.papel-pf h4 { margin: 0; font-size: 15px; letter-spacing: .04em; }
+.papel-pf .sin { display: inline-block; border: 1.5px dashed #b38a1b; color: #7a5a10; font-weight: 800; font-size: 10.5px; letter-spacing: .08em; padding: 1px 8px; border-radius: 4px; text-transform: uppercase; }
+.papel-pf table { width: 100%; border-collapse: collapse; }
+.papel-pf th { font-size: 9.5px; color: #555; border-bottom: 1px solid #ccc; padding: 4px 6px; text-align: left; }
+.papel-pf td { border-bottom: 1px solid #eee; padding: 5px 6px; font-size: 11.5px; color: #2b2b2b; background: #fff !important; }
+.papel-pf td.n { text-align: right; white-space: nowrap; }
+.papel-pf td.ciega { color: #666; font-style: italic; }
+.papel-pf .tot { align-self: flex-end; display: grid; grid-template-columns: auto auto; gap: 2px 18px; font-size: 12px; }
+.papel-pf .tot b { text-align: right; }
+.papel-pf .pie-pf { border-top: 1px solid #ddd; padding-top: 8px; font-size: 11px; color: #444; }
+.pf-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 13px; font-weight: 700; }
+.correo-c { display: flex; flex-direction: column; gap: 8px; background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 12px; padding: 12px 14px; }
+.correo-c .dest { display: flex; flex-wrap: wrap; gap: 6px; }
+.correo-c .dest label { display: inline-flex; gap: 5px; align-items: center; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
+.correo-c .adj { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; }
+.pregunta { outline: 2px dashed var(--ajeno); outline-offset: 3px; border-radius: 8px; }
+.etq-preg { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: var(--ajeno-soft); color: var(--ajeno); border: 1px solid var(--ajeno); border-radius: 999px; padding: 0 7px; margin-left: 6px; vertical-align: middle; }
+.opc-preg { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; }
+</style>
+
+<div class="pagina">
+  <div class="maqueta">MAQUETA · <b>Cobrar › Cosas a facturar</b> · hojas, hitos, CIF, IBAN y condiciones reales del 25-oct; estados y correos, de ejemplo
+    <a href="#lista" id="ir-lista">La lista</a>
+    <a href="#galicia" id="ir-galicia">Galicia 7 · paga FAIN</a>
+    <a href="#platino" id="ir-platino">Platino 36 · paga la comunidad</a>
+    <span class="etq-preg">azul = lo que te pregunto</span>
+  </div>
+
+  <!-- ===================== LA LISTA ===================== -->
+  <section id="p-lista">
+    <a class="salida" href="#lista">← Cobrar</a>
+    <div class="cab">
+      <div>
+        <h1>Cosas a facturar</h1>
+        <p class="sub">Lo que ya se puede facturar, por dirección: hitos alcanzados de hojas que ya salieron de Nuevas hojas firmadas y aún sin proforma. Al abrir una: ¿lo tengo todo?, ¿qué facturo?, ¿quién factura? y la proforma.</p>
+      </div>
+      <div class="der"><a class="enlace" href="#lista">Proformas emitidas →</a></div>
+    </div>
+    <p class="nota" style="margin-top:12px">Sustituye a «Facturable ya» y a «Generar proforma». «Preparar el cobro» de Primer cobro abre aquí su dirección.</p>
+    <div class="caja" style="margin-top:8px"><table>
+      <thead><tr><th>Dirección</th><th>Paga</th><th>Lo que toca</th><th style="text-align:right">Importe</th><th>Desde</th><th>¿Lo tengo todo?</th><th></th></tr></thead>
+      <tbody id="lista"></tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== UNA DIRECCION ===================== -->
+  <section id="p-opp" hidden>
+    <a class="salida" href="#lista">← Cosas a facturar</a>
+    <div class="cab">
+      <div>
+        <h1 id="o-titulo"></h1>
+        <p class="sub" id="o-sub"></p>
+      </div>
+      <div class="der"><a class="enlace" href="#lista">Ver la ficha de facturación →</a></div>
+    </div>
+    <div class="pasos" style="margin-top:14px">
+      <div class="col">
+        <div class="paso-c" id="paso1"></div>
+        <div class="paso-c" id="paso2"></div>
+        <div class="paso-c" id="paso3"></div>
+      </div>
+      <div class="col">
+        <div class="paso-c" id="paso4"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const EUR = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
+const eur = (n) => EUR.format(n) + " €";
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let toastT;
+function aviso(html) { const t = document.getElementById("toast"); t.innerHTML = html; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 5000); }
+
+// ---------------- los datos (reales salvo lo marcado)
+const OPPS = {
+  galicia: {
+    dir: "Galicia 7, Leganes", paga: "FAIN", tipo: "contrata", desde: "hace 2 días", porque: "prevista 23 oct (ejemplo)",
+    checklist: [
+      { q: "CIF", v: "A28303485", ok: true },
+      { q: "Cómo cobra", v: "Transferencia · lo facturado antes del 20 se paga en la remesa del 6 del mes siguiente", ok: true },
+      { q: "A dónde se envía", v: "facturasproveedores.fain@fainascensores.com · y también al comercial", ok: true },
+      { q: "Código «Orden»", v: "", ok: false, campo: "codigo", nombre: "Orden" },
+      { q: "Código «Supervisor»", v: "", ok: false, campo: "codigo", nombre: "Supervisor" },
+      { q: "Código «Pedido»", v: "", ok: false, campo: "codigo", nombre: "Pedido" },
+    ],
+    docAyuda: "Orden de compra FAIN - Galicia 7.pdf",
+    hojas: [
+      { num: "HE-2025-0338", firma: "8 jul 2025", hitos: [
+        { id: "g1", linea: "Redacción del Proyecto Básico y de Ejecución (ascensor)", que: "50 % a la entrega del proyecto visado y solicitud de licencia", imp: 1750, ya: true, porque: "prevista 23 oct (ejemplo)", emisor: "accesalia" },
+        { id: "g2", linea: "Redacción del Proyecto Básico y de Ejecución (ascensor)", que: "30 % a la concesión de licencia", imp: 1050, ya: false, emisor: "accesalia" },
+        { id: "g3", linea: "Redacción del Proyecto Básico y de Ejecución (ascensor)", que: "20 % a la entrega de certificado de fin de obra", imp: 700, ya: false, emisor: "accesalia" },
+        { id: "g4", linea: "Coordinación de Seguridad y Salud", que: "80 % al acta de aprobación del plan de seguridad y salud", imp: 480, ya: false, emisor: "accesalia" },
+        { id: "g5", linea: "Coordinación de Seguridad y Salud", que: "20 % a la finalización de la obra", imp: 120, ya: false, emisor: "accesalia" },
+      ] },
+    ],
+    pagador: { nombre: "FAIN ASCENSORES, S.A.", nif: "A28303485", dom: "(domicilio fiscal de la ficha de la contrata)" },
+    forma: "transferencia", cuenta: "ES·· ···· (la cuenta de Accesalia para transferencias)",
+    dest: [["facturasproveedores.fain@fainascensores.com", "FAIN · facturas", true], ["(correo del comercial)", "Comercial · Daniel", true]],
+    reglaEmisor: "FAIN no tiene regla de quién le factura",
+  },
+  platino: {
+    dir: "Platino 36, Madrid", paga: "Comunidad", tipo: "comunidad", desde: "hace 1 día", porque: "Firmada 18 jun 2025",
+    checklist: [
+      { q: "CIF de la comunidad", v: "H79846804", ok: true },
+      { q: "Cómo cobra", v: "Cargo en cuenta", ok: true },
+      { q: "IBAN para el cargo", v: "ES33 0049 3125 7222 9402 3575", ok: true },
+      { q: "Correo del administrador", v: "(el de la agenda de la comunidad)", ok: true, ejemplo: true },
+      { q: "Correo del presidente", v: "", ok: false, campo: "correo", ejemplo: true },
+    ],
+    hojas: [
+      { num: "HE-2025-0156", firma: "18 jun 2025", hitos: [
+        { id: "p1", linea: "Proyecto de instalación de ascensor (toma de datos, 3D, básico y ejecución, visado y licencia)", que: "50 % a la contratación, en concepto de provisión de fondos", imp: 3750, ya: true, porque: "Firmada 18 jun 2025", emisor: "accesalia" },
+        { id: "p2", linea: "Proyecto de mejora de envolvente térmica (toma de datos, 3D, básico y ejecución, visado y licencia)", que: "50 % a la contratación, en concepto de provisión de fondos", imp: 3750, ya: true, porque: "Firmada 18 jun 2025", emisor: "accesalia" },
+        { id: "p3", linea: "Proyecto de instalación de ascensor", que: "50 % a la entrega de proyecto", imp: 3750, ya: false, emisor: "accesalia" },
+        { id: "p4", linea: "Proyecto de mejora de envolvente térmica", que: "50 % a la entrega de proyecto", imp: 3750, ya: false, emisor: "accesalia" },
+        { id: "p5", linea: "Tramitación de subvenciones (accesibilidad y eficiencia energética)", que: "A éxito, a la concesión: 1.980 € + IVA", imp: 1980, ya: false, emisor: "accesalia" },
+      ] },
+    ],
+    pagador: { nombre: "C.P. PLATINO 36", nif: "H79846804", dom: "C/ Platino 36, Madrid" },
+    forma: "cargo", cuenta: "ES33 0049 3125 7222 9402 3575",
+    dest: [["(administración, de la agenda)", "Administrador", true], ["(presidente, de la agenda)", "Presidente", true], ["(correo del comercial)", "Comercial · Daniel", true]],
+    reglaEmisor: "la comunidad no tiene regla",
+  },
+};
+const LISTA = [
+  { id: "platino", toca: "2 hitos · al contratar", imp: 7500, todo: true },
+  { id: "galicia", toca: "1 hito · entrega del proyecto", imp: 1750, todo: false, falta: "faltan los 3 códigos de FAIN" },
+  { id: null, dir: "Siena 55, Madrid", paga: "ROSERSESE", toca: "1 hito · ⅓ al encargo", imp: 1166.55, desde: "hace 1 día", todo: true },
+];
+const sel = {}, antes = {}, emisor = {}, codigos = {}, extra = {};
+let emitidas = {}, viendo = null, ubicCodigos = "obs";
+
+function pintarLista() {
+  document.getElementById("lista").innerHTML = LISTA.map((f) => {
+    const o = f.id ? OPPS[f.id] : f;
+    return `<tr><td><div class="dir">${esc(o.dir)}</div></td><td class="nw">${esc(o.paga)}</td><td>${esc(f.toca)}</td><td class="num"><b>${eur(f.imp)}</b></td>
+      <td class="nw">${esc(o.desde)}</td>
+      <td>${f.todo ? `<span class="estado-cobro e-ok">✓ todo</span>` : `<span class="estado-cobro e-sin">${esc(f.falta)}</span>`}</td>
+      <td class="acc">${f.id ? `<a class="btn peq" href="#${f.id}" style="text-decoration:none;display:inline-block">Abrir</a>` : `<span class="nota">en la maqueta solo se abren las dos primeras</span>`}</td></tr>`;
+  }).join("");
+}
+
+function iniciar(id) {
+  const o = OPPS[id];
+  if (sel[id]) return;
+  sel[id] = new Set(o.hojas.flatMap((h) => h.hitos.filter((x) => x.ya).map((x) => x.id)));
+  antes[id] = {};
+  emisor[id] = {}; o.hojas.forEach((h) => h.hitos.forEach((x) => (emisor[id][x.linea] = x.emisor)));
+  codigos[id] = {}; extra[id] = {};
+}
+
+function pintarOpp(id) {
+  const o = OPPS[id];
+  iniciar(id);
+  document.getElementById("o-titulo").textContent = o.dir;
+  document.getElementById("o-sub").textContent = `Paga ${o.paga} · ${o.hojas.map((h) => `${h.num}, firmada el ${h.firma}`).join(" · ")}`;
+  // 1 · ¿lo tengo todo?
+  const faltan = o.checklist.filter((c) => !c.ok && !(c.campo === "codigo" ? codigos[id][c.nombre] : extra[id][c.q]));
+  document.getElementById("paso1").innerHTML = `<h3><span class="num">1</span>¿Lo tengo todo? ${faltan.length ? `<span class="mal">falta ${faltan.length === 1 ? "1 cosa" : `${faltan.length} cosas`}</span>` : `<span class="ok">✓ todo</span>`}</h3>
+    ${o.checklist.map((c) => {
+      const hecho = c.ok || (c.campo === "codigo" ? codigos[id][c.nombre] : extra[id][c.q]);
+      const valor = c.ok ? esc(c.v) : hecho ? `<b>${esc(c.campo === "codigo" ? codigos[id][c.nombre] : extra[id][c.q])}</b> <span class="nota">· lo acabas de poner</span>`
+        : `<input type="text" data-falta="${esc(c.campo === "codigo" ? "cod:" + c.nombre : "x:" + c.q)}" placeholder="${c.campo === "codigo" ? `El ${c.nombre.toLowerCase()} que pide FAIN` : "Escríbelo: se guarda en su ficha"}">`;
+      return `<div class="chk${hecho ? "" : " falta"}"><span class="s ${hecho ? "si" : "no"}">${hecho ? "✓" : "!"}</span><span class="q">${esc(c.q)}</span><span class="v">${valor}${c.ejemplo ? ' <span class="ejemplo">ejemplo</span>' : ""}</span></div>`;
+    }).join("")}
+    ${o.docAyuda ? `<div class="aviso-q">En el cajón de la opp está <a class="doc" href="#${id}">📄 ${esc(o.docAyuda)}</a>: ábrelo para copiar los códigos.</div>` : ""}
+    <div class="soltar">¿Falta un papel (la tarjeta del CIF, el certificado de la cuenta…)? Suéltalo aquí y se archiva en su sitio.</div>
+    ${o.tipo === "contrata" ? `<div class="pregunta" style="padding:8px 10px"><b>¿Dónde van los códigos en la factura?</b><span class="etq-preg">te pregunto</span>
+      <div class="opc-preg" style="margin-top:6px">
+        <label><input type="radio" name="ubic" value="obs" ${ubicCodigos === "obs" ? "checked" : ""}> En las observaciones del pie</label>
+        <label><input type="radio" name="ubic" value="ciega" ${ubicCodigos === "ciega" ? "checked" : ""}> En una línea ciega a 0 €, como hasta ahora</label></div>
+      <div class="nota">Los códigos se guardarían en la hoja, para que valgan para todas sus facturas. Mira el papel de la derecha.</div></div>` : ""}`;
+  // 2 · ¿qué facturo?
+  document.getElementById("paso2").innerHTML = `<h3><span class="num">2</span>¿Qué facturo? <span class="nota" style="font-weight:400">${sel[id].size} ${sel[id].size === 1 ? "hito" : "hitos"}</span></h3>
+    ${o.hojas.map((h) => `<div class="hoja-g"><div class="hc"><span><b>${h.num}</b> · firmada el ${h.firma}</span><a href="#${id}">Ver la hoja firmada ↗</a></div>
+      ${h.hitos.map((x) => {
+        const on = sel[id].has(x.id);
+        const a = antes[id][x.id];
+        return `<div class="hito-f${x.ya ? "" : " antes"}"><input type="checkbox" data-hito="${x.id}" ${on ? "checked" : ""} aria-label="Facturar">
+          <span class="que">${esc(x.que)}<small>${esc(x.linea)} · ${x.ya ? `<b style="color:var(--lima-dark)">alcanzado</b> · ${esc(x.porque)}` : "aún no alcanzado"}</small></span><span class="imp">${eur(x.imp)}</span>
+          ${on && !x.ya ? `<div class="antes-form"><b style="font-size:12.5px">Facturar antes de tiempo</b>
+            <input type="text" data-motivo="${x.id}" placeholder="Por qué: «lo pide el administrador para cerrar el ejercicio»" value="${esc(a?.motivo ?? "")}">
+            <textarea data-mail="${x.id}" placeholder="Pega aquí el correo en el que lo piden (opcional)">${esc(a?.mail ?? "")}</textarea></div>` : ""}</div>`;
+      }).join("")}</div>`).join("")}`;
+  // 3 · ¿quién factura?
+  const lineas = [...new Set(o.hojas.flatMap((h) => h.hitos.filter((x) => sel[id].has(x.id)).map((x) => x.linea)))];
+  document.getElementById("paso3").innerHTML = `<h3><span class="num">3</span>¿Quién factura?</h3>
+    ${lineas.length ? lineas.map((l) => `<div class="quien-f"><span class="grow">${esc(l)}</span>
+      <span class="seg" role="group" aria-label="Quién factura"><button type="button" data-emisor="${esc(l)}" data-v="accesalia" aria-pressed="${emisor[id][l] === "accesalia"}">Accesalia</button><button type="button" data-emisor="${esc(l)}" data-v="daniel" aria-pressed="${emisor[id][l] === "daniel"}">Daniel</button></span></div>`).join("")
+      + `<div class="aviso-q">Se va a emitir como <b>${[...new Set(lineas.map((l) => emisor[id][l] === "daniel" ? "Daniel" : "Accesalia"))].join(" y ")}</b>: es lo que dice la hoja firmada, no hay proformas anteriores de estas líneas y ${esc(o.reglaEmisor)}. ¿Es correcto? Si no, cámbialo arriba.</div>`
+      : `<p class="nota">Marca algo en el paso 2.</p>`}`;
+  pintarProforma(id);
+}
+
+function pintarProforma(id) {
+  const o = OPPS[id];
+  const elegidos = o.hojas.flatMap((h) => h.hitos.filter((x) => sel[id].has(x.id)));
+  const porEmpresa = {};
+  elegidos.forEach((x) => (porEmpresa[emisor[id][x.linea]] ??= []).push(x));
+  const empresas = Object.keys(porEmpresa);
+  const faltan = o.checklist.filter((c) => !c.ok && !(c.campo === "codigo" ? codigos[id][c.nombre] : extra[id][c.q])).length;
+  const sinMotivo = elegidos.filter((x) => !x.ya && !antes[id][x.id]?.motivo?.trim()).length;
+  const cods = o.tipo === "contrata" ? o.checklist.filter((c) => c.campo === "codigo").map((c) => `${c.nombre}: ${codigos[id][c.nombre] || "—"}`).join(" · ") : "";
+  const EMI = { accesalia: ["ACCESALIA ARQUITECTURA, S.L.P.", "B-·······"], daniel: ["DANIEL DE SOTO", "·······"] };
+  const papel = (emp, xs, n) => {
+    const base = xs.reduce((s, x) => s + x.imp, 0), iva = base * 0.21, irpf = emp === "daniel" ? base * 0.15 : 0;
+    const em = emitidas[id]?.[emp];
+    return `<div class="pf-cab"><span>${empresas.length > 1 ? `Proforma ${n} de ${empresas.length} · ` : ""}${emp === "daniel" ? "Daniel" : "Accesalia"}</span>
+        ${em ? `<span class="pill p-cobro">Emitida · ${em}</span>` : `<span class="nota" style="font-weight:400">se ve antes de emitirla</span>`}</div>
+      <div class="papel-pf"><div class="top"><div><h4>PROFORMA ${em ?? ""}</h4>${em ? "" : '<span class="sin">sin emitir · vista previa</span>'}<div style="margin-top:6px">${EMI[emp][0]}<br>NIF ${EMI[emp][1]}</div></div>
+        <div style="text-align:right"><b>${esc(o.pagador.nombre)}</b><br>NIF ${esc(o.pagador.nif)}<br>${esc(o.pagador.dom)}</div></div>
+        <table><thead><tr><th>Concepto</th><th style="text-align:right">Base</th></tr></thead><tbody>
+        ${xs.map((x) => `<tr><td>Según hoja de encargo ${o.hojas[0].num}: ${esc(x.que.toLowerCase())} por ${esc(x.linea.charAt(0).toLowerCase() + x.linea.slice(1))} en ${esc(o.dir)}.${!x.ya ? " (Facturado antes del hito, a petición del cliente.)" : ""}</td><td class="n">${eur(x.imp)}</td></tr>`).join("")}
+        ${cods && ubicCodigos === "ciega" ? `<tr><td class="ciega">${esc(cods)}</td><td class="n">0,00 €</td></tr>` : ""}
+        </tbody></table>
+        <div class="tot"><span>Base</span><b>${eur(base)}</b><span>IVA 21 %</span><b>${eur(iva)}</b>${irpf ? `<span>IRPF 15 %</span><b>− ${eur(irpf)}</b>` : ""}<span><b>Total</b></span><b>${eur(base + iva - irpf)}</b></div>
+        <div class="pie-pf"><b>Forma de pago:</b> ${o.forma === "cargo" ? `cargo en cuenta, ${esc(o.cuenta)}` : `transferencia a ${esc(o.cuenta)}`}
+          ${cods && ubicCodigos === "obs" ? `<br><b>Observaciones:</b> ${esc(cods)}` : ""}</div></div>`;
+  };
+  const bloqueado = faltan || sinMotivo || !elegidos.length;
+  const motivoBloq = !elegidos.length ? "Marca qué facturas." : faltan ? `Falta completar el paso 1 (${faltan}).` : `Falta el motivo de lo que se factura antes de tiempo.`;
+  const todasEmitidas = empresas.length && empresas.every((e) => emitidas[id]?.[e]);
+  document.getElementById("paso4").innerHTML = `<h3><span class="num">4</span>La proforma ${empresas.length > 1 ? `<span class="mal">se parte en ${empresas.length}: una por empresa</span>` : ""}</h3>
+    <div class="nota">Forma de pago: la de las condiciones de cobro de ${esc(o.paga)}.
+      <select aria-label="Forma de pago" style="width:auto"><option ${o.forma === "cargo" ? "selected" : ""}>Cargo en cuenta</option><option ${o.forma === "transferencia" ? "selected" : ""}>Transferencia</option><option>Confirming</option></select></div>
+    ${empresas.map((e, i) => papel(e, porEmpresa[e], i + 1)).join("") || `<p class="nota">Marca qué facturas y aquí la ves.</p>`}
+    ${todasEmitidas ? correoHtml(id) : `<div class="cierre"><span class="que-pasa">${bloqueado ? esc(motivoBloq) : "Al emitirla le toca su número y ya no se cambia (se anula y se hace otra)."}</span>
+      <button type="button" class="btn" data-emitir="${id}" ${bloqueado ? "disabled" : ""}>${empresas.length > 1 ? `Emitir las ${empresas.length} proformas` : "Emitir la proforma"}</button></div>`}`;
+}
+
+function correoHtml(id) {
+  const o = OPPS[id];
+  const sel1 = o.hojas[0].hitos.find((x) => sel[id].has(x.id));
+  return `<div class="correo-c"><b>Enviar por correo</b> <span class="nota">desde facturacion.accesalia@gmail.com · plantilla «Envío proforma»</span>
+    <div><span class="et">Para</span><div class="dest">${o.dest.map(([c, q, on]) => `<label><input type="checkbox" ${on ? "checked" : ""}> ${esc(q)} <span class="nota">${esc(c)}</span></label>`).join("")}</div></div>
+    <div><label class="et" for="asunto">Asunto</label><input type="text" id="asunto" value="${esc(o.dir.toUpperCase())} – FACTURA ${esc(sel1 ? sel1.que.toLowerCase() : "")}"></div>
+    <div><label class="et" for="cuerpo">Texto</label><textarea id="cuerpo" rows="5">Buenos días:\n\nOs adjuntamos la proforma ${Object.values(emitidas[id]).join(" y ")} de ${o.dir}, por ${sel1 ? sel1.que.toLowerCase() : ""}.\n\nEn cuanto nos confirméis, emitimos la factura.\n\nUn saludo,\nAccesalia · Facturación</textarea></div>
+    <div class="adj"><span class="et" style="width:100%">Adjuntos</span><span class="doc">📄 Proforma ${Object.values(emitidas[id]).join(", ")}.pdf</span><label class="doc"><input type="checkbox" checked> 📄 Hoja de encargo firmada ${o.hojas[0].num}.pdf</label></div>
+    <div class="botones" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button type="button" class="btn sec peq">Descargar el PDF</button><button type="button" class="btn peq" data-enviar="${id}">Enviar</button></div></div>`;
+}
+
+document.getElementById("p-opp").addEventListener("click", (e) => {
+  const b = e.target.closest("button, input[type=checkbox]"); if (!b) return;
+  const id = viendo;
+  if (b.dataset.hito) { const s = sel[id]; s.has(b.dataset.hito) ? s.delete(b.dataset.hito) : s.add(b.dataset.hito); delete emitidas[id]; pintarOpp(id); }
+  else if (b.dataset.emisor) { emisor[id][b.dataset.emisor] = b.dataset.v; delete emitidas[id]; pintarOpp(id); }
+  else if (b.dataset.emitir) {
+    const o = OPPS[id]; const emps = [...new Set(o.hojas.flatMap((h) => h.hitos.filter((x) => sel[id].has(x.id)).map((x) => emisor[id][x.linea])))];
+    emitidas[id] = Object.fromEntries(emps.map((e, i) => [e, e === "daniel" ? `D-2026-10-${String(14 + i).padStart(3, "0")}` : `A-2026-10-${String(41 + i).padStart(3, "0")}`]));
+    aviso("Emitida (número de ejemplo). Ahora se envía; en Proformas emitidas queda esperando el ok."); pintarProforma(id);
+  } else if (b.dataset.enviar) { aviso(`Enviada. ${esc(OPPS[id].dir)} pasa a «Proformas emitidas», esperando el ok.`); }
+});
+document.getElementById("p-opp").addEventListener("change", (e) => {
+  const t = e.target, id = viendo;
+  if (t.dataset.falta && t.value.trim()) { const [k, n] = [t.dataset.falta.slice(0, t.dataset.falta.indexOf(":")), t.dataset.falta.slice(t.dataset.falta.indexOf(":") + 1)]; (k === "cod" ? codigos[id] : extra[id])[n] = t.value.trim(); pintarOpp(id); }
+  if (t.name === "ubic") { ubicCodigos = t.value; pintarProforma(id); }
+  if (t.dataset.motivo != null) { (antes[id][t.dataset.motivo] ??= {}).motivo = t.value; pintarProforma(id); }
+  if (t.dataset.mail != null) { (antes[id][t.dataset.mail] ??= {}).mail = t.value; }
+});
+
+function ir() {
+  const p = (location.hash || "#lista").slice(1);
+  const opp = p in OPPS;
+  document.getElementById("p-lista").hidden = opp;
+  document.getElementById("p-opp").hidden = !opp;
+  ["lista", "galicia", "platino"].forEach((x) => document.getElementById("ir-" + x).classList.toggle("on", x === p));
+  if (opp) { viendo = p; pintarOpp(p); } else pintarLista();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", ir);
+ir();
+</script>
