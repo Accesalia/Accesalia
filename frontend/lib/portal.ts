@@ -265,15 +265,6 @@ export async function cerrarSesion() {
   (await cookies()).delete({ name: COOKIE, path: "/portal" });
 }
 
-// ------------------------------------------------------------ lo que se les pide
-
-/** Lo que ha subido ESTE correo a esta comunidad (para que lo vea en su lista). */
-export async function subidoPor(email: string, comunidadId: string) {
-  return pedir<{ id: string; tipo: string; descripcion: string | null; nombre_fichero: string | null; estado: string; creado_en: string; hoja: { numero_hoja: string | null } | null }[]>(
-    `portal_recibidos?select=id,tipo,descripcion,nombre_fichero,estado,creado_en,hoja:hoja_encargo_id(numero_hoja)&comunidad_id=eq.${comunidadId}&subido_por_email=eq.${encodeURIComponent(limpio(email))}&order=creado_en.desc&limit=50`,
-  );
-}
-
 // ------------------------------------------------------------ la subida
 
 const nombreLimpio = (n: string) =>
