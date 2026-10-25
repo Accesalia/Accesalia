@@ -12,7 +12,8 @@
 import "server-only";
 import { datosHoja, type Documento } from "./hojaEncargo";
 import { fotosDeOportunidad, type Foto } from "./fotos";
-import { hojasDeOpp, type HojaHe } from "./hojasOpp";
+import { firmadasDeOpp, hojasDeOpp, type HojaHe } from "./hojasOpp";
+import type { DocCajon } from "./cajonDocumentos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -61,13 +62,15 @@ export type Documentacion = {
   /** Las hojas del sistema nuevo (25-oct-2026), del lector unico. Las de arriba (las de siempre) se van el dia de la
    *  migracion, cuando las viejas pasen a las tablas nuevas. */
   hojasNuevas: HojaHe[];
+  /** Las hojas firmadas archivadas en la opp que el comercial aun no ha validado, y el enlace de cada firmada (por id). */
+  firmadas: { porValidar: DocCajon[]; enlace: Record<string, { nombre: string; url: string | null }> };
   /** Las fotografias de la oportunidad: las de las notas del comercial, que
    *  son del repositorio comun y las ven tecnicos y administrativas (8-oct). */
   fotos: (Foto & { fecha: string })[];
 };
 
 export async function documentacionDe(oppId: string): Promise<Documentacion> {
-  const [viabs, datos, presupuestos, fotos, deLaApp, hojasNuevas] = await Promise.all([
+  const [viabs, datos, presupuestos, fotos, deLaApp, hojasNuevas, firmadas] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
       necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
@@ -94,6 +97,7 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
     ).catch(() => []),
     // Si las hojas nuevas fallan, el bloque se sigue viendo (y queda en los registros).
     hojasDeOpp(oppId).catch((e) => { console.error("hojasDeOpp", oppId, e); return [] as HojaHe[]; }),
+    firmadasDeOpp(oppId).catch((e) => { console.error("firmadasDeOpp", oppId, e); return { porValidar: [] as DocCajon[], todas: new Map<string, DocCajon>() }; }),
   ]);
 
   const v = viabs[0];
@@ -137,5 +141,6 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
     });
 
   const presus = deLaApp.map((p) => ({ id: p.id, codigo: p.codigo, fecha: p.fecha, base: Number(p.base) || 0, generado: !!p.url_pdf }));
-  return { viabilidad, presupuestos: presus, hojas, hojasNuevas, fotos };
+  const enlace = Object.fromEntries([...firmadas.todas].map(([id, d]) => [id, { nombre: d.nombre, url: d.url }]));
+  return { viabilidad, presupuestos: presus, hojas, hojasNuevas, firmadas: { porValidar: firmadas.porValidar, enlace }, fotos };
 }

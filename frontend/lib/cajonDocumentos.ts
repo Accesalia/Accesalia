@@ -29,6 +29,8 @@ const GRUPOS: { grupo: string; tipos: [string, string][] }[] = [
   {
     grupo: "De la opp",
     tipos: [
+      // La hoja de encargo firmada por la comunidad: archivada asi, le sale al comercial para validarla (25-oct-2026).
+      ["Hoja de encargo", "Hoja de encargo firmada"],
       ["Orden de compra de la contrata", "Orden de compra de la contrata"],
       ["Presupuesto de la contrata", "Presupuesto de la contrata"],
       ["Contrato", "Contrato"],

@@ -11,6 +11,8 @@ import "server-only";
 //     «reanudada» detras; con «pausa_levantada» entre medias esta «para reanudar», pero sigue parada.
 //   - El IMPORTE no se guarda: lo que se cobra con importe (el conjunto con «solo el total», la suma de sus proyectos).
 
+import { cajonDeOpp, type DocCajon } from "./cajonDocumentos";
+
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
 const CAB = { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` };
@@ -74,12 +76,14 @@ export type VersionHe = {
   /** Que se hace: los tipos (desglose) de sus lineas, sin repetir. */
   tipos: string[];
   tienePdf: boolean;
+  /** La firmada que valido el comercial (documento del archivo de la opp). */
+  firmadaDocumentoId: string | null;
   presupuesto: { id: string; codigo: string | null } | null;
 };
 export type HojaHe = { codigo: string | null; actual: VersionHe; anteriores: VersionHe[] };
 
 type Fila = {
-  id: string; codigo_he: string | null; numero_version: number; estado: string; creado_en: string; fecha_emision: string | null; pdf: string | null;
+  id: string; codigo_he: string | null; numero_version: number; estado: string; creado_en: string; fecha_emision: string | null; pdf: string | null; firmada_documento_id: string | null;
   contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
   comercial: { nombre: string } | null; quien: { nombre: string } | null;
   estados: { estado: string; fecha: string; nota: string | null; lado: string | null; tejado: string | null; condicion: string | null; persona: { nombre: string } | null }[];
@@ -89,7 +93,7 @@ type Fila = {
 };
 
 const SEL =
-  "id,codigo_he,numero_version,estado,creado_en,fecha_emision,pdf," +
+  "id,codigo_he,numero_version,estado,creado_en,fecha_emision,pdf,firmada_documento_id," +
   "contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre)," +
   "comercial:comercial_id(nombre),quien:generada_por(nombre)," +
   "estados:he_estados_hoja(estado,fecha,nota,lado,tejado,condicion,persona:persona_id(nombre))," +
@@ -143,6 +147,7 @@ function aVersion(f: Fila): VersionHe {
     aExito,
     tipos: [...new Set(f.lineas.map((l) => l.desglose?.nombre).filter((x): x is string => !!x))],
     tienePdf: !!f.pdf,
+    firmadaDocumentoId: f.firmada_documento_id,
     presupuesto: f.presupuestos[0] ?? null,
   };
 }
@@ -162,4 +167,22 @@ export async function hojasDeOpp(oppId: string): Promise<HojaHe[]> {
     const actual = orden.find((v) => v.estado !== "sustituida") ?? orden[0];
     return { codigo: actual.codigo, actual, anteriores: orden.filter((v) => v !== actual) };
   });
+}
+
+/** Las fases en las que una version puede recibir su firmada: enviada (o con el ok, si se mando sin marcarla), o
+ *  devuelta por firma con errores. */
+export const ESPERA_FIRMADA = ["ok_daniel", "enviada", "firma_con_errores"];
+
+/** LAS HOJAS FIRMADAS POR VALIDAR (Monica, 25-oct-2026): los documentos del archivo de la opp con el tipo «Hoja de
+ *  encargo» (lleguen por el portal o por el cajon) que aun no ha validado el comercial (ninguna version apunta a ellos).
+ *  Y, aparte, todas las firmadas de la opp, para ver la de cada version. */
+export async function firmadasDeOpp(oppId: string): Promise<{ porValidar: DocCajon[]; todas: Map<string, DocCajon> }> {
+  if (!/^[0-9a-f-]{36}$/.test(oppId)) return { porValidar: [], todas: new Map() };
+  const [docs, enlazadas] = await Promise.all([
+    cajonDeOpp(oppId),
+    leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&oportunidad_id=eq.${oppId}&firmada_documento_id=not.is.null`),
+  ]);
+  const firmadas = docs.filter((d) => d.tipo === "Hoja de encargo firmada");
+  const usadas = new Set(enlazadas.map((e) => e.firmada_documento_id));
+  return { porValidar: firmadas.filter((d) => !usadas.has(d.id)), todas: new Map(firmadas.map((d) => [d.id, d])) };
 }

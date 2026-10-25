@@ -231,3 +231,33 @@ export async function anularHoja(versionId: string, motivo: string, yo: Yo): Pro
   if (!motivo.trim()) throw new Error("Di por qué se anula.");
   await ponerEstado(v.id, "anulada", yo, motivo.trim());
 }
+
+/** VALIDAR LA HOJA FIRMADA (Monica, 25-oct-2026). El comercial que lleva la opp dice a que hoja(s) corresponde el
+ *  documento archivado como «Hoja de encargo» (un PDF puede traer varias) y comprueba las tres cosas: bien firmada,
+ *  la ultima version que se envio y sin retocar. Bien: la version apunta a su firmada y pasa a firmada_recibida y a
+ *  ok_comercial (ahi entra facturacion). Mal: firma_con_errores con su nota, y se devuelve a quien paga. */
+export async function validarFirmada(oppId: string, documentoId: string, versionIds: string[], decision: "ok" | "errores", nota: string | null, yo: Yo): Promise<void> {
+  if (!/^[0-9a-f-]{36}$/.test(documentoId)) throw new Error("Documento no válido.");
+  if (!versionIds.length) throw new Error("Di de qué hoja es la firmada.");
+  const [doc] = await pedir<{ id: string; oportunidad_id: string | null; nombre: string | null; tipo: { nombre: string } | null }[]>(
+    `documentos?select=id,oportunidad_id,nombre,tipo:tipos_documento(nombre)&id=eq.${documentoId}`,
+  );
+  if (!doc || doc.oportunidad_id !== oppId) throw new Error("Ese documento no es de esta oportunidad.");
+  if (doc.tipo?.nombre !== "Hoja de encargo") throw new Error("Ese documento no está archivado como hoja de encargo firmada.");
+  const vs = await Promise.all(versionIds.map(versionDe));
+  for (const v of vs) {
+    if (v.oportunidad_id !== oppId) throw new Error("Esa hoja no es de esta oportunidad.");
+    if (!["ok_daniel", "enviada", "firma_con_errores"].includes(v.estado)) throw new Error(`La ${v.codigo_he ?? "hoja"} v${v.numero_version} no está esperando la firma.`);
+  }
+  const texto = (nota ?? "").trim();
+  if (decision === "errores" && !texto) throw new Error("Di qué está mal en la firma.");
+  for (const v of vs) {
+    await pedir(`he_versiones_hoja?id=eq.${v.id}`, { method: "PATCH", body: JSON.stringify({ firmada_documento_id: doc.id }) });
+    if (decision === "errores") {
+      await ponerEstado(v.id, "firma_con_errores", yo, texto);
+      continue;
+    }
+    await ponerEstado(v.id, "firmada_recibida", yo, `Firmada: ${doc.nombre ?? "documento del archivo"}.`);
+    await ponerEstado(v.id, "ok_comercial", yo, ["Comprobado: bien firmada, es la última versión enviada y no está retocada.", texto].filter(Boolean).join(" "));
+  }
+}

@@ -247,8 +247,10 @@ export function Bloque2({
       <div className={CAJA + " mt-2.5"}>
         <div className={BANDA}>Hoja de encargo</div>
         {/* Las del sistema nuevo, con lo que toca hacer en su fase (25-oct-2026). */}
-        {d.hojasNuevas.length > 0 && <HojasNuevas oppId={id} hojas={d.hojasNuevas} fases={FASE_HE} />}
-        {d.hojas.length === 0 ? (d.hojasNuevas.length > 0 ? null : (
+        {(d.hojasNuevas.length > 0 || d.firmadas.porValidar.length > 0) && (
+          <HojasNuevas oppId={id} hojas={d.hojasNuevas} fases={FASE_HE} porValidar={d.firmadas.porValidar} firmadas={d.firmadas.enlace} />
+        )}
+        {d.hojas.length === 0 ? (d.hojasNuevas.length > 0 || d.firmadas.porValidar.length > 0 ? null : (
           <p className="mt-2 text-[12px] text-amber-900/80">Todavía no hay ninguna hoja de esta oportunidad.</p>
         )) : (
           <ul className="mt-1.5 divide-y divide-[#eee]">
