@@ -20,10 +20,8 @@ import { enviarCorreo } from "./correo";
 import { crearEntrada } from "./entradaDiario";
 import { pdfGuardado as pdfViabilidad } from "./viabilidadComercial";
 import { pdfGuardado as pdfPresupuesto } from "./presupuesto";
-import { pdfDeVersion } from "./hojaEncargo";
 import { pdfDeHojaVersion } from "./hojaEmitir";
 import { ponerEstado } from "./hojaCompromisos";
-import { estadoRevision } from "./revisionOferta";
 import { recalcularLuego } from "./estadoOportunidad";
 import { informesDeOportunidad, leerInforme } from "./informeCostes";
 import { pdfDeInformeCostes } from "./pdf/InformeCostesDoc";
@@ -43,7 +41,7 @@ const FECHA = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit
 const CORREO_VALIDO = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
 export type DocEnviable = {
-  /** "viabilidad:<id>", "presupuesto:<id>", "hoja:<versionId>" o "costes:<id>". */
+  /** "viabilidad:<id>", "presupuesto:<id>", "he:<versionId>" (una hoja) o "costes:<id>". */
   clave: string;
   tipo: string;
   nombre: string;
@@ -82,16 +80,12 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!o) return null;
 
   // ---------------- los documentos generados
-  const [viabs, pptos, hojas, informes, nuevas] = await Promise.all([
+  const [viabs, pptos, informes, nuevas] = await Promise.all([
     pedir<{ id: string; numero: string | null; version: number; rematada_en: string | null }[]>(
       `viabilidades?select=id,numero,version,rematada_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=creado_en.desc`,
     ),
     pedir<{ id: string; codigo: string | null; generado_en: string | null }[]>(
       `presupuestos?select=id,codigo,generado_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=generado_en.desc`,
-    ),
-    pedir<{ numero_hoja: string | null; versiones: { id: string; numero_version: number; url_pdf_hoja: string | null; creado_en: string }[] }[]>(
-      `hojas_encargo?select=numero_hoja,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,url_pdf_hoja,creado_en)` +
-        `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=creado_en.desc`,
     ),
     informesDeOportunidad(oppId),
     // LAS HOJAS NUEVAS (25-oct-2026): las que tienen el ok de Daniel (para enviarlas) o ya se enviaron (para reenviarlas).
@@ -102,11 +96,6 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   const documentos: DocEnviable[] = [
     ...viabs.map((v) => ({ clave: `viabilidad:${v.id}`, tipo: "Viabilidad", nombre: `Viabilidad ${v.numero ?? ""} v${v.version}`.trim(), enlace: `/comercial/viabilidad/${v.id}/pdf`, fecha: v.rematada_en })),
     ...pptos.map((p) => ({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: p.generado_en })),
-    ...hojas.flatMap((h) => {
-      // De cada hoja, su ultima version con PDF.
-      const v = [...h.versiones].filter((x) => x.url_pdf_hoja).sort((a, b) => b.numero_version - a.numero_version)[0];
-      return v ? [{ clave: `hoja:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${h.numero_hoja ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.creado_en }] : [];
-    }),
     ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/gestiones/hoja-prueba/pdf/${v.id}`, fecha: v.fecha_emision })),
     ...informes
       .filter((x) => x.tipo === "estimacion_costes")
@@ -164,10 +153,6 @@ async function pdfDe(clave: string): Promise<{ nombre: string; contenido: Uint8A
     const p = await pdfPresupuesto(id);
     return p ? { nombre: p.nombre, contenido: p.pdf } : null;
   }
-  if (tipo === "hoja") {
-    const h = await pdfDeVersion(id);
-    return h ? { nombre: h.nombre, contenido: h.pdf } : null;
-  }
   if (tipo === "he") {
     const h = await pdfDeHojaVersion(id);
     return h ? { nombre: h.nombre, contenido: h.pdf } : null;
@@ -193,19 +178,20 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   if (!e.asunto.trim() || !e.cuerpo.trim()) throw new Error("Faltan el asunto o el texto.");
 
   const elegidos = d.documentos.filter((x) => e.docs.includes(x.clave));
-  // LA OFERTA (hoja o presupuesto) NO SALE SIN SU OK (Monica, 14-oct-2026). Las hojas nuevas y sus presupuestos llevan
-  // el ok POR HOJA (25-oct-2026): solo se pueden elegir con el ok de Daniel (ver paraEnviar). Lo de antes, con su paquete.
+  // LA OFERTA NO SALE SIN SU OK (Monica, 14-oct-2026), y el ok es POR HOJA (25-oct-2026): las hojas solo se ofrecen
+  // con el ok de Daniel (paraEnviar); un presupuesto, solo si TODAS las hojas que lleva lo tienen.
   const pptosElegidos = elegidos.filter((x) => x.clave.startsWith("presupuesto:")).map((x) => x.clave.slice(13));
-  const deHojaNueva = new Set(
-    pptosElegidos.length
-      ? (await pedir<{ id: string; v: { estado: string } | null }[]>(`presupuestos?select=id,v:he_version_id(estado)&id=in.(${pptosElegidos.join(",")})&he_version_id=not.is.null`))
-          .filter((p) => p.v && !["borrador", "pendiente_ok_daniel", "cambios_daniel", "anulada", "sustituida"].includes(p.v.estado))
-          .map((p) => p.id)
-      : [],
-  );
-  const conPaqueteViejo = elegidos.some((x) => x.clave.startsWith("hoja:") || (x.clave.startsWith("presupuesto:") && !deHojaNueva.has(x.clave.slice(13))));
-  if (conPaqueteViejo && !(await estadoRevision(oppId)).okVigente)
-    throw new Error("Falta el ok a la oferta (o caducó porque algo cambió): pídelo en la hoja de encargo antes de enviarla.");
+  if (pptosElegidos.length) {
+    const pp = await pedir<{ id: string; codigo: string | null; v: { estado: string } | null; hojas: { v: { estado: string } | null }[] }[]>(
+      `presupuestos?select=id,codigo,v:he_version_id(estado),hojas:presupuesto_hojas(v:he_version_id(estado))&id=in.(${pptosElegidos.join(",")})`,
+    );
+    const SIN_OK = ["borrador", "pendiente_ok_daniel", "cambios_daniel", "anulada", "no_firmada"];
+    for (const p of pp) {
+      const fases = [p.v, ...p.hojas.map((h) => h.v)].filter((x): x is { estado: string } => !!x).map((x) => x.estado);
+      if (!fases.length || fases.some((f) => SIN_OK.includes(f)))
+        throw new Error(`El presupuesto ${p.codigo ?? ""} lleva alguna hoja sin el ok de Daniel: no se envía.`.replace("  ", " "));
+    }
+  }
   const adjuntos = (await Promise.all(elegidos.map((x) => pdfDe(x.clave)))).filter((x): x is { nombre: string; contenido: Uint8Array } => !!x);
   if (adjuntos.length < elegidos.length) throw new Error("Algún documento no se ha podido leer del almacén: no se envía nada.");
 
@@ -269,25 +255,8 @@ Entra con tu correo; te llegará un enlace para acceder.`;
   });
   if (!r.ok) throw new Error(`No se ha enviado: ${r.dice}`);
 
-  // ENVIAR LA HOJA POR CORREO ES ENVIARLA (Monica, 15-oct-2026): "enviar mail
-  // desde la app siempre deberia dejar huella y poder usarse como rastro". La
-  // version que sale queda con su fecha de envio y la hoja, enviada a la
-  // comunidad, sin tener que marcarlo a mano.
-  const versiones = elegidos.filter((x) => x.clave.startsWith("hoja:")).map((x) => x.clave.slice(5));
-  if (versiones.length) {
-    const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
-    await pedir(`versiones_hoja?id=in.(${versiones.join(",")})&fecha_enviada=is.null`, {
-      method: "PATCH",
-      body: JSON.stringify({ fecha_enviada: hoy }),
-    });
-    const hojas = await pedir<{ hoja_encargo_id: string }[]>(`versiones_hoja?select=hoja_encargo_id&id=in.(${versiones.join(",")})`);
-    const ids = [...new Set(hojas.map((h) => h.hoja_encargo_id))];
-    if (ids.length)
-      await pedir(`hojas_encargo?id=in.(${ids.join(",")})&estado=in.(borrador,pendiente_firma_daniel,firmada_daniel,cambios_solicitados)`, {
-        method: "PATCH",
-        body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
-      });
-  }
+  // ENVIAR LA HOJA POR CORREO ES ENVIARLA (Monica, 15-oct-2026): "enviar mail desde la app siempre deberia dejar
+  // huella y poder usarse como rastro".
   // LAS HOJAS NUEVAS (25-oct-2026): enviarla por correo es enviarla. La que tenia el ok de Daniel pasa a «enviada», con
   // la fecha y la hora del envio (su fila del historial) y a quien se mando.
   const nuevasEnviadas = elegidos.filter((x) => x.clave.startsWith("he:")).map((x) => x.clave.slice(3));
