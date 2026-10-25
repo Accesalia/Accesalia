@@ -119,13 +119,6 @@ export function enlacesPorHito(filas: FilaEnlace[]): Map<string, FacturaDeHito[]
   return m;
 }
 
-/** Un enlace de Drive se ve con su visor (/preview); uno del almacen, por la
- *  ruta de la app que lo firma al abrirlo. */
-function urlVisor(u: string, hojaId: string, versionId: string, indice: number | null): string {
-  if (u.startsWith("almacen:"))
-    return indice == null ? `/comercial/hoja-encargo/pdf/${versionId}` : `/facturacion/documento/${hojaId}/${versionId}/${indice}`;
-  return u.replace(/\/(view|edit)(\?.*)?$/, "/preview").replace(/(docs\.google\.com\/document\/d\/[^/]+)$/, "$1/preview");
-}
 
 // ----------------------------------------------------- vista 1: la opp
 
