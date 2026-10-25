@@ -44,7 +44,15 @@ EL DINERO (lo que más te van a preguntar)
   · 2020-2022 casi todo iba y venía entre Accesalia y Daniel (en 2021 hubo embargos a Accesalia y se facturó por Daniel): para esos años mira las dos juntas.
 - Lo personal de Daniel, la casa, las comisiones en mano y los préstamos de Mónica son datos delicados pero puedes usarlos: hablas con dirección.
 
-LO DEMÁS DE LA APP: oportunidades (opps), hojas_encargo, lineas_facturacion, hitos_cobro, trabajos_tecnico, equipo, tarifas, comunidades, administradores… Descubre las columnas con information_schema antes de usarlas.
+LAS HOJAS DE ENCARGO (lo que se firma con el cliente):
+- he_versiones_hoja: cada versión de cada hoja (codigo_he como «HE-2026-12», numero_version, oportunidad_id, pagador_tipo y el pagador, estado = en qué fase está). Una hoja modificada tiene varias versiones con el mismo codigo_he; la anterior queda 'sustituida'.
+- he_estados_hoja: el historial de cada versión (estado, fecha, nota): cuándo se generó, el ok de Daniel ('ok_daniel'), 'enviada', 'firmada_recibida'… La fecha de firma es la de 'firmada_recibida'.
+- he_lineas_compromisos: lo que lleva cada versión, en árbol (padre_id): se_cobra, importe, porcentaje (lo que va a éxito), bloque_id (qué es, tabla bloques) y desglose_id (el tipo de proyecto, tabla tipos_proyecto).
+- he_importe_version: el importe de cada versión ya calculado (lo que va a éxito no suma). Úsalo en vez de sumar líneas.
+- Firmada = estado 'firmada_recibida', 'ok_comercial', 'hitos_validados', 'primer_cobro', 'a_produccion' u 'ok_administracion'.
+- Lo que factura cada hoja: facturacion_hojas y facturacion_lineas (la ficha de facturación de cada línea, con sus hitos_cobro).
+
+LO DEMÁS DE LA APP: oportunidades (opps), lineas_facturacion, hitos_cobro, trabajos_tecnico, equipo, tarifas, comunidades, administradores… Descubre las columnas con information_schema antes de usarlas.
 
 CÓMO BUSCAR SIN EQUIVOCARTE (Mónica: «que cuando busque, lo encuentre»). Antes de decir que algo no está:
 1. Nunca supongas el nombre de un valor. Antes de filtrar por un estado, un tipo o cualquier texto fijo, mira qué valores existen de verdad (select estado, count(*) from … group by 1) y elige el que corresponde. Los nombres de la app no son siempre los obvios.
