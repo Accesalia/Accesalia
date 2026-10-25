@@ -7,6 +7,9 @@
 // guardar; PREVISUALIZAR el papel antes de guardar; y SEGUIR EDITANDO un borrador guardado (cargar() lo rehace).
 // Las reglas (que pregunta cada paquete) estan aqui de momento; al implementarlo de verdad pasan al catalogo.
 // Generado desde la maqueta: lo de debajo de «const hoja» es su codigo, cambiando document por la raiz.
+// A QUIEN VA Y TARIFAS (Monica, 25-oct-2026): quien paga elige la tarifa (su convenio o la general) y la forma de pago por
+// defecto; cada linea propone el precio de la tarifa con el calculo del generador viejo (fijo, tramo de viviendas de SUS
+// portales, % del PEM o % a exito) y sale «incluido» lo que el precio de otra ya incluye. Lo escrito a mano manda.
 export function montarArbol(root, datos) {
   const ac = new AbortController();
   const document_ = {
@@ -19,9 +22,19 @@ export function montarArbol(root, datos) {
   const FORMAS = datos.formas || [];
   const INT = new Set(datos.interesa || []);
   const def = (codigo) => D[codigo] || {};
+  const PRECIOS = datos.tarifas || [];
+  const CASOS = datos.casos || [];
+  let PAG = datos.pagador || { tipo: "comunidad", contrataId: null, tarifaId: null, razon: "", cif: "" };
+  // LA FORMA DE PAGO POR DEFECTO de un bloque segun quien paga: la de esa contrata, si no la de su tipo, si no «pague quien pague».
+  const formaDefecto = (codigo) => {
+    const de = CASOS.filter((c) => c.bloque === codigo);
+    return (de.find((c) => c.pagador === "contrata" && PAG.tipo === "contrata" && c.contrataId === PAG.contrataId)
+      ?? de.find((c) => c.pagador === PAG.tipo && !c.contrataId) ?? de.find((c) => c.pagador === "cualquiera"))?.forma ?? "";
+  };
 
   let uid = 0;
-  const ln = (nombre, bloque, o = {}) => ({ id: ++uid, t: "linea", nombre, bloque, cobra: false, importe: null, pct: null, forma: "", formaPropia: "", papel: true, quitada: false, ...o });
+  // cobraBase / importeBase: lo que trae del catalogo, por si la tarifa no dice nada.
+  const ln = (nombre, bloque, o = {}) => { const r = { id: ++uid, t: "linea", nombre, bloque, cobra: false, importe: null, pct: null, forma: "", formaPropia: "", papel: true, quitada: false, ...o }; r.cobraBase = r.cobra; r.importeBase = r.importe; return r; };
   // Cada cabecera es la fila de su bloque (la DF, la CSS, el proyecto con su tipo…), colgando sus lineas.
   const cab = (nombre, bloque, hijos, o = {}) => ({ id: ++uid, t: "cab", nombre, bloque, hijos, quitada: false, forma: "", formaPropia: "", ...o });
   const preg = (texto, opciones, o = {}) => ({ id: ++uid, t: "preg", texto, opciones, resp: null, creado: [], ...o });
@@ -186,13 +199,14 @@ export function montarArbol(root, datos) {
   }
   function celdasPrecio(n, q) {
     const papel = q ? "" : `<button type="button" class="sale${n.papel ? "" : " no"}" data-papel="${n.id}">${n.papel ? "sale" : "no sale"}</button>`;
-    const cobra = q ? "" : n.pct ? "sí" : `<select data-cobra="${n.id}" aria-label="Se cobra"><option${n.cobra ? " selected" : ""}>sí</option><option${n.cobra ? "" : " selected"}>incluido</option></select>`;
-    const imp = q ? "" : n.pct ? n.pct : n.cobra ? `<input type="text" class="imp" data-imp="${n.id}" value="${n.importe ? mil(n.importe) : ""}" aria-label="Importe">` : "incluido";
+    const cobra = q ? "" : `<select data-cobra="${n.id}" aria-label="Se cobra"><option${n.cobra ? " selected" : ""}>sí</option><option${n.cobra ? "" : " selected"}>incluido</option></select>`;
+    const imp = q ? "" : !n.cobra ? "incluido" : n.pct ? n.pct : `<input type="text" class="imp" data-imp="${n.id}" value="${n.importe ? mil(n.importe) : ""}" aria-label="Importe"${n.origen ? ` title="${esc(n.origen)}"` : ""}>`;
     const forma = q || !n.cobra ? "" : selForma(n);
     return { papel, cobra, imp, forma };
   }
   
   function pintar() {
+    recalcular();
     const cf = document_.getElementById("confirma"); if (cf) cf.innerHTML = "";
     const total = hoja.reduce((s, n) => s + subtotal(n), 0);
     pendientes = [];
@@ -210,7 +224,7 @@ export function montarArbol(root, datos) {
       if (!x.seCobra) continue;
       const n = buscar(x.ref);
       const nombre = n?.nombre ?? "";
-      if (x.importe == null && x.porcentaje == null && !x.esTotal && !x.aExito) f.push(`Te falta indicar el precio de «${nombre}»`);
+      if (x.importe == null && x.porcentaje == null && !x.esTotal && !x.aExito) f.push(`Te falta indicar el precio de «${nombre}»${n?.avisoTarifa ? ` (${n.avisoTarifa})` : ""}`);
       if (!x.formaId && !x.formaPropia && !x.sinForma) {
         const quien = n?.precio && !n.conjunto ? n.precio : n;
         f.push(quien?.forma === "otra" ? `Te falta escribir cómo se cobra «${nombre}»` : `Te falta elegir cómo se cobra «${nombre}»`);
@@ -344,8 +358,8 @@ export function montarArbol(root, datos) {
     caja.innerHTML = P.esqueleto || "";
     const pon = (k, h) => { const el = caja.querySelector(`[data-p="${k}"]`); if (el) el.innerHTML = h; };
     pon("cab", cab); pon("bloques", parrafos); pon("desglose", desglose); pon("icio", icio); pon("pago", pago);
-    const r = caja.querySelector('[data-p="razon"]'); if (r) r.textContent = P.razon || "";
-    const c = caja.querySelector('[data-p="cif"]'); if (c) c.textContent = P.cif || "";
+    const r = caja.querySelector('[data-p="razon"]'); if (r) r.textContent = PAG.razon || "";
+    const c = caja.querySelector('[data-p="cif"]'); if (c) c.textContent = PAG.cif || "";
     return caja.innerHTML;
   }
   function pintarPrevia(listo) {
@@ -457,6 +471,93 @@ export function montarArbol(root, datos) {
       ajustar(n, g);
     }
   }
+  // ---- LAS TARIFAS (el calculo del generador viejo, 18-oct-2026)
+  // Las lineas que estan de verdad en la hoja (ni quitadas, ni bajo una pregunta que no toca).
+  function activas(ns = hoja, out = []) {
+    for (const n of ns) {
+      if (n.t === "preg" || n.t === "opc") { if (n.t === "opc" || visible(n)) activas(n.creado, out); continue; }
+      if (n.quitada) continue;
+      if (n.t === "linea") { out.push(n); continue; }
+      if (n.precio && !n.precio.quitada) out.push(n.precio);
+      activas(n.hijos, out);
+    }
+    return out;
+  }
+  const duenoDe = (n) => { const p = padreDe(n.id); return p !== undefined ? p : todos().find((c) => c.precio === n) ?? null; };
+  const cadena = (n) => { const out = []; let x = duenoDe(n); while (x) { out.push(x); x = duenoDe(x); } return out; };
+  // Que se hace: el tipo de la linea o el de la cabecera de arriba; en un conjunto, los de sus proyectos.
+  function tiposDe(n) {
+    if (n.desglose) return [n.desglose];
+    for (const c of cadena(n)) {
+      if (c.desglose) return [c.desglose];
+      if (c.conjunto) return c.hijos.filter((h) => h.conPortales && !h.quitada && h.desglose).map((h) => h.desglose);
+    }
+    return [];
+  }
+  // Las viviendas donde se hace: las de SUS portales (los suyos o los de arriba; por defecto todos), una vez por portal.
+  function viviendasDe(n) {
+    const ps = n.portales || cadena(n).find((c) => c.portales)?.portales || ACCESOS.map((a) => a.id);
+    const el = ACCESOS.filter((a) => ps.includes(a.id));
+    if (!el.length || el.some((a) => a.viviendas == null)) return null;
+    return [...new Map(el.map((a) => [a.portalId ?? a.id, a.viviendas])).values()].reduce((s, v) => s + v, 0);
+  }
+  const pctTexto = (x) => String(Number(x)).replace(".", ",");
+  function propuesta(n) {
+    const deBloque = PAG.tarifaId ? PRECIOS.filter((p) => p.tarifaId === PAG.tarifaId && p.bloque === n.bloque) : [];
+    if (!deBloque.length) return null;
+    const tipos = tiposDe(n);
+    const tipo = tipos.find((t) => deBloque.some((p) => p.tipo === t)) ?? null;
+    const cand = deBloque.filter((p) => p.tipo === tipo);
+    if (!cand.length) return null;
+    const tarifa = cand[0].tarifa;
+    const conTramo = cand.some((p) => p.desde != null || p.hasta != null);
+    const v = conTramo ? viviendasDe(n) : null;
+    if (conTramo && v == null) return { valor: null, incluye: [], donde: tarifa, aviso: "no sé las viviendas del edificio para elegir el tramo de la tarifa" };
+    const p = conTramo ? cand.find((x) => (x.desde ?? 0) <= v && (x.hasta == null || v <= x.hasta)) : cand[0];
+    if (!p) return { valor: null, incluye: [], donde: tarifa, aviso: `la tarifa «${tarifa}» no tiene precio para ${v} viviendas` };
+    const donde = `Tarifa ${tarifa}${conTramo ? ` · ${v} viviendas` : ""}`;
+    if (p.forma === "fijo") return { valor: p.importe == null ? null : Number(p.importe), incluye: p.incluye, donde, aviso: null };
+    if (p.forma === "pct_exito") return { pct: Number(p.porcentaje), incluye: p.incluye, donde, aviso: null };
+    if (datos.pem == null) return { valor: null, incluye: p.incluye, donde, aviso: `la tarifa es el ${pctTexto(p.porcentaje)} % del PEM y la viabilidad no tiene PEM` };
+    return { valor: Math.round((datos.pem * Number(p.porcentaje)) / 100), incluye: p.incluye, donde: `${donde} · ${pctTexto(p.porcentaje)} % de ${mil(datos.pem)} € de PEM`, aviso: null };
+  }
+  // Pone en cada linea lo que propone la tarifa (o el catalogo), salvo lo que el comercial ha tocado a mano.
+  function recalcular() {
+    const ls = activas();
+    const props = new Map(ls.map((n) => [n, n.bloque === "OTRO" ? null : propuesta(n)]));
+    for (const n of ls) {
+      if (n.bloque === "OTRO") continue;
+      const p = props.get(n);
+      n.origen = p?.donde ?? null; n.avisoTarifa = p?.aviso ?? null;
+      // Incluido si el precio de otra linea de la hoja ya lo incluye (el del ascensor incluye la DF y la CSS).
+      const incluido = ls.some((m) => m !== n && props.get(m)?.incluye.includes(n.bloque));
+      if (!n.manoCobra) n.cobra = n.cobraBase && !incluido;
+      if (!n.manoImp) {
+        if (p && p.pct != null) { n.pctNum = p.pct; n.pct = `${pctTexto(p.pct)} % de lo concedido`; }
+        else if (p) n.importe = p.valor;
+        else if (!n.pct) n.importe = n.importeBase;
+      }
+      if (!n.manoForma) n.forma = formaDefecto(n.bloque);
+    }
+    // El conjunto con «solo el total» lleva su propia forma de pago.
+    for (const c of todos()) if (c.conjunto && !c.manoForma) c.forma = formaDefecto("PROYECTO CONJUNTO") || c.hijos.find((h) => h.conPortales)?.forma || "";
+  }
+  // Al abrir un borrador: lo guardado manda. Lo que coincide con lo que propondria hoy sigue la tarifa; lo demas, a mano.
+  function marcarAMano() {
+    const ls = activas();
+    const antes = new Map(ls.map((n) => [n, { cobra: n.cobra, importe: n.importe, forma: n.forma }]));
+    const conj = todos().filter((c) => c.conjunto).map((c) => [c, c.forma]);
+    recalcular();
+    for (const [n, a] of antes) {
+      if (n.bloque === "OTRO") continue;
+      if (n.cobra !== a.cobra) { n.manoCobra = true; n.cobra = a.cobra; }
+      // Lo incluido no guarda importe ni forma de pago: ahi no hay nada escrito a mano.
+      if (!a.cobra) continue;
+      if (!n.pct && (n.importe ?? null) !== (a.importe ?? null)) { n.manoImp = true; n.importe = a.importe; }
+      if (n.forma !== a.forma) { n.manoForma = true; n.forma = a.forma; }
+    }
+    for (const [c, f] of conj) if (c.forma !== f) { c.manoForma = true; c.forma = f; }
+  }
   function caesQueSePregunta() { return todos().find((x) => x.caes && !x.quitada && !estaQuitado(x.id) && (!x.cond || x.cond())) ?? null; }
   // EL ARBOL: una linea vertical baja de cada cabecera y se ramifica hacia cada una de sus lineas, hasta la ultima.
   const PASO = 22, X0 = 12;
@@ -519,8 +620,8 @@ export function montarArbol(root, datos) {
   });
   document_.addEventListener("change", (e) => {
     const t = e.target;
-    if (t.dataset.cobra) { buscar(t.dataset.cobra).cobra = t.value === "sí"; pintar(); }
-    if (t.dataset.forma) { buscar(t.dataset.forma).forma = t.value; pintar(); }
+    if (t.dataset.cobra) { const n = buscar(t.dataset.cobra); n.cobra = t.value === "sí"; n.manoCobra = true; pintar(); }
+    if (t.dataset.forma) { const n = buscar(t.dataset.forma); n.forma = t.value; n.manoForma = true; pintar(); }
     if (t.dataset.elige) { const p = buscar(t.dataset.elige); const o = p.opciones[Number(t.value)]; if (!o) return; p.resp = o.txt; p.creado = o.crea ? o.crea() : []; if (o.nombre) padreDe(p.id).nombre = o.nombre; if (o.desglose) padreDe(p.id).desglose = o.desglose; pintar(); }
     if (t.dataset.desglosa) { buscar(t.dataset.desglosa).desglosar = t.value === "si"; pintar(); }
     if (t.dataset.portal) {
@@ -547,7 +648,8 @@ export function montarArbol(root, datos) {
   document_.addEventListener("toggle", (e) => { const d = e.target; if (!d.matches) return; if (d.matches("details.portales")) buscar(d.dataset.pid).abiertoP = d.open; else if (d.matches("details.multi")) buscar(d.dataset.id).abierto = d.open; }, true);
   document_.addEventListener("focusout", (e) => {
     const t = e.target;
-    if (t.dataset && t.dataset.imp) { buscar(t.dataset.imp).importe = Number(t.value.replace(/\./g, "").replace(",", ".")) || 0; pintar(); }
+    // Vaciar la casilla devuelve el precio de la tarifa; escribir uno lo deja a mano.
+    if (t.dataset && t.dataset.imp) { const n = buscar(t.dataset.imp); const v = t.value.trim(); n.manoImp = v !== ""; if (v !== "") n.importe = Number(v.replace(/\./g, "").replace(",", ".")) || 0; pintar(); }
   });
   root.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
@@ -559,8 +661,12 @@ export function montarArbol(root, datos) {
     // GENERAR LA HOJA: el boton ya esta; se conecta con el ciclo de la hoja (borrador -> pendiente del ok de Daniel).
     else if (b.id === "emitir") document_.getElementById("confirma").innerHTML = `<div class="confirma">«Generar la hoja» pedirá el ok de Daniel. Todavía no está conectado: de momento, guárdala como borrador.</div>`;
   }, { signal: ac.signal });
-  if (datos.inicial && datos.inicial.length) cargar(datos.inicial);
+  if (datos.inicial && datos.inicial.length) { cargar(datos.inicial); marcarAMano(); }
   pintarCatalogo();
   pintar();
-  return () => ac.abort();
+  return {
+    quitar: () => ac.abort(),
+    // Cambia quien paga: otra tarifa, otras formas por defecto, otra razon social en el papel. Lo tocado a mano se queda.
+    ponerPagador: (p) => { if (p.tipo === PAG.tipo && p.contrataId === PAG.contrataId && p.tarifaId === PAG.tarifaId && p.razon === PAG.razon) return; PAG = p; pintar(); },
+  };
 }

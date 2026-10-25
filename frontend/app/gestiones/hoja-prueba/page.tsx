@@ -3,8 +3,8 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { datosHoja, oppsParaHoja } from "../../../lib/hojaEncargo";
-import { borradoresDe, formasParaHoja, type BorradorGuardado, type LineaGuardada } from "../../../lib/hojaCompromisos";
-import { ArbolHoja, ElegirOpp, type Defecto } from "./ArbolHoja";
+import { borradoresDe, formasParaHoja, nombresDeTipos, type BorradorGuardado, type LineaGuardada } from "../../../lib/hojaCompromisos";
+import { ArbolHoja, ElegirOpp, type Defecto, type PagadorOpcion, type PrecioArbol } from "./ArbolHoja";
 
 export const dynamic = "force-dynamic";
 
@@ -29,11 +29,12 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
   if (!yo) redirect("/entrar?volver=/gestiones/hoja-prueba");
   if (!yo.veTodo) redirect("/gestiones");
   const sp = await searchParams;
-  const [opps, d, fp, guardadas] = await Promise.all([
+  const [opps, d, fp, guardadas, nombreTipo] = await Promise.all([
     oppsParaHoja(yo),
     sp.opp ? datosHoja(sp.opp) : Promise.resolve(null),
     formasParaHoja(),
     sp.opp ? borradoresDe(sp.opp) : Promise.resolve([]),
+    nombresDeTipos(),
   ]);
 
   const defectos: Record<string, Defecto> = {};
@@ -41,14 +42,30 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
     defectos[b.codigo] = {
       cobra: b.desglose === "se_cobra",
       importe: b.importe != null ? Number(b.importe) : null,
-      forma: fp.defecto[b.codigo] ?? null,
       pct: b.exito?.porcentaje ?? null,
       titulo: b.titulo,
       puntos: b.puntos,
     };
   const interesa = [...new Set((d?.interes ?? []).map((t) => PAQUETE[t.nombre]).filter(Boolean))];
   // Los accesos seleccionados en la opp (vivos), con su escalera: de ellos se eligen los portales de cada cosa.
-  const accesos = (d?.oportunidades.find((o) => o.id === d.opp.id)?.accesos ?? []).map((a) => ({ id: a.id, texto: a.texto }));
+  const accesos = (d?.oportunidades.find((o) => o.id === d.opp.id)?.accesos ?? []).map((a) => ({ id: a.id, texto: a.texto, portalId: a.portalId ?? null, viviendas: a.viviendas ?? null }));
+  // A QUIEN VA (25-oct-2026, como la vieja): su comunidad, los particulares titulares de sus accesos o cualquier contrata.
+  const pagadores: PagadorOpcion[] = d
+    ? [
+        ...(d.comunidad ? [{ valor: "comunidad", texto: d.comunidad.nombre, pista: d.comunidad.cif ?? "sin CIF", cif: d.comunidad.cif, tarifaId: null }] : []),
+        ...d.personas.map((x) => ({ valor: `persona:${x.id}`, texto: x.nombre, pista: "particular, titular", cif: null, tarifaId: null })),
+        ...d.contratas.map((c) => ({ valor: `contrata:${c.id}`, texto: c.nombre, pista: c.cif ?? "contrata", cif: c.cif, tarifaId: c.tarifaId })),
+      ]
+    : [];
+  // LAS TARIFAS (las del generador viejo, 18-oct-2026), con el bloque por su codigo y el tipo por su nombre, como el arbol.
+  const codigoBloque = new Map((d?.bloques ?? []).map((b) => [b.id, b.codigo]));
+  const precios: PrecioArbol[] = (d?.tarifas.precios ?? [])
+    .filter((p) => codigoBloque.has(p.bloqueId))
+    .map((p) => ({
+      tarifaId: p.tarifaId, tarifa: p.tarifa, bloque: codigoBloque.get(p.bloqueId)!, tipo: p.tipoId ? nombreTipo.get(p.tipoId) ?? null : null,
+      desde: p.desde, hasta: p.hasta, forma: p.forma, importe: p.importe, porcentaje: p.porcentaje,
+      incluye: p.incluye.map((i) => codigoBloque.get(i)).filter((x): x is string => !!x),
+    }));
   // El borrador abierto (solo si sigue en borrador): se carga en la hoja para seguir con el.
   const abierto = guardadas.find((g) => g.id === sp.borrador && g.estado === "borrador") ?? null;
   const sinPaquete = (d?.interes ?? []).filter((t) => !PAQUETE[t.nombre]).map((t) => t.nombre);
@@ -66,8 +83,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
           <ElegirOpp opciones={opps} valor={sp.opp ?? null} />
           {d && (
             <span className="text-sm text-carbon/70">
-              Para: <b className="text-carbon">{d.comunidad?.nombre ?? "sin comunidad"}</b>
-              {d.interes.length > 0 && <> · Les interesa: <b className="text-carbon">{d.interes.map((t) => t.nombre).join(", ")}</b></>}
+              {d.interes.length > 0 && <>Les interesa: <b className="text-carbon">{d.interes.map((t) => t.nombre).join(", ")}</b></>}
               {sinPaquete.length > 0 && <span className="text-amber-800/80"> (sin paquete en el catálogo: {sinPaquete.join(", ")})</span>}
             </span>
           )}
@@ -80,8 +96,8 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
         )}
         <div className="mt-4">
           {d ? <ArbolHoja key={`${d.opp.id}|${abierto?.id ?? ""}`} oppId={d.opp.id} defectos={defectos} interesa={interesa} accesos={accesos} formas={fp.formas}
-              comunidad={d.comunidad ? { nombre: d.comunidad.nombre, cif: d.comunidad.cif } : null} municipio={d.comunidad?.municipio ?? null}
-              borrador={abierto ? { id: abierto.id, lineas: abierto.lineas } : null} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
+              casos={fp.casos} pagadores={pagadores} tarifas={{ generalId: d.tarifas.generalId, precios }} pem={d.pem} municipio={d.comunidad?.municipio ?? d.municipio}
+              borrador={abierto ? { id: abierto.id, lineas: abierto.lineas, pagador: abierto.pagador } : null} /> : sp.opp ? <p className="text-sm text-amber-800/80">No encuentro esa oportunidad.</p> : null}
         </div>
         {d && guardadas.length > 0 && <Guardadas oppId={d.opp.id} abierto={abierto?.id ?? null} borradores={guardadas} accesos={accesos} />}
       </main>
@@ -114,7 +130,7 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
           <p className="text-sm text-carbon/80">
             <b>Borrador</b> del {cuando(b.creadoEn)}
             {b.actualizadoEn.slice(0, 16) !== b.creadoEn.slice(0, 16) && <> · cambiado el {cuando(b.actualizadoEn)}</>}
-            {b.quien && <> · {b.quien}</>} · {b.lineas.length} filas
+            {b.quien && <> · {b.quien}</>}{b.aQuien && <> · para {b.aQuien}</>} · {b.lineas.length} filas
             {b.estado === "borrador" && (b.id === abierto
               ? <span className="ml-3 text-carbon/60">(es el que está abierto arriba)</span>
               : <a className="ml-3 font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${oppId}&borrador=${b.id}`}>Seguir editando</a>)}

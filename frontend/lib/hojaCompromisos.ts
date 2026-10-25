@@ -39,35 +39,56 @@ export type FilaHoja = {
   texto: string | null; // solo en «Otro» (y si se cambia a mano): lo que es, como sale en la hoja
 };
 
-/** Las formas de pago vigentes y la que sale por defecto en cada bloque cuando paga la comunidad. Sin caso, en blanco. */
-export async function formasParaHoja(): Promise<{ formas: { id: string; nombre: string; frases: string[] }[]; defecto: Record<string, string> }> {
+/** QUIEN PAGA LA HOJA (Monica, 25-oct-2026: «como la vieja»): su comunidad, un particular titular o una contrata.
+ *  «Una hoja va siempre a UN UNICO pagador, igual que una factura.» */
+export type Pagador = { tipo: "comunidad" } | { tipo: "contrata"; id: string } | { tipo: "persona"; id: string };
+
+/** Un caso «sale por defecto cuando» de he_formas_pago_defecto: bloque + quien paga (cualquiera, un tipo o una contrata). */
+export type CasoForma = { bloque: string; pagador: "cualquiera" | "comunidad" | "persona" | "contrata"; contrataId: string | null; forma: string };
+
+/** Las formas de pago vigentes y TODOS sus casos por defecto: el generador elige el que toca segun quien paga. */
+export async function formasParaHoja(): Promise<{ formas: { id: string; nombre: string; frases: string[] }[]; casos: CasoForma[] }> {
   const [filas, casos] = await Promise.all([
     pedir<{ id: string; nombre: string; hitos: { orden: number; frase: string }[] }[]>("he_formas_pago?select=id,nombre,hitos:he_formas_pago_hitos(orden,frase)&activa=is.true&order=orden.asc"),
-    pedir<{ forma_pago_id: string; pagador_tipo: string; bloque: { codigo: string } | null }[]>(
-      "he_formas_pago_defecto?select=forma_pago_id,pagador_tipo,bloque:bloque_id(codigo)&pagador_tipo=in.(cualquiera,comunidad)",
+    pedir<{ forma_pago_id: string; pagador_tipo: CasoForma["pagador"]; pagador_contrata_id: string | null; bloque: { codigo: string } | null; forma: { activa: boolean } | null }[]>(
+      "he_formas_pago_defecto?select=forma_pago_id,pagador_tipo,pagador_contrata_id,bloque:bloque_id(codigo),forma:forma_pago_id(activa)",
     ),
   ]);
   // Las frases de sus hitos, en orden: con ellas se escribe en el papel (el texto de la hoja = sus frases).
   const formas = filas.map((f) => ({ id: f.id, nombre: f.nombre, frases: [...f.hitos].sort((a, b) => a.orden - b.orden).map((h) => h.frase) }));
-  const defecto: Record<string, string> = {};
-  // El caso de la comunidad manda sobre el de «pague quien pague».
-  const peso = (c: { pagador_tipo: string }) => (c.pagador_tipo === "comunidad" ? 1 : 0);
-  for (const c of [...casos].sort((a, b) => peso(a) - peso(b))) if (c.bloque) defecto[c.bloque.codigo] = c.forma_pago_id;
-  return { formas, defecto };
+  return {
+    formas,
+    casos: casos
+      .filter((c) => c.bloque && c.forma?.activa)
+      .map((c) => ({ bloque: c.bloque!.codigo, pagador: c.pagador_tipo, contrataId: c.pagador_contrata_id, forma: c.forma_pago_id })),
+  };
+}
+
+/** Todos los tipos de proyecto por su id (tambien los no elegibles): para leer las tarifas por el nombre del tipo. */
+export async function nombresDeTipos(): Promise<Map<string, string>> {
+  const filas = await pedir<{ id: string; nombre: string }[]>("tipos_proyecto?select=id,nombre");
+  return new Map(filas.map((t) => [t.id, t.nombre]));
 }
 
 /** Guarda la hoja en borrador. Con versionId SIGUE EL MISMO BORRADOR: se cambian sus lineas (aun no ha salido de casa,
  *  no hay nada que conservar). Sin el, nace una version nueva. */
-export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, versionId: string | null = null): Promise<string> {
+export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, versionId: string | null, pagador: Pagador): Promise<string> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) throw new Error("Oportunidad no válida.");
   if (!filas.length) throw new Error("La hoja está vacía.");
+  if (pagador.tipo !== "comunidad" && !/^[0-9a-f-]{36}$/.test(pagador.id)) throw new Error("Elige a quién va la hoja.");
   const [[opp], bloques, tipos] = await Promise.all([
     pedir<{ id: string; comunidad_id: string | null; comercial_id: string | null }[]>(`oportunidades?select=id,comunidad_id,comercial_id&id=eq.${oppId}`),
     pedir<{ id: string; codigo: string }[]>("bloques?select=id,codigo"),
     pedir<{ id: string; nombre: string }[]>("tipos_proyecto?select=id,nombre"),
   ]);
   if (!opp) throw new Error("No encuentro esa oportunidad.");
-  if (!opp.comunidad_id) throw new Error("La oportunidad no tiene comunidad: no hay a quién hacerle la hoja.");
+  if (pagador.tipo === "comunidad" && !opp.comunidad_id) throw new Error("La oportunidad no tiene comunidad: elige a quién va la hoja.");
+  const quienPaga = {
+    pagador_tipo: pagador.tipo,
+    pagador_comunidad_id: pagador.tipo === "comunidad" ? opp.comunidad_id : null,
+    pagador_contrata_id: pagador.tipo === "contrata" ? pagador.id : null,
+    pagador_persona_id: pagador.tipo === "persona" ? pagador.id : null,
+  };
   const idBloque = new Map(bloques.map((b) => [b.codigo, b.id]));
   const idTipo = new Map(tipos.map((t) => [t.nombre, t.id]));
   for (const f of filas) {
@@ -88,7 +109,7 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
     [version] = await pedir<{ id: string }[]>("he_versiones_hoja", {
       method: "POST",
       headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ oportunidad_id: opp.id, pagador_tipo: "comunidad", pagador_comunidad_id: opp.comunidad_id, comercial_id: opp.comercial_id, generada_por: yo.id, estado: "borrador" }),
+      body: JSON.stringify({ oportunidad_id: opp.id, ...quienPaga, comercial_id: opp.comercial_id, generada_por: yo.id, estado: "borrador" }),
     });
   }
   // Los ids se ponen aqui para colgar cada fila de la suya en un solo envio.
@@ -126,7 +147,7 @@ export async function guardarBorrador(oppId: string, filas: FilaHoja[], yo: Yo, 
   }
   // Lo de antes del mismo borrador, fuera (lo de dentro cae con su cabecera).
   if (viejas.length) await pedir(`he_lineas_compromisos?id=in.(${viejas.join(",")})`, { method: "DELETE" });
-  if (versionId) await pedir(`he_versiones_hoja?id=eq.${version.id}`, { method: "PATCH", body: JSON.stringify({ actualizado_en: new Date().toISOString() }) });
+  if (versionId) await pedir(`he_versiones_hoja?id=eq.${version.id}`, { method: "PATCH", body: JSON.stringify({ ...quienPaga, actualizado_en: new Date().toISOString() }) });
   return version.id;
 }
 
@@ -134,22 +155,28 @@ export type LineaGuardada = {
   id: string; padre: string | null; bloque: string; nombreBloque: string; desglose: string | null; enPapel: boolean; seCobra: boolean;
   importe: number | null; porcentaje: number | null; formaId: string | null; formaPropia: string | null; forma: string | null; desglosar: boolean | null; portales: string[]; texto: string | null;
 };
-export type BorradorGuardado = { id: string; creadoEn: string; actualizadoEn: string; estado: string; quien: string | null; lineas: LineaGuardada[] };
+export type BorradorGuardado = { id: string; creadoEn: string; actualizadoEn: string; estado: string; quien: string | null; pagador: Pagador; aQuien: string | null; lineas: LineaGuardada[] };
 
 /** Lo guardado de una opp, leido tal cual de las tablas nuevas: para comprobar que guarda lo que se ve. */
 export async function borradoresDe(oppId: string): Promise<BorradorGuardado[]> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return [];
   const filas = await pedir<{
     id: string; creado_en: string; actualizado_en: string; estado: string; quien: { nombre: string } | null;
+    pagador_tipo: Pagador["tipo"]; pagador_contrata_id: string | null; pagador_persona_id: string | null;
+    contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
     lineas: { id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_id: string | null; forma_pago_propia: string | null; desglosar_precios: boolean | null; texto: string | null;
       bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null; desglose: { nombre: string } | null; forma: { nombre: string } | null; accesos: { acceso_id: string }[] }[];
   }[]>(
-    `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,` +
+    `he_versiones_hoja?select=id,creado_en,actualizado_en,estado,quien:generada_por(nombre),pagador_tipo,pagador_contrata_id,pagador_persona_id,` +
+      `contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),lineas:he_lineas_compromisos(id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_id,forma_pago_propia,desglosar_precios,texto,` +
       `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre),accesos:he_lineas_compromisos_accesos(acceso_id))` +
       `&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
   );
   return filas.map((v) => ({
     id: v.id, creadoEn: v.creado_en, actualizadoEn: v.actualizado_en, estado: v.estado, quien: v.quien?.nombre ?? null,
+    pagador: v.pagador_tipo === "contrata" && v.pagador_contrata_id ? { tipo: "contrata", id: v.pagador_contrata_id }
+      : v.pagador_tipo === "persona" && v.pagador_persona_id ? { tipo: "persona", id: v.pagador_persona_id } : { tipo: "comunidad" },
+    aQuien: v.contrata?.nombre ?? (v.persona ? [v.persona.nombre, v.persona.apellidos].filter(Boolean).join(" ") : null) ?? v.comunidad?.nombre ?? null,
     lineas: v.lineas.map((l) => ({
       id: l.id, padre: l.padre_id, bloque: l.bloque?.codigo ?? "?", nombreBloque: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "?", desglose: l.desglose?.nombre ?? null,
       enPapel: l.en_papel, seCobra: l.se_cobra, importe: l.importe == null ? null : Number(l.importe), porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
