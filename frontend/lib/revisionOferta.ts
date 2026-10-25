@@ -332,12 +332,17 @@ export async function revisionesPendientes(): Promise<(Revision & { oportunidadI
 /** Cuantas ofertas esperan revision: el aviso de la barra negra ("Tienes x
  *  ofertas esperando tu ok") y la tarjeta de Pendientes. */
 export async function contarPendientes(): Promise<number> {
-  const r = await fetch(`${URL_BASE}/rest/v1/revisiones_oferta?select=id&estado=eq.pendiente`, {
-    headers: { ...CAB, Prefer: "count=exact", Range: "0-0" },
-    cache: "no-store",
-  });
-  const total = r.headers.get("content-range")?.split("/")[1];
-  return total ? Number(total) : 0;
+  // Los paquetes de antes y, desde el 25-oct-2026, las hojas del sistema nuevo que esperan el ok (una por hoja).
+  const contar = async (ruta: string) => {
+    const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, { headers: { ...CAB, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" });
+    const total = r.headers.get("content-range")?.split("/")[1];
+    return total ? Number(total) : 0;
+  };
+  const [viejas, nuevas] = await Promise.all([
+    contar("revisiones_oferta?select=id&estado=eq.pendiente"),
+    contar("he_versiones_hoja?select=id&estado=eq.pendiente_ok_daniel"),
+  ]);
+  return viejas + nuevas;
 }
 
 export type FilaConcepto = {

@@ -90,7 +90,7 @@ export async function generarHoja(oppId: string, filas: FilaHoja[], versionId: s
       texto:
         `${yo.nombre} ha generado ${v.codigo_he ? `la versión ${v.numero_version} de la ${v.codigo_he}` : "una hoja de encargo"} de ${donde(v)} y espera tu ok.\n\n` +
         `Va con ${ppto ? "su presupuesto" : "sin presupuesto"}${viab ? " y la viabilidad" : ""}.\n\n` +
-        `Revísala aquí: ${APP}/gestiones/hoja-prueba?opp=${oppId}\n`,
+        `Revísala aquí: ${APP}/comercial/revision?v=${id}\n`,
       responderA: yo.email,
     });
     if (!e.ok) avisos.push(`${p.nombre}: ${e.dice ?? "no salió el correo"}`);
@@ -171,7 +171,7 @@ export async function resolverOkDaniel(versionId: string, decision: "ok" | "camb
           ? `${yo.nombre} ha dado el ok a la hoja de ${donde(v)}. Ya está firmada y lista para enviarla a la comunidad.\n\n`
           : `${yo.nombre} pide cambios en la hoja de ${donde(v)}:\n\n${texto}\n\n`) +
         (decision === "ok" && texto ? `${texto}\n\n` : "") +
-        `${APP}/gestiones/hoja-prueba?opp=${v.oportunidad_id}\n`,
+        `${APP}/comercial/oportunidades/${v.oportunidad_id}\n`,
       responderA: yo.email,
     });
     if (!e.ok) avisos.push(`${p.nombre}: ${e.dice ?? "no salió el correo"}`);
@@ -260,4 +260,102 @@ export async function validarFirmada(oppId: string, documentoId: string, version
     await ponerEstado(v.id, "firmada_recibida", yo, `Firmada: ${doc.nombre ?? "documento del archivo"}.`);
     await ponerEstado(v.id, "ok_comercial", yo, ["Comprobado: bien firmada, es la última versión enviada y no está retocada.", texto].filter(Boolean).join(" "));
   }
+}
+
+// ------------------------------------------------------------ la bandeja de Daniel (25-oct-2026)
+
+export type PendienteOk = {
+  id: string; codigo: string | null; numero: number; oppId: string; opp: string; comercial: string | null; generadaPor: string | null;
+  desde: string | null; aQuien: string | null; importe: number;
+};
+
+/** Lo que espera el ok de Daniel, lo mas antiguo arriba (se envia en caliente). */
+export async function pendientesOkDaniel(): Promise<PendienteOk[]> {
+  const filas = await pedir<{
+    id: string; codigo_he: string | null; numero_version: number; oportunidad_id: string; opp: { codigo: string | null; nombre: string | null } | null;
+    comercial: { nombre: string } | null; quien: { nombre: string } | null; contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
+    estados: { estado: string; fecha: string }[]; lineas: { id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; desglosar_precios: boolean | null; bloque: { codigo: string } | null }[];
+  }[]>(
+    "he_versiones_hoja?select=id,codigo_he,numero_version,oportunidad_id,opp:oportunidad_id(codigo,nombre),comercial:comercial_id(nombre),quien:generada_por(nombre)," +
+      "contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre),estados:he_estados_hoja(estado,fecha)," +
+      "lineas:he_lineas_compromisos(id,padre_id,se_cobra,importe,desglosar_precios,bloque:bloque_id(codigo))&estado=eq.pendiente_ok_daniel",
+  );
+  return filas
+    .map((f) => {
+      const porId = new Map(f.lineas.map((l) => [l.id, l]));
+      const dentroDeTotal = (l: (typeof f.lineas)[number]) => { const p = l.padre_id ? porId.get(l.padre_id) : null; return !!p && p.bloque?.codigo === "PROYECTO CONJUNTO" && p.desglosar_precios === false; };
+      const importe = f.lineas.reduce((t, l) => {
+        if (!l.se_cobra) return t;
+        if (l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false) return t + f.lineas.filter((h) => h.padre_id === l.id).reduce((s, h) => s + (Number(h.importe) || 0), 0);
+        return dentroDeTotal(l) ? t : t + (Number(l.importe) || 0);
+      }, 0);
+      const desde = f.estados.filter((e) => e.estado === "pendiente_ok_daniel").map((e) => e.fecha).sort().at(-1) ?? null;
+      return {
+        id: f.id, codigo: f.codigo_he, numero: f.numero_version, oppId: f.oportunidad_id, opp: f.opp ? nombreDeOpp(f.opp) : "Oportunidad",
+        comercial: f.comercial?.nombre ?? null, generadaPor: f.quien?.nombre ?? null, desde,
+        aQuien: f.contrata?.nombre ?? (f.persona ? [f.persona.nombre, f.persona.apellidos].filter(Boolean).join(" ") : null) ?? f.comunidad?.nombre ?? null, importe,
+      };
+    })
+    .sort((a, b) => (a.desde ?? "").localeCompare(b.desde ?? ""));
+}
+
+export type LineaRevisar = {
+  id: string; nivel: number; que: string; tipo: string | null; enPapel: boolean; seCobra: boolean; importe: number | null; porcentaje: number | null;
+  forma: string | null; comision: number | null; conjuntoSoloTotal: boolean;
+};
+export type HojaParaRevisar = PendienteOk & {
+  estado: string; lineas: LineaRevisar[]; presupuestoId: string | null; viabilidad: { id: string; numero: string | null; version: number } | null;
+  /** En una v2+: por que se pidio el cambio en la anterior. */
+  motivoCambio: string | null;
+  /** Lo ultimo que dijo Daniel, si devolvio esta misma version con cambios y el comercial la ha vuelto a generar. */
+  cambiosAntes: string | null;
+};
+
+/** Una hoja para que Daniel la revise: sus lineas en arbol, con la comision que va dentro, y su paquete. */
+export async function hojaParaRevisar(versionId: string): Promise<HojaParaRevisar | null> {
+  const lista = await pendientesOkDaniel();
+  const base = lista.find((x) => x.id === versionId);
+  const v = await versionDe(versionId).catch(() => null);
+  if (!v) return null;
+  const [lineas, [ppto], viab, estados, anterior] = await Promise.all([
+    pedir<{ id: string; padre_id: string | null; en_papel: boolean; se_cobra: boolean; importe: number | null; porcentaje: number | null; forma_pago_propia: string | null; texto: string | null;
+      desglosar_precios: boolean | null; comision_importe: number | null; creado_en: string; bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null;
+      desglose: { nombre: string } | null; forma: { nombre: string } | null }[]>(
+      "he_lineas_compromisos?select=id,padre_id,en_papel,se_cobra,importe,porcentaje,forma_pago_propia,texto,desglosar_precios,comision_importe,creado_en," +
+        `bloque:bloque_id(codigo,nombre_corto,nombre),desglose:desglose_id(nombre),forma:forma_pago_id(nombre)&version_id=eq.${versionId}&order=creado_en.asc`,
+    ),
+    pedir<{ id: string }[]>(`presupuestos?select=id&he_version_id=eq.${versionId}&order=creado_en.desc&limit=1`),
+    v.viabilidad_id ? pedir<{ id: string; numero: string | null; version: number }[]>(`viabilidades?select=id,numero,version&id=eq.${v.viabilidad_id}`) : Promise.resolve([]),
+    pedir<{ estado: string; fecha: string; nota: string | null }[]>(`he_estados_hoja?select=estado,fecha,nota&version_id=eq.${versionId}&order=fecha.desc`),
+    v.codigo_he && v.numero_version > 1
+      ? pedir<{ estados: { estado: string; fecha: string; nota: string | null }[] }[]>(
+          `he_versiones_hoja?select=estados:he_estados_hoja(estado,fecha,nota)&codigo_he=eq.${encodeURIComponent(v.codigo_he)}&numero_version=eq.${v.numero_version - 1}`,
+        )
+      : Promise.resolve([]),
+  ]);
+  const out: LineaRevisar[] = [];
+  const porId = new Map(lineas.map((l) => [l.id, l]));
+  const bajar = (padre: string | null, nivel: number) =>
+    lineas.filter((l) => l.padre_id === padre).forEach((l) => {
+      const p = l.padre_id ? porId.get(l.padre_id) : null;
+      out.push({
+        id: l.id, nivel, que: (l.texto ?? "").trim() || l.bloque?.nombre_corto || l.bloque?.nombre || "Concepto", tipo: l.desglose?.nombre ?? null,
+        enPapel: l.en_papel, seCobra: l.se_cobra, importe: l.importe == null ? null : Number(l.importe), porcentaje: l.porcentaje == null ? null : Number(l.porcentaje),
+        forma: l.forma?.nombre ?? l.forma_pago_propia ?? null, comision: l.comision_importe == null ? null : Number(l.comision_importe),
+        conjuntoSoloTotal: !!p && p.bloque?.codigo === "PROYECTO CONJUNTO" && p.desglosar_precios === false,
+      });
+      bajar(l.id, nivel + 1);
+    });
+  bajar(null, 0);
+  const cambio = (anterior[0]?.estados ?? []).filter((e) => e.estado === "cambios_comunidad" || e.estado === "cambios_comercial").sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
+  const daniel = estados.find((e) => e.estado === "cambios_daniel");
+  return {
+    ...(base ?? { id: v.id, codigo: v.codigo_he, numero: v.numero_version, oppId: v.oportunidad_id, opp: donde(v), comercial: null, generadaPor: null, desde: null, aQuien: null, importe: 0 }),
+    estado: v.estado,
+    lineas: out,
+    presupuestoId: ppto?.id ?? null,
+    viabilidad: viab[0] ?? null,
+    motivoCambio: cambio ? `${cambio.estado === "cambios_comunidad" ? "Lo pide la comunidad" : "Lo pide el comercial"}: ${cambio.nota ?? ""}` : null,
+    cambiosAntes: daniel?.nota ?? null,
+  };
 }
