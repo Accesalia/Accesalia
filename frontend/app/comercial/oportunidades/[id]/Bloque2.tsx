@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import type { Documentacion } from "../../../../lib/bloqueDocumentacion";
 import type { Gestion } from "../../../../lib/gestionOportunidad";
 import { ESTADOS_3D, TIPOS_3D } from "../../../../lib/gestionOportunidad";
-import { estadoDeHoja } from "../../../../lib/estadoHoja";
 import { FASE_HE } from "../../../../lib/hojasOpp";
 import { HojasNuevas } from "./HojasNuevas";
 import { Miniaturas } from "../../../components/Miniaturas";
@@ -70,7 +69,6 @@ export function Bloque2({
   const v = d.viabilidad;
   // La hoja es de la OPORTUNIDAD: el boton sale siempre, tenga o no CP (13-oct-2026).
   const hojaNueva = `/comercial/hoja-encargo?opp=${id}`;
-  const conPresupuesto = d.hojas.filter((h) => h.presupuesto);
   const tipo3D = texto3D(TIPOS_3D, g.tresD?.tipo ?? null);
   const estado3D = texto3D(ESTADOS_3D, g.tresD?.estado ?? null);
 
@@ -159,9 +157,7 @@ export function Bloque2({
           sub={
             d.presupuestos.length
               ? d.presupuestos.map((p) => (p.generado ? `${p.codigo} · ${EUR.format(p.base)} €` : "Borrador")).join(" · ")
-              : conPresupuesto.length
-                ? conPresupuesto.map((h) => `Nº ${h.presupuesto!.numero ?? "sin número"} (Factusol)`).join(" · ")
-                : "Sin generar"
+              : "Sin generar"
           }
         >
           {d.presupuestos
@@ -250,39 +246,11 @@ export function Bloque2({
         {(d.hojasNuevas.length > 0 || d.firmadas.porValidar.length > 0) && (
           <HojasNuevas oppId={id} hojas={d.hojasNuevas} fases={FASE_HE} porValidar={d.firmadas.porValidar} firmadas={d.firmadas.enlace} />
         )}
-        {d.hojas.length === 0 ? (d.hojasNuevas.length > 0 || d.firmadas.porValidar.length > 0 ? null : (
+        {d.hojasNuevas.length === 0 && d.firmadas.porValidar.length === 0 && (
           <p className="mt-2 text-[12px] text-amber-900/80">Todavía no hay ninguna hoja de esta oportunidad.</p>
-        )) : (
-          <ul className="mt-1.5 divide-y divide-[#eee]">
-            {d.hojas.map((h) => {
-              const e = estadoDeHoja(h.estado, h.enBorrador);
-              return (
-                <li key={h.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-1.5 text-[12px]">
-                  <span className="w-4 text-[#8a8a8a]">{h.numero}</span>
-                  <span className="w-[74px]">{fecha(h.fecha)}</span>
-                  <span className={`rounded-[20px] border px-2 py-px text-[10.5px] ${e.clase}`}>{e.texto}</span>
-                  <span className="font-semibold">{EUR.format(h.importe)} €</span>
-                  <span className="min-w-0 flex-1 truncate text-[#6e6e6e]">
-                    {h.codigo && `${h.codigo} · `}
-                    {h.titulo}
-                  </span>
-                  <span className="flex gap-3">
-                    {h.ver?.enlace && (
-                      <a href={h.ver.enlace} target="_blank" rel="noreferrer" className={ENLACE}>
-                        ver
-                      </a>
-                    )}
-                    <Link href={hojaNueva} className={ENLACE}>
-                      abrir
-                    </Link>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
         )}
         {/* Abre el generador directamente, con esta opp elegida (13-oct-2026). */}
-        <Link href={`${hojaNueva}&nueva=1`} className={BOT + " mt-2.5 uppercase"}>
+        <Link href={hojaNueva} className={BOT + " mt-2.5 uppercase"}>
           + Generar hoja de encargo
         </Link>
       </div>

@@ -294,3 +294,47 @@ export async function hitosDeVersiones(versionIds: string[]): Promise<Map<string
   }
   return out;
 }
+
+/** ¿UNA VIABILIDAD CON HONORARIOS ESTA SUPERADA? (25-oct-2026): si alguna hoja de la opp se genero (pidio el ok de Daniel)
+ *  despues de rematarse la viabilidad, sus honorarios ya no son los de la hoja: «Modificada en hoja de encargo X». Se
+ *  calcula, no se guarda. Devuelve la primera que la supero («HE-2026-0012 v2»), o null. */
+export async function superadaPor(oppId: string, rematadaEn: string | null, conHonorarios: boolean): Promise<string | null> {
+  if (!conHonorarios || !rematadaEn || !/^[0-9a-f-]{36}$/.test(oppId)) return null;
+  const filas = await leer<{ codigo_he: string | null; numero_version: number; estados: { estado: string; fecha: string }[] }[]>(
+    `he_versiones_hoja?select=codigo_he,numero_version,estados:he_estados_hoja(estado,fecha)&oportunidad_id=eq.${oppId}&estado=neq.anulada`,
+  );
+  const despues = filas
+    .map((f) => ({ f, generada: f.estados.filter((e) => e.estado === "pendiente_ok_daniel").map((e) => e.fecha).sort()[0] ?? null }))
+    .filter((x) => x.generada && x.generada > rematadaEn)
+    .sort((a, b) => a.generada!.localeCompare(b.generada!))[0];
+  return despues ? (despues.f.codigo_he ? `${despues.f.codigo_he} v${despues.f.numero_version}` : "una hoja posterior") : null;
+}
+
+export type LineaHojaHonorario = { versionId: string; codigo: string | null; numero: number; fecha: string | null; borrador: boolean;
+  lineas: { bloque: string; nombre: string; texto: string | null; importe: number }[] };
+
+/** LOS HONORARIOS DE LAS HOJAS DE UNA OPP (para la viabilidad, «para que CUADRE siempre»): de cada hoja, su version
+ *  actual, y de ella lo que se cobra con importe. El conjunto con «solo el total», UNA linea con la suma; lo de dentro
+ *  no se repite. */
+export async function honorariosDeHojas(oppId: string): Promise<LineaHojaHonorario[]> {
+  const hojas = await hojasDeOpp(oppId);
+  const vivas = hojas.map((h) => h.actual).filter((v) => !FINAL.includes(v.estado));
+  if (!vivas.length) return [];
+  const lineas = await leer<{ id: string; version_id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; texto: string | null; desglosar_precios: boolean | null;
+    bloque: { codigo: string; nombre_corto: string | null; nombre: string } | null }[]>(
+    `he_lineas_compromisos?select=id,version_id,padre_id,se_cobra,importe,texto,desglosar_precios,bloque:bloque_id(codigo,nombre_corto,nombre)` +
+      `&version_id=in.(${vivas.map((v) => v.id).join(",")})&order=creado_en.asc`,
+  );
+  const porId = new Map(lineas.map((l) => [l.id, l]));
+  const soloTotal = (l: (typeof lineas)[number]) => l.bloque?.codigo === "PROYECTO CONJUNTO" && l.desglosar_precios === false;
+  return vivas.map((v) => ({
+    versionId: v.id, codigo: v.codigo, numero: v.numero, fecha: v.fechas.pendiente_ok_daniel ?? v.creadaEn, borrador: v.estado === "borrador" || v.estado === "cambios_daniel",
+    lineas: lineas
+      .filter((l) => l.version_id === v.id && l.se_cobra && !(l.padre_id && soloTotal(porId.get(l.padre_id)!)))
+      .map((l) => ({
+        bloque: l.bloque?.codigo ?? "", nombre: l.bloque?.nombre_corto ?? l.bloque?.nombre ?? "Concepto", texto: l.texto,
+        importe: soloTotal(l) ? lineas.filter((h) => h.padre_id === l.id).reduce((t, h) => t + (Number(h.importe) || 0), 0) : Number(l.importe) || 0,
+      }))
+      .filter((l) => l.importe > 0),
+  }));
+}

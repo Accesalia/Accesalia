@@ -10,9 +10,8 @@
 // falta y que no ha salido.
 
 import "server-only";
-import { datosHoja, type Documento } from "./hojaEncargo";
 import { fotosDeOportunidad, type Foto } from "./fotos";
-import { firmadasDeOpp, hojasDeOpp, type HojaHe } from "./hojasOpp";
+import { firmadasDeOpp, hojasDeOpp, superadaPor, type HojaHe } from "./hojasOpp";
 import type { DocCajon } from "./cajonDocumentos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -38,29 +37,13 @@ export type ViabilidadResumen = {
   especifico: boolean;
 };
 
-export type HojaResumen = {
-  id: string;
-  numero: number;
-  codigo: string | null;
-  titulo: string;
-  fecha: string | null;
-  estado: string;
-  enBorrador: boolean;
-  importe: number;
-  /** El ultimo PDF generado, para "ver". */
-  ver: Documento | null;
-  presupuesto: { numero: string | null; enlace: string | null } | null;
-};
-
 /** Los presupuestos hechos en la app (10-oct-2026): PR-año-numero o borrador. */
 export type PresupuestoApp = { id: string; codigo: string | null; fecha: string | null; base: number; generado: boolean };
 
 export type Documentacion = {
   viabilidad: ViabilidadResumen | null;
   presupuestos: PresupuestoApp[];
-  hojas: HojaResumen[];
-  /** Las hojas del sistema nuevo (25-oct-2026), del lector unico. Las de arriba (las de siempre) se van el dia de la
-   *  migracion, cuando las viejas pasen a las tablas nuevas. */
+  /** Las hojas de la opp (sistema nuevo, del lector unico), con lo que toca hacer en su fase. */
   hojasNuevas: HojaHe[];
   /** Las hojas firmadas archivadas en la opp que el comercial aun no ha validado, y el enlace de cada firmada (por id). */
   firmadas: { porValidar: DocCajon[]; enlace: Record<string, { nombre: string; url: string | null }> };
@@ -70,23 +53,13 @@ export type Documentacion = {
 };
 
 export async function documentacionDe(oppId: string): Promise<Documentacion> {
-  const [viabs, datos, presupuestos, fotos, deLaApp, hojasNuevas, firmadas] = await Promise.all([
+  const [viabs, fotos, deLaApp, hojasNuevas, firmadas] = await Promise.all([
     leer<{
-      id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null;
+      id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null; con_honorarios: boolean;
       necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
-      superada: { numero_version: number; hoja: { numero_hoja: string | null } | null } | null;
     }[]>(
-      `viabilidades?select=id,numero,version,url_pdf,enviada_en,rematada_en,necesita_3d_especifico,redacta:redacta_id(nombre),` +
-        `modelo:modelo_escalera_id(codigo,nombre),superada:superada_por_version_id(numero_version,hoja:hoja_encargo_id(numero_hoja))` +
-        `&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
-    ),
-    // Las hojas de ESTA oportunidad, tenga o no CP (13-oct-2026).
-    datosHoja(oppId),
-    // El presupuesto lo emite Factusol; la app solo guarda su numero y su PDF,
-    // en la version de la hoja a la que acompaña.
-    leer<{ id: string; numero_hoja: string | null; versiones: { numero_version: number; numero_presupuesto: string | null; url_pdf_presupuesto: string | null }[] }[]>(
-      `hojas_encargo?select=id,numero_hoja,versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(numero_version,numero_presupuesto,url_pdf_presupuesto)` +
-        `&oportunidad_id=eq.${oppId}&estado=neq.anulada`,
+      `viabilidades?select=id,numero,version,url_pdf,enviada_en,rematada_en,con_honorarios,necesita_3d_especifico,redacta:redacta_id(nombre),` +
+        `modelo:modelo_escalera_id(codigo,nombre)&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
     ),
     // Si las fotos fallan, la documentacion se sigue viendo.
     fotosDeOportunidad(oppId).catch(() => []),
@@ -101,6 +74,8 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
   ]);
 
   const v = viabs[0];
+  // «Modificada en hoja de encargo X»: calculada (lib/hojasOpp.ts), no guardada.
+  const superada = v ? await superadaPor(oppId, v.rematada_en, v.con_honorarios).catch(() => null) : null;
   const viabilidad: ViabilidadResumen | null = v
     ? {
         id: v.id,
@@ -109,38 +84,13 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
         fase: v.url_pdf ? "generada" : v.enviada_en ? "rematar" : "en_mesa",
         redacta: v.redacta?.nombre ?? null,
         generadaEl: v.rematada_en,
-        superadaPor: v.superada ? `${v.superada.hoja?.numero_hoja ?? "una hoja posterior"} v${v.superada.numero_version}` : null,
+        superadaPor: superada,
         modelo: v.modelo ? `${v.modelo.codigo} · ${v.modelo.nombre}` : null,
         especifico: v.necesita_3d_especifico,
       }
     : null;
 
-  const extra = new Map(presupuestos.map((h) => [h.id, h]));
-  const hojas: HojaResumen[] = (datos?.hojas ?? [])
-    .filter((h) => h.oportunidadId === oppId)
-    .map((h, i) => {
-      const x = extra.get(h.id);
-      const ultima = x ? [...x.versiones].sort((a, b) => a.numero_version - b.numero_version).at(-1) : undefined;
-      const conPresupuesto = x?.versiones.filter((p) => p.numero_presupuesto || p.url_pdf_presupuesto).sort((a, b) => a.numero_version - b.numero_version).at(-1);
-      const p = conPresupuesto ?? ultima;
-      return {
-        id: h.id,
-        numero: i + 1,
-        codigo: x?.numero_hoja ?? null,
-        titulo: h.titulo,
-        fecha: h.fecha,
-        estado: h.estado,
-        enBorrador: !!h.version?.borrador,
-        importe: h.importe,
-        ver: h.documentos.filter((d) => d.tipo === "generada").at(-1) ?? null,
-        presupuesto:
-          p && (p.numero_presupuesto || p.url_pdf_presupuesto)
-            ? { numero: p.numero_presupuesto, enlace: p.url_pdf_presupuesto?.startsWith("http") ? p.url_pdf_presupuesto : null }
-            : null,
-      };
-    });
-
   const presus = deLaApp.map((p) => ({ id: p.id, codigo: p.codigo, fecha: p.fecha, base: Number(p.base) || 0, generado: !!p.url_pdf }));
   const enlace = Object.fromEntries([...firmadas.todas].map(([id, d]) => [id, { nombre: d.nombre, url: d.url }]));
-  return { viabilidad, presupuestos: presus, hojas, hojasNuevas, firmadas: { porValidar: firmadas.porValidar, enlace }, fotos };
+  return { viabilidad, presupuestos: presus, hojasNuevas, firmadas: { porValidar: firmadas.porValidar, enlace }, fotos };
 }
