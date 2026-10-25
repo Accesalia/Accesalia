@@ -3,7 +3,11 @@
 -- entran (versiones con el ok de Daniel) y sale un presupuesto con todas. Para saber que hojas lleva cada uno,
 -- presupuesto_hojas apunta a la version nueva. hoja_encargo_id deja de ser obligatoria (las nuevas no la tienen) y se
 -- ira con las tablas viejas.
+-- Corregida al aplicarla (25-oct-2026): hoja_encargo_id era parte de la clave y no podia dejar de ser obligatoria. La
+-- clave pasa a ser presupuesto + hoja nueva (la tabla estaba vacia).
+alter table public.presupuesto_hojas drop constraint presupuesto_hojas_pkey;
 alter table public.presupuesto_hojas
-  add column he_version_id uuid references public.he_versiones_hoja(id),
+  add column he_version_id uuid not null references public.he_versiones_hoja(id),
   alter column hoja_encargo_id drop not null;
+alter table public.presupuesto_hojas add constraint presupuesto_hojas_pkey primary key (presupuesto_id, he_version_id);
 comment on column public.presupuesto_hojas.he_version_id is 'Una hoja (version del sistema nuevo) que lleva este presupuesto. Un presupuesto puede llevar varias.';
