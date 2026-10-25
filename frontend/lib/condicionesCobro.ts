@@ -9,6 +9,7 @@ import "server-only";
 
 import type { Yo } from "./sesion";
 import { puedeGestionarFormas } from "./formasPago";
+export { cuandoPaga } from "./condicionesCobroTexto";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -46,14 +47,6 @@ export type Condicion = {
   actualizadoEn: string;
   actualizadoPor: string | null;
 };
-
-/** Cuando paga, en palabras: lo que se lee en la lista. */
-export function cuandoPaga(c: Pick<Condicion, "regla" | "dias" | "diaCorte" | "diaRemesa">): string {
-  if (c.regla === "al_cargo") return "al hacer el cargo";
-  if (c.regla === "dias") return `${c.dias} días después de la factura`;
-  if (c.regla === "corte_remesa") return `emitida hasta el día ${c.diaCorte}, en la remesa del día ${c.diaRemesa} del mes siguiente`;
-  return "";
-}
 
 export async function condicionesDeCobro(): Promise<{ condiciones: Condicion[]; contratasSin: { valor: string; texto: string }[] }> {
   const [filas, contratas] = await Promise.all([

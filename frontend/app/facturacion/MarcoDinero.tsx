@@ -3,6 +3,7 @@ import type { Yo } from "../../lib/sesion";
 import { calendarioFiscal, librosFiscales } from "../../lib/fiscal";
 import { nuevasHojas } from "../../lib/nuevasHojas";
 import { puedeGestionarFormas } from "../../lib/formasPago";
+import { puedeVerClientesFactusol } from "../../lib/factusolClientes";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { areasDe, type Area } from "./Areas";
 import { AreasBarra, type PestanaArea } from "./AreasBarra";
@@ -63,7 +64,14 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
         ],
       },
       // Las formas de pago de la hoja de encargo (24-oct-2026): las gestionan direccion, facturacion y administracion.
-      ...(puedeGestionarFormas(yo) ? [{ titulo: "Ajustes", items: [{ clave: "formas-pago", titulo: "Formas de pago", href: "/gestiones/formas-pago" }] }] : []),
+      // Condiciones de cobro y clientes de Factusol (25-oct-2026): las condiciones, quien gestiona las formas de pago;
+      // los clientes (solo consulta), quien cobra.
+      ...(puedeGestionarFormas(yo) || puedeVerClientesFactusol(yo)
+        ? [{ titulo: "Ajustes", items: [
+            ...(puedeGestionarFormas(yo) ? [{ clave: "formas-pago", titulo: "Formas de pago", href: "/gestiones/formas-pago" }, { clave: "condiciones-cobro", titulo: "Condiciones de cobro", href: "/gestiones/condiciones-cobro" }] : []),
+            ...(puedeVerClientesFactusol(yo) ? [{ clave: "clientes-factusol", titulo: "Clientes de Factusol", href: "/gestiones/clientes-factusol" }] : []),
+          ] }]
+        : []),
       { titulo: "Más adelante", items: [{ clave: "morosidad", titulo: "Morosidad" }] },
     ];
   if (area === "pagar")
