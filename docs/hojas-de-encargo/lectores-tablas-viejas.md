@@ -146,3 +146,27 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
   (El portal solo enseña opps abiertas o en pausa, así que la regla de no enseñar la nota de responsabilidad no se
   echa de menos.)
+
+## Decisiones del repaso campo a campo de la migración (Mónica, 25-oct, vía el hilo de facturación)
+
+1. **he_versiones_hoja.sustituida_por** → he_versiones_hoja(id) (campo nuevo): las 54 sustituciones viejas son entre
+   HOJAS distintas (misma opp, otro número; 25 de las nuevas, firmadas con su número impreso): no se convierten en v2. En
+   lo nuevo también pasará (se anula la de Schindler y se emite otra a la comunidad). Pendiente de crear (este hilo).
+2. **A he_versiones_hoja.notas** al migrar, además del tipo de documento: la descripción de Monday, el responsable y el
+   motivo de las notas de responsabilidad, motivo_sin_firma, el emisor de las hojas NO firmadas (el de las firmadas ya
+   está en sus fichas de facturación), el código anterior PD-/NR- y las anuladas sin motivo («migrada sin motivo»).
+   «archivada» pasa a ANULADA con la nota «se archivó por falta de datos en la migración del histórico».
+3. **Tabla de correspondencia vieja → nueva**, DE VIDA CORTA: para migrar y comprobar; se BORRA al acabar, con las tablas
+   viejas. Nada convive: lo permanente (los códigos PD-/NR-) va a las notas.
+4. **Líneas de las firmadas:** los conceptos pasan como he_lineas_compromisos; cada ficha de facturación que salió de un
+   concepto queda con he_linea_id = su línea. Las 477 fichas sin concepto (salieron solo del PDF) quedan como líneas
+   añadidas a mano de su versión (lineas_facturacion.he_version_id), con su concepto, importe e hitos.
+5. **Subvención con importe y % (139 conceptos, 76 con ficha):** se PARTEN en dos líneas como el generador (documentación
+   técnica con importe, tramitación con %). La ficha también: el hito fijo se queda en la de doc. técnica y el de éxito
+   pasa a una ficha nueva de la tramitación (mismos hitos y facturas; solo cambia linea_facturacion_id).
+6. **El árbol se construye** (padre_id con las reglas de los paquetes; «discrepo totalmente» de dejarlo plano). Lo que las
+   reglas no sepan colocar, a una lista de revisión para Mónica; nada a ojo.
+
+7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): el bloque 2
+   lo enseñaba cuando no había presupuesto de la app. En lo nuevo no tiene casa: a las notas de la versión al migrar, o
+   casarlo con presupuestos (origen factusol) de la opp. Para decidir con Mónica.

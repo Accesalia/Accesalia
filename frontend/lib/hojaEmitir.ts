@@ -22,6 +22,7 @@ import { quienLlevaLaOpp, quienTieneLaFuncion } from "./quienLleva";
 import { enviarCorreo } from "./correo";
 import { FUNCION_REVISION, puedeRevisar } from "./revisionOferta";
 import { nombreDeOpp } from "./direccionOpp";
+import { numerarClaveDeOpp } from "./claves";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -260,6 +261,8 @@ export async function validarFirmada(oppId: string, documentoId: string, version
     await ponerEstado(v.id, "firmada_recibida", yo, `Firmada: ${doc.nombre ?? "documento del archivo"}.`);
     await ponerEstado(v.id, "ok_comercial", yo, ["Comprobado: bien firmada, es la última versión enviada y no está retocada.", texto].filter(Boolean).join(" "));
   }
+  // LA FIRMA NUMERA LA CLAVE (Monica, 13-oct-2026): si el sitio de la opp aun no tiene DIR, recibe el siguiente.
+  if (decision === "ok") await numerarClaveDeOpp(oppId);
 }
 
 // ------------------------------------------------------------ la bandeja de Daniel (25-oct-2026)
