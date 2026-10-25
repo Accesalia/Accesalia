@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../lib/sesion";
-import { guardarBorrador, type FilaHoja, type Pagador } from "../../../lib/hojaCompromisos";
+import { descartarBorrador, guardarBorrador, modificarHoja, type FilaHoja, type Pagador } from "../../../lib/hojaCompromisos";
 
 type Resultado = { ok: true; id: string } | { ok: false; error: string };
 
@@ -13,6 +13,31 @@ export async function accionGuardarBorrador(oppId: string, filas: FilaHoja[], ve
     const yo = await quienSoy();
     if (!yo?.veTodo) throw new Error("Solo dirección puede guardar desde la prueba.");
     const id = await guardarBorrador(oppId, filas, yo, versionId, pagador);
+    revalidatePath("/gestiones/hoja-prueba");
+    return { ok: true, id };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+// Descartar un borrador y modificar una hoja ya emitida (Monica, 25-oct-2026). Solo direccion, como la pantalla.
+export async function accionDescartar(versionId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const yo = await quienSoy();
+    if (!yo?.veTodo) throw new Error("Solo dirección puede tocar la prueba.");
+    await descartarBorrador(versionId, yo);
+    revalidatePath("/gestiones/hoja-prueba");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+export async function accionModificar(versionId: string, pide: "comunidad" | "comercial", nota: string): Promise<Resultado> {
+  try {
+    const yo = await quienSoy();
+    if (!yo?.veTodo) throw new Error("Solo dirección puede tocar la prueba.");
+    const id = await modificarHoja(versionId, pide, nota, yo);
     revalidatePath("/gestiones/hoja-prueba");
     return { ok: true, id };
   } catch (e) {

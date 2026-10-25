@@ -4,6 +4,7 @@ import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { datosHoja, oppsParaHoja } from "../../../lib/hojaEncargo";
 import { borradoresDe, formasParaHoja, nombresDeTipos, type BorradorGuardado, type LineaGuardada } from "../../../lib/hojaCompromisos";
+import { AccionesVersion } from "./AccionesVersion";
 import { ArbolHoja, ElegirOpp, type Defecto, type PagadorOpcion, type PrecioArbol } from "./ArbolHoja";
 
 export const dynamic = "force-dynamic";
@@ -98,7 +99,7 @@ export default async function HojaPrueba({ searchParams }: { searchParams: Promi
         </div>
         {d && abierto && (
           <p className="mt-3 text-sm text-carbon/80">
-            Estás cambiando el <b>borrador del {cuando(abierto.creadoEn)}</b>: al guardar se queda en el mismo.{" "}
+            Estás cambiando {abierto.codigo ? <b>la versión {abierto.numero} de {abierto.codigo}</b> : <b>el borrador del {cuando(abierto.creadoEn)}</b>}: al guardar se queda en el mismo.{" "}
             <a className="font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${d.opp.id}`}>Empezar una hoja nueva</a>
           </p>
         )}
@@ -132,16 +133,17 @@ function Guardadas({ oppId, abierto, borradores, accesos }: { oppId: string; abi
   return (
     <section className="mt-8">
       <h2 className="text-lg font-bold text-carbon">Lo guardado de esta oportunidad</h2>
-      <p className="text-sm text-carbon/60">Leído de la base (tablas nuevas), para comprobar que guarda lo que se ve. Son borradores de prueba.</p>
+      <p className="text-sm text-carbon/60">Leído de la base (tablas nuevas), para comprobar que guarda lo que se ve. Las de prueba, en borrador.</p>
       {borradores.map((b) => (
         <div key={b.id} className="mt-4">
           <p className="text-sm text-carbon/80">
-            <b>Borrador</b> del {cuando(b.creadoEn)}
+            <b>{b.codigo ? `${b.codigo} v${b.numero}` : "Borrador"}</b>{b.codigo && <> · {b.estado.replace(/_/g, " ")}</>} · del {cuando(b.creadoEn)}
             {b.actualizadoEn.slice(0, 16) !== b.creadoEn.slice(0, 16) && <> · cambiado el {cuando(b.actualizadoEn)}</>}
             {b.quien && <> · {b.quien}</>}{b.aQuien && <> · para {b.aQuien}</>} · {b.lineas.length} filas
             {b.estado === "borrador" && (b.id === abierto
               ? <span className="ml-3 text-carbon/60">(es el que está abierto arriba)</span>
               : <a className="ml-3 font-semibold text-carbon underline" href={`/gestiones/hoja-prueba?opp=${oppId}&borrador=${b.id}`}>Seguir editando</a>)}
+            <AccionesVersion oppId={oppId} versionId={b.id} estado={b.estado} emitida={!!b.codigo} abierta={b.id === abierto} />
           </p>
           <table className="mt-1 border-collapse text-[13px] tabular-nums">
             <thead>
