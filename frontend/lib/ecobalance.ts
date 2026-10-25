@@ -1,4 +1,5 @@
 import "server-only";
+import { FASES_FIRMADA, fechasDeFirma, filtroFases, numeroHoja } from "./hojasNuevas";
 import { nombreDeOpp } from "./direccionOpp";
 // lib/ecobalance.ts
 //
@@ -48,13 +49,18 @@ export async function listaEcobalance(lista: ListaEcobalance): Promise<FilaEcoba
     estado: string;
     opp: { id: string; codigo: string | null; nombre: string | null; comunidad_provisional: string | null; comunidad: { nombre: string; municipio: string | null } | null; comercial: { nombre: string } | null } | null;
   };
-  const sel = "hoja:hoja_encargo_id(id,numero_hoja,fecha_firma,estado,opp:oportunidad_id(id,codigo,nombre,comunidad_provisional,comunidad:comunidad_id(nombre,municipio),comercial:comercial_id(nombre)))";
-  const [lineas, conceptos] = await Promise.all([
-    todo<{ importe: number | null; es_porcentaje: boolean | null; porcentaje: number | null; hoja: Hoja | null }>(
-      `lineas_facturacion?select=importe,es_porcentaje,porcentaje,${sel},bloque:bloque_id!inner(nombre)&bloque.nombre=eq.${bloque}`,
-    ),
-    todo<{ hoja: Hoja | null }>(`conceptos_hoja?select=${sel},bloque:bloque_id!inner(nombre)&bloque.nombre=eq.${bloque}`),
-  ]);
+  // Hojas nuevas (dia de la migracion): las lineas de ese bloque en las hojas firmadas; las que no se cobran, «incluido».
+  type Cruda = { se_cobra: boolean; importe: number | null; porcentaje: number | null;
+    version: { id: string; codigo_he: string | null; numero_version: number; estado: string; opp: Hoja["opp"] } | null };
+  const crudas = await todo<Cruda>(
+    `he_lineas_compromisos?select=se_cobra,importe,porcentaje,bloque:bloque_id!inner(nombre),` +
+      `version:version_id!inner(id,codigo_he,numero_version,estado,opp:oportunidad_id(id,codigo,nombre,comunidad_provisional,comunidad:comunidad_id(nombre,municipio),comercial:comercial_id(nombre)))` +
+      `&bloque.nombre=eq.${bloque}&version.estado=${filtroFases(FASES_FIRMADA)}`,
+  );
+  const firma = await fechasDeFirma(crudas.map((c) => c.version?.id).filter((x): x is string => !!x));
+  const aHoja = (v: NonNullable<Cruda["version"]>): Hoja => ({ id: v.id, numero_hoja: numeroHoja(v), fecha_firma: firma.get(v.id) ?? null, estado: "devuelta_firmada", opp: v.opp });
+  const lineas = crudas.filter((c) => c.se_cobra && c.version).map((c) => ({ importe: c.importe, es_porcentaje: c.importe == null && c.porcentaje != null, porcentaje: c.porcentaje, hoja: aHoja(c.version!) }));
+  const conceptos = crudas.filter((c) => !c.se_cobra && c.version).map((c) => ({ hoja: aHoja(c.version!) }));
 
   // Una fila por hoja firmada; lo que diga su linea de cobro, si la tiene.
   const filas = new Map<string, FilaEcobalance>();

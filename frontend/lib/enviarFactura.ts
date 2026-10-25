@@ -295,12 +295,13 @@ export async function enviarFactura(
   // 6. Lo que no cuadraba, y el porque si se escribio: a sus notas de facturacion.
   const avisos = l.comprobaciones.filter((c) => !c.ok).map((c) => c.texto);
   if ((avisos.length || nota.trim()) && hitos.length) {
-    const [h] = await pedir<{ linea: { hoja_encargo_id: string } | null }[]>(`hitos_cobro?select=linea:linea_facturacion_id(hoja_encargo_id)&id=eq.${hitos[0]}`);
+    // Las notas cuelgan de la LINEA (Monica, 24-oct-2026): la de cada hito.
+    const lineaDe = new Map((await pedir<{ id: string; linea_facturacion_id: string }[]>(`hitos_cobro?select=id,linea_facturacion_id&id=in.(${hitos.join(",")})`)).map((x) => [x.id, x.linea_facturacion_id]));
     await pedir("notas_facturacion", {
       method: "POST",
       body: JSON.stringify(
         hitos.map((hid) => ({
-          hoja_encargo_id: h?.linea?.hoja_encargo_id ?? null, hito_cobro_id: hid, fecha: new Date().toISOString().slice(0, 10), origen: "persona",
+          linea_facturacion_id: lineaDe.get(hid) ?? null, hito_cobro_id: hid, fecha: new Date().toISOString().slice(0, 10), origen: "persona",
           tipo: "nota", autor_id: yo.id, autor: [yo.nombre, yo.apellidos].filter(Boolean).join(" "),
           texto: `Factura ${numero} enviada${avisos.length ? ` con avisos: ${avisos.join(" ")}` : ""}${nota.trim() ? ` · ${nota.trim()}` : ""}`,
         })),

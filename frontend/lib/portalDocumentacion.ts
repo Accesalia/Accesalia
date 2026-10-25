@@ -70,13 +70,16 @@ const ETAPAS: { hitos: string[]; nombre: string }[] = [
 
 async function hitosDe(hojaIds: string[]): Promise<{ hoja: string; hito: string; estado: string }[]> {
   if (!hojaIds.length) return [];
-  const r = await fetch(
-    `${URL_BASE}/rest/v1/hitos_cobro?select=hito,estado,linea:lineas_facturacion!inner(hoja_encargo_id,quitada_en)` +
-      `&linea.hoja_encargo_id=in.(${hojaIds.join(",")})&linea.quitada_en=is.null&estado=neq.anulado`,
-    { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
-  );
+  // Hojas nuevas (dia de la migracion): la hoja es la version; sus fichas de facturacion, de la vista, y sus hitos.
+  const cab = { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" as const };
+  const rf = await fetch(`${URL_BASE}/rest/v1/facturacion_lineas?select=id,hoja_id&hoja_id=in.(${hojaIds.join(",")})&quitada_en=is.null`, cab);
+  if (!rf.ok) throw new Error(`facturacion_lineas ${rf.status}`);
+  const fichas = (await rf.json()) as { id: string; hoja_id: string }[];
+  if (!fichas.length) return [];
+  const hojaDe = new Map(fichas.map((f) => [f.id, f.hoja_id]));
+  const r = await fetch(`${URL_BASE}/rest/v1/hitos_cobro?select=hito,estado,linea_facturacion_id&linea_facturacion_id=in.(${fichas.map((f) => f.id).join(",")})&estado=neq.anulado`, cab);
   if (!r.ok) throw new Error(`hitos_cobro ${r.status}`);
-  return ((await r.json()) as { hito: string; estado: string; linea: { hoja_encargo_id: string } }[]).map((x) => ({ hoja: x.linea.hoja_encargo_id, hito: x.hito, estado: x.estado }));
+  return ((await r.json()) as { hito: string; estado: string; linea_facturacion_id: string }[]).map((x) => ({ hoja: hojaDe.get(x.linea_facturacion_id)!, hito: x.hito, estado: x.estado }));
 }
 
 export type Documentacion = {
