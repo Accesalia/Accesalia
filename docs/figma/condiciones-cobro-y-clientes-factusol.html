@@ -1,0 +1,296 @@
+<title>Condiciones de cobro y clientes de Factusol</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Dos pantallas de Cobrar > Ajustes, montadas de cero con la guía de estilo de la app (paleta, tablas ajustadas a su
+   contenido, lo que falta en ámbar suave, salida siempre). Datos reales de la base del 25-oct-2026. */
+:root {
+  --fondo: #eef5e8; --tarjeta: #ffffff; --carbon: #2b2b2b; --carbon-70: rgba(43,43,43,.70); --carbon-65: rgba(43,43,43,.65);
+  --borde: rgba(43,43,43,.18); --linea: rgba(43,43,43,.15); --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --ambar-bg: #fff8e1; --ambar-borde: #f2d48a; --ambar-txt: rgba(120,70,5,.88); --nuevo: #fff5cc; --nuevo-borde: #e9c44a;
+  --ajeno: #5b7fa6; --ajeno-soft: #e8eef5; --fila-par: #f7faf4;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --fila-par: #2a3125; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --fila-par: #2a3125; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--carbon); font: 14px/1.45 var(--letra); }
+.pagina { max-width: 1300px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.maqueta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; font-size: 12px; color: var(--carbon-65); border-bottom: 1px dashed var(--borde); padding-bottom: 10px; margin-bottom: 14px; }
+.maqueta b { color: var(--carbon); }
+.maqueta a { color: var(--lima-dark); font-weight: 700; text-decoration: none; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--borde); }
+.maqueta a.on { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.salida { font-size: 14px; font-weight: 600; color: var(--carbon-65); text-decoration: none; }
+.salida:hover { color: var(--carbon); }
+.cab { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; border-bottom: 1px solid var(--borde); padding: 10px 0 14px; margin-top: 6px; }
+.cab h1 { font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.cab p { margin: 4px 0 0; color: var(--carbon-65); max-width: 64ch; }
+.cab .der { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 9px 18px; background: var(--lima); color: #2b2b2b; cursor: pointer; }
+.btn:hover { background: #3f7a1c; color: #fff; }
+.btn.sec { background: transparent; border: 1px solid var(--borde); color: var(--carbon-70); }
+.btn.sec:hover { background: var(--tarjeta); color: var(--carbon); }
+.btn:focus-visible, .enlace:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .pest:focus-visible, .chip:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 2px; }
+.sec-tit { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-70); margin: 26px 0 8px; display: flex; gap: 10px; align-items: baseline; }
+.sec-tit .n { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--carbon-65); }
+.caja { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow-x: auto; width: fit-content; max-width: 100%; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); padding: 9px 12px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--fila-par); }
+td.nom { font-weight: 700; white-space: nowrap; }
+td.corto { white-space: nowrap; }
+td.largo { max-width: 34ch; color: var(--carbon-70); }
+.forma { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.f-cargo { background: var(--lima-soft); color: var(--lima-dark); }
+.f-trans { background: var(--ajeno-soft); color: var(--ajeno); }
+.f-conf { background: var(--ajeno-soft); color: var(--ajeno); border: 1px dashed var(--ajeno); }
+.falta { color: var(--ambar-txt); font-style: italic; }
+.codigos { display: flex; gap: 4px; flex-wrap: wrap; }
+.cod { font-size: 12px; padding: 1px 7px; border: 1px solid var(--borde); border-radius: 6px; white-space: nowrap; }
+.enlace { font: inherit; border: 0; background: none; color: var(--lima-dark); font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+.correo { max-width: 46ch; }
+.correo .envio { display: block; color: var(--carbon-70); font-size: 13px; margin-top: 2px; }
+td.cuando { max-width: 30ch; }
+.correo small { display: block; color: var(--carbon-65); font-size: 12px; }
+tr.pend td { background: var(--ambar-bg) !important; }
+.pendientes { background: var(--ambar-bg); border: 1px solid var(--ambar-borde); border-radius: 16px; padding: 12px 14px; max-width: 900px; }
+.pendientes p { margin: 0 0 8px; color: var(--ambar-txt); }
+.lista-pend { display: flex; flex-wrap: wrap; gap: 6px; }
+.lista-pend button { font: inherit; font-size: 13px; font-weight: 600; background: var(--tarjeta); border: 1px solid var(--ambar-borde); color: var(--carbon); border-radius: 999px; padding: 3px 11px; cursor: pointer; }
+.lista-pend button small { color: var(--ambar-txt); font-weight: 400; }
+/* El formulario: se despliega en amarillo, en el sitio */
+.editor { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 16px; padding: 14px 16px; margin: 10px 0 4px; max-width: 1060px; }
+.editor-cab { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.editor-cab h3 { margin: 0; font-size: 18px; }
+.editor-cab .der { margin-left: auto; display: flex; gap: 8px; }
+.rej { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 18px; margin-top: 14px; }
+.campo label, .campo .et { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); margin-bottom: 4px; }
+input[type="text"], input[type="number"], select, textarea { font: inherit; font-size: 14px; width: 100%; border: 1px solid var(--borde); border-radius: 10px; padding: 6px 10px; background: var(--tarjeta); color: var(--carbon); }
+input[type="number"] { width: 70px; text-align: right; }
+textarea { resize: vertical; min-height: 54px; }
+::placeholder { color: var(--carbon-65); }
+.opciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.opciones label { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--carbon); background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 5px 10px; margin: 0; cursor: pointer; }
+.opciones label:has(input:checked) { border-color: var(--lima-dark); box-shadow: inset 0 0 0 1px var(--lima-dark); }
+.regla { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 8px; font-size: 14px; }
+.check { display: inline-flex; gap: 6px; align-items: center; margin-top: 6px; font-size: 13px; color: var(--carbon-70); }
+.ancho2 { grid-column: span 2; }
+@media (max-width: 640px) { .ancho2 { grid-column: auto; } }
+.nota-ed { font-size: 12px; color: var(--carbon-65); margin: 6px 0 0; }
+/* Clientes */
+.estado { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; margin-top: 12px; color: var(--carbon-70); }
+.estado b { color: var(--carbon); }
+.aviso { margin-top: 10px; background: var(--ambar-bg); border: 1px solid var(--ambar-borde); color: var(--ambar-txt); border-radius: 12px; padding: 8px 12px; max-width: 760px; }
+.pests { display: flex; gap: 4px; margin-top: 18px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.pest { font: inherit; font-weight: 700; background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px; color: var(--carbon-65); cursor: pointer; }
+.pest[aria-selected="true"] { color: var(--carbon); border-bottom-color: var(--lima); }
+.pest small { font-weight: 600; color: var(--carbon-65); }
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.filtros input { width: min(100%, 340px); }
+.chip { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--borde); background: var(--tarjeta); color: var(--carbon-70); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.casa a { color: var(--lima-dark); font-weight: 600; text-decoration: none; }
+.casa .tipo { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--carbon-65); margin-right: 6px; }
+.mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+.pie { color: var(--carbon-65); font-size: 13px; margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="pagina">
+  <div class="maqueta">MAQUETA · <b>Cobrar › Ajustes</b> · datos reales del 25-oct
+    <a href="#condiciones" id="ir-condiciones" class="on">Condiciones de cobro</a>
+    <a href="#clientes" id="ir-clientes">Clientes de Factusol</a>
+  </div>
+
+  <!-- ===================== CONDICIONES DE COBRO ===================== -->
+  <section id="p-condiciones">
+    <a class="salida" href="#condiciones">← Cobrar</a>
+    <div class="cab">
+      <div>
+        <h1>Condiciones de cobro</h1>
+        <p>Cómo nos paga cada uno. Al facturar salen solas, y se pueden cambiar en ese momento.</p>
+      </div>
+      <div class="der"><button type="button" class="btn" id="anadir">+ Añadir una contrata</button></div>
+    </div>
+
+    <div class="sec-tit">Por completar <span class="n">12 contratas · faltan datos: los completa facturación</span></div>
+    <div class="pendientes">
+      <p>Mientras falten, al facturarles hay que elegir a mano cómo cobran.</p>
+      <div class="lista-pend" id="pend"></div>
+    </div>
+
+    <div class="sec-tit">Por defecto</div>
+    <div class="caja"><table>
+      <thead><tr><th>Quién paga</th><th>Cómo cobra</th><th>Cuándo paga</th><th>Cómo se le envía</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="nom">Comunidad</td><td><span class="forma f-cargo">Cargo en cuenta</span></td><td class="corto">al hacer el cargo</td><td class="largo">Por correo, al presidente y al administrador.</td><td><button type="button" class="enlace">cambiar</button></td></tr>
+        <tr><td class="nom">Particular</td><td><span class="forma f-cargo">Cargo en cuenta</span></td><td class="corto">al hacer el cargo</td><td class="largo">Por correo.</td><td><button type="button" class="enlace">cambiar</button></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="sec-tit">Contratas</div>
+    <div class="caja"><table>
+      <thead><tr><th>Contrata</th><th>Cómo cobra</th><th>Cuándo paga</th><th>Facturas a · cómo se envía</th><th>Le factura</th><th>Exige en la factura</th><th></th></tr></thead>
+      <tbody id="contratas"></tbody>
+    </table></div>
+    <div id="editor-sitio"></div>
+  </section>
+
+  <!-- ===================== CLIENTES DE FACTUSOL ===================== -->
+  <section id="p-clientes" hidden>
+    <a class="salida" href="#clientes">← Cobrar</a>
+    <div class="cab">
+      <div>
+        <h1>Clientes de Factusol</h1>
+        <p>Una copia para consultar. Se lee de Factusol cada noche: aquí no se cambia nada.</p>
+      </div>
+      <div class="der"><button type="button" class="btn" id="revisar">Revisar ahora</button></div>
+    </div>
+    <div class="estado"><span>Última lectura: <b>hoy, 11:38</b></span><span>Cada noche a las 4:30</span></div>
+    <div class="aviso" id="aviso-revisar" hidden>La app todavía no tiene acceso al Dropbox: falta poner su llave (pendiente con Ana, el lunes). La lectura de hoy se hizo desde el PC de la oficina.</div>
+
+    <div class="pests" role="tablist">
+      <button type="button" class="pest" role="tab" aria-selected="true" data-e="accesalia">Accesalia <small>734</small></button>
+      <button type="button" class="pest" role="tab" aria-selected="false" data-e="daniel">Daniel autónomo <small>144</small></button>
+      <button type="button" class="pest" role="tab" aria-selected="false" data-e="ecobalance">Ecobalance <small>10</small></button>
+    </div>
+    <div class="estado" id="resumen"></div>
+    <div class="filtros">
+      <input type="text" id="buscar" placeholder="Buscar por nombre, NIF o código" aria-label="Buscar">
+      <button type="button" class="chip" aria-pressed="true" data-f="todos">Todos</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="casan">Casan con la app</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="no">No casan</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="sinnif">Sin NIF</button>
+    </div>
+    <div class="caja"><table>
+      <thead><tr><th>Código</th><th>NIF</th><th>Nombre en Factusol</th><th>Población</th><th>Alta</th><th>En la app</th></tr></thead>
+      <tbody id="clientes"></tbody>
+    </table></div>
+    <p class="pie">Muestra de la maqueta: en la pantalla salen todos, con el buscador.</p>
+  </section>
+</div>
+
+<script>
+const CONTRATAS = [
+  { n: "FAIN", f: "trans", cuando: "emitida hasta el día 20, en la remesa del día 6 del mes siguiente", correo: "facturasproveedores.fain@fainascensores.com", com: true, emisor: "", cod: ["Orden", "Supervisor", "Pedido"], envio: "" },
+  { n: "SCHINDLER", f: "conf", cuando: "60 días después de la factura", correo: "collector.esp@schindler.com", com: true, emisor: "Daniel autónomo", cod: ["Orden de compra"], envio: "Con su orden de compra." },
+  { n: "ELECNOR", f: "conf", cuando: "90 días después de la factura", correo: "", com: false, emisor: "", cod: ["Pedido"], envio: "Se sube la proforma a su sistema; ellos mandan la autorización para enviar la factura." },
+  { n: "ROSERSESE", f: "trans", cuando: "7 días después de la factura", correo: "", com: false, emisor: "", cod: [], envio: "", pend: "falta a dónde se envía" },
+  { n: "IBERDROLA", f: "conf", cuando: "60 días después de la factura", correo: "", com: false, emisor: "", cod: ["Pedido"], envio: "Por correo postal a una estafeta de Bilbao.", pend: "falta la dirección postal" },
+];
+const PEND = ["TKE", "CEGA", "ANYLOR", "EFFIC", "IBERLEAN ACCESIBILIDAD", "COINSA ASCENSORES", "LUXOR ESPACIOS", "JICAN ASCENSORES", "INTEGRA ASCENSORES", "SAACO BROTHER", "ROSERSESE", "IBERDROLA"];
+const FORMA = { cargo: ["f-cargo", "Cargo en cuenta"], trans: ["f-trans", "Transferencia"], conf: ["f-conf", "Confirming"] };
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function pintarContratas() {
+  document.getElementById("contratas").innerHTML = CONTRATAS.map((c, i) => `<tr class="${c.pend ? "pend" : ""}">
+    <td class="nom">${esc(c.n)}</td>
+    <td><span class="forma ${FORMA[c.f][0]}">${FORMA[c.f][1]}</span></td>
+    <td class="cuando">${esc(c.cuando)}</td>
+    <td class="correo">${c.correo ? esc(c.correo) : c.envio ? "" : `<span class="falta">${c.pend ? "por completar" : "—"}</span>`}${c.com ? "<small>y al comercial de la contrata que lleva la obra</small>" : ""}${c.envio ? `<span class="envio">${esc(c.envio)}</span>` : ""}${c.pend ? `<span class="falta envio">${esc(c.pend)}</span>` : ""}</td>
+    <td class="corto">${c.emisor ? `<b>${esc(c.emisor)}</b>` : "Accesalia"}</td>
+    <td>${c.cod.length ? `<div class="codigos">${c.cod.map((x) => `<span class="cod">${esc(x)}</span>`).join("")}</div>` : `<span class="falta">nada</span>`}</td>
+    <td><button type="button" class="enlace" data-editar="${i}">cambiar</button></td></tr>`).join("");
+  document.getElementById("pend").innerHTML = PEND.map((n) => `<button type="button" data-pend="${esc(n)}">${esc(n)} <small>completar</small></button>`).join("");
+}
+
+function editor(c) {
+  const f = c ? c.f : "";
+  const reg = !c ? "" : c.cuando.startsWith("emitida") ? "corte" : c.cuando.includes("días") ? "dias" : "cargo";
+  const dias = c && reg === "dias" ? parseInt(c.cuando, 10) : "";
+  document.getElementById("editor-sitio").innerHTML = `<div class="editor" role="region" aria-label="Condiciones de una contrata">
+    <div class="editor-cab"><h3>${c ? esc(c.n) : "Contrata nueva"}</h3>
+      <div class="der"><button type="button" class="btn sec" id="cancelar">Cancelar</button><button type="button" class="btn" id="guardar">Guardar</button></div></div>
+    <div class="rej">
+      ${c ? "" : `<div class="campo"><label for="ed-contrata">Contrata</label><input type="text" id="ed-contrata" placeholder="Buscar la contrata…"></div>`}
+      <div class="campo"><span class="et">Cómo cobra</span><div class="opciones">
+        ${[["cargo", "Cargo en cuenta"], ["trans", "Transferencia"], ["conf", "Confirming"]].map(([v, t]) => `<label><input type="radio" name="ed-forma" value="${v}"${f === v ? " checked" : ""}> ${t}</label>`).join("")}</div></div>
+      <div class="campo ancho2"><span class="et">Cuándo paga</span><div class="opciones">
+        <label><input type="radio" name="ed-regla" value="cargo"${reg === "cargo" ? " checked" : ""}> Al hacer el cargo</label>
+        <label><input type="radio" name="ed-regla" value="dias"${reg === "dias" ? " checked" : ""}> Días después de la factura</label>
+        <label><input type="radio" name="ed-regla" value="corte"${reg === "corte" ? " checked" : ""}> Corte y remesa</label></div>
+        <div class="regla" id="ed-detalle">${reg === "dias" ? `<input type="number" id="ed-dias" value="${dias}" aria-label="Días"> días después de la fecha de la factura` : reg === "corte" ? `Emitida hasta el día <input type="number" id="ed-corte" value="20" aria-label="Día de corte">, se paga en la remesa del día <input type="number" id="ed-remesa" value="6" aria-label="Día de la remesa"> del mes siguiente; después, en la del otro mes.` : ""}</div></div>
+      <div class="campo"><label for="ed-correo">Facturas a</label><input type="text" id="ed-correo" value="${c ? esc(c.correo) : ""}" placeholder="El buzón donde recibe las facturas">
+        <label class="check"><input type="checkbox" id="ed-com"${c && c.com ? " checked" : ""}> y al comercial de la contrata que lleva la obra</label></div>
+      <div class="campo"><label for="ed-emisor">Le factura</label><select id="ed-emisor">
+        <option${c && !c.emisor ? " selected" : ""}>Sin regla (Accesalia por defecto)</option><option>Accesalia</option><option${c && c.emisor ? " selected" : ""}>Daniel autónomo</option></select></div>
+      <div class="campo"><label for="ed-cod">Exige en la factura</label><input type="text" id="ed-cod" value="${c ? esc(c.cod.join(", ")) : ""}" placeholder="Orden de compra, Pedido…"></div>
+      <div class="campo ancho2"><label for="ed-envio">Cómo se envía</label><textarea id="ed-envio" placeholder="Lo que no cabe arriba: correo postal, portal propio, antes de qué día…">${c ? esc(c.envio) : ""}</textarea></div>
+      <div class="campo ancho2"><label for="ed-notas">Notas</label><textarea id="ed-notas" placeholder="Para nosotros: de dónde sale, quién lo confirmó…"></textarea>
+        <label class="check"><input type="checkbox" id="ed-falta"${c && c.pend ? " checked" : ""}> Aún faltan datos (sigue en «Por completar»)</label></div>
+    </div>
+    <p class="nota-ed">«Le factura» y «Exige en la factura» son de la contrata: se guardan en su ficha y se ven también allí.</p>
+  </div>`;
+  document.getElementById("editor-sitio").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.editar) editor(CONTRATAS[Number(b.dataset.editar)]);
+  else if (b.dataset.pend) editor(CONTRATAS.find((c) => c.n === b.dataset.pend) ?? { n: b.dataset.pend, f: "", cuando: "", correo: "", com: false, emisor: "", cod: [], envio: "", pend: "todo" });
+  else if (b.id === "anadir") editor(null);
+  else if (b.id === "cancelar" || b.id === "guardar") document.getElementById("editor-sitio").innerHTML = "";
+  else if (b.id === "revisar") document.getElementById("aviso-revisar").hidden = false;
+  else if (b.classList.contains("pest")) { document.querySelectorAll(".pest").forEach((p) => p.setAttribute("aria-selected", String(p === b))); empresa = b.dataset.e; pintarClientes(); }
+  else if (b.classList.contains("chip")) { document.querySelectorAll(".chip").forEach((p) => p.setAttribute("aria-pressed", String(p === b))); filtro = b.dataset.f; pintarClientes(); }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.name !== "ed-regla") return;
+  const v = e.target.value, d = document.getElementById("ed-detalle");
+  d.innerHTML = v === "dias" ? `<input type="number" id="ed-dias" value="30" aria-label="Días"> días después de la fecha de la factura`
+    : v === "corte" ? `Emitida hasta el día <input type="number" id="ed-corte" value="20" aria-label="Día de corte">, se paga en la remesa del día <input type="number" id="ed-remesa" value="6" aria-label="Día de la remesa"> del mes siguiente; después, en la del otro mes.` : "";
+});
+
+// Clientes: muestras reales de cada empresa (25-oct), con sus recuentos reales.
+const RESUMEN = { accesalia: [734, 428, 15, 97, 194], daniel: [
+  [144, "H79019600", "CDAD PROP CARLOS ARNICHES 25 MADRID", "MADRID", "02-02-2026", ["comunidad", "CP Carlos Arniches 25 Madrid"]],
+  [143, "H79188850", "PASEO DE LOS PONTONES 29 MADRID", "MADRID", "02-02-2026", ["comunidad", "CP Paseo de los Pontones 29 Madrid"]],
+  [137, "H78259686", "CDAD PROP NUESTRA SEÑORA DE LA MACARENA 7 LEGANES", "LEGANES", "20-08-2024", null],
+  [36, "", "CDAD DE PROP C/ CALATRAVA, 14 (MADRID)", "MADRID", "26-05-2021", null],
+  [12, "A50001726", "SCHINDLER SA", "ALCOBENDAS", "21-10-2020", ["contrata", "SCHINDLER"]],
+  [2, "A28303485", "FAIN ASCENSORES SA", "MADRID", "17-01-2020", ["contrata", "FAIN"]],
+], ecobalance: [
+  [1, "A67421230", "EFFIC SERVICIOS DE REHABILITACION S.A.U.", "PRAT DE LLOBREGAT", "07-04-2025", null],
+  [2, "B98952690", "ROSERSESE. SERVICIOS INTEGRALES, S.L.", "VALENCIA", "05-05-2025", ["contrata", "ROSERSESE"]],
+  [4, "A08431090", "NATURGY IBERIA, S.A", "MADRID", "01-09-2025", null],
+  [5, "B13835616", "CEGA ESTRUCTURAS PREFABRICADAS, S.L.", "MEJORADA DEL CAMPO", "15-10-2025", null],
+  [6, "A79486833", "ELECNOR SERVICIOS Y PROYECTOS S.A.U.", "MADRID", "20-10-2025", null],
+  [7, "A28303485", "FAIN ASCENSORES, S.A.", "MADRID", "15-01-2026", ["contrata", "FAIN"]],
+] };
+let empresa = "accesalia", filtro = "todos";
+function pintarClientes() {
+  const [t, com, con, sc, sn] = RESUMEN[empresa];
+  document.getElementById("resumen").innerHTML = `<span><b>${t}</b> clientes</span><span><b>${com}</b> casan con una comunidad</span><span><b>${con}</b> con una contrata</span><span><b>${sc}</b> con NIF sin casar</span><span><b>${sn}</b> sin NIF en Factusol</span>`;
+  const q = document.getElementById("buscar").value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  const filas = CLIENTES[empresa].filter((c) => (filtro === "todos" || (filtro === "casan" && c[5]) || (filtro === "no" && !c[5] && c[1]) || (filtro === "sinnif" && !c[1]))
+    && (!q || `${c[0]} ${c[1]} ${c[2]}`.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().includes(q)));
+  document.getElementById("clientes").innerHTML = filas.length ? filas.map((c) => `<tr>
+    <td class="corto mono" style="text-align:right">${c[0]}</td>
+    <td class="corto mono">${c[1] ? esc(c[1]) : `<span class="falta">sin NIF</span>`}</td>
+    <td class="largo" style="color:var(--carbon)">${esc(c[2])}</td>
+    <td class="corto">${esc(c[3])}</td>
+    <td class="corto">${c[4]}</td>
+    <td class="casa corto">${c[5] ? `<span class="tipo">${c[5][0]}</span><a href="#clientes">${esc(c[5][1])}</a>` : `<span class="falta">${c[1] ? "no casa con nada de la app" : "no se puede casar sin NIF"}</span>`}</td></tr>`).join("")
+    : `<tr><td colspan="6" class="falta">Nada con ese filtro.</td></tr>`;
+}
+document.getElementById("buscar").addEventListener("input", pintarClientes);
+
+function mostrar() {
+  const cl = location.hash === "#clientes";
+  document.getElementById("p-clientes").hidden = !cl;
+  document.getElementById("p-condiciones").hidden = cl;
+  document.getElementById("ir-clientes").classList.toggle("on", cl);
+  document.getElementById("ir-condiciones").classList.toggle("on", !cl);
+}
+window.addEventListener("hashchange", mostrar);
+pintarContratas(); pintarClientes(); mostrar();
+</script>

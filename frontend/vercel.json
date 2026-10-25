@@ -30,6 +30,10 @@
     {
       "path": "/api/edificios/censo",
       "schedule": "30 0 1 * *"
+    },
+    {
+      "path": "/api/factusol/clientes",
+      "schedule": "30 4 * * *"
     }
   ]
 }
