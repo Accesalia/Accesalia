@@ -21,6 +21,8 @@ import { crearEntrada } from "./entradaDiario";
 import { pdfGuardado as pdfViabilidad } from "./viabilidadComercial";
 import { pdfGuardado as pdfPresupuesto } from "./presupuesto";
 import { pdfDeVersion } from "./hojaEncargo";
+import { pdfDeHojaVersion } from "./hojaEmitir";
+import { ponerEstado } from "./hojaCompromisos";
 import { estadoRevision } from "./revisionOferta";
 import { recalcularLuego } from "./estadoOportunidad";
 import { informesDeOportunidad, leerInforme } from "./informeCostes";
@@ -80,7 +82,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!o) return null;
 
   // ---------------- los documentos generados
-  const [viabs, pptos, hojas, informes] = await Promise.all([
+  const [viabs, pptos, hojas, informes, nuevas] = await Promise.all([
     pedir<{ id: string; numero: string | null; version: number; rematada_en: string | null }[]>(
       `viabilidades?select=id,numero,version,rematada_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=creado_en.desc`,
     ),
@@ -92,6 +94,10 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
         `&oportunidad_id=eq.${oppId}&estado=neq.anulada&order=creado_en.desc`,
     ),
     informesDeOportunidad(oppId),
+    // LAS HOJAS NUEVAS (25-oct-2026): las que tienen el ok de Daniel (para enviarlas) o ya se enviaron (para reenviarlas).
+    pedir<{ id: string; codigo_he: string | null; numero_version: number; fecha_emision: string | null }[]>(
+      `he_versiones_hoja?select=id,codigo_he,numero_version,fecha_emision&oportunidad_id=eq.${oppId}&pdf=not.is.null&estado=in.(ok_daniel,enviada,firma_con_errores)&order=creado_en.desc`,
+    ),
   ]);
   const documentos: DocEnviable[] = [
     ...viabs.map((v) => ({ clave: `viabilidad:${v.id}`, tipo: "Viabilidad", nombre: `Viabilidad ${v.numero ?? ""} v${v.version}`.trim(), enlace: `/comercial/viabilidad/${v.id}/pdf`, fecha: v.rematada_en })),
@@ -101,6 +107,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
       const v = [...h.versiones].filter((x) => x.url_pdf_hoja).sort((a, b) => b.numero_version - a.numero_version)[0];
       return v ? [{ clave: `hoja:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${h.numero_hoja ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.creado_en }] : [];
     }),
+    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/gestiones/hoja-prueba/pdf/${v.id}`, fecha: v.fecha_emision })),
     ...informes
       .filter((x) => x.tipo === "estimacion_costes")
       .map((x) => ({ clave: `costes:${x.id}`, tipo: "Estimación de costes", nombre: `Estimación de costes · ${x.datos.obra}`, enlace: `/referencia/estimacion/informe/${x.id}/pdf`, fecha: x.creado_en })),
@@ -161,6 +168,10 @@ async function pdfDe(clave: string): Promise<{ nombre: string; contenido: Uint8A
     const h = await pdfDeVersion(id);
     return h ? { nombre: h.nombre, contenido: h.pdf } : null;
   }
+  if (tipo === "he") {
+    const h = await pdfDeHojaVersion(id);
+    return h ? { nombre: h.nombre, contenido: h.pdf } : null;
+  }
   if (tipo === "costes") {
     const i = await leerInforme(id);
     return i ? { nombre: `Estimacion de costes - ${i.direccion}.pdf`.replace(/[\\/:*?"<>|]/g, ""), contenido: new Uint8Array(await pdfDeInformeCostes(i.datos)) } : null;
@@ -182,8 +193,18 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   if (!e.asunto.trim() || !e.cuerpo.trim()) throw new Error("Faltan el asunto o el texto.");
 
   const elegidos = d.documentos.filter((x) => e.docs.includes(x.clave));
-  // LA OFERTA (hoja o presupuesto) NO SALE SIN SU OK (Monica, 14-oct-2026).
-  if (elegidos.some((x) => x.clave.startsWith("hoja:") || x.clave.startsWith("presupuesto:")) && !(await estadoRevision(oppId)).okVigente)
+  // LA OFERTA (hoja o presupuesto) NO SALE SIN SU OK (Monica, 14-oct-2026). Las hojas nuevas y sus presupuestos llevan
+  // el ok POR HOJA (25-oct-2026): solo se pueden elegir con el ok de Daniel (ver paraEnviar). Lo de antes, con su paquete.
+  const pptosElegidos = elegidos.filter((x) => x.clave.startsWith("presupuesto:")).map((x) => x.clave.slice(13));
+  const deHojaNueva = new Set(
+    pptosElegidos.length
+      ? (await pedir<{ id: string; v: { estado: string } | null }[]>(`presupuestos?select=id,v:he_version_id(estado)&id=in.(${pptosElegidos.join(",")})&he_version_id=not.is.null`))
+          .filter((p) => p.v && !["borrador", "pendiente_ok_daniel", "cambios_daniel", "anulada", "sustituida"].includes(p.v.estado))
+          .map((p) => p.id)
+      : [],
+  );
+  const conPaqueteViejo = elegidos.some((x) => x.clave.startsWith("hoja:") || (x.clave.startsWith("presupuesto:") && !deHojaNueva.has(x.clave.slice(13))));
+  if (conPaqueteViejo && !(await estadoRevision(oppId)).okVigente)
     throw new Error("Falta el ok a la oferta (o caducó porque algo cambió): pídelo en la hoja de encargo antes de enviarla.");
   const adjuntos = (await Promise.all(elegidos.map((x) => pdfDe(x.clave)))).filter((x): x is { nombre: string; contenido: Uint8Array } => !!x);
   if (adjuntos.length < elegidos.length) throw new Error("Algún documento no se ha podido leer del almacén: no se envía nada.");
@@ -266,6 +287,13 @@ Entra con tu correo; te llegará un enlace para acceder.`;
         method: "PATCH",
         body: JSON.stringify({ estado: "enviada_comunidad", fecha_estado: new Date().toISOString() }),
       });
+  }
+  // LAS HOJAS NUEVAS (25-oct-2026): enviarla por correo es enviarla. La que tenia el ok de Daniel pasa a «enviada», con
+  // la fecha y la hora del envio (su fila del historial) y a quien se mando.
+  const nuevasEnviadas = elegidos.filter((x) => x.clave.startsWith("he:")).map((x) => x.clave.slice(3));
+  if (nuevasEnviadas.length) {
+    const conOk = await pedir<{ id: string }[]>(`he_versiones_hoja?select=id&id=in.(${nuevasEnviadas.join(",")})&estado=eq.ok_daniel`);
+    for (const v of conOk) await ponerEstado(v.id, "enviada", yo, `Enviada por correo desde la app a ${para.join(", ")}.`);
   }
   recalcularLuego(oppId);
   return fila.id;
