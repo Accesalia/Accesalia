@@ -155,7 +155,8 @@ async function pdfDe(clave: string): Promise<{ nombre: string; contenido: Uint8A
   }
   if (tipo === "he") {
     const h = await pdfDeHojaVersion(id);
-    return h ? { nombre: h.nombre, contenido: h.pdf } : null;
+    // Una hoja vieja con su PDF en Google Docs no se puede adjuntar.
+    return h && "pdf" in h ? { nombre: h.nombre, contenido: h.pdf } : null;
   }
   if (tipo === "costes") {
     const i = await leerInforme(id);

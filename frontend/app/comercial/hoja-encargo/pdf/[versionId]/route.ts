@@ -19,6 +19,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ versionI
     const h = await pdfDeHojaVersion(versionId);
     if (!h) return new Response("Esta hoja aún no tiene papel.", { status: 404 });
     if (!puedeRevisar(yo) && !(await puedeVerOpp(yo, h.oppId))) return new Response("No tienes acceso a esta oportunidad.", { status: 403 });
+    if ("enlace" in h) {
+      if (presupuesto) return new Response("Esta hoja no tiene presupuesto.", { status: 404 });
+      return Response.redirect(h.enlace, 302);
+    }
     const pdf = presupuesto ? await pdfPresupuestoDeVersion(versionId) : h.pdf;
     if (!pdf) return new Response("Esta hoja no tiene presupuesto.", { status: 404 });
     const nombre = presupuesto ? h.nombre.replace(/^Hoja de encargo/, "Presupuesto") : h.nombre;

@@ -89,8 +89,8 @@ async function firmar(rutas: string[]): Promise<Map<string, string>> {
   return new Map(filas.filter((f) => f.signedURL).map((f) => [f.path, `${publica}/storage/v1${f.signedURL}`]));
 }
 
-type Fila = { id: string; oportunidad_id: string; nombre: string | null; storage_ref: string | null; creado_en: string; archivado_en: string | null; subido_por: string | null; archivado_por: string | null; tipo: { nombre: string } | null };
-const SEL = "id,oportunidad_id,nombre,storage_ref,creado_en,archivado_en,subido_por,archivado_por,tipo:tipos_documento(nombre)";
+type Fila = { id: string; oportunidad_id: string; nombre: string | null; storage_ref: string | null; url_fichero: string | null; creado_en: string; archivado_en: string | null; subido_por: string | null; archivado_por: string | null; tipo: { nombre: string } | null };
+const SEL = "id,oportunidad_id,nombre,storage_ref,url_fichero,creado_en,archivado_en,subido_por,archivado_por,tipo:tipos_documento(nombre)";
 
 async function aDocs(filas: Fila[]): Promise<Map<string, DocCajon[]>> {
   const personas = [...new Set(filas.flatMap((f) => [f.subido_por, f.archivado_por]).filter((x): x is string => !!x))];
@@ -102,7 +102,7 @@ async function aDocs(filas: Fila[]): Promise<Map<string, DocCajon[]>> {
   const out = new Map<string, DocCajon[]>();
   for (const f of filas) {
     const d: DocCajon = {
-      id: f.id, nombre: f.nombre ?? f.storage_ref?.split("/").pop() ?? "documento", url: f.storage_ref ? (urls.get(f.storage_ref) ?? null) : null,
+      id: f.id, nombre: f.nombre ?? f.storage_ref?.split("/").pop() ?? "documento", url: f.storage_ref ? (urls.get(f.storage_ref) ?? null) : f.url_fichero,
       subidoPor: f.subido_por ? (nombre.get(f.subido_por) ?? null) : null, subido: f.creado_en,
       tipo: f.tipo ? comoSeLee(f.tipo.nombre) : null, archivadoPor: f.archivado_por ? (nombre.get(f.archivado_por) ?? null) : null, archivado: f.archivado_en,
     };

@@ -191,8 +191,10 @@ async function leerAlmacen(ruta: string): Promise<Uint8Array | null> {
 
 /** El PDF de la hoja de una version: el emitido (el firmado, si lo hay) o, mientras espera el ok, una vista previa sin
  *  codigo con el papel tal como se genero. */
-export async function pdfDeHojaVersion(versionId: string): Promise<{ pdf: Uint8Array; oppId: string; nombre: string } | null> {
+export async function pdfDeHojaVersion(versionId: string): Promise<{ pdf: Uint8Array; oppId: string; nombre: string } | { enlace: string; oppId: string } | null> {
   const v = await versionDe(versionId);
+  // Las hojas viejas migradas con su PDF en Google Docs/Drive: se abre el enlace.
+  if (v.pdf && /^https?:\/\//.test(v.pdf)) return { enlace: v.pdf, oppId: v.oportunidad_id };
   const nombre = `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version} ${donde(v)}.pdf`.replace(/\s+/g, " ");
   if (v.pdf?.startsWith("almacen:")) {
     const r = await fetch(`${URL_BASE}/storage/v1/object/${v.pdf.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
