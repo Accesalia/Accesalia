@@ -66,7 +66,10 @@ export type FilaNueva = {
  *  no tienen destino: con lineas por validar, o todas validadas sin elegir a donde van (hitos_validados; tambien las
  *  devueltas desde el diario). Salen al pulsar uno de los dos botones. */
 export async function nuevasHojas(): Promise<FilaNueva[]> {
-  const hs = await hojasDeFacturacion({ fases: ["ok_comercial", "hitos_validados"] });
+  // Como antes de la migracion: las firmadas desde 2025 (DESDE) con alguna linea de Accesalia o Daniel. Las de antes que
+  // nunca se validaron (189 al migrar) se quedan fuera de la lista, como hasta ahora.
+  const hs = (await hojasDeFacturacion({ fases: ["ok_comercial", "hitos_validados"] }))
+    .filter((h) => h.lineas.length > 0 && !!h.fecha_firma && h.fecha_firma >= DESDE);
   if (!hs.length) return [];
   const ids = hs.map((h) => h.id);
   const lids = hs.flatMap((h) => h.lineas.map((l) => l.id));
