@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../components/BarraSuperior";
 import { Volver } from "../components/Volver";
-import { misPendientes, posiblesDe, tarjetasQueVeo } from "../../lib/misPendientes";
+import { misAvisos, misPendientes, posiblesDe, tarjetasQueVeo } from "../../lib/misPendientes";
 import { comercialDe, puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { solicitudesPendientes } from "../../lib/rrhh";
@@ -154,7 +154,7 @@ export default async function Pendientes() {
   // LAS OFERTAS ESPERANDO EL OK (Monica, 14-oct-2026): a quien tiene la funcion
   // de revisarlas. Se envian en caliente: no pueden esperar.
   const revisa = puedeRevisar(yo);
-  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas, ofertas] = await Promise.all([
+  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas, ofertas, avisos] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
     resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
@@ -163,6 +163,7 @@ export default async function Pendientes() {
     comercial ? cuantosApuntes(yo).catch(() => null) : Promise.resolve(null),
     comercial ? direccionesVistas().catch(() => null) : Promise.resolve(null),
     revisa ? contarPendientes().catch(() => null) : Promise.resolve(null),
+    misAvisos(yo),
   ]);
   // OPPS SIN ADMINISTRADOR (Monica, 18-oct-2026): las abiertas de 2025-26 cuya
   // comunidad no tiene administrador. Las suyas; direccion, todas.
@@ -245,6 +246,15 @@ export default async function Pendientes() {
           clave: "recibidos", marco: "documentacion" as const, titulo: "Documentos recibidos por el portal",
           pie: "Hojas firmadas y papeles de la comunidad que han llegado vía portal y necesitan revisión para darles el ok.",
           numero: recibidos, href: "/comercial/recibidos", color: C.frambuesa,
+        }]
+      : []),
+    // LAS HOJAS FIRMADAS POR VALIDAR (25-oct-2026): archivadas en su opp (por el portal o el cajon), al comercial que
+    // lleva la opp hasta que las valida; direccion, todas.
+    ...(comercial || veo.supervisa
+      ? [{
+          clave: "firmadas", marco: "documentacion" as const, titulo: "Hojas firmadas por validar",
+          pie: "Hojas de encargo firmadas que ya están en su oportunidad: comprueba la firma, la versión y que no está retocada, y pasan a facturación.",
+          numero: avisos.firmadas, href: "/comercial/firmadas", color: C.verde,
         }]
       : []),
     ...(comercial

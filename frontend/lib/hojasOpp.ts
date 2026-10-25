@@ -62,6 +62,8 @@ export type VersionHe = {
   estado: string;
   pausa: PausaHe | null;
   aQuien: string | null;
+  pagadorTipo: string;
+  pagadorComunidadId: string | null;
   comercial: string | null;
   generadaPor: string | null;
   creadaEn: string;
@@ -84,6 +86,7 @@ export type HojaHe = { codigo: string | null; actual: VersionHe; anteriores: Ver
 
 type Fila = {
   id: string; codigo_he: string | null; numero_version: number; estado: string; creado_en: string; fecha_emision: string | null; pdf: string | null; firmada_documento_id: string | null;
+  pagador_tipo: string; pagador_comunidad_id: string | null;
   contrata: { nombre: string } | null; persona: { nombre: string; apellidos: string | null } | null; comunidad: { nombre: string } | null;
   comercial: { nombre: string } | null; quien: { nombre: string } | null;
   estados: { estado: string; fecha: string; nota: string | null; lado: string | null; tejado: string | null; condicion: string | null; persona: { nombre: string } | null }[];
@@ -93,7 +96,7 @@ type Fila = {
 };
 
 const SEL =
-  "id,codigo_he,numero_version,estado,creado_en,fecha_emision,pdf,firmada_documento_id," +
+  "id,codigo_he,numero_version,estado,creado_en,fecha_emision,pdf,firmada_documento_id,pagador_tipo,pagador_comunidad_id," +
   "contrata:pagador_contrata_id(nombre),persona:pagador_persona_id(nombre,apellidos),comunidad:pagador_comunidad_id(nombre)," +
   "comercial:comercial_id(nombre),quien:generada_por(nombre)," +
   "estados:he_estados_hoja(estado,fecha,nota,lado,tejado,condicion,persona:persona_id(nombre))," +
@@ -137,6 +140,8 @@ function aVersion(f: Fila): VersionHe {
     estado: f.estado,
     pausa,
     aQuien: f.contrata?.nombre ?? (f.persona ? [f.persona.nombre, f.persona.apellidos].filter(Boolean).join(" ") : null) ?? f.comunidad?.nombre ?? null,
+    pagadorTipo: f.pagador_tipo,
+    pagadorComunidadId: f.pagador_comunidad_id,
     comercial: f.comercial?.nombre ?? null,
     generadaPor: f.quien?.nombre ?? null,
     creadaEn: f.creado_en,
@@ -185,4 +190,29 @@ export async function firmadasDeOpp(oppId: string): Promise<{ porValidar: DocCaj
   const firmadas = docs.filter((d) => d.tipo === "Hoja de encargo firmada");
   const usadas = new Set(enlazadas.map((e) => e.firmada_documento_id));
   return { porValidar: firmadas.filter((d) => !usadas.has(d.id)), todas: new Map(firmadas.map((d) => [d.id, d])) };
+}
+
+/** Con que nombre se archiva la firmada que sube la comunidad por el portal: dice de que hoja es, para que el comercial
+ *  sepa cual validar y la comunidad vea que ya la ha mandado. */
+export const nombreFirmadaPortal = (codigo: string | null, numero: number) => `Hoja de encargo firmada ${codigo ?? "sin código"} v${numero} (subida por la comunidad)`;
+
+export type FirmadaPorValidar = { docId: string; nombre: string; subido: string; opp: { id: string; nombre: string | null; codigo: string | null; comercial: string | null } };
+
+/** Las hojas firmadas por validar de una cartera (o de todas, con comercialId vacio y todas = true): la lista de
+ *  Pendientes. Misma regla que el aviso (mis_avisos.firmadas): tipo «Hoja de encargo», vigente, sin version que apunte. */
+export async function firmadasPorValidar(comercialId: string | null, todas: boolean): Promise<FirmadaPorValidar[]> {
+  if (!todas && !comercialId) return [];
+  const [tipo] = await leer<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent("Hoja de encargo")}`);
+  if (!tipo) return [];
+  const docs = await leer<{ id: string; nombre: string | null; creado_en: string; opp: { id: string; nombre: string | null; codigo: string | null; comercial_id: string | null; comercial: { nombre: string } | null } | null }[]>(
+    `documentos?select=id,nombre,creado_en,opp:oportunidad_id!inner(id,nombre,codigo,comercial_id,comercial:comercial_id(nombre))` +
+      `&tipo_documento_id=eq.${tipo.id}&vigente=is.true${todas ? "" : `&opp.comercial_id=eq.${comercialId}`}&order=creado_en.asc&limit=500`,
+  );
+  if (!docs.length) return [];
+  const usadas = new Set(
+    (await leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&firmada_documento_id=in.(${docs.map((d) => d.id).join(",")})`)).map((x) => x.firmada_documento_id),
+  );
+  return docs
+    .filter((d) => d.opp && !usadas.has(d.id))
+    .map((d) => ({ docId: d.id, nombre: d.nombre ?? "documento", subido: d.creado_en, opp: { id: d.opp!.id, nombre: d.opp!.nombre, codigo: d.opp!.codigo, comercial: d.opp!.comercial?.nombre ?? null } }));
 }

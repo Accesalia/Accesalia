@@ -54,6 +54,7 @@ export async function accionPermisoSubida(comunidadId: string, nombre: string, t
 export async function accionRegistrar(d: {
   comunidadId: string;
   hojaId: string | null;
+  versionId?: string | null;
   clave?: ClavePortal | null;
   oportunidadId?: string | null;
   descripcion: string | null;
@@ -63,7 +64,7 @@ export async function accionRegistrar(d: {
 }): Promise<R<{ aceptada: boolean }>> {
   try {
     const email = await dentro(d.comunidadId);
-    if (!d.hojaId && !d.clave && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
+    if (!d.hojaId && !d.versionId && !d.clave && !d.descripcion?.trim()) throw new Error("Dinos qué documento es.");
     const id = await registrarSubida({ ...d, email });
     // Si lo sube el comercial de esa hoja, queda aceptada al momento.
     const aceptada = d.hojaId ? await aceptarSiEsSuComercial(id, await personaPorCorreo(email)) : false;
