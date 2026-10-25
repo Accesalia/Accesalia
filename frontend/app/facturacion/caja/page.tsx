@@ -21,13 +21,13 @@ const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short",
 const hoyIso = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
 const ddmmaa = (v: string) => v.slice(0, 10).split("-").reverse().join("/");
 const ddmm = (v: string) => ddmmaa(v).slice(0, 5);
-function validada(v: string | null) {
+function enProduccion(v: string | null) {
   if (!v) return "";
   const dia = new Date(v).toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
-  return dia === hoyIso() ? "validada hoy" : `validada el ${FECHA.format(new Date(v)).replace(".", "")}`;
+  return dia === hoyIso() ? "en producción desde hoy" : `en producción desde el ${FECHA.format(new Date(v)).replace(".", "")}`;
 }
 const frase = (t: string | null) => (t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : null);
-const detalle = (t: TrabajoNube) => [t.hoja, frase(t.bloque), validada(t.validada)].filter(Boolean).join(" · ");
+const detalle = (t: TrabajoNube) => [t.hoja, frase(t.bloque), enProduccion(t.enProduccion)].filter(Boolean).join(" · ");
 function estadoNube(t: TrabajoNube) {
   const n = t.decision;
   if (n?.escaneado) return `escaneado el ${ddmm(n.escaneado)}`;
@@ -72,7 +72,7 @@ export default async function PaginaAsignar({ searchParams }: { searchParams: Pr
             <div className="mb-2 flex items-center gap-2 text-[16px] font-extrabold">
               Pendiente de decidir <Cnt n={d.pendientes.length} />
             </div>
-            <div className="-mt-1 mb-2.5 text-[14.5px] text-carbon/65">Líneas validadas que implican técnico. ¿Necesitan nube de puntos?</div>
+            <div className="-mt-1 mb-2.5 text-[14.5px] text-carbon/65">Hojas metidas en producción que implican técnico. ¿Necesitan nube de puntos?</div>
             <div className="overflow-hidden rounded-[14px] border border-[#e3e6df] bg-white">
               <Decidir filas={d.pendientes.map((t) => ({ oppId: t.oppId, nombre: t.nombre, detalle: detalle(t) }))} />
             </div>

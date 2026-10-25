@@ -101,7 +101,7 @@ export function ProximosHitos({ hitos, previos, inicial }: { hitos: HitoProximo[
             </span>
             <span className="min-w-0 truncate text-carbon/80" title={h.que}>
               {h.que}
-              {!h.validada && <span className="ml-1.5 rounded-full bg-[#fbefd0] px-1.5 py-px text-[11px] font-bold text-[#875f07]">sin validar</span>}
+              {!h.pasada && <span className="ml-1.5 rounded-full bg-[#fbefd0] px-1.5 py-px text-[11px] font-bold text-[#875f07]">en Nuevas hojas</span>}
             </span>
             <span>
               <span

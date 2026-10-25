@@ -7,7 +7,9 @@
 //
 // Que entra: los hitos (y subhitos) PENDIENTES de las lineas de hojas firmadas
 // del libro de Accesalia y Daniel, que aun no tienen factura. Las lineas aun sin
-// validar (en la bandeja de Nuevas Hojas) entran marcadas: primero se validan. Un hito
+// validar (en la bandeja de Nuevas Hojas) entran marcadas: primero se validan. Desde el 25-oct-2026 lo que cuenta es
+// que la hoja haya SALIDO de Nuevas hojas firmadas (con su boton: a cobro o a produccion; lib/recorridoHoja.ts), no
+// que sus lineas esten validadas. Un hito
 // con subhitos no entra: entran sus subhitos.
 // Cuando:
 //   - en pausa: lo marco una persona (en_pausa_desde);
@@ -23,6 +25,7 @@
 
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
+import { hojasPasadas } from "./recorridoHoja";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -65,8 +68,8 @@ export type HitoProximo = {
   importe: number | null;
   /** La proforma emitida que lo lleva, si la hay. */
   proforma: string | null;
-  /** Su linea ya esta validada (si no, esta en la bandeja de Nuevas Hojas). */
-  validada: boolean;
+  /** Su hoja ya ha salido de Nuevas hojas firmadas (si no, alli se valida y se elige a donde va). */
+  pasada: boolean;
 };
 
 const PLAZO: Record<string, string> = {
@@ -84,7 +87,7 @@ type Linea = {
   validada_en: string | null;
   descripcion: string | null;
   hoja: {
-    numero_hoja: string | null; estado: string; fecha_firma: string | null; pagador_tipo: string | null;
+    id: string; numero_hoja: string | null; estado: string; fecha_firma: string | null; pagador_tipo: string | null;
     contrata: { nombre: string | null } | null;
     opp: { id: string; nombre: string | null; codigo: string | null } | null;
   } | null;
@@ -94,12 +97,12 @@ type Linea = {
 export const DESDE = "2025-01-01";
 
 export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: number }> {
-  const lineas = await leer<Linea>(
+  const [pasadas, lineas] = await Promise.all([hojasPasadas(), leer<Linea>(
     `lineas_facturacion?select=id,descripcion,validada_en,` +
-      `hoja:hoja_encargo_id!inner(numero_hoja,estado,fecha_firma,pagador_tipo,contrata:pagador_contrata_id(nombre),opp:oportunidad_id(id,nombre,codigo)),` +
+      `hoja:hoja_encargo_id!inner(id,numero_hoja,estado,fecha_firma,pagador_tipo,contrata:pagador_contrata_id(nombre),opp:oportunidad_id(id,nombre,codigo)),` +
       `hitos:hitos_cobro(id,hito,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,hito_padre_id)` +
       `&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`,
-  );
+  )]);
   // Los candidatos: pendientes, y si tienen subhitos, los subhitos (no el padre).
   const conHijos = new Set(lineas.flatMap((l) => l.hitos.map((h) => h.hito_padre_id).filter(Boolean)));
   const todos = lineas.flatMap((l) => l.hitos.filter((h) => h.estado === "pendiente" && !conHijos.has(h.id)).map((h) => ({ l, h })));
@@ -166,7 +169,7 @@ export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: 
       paga: l.hoja?.pagador_tipo === "contrata" ? (l.hoja.contrata?.nombre ?? "Contrata") : "Comunidad",
       importe: h.importe == null ? null : Number(h.importe),
       proforma: proformaDe.get(h.id) ?? null,
-      validada: !!l.validada_en,
+      pasada: !!l.hoja && pasadas.has(l.hoja.id),
     });
   }
   // Lo mas antiguo primero dentro de lo que ya se puede; lo mas cercano, en lo demas.

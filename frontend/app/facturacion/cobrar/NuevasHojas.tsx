@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { FilaNueva, HojaAbierta, LineaAbierta } from "../../../lib/nuevasHojas";
+import type { DestinoHoja, EnvioDuda, FilaNueva, HojaAbierta, LineaAbierta } from "../../../lib/nuevasHojas";
 import {
-  abrir, accionAnadirHito, accionAnadirLinea, accionCorregirHito, accionCorregirLinea, accionDuda, accionQuitarHito, accionQuitarLinea,
+  abrir, accionAnadirHito, accionAnadirLinea, accionCorregirHito, accionCorregirLinea, accionDuda, accionPasar, accionQuitarHito, accionQuitarLinea,
   accionResolverDuda, accionValidar,
 } from "./acciones";
 
@@ -13,6 +14,11 @@ import {
 // para saber por donde empezar; al pinchar una fila se despliegan debajo la hoja
 // firmada y, al otro lado, cada linea con su importe y debajo sus hitos. Se
 // corrige pinchando en el dato; siempre queda dicho quien lo toco.
+
+// 25-oct-2026 (maqueta docs/figma/recorrido-hoja-firmada.html): validarlo todo ya no la saca de la lista. Con todas
+// las lineas validadas se abren los dos destinos («Pasa a cobro del primer hito» / «Pasa a produccion ya», con
+// motivo) y sale al pulsar uno; queda en el diario por si hay que devolverla. Las dudas se guardan y, si se quiere,
+// se envian al comercial o a «Revisar por direccion».
 
 const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" });
 const HORA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
@@ -27,6 +33,7 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
   const [hoja, setHoja] = useState<HojaAbierta | null>(inicial?.hoja ?? null);
   const [error, setError] = useState<string | null>(null);
   const [cargando, empezar] = useTransition();
+  const [hecho, setHecho] = useState<string | null>(null);
   const router = useRouter();
 
   function pinchar(id: string) {
@@ -45,8 +52,10 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
   function cambiar(p: Promise<{ hoja?: HojaAbierta | null; error?: string }>) {
     empezar(async () => {
       const r = await p;
-      if (r.error) setError(r.error);
-      else {
+      if (r.error) {
+        setError(r.error);
+        if (r.hoja) setHoja(r.hoja);
+      } else {
         setError(null);
         setHoja(r.hoja ?? null);
         router.refresh();
@@ -54,13 +63,42 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
     });
   }
 
+  /** Elegido el destino: la hoja sale de la lista. */
+  function pasar(destino: "a_cobro" | "a_produccion", motivo: string) {
+    if (!hoja) return;
+    const f = filas.find((x) => x.id === hoja.id);
+    empezar(async () => {
+      const r = await accionPasar(hoja.id, destino, motivo);
+      if (r.error) return setError(r.error);
+      setError(null);
+      setAbierta(null);
+      setHoja(null);
+      setHecho(`${f?.direccion ?? "La hoja"} ha pasado a ${destino === "a_cobro" ? "Primer cobro" : "la bandeja comercial"}.`);
+      router.refresh();
+    });
+  }
+
   const pendientes = filas.reduce((s, f) => s + (f.lineas - f.validadas), 0);
   return (
     <>
-      <h1 className="text-[28px] font-bold leading-tight text-carbon">Nuevas Hojas Encargo Firmadas</h1>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
+        <h1 className="text-[28px] font-bold leading-tight text-carbon">Nuevas Hojas Encargo Firmadas</h1>
+        <Link href="/facturacion/cobrar/diario" className="text-[14px] font-bold text-lima-dark hover:underline">
+          Diario de trabajo →
+        </Link>
+      </div>
       <p className="mt-1 text-[14.5px] text-carbon/65">
         {filas.length} hojas firmadas · {pendientes} líneas por validar · cuando se vacía, todo está listo para trabajar
       </p>
+      {hecho && (
+        <div className="mt-3 w-fit max-w-full rounded-xl border border-lima/40 bg-lima-soft px-4 py-2 text-[13.5px] text-carbon">
+          {hecho}{" "}
+          <Link href="/facturacion/cobrar/diario" className="font-bold text-lima-dark hover:underline">
+            Está en el diario
+          </Link>{" "}
+          por si hay que devolverla.
+        </div>
+      )}
 
       {/* REGLA 8 (Monica, 18-oct): la lista mide lo que su texto; con una hoja
           abierta (el PDF al lado de lo extraido) se abre a todo el ancho. */}
@@ -90,7 +128,15 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
                       {f.dudas} {f.dudas === 1 ? "duda" : "dudas"}
                     </span>
                   )}
+                  {f.lineas > 0 && f.validadas === f.lineas && (
+                    <span className="whitespace-nowrap rounded-full border border-[#f2d48a] bg-[#fff8e1] px-2 py-0.5 text-[12px] font-bold text-[#7a5a10]">
+                      falta elegir a dónde va
+                    </span>
+                  )}
                 </div>
+                {f.devuelta !== null && (
+                  <div className="mt-1.5 text-[12.5px] text-alerta">Devuelta desde el diario{f.devuelta ? `: «${f.devuelta}»` : ""}</div>
+                )}
               </button>
               {on && (
                 <div className="border-b border-black/10">
@@ -98,14 +144,14 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
                   {!hoja ? (
                     <div className="px-5 py-8 text-center text-[13.5px] text-carbon/60">{cargando ? "Abriendo la hoja…" : "No se ha podido abrir."}</div>
                   ) : (
-                    <Desplegada hoja={hoja} cambiar={cambiar} ocupado={cargando} />
+                    <Desplegada hoja={hoja} cambiar={cambiar} ocupado={cargando} pasar={pasar} />
                   )}
                 </div>
               )}
             </div>
           );
         })}
-        <div className="px-5 py-5 text-center text-[13px] text-carbon/50">Las validadas salen de aquí solas.</div>
+        <div className="px-5 py-5 text-center text-[13px] text-carbon/65">Salen de aquí cuando se elige a dónde va cada una.</div>
       </div>
     </>
   );
@@ -113,7 +159,10 @@ export function NuevasHojas({ filas, inicial }: { filas: FilaNueva[]; inicial?: 
 
 type Cambiar = (p: Promise<{ hoja?: HojaAbierta | null; error?: string }>) => void;
 
-function Desplegada({ hoja, cambiar, ocupado }: { hoja: HojaAbierta; cambiar: Cambiar; ocupado: boolean }) {
+type Pasar = (destino: "a_cobro" | "a_produccion", motivo: string) => void;
+
+function Desplegada({ hoja, cambiar, ocupado, pasar }: { hoja: HojaAbierta; cambiar: Cambiar; ocupado: boolean; pasar: Pasar }) {
+  const faltan = hoja.lineas.filter((l) => !l.validada).length;
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2">
       <div className="flex flex-col gap-3 bg-[#e9ebe6] p-5">
@@ -135,8 +184,13 @@ function Desplegada({ hoja, cambiar, ocupado }: { hoja: HojaAbierta; cambiar: Ca
         <div className="text-[15px]">
           <b>Lo extraído</b> <span className="text-[12.5px] text-carbon/55">· pincha en cualquier dato para corregirlo</span>
         </div>
+        {hoja.devuelta !== null && (
+          <div className="rounded-[10px] border border-[#e8c3c1] bg-[#f6dfdd] px-3.5 py-2.5 text-[13px] text-alerta">
+            Devuelta desde el diario{hoja.devuelta ? `: «${hoja.devuelta}»` : ""}. Corrige lo que haga falta y vuelve a elegir a dónde va.
+          </div>
+        )}
         {hoja.lineas.map((l, i) => (
-          <Linea key={l.id} n={i + 1} l={l} cambiar={cambiar} />
+          <Linea key={l.id} n={i + 1} l={l} cambiar={cambiar} hojaId={hoja.id} />
         ))}
         <button
           type="button"
@@ -145,6 +199,7 @@ function Desplegada({ hoja, cambiar, ocupado }: { hoja: HojaAbierta; cambiar: Ca
         >
           + Añadir línea <span className="font-normal text-carbon/55">· si la app se ha saltado una de la hoja</span>
         </button>
+        <Destino faltan={faltan} destino={hoja.destino} pasar={pasar} ocupado={ocupado} />
       </div>
     </div>
   );
@@ -190,7 +245,72 @@ function Dato({ valor, onGuardar, pista, ancho, derecha, apagado, largo }: { val
   );
 }
 
-function Linea({ n, l, cambiar }: { n: number; l: LineaAbierta; cambiar: Cambiar }) {
+/** A DONDE VA LA HOJA (25-oct-2026): con todo validado, uno de los dos destinos. Al pulsar, sale de la lista. */
+function Destino({ faltan, destino, pasar, ocupado }: { faltan: number; destino: DestinoHoja | null; pasar: Pasar; ocupado: boolean }) {
+  const [elegido, setElegido] = useState<"a_cobro" | "a_produccion" | null>(null);
+  const [motivo, setMotivo] = useState("");
+  const abierto = faltan === 0 && !!destino;
+  const opcion = "flex flex-col gap-1 rounded-xl border-[1.5px] bg-white p-3 text-left disabled:cursor-not-allowed disabled:opacity-45";
+  const marcada = "border-lima-dark shadow-[inset_0_0_0_1px_#3f7a1c]";
+  return (
+    <div className={`flex flex-col gap-3 rounded-xl border border-black/10 p-3.5 ${abierto ? "bg-white" : "bg-[#fafbf9]"}`}>
+      <div className="text-[15px] font-bold text-carbon">¿A dónde va esta hoja?</div>
+      <div className="text-[13px] text-carbon/65">
+        {abierto
+          ? "Todo validado. Al elegir, sale de esta lista y queda en el diario por si hay que devolverla."
+          : `Se elige cuando estén todas las líneas validadas: ${faltan === 1 ? "falta 1" : `faltan ${faltan}`}.`}
+      </div>
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <button type="button" disabled={!abierto || ocupado} onClick={() => setElegido("a_cobro")}
+          className={`${opcion} ${elegido === "a_cobro" ? marcada : "border-black/15 hover:border-lima-dark"}`}>
+          <b className="text-[14.5px] text-lima-dark">Pasa a cobro del primer hito</b>
+          <span className="text-[12.5px] text-carbon/65">Va a Primer cobro. La producción empieza cuando se sube el justificante.</span>
+        </button>
+        <button type="button" disabled={!abierto || ocupado} onClick={() => setElegido("a_produccion")}
+          className={`${opcion} ${elegido === "a_produccion" ? marcada : "border-black/15 hover:border-lima-dark"}`}>
+          <b className="text-[14.5px] text-ajeno">Pasa a producción ya</b>
+          <span className="text-[12.5px] text-carbon/65">Va a la bandeja comercial sin esperar al cobro. Con motivo.</span>
+        </button>
+      </div>
+      {abierto && elegido === "a_cobro" && destino && (
+        <div className="flex flex-col gap-2 rounded-[10px] border border-[#e9c44a] bg-[#fff5cc] px-3 py-2.5 text-[13px]">
+          <div>Va a <b>Primer cobro</b>. Paga {destino.paga}.</div>
+          {destino.lineasAlContratar ? (
+            <div className="rounded-lg bg-lima-soft px-3 py-2 text-carbon/80">
+              Al contratar se cobran <b>{EUR.format(destino.alContratar)} €</b> + IVA ({destino.lineasAlContratar === 1 ? "1 línea" : `${destino.lineasAlContratar} líneas`}).
+              {destino.esperan.length ? ` Las demás esperan a su hito: ${destino.esperan.join(" · ")}.` : ""}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-[#f2d48a] bg-[#fff8e1] px-3 py-2 text-[#7a5a10]">
+              Ninguna línea se cobra al contratar: si pasa a cobro, esperará a su primer hito. Si tiene que empezar ya, es «Pasa a producción ya».
+            </div>
+          )}
+          <div className="flex flex-wrap justify-end gap-2">
+            <button type="button" onClick={() => setElegido(null)} className="h-8 rounded-lg border border-black/15 bg-white px-3 text-[12.5px] font-bold text-carbon">Cancelar</button>
+            <button type="button" disabled={ocupado} onClick={() => pasar("a_cobro", "")} className="h-8 rounded-lg bg-lima px-3 text-[12.5px] font-bold text-[#1f3a0c] disabled:opacity-40">Pasar a cobro</button>
+          </div>
+        </div>
+      )}
+      {abierto && elegido === "a_produccion" && (
+        <div className="flex flex-col gap-2 rounded-[10px] border border-[#e9c44a] bg-[#fff5cc] px-3 py-2.5 text-[13px]">
+          <label htmlFor="motivo-produccion" className="text-[10px] font-extrabold uppercase tracking-[.06em] text-carbon/70">¿Por qué empieza sin cobrar?</label>
+          <textarea id="motivo-produccion" value={motivo} onChange={(e) => setMotivo(e.target.value)} rows={2}
+            placeholder="Contrata que paga al final, prisa del comercial por la subvención…"
+            className="resize-y rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-[13px] outline-none placeholder:text-carbon/55 focus:border-lima" />
+          <div className="text-[12.5px] text-carbon/65">El primer hito sigue saliendo en facturación como pendiente de cobrar.</div>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button type="button" onClick={() => setElegido(null)} className="h-8 rounded-lg border border-black/15 bg-white px-3 text-[12.5px] font-bold text-carbon">Cancelar</button>
+            <button type="button" disabled={ocupado || !motivo.trim()} onClick={() => pasar("a_produccion", motivo)} className="h-8 rounded-lg bg-lima px-3 text-[12.5px] font-bold text-[#1f3a0c] disabled:opacity-40">Pasar a producción</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const ENVIADA: Record<"comercial" | "direccion", string> = { comercial: "al comercial", direccion: "a revisar por dirección" };
+
+function Linea({ n, l, cambiar, hojaId }: { n: number; l: LineaAbierta; cambiar: Cambiar; hojaId: string }) {
   const [duda, setDuda] = useState<string | null>(null);
   const ok = !!l.validada;
   const sumaHitos = l.hitos.reduce((s, h) => s + (h.importe ?? 0), 0);
@@ -270,6 +390,11 @@ function Linea({ n, l, cambiar }: { n: number; l: LineaAbierta; cambiar: Cambiar
         <div key={d.id} className="mx-3.5 mb-1.5 ml-[46px] flex items-start justify-between gap-3 rounded-lg border border-[#f0dfa8] bg-[#fffaeb] px-3 py-2 text-[13px] text-[#6b5210]">
           <span>
             «{d.texto}» <span className="text-[12px] opacity-75">— {d.autor ?? "alguien"}, {fecha(d.fecha)}</span>
+            {d.enviada && (
+              <span className="mt-0.5 block text-[12px] font-bold">
+                ✉ Enviada {ENVIADA[d.enviada.a]} ({d.enviada.para.join(", ")}) · {cuando(d.enviada.en)}
+              </span>
+            )}
           </span>
           <button type="button" onClick={() => cambiar(accionResolverDuda(d.id))} className="shrink-0 rounded-md border border-[#e0c97f] bg-white px-2 py-0.5 text-[12px] font-bold">
             Resuelta
@@ -277,27 +402,37 @@ function Linea({ n, l, cambiar }: { n: number; l: LineaAbierta; cambiar: Cambiar
         </div>
       ))}
       {duda !== null && (
-        <div className="mx-3.5 mb-2 ml-[46px] flex gap-2">
-          <input
+        <div className="mx-3.5 mb-2 ml-[46px] flex flex-col gap-2 rounded-[10px] border border-[#e9c44a] bg-[#fff5cc] p-2.5">
+          <textarea
             autoFocus
             value={duda}
+            rows={2}
             onChange={(e) => setDuda(e.target.value)}
             placeholder="¿Qué duda tienes? («¿la CSS va incluida?»)"
-            className="flex-1 rounded-lg border border-[#e0c97f] bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-lima"
+            className="resize-y rounded-lg border border-[#e0c97f] bg-white px-2.5 py-1.5 text-[13px] outline-none placeholder:text-carbon/55 focus:border-lima"
           />
-          <button type="button" onClick={() => setDuda(null)} className="rounded-lg border border-black/10 bg-white px-2.5 text-[12.5px] font-bold">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              cambiar(accionDuda(l.id, duda));
-              setDuda(null);
-            }}
-            className="rounded-lg bg-[#f2c14e] px-2.5 text-[12.5px] font-bold text-carbon"
-          >
-            Guardar duda
-          </button>
+          <div className="text-[12px] text-carbon/65">
+            Se guarda en la línea. Si la envías, sale un correo desde facturación con la duda y el enlace a esta hoja; la respuesta te llega a ti.
+          </div>
+          <div className="flex flex-wrap justify-end gap-1.5">
+            <button type="button" onClick={() => setDuda(null)} className="h-7 rounded-lg border border-black/10 bg-white px-2.5 text-[12.5px] font-bold">
+              Cancelar
+            </button>
+            {(["guardar", "comercial", "direccion"] as EnvioDuda[]).map((e) => (
+              <button
+                key={e}
+                type="button"
+                disabled={!duda.trim()}
+                onClick={() => {
+                  cambiar(accionDuda(l.id, duda, e, hojaId));
+                  setDuda(null);
+                }}
+                className="h-7 rounded-lg bg-[#f2c14e] px-2.5 text-[12.5px] font-bold text-carbon disabled:opacity-40"
+              >
+                {e === "guardar" ? "Solo guardar" : e === "comercial" ? "Enviar al comercial" : "Revisar por dirección"}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

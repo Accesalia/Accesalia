@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Yo } from "../../lib/sesion";
 import { calendarioFiscal, librosFiscales } from "../../lib/fiscal";
 import { nuevasHojas } from "../../lib/nuevasHojas";
+import { cuentasRecorrido } from "../../lib/recorridoHoja";
 import { puedeGestionarFormas } from "../../lib/formasPago";
 import { puedeVerClientesFactusol } from "../../lib/factusolClientes";
 import { BarraSuperior } from "../components/BarraSuperior";
@@ -45,6 +46,8 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
         titulo: "Para hacer",
         items: [
           { clave: "nuevas", titulo: "Nuevas Hojas Encargo Firmadas", href: "/facturacion/cobrar", cuenta: c.nuevas },
+          // El recorrido de la hoja firmada (Monica, 25-oct-2026): lo pasado a cobro que espera el primer hito.
+          { clave: "primer-cobro", titulo: "Primer cobro", href: "/facturacion/cobrar/primer-cobro", cuenta: c.primerCobro },
           { clave: "modificar", titulo: "Modificar Hitos", href: "/facturacion/cobrar/modificar" },
           { clave: "facturable", titulo: "Facturable ya", href: "/facturacion/cobrar/facturable", cuenta: c.facturable },
           { clave: "proforma", titulo: "Generar Proforma", href: "/facturacion/cobrar/proforma" },
@@ -54,6 +57,8 @@ function menuDe(area: Area, c: Record<string, number | undefined>, yo: Yo): Grup
       {
         titulo: "Consultar",
         items: [
+          // Lo que se ha hecho con cada hoja firmada, dia a dia; desde aqui se devuelve o se pausa (25-oct-2026).
+          { clave: "diario", titulo: "Diario de trabajo", href: "/facturacion/cobrar/diario" },
           { clave: "buscar", titulo: "Buscar dirección", href: "/facturacion/cobrar/buscar" },
           { clave: "contratado", titulo: "Todo lo contratado", href: "/facturacion/cobrar/contratado" },
           { clave: "proximos", titulo: "Próximos hitos", href: "/facturacion/cobrar/proximos" },
@@ -138,11 +143,12 @@ export async function MarcoDinero({
   cuentas?: Record<string, number | undefined>;
   children: React.ReactNode;
 }) {
-  const [pagar, nuevas] = await Promise.all([
+  const [pagar, nuevas, recorrido] = await Promise.all([
     cuentas.pagar ?? pagosDeLaSemana(yo),
     cuentas.nuevas ?? nuevasHojas().then((f) => f.length).catch(() => 0),
+    area === "cobrar" ? cuentasRecorrido().catch(() => null) : Promise.resolve(null),
   ]);
-  const c = { ...cuentas, pagar, nuevas };
+  const c = { ...cuentas, pagar, nuevas, primerCobro: recorrido?.primerCobro };
   const pestanas: PestanaArea[] = areasDe(yo).map((a) => ({
     clave: a.clave,
     titulo: a.titulo,

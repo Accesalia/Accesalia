@@ -91,8 +91,9 @@ export async function facturableYa(): Promise<Facturable> {
         "&estado=eq.emitida&empresa=in.(accesalia,daniel)",
     ),
   ]);
-  // Lo que ya se ha alcanzado, con su linea validada, y aun sin proforma.
-  const sueltos = hitos.filter((h) => h.cuando === "ya" && h.validada && !h.proforma && h.oppId);
+  // Lo que ya se ha alcanzado, de una hoja que ya salio de Nuevas hojas firmadas con su boton (25-oct-2026: antes
+  // bastaba con validar la linea), y aun sin proforma.
+  const sueltos = hitos.filter((h) => h.cuando === "ya" && h.pasada && !h.proforma && h.oppId);
 
   // De cada proforma: cuando se envio (el primer correo bueno) y lo cobrado de su factura.
   const facturaIds = proformas.map((p) => p.factura?.id).filter((x): x is string => !!x);

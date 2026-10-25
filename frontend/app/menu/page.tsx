@@ -4,6 +4,7 @@ import { letraMenu } from "../components/letraMenu";
 import { GRUPOS, RotuloGrupo, TarjetaVelada, type Grupo, type Icono } from "./TarjetaVelada";
 import { comercialDe, puedeEntrar, quienSoy, type Yo } from "../../lib/sesion";
 import { puedeVerPlantillas } from "../../lib/plantillasCorreo";
+import { puedeBandeja } from "../../lib/recorridoHoja";
 import { FUNCION_REVISION } from "../../lib/revisionOferta";
 import { misAvisos, type Avisos } from "../../lib/misPendientes";
 
@@ -39,6 +40,16 @@ const AREAS: Area[] = [
     desc: "Las administraciones de fincas y las comunidades de vecinos: consultarlas, abrir su ficha y dar de alta",
     href: "/administracion",
     ve: (yo) => !yo || yo.veTodo || puedeEntrar(yo, "administracion"),
+  },
+  {
+    // BANDEJA COMERCIAL (Monica, 25-oct-2026): la bandeja de entrada de la secretaria comercial. Las hojas firmadas
+    // que ya se pueden trabajar: comprobar la direccion, los documentos de la opp y abrir las areas.
+    nombre: "Bandeja comercial",
+    grupo: "trabajo",
+    icono: "lista",
+    desc: "Las hojas firmadas que ya se pueden trabajar: comprobar la dirección, los documentos y abrir sus áreas",
+    href: "/bandeja-comercial",
+    ve: (yo) => !!yo && puedeBandeja(yo),
   },
   {
     // FACTURACION Y ASIGNACION (Monica, 11-oct-2026): su propia ventanita del

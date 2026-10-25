@@ -2,7 +2,8 @@
 //
 // ASIGNAR › NUBE / PROYECTOS y PROCESO DE NUBES (Monica, 16-oct-2026; maqueta
 // area-dinero-v1, marco 7). El camino de cada trabajo de tecnico:
-//   lineas validadas que llevan tecnico -> PENDIENTE DE DECIDIR (Alexandra:
+//   hojas METIDAS EN PRODUCCION (bandeja comercial, 25-oct-2026; antes: lineas validadas) con alguna linea que
+//   lleva tecnico, y sin pausa -> PENDIENTE DE DECIDIR (Alexandra:
 //   ¿necesita nube de puntos?) -> si: PROCESO DE NUBES (Abraham: escaneo
 //   previsto, escaneado, nube lista) -> PROYECTOS (el cronograma).
 //                                  -> no: directo a PROYECTOS.
@@ -12,6 +13,7 @@
 import "server-only";
 import type { Yo } from "./sesion";
 import { datosCaja, type DatosCaja, type TrabajoCaja } from "./cobros";
+import { hojasEnProduccion } from "./recorridoHoja";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -41,10 +43,10 @@ export type Nube = {
   notas: string | null;
 };
 export type TrabajoNube = TrabajoCaja & {
-  /** La hoja y el bloque de su linea validada mas reciente, y cuando se valido. */
+  /** La hoja metida en produccion mas reciente que lleva tecnico, su bloque y cuando se metio. */
   hoja: string | null;
   bloque: string | null;
-  validada: string | null;
+  enProduccion: string | null;
   decision: Nube | null;
 };
 export type DatosAsignar = {
@@ -56,34 +58,44 @@ export type DatosAsignar = {
 };
 
 export async function datosAsignar(): Promise<DatosAsignar> {
+  const enProduccion = await hojasEnProduccion();
+  const ids = [...enProduccion.keys()];
   const [caja, nubes, lineas] = await Promise.all([
     datosCaja(),
     todo<{ oportunidad_id: string; necesita_nube: boolean | null; decidida_en: string | null; fecha_prevista_escaneo: string | null; escaneado_en: string | null; nube_lista_en: string | null; notas: string | null }>(
       "nubes_puntos?select=oportunidad_id,necesita_nube,decidida_en,fecha_prevista_escaneo,escaneado_en,nube_lista_en,notas",
     ),
-    todo<{ validada_en: string; hoja: { numero_hoja: string | null; oportunidad_id: string | null } | null; bloque: { nombre: string; va_a_tecnico: boolean } | null }>(
-      "lineas_facturacion?select=validada_en,hoja:hoja_encargo_id(numero_hoja,oportunidad_id),bloque:bloque_id(nombre,va_a_tecnico)" +
-        "&validada_en=not.is.null&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&order=validada_en.desc",
-    ),
+    // Las lineas que llevan tecnico de las hojas en produccion (por tramos: son cientos).
+    Promise.all(
+      Array.from({ length: Math.ceil(ids.length / 150) }, (_, i) => ids.slice(i * 150, i * 150 + 150)).map((t) =>
+        todo<{ hoja_encargo_id: string; hoja: { numero_hoja: string | null; oportunidad_id: string | null } | null; bloque: { nombre: string; va_a_tecnico: boolean } | null }>(
+          "lineas_facturacion?select=hoja_encargo_id,hoja:hoja_encargo_id(numero_hoja,oportunidad_id),bloque:bloque_id!inner(nombre,va_a_tecnico)" +
+            `&bloque.va_a_tecnico=is.true&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)&hoja_encargo_id=in.(${t.join(",")})`,
+        ),
+      ),
+    ).then((x) => x.flat()),
   ]);
   const nubeDe = new Map(
     nubes.map((n) => [n.oportunidad_id, { necesita: n.necesita_nube, decidida: n.decidida_en, prevista: n.fecha_prevista_escaneo, escaneado: n.escaneado_en, lista: n.nube_lista_en, notas: n.notas }]),
   );
-  // La linea validada mas reciente de cada opp que lleva tecnico (vienen ordenadas).
-  const validadaDe = new Map<string, { hoja: string | null; bloque: string; validada: string }>();
-  for (const l of lineas)
-    if (l.hoja?.oportunidad_id && l.bloque?.va_a_tecnico && !validadaDe.has(l.hoja.oportunidad_id))
-      validadaDe.set(l.hoja.oportunidad_id, { hoja: l.hoja.numero_hoja, bloque: l.bloque.nombre, validada: l.validada_en });
+  // De cada opp, la hoja con tecnico metida en produccion mas recientemente.
+  const metidaDe = new Map<string, { hoja: string | null; bloque: string; en: string }>();
+  for (const l of lineas) {
+    const en = enProduccion.get(l.hoja_encargo_id)?.metida?.en;
+    if (!l.hoja?.oportunidad_id || !l.bloque || !en) continue;
+    const ya = metidaDe.get(l.hoja.oportunidad_id);
+    if (!ya || en > ya.en) metidaDe.set(l.hoja.oportunidad_id, { hoja: l.hoja.numero_hoja, bloque: l.bloque.nombre, en });
+  }
 
   const trabajos: TrabajoNube[] = caja.trabajos
     .filter((t) => t.tecnico)
     .map((t) => {
-      const v = validadaDe.get(t.oppId);
-      return { ...t, hoja: v?.hoja ?? null, bloque: v?.bloque ?? null, validada: v?.validada ?? null, decision: nubeDe.get(t.oppId) ?? null };
+      const v = metidaDe.get(t.oppId);
+      return { ...t, hoja: v?.hoja ?? null, bloque: v?.bloque ?? null, enProduccion: v?.en ?? null, decision: nubeDe.get(t.oppId) ?? null };
     });
   return {
     caja,
-    pendientes: trabajos.filter((t) => t.validada && t.decision?.necesita == null).sort((a, b) => (b.validada ?? "").localeCompare(a.validada ?? "")),
+    pendientes: trabajos.filter((t) => t.enProduccion && t.decision?.necesita == null).sort((a, b) => (b.enProduccion ?? "").localeCompare(a.enProduccion ?? "")),
     enNube: trabajos.filter((t) => t.decision?.necesita === true && !t.decision.lista).sort((a, b) => (a.decision?.decidida ?? "").localeCompare(b.decision?.decidida ?? "")),
     aProyectos: trabajos.filter((t) => t.decision?.necesita === false || (t.decision?.necesita === true && t.decision.lista)),
   };

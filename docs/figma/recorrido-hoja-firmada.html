@@ -1,0 +1,731 @@
+<title>Recorrido de la hoja firmada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Recorrido de una hoja firmada (Monica, 25-oct-2026): Nuevas hojas firmadas (la pantalla que YA existe, completada
+   con los dos botones de destino y el envio de dudas), Diario de trabajo, Primer cobro y la Bandeja de la secretaria
+   comercial. Paleta y piezas de docs/guia-de-estilo.md y de la maqueta validada de Condiciones de cobro.
+   Hojas, lineas, importes e hitos: reales de la base del 25-oct. Lo que todavia no existe (movimientos, pausas,
+   proformas, documentos sueltos) va marcado «de ejemplo». */
+:root {
+  --fondo: #eef5e8; --tarjeta: #ffffff; --carbon: #2b2b2b; --carbon-70: rgba(43,43,43,.70); --carbon-65: rgba(43,43,43,.65); --carbon-55: rgba(43,43,43,.58);
+  --borde: rgba(43,43,43,.18); --linea: rgba(43,43,43,.15); --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --sel: #f3f9ec; --pdf: #e9ebe6; --extraido: #f0f1ee; --hover: #fafbf9;
+  --ok-borde: #bfe0a1; --ok-cab: #f1f9e9; --ok-cab-borde: #d6ecc2; --ok-pill: #cfe9b6; --ok-txt: #24500c;
+  --pend-borde: #ecdcae; --pend-cab: #fdf8ec; --pend-cab-borde: #f1e6c6;
+  --ambar-bg: #fff8e1; --ambar-borde: #f2d48a; --ambar-txt: rgba(120,70,5,.9); --duda-bg: #fffaeb; --duda-borde: #f0dfa8; --duda-txt: #6b5210; --duda-btn: #f2c14e;
+  --nuevo: #fff5cc; --nuevo-borde: #e9c44a;
+  --ajeno: #5b7fa6; --ajeno-soft: #e8eef5; --alerta: #9f3a38; --alerta-soft: #f6dfdd; --pausa: #6d5a8c; --pausa-soft: #ece7f3;
+  --fila-par: #f7faf4;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68); --carbon-55: rgba(238,240,234,.62);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #2a3523; --pdf: #2b2f28; --extraido: #22271f; --hover: #2a3026;
+  --ok-borde: #4d6b33; --ok-cab: #2a3a20; --ok-cab-borde: #3d5429; --ok-pill: #3d5a26; --ok-txt: #d6f0bd;
+  --pend-borde: #6e5c2c; --pend-cab: #352e1c; --pend-cab-borde: #574a26;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --duda-bg: #3a3020; --duda-borde: #7a6230; --duda-txt: #f0d9a4; --duda-btn: #c99a2e;
+  --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; --pausa: #c7b6e6; --pausa-soft: #33293f;
+  --fila-par: #2a3125; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --carbon-70: rgba(238,240,234,.75); --carbon-65: rgba(238,240,234,.68); --carbon-55: rgba(238,240,234,.62);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.14); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #2a3523; --pdf: #2b2f28; --extraido: #22271f; --hover: #2a3026;
+  --ok-borde: #4d6b33; --ok-cab: #2a3a20; --ok-cab-borde: #3d5429; --ok-pill: #3d5a26; --ok-txt: #d6f0bd;
+  --pend-borde: #6e5c2c; --pend-cab: #352e1c; --pend-cab-borde: #574a26;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --duda-bg: #3a3020; --duda-borde: #7a6230; --duda-txt: #f0d9a4; --duda-btn: #c99a2e;
+  --nuevo: #403718; --nuevo-borde: #8f7424;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; --pausa: #c7b6e6; --pausa-soft: #33293f;
+  --fila-par: #2a3125; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--carbon); font: 14px/1.45 var(--letra); }
+.pagina { max-width: 1300px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.maqueta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; font-size: 12px; color: var(--carbon-65); border-bottom: 1px dashed var(--borde); padding-bottom: 10px; margin-bottom: 14px; }
+.maqueta b { color: var(--carbon); }
+.maqueta a { color: var(--lima-dark); font-weight: 700; text-decoration: none; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--borde); }
+.maqueta a.on { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.maqueta .flecha { color: var(--carbon-55); }
+.salida { font-size: 14px; font-weight: 600; color: var(--carbon-65); text-decoration: none; }
+.salida:hover { color: var(--carbon); }
+h1 { font-size: 28px; line-height: 1.15; margin: 6px 0 0; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--carbon-65); font-size: 14.5px; max-width: 70ch; }
+.cab { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; border-bottom: 1px solid var(--borde); padding: 4px 0 14px; }
+.cab .der { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ceja { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-65); margin-top: 8px; }
+.ejemplo { display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--ambar-txt); background: var(--ambar-bg); border: 1px dashed var(--ambar-borde); border-radius: 999px; padding: 1px 8px; vertical-align: middle; }
+.nuevo-aqui { outline: 2px dashed var(--nuevo-borde); outline-offset: 3px; border-radius: 10px; }
+.etq-nuevo { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: var(--nuevo); color: var(--carbon); border: 1px solid var(--nuevo-borde); border-radius: 999px; padding: 0 7px; margin-left: 6px; vertical-align: middle; }
+button { font: inherit; cursor: pointer; }
+.btn { font-weight: 700; border: 0; border-radius: 12px; padding: 9px 18px; background: var(--lima); color: #2b2b2b; }
+.btn:hover:not(:disabled) { background: #3f7a1c; color: #fff; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.sec { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--carbon-70); }
+.btn.sec:hover:not(:disabled) { background: var(--tarjeta); color: var(--carbon); border-color: var(--carbon-55); }
+.btn.peq { padding: 4px 11px; font-size: 12.5px; border-radius: 9px; }
+.btn.pausa { background: var(--pausa-soft); color: var(--pausa); border: 1px solid var(--pausa); }
+.btn.pausa:hover:not(:disabled) { background: var(--pausa); color: #fff; }
+.enlace { border: 0; background: none; color: var(--lima-dark); font-weight: 700; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--lima-dark); outline-offset: 2px; }
+textarea, input[type="text"], select { font: inherit; font-size: 13.5px; width: 100%; border: 1px solid var(--borde); border-radius: 10px; padding: 6px 10px; background: var(--tarjeta); color: var(--carbon); }
+textarea { resize: vertical; min-height: 52px; }
+::placeholder { color: var(--carbon-55); }
+.tab { font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 9px; border-radius: 999px; white-space: nowrap; }
+.p-cobro { background: var(--lima-soft); color: var(--lima-dark); }
+.p-prod { background: var(--ajeno-soft); color: var(--ajeno); }
+.p-dev { background: var(--alerta-soft); color: var(--alerta); }
+.p-pausa { background: var(--pausa-soft); color: var(--pausa); }
+.p-area { background: var(--tarjeta); border: 1px solid var(--borde); color: var(--carbon-70); }
+.p-ambar { background: var(--ambar-bg); color: var(--ambar-txt); border: 1px solid var(--ambar-borde); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--carbon); color: var(--fondo); padding: 10px 16px; border-radius: 12px; font-weight: 600; max-width: min(92vw, 640px); z-index: 10; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.toast a { color: var(--lima); }
+
+/* ---------- Nuevas hojas firmadas (la de siempre) ---------- */
+.lista { margin-top: 20px; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow: hidden; width: fit-content; max-width: 100%; }
+.lista.ancha { width: 100%; }
+.fila { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--linea); background: var(--tarjeta); color: var(--carbon); padding: 13px 32px 13px 18px; }
+.fila:hover { background: var(--hover); }
+.fila.on { background: var(--sel); box-shadow: inset 4px 0 0 var(--lima); }
+.fila .dir { font-size: 15px; font-weight: 700; }
+.fila .meta { font-size: 13px; color: var(--carbon-65); margin-top: 1px; }
+.barra { display: flex; align-items: center; gap: 10px; width: 360px; max-width: 100%; margin-top: 9px; font-size: 12.5px; color: var(--carbon-70); }
+.barra .rail { flex: 1; height: 6px; background: var(--linea); border-radius: 4px; overflow: hidden; }
+.barra .rail span { display: block; height: 100%; background: var(--lima); }
+.duda-pill { background: var(--ambar-bg); color: var(--ambar-txt); border-radius: 999px; padding: 1px 8px; font-weight: 700; font-size: 12px; }
+.pie-lista { padding: 18px 20px; text-align: center; font-size: 13px; color: var(--carbon-65); }
+.desplegada { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--borde); }
+@media (max-width: 960px) { .desplegada { grid-template-columns: 1fr; } }
+.lado-pdf { background: var(--pdf); padding: 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.lado-pdf .cabpdf { display: flex; justify-content: space-between; font-size: 13px; color: var(--carbon-70); gap: 10px; flex-wrap: wrap; }
+.lado-pdf .cabpdf a { color: var(--lima-dark); font-weight: 700; text-decoration: none; }
+.papel { background: var(--tarjeta); border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.12); padding: 26px 28px; min-height: 520px; font-size: 12.5px; color: var(--carbon-70); }
+.papel h4 { margin: 0 0 4px; font-size: 13px; color: var(--carbon); text-transform: uppercase; letter-spacing: .05em; }
+.papel .renglon { height: 7px; background: var(--linea); border-radius: 3px; margin: 7px 0; }
+.papel .firma { margin-top: 26px; font-style: italic; color: var(--carbon-55); }
+.lado-ext { background: var(--extraido); padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.lado-ext .titulo { font-size: 15px; }
+.lado-ext .titulo span { font-size: 12.5px; color: var(--carbon-55); }
+.linea { background: var(--tarjeta); border: 1px solid var(--pend-borde); border-radius: 10px; overflow: hidden; }
+.linea.ok { border-color: var(--ok-borde); }
+.l-cab { display: grid; grid-template-columns: 22px 1fr auto auto; gap: 10px; align-items: baseline; padding: 10px 14px; background: var(--pend-cab); border-bottom: 1px solid var(--pend-cab-borde); }
+.linea.ok .l-cab { background: var(--ok-cab); border-bottom-color: var(--ok-cab-borde); }
+.l-cab .n { font-weight: 800; color: var(--lima-dark); font-size: 13px; }
+.l-cab .con { font-weight: 700; font-size: 14px; }
+.l-cab .imp { font-weight: 700; white-space: nowrap; }
+.l-cab .imp small { font-weight: 400; color: var(--carbon-55); font-size: 12.5px; }
+.ok-pill { background: var(--ok-pill); color: var(--ok-txt); border-radius: 999px; padding: 1px 10px; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+.x { border: 0; background: none; color: var(--carbon-55); font-size: 12px; }
+.hitos { padding: 6px 14px 6px 46px; }
+.hitos .h { display: grid; grid-template-columns: 1fr 60px 100px; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--linea); font-size: 13px; }
+.hitos .h:last-child { border-bottom: 0; }
+.hitos .h.cab { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-55); }
+.hitos .h .d { text-align: right; }
+.duda { margin: 0 14px 6px 46px; background: var(--duda-bg); border: 1px solid var(--duda-borde); color: var(--duda-txt); border-radius: 8px; padding: 8px 12px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: space-between; align-items: flex-start; }
+.duda small { opacity: .8; font-size: 12px; }
+.duda .env { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; }
+.duda-form { margin: 0 14px 8px 46px; display: flex; flex-direction: column; gap: 8px; background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 10px; padding: 10px; }
+.duda-form .botones { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.duda-form .botones .btn { background: var(--duda-btn); color: #2b2b2b; }
+.duda-form .botones .btn.sec { background: var(--tarjeta); color: var(--carbon-70); }
+.duda-form .ayuda { font-size: 12px; color: var(--carbon-65); }
+.l-pie { display: flex; align-items: center; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--linea); padding: 8px 14px; flex-wrap: wrap; }
+.l-pie .quien { margin-right: auto; font-size: 12px; color: var(--carbon-55); }
+.anadir { border: 1.5px dashed var(--borde); background: var(--hover); color: var(--lima-dark); border-radius: 10px; padding: 12px 14px; text-align: left; font-weight: 700; font-size: 13.5px; }
+.anadir span { font-weight: 400; color: var(--carbon-55); }
+/* lo nuevo: a donde va */
+.destino { border-radius: 12px; border: 1px solid var(--borde); background: var(--tarjeta); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.destino.cerrado { background: var(--hover); }
+.destino h3 { margin: 0; font-size: 15px; }
+.destino .falta { font-size: 13px; color: var(--carbon-65); }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .dos { grid-template-columns: 1fr; } }
+.opcion { text-align: left; border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--carbon); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.opcion b { font-size: 14.5px; }
+.opcion span { font-size: 12.5px; color: var(--carbon-65); }
+.opcion:hover:not(:disabled) { border-color: var(--lima-dark); }
+.opcion.cobro b { color: var(--lima-dark); }
+.opcion.prod b { color: var(--ajeno); }
+.opcion:disabled { opacity: .45; cursor: not-allowed; }
+.opcion.elegida { border-color: var(--lima-dark); box-shadow: inset 0 0 0 1px var(--lima-dark); }
+.resumen-cobro { font-size: 13px; color: var(--carbon-70); background: var(--lima-soft); border-radius: 10px; padding: 8px 12px; }
+.confirmar { background: var(--nuevo); border: 1px solid var(--nuevo-borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.confirmar .botones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.aviso { background: var(--ambar-bg); border: 1px solid var(--ambar-borde); color: var(--ambar-txt); border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+
+/* ---------- tablas (diario, primer cobro) ---------- */
+.sec-tit { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--carbon-70); margin: 24px 0 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.sec-tit .n { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--carbon-65); }
+.caja { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow-x: auto; width: fit-content; max-width: 100%; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); padding: 9px 12px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+td.nw { white-space: nowrap; }
+td.num { text-align: right; white-space: nowrap; }
+td .dir { font-weight: 700; white-space: nowrap; }
+td .hoja { font-size: 12.5px; color: var(--carbon-65); white-space: nowrap; }
+td.que { max-width: 44ch; }
+td.que .mot { display: block; font-size: 12.5px; color: var(--carbon-70); margin-top: 2px; }
+td.acc { white-space: nowrap; text-align: right; }
+td.resto { font-size: 12.5px; color: var(--carbon-70); max-width: 38ch; }
+tr.deshecha td { opacity: .5; }
+tr.abierto td { background: var(--nuevo); }
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; align-items: center; }
+.chip { font-size: 13px; font-weight: 600; border: 1px solid var(--borde); background: var(--tarjeta); color: var(--carbon-70); border-radius: 999px; padding: 4px 11px; }
+.chip[aria-pressed="true"] { background: var(--carbon); color: var(--fondo); border-color: var(--carbon); }
+.dia { font-size: 13px; font-weight: 800; color: var(--carbon); margin: 22px 0 8px; }
+.dia span { font-weight: 600; color: var(--carbon-65); }
+.banda { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; background: var(--ambar-bg); border: 1px solid var(--ambar-borde); border-radius: 14px; padding: 10px 14px; margin-top: 16px; max-width: 980px; color: var(--ambar-txt); }
+.banda b { color: var(--carbon); }
+.form-en-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 860px; }
+@media (max-width: 640px) { .form-en-fila { grid-template-columns: 1fr; } }
+.form-en-fila .ancho { grid-column: 1 / -1; }
+.et { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--carbon-70); margin-bottom: 4px; }
+.opciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.opciones label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 4px 10px; cursor: pointer; }
+.opciones label small { font-weight: 400; color: var(--carbon-65); }
+.opciones label:has(input:checked) { border-color: var(--lima-dark); box-shadow: inset 0 0 0 1px var(--lima-dark); }
+.nota { font-size: 12.5px; color: var(--carbon-65); }
+.estado-cobro { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.e-sin { color: var(--ambar-txt); }
+.e-env { color: var(--ajeno); }
+.e-ok { color: var(--lima-dark); }
+
+/* ---------- Bandeja de la secretaria ---------- */
+.bandeja { margin-top: 8px; display: flex; flex-direction: column; gap: 0; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; overflow: hidden; }
+.b-fila { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--linea); background: var(--tarjeta); color: var(--carbon); padding: 12px 18px; }
+.b-fila:hover { background: var(--hover); }
+.b-fila.on { background: var(--sel); box-shadow: inset 4px 0 0 var(--lima); }
+.b-fila .dir { font-weight: 700; font-size: 15px; }
+.b-fila .meta { font-size: 13px; color: var(--carbon-65); }
+.b-fila .por { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.b-abierta { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); border-bottom: 1px solid var(--borde); }
+@media (max-width: 960px) { .b-abierta { grid-template-columns: 1fr; } }
+.b-abierta .lado-pdf .papel { min-height: 420px; }
+.trabajo { background: var(--extraido); padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.paso { display: flex; flex-direction: column; gap: 8px; }
+.paso h4 { margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--carbon-70); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.paso h4 .hecho { color: var(--lima-dark); letter-spacing: 0; text-transform: none; font-size: 12.5px; }
+.tarj { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.tarj .grow { flex: 1 1 260px; min-width: 0; }
+.doc { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--lima-dark); background: var(--lima-soft); color: var(--lima-dark); border-radius: 999px; padding: 2px 11px; font-weight: 700; font-size: 13px; text-decoration: none; }
+.doc small { color: var(--carbon-65); font-weight: 400; }
+.vacio { font-size: 13px; color: var(--carbon-65); font-style: italic; }
+.b-linea { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.b-linea .arriba { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; flex-wrap: wrap; }
+.b-linea .con { font-weight: 700; flex: 1 1 260px; min-width: 0; }
+.b-linea .imp { font-weight: 700; white-space: nowrap; }
+.b-linea .hit { font-size: 12.5px; color: var(--carbon-65); }
+.areas { display: flex; gap: 6px; flex-wrap: wrap; }
+.area { border: 1.5px dashed var(--borde); background: var(--tarjeta); color: var(--carbon-70); border-radius: 10px; padding: 4px 11px; font-weight: 700; font-size: 13px; }
+.area.si { border-style: solid; border-color: var(--lima-dark); background: var(--lima-soft); color: var(--lima-dark); }
+.area.ya { border-style: solid; border-color: var(--ajeno); background: var(--ajeno-soft); color: var(--ajeno); cursor: default; }
+.area.pausada { border-style: solid; border-color: var(--pausa); background: var(--pausa-soft); color: var(--pausa); cursor: default; }
+.area small { font-weight: 500; }
+.otra-area { border: 0; background: none; color: var(--carbon-65); font-size: 12.5px; text-decoration: underline; text-underline-offset: 2px; padding: 4px 2px; }
+.cierre { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: flex-end; border-top: 1px solid var(--borde); padding-top: 12px; }
+.cierre .que-pasa { margin-right: auto; font-size: 13px; color: var(--carbon-70); max-width: 52ch; }
+.metida { background: var(--lima-soft); border: 1px solid var(--lima-dark); color: var(--lima-dark); border-radius: 10px; padding: 10px 12px; font-weight: 600; }
+.pausada-caja { background: var(--pausa-soft); border: 1px solid var(--pausa); border-radius: 10px; padding: 10px 12px; color: var(--carbon); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.pausada-caja b { color: var(--pausa); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="pagina">
+  <div class="maqueta">MAQUETA · recorrido de una hoja firmada · datos reales del 25-oct
+    <a href="#nuevas" id="ir-nuevas">1 · Nuevas hojas firmadas</a><span class="flecha">→</span>
+    <a href="#primer" id="ir-primer">2 · Primer cobro</a><span class="flecha">→</span>
+    <a href="#bandeja" id="ir-bandeja">3 · Bandeja de la secretaria</a>
+    <span class="flecha">·</span>
+    <a href="#diario" id="ir-diario">Diario de trabajo</a>
+  </div>
+
+  <!-- ===================== 1. NUEVAS HOJAS FIRMADAS ===================== -->
+  <section id="p-nuevas">
+    <a class="salida" href="#nuevas">← Cobrar</a>
+    <div class="cab">
+      <div>
+        <h1>Nuevas Hojas Encargo Firmadas</h1>
+        <p class="sub" id="nh-sub"></p>
+      </div>
+      <div class="der nuevo-aqui"><a class="enlace" href="#diario">Diario de trabajo →</a></div>
+    </div>
+    <div class="lista ancha" id="nh-lista"></div>
+  </section>
+
+  <!-- ===================== 2. PRIMER COBRO ===================== -->
+  <section id="p-primer" hidden>
+    <a class="salida" href="#nuevas">← Cobrar</a>
+    <div class="cab">
+      <div>
+        <h1>Primer cobro</h1>
+        <p class="sub">Lo que ha pasado a cobro y espera el pago del primer hito. Al subir el justificante, la hoja pasa a la secretaria comercial y empieza la producción.</p>
+      </div>
+      <div class="der"><a class="enlace" href="#diario">Diario de trabajo →</a></div>
+    </div>
+    <div class="sec-tit">Se cobra al contratar <span class="n" id="pc-n1"></span> <span class="ejemplo">estados de ejemplo</span></div>
+    <div class="caja"><table>
+      <thead><tr><th>Dirección</th><th>Paga</th><th style="text-align:right">Al contratar</th><th>Después</th><th>Desde</th><th>Cómo va el cobro</th><th></th></tr></thead>
+      <tbody id="pc-tabla"></tbody>
+    </table></div>
+    <p class="nota">Al pulsar «Preparar el cobro» se abre lo de Cosas a facturar: ¿lo tengo todo?, ¿qué facturo?, ¿quién factura?, y la proforma.</p>
+
+    <div class="sec-tit">Pasadas a cobro sin cobro al contratar <span class="n">esperan a su hito; si es un error, se devuelven desde el diario</span></div>
+    <div class="caja"><table>
+      <thead><tr><th>Dirección</th><th>Paga</th><th>Primer hito</th><th>Desde</th><th></th></tr></thead>
+      <tbody id="pc-sin"></tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== 3. BANDEJA DE LA SECRETARIA ===================== -->
+  <section id="p-bandeja" hidden>
+    <a class="salida" href="#nuevas">← Inicio</a>
+    <div class="cab">
+      <div>
+        <div class="ceja">Secretaria comercial</div>
+        <h1>Bandeja de entrada</h1>
+        <p class="sub">Cada hoja que ya se puede trabajar: comprobar la dirección, colocar los documentos que ha soltado el comercial y abrir las áreas de cada línea.</p>
+      </div>
+    </div>
+    <div class="sec-tit">Por meter en producción <span class="n" id="bj-n"></span> <span class="ejemplo">entradas de ejemplo</span></div>
+    <div class="bandeja" id="bj-lista"></div>
+
+    <div class="sec-tit">Pausas levantadas, para reanudar <span class="n">facturación ya ha levantado su pausa: falta reabrir las áreas</span></div>
+    <div class="bandeja" id="bj-reanudar"></div>
+
+    <div class="sec-tit">En pausa <span class="n">el cobro sigue; el trabajo de estas hojas está parado</span></div>
+    <div class="caja"><table>
+      <thead><tr><th>Dirección</th><th>Áreas paradas</th><th>Por qué</th><th>Quién la puso</th><th>Desde</th><th></th></tr></thead>
+      <tbody id="bj-pausa"></tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== DIARIO DE TRABAJO ===================== -->
+  <section id="p-diario" hidden>
+    <a class="salida" href="#nuevas">← Nuevas hojas firmadas</a>
+    <div class="cab">
+      <div>
+        <h1>Diario de trabajo</h1>
+        <p class="sub">Lo que se ha hecho con cada hoja firmada, día a día: lo que decide facturación y lo que hace después la secretaria comercial. Desde aquí se devuelve una hoja a la lista y se pausa o se levanta una pausa.</p>
+      </div>
+    </div>
+    <div id="dr-banda"></div>
+    <div class="filtros" role="group" aria-label="Qué enseñar">
+      <button type="button" class="chip" aria-pressed="true" data-f="todo">Todo</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="fact">Facturación</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="secr">Secretaria comercial</button>
+      <button type="button" class="chip" aria-pressed="false" data-f="pausa">Pausas</button>
+      <span class="ejemplo">movimientos de ejemplo: todavía no hay ninguno</span>
+    </div>
+    <div id="dr-dias"></div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const EUR = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
+const eur = (n) => EUR.format(n) + " €";
+const HOY = Date.parse("2026-10-25");
+const dias = (f) => Math.round((HOY - Date.parse(f)) / 86400000);
+const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const fecha = (f) => FECHA.format(new Date(f + "T00:00:00Z"));
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const AREA = { PRY: "Proyectos", OBR: "Obra", SUBV: "Subvenciones", IEE: "IEE", CAES: "CAES", FIN: "Financiación", "3PPTOS": "3 presupuestos" };
+let toastT;
+function aviso(html) { const t = document.getElementById("toast"); t.innerHTML = html; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 5200); }
+
+/* ============ 1. NUEVAS HOJAS FIRMADAS ============ */
+// Las seis primeras de la lista real (las que mas llevan esperando). Arroyo 1, abierta, con sus lineas reales.
+const FILAS = [
+  { id: "arroyo", dir: "Arroyo 1, Torrejon de Ardoz", num: "HE-2025-0008", firma: "2025-01-24", com: "Daniel", n: 3 },
+  { id: "corbera", dir: "AV MARQUES DE CORBERA 30B MADRID", num: "HE-2025-0066", firma: "2025-02-18", com: "Daniel", n: 2, v: 0 },
+  { id: "armenteros", dir: "Armenteros 28, Madrid", num: "HE-2025-0787", firma: "2025-02-21", com: "Daniel", n: 1, v: 0 },
+  { id: "pico", dir: "Pico Artilleros 39, Madrid", num: "HE-2025-0090", firma: "2025-02-21", com: "Daniel", n: 1, v: 0 },
+  { id: "barajas", dir: "Angel Barajas 4, Pozuelo de Alarcon", num: "HE-2025-0069", firma: "2025-02-24", com: "Daniel", n: 1, v: 0 },
+  { id: "tormes", dir: "Rio Tormes 1, Mostoles", num: "HE-2025-0115", firma: "2025-03-05", com: "Daniel", n: 1, v: 0 },
+];
+const ARROYO = {
+  pagador: "la comunidad · cargo en cuenta",
+  lineas: [
+    { con: "Toma de datos, modelado 3D, Proyecto Básico y de Ejecución incluyendo visado (Proyecto de Accesibilidad - Rampa)", imp: 2360, ok: true,
+      hitos: [["A la contratación, en concepto de provisión de fondos: 50% de 2.360 + IVA", 50, 1180, "encargo"], ["A la entrega de Proyecto: 50% de 2.360 € + IVA", 50, 1180, "entrega"]] },
+    { con: "Tramitación de Licencia o DR y respuesta de Requerimientos hasta obtención de Licencia", imp: 690, ok: false,
+      hitos: [["A la tramitación de la licencia: 690 € + IVA", 100, 690, "otro"]],
+      dudas: [{ t: "¿La licencia se cobra al pedirla o cuando la conceden? La hoja dice «a la tramitación».", quien: "Alexandra", f: "2026-10-25", env: "Enviada al comercial (Daniel) desde facturación" }] },
+    { con: "Dirección de obra", imp: 450, ok: true, hitos: [["Al comienzo de obra: 450 € + IVA", 100, 450, "inicio_obra"]] },
+  ],
+};
+let abierta = "arroyo", destinoElegido = null, motivoProd = "", formDuda = null, fuera = new Set();
+
+function pintarNuevas() {
+  const quedan = FILAS.filter((f) => !fuera.has(f.id));
+  const pendArroyo = ARROYO.lineas.filter((l) => !l.ok).length;
+  document.getElementById("nh-sub").textContent = `${145 - fuera.size} hojas firmadas · ${243 - (1 - pendArroyo)} líneas por validar · cuando se vacía, todo está listo para trabajar`;
+  const lista = document.getElementById("nh-lista");
+  lista.innerHTML = quedan.map((f) => {
+    const val = f.id === "arroyo" ? ARROYO.lineas.filter((l) => l.ok).length : f.v;
+    const dudasN = f.id === "arroyo" ? ARROYO.lineas.reduce((s, l) => s + (l.dudas?.length ?? 0), 0) : 0;
+    const on = abierta === f.id;
+    const todas = val === f.n;
+    return `<div><button type="button" class="fila${on ? " on" : ""}" data-abrir="${f.id}">
+      <div class="dir">${esc(f.dir)}</div>
+      <div class="meta">${f.num} · recibida firmada el ${fecha(f.firma)} · hace ${dias(f.firma)} días · ${f.com}</div>
+      <div class="barra"><span style="white-space:nowrap">${val} de ${f.n} ${f.n === 1 ? "línea" : "líneas"}</span><span class="rail"><span style="width:${(100 * val) / f.n}%"></span></span>
+        ${dudasN ? `<span class="duda-pill">${dudasN} ${dudasN === 1 ? "duda" : "dudas"}</span>` : ""}
+        ${todas ? `<span class="pill p-ambar nuevo-aqui">falta elegir a dónde va</span>` : ""}</div>
+    </button>${on && f.id === "arroyo" ? desplegada(f) : on ? `<div class="pie-lista">En la maqueta solo se abre Arroyo 1.</div>` : ""}</div>`;
+  }).join("") + `<div class="pie-lista">Salen de aquí cuando se elige a dónde va cada una. <span class="etq-nuevo">cambia</span><br><span style="font-size:12.5px">Antes: «Las validadas salen de aquí solas».</span></div>`;
+}
+
+function desplegada(f) {
+  const ls = ARROYO.lineas;
+  const pend = ls.filter((l) => !l.ok).length;
+  const alContratar = ls.flatMap((l) => l.hitos.filter((h, i) => i === 0 && h[3] === "encargo").map((h) => h[2]));
+  const sumaC = alContratar.reduce((s, x) => s + x, 0);
+  return `<div class="desplegada">
+    <div class="lado-pdf">
+      <div class="cabpdf"><b>Hoja de encargo firmada · ${f.num}</b><a href="#nuevas">Abrir aparte ↗</a></div>
+      <div class="papel" aria-label="El PDF firmado (en la app se ve el PDF real)">
+        <h4>Hoja de encargo · ${f.num}</h4><div>Arroyo 1, Torrejón de Ardoz</div>
+        ${Array.from({ length: 6 }, () => `<div class="renglon"></div>`).join("")}
+        <h4 style="margin-top:16px">Honorarios</h4>
+        ${ls.map((l) => `<div style="margin:6px 0">${esc(l.con)} — <b>${eur(l.imp)}</b> + IVA</div>`).join("")}
+        ${Array.from({ length: 5 }, () => `<div class="renglon"></div>`).join("")}
+        <div class="firma">Firmado: la comunidad · 24 ene 2025</div>
+        <p class="nota" style="margin-top:20px">En la app aquí está el PDF firmado, como hoy.</p>
+      </div>
+    </div>
+    <div class="lado-ext">
+      <div class="titulo"><b>Lo extraído</b> <span>· pincha en cualquier dato para corregirlo</span></div>
+      ${ls.map((l, i) => lineaHtml(l, i)).join("")}
+      <button type="button" class="anadir">+ Añadir línea <span>· si la app se ha saltado una de la hoja</span></button>
+      ${destinoHtml(pend, sumaC)}
+    </div>
+  </div>`;
+}
+
+function lineaHtml(l, i) {
+  const dudas = (l.dudas ?? []).map((d) => `<div class="duda"><span>«${esc(d.t)}» <small>— ${d.quien}, ${fecha(d.f)}</small>
+      <span class="env nuevo-aqui">✉ ${esc(d.env)}</span></span><button type="button" class="btn sec peq">Resuelta</button></div>`).join("");
+  const form = formDuda === i ? `<div class="duda-form nuevo-aqui">
+      <textarea id="duda-texto" placeholder="¿Qué duda tienes? («¿la CSS va incluida?»)"></textarea>
+      <div class="ayuda">Se guarda en la línea. Si la envías, sale un correo desde facturación con la duda y el enlace a esta hoja.</div>
+      <div class="botones">
+        <button type="button" class="btn sec peq" data-duda="cancelar">Cancelar</button>
+        <button type="button" class="btn peq" data-duda="guardar">Solo guardar</button>
+        <button type="button" class="btn peq" data-duda="comercial">Enviar al comercial · Daniel</button>
+        <button type="button" class="btn peq" data-duda="revision">Enviar a revisión · Daniel</button>
+      </div></div>` : "";
+  return `<div class="linea${l.ok ? " ok" : ""}">
+    <div class="l-cab"><span class="n">${i + 1}</span><span class="con">${esc(l.con)}</span>
+      <span class="imp tab">${eur(l.imp)} <small>+ IVA</small></span>
+      ${l.ok ? `<span class="ok-pill">✓ Validada</span>` : `<button type="button" class="x" title="Quitar la línea">✕</button>`}</div>
+    <div class="hitos"><div class="h cab"><span>Hito</span><span class="d">%</span><span class="d">Importe</span></div>
+      ${l.hitos.map((h) => `<div class="h"><span>${esc(h[0])}</span><span class="d tab">${h[1]}</span><span class="d tab">${EUR.format(h[2])}</span></div>`).join("")}</div>
+    ${dudas}${form}
+    <div class="l-pie"><span class="quien">${l.ok ? "Validada" : ""}</span>
+      ${l.ok ? "" : `<button type="button" class="btn sec peq" data-duda-abrir="${i}">Tengo una duda</button><button type="button" class="btn peq" data-validar="${i}">Validar línea</button>`}</div>
+  </div>`;
+}
+
+function destinoHtml(pend, sumaC) {
+  if (pend) return `<div class="destino cerrado nuevo-aqui"><h3>¿A dónde va esta hoja? <span class="etq-nuevo">nuevo</span></h3>
+      <div class="falta">Se elige cuando estén todas las líneas validadas: ${pend === 1 ? "falta 1" : `faltan ${pend}`}.</div>
+      <div class="dos"><button type="button" class="opcion cobro" disabled><b>Pasa a cobro del primer hito</b><span>Va a Primer cobro.</span></button>
+      <button type="button" class="opcion prod" disabled><b>Pasa a producción ya</b><span>Va a la secretaria comercial sin esperar al cobro.</span></button></div></div>`;
+  const conf = destinoElegido === "cobro"
+    ? `<div class="confirmar"><div>Va a <b>Primer cobro</b>. Paga ${ARROYO.pagador}.</div>
+        ${sumaC ? `<div class="resumen-cobro">Al contratar se cobran <b>${eur(sumaC)}</b> + IVA (la línea 1). Las demás esperan a su hito: la licencia a su tramitación y la dirección de obra al comienzo de obra.</div>`
+          : `<div class="aviso">Ninguna línea se cobra al contratar: si pasa a cobro, esperará a su primer hito. Si tiene que empezar ya, es «Pasa a producción ya».</div>`}
+        <div class="botones"><button type="button" class="btn sec peq" data-dest="nada">Cancelar</button><button type="button" class="btn peq" data-dest-ok="cobro">Pasar a cobro</button></div></div>`
+    : destinoElegido === "prod"
+    ? `<div class="confirmar"><label class="et" for="motivo-prod">¿Por qué empieza sin cobrar?</label>
+        <textarea id="motivo-prod" placeholder="Contrata que paga al final, prisa del comercial por la subvención…">${esc(motivoProd)}</textarea>
+        <div class="nota">El primer hito sigue saliendo en facturación como pendiente de cobrar.</div>
+        <div class="botones"><button type="button" class="btn sec peq" data-dest="nada">Cancelar</button><button type="button" class="btn peq" data-dest-ok="prod">Pasar a producción</button></div></div>`
+    : "";
+  return `<div class="destino nuevo-aqui"><h3>¿A dónde va esta hoja? <span class="etq-nuevo">nuevo</span></h3>
+    <div class="falta">Todo validado. Al elegir, sale de esta lista y queda en el diario por si hay que devolverla.</div>
+    <div class="dos"><button type="button" class="opcion cobro${destinoElegido === "cobro" ? " elegida" : ""}" data-dest="cobro"><b>Pasa a cobro del primer hito</b><span>Va a Primer cobro. La producción empieza cuando se sube el justificante.</span></button>
+    <button type="button" class="opcion prod${destinoElegido === "prod" ? " elegida" : ""}" data-dest="prod"><b>Pasa a producción ya</b><span>Va a la secretaria comercial sin esperar al cobro. Con motivo.</span></button></div>
+    ${conf}</div>`;
+}
+
+document.getElementById("nh-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.abrir) { abierta = abierta === b.dataset.abrir ? null : b.dataset.abrir; }
+  else if (b.dataset.validar != null) { ARROYO.lineas[+b.dataset.validar].ok = true; formDuda = null; }
+  else if (b.dataset.dudaAbrir != null) { formDuda = +b.dataset.dudaAbrir; }
+  else if (b.dataset.duda) {
+    const t = document.getElementById("duda-texto")?.value.trim();
+    if (b.dataset.duda !== "cancelar") {
+      if (!t) { aviso("Escribe la duda antes de guardarla."); return; }
+      const env = { guardar: "Guardada, sin enviar", comercial: "Enviada al comercial (Daniel) desde facturación", revision: "Enviada a revisión (Daniel) desde facturación" }[b.dataset.duda];
+      const l = ARROYO.lineas[formDuda]; (l.dudas ??= []).push({ t, quien: "Alexandra", f: "2026-10-25", env });
+    }
+    formDuda = null;
+  }
+  else if (b.dataset.dest) { destinoElegido = b.dataset.dest === "nada" ? null : b.dataset.dest; }
+  else if (b.dataset.destOk) {
+    const dest = b.dataset.destOk;
+    if (dest === "prod") { motivoProd = document.getElementById("motivo-prod").value.trim(); if (!motivoProd) { aviso("Falta el motivo: ¿por qué empieza sin cobrar?"); return; } }
+    fuera.add("arroyo"); abierta = null; destinoElegido = null;
+    MOV.unshift({ dia: "2026-10-25", h: "10:12", hoja: "arroyo", dir: "Arroyo 1, Torrejon de Ardoz", num: "HE-2025-0008", paga: "Comunidad", tipo: dest === "cobro" ? "cobro" : "prod", motivo: dest === "prod" ? motivoProd : "", quien: "Alexandra", lado: "fact", vivo: true });
+    aviso(`Arroyo 1 ha pasado a ${dest === "cobro" ? "Primer cobro" : "la secretaria comercial"}. <a href="#diario">Está en el diario</a> por si hay que devolverla.`);
+  } else return;
+  pintarNuevas();
+});
+document.getElementById("nh-lista").addEventListener("input", (e) => { if (e.target.id === "motivo-prod") motivoProd = e.target.value; });
+
+/* ============ 2. PRIMER COBRO ============ */
+const PC = [
+  { dir: "Platino 36, Madrid", num: "HE-2025-0156", paga: "Comunidad", forma: "cargo en cuenta", al: 7500, alTxt: "50 % de los dos proyectos (ascensor y envolvente)",
+    resto: "Entrega de los dos proyectos: 7.500,00 € · Subvenciones a la concesión: 1.980,00 €", desde: "2026-10-24", est: ["env", "Proforma enviada el 24 oct · esperando el ok"] },
+  { dir: "Siena 55, Madrid", num: "HE-2025-0301", paga: "ROSERSESE", forma: "transferencia, 7 días", al: 1166.55, alTxt: "⅓ del proyecto",
+    resto: "⅓ a la entrega: 1.166,55 € · ⅓ a la licencia: 1.166,90 € · CSS al plan de seguridad: 500,00 €", desde: "2026-10-24", est: ["ok", "Contrata: factura enviada · esperando el pago"] },
+  { dir: "Corregidor Diego Cabeza Vaca 18, Madrid", num: "HE-2025-0346", paga: "Comunidad", forma: "cargo en cuenta", al: 5955, alTxt: "50 % del proyecto y el tramo fijo de subvenciones",
+    resto: "Entrega del proyecto: 3.975,00 € · 3 presupuestos: 3 % del PEM a la adjudicación", desde: "2026-10-20", est: ["env", "Proforma enviada el 20 oct · sin respuesta en 3 días laborables"], tarde: true },
+];
+function pintarPrimer() {
+  const arroyo = MOV.find((m) => m.hoja === "arroyo" && m.vivo && m.tipo === "cobro");
+  const filas = (arroyo ? [{ dir: "Arroyo 1, Torrejon de Ardoz", num: "HE-2025-0008", paga: "Comunidad", forma: "cargo en cuenta", al: 1180, alTxt: "50 % del proyecto",
+    resto: "Entrega del proyecto: 1.180,00 € · Licencia a su tramitación: 690,00 € · Dirección de obra al comienzo: 450,00 €", desde: "2026-10-25", est: ["sin", "Sin proforma"], nueva: true }] : []).concat(PC);
+  document.getElementById("pc-n1").textContent = `${filas.length} hojas`;
+  document.getElementById("pc-tabla").innerHTML = filas.map((f) => `<tr${f.nueva ? ' class="abierto"' : ""}>
+    <td><div class="dir">${esc(f.dir)}</div><div class="hoja">${f.num}${f.nueva ? " · recién pasada" : ""}</div></td>
+    <td class="nw">${esc(f.paga)}<div class="hoja">${esc(f.forma)}</div></td>
+    <td class="num"><b>${eur(f.al)}</b><div class="hoja">${esc(f.alTxt)}</div></td>
+    <td class="resto">${esc(f.resto)}</td>
+    <td class="nw">${dias(f.desde) === 0 ? "hoy" : `hace ${dias(f.desde)} ${dias(f.desde) === 1 ? "día" : "días"}`}</td>
+    <td><span class="estado-cobro e-${f.est[0]}">${esc(f.est[1])}</span>${f.tarde ? `<div><span class="pill p-ambar" style="margin-top:4px">volver a escribir</span></div>` : ""}</td>
+    <td class="acc"><button type="button" class="btn peq">${f.est[0] === "sin" ? "Preparar el cobro" : "Abrir"}</button></td></tr>`).join("");
+  document.getElementById("pc-sin").innerHTML = `<tr><td><div class="dir">PLAZA DEL PAULAR 1 MADRID</div><div class="hoja">HE-2025-0122 · coordinación de seguridad y dirección facultativa</div></td>
+    <td class="nw">Comunidad</td><td>50 % a la firma del plan de seguridad y salud</td><td class="nw">hace 2 días</td>
+    <td class="acc"><a class="enlace" href="#diario">Ver en el diario</a></td></tr>`;
+}
+
+/* ============ 3. BANDEJA ============ */
+// Galicia 7 (FAIN, a produccion ya) y Plaza del Paular 1 (HE-2025-0059, cobrada; Proyectos ya abierto por la HE-2025-0058).
+const BJ = [
+  { id: "galicia", dir: "Galicia 7, Leganes", num: "HE-2025-0338", paga: "FAIN", firma: "2025-07-08",
+    por: ["prod", "A producción ya"], motivo: "FAIN: el proyecto se cobra a la entrega, no al contratar", quien: "Alexandra · 25 oct",
+    accesos: "Galicia 7, Leganés · un portal", dirOk: false,
+    docs: [{ n: "Orden de compra FAIN - Galicia 7.pdf", q: "lo soltó Daniel el 22 oct", tipo: null }, { n: "Presupuesto ascensor FAIN.pdf", q: "lo soltó Daniel el 22 oct", tipo: null }],
+    lineas: [
+      { con: "Redacción del Proyecto Básico y de Ejecución (Proyecto para la instalación de ascensor)", imp: 3500, hit: "50 % a la entrega del proyecto visado · 30 % a la licencia · 20 % al fin de obra", areas: [["PRY", "si"]] },
+      { con: "Coordinación de Seguridad y Salud", imp: 600, hit: "80 % al acta del plan de seguridad · 20 % al fin de obra", areas: [["OBR", "si"]] },
+    ] },
+  { id: "paular", dir: "PLAZA DEL PAULAR 1 MADRID", num: "HE-2025-0059", paga: "Comunidad", firma: "2025-03-27",
+    por: ["cobro", "Cobrado el primer hito"], motivo: "Justificante del banco subido el 24 oct", quien: "Alexandra · 24 oct",
+    accesos: "Plaza del Paular 1, Madrid", dirOk: true, docs: [],
+    lineas: [
+      { con: "Toma de datos, modelado 3D, Proyecto Básico y de Ejecución incluyendo visado", imp: 4050.79, hit: "50 % al contratar · 50 % a la entrega", areas: [["PRY", "ya", "HE-2025-0058"]] },
+      { con: "Tramitación de Licencia o DR y respuesta de Requerimientos hasta obtención de Licencia", imp: 890, hit: "50 % al contratar · 50 % a la entrega", areas: [["PRY", "ya", "HE-2025-0058"]] },
+    ] },
+];
+const REANUDAR = [{ id: "castanares", dir: "Castañares 2, Madrid (plaza)", num: "HE-2025-0394", paga: "Particular",
+  pausa: "Pausada por Alexandra el 14 oct: «no han pagado el 50 % del proyecto»", levantada: "Levantada por Alexandra el 25 oct: «ya han pagado»", areas: ["PRY", "OBR", "SUBV"] }];
+const ENPAUSA = [{ dir: "Corregidor Diego Cabeza Vaca 18, Madrid", num: "HE-2025-0346", areas: ["PRY", "SUBV", "3PPTOS"], por: "Un vecino ha denunciado: no pagan hasta que salga el juicio", tejado: "tercero", quien: "Alexandra", desde: "2026-10-21" },
+  { dir: "Vidrieria 3, Madrid", num: "HE-2025-0397", areas: ["SUBV"], por: "La comunidad no ha pagado las tasas del ayuntamiento", tejado: "cliente", quien: "Secretaria comercial", desde: "2026-10-17" }];
+let bjAbierta = "galicia", reanudadas = new Set(), metidas = new Set(), otraArea = null;
+
+function pintarBandeja() {
+  const lista = BJ.filter((b) => !metidas.has(b.id));
+  document.getElementById("bj-n").textContent = `${lista.length} ${lista.length === 1 ? "hoja" : "hojas"}`;
+  document.getElementById("bj-lista").innerHTML = (lista.length ? lista.map((b) => {
+    const on = bjAbierta === b.id;
+    return `<div><button type="button" class="b-fila${on ? " on" : ""}" data-bj="${b.id}">
+      <div><div class="dir">${esc(b.dir)}</div><div class="meta">${b.num} · paga ${esc(b.paga)} · firmada el ${fecha(b.firma)}</div></div>
+      <div class="por"><span class="pill ${b.por[0] === "prod" ? "p-prod" : "p-cobro"}">${b.por[1]}</span></div>
+    </button>${on ? bjAbiertaHtml(b) : ""}</div>`;
+  }).join("") : "") + (metidas.size ? `<div class="pie-lista">${[...metidas].map((id) => BJ.find((b) => b.id === id).dir).join(", ")}: metida en producción. Está en el diario.</div>` : lista.length ? "" : `<div class="pie-lista">Nada por meter en producción.</div>`);
+
+  document.getElementById("bj-reanudar").innerHTML = REANUDAR.map((r) => `<div class="b-fila" style="cursor:default">
+      <div><div class="dir">${esc(r.dir)}</div><div class="meta">${r.num} · paga ${esc(r.paga)}</div>
+      <div class="pausada-caja" style="margin-top:8px"><span>${esc(r.pausa)}</span><b>${esc(r.levantada)}</b>
+      <span>Áreas paradas: ${r.areas.map((a) => `<span class="area pausada">${AREA[a]}</span>`).join(" ")}</span></div></div>
+      <div class="por">${reanudadas.has(r.id) ? `<span class="pill p-cobro">Reanudada</span>` : `<button type="button" class="btn" data-reanudar="${r.id}">Reanudar</button>`}</div></div>`).join("");
+
+  document.getElementById("bj-pausa").innerHTML = ENPAUSA.map((p) => `<tr>
+    <td><div class="dir">${esc(p.dir)}</div><div class="hoja">${p.num}</div></td>
+    <td>${p.areas.map((a) => `<span class="pill p-pausa">${AREA[a]}</span>`).join(" ")}</td>
+    <td class="que">${esc(p.por)}<span class="mot">La pelota en el tejado de: ${p.tejado === "tercero" ? "un tercero" : p.tejado === "cliente" ? "el cliente" : "Accesalia"}</span></td>
+    <td class="nw">${esc(p.quien)}</td><td class="nw">hace ${dias(p.desde)} días</td>
+    <td class="acc">${p.quien === "Alexandra" ? `<span class="nota">la levanta facturación</span>` : `<button type="button" class="btn sec peq">Levantar y reanudar</button>`}</td></tr>`).join("");
+}
+
+function bjAbiertaHtml(b) {
+  const decididas = b.lineas.every((l) => l.areas.some((a) => a[1] !== "no"));
+  const docsOk = b.docs.every((d) => d.tipo);
+  const listo = decididas && docsOk && b.dirOk;
+  const abre = [...new Set(b.lineas.flatMap((l) => l.areas.filter((a) => a[1] === "si").map((a) => AREA[a[0]])))];
+  const yaAct = [...new Set(b.lineas.flatMap((l) => l.areas.filter((a) => a[1] === "ya").map((a) => AREA[a[0]])))];
+  return `<div class="b-abierta">
+    <div class="lado-pdf">
+      <div class="cabpdf"><b>Hoja de encargo firmada · ${b.num}</b><a href="#bandeja">Abrir aparte ↗</a></div>
+      <div class="papel"><h4>Hoja de encargo · ${b.num}</h4><div>${esc(b.dir)}</div>
+        ${Array.from({ length: 5 }, () => `<div class="renglon"></div>`).join("")}
+        <h4 style="margin-top:14px">Honorarios</h4>
+        ${b.lineas.map((l) => `<div style="margin:6px 0">${esc(l.con)} — <b>${eur(l.imp)}</b> + IVA</div>`).join("")}
+        ${Array.from({ length: 4 }, () => `<div class="renglon"></div>`).join("")}
+        <div class="firma">Firmado: ${esc(b.paga)} · ${fecha(b.firma)}</div>
+        <p class="nota" style="margin-top:18px">En la app aquí está el PDF firmado.</p></div>
+    </div>
+    <div class="trabajo">
+      <div class="tarj" style="background:${b.por[0] === "prod" ? "var(--ajeno-soft)" : "var(--lima-soft)"}"><div class="grow"><b>${b.por[1]}</b> · ${esc(b.motivo)}<div class="nota">${esc(b.quien)}</div></div></div>
+
+      <div class="paso"><h4>La dirección ${b.dirOk ? `<span class="hecho">✓ comprobada</span>` : ""}</h4>
+        <div class="tarj"><div class="grow">${esc(b.accesos)}</div>${b.dirOk ? "" : `<button type="button" class="btn sec peq">Corregir</button><button type="button" class="btn peq" data-dir-ok="${b.id}">Es correcta</button>`}</div></div>
+
+      <div class="paso"><h4>Lo que ha soltado el comercial en la opp ${b.docs.length && docsOk ? `<span class="hecho">✓ todo archivado</span>` : ""}</h4>
+        ${b.docs.length ? b.docs.map((d, i) => `<div class="tarj"><div class="grow"><a class="doc" href="#bandeja">📄 ${esc(d.n)}</a> <small class="nota">${esc(d.q)}</small></div>
+          ${d.tipo ? `<span class="pill p-cobro">Archivado como ${esc(d.tipo)}</span>` : `<select aria-label="Archivar como" data-doc="${b.id}:${i}" style="width:auto">
+            <option value="">Archivar como…</option><option>Orden de compra de la contrata</option><option>Presupuesto de la contrata</option><option>Contrato</option><option>Otro documento</option></select>`}</div>`).join("")
+          : `<div class="tarj"><span class="vacio">Nada subido</span></div>`}</div>
+
+      <div class="paso"><h4>Las líneas y sus áreas</h4>
+        ${b.lineas.map((l, i) => `<div class="b-linea"><div class="arriba"><span class="con">${esc(l.con)}</span><span class="imp tab">${eur(l.imp)}</span></div>
+          <div class="hit">${esc(l.hit)}</div>
+          <div class="areas">${l.areas.map((a, j) => a[1] === "ya"
+            ? `<span class="area ya">${AREA[a[0]]} <small>· ya activa, desde la ${a[2]}</small></span>`
+            : `<button type="button" class="area${a[1] === "si" ? " si" : ""}" data-area="${b.id}:${i}:${j}" aria-pressed="${a[1] === "si"}">${a[1] === "si" ? "✓ " : ""}Incluye ${AREA[a[0]]}</button>`).join("")}
+            ${otraArea === `${b.id}:${i}` ? `<select aria-label="Otra área" data-otra="${b.id}:${i}" style="width:auto"><option value="">Elige el área…</option>${Object.entries(AREA).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>`
+              : `<button type="button" class="otra-area" data-otra-abrir="${b.id}:${i}">+ otra área</button>`}</div></div>`).join("")}
+        <p class="nota">Las áreas salen puestas según el bloque de cada línea. Pulsa una para quitarla.</p></div>
+
+      <div class="cierre">
+        <span class="que-pasa">${listo
+          ? `${abre.length ? `Abre <b>${abre.join(", ")}</b>` : "No abre ningún área nueva"}${yaAct.length ? ` · ${yaAct.join(", ")} ya estaba activa` : ""}. Hoy eso es Asignar. Facturación verá sus líneas en Cosas vivas.`
+          : `Falta: ${[!b.dirOk && "comprobar la dirección", !docsOk && "archivar los documentos", !decididas && "un área en cada línea"].filter(Boolean).join(", ")}.`}</span>
+        <button type="button" class="btn pausa peq" data-pausar-bj="${b.id}">Pausar</button>
+        <button type="button" class="btn" data-meter="${b.id}" ${listo ? "" : "disabled"}>Meter en producción</button>
+      </div>
+    </div></div>`;
+}
+
+document.getElementById("p-bandeja").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.bj) bjAbierta = bjAbierta === b.dataset.bj ? null : b.dataset.bj;
+  else if (b.dataset.dirOk) BJ.find((x) => x.id === b.dataset.dirOk).dirOk = true;
+  else if (b.dataset.area) { const [id, i, j] = b.dataset.area.split(":"); const a = BJ.find((x) => x.id === id).lineas[+i].areas[+j]; a[1] = a[1] === "si" ? "no" : "si";
+  }
+  else if (b.dataset.otraAbrir) otraArea = b.dataset.otraAbrir;
+  else if (b.dataset.meter) { const x = BJ.find((y) => y.id === b.dataset.meter); metidas.add(x.id);
+    const areas = [...new Set(x.lineas.flatMap((l) => l.areas.filter((a) => a[1] === "si").map((a) => AREA[a[0]])))];
+    MOV.unshift({ dia: "2026-10-25", h: "11:30", hoja: x.id, dir: x.dir, num: x.num, paga: x.paga, tipo: "metida", areas, quien: "Secretaria comercial", lado: "secr" });
+    aviso(`${esc(x.dir)}: metida en producción${areas.length ? ` (${areas.join(", ")})` : ""}. Facturación ya la ve en Cosas vivas.`); }
+  else if (b.dataset.reanudar) { reanudadas.add(b.dataset.reanudar);
+    MOV.unshift({ dia: "2026-10-25", h: "11:40", hoja: "castanares", dir: "Castañares 2, Madrid (plaza)", num: "HE-2025-0394", paga: "Particular", tipo: "reanudada", areas: ["Proyectos", "Obra", "Subvenciones"], quien: "Secretaria comercial", lado: "secr" });
+    aviso("Castañares 2: reanudada. Se reabren Proyectos, Obra y Subvenciones."); }
+  else if (b.dataset.pausarBj) { aviso("Aquí se abre el mismo formulario de pausa que en el diario (motivo, de quién depende, cuándo se reanuda)."); return; }
+  else return;
+  pintarBandeja();
+});
+document.getElementById("p-bandeja").addEventListener("change", (e) => {
+  const s = e.target;
+  if (s.dataset.doc && s.value) { const [id, i] = s.dataset.doc.split(":"); BJ.find((x) => x.id === id).docs[+i].tipo = s.value.toLowerCase(); pintarBandeja(); }
+  if (s.dataset.otra && s.value) { const [id, i] = s.dataset.otra.split(":"); BJ.find((x) => x.id === id).lineas[+i].areas.push([s.value, "si"]); otraArea = null; pintarBandeja(); }
+});
+
+/* ============ DIARIO ============ */
+const MOV = [
+  { dia: "2026-10-25", h: "09:40", hoja: "galicia", dir: "Galicia 7, Leganes", num: "HE-2025-0338", paga: "FAIN", tipo: "prod", motivo: "FAIN: el proyecto se cobra a la entrega, no al contratar", quien: "Alexandra", lado: "fact", vivo: true },
+  { dia: "2026-10-25", h: "09:05", hoja: "castanares", dir: "Castañares 2, Madrid (plaza)", num: "HE-2025-0394", paga: "Particular", tipo: "levantada", motivo: "Ya han pagado", quien: "Alexandra", lado: "fact" },
+  { dia: "2026-10-24", h: "17:30", hoja: "platino", dir: "Platino 36, Madrid", num: "HE-2025-0156", paga: "Comunidad", tipo: "cobro", quien: "Alexandra", lado: "fact", vivo: true },
+  { dia: "2026-10-24", h: "12:10", hoja: "siena", dir: "Siena 55, Madrid", num: "HE-2025-0301", paga: "ROSERSESE", tipo: "cobro", quien: "Alexandra", lado: "fact", vivo: true },
+  { dia: "2026-10-24", h: "11:00", hoja: "paular58", dir: "PLAZA DEL PAULAR 1 MADRID", num: "HE-2025-0058", paga: "Comunidad", tipo: "metida", areas: ["Proyectos"], quien: "Secretaria comercial", lado: "secr", vivo: true, abiertas: true },
+  { dia: "2026-10-24", h: "10:15", hoja: "paular58", dir: "PLAZA DEL PAULAR 1 MADRID", num: "HE-2025-0058", paga: "Comunidad", tipo: "cobrada", motivo: "Justificante del banco subido", quien: "Alexandra", lado: "fact" },
+  { dia: "2026-10-23", h: "13:20", hoja: "paular122", dir: "PLAZA DEL PAULAR 1 MADRID", num: "HE-2025-0122", paga: "Comunidad", tipo: "cobro", quien: "Alexandra", lado: "fact", vivo: true },
+  { dia: "2026-10-23", h: "09:50", hoja: "corbera", dir: "AV MARQUES DE CORBERA 30B MADRID", num: "HE-2025-0066", paga: "Comunidad", tipo: "devuelta", motivo: "Me equivoqué de botón: era a cobro", quien: "Alexandra", lado: "fact" },
+  { dia: "2026-10-23", h: "09:48", hoja: "corbera", dir: "AV MARQUES DE CORBERA 30B MADRID", num: "HE-2025-0066", paga: "Comunidad", tipo: "prod", motivo: "", quien: "Alexandra", lado: "fact", deshecha: true },
+  { dia: "2026-10-21", h: "16:05", hoja: "corregidor", dir: "Corregidor Diego Cabeza Vaca 18, Madrid", num: "HE-2025-0346", paga: "Comunidad", tipo: "pausada", motivo: "Un vecino ha denunciado: no pagan hasta que salga el juicio", tejado: "un tercero", quien: "Alexandra", lado: "fact", areas: ["Proyectos", "Subvenciones", "3 presupuestos"] },
+];
+const TIPO = { cobro: ["p-cobro", "A cobro"], prod: ["p-prod", "A producción ya"], devuelta: ["p-dev", "Devuelta a la lista"], cobrada: ["p-cobro", "Primer hito cobrado"],
+  metida: ["p-prod", "Metida en producción"], pausada: ["p-pausa", "Pausada"], levantada: ["p-pausa", "Pausa levantada"], reanudada: ["p-prod", "Reanudada"] };
+let filtro = "todo", confirmando = null, pausando = null;
+const DIA = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+
+function pintarDiario() {
+  document.getElementById("dr-banda").innerHTML = `<div class="banda"><span><b>Corregidor Diego Cabeza Vaca 18</b> está en pausa y hoy se ha subido el justificante de su cobro. ¿Levantas la pausa?</span>
+    <span style="display:flex;gap:8px"><button type="button" class="btn sec peq">Todavía no</button><button type="button" class="btn peq" data-levantar="corregidor">Levantar la pausa</button></span></div>`;
+  const vis = MOV.filter((m) => filtro === "todo" || (filtro === "pausa" ? ["pausada", "levantada", "reanudada"].includes(m.tipo) : m.lado === filtro));
+  const porDia = {};
+  vis.forEach((m) => (porDia[m.dia] ??= []).push(m));
+  document.getElementById("dr-dias").innerHTML = Object.entries(porDia).map(([d, ms]) => `<div class="dia">${d === "2026-10-25" ? "Hoy, " : ""}${DIA.format(new Date(d + "T00:00:00Z"))} <span>· ${ms.length} ${ms.length === 1 ? "movimiento" : "movimientos"}</span></div>
+    <div class="caja"><table><thead><tr><th>Hora</th><th>Dirección</th><th>Paga</th><th>Qué se hizo</th><th>Quién</th><th></th></tr></thead><tbody>
+    ${ms.map((m) => filaMov(m)).join("")}</tbody></table></div>`).join("") || `<p class="nota">Nada con este filtro.</p>`;
+}
+function filaMov(m) {
+  const k = MOV.indexOf(m);
+  const [cls, txt] = TIPO[m.tipo];
+  let acc = "";
+  if (m.vivo && ["cobro", "prod", "metida"].includes(m.tipo)) acc = `<button type="button" class="btn sec peq" data-devolver="${k}">Devolver a la lista</button>`;
+  if (m.vivo && ["cobro", "prod", "metida"].includes(m.tipo)) acc += ` <button type="button" class="btn pausa peq" data-pausar="${k}">Pausar</button>`;
+  if (m.tipo === "pausada" && !m.levantada) acc = `<button type="button" class="btn peq" data-levantar="${m.hoja}">Levantar la pausa</button>`;
+  const det = m.motivo ? `<span class="mot">«${esc(m.motivo)}»</span>` : "";
+  const areas = m.areas ? `<span class="mot">${m.tipo === "pausada" ? "Áreas paradas" : m.tipo === "reanudada" ? "Se reabren" : "Áreas abiertas"}: ${m.areas.join(", ")}</span>` : "";
+  const tej = m.tejado ? `<span class="mot">Depende de ${m.tejado} · el cobro sigue</span>` : "";
+  let extra = "";
+  if (confirmando === k) {
+    const abiertas = MOV.some((x) => x.hoja === m.hoja && x.tipo === "metida" && x.vivo);
+    extra = `<tr class="abierto"><td></td><td colspan="5"><div class="form-en-fila">
+      <div class="ancho">Vuelve a <b>Nuevas hojas firmadas</b> con sus líneas validadas, para corregir lo que haga falta y volver a elegir.
+      ${abiertas ? `<div class="aviso" style="margin-top:6px">La secretaria ya abrió áreas de esta hoja: quedarán <b>en pausa</b> hasta que se reabran.</div>` : m.tipo !== "cobro" ? `<div class="nota" style="margin-top:4px">La secretaria aún no la ha tocado: sale de su bandeja.</div>` : `<div class="nota" style="margin-top:4px">Sale de Primer cobro.</div>`}</div>
+      <div class="ancho"><label class="et" for="mot-dev">Por qué se devuelve</label><input type="text" id="mot-dev" placeholder="«Me equivoqué de botón», «el pagador es otro»…"></div>
+      <div class="ancho" style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn sec peq" data-cancelar>Cancelar</button><button type="button" class="btn peq" data-devolver-ok="${k}">Devolver a la lista</button></div></div></td></tr>`;
+  }
+  if (pausando === k) {
+    extra = `<tr class="abierto"><td></td><td colspan="5"><div class="form-en-fila">
+      <div class="ancho">Se para el trabajo de <b>esta hoja</b> y de las áreas que abrió. El cobro sigue: proformas, correos y facturas.</div>
+      <div class="ancho"><label class="et" for="mot-pau">Por qué</label><input type="text" id="mot-pau" placeholder="«Un vecino ha denunciado y no pagan hasta el juicio»"></div>
+      <div><span class="et">De quién depende</span><div class="opciones">
+        <label><input type="radio" name="tej" value="accesalia"> Accesalia <small>· nos toca llamar</small></label>
+        <label><input type="radio" name="tej" value="cliente"> El cliente <small>· se puede insistir</small></label>
+        <label><input type="radio" name="tej" value="tercero" checked> Un tercero <small>· no pueden</small></label></div></div>
+      <div><label class="et" for="cond-pau">Cuándo se reanuda</label><input type="text" id="cond-pau" placeholder="«Cuando salga el juicio y paguen»"></div>
+      <div class="ancho" style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn sec peq" data-cancelar>Cancelar</button><button type="button" class="btn pausa peq" data-pausar-ok="${k}">Pausar la hoja</button></div></div></td></tr>`;
+  }
+  return `<tr${m.deshecha ? ' class="deshecha"' : ""}><td class="nw tab">${m.h}</td>
+    <td><div class="dir">${esc(m.dir)}</div><div class="hoja">${m.num}</div></td><td class="nw">${esc(m.paga)}</td>
+    <td class="que"><span class="pill ${cls}">${txt}</span>${m.deshecha ? ` <span class="nota">deshecho</span>` : ""}${det}${areas}${tej}</td>
+    <td class="nw">${esc(m.quien)}</td><td class="acc">${acc}</td></tr>${extra}`;
+}
+document.getElementById("p-diario").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.f) { filtro = b.dataset.f; document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", c === b)); }
+  else if (b.dataset.devolver) { confirmando = +b.dataset.devolver; pausando = null; }
+  else if (b.dataset.pausar) { pausando = +b.dataset.pausar; confirmando = null; }
+  else if (b.hasAttribute("data-cancelar")) { confirmando = pausando = null; }
+  else if (b.dataset.devolverOk) {
+    const m = MOV[+b.dataset.devolverOk]; m.vivo = false; m.deshecha = true;
+    const mot = document.getElementById("mot-dev").value.trim();
+    MOV.unshift({ dia: "2026-10-25", h: "12:00", hoja: m.hoja, dir: m.dir, num: m.num, paga: m.paga, tipo: "devuelta", motivo: mot || "", quien: "Alexandra", lado: "fact" });
+    if (m.hoja === "arroyo") { fuera.delete("arroyo"); destinoElegido = null; }
+    confirmando = null; aviso(`${esc(m.dir)} ha vuelto a Nuevas hojas firmadas.`);
+  }
+  else if (b.dataset.pausarOk) {
+    const m = MOV[+b.dataset.pausarOk];
+    const mot = document.getElementById("mot-pau").value.trim(); if (!mot) { aviso("Falta el motivo de la pausa."); return; }
+    const tej = document.querySelector('input[name="tej"]:checked').value;
+    MOV.unshift({ dia: "2026-10-25", h: "12:05", hoja: m.hoja, dir: m.dir, num: m.num, paga: m.paga, tipo: "pausada", motivo: mot, tejado: { accesalia: "Accesalia", cliente: "el cliente", tercero: "un tercero" }[tej], quien: "Alexandra", lado: "fact" });
+    pausando = null; aviso(`${esc(m.dir)}: pausada. El cobro sigue.`);
+  }
+  else if (b.dataset.levantar) {
+    const m = MOV.find((x) => x.hoja === b.dataset.levantar && x.tipo === "pausada"); if (m) m.levantada = true;
+    MOV.unshift({ dia: "2026-10-25", h: "12:10", hoja: m.hoja, dir: m.dir, num: m.num, paga: m.paga, tipo: "levantada", motivo: "Ya han pagado", quien: "Alexandra", lado: "fact" });
+    aviso(`${esc(m.dir)}: pausa levantada. Pasa a la secretaria comercial para reanudar.`);
+  } else return;
+  pintarDiario();
+});
+
+/* ============ pestañas ============ */
+function ir() {
+  const p = (location.hash || "#nuevas").slice(1);
+  ["nuevas", "primer", "bandeja", "diario"].forEach((x) => { document.getElementById("p-" + x).hidden = x !== p; document.getElementById("ir-" + x).classList.toggle("on", x === p); });
+  ({ nuevas: pintarNuevas, primer: pintarPrimer, bandeja: pintarBandeja, diario: pintarDiario })[p]?.();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", ir);
+ir();
+</script>
