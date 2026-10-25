@@ -5,6 +5,7 @@ import { quienSoy, type Yo } from "../../../lib/sesion";
 import {
   comprobarDireccion, devolverHoja, levantarPausa, meterEnProduccion, pausarHoja, puedeBandeja, puedeFacturacion, reanudarHoja, type Tejado,
 } from "../../../lib/recorridoHoja";
+import { archivarDocumento } from "../../../lib/cajonDocumentos";
 
 // EL RECORRIDO DE LA HOJA FIRMADA (Monica, 25-oct-2026): lo que se hace desde el Diario (facturacion) y desde la
 // Bandeja comercial (la secretaria comercial). Cada uno comprueba quien eres y deja dicho quien lo hizo.
@@ -46,4 +47,9 @@ export async function accionPausarSecretaria(hojaId: string, motivo: string, tej
 }
 export async function accionReanudar(hojaId: string) {
   return hacer(puedeBandeja, (yo) => reanudarHoja(yo, hojaId));
+}
+export async function accionArchivarBandeja(docId: string, tipoId: string) {
+  return hacer(puedeBandeja, async (yo) => {
+    await archivarDocumento(yo, docId, tipoId);
+  });
 }

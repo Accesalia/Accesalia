@@ -14,6 +14,7 @@ import "server-only";
 
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
+import { sinArchivar, tiposCajon, type DocCajon, type GrupoTipos } from "./cajonDocumentos";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -267,6 +268,7 @@ export async function meterEnProduccion(yo: Yo, hojaId: string, areas: string[])
   const lista = e.fase === "a_produccion" || (e.fase === "a_cobro" && cobradoPrimero(h).cobrado);
   if (!lista) throw new Error("Esta hoja no está para meter en producción.");
   if (!e.direccionOk) throw new Error("Falta comprobar la dirección.");
+  if (h.oportunidad_id && (await sinArchivar([h.oportunidad_id])).get(h.oportunidad_id)?.length) throw new Error("Falta archivar los documentos de la opp.");
   const validas = [...new Set(areas.filter((a) => a in AREAS))];
   await apuntar(yo, hojaId, "metida_produccion", "secretaria", { areas: validas.length ? validas : null });
 }
@@ -366,11 +368,14 @@ export type LineaBandeja = { id: string; concepto: string; importe: number | nul
 export type HojaBandeja = {
   hojaId: string; oppId: string | null; direccion: string; hoja: string; paga: string; firma: string | null; pdf: string | null;
   por: "a_produccion" | "cobrado"; motivo: string; quien: string; cuando: string;
-  direccionOk: boolean; documentos: { id: string; nombre: string; tipo: string; cuando: string }[];
+  /** Lo que se ha soltado en el cajon de su opp y sigue sin archivar (25-oct-2026). */
+  direccionOk: boolean; documentos: DocCajon[];
   lineas: LineaBandeja[];
 };
 export type EnPausa = { hojaId: string; direccion: string; hoja: string; paga: string; areas: string[]; motivo: string; tejado: Tejado | null; condicion: string | null; lado: Lado; quien: string; desde: string; levantada: { motivo: string | null; quien: string; en: string } | null };
-export type Bandeja = { porMeter: HojaBandeja[]; paraReanudar: EnPausa[]; enPausa: EnPausa[] };
+/** Lo soltado en opps que no tienen ninguna hoja en la bandeja (antes de firmar, por ejemplo). */
+export type Suelto = { oppId: string; direccion: string; docs: DocCajon[] };
+export type Bandeja = { porMeter: HojaBandeja[]; paraReanudar: EnPausa[]; enPausa: EnPausa[]; sueltos: Suelto[]; tipos: GrupoTipos[] };
 
 async function nombres(ids: (string | null)[]): Promise<Map<string, string>> {
   const u = [...new Set(ids.filter((x): x is string => !!x))];
@@ -398,11 +403,11 @@ export async function bandeja(): Promise<Bandeja> {
     for (const a of e.areas) if (!m.has(a)) m.set(a, x.numero_hoja);
   }
   // El PDF firmado (como en Nuevas hojas firmadas) y los documentos de la opp.
-  const [versiones, docs] = await Promise.all([
+  const [versiones, docs, tipos] = await Promise.all([
     listas.length ? porTramos<{ id: string; hoja_encargo_id: string; numero_version: number; pdfs_firmados: string[] | null }>(listas.map((h) => h.id),
       (t) => `versiones_hoja?select=id,hoja_encargo_id,numero_version,pdfs_firmados&hoja_encargo_id=in.(${t})`) : [],
-    opps.length ? porTramos<{ id: string; oportunidad_id: string; storage_ref: string | null; url_fichero: string | null; creado_en: string; tipo: { nombre: string } | null }>(opps,
-      (t) => `documentos?select=id,oportunidad_id,storage_ref,url_fichero,creado_en,tipo:tipos_documento(nombre)&oportunidad_id=in.(${t})&vigente=is.true&order=creado_en`) : [],
+    sinArchivar(),
+    tiposCajon(),
   ]);
   const movsTodos = listas.flatMap((h) => [estados.get(h.id)!.destino!]).concat(pausadas.map((id) => estados.get(id)!.pausa!.mov), pausadas.flatMap((id) => estados.get(id)!.pausa!.levantada ?? []));
   const n = await nombres(movsTodos.map((m) => m.por));
@@ -419,9 +424,7 @@ export async function bandeja(): Promise<Bandeja> {
       motivo: e.fase === "a_produccion" ? (e.destino!.motivo ?? "") : `Cobrado el primer hito${cob.fecha ? ` el ${fechaCorta(cob.fecha)}` : ""}`,
       quien: quienEs(n, e.destino!), cuando: e.destino!.en,
       direccionOk: !!e.direccionOk,
-      documentos: docs.filter((d) => d.oportunidad_id === h.oportunidad_id).map((d) => ({
-        id: d.id, nombre: decodeURIComponent((d.storage_ref ?? d.url_fichero ?? "documento").split("/").pop() ?? "documento"), tipo: d.tipo?.nombre ?? "", cuando: d.creado_en,
-      })),
+      documentos: (h.oportunidad_id ? docs.get(h.oportunidad_id) : undefined) ?? [],
       lineas: h.lineas.map((l) => ({
         id: l.id, concepto: l.descripcion ?? "", importe: l.importe == null ? null : Number(l.importe),
         hitos: vivos(l).map((y) => `${y.porcentaje != null ? `${Number(y.porcentaje).toLocaleString("es-ES")} % ` : ""}${queHito(y)}`).join(" · "),
@@ -439,8 +442,18 @@ export async function bandeja(): Promise<Bandeja> {
     };
   };
   const conHoja = pausadas.filter((id) => porId.has(id));
+  // Los sueltos: lo sin archivar de opps sin hoja en «por meter en produccion».
+  const conHojaEnBandeja = new Set(opps);
+  const otras = [...docs.keys()].filter((o) => !conHojaEnBandeja.has(o));
+  const nombresOpp = otras.length ? await porTramos<{ id: string; nombre: string | null; codigo: string | null }>(otras, (t) => `oportunidades?select=id,nombre,codigo&id=in.(${t})`) : [];
+  const sueltos = otras.map((o) => {
+    const op = nombresOpp.find((x) => x.id === o);
+    return { oppId: o, direccion: op ? nombreDeOpp(op) : "—", docs: docs.get(o)! };
+  }).sort((a, b) => a.docs[0].subido.localeCompare(b.docs[0].subido));
   return {
     porMeter,
+    sueltos,
+    tipos,
     paraReanudar: conHoja.filter((id) => estados.get(id)!.pausa!.como === "para_reanudar").map(pausa),
     enPausa: conHoja.filter((id) => estados.get(id)!.pausa!.como === "pausada").map(pausa).sort((a, b) => a.desde.localeCompare(b.desde)),
   };

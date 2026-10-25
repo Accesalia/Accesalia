@@ -17,6 +17,8 @@ import { AZUL, Pestanas } from "./Carril";
 import { Cabecera, Estado } from "./Cabecera";
 import { Edificio } from "./Edificio";
 import { FotosOpp } from "./FotosOpp";
+import { CajonOpp } from "./CajonOpp";
+import { cajonDeOpp, tiposCajon } from "../../../../lib/cajonDocumentos";
 import { fotosDeOpp } from "../../../../lib/fotos";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
@@ -133,7 +135,17 @@ export default async function GestionOportunidad({
   const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
   // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
   const fotos = bloque === 1 ? await fotosDeOpp(id).catch(() => []) : [];
-  const apartadoFotos = bloque === 1 ? <FotosOpp oppId={id} fotos={fotos} /> : null;
+  // EL CAJON DE DOCUMENTOS (25-oct-2026): al lado de las fotos en el bloque 1, y debajo de lo suyo en los demas
+  // (la orden de compra o el contrato llegan sobre todo despues de firmar).
+  const [docsCajon, tiposDelCajon] = await Promise.all([cajonDeOpp(id).catch(() => []), tiposCajon().catch(() => [])]);
+  const cajon = <CajonOpp oppId={id} docs={docsCajon} tipos={tiposDelCajon} />;
+  const apartadoFotos =
+    bloque === 1 ? (
+      <>
+        <FotosOpp oppId={id} fotos={fotos} />
+        {cajon}
+      </>
+    ) : null;
 
   // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
   // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
@@ -343,13 +355,15 @@ export default async function GestionOportunidad({
             // El bloque 2 ocupa el sitio del edificio: las tres primeras
             // columnas. El diario y el trabajo de abajo son de toda la
             // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
-            <div className="min-w-0 xl:col-span-1">
+            <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
               <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} informes={informes} enviados={enviados} />
+              {cajon}
             </div>
           ) : decision ? (
             // Los bloques 3 y 4, en crudo: cada campo con donde vive (15-oct-2026).
-            <div className="min-w-0 xl:col-span-1">
+            <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
               {bloque === 3 ? <Bloque3 g={g} d={decision} /> : <Bloque4 d={decision} />}
+              {cajon}
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.

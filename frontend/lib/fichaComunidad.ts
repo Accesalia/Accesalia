@@ -58,7 +58,8 @@ export const ALMACEN_DE_TIPO: Record<string, string> = {
 /** Lo que llega del PORTAL se queda donde lo subio la comunidad (su almacen,
  *  carpeta portal/): al aceptarlo no se mueve, se apunta. */
 export const almacenDe = (tipo: string, ruta: string | null): string | null =>
-  ruta?.startsWith("portal/") ? "documentos-comerciales" : (ALMACEN_DE_TIPO[tipo] ?? null);
+  // Y lo del cajon de documentos de la opp (25-oct-2026), igual: se queda en su carpeta opp/.
+  ruta?.startsWith("portal/") || ruta?.startsWith("opp/") ? "documentos-comerciales" : (ALMACEN_DE_TIPO[tipo] ?? null);
 
 /** Los papeles que se suben desde la ficha. */
 export type ClavePapel = "tarjeta" | "acta" | "dni" | "certificado" | "votacion";

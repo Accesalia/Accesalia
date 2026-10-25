@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Bandeja as DatosBandeja, EnPausa, HojaBandeja, Tejado } from "../../lib/recorridoHoja";
-import { accionDireccionOk, accionMeter, accionPausarSecretaria, accionReanudar } from "../facturacion/cobrar/accionesRecorrido";
+import type { DocCajon, GrupoTipos } from "../../lib/cajonDocumentos";
+import { accionArchivarBandeja, accionDireccionOk, accionMeter, accionPausarSecretaria, accionReanudar } from "../facturacion/cobrar/accionesRecorrido";
 
 // LA BANDEJA (maqueta validada): la lista por hoja; al abrir una, la hoja firmada a un lado y al otro lo que hay que
 // hacer. Las areas salen puestas segun el bloque de cada linea; se quitan pulsandolas y se añade otra. Un area que
@@ -57,12 +58,35 @@ export function Bandeja({ datos }: { datos: DatosBandeja }) {
                 </div>
                 <div className="por"><span className={`pill ${b.por === "a_produccion" ? "p-prod" : "p-cobro"}`}>{b.por === "a_produccion" ? "A producción ya" : "Cobrado el primer hito"}</span></div>
               </button>
-              {on && <Abierta b={b} hacer={hacer} ocupado={ocupado} error={error} />}
+              {on && <Abierta b={b} tipos={datos.tipos} hacer={hacer} ocupado={ocupado} error={error} />}
             </div>
           );
         })}
         {!datos.porMeter.length && <div className="pie-lista">Nada por meter en producción.</div>}
       </div>
+
+      <div className="sec-tit">Documentos sueltos <span className="n">lo que se ha soltado en opps que no tienen ninguna hoja en esta bandeja</span></div>
+      {datos.sueltos.length ? (
+        <div className="caja">
+          <table>
+            <thead><tr><th>Dirección</th><th>Documento</th><th>Lo soltó</th><th /></tr></thead>
+            <tbody>
+              {datos.sueltos.flatMap((s) =>
+                s.docs.map((d) => (
+                  <tr key={d.id}>
+                    <td><Link className="dir" style={{ color: "inherit", textDecoration: "none" }} href={`/comercial/oportunidades/${s.oppId}`}>{s.direccion}</Link></td>
+                    <td><EnlaceDoc d={d} /></td>
+                    <td className="nw">{d.subidoPor ?? "alguien"} · {CORTA.format(new Date(d.subido))}</td>
+                    <td className="acc"><ArchivarComo d={d} tipos={datos.tipos} hacer={hacer} ocupado={ocupado} /></td>
+                  </tr>
+                )),
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="nota">Nada suelto: todo archivado.</p>
+      )}
 
       <div className="sec-tit">Pausas levantadas, para reanudar <span className="n">facturación ya ha levantado su pausa: falta reabrir las áreas</span></div>
       <div className="bandeja">
@@ -125,7 +149,32 @@ function FilaPausa({ p, hacer, ocupado }: { p: EnPausa; hacer: (r: Resp, t: stri
   );
 }
 
-function Abierta({ b, hacer, ocupado, error }: { b: HojaBandeja; hacer: (r: Resp, t: string, luego?: () => void) => void; ocupado: boolean; error: string | null }) {
+function EnlaceDoc({ d }: { d: DocCajon }) {
+  return d.url ? (
+    <a className="doc" href={d.url} target="_blank" rel="noreferrer">📄 {d.nombre}</a>
+  ) : (
+    <span className="doc">📄 {d.nombre}</span>
+  );
+}
+
+function ArchivarComo({ d, tipos, hacer, ocupado }: { d: DocCajon; tipos: GrupoTipos[]; hacer: (r: Resp, t: string) => void; ocupado: boolean }) {
+  return (
+    <select aria-label="Archivar como" defaultValue="" disabled={ocupado} style={{ width: "auto", maxWidth: "100%" }}
+      onChange={(e) => {
+        const t = tipos.flatMap((g) => g.tipos).find((x) => x.id === e.target.value);
+        if (t) hacer(accionArchivarBandeja(d.id, t.id), `«${d.nombre}» archivado como ${t.nombre}.`);
+      }}>
+      <option value="">Archivar como…</option>
+      {tipos.map((g) => (
+        <optgroup key={g.grupo} label={g.grupo}>
+          {g.tipos.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+        </optgroup>
+      ))}
+    </select>
+  );
+}
+
+function Abierta({ b, tipos, hacer, ocupado, error }: { b: HojaBandeja; tipos: GrupoTipos[]; hacer: (r: Resp, t: string, luego?: () => void) => void; ocupado: boolean; error: string | null }) {
   // Las areas de cada linea: las del bloque, encendidas; las ya activas en la opp no se tocan.
   const [elegidas, setElegidas] = useState<Record<string, Record<string, boolean>>>(() =>
     Object.fromEntries(b.lineas.map((l) => [l.id, Object.fromEntries(l.areas.filter((a) => !a.ya).map((a) => [a.area, true]))])),
@@ -141,8 +190,9 @@ function Abierta({ b, hacer, ocupado, error }: { b: HojaBandeja; hacer: (r: Resp
   const todas = b.lineas.every(conArea);
   const abre = [...new Set(b.lineas.flatMap((l) => Object.entries(elegidas[l.id] ?? {}).filter(([, v]) => v).map(([a]) => a)))];
   const yaActivas = [...new Set(b.lineas.flatMap((l) => ya(l).map((a) => a.area)))].filter((a) => !abre.includes(a));
-  const listo = b.direccionOk && todas;
-  const falta = [!b.direccionOk && "comprobar la dirección", !todas && "un área en cada línea"].filter(Boolean).join(", ");
+  const docsOk = !b.documentos.length;
+  const listo = b.direccionOk && docsOk && todas;
+  const falta = [!b.direccionOk && "comprobar la dirección", !docsOk && "archivar los documentos", !todas && "un área en cada línea"].filter(Boolean).join(", ");
 
   return (
     <div className="b-abierta">
@@ -182,17 +232,18 @@ function Abierta({ b, hacer, ocupado, error }: { b: HojaBandeja; hacer: (r: Resp
         </div>
 
         <div className="paso">
-          <h4>Lo que ha soltado el comercial en la opp</h4>
+          <h4>Lo que ha soltado el comercial en la opp {docsOk && <span className="hecho">✓ nada por archivar</span>}</h4>
           {b.documentos.length ? (
             b.documentos.map((d) => (
               <div key={d.id} className="tarj">
                 <div className="grow">
-                  <span className="doc">📄 {d.nombre}</span> <small className="nota">{d.tipo} · {CORTA.format(new Date(d.cuando))}</small>
+                  <EnlaceDoc d={d} /> <small className="nota">{d.subidoPor ?? "alguien"} · {CORTA.format(new Date(d.subido))}</small>
                 </div>
+                <ArchivarComo d={d} tipos={tipos} hacer={hacer} ocupado={ocupado} />
               </div>
             ))
           ) : (
-            <div className="tarj"><span className="vacio">Nada subido</span></div>
+            <div className="tarj"><span className="vacio">Nada sin archivar en el cajón de la opp</span></div>
           )}
         </div>
 

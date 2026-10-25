@@ -19,6 +19,7 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { apuntarFotos } from "../../../../lib/fotos";
 import { puedeVerOpp } from "../../../../lib/hojaEncargo";
+import { apuntarEnCajon, archivarDocumento, permisosCajon } from "../../../../lib/cajonDocumentos";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
@@ -362,4 +363,39 @@ export async function accionReabrirAnulada(id: string) {
   const yo = await permiso(id);
   await reabrirAnulada(id, yo.id);
   refrescar(id);
+}
+
+// EL CAJON DE DOCUMENTOS DE LA OPP (Monica, 25-oct-2026): cualquiera que entre en la opp suelta y archiva.
+export async function accionPermisosCajon(oppId: string, nombres: string[]): Promise<{ ok: true; permisos: { ruta: string; url: string }[] } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    return { ok: true, permisos: await permisosCajon(oppId, nombres) };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+export async function accionApuntarCajon(oppId: string, subidos: { ruta: string; nombre: string }[]): Promise<{ ok: true; n: number } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    const n = await apuntarEnCajon(yo, oppId, subidos);
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    revalidatePath("/bandeja-comercial");
+    return { ok: true, n };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+export async function accionArchivarEnCajon(oppId: string, docId: string, tipoId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    await archivarDocumento(yo, docId, tipoId, oppId);
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    revalidatePath("/bandeja-comercial");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
