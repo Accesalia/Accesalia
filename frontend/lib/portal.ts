@@ -398,7 +398,7 @@ async function archivarFirmadaNueva(comunidadId: string, versionId: string, ruta
     method: "POST",
     headers: { Prefer: "return=representation" },
     body: JSON.stringify({
-      oportunidad_id: v.oportunidad_id, comunidad_id: comunidadId, tipo_documento_id: tipo.id, backend: "supabase", storage_ref: ruta, naturaleza: "subido",
+      oportunidad_id: v.oportunidad_id, comunidad_id: comunidadId, tipo_documento_id: tipo.id, backend: "supabase", storage_ref: ruta, naturaleza: "subido", grupo_id: crypto.randomUUID(),
       nombre: `${nombreFirmadaPortal(v.codigo_he, v.numero_version)}${ext}`, archivado_en: new Date().toISOString(),
       justificacion: `Subida desde el portal por ${limpio(email)} (fichero original: ${nombreFichero.slice(0, 120)}).`,
     }),
