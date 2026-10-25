@@ -7,6 +7,7 @@
 // que se apunto al casarlas: abonos, "manda la factura", subhitos...).
 
 import "server-only";
+import { SEL_FICHA_HOJA, adaptarFichas } from "./hojasNuevas";
 import { nombreDeOpp } from "./direccionOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -110,13 +111,13 @@ const corta = (d: string | null) => (d ?? "").split(/\s+[—–-]\s+|\s*\(/)[0].
 
 /** Las facturas de un año (o de todos: null). */
 export async function facturasEmitidas(anio: number | null): Promise<FacturaEmitida[]> {
-  const fa = await leer<Cruda>(
+  const fa = await adaptarFichas(await leer<Cruda>(
     `facturas?select=id,tipo,empresa_emisora,anio,serie,numero,fecha,referencia,estado,pagador_nombre,base,total,url_pdf,oportunidad_id,` +
       `opp:oportunidad_id(id,nombre,codigo),` +
       `lineas:factura_lineas(base,enlaces:factura_linea_hitos(importe,hito:hito_cobro_id(id,hito,porcentaje,importe,hito_padre_id,` +
-      `linea:linea_facturacion_id(descripcion,hoja:hoja_encargo_id(numero_hoja,oportunidad:oportunidad_id(id,nombre,codigo))))))` +
+      `linea:linea_facturacion_id(${SEL_FICHA_HOJA})))))` +
       `&empresa_emisora=in.(accesalia,daniel)${anio ? `&anio=eq.${anio}` : ""}&order=fecha.desc.nullslast,numero.desc`,
-  );
+  ));
   // Los hitos padre de los subhitos (para decir "de la entrega de 11.500") y las notas de todos.
   const hitos = fa.flatMap((f) => f.lineas.flatMap((l) => l.enlaces.map((e) => e.hito).filter((h): h is NonNullable<typeof h> => !!h)));
   const padresIds = [...new Set(hitos.map((h) => h.hito_padre_id).filter((x): x is string => !!x))];

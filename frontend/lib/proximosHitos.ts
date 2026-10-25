@@ -26,6 +26,7 @@
 import "server-only";
 import { nombreDeOpp } from "./direccionOpp";
 import { hojasPasadas } from "./recorridoHoja";
+import { FASES_FIRMADA, hojasDeFacturacion } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -97,12 +98,13 @@ type Linea = {
 export const DESDE = "2025-01-01";
 
 export async function proximosHitos(): Promise<{ hitos: HitoProximo[]; previos: number }> {
-  const [pasadas, lineas] = await Promise.all([hojasPasadas(), leer<Linea>(
-    `lineas_facturacion?select=id,descripcion,validada_en,` +
-      `hoja:hoja_encargo_id!inner(id,numero_hoja,estado,fecha_firma,pagador_tipo,contrata:pagador_contrata_id(nombre),opp:oportunidad_id(id,nombre,codigo)),` +
-      `hitos:hitos_cobro(id,hito,porcentaje,importe,estado,fecha_prevista,en_pausa_desde,hito_padre_id)` +
-      `&hoja.estado=eq.devuelta_firmada&quitada_en=is.null&emisor=in.(accesalia,daniel_autonomo)`,
-  )]);
+  // Hojas nuevas (dia de la migracion): las hojas firmadas y sus fichas, de las vistas (lib/hojasNuevas.ts).
+  const [pasadas, hojas] = await Promise.all([hojasPasadas(), hojasDeFacturacion({ fases: FASES_FIRMADA })]);
+  const lineas: Linea[] = hojas.flatMap((h) => h.lineas.map((l) => ({
+    id: l.id, validada_en: l.validada_en, descripcion: l.descripcion,
+    hoja: { id: h.id, numero_hoja: h.numero_hoja, estado: h.fase, fecha_firma: h.fecha_firma, pagador_tipo: h.pagador_tipo, contrata: h.contrata, opp: h.opp },
+    hitos: l.hitos,
+  })));
   // Los candidatos: pendientes, y si tienen subhitos, los subhitos (no el padre).
   const conHijos = new Set(lineas.flatMap((l) => l.hitos.map((h) => h.hito_padre_id).filter(Boolean)));
   const todos = lineas.flatMap((l) => l.hitos.filter((h) => h.estado === "pendiente" && !conHijos.has(h.id)).map((h) => ({ l, h })));

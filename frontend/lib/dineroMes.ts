@@ -14,6 +14,7 @@
 // Y la vista de 8 semanas: semana a semana, lo que entra, lo que sale y el saldo, avisando cerca del limite de la linea.
 
 import "server-only";
+import { SEL_FICHA_HOJA, adaptarFichas } from "./hojasNuevas";
 import type { Yo } from "./sesion";
 import { calendarioFiscal } from "./fiscal";
 import { gastosDelMes, mesMas, type EmpresaGasto } from "./gastosMes";
@@ -121,8 +122,8 @@ export async function dineroDelMes(mes: string, hoy: string, yo: Yo): Promise<Di
       `facturas?select=id,empresa_emisora,anio,numero,fecha,total,pagador_nombre,cobros(importe)&estado=in.(pendiente,cobrada_en_parte)&or=(tipo.is.null,tipo.eq.factura)&empresa_emisora=in.(accesalia,daniel)&fecha=gte.2024-01-01`,
     ),
     leer<{ importe: string; hito: string | null; fecha_prevista: string | null; fecha_vencimiento: string | null; linea: { emisor: string | null; hoja: { oportunidad: { nombre: string | null } | null } | null } | null }>(
-      "hitos_cobro?select=importe,hito,fecha_prevista,fecha_vencimiento,linea:linea_facturacion_id(emisor,hoja:hoja_encargo_id(oportunidad:oportunidad_id(nombre)))&estado=in.(pendiente,parcial)&numero_factura=is.null&or=(fecha_prevista.not.is.null,fecha_vencimiento.not.is.null)",
-    ),
+      `hitos_cobro?select=importe,hito,fecha_prevista,fecha_vencimiento,linea:linea_facturacion_id(${SEL_FICHA_HOJA})&estado=in.(pendiente,parcial)&numero_factura=is.null&or=(fecha_prevista.not.is.null,fecha_vencimiento.not.is.null)`,
+    ).then(adaptarFichas),
     leer<{ cuenta: string; fecha: string; importe: string }>(`movimientos_bancarios?select=cuenta,fecha,importe&clase=eq.ingreso&tipo=is.null&fecha=gte.${meses[0]}-01`),
   ]);
   // Lo de todos los meses que no es gasto habitual ni impuesto (Monica vio el saldo de Accesalia subir a +157.000 sin

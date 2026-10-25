@@ -237,13 +237,14 @@ export async function hojasDeFacturacion(f: { ids?: string[]; oppId?: string; fa
  *  `linea:linea_facturacion_id(${SEL_FICHA_HOJA})` desde hitos_cobro, o tal cual desde lineas_facturacion. */
 export const SEL_FICHA_HOJA =
   "id,descripcion,importe,es_porcentaje,porcentaje,emisor,origen,he_linea_id,he_version_id,bloque:bloque_id(nombre)," +
-  `he:he_linea_id(texto,importe,porcentaje,bloque:bloque_id(nombre,nombre_corto),desglose:desglose_id(nombre),version:version_id(${SEL_VERSION})),` +
-  `mano:he_version_id(${SEL_VERSION})`;
+  `he:he_linea_id(texto,importe,porcentaje,bloque:bloque_id(nombre,nombre_corto),desglose:desglose_id(nombre),version:version_id(${SEL_VERSION},opp:oportunidad_id(id,nombre,codigo))),` +
+  `mano:he_version_id(${SEL_VERSION},opp:oportunidad_id(id,nombre,codigo))`;
+type OppCorta = { id: string; nombre: string | null; codigo: string | null } | null;
 export type FichaHoja = {
   id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean; porcentaje: number | null; emisor: string; origen: string | null;
   he_linea_id: string | null; he_version_id: string | null; bloque: { nombre: string } | null;
-  he: { texto: string | null; importe: number | null; porcentaje: number | null; bloque: { nombre: string; nombre_corto: string | null } | null; desglose: { nombre: string } | null; version: VersionHoja | null } | null;
-  mano: VersionHoja | null;
+  he: { texto: string | null; importe: number | null; porcentaje: number | null; bloque: { nombre: string; nombre_corto: string | null } | null; desglose: { nombre: string } | null; version: (VersionHoja & { opp?: OppCorta }) | null } | null;
+  mano: (VersionHoja & { opp?: OppCorta }) | null;
 };
 /** La version (la hoja) de una ficha: la de su linea, o la de la añadida a mano. */
 export const versionDeFicha = (f: FichaHoja | null | undefined): VersionHoja | null => f?.he?.version ?? f?.mano ?? null;
@@ -255,4 +256,41 @@ export function lineaDeFicha(f: FichaHoja): { concepto: string; importe: number 
     porcentaje: f.he.porcentaje == null ? null : Number(f.he.porcentaje),
   };
   return { concepto: (f.descripcion ?? "").trim() || f.bloque?.nombre || "Línea", importe: f.importe == null ? null : Number(f.importe), esPorcentaje: f.es_porcentaje, porcentaje: f.porcentaje == null ? null : Number(f.porcentaje) };
+}
+
+/** EL ADAPTADOR: recorre lo leido y cambia cada ficha leida con SEL_FICHA_HOJA por la forma de antes (descripcion,
+ *  importe, emisor... y `hoja` con su numero, fecha de firma, opp y pagador), sacado de la hoja nueva. Asi las pantallas
+ *  que solo cruzaban la ficha con su hoja para el numero o la opp siguen igual, con UNA sola forma de leerlo. */
+export type HojaVieja = {
+  id: string; numero_hoja: string; fecha_firma: string | null; oportunidad_id: string | null; estado: string; comunidad_id: string | null;
+  pagador_tipo: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null;
+  oportunidad: OppCorta; opp: OppCorta;
+};
+const esFicha = (x: unknown): x is FichaHoja => !!x && typeof x === "object" && "he_linea_id" in x && "mano" in x && "he" in x;
+export async function adaptarFichas<T>(datos: T): Promise<T> {
+  const fichas: FichaHoja[] = [];
+  const buscar = (x: unknown) => {
+    if (Array.isArray(x)) x.forEach(buscar);
+    else if (x && typeof x === "object") { if (esFicha(x)) fichas.push(x); Object.values(x).forEach(buscar); }
+  };
+  buscar(datos);
+  const firma = await fechasDeFirma(fichas.map((f) => versionDeFicha(f)?.id).filter((x): x is string => !!x));
+  const cambiar = (x: unknown): unknown => {
+    if (Array.isArray(x)) return x.map(cambiar);
+    if (!x || typeof x !== "object") return x;
+    if (esFicha(x)) {
+      const v = versionDeFicha(x) as (VersionHoja & { opp?: OppCorta }) | null;
+      const l = lineaDeFicha(x);
+      const { he: _he, mano: _mano, ...resto } = x as FichaHoja & Record<string, unknown>;
+      void _he; void _mano;
+      const hoja: HojaVieja | null = v ? {
+        id: v.id, numero_hoja: numeroHoja(v), fecha_firma: firma.get(v.id) ?? null, oportunidad_id: v.oportunidad_id, estado: v.estado,
+        comunidad_id: v.pagador_comunidad_id, pagador_tipo: v.pagador_tipo, pagador_contrata_id: v.pagador_contrata_id, pagador_persona_id: v.pagador_persona_id,
+        oportunidad: v.opp ?? null, opp: v.opp ?? null,
+      } : null;
+      return { ...resto, descripcion: l.concepto, importe: l.importe, es_porcentaje: l.esPorcentaje, porcentaje: l.porcentaje, hoja_encargo_id: v?.id ?? null, hoja };
+    }
+    return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, cambiar(v)]));
+  };
+  return cambiar(datos) as T;
 }
