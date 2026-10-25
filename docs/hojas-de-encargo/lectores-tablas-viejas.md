@@ -117,3 +117,19 @@ lee he_lineas_compromisos y genera hitos_cobro una vez, en el ok comercial.
 4. El SQL (funciones, vistas, triggers) antes que lo que lo usa.
 5. Puertas: botón de la opp, área comercial, agenda, viabilidad, correo de revisión → generador nuevo.
 6. Borrar: lib/hojas.ts, fases_oportunidad, el generador viejo y, tras la migración, las tablas viejas.
+
+## Lo que la migración tiene que dejar (para quien la haga)
+
+Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lector único (lib/hojasOpp.ts):
+- **he_versiones_hoja**: cada versión vieja con su codigo_he y numero_version, oportunidad, pagador_tipo + su id, comercial,
+  estado = la FASE (la pausa NO es fase), pdf, **firmada_documento_id** → el PDF firmado pasado a `documentos` (tipo «Hoja de
+  encargo», en el archivo de la opp) y **codigos_contrata** (de hojas_encargo.codigos_contrata, en la versión firmada).
+- **he_estados_hoja**: el recorrido entero. Las firmadas, con su fila **firmada_recibida con la fecha de firma real** y su
+  **ok_comercial**. movimientos_hoja pasa aquí fila a fila: a_cobro → primer_cobro, metida_produccion → ok_administracion,
+  direccion_comprobada solo vale si es posterior al último destino; pausas con areas, lado, tejado y condicion.
+- **he_lineas_compromisos**: con padre_id (árbol), bloque_id, desglose_id, se_cobra, importe, porcentaje, forma de pago
+  (establecida o propia), texto, desglosar_precios, comision_importe/acuerdo. Lo que no encaje: bloque OTRO con su texto.
+- **Correspondencia línea vieja → línea nueva**, para que cada fila de lineas_facturacion quede con **he_linea_id** = su
+  línea copiada (columna creada por facturación, migración 20261025230000). Conjunto «solo el total»: UNA línea cobrable
+  (bloque PROYECTO CONJUNTO); si en lo viejo había varias fichas de facturación para él, caso para Mónica.
+- **hitos_cobro**: los de antes se conservan; los nuevos los genera facturación en ok_comercial desde he_formas_pago_hitos.
