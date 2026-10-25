@@ -230,3 +230,29 @@ export async function hojasDeFacturacion(f: { ids?: string[]; oppId?: string; fa
     }),
   }));
 }
+
+// ------------------------------------------------------------ DE UNA FICHA (o un hito) A SU HOJA
+
+/** Lo que se pide de una ficha para saber su hoja y lo que la hoja dice de ella. Se usa embebido:
+ *  `linea:linea_facturacion_id(${SEL_FICHA_HOJA})` desde hitos_cobro, o tal cual desde lineas_facturacion. */
+export const SEL_FICHA_HOJA =
+  "id,descripcion,importe,es_porcentaje,porcentaje,emisor,origen,he_linea_id,he_version_id,bloque:bloque_id(nombre)," +
+  `he:he_linea_id(texto,importe,porcentaje,bloque:bloque_id(nombre,nombre_corto),desglose:desglose_id(nombre),version:version_id(${SEL_VERSION})),` +
+  `mano:he_version_id(${SEL_VERSION})`;
+export type FichaHoja = {
+  id: string; descripcion: string | null; importe: number | null; es_porcentaje: boolean; porcentaje: number | null; emisor: string; origen: string | null;
+  he_linea_id: string | null; he_version_id: string | null; bloque: { nombre: string } | null;
+  he: { texto: string | null; importe: number | null; porcentaje: number | null; bloque: { nombre: string; nombre_corto: string | null } | null; desglose: { nombre: string } | null; version: VersionHoja | null } | null;
+  mano: VersionHoja | null;
+};
+/** La version (la hoja) de una ficha: la de su linea, o la de la añadida a mano. */
+export const versionDeFicha = (f: FichaHoja | null | undefined): VersionHoja | null => f?.he?.version ?? f?.mano ?? null;
+/** Lo que la ficha cobra, como lo dice la hoja (o lo escrito a mano, si es añadida). */
+export function lineaDeFicha(f: FichaHoja): { concepto: string; importe: number | null; esPorcentaje: boolean; porcentaje: number | null } {
+  if (f.he) return {
+    concepto: conceptoDeLinea({ texto: f.he.texto, bloque: f.he.bloque ? { ...f.he.bloque, area: null, va_a_tecnico: false, va_a_faro: false } : null, desglose: f.he.desglose }),
+    importe: f.he.importe == null ? null : Number(f.he.importe), esPorcentaje: f.he.importe == null && f.he.porcentaje != null,
+    porcentaje: f.he.porcentaje == null ? null : Number(f.he.porcentaje),
+  };
+  return { concepto: (f.descripcion ?? "").trim() || f.bloque?.nombre || "Línea", importe: f.importe == null ? null : Number(f.importe), esPorcentaje: f.es_porcentaje, porcentaje: f.porcentaje == null ? null : Number(f.porcentaje) };
+}

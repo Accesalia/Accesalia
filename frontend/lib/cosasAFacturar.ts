@@ -25,8 +25,8 @@ import {
   conceptoDe, crearProforma, emisoraDe, enviarProforma, hitosProformables, ivaHonorarios, leerProforma, pagadorDe, type Empresa, type HitoProformable,
 } from "./proformas";
 import { pdfDeProforma } from "./pdf/ProformaDoc";
-import { enlaceFirmada } from "./hojaEncargo";
 import { TEXTO_HITO } from "./cobros";
+import { enlaceFirmadaVersion, hojasDeFacturacion, urlFirmada, type HojaFacturacion } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -62,23 +62,9 @@ export const NOMBRE_EMPRESA: Record<string, string> = { accesalia: "Accesalia", 
 
 // ------------------------------------------------------------ las hojas de una opp, con sus lineas e hitos
 
-type LineaF = { id: string; descripcion: string | null; emisor: string; importe: number | null; quitada_en: string | null;
-  hitos: { id: string; hito: string; orden: number | null; porcentaje: number | null; importe: number | null; notas: string | null; estado: string; hito_padre_id: string | null }[] };
-type HojaF = {
-  id: string; numero_hoja: string; fecha_firma: string | null; pagador_tipo: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null;
-  comunidad_id: string | null; oportunidad_id: string; codigos_contrata: Record<string, string> | null;
-  versiones: { id: string; numero_version: number; pdfs_firmados: string[] | null }[];
-  lineas: LineaF[];
-};
-const SEL_HOJA =
-  "id,numero_hoja,fecha_firma,pagador_tipo,pagador_contrata_id,pagador_persona_id,comunidad_id,oportunidad_id,codigos_contrata," +
-  "versiones:versiones_hoja!versiones_hoja_hoja_encargo_id_fkey(id,numero_version,pdfs_firmados)," +
-  "lineas:lineas_facturacion(id,descripcion,emisor,importe,quitada_en,hitos:hitos_cobro(id,hito,orden,porcentaje,importe,notas,estado,hito_padre_id))";
-
-const pdfFirmado = (h: HojaF) => {
-  const v = h.versiones.filter((x) => x.pdfs_firmados?.length).sort((a, b) => b.numero_version - a.numero_version)[0];
-  return v ? { versionId: v.id, indice: v.pdfs_firmados!.length - 1, url: `/facturacion/documento/${h.id}/${v.id}/${v.pdfs_firmados!.length - 1}` } : null;
-};
+// Hojas nuevas (dia de la migracion): la hoja es la version firmada, leida de las vistas (lib/hojasNuevas.ts).
+type HojaF = HojaFacturacion;
+const pdfFirmado = (h: HojaF) => urlFirmada(h);
 const clavePagador = (p: { tipo: string; id: string } | null) => (p ? `${p.tipo}:${p.id}` : "sin");
 
 // ------------------------------------------------------------ LA LISTA
@@ -96,10 +82,13 @@ export async function listaCosas(): Promise<FilaCosas[]> {
   const opps = [...porOpp.keys()];
   if (!opps.length) return [];
   // Lo que falta, a grandes rasgos: CIF e IBAN de la comunidad, o los codigos de la contrata.
-  const hs = (await porTramos<{ id: string; oportunidad_id: string; pagador_tipo: string | null; codigos_contrata: Record<string, string> | null;
-    comunidad: { id: string; cif_comunidad: string | null } | null; contrata: { cif: string | null; codigos_exigidos: string[] | null } | null }>(opps,
-    (t) => `hojas_encargo?select=id,oportunidad_id,pagador_tipo,codigos_contrata,comunidad:comunidad_id(id,cif_comunidad),contrata:pagador_contrata_id(cif,codigos_exigidos)&oportunidad_id=in.(${t})&estado=eq.devuelta_firmada`))
+  const crudas = (await porTramos<{ id: string; oportunidad_id: string; pagador_tipo: string | null; codigos_contrata: Record<string, string> | null;
+    comunidad_id: string | null; contrata: { cif: string | null; codigos_exigidos: string[] | null } | null }>(opps,
+    (t) => `facturacion_hojas?select=id,oportunidad_id,pagador_tipo,codigos_contrata,comunidad_id,contrata:pagador_contrata_id(cif,codigos_exigidos)&oportunidad_id=in.(${t})`))
     .filter((h) => pasadas.has(h.id));
+  const idsCom = [...new Set(crudas.map((h) => h.comunidad_id).filter((x): x is string => !!x))];
+  const cifs = new Map((idsCom.length ? await porTramos<{ id: string; cif_comunidad: string | null }>(idsCom, (t) => `comunidades?select=id,cif_comunidad&id=in.(${t})`) : []).map((c) => [c.id, c]));
+  const hs = crudas.map((h) => ({ ...h, comunidad: h.comunidad_id ? (cifs.get(h.comunidad_id) ?? { id: h.comunidad_id, cif_comunidad: null }) : null }));
   const comus = [...new Set(hs.map((h) => h.comunidad?.id).filter((x): x is string => !!x))];
   const conIban = new Set(comus.length ? (await porTramos<{ titular_id: string }>(comus, (t) => `cuentas_bancarias?select=titular_id&titular_tipo=eq.comunidad&vigente=is.true&titular_id=in.(${t})`)).map((c) => c.titular_id) : []);
   return opps.map((o) => {
@@ -155,7 +144,7 @@ export async function detalleCosas(oppId: string): Promise<DetalleCosas | null> 
   if (!opp) return null;
   const [pasadas, todas, { hitos: proximos }, condiciones, envio, cajon, plantillas, iva, emA, emD] = await Promise.all([
     hojasPasadas(),
-    leer<HojaF>(`hojas_encargo?select=${SEL_HOJA}&oportunidad_id=eq.${oppId}&estado=eq.devuelta_firmada&order=fecha_firma`),
+    hojasDeFacturacion({ oppId }),
     proximosHitos(),
     condicionesDeCobro(),
     paraEnviar(oppId).catch(() => null),
@@ -165,7 +154,7 @@ export async function detalleCosas(oppId: string): Promise<DetalleCosas | null> 
     emisoraDe("accesalia"),
     emisoraDe("daniel"),
   ]);
-  const hojas = todas.filter((h) => pasadas.has(h.id)).map((h) => ({ ...h, lineas: h.lineas.filter((l) => !l.quitada_en && (l.emisor === "accesalia" || l.emisor === "daniel_autonomo")) }));
+  const hojas = todas.filter((h) => pasadas.has(h.id));
   const ya = new Map(proximos.filter((p) => p.cuando === "ya").map((p) => [p.id, p.porQue]));
 
   // Los hitos que quedan por facturar: hojas de cada linea, sin subhitos padre, ni anulados ni cobrados.
@@ -258,7 +247,7 @@ export async function detalleCosas(oppId: string): Promise<DetalleCosas | null> 
   const hojasOut: HojaCosas[] = hojas
     .filter((h) => vivos.some((c) => c.h.id === h.id))
     .map((h) => ({
-      id: h.id, numero: h.numero_hoja, firma: h.fecha_firma, pdf: pdfFirmado(h)?.url ?? null, pagador: clavePagador(pagadorDeHoja.get(h.id) ?? null),
+      id: h.id, numero: h.numero_hoja, firma: h.fecha_firma, pdf: pdfFirmado(h), pagador: clavePagador(pagadorDeHoja.get(h.id) ?? null),
       hitos: vivos.filter((c) => c.h.id === h.id)
         .sort((a, b) => a.l.id.localeCompare(b.l.id) || (a.x.orden ?? 0) - (b.x.orden ?? 0))
         .map((c) => {
@@ -285,13 +274,13 @@ const FORMA_TXT: Record<FormaCobro, string> = { cargo_cuenta: "Cargo en cuenta",
 export async function guardarCodigo(hojaId: string, codigo: string, valor: string): Promise<void> {
   if (!uuid(hojaId)) throw new Error("Hoja no válida.");
   const [h] = await leer<{ codigos_contrata: Record<string, string> | null; contrata: { codigos_exigidos: string[] | null } | null }>(
-    `hojas_encargo?select=codigos_contrata,contrata:pagador_contrata_id(codigos_exigidos)&id=eq.${hojaId}`,
+    `he_versiones_hoja?select=codigos_contrata,contrata:pagador_contrata_id(codigos_exigidos)&id=eq.${hojaId}`,
   );
   if (!h) throw new Error("Esa hoja no existe.");
   if (!(h.contrata?.codigos_exigidos ?? []).includes(codigo)) throw new Error("La contrata no pide ese código.");
   const nuevos = { ...(h.codigos_contrata ?? {}), [codigo]: valor.trim() };
   if (!valor.trim()) delete nuevos[codigo];
-  await pedir(`hojas_encargo?id=eq.${hojaId}`, { method: "PATCH", body: JSON.stringify({ codigos_contrata: nuevos }) });
+  await pedir(`he_versiones_hoja?id=eq.${hojaId}`, { method: "PATCH", body: JSON.stringify({ codigos_contrata: nuevos }) });
 }
 
 export async function guardarCif(comunidadId: string, cif: string): Promise<void> {
@@ -403,12 +392,10 @@ export async function enviarDesdeCosas(yo: Yo, proformaId: string, e: { para: st
   if (!p) throw new Error("Esa proforma no existe.");
   const otros: { nombre: string; contenido: Uint8Array }[] = [];
   for (const hid of hojasAdjuntas.filter(uuid)) {
-    const [h] = await leer<HojaF>(`hojas_encargo?select=${SEL_HOJA}&id=eq.${hid}`);
-    const f = h && pdfFirmado(h);
-    if (!f) continue;
-    const url = await enlaceFirmada(hid, f.versionId, f.indice);
+    const [h] = await hojasDeFacturacion({ ids: [hid] });
+    const url = h ? await enlaceFirmadaVersion(hid) : null;
     const r = url ? await fetch(url, { cache: "no-store" }) : null;
-    if (r?.ok) otros.push({ nombre: `Hoja de encargo firmada ${h.numero_hoja}.pdf`, contenido: new Uint8Array(await r.arrayBuffer()) });
+    if (h && r?.ok) otros.push({ nombre: `Hoja de encargo firmada ${h.numero_hoja}.pdf`, contenido: new Uint8Array(await r.arrayBuffer()) });
   }
   await enviarProforma(yo, proformaId, e, await pdfDeProforma(p), otros);
 }
