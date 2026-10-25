@@ -167,6 +167,6 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
 6. **El árbol se construye** (padre_id con las reglas de los paquetes; «discrepo totalmente» de dejarlo plano). Lo que las
    reglas no sepan colocar, a una lista de revisión para Mónica; nada a ojo.
 
-7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): el bloque 2
-   lo enseñaba cuando no había presupuesto de la app. En lo nuevo no tiene casa: a las notas de la versión al migrar, o
-   casarlo con presupuestos (origen factusol) de la opp. Para decidir con Mónica.
+7. **Número de presupuesto de Factusol por versión** (versiones_hoja.numero_presupuesto / url_pdf_presupuesto): VACÍO en
+   las 2.423 versiones (comprobado 25-oct): no hay nada que migrar. Aparte, no de la hoja: en presupuestos hay 213 de origen
+   factusol y solo 1 enlazado a una opp (visto por el hilo de facturación).

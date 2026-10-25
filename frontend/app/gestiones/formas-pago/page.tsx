@@ -4,6 +4,9 @@ import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { formasDePago, puedeGestionarFormas } from "../../../lib/formasPago";
 import { FormasDePago } from "./FormasDePago";
+import { MarcoDinero } from "../../facturacion/MarcoDinero";
+import { puedeVerCobros } from "../../../lib/cobros";
+
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,13 @@ export default async function PaginaFormasDePago() {
   if (!yo) redirect("/entrar?volver=/gestiones/formas-pago");
   if (!puedeGestionarFormas(yo)) redirect("/menu");
   const datos = await formasDePago();
+  // Desde Cobrar (Monica, 25-oct-2026): dentro del marco del dinero, con su menu lateral; quien no lleva Cobrar, sola.
+  if (puedeVerCobros(yo))
+    return (
+      <MarcoDinero yo={yo} area="cobrar" activo="formas-pago">
+        <FormasDePago formas={datos.formas} bloques={datos.bloques} pagadores={datos.pagadores} />
+      </MarcoDinero>
+    );
   return (
     <div className="min-h-screen bg-white">
       <BarraSuperior />
