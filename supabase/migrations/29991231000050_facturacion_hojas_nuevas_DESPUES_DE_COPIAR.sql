@@ -1,24 +1,18 @@
--- FACTURACION SOBRE LAS HOJAS NUEVAS — LA MIGRACION DEL DIA (Monica, 25-oct-2026: «cero deuda tecnica»).
--- NO SE APLICA HASTA EL DIA DE LA MIGRACION de las hojas viejas a las tablas nuevas (he_*): se aplica ESE dia, despues
--- de copiar las hojas y de dejar cada ficha de facturacion mirando a su linea nueva (lineas_facturacion.he_linea_id),
--- y a la vez que se sube el codigo de la rama facturacion-hojas-nuevas.
+-- FACTURACION SOBRE LAS HOJAS NUEVAS — LA MIGRACION DEL DIA, 2 DE 2: DESPUES DE COPIAR (Monica, 25-oct-2026: «cero
+-- deuda tecnica»). Se aplica ESE dia, despues de la 1 de 2 (29991231000000_facturacion_hojas_nuevas_ANTES_DE_COPIAR.sql)
+-- y de la copia de los datos (cada ficha de facturacion ya mirando a su linea nueva, he_linea_id, o a su version,
+-- he_version_id), a la vez que se sube el codigo de la rama facturacion-hojas-nuevas. Detras van las del hilo
+-- comercial (29991231000100-000500).
 --
--- 1) Fichas y notas de facturacion dejan de estar obligadas a apuntar a una hoja vieja: las de las hojas nuevas no
---    la tienen. Las notas cuelgan de la LINEA (Monica, 24-oct).
--- 2) Una linea añadida a mano por facturacion (la app se la salto) no esta en la hoja: necesita saber de que version
---    es: lineas_facturacion.he_version_id, SOLO para esas (ok de Monica, 25-oct-2026).
--- 3) Dos VISTAS de solo lectura (una forma de mirar lo mismo, no una copia), para que todas las pantallas del dinero
+-- 1) Toda ficha apunta a algo: su linea nueva, su version (añadida a mano) o, hasta que se borren las tablas viejas,
+--    su hoja vieja.
+-- 2) Dos VISTAS de solo lectura (una forma de mirar lo mismo, no una copia), para que todas las pantallas del dinero
 --    lean la hoja nueva con los nombres de siempre:
 --      facturacion_hojas:  una fila por version firmada (la «hoja»): numero, fecha de firma, opp, pagador, fase, firmada.
 --      facturacion_lineas: la ficha de Alexandra de cada linea + lo que la hoja dice de esa linea (concepto, importe,
 --                          %, bloque). Lo de la hoja manda; lo de la ficha solo en las añadidas a mano.
--- 4) Las dos funciones del dinero (hojas_firmadas, panoramica_cobros), iguales pero leyendo las vistas.
+-- 3) Las dos funciones del dinero (hojas_firmadas, panoramica_cobros), iguales pero leyendo las vistas.
 
-alter table public.lineas_facturacion alter column hoja_encargo_id drop not null;
-alter table public.notas_facturacion alter column hoja_encargo_id drop not null;
-
--- (2) Con el ok de Monica (25-oct-2026)
-alter table public.lineas_facturacion add column he_version_id uuid references public.he_versiones_hoja(id);
 alter table public.lineas_facturacion add constraint lineas_facturacion_hoja_nueva_check
   check (he_linea_id is not null or he_version_id is not null or hoja_encargo_id is not null);
 

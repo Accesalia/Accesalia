@@ -139,8 +139,10 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
 - **Entrada en facturación:** validarFirmada (lib/hojaEmitir.ts), al pasar a ok_comercial, tiene que llamar a
   entrarEnFacturacion(versionId, yo) de lib/hojasNuevas.ts, que está en la rama facturacion-hojas-nuevas del hilo de
   facturación (crea la ficha de facturación de cada línea que se cobra y sus hitos_cobro). Se sube con la migración.
-- **Facturación** lee las vistas facturacion_hojas y facturacion_lineas (migración de su rama, 29991231000000_…, que se
-  aplica ese día después de copiar las hojas y rellenar he_linea_id).
+- **Facturación**, dos migraciones de su rama: 29991231000000_facturacion_hojas_nuevas_ANTES_DE_COPIAR.sql (crea
+  lineas_facturacion.he_version_id y quita los NOT NULL de hoja_encargo_id: la copia escribe ahí) y, después de copiar
+  las hojas y rellenar he_linea_id / he_version_id, 29991231000050_facturacion_hojas_nuevas_DESPUES_DE_COPIAR.sql (el
+  check, las vistas facturacion_hojas y facturacion_lineas, hojas_firmadas y panoramica_cobros).
 - **Tipo de documento de las firmadas viejas** (184 pedidos, 74 notas de responsabilidad, 18 contratos): DECIDIDO por
   Mónica (25-oct): van en **he_versiones_hoja.notas** («Migrada. En origen era un pedido / una nota de responsabilidad /
   un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
