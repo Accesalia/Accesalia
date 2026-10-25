@@ -141,5 +141,8 @@ Pedido por el hilo de facturación (accesalia-14) el 25-oct, y lo que lee el lec
   facturación (crea la ficha de facturación de cada línea que se cobra y sus hitos_cobro). Se sube con la migración.
 - **Facturación** lee las vistas facturacion_hojas y facturacion_lineas (migración de su rama, 29991231000000_…, que se
   aplica ese día después de copiar las hojas y rellenar he_linea_id).
-- **Tipo de documento de las firmadas viejas** (hoja de encargo / pedido / nota de responsabilidad / contrato): pendiente
-  de decidir con Mónica dónde vive en lo nuevo antes de migrar (aviso de trazabilidad del hilo de facturación).
+- **Tipo de documento de las firmadas viejas** (184 pedidos, 74 notas de responsabilidad, 18 contratos): DECIDIDO por
+  Mónica (25-oct): van en **he_versiones_hoja.notas** («Migrada. En origen era un pedido / una nota de responsabilidad /
+  un contrato»), sin campo nuevo: son de opps antiguas, incluso cerradas; si alguna necesita algo, se verá con el tiempo.
+  (El portal solo enseña opps abiertas o en pausa, así que la regla de no enseñar la nota de responsabilidad no se
+  echa de menos.)
