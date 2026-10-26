@@ -80,6 +80,20 @@ def palabras_calle(nombre_via):
 
 ALMACEN = "documentos-comerciales"
 
+# LOS QUE SOLO ESTAN EN WORD ("porque no?", Monica 26-oct): convertidos a PDF con
+# el Word de este ordenador, con la fecha del original. ruta_drive guarda el .docx.
+CONVERTIDOS = os.environ.get("VIAB_CONVERTIDOS", "")
+
+# LOS QUE CASAN CON VARIAS OPPS, decididos por ella (26-oct-2026):
+#   Palomares 75/77/79 -> la de Ferroviarios ("ok a ferroviarios");
+#   Gregorio Izquierdo 53 -> la de febrero ("lo dice el archivo", creado el 23-02-2026).
+MANUAL = {
+    "C.PALOMARES 75 MADRID 10-02-2026 INFORME DE VIABILIDAD .pdf": "2e00e663-dda5-45ad-827c-bdddd2606e20",
+    "C.PALOMARES 77 MADRID 10-02-2026 INFORME DE VIABILIDAD .pdf": "2e00e663-dda5-45ad-827c-bdddd2606e20",
+    "C.PALOMARES 79 MADRID 10-02-2026 INFORME DE VIABILIDAD .pdf": "2e00e663-dda5-45ad-827c-bdddd2606e20",
+    "INFORME DE VIABILIDAD GREGORIO IZQUIERDO 53 SSR.pdf": "9af18726-62c1-4c8a-b034-a6978de4df5f",
+}
+
 
 def es_final(f):
     return "F" in normal(os.path.splitext(f)[0]).split()
@@ -104,24 +118,33 @@ def peticion(base, metodo, camino, datos=None, tipo="application/json", extra=No
         raise RuntimeError("%s %s: %s %s" % (metodo, camino[:80], e.code, e.read().decode("utf-8", "replace")[:300]))
 
 
-def subir(base, elegidos):
-    """elegidos: [(fichero, fecha, opp)]."""
+def subir(base, elegidos, origen, pruebas):
+    """elegidos: [(fichero, fecha, opp)]. pruebas: {opp_id: [viabilidad de prueba]},
+    que se SUSTITUYEN ("pueden ser pruebas o test, yo las reemplazaria"): su
+    escaneo pasa a la historica y la de prueba se quita."""
     ya = {r["ruta_drive"] for r in base.leer("viabilidades?select=ruta_drive&ruta_drive=not.is.null")}
     hechos, fallos = 0, []
     for f, fecha, o in elegidos:
-        if f in ya:
+        local, en_drive = origen[f]
+        if en_drive in ya:
             continue
         vid = str(uuid.uuid4())
         ruta = "viabilidades/%s/%s" % (vid, limpio(f))
         cuando = datetime.datetime.combine(fecha, datetime.time(12, 0)).astimezone().isoformat()
         try:
-            with open(os.path.join(CARPETA, f), "rb") as x:
+            with open(local, "rb") as x:
                 peticion(base, "POST", "/storage/v1/object/%s/%s" % (ALMACEN, urllib.parse.quote(ruta)),
                          x.read(), "application/pdf")
             peticion(base, "POST", "/rest/v1/viabilidades", json.dumps({
                 "id": vid, "oportunidad_id": o["id"], "url_pdf": "almacen:%s/%s" % (ALMACEN, ruta),
-                "ruta_drive": f, "creado_en": cuando, "rematada_en": cuando, "enviada_en": cuando,
+                "ruta_drive": en_drive, "creado_en": cuando, "rematada_en": cuando, "enviada_en": cuando,
             }).encode("utf-8"), extra={"Prefer": "return=minimal"})
+            for vieja in pruebas.pop(o["id"], []):
+                peticion(base, "PATCH", "/rest/v1/escaneados_polycam?viabilidad_id=eq." + vieja,
+                         json.dumps({"viabilidad_id": vid}).encode("utf-8"), extra={"Prefer": "return=minimal"})
+                peticion(base, "DELETE", "/rest/v1/relacion_viabilidad_accesos?viabilidad_id=eq." + vieja)
+                peticion(base, "DELETE", "/rest/v1/viabilidades?id=eq.%s&ruta_drive=is.null&url_pdf=is.null&enviada_en=is.null" % vieja)
+                print("    sustituida la de prueba", vieja, flush=True)
             hechos += 1
             print("ok  %s -> %s" % (f, o["nombre"]), flush=True)
         except Exception as e:  # noqa: BLE001
@@ -137,7 +160,17 @@ def main():
     opps = base.leer("oportunidades?select=id,codigo,nombre,fecha_apertura&anulada_en=is.null")
     rel = base.leer("relacion_oportunidad_accesos?select=opp_id,acceso_id&hasta=is.null")
     acc = {a["id"]: a for a in base.leer("accesos?select=id,municipio,nombre_via,numero")}
-    viab = {v["oportunidad_id"] for v in base.leer("viabilidades?select=oportunidad_id")}
+    # Las que bloquean son las de verdad hechas en la app. Las historicas no
+    # (una opp puede tener varios informes: Ferroviarios + Palomares), y las de
+    # prueba -sin PDF, sin enviar, sin texto- se sustituyen.
+    viab, pruebas = set(), collections.defaultdict(list)
+    for v in base.leer("viabilidades?select=id,oportunidad_id,url_pdf,enviada_en,ruta_drive,objeto,conclusion,descripcion_intervenciones"):
+        if v["ruta_drive"]:
+            continue
+        if not (v["url_pdf"] or v["enviada_en"] or v["objeto"] or v["conclusion"] or v["descripcion_intervenciones"]):
+            pruebas[v["oportunidad_id"]].append(v["id"])
+        else:
+            viab.add(v["oportunidad_id"])
     poly = set()
     for r in base.leer("relacion_polycam_acceso?select=acceso_id"):
         poly.add(r["acceso_id"])
@@ -147,8 +180,13 @@ def main():
         if r["acceso_id"] in acc and r["opp_id"] in oppd:
             de_opp[r["opp_id"]].append(acc[r["acceso_id"]])
 
-    ficheros = sorted(f for f in os.listdir(CARPETA)
-                      if "VIABILIDAD" in normal(f) and f.lower().endswith(".pdf"))
+    origen = {f: (os.path.join(CARPETA, f), f) for f in os.listdir(CARPETA)
+              if "VIABILIDAD" in normal(f) and f.lower().endswith(".pdf")}
+    if CONVERTIDOS:
+        for f in os.listdir(CONVERTIDOS):
+            if f.lower().endswith(".pdf") and f not in origen:
+                origen[f] = (os.path.join(CONVERTIDOS, f), os.path.splitext(f)[0] + ".docx")
+    ficheros = sorted(origen)
     filas = []
     for f in ficheros:
         sin_ext = os.path.splitext(f)[0]
@@ -178,7 +216,7 @@ def main():
                 cand = con_mun
             largo = max(c[1] for c in cand)
             cand = [c for c in cand if c[1] == largo]
-        ids = sorted({c[0] for c in cand})
+        ids = [MANUAL[f]] if f in MANUAL else sorted({c[0] for c in cand})
         fecha = fecha_del_nombre(sin_ext)
         if not ids:
             filas.append((f, fecha, None, "sin opp"))
@@ -216,7 +254,7 @@ def main():
     for f, fecha, o, que in filas:
         if o and unicos[f] == 1 and o["id"] not in viab and not normal(f).startswith("COPIA DE"):
             if not fecha:
-                fecha = datetime.date.fromtimestamp(os.path.getmtime(os.path.join(CARPETA, f)))
+                fecha = datetime.date.fromtimestamp(os.path.getmtime(origen[f][0]))
             por[(o["id"], fecha)].append((f, fecha, o))
     elegidos = []
     for grupo in por.values():
@@ -230,7 +268,7 @@ def main():
     print("pdf:", len(ficheros), dict(c))
     print("se suben:", len(elegidos), "informes en", len({o["id"] for _, _, o in elegidos}), "opps")
     if "--escribir" in sys.argv:
-        subir(base, elegidos)
+        subir(base, elegidos, origen, pruebas)
     print("opps de 2026 con informe:", len(por_opp),
           " de ellas con polycam:", sum(1 for oid in por_opp if any(a["id"] in poly for a in de_opp[oid])))
     print("->", SALIDA)
