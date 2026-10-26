@@ -267,7 +267,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
               «Navegacion rapida». La primera, la cartera: /comercial/cartera. */}
           <TarjetaIndice nombre="Cartera de administradores" desc="A quién mimar y a quién llamar: cifras, etiquetas, sus opps y las que no tienen administrador" href={`/comercial/cartera${conC}`} color="verde" icono="persona"
             pie={cuadro.cartera.gestores != null ? `${cuadro.cartera.gestores} administradores` : undefined} />
-          <TarjetaIndice nombre="Oportunidades abiertas" desc="Todas las abiertas, con su barra de fases" href={aqui("oportunidades")} color="azul" icono="lista"
+          <TarjetaIndice nombre="Oportunidades abiertas" desc="Todas, una por línea: en qué punto está, cuánto lleva, último contacto; con buscador y filtros" href={`/comercial/abiertas${conC}`} color="azul" icono="lista"
             pie={`${totalAbiertas} abiertas`} />
           <TarjetaIndice nombre="Opps por fases" desc="Cuántas hay en cada fase; pincha una y ves cuáles son" href={aqui("fases")} color="turquesa" icono="bloques" />
           <TarjetaIndice nombre="Alertas" desc="Lo que se ha pasado de plazo, por cómo se desbloquea" href={aqui("alertas")} color="frambuesa" icono="aviso" />

@@ -65,6 +65,8 @@ const CORTO: Record<string, string> = {
   "Sustitución de ascensor": "SUST. ASC",
 };
 const corto = (nombre: string) => CORTO[nombre] ?? nombre.toUpperCase();
+/** Lo que quieren, en corto («ASC», «SUBV»…): tambien para la lista de opps abiertas (26-oct-2026). */
+export const cortoInteres = corto;
 
 /** El catalogo de bloques: que se cobra por defecto. */
 async function desgloses(): Promise<Map<string, string>> {
