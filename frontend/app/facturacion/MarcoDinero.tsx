@@ -23,6 +23,13 @@ import { AreasBarra, type PestanaArea } from "./AreasBarra";
 export type ItemMenu = { clave: string; titulo: string; href?: string; cuenta?: number };
 export type GrupoMenu = { titulo: string; items: ItemMenu[] };
 
+// LOS GRUPOS DEL MENU, SEPARADOS CON COLOR Y LINEAS (Monica, 26-oct-2026): como el
+// catalogo del generador de hojas (comercial/hoja-encargo/estilosArbol.ts), con sus
+// mismos colores: titulo en su color con raya debajo y linea a la izquierda de sus
+// entradas. «Más adelante» va en gris, como «otro» alli.
+const COLORES_GRUPO = ["#24476b", "#5b2a4e", "#b4532a"];
+const COLOR_LUEGO = "#5a5a5a";
+
 const hoyMadrid = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
 
 /** Lo que vence esta semana sin hacer, para el contador rojo de Pagar. */
@@ -173,28 +180,34 @@ export async function MarcoDinero({
       <div className="flex flex-1">
         {menu && (
           <aside className="w-[260px] shrink-0 border-r border-black/10 bg-white px-3.5 py-5">
-            {menu.map((g) => (
-              <div key={g.titulo} className="mb-4">
-                <div className="mx-3 mb-2 text-[11px] font-bold uppercase tracking-[.12em] text-carbon/50">{g.titulo}</div>
-                {g.items.map((it) =>
-                  it.href ? (
-                    <Link
-                      key={it.clave}
-                      href={it.href}
-                      className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[14.5px] ${activos.has(it.clave) ? "bg-[#eef7e4] font-bold text-[#2f5d14]" : "font-medium text-carbon/85 hover:bg-black/[.03]"}`}
-                    >
-                      <span>{it.titulo}</span>
-                      {it.cuenta ? <span className={`text-[12.5px] font-bold ${activos.has(it.clave) ? "text-lima-dark" : "text-carbon/55"}`}>{it.cuenta}</span> : null}
-                    </Link>
-                  ) : (
-                    <div key={it.clave} className="flex items-center justify-between gap-2 px-3 py-2 text-[14.5px] text-carbon/40" title="Se monta cuando esté su pantalla">
-                      <span>{it.titulo}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wide">luego</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            ))}
+            {menu.map((g, i) => {
+              const color = g.titulo === "Más adelante" ? COLOR_LUEGO : COLORES_GRUPO[i % COLORES_GRUPO.length];
+              return (
+                <div key={g.titulo} className="mb-5">
+                  <div className="mb-1.5 border-b-2 px-1 pb-1 text-[11px] font-extrabold uppercase tracking-[.1em]" style={{ color, borderColor: color }}>{g.titulo}</div>
+                  <div className="border-l-[3px] pl-1.5" style={{ borderColor: color }}>
+                    {g.items.map((it) =>
+                      it.href ? (
+                        <Link
+                          key={it.clave}
+                          href={it.href}
+                          className={`flex items-center justify-between gap-2 border-b border-[#cfd4c9] px-2 py-2 text-[14.5px] last:border-b-0 ${activos.has(it.clave) ? "font-bold" : "font-medium text-carbon/85 hover:bg-[#f1f5ec]"}`}
+                          style={activos.has(it.clave) ? { color, background: `color-mix(in srgb, ${color} 10%, transparent)` } : undefined}
+                        >
+                          <span>{it.titulo}</span>
+                          {it.cuenta ? <span className={`text-[12.5px] font-bold ${activos.has(it.clave) ? "" : "text-carbon/55"}`}>{it.cuenta}</span> : null}
+                        </Link>
+                      ) : (
+                        <div key={it.clave} className="flex items-center justify-between gap-2 border-b border-[#cfd4c9] px-2 py-2 text-[14.5px] text-carbon/40 last:border-b-0" title="Se monta cuando esté su pantalla">
+                          <span>{it.titulo}</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wide">luego</span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </aside>
         )}
         <main className="min-w-0 flex-1 px-8 pb-16 pt-6 text-sm">{children}</main>
