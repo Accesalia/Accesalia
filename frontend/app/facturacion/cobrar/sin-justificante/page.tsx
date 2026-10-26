@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { quienSoy } from "../../../../lib/sesion";
 import { puedeVerCobros } from "../../../../lib/cobros";
@@ -29,6 +30,12 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
         titulo="Facturas sin justificante"
         filtroInicial="sin-justificante"
         ruta="/facturacion/cobrar/sin-justificante"
+        boton={
+          // Un solo boton, sin ninguna factura marcada: a que aplica el papel se elige dentro (Monica, 26-oct-2026).
+          <Link href="/facturacion/cobrar/justificantes" className="rounded-xl bg-lima px-4 py-2 text-[14px] font-bold text-carbon hover:bg-lima-dark hover:text-white">
+            Subir justificantes
+          </Link>
+        }
       />
     </MarcoDinero>
   );

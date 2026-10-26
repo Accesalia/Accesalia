@@ -58,8 +58,8 @@ export type Cobro = { id: string; fecha: string | null; importe: number | null; 
 /** "cobrada_factura": HASTA 2023 no se descargaban los justificantes y "la
  *  factura garantiza el cobro" (Monica, 17-oct-2026): se da por cobrada. */
 export type EstadoCobro = "cobrada" | "cobrada_factura" | "parcial" | "devuelta" | "sin_justificante" | "anulada";
-/** Desde que año se guardan los justificantes de cobro (antes, manda la factura). */
-export const JUSTIFICANTES_DESDE = 2024;
+// Ya no hay excepcion por años (Monica, 26-oct-2026): lo de 2024 hacia atras lleva su justificante o su nota de
+// responsabilidad de cobro (scripts/facturacion/nota_responsabilidad_cobro_hasta_2023.py). Sin justificante, no esta cobrada.
 export type FacturaEmitida = {
   id: string;
   empresa: Empresa;
@@ -169,7 +169,7 @@ export async function facturasEmitidas(anio: number | null): Promise<FacturaEmit
     // fila sin importe leido cuenta como cobrada (hay justificante, falta leerlo).
     const estadoCobro: EstadoCobro =
       f.estado === "anulada" || f.tipo === "abono" ? "anulada"
-      : !susCobros.length ? (f.anio < JUSTIFICANTES_DESDE ? "cobrada_factura" : "sin_justificante")
+      : !susCobros.length ? "sin_justificante"
       : cobrado >= total - 1 || susCobros.some((c) => c.importe == null) ? "cobrada"
       : susCobros.some((c) => c.tipo === "devolucion") ? "devuelta"
       : "parcial";

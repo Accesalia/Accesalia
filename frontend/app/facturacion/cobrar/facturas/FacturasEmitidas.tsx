@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import type { EstadoCobro, FacturaEmitida } from "../../../../lib/facturasEmitidas";
 
@@ -33,9 +33,11 @@ const TIPO_COBRO: Record<string, string> = {
 export type Filtro = "todas" | "sin-justificante" | "devueltas" | "sin-casar" | "abonos";
 
 export function FacturasEmitidas({
-  facturas, anio, anios, titulo = "Facturas emitidas", filtroInicial = "todas", ruta = "/facturacion/cobrar/facturas",
+  facturas, anio, anios, titulo = "Facturas emitidas", filtroInicial = "todas", ruta = "/facturacion/cobrar/facturas", boton,
 }: {
   facturas: FacturaEmitida[]; anio: number | null; anios: number[]; titulo?: string; filtroInicial?: Filtro; ruta?: string;
+  /** Un boton junto al titulo (en Facturas sin justificante: entrar al area de subir justificantes). */
+  boton?: ReactNode;
 }) {
   const [empresa, setEmpresa] = useState<"las-dos" | "accesalia" | "daniel">("las-dos");
   const [filtro, setFiltro] = useState<Filtro>(filtroInicial);
@@ -71,7 +73,10 @@ export function FacturasEmitidas({
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-bold leading-tight text-carbon">{titulo}</h1>
+          <div className="flex flex-wrap items-center gap-4">
+            <h1 className="text-[28px] font-bold leading-tight text-carbon">{titulo}</h1>
+            {boton}
+          </div>
           <p className="mt-1 text-[14.5px] text-carbon/65">
             Accesalia y Daniel de Soto · {anio ?? "todos los años"} · de Factusol, con su PDF, a qué hito de qué hoja va cada una y su justificante de cobro
           </p>
@@ -88,7 +93,7 @@ export function FacturasEmitidas({
       {/* LAS TRES CIFRAS, como en «Todo lo contratado», con IVA: cobrado = justificante subido. */}
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <Cifra titulo="Emitido" valor={eur0(emitido)} sub={`${vivas.length} facturas · con IVA`} />
-        <Cifra titulo={anio != null && anio < 2024 ? "Cobrado (lo da la factura)" : "Cobrado, con justificante"} valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
+        <Cifra titulo="Cobrado, con justificante" valor={eur0(cobrado)} sub={`${emitido ? Math.round((100 * cobrado) / emitido) : 0} % de lo emitido`} />
         <Cifra
           titulo="Sin justificante de cobro"
           valor={eur0(sinJustificante.reduce((s, f) => s + f.total, 0))}

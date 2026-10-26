@@ -12,7 +12,6 @@ import "server-only";
 import type { Yo } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { puedeVerEcobalance } from "./cobros";
-import { JUSTIFICANTES_DESDE } from "./facturasEmitidas";
 import { FIRMADA } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -259,7 +258,7 @@ async function deudasDeOpps(a: Acuerdo, ops: OppBase[]): Promise<OppComision[]> 
     const f = fact.get(o) ?? nuevo();
     const clase = claseComision(l.bloque, l.descripcion);
     if (clase) fact.set(o, f);
-    if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && (x.linea.factura.anio < JUSTIFICANTES_DESDE || x.linea.factura.cobros.length > 0))))
+    if (l.hitos.some((h) => h.fl.some((x) => x.linea?.factura && x.linea.factura.estado !== "anulada" && x.linea.factura.cobros.length > 0)))
       cobradas.add(o);
     if (!clase) continue; // un servicio: no lleva comision del administrador
     const subv = clase === "subvenciones";

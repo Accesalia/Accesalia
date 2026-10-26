@@ -1,0 +1,428 @@
+<title>Subir justificantes de cobro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Area de subir justificantes (Monica y Alexandra, 26-oct-2026). Se entra desde Cobrar › Facturas sin justificante con
+   UN boton, sin ninguna factura marcada: a que aplica el papel se elige DESPUES. Flujo de Alexandra: subir el papel →
+   empresa (pestaña) → numeros de factura → fecha, tipo, lo que entra en el banco y el gasto → cuadre (±1 €) → si no
+   cuadra, completa / parcial una a una → guardar. Hasta guardar no se apunta nada.
+   Facturas: reales, sin justificante, de la base del 26-oct. El justificante de la izquierda es DE EJEMPLO.
+   Paleta y piezas de docs/guia-de-estilo.md y de la maqueta de Cosas a facturar. */
+:root {
+  --fondo: #eef5e8; --tarjeta: #ffffff; --carbon: #2b2b2b; --c70: rgba(43,43,43,.72); --c60: rgba(43,43,43,.62);
+  --borde: rgba(43,43,43,.18); --linea: rgba(43,43,43,.13); --lima: #7ac943; --lima-dark: #3f7a1c; --lima-soft: #eef7e4;
+  --sel: #e6f3d8; --hover: #f6faf2; --papel: #fbfbf9; --papel-tinta: #33352f; --papel-gris: #6b6e66;
+  --ok-bg: #f1f9e9; --ok-borde: #bfe0a1; --ok-txt: #24500c;
+  --ambar-bg: #fff8e1; --ambar-borde: #f2d48a; --ambar-txt: #6e4a06; --nuevo: #fff5cc;
+  --ajeno: #5b7fa6; --ajeno-soft: #e8eef5; --alerta: #9f3a38; --alerta-soft: #f6dfdd;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --c70: rgba(238,240,234,.78); --c60: rgba(238,240,234,.66);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.13); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #33452a; --hover: #2c3328; --papel: #f3f3ef; --papel-tinta: #33352f; --papel-gris: #6b6e66;
+  --ok-bg: #2a3a20; --ok-borde: #4d6b33; --ok-txt: #d6f0bd;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --nuevo: #403718;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --fondo: #1d2219; --tarjeta: #262c22; --carbon: #eef0ea; --c70: rgba(238,240,234,.78); --c60: rgba(238,240,234,.66);
+  --borde: rgba(238,240,234,.22); --linea: rgba(238,240,234,.13); --lima: #7ac943; --lima-dark: #9fd977; --lima-soft: #2c3a24;
+  --sel: #33452a; --hover: #2c3328; --papel: #f3f3ef; --papel-tinta: #33352f; --papel-gris: #6b6e66;
+  --ok-bg: #2a3a20; --ok-borde: #4d6b33; --ok-txt: #d6f0bd;
+  --ambar-bg: #3a3020; --ambar-borde: #7a6230; --ambar-txt: #f0d9a4; --nuevo: #403718;
+  --ajeno: #9cb8d8; --ajeno-soft: #26313d; --alerta: #f0a09d; --alerta-soft: #432826; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--carbon); font-family: var(--letra); font-size: 14px; }
+.barra { background: #2b2b2b; color: #f2f2ee; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); font-weight: 700; letter-spacing: .02em; }
+.barra span { font-weight: 500; opacity: .7; margin-left: 10px; }
+main { max-width: 1300px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.volver { color: var(--c60); font-weight: 600; text-decoration: none; font-size: 14px; }
+.volver:hover { color: var(--carbon); }
+.cabecera { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; margin-top: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--borde); }
+h1 { margin: 0; font-size: 30px; line-height: 1.15; text-wrap: balance; }
+.sub { color: var(--c70); margin: 4px 0 0; }
+.pestanas { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--borde); }
+.pestana { appearance: none; border: 1px solid transparent; border-bottom: none; background: none; color: var(--c70); font: inherit; font-weight: 700; padding: 9px 16px; border-radius: 10px 10px 0 0; cursor: pointer; margin-bottom: -1px; }
+.pestana[aria-selected="true"] { background: var(--tarjeta); border-color: var(--borde); color: var(--carbon); }
+.pestana .n { font-weight: 600; color: var(--c60); margin-left: 4px; }
+.pestana:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--lima); outline-offset: 2px; }
+
+.btn { appearance: none; font: inherit; font-weight: 700; border-radius: 12px; padding: 9px 18px; cursor: pointer; border: 1px solid var(--borde); background: var(--tarjeta); color: var(--c70); }
+.btn-ok { background: var(--lima); border-color: var(--lima); color: #1f3a0c; }
+.btn-ok:hover:not(:disabled) { background: #3f7a1c; border-color: #3f7a1c; color: #fff; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.ejemplos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 0; font-size: 13px; color: var(--c70); }
+.ejemplos button { appearance: none; font: inherit; font-size: 12.5px; font-weight: 600; border: 1px dashed var(--borde); background: transparent; color: var(--c70); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.ejemplos button[aria-pressed="true"] { border-style: solid; background: var(--tarjeta); color: var(--carbon); }
+
+/* Paso 1: soltar el papel */
+.soltar { margin-top: 18px; border: 2px dashed var(--borde); border-radius: 18px; background: var(--tarjeta); padding: 44px 20px; text-align: center; }
+.soltar strong { display: block; font-size: 18px; margin-bottom: 6px; }
+.soltar p { margin: 0; color: var(--c70); }
+.soltar .btn { margin-top: 14px; }
+
+/* Paso 2: el papel a la izquierda, lo demas a la derecha */
+.mesa { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-top: 18px; align-items: start; }
+@media (max-width: 900px) { .mesa { grid-template-columns: minmax(0, 1fr); } }
+.visor { position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; padding: 12px; }
+@media (max-width: 900px) { .visor { position: static; } }
+.visor-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--c70); margin-bottom: 10px; }
+.visor-cab b { color: var(--carbon); word-break: break-all; }
+.pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.pill-ej { background: var(--ajeno-soft); color: var(--ajeno); }
+.papel { background: var(--papel); color: var(--papel-tinta); border: 1px solid #d9dbd3; border-radius: 4px; padding: 26px 26px 34px; font-size: 12.5px; line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,.08); min-height: 520px; }
+.papel h3 { margin: 0 0 2px; font-size: 15px; letter-spacing: .04em; }
+.papel .gris { color: var(--papel-gris); }
+.papel table { border-collapse: collapse; margin: 14px 0; font-variant-numeric: tabular-nums; }
+.papel td, .papel th { padding: 4px 12px 4px 0; text-align: left; border-bottom: 1px solid #e3e4de; }
+.papel th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--papel-gris); }
+.papel .num { text-align: right; }
+.papel .neto { font-weight: 700; font-size: 14px; }
+
+.tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; padding: 16px 18px; }
+.tarjeta + .tarjeta { margin-top: 14px; }
+.titulo { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--c70); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.titulo .paso { color: var(--lima-dark); }
+.titulo .hecho { text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--c60); }
+
+.empresas { display: inline-flex; border: 1px solid var(--borde); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.empresas button { appearance: none; font: inherit; font-weight: 700; padding: 7px 18px; border: none; background: transparent; color: var(--c70); cursor: pointer; }
+.empresas button + button { border-left: 1px solid var(--borde); }
+.empresas button[aria-pressed="true"] { background: var(--carbon); color: var(--fondo); }
+
+.numeros { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 6px; max-height: 300px; overflow: auto; padding: 2px; }
+.nfac { display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--borde); border-radius: 10px; padding: 6px 9px; cursor: pointer; background: var(--tarjeta); user-select: none; }
+.nfac:hover { background: var(--hover); }
+.nfac input { position: absolute; opacity: 0; pointer-events: none; }
+.nfac b { font-variant-numeric: tabular-nums; font-size: 14.5px; }
+.nfac small { font-size: 11px; color: var(--c60); }
+.nfac.parcial small { color: var(--ambar-txt); font-weight: 600; }
+.nfac:has(input:checked) { background: var(--sel); border-color: var(--lima); box-shadow: inset 0 0 0 1px var(--lima); }
+.nfac:has(input:focus-visible) { outline: 2px solid var(--lima); outline-offset: 2px; }
+.leyenda { margin: 10px 0 0; font-size: 12.5px; color: var(--c60); }
+.elegidas { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.elegidas span { color: var(--c70); }
+
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, max-content)); gap: 12px 14px; align-items: end; }
+.campo label { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--c70); margin-bottom: 4px; }
+.campo input, .campo select { font: inherit; font-size: 14px; border: 1px solid var(--borde); border-radius: 10px; background: var(--tarjeta); color: var(--carbon); padding: 7px 10px; width: 100%; font-variant-numeric: tabular-nums; }
+.campo input.eur { text-align: right; width: 140px; }
+.campo input:focus, .campo select:focus { border-color: var(--lima); outline: none; }
+.sino { display: inline-flex; gap: 6px; }
+.sino button { appearance: none; font: inherit; font-weight: 700; border: 1px solid var(--borde); border-radius: 10px; padding: 7px 14px; background: var(--tarjeta); color: var(--c70); cursor: pointer; }
+.sino button[aria-pressed="true"] { background: var(--carbon); border-color: var(--carbon); color: var(--fondo); }
+
+.cuenta { display: grid; grid-template-columns: auto auto; justify-content: start; column-gap: 28px; row-gap: 3px; margin-top: 14px; font-variant-numeric: tabular-nums; }
+.cuenta .v { text-align: right; }
+.cuenta .raya { grid-column: 1 / -1; border-top: 1px solid var(--borde); margin: 3px 0; }
+.cuenta .fuerte { font-weight: 800; }
+
+.veredicto { margin-top: 14px; border-radius: 12px; padding: 11px 14px; font-weight: 600; }
+.veredicto.ok { background: var(--ok-bg); border: 1px solid var(--ok-borde); color: var(--ok-txt); }
+.veredicto.no { background: var(--ambar-bg); border: 1px solid var(--ambar-borde); color: var(--ambar-txt); }
+
+.tabla-wrap { overflow-x: auto; margin-top: 10px; }
+table.datos { border-collapse: collapse; width: auto; font-variant-numeric: tabular-nums; }
+table.datos th { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--c70); text-align: left; padding: 6px 14px 6px 0; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+table.datos td { padding: 7px 14px 7px 0; border-bottom: 1px solid var(--linea); white-space: nowrap; vertical-align: middle; }
+table.datos .num { text-align: right; }
+table.datos tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--lima-soft) 45%, transparent); }
+.cp { display: inline-flex; border: 1px solid var(--borde); border-radius: 9px; overflow: hidden; }
+.cp button { appearance: none; font: inherit; font-size: 12.5px; font-weight: 700; padding: 4px 11px; border: none; background: transparent; color: var(--c70); cursor: pointer; }
+.cp button + button { border-left: 1px solid var(--borde); }
+.cp button[aria-pressed="true"].c { background: var(--lima); color: #1f3a0c; }
+.cp button[aria-pressed="true"].p { background: #f2c14e; color: #3d2a00; }
+td input.eur { font: inherit; width: 110px; text-align: right; border: 1px solid var(--borde); border-radius: 8px; padding: 4px 8px; background: var(--nuevo); color: var(--carbon); font-variant-numeric: tabular-nums; }
+td .queda { color: var(--ambar-txt); font-weight: 600; }
+
+.resumen { margin-top: 14px; border-top: 1px dashed var(--borde); padding-top: 12px; }
+.resumen ul { margin: 6px 0 0; padding-left: 18px; color: var(--c70); }
+.resumen li { margin: 2px 0; }
+.resumen b { color: var(--carbon); }
+.guardado { margin-top: 14px; }
+
+.nota-maqueta { margin-top: 26px; font-size: 12.5px; color: var(--c60); max-width: 75ch; line-height: 1.5; }
+.oculto { display: none !important; }
+</style>
+
+<div class="barra">ACCESALIA <span>Cobrar</span></div>
+<main>
+  <a class="volver" href="#">← Facturas sin justificante</a>
+  <div class="cabecera">
+    <div>
+      <h1>Subir justificantes de cobro</h1>
+      <p class="sub">Sube el papel del banco o del pagador y dile a qué facturas corresponde.</p>
+    </div>
+  </div>
+
+  <div class="pestanas" role="tablist">
+    <button class="pestana" role="tab" id="tab-subir" aria-selected="true" aria-controls="panel-subir">Subir justificante</button>
+    <button class="pestana" role="tab" id="tab-parciales" aria-selected="false" aria-controls="panel-parciales">Pagos parciales <span class="n">2</span></button>
+  </div>
+
+  <!-- ===================================================== SUBIR -->
+  <section id="panel-subir" role="tabpanel" aria-labelledby="tab-subir">
+    <div class="ejemplos">Maqueta, prueba con:
+      <button type="button" data-ej="vacio" aria-pressed="false">Sin papel todavía</button>
+      <button type="button" data-ej="fain" aria-pressed="true">Confirming de FAIN (cuadra)</button>
+      <button type="button" data-ej="ros" aria-pressed="false">Transferencia de Rosersese (no cuadra)</button>
+    </div>
+
+    <div class="soltar oculto" id="soltar">
+      <strong>Arrastra aquí el justificante</strong>
+      <p>PDF o foto del ingreso, la transferencia, el confirming o el aviso de pago.</p>
+      <button class="btn" type="button" id="elegir-fichero">Elegir fichero</button>
+    </div>
+
+    <div class="mesa" id="mesa">
+      <!-- izquierda: el papel -->
+      <div class="visor">
+        <div class="visor-cab"><span>Justificante: <b id="fichero">aviso_pago_fain_oct26.pdf</b></span> <span class="pill pill-ej">De ejemplo</span></div>
+        <div class="papel" id="papel"></div>
+        <div class="acciones" style="margin-top:10px"><button class="btn" type="button" id="cambiar">Cambiar papel</button></div>
+      </div>
+
+      <!-- derecha: a quien aplica y el cuadre -->
+      <div>
+        <div class="tarjeta">
+          <h2 class="titulo"><span class="paso">1</span> ¿A qué facturas corresponde? <span class="hecho" id="cuantas-txt"></span></h2>
+          <div class="empresas" role="group" aria-label="Empresa que ha cobrado">
+            <button type="button" data-emp="accesalia" aria-pressed="true">Accesalia</button>
+            <button type="button" data-emp="daniel" aria-pressed="false">Daniel</button>
+          </div>
+          <div class="numeros" id="numeros"></div>
+          <p class="leyenda">Facturas sin justificante y cobradas en parte (con lo que queda). Marca todas las que cita el papel.</p>
+        </div>
+
+        <div class="tarjeta" id="t-cobro">
+          <h2 class="titulo"><span class="paso">2</span> El cobro</h2>
+          <div class="campos">
+            <div class="campo"><label for="f-fecha">Fecha del cobro</label><input type="date" id="f-fecha"></div>
+            <div class="campo"><label for="f-tipo">Tipo</label>
+              <select id="f-tipo"><option>Transferencia</option><option>Confirming</option><option>Cargo en cuenta</option><option>Aviso de pago</option><option>Otro</option></select></div>
+            <div class="campo"><label for="f-ingresado">Entra en el banco</label><input class="eur" id="f-ingresado" inputmode="decimal"></div>
+          </div>
+          <div class="campos" style="margin-top:12px">
+            <div class="campo"><label>¿Gastos por el cobro?</label>
+              <div class="sino" role="group" aria-label="¿Hay gastos por el cobro?">
+                <button type="button" data-gasto="no" aria-pressed="false">No</button>
+                <button type="button" data-gasto="si" aria-pressed="true">Sí</button>
+              </div></div>
+            <div class="campo" id="campo-gasto"><label for="f-gasto">Gasto (va a gastos)</label><input class="eur" id="f-gasto" inputmode="decimal"></div>
+          </div>
+
+          <div class="cuenta" id="cuenta"></div>
+          <div class="veredicto" id="veredicto"></div>
+
+          <div id="indagar" class="oculto">
+            <div class="tabla-wrap">
+              <table class="datos">
+                <thead><tr><th>Factura</th><th>Pagador</th><th class="num">Importe</th><th>Pagada</th><th class="num">Se paga ahora</th><th class="num">Queda</th></tr></thead>
+                <tbody id="filas-indagar"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="resumen" id="resumen"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== PARCIALES -->
+  <section id="panel-parciales" role="tabpanel" aria-labelledby="tab-parciales" class="oculto">
+    <div class="tarjeta" style="margin-top:18px">
+      <h2 class="titulo">Facturas cobradas en parte</h2>
+      <div class="tabla-wrap">
+        <table class="datos">
+          <thead><tr><th>Factura</th><th>Pagador</th><th class="num">Importe</th><th class="num">Cobrado</th><th class="num">Queda</th><th class="num">Justificantes</th><th>Último cobro</th></tr></thead>
+          <tbody>
+            <tr><td><b>2026/143</b> · Accesalia</td><td>CP Argentina 20, Fuenlabrada</td><td class="num">3.448,50 €</td><td class="num">1.500,00 €</td><td class="num queda">1.948,50 €</td><td class="num">1</td><td>—</td></tr>
+            <tr><td><b>2026/160</b> · Accesalia</td><td>CP Estocolmo 6, Móstoles</td><td class="num">8.687,80 €</td><td class="num">7.601,90 €</td><td class="num queda">1.085,90 €</td><td class="num">6</td><td>07/10/2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="leyenda">Cuando llega el resto, se sube su justificante en la otra pestaña: estas facturas salen en la lista con lo que queda.</p>
+    </div>
+  </section>
+
+  <p class="nota-maqueta"><b>Maqueta.</b> Las facturas, sus importes y las dos parciales son reales (base del 26-oct). El papel de la izquierda y los importes del cobro son de ejemplo. Nada se apunta hasta pulsar «Guardar justificante»: si sales antes, no queda nada. Al guardar, cada factura recibe el papel con lo que se paga de ella, su estado lo calcula la base y el gasto pasa a gastos.</p>
+</main>
+
+<script>
+(() => {
+  const EUR = (n) => n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" }) + " €";
+  const leer = (s) => { const t = String(s ?? "").trim().replace(/\s|€/g, "").replace(/\./g, "").replace(",", "."); const n = parseFloat(t); return isNaN(n) ? null : n; };
+  const ponEur = (n) => n == null ? "" : n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
+
+  // Reales: facturas sin justificante (y cobradas en parte, con lo que queda) del 26-oct-2026.
+  const FACTURAS = {
+    accesalia: [
+      [6, 7562.50, "CP Ángel Barajas 4, Pozuelo"], [93, 5142.50, "CP Parla 20, Getafe"], [96, 1452.00, "FAIN Ascensores"], [100, 907.50, "FAIN Ascensores"],
+      [120, 3327.50, "CP Santa Eduvigis 5, Madrid"], [143, 3448.50, "CP Argentina 20, Fuenlabrada", 1948.50], [152, 6534.00, "CP Isturiz 11, Madrid"],
+      [160, 8687.80, "CP Estocolmo 6, Móstoles", 1085.90], [183, 1089.00, "FAIN Ascensores"], [194, 12737.98, "Iberdrola Clientes"],
+      [208, 6968.39, "CP Av. de la Mancha 18, Leganés"], [225, 3251.88, "Elecnor"], [228, 1410.86, "Rosersese"], [249, 4731.67, "Iberdrola Clientes"],
+      [250, 11008.00, "Iberdrola Clientes"], [255, 1210.00, "Luxor Espacios"], [258, 1968.67, "Rosersese"], [269, 1968.67, "Rosersese"], [271, 605.00, "Rosersese"],
+      [275, 750.20, "FAIN Ascensores"], [276, 992.20, "FAIN Ascensores"], [278, 1210.00, "Rosersese"], [288, 1968.67, "Rosersese"], [290, 7260.00, "Elecnor"],
+      [291, 8470.00, "Elecnor"], [302, 1452.00, "CP Felipe Castro 6, Madrid"], [303, 7356.80, "CP Mirasierra 1, Fuenlabrada"], [304, 6570.30, "CP Ezequiel Solana 118, Madrid"],
+      [305, 4138.20, "CP Valmojado 169, Madrid"],
+    ],
+    daniel: [[31, 1060.00, "Rosersese"], [50, 1855.00, "Schindler"], [52, 3074.00, "Schindler"], [55, 10398.60, "Accesalia"]],
+  };
+  const clave = (emp, n) => emp + ":" + n;
+  const datos = {};
+  for (const [emp, lista] of Object.entries(FACTURAS))
+    for (const [n, total, quien, queda] of lista) datos[clave(emp, n)] = { emp, n, total, quien, pendiente: queda ?? total, parcialYa: queda != null };
+
+  const EJEMPLOS = {
+    fain: { fichero: "aviso_pago_fain_oct26.pdf", emp: "accesalia", marcadas: [96, 100, 183], fecha: "2026-10-24", tipo: "Confirming", ingresado: 3430.10, gasto: 18.40,
+      papel: { emisor: "FAIN ASCENSORES, S.A.", doc: "AVISO DE PAGO — CONFIRMING", fecha: "24/10/2026", lineas: [["1-000096 / 2026", 1452.00], ["1-000100 / 2026", 907.50], ["1-000183 / 2026", 1089.00]], gasto: ["Comisión confirming", 18.40] } },
+    ros: { fichero: "transferencia_rosersese_oct26.pdf", emp: "accesalia", marcadas: [258, 269, 271], fecha: "2026-10-23", tipo: "Transferencia", ingresado: 3000.00, gasto: null,
+      papel: { emisor: "ROSERSESE SERVICIOS INTEGRALES, S.L.", doc: "ORDEN DE TRANSFERENCIA", fecha: "23/10/2026", lineas: [["Fra. 258/2026", null], ["Fra. 269/2026", null], ["Fra. 271/2026", null]], total: 3000.00, gasto: null } },
+  };
+
+  const est = { ej: "fain", emp: "accesalia", marcadas: new Set(), gasto: true, decision: {}, parcialImp: {} };
+  const $ = (id) => document.getElementById(id);
+
+  function pintarPapel(p) {
+    const filas = p.lineas.map(([f, i]) => `<tr><td>${f}</td><td class="num">${i == null ? "" : EUR(i)}</td></tr>`).join("");
+    const bruto = p.lineas.reduce((s, [, i]) => s + (i ?? 0), 0);
+    const neto = p.total ?? bruto - (p.gasto ? p.gasto[1] : 0);
+    $("papel").innerHTML = `
+      <h3>${p.emisor}</h3><div class="gris">${p.doc}</div>
+      <p class="gris" style="margin:10px 0 0">Beneficiario: SOLUCIONES DE ACCESIBILIDAD Y ECOEFICIENCIA ACCESALIA, S.L.<br>Fecha valor: ${p.fecha}</p>
+      <table><thead><tr><th>Concepto</th><th class="num">Importe</th></tr></thead><tbody>${filas}
+      ${p.gasto ? `<tr><td>${p.gasto[0]}</td><td class="num">−${EUR(p.gasto[1])}</td></tr>` : ""}</tbody></table>
+      <div class="neto">Importe abonado: ${EUR(neto)}</div>
+      <p class="gris" style="margin-top:30px">Documento de ejemplo para la maqueta.</p>`;
+  }
+
+  function pintarNumeros() {
+    document.querySelectorAll(".empresas button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.emp === est.emp)));
+    $("numeros").innerHTML = FACTURAS[est.emp].map(([n]) => {
+      const d = datos[clave(est.emp, n)];
+      const k = clave(est.emp, n);
+      return `<label class="nfac${d.parcialYa ? " parcial" : ""}"><input type="checkbox" data-k="${k}"${est.marcadas.has(k) ? " checked" : ""}>
+        <b>${n}/2026</b><small>${d.parcialYa ? "queda " + EUR(d.pendiente) : EUR(d.total)}</small></label>`;
+    }).join("");
+  }
+
+  function elegidas() { return [...est.marcadas].map((k) => datos[k]).sort((a, b) => a.emp.localeCompare(b.emp) || a.n - b.n); }
+
+  function calcular() {
+    const sel = elegidas();
+    const ingresado = leer($("f-ingresado").value);
+    const gasto = est.gasto ? (leer($("f-gasto").value) ?? 0) : 0;
+    const suma = sel.reduce((s, d) => s + d.pendiente, 0);
+    const esperado = suma - gasto;
+    $("cuantas-txt").textContent = sel.length ? `${sel.length} marcada${sel.length > 1 ? "s" : ""} · ${EUR(suma)}` : "";
+    $("campo-gasto").classList.toggle("oculto", !est.gasto);
+    document.querySelectorAll(".sino button").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.gasto === "si") === est.gasto)));
+
+    if (!sel.length || ingresado == null) {
+      $("cuenta").innerHTML = ""; $("veredicto").className = "veredicto oculto"; $("indagar").classList.add("oculto");
+      $("resumen").innerHTML = `<button class="btn btn-ok" type="button" disabled>Guardar justificante</button>`;
+      return;
+    }
+    $("cuenta").innerHTML = `
+      <span>Suma de las facturas marcadas</span><span class="v">${EUR(suma)}</span>
+      ${est.gasto ? `<span>− Gasto por el cobro</span><span class="v">−${EUR(gasto)}</span>` : ""}
+      <span class="raya"></span>
+      <span class="fuerte">Debería entrar</span><span class="v fuerte">${EUR(esperado)}</span>
+      <span>Ha entrado</span><span class="v">${EUR(ingresado)}</span>`;
+
+    const cuadraTodo = Math.abs(esperado - ingresado) <= 1;
+    let listo = false, reparto = [];
+    if (cuadraTodo) {
+      $("veredicto").className = "veredicto ok";
+      $("veredicto").textContent = `Cuadra. ${sel.length > 1 ? "Las " + sel.length + " facturas quedan cobradas" : "La factura queda cobrada"}.`;
+      $("indagar").classList.add("oculto");
+      reparto = sel.map((d) => ({ d, paga: d.pendiente }));
+      listo = true;
+    } else {
+      // A indagar: completa o parcial, una a una. Lo que entra + el gasto tiene que repartirse entre ellas.
+      const aRepartir = ingresado + gasto;
+      for (const d of sel) { const k = clave(d.emp, d.n); if (!est.decision[k]) est.decision[k] = "c"; }
+      const filas = sel.map((d) => {
+        const k = clave(d.emp, d.n);
+        const parcial = est.decision[k] === "p";
+        const paga = parcial ? (leer(est.parcialImp[k]) ?? 0) : d.pendiente;
+        reparto.push({ d, paga, parcial });
+        return `<tr><td><b>${d.n}/2026</b></td><td>${d.quien}</td><td class="num">${EUR(d.pendiente)}</td>
+          <td><span class="cp" role="group" aria-label="¿Pagada entera o en parte?"><button type="button" class="c" data-k="${k}" data-d="c" aria-pressed="${!parcial}">Completa</button><button type="button" class="p" data-k="${k}" data-d="p" aria-pressed="${parcial}">Parcial</button></span></td>
+          <td class="num">${parcial ? `<input class="eur" data-imp="${k}" inputmode="decimal" placeholder="¿cuánto?" value="${est.parcialImp[k] ?? ""}" aria-label="Importe pagado de la ${d.n}">` : EUR(d.pendiente)}</td>
+          <td class="num">${parcial ? `<span class="queda">${EUR(Math.max(0, d.pendiente - paga))}</span>` : "—"}</td></tr>`;
+      }).join("");
+      const sumaReparto = reparto.reduce((s, r) => s + r.paga, 0);
+      const falta = aRepartir - sumaReparto;
+      listo = Math.abs(falta) <= 1 && reparto.every((r) => !r.parcial || r.paga > 0);
+      $("veredicto").className = listo ? "veredicto ok" : "veredicto no";
+      $("veredicto").innerHTML = listo
+        ? "Ahora cuadra con lo que has marcado."
+        : `No me cuadran las cifras: entran ${EUR(ingresado)}${est.gasto ? " + " + EUR(gasto) + " de gasto" : ""} y las facturas suman ${EUR(sumaReparto)}. ¿Hay alguna pagada solo en parte? ${Math.abs(falta) > 1 ? `<br><span style="font-weight:500">Diferencia: ${EUR(falta)}.</span>` : ""}`;
+      $("filas-indagar").innerHTML = filas;
+      $("indagar").classList.remove("oculto");
+      const enfocar = document.activeElement?.dataset?.imp;
+      if (enfocar) { const i = document.querySelector(`[data-imp="${enfocar}"]`); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+    }
+
+    const lis = reparto.map((r) => r.parcial
+      ? `<li><b>${r.d.n}/2026</b>: se pagan ${EUR(r.paga)} y quedan ${EUR(Math.max(0, r.d.pendiente - r.paga))} → pasa a <b>Pagos parciales</b></li>`
+      : `<li><b>${r.d.n}/2026</b>: ${EUR(r.paga)} → <b>cobrada</b></li>`).join("");
+    $("resumen").innerHTML = (listo ? `<div><b>Al guardar</b>, el papel queda apuntado en:</div><ul>${lis}${est.gasto && gasto ? `<li>Gasto de ${EUR(gasto)} → a <b>gastos</b></li>` : ""}</ul>` : "")
+      + `<div class="acciones" style="margin-top:12px"><button class="btn btn-ok" type="button" id="guardar"${listo ? "" : " disabled"}>Guardar justificante</button><button class="btn" type="button" id="cancelar">Cancelar</button></div>`
+      + `<div class="guardado oculto veredicto ok" id="guardado">Guardado (en la maqueta no se apunta nada).</div>`;
+  }
+
+  function cargar(ej) {
+    est.ej = ej; est.marcadas = new Set(); est.decision = {}; est.parcialImp = {};
+    document.querySelectorAll(".ejemplos button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.ej === ej)));
+    const vacio = ej === "vacio";
+    $("soltar").classList.toggle("oculto", !vacio);
+    $("mesa").classList.toggle("oculto", vacio);
+    if (vacio) return;
+    const e = EJEMPLOS[ej];
+    est.emp = e.emp;
+    e.marcadas.forEach((n) => est.marcadas.add(clave(e.emp, n)));
+    $("fichero").textContent = e.fichero;
+    pintarPapel(e.papel);
+    $("f-fecha").value = e.fecha; $("f-tipo").value = e.tipo; $("f-ingresado").value = ponEur(e.ingresado);
+    est.gasto = e.gasto != null; $("f-gasto").value = ponEur(e.gasto);
+    pintarNumeros(); calcular();
+  }
+
+  document.addEventListener("click", (ev) => {
+    const t = ev.target.closest("button"); if (!t) return;
+    if (t.dataset.ej) cargar(t.dataset.ej);
+    else if (t.dataset.emp) { est.emp = t.dataset.emp; pintarNumeros(); }
+    else if (t.dataset.gasto) { est.gasto = t.dataset.gasto === "si"; calcular(); }
+    else if (t.dataset.d) { est.decision[t.dataset.k] = t.dataset.d; calcular(); }
+    else if (t.id === "elegir-fichero") cargar("fain");
+    else if (t.id === "cambiar") cargar("vacio");
+    else if (t.id === "cancelar") cargar("vacio");
+    else if (t.id === "guardar") $("guardado").classList.remove("oculto");
+    else if (t.getAttribute("role") === "tab") {
+      document.querySelectorAll(".pestana").forEach((p) => p.setAttribute("aria-selected", String(p === t)));
+      $("panel-subir").classList.toggle("oculto", t.id !== "tab-subir");
+      $("panel-parciales").classList.toggle("oculto", t.id !== "tab-parciales");
+    }
+  });
+  document.addEventListener("change", (ev) => {
+    const k = ev.target.dataset?.k;
+    if (k && ev.target.type === "checkbox") { ev.target.checked ? est.marcadas.add(k) : est.marcadas.delete(k); delete est.decision[k]; calcular(); }
+  });
+  document.addEventListener("input", (ev) => {
+    if (ev.target.dataset?.imp) { est.parcialImp[ev.target.dataset.imp] = ev.target.value; calcular(); }
+    else if (["f-ingresado", "f-gasto"].includes(ev.target.id)) calcular();
+  });
+  const zona = $("soltar");
+  zona.addEventListener("dragover", (e) => { e.preventDefault(); zona.style.borderColor = "var(--lima)"; });
+  zona.addEventListener("dragleave", () => { zona.style.borderColor = ""; });
+  zona.addEventListener("drop", (e) => { e.preventDefault(); zona.style.borderColor = ""; cargar("fain"); });
+
+  cargar("fain");
+})();
+</script>
