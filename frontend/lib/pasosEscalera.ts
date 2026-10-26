@@ -71,7 +71,8 @@ export const bloqueDeFase = (f: Fase | null): number | null => (f ? (BLOQUES.fin
 export type Paso = "escaneo" | "sin_hoja" | "hoja_enviada" | "junta" | "firma" | "cobro" | "completado" | "cerrada";
 
 /** COMO SE DESBLOQUEA (Monica, 15-oct-2026). null: no es del comercial. */
-export type Accion = "admin" | "interno" | "doc" | "polycam" | "perdida";
+/** «validar»: ha llegado la hoja firmada y le toca al comercial darle su ok (Monica, 26-oct-2026: grupo propio). */
+export type Accion = "admin" | "interno" | "doc" | "polycam" | "perdida" | "validar";
 
 export type PasoEscalera = { clave: Clave; fase: Fase | null; seccion: Paso; accion: Accion | null; titulo: string };
 
@@ -91,7 +92,7 @@ export const PASOS: PasoEscalera[] = [
   { clave: "falta_que_paguen", fase: "cobro", seccion: "cobro", accion: "admin", titulo: "Proforma enviada: falta que paguen" },
   { clave: "facturacion_prepara", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Firmada: facturación prepara el primer cobro" },
   { clave: "firma_con_errores", fase: "firma", seccion: "firma", accion: "admin", titulo: "Firma con errores: devuelta para corregir" },
-  { clave: "firmada_por_validar", fase: "firma", seccion: "firma", accion: "doc", titulo: "Ha llegado la hoja firmada: falta tu ok comercial" },
+  { clave: "firmada_por_validar", fase: "firma", seccion: "firma", accion: "validar", titulo: "Ha llegado la hoja firmada: falta tu ok comercial" },
   { clave: "falta_ok_cobro_primera", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Pendiente del ok al cobro de la primera parte" },
   { clave: "junta_si_falta_firmada", fase: "firma", seccion: "firma", accion: "admin", titulo: "La junta votó sí: pendiente de que nos envíen la hoja firmada" },
   { clave: "junta_no", fase: "junta", seccion: "junta", accion: "perdida", titulo: "La junta votó que no: cerrarla como perdida" },

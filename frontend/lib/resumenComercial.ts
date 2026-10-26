@@ -113,6 +113,7 @@ export type Llamar = { quien: string; papel: string; telefono: string | null; em
 export const ACCIONES: { clave: Accion; titulo: string; sub: string }[] = [
   { clave: "admin", titulo: "Llamar o escribir al administrador", sub: "Al grabar lo que te digan, sale de alertas 5 días. Si no se mueve, vuelve." },
   { clave: "interno", titulo: "Preguntar en casa", sub: "Viabilidad, ok a la oferta o cobro: deben responder en el día." },
+  { clave: "validar", titulo: "Validar la hoja firmada", sub: "Ha llegado firmada: comprueba firma, versión y que no la han tocado, y dale tu ok." },
   { clave: "doc", titulo: "Generar el documento y enviarlo", sub: "Lo tenemos todo: no depende de nadie, hay que hacerlo." },
   { clave: "polycam", titulo: "Hacer el Polycam", sub: "Llama al contacto y cierra fecha. Si no te dan día, vas y escaneas." },
   { clave: "perdida", titulo: "Darla por perdida y cerrarla", sub: "Tres meses sin noticias, o la junta votó que no." },
@@ -151,6 +152,13 @@ export const PLAZOS = {
   juntaSinResultado: 5, // "5 por si hay festivos, que si no serian 3"
   aprobadaSinHoja: 7, // votan si y no llega la hoja firmada (Monica, 14-oct)
   firmadaSinCobro: 15,
+  // Despues de la firma, por paso (Monica, 26-oct-2026).
+  /** Ha llegado la hoja firmada y nadie le ha dado el ok comercial. */
+  firmadaSinValidar: 2,
+  /** Devuelta al pagador por firma con errores, sin volver bien firmada. */
+  firmaConErrores: 7,
+  /** Proforma (o factura) enviada y sin justificante de cobro. */
+  faltaQuePaguen: 15,
   /** Tras grabar una llamada o un mail al administrador, sale de alertas estos dias. */
   margenTrasContacto: 5,
   /** Hoja enviada sin noticias: pasa a "darla por perdida". "Un dia a dia normal,
@@ -387,8 +395,8 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
     sin_hoja: Math.min(PLAZOS.polycamSinViabilidad, PLAZOS.sinHojaEnviada),
     hoja_enviada: PLAZOS.hojaSinNoticias,
     junta: 0, // "votaron que no" no tiene plazo; la junta futura se descarta abajo
-    firma: PLAZOS.aprobadaSinHoja,
-    cobro: PLAZOS.firmadaSinCobro,
+    firma: Math.min(PLAZOS.aprobadaSinHoja, PLAZOS.firmadaSinValidar, PLAZOS.firmaConErrores),
+    cobro: Math.min(PLAZOS.firmadaSinCobro, PLAZOS.faltaQuePaguen),
   };
   const o_r = (Object.keys(MINIMO) as Seccion[]).map((k) => `and(seccion.eq.${k},desde.lt.${corte(MINIMO[k])})`).join(",");
   const f = comercialId ? `&comercial_id=eq.${comercialId}` : "";
@@ -437,11 +445,14 @@ export async function resumenComercial(comercialId: string | null): Promise<{ fi
       else if ((ultJunta ?? "") > hoyISO()) pasa = `Junta${el(ultJunta)}`;
       else pasa = `Junta${el(ultJunta)}, no sabemos qué votaron`;
     } else if (fa.paso === "firma") {
-      plazo = PLAZOS.aprobadaSinHoja;
-      pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`;
+      // Cada paso con lo suyo y su fecha (Monica, 26-oct-2026).
+      if (fa.clave === "firmada_por_validar") { plazo = PLAZOS.firmadaSinValidar; pasa = `La hoja firmada llegó${el(desde)}, falta tu ok`; }
+      else if (fa.clave === "firma_con_errores") { plazo = PLAZOS.firmaConErrores; pasa = `Devuelta por firma con errores${el(desde)}`; }
+      else { plazo = PLAZOS.aprobadaSinHoja; pasa = `Votaron sí${el(juntaSi)}, falta la hoja firmada`; }
     } else if (fa.paso === "cobro") {
-      plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación");
-      pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`;
+      if (fa.clave === "falta_que_paguen") { plazo = PLAZOS.faltaQuePaguen; pasa = `Proforma enviada${el(desde)}, falta que paguen`; }
+      else if (fa.clave === "facturacion_prepara") { plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación"); pasa = `Firmada${el(estado.fechaGanada)}, facturación prepara el cobro`; }
+      else { plazo = PLAZOS.firmadaSinCobro; enCasa = enCasaDe("facturacion", "Facturación"); pasa = `Firmada${el(estado.fechaGanada)}, sin cobrar la primera parte`; }
     }
     const diasFase = desde <= hoyISO() ? dias(desde) : 0; // una junta futura no cuenta
     let alerta = diasFase > plazo;

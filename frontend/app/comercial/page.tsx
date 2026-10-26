@@ -270,7 +270,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           <TarjetaIndice nombre="Oportunidades abiertas" desc="Todas, una por línea: en qué punto está, cuánto lleva, último contacto; con buscador y filtros" href={`/comercial/abiertas${conC}`} color="azul" icono="lista"
             pie={`${totalAbiertas} abiertas`} />
           <TarjetaIndice nombre="Opps por fases" desc="Cuántas hay en cada fase; pincha una y ves cuáles son" href={aqui("fases")} color="turquesa" icono="bloques" />
-          <TarjetaIndice nombre="Alertas" desc="Lo que se ha pasado de plazo, por cómo se desbloquea" href={aqui("alertas")} color="frambuesa" icono="aviso" />
+          <TarjetaIndice nombre="Alertas" desc="Lo que se ha pasado de plazo, por cómo se desbloquea" href={`/comercial/alertas${conC}`} color="frambuesa" icono="aviso" />
           <TarjetaIndice nombre="Agenda" desc="Lo de hoy y la semana: crea, mueve y abre tus citas" href={`/comercial/agenda${conC}`} color="ambar" icono="calendario" />
           <TarjetaIndice nombre="¿Qué hay de lo mío?" desc="Cómo voy: firmas, cobros y comisión" href={aqui("comovoy")} color="lila" icono="grafica" />
           <TarjetaIndice nombre={direccion ? "Comisiones de los comerciales" : "Mis comisiones"} desc="Lo firmado, lo cobrado y su parte, opp a opp: devengada, pagada y por pagar" href={`/comercial/comisiones${conC}`} color="bronce" icono="euro" />
