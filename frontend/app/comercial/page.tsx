@@ -29,6 +29,7 @@ import { oppsPorFases } from "../../lib/oppsPorFases";
 import { FasesConMapa } from "./FasesConMapa";
 import { HojaDelDia, diaPedido, hoyEnMadrid, vistaPedida, type Vista } from "../agenda/HojaDelDia";
 import { Salida } from "../components/Salida";
+import { IndiceSubmenu, PaginaSubmenu, TarjetaIndice } from "../components/Submenu";
 
 export const dynamic = "force-dynamic";
 
@@ -226,6 +227,60 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   // Con una fase elegida, la lista trae solo esa: el total sale de las fases.
   const totalAbiertas = faseElegida ? cuadro.agregado.reduce((t, a) => t + a.cuantas, 0) : cuadro.totalOportunidades;
 
+  // LA PORTADA DEL AREA, CON LA ESTETICA DE LOS SUBMENUS (Monica, 26-oct-2026: «la pantalla fea con las tarjetas
+  // que llevan a las areas, vamos a transformarla en el submenu actual, solo eso»). Los mismos accesos de siempre,
+  // cada uno abre su pantalla; arriba, lo que se CREA y, para direccion, el selector de cartera.
+  if (accesos) {
+    const pillOscura = (activo: boolean) =>
+      "rounded-full border px-3 py-1 text-[13px] font-semibold transition " +
+      (activo ? "border-[#a6dc7e] bg-[#a6dc7e] text-[#1f2a17]" : "border-white/15 text-[#f3f4f1]/75 hover:border-white/40 hover:text-[#f3f4f1]");
+    const crear = "inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#3a3e44] px-3.5 py-2 text-[13.5px] font-bold text-[#f3f4f1] transition hover:border-white/30";
+    return (
+      <PaginaSubmenu
+        grupo="trabajo"
+        titulo="Área comercial"
+        subtitulo={<>{todos ? "Todos los comerciales. " : <>Hola, <b className="text-[#f3f4f1]">{nombre}</b>. </>}{hoy.charAt(0).toUpperCase() + hoy.slice(1)}.</>}
+      >
+        {direccion && (
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <Link href={conComercial(null)} className={pillOscura(todos)}>Todos</Link>
+            {comerciales.map((m) => (
+              <Link key={m.id} href={conComercial(m.id)} className={pillOscura(elegido?.id === m.id)}>{m.nombre}</Link>
+            ))}
+            <Link href={conComercial(ID_FANTASMA)} className={pillOscura(esDemo) + " border-dashed"}>Fantasma · demo</Link>
+            <span className="ml-1 text-[12px] text-[#f3f4f1]/55">Este selector solo lo veis dirección y supervisión comercial.</span>
+          </div>
+        )}
+        {esDemo && (
+          <p className="mt-4 rounded-xl border border-[#f3c46a]/40 bg-[#f3c46a]/10 px-4 py-2.5 text-[13.5px] text-[#f3c46a]">
+            <b>Demostración.</b> Así se verá la pantalla de un comercial con su cartera cargada. Todo es inventado, salvo el mapa.
+          </p>
+        )}
+        {/* Las dos cosas que se CREAN (y la gestion, solo direccion). */}
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link href="/comercial/oportunidades/nueva" className={crear}><span className="text-[#a6dc7e]">+</span> Abrir nueva oportunidad</Link>
+          <Link href="/administracion/administraciones/nueva" className={crear}><span className="text-[#f2a782]">+</span> Alta de nuevo administrador</Link>
+          {direccion && <Link href="/comercial/gestion" className={crear}><span className="text-[#9cc4ee]">›</span> Gestión de oportunidades</Link>}
+        </div>
+        <IndiceSubmenu className="mt-6">
+          <TarjetaIndice nombre="Cartera de administradores" desc="Tus administradores y el mapa de dónde estás" href={aqui("administradores")} color="verde" icono="persona"
+            pie={cuadro.cartera.gestores != null ? `${cuadro.cartera.gestores} administradores` : undefined} />
+          <TarjetaIndice nombre="Oportunidades abiertas" desc="Todas las abiertas, con su barra de fases" href={aqui("oportunidades")} color="azul" icono="lista"
+            pie={`${totalAbiertas} abiertas`} />
+          <TarjetaIndice nombre="Opps por fases" desc="Cuántas hay en cada fase; pincha una y ves cuáles son" href={aqui("fases")} color="turquesa" icono="bloques" />
+          <TarjetaIndice nombre="Alertas" desc="Lo que se ha pasado de plazo, por cómo se desbloquea" href={aqui("alertas")} color="frambuesa" icono="aviso" />
+          <TarjetaIndice nombre="Agenda" desc="Lo de hoy y la semana, en agenda o calendario" href={aqui("agenda")} color="ambar" icono="calendario" />
+          <TarjetaIndice nombre="¿Qué hay de lo mío?" desc="Cómo voy: firmas, cobros y comisión" href={aqui("comovoy")} color="lila" icono="grafica" />
+          <TarjetaIndice nombre={direccion ? "Comisiones de los comerciales" : "Mis comisiones"} desc="Lo firmado, lo cobrado y su parte, opp a opp: devengada, pagada y por pagar" href={`/comercial/comisiones${conC}`} color="bronce" icono="euro" />
+          <TarjetaIndice nombre="Plantillas de mail" desc="Ver, crear y retocar: las generales y las tuyas" href="/plantillas" color="teja" icono="plantilla" />
+          <TarjetaIndice nombre="Correos enviados" desc="Lo mandado a las comunidades: cuándo, a quién y qué llevaba" href="/comercial/correos-enviados" color="azul" icono="subir" />
+          <TarjetaIndice nombre="Direcciones vistas que no llegaron a mayores" desc="Los informes emitidos sin oportunidad, con día y hora" href="/comercial/direcciones-vistas" color="turquesa" icono="lupa" />
+          <TarjetaIndice nombre="Navegación rápida" desc="La pantalla de pestañas de siempre, con todo a mano" href={aqui("agenda")} color="verde" icono="capas" />
+        </IndiceSubmenu>
+      </PaginaSubmenu>
+    );
+  }
+
   // La lista de oportunidades: la de "Oportunidades abiertas" y, filtrada, la de una fase.
   const lista = (
     <section className="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
@@ -295,11 +350,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1900px] px-6 pb-16 pt-5">
-        {accesos ? (
-          <Salida href="/menu">← Menú</Salida>
-        ) : (
-          <Salida href={`/comercial${conC}`}>← Accesos del área comercial</Salida>
-        )}
+        <Salida href={`/comercial${conC}`}>← Accesos del área comercial</Salida>
 
         {/* ---------------- cabecera ---------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -377,23 +428,7 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           </div>
         )}
 
-        {accesos ? (
-          <Accesos
-            botones={[
-              { texto: "Cartera de administradores", detalle: "Tus administradores y el mapa de dónde estás", cuantas: cuadro.cartera.gestores, donde: aqui("administradores"), icono: <IconoCartera /> },
-              { texto: "Oportunidades abiertas", detalle: "Todas las abiertas, con su barra de fases", cuantas: totalAbiertas, donde: aqui("oportunidades"), icono: <IconoOportunidad /> },
-              { texto: "Opps por fases", detalle: "Cuántas hay en cada fase; pincha una y ves cuáles son", cuantas: null, donde: aqui("fases"), icono: <IconoFases /> },
-              { texto: "Alertas", detalle: "Lo que se ha pasado de plazo, por cómo se desbloquea", cuantas: null, donde: aqui("alertas"), icono: <IconoAlerta /> },
-              { texto: "Agenda", detalle: "Lo de hoy y la semana, en agenda o calendario", cuantas: null, donde: aqui("agenda"), icono: <IconoAgenda /> },
-              { texto: "¿Qué hay de lo mío?", detalle: "Cómo voy: firmas, cobros y comisión", cuantas: null, donde: aqui("comovoy"), icono: <IconoBalanza /> },
-              { texto: direccion ? "Comisiones de los comerciales" : "Mis comisiones", detalle: "Lo firmado, lo cobrado y su parte, opp a opp: devengada, pagada y por pagar", cuantas: null, donde: `/comercial/comisiones${conC}`, icono: <IconoBalanza /> },
-              { texto: "Plantillas de mail", detalle: "Ver, crear y retocar: las generales y las tuyas", cuantas: null, donde: "/plantillas", icono: <IconoSobre /> },
-              { texto: "Correos enviados", detalle: "Lo mandado a las comunidades: cuándo, a quién y qué llevaba", cuantas: null, donde: "/comercial/correos-enviados", icono: <IconoSobre /> },
-              { texto: "Direcciones vistas que no llegaron a mayores", detalle: "Los informes emitidos sin oportunidad, con día y hora", cuantas: null, donde: "/comercial/direcciones-vistas", icono: <IconoOjo /> },
-            ]}
-            rapida={aqui("agenda")}
-          />
-        ) : (
+        {(
           <>
           {/* ----------------------- la tira de pestañas -----------------------
               Buscar una comunidad NO esta aqui: vive en la barra de arriba, en el
@@ -610,50 +645,6 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
   );
 }
 
-// LA PANTALLA DE ACCESOS (los comerciales, 12-oct-2026): al entrar en el area,
-// un boton por cosa en vez de la tira de pestañas. Es lo mismo que las
-// pestañas: cada boton abre la pantalla de siempre con la suya elegida. Las
-// pestañas no se quitan: son el ultimo boton, "Navegacion rapida", porque
-// Monica sospecha que en cuanto se hagan a la app las preferiran.
-// Mismos colores que la tira: el azul de debajo y el gris azulado de las
-// pestañas sin elegir.
-type Boton = { texto: string; detalle: string; cuantas: number | null; donde: string; icono: React.ReactNode };
-
-function Accesos({ botones, rapida }: { botones: Boton[]; rapida: string }) {
-  return (
-    <nav className="mt-6 grid gap-4 rounded-[10px] bg-[#104269] p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
-      {botones.map((b) => (
-        <Link
-          key={b.texto}
-          href={b.donde}
-          className="flex min-h-[170px] flex-col justify-between gap-3 rounded-[10px] bg-[#D8DEE5] p-4 text-[#104269] transition hover:bg-[#E4E9EE] hover:ring-2 hover:ring-[#FFCD00]"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <span className="[&>svg]:size-[30px]">{b.icono}</span>
-            {b.cuantas !== null && (
-              <span className="rounded-full bg-[#104269] px-2.5 py-0.5 text-[15px] font-bold tabular-nums text-[#FFCD00]">{b.cuantas}</span>
-            )}
-          </div>
-          <div>
-            <div className="text-[20px] font-bold leading-tight">{b.texto}</div>
-            <div className="mt-1 text-[13px] leading-snug text-[#104269]/85">{b.detalle}</div>
-          </div>
-        </Link>
-      ))}
-      <Link
-        href={rapida}
-        className="flex min-h-[170px] flex-col justify-between gap-3 rounded-[10px] border-2 border-dashed border-[#D8DEE5]/70 p-4 text-[#FFCD00] transition hover:border-[#FFCD00] hover:bg-white/5"
-      >
-        <span className="[&>svg]:size-[30px]"><IconoPestanas /></span>
-        <div>
-          <div className="text-[20px] font-bold leading-tight">Navegación rápida</div>
-          <div className="mt-1 text-[13px] leading-snug text-[#F9EDEC]">La pantalla de pestañas de siempre, con todo a mano</div>
-        </div>
-      </Link>
-    </nav>
-  );
-}
-
 // Los iconos de los botones de seccion (linea, del estilo de Lucide).
 const trazo = { fill: "none", stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
@@ -695,23 +686,7 @@ function IconoCobro() {
 }
 
 // Las plantillas de mail: un sobre.
-function IconoSobre() {
-  return (
-    <svg viewBox="0 0 24 24" {...trazo}>
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-      <path d="m22 7-10 6L2 7" />
-    </svg>
-  );
-}
 // Lo visto: un ojo.
-function IconoOjo() {
-  return (
-    <svg viewBox="0 0 24 24" {...trazo}>
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
 // Las fases: una escalera de pasos.
 function IconoFases() {
   return (
@@ -732,15 +707,6 @@ function IconoAlerta() {
   );
 }
 // La navegacion rapida: la tira de pestañas.
-function IconoPestanas() {
-  return (
-    <svg viewBox="0 0 24 24" {...trazo}>
-      <rect x="2" y="9" width="20" height="12" rx="2" />
-      <path d="M2 9V5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v4" />
-      <path d="M9 9V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
-    </svg>
-  );
-}
 
 // La balanza de "como voy de lo mio": esta pestaña no crea nada, mira.
 function IconoBalanza() {
