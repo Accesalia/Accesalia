@@ -260,7 +260,9 @@ const accesosDe = (e: EscaneoFila) => e.relacion_polycam_acceso.map((r) => r.acc
 /** Lo que Alex tiene por hacer: escaneos vinculados sin viabilidad, y las
  *  viabilidades que aun no ha mandado al comercial. Las que mas esperan, arriba. */
 export async function porHacer(): Promise<PorHacer[]> {
-  const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&order=creado_en.asc`);
+  // Los historicos traidos de Dropbox (ruta_dropbox) no son tarea de nadie: sus
+  // viabilidades ya estan hechas (Monica, 26-oct-2026).
+  const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&ruta_dropbox=is.null&order=creado_en.asc`);
   type ViabFila = { id: string; enviada_en: string | null; daniel_avisado_en: string | null; daniel_resuelto_en: string | null; fecha_visita: string | null; oportunidades: OppFila | null };
   const ids = Array.from(new Set(escaneos.map((e) => e.viabilidad_id).filter((x): x is string => !!x)));
   const viabs = ids.length
@@ -465,7 +467,7 @@ export async function mesa(id: string): Promise<Mesa | null> {
     leer<{ id: string; codigo: string; nombre: string; tiene_plano: boolean; n_renders: number }[]>(
       "modelos_escalera?select=id,codigo,nombre,tiene_plano,n_renders&activo=is.true&order=orden.asc.nullslast,codigo.asc",
     ),
-    leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&order=creado_en.asc`),
+    leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&ruta_dropbox=is.null&order=creado_en.asc`),
   ]);
 
   // Las escaleras de la viabilidad: las de sus escaneos, sin repetir.
