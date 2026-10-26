@@ -200,6 +200,9 @@ export type Datos = {
   /** Se pidio la viabilidad al arquitecto sin Polycam (solicitudes_viabilidad):
    *  hace de Polycam. El dia en que se pidio. */
   solicitud: string | null;
+  /** Alguna FACTURA de la opp (facturas.oportunidad_id) tiene justificante de cobro (Monica, 26-oct-2026: «todo lo que
+   *  tenemos con factura o cobro deberia desaparecer»): las opps antiguas cuya hoja no esta en la app, pero su factura si. */
+  facturaCobrada?: boolean;
 };
 
 /** Lo que dijo la junta que obliga a MODIFICAR LA OFERTA (Monica, 14-oct-2026:
@@ -236,9 +239,12 @@ function faltaTexto(d: Datos): Falta {
   });
 
   if (e.perdida) return { clave: "perdida", texto: "Perdida" + (e.motivoCierre ? `: ${e.motivoCierre}` : ""), extra: null };
+  // COBRADA POR SU FACTURA aunque su hoja no este en la app: la escalera va de atras adelante, y un cobro manda sobre todo.
+  if (!e.ganada && d.facturaCobrada)
+    return { clave: "primera_parte_cobrada", texto: "Cobrada: tiene factura con justificante", extra: "Su hoja no está en la app" };
   if (e.ganada) {
     if (e.cobrada) return { clave: "completado", texto: "Todo completado", extra: null };
-    if (e.primerCobro) return { clave: "primera_parte_cobrada", texto: "Primera parte cobrada: falta el resto", extra: "Ya es de facturación" };
+    if (e.primerCobro || d.facturaCobrada) return { clave: "primera_parte_cobrada", texto: "Primera parte cobrada: falta el resto", extra: "Ya es de facturación" };
     return { clave: "falta_ok_cobro_primera", texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
   }
 

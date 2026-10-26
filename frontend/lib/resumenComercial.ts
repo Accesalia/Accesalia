@@ -198,7 +198,7 @@ async function cargar(ops: OppCruda[]) {
   // antes. Con todas las carteras eran ~170 peticiones a la vez y la base las
   // atendia en cola: 3 s. Lo de las funciones y las necesidades va a la vez.
   const comunidades = [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))];
-  const [datos, funciones, necesidades, hitosVersion] = await Promise.all([
+  const [datos, funciones, necesidades, hitosVersion, facturasCobradas] = await Promise.all([
     datosAlertas(ids, comunidades, [...accesoDe.keys()]),
     // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
     // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
@@ -208,8 +208,10 @@ async function cargar(ops: OppCruda[]) {
     ).catch(() => []),
     // Lo que necesita (Polycam, viabilidad) y si se pidio la viabilidad sin Polycam.
     necesidadesDeMuchas(ids),
-    // Los cobros de lo firmado: por la ficha de facturacion de cada linea nueva.
+    // Los cobros de lo firmado: por las fichas de facturacion de cada hoja.
     hitosDeVersiones([...firmadasDe.keys()]),
+    // Las facturas de la opp con justificante (Monica, 26-oct-2026): un cobro manda, haya hoja en la app o no.
+    porTramos<{ oportunidad_id: string; cobros: { id: string }[] }>(ids, (t) => `facturas?select=oportunidad_id,cobros(id)&oportunidad_id=in.(${t})&estado=neq.anulada`).then((fs) => new Set(fs.filter((f) => f.cobros.length).map((f) => f.oportunidad_id))).catch(() => new Set<string>()),
   ]);
   const { juntas, tres, citas, viab, notas, inter, llam, admins, puestos: puestosCom, conPoly, polyViab, solicitudes } = datos;
   // la primera solicitud de cada opp
@@ -286,6 +288,7 @@ async function cargar(ops: OppCruda[]) {
       polycam: polyOpp.has(o.id), arquitecto: arquitecto.has(o.id),
       necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true, tresd: necesidades.get(o.id)?.tresd ?? false },
       solicitud: solicitudDe.get(o.id) ?? null,
+      facturaCobrada: facturasCobradas.has(o.id),
     };
     return { d, estado, hojas };
   };
