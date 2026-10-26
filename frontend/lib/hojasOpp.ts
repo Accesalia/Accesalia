@@ -183,13 +183,15 @@ export const ESPERA_FIRMADA = ["ok_daniel", "enviada", "firma_con_errores"];
  *  Y, aparte, todas las firmadas de la opp, para ver la de cada version. */
 export async function firmadasDeOpp(oppId: string): Promise<{ porValidar: DocCajon[]; todas: Map<string, DocCajon> }> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return { porValidar: [], todas: new Map() };
-  const [docs, enlazadas] = await Promise.all([
+  const [docs, versiones] = await Promise.all([
     cajonDeOpp(oppId),
-    leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&oportunidad_id=eq.${oppId}&firmada_documento_id=not.is.null`),
+    leer<{ firmada_documento_id: string | null; estado: string }[]>(`he_versiones_hoja?select=firmada_documento_id,estado&oportunidad_id=eq.${oppId}`),
   ]);
   const firmadas = docs.filter((d) => d.tipo === "Hoja de encargo firmada");
-  const usadas = new Set(enlazadas.map((e) => e.firmada_documento_id));
-  return { porValidar: firmadas.filter((d) => !usadas.has(d.id)), todas: new Map(firmadas.map((d) => [d.id, d])) };
+  const usadas = new Set(versiones.map((e) => e.firmada_documento_id).filter(Boolean));
+  // Como la escalera (Monica, 26-oct-2026): solo hay algo que validar si alguna hoja espera su firma.
+  const espera = versiones.some((v) => ESPERA_FIRMADA.includes(v.estado));
+  return { porValidar: espera ? firmadas.filter((d) => !usadas.has(d.id)) : [], todas: new Map(firmadas.map((d) => [d.id, d])) };
 }
 
 /** Con que nombre se archiva la firmada que sube la comunidad por el portal: dice de que hoja es, para que el comercial
@@ -199,7 +201,8 @@ export const nombreFirmadaPortal = (codigo: string | null, numero: number) => `H
 export type FirmadaPorValidar = { docId: string; nombre: string; subido: string; opp: { id: string; nombre: string | null; codigo: string | null; comercial: string | null } };
 
 /** Las hojas firmadas por validar de una cartera (o de todas, con comercialId vacio y todas = true): la lista de
- *  Pendientes. Misma regla que el aviso (mis_avisos.firmadas): tipo «Hoja de encargo», vigente, sin version que apunte. */
+ *  Pendientes. Misma regla que el aviso (mis_avisos.firmadas) y que la escalera (26-oct-2026): tipo «Hoja de encargo»,
+ *  vigente, sin version que apunte, y solo si alguna hoja de su opp espera su firma. */
 export async function firmadasPorValidar(comercialId: string | null, todas: boolean): Promise<FirmadaPorValidar[]> {
   if (!todas && !comercialId) return [];
   const [tipo] = await leer<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent("Hoja de encargo")}`);
@@ -209,11 +212,15 @@ export async function firmadasPorValidar(comercialId: string | null, todas: bool
       `&tipo_documento_id=eq.${tipo.id}&vigente=is.true${todas ? "" : `&opp.comercial_id=eq.${comercialId}`}&order=creado_en.asc&limit=500`,
   );
   if (!docs.length) return [];
-  const usadas = new Set(
-    (await leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&firmada_documento_id=in.(${docs.map((d) => d.id).join(",")})`)).map((x) => x.firmada_documento_id),
-  );
+  const opps = [...new Set(docs.map((d) => d.opp?.id).filter((x): x is string => !!x))];
+  const [enlazadas, esperan] = await Promise.all([
+    leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&firmada_documento_id=in.(${docs.map((d) => d.id).join(",")})`),
+    leer<{ oportunidad_id: string }[]>(`he_versiones_hoja?select=oportunidad_id&estado=in.(${ESPERA_FIRMADA.join(",")})&oportunidad_id=in.(${opps.join(",")})`),
+  ]);
+  const usadas = new Set(enlazadas.map((x) => x.firmada_documento_id));
+  const conEspera = new Set(esperan.map((x) => x.oportunidad_id));
   return docs
-    .filter((d) => d.opp && !usadas.has(d.id))
+    .filter((d) => d.opp && !usadas.has(d.id) && conEspera.has(d.opp.id))
     .map((d) => ({ docId: d.id, nombre: d.nombre ?? "documento", subido: d.creado_en, opp: { id: d.opp!.id, nombre: d.opp!.nombre, codigo: d.opp!.codigo, comercial: d.opp!.comercial?.nombre ?? null } }));
 }
 
