@@ -20,7 +20,7 @@ import { nombreDeOpp } from "./direccionOpp";
 import { pasoDe, type Accion } from "./pasosEscalera";
 import { necesidadesDeMuchas } from "./necesidadesOpp";
 export type { Accion };
-import { estaFirmada, hitosDeVersiones, hojasCrudasDe } from "./hojasOpp";
+import { cobroDeHojas, estaFirmada, firmadasSinValidarDe, hitosDeVersiones, hojasCrudasDe } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -198,7 +198,7 @@ async function cargar(ops: OppCruda[]) {
   // antes. Con todas las carteras eran ~170 peticiones a la vez y la base las
   // atendia en cola: 3 s. Lo de las funciones y las necesidades va a la vez.
   const comunidades = [...new Set(ops.map((o) => o.comunidad_id).filter((x): x is string => !!x))];
-  const [datos, funciones, necesidades, hitosVersion, facturasCobradas] = await Promise.all([
+  const [datos, funciones, necesidades, hitosVersion, facturasCobradas, cobroHoja, sinValidar] = await Promise.all([
     datosAlertas(ids, comunidades, [...accesoDe.keys()]),
     // PREGUNTAR EN CASA: el puesto, con quien lo ejerce hoy al lado (Monica,
     // 15-oct-2026: "Viabilidades (Alex)", "Facturacion (Alexandra)"). De las
@@ -212,6 +212,9 @@ async function cargar(ops: OppCruda[]) {
     hitosDeVersiones([...firmadasDe.keys()]),
     // Las facturas de la opp con justificante (Monica, 26-oct-2026): un cobro manda, haya hoja en la app o no.
     porTramos<{ oportunidad_id: string; cobros: { id: string }[] }>(ids, (t) => `facturas?select=oportunidad_id,cobros(id)&oportunidad_id=in.(${t})&estado=neq.anulada`).then((fs) => new Set(fs.filter((f) => f.cobros.length).map((f) => f.oportunidad_id))).catch(() => new Set<string>()),
+    // Despues de la firma (26-oct-2026): el justificante y lo facturado de cada hoja, y las firmadas subidas sin validar.
+    cobroDeHojas([...firmadasDe.keys()]),
+    firmadasSinValidarDe(ids),
   ]);
   const { juntas, tres, citas, viab, notas, inter, llam, admins, puestos: puestosCom, conPoly, polyViab, solicitudes } = datos;
   // la primera solicitud de cada opp
@@ -289,6 +292,8 @@ async function cargar(ops: OppCruda[]) {
       necesita: { polycam: necesidades.get(o.id)?.polycam ?? true, viabilidad: necesidades.get(o.id)?.viabilidad ?? true, tresd: necesidades.get(o.id)?.tresd ?? false },
       solicitud: solicitudDe.get(o.id) ?? null,
       facturaCobrada: facturasCobradas.has(o.id),
+      cobroHoja,
+      firmadasSinValidar: sinValidar.get(o.id) ?? 0,
     };
     return { d, estado, hojas };
   };

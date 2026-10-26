@@ -281,6 +281,58 @@ export async function cobrosDeVersiones(versionIds: string[]): Promise<{ hay: bo
   return { hay: hitos.length > 0, alguno: cobrados > 0, todos: hitos.length > 0 && cobrados === hitos.length };
 }
 
+/** EL COBRO DE CADA HOJA, como lo mira la escalera (Monica, 26-oct-2026): «la señal de cobrado es el JUSTIFICANTE de
+ *  cobro de un hito», no el hito marcado. Por hoja: si algun hito suyo tiene una factura con justificante (lo cobrado,
+ *  devoluciones restadas, pasa de 0, o hay un justificante sin importe leido), y si ya se le ha mandado algo al pagador
+ *  (una factura o una proforma emitida). Por las fichas de facturacion de la hoja («de que hoja es»). */
+export async function cobroDeHojas(versionIds: string[]): Promise<Map<string, { justificante: boolean; facturado: boolean }>> {
+  const out = new Map<string, { justificante: boolean; facturado: boolean }>();
+  type F = { estado: string; cobros: { importe: number | null }[] } | null;
+  for (let i = 0; i < versionIds.length; i += 100) {
+    const lineas = await leer<{ he_version_id: string | null; hitos: { fl: { l: { f: F } | null }[]; pl: { l: { p: { estado: string } | null } | null }[] }[] }[]>(
+      `lineas_facturacion?select=he_version_id,hitos:hitos_cobro(fl:factura_linea_hitos(l:factura_lineas(f:facturas(estado,cobros(importe)))),` +
+        `pl:proforma_linea_hitos(l:proforma_lineas(p:proformas(estado))))&he_version_id=in.(${versionIds.slice(i, i + 100).join(",")})&quitada_en=is.null`,
+    );
+    for (const l of lineas) {
+      if (!l.he_version_id) continue;
+      const x = out.get(l.he_version_id) ?? { justificante: false, facturado: false };
+      for (const h of l.hitos) {
+        for (const e of h.fl) {
+          const f = e.l?.f;
+          if (!f || f.estado === "anulada") continue;
+          x.facturado = true;
+          const cobrado = f.cobros.reduce((s, c) => s + (Number(c.importe) || 0), 0);
+          if (f.cobros.some((c) => c.importe == null) || cobrado > 0.005) x.justificante = true;
+        }
+        if (h.pl.some((e) => e.l?.p?.estado === "emitida")) x.facturado = true;
+      }
+      out.set(l.he_version_id, x);
+    }
+  }
+  return out;
+}
+
+/** Las hojas firmadas SUBIDAS y sin validar de muchas opps (documentos tipo «Hoja de encargo», vigentes, que ninguna
+ *  version apunta): cuantas por opp. Solo cuentan donde alguna hoja espera su firma (lo decide la escalera): la migracion
+ *  del 25-oct archivo copias de firmadas ya validadas sin enlazarlas (204), y no son trabajo de nadie. */
+export async function firmadasSinValidarDe(oppIds: string[]): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  if (!oppIds.length) return out;
+  const [tipo] = await leer<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent("Hoja de encargo")}`);
+  if (!tipo) return out;
+  for (let i = 0; i < oppIds.length; i += 150) {
+    const docs = await leer<{ id: string; oportunidad_id: string }[]>(
+      `documentos?select=id,oportunidad_id&tipo_documento_id=eq.${tipo.id}&vigente=is.true&oportunidad_id=in.(${oppIds.slice(i, i + 150).join(",")})`,
+    );
+    if (!docs.length) continue;
+    const usadas = new Set(
+      (await leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&firmada_documento_id=in.(${docs.map((d) => d.id).join(",")})`)).map((x) => x.firmada_documento_id),
+    );
+    for (const d of docs) if (!usadas.has(d.id)) out.set(d.oportunidad_id, (out.get(d.oportunidad_id) ?? 0) + 1);
+  }
+  return out;
+}
+
 /** Los hitos (sin los % a exito) de muchas versiones firmadas, por version: para los cobros de muchas opps de golpe. */
 export async function hitosDeVersiones(versionIds: string[]): Promise<Map<string, string[]>> {
   const out = new Map<string, string[]>();

@@ -16,7 +16,13 @@ export const CLAVES = [
   "perdida", // X
   "completado", // W
   "primera_parte_cobrada", // V
-  "falta_ok_cobro_primera", // U
+  // DESPUES DE LA FIRMA (Monica, 26-oct-2026; escalera aprobada): cobrado = JUSTIFICANTE en un hito de la hoja.
+  "cobro_hito_posterior", // se cobra al llegar a su hito (CSS...): apartado aparte, no es de la bandeja
+  "falta_que_paguen", // proforma o factura enviada sin justificante
+  "facturacion_prepara", // ok comercial dado, facturacion aun no lo ha mandado
+  "firma_con_errores", // devuelta al pagador para corregir
+  "firmada_por_validar", // ha llegado la firmada: falta el ok comercial
+  "falta_ok_cobro_primera", // U (ya no sale: la sustituyen las cuatro de arriba; se queda por el historial)
   "junta_si_falta_firmada", // T
   "junta_no", // S
   "nueva_oferta_elaborar", // I
@@ -79,6 +85,13 @@ export const PASOS: PasoEscalera[] = [
   { clave: "completado", fase: null, seccion: "completado", accion: null, titulo: "Todo completado" },
   // V: cobrada la primera parte, lo que queda es de facturacion, no del comercial.
   { clave: "primera_parte_cobrada", fase: "cobro", seccion: "completado", accion: null, titulo: "Primera parte cobrada: falta el resto" },
+  // DESPUES DE LA FIRMA (Monica, 26-oct-2026). Quien tiene la pelota: doc = el comercial, interno = un companero,
+  // admin = fuera de casa (el pagador). «Se cobra al llegar a su hito» no es de la bandeja: accion null.
+  { clave: "cobro_hito_posterior", fase: "cobro", seccion: "completado", accion: null, titulo: "Se cobra al llegar a su hito" },
+  { clave: "falta_que_paguen", fase: "cobro", seccion: "cobro", accion: "admin", titulo: "Proforma enviada: falta que paguen" },
+  { clave: "facturacion_prepara", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Firmada: facturación prepara el primer cobro" },
+  { clave: "firma_con_errores", fase: "firma", seccion: "firma", accion: "admin", titulo: "Firma con errores: devuelta para corregir" },
+  { clave: "firmada_por_validar", fase: "firma", seccion: "firma", accion: "doc", titulo: "Ha llegado la hoja firmada: falta tu ok comercial" },
   { clave: "falta_ok_cobro_primera", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Pendiente del ok al cobro de la primera parte" },
   { clave: "junta_si_falta_firmada", fase: "firma", seccion: "firma", accion: "admin", titulo: "La junta votó sí: pendiente de que nos envíen la hoja firmada" },
   { clave: "junta_no", fase: "junta", seccion: "junta", accion: "perdida", titulo: "La junta votó que no: cerrarla como perdida" },
@@ -129,8 +142,8 @@ export const ORDEN_EN_FASE: Clave[] = [
   "nueva_oferta_elaborar", "nueva_oferta_cambios", "nueva_oferta_ok", "nueva_oferta_enviar",
   "falta_fecha_junta", "nueva_oferta_decision",
   "junta_por_celebrar", "junta_que_votaron", "junta_no",
-  "junta_si_falta_firmada",
-  "falta_ok_cobro_primera", "primera_parte_cobrada",
+  "junta_si_falta_firmada", "firmada_por_validar", "firma_con_errores",
+  "facturacion_prepara", "falta_que_paguen", "cobro_hito_posterior", "falta_ok_cobro_primera", "primera_parte_cobrada",
 ];
 
 const POR_CLAVE = new Map(PASOS.map((p) => [p.clave, p]));

@@ -32,7 +32,7 @@ import { pasoDe, type Clave, type Paso } from "./pasosEscalera";
 import { BLOQUE_DE, OBRAS, SUBVENCION } from "./hojaBase";
 import { COLUMNAS_INTERES } from "./columnasInteres";
 import { aHoraMadrid } from "./citas";
-import { cobrosDeVersiones, estaFirmada, hojasCrudasDe, type HojaCruda } from "./hojasOpp";
+import { cobrosDeVersiones, ESPERA_FIRMADA, estaFirmada, hojasCrudasDe, type HojaCruda } from "./hojasOpp";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -203,7 +203,39 @@ export type Datos = {
   /** Alguna FACTURA de la opp (facturas.oportunidad_id) tiene justificante de cobro (Monica, 26-oct-2026: «todo lo que
    *  tenemos con factura o cobro deberia desaparecer»): las opps antiguas cuya hoja no esta en la app, pero su factura si. */
   facturaCobrada?: boolean;
+  /** EL COBRO DE CADA HOJA firmada (lib/hojasOpp.ts cobroDeHojas): justificante en algun hito, o ya facturada/proforma. */
+  cobroHoja?: Map<string, { justificante: boolean; facturado: boolean }>;
+  /** Hojas firmadas subidas al archivo de la opp que nadie ha validado aun (firmadasSinValidarDe). */
+  firmadasSinValidar?: number;
 };
+
+/** DESPUES DE LA FIRMA, cada hoja en su punto (Monica, 26-oct-2026; escalera aprobada), de menos a mas avanzado. */
+const POST_FIRMA: { clave: Clave; texto: string; corto: string }[] = [
+  { clave: "firmada_por_validar", texto: "Ha llegado la hoja firmada: falta tu ok comercial", corto: "falta tu ok comercial" },
+  { clave: "firma_con_errores", texto: "Firma con errores: devuelta para que la corrijan", corto: "firma con errores" },
+  { clave: "facturacion_prepara", texto: "Firmada: facturación prepara el primer cobro", corto: "facturación prepara el cobro" },
+  { clave: "falta_que_paguen", texto: "Proforma enviada: falta que paguen", corto: "falta que paguen" },
+  { clave: "cobro_hito_posterior", texto: "Se cobra al llegar a su hito", corto: "se cobra al llegar a su hito" },
+  { clave: "primera_parte_cobrada", texto: "Primera parte cobrada: falta el resto", corto: "cobrada" },
+];
+/** Las hojas aun sin firmar que siguen vivas (para el aviso de «hay mas por detras»). */
+const SIN_FIRMAR = ["pendiente_ok_daniel", "cambios_daniel", "ok_daniel", "enviada"];
+
+/** EL PUNTO DE CADA HOJA despues de la firma (indice en POST_FIRMA), o null si aun no ha llegado ahi. La señal de cobrado
+ *  es el JUSTIFICANTE en un hito de la hoja, no el hito marcado. */
+function puntoDeHoja(h: HojaCruda, d: Datos): number | null {
+  if (estaFirmada(h)) {
+    const c = d.cobroHoja?.get(h.id);
+    if (c?.justificante) return 5;
+    // Pasada «a produccion» sin cobrar (o ya metida en produccion desde ahi): se cobra en un hito posterior.
+    if (h.fase === "a_produccion" || h.fase === "ok_administracion") return 4;
+    if (c?.facturado) return 3;
+    if (h.fase === "firmada_recibida") return 0;
+    return 2;
+  }
+  if (h.fase === "firma_con_errores") return 1;
+  return null;
+}
 
 /** Lo que dijo la junta que obliga a MODIFICAR LA OFERTA (Monica, 14-oct-2026:
  *  "si piden mas presupuestos, retrasan, etc., es decision modificar oferta"). */
@@ -242,10 +274,23 @@ function faltaTexto(d: Datos): Falta {
   // COBRADA POR SU FACTURA aunque su hoja no este en la app: la escalera va de atras adelante, y un cobro manda sobre todo.
   if (!e.ganada && d.facturaCobrada)
     return { clave: "primera_parte_cobrada", texto: "Cobrada: tiene factura con justificante", extra: "Su hoja no está en la app" };
-  if (e.ganada) {
-    if (e.cobrada) return { clave: "completado", texto: "Todo completado", extra: null };
-    if (e.primerCobro || d.facturaCobrada) return { clave: "primera_parte_cobrada", texto: "Primera parte cobrada: falta el resto", extra: "Ya es de facturación" };
-    return { clave: "falta_ok_cobro_primera", texto: "Pendiente de que nos den el ok al cobro de la primera parte", extra: null };
+  // DESPUES DE LA FIRMA: cada hoja en su punto; MANDA LA MAS AVANZADA y se avisa de las que van por detras (Monica,
+  // 26-oct-2026). Una firmada subida sin validar cuenta como una hoja mas en «falta tu ok comercial», pero solo si alguna
+  // hoja espera su firma (si no, es una copia de una ya validada).
+  const puntos = d.hojas.map((h) => puntoDeHoja(h, d)).filter((p): p is number => p !== null);
+  if ((d.firmadasSinValidar ?? 0) > 0 && d.hojas.some((h) => ESPERA_FIRMADA.includes(h.fase))) puntos.push(0);
+  if (puntos.length) {
+    const arriba = Math.max(...puntos);
+    const detras = [...puntos];
+    detras.splice(detras.indexOf(arriba), 1);
+    const cuenta = new Map<string, number>();
+    for (const p of detras.filter((p) => p < arriba)) cuenta.set(POST_FIRMA[p].corto, (cuenta.get(POST_FIRMA[p].corto) ?? 0) + 1);
+    const sinFirmar = d.hojas.filter((h) => SIN_FIRMAR.includes(h.fase)).length;
+    if (sinFirmar) cuenta.set("enviada sin firmar", sinFirmar);
+    const aviso = cuenta.size ? `Hay más por detrás: ${[...cuenta].map(([t, n]) => `${n} ${n > 1 ? "hojas" : "hoja"} ${t}`).join(" · ")}` : null;
+    const p = POST_FIRMA[arriba];
+    if (p.clave === "primera_parte_cobrada" && e.cobrada && !aviso) return { clave: "completado", texto: "Todo completado", extra: null };
+    return { clave: p.clave, texto: p.texto, extra: aviso ?? (p.clave === "primera_parte_cobrada" ? "Ya es de facturación" : null) };
   }
 
   // La junta: la ultima que se apunto.
