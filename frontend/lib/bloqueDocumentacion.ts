@@ -35,6 +35,9 @@ export type ViabilidadResumen = {
   superadaPor: string | null;
   modelo: string | null;
   especifico: boolean;
+  /** Informe de antes de la app, traido del Drive (ruta_drive): solo se ve
+   *  su PDF, no se regenera (Monica, 26-oct-2026). */
+  historica: boolean;
 };
 
 /** Los presupuestos hechos en la app (10-oct-2026): PR-año-numero o borrador. */
@@ -56,9 +59,9 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
   const [viabs, fotos, deLaApp, hojasNuevas, firmadas] = await Promise.all([
     leer<{
       id: string; numero: string | null; version: number; url_pdf: string | null; enviada_en: string | null; rematada_en: string | null; con_honorarios: boolean;
-      necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
+      ruta_drive: string | null; necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
     }[]>(
-      `viabilidades?select=id,numero,version,url_pdf,enviada_en,rematada_en,con_honorarios,necesita_3d_especifico,redacta:redacta_id(nombre),` +
+      `viabilidades?select=id,numero,version,url_pdf,enviada_en,rematada_en,con_honorarios,ruta_drive,necesita_3d_especifico,redacta:redacta_id(nombre),` +
         `modelo:modelo_escalera_id(codigo,nombre)&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
     ),
     // Si las fotos fallan, la documentacion se sigue viendo.
@@ -87,6 +90,7 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
         superadaPor: superada,
         modelo: v.modelo ? `${v.modelo.codigo} · ${v.modelo.nombre}` : null,
         especifico: v.necesita_3d_especifico,
+        historica: !!v.ruta_drive,
       }
     : null;
 

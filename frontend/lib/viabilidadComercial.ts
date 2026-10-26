@@ -309,8 +309,8 @@ export async function generarViabilidad(id: string, yo: Yo): Promise<string> {
 
 /** El PDF guardado, para abrirlo. */
 export async function pdfGuardado(id: string): Promise<{ pdf: ArrayBuffer; nombre: string; oppId: string | null } | null> {
-  const [v] = await leer<{ url_pdf: string | null; numero: string | null; version: number; oportunidad_id: string | null }[]>(
-    `viabilidades?select=url_pdf,numero,version,oportunidad_id&id=eq.${id}`,
+  const [v] = await leer<{ url_pdf: string | null; numero: string | null; version: number; oportunidad_id: string | null; ruta_drive: string | null }[]>(
+    `viabilidades?select=url_pdf,numero,version,oportunidad_id,ruta_drive&id=eq.${id}`,
   );
   if (!v?.url_pdf?.startsWith("almacen:")) return null;
   const f = await fetch(`${URL_BASE}/storage/v1/object/${v.url_pdf.slice("almacen:".length)}`, { headers: CAB, cache: "no-store" });
@@ -318,15 +318,18 @@ export async function pdfGuardado(id: string): Promise<{ pdf: ArrayBuffer; nombr
   // Si la app la firmo (el ok a la oferta), sale la firmada.
   const pdf = new Uint8Array(await f.arrayBuffer());
   const firmada = await firmadoDe(pdf);
-  return { pdf: (firmada ?? pdf).slice().buffer, nombre: `Viabilidad ${v.numero ?? ""} v${v.version}.pdf`, oppId: v.oportunidad_id };
+  // Las historicas, con el nombre que tenian en el Drive.
+  const nombre = v.ruta_drive ? v.ruta_drive.split("/").pop()! : `Viabilidad ${v.numero ?? ""} v${v.version}.pdf`;
+  return { pdf: (firmada ?? pdf).slice().buffer, nombre, oppId: v.oportunidad_id };
 }
 
 /** La viabilidad viva de una oportunidad (la ultima), para el boton de su ficha. */
-export async function viabilidadDeOpp(oppId: string): Promise<{ id: string; numero: string | null; version: number; generada: boolean } | null> {
-  const [v] = await leer<{ id: string; numero: string | null; version: number; url_pdf: string | null }[]>(
-    `viabilidades?select=id,numero,version,url_pdf&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
+export async function viabilidadDeOpp(oppId: string): Promise<{ id: string; numero: string | null; version: number; generada: boolean; historica: string | null } | null> {
+  const [v] = await leer<{ id: string; numero: string | null; version: number; url_pdf: string | null; ruta_drive: string | null; rematada_en: string | null }[]>(
+    `viabilidades?select=id,numero,version,url_pdf,ruta_drive,rematada_en&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
   );
-  return v ? { id: v.id, numero: v.numero, version: v.version, generada: !!v.url_pdf } : null;
+  // historica: la fecha del informe traido del Drive (26-oct-2026), o null.
+  return v ? { id: v.id, numero: v.numero, version: v.version, generada: !!v.url_pdf, historica: v.ruta_drive ? (v.rematada_en ?? "") : null } : null;
 }
 
 /** De que comunidad es, para el permiso. */

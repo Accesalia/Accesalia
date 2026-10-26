@@ -289,8 +289,12 @@ export default async function GestionOportunidad({
               viabilidad={
                 viabilidad
                   ? {
-                      href: `/comercial/viabilidad/${viabilidad.id}`,
-                      rotulo: `Viabilidad${viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"}`,
+                      // La historica (traida del Drive, 26-oct-2026) abre su PDF.
+                      href: viabilidad.historica !== null ? `/comercial/viabilidad/${viabilidad.id}/pdf` : `/comercial/viabilidad/${viabilidad.id}`,
+                      rotulo:
+                        viabilidad.historica !== null
+                          ? `Viabilidad${viabilidad.historica ? ` del ${new Date(viabilidad.historica).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}` : " (histórica)"}`
+                          : `Viabilidad${viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"}`,
                     }
                   : null
               }

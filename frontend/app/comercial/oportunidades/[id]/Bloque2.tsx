@@ -102,6 +102,8 @@ export function Bloque2({
               <>En la mesa de Alex{v.redacta && ` · ${v.redacta}`}</>
             ) : v.fase === "rematar" ? (
               <>Alex ha terminado su parte · <b>falta rematarla</b></>
+            ) : v.historica ? (
+              <>Histórica{v.generadaEl && ` · del ${fecha(v.generadaEl)}`}</>
             ) : (
               <>
                 Generada · {v.numero} v{v.version}
@@ -121,7 +123,7 @@ export function Bloque2({
               ver
             </a>
           )}
-          {v && (
+          {v && !v.historica && (
             <Link href={`/comercial/viabilidad/${v.id}`} className={ENLACE}>
               {v.fase === "generada" ? "abrir · generar de nuevo" : v.fase === "rematar" ? "rematar y generar" : "abrir"}
             </Link>
