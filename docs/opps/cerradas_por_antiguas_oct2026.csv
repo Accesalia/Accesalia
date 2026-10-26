@@ -1,0 +1,518 @@
+﻿grupo;codigo;nombre;apertura
+cerrar;DAN-2014-004;Monforte de Lemos 69, Madrid (avenida);2014-05-21
+cerrar;DAN-2015-001;Rafael Finat 87, Madrid;2015-01-02
+cerrar;DAN-2015-013;Esmeralda 12, Madrid;2015-02-02
+cerrar;DAN-2022-218;General Ricardos 232, Madrid;2015-03-08
+cerrar;DAN-2015-028;Dos de Mayo 6, Madrid;2015-04-01
+cerrar;DAN-2015-035;Velez Rubio 195, Madrid;2015-04-27
+cerrar;DAN-2015-074;Tucurinca 4, Madrid;2015-10-16
+cerrar;DAN-2015-084;Diamante 29, Madrid;2015-11-01
+cerrar;DAN-2015-094;Quince de Agosto 7, Madrid;2015-11-19
+cerrar;DAN-2015-102;Etruria 43, Madrid;2015-12-01
+cerrar;DAN-2016-010;Encarnacion Oviol 50, Madrid;2016-01-21
+cerrar;DAN-2016-016;Sierra Contraviesa 54, Madrid;2016-01-27
+cerrar;DAN-2016-020;Juan Español 32, Madrid;2016-02-04
+cerrar;DAN-2016-033;Leñeros 44 y 46, Madrid;2016-02-11
+cerrar;DAN-2016-050;Genserico 7, Madrid;2016-02-23
+cerrar;DAN-2016-064;Jacobinia 86, Madrid;2016-03-11
+cerrar;DAN-2016-072;Gandhi 5, Madrid;2016-04-01
+cerrar;DAN-2016-074;Morando 2, Madrid;2016-04-04
+cerrar;DAN-2016-078;Valmojado 283, Madrid;2016-04-25
+cerrar;DAN-2016-084;Cerro de la Alcazaba 19, Madrid;2016-05-01
+cerrar;DAN-2016-085;San Dimas 15, Madrid;2016-05-02
+cerrar;DAN-2016-115;Monforte de Lemos 151, Madrid (avenida);2016-06-21
+cerrar;DAN-2016-122;Concha Espina 19, Madrid (avenida);2016-07-01
+cerrar;DAN-2016-133;Blasco de Garay 46, Madrid;2016-09-01
+cerrar;DAN-2016-141;Rafael Salazar Alonso 7, Madrid;2016-09-11
+cerrar;DAN-2016-140;Toboso 136, Madrid;2016-09-11
+cerrar;DAN-2016-156;General Diaz Porlier 27, Madrid;2016-09-28
+cerrar;DAN-2016-166;Villasandino 22, Madrid;2016-09-30
+cerrar;DAN-2016-170;Luis Ruiz 86, Madrid;2016-10-05
+cerrar;DAN-2016-173;Apostol Santiago 49, Madrid;2016-10-10
+cerrar;DAN-2016-180;Galiana 28, Madrid;2016-10-25
+cerrar;DAN-2016-194;Luis Ruiz 82, Madrid;2016-11-06
+cerrar;DAN-2016-200;Boldano 10, Madrid;2016-11-11
+cerrar;DAN-2016-214;Francisco Guzman 1, Madrid;2016-12-19
+cerrar;DAN-2017-003;Federico Gutierrez 24, Madrid;2017-01-01
+cerrar;DAN-2017-017;Alcalde Sainz de Baranda 89, Madrid;2017-02-01
+cerrar;DAN-2017-024;Alcaudon 41, Madrid;2017-02-08
+cerrar;DAN-2017-026;Carolina Coronado 37, Madrid;2017-02-17
+cerrar;DAN-2017-051;Jaime Hermida 20, Madrid;2017-03-30
+cerrar;DAN-2017-053;Lago de Constanza 46, Madrid;2017-04-04
+cerrar;DAN-2017-054;Mercedes Arteaga 50, Madrid;2017-04-05
+cerrar;DAN-2017-057;Gran Via 62, Madrid;2017-04-08
+cerrar;DAN-2017-067;Cordillera de Cuera 3, Madrid;2017-04-25
+cerrar;DAN-2017-075;Toboso 134, Madrid;2017-05-08
+cerrar;DAN-2017-085;Molina 63, Madrid;2017-05-16
+cerrar;DAN-2017-084;Jose Abascal 16, Madrid;2017-05-16
+cerrar;DAN-2017-093;Granero 9, San Sebastian de los Reyes;2017-05-29
+cerrar;DAN-2017-097;Espalter 13, Madrid;2017-05-31
+cerrar;DAN-2017-099;Pobla de Segur 11, Madrid;2017-06-05
+cerrar;DAN-2017-133;Bravo Murillo 28, Madrid;2017-10-03
+cerrar;DAN-2017-174;Luis Piernas 34, Madrid;2017-12-13
+cerrar;DAN-2018-013;Montejurra 13, Madrid;2018-02-09
+cerrar;DAN-2018-014;Tajuya 2, Madrid;2018-02-09
+cerrar;DAN-2018-016;Villa de Churriana 13, Madrid;2018-02-19
+cerrar;DAN-2018-037;Jose Noriega 9, Madrid;2018-03-23
+cerrar;DAN-2018-038;Nuestra Señora del Villar 55, Madrid;2018-03-23
+cerrar;DAN-2018-039;Sor Maria de Agreda 24, Madrid;2018-03-23
+cerrar;DAN-2018-040;Bailen 43, Madrid;2018-03-29
+cerrar;DAN-2018-049;Arroyo del Opañel 9, Madrid;2018-04-16
+cerrar;DAN-2018-052;Barbara de Braganza 12, Madrid;2018-05-01
+cerrar;DAN-2018-077;Pensamiento 24, Madrid;2018-09-02
+cerrar;DAN-2018-086;Iriarte 27, Madrid;2018-10-05
+cerrar;DAN-2018-105;Nuestra Señora de los Angeles 8, Leganes;2018-12-13
+cerrar;DAN-2019-011;San Basilio 24, Madrid;2019-01-28
+cerrar;DAN-2019-013;Almuñecar 6 y 7, Madrid (plaza);2019-02-20
+cerrar;DAN-2019-019;Segovia 18, Torrejon de Ardoz;2019-04-09
+cerrar;DAN-2019-025;Jerusalen 16, Parla;2019-06-06
+cerrar;DAN-2019-041;Vallehermoso 94, Madrid;2019-07-12
+cerrar;DAN-2019-053;Julian Besteiro 15 escalera G, Madrid;2019-10-28
+cerrar;DAN-2019-059;Arturo Soria 244, Madrid;2019-11-05
+cerrar;DAN-2019-071;Modesto Lafuente 21, Madrid;2019-11-29
+cerrar;DAN-2019-072;Portugalete 25, Madrid;2019-11-29
+cerrar;DAN-2020-001;Leopoldo Gimeno 16, San Sebastian de los Reyes;2020-01-01
+cerrar;DAN-2020-002;Antonio Casero 16, Madrid;2020-01-08
+cerrar;DAN-2020-018;Villaamil 64, Madrid;2020-02-25
+cerrar;DAN-2020-020;Sirio 36, Madrid;2020-03-02
+cerrar;DAN-2020-034;Belgrado 1, Torrejon de Ardoz;2020-06-24
+cerrar;DAN-2021-009;San Donato 1, Madrid;2021-02-01
+cerrar;DAN-2021-022;Juan Boscan 57, Madrid;2021-02-24
+cerrar;DAN-2021-040;Maria de Guzman 42, Madrid;2021-04-15
+cerrar;DAN-2021-039;Dolores Armengot 31, Madrid;2021-04-15
+cerrar;DAN-2021-055;Muller 31, Madrid;2021-05-11
+cerrar;DAN-2021-056;Ezequiel Solana 18, Madrid;2021-05-12
+cerrar;DAN-2021-058;Horno Labradores 13, Madrid;2021-05-19
+cerrar;DAN-2021-061;Juan Pradillo 15, Madrid;2021-05-25
+cerrar;DAN-2021-071;Encomienda de Palacios 60, Madrid;2021-06-22
+cerrar;DAN-2021-074;Belzunegui 52, Madrid;2021-07-01
+cerrar;DAN-2021-085;Pedro Jimenez 8, Madrid;2021-08-06
+cerrar;DAN-2021-087;Rafael Calvo 5, Madrid;2021-08-06
+cerrar;DAN-2021-098;Hernandez Iglesias 5, Madrid;2021-09-28
+cerrar;DAN-2021-100;Manuel Maria Iglesias 2, Madrid;2021-09-30
+cerrar;DAN-2021-118;San Jaime 2, Madrid;2021-11-05
+cerrar;DAN-2021-120;Arroyo Fontarron 121, Madrid;2021-11-15
+cerrar;DAN-2022-050;Escalonilla 17, Madrid;2022-01-11
+cerrar;DAN-2022-059;Arturo Soria 7, Madrid;2022-01-19
+cerrar;DAN-2022-060;Hellin 19, Madrid (avenida);2022-01-19
+cerrar;DAN-2022-066;Silicio 23, Torrejon de Ardoz;2022-01-19
+cerrar;DAN-2022-062;Chile 5, Torrejon de Ardoz;2022-01-19
+cerrar;DAN-2022-068;Agustin de Foxa 19, Madrid;2022-01-21
+cerrar;DAN-2022-074;Acacias 59, Madrid (paseo);2022-02-01
+cerrar;DAN-2022-100;Cardenal Herrera Oria 260, Madrid (avenida);2022-02-28
+cerrar;DAN-2022-102;Valderribas 38, Madrid (camino);2022-03-01
+cerrar;DAN-2022-107;Torrelaguna 6, Alcala de Henares;2022-03-01
+cerrar;DAN-2022-111;Marques de Cubas 6, Madrid;2022-03-04
+cerrar;DAN-2022-109;Alfonso X el Sabio 44, Parla;2022-03-04
+cerrar;DAN-2022-114;Rueza 32, Madrid;2022-03-14
+cerrar;DAN-2022-120;Hermanos del Moral 75, Madrid;2022-03-22
+cerrar;DAN-2022-121;Lorca 8, Madrid;2022-03-23
+cerrar;DAN-2022-124;De las Ciudades 8, Parla;2022-03-31
+cerrar;DAN-2022-130;Alcorcon 7, Parla;2022-04-04
+cerrar;DAN-2022-131;Luis Ruiz 111, Madrid;2022-04-04
+cerrar;DAN-2022-133;Juan Tornero 64, Madrid;2022-04-06
+cerrar;DAN-2022-132;Jose Arcones Gil 108, Madrid;2022-04-06
+cerrar;DAN-2022-137;Nectar 5, Madrid;2022-04-21
+cerrar;DAN-2022-145;Ramon Gomez de la Serna 79, 81 y 83, Madrid;2022-04-28
+cerrar;DAN-2022-143;Cantalejos 6, Madrid;2022-04-28
+cerrar;DAN-2022-148;Badalona 28, Madrid;2022-05-01
+cerrar;DAN-2022-151;Marbella 66, Madrid;2022-05-01
+cerrar;DAN-2022-154;Jacinto Camarero 3, Madrid;2022-05-03
+cerrar;DAN-2022-160;Ascao 53, Madrid;2022-05-11
+cerrar;DAN-2022-168;Hacienda de Pavones 252, Madrid;2022-05-17
+cerrar;DAN-2022-169;Tacona 83, Madrid;2022-05-17
+cerrar;DAN-2022-167;Hacienda de Pavones 164, Madrid;2022-05-17
+cerrar;DAN-2022-171;Garellano 17, Madrid;2022-05-19
+cerrar;DAN-2022-172;Encomienda de Palacios 107, Madrid;2022-05-23
+cerrar;DAN-2022-173;Encomienda de Palacios 18, Madrid;2022-05-23
+cerrar;DAN-2022-174;Francisco Ordoñez 5, Madrid;2022-05-24
+cerrar;DAN-2022-177;Alora 11, Madrid;2022-05-27
+cerrar;DAN-2022-176;Almogia 2, Madrid;2022-05-27
+cerrar;DAN-2022-182;Marbella 8, Madrid;2022-06-01
+cerrar;DAN-2022-184;Leganes 12, Parla;2022-06-03
+cerrar;DAN-2022-200;Via Carpetana 191, Madrid;2022-06-14
+cerrar;DAN-2022-204;Pablo Serrano 7, Madrid;2022-06-23
+cerrar;DAN-2022-212;Villastar 4, Madrid;2022-07-19
+cerrar;DAN-2022-213;Azucena 7, Alcala de Henares;2022-07-21
+cerrar;DAN-2022-214;Cervantes 2, Alcala de Henares;2022-07-21
+cerrar;DAN-2022-216;San Emilio 19, Madrid;2022-07-28
+cerrar;DAN-2022-220;Goiri 33, Madrid;2022-08-23
+cerrar;DAN-2022-222;Rio Jarama 1, Parla;2022-08-31
+cerrar;DAN-2022-230;Colmenar Viejo 10, San Sebastian de los Reyes (avenida);2022-09-14
+cerrar;DAN-2022-232;Soledad 9, Parla;2022-09-16
+cerrar;DAN-2022-233;Lucano 63, Madrid;2022-09-20
+cerrar;DAN-2022-235;Olivar 2, Madrid;2022-09-24
+cerrar;DAN-2022-237;Pico Balaitus 41, Madrid;2022-09-26
+cerrar;DAN-2022-241;Pico Salvaguardia 6, Madrid (plaza);2022-09-30
+cerrar;DAN-2022-243;Moreras 7, Aranjuez;2022-10-01
+cerrar;DAN-2022-245;Filipinas 28, Madrid (avenida);2022-10-03
+cerrar;DAN-2022-253;Guadalajara 55, San Sebastian de los Reyes (paseo);2022-10-14
+cerrar;DAN-2022-254;San Blas 26, Parla;2022-10-17
+cerrar;DAN-2022-255;Luruaco 1, Madrid;2022-10-18
+cerrar;DAN-2022-256;Diez 6, Madrid;2022-10-21
+cerrar;DAN-2022-259;Isla de Arosa 8 y 10, Madrid;2022-10-24
+cerrar;DAN-2022-263;Fermin Caballero 75, Madrid;2022-10-26
+cerrar;DAN-2022-265;Vizcaya 11, Madrid;2022-10-26
+cerrar;DAN-2022-264;Valverde 36, Madrid;2022-10-26
+cerrar;DAN-2022-272;Santa Maria 30, Madrid;2022-11-04
+cerrar;DAN-2022-273;Andarrios 5, Madrid;2022-11-07
+cerrar;DAN-2022-274;Betanzos 77, Madrid (avenida);2022-11-10
+cerrar;DAN-2022-279;Hernani 29, Madrid;2022-11-11
+cerrar;DAN-2022-278;Cardenal Herrera Oria 116, Madrid (avenida);2022-11-11
+cerrar;DAN-2022-280;Hernani 33, Madrid;2022-11-11
+cerrar;DAN-2022-287;San Diego 94, Madrid (avenida);2022-11-25
+cerrar;DAN-2022-295;Pintor Juan Gris 4, Madrid;2022-12-01
+cerrar;DAN-2022-294;Gutierre de Cetina 71, Madrid;2022-12-01
+cerrar;DAN-2022-296;Jazmin 16 y 18, Madrid;2022-12-02
+cerrar;DAN-2022-297;Jazmin 30 y 32, Madrid;2022-12-02
+cerrar;DAN-2022-300;Ciudad Real 11, Torrejon de Ardoz;2022-12-23
+cerrar;DAN-2023-057;Navarra 2, Alcorcon;2023-01-01
+cerrar;DAN-2023-013;Doctor Mendiguchia Carriche 25, Leganes (avenida);2023-01-01
+cerrar;DAN-2023-021;Callao 68, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-055;Matadero 18, Alcorcon;2023-01-01
+cerrar;DAN-2023-041;Del Empecinado 6, Mostoles;2023-01-01
+cerrar;DAN-2023-060;Floras 3, Leganes (plaza);2023-01-01
+cerrar;DAN-2023-061;Polvoranca 25, Alcorcon;2023-01-01
+cerrar;DAN-2023-007;Ampurdan 9, Leganes;2023-01-01
+cerrar;DAN-2023-045;De Guadalupe 3, Mostoles;2023-01-01
+cerrar;DAN-2023-050;Humera 14, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-004;Alcarria 64, Leganes;2023-01-01
+cerrar;DAN-2023-066;San Joaquin 14, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-006;Alpujarras 30, Leganes;2023-01-01
+cerrar;DAN-2023-048;Hilarion Eslava 51 y 53, Madrid;2023-01-01
+cerrar;DAN-2023-044;Grecia 18, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-049;Holanda 3, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-003;Alcarria 25, Leganes;2023-01-01
+cerrar;DAN-2023-068;Sierra 4, Getafe;2023-01-01
+cerrar;DAN-2023-014;España 10, Fuenlabrada (avenida);2023-01-01
+cerrar;DAN-2023-019;Callao 29, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-001;Alava 10, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-024;Cataluña 32, Getafe;2023-01-01
+cerrar;DAN-2023-020;Callao 4, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-071;Viena 5, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-047;Hernani 66, Madrid;2023-01-01
+cerrar;DAN-2023-053;Lerida 6, Alcobendas;2023-01-01
+cerrar;DAN-2023-005;Los Alpes 8, Alcorcon;2023-01-01
+cerrar;DAN-2023-015;Olimpica 2, Mostoles (avenida);2023-01-01
+cerrar;DAN-2023-023;Cataluña 2, Getafe;2023-01-01
+cerrar;DAN-2023-022;Capitan Francisco Sanchez 34, Alcobendas;2023-01-01
+cerrar;DAN-2023-011;Doctor Martin Vegue 26, Leganes (avenida);2023-01-01
+cerrar;DAN-2023-062;Portugal 4, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-037;Charco 20, Leganes;2023-01-01
+cerrar;DAN-2023-067;San Vicente 13, Alcobendas;2023-01-01
+cerrar;DAN-2023-043;Estacion 9, Fuenlabrada;2023-01-01
+cerrar;DAN-2023-087;Santa Fe 2, Madrid;2023-01-02
+cerrar;DAN-2023-079;Almuñecar 3, Madrid (plaza);2023-01-02
+cerrar;DAN-2023-080;Ribera del Manzanares 11, Madrid;2023-01-02
+cerrar;DAN-2023-075;Comandante Fortea 9 B, Madrid (paseo);2023-01-02
+cerrar;DAN-2023-082;Ribera del Manzanares 67, Madrid;2023-01-02
+cerrar;DAN-2023-083;Ribera del Manzanares 69, Madrid;2023-01-02
+cerrar;DAN-2023-074;Comandante Fortea 48, Madrid (paseo);2023-01-02
+cerrar;DAN-2023-081;Ribera del Manzanares 21, Madrid;2023-01-02
+cerrar;DAN-2023-088;Santovenia 5, Madrid;2023-01-02
+cerrar;DAN-2023-084;Ribera del Manzanares 85, Madrid;2023-01-02
+cerrar;DAN-2023-086;Santa Coloma 8, Madrid;2023-01-02
+cerrar;DAN-2023-072;Aniceto Marinas 112, Madrid;2023-01-02
+cerrar;DAN-2023-078;Almuñecar 1, Madrid (plaza);2023-01-02
+cerrar;DAN-2023-077;Ermita del Santo 41, Madrid (paseo);2023-01-02
+cerrar;DAN-2023-085;San Pol de Mar 1, Madrid;2023-01-02
+cerrar;DAN-2023-073;Valladolid 21, Madrid (avenida);2023-01-02
+cerrar;DAN-2023-092;Santurce 63, Madrid;2023-01-03
+cerrar;DAN-2023-091;Florida 57, Madrid (paseo);2023-01-03
+cerrar;DAN-2023-090;Comandante Fortea 18, Madrid (paseo);2023-01-03
+cerrar;DAN-2023-089;Alpujarras 72, Leganes;2023-01-03
+cerrar;DAN-2023-095;Reina Cristina 15 y 17, Madrid (paseo);2023-01-05
+cerrar;DAN-2023-093;Doctor Esquerdo 59, Madrid;2023-01-05
+cerrar;DAN-2023-096;Reina Cristina 19 y 21, Madrid (paseo);2023-01-05
+cerrar;DAN-2023-099;Carril Charcas 18, Sevilla la Nueva;2023-01-10
+cerrar;DAN-2023-101;Pedro Unanue 8, Madrid;2023-01-16
+cerrar;DAN-2023-103;Tamarindo 2, Aranjuez (glorieta);2023-01-19
+cerrar;DAN-2023-105;San Venancio 21, Madrid;2023-01-23
+cerrar;DAN-2023-110;Juan Boscan 74, Madrid;2023-01-30
+cerrar;DAN-2023-112;Recreo 3, San Sebastian de los Reyes;2023-01-31
+cerrar;DAN-2023-114;San Anastasio 2, Madrid;2023-02-03
+cerrar;DAN-2023-115;Soria 3, Mostoles;2023-02-06
+cerrar;DAN-2023-116;Alcala 213, Madrid;2023-02-07
+cerrar;DAN-2023-118;Del Valles 9, Leganes;2023-02-10
+cerrar;DAN-2023-126;Normas 3, 5 y 7, Madrid;2023-02-14
+cerrar;DAN-2023-122;Camino de Leganes 58, Mostoles;2023-02-14
+cerrar;DAN-2023-127;Nuestra Señora Macarena 2, Leganes;2023-02-14
+cerrar;DAN-2023-128;Ginzo de Limia 29, Madrid;2023-02-16
+cerrar;DAN-2023-129;Batalla de Brunete 12, Leganes;2023-02-20
+cerrar;DAN-2023-130;Ramon Gomez de la Serna 115, Madrid;2023-02-23
+cerrar;DAN-2023-131;Artajona 16, Madrid;2023-02-27
+cerrar;DAN-2023-133;Valladolid 2, Fuenlabrada;2023-02-27
+cerrar;DAN-2023-132;De Guadalupe 6, Mostoles;2023-02-27
+cerrar;DAN-2023-137;Tajo 8, Las Rozas de Madrid;2023-03-06
+cerrar;DAN-2023-136;Caceres 2, Coslada;2023-03-06
+cerrar;DAN-2023-139;Francia 14, Fuenlabrada;2023-03-07
+cerrar;DAN-2023-140;Arte 1, Madrid;2023-03-09
+cerrar;DAN-2023-145;Francia 34, Fuenlabrada;2023-03-15
+cerrar;DAN-2023-146;Manresa 33, Madrid;2023-03-15
+cerrar;DAN-2023-147;Rio Sella 2, Mostoles;2023-03-15
+cerrar;DAN-2023-152;Galerias Robles 5, Madrid;2023-03-23
+cerrar;DAN-2023-155;Almonacid 7, Madrid;2023-03-28
+cerrar;DAN-2023-160;San Onofre 7, San Sebastian de los Reyes (travesía);2023-03-30
+cerrar;DAN-2023-158;Doctor Mendiguchia Carriche 29, Leganes (avenida);2023-03-30
+cerrar;DAN-2023-161;Valle de Tobalina 46, Madrid;2023-03-30
+cerrar;DAN-2023-157;Doctor Mendiguchia Carriche 11, Leganes (avenida);2023-03-30
+cerrar;DAN-2023-169;Vedra 22 A, 22 B, 22 C, 22 D, 22 E, 22 F, 22 G, 22 H, 22 I, 22 J, 22 K, 22 L, 22 M, 22 N, 22 O, 22 P, 22 Q, 22 R, 22 S, 22 T, 22 U, 22 V, 22 X y 22 Y, Madrid;2023-04-03
+cerrar;DAN-2023-172;Milan 19, Torrejon de Ardoz;2023-04-12
+cerrar;DAN-2023-174;Concepcion 8, Madrid;2023-04-16
+cerrar;DAN-2023-177;Medellin 10, Madrid;2023-04-18
+cerrar;DAN-2023-176;Belgica 3, Getafe;2023-04-18
+cerrar;DAN-2023-178;Valdetorres de Jarama 13, Madrid;2023-04-24
+cerrar;DAN-2023-181;Carlos Fuentes 21, Madrid;2023-05-05
+cerrar;DAN-2023-183;Fresnedillas 7, Madrid;2023-05-17
+cerrar;DAN-2023-184;Olimpica 18, Mostoles (avenida);2023-05-18
+cerrar;DAN-2023-186;San Claudio 32, Madrid;2023-05-23
+cerrar;DAN-2023-187;Alfonso X el Sabio 39, Parla;2023-05-25
+cerrar;DAN-2023-191;Jaime I el Conquistador 39, Parla;2023-05-28
+cerrar;DAN-2023-193;Cuatro Amigos 5 y 7, Madrid;2023-05-31
+cerrar;DAN-2023-201;Los Cantos 7 y 9, Alcorcon;2023-06-08
+cerrar;DAN-2023-204;Arroyo Belincoso 30, Madrid;2023-06-14
+cerrar;DAN-2023-202;Alpujarras 23, Leganes;2023-06-14
+cerrar;DAN-2023-207;Peña Prieta 53, Madrid (avenida);2023-06-15
+cerrar;DAN-2023-209;Simon Hernandez 70 y 72, Mostoles;2023-06-19
+cerrar;DAN-2023-210;La Habana 109, Madrid (paseo);2023-06-20
+cerrar;DAN-2023-211;Aranjuez 2, Parla;2023-06-22
+cerrar;DAN-2023-213;Ainsa 18, Madrid;2023-06-26
+cerrar;DAN-2023-214;Pitagoras 3, Madrid;2023-06-27
+cerrar;DAN-2023-219;Andalucia 4, San Sebastian de los Reyes (avenida);2023-07-03
+cerrar;DAN-2023-222;Totana 36, Madrid;2023-07-05
+cerrar;DAN-2023-224;Maria Zurita 10, Madrid;2023-07-06
+cerrar;DAN-2023-226;Almuñecar 7, Madrid (plaza);2023-07-06
+cerrar;DAN-2023-225;Almuñecar 9, Madrid (plaza);2023-07-06
+cerrar;DAN-2023-229;Pradillo 26, Madrid;2023-07-12
+cerrar;DAN-2023-230;Corregidor Señor de la Elipa 11, Madrid;2023-07-13
+cerrar;DAN-2023-233;Juan del Rosal 2, Madrid;2023-07-18
+cerrar;DAN-2023-237;Pablo Luna 4, Madrid;2023-07-21
+cerrar;DAN-2023-236;Modesto Lafuente 4, Madrid;2023-07-21
+cerrar;DAN-2023-235;Conde de Torralba 10, Madrid;2023-07-21
+cerrar;DAN-2023-240;De las Mercedes 3, Mostoles;2023-08-16
+cerrar;DAN-2023-242;Valdecaleras 6, Madrid;2023-08-28
+cerrar;DAN-2023-243;Nicolasa Gomez 104, Madrid;2023-08-31
+cerrar;DAN-2023-244;Fernando el Catolico 73, Madrid;2023-09-01
+cerrar;DAN-2023-247;San Pablo 55, Coslada (avenida);2023-09-08
+cerrar;DAN-2023-248;Antonio Cumella 3, 5, 7 y 9, Madrid;2023-09-11
+cerrar;DAN-2023-249;Corregidor Jose de Pasamonte 5, 7 y 9, Madrid;2023-09-11
+cerrar;DAN-2023-252;Pico Artilleros 30, Madrid;2023-09-12
+cerrar;DAN-2023-254;Machupichu 43, Madrid (avenida);2023-09-25
+cerrar;DAN-2023-257;De la Plazuela 9, Las Rozas de Madrid (ronda);2023-09-27
+cerrar;DAN-2023-260;Cristo Remedios 18, San Sebastian de los Reyes;2023-09-28
+cerrar;DAN-2023-262;Jose Maria Pereda 41, Alcala de Henares;2023-09-29
+cerrar;DAN-2023-265;Fortunata y Jacinta 31 + Orense 43 + Pedro Teixeira 5, Madrid;2023-10-01
+cerrar;DAN-2023-264;Las Fuentes 3, Torrejon de Ardoz;2023-10-01
+cerrar;DAN-2023-263;Costa Brava 18, Madrid;2023-10-01
+cerrar;DAN-2023-266;Gil Imon 5, Madrid;2023-10-02
+cerrar;DAN-2023-267;Jose Ortega y Gasset 34, Madrid;2023-10-04
+cerrar;DAN-2023-268;Jose Arcones Gil 106, Madrid;2023-10-06
+cerrar;DAN-2023-269;San Marcelo 26, Madrid;2023-10-06
+cerrar;DAN-2023-270;Charco 24, Leganes;2023-10-09
+cerrar;DAN-2023-271;Discobolo 63, Madrid;2023-10-10
+cerrar;DAN-2023-275;Juan Ramon Jimenez 7, Mostoles;2023-10-18
+cerrar;DAN-2023-273;Camarena 136, Madrid;2023-10-18
+cerrar;DAN-2023-278;Lucano 45, Madrid;2023-10-20
+cerrar;DAN-2023-279;Cardenal Herrera Oria 301, Madrid (avenida);2023-10-23
+cerrar;DAN-2023-282;Huerta del Convento 24, Madrid;2023-10-26
+cerrar;DAN-2023-285;Ribera del Manzanares 5, Madrid;2023-10-31
+cerrar;DAN-2023-286;Iglesia 4, Torrejon de Ardoz;2023-11-01
+cerrar;DAN-2023-288;Ginebra 2, Mostoles;2023-11-02
+cerrar;DAN-2023-290;Oriente 8, Fuenlabrada;2023-11-03
+cerrar;DAN-2023-292;Simon Hernandez 29, Mostoles;2023-11-06
+cerrar;DAN-2023-294;Cuestablanca 2, Alcobendas;2023-11-08
+cerrar;DAN-2023-295;Arte 3, Madrid;2023-11-10
+cerrar;DAN-2023-297;Cancion del Olvido 23, Madrid;2023-11-23
+cerrar;DAN-2023-298;Hacienda de Pavones 51, Madrid;2023-11-23
+cerrar;DAN-2023-303;Recalde 4, Madrid;2023-12-04
+cerrar;DAN-2023-308;De Arroyomolinos 9, Mostoles (paseo);2023-12-14
+cerrar;DAN-2023-310;Rio Ebro 32, Mostoles;2023-12-14
+cerrar;DAN-2023-309;Doctor Martin Vegue 31, Leganes (avenida);2023-12-14
+cerrar;DAN-2023-314;Rioja 50, Leganes;2023-12-22
+cerrar;DAN-2024-027;Paz 66, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-012;Castilla la Vieja 10, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-004;Francisco Javier Sauquillo 34, Fuenlabrada (avenida);2024-01-01
+cerrar;DAN-2024-001;Alemania 2, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-007;Batalla de Brunete 16, Leganes;2024-01-01
+cerrar;DAN-2024-025;Hermanos Pinzon 5, Leganes (plaza);2024-01-01
+cerrar;DAN-2024-045;Valladolid 8, Mostoles;2024-01-01
+cerrar;DAN-2024-013;Castilla la Vieja 12, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-008;Begonia 60, Alcobendas;2024-01-01
+cerrar;DAN-2024-022;Cuzco 1, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-024;Granada 9, Alcobendas;2024-01-01
+cerrar;DAN-2024-005;Juan Carlos I 28, Getafe (avenida);2024-01-01
+cerrar;DAN-2024-041;San Ignacio 10, Leganes;2024-01-01
+cerrar;DAN-2024-028;Maestro Barbieri 2, 4, 6 y 8, Alcobendas;2024-01-01
+cerrar;DAN-2024-003;Francisco Javier Sauquillo 10, Fuenlabrada (avenida);2024-01-01
+cerrar;DAN-2024-023;Francia 12, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-032;Nazaret 8, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-043;De los Depositos 2, Getafe (travesía);2024-01-01
+cerrar;DAN-2024-010;Callao 37, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-035;Colonia 5, Fuenlabrada (paseo);2024-01-01
+cerrar;DAN-2024-044;Nuevo Versalles 2, Fuenlabrada (urbanización);2024-01-01
+cerrar;DAN-2024-009;Callao 33, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-031;Naciones 37, Fuenlabrada (avenida);2024-01-01
+cerrar;DAN-2024-036;Roma 2, Leganes (plaza);2024-01-01
+cerrar;DAN-2024-011;Castellon de la Plana 10, Getafe;2024-01-01
+cerrar;DAN-2024-021;Covadonga 28, Leganes;2024-01-01
+cerrar;DAN-2024-042;San Jose 26, Fuenlabrada;2024-01-01
+cerrar;DAN-2024-046;Santa Polonia 8, Madrid;2024-01-02
+cerrar;DAN-2024-048;Doctor Blanco Soler 26, Madrid;2024-01-10
+cerrar;DAN-2024-049;San Cesareo 3, Leganes;2024-01-10
+cerrar;DAN-2024-053;Mataro 17, Madrid;2024-01-17
+cerrar;DAN-2024-054;España 24, 26, 28 y 30, Getafe (avenida);2024-01-19
+cerrar;DAN-2024-057;Nuñez de Balboa 8, Leganes;2024-01-24
+cerrar;DAN-2024-059;Nuestra Señora de Guadalupe 7, Leganes;2024-01-29
+cerrar;DAN-2024-061;Pedro Romero 1, Madrid;2024-01-31
+cerrar;DAN-2024-063;San Conrado 5, Madrid;2024-02-06
+cerrar;DAN-2024-064;Virgen de Iciar 15 escalera 4, Alcorcon;2024-02-08
+cerrar;DAN-2024-065;Maria Domingo 6, Madrid;2024-02-08
+cerrar;DAN-2024-066;Modesto Lafuente 5, Madrid;2024-02-08
+cerrar;DAN-2024-071;Serena 1, Leganes;2024-02-12
+cerrar;DAN-2024-069;Andalucia 9 y 11, Valdemoro (avenida);2024-02-12
+cerrar;DAN-2024-072;Santander 8, Alcala de Henares;2024-02-13
+cerrar;DAN-2024-074;Gerardo Cordon 3, Madrid (travesía);2024-02-14
+cerrar;DAN-2024-075;Teniente Ruiz 2, Mostoles;2024-02-15
+cerrar;DAN-2024-077;Entrevias 78, Madrid (avenida);2024-02-19
+cerrar;DAN-2024-079;Alhambra 24, Madrid;2024-02-21
+cerrar;DAN-2024-080;Pitagoras 2, Madrid;2024-02-22
+cerrar;DAN-2024-085;Cruz 9, Torrejon de Ardoz;2024-02-27
+cerrar;DAN-2024-084;Avila 8, Fuenlabrada;2024-02-27
+cerrar;DAN-2024-087;Bonn 13, Madrid (avenida);2024-03-04
+cerrar;DAN-2024-089;Rio Manzanares 19, Leganes;2024-03-04
+cerrar;DAN-2024-088;Camino de Leganes 5, Mostoles;2024-03-04
+cerrar;DAN-2024-091;Lazcano 7, Madrid;2024-03-06
+cerrar;DAN-2024-092;Burgos 4, Mostoles;2024-03-07
+cerrar;DAN-2024-094;Hermanos Pinzon 1, Leganes (plaza);2024-03-07
+cerrar;DAN-2024-093;Pedro de Valdivia 9, Leganes;2024-03-07
+cerrar;DAN-2024-095;Musas 21, Madrid;2024-03-11
+cerrar;DAN-2024-096;Callao 41, Fuenlabrada;2024-03-12
+cerrar;DAN-2024-097;Padre Claret 16, Madrid;2024-03-12
+cerrar;DAN-2024-100;Pablo Rica 25, Madrid;2024-03-18
+cerrar;DAN-2024-105;Montevideo 3, Mostoles;2024-03-22
+cerrar;DAN-2024-109;Cardenal Herrera Oria 295, Madrid (avenida);2024-04-08
+cerrar;DAN-2024-118;Rio Duero 17, Leganes;2024-04-26
+cerrar;DAN-2024-119;Fidias 9, Madrid;2024-04-29
+cerrar;DAN-2024-124;Orden 30, Madrid;2024-05-01
+cerrar;DAN-2024-123;Estanislao Figueras 5, Madrid;2024-05-01
+cerrar;DAN-2024-121;Sierra 21, San Sebastian de los Reyes (avenida);2024-05-01
+cerrar;DAN-2024-129;Salvador Martinez Lozano 40, Madrid;2024-05-07
+cerrar;DAN-2024-133;Tiscar 15, Madrid;2024-05-09
+cerrar;DAN-2024-132;Andaluces 24, Madrid;2024-05-09
+cerrar;DAN-2024-134;Sierra 51, San Sebastian de los Reyes (avenida);2024-05-10
+cerrar;DAN-2024-136;Pensamiento 9, Madrid;2024-05-13
+cerrar;DAN-2024-138;Andevalo 38, Madrid;2024-05-14
+cerrar;DAN-2024-139;Vicente Camaron 16, Madrid;2024-05-14
+cerrar;DAN-2024-143;Zamora 12, Fuenlabrada;2024-05-16
+cerrar;DAN-2024-140;Alejandrina Moran 23, Madrid;2024-05-16
+cerrar;DAN-2024-141;Provincias 8, Fuenlabrada (avenida);2024-05-16
+cerrar;DAN-2024-146;Paloma 7, Leganes;2024-05-17
+cerrar;DAN-2024-147;Nuestra Señora de Guadalupe 5, Leganes;2024-05-21
+cerrar;DAN-2024-149;Badalona 118, Madrid;2024-05-22
+cerrar;DAN-2024-150;Rio Duero 7, Leganes;2024-05-23
+cerrar;DAN-2024-152;Rodriguez San Pedro 13 D, Madrid;2024-05-28
+cerrar;DAN-2024-155;Ricardo Ortiz 44, Madrid;2024-06-05
+cerrar;DAN-2024-157;San Fidel 99, Madrid;2024-06-12
+cerrar;DAN-2024-159;Margarita 14, Leganes;2024-06-21
+cerrar;DAN-2024-158;Amparo 45, Madrid;2024-06-21
+cerrar;DAN-2024-165;Torre Arias 25, Madrid;2024-07-01
+cerrar;DAN-2024-163;Asturias 14, San Sebastian de los Reyes;2024-07-01
+cerrar;DAN-2024-167;Alcala 462, Madrid;2024-07-03
+cerrar;DAN-2024-169;Doctor Fleming 30, Leganes (avenida);2024-07-08
+cerrar;DAN-2024-172;Fuentebella 55, Parla;2024-07-09
+cerrar;DAN-2024-171;Antonio Pirala 9, Madrid;2024-07-09
+cerrar;DAN-2024-173;San Emilio 21, Madrid;2024-07-11
+cerrar;DAN-2024-174;Anguita 17, Madrid;2024-07-12
+cerrar;DAN-2024-182;Yebenes 179, Madrid;2024-07-19
+cerrar;DAN-2024-185;Pablo Neruda 48, Madrid (avenida);2024-07-24
+cerrar;DAN-2024-187;Meson de Paredes 90, Madrid;2024-07-24
+cerrar;DAN-2024-186;General Ricardos 62, Madrid;2024-07-24
+cerrar;DAN-2024-196;Panticosa 7, Fuenlabrada (plaza);2024-09-02
+cerrar;DAN-2024-197;Manuel Noya 27, Madrid;2024-09-04
+cerrar;DAN-2024-198;Toreros 51, Madrid (avenida);2024-09-09
+cerrar;DAN-2024-199;Bolaños 91, Madrid;2024-09-12
+cerrar;DAN-2024-201;Velez Blanco 19, Madrid;2024-09-16
+cerrar;DAN-2024-202;Santiago Apostol 16, Alcobendas;2024-09-17
+cerrar;DAN-2024-203;Arroyo Fontarron 91, Madrid;2024-09-19
+cerrar;DAN-2024-209;Camarena 190, Madrid;2024-09-27
+cerrar;DAN-2024-211;Fatima 3, Fuenlabrada;2024-09-30
+cerrar;DAN-2024-214;San Felipe 4, Torrejon de Ardoz;2024-10-01
+cerrar;DAN-2024-215;Mayor 27, Alcorcon;2024-10-02
+cerrar;DAN-2024-219;Legazpi 3, Leganes;2024-10-07
+cerrar;DAN-2024-218;Felipe Castro 9, Madrid;2024-10-07
+cerrar;DAN-2024-222;Buena Madre 6, Pinto;2024-10-10
+cerrar;DAN-2024-226;Mariblanca 23, Madrid;2024-10-14
+cerrar;DAN-2024-228;Ramon Azorin 41, Madrid;2024-10-16
+cerrar;DAN-2024-227;Constitucion 59 y 61, Alcobendas;2024-10-16
+cerrar;DAN-2024-232;Santa Aurea 36, Madrid;2024-10-24
+cerrar;DAN-2024-233;Badajoz 35, Mostoles;2024-10-25
+cerrar;DAN-2024-236;Valleguerra 5, Madrid;2024-10-25
+cerrar;DAN-2024-241;Las Gardenias 21, 23, 25, 27, 29, 31, 33, 35, 37 y 39, Alcorcon;2024-10-30
+cerrar;DAN-2024-244;Santa Virgilia 8, Madrid;2024-10-30
+cerrar;DAN-2024-245;Honda 2 + Telefonica 2, Fuenlabrada;2024-10-30
+cerrar;DAN-2024-242;Olvido 4, Parla;2024-10-30
+cerrar;DAN-2024-243;San Jose 2, Alcala de Henares (plaza);2024-10-30
+cerrar;DAN-2024-247;Egido de la Fuente 13, Pinto (plaza);2024-10-31
+cerrar;DAN-2024-248;San Andres 2, Leganes;2024-11-04
+cerrar;DAN-2024-251;Malaga 6, Alcorcon;2024-11-05
+cerrar;DAN-2024-252;Antonia Calvo 11, Madrid;2024-11-06
+cerrar;DAN-2024-253;Fuentebella 73, Parla;2024-11-06
+cerrar;DAN-2024-254;Genserico 3, Madrid;2024-11-07
+cerrar;DAN-2024-257;Peal 20, Madrid;2024-11-08
+cerrar;DAN-2024-256;Andorra 91, Madrid;2024-11-08
+cerrar;DAN-2024-258;San Anselmo 11, Madrid;2024-11-08
+cerrar;DAN-2024-259;Teruel 1, Alcobendas;2024-11-11
+cerrar;DAN-2024-261;Goya 53, Madrid;2024-11-13
+cerrar;DAN-2024-262;Calahorra 26, Madrid;2024-11-14
+cerrar;DAN-2024-266;Sagrados Corazones 14, Madrid;2024-11-18
+cerrar;DAN-2024-267;Sagrados Corazones 7, Madrid;2024-11-18
+cerrar;DAN-2024-269;Severino Aznar Embid 3, Madrid;2024-11-19
+cerrar;DAN-2024-270;Esteban Carros 20, Madrid;2024-11-20
+cerrar;DAN-2024-273;Nuestra Señora de Valvanera 80, Madrid (avenida);2024-11-21
+cerrar;DAN-2024-275;San Eudaldo 8, Madrid;2024-11-22
+cerrar;DAN-2024-274;Cordovin 6, Madrid;2024-11-22
+cerrar;DAN-2024-277;Mayor 43, Madrid;2024-11-25
+cerrar;DAN-2024-281;Jose Ortega y Gasset 86, Madrid;2024-11-28
+cerrar;DAN-2024-282;Lopez de Hoyos 365, Madrid;2024-11-28
+cerrar;DAN-2024-290;Montes de Barbanza 5, Madrid;2024-12-02
+cerrar;DAN-2024-289;Cuarteles 130, Aranjuez;2024-12-02
+cerrar;DAN-2024-288;Canillejas a Vicalvaro 65, Madrid (avenida);2024-12-02
+cerrar;DAN-2024-292;Valdecanillas 59, Madrid;2024-12-03
+cerrar;DAN-2024-294;Juanelo 19, Madrid;2024-12-05
+cerrar;DAN-2024-296;Santiago de Compostela 24 y 26, Madrid;2024-12-09
+cerrar;DAN-2024-300;Hachero 16, Madrid;2024-12-11
+cerrar;DAN-2024-303;Sangenjo 6, Madrid;2024-12-12
+cerrar;DAN-2024-310;Urgel 25, Madrid;2024-12-18
+cerrar;DAN-2024-309;Pintor Julio Romero 1, Mostoles;2024-12-18
+cerrar;DAN-2024-311;Jose Arcones Gil 100, Madrid;2024-12-20
+reciente;DAN-2016-037;San Clemente 16, Leganes;2016-02-11
+reciente;DAN-2016-158;Pilar 17, San Sebastian de los Reyes;2016-09-28
+reciente;DAN-2016-199;Artico 4, Leganes;2016-11-09
+reciente;DAN-2019-077;Gerardo Cordon 49, Madrid;2019-12-16
+reciente;ALV-2026-019;Angel Mugica 35, Madrid;2021-08-01
+reciente;DAN-2022-011;Rio Llobregat 9, Mostoles;2022-01-01
+reciente;DAN-2022-037;Rio Duero 44, Leganes;2022-01-01
+reciente;DAN-2022-080;Villaescusa 2 y 4, Madrid (travesía);2022-02-07
+reciente;DAN-2022-211;Esteban Collantes 33, Madrid;2022-07-18
+reciente;DAN-2025-416;Valderribas 110, Madrid (camino);2022-09-09
+reciente;DAN-2023-018;Callao 27, Fuenlabrada;2023-01-01
+reciente;DAN-2023-069;Suiza 17, Fuenlabrada;2023-01-01
+reciente;DAN-2023-141;Cardenal Herrera Oria 297, Madrid (avenida);2023-03-09
+reciente;DAN-2025-149;Cardenal Herrera Oria 291, Madrid (avenida);2023-03-13
+reciente;DAN-2023-256;Alfonso XII 7, Mostoles;2023-09-27
+reciente;DAN-2023-274;Illescas 70, Madrid;2023-10-18
+reciente;DAN-2024-040;San Gregorio 2, Leganes;2024-01-01
+reciente;DAN-2024-038;Rio Duero 29, Leganes;2024-01-01
+reciente;DAN-2024-026;Hernan Cortes 22, Leganes;2024-01-01
+reciente;DAN-2024-086;Enrique Fuentes 27, Madrid;2024-02-27
+reciente;DAN-2024-116;Virgen de Belen 20, Madrid;2024-04-25
+reciente;DAN-2024-137;Ampelido 25, Madrid;2024-05-14
+reciente;DAN-2024-204;Lopez de Hoyos 384 A, Madrid;2024-09-19
+reciente;DAN-2024-208;Armenteros 51, Madrid;2024-09-27
+reciente;DAN-2024-217;Emilio Gastesi Fernandez 40, Madrid;2024-10-07
+reciente;DAN-2024-230;Puerto de Somiedo 14, Madrid;2024-10-23
+reciente;DAN-2024-234;GERMAN PEREZ CARRASCO 73 Y 73 BIS MADRID;2024-10-25
+reciente;DAN-2024-250;Malaga 4, Alcorcon;2024-11-05
+reciente;DAN-2024-286;Quintana 9, Madrid;2024-11-29
+reciente;DAN-2024-291;San Claudio 55, Madrid;2024-12-03
+reciente;DAN-2024-295;Luis Ruiz 4, Madrid;2024-12-05
