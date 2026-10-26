@@ -403,7 +403,7 @@ export function CarteraLateral({ c }: { c: CarteraGestores }) {
 /** PONERLE ADMINISTRADOR A LA OPP AHI MISMO (Monica, 16-oct-2026). Se elige de
  *  las personas de administraciones y se guarda al elegir, con la misma accion
  *  que "Completar" en la ficha de la opp. La lista se pide al pulsar. */
-function PonerAdmin({ oppId }: { oppId: string }) {
+export function PonerAdmin({ oppId }: { oppId: string }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [opciones, setOpciones] = useState<Opcion[] | null>(null);

@@ -263,7 +263,9 @@ export default async function AreaComercial({ searchParams }: { searchParams: Pr
           {direccion && <Link href="/comercial/gestion" className={crear}><span className="text-[#9cc4ee]">›</span> Gestión de oportunidades</Link>}
         </div>
         <IndiceSubmenu className="mt-6">
-          <TarjetaIndice nombre="Cartera de administradores" desc="Tus administradores y el mapa de dónde estás" href={aqui("administradores")} color="verde" icono="persona"
+          {/* Cada acceso va pasando a su pantalla NUEVA segun se rehace (Monica, 26-oct-2026); las de siempre quedan en
+              «Navegacion rapida». La primera, la cartera: /comercial/cartera. */}
+          <TarjetaIndice nombre="Cartera de administradores" desc="A quién mimar y a quién llamar: cifras, etiquetas, sus opps y las que no tienen administrador" href={`/comercial/cartera${conC}`} color="verde" icono="persona"
             pie={cuadro.cartera.gestores != null ? `${cuadro.cartera.gestores} administradores` : undefined} />
           <TarjetaIndice nombre="Oportunidades abiertas" desc="Todas las abiertas, con su barra de fases" href={aqui("oportunidades")} color="azul" icono="lista"
             pie={`${totalAbiertas} abiertas`} />
