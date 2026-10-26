@@ -119,3 +119,41 @@ drop trigger if exists trg_cobros_recalcular_factura on public.cobros;
 create trigger trg_cobros_recalcular_factura
   after insert or update or delete on public.cobros
   for each row execute function public.cobros_recalcular_factura();
+
+-- 3. DOS LINEAS DE GASTOS NUEVAS, en Accesalia y en Daniel (Monica, 26-oct-2026: «al final es una pasta»). En la
+--    pantalla del mes cada euro se cuenta UNA vez:
+--      - «Comisión por cargo en cuenta»: SALE EN EL EXTRACTO (CaixaBank «PR.FA…», 0,24 y desde oct-2025 0,61 por cargo;
+--        BBVA «LIQUIDACION REMESA ADEUDOS DIRECTOS»), asi que su real son esos movimientos. Hasta hoy iban dentro de
+--        «Gastos bancarios» (los de Daniel, sin linea): pasan a la suya. Por factura, el mismo gasto va en cobros.gasto.
+--      - «Gastos de confirming y factoring»: NO sale en el banco (el pagador paga ya descontado), asi que su real es la
+--        suma de cobros.gasto del mes (salvo los cargos en cuenta y las devoluciones, que salen en el extracto).
+--        Origen nuevo «justificantes»: lo lee lib/gastosMes.ts.
+alter table public.gastos_habituales drop constraint if exists gastos_habituales_origen_check;
+alter table public.gastos_habituales add constraint gastos_habituales_origen_check
+  check (origen = any (array['excel_2025', 'extracto', 'manual', 'justificantes']));
+
+with nuevas as (
+  insert into public.gastos_habituales (empresa, concepto, importe, cada, origen, como_aparece, notas, activo, avisar, solo_direccion)
+  values
+    ('accesalia', 'Comisión por cargo en cuenta', 14.84, 'mensual', 'extracto', array['^PR\.FA', 'LIQUIDACION REMESA ADEUDOS'],
+     'Lo que cobra el banco por cada recibo cargado a una comunidad (0,24 €; 0,61 € desde oct-2025). Media ene-sep 2026 del banco. Antes iba dentro de Gastos bancarios (Mónica, 26-oct). Por factura, en el justificante (cobros.gasto).', true, false, false),
+    ('daniel_autonomo', 'Comisión por cargo en cuenta', 0.48, 'mensual', 'extracto', array['^PR\.FA'],
+     'Lo que cobra el banco por cada recibo cargado (0,54 €). Media ene-sep 2026 del banco (Mónica, 26-oct). Por factura, en el justificante (cobros.gasto).', true, false, false),
+    ('accesalia', 'Gastos de confirming y factoring', null, 'mensual', 'justificantes', null,
+     'Lo que descuenta el pagador por adelantar el cobro: no sale en el banco. Real = la suma de los gastos apuntados en los justificantes del mes (Mónica, 26-oct).', true, false, false),
+    ('daniel_autonomo', 'Gastos de confirming y factoring', null, 'mensual', 'justificantes', null,
+     'Lo que descuenta el pagador por adelantar el cobro: no sale en el banco. Real = la suma de los gastos apuntados en los justificantes del mes (Mónica, 26-oct).', true, false, false)
+  returning id, empresa, concepto
+)
+update public.movimientos_bancarios m
+   set gasto_habitual_id = n.id
+  from nuevas n
+ where n.concepto = 'Comisión por cargo en cuenta'
+   and m.clase = 'gasto'
+   and ((n.empresa = 'accesalia' and ((m.cuenta = 'caixa_accesalia' and m.concepto like 'PR.FA%')
+                                      or (m.cuenta = 'bbva_accesalia' and m.concepto ilike 'LIQUIDACION REMESA ADEUDOS%')))
+     or (n.empresa = 'daniel_autonomo' and m.cuenta = 'caixa_daniel' and m.concepto like 'PR.FA%'));
+
+update public.gastos_habituales
+   set notas = coalesce(notas, '') || ' Sin las comisiones por cargo en cuenta, que tienen su línea desde el 26-oct-2026.'
+ where empresa = 'accesalia' and concepto = 'Gastos bancarios';

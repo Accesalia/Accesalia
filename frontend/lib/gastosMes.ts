@@ -65,6 +65,8 @@ export type Gasto = {
   activo: boolean;
   como_aparece: string[] | null;
   tipos: string[] | null;
+  /** «justificantes»: su real no sale del banco sino de los gastos apuntados en los justificantes de cobro (cobros.gasto). */
+  origen: string;
 };
 
 export type Estado = "pagado" | "pendiente" | "no_paso" | "no_toca";
@@ -112,7 +114,9 @@ export function tocaEn(g: Gasto, mes: string) {
   return !!g.meses?.includes(Number(mes.slice(5, 7)));
 }
 
-const SELECT_GASTO = "id,empresa,concepto,importe,cada,dia,meses,desde,hasta,notas,accion,avisar,solo_direccion,activo,como_aparece,tipos";
+const SELECT_GASTO = "id,empresa,concepto,importe,cada,dia,meses,desde,hasta,notas,accion,avisar,solo_direccion,activo,como_aparece,tipos,origen";
+/** La empresa de la factura (facturas.empresa_emisora) en la de los gastos. */
+const EMPRESA_DE_FACTURA: Record<string, EmpresaGasto> = { accesalia: "accesalia", daniel: "daniel_autonomo" };
 const num = (v: unknown) => (v == null ? null : Number(v));
 const aGasto = (g: Record<string, unknown>) => ({ ...g, importe: num(g.importe) }) as Gasto;
 
@@ -149,6 +153,19 @@ export async function gastosDelMes(mes: string, yo: Yo): Promise<GastosMes> {
   const diaCorte = hasta && hasta.slice(0, 7) === mes ? Number(hasta.slice(8, 10)) : cerrado ? 31 : 0;
 
   const realDe = new Map<string, { suma: number; n: number }>();
+  // LOS GASTOS QUE NO SALEN EN EL BANCO (Monica, 26-oct-2026): el confirming y el factoring los descuenta el pagador, asi
+  // que su real es lo apuntado en los justificantes del mes (cobros.gasto). Los cargos en cuenta y las devoluciones SI salen
+  // en el extracto: se cuentan alli, para no contar dos veces el mismo euro.
+  const deJustificantes = gastos.filter((g) => g.origen === "justificantes");
+  if (deJustificantes.length) {
+    const cs = await leerTodo<{ gasto: string; factura: { empresa_emisora: string } | null }>(
+      `cobros?select=gasto,factura:factura_id(empresa_emisora)&gasto=gt.0&tipo=not.in.(cargo_en_cuenta,devolucion)&fecha_cobro=gte.${ini}&fecha_cobro=lte.${fin}`,
+    );
+    for (const g of deJustificantes) {
+      const suyos = cs.filter((c) => c.factura && EMPRESA_DE_FACTURA[c.factura.empresa_emisora] === g.empresa);
+      if (suyos.length) realDe.set(g.id, { suma: suyos.reduce((s, c) => s + Number(c.gasto), 0), n: suyos.length });
+    }
+  }
   for (const m of visibles) {
     if (!m.gasto_habitual_id) continue;
     const r = realDe.get(m.gasto_habitual_id) ?? { suma: 0, n: 0 };
@@ -160,8 +177,9 @@ export async function gastosDelMes(mes: string, yo: Yo): Promise<GastosMes> {
   const bloques: BloqueEmpresa[] = EMPRESAS_GASTO.map((empresa) => {
     const filas: FilaGasto[] = [];
     for (const g of gastos.filter((x) => x.empresa === empresa)) {
-      const toca = tocaEn(g, mes);
       const r = realDe.get(g.id);
+      // De los justificantes: sin previsto (depende de lo que se cobre), y solo sale el mes que lo hay.
+      const toca = g.origen !== "justificantes" && tocaEn(g, mes);
       if (!toca && !r) continue;
       const previsto = toca ? g.importe : null;
       const real = r ? Math.round(r.suma * 100) / 100 : null;
