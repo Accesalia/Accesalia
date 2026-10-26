@@ -106,8 +106,9 @@ export async function decisionCierreDe(id: string): Promise<DecisionCierre> {
   const firmadas = hojas.filter((h) => h.fecha_firma).map((h) => h.id);
   const cobros = firmadas.length
     ? await leer<{ hitos: HitoCobroCierre[] }[]>(
-        `lineas_facturacion?select=hitos:hitos_cobro(hito,orden,importe,estado,fecha_factura,fecha_cobro,numero_factura),linea:he_linea_id!inner(version_id)` +
-          `&linea.version_id=in.(${firmadas.join(",")})&quitada_en=is.null`,
+        // Por «de que hoja es» (todas las fichas la tienen), como facturacion (Monica, 26-oct-2026).
+        `lineas_facturacion?select=hitos:hitos_cobro(hito,orden,importe,estado,fecha_factura,fecha_cobro,numero_factura)` +
+          `&he_version_id=in.(${firmadas.join(",")})&quitada_en=is.null`,
       )
         .then((ls) => ls.flatMap((l) => l.hitos).sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)))
         .catch(vacio<HitoCobroCierre>)

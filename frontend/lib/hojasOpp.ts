@@ -266,13 +266,15 @@ export async function hojasCrudasDe(oppIds: string[]): Promise<Map<string, HojaC
 /** ¿Esta firmada por la comunidad? (de firmada_recibida en adelante, sin errores). */
 export const estaFirmada = (h: HojaCruda) => FIRMADA.includes(h.fase);
 
-/** LOS COBROS de las hojas firmadas (versiones): por la ficha de facturacion de cada linea (lineas_facturacion.he_linea_id).
+/** LOS COBROS de las hojas firmadas (versiones): por las fichas de facturacion de cada hoja. Se buscan por «de que hoja
+ *  es» (lineas_facturacion.he_version_id), como facturacion (Monica, 26-oct-2026): la tienen TODAS las fichas; la linea de
+ *  la hoja (he_linea_id) no la tienen las 466 fichas de pedidos, notas de responsabilidad y contratos antiguos.
  *  Los % a exito no cuentan para dar el dinero por cobrado. */
 export async function cobrosDeVersiones(versionIds: string[]): Promise<{ hay: boolean; alguno: boolean; todos: boolean }> {
   if (!versionIds.length) return { hay: false, alguno: false, todos: false };
   const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[] }[]>(
-    `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado),linea:he_linea_id!inner(version_id)` +
-      `&linea.version_id=in.(${versionIds.join(",")})&quitada_en=is.null`,
+    `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado)` +
+      `&he_version_id=in.(${versionIds.join(",")})&quitada_en=is.null`,
   );
   const hitos = lineas.filter((l) => !l.es_porcentaje).flatMap((l) => l.hitos).filter((h) => h.estado !== "anulado");
   const cobrados = hitos.filter((h) => h.estado === "completado").length;
@@ -283,13 +285,14 @@ export async function cobrosDeVersiones(versionIds: string[]): Promise<{ hay: bo
 export async function hitosDeVersiones(versionIds: string[]): Promise<Map<string, string[]>> {
   const out = new Map<string, string[]>();
   for (let i = 0; i < versionIds.length; i += 150) {
-    const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[]; linea: { version_id: string } | null }[]>(
-      `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado),linea:he_linea_id!inner(version_id)` +
-        `&linea.version_id=in.(${versionIds.slice(i, i + 150).join(",")})&quitada_en=is.null`,
+    // Por «de que hoja es», como cobrosDeVersiones.
+    const lineas = await leer<{ es_porcentaje: boolean | null; hitos: { estado: string }[]; he_version_id: string | null }[]>(
+      `lineas_facturacion?select=es_porcentaje,hitos:hitos_cobro(estado),he_version_id` +
+        `&he_version_id=in.(${versionIds.slice(i, i + 150).join(",")})&quitada_en=is.null`,
     );
     for (const l of lineas) {
-      if (l.es_porcentaje || !l.linea) continue;
-      out.set(l.linea.version_id, [...(out.get(l.linea.version_id) ?? []), ...l.hitos.map((h) => h.estado).filter((e) => e !== "anulado")]);
+      if (l.es_porcentaje || !l.he_version_id) continue;
+      out.set(l.he_version_id, [...(out.get(l.he_version_id) ?? []), ...l.hitos.map((h) => h.estado).filter((e) => e !== "anulado")]);
     }
   }
   return out;
