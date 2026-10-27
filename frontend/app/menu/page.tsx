@@ -107,7 +107,7 @@ const AREAS: Area[] = [
     nombre: "Buscar y consultar",
     grupo: "todos",
     icono: "lupa",
-    desc: "Buscar una dirección o un administrador, y los listados de oportunidades y administradores de un vistazo",
+    desc: "Buscar una dirección o una persona, o comprobar si una dirección o un administrador ya existen",
     href: "/consulta",
     ve: () => true,
   },
