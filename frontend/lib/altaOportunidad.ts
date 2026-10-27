@@ -328,6 +328,60 @@ export async function siguienteCodigo(comercialId: string): Promise<string | nul
   return prefijo + String((Number.isFinite(n) ? n : 0) + 1).padStart(3, "0");
 }
 
+/** Dar de alta una persona nueva donde le toca segun lo que es (ver el comentario de crearOportunidad). La usan el
+ *  alta y la cabecera de la ficha (27-oct-2026): una sola manera de crear a alguien. Devuelve "persona:<id>". */
+export async function colocarPersonaNueva(
+  n: PersonaNueva | null,
+  d: { comunidadId: string | null; comercialId: string | null },
+): Promise<string | null> {
+  if (!n?.nombre) return null;
+
+  // EL VECINO, A LA AGENDA (Monica, 15-oct-2026: "una sola tabla, la agenda"):
+  // persona + puesto que cuelga de la comunidad, con el telefono y el correo en
+  // el puesto. Antes iba a personas_comunidad, retirada.
+  if (n.que === "vecino" && d.comunidadId) {
+    const yaFigura = await leer<{ id_comodin: string }[]>(`figura_legal_propietaria?select=id_comodin&id_comodin=eq.${d.comunidadId}`);
+    if (!yaFigura.length) await crear("figura_legal_propietaria", { id_comodin: d.comunidadId, figura: "Comunidad de Propietarios" });
+    const per = await crear<{ id: string }>("persona", { nombre: n.nombre, activa: true });
+    const pu = await crear<{ id: string }>("puesto", {
+      persona_id: per.id,
+      figura_legal_propietaria_id: d.comunidadId,
+      // Su papel, si se sabe («presidente», «secretaria»); si no, vecino (27-oct-2026).
+      cargo: n.otro?.trim() || "Vecino",
+      cargo_clave: "vecino",
+      telefono_empresa: n.telefono,
+      desde: hoy(),
+    });
+    if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
+    return "persona:" + per.id;
+  }
+
+  const per = await crear<{ id: string }>("persona", {
+    nombre: n.nombre,
+    activa: true,
+  });
+  // El puesto es lo que dice QUE es y de quien es: nace con comercial, para
+  // que no quede huerfano. La empresa se pone despues, cuando se sepa; la
+  // contrata, en cambio, ya se sabe al elegirla.
+  const enContrata = n.que === "contrata" && n.contrataId ? n.contrataId : null;
+  const pu = await crear<{ id: string }>("puesto", {
+    persona_id: per.id,
+    empresa_id: null,
+    contrata_id: enContrata,
+    cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
+    telefono_empresa: n.telefono,
+    // Un administrador nuevo NO entra en la cartera de nadie hasta su primera
+    // hoja firmada (Monica, 13-oct-2026: la picaresca de "marcarlos"). Queda
+    // como POSIBLE de quien lo trae; la base lo consolida al firmar.
+    comercial_id: enContrata ? d.comercialId : null,
+    comercial_captador_id: d.comercialId,
+    desde: hoy(),
+  });
+  if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
+  return "persona:" + per.id;
+}
+
+
 export async function crearOportunidad(
   d: DatosOportunidad,
   autorId: string | null,
@@ -347,52 +401,7 @@ export async function crearOportunidad(
   // El telefono y el correo van al PUESTO, no a la persona. Ella, 5-oct-2026:
   // "son del puesto salvo que expresamente se diga lo contrario. Son relaciones
   // laborales, no amigos".
-  const colocar = async (n: PersonaNueva | null): Promise<string | null> => {
-    if (!n?.nombre) return null;
-
-    // EL VECINO, A LA AGENDA (Monica, 15-oct-2026: "una sola tabla, la agenda"):
-    // persona + puesto que cuelga de la comunidad, con el telefono y el correo en
-    // el puesto. Antes iba a personas_comunidad, retirada.
-    if (n.que === "vecino" && d.comunidadId) {
-      const yaFigura = await leer<{ id_comodin: string }[]>(`figura_legal_propietaria?select=id_comodin&id_comodin=eq.${d.comunidadId}`);
-      if (!yaFigura.length) await crear("figura_legal_propietaria", { id_comodin: d.comunidadId, figura: "Comunidad de Propietarios" });
-      const per = await crear<{ id: string }>("persona", { nombre: n.nombre, activa: true });
-      const pu = await crear<{ id: string }>("puesto", {
-        persona_id: per.id,
-        figura_legal_propietaria_id: d.comunidadId,
-        cargo: "Vecino",
-        cargo_clave: "vecino",
-        telefono_empresa: n.telefono,
-        desde: hoy(),
-      });
-      if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
-      return "persona:" + per.id;
-    }
-
-    const per = await crear<{ id: string }>("persona", {
-      nombre: n.nombre,
-      activa: true,
-    });
-    // El puesto es lo que dice QUE es y de quien es: nace con comercial, para
-    // que no quede huerfano. La empresa se pone despues, cuando se sepa; la
-    // contrata, en cambio, ya se sabe al elegirla.
-    const enContrata = n.que === "contrata" && n.contrataId ? n.contrataId : null;
-    const pu = await crear<{ id: string }>("puesto", {
-      persona_id: per.id,
-      empresa_id: null,
-      contrata_id: enContrata,
-      cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
-      telefono_empresa: n.telefono,
-      // Un administrador nuevo NO entra en la cartera de nadie hasta su primera
-      // hoja firmada (Monica, 13-oct-2026: la picaresca de "marcarlos"). Queda
-      // como POSIBLE de quien lo trae; la base lo consolida al firmar.
-      comercial_id: enContrata ? d.comercialId : null,
-      comercial_captador_id: d.comercialId,
-      desde: hoy(),
-    });
-    if (n.correo) await crear("correo", { puesto_id: pu.id, email: n.correo, etiqueta: "general", principal: true });
-    return "persona:" + per.id;
-  };
+  const colocar = (n: PersonaNueva | null) => colocarPersonaNueva(n, { comunidadId: d.comunidadId ?? null, comercialId: d.comercialId ?? null });
 
   // 1 · las personas que se crean aqui mismo
   const administradorRef = await colocar(d.administradorNuevo);

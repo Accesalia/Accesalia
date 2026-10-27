@@ -1,3 +1,4 @@
+import { AnadirContacto, DatoEditable } from "./DatoEditable";
 import Link from "next/link";
 import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
@@ -157,6 +158,7 @@ export function Cabecera({
               {/* SOLO EL ADMINISTRADOR DE LA COMUNIDAD, el de la cartera (Monica,
                   14-oct-2026): "si no hay, NO ENSENA NADA. No podemos identificar
                   como admin a quien no lo es". El contacto de la opp no lo suple. */}
+              <DatoEditable oppId={id} campo="admin" hayDato={!!(g.adminComunidad?.empresa || g.adminComunidad?.persona)}>
               {g.adminComunidad?.empresa || g.adminComunidad?.persona ? (
                 <span className="text-carbon">
                   {g.adminComunidad.persona && <b>{g.adminComunidad.persona}</b>}
@@ -168,12 +170,17 @@ export function Cabecera({
               ) : (
                 <span className="text-carbon/50">— no se apuntó.</span>
               )}
+              </DatoEditable>
             </p>
             <p className="text-[12px] font-bold leading-[1.6] text-[#76749D]">
-              Nos llega a través de <span className="font-normal text-carbon/75">{g.trajo ?? "— no se apuntó."}</span>
+              Nos llega a través de{" "}
+              <DatoEditable oppId={id} campo="trajo" hayDato={!!g.trajo}>
+                <span className="font-normal text-carbon/75">{g.trajo ?? "— no se apuntó."}</span>
+              </DatoEditable>
             </p>
             <p className="text-[12px] font-bold leading-[1.6] text-[#76749D]">
               Mi contacto en la comunidad es{" "}
+              <DatoEditable oppId={id} campo="contacto" hayDato={!!g.contactoComunidad}>
               <span className="font-normal text-carbon/75">
                 {g.contactoComunidad ? (
                   <>
@@ -185,6 +192,7 @@ export function Cabecera({
                   "— no se apuntó."
                 )}
               </span>
+              </DatoEditable>
             </p>
             {/* Se quitan con la x y se anaden: "asi luego la hoja de encargo sale
                 prerrellenada bien". */}
@@ -244,9 +252,7 @@ export function Cabecera({
                 ))}
               </div>
             )}
-            <p title="Añadir un contacto está por montar" className="mt-2 inline-block cursor-not-allowed text-[11.5px] text-carbon/40">
-              + añadir contacto
-            </p>
+            <AnadirContacto oppId={id} />
           </div>
 
           {/* SALI: el resumen y el estado de situacion, visible para todos los

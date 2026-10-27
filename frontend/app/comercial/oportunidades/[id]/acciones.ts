@@ -22,7 +22,8 @@ import { puedeVerOpp } from "../../../../lib/hojaGenerador";
 import { apuntarEnCajon, archivarDocumento, permisosCajon, quitarDelCajon } from "../../../../lib/cajonDocumentos";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
-import { cambiarDireccion } from "../../../../lib/altaOportunidad";
+import { cambiarDireccion, type PersonaNueva } from "../../../../lib/altaOportunidad";
+import { anadirContactoComunidad, buscarPersonas, guardarDatoCabecera, type CampoCabecera, type OpcionPersona } from "../../../../lib/datosCabecera";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { quedaPorCobrar } from "../../../../lib/cabeceraOpp";
@@ -406,6 +407,37 @@ export async function accionArchivarEnCajon(oppId: string, docId: string, tipoId
     await archivarDocumento(yo, docId, tipoId, oppId);
     revalidatePath(`/comercial/oportunidades/${oppId}`);
     revalidatePath("/bandeja-comercial");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** EDITAR EN LA CABECERA lo que cuentan las notas (Monica, 27-oct-2026): administracion, quien la trae y el
+ *  contacto, cada uno a su casa (lib/datosCabecera.ts). */
+export async function accionBuscarPersonas(id: string, q: string, campo: CampoCabecera): Promise<OpcionPersona[]> {
+  await permiso(id);
+  return buscarPersonas(q, campo).catch(() => []);
+}
+export async function accionDatoCabecera(
+  id: string,
+  campo: CampoCabecera,
+  d: { valor: string | null; nueva: PersonaNueva | null },
+): Promise<{ ok: true; que: string } | { ok: false; error: string }> {
+  const yo = await permiso(id);
+  try {
+    const que = await guardarDatoCabecera(id, campo, d, yo.comercial?.id ?? null);
+    refrescar(id);
+    return { ok: true, que };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+export async function accionAnadirContacto(id: string, n: PersonaNueva): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await permiso(id);
+  try {
+    await anadirContactoComunidad(id, n, yo.comercial?.id ?? null);
+    refrescar(id);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
