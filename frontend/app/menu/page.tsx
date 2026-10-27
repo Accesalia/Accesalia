@@ -104,7 +104,7 @@ const AREAS: Area[] = [
   {
     // Transversal, como RRHH: cualquiera busca una comunidad o un administrador
     // y llega a su ficha (Monica, 7-oct-2026).
-    nombre: "Buscar y consultar",
+    nombre: "Buscar y comprobar",
     grupo: "todos",
     icono: "lupa",
     desc: "Buscar una dirección o una persona, o comprobar si una dirección o un administrador ya existen",
