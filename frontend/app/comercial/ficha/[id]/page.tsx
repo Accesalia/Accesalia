@@ -64,10 +64,19 @@ export default async function Pagina({ params }: { params: Promise<{ id: string 
       <BarraSuperior />
       <main className="mx-auto w-full max-w-[1470px] px-4 pb-16 pt-4 sm:px-6">
         <Salida href="/consulta">← Buscar y comprobar</Salida>
-        <p className="mt-1 flex items-center gap-2 font-[family-name:var(--letra-menu)] text-[13px] font-extrabold uppercase tracking-[0.12em] text-[#a6dc7e]">
-          <span className="h-2 w-2 rounded-full bg-[#a6dc7e]" />
-          Oportunidad <span className="text-[#f3f4f1]/45">›</span> Ficha comercial
-        </p>
+        {/* La ruta y, a su derecha, el paso a la gestion comercial (los bloques), Monica 27-oct-2026. */}
+        <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <p className="flex items-center gap-2 font-[family-name:var(--letra-menu)] text-[13px] font-extrabold uppercase tracking-[0.12em] text-[#a6dc7e]">
+            <span className="h-2 w-2 rounded-full bg-[#a6dc7e]" />
+            Oportunidad <span className="text-[#f3f4f1]/45">›</span> Ficha comercial
+          </p>
+          <Link
+            href={bloques}
+            className="rounded-full border border-[#a6dc7e]/60 px-3.5 py-1 font-[family-name:var(--letra-menu)] text-[12.5px] font-extrabold uppercase tracking-[0.08em] text-[#a6dc7e] transition hover:border-[#a6dc7e] hover:bg-[#a6dc7e] hover:text-[#2e3236]"
+          >
+            Ir a gestión comercial →
+          </Link>
+        </div>
 
         {/* ===================== ARRIBA: LO COMUN ===================== */}
         <div className="mt-4 grid gap-5 lg:grid-cols-2">
