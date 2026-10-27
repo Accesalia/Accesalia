@@ -1547,36 +1547,25 @@ export type Iee = {
  *
  *  Solo estan los edificios ya barridos por el radar, asi que lo normal es que
  *  no haya fila. Eso no es un fallo: es que de ese edificio no sabemos nada. */
-export async function ieeDe(referenciaBruta: string): Promise<Iee | null> {
+export async function ieeDe(referenciaBruta: string, oppId?: string): Promise<Iee | null> {
   const ref = referenciaBruta.replace(/\s/g, "").toUpperCase().slice(0, 14);
   if (!URL_BASE || !SECRETO || ref.length < 14) return null;
   try {
     // Todas las del edificio y aqui la mas reciente: las ya INSCRITAS no traen
     // fecha de emision, sino "Fecha ultimo IEE registrado" (12-oct-2026), y
-    // ordenando solo por emision se quedaban detras o sin fecha.
-    const r = await fetch(
-      `${URL_BASE}/rest/v1/iee_registrado?select=fecha_emision,bruto,valoracion,accesibilidad_satisface,` +
-        `accesibilidad_ajustes,calificacion_energetica&referencia=eq.${ref}`,
-      { headers: cab, cache: "no-store" },
-    );
+    // ordenando solo por emision se quedaban detras o sin fecha. Por la parcela
+    // (las 14 primeras), que alguna nota trae la referencia de 20.
+    const r = await fetch(`${URL_BASE}/rest/v1/iee_registrado?select=${CAMPOS_IEE}&referencia_parcela=eq.${ref}`, { headers: cab, cache: "no-store" });
     if (!r.ok) return null;
-    const filas = (await r.json()) as {
-      fecha_emision: string | null;
-      bruto: Record<string, string> | null;
-      valoracion: string | null;
-      accesibilidad_satisface: boolean | null;
-      accesibilidad_ajustes: boolean | null;
-      calificacion_energetica: string | null;
-    }[];
-    const fechaDe = (x: (typeof filas)[number]) => {
-      if (x.fecha_emision) return x.fecha_emision;
-      const m = (x.bruto?.["Fecha último IEE registrado"] ?? "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
-      return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
-    };
-    const [f] = filas.sort((a, b) => (fechaDe(b) ?? "").localeCompare(fechaDe(a) ?? ""));
+    let filas = (await r.json()) as FilaIee[];
+    // POR LA DIRECCION DEL PORTAL, si por la referencia no hay nada (Monica, 27-oct-2026). El registro a veces
+    // apunta el edificio con la referencia de la parcela de al lado (Bravo Murillo 41: la opp 0167612, el registro
+    // 0167616) y la ficha decia «no nos consta» con la IEE guardada.
+    if (!filas.length && oppId) filas = await ieePorPortales(oppId);
+    const [f] = filas.sort((a, b) => (fechaIee(b) ?? "").localeCompare(fechaIee(a) ?? ""));
     if (!f) return null;
     return {
-      fecha: fechaDe(f),
+      fecha: fechaIee(f),
       valoracion: f.valoracion,
       accesibilidadCumple: f.accesibilidad_satisface,
       admiteAjustes: f.accesibilidad_ajustes,
@@ -1585,6 +1574,61 @@ export async function ieeDe(referenciaBruta: string): Promise<Iee | null> {
   } catch {
     return null;
   }
+}
+
+const CAMPOS_IEE = "fecha_emision,bruto,valoracion,accesibilidad_satisface,accesibilidad_ajustes,calificacion_energetica,direccion,municipio";
+type FilaIee = {
+  fecha_emision: string | null;
+  bruto: Record<string, string> | null;
+  valoracion: string | null;
+  accesibilidad_satisface: boolean | null;
+  accesibilidad_ajustes: boolean | null;
+  calificacion_energetica: string | null;
+  direccion: string | null;
+  municipio: string | null;
+};
+const fechaIee = (x: FilaIee) => {
+  if (x.fecha_emision) return x.fecha_emision;
+  const m = (x.bruto?.["Fecha último IEE registrado"] ?? "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+};
+/** Sin tildes ni signos, en mayusculas, en palabras. */
+const palabras = (s: string | null | undefined) =>
+  (s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
+
+/** Las IEE de los portales vivos de la opp: misma calle (sin el tipo de via, que el registro escribe a su manera:
+ *  PO por paseo, CALLE por CL), mismo numero y mismo municipio. El registro escribe «CL BRAVO MURILLO, 41» y
+ *  «ALCOBENDAS (MADRID)». */
+async function ieePorPortales(oppId: string): Promise<FilaIee[]> {
+  const rel = await fetch(
+    `${URL_BASE}/rest/v1/relacion_oportunidad_accesos?select=acceso:acceso_id(municipio,nombre_via,numero)&opp_id=eq.${oppId}&hasta=is.null`,
+    { headers: cab, cache: "no-store" },
+  ).then((r) => (r.ok ? (r.json() as Promise<{ acceso: { municipio: string | null; nombre_via: string | null; numero: string | null } | null }[]>) : []));
+  const salida: FilaIee[] = [];
+  for (const { acceso: a } of rel) {
+    if (!a?.nombre_via || !a.numero) continue;
+    const via = palabras(a.nombre_via);
+    const num = palabras(a.numero);
+    const mun = palabras(a.municipio).split(" ").filter(Boolean);
+    const r = await fetch(
+      `${URL_BASE}/rest/v1/iee_registrado?select=${CAMPOS_IEE}&direccion=ilike.*${encodeURIComponent(a.nombre_via.replace(/[*,()]/g, " ").trim())}*`,
+      { headers: cab, cache: "no-store" },
+    );
+    if (!r.ok) continue;
+    for (const f of (await r.json()) as FilaIee[]) {
+      const m = (f.direccion ?? "").match(/^(.*?),\s*(.*)$/);
+      if (!m) continue;
+      const suya = palabras(m[1]).split(" ");
+      // La calle es la suya quitando el tipo de via (la primera palabra).
+      if (suya.slice(1).join(" ") !== via && suya.join(" ") !== via) continue;
+      if (palabras(m[2]) !== num) continue;
+      // Sin el «(MADRID)» de la provincia: si no, MADRID casaria con FUENLABRADA (MADRID).
+      const suyoMun = new Set(palabras((f.municipio ?? "").replace(/\(.*?\)/g, "")).split(" "));
+      if (mun.length && !mun.every((w) => suyoMun.has(w))) continue;
+      salida.push(f);
+    }
+  }
+  return salida;
 }
 
 export type Ascensor = {

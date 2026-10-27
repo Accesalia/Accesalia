@@ -25,7 +25,7 @@ export function ConsultarIee({ oppId }: { oppId: string }) {
             setAviso(
               r.fuera
                 ? "Su municipio no está en el registro de IEE de la Comunidad."
-                : "Consultado hoy: el registro no tiene ninguna IEE de estos portales.",
+                : "Consultado ahora: el registro no tiene IEE inscrita para estos portales.",
             );
           })
         }

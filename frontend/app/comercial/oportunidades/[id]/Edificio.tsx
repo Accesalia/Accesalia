@@ -161,7 +161,7 @@ export async function Edificio({
   const [i, asc, iee] = await Promise.all([
     informeEdificio(referencia),
     ascensorDe(referencia),
-    ieeDe(referencia),
+    ieeDe(referencia, id),
   ]);
   return <EdificioVista i={i} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} />;
 }

@@ -273,7 +273,8 @@ export async function barrerNuestrasDirecciones({
           cortadoAquiMismo = true;
           break;
         }
-        const calle = suyas.get(via);
+        // EL PASEO: nosotros PS, el registro PO (27-oct-2026: 24 portales de opps abiertas no casaban nunca).
+        const calle = suyas.get(via) ?? suyas.get(via.replace(/^PS /, "PO "));
         // Si la calle no esta en su lista, es que NINGUN portal de esa calle
         // tiene IEE. Eso ya es una respuesta, y gratis.
         if (!calle) continue;
