@@ -49,7 +49,7 @@ export function lineasDelPresupuesto(hojas: HojaMotor[], _direccion?: string): L
     // Lo que se cobra con importe fijo; lo que va solo a exito (sin importe) fuera.
     const conPrecio = h.cobra.filter((x) => x.importe);
     if (!conPrecio.length) continue;
-    items.push({ concepto: `Según hoja de encargo ${h.codigo ?? "(sin código)"}:`, importe: null, hojaId: h.id, lineaId: null });
+    items.push({ concepto: `Según hoja de encargo ${h.codigo ?? "(número pendiente del ok)"}:`, importe: null, hojaId: h.id, lineaId: null });
     for (const x of conPrecio) items.push({ concepto: x.nombre, importe: Number(x.importe), hojaId: h.id, lineaId: x.lineaId });
     if (h.incluidos.length)
       items.push({ concepto: "Incluye, sin coste: " + h.incluidos.map((i) => "- " + i).join(" "), importe: null, hojaId: h.id, lineaId: null });
