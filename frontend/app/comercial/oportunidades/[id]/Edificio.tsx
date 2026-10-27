@@ -120,6 +120,20 @@ const BOT = (on: boolean) =>
 
 const EUR = new Intl.NumberFormat("es-ES");
 
+/** LAS TRES CARDS, PLEGABLES (Monica, 27-oct-2026): al entrar estan plegadas, se ve solo su titulo; un clic la
+ *  despliega. <details> del navegador: sin JavaScript, cada una se abre y se cierra sola. */
+function Plegable({ className, titulo, children }: { className: string; titulo: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <details className={className + " group"}>
+      <summary className="flex cursor-pointer list-none items-baseline gap-2 [&::-webkit-details-marker]:hidden">
+        <span className="inline-block w-3 shrink-0 text-[11px] text-[#8a8a8a] transition group-open:rotate-90">▶</span>
+        <div className="min-w-0 flex-1">{titulo}</div>
+      </summary>
+      {children}
+    </details>
+  );
+}
+
 /** Ocupa las TRES primeras columnas de la rejilla de la pantalla; la cuarta -el
  *  diario- la pone ella.
  *
@@ -373,36 +387,39 @@ export function EdificioVista({
     <div className="flex min-w-0 flex-col gap-[10px]">
       {/* ======== las tres cards, iguales y a lo ancho (Monica, 15-oct-2026) ========
           Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
-      <section className={CAJA}>
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          {/* LA REFERENCIA, EN EL TITULO (Monica, 16-oct-2026): "asi sabemos a que
-              referencia corresponden ESOS datos, por si hay que comprobarlo". */}
-          <div className="mb-[3px] flex flex-wrap items-baseline gap-x-2">
-            <span className={ROT + " text-[#104269]"}>Lo que dice el Catastro</span>
-            <span className="text-[12px] font-semibold text-[#104269]">
-              — ref <span className="font-mono">{referencia}</span>
-            </span>
-          </div>
-          {/* El distrito, que antes iba en "La ficha" (16-oct-2026). */}
-          {distrito && <span className="text-[11px] text-[#8a8a8a]">{distrito}</span>}
-          {/* Solo si falta algo: si esta todo, no se ofrece (15-oct-2026). */}
-          {i.fallos.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-amber-900/80">
-              <span>No se pudo traer: {i.fallos.join(" · ")}</span>
-              <VolverAConsultar oppId={id} referencia={referencia} />
+      <Plegable
+        className={CAJA}
+        titulo={
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+            {/* LA REFERENCIA, EN EL TITULO (Monica, 16-oct-2026): "asi sabemos a que
+                referencia corresponden ESOS datos, por si hay que comprobarlo". */}
+            <div className="mb-[3px] flex flex-wrap items-baseline gap-x-2">
+              <span className={ROT + " text-[#104269]"}>Lo que dice el Catastro</span>
+              <span className="text-[12px] font-semibold text-[#104269]">
+                — ref <span className="font-mono">{referencia}</span>
+              </span>
             </div>
-          )}
-        </div>
+            {/* El distrito, que antes iba en "La ficha" (16-oct-2026). */}
+            {distrito && <span className="text-[11px] text-[#8a8a8a]">{distrito}</span>}
+          </div>
+        }
+      >
+        {/* Solo si falta algo: si esta todo, no se ofrece (15-oct-2026). */}
+        {i.fallos.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-amber-900/80">
+            <span>No se pudo traer: {i.fallos.join(" · ")}</span>
+            <VolverAConsultar oppId={id} referencia={referencia} />
+          </div>
+        )}
         {tabla(
           <>
             {grupo("catastro", "El edificio", edificio)}
             {grupo("catastro", "Usos", usos)}
           </>,
         )}
-      </section>
+      </Plegable>
 
-      <section className={CARD + " border-[#0C8124]"}>
-        <div className={ROT + " mb-[3px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>
+      <Plegable className={CARD + " border-[#0C8124]"} titulo={<div className={ROT + " mb-[3px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>}>
         {tabla(
           <>
             {grupo("pedir", "IEE", filasIee)}
@@ -454,10 +471,9 @@ export function EdificioVista({
             </table>
           </div>
         )}
-      </section>
+      </Plegable>
 
-      <section className={CARD + " border-[#820707]"}>
-        <div className={ROT + " mb-[3px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>
+      <Plegable className={CARD + " border-[#820707]"} titulo={<div className={ROT + " mb-[3px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>}>
         {hacer.length === 0 ? (
           <p className="mt-1 text-[11px] text-[#8a8a8a]">Nada que lo ate, o no se ha podido consultar.</p>
         ) : (
@@ -468,7 +484,7 @@ export function EdificioVista({
             </>,
           )
         )}
-      </section>
+      </Plegable>
 
       {/* ================= las fotos de la opp, abajo del todo ================= */}
       {fotos}
