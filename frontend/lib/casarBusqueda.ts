@@ -33,3 +33,12 @@ export function casa(palabras: string[], s: ConPortales): { por: string | null }
   for (const p of s.portales ?? []) if (casaTexto(palabras, p, s.detalle)) return { por: p };
   return null;
 }
+
+/** EL TIPO DE VIA NO CUENTA al buscar una direccion (27-oct-2026): «Calle Tomas Aparicio 3» tiene que encontrar la opp
+ *  «Tomas Aparicio 3, Madrid»; si no, «comprobar si ya existe» diria que no la conocemos. */
+const TIPOS_VIA = new Set(["calle", "c", "c/", "cl", "avenida", "avda", "av", "plaza", "pza", "pz", "pl", "paseo", "ps", "po", "pso", "ronda", "rd", "travesia", "tr", "camino", "cm", "glorieta", "gl", "carretera", "ctra", "cr", "via", "pasaje", "pj", "urbanizacion", "urb", "ur", "de", "del", "la", "las", "los", "el"]);
+export const palabrasDeDireccion = (q: string) => {
+  const p = palabrasDe(q).map((x) => x.replace(/\/$/, "")).filter(Boolean);
+  const sin = p.filter((x) => !TIPOS_VIA.has(x));
+  return sin.length ? sin : p;
+};

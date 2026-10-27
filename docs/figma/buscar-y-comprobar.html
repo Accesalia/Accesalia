@@ -1,0 +1,177 @@
+<title>Buscar y comprobar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    carbon: "#2b2b2b", lima: "#7ac943", "lima-dark": "#3f7a1c", "lima-soft": "#eef7e4", hueso: "#f7f7f5", alerta: "#9f3a38",
+  } } } };
+</script>
+<style>
+/* BUSCAR Y COMPROBAR (Monica, 27-oct-2026): la pagina del menu principal, solo buscador, separada por INTENCION.
+   «Quiero buscar» (algo que sabes que esta y quieres abrir: da una lista) y «Quiero comprobar si ya existe» (antes de
+   empezar algo nuevo: da una respuesta). Los listados de opps y administradores salen de aqui. Datos reales del 27-oct:
+   Tomas Aparicio 3 (ALV-2026-132) y GM FINCAS. Las busquedas que no existen («Tomas Aparicio 36», «Fincas Mirasol») son
+   ejemplos de lo que alguien escribe. */
+:root { color-scheme: light; }
+html, body { background: #2e3236; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #2b2b2b; }
+.manrope { font-family: Manrope, system-ui, sans-serif; }
+.panel { border-radius: 18px; background: #fff; border: 1px solid rgba(0,0,0,.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,.18), 0 18px 36px -18px rgba(0,0,0,.6); }
+.chip { border-radius: 999px; border: 1.5px solid rgba(43,43,43,.18); padding: 9px 18px; font-weight: 700; font-size: 14.5px;
+  color: rgba(43,43,43,.7); background: #fff; transition: .15s; display: inline-flex; align-items: center; gap: 8px; }
+.chip:hover { border-color: rgba(43,43,43,.45); color: #2b2b2b; }
+.chip.on { background: #2e3236; border-color: #2e3236; color: #fff; }
+.caja { display: flex; align-items: center; gap: 12px; border-radius: 14px; background: #f7f7f5; border: 1.5px solid transparent;
+  padding: 14px 18px; box-shadow: inset 0 1px 3px rgba(0,0,0,.08); transition: .15s; }
+.caja:focus-within { background: #fff; border-color: #7ac943; box-shadow: 0 0 0 4px rgba(122,201,67,.18); }
+.caja input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 17px; color: #2b2b2b; }
+.caja input::placeholder { color: rgba(43,43,43,.42); }
+.fila { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+.fila:hover { background: #eef7e4; }
+.etq { font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+.ir { margin-left: auto; font-size: 12.5px; font-weight: 700; color: #3f7a1c; white-space: nowrap; }
+</style>
+
+<div class="sticky top-0 z-10 flex items-center gap-5 bg-[#2b2b2b] px-6 py-2.5 text-[15px] font-bold text-white">ACCESALIA<a href="#" class="text-[13.5px] font-semibold text-white/65 hover:text-white">← Menú</a></div>
+<main class="mx-auto w-full max-w-[1470px] px-4 pb-16 pt-4 sm:px-6">
+
+  <div class="mt-1 flex flex-wrap items-center gap-x-12 gap-y-2">
+    <p class="manrope flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.12em] text-[#a6dc7e]">
+      <span class="rounded-full bg-[#a6dc7e]" style="width:.5rem;height:.5rem"></span>Buscar y comprobar
+    </p>
+    <p class="text-[14px] text-[#f3f4f1]/70">Hola, <b class="text-[#f3f4f1]">Álvaro</b>. Martes, 27 de octubre.</p>
+  </div>
+
+  <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
+
+    <!-- ===================== QUIERO BUSCAR ===================== -->
+    <section class="panel p-5 sm:p-7">
+      <h2 class="manrope text-[24px] font-extrabold text-carbon">Quiero buscar</h2>
+      <p class="mt-1 text-[14px] text-carbon/60">Algo que sé que está y quiero abrir.</p>
+      <div class="mt-5 flex flex-wrap gap-2" data-grupo="b">
+        <button class="chip on" data-v="dir">📍 Una dirección</button>
+        <button class="chip" data-v="per">👤 Una persona o empresa</button>
+      </div>
+      <label class="caja mt-4">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="shrink-0 text-carbon/45"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="qb" value="tomas aparicio">
+      </label>
+      <p id="ayudab" class="mt-2 px-1 text-[12.5px] text-carbon/50"></p>
+      <div id="resb" class="mt-3"></div>
+    </section>
+
+    <!-- ===================== QUIERO COMPROBAR ===================== -->
+    <section class="panel p-5 sm:p-7">
+      <h2 class="manrope text-[24px] font-extrabold text-carbon">Quiero comprobar si ya existe</h2>
+      <p class="mt-1 text-[14px] text-carbon/60">Antes de empezar algo nuevo: ¿la conocemos ya?, ¿lo lleva alguien?</p>
+      <div class="mt-5 flex flex-wrap gap-2" data-grupo="c">
+        <button class="chip on" data-v="dir">📍 Esta dirección</button>
+        <button class="chip" data-v="adm">🏢 Este administrador</button>
+      </div>
+      <label class="caja mt-4">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="shrink-0 text-carbon/45"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="qc" value="Tomás Aparicio 3, Madrid">
+      </label>
+      <p class="mt-2 px-1 text-[12.5px] text-carbon/50">Maqueta: prueba los dos casos →
+        <a href="#" id="ejSi" class="font-semibold text-lima-dark underline underline-offset-2">sí existe</a> ·
+        <a href="#" id="ejNo" class="font-semibold text-lima-dark underline underline-offset-2">no existe</a></p>
+      <div id="resc" class="mt-3"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let b = "dir", c = "dir", existe = true;
+
+const B = {
+  dir: { q: "tomas aparicio", ayuda: "Calle y número, sin tildes, en cualquier orden. Al elegir, a su ficha.", filas: `
+    <div class="fila"><span class="etq bg-[#E3EAF0] text-[#104269]">Dirección</span>
+      <div class="min-w-0"><div class="text-[15px] font-semibold">Tomás Aparicio 3, Madrid</div>
+      <div class="text-[12.5px] text-carbon/60">CP Tomás Aparicio 3 · 1 opp abierta, ALV-2026-132 · Álvaro</div></div>
+      <span class="ir">Ir a su ficha →</span></div>` },
+  per: { q: "gm fincas", ayuda: "Nombre, teléfono o correo: personas, administraciones, contratas, vecinos… sin pensar qué es.", filas: `
+    <div class="fila"><span class="etq bg-[#F3ECDD] text-[#7a5a1c]">Administración</span>
+      <div class="min-w-0"><div class="text-[15px] font-semibold">GM FINCAS</div><div class="text-[12.5px] text-carbon/60">3 personas</div></div>
+      <span class="ir">Ir a su ficha →</span></div>
+    <div class="fila pl-8"><span class="etq bg-lima-soft text-lima-dark">Persona</span>
+      <div class="min-w-0"><div class="text-[15px] font-semibold">Sonia Guillén</div><div class="text-[12.5px] text-carbon/60">GM FINCAS · la lleva Óscar</div></div>
+      <span class="ir">Ir a su ficha →</span></div>
+    <div class="fila pl-8"><span class="etq bg-lima-soft text-lima-dark">Persona</span>
+      <div class="min-w-0"><div class="text-[15px] font-semibold">Juan Manuel Rodrigo</div><div class="text-[12.5px] text-carbon/60">GM FINCAS · la lleva Álvaro</div></div>
+      <span class="ir">Ir a su ficha →</span></div>
+    <div class="fila pl-8"><span class="etq bg-lima-soft text-lima-dark">Persona</span>
+      <div class="min-w-0"><div class="text-[15px] font-semibold">Diego Rodrigo</div><div class="text-[12.5px] text-carbon/60">GM FINCAS · 915 53 30 44 · la lleva Daniel</div></div>
+      <span class="ir">Ir a su ficha →</span></div>` },
+};
+
+const persona = (n, quien, cifras, contacto, viejo) => `
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-black/10 py-3">
+    <div class="min-w-[170px] flex-1"><div class="text-[15px] font-bold">${n}</div>
+      <div class="text-[13px] text-carbon/65">${cifras}</div></div>
+    <div class="text-[14px]">la lleva <b>${quien}</b></div>
+    <div class="text-[13px] ${viejo ? "font-semibold text-alerta" : "text-carbon/65"}">${contacto}</div>
+    <a href="#" class="ir">Ir a su ficha →</a>
+  </div>`;
+
+const C = {
+  dir: {
+    si: { q: "Tomás Aparicio 3, Madrid", html: `
+      <div class="rounded-[14px] border-2 border-lima bg-lima-soft p-5">
+        <div class="manrope text-[22px] font-extrabold text-lima-dark">Sí, ya la conocemos</div>
+        <div class="mt-1 text-[16px] font-semibold">Tomás Aparicio 3, Madrid</div>
+        <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 text-[14px]">
+          <dt class="text-carbon/60">Vista por primera vez</dt><dd>el 14 de mayo de 2026, por <b>Álvaro</b></dd>
+          <dt class="text-carbon/60">Su opp</dt><dd>ALV-2026-132 · abierta</dd>
+          <dt class="text-carbon/60">Cómo está</dt><dd>La junta votó sí: pendiente de que nos envíen la hoja firmada · <b>166 días</b> ahí</dd>
+          <dt class="text-carbon/60">Último contacto</dt><dd>hoy</dd>
+        </dl>
+        <a href="#" class="mt-5 inline-flex rounded-full bg-[#2e3236] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-black">Ir a su ficha →</a>
+      </div>` },
+    no: { q: "Tomás Aparicio 36, Madrid", html: `
+      <div class="rounded-[14px] border-2 border-[#d9d9d9] bg-hueso p-5">
+        <div class="manrope text-[22px] font-extrabold text-carbon">No, nunca la hemos visto</div>
+        <div class="mt-1 text-[14.5px] text-carbon/65">Ninguna opp ni comunidad en Tomás Aparicio 36, Madrid. Es nueva: puedes empezar.</div>
+        <a href="#" class="mt-5 inline-flex rounded-full bg-lima px-5 py-2.5 text-[14px] font-bold text-carbon hover:brightness-95">+ Abrir oportunidad con esta dirección</a>
+      </div>` },
+  },
+  adm: {
+    si: { q: "GM Fincas", html: `
+      <div class="rounded-[14px] border-2 border-lima bg-lima-soft p-5">
+        <div class="manrope text-[22px] font-extrabold text-lima-dark">Sí, ya existe</div>
+        <div class="mt-1 text-[16px] font-semibold">GM FINCAS · 3 personas, en tres carteras</div>
+        <div class="mt-3">
+          ${persona("Sonia Guillén", "Óscar", "2 opps en curso", "último contacto hace 21 días", false)}
+          ${persona("Juan Manuel Rodrigo", "Álvaro", "1 ganada", "último contacto hace 21 días", false)}
+          ${persona("Diego Rodrigo", "Daniel", "1 ganada", "sin contacto desde agosto de 2019", true)}
+        </div>
+        <a href="#" class="mt-3 inline-flex rounded-full bg-[#2e3236] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-black">Ir a la ficha de GM FINCAS →</a>
+      </div>` },
+    no: { q: "Fincas Mirasol", html: `
+      <div class="rounded-[14px] border-2 border-[#d9d9d9] bg-hueso p-5">
+        <div class="manrope text-[22px] font-extrabold text-carbon">No, no está en ninguna cartera</div>
+        <div class="mt-1 text-[14.5px] text-carbon/65">Nadie lleva «Fincas Mirasol» ni a nadie que trabaje allí. Es tuyo si lo das de alta.</div>
+        <a href="#" class="mt-5 inline-flex rounded-full bg-lima px-5 py-2.5 text-[14px] font-bold text-carbon hover:brightness-95">+ Dar de alta este administrador</a>
+      </div>` },
+  },
+};
+
+function pintar() {
+  $("#qb").value = B[b].q; $("#ayudab").textContent = B[b].ayuda; $("#resb").innerHTML = B[b].filas;
+  const x = C[c][existe ? "si" : "no"]; $("#qc").value = x.q; $("#resc").innerHTML = x.html;
+  $("#qb").placeholder = b === "dir" ? "Calle y número…" : "Nombre, teléfono o correo…";
+  $("#qc").placeholder = c === "dir" ? "La dirección que vas a dar de alta…" : "La administración o la persona…";
+}
+document.querySelectorAll("[data-grupo]").forEach((g) => g.addEventListener("click", (e) => {
+  const bt = e.target.closest(".chip"); if (!bt) return;
+  g.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === bt));
+  if (g.dataset.grupo === "b") b = bt.dataset.v; else c = bt.dataset.v;
+  pintar();
+}));
+$("#ejSi").onclick = (e) => { e.preventDefault(); existe = true; pintar(); };
+$("#ejNo").onclick = (e) => { e.preventDefault(); existe = false; pintar(); };
+pintar();
+</script>
