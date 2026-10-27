@@ -13,6 +13,9 @@ import { accionApuntarCajon, accionArchivarEnCajon, accionPermisosCajon } from "
 const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "Europe/Madrid" });
 const ACEPTA = ".pdf,.doc,.docx,.xls,.xlsx,.odt,.ods,.txt,.csv,.eml,.msg,image/*";
 const MAX = 25 * 1024 * 1024;
+// LOS ACCESOS DIRECTOS DE GOOGLE DRIVE (Monica, 27-oct-2026): un .gdoc no es el documento, es un enlace a el; el
+// navegador no lo puede leer y la subida se cortaba con «failed to fetch». Se avisa, sin pinta de error.
+const DE_GOOGLE = /\.(gdoc|gsheet|gslides|gdraw|gform|gmap|gsite)$/i;
 
 export function CajonOpp({ oppId, docs, tipos }: { oppId: string; docs: DocCajon[]; tipos: GrupoTipos[] }) {
   const router = useRouter();
@@ -20,12 +23,21 @@ export function CajonOpp({ oppId, docs, tipos }: { oppId: string; docs: DocCajon
   const [subiendo, setSubiendo] = useState(0);
   const [encima, setEncima] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nota, setNota] = useState<string | null>(null);
   const [ocupado, empezar] = useTransition();
 
   const pendientes = docs.filter((d) => !d.tipo);
   const archivados = docs.filter((d) => d.tipo);
 
-  async function subir(ficheros: File[]) {
+  async function subir(todos: File[]) {
+    const google = todos.filter((f) => DE_GOOGLE.test(f.name));
+    const ficheros = todos.filter((f) => !DE_GOOGLE.test(f.name));
+    setNota(
+      google.length
+        ? `${google.length === 1 ? `«${google[0].name}» es` : `${google.map((f) => `«${f.name}»`).join(", ")} son`} de Google Drive, otro formato: ábrelo en Google, descárgalo como PDF o Word (Archivo › Descargar) y sube ese.`
+        : null,
+    );
+    if (!ficheros.length && google.length) return setError(null);
     const grandes = ficheros.filter((f) => f.size > MAX);
     const buenos = ficheros.filter((f) => f.size <= MAX).slice(0, 20);
     if (!buenos.length) return setError(grandes.length ? "Cada documento puede pesar como mucho 25 MB." : "No hay nada que subir.");
@@ -102,6 +114,7 @@ export function CajonOpp({ oppId, docs, tipos }: { oppId: string; docs: DocCajon
       >
         o arrástralos aquí: PDF, fotos, Word, Excel o correos
       </div>
+      {nota && <p className="text-[12px] text-carbon/70">{nota}</p>}
       {error && <p className="text-[12px] text-alerta">{error}</p>}
       {!docs.length && (
         <p className="text-[12.5px] text-carbon/65">
