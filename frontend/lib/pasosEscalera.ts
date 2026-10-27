@@ -61,7 +61,7 @@ export type Fase =
 /** LOS CUATRO BLOQUES (Monica, 5-oct-2026): los diez hitos agrupados. */
 export const BLOQUES: { n: number; titulo: string; hitos: Fase[] }[] = [
   { n: 1, titulo: "Toma de datos", hitos: ["primer_contacto", "visita", "polycam", "tresd"] },
-  { n: 2, titulo: "Documentación", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos"] },
+  { n: 2, titulo: "Ofertas a la comunidad", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos"] },
   { n: 3, titulo: "Decisión de los vecinos", hitos: ["junta"] },
   { n: 4, titulo: "Cierre", hitos: ["firma", "cobro"] },
 ];

@@ -12,7 +12,7 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { CANALES } from "../../../../lib/entradaDiario";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
-import { accionAdminAComunidad, accionEntrada, accionJunta, accionNegociacion, accionTresD } from "./acciones";
+import { accionAdminAComunidad, accionEntrada, accionJunta, accionTresD } from "./acciones";
 import { Serie, Titulo } from "./Piezas";
 import { AZUL, Pestanas } from "./Carril";
 import { Cabecera, Estado } from "./Cabecera";
@@ -24,7 +24,6 @@ import { fotosDeOpp } from "../../../../lib/fotos";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
-import { Bloque2 } from "./Bloque2";
 import { Bloque3, Bloque4 } from "./Bloque34";
 import { decisionCierreDe } from "../../../../lib/bloquesDecisionCierre";
 import { informesDeOportunidad } from "../../../../lib/informeCostes";
@@ -37,7 +36,6 @@ import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { Salida } from "../../../components/Salida";
 import { cabeceraDe } from "../../../../lib/cabeceraOpp";
 import { recalcular } from "../../../../lib/estadoOportunidad";
-import { barraDeOportunidad } from "../../../../lib/cuadroComercial";
 import { aHoraMadrid, escaneoDe } from "../../../../lib/citas";
 import { COLUMNAS_INTERES } from "../../../../lib/columnasInteres";
 import { PASTILLA_PEDIR, TiraBloque1 } from "./Necesidades";
@@ -46,6 +44,7 @@ import { necesidadesDe } from "../../../../lib/necesidadesOpp";
 import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
 import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
 import { DropboxAntiguo } from "./DropboxAntiguo";
+import { OfertasComunidad, VISTAS_OFERTA, type VistaOferta } from "./OfertasComunidad";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -65,7 +64,6 @@ export const maxDuration = 60;
 // Cada bloque se guarda solo: un unico "guardar" al final obliga a repasar la
 // pantalla entera para cambiar una fecha.
 
-const EUR = new Intl.NumberFormat("es-ES");
 
 /** 2026-03-14 -> 14/03/26 */
 function fechaCorta(v: string): string {
@@ -85,7 +83,7 @@ export default async function GestionOportunidad({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ vista?: string; bloque?: string }>;
+  searchParams: Promise<{ vista?: string; bloque?: string; ver?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -94,6 +92,8 @@ export default async function GestionOportunidad({
   // oportunidad: el carril es menu ademas de indicador. Hoy hay pantalla para el
   // 1 y el 2, y el 3 y el 4 en crudo (15-oct-2026).
   const bloque = sp.bloque === "2" ? 2 : sp.bloque === "3" ? 3 : sp.bloque === "4" ? 4 : 1;
+  // Lo elegido en el menu del bloque 2 (27-oct-2026). Sin nada, el bloque abre lo que pide atencion.
+  const ver = (VISTAS_OFERTA as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaOferta) : null;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -108,11 +108,10 @@ export default async function GestionOportunidad({
   // Lo que se puede anadir desde la cabecera: lo que se ofrece en el alta.
   const delAlta = new Set(COLUMNAS_INTERES.flatMap((c) => c.nombres));
   const paraAnadir = tipos.filter((t) => delAlta.has(t.nombre) && !g.tiposElegidos.includes(t.id));
-  const [cab, barra, escaneo, contactos, distrito, viabilidad, completa, necesita, pedir] = await Promise.all([
+  const [cab, escaneo, contactos, distrito, viabilidad, completa, necesita, pedir] = await Promise.all([
     // AL ABRIR LA FICHA se recalcula su paso (estado_oportunidad), y la cabecera
     // lo lee ya al dia.
     recalcular(id, "ficha").catch(() => undefined).then(() => cabeceraDe(id)),
-    barraDeOportunidad(id, g.comunidadId, g.creada),
     escaneoDe(id).catch(() => null),
     g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
     g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
@@ -121,9 +120,9 @@ export default async function GestionOportunidad({
     // ficha sale igual, sin el aviso.
     completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
     // Que hace falta antes de darles precio: Polycam y viabilidad (15-oct-2026).
-    bloque === 1 ? necesidadesDe(id).catch(() => null) : Promise.resolve(null),
+    bloque === 1 || bloque === 2 ? necesidadesDe(id).catch(() => null) : Promise.resolve(null),
     // Pedir viabilidad y costes al arquitecto sin Polycam (el formulario es del hilo grafico).
-    bloque === 1 ? datosPedirViabilidad(id).catch(() => null) : Promise.resolve(null),
+    bloque === 1 || bloque === 2 ? datosPedirViabilidad(id).catch(() => null) : Promise.resolve(null),
   ]);
   // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
   const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
@@ -135,7 +134,7 @@ export default async function GestionOportunidad({
       : [null, [], []];
   const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
   // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
-  const fotos = bloque === 1 ? await fotosDeOpp(id).catch(() => []) : [];
+  const fotos = bloque === 1 || bloque === 2 ? await fotosDeOpp(id).catch(() => []) : [];
   // EL CAJON DE DOCUMENTOS (25-oct-2026): al lado de las fotos en el bloque 1, y debajo de lo suyo en los demas
   // (la orden de compra o el contrato llegan sobre todo despues de firmar).
   const [docsCajon, tiposDelCajon] = await Promise.all([cajonDeOpp(id).catch(() => []), tiposCajon().catch(() => [])]);
@@ -148,52 +147,100 @@ export default async function GestionOportunidad({
       </>
     ) : null;
 
-  // QUE LE VENDEMOS Y POR CUANTO. El mismo formulario en dos sitios: abajo, en
-  // el trabajo del bloque 1, y dentro de "El trato" del bloque 2, que es donde
-  // se negocia. Un solo sitio donde se guarda.
-  const trato = (dentro: boolean) => (
-    <form action={accionNegociacion.bind(null, id)} className={dentro ? "" : CAJA + " p-4"}>
-      {!dentro && (
-      <Titulo
-        extra={
-          <span className="text-[11px] text-carbon/50">Cada cambio queda guardado: un precio que baja cuenta algo</span>
-        }
-      >
-        Qué le vendemos
-      </Titulo>
-      )}
-      <div className="flex flex-wrap gap-3">
-        <label className="block min-w-[260px] flex-1">
-          <span className={ROTULO}>Qué le vendemos</span>
-          <input
-            name="que_vendemos"
-            defaultValue={g.negociacion?.queVendemos ?? ""}
-            placeholder="Ascensor + licencia"
-            className={CAMPO + " mt-1"}
-          />
-        </label>
-        <label className="block w-[150px]">
-          <span className={ROTULO}>Precio (€)</span>
-          <input
-            name="precio"
-            defaultValue={g.negociacion?.precio != null ? EUR.format(g.negociacion.precio) : ""}
-            inputMode="decimal"
-            className={CAMPO + " mt-1"}
-          />
-        </label>
-        <label className="block min-w-[260px] flex-1">
-          <span className={ROTULO}>Alcance</span>
-          <input name="alcance" defaultValue={g.negociacion?.alcance ?? ""} className={CAMPO + " mt-1"} />
-        </label>
-      </div>
-      <label className="mt-3 block">
-        <span className={ROTULO}>Notas de la negociación</span>
-        <input name="notas" defaultValue={g.negociacion?.notas ?? ""} className={CAMPO + " mt-1"} />
-      </label>
-      <div className="mt-3 flex justify-end">
-        <button className={BOTON}>Guardar</button>
-      </div>
-    </form>
+  // «EL TRATO» (que le vendemos, precio, alcance y notas) salio de la pantalla el 27-oct-2026 con el bloque 2 nuevo:
+  // «no se si lo van a usar». Los datos siguen guardados (negociacion_oportunidad); el formulario vive en el historial.
+
+  // EL DIARIO: la nota nueva y lo que va pasando. En los bloques 1, 3 y 4 va en su columna crema; en el 2, integrado en
+  // el mismo recuadro del bloque (Monica, 27-oct-2026, opcion B: «se ve el contenido sin generar ruido»).
+  const diarioDentro = (
+    <>
+            <form action={accionEntrada.bind(null, id)} className="flex items-start gap-2">
+              {/* Una linea que crece al escribir. */}
+              <textarea
+                name="texto"
+                rows={1}
+                required
+                aria-label="Añadir una nueva nota"
+                placeholder="Añadir una nueva nota"
+                title="Cuéntalo como se lo contarías a un compañero. Puedes dictarlo con el micro de tu teclado."
+                className={CAMPO + " max-h-[240px] min-h-[34px] resize-none leading-relaxed [field-sizing:content]"}
+              />
+              {/* SIN "CUANDO" NI "COMO TE HAS ENTERADO" (Monica, 15-oct-2026): esa
+                  informacion ya va dentro del texto de la nota. Se guarda con la
+                  fecha de hoy, como escrita. */}
+              <input type="hidden" name="canal" value="escrito" />
+              <button className={BOTON}>Guardar</button>
+            </form>
+
+            <section>
+              <div className="px-2 pt-1">
+                <div className={ROT_CAJA + " mb-1"}>Lo que va pasando</div>
+              </div>
+              {g.diario.length === 0 ? (
+                <p className="px-2 pb-3 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>
+              ) : (
+                <ul className="max-h-[36rem] divide-y divide-black/10 overflow-y-auto">
+                  {g.diario.map((e) => {
+                    // La cabecera es igual venga de donde venga la entrada. Lo que
+                    // cambia es como se lee el texto largo:
+                    //   - una INTERACCION se abre: se pincha y va a su ficha.
+                    //   - una NOTA rescatada de Dropbox no tiene ficha propia, asi
+                    //     que se DESPLIEGA aqui mismo. Sin esto, el recorte a tres
+                    //     lineas dejaria ilegible la mitad del diario: muchas son
+                    //     correos enteros de doce o veinte lineas.
+                    const cabecera = (
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-carbon/55">
+                        <span className="font-bold text-carbon/80">
+                          {e.fecha ? e.fecha.split("-").reverse().join("/") : "sin fecha"}
+                        </span>
+                        <span className="rounded-full border border-black/5 bg-white/70 px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
+                        {e.con && <span className="text-lima-dark">{e.con}</span>}
+                      </div>
+                    );
+                    const TEXTO = "mt-1 whitespace-pre-line text-[14px] leading-snug text-carbon/80";
+                    const largo = e.texto.length > 150 || e.texto.includes("\n");
+
+                    if (e.enlazable) {
+                      return (
+                        <li key={e.id}>
+                          <Link href={`/comercial/interaccion/${e.id}`} className="block px-2 py-2.5 transition hover:bg-black/[0.03]">
+                            {cabecera}
+                            <p className={TEXTO + " line-clamp-3"}>{e.texto}</p>
+                          </Link>
+                        </li>
+                      );
+                    }
+                    if (!largo) {
+                      return (
+                        <li key={e.id} className="px-2 py-2.5">
+                          {cabecera}
+                          <p className={TEXTO}>{e.texto}</p>
+                          <Miniaturas fotos={e.fotos} />
+                        </li>
+                      );
+                    }
+                    return (
+                      <li key={e.id}>
+                        <details className="group px-2 py-2.5 transition hover:bg-black/[0.03]">
+                          <summary className="cursor-pointer list-none">
+                            {cabecera}
+                            <p className={TEXTO + " line-clamp-3 group-open:hidden"}>{e.texto}</p>
+                            <span className="mt-0.5 inline-block text-[11px] font-semibold text-lima-dark group-open:hidden">
+                              leer entera
+                            </span>
+                          </summary>
+                          <p className={TEXTO}>{e.texto}</p>
+                        </details>
+                        <div className="-mt-2 px-2 pb-2.5">
+                          <Miniaturas fotos={e.fotos} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+    </>
   );
 
   return (
@@ -217,7 +264,6 @@ export default async function GestionOportunidad({
             id={id}
             g={g}
             cab={cab}
-            barra={barra}
             contactos={contactos}
             intereses={elegidos.map((t) => ({ id: t.id, nombre: t.nombre }))}
             paraAnadir={paraAnadir.map((t) => ({ id: t.id, nombre: t.nombre }))}
@@ -357,12 +403,27 @@ export default async function GestionOportunidad({
             estrecha de lo visto y las imagenes. */}
         <div className="grid items-start gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(320px,calc(340px+(100%-1400px)/3))]">
           {bloque === 2 && documentacion ? (
-            // El bloque 2 ocupa el sitio del edificio: las tres primeras
-            // columnas. El diario y el trabajo de abajo son de toda la
-            // oportunidad y se quedan donde estan (Monica, 6-oct-2026).
-            <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
-              <Bloque2 id={id} g={g} d={documentacion} trato={trato(true)} informes={informes} enviados={enviados} />
-              {cajon}
+            // BLOQUE 2 · OFERTAS A LA COMUNIDAD (27-oct-2026): menu, contenido y diario en un solo recuadro, a todo el ancho.
+            <div className="min-w-0 xl:col-span-2">
+              <OfertasComunidad
+                id={id}
+                ver={ver}
+                d={documentacion}
+                necesita={necesita}
+                pedir={pedir}
+                faltaClave={cab?.falta.clave ?? null}
+                polycamRecibido={(() => {
+                  const h = g.hitos.find((x) => x.clave === "polycam");
+                  return h?.estado === "hecho" ? (h.fecha ?? "") : null;
+                })()}
+                escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
+                referencia={g.referenciaCatastral}
+                informes={informes}
+                enviados={enviados}
+                fotos={<FotosOpp oppId={id} fotos={fotos} />}
+                cajon={cajon}
+                diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
+              />
             </div>
           ) : decision ? (
             // Los bloques 3 y 4, en crudo: cada campo con donde vive (15-oct-2026).
@@ -482,94 +543,11 @@ export default async function GestionOportunidad({
           {/* ============ cuarta columna: 7 · el diario de esta opp ============
               La nota nueva y lo que va pasando, bajo un mismo fondo crema: "ahorro
               sitio y da continuidad" (Monica, 16-oct-2026). */}
+          {bloque !== 2 && (
           <div className="flex min-w-0 flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2 xl:col-start-2 xl:row-start-1">
-            <form action={accionEntrada.bind(null, id)} className="flex items-start gap-2">
-              {/* Una linea que crece al escribir. */}
-              <textarea
-                name="texto"
-                rows={1}
-                required
-                aria-label="Añadir una nueva nota"
-                placeholder="Añadir una nueva nota"
-                title="Cuéntalo como se lo contarías a un compañero. Puedes dictarlo con el micro de tu teclado."
-                className={CAMPO + " max-h-[240px] min-h-[34px] resize-none leading-relaxed [field-sizing:content]"}
-              />
-              {/* SIN "CUANDO" NI "COMO TE HAS ENTERADO" (Monica, 15-oct-2026): esa
-                  informacion ya va dentro del texto de la nota. Se guarda con la
-                  fecha de hoy, como escrita. */}
-              <input type="hidden" name="canal" value="escrito" />
-              <button className={BOTON}>Guardar</button>
-            </form>
-
-            <section>
-              <div className="px-2 pt-1">
-                <div className={ROT_CAJA + " mb-1"}>Lo que va pasando</div>
-              </div>
-              {g.diario.length === 0 ? (
-                <p className="px-2 pb-3 text-[13px] text-carbon/50">Todavía no hay nada grabado en esta oportunidad.</p>
-              ) : (
-                <ul className="max-h-[36rem] divide-y divide-black/10 overflow-y-auto">
-                  {g.diario.map((e) => {
-                    // La cabecera es igual venga de donde venga la entrada. Lo que
-                    // cambia es como se lee el texto largo:
-                    //   - una INTERACCION se abre: se pincha y va a su ficha.
-                    //   - una NOTA rescatada de Dropbox no tiene ficha propia, asi
-                    //     que se DESPLIEGA aqui mismo. Sin esto, el recorte a tres
-                    //     lineas dejaria ilegible la mitad del diario: muchas son
-                    //     correos enteros de doce o veinte lineas.
-                    const cabecera = (
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-carbon/55">
-                        <span className="font-bold text-carbon/80">
-                          {e.fecha ? e.fecha.split("-").reverse().join("/") : "sin fecha"}
-                        </span>
-                        <span className="rounded-full border border-black/5 bg-white/70 px-2 py-px text-[11px] font-semibold">{e.comoFue}</span>
-                        {e.con && <span className="text-lima-dark">{e.con}</span>}
-                      </div>
-                    );
-                    const TEXTO = "mt-1 whitespace-pre-line text-[14px] leading-snug text-carbon/80";
-                    const largo = e.texto.length > 150 || e.texto.includes("\n");
-
-                    if (e.enlazable) {
-                      return (
-                        <li key={e.id}>
-                          <Link href={`/comercial/interaccion/${e.id}`} className="block px-2 py-2.5 transition hover:bg-black/[0.03]">
-                            {cabecera}
-                            <p className={TEXTO + " line-clamp-3"}>{e.texto}</p>
-                          </Link>
-                        </li>
-                      );
-                    }
-                    if (!largo) {
-                      return (
-                        <li key={e.id} className="px-2 py-2.5">
-                          {cabecera}
-                          <p className={TEXTO}>{e.texto}</p>
-                          <Miniaturas fotos={e.fotos} />
-                        </li>
-                      );
-                    }
-                    return (
-                      <li key={e.id}>
-                        <details className="group px-2 py-2.5 transition hover:bg-black/[0.03]">
-                          <summary className="cursor-pointer list-none">
-                            {cabecera}
-                            <p className={TEXTO + " line-clamp-3 group-open:hidden"}>{e.texto}</p>
-                            <span className="mt-0.5 inline-block text-[11px] font-semibold text-lima-dark group-open:hidden">
-                              leer entera
-                            </span>
-                          </summary>
-                          <p className={TEXTO}>{e.texto}</p>
-                        </details>
-                        <div className="-mt-2 px-2 pb-2.5">
-                          <Miniaturas fotos={e.fotos} />
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
+            {diarioDentro}
           </div>
+          )}
         </div>
           </div>
           {/* Lo antiguo de Dropbox, debajo de los bloques (19-oct-2026). */}

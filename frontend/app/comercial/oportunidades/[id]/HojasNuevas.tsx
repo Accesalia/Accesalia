@@ -36,7 +36,7 @@ export function HojasNuevas({ oppId, hojas, fases, porValidar, firmadas }: { opp
 
 /** UNA HOJA FIRMADA POR VALIDAR (Monica, 25-oct-2026): archivada en la opp como «Hoja de encargo firmada», llegue por el
  *  portal o por el cajon. El comercial dice de que hoja(s) es y comprueba las tres cosas; bien, pasa a facturacion. */
-function PorValidar({ oppId, doc, candidatas }: { oppId: string; doc: DocCajon; candidatas: VersionHe[] }) {
+export function PorValidar({ oppId, doc, candidatas }: { oppId: string; doc: DocCajon; candidatas: VersionHe[] }) {
   const router = useRouter();
   const [ocupado, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +96,7 @@ function PorValidar({ oppId, doc, candidatas }: { oppId: string; doc: DocCajon; 
   );
 }
 
-function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string; v: VersionHe; anteriores: number; fases: Fase; firmadas: Firmadas }) {
+export function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string; v: VersionHe; anteriores: number; fases: Fase; firmadas: Firmadas }) {
   const router = useRouter();
   const [ocupado, empezar] = useTransition();
   const [error, setError] = useState<string | null>(null);

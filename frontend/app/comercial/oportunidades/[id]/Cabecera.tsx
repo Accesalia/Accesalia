@@ -3,13 +3,11 @@ import { Fragment } from "react";
 import { CambiarDireccion } from "./CambiarDireccion";
 import { accionAnadirInteres, accionAnular, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReabrirAnulada, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
-import { TiraFases } from "./BarraFases";
 import { CabeceraPlegable } from "./CabeceraPlegable";
 import { IrAOtraOpp } from "./IrAOtraOpp";
 import { Marcar } from "../../../components/Marcar";
 import type { ContactoComunidad, Gestion } from "../../../../lib/gestionOportunidad";
 import type { DatosCabecera, OtraOpp } from "../../../../lib/cabeceraOpp";
-import type { BarraOportunidad } from "../../../../lib/cuadroComercial";
 
 // LA CABECERA COMUN A TODOS LOS BLOQUES (Monica, 14-oct-2026, su maqueta
 // "CABECERA COMUN PAGINA BLOQUES"). "La pagina de los bloques tal como esta es
@@ -49,7 +47,6 @@ export function Cabecera({
   id,
   g,
   cab,
-  barra,
   contactos,
   intereses,
   paraAnadir,
@@ -58,7 +55,6 @@ export function Cabecera({
   id: string;
   g: Gestion;
   cab: DatosCabecera;
-  barra: BarraOportunidad;
   contactos: ContactoComunidad[];
   /** Lo que dicen que quieren: los tipos marcados. */
   intereses: { id: string; nombre: string }[];
@@ -278,9 +274,9 @@ export function Cabecera({
         }
       />
 
-      {/* LA BARRA DE FASES, la de la lista de opps abiertas, en negro, con los
-          dias en esta fase y el ultimo contacto al lado. */}
-      <TiraFases b={barra} />
+      {/* LA BARRA DE FASES negra (fases, dias en esta fase, ultimo contacto) se quito
+          entera el 27-oct-2026 (Monica, con el bloque 2 nuevo): las fases ya las dicen
+          las pestañas. Sigue en la lista de opps abiertas (BarraFases.tsx). */}
     </>
   );
 }
