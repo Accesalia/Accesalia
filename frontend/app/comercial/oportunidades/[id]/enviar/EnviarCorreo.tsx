@@ -10,7 +10,7 @@ import { accionEnviar } from "./acciones";
 // la plantilla; el texto se retoca antes de enviar. Sale del buzon comercial con
 // el nombre del comercial de la oportunidad, y las respuestas van a su correo.
 
-type Doc = { clave: string; tipo: string; nombre: string; enlace: string; fecha: string | null };
+type Doc = { clave: string; tipo: string; nombre: string; enlace: string; fecha: string | null; hojaId?: string | null; lista?: boolean };
 type Dest = { email: string; quien: string };
 type Plantilla = { id: string; nombre: string; asunto: string; texto: string; personal: boolean };
 
@@ -23,6 +23,7 @@ const FECHA = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit
 export function EnviarCorreo({
   oppId,
   documentos,
+  marcados = [],
   destinatarios,
   plantillas,
   remitente,
@@ -30,13 +31,24 @@ export function EnviarCorreo({
 }: {
   oppId: string;
   documentos: Doc[];
+  /** Lo que llega marcado desde «Preparar una oferta». */
+  marcados?: string[];
   destinatarios: Dest[];
   plantillas: Plantilla[];
   remitente: string;
   responderA: string | null;
 }) {
   const router = useRouter();
-  const [docs, setDocs] = useState<string[]>([]);
+  const [docs, setDocs] = useState<string[]>(marcados);
+  // UNO POR HOJA O UNO PARA TODAS (Monica, 27-oct-2026): solo se pregunta si van dos hojas o mas.
+  const [conjunto, setConjunto] = useState(false);
+  const hojasEnCorreo = docs.filter((c) => c.startsWith("he:")).map((c) => c.slice(3));
+  const elegirConjunto = (si: boolean) => {
+    setConjunto(si);
+    // Con uno para todas, los presupuestos de cada hoja dejan de ir; con uno por hoja, vuelven.
+    const deEstas = documentos.filter((x) => x.hojaId && hojasEnCorreo.includes(x.hojaId)).map((x) => x.clave);
+    setDocs((l) => (si ? l.filter((c) => !deEstas.includes(c)) : [...new Set([...l, ...deEstas])]));
+  };
   const [para, setPara] = useState<string[]>([]);
   const [otros, setOtros] = useState("");
   const [plantilla, setPlantilla] = useState("");
@@ -52,7 +64,7 @@ export function EnviarCorreo({
   const enviar = () => {
     setError(null);
     empezar(async () => {
-      const r = await accionEnviar(oppId, { docs, para: todos, asunto, cuerpo, plantillaId: plantilla || null });
+      const r = await accionEnviar(oppId, { docs, para: todos, asunto, cuerpo, plantillaId: plantilla || null, presupuestoConjunto: conjunto && hojasEnCorreo.length > 1 });
       if (r.ok) router.push(`/comercial/oportunidades/${oppId}?bloque=2&enviado=1`);
       else setError(r.error);
     });
@@ -111,6 +123,20 @@ export function EnviarCorreo({
                 </li>
               ))}
             </ul>
+          )}
+          {hojasEnCorreo.length > 1 && (
+            <div className="mt-3 rounded-xl border border-[#9fb6cb] bg-white px-3 py-2.5 text-sm">
+              <b>Van {hojasEnCorreo.length} hojas. ¿Cómo va el presupuesto?</b>
+              <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1">
+                <label className="flex items-center gap-1.5">
+                  <input type="radio" name="ppto" checked={!conjunto} onChange={() => elegirConjunto(false)} /> Uno por hoja
+                </label>
+                <label className="flex items-center gap-1.5">
+                  <input type="radio" name="ppto" checked={conjunto} onChange={() => elegirConjunto(true)} /> Uno para todas
+                </label>
+              </div>
+              {conjunto && <p className="mt-1 text-[12.5px] text-carbon/70">Se genera al enviar, con su número, juntando las hojas que van en el correo.</p>}
+            </div>
           )}
         </section>
 

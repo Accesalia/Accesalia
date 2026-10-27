@@ -19,7 +19,10 @@ import type { Yo } from "./sesion";
 import { enviarCorreo } from "./correo";
 import { crearEntrada } from "./entradaDiario";
 import { pdfGuardado as pdfViabilidad } from "./viabilidadComercial";
-import { pdfGuardado as pdfPresupuesto } from "./presupuesto";
+import { datosPresupuesto, guardarPresupuesto, pdfGuardado as pdfPresupuesto } from "./presupuesto";
+import type { FormaPago } from "./motorPresupuesto";
+import { anexoDeOportunidad } from "./anexoEdificio";
+import { pdfDelAnexo } from "./pdf/AnexoDoc";
 import { pdfDeHojaVersion } from "./hojaEmitir";
 import { ponerEstado } from "./hojaCompromisos";
 import { recalcularLuego } from "./estadoOportunidad";
@@ -48,6 +51,10 @@ export type DocEnviable = {
   /** Donde se abre en la app (sin el dominio). */
   enlace: string;
   fecha: string | null;
+  /** El presupuesto de UNA hoja (he_version_id): para «uno por hoja o uno para todas» (27-oct-2026). */
+  hojaId?: string | null;
+  /** Una hoja con el ok de Daniel sin enviar todavia: la oferta que se prepara. */
+  lista?: boolean;
 };
 export type Destinatario = { email: string; quien: string };
 export type ParaEnviar = {
@@ -84,22 +91,24 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
     pedir<{ id: string; numero: string | null; version: number; rematada_en: string | null }[]>(
       `viabilidades?select=id,numero,version,rematada_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=creado_en.desc`,
     ),
-    pedir<{ id: string; codigo: string | null; generado_en: string | null }[]>(
-      `presupuestos?select=id,codigo,generado_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=generado_en.desc`,
+    pedir<{ id: string; codigo: string | null; generado_en: string | null; he_version_id: string | null }[]>(
+      `presupuestos?select=id,codigo,generado_en,he_version_id&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=generado_en.desc`,
     ),
     informesDeOportunidad(oppId),
     // LAS HOJAS NUEVAS (25-oct-2026): las que tienen el ok de Daniel (para enviarlas) o ya se enviaron (para reenviarlas).
-    pedir<{ id: string; codigo_he: string | null; numero_version: number; fecha_emision: string | null }[]>(
-      `he_versiones_hoja?select=id,codigo_he,numero_version,fecha_emision&oportunidad_id=eq.${oppId}&pdf=not.is.null&estado=in.(ok_daniel,enviada,firma_con_errores)&order=creado_en.desc`,
+    pedir<{ id: string; codigo_he: string | null; numero_version: number; fecha_emision: string | null; estado: string }[]>(
+      `he_versiones_hoja?select=id,codigo_he,numero_version,fecha_emision,estado&oportunidad_id=eq.${oppId}&pdf=not.is.null&estado=in.(ok_daniel,enviada,firma_con_errores)&order=creado_en.desc`,
     ),
   ]);
   const documentos: DocEnviable[] = [
     ...viabs.map((v) => ({ clave: `viabilidad:${v.id}`, tipo: "Viabilidad", nombre: `Viabilidad ${v.numero ?? ""} v${v.version}`.trim(), enlace: `/comercial/viabilidad/${v.id}/pdf`, fecha: v.rematada_en })),
-    ...pptos.map((p) => ({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: p.generado_en })),
-    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.fecha_emision })),
+    ...pptos.map((p) => ({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: p.generado_en, hojaId: p.he_version_id })),
+    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.fecha_emision, lista: v.estado === "ok_daniel" })),
     ...informes
       .filter((x) => x.tipo === "estimacion_costes")
       .map((x) => ({ clave: `costes:${x.id}`, tipo: "Estimación de costes", nombre: `Estimación de costes · ${x.datos.obra}`, enlace: `/referencia/estimacion/informe/${x.id}/pdf`, fecha: x.creado_en })),
+    // EL INFORME GENERAL DEL INMUEBLE (27-oct-2026): el anexo del bloque 1, sacado al enviarlo, con los datos de ese dia.
+    { clave: `inmueble:${oppId}`, tipo: "Informe del inmueble", nombre: "Informe general del inmueble", enlace: `/comercial/oportunidades/${oppId}/anexo`, fecha: null },
   ];
 
   // ---------------- a quien: los contactos de la oportunidad y de su comunidad
@@ -158,6 +167,13 @@ async function pdfDe(clave: string): Promise<{ nombre: string; contenido: Uint8A
     // Una hoja vieja con su PDF en Google Docs no se puede adjuntar.
     return h && "pdf" in h ? { nombre: h.nombre, contenido: h.pdf } : null;
   }
+  if (tipo === "inmueble") {
+    const [v] = await pedir<{ pem_estimado: number }[]>(
+      `viabilidades?select=pem_estimado&oportunidad_id=eq.${id}&pem_estimado=not.is.null&order=creado_en.desc&limit=1`,
+    ).catch(() => []);
+    const anexo = await anexoDeOportunidad(id, { pem: v?.pem_estimado ?? null });
+    return anexo ? { nombre: "Informe general del inmueble.pdf", contenido: new Uint8Array(await pdfDelAnexo(anexo)) } : null;
+  }
   if (tipo === "costes") {
     const i = await leerInforme(id);
     return i ? { nombre: `Estimacion de costes - ${i.direccion}.pdf`.replace(/[\\/:*?"<>|]/g, ""), contenido: new Uint8Array(await pdfDeInformeCostes(i.datos)) } : null;
@@ -165,7 +181,15 @@ async function pdfDe(clave: string): Promise<{ nombre: string; contenido: Uint8A
   return null;
 }
 
-export type Envio = { docs: string[]; para: string[]; asunto: string; cuerpo: string; plantillaId: string | null };
+export type Envio = {
+  docs: string[];
+  para: string[];
+  asunto: string;
+  cuerpo: string;
+  plantillaId: string | null;
+  /** Con varias hojas: un presupuesto para todas en vez de uno por hoja (Monica, 27-oct-2026). Se genera al enviar. */
+  presupuestoConjunto?: boolean;
+};
 
 /** Envia, lo registra y lo apunta en el diario. Devuelve el id del registro. */
 export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): Promise<string> {
@@ -179,6 +203,24 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   if (!e.asunto.trim() || !e.cuerpo.trim()) throw new Error("Faltan el asunto o el texto.");
 
   const elegidos = d.documentos.filter((x) => e.docs.includes(x.clave));
+  // UN PRESUPUESTO PARA TODAS LAS HOJAS (27-oct-2026): con la pregunta de la pantalla. Se genera ahora, con su numero y su
+  // PDF, juntando las hojas que van en el correo; los de cada hoja no se adjuntan.
+  if (e.presupuestoConjunto) {
+    const hojas = elegidos.filter((x) => x.clave.startsWith("he:")).map((x) => x.clave.slice(3));
+    if (hojas.length < 2) throw new Error("Un presupuesto para todas necesita al menos dos hojas en el correo.");
+    const sueltos = new Set(d.documentos.filter((x) => x.hojaId && hojas.includes(x.hojaId)).map((x) => x.clave));
+    for (let i = elegidos.length - 1; i >= 0; i--) if (sueltos.has(elegidos[i].clave)) elegidos.splice(i, 1);
+    const dp = await datosPresupuesto(oppId);
+    if (!dp) throw new Error("No encuentro los datos del presupuesto de esta oportunidad.");
+    const [fp] = await pedir<{ forma_pago: FormaPago | null }[]>(
+      `presupuestos?select=forma_pago&he_version_id=in.(${hojas.join(",")})&forma_pago=not.is.null&limit=1`,
+    ).catch(() => []);
+    const p = await guardarPresupuesto(
+      { presupuestoId: null, oportunidadId: oppId, hojaIds: hojas, cliente: dp.cliente, formaPago: fp?.forma_pago ?? "cargo_en_cuenta", borrador: false },
+      yo,
+    );
+    elegidos.push({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: null });
+  }
   // LA OFERTA NO SALE SIN SU OK (Monica, 14-oct-2026), y el ok es POR HOJA (25-oct-2026): las hojas solo se ofrecen
   // con el ok de Daniel (paraEnviar); un presupuesto, solo si TODAS las hojas que lleva lo tienen.
   const pptosElegidos = elegidos.filter((x) => x.clave.startsWith("presupuesto:")).map((x) => x.clave.slice(13));

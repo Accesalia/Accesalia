@@ -334,7 +334,7 @@ export function OfertasComunidad({
                   <div className="text-carbon/70">Adjuntar también (opcional):</div>
                   <div className="mt-1 grid grid-cols-[repeat(2,max-content)] gap-x-7 gap-y-1">
                     <label className="whitespace-nowrap"><input type="checkbox" form="enviar-oferta" name="adjuntar" value="costes" disabled={!costes.length} /> Estudio de costes</label>
-                    <label className="whitespace-nowrap"><input type="checkbox" form="enviar-oferta" name="adjuntar" value="ayudas" disabled={!estudios.length} /> Estudio de ayudas posibles</label>
+                    <label className="whitespace-nowrap text-carbon/50" title="El estudio de ayudas todavía no tiene PDF: no se puede adjuntar a un correo."><input type="checkbox" disabled /> Estudio de ayudas posibles · falta su PDF</label>
                     <label className="whitespace-nowrap text-carbon/50"><input type="checkbox" disabled /> Estado de protección · próximamente</label>
                     <label className="whitespace-nowrap"><input type="checkbox" form="enviar-oferta" name="adjuntar" value="inmueble" disabled={!referencia} /> Informe general del inmueble</label>
                   </div>

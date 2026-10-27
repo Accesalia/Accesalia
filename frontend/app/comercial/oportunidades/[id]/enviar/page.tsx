@@ -12,13 +12,30 @@ export const dynamic = "force-dynamic";
 // ENVIAR DOCUMENTOS A LA COMUNIDAD, desde el bloque 2 de su oportunidad
 // (Monica, 12-oct-2026). Ver lib/envioCorreo.ts.
 
-export default async function Enviar({ params }: { params: Promise<{ id: string }> }) {
+export default async function Enviar({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ adjuntar?: string | string[] }>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect(`/entrar?volver=/comercial/oportunidades/${id}/enviar`);
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
   const [d, todas] = await Promise.all([paraEnviar(id), plantillasPara(yo, "comercial")]);
   if (!d) notFound();
+  // VIENE DE «PREPARAR UNA OFERTA» (bloque 2, 27-oct-2026): ya marcada la oferta -las hojas con ok sin enviar, sus
+  // presupuestos y la viabilidad mas reciente- y los adjuntos que se eligieron alli.
+  const adjuntar = new Set([sp.adjuntar ?? []].flat());
+  const listas = new Set(d.documentos.filter((x) => x.lista).map((x) => x.clave.slice(3)));
+  const marcados = [
+    ...d.documentos.filter((x) => x.lista || (x.hojaId && listas.has(x.hojaId))).map((x) => x.clave),
+    ...(listas.size ? d.documentos.filter((x) => x.clave.startsWith("viabilidad:")).slice(0, 1).map((x) => x.clave) : []),
+    ...(adjuntar.has("costes") ? d.documentos.filter((x) => x.clave.startsWith("costes:")).slice(0, 1).map((x) => x.clave) : []),
+    ...(adjuntar.has("inmueble") ? d.documentos.filter((x) => x.clave.startsWith("inmueble:")).map((x) => x.clave) : []),
+  ];
   // Al enviar, las plantillas que valen son las generales y las mias.
   const plantillas = todas
     .filter((p) => !p.propietario_id || p.propietario_id === yo.id)
@@ -42,6 +59,7 @@ export default async function Enviar({ params }: { params: Promise<{ id: string 
           <EnviarCorreo
             oppId={id}
             documentos={d.documentos}
+            marcados={marcados}
             destinatarios={d.destinatarios}
             plantillas={plantillas}
             remitente={`${d.comercial.nombre} · Accesalia`}
