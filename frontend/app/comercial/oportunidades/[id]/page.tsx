@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
@@ -379,7 +380,25 @@ export default async function GestionOportunidad({
               />
             </div>
           ) : g.referenciaCatastral ? (
-            <Edificio referencia={g.referenciaCatastral} id={id} fotos={apartadoFotos} distrito={distrito} />
+            // EL EDIFICIO LLEGA DESPUES (Monica, 27-oct-2026: «abrir la ficha, este o no el dato de Catastro, y que se
+            // complete y se vea despues»). Si le faltan datos sale a Catastro y al geoportal, y eso tardaba hasta dos
+            // minutos con la pantalla quieta. Ahora la ficha se pinta ya y el edificio entra cuando llega.
+            <Suspense
+              fallback={
+                <div className="flex min-w-0 flex-col gap-[10px]">
+                  {["Lo que dice el Catastro", "Lo que condiciona lo que puedo pedir", "Lo que condiciona lo que puedo hacer"].map((t) => (
+                    <div key={t} className="flex items-baseline gap-2 rounded-[10px] border border-[#d9d9d9] bg-white px-[11px] py-[9px]">
+                      <span className="w-3 text-[11px] text-[#c4c4c4]">▶</span>
+                      <span className="text-[13px] font-bold uppercase tracking-[0.05em] text-[#b0b0b0]">{t}</span>
+                    </div>
+                  ))}
+                  <p className="animate-pulse px-1 text-[12px] text-[#8a8a8a]">Trayendo el edificio de Catastro…</p>
+                  {apartadoFotos}
+                </div>
+              }
+            >
+              <Edificio referencia={g.referenciaCatastral} id={id} fotos={apartadoFotos} distrito={distrito} />
+            </Suspense>
           ) : (
             <div className="flex min-w-0 flex-col gap-[10px]">
               <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80">
