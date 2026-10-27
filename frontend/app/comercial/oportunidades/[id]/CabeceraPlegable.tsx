@@ -20,7 +20,8 @@ export function CabeceraPlegable({
   /** Lo que se abre. */
   panel: React.ReactNode;
 }) {
-  const [abierta, setAbierta] = useState(false);
+  // Al entrar, DESPLEGADA (Monica, 27-oct-2026: «ahora que las cards se pliegan»); se sigue pudiendo plegar.
+  const [abierta, setAbierta] = useState(true);
   return (
     <>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
