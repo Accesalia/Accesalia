@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { quienSoy } from "../lib/sesion";
+import { Suspense } from "react";
 import { Postits } from "./components/postit/Postits";
+import { Rastro } from "./components/Rastro";
 
 export const metadata: Metadata = {
   title: "Accesalia · ERP",
@@ -23,6 +25,10 @@ export default async function RootLayout({
     <html lang="es">
       <body className="font-sans antialiased">
         {children}
+        {/* El rastro de pantallas, para que «volver» lleve a la anterior de verdad (27-oct-2026). */}
+        <Suspense fallback={null}>
+          <Rastro />
+        </Suspense>
         {yo && <Postits veTodo={yo.veTodo} />}
       </body>
     </html>
