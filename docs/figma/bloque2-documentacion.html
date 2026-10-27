@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloque 2 · Ofertas a la comunidad</title>
+<!--
+  MAQUETA DEL BLOQUE 2, v4 (Monica, 27-oct-2026). Para decidir, no montado.
+  Su concepto: LA OFERTA COMERCIAL = el paquete que se envia a la comunidad. Se ordena por lo que
+  el comercial viene a hacer (el proceso), no por los documentos (el resultado):
+    1 Oferta comercial: 1.1 preparar · 1.2 revisar enviadas · 1.3 validar aceptadas
+    2 Documentacion de soporte para ventas · 3 diario · 4 fotos · 5 documentos
+  Menu lateral; al elegir, el contenido sale a la derecha. Al entrar se abre lo que pide atencion
+  (1.3 si hay una aceptada sin validar; si no, 1.1). El diario NO condiciona: entra en el menu; si
+  sobra sitio, ya se vera. Fuera del bloque, su pantalla tal cual (sin la franja negra: fuera entera).
+  Datos REALES de Alzina 11, Madrid (ALV-2026-178). «ejemplo» = no esta en la base.
+-->
+<style>
+  :root { --verde-fondo:#8fb07f; --azul:#104269; --azul-t:#E3EAF0; --carbon:#1c1c1c; --lima:#7ac943; --lima-d:#3f7a1c; --lima-s:#eef7e4;
+          --crema:#fbf3dc; --borde:#d9d9d9; --gris:#5a5a5a; --ambar:#fdf3d7; --ambar-b:#ecc96a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--verde-fondo); color:var(--carbon); font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  a { color:var(--azul); font-weight:600; text-decoration:none; } a:hover { text-decoration:underline; }
+  button { font:inherit; cursor:pointer; }
+  .aviso { background:#fff5cc; border-bottom:1px solid #e8d48a; padding:6px 16px; font-size:12px; }
+  .pagina { width:1440px; margin:0 auto; padding:12px 16px 30px; }
+  .ej { font-size:10.5px; color:#8a6a00; font-style:italic; font-weight:400; }
+  .pista { color:var(--gris); }
+
+  /* ===== FUERA DEL BLOQUE: como hoy ===== */
+  .tope { display:flex; align-items:center; gap:10px; color:#fff; }
+  .tope .cod { font-size:11px; opacity:.85; } .tope h1 { font-size:19px; margin:0; letter-spacing:.02em; }
+  .tope .der { margin-left:auto; display:flex; gap:6px; font-size:10.5px; }
+  .pill-b { background:#fff; color:#333; border-radius:6px; padding:3px 8px; }
+  .cabecera { display:grid; grid-template-columns:640px 1fr 260px; gap:8px; margin-top:8px; }
+  .cabecera > div { background:#fff; border-radius:8px; padding:10px 12px; font-size:11.5px; color:#555; min-height:120px; }
+  .pestanas { display:grid; grid-template-columns:repeat(4,1fr) 360px; gap:6px; margin-top:12px; }
+  .pestanas > div { background:#dfe9d6; border-radius:8px 8px 0 0; padding:7px 12px; font-size:12px; color:#444; }
+  .pestanas .activa { background:var(--azul); color:#fff; font-weight:700; }
+  .pestanas .estado { background:#fff; border-radius:8px; font-size:11px; }
+  .panel { background:var(--azul); border-radius:0 10px 10px 10px; padding:10px; display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:10px; align-items:start; }
+  .diario { background:#fbf3dc; border-radius:8px; padding:10px 12px; font-size:12.5px; }
+  .diario .fila-n { display:flex; gap:6px; } .diario input { flex:1; border:1px solid #d8c99a; border-radius:6px; padding:7px 9px; font:inherit; }
+  .diario .g { background:#5b7fa6; color:#fff; border:0; border-radius:6px; padding:0 12px; font-weight:700; }
+  .diario .rot { margin-top:12px; font-size:10.5px; font-weight:700; letter-spacing:.08em; color:#6b5a2a; }
+  .diario .n { border-bottom:1px solid #eadfbd; padding:8px 0; }
+
+  /* ===== DENTRO: menu + contenido ===== */
+  .bloque { background:#fff; border-radius:8px; display:grid; grid-template-columns:250px minmax(0,1fr); min-height:640px; }
+  .menu { border-right:1px solid #e6e6e6; padding:14px 0; background:#fafbfc; border-radius:8px 0 0 8px; }
+  .m-grupo { padding:0 14px; margin:4px 0 4px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--azul); }
+  .m-grupo.sep { margin-top:16px; }
+  .m-item { display:flex; align-items:center; gap:8px; width:100%; border:0; background:none; text-align:left; padding:8px 14px 8px 16px; border-left:3px solid transparent; color:var(--carbon); }
+  .m-item:hover { background:#eef2f6; }
+  .m-item.sel { background:var(--azul-t); border-left-color:var(--azul); font-weight:700; }
+  .m-item .num { color:var(--gris); font-size:11.5px; min-width:22px; }
+  .m-item .txt { flex:1; font-size:13px; line-height:1.3; }
+  .m-item .chip { font-size:11px; font-weight:700; border-radius:20px; padding:1px 8px; white-space:nowrap; }
+  .chip.azul { background:#dbe5ee; color:var(--azul); } .chip.ambar { background:#fde3a0; color:#6b4a00; } .chip.gris { background:#eee; color:#555; }
+  .m-item.grande .txt { font-size:13.5px; }
+  .m-item.suelto { font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:.08em; color:var(--azul); }
+  .m-item.suelto.sel { color:var(--carbon); }
+
+  .contenido { padding:18px 22px 22px; }
+  .vista { display:none; } .vista.sel { display:block; }
+  .v-tit { display:flex; align-items:baseline; gap:10px; }
+  .v-tit h3 { margin:0; font-size:18px; }
+  .v-sub { color:var(--gris); margin-top:2px; font-size:13px; }
+
+  /* 1.1 preparar */
+  .tipo { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .tipo .rot { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gris); margin-right:4px; }
+  .op { border:1px solid #c9c9c9; border-radius:20px; padding:4px 12px; background:#fff; font-size:12.5px; }
+  .op.sel { border-color:var(--azul); background:var(--azul); color:#fff; font-weight:700; }
+  .req { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .r { border:1.5px solid var(--borde); border-radius:12px; padding:14px 16px; }
+  .r.falta { border-color:#e0b04a; background:#fffaf0; }
+  .r.listo { border-color:#a9d18a; background:#f6fbf1; }
+  .r-n { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); }
+  .r-t { font-size:16px; font-weight:700; margin-top:2px; }
+  .r-e { margin-top:6px; font-size:13px; }
+  .r .accion { margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .bp { background:var(--lima); color:#fff; border:0; border-radius:7px; padding:8px 14px; font-weight:700; }
+  .bs { background:#fff; border:1px solid var(--carbon); border-radius:7px; padding:6px 12px; font-weight:700; font-size:12.5px; }
+  .ok { color:var(--lima-d); font-weight:700; } .no { color:#9a6a00; font-weight:700; }
+  .hojita { margin-top:8px; font-size:12.5px; border-top:1px dashed #e2d3a8; padding-top:6px; }
+  .final { margin-top:16px; border-radius:12px; padding:14px 16px; background:#f3f6f9; border:1px solid #d5dee8; display:flex; align-items:center; gap:16px; }
+  .final .bp[disabled] { background:#cfcfcf; color:#666; cursor:not-allowed; }
+  .extras { margin-top:12px; font-size:12.5px; }
+  .extras-2x2 { display:grid; grid-template-columns:repeat(2,max-content); gap:4px 28px; margin-top:4px; }
+  .extras label { white-space:nowrap; }
+  .extras .apagado { color:#8a8a8a; }
+
+  /* 1.2 enviadas */
+  .ofertas { margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .oferta { border:1px solid var(--borde); border-radius:12px; padding:12px 16px; display:grid; grid-template-columns:150px minmax(0,1fr) 150px; gap:14px; }
+  .oferta .cuando b { display:block; font-size:15px; } .oferta .dias { font-size:12px; color:var(--gris); }
+  .oferta .esp { font-weight:700; color:#6b4a00; background:#fde3a0; border-radius:20px; padding:1px 8px; font-size:11px; }
+  .oferta .q { font-size:12.5px; } .oferta .q .h { margin-top:3px; }
+  .oferta .der { text-align:right; font-size:12.5px; display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+  .oferta.vieja { background:#fafafa; }
+
+  /* 1.3 validar */
+  .validar { margin-top:14px; border:1.5px solid var(--ambar-b); background:var(--ambar); border-radius:12px; padding:14px 16px; }
+  .validar .checks { display:flex; flex-direction:column; gap:5px; margin-top:8px; font-size:13px; }
+  .quedan { margin-top:12px; border-top:1px solid var(--ambar-b); padding-top:10px; }
+  .qf { display:flex; align-items:center; gap:10px; margin-top:6px; font-size:12.5px; }
+  .qf .bs:first-of-type { margin-left:auto; }
+
+  /* 2 y demas */
+  .tarjetas { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .t { border:1px solid var(--borde); border-radius:12px; padding:14px 16px; }
+  .t b { font-size:15px; display:block; }
+  .hueco { margin-top:14px; border:1.5px dashed #cfcfcf; border-radius:12px; padding:40px; text-align:center; color:var(--gris); background:#fafafa; }
+  .nota { border-bottom:1px solid #eee; padding:8px 0; }
+  textarea { width:100%; min-height:70px; border:1px solid #cfcfcf; border-radius:8px; padding:8px; font:inherit; margin-top:12px; }
+
+  /* ===== selector de formas del diario (v6) ===== */
+  .selector { display:flex; gap:6px; align-items:center; margin:0 0 10px; }
+  .selector span { color:#fff; font-weight:700; font-size:12px; margin-right:4px; }
+  .selector button { border:1px solid #fff; background:transparent; color:#fff; border-radius:20px; padding:3px 12px; font-size:12px; }
+  .selector button.sel { background:#fff; color:var(--azul); font-weight:700; }
+  /* B · integrado: una sola superficie blanca */
+  body.dB .panel { grid-template-columns:1fr; }
+  body.dB .bloque { grid-template-columns:250px minmax(0,1fr) 300px; }
+  body.dB .diario { display:none; }
+  .diario-in { display:none; border-left:1px solid #e6e6e6; padding:16px 16px; font-size:12px; }
+  body.dB .diario-in { display:block; }
+  .diario-in .rot { font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--azul); }
+  .diario-in input { width:100%; margin-top:8px; border:1px solid #d6d6d6; border-radius:6px; padding:6px 8px; font:inherit; }
+  .diario-in .n { border-bottom:1px solid #f0f0f0; padding:7px 0; color:#333; }
+  .diario-in .n b { color:var(--gris); font-weight:600; }
+  /* C · cajon */
+  body.dC .panel { grid-template-columns:1fr; }
+  body.dC .diario { display:none; }
+  .lengueta { display:none; position:fixed; right:0; top:330px; background:var(--azul); color:#fff; border:2px solid #fff; border-right:0;
+              border-radius:8px 0 0 8px; padding:12px 7px; writing-mode:vertical-rl; font-weight:700; font-size:12px; letter-spacing:.06em; cursor:pointer; }
+  body.dC .lengueta { display:block; }
+  .cajon { display:none; position:fixed; right:0; top:0; bottom:0; width:360px; background:#fff; box-shadow:-8px 0 24px rgba(0,0,0,.18); padding:16px; font-size:12.5px; }
+  body.dC.abierto .cajon { display:block; }
+  .cajon .cerrar { float:right; border:0; background:none; font-size:18px; }
+  .rapida { display:none; margin-top:14px; }
+  body.dC .rapida { display:flex; gap:6px; }
+  .rapida input { flex:1; border:1px solid #d6d6d6; border-radius:6px; padding:6px 8px; font:inherit; }
+</style>
+</head>
+<body class="dB">
+<div class="aviso"><b>Maqueta v6</b> · arriba, elige la forma del diario · el menú de la izquierda <b>se pulsa</b> · fuera del bloque, tu pantalla tal cual (sin la franja negra) · datos reales de <b>Alzina 11</b> · <i>«ejemplo»</i> = no está en la base</div>
+<div class="pagina">
+
+  <!-- ===== FUERA: como hoy ===== -->
+  <div class="tope"><span class="cod">ALV-2026-178</span><h1>ALZINA 11, MADRID</h1>
+    <div class="der"><span class="pill-b">ir a otra opp ▾</span><span class="pill-b">PENDIENTES DE …</span><span class="pill-b">▴ Plegar</span></div></div>
+  <div class="cabecera">
+    <div><b style="color:#333">(la cabecera de hoy, sin tocar)</b></div>
+    <div><b style="color:#333">SALI</b><br>(como hoy)</div>
+    <div><b style="color:#333">CONTACTOS DE LA COMUNIDAD</b><br>(como hoy)</div>
+  </div>
+  <div class="pestanas">
+    <div>1 · Toma de datos · <small>Hecho</small></div>
+    <div class="activa">2 · Ofertas a la comunidad · <small>3 enviadas</small></div>
+    <div>3 · Decisión de los vecinos</div>
+    <div>4 · Cierre</div>
+    <div class="estado">ESTADO <b>ABIERTA</b> · PAUSAR · CERRAR · ANULAR</div>
+  </div>
+
+  <div class="selector"><span>El diario:</span>
+    <button data-d="dA">A · como ahora (crema, aparte)</button>
+    <button data-d="dB" class="sel">B · integrado en el bloque · ELEGIDA</button>
+    <button data-d="dC">C · cajón que se abre</button></div>
+  <div class="panel">
+  <section class="bloque">
+
+    <!-- ===================== EL MENU ===================== -->
+    <nav class="menu">
+      <div class="m-grupo">1 · Oferta comercial</div>
+      <button class="m-item grande sel" data-v="v11"><span class="num">1.1</span><span class="txt">Preparar una oferta para la comunidad</span></button>
+      <button class="m-item grande" data-v="v12"><span class="num">1.2</span><span class="txt">Revisar el estado de las ofertas enviadas</span><span class="chip azul">3</span></button>
+      <button class="m-item grande" data-v="v13"><span class="num">1.3</span><span class="txt">Validar ofertas aceptadas</span><span class="chip gris">0</span></button>
+
+      <div class="m-grupo sep">2 · Soporte para ventas</div>
+      <button class="m-item" data-v="v21"><span class="num">2.1</span><span class="txt">Estudio de costes</span></button>
+      <button class="m-item" data-v="v22"><span class="num">2.2</span><span class="txt">Estudio de ayudas posibles</span></button>
+      <button class="m-item" data-v="v23"><span class="num">2.3</span><span class="txt">Estado de protección</span></button>
+      <button class="m-item" data-v="v24"><span class="num">2.4</span><span class="txt">Informe general del inmueble</span></button>
+
+      <div style="height:14px"></div>
+      <button class="m-item suelto" data-v="v4"><span class="num">3</span><span class="txt">Fotos</span><span class="chip gris">0</span></button>
+      <button class="m-item suelto" data-v="v5"><span class="num">4</span><span class="txt">Documentos</span><span class="chip gris">0</span></button>
+    </nav>
+
+    <!-- ===================== EL CONTENIDO ===================== -->
+    <div class="contenido">
+
+      <!-- 1.1 PREPARAR -->
+      <div class="vista sel" id="v11">
+        <div class="v-tit"><h3>Preparar una oferta para la comunidad</h3></div>
+        <div class="v-sub">Lo que necesitas para enviarla. Cuando todo esté en verde, se envía.</div>
+        <div class="rapida"><input placeholder="Nota rápida al diario…"><button class="bs">Guardar</button></div>
+
+        <div class="tipo"><span class="rot">Tipo de oferta</span>
+          <button class="op">Sin viabilidad</button>
+          <button class="op sel">Con viabilidad · con Polycam</button>
+          <button class="op">Con viabilidad · sin Polycam (p. ej. SATE)</button>
+        </div>
+
+        <div class="req">
+          <div class="r falta">
+            <div class="r-n">Necesitas · 1</div>
+            <div class="r-t">Hoja de encargo con el ok de Daniel</div>
+            <div class="r-e"><span class="no">Falta</span> · no hay ninguna hoja nueva preparada</div>
+            <div class="accion"><button class="bp">+ Crear hoja de encargo</button></div>
+            <div class="hojita pista">Al generarla va sola al ok de Daniel, con su presupuesto. Aquí verás «esperando el ok desde el …».</div>
+          </div>
+          <div class="r listo">
+            <div class="r-n">Necesitas · 2</div>
+            <div class="r-t">Viabilidad del arquitecto</div>
+            <div class="r-e"><span class="ok">✓ Hecha</span> · informe del 10/09/2026 · <a href="#">ver</a></div>
+            <div class="hojita pista" style="border-top-color:#cfe5bc">Con Polycam: la pide tu envío del escaneo al buzón. Sin Polycam: un botón, «Solicitar que el arquitecto estudie la viabilidad».</div>
+          </div>
+        </div>
+
+        <div class="final">
+          <div style="flex:1">
+            <b style="font-size:15px">Enviar la oferta a la comunidad</b>
+            <div class="pista">Se activa cuando tengas la hoja con ok y la viabilidad. Con varias hojas te preguntará: ¿un presupuesto por hoja o uno para todas?</div>
+            <div class="extras"><div class="pista">Adjuntar también (opcional):</div>
+              <div class="extras-2x2">
+                <label><input type="checkbox"> Estudio de costes</label>
+                <label><input type="checkbox"> Estudio de ayudas posibles</label>
+                <label class="apagado"><input type="checkbox" disabled> Estado de protección <span class="pista">· próximamente</span></label>
+                <label><input type="checkbox"> Informe general del inmueble</label>
+              </div>
+            </div>
+          </div>
+          <button class="bp" disabled>✉ Enviar oferta por mail</button>
+        </div>
+      </div>
+
+      <!-- 1.2 ENVIADAS -->
+      <div class="vista" id="v12">
+        <div class="v-tit"><h3>Ofertas enviadas</h3><span class="pista">3 · la última hace 47 días</span></div>
+        <div class="v-sub">Cada envío, con lo que llevaba y cuánto tiempo lleva sin respuesta.</div>
+        <div class="ofertas">
+          <div class="oferta">
+            <div class="cuando"><b>10/09/2026</b><span class="dias">hace 47 días</span><br><span class="esp">sin respuesta</span></div>
+            <div class="q"><b>Proyecto de ascensor + subvención</b>
+              <div class="h">HE-2026-0702 v1 · Proyecto + CSS · <b>7.900 €</b></div>
+              <div class="h">HE-2026-0703 v1 · Documentación técnica + subvención a éxito · <b>1.980 €</b></div>
+              <div class="h pista">+ presupuesto · viabilidad del 10/09 · a (destinatarios) <span class="ej">ejemplo</span></div></div>
+            <div class="der"><a href="#">ver el correo</a><a href="#">ver los PDF</a><button class="bs">Reenviar / recordar</button></div>
+          </div>
+          <div class="oferta vieja">
+            <div class="cuando"><b>21/07/2026</b><span class="dias">hace 98 días</span><br><span class="esp">sin respuesta</span></div>
+            <div class="q"><b>Primera oferta</b> <span class="pista">· enviada fuera de la app</span>
+              <div class="h">HE-2026-0639 v1 · Proyecto (licencia y DF) + CSS · <b>10.000 €</b></div>
+              <div class="h">HE-2026-0640 v1 · Documentación técnica + subvención a éxito · <b>1.980 €</b></div></div>
+            <div class="der"><a href="#">ver los PDF</a></div>
+          </div>
+          <div class="oferta vieja">
+            <div class="cuando"><b>14/01/2026</b><span class="dias">sustituida</span></div>
+            <div class="q"><b>Subvención de eficiencia energética</b> <span class="pista">· enviada fuera de la app</span>
+              <div class="h">HE-2026-0014 v1</div></div>
+            <div class="der"><a href="#">ver el PDF</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.3 VALIDAR -->
+      <div class="vista" id="v13">
+        <div class="v-tit"><h3>Validar ofertas aceptadas</h3></div>
+        <div class="v-sub">Cuando la comunidad devuelve la hoja firmada, se comprueba antes de pasarla a facturación.</div>
+        <p class="pista" style="margin-top:14px">Ahora no hay ninguna pendiente. Así se vería una <span class="ej">ejemplo</span>:</p>
+        <div class="validar">
+          <b style="font-size:15px">Ha llegado firmada la oferta del 10/09/2026</b> · <a href="#">ver el PDF firmado</a>
+          <div class="checks">
+            <label><input type="checkbox"> ¿Está firmada de verdad?</label>
+            <label><input type="checkbox"> ¿Está sin retocar? (nada escrito ni tachado para cambiarla)</label>
+            <label><input type="checkbox"> ¿Es la última versión que se envió?</label>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px"><button class="bp">Todo bien: pasa a facturación</button><button class="bs">Tiene errores…</button></div>
+          <div class="quedan">
+            <b>Quedan otras ofertas enviadas sin firmar. ¿Qué hacemos con ellas?</b>
+            <div class="qf">21/07/2026 · HE-2026-0639 v1 + HE-2026-0640 v1 <button class="bs">Mantener</button><button class="bs">No firmada…</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.x SOPORTE PARA VENTAS -->
+      <div class="vista" id="v21">
+        <div class="v-tit"><h3>Estudio de costes</h3><button class="bp" style="margin-left:auto">+ Emitir</button></div>
+        <div class="v-sub">Lo que costaría la obra, las ayudas y cuánto sube si se espera. Útil también para la junta.</div>
+        <div class="hueco">Todavía no se ha emitido ninguno para esta opp.</div>
+      </div>
+      <div class="vista" id="v22">
+        <div class="v-tit"><h3>Estudio de ayudas posibles</h3><button class="bp" style="margin-left:auto">+ Emitir</button></div>
+        <div class="v-sub">Qué ayudas podría pedir, cuándo llegarían y lo que cubren de verdad si se espera.</div>
+        <div class="hueco">Todavía no se ha emitido ninguno para esta opp.</div>
+      </div>
+      <div class="vista" id="v23">
+        <div class="v-tit"><h3>Estado de protección</h3></div>
+        <div class="v-sub">Si el edificio está protegido, qué se puede hacer.</div>
+        <div class="hueco">Próximamente.</div>
+      </div>
+      <div class="vista" id="v24">
+        <div class="v-tit"><h3>Informe general del inmueble</h3><button class="bs" style="margin-left:auto">Descargar PDF</button></div>
+        <div class="v-sub">Todo lo que se sabe del edificio con la dirección: Catastro, urbanismo, ventajas para la venta. El mismo informe del bloque 1, aquí a mano.</div>
+        <div class="tarjetas">
+          <div class="t"><b>El edificio</b><span class="pista">año, viviendas, plantas, referencia catastral… (del informe actual)</span></div>
+          <div class="t"><b>Urbanismo y ayudas de la zona</b><span class="pista">(del informe actual)</span></div>
+        </div>
+      </div>
+
+      <!-- 3 · 4 · 5 -->
+      <div class="vista" id="v3">
+        <div class="v-tit"><h3>Diario de notas</h3></div>
+        <textarea placeholder="Añadir una nueva nota…"></textarea>
+        <div class="nota"><b>01/01/2026</b> · (las notas de la opp, como hoy)</div>
+      </div>
+      <div class="vista" id="v4">
+        <div class="v-tit"><h3>Fotos</h3><button class="bp" style="margin-left:auto">+ Subir fotos</button></div>
+        <div class="v-sub">Las de las notas del diario y las que se suban aquí.</div>
+        <div class="hueco">Todavía no hay fotos.</div>
+      </div>
+      <div class="vista" id="v5">
+        <div class="v-tit"><h3>Documentos</h3><button class="bp" style="margin-left:auto">+ Subir documentos</button></div>
+        <div class="v-sub">Lo que haga falta: CIF, actas, planos, la orden de compra, el presupuesto de la contrata…</div>
+        <div class="hueco">Arrástralos aquí: PDF, fotos, Word, Excel o correos.</div>
+      </div>
+    </div>
+    <aside class="diario-in">
+      <div class="rot">Diario</div>
+      <input placeholder="Añadir una nota…">
+      <div class="n"><b>26/10</b> · (las notas de la opp, como hoy)</div>
+      <div class="n"><b>10/09</b> · Enviada la oferta de proyecto y subvención <span class="ej">ejemplo</span></div>
+      <div class="n"><b>21/07</b> · Primera oferta enviada <span class="ej">ejemplo</span></div>
+    </aside>
+  </section>
+
+  <!-- EL DIARIO, a la derecha, como hoy (v5: «veamos que pasa») -->
+  <aside class="diario">
+    <div class="fila-n"><input placeholder="Añadir una nueva nota"><button class="g">GUARDAR</button></div>
+    <div class="rot">LO QUE VA PASANDO</div>
+    <div class="n"><b>26/10/2026</b> · (las notas de la opp, como hoy)</div>
+    <div class="n"><b>10/09/2026</b> · Enviada la oferta de proyecto y subvención <span class="ej">ejemplo</span></div>
+    <div class="n"><b>21/07/2026</b> · Primera oferta enviada <span class="ej">ejemplo</span></div>
+  </aside>
+  </div>
+</div>
+<div class="lengueta" onclick="document.body.classList.add('abierto')">DIARIO · 3</div>
+<div class="cajon"><button class="cerrar" onclick="document.body.classList.remove('abierto')">×</button>
+  <b style="font-size:15px">Diario</b>
+  <textarea placeholder="Añadir una nota…"></textarea>
+  <div class="nota"><b>26/10/2026</b> · (las notas de la opp, como hoy)</div>
+  <div class="nota"><b>10/09/2026</b> · Enviada la oferta de proyecto y subvención <span class="ej">ejemplo</span></div>
+  <div class="nota"><b>21/07/2026</b> · Primera oferta enviada <span class="ej">ejemplo</span></div>
+</div>
+<script>
+  document.querySelectorAll(".selector button").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(".selector button").forEach(x => x.classList.toggle("sel", x === b));
+    document.body.classList.remove("dA","dB","dC","abierto"); document.body.classList.add(b.dataset.d);
+  }));
+  document.querySelectorAll(".m-item").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(".m-item").forEach(x => x.classList.toggle("sel", x === b));
+    document.querySelectorAll(".vista").forEach(v => v.classList.toggle("sel", v.id === b.dataset.v));
+  }));
+  document.querySelectorAll(".tipo .op").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(".tipo .op").forEach(x => x.classList.toggle("sel", x === b));
+  }));
+</script>
+</body>
+</html>
