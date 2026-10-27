@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DocCajon, GrupoTipos } from "../../../../lib/cajonDocumentos";
-import { accionApuntarCajon, accionArchivarEnCajon, accionPermisosCajon } from "./acciones";
+import { accionApuntarCajon, accionArchivarEnCajon, accionPermisosCajon, accionQuitarDelCajon } from "./acciones";
 
 // EL CAJON DE DOCUMENTOS DE LA OPP (Monica, 25-oct-2026; maqueta validada docs/figma/recorrido-hoja-firmada.html), con
 // la forma del apartado de fotos. Se suelta lo que llega (PDF, fotos, Word, Excel, correos) y queda SIN ARCHIVAR hasta
@@ -66,6 +66,16 @@ export function CajonOpp({ oppId, docs, tipos }: { oppId: string; docs: DocCajon
     if (!tipoId) return;
     empezar(async () => {
       const r = await accionArchivarEnCajon(oppId, docId, tipoId);
+      if (!r.ok) return setError(r.error);
+      setError(null);
+      router.refresh();
+    });
+  }
+
+  function quitar(docId: string, nombre: string) {
+    if (!window.confirm(`¿Quitar «${nombre}»? Se borra, como si no se hubiera subido.`)) return;
+    empezar(async () => {
+      const r = await accionQuitarDelCajon(oppId, docId);
       if (!r.ok) return setError(r.error);
       setError(null);
       router.refresh();
@@ -151,6 +161,15 @@ export function CajonOpp({ oppId, docs, tipos }: { oppId: string; docs: DocCajon
                   </optgroup>
                 ))}
               </select>
+              <button
+                type="button"
+                disabled={ocupado}
+                onClick={() => quitar(d.id, d.nombre)}
+                title="Subido por error: quitarlo"
+                className="rounded-lg border border-black/15 bg-white px-2.5 py-1 text-[12px] text-carbon/70 transition hover:border-alerta hover:text-alerta disabled:opacity-60"
+              >
+                Quitar
+              </button>
             </div>
           ))}
         </>

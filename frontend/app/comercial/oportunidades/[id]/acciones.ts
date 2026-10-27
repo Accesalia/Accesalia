@@ -19,7 +19,7 @@ import {
 } from "../../../../lib/gestionOportunidad";
 import { apuntarFotos } from "../../../../lib/fotos";
 import { puedeVerOpp } from "../../../../lib/hojaGenerador";
-import { apuntarEnCajon, archivarDocumento, permisosCajon } from "../../../../lib/cajonDocumentos";
+import { apuntarEnCajon, archivarDocumento, permisosCajon, quitarDelCajon } from "../../../../lib/cajonDocumentos";
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion } from "../../../../lib/altaOportunidad";
@@ -383,6 +383,18 @@ export async function accionApuntarCajon(oppId: string, subidos: { ruta: string;
     revalidatePath(`/comercial/oportunidades/${oppId}`);
     revalidatePath("/bandeja-comercial");
     return { ok: true, n };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+export async function accionQuitarDelCajon(oppId: string, docId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await quienSoy();
+  if (!yo || !(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
+  try {
+    await quitarDelCajon(docId, oppId);
+    revalidatePath(`/comercial/oportunidades/${oppId}`);
+    revalidatePath("/bandeja-comercial");
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

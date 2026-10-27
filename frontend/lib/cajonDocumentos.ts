@@ -163,6 +163,20 @@ export async function apuntarEnCajon(yo: Yo, oppId: string, subidos: { ruta: str
   return buenos.length;
 }
 
+/** QUITAR LO SUBIDO POR ERROR (Monica, 27-oct-2026: «no hay boton para eliminar si quiero arrepentirme»). Solo lo
+ *  que esta SIN ARCHIVAR: lo archivado ya dice algo de la opp y no se borra. Se quita la fila y el fichero. */
+export async function quitarDelCajon(docId: string, oppId: string): Promise<void> {
+  if (!uuid(docId) || !uuid(oppId)) throw new Error("Documento no válido.");
+  const [d] = await leer<{ storage_ref: string | null; oportunidad_id: string | null; tipo_documento_id: string | null }[]>(
+    `documentos?select=storage_ref,oportunidad_id,tipo_documento_id&id=eq.${docId}`,
+  );
+  if (!d || d.oportunidad_id !== oppId) throw new Error("Ese documento no está en el cajón de esta opp.");
+  if (d.tipo_documento_id) throw new Error("Ya está archivado: no se quita.");
+  await pedir(`documentos?id=eq.${docId}&tipo_documento_id=is.null`, { method: "DELETE" });
+  if (d.storage_ref?.startsWith(`opp/${oppId}/`))
+    await fetch(`${URL_BASE}/storage/v1/object/${ALMACEN_CAJON}/${d.storage_ref}`, { method: "DELETE", headers: CAB, cache: "no-store" });
+}
+
 /** Archivar: decir que es. Si es de la comunidad (la tarjeta del CIF, el DNI...), se cuelga tambien de su comunidad. */
 export async function archivarDocumento(yo: Yo, docId: string, tipoId: string, soloDeOpp?: string): Promise<{ oppId: string }> {
   if (!uuid(docId) || !uuid(tipoId)) throw new Error("Documento o tipo no válido.");
