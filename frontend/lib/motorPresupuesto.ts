@@ -5,15 +5,16 @@
 // iguales, el resto datos historicos o erratas de Factusol), pasado aqui para
 // que la pantalla enseñe el presupuesto mientras se marcan las hojas.
 //
-// Sus reglas (v2, Monica, 10-oct):
-//   - Solo lo que SE COBRA es una linea con precio. La primera de cada hoja lleva
-//     el texto fijo: "Segun hoja de encargo de fecha ..., honorarios a la
-//     contratacion por <concepto> en edificio residencial existente en:
-//     <direccion>. El total de los honorarios incluye: - ...".
-//   - Lo que va A EXITO aparece, pero no cuenta: en una linea a 0. Tambien el %
-//     de un concepto que ademas tiene parte fija (documentacion tecnica 1.980 +
-//     tramitacion 3,5 % a exito): la parte fija es linea con precio.
-//   - Los bloques 'no_aparece' no salen (ya vienen fuera de `incluidos`).
+// Sus reglas (v3, Monica, 27-oct: el presupuesto es PARA LA SUBVENCION):
+//   - Solo lo que la comunidad PAGA y tendra factura que enseñar. Lo que va A
+//     EXITO (el 3 %, el 3,5 % de la tramitacion...) NO sale: ni a 0. De un
+//     concepto con parte fija y parte a exito, sale la parte fija.
+//   - Cada hoja abre con «Segun hoja de encargo HE-XXXX-XXXX vN:» (sin importe:
+//     «nos orienta a nosotros») y debajo sus conceptos, con el TEXTO DE LA HOJA
+//     tal cual («si se cambia a mano, cuadra»).
+//   - Lo incluido sin coste se queda como texto, sin importe (es parte de «que
+//     hacemos»). Los bloques 'no_aparece' no salen (ya vienen fuera de `incluidos`).
+//   - IVA EXPLICITO en cada concepto: base + 21 % (cuota) = total.
 //
 // No lleva "server-only": lo usan la pantalla (en vivo) y el servidor (al
 // guardar), y asi los dos calculan exactamente lo mismo.
@@ -23,6 +24,7 @@ export type Cobro = { nombre: string; importe: number | null; pct: number | null
 /** Una hoja tal como entra en el motor: lo que se cobra y lo incluido. */
 export type HojaMotor = {
   id: string;
+  /** HE-XXXX-XXXX vN */
   codigo: string | null;
   versionId: string | null;
   /** fecha de la hoja (la de su ultima version) y, si esta firmada, la de la firma */
@@ -32,46 +34,35 @@ export type HojaMotor = {
   incluidos: string[];
 };
 
-export type LineaPresupuesto = { concepto: string; importe: number; hojaId: string; lineaId: string | null };
+/** importe null = fila de texto (la cabecera de la hoja, lo incluido sin coste). */
+export type LineaPresupuesto = { concepto: string; importe: number | null; hojaId: string; lineaId: string | null };
 
-const PCT = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 });
-const ddmmaaaa = (f: string | null) => (f ? f.slice(0, 10).split("-").reverse().join("/") : "");
+export const IVA = 21;
 
-export function lineasDelPresupuesto(hojas: HojaMotor[], direccion: string): LineaPresupuesto[] {
+const red = (x: number) => Math.round(x * 100) / 100;
+/** El IVA de un concepto, redondeado al centimo. */
+export const cuotaDe = (base: number) => red((base * IVA) / 100);
+
+export function lineasDelPresupuesto(hojas: HojaMotor[], _direccion?: string): LineaPresupuesto[] {
   const items: LineaPresupuesto[] = [];
   for (const h of [...hojas].sort((a, b) => (a.codigo ?? "").localeCompare(b.codigo ?? ""))) {
+    // Lo que se cobra con importe fijo; lo que va solo a exito (sin importe) fuera.
     const conPrecio = h.cobra.filter((x) => x.importe);
-    const aExito = h.cobra
-      .filter((x) => !x.importe || x.pct)
-      .map((x) => `${x.nombre} (a éxito${x.pct ? `, ${PCT.format(x.pct)} %` : ""})`);
-    conPrecio.forEach((x, k) => {
-      let txt = x.nombre;
-      if (k === 0) {
-        txt =
-          `Según hoja de encargo de fecha ${ddmmaaaa(h.fecha)}` +
-          (h.fechaFirma ? ` y recibida firmada en fecha ${ddmmaaaa(h.fechaFirma)}` : "") +
-          `, honorarios a la contratación por ${x.nombre} en edificio residencial existente en: ${direccion}`;
-        if (h.incluidos.length) txt += ". El total de los honorarios incluye: " + h.incluidos.map((i) => "- " + i).join(" ");
-      }
-      items.push({ concepto: txt, importe: Number(x.importe), hojaId: h.id, lineaId: x.lineaId });
-    });
-    if (aExito.length)
-      items.push({
-        concepto: "Incluido en el presupuesto, sin coste en este momento: " + aExito.map((i) => "- " + i).join(" "),
-        importe: 0,
-        hojaId: h.id,
-        lineaId: null,
-      });
+    if (!conPrecio.length) continue;
+    items.push({ concepto: `Según hoja de encargo ${h.codigo ?? "(sin código)"}:`, importe: null, hojaId: h.id, lineaId: null });
+    for (const x of conPrecio) items.push({ concepto: x.nombre, importe: Number(x.importe), hojaId: h.id, lineaId: x.lineaId });
+    if (h.incluidos.length)
+      items.push({ concepto: "Incluye, sin coste: " + h.incluidos.map((i) => "- " + i).join(" "), importe: null, hojaId: h.id, lineaId: null });
   }
   return items;
 }
 
-export const IVA = 21;
-
+/** Base, IVA y total: la suma de los de cada concepto, para que el pie cuadre con las lineas. */
 export function totales(lineas: LineaPresupuesto[]) {
-  const base = Math.round(lineas.reduce((s, l) => s + (l.importe || 0), 0) * 100) / 100;
-  const cuota = Math.round(base * IVA) / 100;
-  return { base, cuota, total: Math.round((base + cuota) * 100) / 100 };
+  const con = lineas.filter((l) => l.importe);
+  const base = red(con.reduce((s, l) => s + (l.importe ?? 0), 0));
+  const cuota = red(con.reduce((s, l) => s + cuotaDe(l.importe ?? 0), 0));
+  return { base, cuota, total: red(base + cuota) };
 }
 
 /** Quien paga, tal como sale en el documento (los datos del de Factusol). */

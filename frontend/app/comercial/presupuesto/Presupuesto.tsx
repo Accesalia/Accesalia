@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DatosPresupuesto, HojaElegible, PresupuestoResumen } from "../../../lib/presupuesto";
-import { EMISOR, IVA, TEXTO_FORMA_PAGO, lineasDelPresupuesto, totales, type Cliente, type FormaPago } from "../../../lib/motorPresupuesto";
+import { EMISOR, IVA, TEXTO_FORMA_PAGO, cuotaDe, lineasDelPresupuesto, totales, type Cliente, type FormaPago } from "../../../lib/motorPresupuesto";
 import { accionBorrar, accionGuardar } from "./acciones";
 
 // LA PANTALLA DE CONSTRUIR EL PRESUPUESTO (Monica, 10-oct-2026):
@@ -196,21 +196,27 @@ export function Presupuesto({ datos, abrir }: { datos: DatosPresupuesto; abrir: 
                 <div className="mt-3 border border-black/15">
                   <div className="grid grid-cols-[1fr_70px_90px_90px]">
                     <div className={CAB}>Descripción</div>
-                    <div className={CAB + " text-right"}>Cantidad</div>
-                    <div className={CAB + " text-right"}>Precio ud.</div>
+                    <div className={CAB + " text-right"}>Base</div>
+                    <div className={CAB + " text-right"}>I.V.A. {EUR.format(IVA)} %</div>
                     <div className={CAB + " text-right"}>Total</div>
                   </div>
                   {lineas.length === 0 ? (
                     <p className="px-2 py-4 text-center text-carbon/50">Marca a la izquierda las hojas que entran.</p>
                   ) : (
-                    lineas.map((l, i) => (
-                      <div key={i} className="grid grid-cols-[1fr_70px_90px_90px] border-t border-black/10">
-                        <div className="px-2 py-1.5 leading-snug">{l.concepto}</div>
-                        <div className="px-2 py-1.5 text-right">1,00</div>
-                        <div className="px-2 py-1.5 text-right">{EUR.format(l.importe)}</div>
-                        <div className="px-2 py-1.5 text-right">{EUR.format(l.importe)}</div>
-                      </div>
-                    ))
+                    lineas.map((l, i) =>
+                      l.importe == null ? (
+                        <div key={i} className={"border-t border-black/10 px-2 py-1.5 leading-snug " + (l.concepto.startsWith("Según hoja") ? "font-semibold" : "text-carbon/65")}>
+                          {l.concepto}
+                        </div>
+                      ) : (
+                        <div key={i} className="grid grid-cols-[1fr_70px_90px_90px] border-t border-black/10">
+                          <div className="px-2 py-1.5 leading-snug">{l.concepto}</div>
+                          <div className="px-2 py-1.5 text-right">{EUR.format(l.importe)}</div>
+                          <div className="px-2 py-1.5 text-right">{EUR.format(cuotaDe(l.importe))}</div>
+                          <div className="px-2 py-1.5 text-right">{EUR.format(l.importe + cuotaDe(l.importe))}</div>
+                        </div>
+                      ),
+                    )
                   )}
                 </div>
 
@@ -236,7 +242,7 @@ export function Presupuesto({ datos, abrir }: { datos: DatosPresupuesto; abrir: 
                 <button type="button" className={BTN_SEC} disabled={ocupado} onClick={() => guardar(true)}>
                   Guardar como borrador
                 </button>
-                <button type="button" className={BTN_PRIM} disabled={ocupado || !lineas.some((l) => l.importe > 0)} onClick={() => guardar(false)}>
+                <button type="button" className={BTN_PRIM} disabled={ocupado || !lineas.some((l) => (l.importe ?? 0) > 0)} onClick={() => guardar(false)}>
                   {ocupado ? "Un momento…" : "Generar PDF"}
                 </button>
               </div>
@@ -284,6 +290,7 @@ function HojaCasilla({ h, marcada, bloqueada, alMarcar }: { h: HojaElegible; mar
                 <li key={"e" + i}>
                   <span className="font-semibold text-carbon/85">A éxito:</span> {x.nombre}
                   {x.pct ? ` · ${PCT.format(x.pct)} %` : ""}
+                  <span className="text-carbon/50"> (no sale en el presupuesto)</span>
                 </li>
               ))}
               {h.incluidos.length > 0 && (

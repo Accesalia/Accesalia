@@ -218,6 +218,15 @@ export type GuardarPresupuesto = {
   borrador: boolean;
 };
 
+/** Una linea en presupuesto_lineas. Las de texto (la cabecera de la hoja, lo incluido) van sin cantidad ni importe. */
+function filaDeLinea(presupuestoId: string, k: number, l: { concepto: string; importe: number | null }) {
+  const conImporte = l.importe != null;
+  return {
+    presupuesto_id: presupuestoId, posicion: k + 1, concepto: l.concepto, cantidad: conImporte ? 1 : null, precio: l.importe, base: l.importe,
+    iva_porcentaje: conImporte ? IVA : null, irpf_porcentaje: conImporte ? 0 : null, total: l.importe,
+  };
+}
+
 /** El codigo PR-año-numero: si aun no lo tiene, el siguiente de la serie, de un
  *  golpe en la base (dos a la vez nunca reciben el mismo). Solo al generar. */
 async function codigoDe(id: string): Promise<string> {
@@ -238,7 +247,7 @@ export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promis
   const lineas = lineasDelPresupuesto(elegidas, d.direccion);
   if (!g.borrador) {
     if (!elegidas.length) throw new Error("Marca al menos una hoja de encargo.");
-    if (!lineas.some((l) => l.importe > 0)) throw new Error("Las hojas marcadas no tienen nada que se cobre.");
+    if (!lineas.some((l) => (l.importe ?? 0) > 0)) throw new Error("Las hojas marcadas no tienen nada que se cobre.");
     if (!g.cliente.nombre.trim()) throw new Error("Falta el nombre del cliente.");
   }
   const t = totales(lineas);
@@ -282,10 +291,7 @@ export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promis
   if (lineas.length)
     await crear(
       "presupuesto_lineas",
-      lineas.map((l, k) => ({
-        presupuesto_id: id, posicion: k + 1, concepto: l.concepto, cantidad: 1, precio: l.importe, base: l.importe,
-        iva_porcentaje: IVA, irpf_porcentaje: 0, total: l.importe,
-      })),
+      lineas.map((l, k) => filaDeLinea(id!, k, l)),
     );
   if (elegidas.length)
     await crear("presupuesto_hojas", elegidas.map((h) => ({ presupuesto_id: id, he_version_id: h.id })));
@@ -297,7 +303,7 @@ export async function guardarPresupuesto(g: GuardarPresupuesto, _yo: Yo): Promis
 /** 3 · el numero, la fecha y el PDF. El PDF, lo ultimo: es lo que lo congela.
  *  Si algo falla antes, se queda en borrador con su numero ya dado, y el
  *  siguiente "generar" lo reutiliza. */
-async function emitir(id: string, cliente: Cliente, formaPago: FormaPago, lineas: { concepto: string; importe: number }[]): Promise<{ id: string; codigo: string }> {
+async function emitir(id: string, cliente: Cliente, formaPago: FormaPago, lineas: { concepto: string; importe: number | null }[]): Promise<{ id: string; codigo: string }> {
   const t = totales(lineas as Parameters<typeof totales>[0]);
   const codigo = await codigoDe(id);
   const fecha = hoy();
@@ -380,14 +386,14 @@ function hojaMotorDe(versionId: string, codigo: string | null, fecha: string, ls
  *  que se cobre con importe (entonces no hay presupuesto). */
 export async function presupuestoDeVersion(versionId: string, fecha: string = hoy()): Promise<string | null> {
   const [v] = await leer<{
-    id: string; codigo_he: string | null; oportunidad_id: string; pagador_tipo: "comunidad" | "contrata" | "persona";
+    id: string; codigo_he: string | null; numero_version: number; oportunidad_id: string; pagador_tipo: "comunidad" | "contrata" | "persona";
     pagador_comunidad_id: string | null; pagador_contrata_id: string | null; pagador_persona_id: string | null;
     comunidad: { id: string; nombre: string; cif_comunidad: string | null; domicilio_fiscal: string | null; cp: string | null; municipio: string | null; provincia: string | null } | null;
     contrata: { id: string; nombre: string; cif: string | null; domicilio_fiscal: string | null } | null;
     persona: { id: string; nombre: string; apellidos: string | null } | null;
     opp: { id: string; codigo: string | null; nombre: string | null } | null;
   }[]>(
-    `he_versiones_hoja?select=id,codigo_he,oportunidad_id,pagador_tipo,pagador_comunidad_id,pagador_contrata_id,pagador_persona_id,` +
+    `he_versiones_hoja?select=id,codigo_he,numero_version,oportunidad_id,pagador_tipo,pagador_comunidad_id,pagador_contrata_id,pagador_persona_id,` +
       `comunidad:pagador_comunidad_id(id,nombre,cif_comunidad,domicilio_fiscal,cp,municipio,provincia),contrata:pagador_contrata_id(id,nombre,cif,domicilio_fiscal),` +
       `persona:pagador_persona_id(id,nombre,apellidos),opp:oportunidad_id(id,codigo,nombre)&id=eq.${versionId}`,
   );
@@ -397,10 +403,10 @@ export async function presupuestoDeVersion(versionId: string, fecha: string = ho
       `&version_id=eq.${versionId}&order=creado_en.asc`,
   );
   const direccion = nombreDeOpp(v.opp);
-  const lineas = lineasDelPresupuesto([hojaMotorDe(versionId, v.codigo_he, fecha, ls)], direccion);
+  const lineas = lineasDelPresupuesto([hojaMotorDe(versionId, v.codigo_he ? `${v.codigo_he} v${v.numero_version}` : null, fecha, ls)], direccion);
   // Fuera el borrador anterior de esta version (sus lineas caen con el): el presupuesto es el de la hoja tal como va.
   await pedir(`presupuestos?he_version_id=eq.${versionId}&url_pdf=is.null`, { method: "DELETE" });
-  if (!lineas.some((l) => l.importe > 0)) return null;
+  if (!lineas.some((l) => (l.importe ?? 0) > 0)) return null;
 
   // Quien paga, el de la hoja; la forma de cobro, la de sus condiciones (comunidad y particular: cargo en cuenta).
   const vacio: Cliente = { nombre: "", nif: "", domicilio: "", cp: "", poblacion: "", provincia: "" };
@@ -430,12 +436,12 @@ export async function presupuestoDeVersion(versionId: string, fecha: string = ho
   });
   await crear(
     "presupuesto_lineas",
-    lineas.map((l, k) => ({ presupuesto_id: id, posicion: k + 1, concepto: l.concepto, cantidad: 1, precio: l.importe, base: l.importe, iva_porcentaje: IVA, irpf_porcentaje: 0, total: l.importe })),
+    lineas.map((l, k) => filaDeLinea(id, k, l)),
   );
   return id;
 }
 
-type PresupuestoBorrador = { id: string; cliente: Cliente; formaPago: FormaPago; lineas: { concepto: string; importe: number }[] };
+type PresupuestoBorrador = { id: string; cliente: Cliente; formaPago: FormaPago; lineas: { concepto: string; importe: number | null }[] };
 async function borradorDeVersion(versionId: string): Promise<PresupuestoBorrador | null> {
   const [p] = await leer<{
     id: string; forma_pago: FormaPago | null; pagador_nombre: string | null; pagador_nif: string | null; pagador_domicilio: string | null; pagador_cp: string | null;
@@ -449,7 +455,7 @@ async function borradorDeVersion(versionId: string): Promise<PresupuestoBorrador
     id: p.id,
     formaPago: p.forma_pago ?? "cargo_en_cuenta",
     cliente: { nombre: p.pagador_nombre ?? "", nif: p.pagador_nif ?? "", domicilio: p.pagador_domicilio ?? "", cp: p.pagador_cp ?? "", poblacion: p.pagador_poblacion ?? "", provincia: p.pagador_provincia ?? "" },
-    lineas: [...p.lineas].sort((a, b) => a.posicion - b.posicion).map((l) => ({ concepto: l.concepto ?? "", importe: Number(l.precio) || 0 })),
+    lineas: [...p.lineas].sort((a, b) => a.posicion - b.posicion).map((l) => ({ concepto: l.concepto ?? "", importe: l.precio == null ? null : Number(l.precio) })),
   };
 }
 

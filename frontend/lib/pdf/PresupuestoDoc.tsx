@@ -9,9 +9,14 @@
 //   (tipo, base, cuota) · total.
 // Fuera lo que Factusol imprime vacio o sin uso: articulo, agente, descuento,
 // pronto pago, portes, financiacion, recargo de equivalencia y observaciones.
+//
+// 27-oct-2026 (es PARA LA SUBVENCION): IVA EXPLICITO en cada concepto -base,
+// 21 % y total- en vez de cantidad y precio unitario (el «1,00» solo lo pedia
+// Factusol para que saliera la linea). Las filas de texto (la cabecera de cada
+// hoja, lo incluido sin coste) van sin cifras.
 
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
-import { EMISOR, IVA, TEXTO_FORMA_PAGO, type Cliente, type FormaPago, type LineaPresupuesto } from "../motorPresupuesto";
+import { EMISOR, IVA, TEXTO_FORMA_PAGO, cuotaDe, type Cliente, type FormaPago, type LineaPresupuesto } from "../motorPresupuesto";
 
 export type DocPresupuesto = {
   codigo: string;
@@ -107,18 +112,25 @@ export function PresupuestoDoc({ d }: { d: DocPresupuesto }) {
         <View style={s.caja}>
           <View style={s.cab} fixed>
             <T style={[s.celda, s.desc]}>DESCRIPCIÓN</T>
-            <T style={[s.celda, s.num]}>CANTIDAD</T>
-            <T style={[s.celda, s.num]}>PRECIO UD.</T>
+            <T style={[s.celda, s.num]}>BASE</T>
+            <T style={[s.celda, s.num]}>{`I.V.A. ${EUR.format(IVA)} %`}</T>
             <T style={[s.celda, s.num]}>TOTAL</T>
           </View>
-          {d.lineas.map((l, i) => (
-            <View key={i} style={s.lineaTabla} wrap={false}>
-              <T style={[s.celda, s.desc]}>{l.concepto}</T>
-              <T style={[s.celda, s.num]}>1,00</T>
-              <T style={[s.celda, s.num]}>{EUR.format(l.importe)}</T>
-              <T style={[s.celda, s.num]}>{EUR.format(l.importe)}</T>
-            </View>
-          ))}
+          {d.lineas.map((l, i) =>
+            l.importe == null ? (
+              // fila de texto: la cabecera de la hoja (en negrita) o lo incluido sin coste
+              <View key={i} style={s.lineaTabla} wrap={false}>
+                <T style={[s.celda, { width: "100%" }, l.concepto.startsWith("Según hoja") ? { fontFamily: "Helvetica-Bold" } : { color: "#555" }]}>{l.concepto}</T>
+              </View>
+            ) : (
+              <View key={i} style={s.lineaTabla} wrap={false}>
+                <T style={[s.celda, s.desc]}>{l.concepto}</T>
+                <T style={[s.celda, s.num]}>{EUR.format(l.importe)}</T>
+                <T style={[s.celda, s.num]}>{EUR.format(cuotaDe(l.importe))}</T>
+                <T style={[s.celda, s.num]}>{EUR.format(l.importe + cuotaDe(l.importe))}</T>
+              </View>
+            ),
+          )}
         </View>
 
         <View wrap={false}>
