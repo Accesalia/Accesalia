@@ -1,0 +1,238 @@
+<title>Ficha comercial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    carbon: "#2b2b2b", lima: "#7ac943", "lima-dark": "#3f7a1c", "lima-soft": "#eef7e4", hueso: "#f7f7f5", alerta: "#9f3a38",
+  } } } };
+</script>
+<style>
+/* LA FICHA COMERCIAL (Monica, 27-oct-2026), sobre SU dibujo («ficha comercial posible.png») en tres franjas: arriba lo
+   comun (nombre y primer contacto), en el centro la FASE (avance comercial y la historia con ellos), abajo lo
+   transversal (edificio, comunidad, documentos, avance del proyecto). El avance comercial, como ella lo describio:
+   cada fase con su RESULTADO; las hojas de encargo se llevan el peso (una fila por hoja, solo su version vigente, con su
+   viabilidad), firma y cobro son una linea. La junta se agenda aqui mismo, en una ventanita, sin abrir la agenda.
+   Datos reales de San Illan 3 (DAN-2025-231) a 27-oct-2026. El aviso de conflicto de la ventanita es un ejemplo. */
+:root { color-scheme: light; }
+html, body { background: #2e3236; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #2b2b2b; }
+.manrope { font-family: Manrope, system-ui, sans-serif; }
+.panel { border-radius: 16px; background: #fff; border: 1px solid rgba(0,0,0,.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,.18), 0 18px 36px -18px rgba(0,0,0,.6); }
+.rot { font: 800 11px/1 Manrope, system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: rgba(43,43,43,.55); }
+.fase { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 14px; padding: 12px 0; border-top: 1px solid rgba(0,0,0,.08); }
+.fase:first-of-type { border-top: 0; }
+.fase > .n { font: 800 13px/1.3 Manrope, system-ui, sans-serif; color: #2b2b2b; display: flex; gap: 8px; align-items: baseline; }
+.fase > .n i { font-style: normal; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; font-size: 11.5px; }
+.hecha i { background: #7ac943; color: #fff; }
+.encurso i { background: #2e3236; color: #fff; }
+.pend i { background: #e9e9e6; color: rgba(43,43,43,.6); }
+.est { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.e-ok { background: #eef7e4; color: #3f7a1c; }
+.e-ojo { background: #fbf1dc; color: #8a5a00; }
+.e-gris { background: #efefec; color: rgba(43,43,43,.6); }
+.lnk { color: #104269; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: rgba(16,66,105,.3); }
+.lnk:hover { text-decoration-color: #104269; }
+.bt { border-radius: 999px; border: 1.5px solid rgba(43,43,43,.2); background: #fff; padding: 5px 13px; font-size: 12.5px; font-weight: 700; color: rgba(43,43,43,.8); white-space: nowrap; }
+.bt:hover { border-color: rgba(43,43,43,.5); color: #2b2b2b; }
+.bt-lima { background: #7ac943; border-color: #7ac943; color: #2b2b2b; }
+.bt-lima:hover { filter: brightness(.95); border-color: #7ac943; }
+table.hojas { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.hojas th { text-align: left; font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: rgba(43,43,43,.5); padding: 4px 8px; border-bottom: 1px solid rgba(0,0,0,.12); }
+table.hojas td { padding: 7px 8px; border-bottom: 1px solid rgba(0,0,0,.06); vertical-align: top; }
+.campo { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: rgba(43,43,43,.65); }
+.campo input, .campo select { border: 1.5px solid rgba(43,43,43,.18); border-radius: 10px; padding: 8px 10px; font-size: 14px; font-weight: 500; color: #2b2b2b; background: #fff; }
+.campo input:focus { outline: none; border-color: #7ac943; box-shadow: 0 0 0 3px rgba(122,201,67,.18); }
+.vacio { color: rgba(43,43,43,.45); font-style: italic; }
+</style>
+
+<div class="sticky top-0 z-20 flex items-center gap-5 bg-[#2b2b2b] px-6 py-2.5 text-[15px] font-bold text-white">ACCESALIA<a href="#" class="text-[13.5px] font-semibold text-white/65 hover:text-white">← Buscar y comprobar</a></div>
+<main class="mx-auto w-full max-w-[1470px] px-4 pb-16 pt-4 sm:px-6">
+
+  <p class="manrope mt-1 flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.12em] text-[#a6dc7e]">
+    <span class="rounded-full bg-[#a6dc7e]" style="width:.5rem;height:.5rem"></span>Oportunidad <span class="text-[#f3f4f1]/45">›</span> Ficha comercial
+  </p>
+
+  <!-- ===================== ARRIBA: LO COMUN ===================== -->
+  <div class="mt-4 grid gap-5 lg:grid-cols-2">
+    <section class="panel p-5 sm:p-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h1 class="manrope text-[30px] font-extrabold leading-tight">San Illán 3, Madrid <span class="text-[17px] font-bold text-carbon/45">(paseo)</span></h1>
+        <span class="manrope text-[15px] font-extrabold tabular-nums text-carbon/55">DAN-2025-231</span>
+      </div>
+      <p class="mt-1 text-[14px] text-carbon/65">Distrito 11 · Carabanchel · edificio de 1960</p>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <span class="est e-ok">● Ganada el 16-sep-2026</span>
+        <span class="est e-ojo">Primera parte cobrada: falta el resto</span>
+        <span class="text-[12.5px] text-carbon/55">y 1 hoja enviada sin firmar</span>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button class="bt">✦ Preguntar a Sali cómo va esto</button>
+        <button class="bt">Ir a los bloques →</button>
+      </div>
+    </section>
+
+    <section class="panel p-5 sm:p-6">
+      <div class="rot">Datos del primer contacto</div>
+      <dl class="mt-3 grid grid-cols-[150px_minmax(0,1fr)] gap-x-4 gap-y-2 text-[14px]">
+        <dt class="text-carbon/55">Cómo nos ha llegado</dt><dd>La trajo <b>Silvia Arribas</b> (ARRIALSI), el 10-jun-2025 · «igual que San Illán 7»</dd>
+        <dt class="text-carbon/55">Qué les interesa</dt><dd>Ascensor con derribo + subvención + CSS + documentación para subvención</dd>
+        <dt class="text-carbon/55">Administrador</dt><dd><b>Silvia Arribas</b> · ARRIALSI · <a class="lnk" href="#">917 307 033</a> · <a class="lnk" href="#">665 805 356</a></dd>
+        <dt class="text-carbon/55">Con quién hablo</dt><dd>Silvia Arribas</dd>
+        <dt class="text-carbon/55">Comercial</dt><dd>Álvaro</dd>
+      </dl>
+    </section>
+  </div>
+
+  <!-- ===================== CENTRO: LA FASE ===================== -->
+  <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,64fr)_minmax(0,36fr)]">
+    <section class="panel p-5 sm:p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div class="rot">Avance comercial</div>
+        <span class="text-[12px] text-carbon/50">cada fase, con su resultado</span>
+      </div>
+
+      <div class="mt-2">
+        <!-- 1 -->
+        <div class="fase hecha"><div class="n"><i>✓</i>Toma de datos</div>
+          <div class="text-[13.5px]">
+            Necesitaba <b>Polycam y viabilidad</b>. Viabilidad <b>enviada el 11-jun-2025</b> <a class="lnk" href="#">ver PDF</a>
+            <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[13px]"><a class="lnk" href="#">Informe del edificio ↗</a><span class="text-carbon/55">Catastro, lo que condiciona hacer y pedir</span></div>
+          </div></div>
+
+        <!-- 2 -->
+        <div class="fase hecha"><div class="n"><i>✓</i>Documentación</div>
+          <div>
+            <div class="mb-2 flex flex-wrap justify-end gap-2"><button class="bt">+ Generar hoja de encargo</button><button class="bt">+ Pedir viabilidad</button></div>
+            <div class="overflow-x-auto">
+            <table class="hojas">
+              <thead><tr><th>Hoja</th><th>Qué contiene</th><th class="text-right">Importe</th><th>Viabilidad</th><th>Cómo está</th></tr></thead>
+              <tbody>
+                <tr><td class="whitespace-nowrap"><a class="lnk" href="#">HE-2026-0502</a><div class="text-[11.5px] text-carbon/50">v1 · 5-jun-2026</div></td>
+                  <td>Proyecto de instalación de ascensor + coordinación de seguridad y salud</td>
+                  <td class="whitespace-nowrap text-right font-semibold tabular-nums">7.900 €</td>
+                  <td class="whitespace-nowrap"><a class="lnk" href="#">v1</a></td>
+                  <td><span class="est e-ok">Firmada · en facturación</span></td></tr>
+                <tr><td class="whitespace-nowrap"><a class="lnk" href="#">HE-2026-0503</a><div class="text-[11.5px] text-carbon/50">v1 · 5-jun-2026</div></td>
+                  <td>Documentación técnica anexa + gestión de subvenciones (a éxito, 3,5 %)</td>
+                  <td class="whitespace-nowrap text-right font-semibold tabular-nums">1.980 € <span class="block text-[11.5px] font-normal text-carbon/50">+ 3,5 % si conceden</span></td>
+                  <td class="whitespace-nowrap"><a class="lnk" href="#">v1</a></td>
+                  <td><span class="est e-ok">Firmada · en producción</span></td></tr>
+                <tr><td class="whitespace-nowrap"><a class="lnk" href="#">HE-2025-0317</a><div class="text-[11.5px] text-carbon/50">v1 · 11-jun-2025</div></td>
+                  <td>Proyecto, 3D, licencia, CSS, DF, subvenciones, IEE, CEE y libro del edificio</td>
+                  <td class="whitespace-nowrap text-right text-carbon/45">sin importes</td>
+                  <td class="whitespace-nowrap"><a class="lnk" href="#">v1</a></td>
+                  <td><span class="est e-gris">Enviada, sin firmar</span></td></tr>
+              </tbody>
+            </table>
+            </div>
+          </div></div>
+
+        <!-- 3 -->
+        <div class="fase hecha"><div class="n"><i>✓</i>Junta</div>
+          <div class="text-[13.5px]">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span>Junta el <b>10-jun-2026</b></span>
+              <span class="flex items-center gap-1.5">¿Nos piden ir?
+                <button class="bt !px-2.5 !py-0.5">Sí</button><button class="bt !px-2.5 !py-0.5">No</button></span>
+              <button class="bt bt-lima" id="abrirJunta">📅 Agendar fecha de junta</button>
+            </div>
+            <div class="mt-1.5">3D: hacía falta. <b>Pedido el 5-jun</b> para el 10-jun · <span class="text-alerta font-semibold">sin entregar</span></div>
+            <div class="mt-1.5">Resultado: <b>votó sí</b> → hoja firmada recibida el 16-sep-2026</div>
+          </div></div>
+
+        <!-- 4 -->
+        <div class="fase hecha"><div class="n"><i>✓</i>Firma</div>
+          <div class="text-[13.5px]">Firmadas el <b>16-sep-2026</b>: HE-2026-0502 y HE-2026-0503 <a class="lnk" href="#">ver PDFs</a></div></div>
+
+        <!-- 5 -->
+        <div class="fase encurso"><div class="n"><i>5</i>Cobro</div>
+          <div class="text-[13.5px]"><b>Cobrados 5.470 €</b> · faltan 4.410 € (entrega del proyecto 3.490 € y CSS 920 €) + la subvención si la conceden</div></div>
+      </div>
+    </section>
+
+    <section class="panel p-5 sm:p-6">
+      <div class="rot">Tu historia con ellos</div>
+      <div class="mt-3 flex items-center gap-2 rounded-[12px] bg-hueso px-3 py-2 text-[13.5px] text-carbon/45 shadow-[inset_0_1px_3px_rgba(0,0,0,.08)]">Apunta algo nuevo…</div>
+      <ul class="mt-3 space-y-3 text-[13.5px]">
+        <li><div class="text-[12px] font-bold text-carbon/55">16-sep-2026</div>Hoja de encargo firmada.</li>
+        <li><div class="text-[12px] font-bold text-carbon/55">11-jun-2025</div>Hoja de encargo enviada.</li>
+        <li><div class="text-[12px] font-bold text-carbon/55">10-jun-2025 · Daniel</div>Igual que paseo de San Illán 7.</li>
+        <li><div class="text-[12px] font-bold text-carbon/55">10-jun-2025 · cómo llegó</div>Contacta Silvia Arribas (ARRIALSI). Paga la CP. Ascensor con derribo + subvención, «igual que San Illán 7».</li>
+      </ul>
+      <div class="rot mt-6">Mails enviados</div>
+      <p class="mt-2 text-[13.5px] vacio">Ninguno enviado desde la app.</p>
+    </section>
+  </div>
+
+  <!-- ===================== ABAJO: LO TRANSVERSAL ===================== -->
+  <div class="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <section class="panel p-5">
+      <div class="rot">El edificio</div>
+      <ul class="mt-3 space-y-2 text-[13.5px]">
+        <li><a class="lnk" href="#">Ficha de Catastro</a> <span class="text-carbon/50">· 1960</span></li>
+        <li><a class="lnk" href="#">Lo que condiciona hacer</a> <span class="text-carbon/50">· protección</span></li>
+        <li><a class="lnk" href="#">Lo que condiciona pedir</a> <span class="text-carbon/50">· IEE: no nos consta</span></li>
+        <li><a class="lnk" href="#">Informe de venta</a></li>
+      </ul>
+    </section>
+    <section class="panel p-5">
+      <div class="rot">La comunidad</div>
+      <dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-[13.5px]">
+        <dt class="text-carbon/55">Presidente</dt><dd class="vacio">sin apuntar</dd>
+        <dt class="text-carbon/55">Comisión de obras</dt><dd class="vacio">sin apuntar</dd>
+        <dt class="text-carbon/55">Vecinos</dt><dd class="vacio">sin apuntar</dd>
+      </dl>
+      <button class="bt mt-3">+ Añadir contacto</button>
+    </section>
+    <section class="panel p-5">
+      <div class="rot">Fotos y documentos</div>
+      <p class="mt-3 text-[13.5px]"><span class="vacio">Sin fotos</span></p>
+      <ul class="mt-2 space-y-1.5 text-[13.5px]">
+        <li><a class="lnk" href="#">Viabilidad v1</a> <span class="text-carbon/50">· 11-jun-2025</span></li>
+        <li><a class="lnk" href="#">Hoja firmada HE-2026-0502</a></li>
+        <li><a class="lnk" href="#">Hoja firmada HE-2026-0503</a></li>
+      </ul>
+    </section>
+    <section class="panel p-5">
+      <div class="rot">Avance del proyecto</div>
+      <p class="mt-3 text-[13.5px] vacio">Aquí saldrá, en corto, por dónde va: proyecto, licencia, obra y cada subvención con su estado. Esas áreas aún no están en la app.</p>
+    </section>
+  </div>
+</main>
+
+<!-- ===================== LA VENTANITA DE LA JUNTA ===================== -->
+<div id="velo" class="fixed inset-0 z-30 hidden items-center justify-center bg-black/45 p-4">
+  <div class="panel w-full max-w-[460px] p-6">
+    <div class="flex items-start justify-between gap-3">
+      <div><div class="manrope text-[20px] font-extrabold">Fecha de la junta</div>
+        <div class="text-[13px] text-carbon/60">Se apunta en tu agenda, sin salir de aquí.</div></div>
+      <button id="cerrar" class="text-[20px] leading-none text-carbon/40 hover:text-carbon">×</button>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <label class="campo">Día<input type="date" id="dia" value="2026-11-12"></label>
+      <label class="campo">Hora<input type="time" id="hora" value="18:00"></label>
+      <label class="campo col-span-2">Lugar<input value="Portal de la comunidad, San Illán 3"></label>
+      <label class="campo col-span-2">Oportunidad<input value="San Illán 3, Madrid (paseo) · DAN-2025-231" disabled class="!bg-hueso"></label>
+    </div>
+    <div id="choque" class="mt-4 rounded-[10px] border border-[#f0d9a8] bg-[#fbf1dc] px-3 py-2 text-[13px] text-[#6b4a00]">
+      ⚠ A esa hora ya tienes otra cita: <b>«Visita a otra comunidad», 17:30–18:30</b> <span class="text-[#6b4a00]/70">(ejemplo)</span>. Puedes guardarla igual.
+    </div>
+    <div class="mt-5 flex justify-end gap-2"><button class="bt" id="cancelar">Cancelar</button><button class="bt bt-lima">Guardar en mi agenda</button></div>
+  </div>
+</div>
+
+<script>
+const velo = document.getElementById("velo");
+const abrir = () => { velo.classList.remove("hidden"); velo.classList.add("flex"); };
+const cerrar = () => { velo.classList.add("hidden"); velo.classList.remove("flex"); };
+document.getElementById("abrirJunta").onclick = abrir;
+document.getElementById("cerrar").onclick = cerrar;
+document.getElementById("cancelar").onclick = cerrar;
+velo.onclick = (e) => { if (e.target === velo) cerrar(); };
+document.getElementById("hora").oninput = (e) => {
+  const h = e.target.value; document.getElementById("choque").style.display = h >= "17:30" && h < "18:30" ? "" : "none";
+};
+</script>

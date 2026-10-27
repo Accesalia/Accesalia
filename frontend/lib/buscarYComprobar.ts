@@ -92,7 +92,8 @@ export async function listasBuscar(): Promise<ListasBuscar> {
     };
   });
   return {
-    direcciones: l.opp.map(({ hijos: _h, ...o }): Opcion => ({ ...o, etq: "direccion" })),
+    // A la FICHA COMERCIAL de la opp (27-oct-2026), no a los bloques.
+    direcciones: l.opp.map(({ hijos: _h, ...o }): Opcion => ({ ...o, etq: "direccion", href: `/comercial/ficha/${o.id}` })),
     gente: [...admins, ...l.contrata.map(({ hijos: _h, ...c }): Opcion => ({ ...c, etq: "contrata" })), ...personas],
   };
 }

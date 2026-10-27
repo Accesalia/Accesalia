@@ -273,7 +273,7 @@ function RespuestaDireccion({ q, opps }: { q: string; opps: OppConocida[] }) {
                 )}
                 <div className={"text-[13px] " + (c.viejo ? "font-semibold text-alerta" : "text-carbon/65")}>{c.texto}</div>
               </div>
-              <Link href={`/comercial/oportunidades/${o.id}`} className={BOTON_OSCURO}>
+              <Link href={`/comercial/ficha/${o.id}`} className={BOTON_OSCURO}>
                 Ir a su ficha →
               </Link>
             </div>
