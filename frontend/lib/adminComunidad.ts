@@ -35,12 +35,14 @@ async function escribir(path: string, method: "POST" | "PATCH", body: unknown) {
 const hoy = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
 const uuid = (v: string) => /^[0-9a-f-]{36}$/.test(v);
 
-export type AdminVigente = { puestoId: string | null; personaId: string | null; nombre: string };
+export type AdminVigente = { id: string; puestoId: string | null; personaId: string | null; empresaId: string | null; nombre: string };
 export type ComunidadConAdmin = { id: string; nombre: string; admin: AdminVigente | null };
 
 type FilaResp = {
+  id: string;
   comunidad_id: string;
   puesto_id: string | null;
+  empresa_id: string | null;
   puesto: { persona_id: string | null; persona: { nombre: string | null; apellidos: string | null } | null } | null;
   empresa: { nombre_accesalia: string | null } | null;
 };
@@ -51,15 +53,17 @@ export async function adminsDeComunidades(ids: string[]): Promise<Map<string, Ad
   const out = new Map<string, AdminVigente>();
   if (!unicos.length) return out;
   const filas = await leer<FilaResp[]>(
-    "comunidad_admin_responsable?select=comunidad_id,puesto_id,puesto:puesto_id(persona_id,persona:persona_id(nombre,apellidos)),empresa:empresa_id(nombre_accesalia)" +
+    "comunidad_admin_responsable?select=id,comunidad_id,puesto_id,empresa_id,puesto:puesto_id(persona_id,persona:persona_id(nombre,apellidos)),empresa:empresa_id(nombre_accesalia)" +
       `&comunidad_id=in.(${unicos.join(",")})&vigente=is.true&order=desde.desc.nullslast,creado_en.desc`,
   );
   for (const f of filas) {
     if (out.has(f.comunidad_id)) continue;
     const persona = [f.puesto?.persona?.nombre, f.puesto?.persona?.apellidos].filter(Boolean).join(" ");
     out.set(f.comunidad_id, {
+      id: f.id,
       puestoId: f.puesto_id,
       personaId: f.puesto?.persona_id ?? null,
+      empresaId: f.empresa_id,
       nombre: [persona, f.empresa?.nombre_accesalia].filter(Boolean).join(" · ") || "una administración sin persona",
     });
   }
@@ -109,19 +113,33 @@ export async function comunidadesDeOpp(oppId: string): Promise<ComunidadConAdmin
 /** PONER el administrador de una comunidad (una persona, por su puesto vigente).
  *  - Sin administrador vigente: se pone.
  *  - Con el mismo: no se toca.
+ *  - Con SOLO SU ADMINISTRACION, sin persona (Monica, 28-oct-2026, Calderon de la
+ *    Barca 12: «no lo coge»): si la persona es de esa misma administracion, completa
+ *    esa fila; no es un cambio de administrador.
  *  - Con otro: solo si `cambia` (lo decide el comercial en el aviso). El anterior
  *    se cierra con fecha de hoy (hasta) y deja de estar vigente; queda en el historial.
+ *  `puestoId`, si se sabe cual se eligio: una persona puede estar en dos
+ *  administraciones (Paz Terradillo, Ciudadela y Gesmadrid).
  *  Devuelve lo que ha pasado, para el diario. */
 export async function ponerAdministrador(
   comunidadId: string,
   personaId: string,
-  opciones: { cambia: boolean; nota: string },
+  opciones: { cambia: boolean; nota: string; puestoId?: string },
 ): Promise<"puesto" | "igual" | "cambiado" | "se_queda" | "sin_puesto"> {
   if (!uuid(comunidadId) || !uuid(personaId)) throw new Error("Comunidad o persona no válida");
-  const [puesto] = await leer<{ id: string; empresa_id: string | null }[]>(`puesto?select=id,empresa_id&persona_id=eq.${personaId}&hasta=is.null&limit=1`);
+  const elegido = opciones.puestoId && uuid(opciones.puestoId) ? `&id=eq.${opciones.puestoId}` : "";
+  const [puesto] = await leer<{ id: string; empresa_id: string | null }[]>(`puesto?select=id,empresa_id&persona_id=eq.${personaId}&hasta=is.null${elegido}&limit=1`);
   if (!puesto) return "sin_puesto";
   const actual = (await adminsDeComunidades([comunidadId])).get(comunidadId);
-  if (actual?.personaId === personaId) return "igual";
+  if (actual?.personaId === personaId && (!elegido || actual.puestoId === puesto.id)) return "igual";
+  if (actual && !actual.puestoId && (!actual.empresaId || actual.empresaId === puesto.empresa_id)) {
+    await escribir(`comunidad_admin_responsable?id=eq.${actual.id}`, "PATCH", {
+      puesto_id: puesto.id,
+      empresa_id: puesto.empresa_id,
+      notas: opciones.nota,
+    });
+    return "puesto";
+  }
   if (actual && !opciones.cambia) return "se_queda";
   if (actual) await escribir(`comunidad_admin_responsable?comunidad_id=eq.${comunidadId}&vigente=is.true`, "PATCH", { vigente: false, hasta: hoy() });
   await escribir("comunidad_admin_responsable", "POST", {

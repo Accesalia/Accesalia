@@ -108,22 +108,24 @@ export async function guardarCompletar(oppId: string, d: DatosCompletar): Promis
   if (d.siguientePaso && ["primer_contacto", "visita", "envio_documentos"].includes(d.siguientePaso)) {
     cambio.siguiente_paso = d.siguientePaso;
   }
+  if (Object.keys(cambio).length) {
+    const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?id=eq.${oppId}`, {
+      method: "PATCH",
+      headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(cambio),
+    });
+    if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+  }
+
   const [la, ida] = (d.administrador ?? "").split(":");
   if (la === "puesto" && ida) {
     // Ya no se guarda en la opp: solo en sus comunidades (18-oct-2026).
     // EL ADMINISTRADOR ES DE LA COMUNIDAD (Monica, 18-oct-2026): va tambien a las
     // comunidades de la opp (por sus accesos) que no tienen administrador. Las que
-    // ya tienen otro no se tocan: eso se decide en el alta, con su aviso.
-    await adminACadaComunidad(oppId, ida).catch((e) => console.error("adminACadaComunidad", e));
+    // ya tienen otro no se tocan: eso se decide en el alta, con su aviso. Va lo
+    // ultimo, para que si no se puede, lo diga sin perder lo demas.
+    await adminACadaComunidad(oppId, ida);
   }
-  if (!Object.keys(cambio).length) return;
-
-  const r = await fetch(`${URL_BASE}/rest/v1/oportunidades?id=eq.${oppId}`, {
-    method: "PATCH",
-    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
-    body: JSON.stringify(cambio),
-  });
-  if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
 }
 
 /** EL ADMINISTRADOR DE LA OPP, A SU COMUNIDAD (Monica, 8-oct-2026): si la
@@ -160,13 +162,27 @@ export async function ponerAdminEnComunidad(oppId: string): Promise<void> {
 }
 
 
-/** El administrador (por su puesto) a las comunidades de la opp que no tienen (18-oct-2026). */
+/** El administrador (por su puesto) a las comunidades de la opp que no tienen
+ *  (18-oct-2026), o que solo tienen la administracion sin persona (28-oct-2026).
+ *  Si no ha podido ponerlo en ninguna, lo DICE: antes callaba y parecia que no
+ *  guardaba (Monica, 28-oct-2026, Calderon de la Barca 12). */
 async function adminACadaComunidad(oppId: string, puestoId: string): Promise<void> {
   if (!/^[0-9a-f-]{36}$/.test(puestoId)) return;
   const [p] = await leer<{ persona_id: string | null }[]>(`puesto?select=persona_id&id=eq.${puestoId}&limit=1`);
-  if (!p?.persona_id) return;
-  for (const c of await comunidadesDeOpp(oppId)) {
-    if (c.admin) continue;
-    await ponerAdministrador(c.id, p.persona_id, { cambia: false, nota: "Puesto desde «Completar» en la ficha de la oportunidad (18-oct-2026)." });
+  if (!p?.persona_id) throw new Error("Esa persona no tiene puesto vigente.");
+  const comunidades = await comunidadesDeOpp(oppId);
+  if (!comunidades.length) throw new Error("La opp no tiene comunidad (sus portales no son de ninguna): no hay dónde poner el administrador.");
+  const otros: string[] = [];
+  let puestos = 0;
+  for (const c of comunidades) {
+    if (c.admin?.personaId) {
+      if (c.admin.personaId !== p.persona_id) otros.push(c.admin.nombre);
+      continue;
+    }
+    const r = await ponerAdministrador(c.id, p.persona_id, { cambia: false, puestoId, nota: "Puesto desde «Completar» en la ficha de la oportunidad (18-oct-2026)." });
+    if (r === "puesto" || r === "igual") puestos++;
+    else if (r === "se_queda" && c.admin) otros.push(c.admin.nombre);
   }
+  if (!puestos && otros.length)
+    throw new Error(`Su comunidad ya tiene administrador (${otros.join(", ")}). Para cambiarlo, desde la cabecera de la opp, en «Administración».`);
 }
