@@ -6,7 +6,7 @@ import { accionBuscar, accionVincular } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
 import { accionEmpezar, accionEmpezarSolicitud } from "./acciones";
 import type { SolicitudPendiente } from "../../lib/solicitudViabilidad";
-import { CorregirDireccion, Descartar, MaterialPedido, Rescatar, ResueltoPorDaniel } from "./BotonesMesa";
+import { CorregirDireccion, Descartar, JuntarCon, MaterialPedido, Rescatar, ResueltoPorDaniel } from "./BotonesMesa";
 import type { Descartado } from "../../lib/revisionPolycam";
 import { Salida } from "../components/Salida";
 
@@ -101,6 +101,16 @@ export function Mesa({
   // son de humano: salen aparte, contados.
   const humano = sinVincular.filter((e) => e.motivo !== "").sort((a, b) => a.creadoEn.localeCompare(b.creadoEn));
   const solos = sinVincular.length - humano.length;
+  // JUNTAR DESDE LA PORTADA (28-oct-2026): las otras tarjetas de la misma
+  // direccion, que no sean el mismo borrador.
+  const misma = (x: string) => x.trim().toLowerCase();
+  const juntables = (t: PorHacer) =>
+    todas
+      .filter((o) => o !== t && o.unEscaneo && !!misma(t.direccion) && misma(o.direccion) === misma(t.direccion) && (!o.viabilidadId || o.viabilidadId !== t.viabilidadId))
+      .map((o) => ({
+        valor: o.unEscaneo!,
+        texto: `${o.viabilidadId ? "Borrador" : "Escaneo"}${o.escaleras ? ` · ${o.escaleras}` : ""} · ${fecha(o.fechaEscaneo ?? o.desde) ?? ""}${o.asunto ? ` · ${o.asunto}` : ""}`.slice(0, 90),
+      }));
 
   const filtro = FILTROS.find((f) => f.clave === ver) ?? FILTROS[0];
   const trabajo = todas.filter(filtro.vale);
@@ -235,6 +245,7 @@ export function Mesa({
                       {t.danielAvisado && !t.danielResuelto && t.viabilidadId && resuelveDaniel && <ResueltoPorDaniel viabilidadId={t.viabilidadId} />}
                       {t.vinculadoPorApp && !t.viabilidadId && t.escaneoId && <CorregirDireccion escaneoId={t.escaneoId} />}
                       {/* Descartar cualquier tarjeta, tambien un borrador; se rescata abajo (28-oct-2026). */}
+                      {t.unEscaneo && juntables(t).length > 0 && <JuntarCon escaneoId={t.unEscaneo} opciones={juntables(t)} />}
                       {t.unEscaneo && <Descartar escaneoId={t.unEscaneo} />}
                     </div>
                   </div>

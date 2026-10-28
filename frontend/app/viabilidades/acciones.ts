@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { intentarAnexo } from "../../lib/anexoGuardado";
-import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
+import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, juntarEnLaMesa, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { recalcularLuego } from "../../lib/estadoOportunidad";
 import { empezarSolicitud } from "../../lib/solicitudViabilidad";
@@ -91,6 +91,18 @@ export async function accionJuntar(id: string, escaneoId: string) {
   await haceViabilidades();
   await juntar(id, escaneoId);
   revalidatePath(`/viabilidades/${id}`);
+}
+
+/** Juntar dos tarjetas de la misma direccion desde la portada (28-oct-2026). */
+export async function accionJuntarEnLaMesa(a: string, b: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await haceViabilidades();
+  try {
+    await juntarEnLaMesa(a, b, yo.id);
+    revalidatePath("/viabilidades");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
 
 /** "Me he atascado": queda apuntado cuando Y POR QUE, y le escribe a quien

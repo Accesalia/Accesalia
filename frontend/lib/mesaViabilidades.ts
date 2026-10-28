@@ -661,6 +661,35 @@ export async function juntar(id: string, escaneoId: string): Promise<void> {
   await escribir("PATCH", `escaneados_polycam?id=eq.${escaneoId}&viabilidad_id=is.null`, { viabilidad_id: id }, "return=minimal");
 }
 
+/** JUNTAR DESDE LA PORTADA DE LA MESA (Monica, 28-oct-2026). Dos tarjetas de la
+ *  misma direccion, cada una dada por uno de sus escaneos:
+ *   · si una ya tiene borrador, los escaneos sueltos de la otra van a el;
+ *   · si ninguna lo tiene, se empieza uno con las dos dentro (con la opp del
+ *     edificio, si es una sola);
+ *   · si las dos tienen borrador, no se mezclan: se perderia lo escrito en uno.
+ *  Devuelve la viabilidad que queda. */
+export async function juntarEnLaMesa(a: string, b: string, redactaId: string): Promise<string> {
+  const filas = await leer<{ id: string; viabilidad_id: string | null; relacion_polycam_acceso: { acceso_id: string }[] }[]>(
+    `escaneados_polycam?select=id,viabilidad_id,relacion_polycam_acceso(acceso_id)&id=in.(${a},${b})`,
+  );
+  const ea = filas.find((f) => f.id === a);
+  const eb = filas.find((f) => f.id === b);
+  if (!ea || !eb) throw new Error("Uno de los dos escaneos ya no existe.");
+  if (ea.viabilidad_id && eb.viabilidad_id && ea.viabilidad_id !== eb.viabilidad_id)
+    throw new Error("Las dos tienen ya su borrador: abre una y copia lo que haga falta, y descarta la otra.");
+
+  let viab = ea.viabilidad_id ?? eb.viabilidad_id;
+  if (!viab) {
+    const opps = await oppsDeAccesos(eb.relacion_polycam_acceso.map((r) => r.acceso_id));
+    if (opps.length !== 1)
+      throw new Error(opps.length ? "Ese edificio tiene varias oportunidades: pulsa «Empezar» en la que toque y luego junta." : "El edificio no tiene oportunidad abierta.");
+    viab = await empezar(eb.id, opps[0].id, redactaId);
+  }
+  // Los sueltos de las dos tarjetas (la de un borrador ya esta dentro).
+  for (const e of [ea, eb]) if (!e.viabilidad_id) await juntar(viab, e.id);
+  return viab;
+}
+
 export async function marcar(id: string, que: "enviada_en"): Promise<void> {
   await escribir("PATCH", `viabilidades?id=eq.${id}`, { [que]: new Date().toISOString() }, "return=minimal");
 }

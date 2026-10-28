@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { accionResolverDaniel } from "./acciones";
+import { accionJuntarEnLaMesa, accionResolverDaniel } from "./acciones";
 import { accionCorregirDireccion, accionDescartar, accionRescatar } from "./revision-polycam/acciones";
 import { accionEnlaceMaterial } from "../comercial/viabilidad-sin-polycam/acciones";
 
@@ -78,6 +78,33 @@ export function Rescatar({ escaneoId }: { escaneoId: string }) {
         rescatar
       </button>
       {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
+    </span>
+  );
+}
+
+/** "Juntar con…" (Monica, 28-oct-2026): esta tarjeta con otra de la misma direccion. */
+export function JuntarCon({ escaneoId, opciones }: { escaneoId: string; opciones: { valor: string; texto: string }[] }) {
+  const { error, pendiente, hacer } = useAccion();
+  return (
+    <span className="inline-flex flex-col items-end">
+      <select
+        value=""
+        disabled={pendiente}
+        onChange={(ev) => {
+          const otro = ev.target.value;
+          const cual = opciones.find((o) => o.valor === otro)?.texto;
+          if (otro && window.confirm(`¿Juntar con «${cual}»? Quedan en una sola viabilidad.`)) hacer(() => accionJuntarEnLaMesa(escaneoId, otro));
+        }}
+        className="max-w-[230px] rounded-[8px] border border-[#b9c9d8] bg-white px-2 py-1 text-[11.5px] font-semibold text-[#3f5f80] disabled:opacity-50"
+      >
+        <option value="">{pendiente ? "Juntando…" : "Juntar con…"}</option>
+        {opciones.map((o) => (
+          <option key={o.valor} value={o.valor}>
+            {o.texto}
+          </option>
+        ))}
+      </select>
+      {error && <span className="mt-1 max-w-[230px] text-right text-[11px] text-alerta">{error}</span>}
     </span>
   );
 }
