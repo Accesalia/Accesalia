@@ -62,7 +62,7 @@ export async function documentacionDe(oppId: string): Promise<Documentacion> {
       ruta_drive: string | null; necesita_3d_especifico: boolean; redacta: { nombre: string } | null; modelo: { codigo: string; nombre: string } | null;
     }[]>(
       `viabilidades?select=id,numero,version,url_pdf,enviada_en,rematada_en,con_honorarios,ruta_drive,necesita_3d_especifico,redacta:redacta_id(nombre),` +
-        `modelo:modelo_escalera_id(codigo,nombre)&oportunidad_id=eq.${oppId}&order=creado_en.desc&limit=1`,
+        `modelo:modelo_escalera_id(codigo,nombre)&oportunidad_id=eq.${oppId}&vigente=is.true&order=creado_en.desc&limit=1`,
     ),
     // Si las fotos fallan, la documentacion se sigue viendo.
     fotosDeOportunidad(oppId).catch(() => []),

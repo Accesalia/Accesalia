@@ -676,7 +676,7 @@ export async function juntarEnLaMesa(a: string, b: string, redactaId: string): P
   const eb = filas.find((f) => f.id === b);
   if (!ea || !eb) throw new Error("Uno de los dos escaneos ya no existe.");
   if (ea.viabilidad_id && eb.viabilidad_id && ea.viabilidad_id !== eb.viabilidad_id)
-    throw new Error("Las dos tienen ya su borrador: abre una y copia lo que haga falta, y descarta la otra.");
+    return juntarDosBorradores(ea.viabilidad_id, eb.viabilidad_id);
 
   let viab = ea.viabilidad_id ?? eb.viabilidad_id;
   if (!viab) {
@@ -688,6 +688,35 @@ export async function juntarEnLaMesa(a: string, b: string, redactaId: string): P
   // Los sueltos de las dos tarjetas (la de un borrador ya esta dentro).
   for (const e of [ea, eb]) if (!e.viabilidad_id) await juntar(viab, e.id);
   return viab;
+}
+
+/** DOS BORRADORES (Alex, 28-oct-2026: Brasilia 39 tenia uno del edificio, ya
+ *  escrito, y otro de la cubierta, vacio). Si uno esta VACIO -sin texto, sin
+ *  importes, sin lineas, sin enviar- sus escaneos pasan al otro y el vacio deja
+ *  de estar vigente (no se borra). Si los dos tienen
+ *  algo, no se mezclan: se perderia lo escrito en uno. */
+async function juntarDosBorradores(a: string, b: string): Promise<string> {
+  type V = { id: string; creado_en: string; oportunidad_id: string | null; objeto: string | null; descripcion_intervenciones: string | null; conclusion: string | null; pem_estimado: number | null; enviada_en: string | null; viabilidad_conceptos: { id: string }[] };
+  const vs = await leer<V[]>(
+    `viabilidades?select=id,creado_en,oportunidad_id,objeto,descripcion_intervenciones,conclusion,pem_estimado,enviada_en,viabilidad_conceptos(id)&id=in.(${a},${b})`,
+  );
+  const vacia = (v: V) =>
+    !v.objeto?.trim() && !v.descripcion_intervenciones?.trim() && !v.conclusion?.trim() && v.pem_estimado == null && !v.enviada_en && !v.viabilidad_conceptos.length;
+  const [va, vb] = [vs.find((v) => v.id === a), vs.find((v) => v.id === b)];
+  if (!va || !vb) throw new Error("Uno de los dos borradores ya no existe.");
+  if (!vacia(va) && !vacia(vb))
+    throw new Error("Las dos tienen ya su borrador escrito: abre una, copia lo que haga falta de la otra y descarta la que sobre.");
+  // Se queda la que tiene algo; si las dos estan vacias, la mas antigua.
+  const [queda, sobra] = !vacia(va) ? [va, vb] : !vacia(vb) ? [vb, va] : va.creado_en <= vb.creado_en ? [va, vb] : [vb, va];
+  await escribir("PATCH", `escaneados_polycam?viabilidad_id=eq.${sobra.id}`, { viabilidad_id: queda.id }, "return=minimal");
+  await escribir(
+    "PATCH",
+    `viabilidades?id=eq.${sobra.id}`,
+    { vigente: false },
+    "return=minimal",
+  );
+  if (queda.oportunidad_id) recalcularLuego(queda.oportunidad_id);
+  return queda.id;
 }
 
 export async function marcar(id: string, que: "enviada_en"): Promise<void> {
