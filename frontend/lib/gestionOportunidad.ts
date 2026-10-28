@@ -58,6 +58,8 @@ export const ESTADOS_HITO = [
 export const RESULTADOS_JUNTA = [
   { valor: "pendiente", texto: "Aún no se ha celebrado" },
   { valor: "favorable", texto: "Favorable" },
+  // «Si a una parte» (Monica, 28-oct-2026): deja la decision abierta a proposito hasta que cada hoja enviada llegue a su final.
+  { valor: "si_parcial", texto: "Sí a una parte" },
   { valor: "desfavorable", texto: "Desfavorable" },
   { valor: "aplazada", texto: "Aplazada" },
   { valor: "piden_mas_presupuestos", texto: "Piden más presupuestos" },

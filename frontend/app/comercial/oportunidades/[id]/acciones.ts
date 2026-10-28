@@ -24,6 +24,7 @@ import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion, type PersonaNueva } from "../../../../lib/altaOportunidad";
 import { agendarReunion, choquesJunta } from "../../../../lib/juntaFicha";
+import { apuntar, guardarDatosJunta, ponerDondeCambio, quitarApunte, type Apartado } from "../../../../lib/negociacion";
 import { anadirContactoComunidad, buscarPersonas, guardarDatoCabecera, type CampoCabecera, type OpcionPersona } from "../../../../lib/datosCabecera";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
@@ -471,4 +472,29 @@ export async function accionAgendarReunion(
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** LOS APUNTES DEL BLOQUE 3 (Monica, 28-oct-2026): presidente, comision de obras, vecinos, contrata, competencia. */
+type Res = { ok: true } | { ok: false; error: string };
+async function hacer3(id: string, f: (yo: Awaited<ReturnType<typeof permiso>>) => Promise<unknown>): Promise<Res> {
+  const yo = await permiso(id);
+  try {
+    await f(yo);
+    refrescar(id);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+export async function accionApuntar(id: string, a: { apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null }) {
+  return hacer3(id, (yo) => apuntar(id, a, { id: yo.id, nombre: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") }));
+}
+export async function accionQuitarApunte(id: string, apunteId: string) {
+  return hacer3(id, () => quitarApunte(id, apunteId));
+}
+export async function accionDatosJunta(id: string, juntaId: string, d: { documentacion: string; quorum: string; votosFavor: number | null; votosContra: number | null }) {
+  return hacer3(id, () => guardarDatosJunta(id, juntaId, d));
+}
+export async function accionDondeCambio(id: string, estadoId: string, donde: string | null) {
+  return hacer3(id, () => ponerDondeCambio(id, estadoId, donde));
 }

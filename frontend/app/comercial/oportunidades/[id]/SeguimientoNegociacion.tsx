@@ -8,6 +8,7 @@ import { RESULTADOS_JUNTA } from "../../../../lib/gestionOportunidad";
 import { informeEdificio } from "../../../../lib/informeEdificio";
 import { ofertasDeHojas } from "./OfertasComunidad";
 import { AgendarReunion } from "./AgendarReunion";
+import { ApuntesApartado, DatosJunta, DondeCambio } from "./PiezasNegociacion";
 
 // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (Monica, 28-oct-2026; maqueta docs/figma/bloque3-seguimiento.html, «TODO OK, la
 // montamos»). «La cabeza del comercial, su verdadero dia a dia»: aqui no se ven informes ni se crean hojas; se tiene
@@ -168,13 +169,6 @@ export function SeguimientoNegociacion({
     </div>
   );
   const hueco = (t: ReactNode) => <div className="rounded-[12px] border-[1.5px] border-dashed border-[#cfcfcf] bg-[#fafafa] p-6 text-center text-[13px] text-carbon/65">{t}</div>;
-  const porMontar = (titulo: string, pista: string) => (
-    <div className="rounded-[12px] border border-dashed border-[#cfcfcf] bg-[#fcfcfa] px-4 py-3">
-      <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">{titulo}</div>
-      <div className="mt-1 rounded-[6px] border border-dashed border-[#cfcfcf] bg-white px-2 py-1 text-[12px] text-carbon/60">✎ {pista}</div>
-      <div className="mt-1 text-[11px] text-carbon/50">Falta su sitio en la base: pendiente de tu ok.</div>
-    </div>
-  );
 
   return (
     <section className="grid min-h-[620px] overflow-hidden rounded-[10px] bg-white text-[13px] text-carbon xl:grid-cols-[250px_minmax(0,1fr)]">
@@ -256,11 +250,17 @@ export function SeguimientoNegociacion({
                 <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Nos llegó a través de</div>
                 <div className="text-[14px] font-bold">{trajo ?? <span className="font-normal text-carbon/65">no se apuntó (se pone en la cabecera)</span>}</div>
               </div>
-              {porMontar("Presidente y sus notas", "«es mayor», «era ingeniero», «trabaja en Schindler», «está en contra del ascensor»…")}
-              {porMontar("Comisión de obras", "¿Hay? ¿Quién la forma?")}
-              {porMontar("Vecinos que empujan la decisión", "a favor o en contra, y por qué: «el del bajo va a denunciar», «la del 4º va en silla de ruedas»")}
-              {porMontar("Contrata", "¿La tienen elegida? ¿Hay presupuesto previo? ¿De quién?")}
-              {porMontar("Competencia", "¿Han pedido oferta a otro arquitecto? ¿A quién y por cuánto?")}
+              {(
+                [
+                  ["presidente", "Presidente y sus notas", "quién es y lo que sabemos: «es mayor», «trabaja en Schindler», «está en contra»…"],
+                  ["comision_obras", "Comisión de obras", "¿hay? ¿quién la forma?"],
+                  ["vecino", "Vecinos que empujan la decisión", "quién y por qué: «el del bajo va a denunciar», «la del 4º va en silla de ruedas»"],
+                  ["contrata", "Contrata", "¿la tienen elegida? ¿hay presupuesto previo? ¿de quién?"],
+                  ["competencia", "Competencia", "¿han pedido oferta a otro arquitecto? ¿a quién y por cuánto?"],
+                ] as const
+              ).map(([ap, t, p]) => (
+                <ApuntesApartado key={ap} oppId={id} apartado={ap} titulo={t} pista={p} apuntes={neg.apuntes.filter((a) => a.apartado === ap)} />
+              ))}
             </div>
           </>
         )}
@@ -418,14 +418,13 @@ export function SeguimientoNegociacion({
                   {j.seguimiento && <span className="text-[12px] font-semibold text-[#9a6a00]">requiere seguimiento</span>}
                 </div>
                 {j.detalle && <p className="mt-1.5 text-[12.5px]"><b>Lo que pasó:</b> {j.detalle}</p>}
-                <div className="mt-2 grid gap-2 md:grid-cols-4">
-                  {["Documentación llevada", "Quórum", "Votos a favor / en contra", "Sí a una parte: ¿a qué?"].map((t) => (
-                    <div key={t} className="rounded-[8px] border border-dashed border-[#cfcfcf] bg-white px-2 py-1.5 text-[12px]">
-                      <div className="text-[10.5px] font-bold uppercase tracking-[0.06em] text-carbon/60">{t}</div>
-                      <div className="italic text-carbon/50">pendiente de tu ok</div>
-                    </div>
-                  ))}
-                </div>
+                {j.resultado === "si_parcial" && (r.firmadas.length > 0 || r.pendientes.length > 0) && (
+                  <p className="mt-1.5 text-[12.5px]">
+                    <b>¿A qué?</b> {r.firmadas.map((x) => `${x.tipos.join(" + ") || x.codigo} ✓`).join(" · ")}
+                    {r.pendientes.length > 0 && <span className="text-[#7a5a00]"> · pendiente: {r.pendientes.map((x) => x.tipos.join(" + ") || x.codigo).join(" · ")}</span>}
+                  </p>
+                )}
+                <DatosJunta oppId={id} j={j} />
                 <p className="mt-1.5 text-[11.5px] text-carbon/55">Si votan no, no se pide el acta: se apunta el motivo.</p>
               </div>
             ))}
@@ -445,9 +444,10 @@ export function SeguimientoNegociacion({
               <ul className="divide-y divide-[#eee]">
                 {neg.cambios.map((c, n) => (
                   <li key={n} className="py-2 text-[12.5px]">
-                    <div className="text-[11px] text-carbon/65">
+                    <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-carbon/65">
                       <b>{dia(c.fecha)}</b> · {c.estado === "cambios_comunidad" ? "lo pide la comunidad" : "lo pide el comercial"}
                       {c.quien && ` · apuntado por ${c.quien}`} · {c.version}
+                      <DondeCambio oppId={id} estadoId={c.id} donde={c.donde} />
                     </div>
                     {c.nota ?? <span className="text-carbon/60">sin nota</span>}
                   </li>
