@@ -5,6 +5,7 @@ import { oportunidadesAbiertas, sinSitio } from "../../../lib/buzonPolycam";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
 import { accionColocar, accionRepasar } from "./acciones";
 import { Salida } from "../../components/Salida";
+import { hayPermiso } from "../../../lib/gmailBuzon";
 
 export const dynamic = "force-dynamic";
 
@@ -30,14 +31,14 @@ const CAMPO =
 export default async function Buzon({
   searchParams,
 }: {
-  searchParams: Promise<{ colocado?: string; hecho?: string; mirados?: string; falta?: string }>;
+  searchParams: Promise<{ colocado?: string; hecho?: string; mirados?: string; falta?: string; google_ok?: string; google_mal?: string }>;
 }) {
-  const { colocado, hecho, mirados, falta } = await searchParams;
+  const { colocado, hecho, mirados, falta, google_ok, google_mal } = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/buzon");
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
 
-  const [correos, oportunidades] = await Promise.all([sinSitio(), oportunidadesAbiertas()]);
+  const [correos, oportunidades, conGoogle] = await Promise.all([sinSitio(), oportunidadesAbiertas(), hayPermiso()]);
 
   return (
     <div className="min-h-screen">
@@ -54,10 +55,27 @@ export default async function Buzon({
               Lo que llegó por correo y la app no supo dónde colocar. Se repasa solo cada diez minutos.
             </p>
           </div>
-          <form action={accionRepasar}>
-            <button className={BOTON}>Repasar el buzón ahora</button>
-          </form>
+          <div className="flex items-center gap-2">
+            {/* EL PERMISO DE GOOGLE (28-oct-2026): con el, el buzon se baja por la
+                API de Gmail y no se atascan los .glb. Solo direccion. Es un
+                enlace normal (no un fetch): Google tiene que abrirse en la pestaña. */}
+            {yo.veTodo && (
+              <a href="/api/buzon/google" className={BOTON}>
+                {conGoogle ? "Reconectar con Google" : "Conectar el buzón con Google"}
+              </a>
+            )}
+            <form action={accionRepasar}>
+              <button className={BOTON}>Repasar el buzón ahora</button>
+            </form>
+          </div>
         </div>
+        {yo.veTodo && (
+          <p className="mt-2 text-[12px] text-carbon/60">
+            {conGoogle
+              ? "Conectado con Google: el buzón se baja por la API de Gmail, también los enlaces de Drive."
+              : "Sin conectar con Google: el buzón se baja por IMAP y los correos pesados se atascan."}
+          </p>
+        )}
 
         {/* El aviso de que esto no está dado por bueno. Se quita cuando ella lo
             repase, no antes. */}
@@ -66,6 +84,16 @@ export default async function Buzon({
           <b>no está revisada contigo</b>: los textos, el orden y lo que se ve están sin decidir.
         </div>
 
+        {google_ok && (
+          <p className="mt-4 rounded-xl border border-lima bg-lima-soft px-4 py-2.5 text-[13px] text-carbon">
+            Buzón conectado con Google ({google_ok}). Desde la próxima pasada se baja por la API de Gmail.
+          </p>
+        )}
+        {google_mal && (
+          <p className="mt-4 rounded-xl border border-alerta/40 bg-red-50 px-4 py-2.5 text-[13px] text-alerta">
+            No se ha conectado con Google: {google_mal}
+          </p>
+        )}
         {colocado && (
           <p className="mt-4 rounded-xl border border-lima bg-lima-soft px-4 py-2.5 text-[13px] text-carbon">
             Colocado. Ya está en su oportunidad y avisado quien lo revisa.

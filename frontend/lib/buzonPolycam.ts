@@ -49,6 +49,7 @@
 import "server-only";
 import { esDeGoogle, vincularSolos } from "./revisionPolycam";
 import { nombreDeOpp } from "./direccionOpp";
+import { bajarDrive, buscar, cabecera, cambiarEtiquetas, crudo, enlacesDrive, etiqueta, fichaDrive, pase } from "./gmailBuzon";
 
 import { ImapFlow } from "imapflow";
 import nodemailer from "nodemailer";
@@ -670,6 +671,88 @@ async function colocar(
 // documentos se guardan cuando ya hay firmas, o al menos algo solido. El polycam
 // es fase temprana, y no siempre se hace."
 
+/** Un fichero que se guarda como escaneado: un adjunto del correo o uno bajado
+ *  de un enlace de Drive (28-oct-2026). */
+type Fichero = { nombre: string; datos: Buffer; tipo: string };
+
+/** Lo que se hace con cada correo, entre por IMAP o por la API de Gmail:
+ *  guardar sus datos y sus ficheros, y si le falta algo, pedirselo. Marcarlo
+ *  leido es cosa de cada puerta. `deDrive` son los ficheros que Gmail convirtio
+ *  en enlace de Drive por pasar de 25 MB: cuentan como adjuntos. */
+async function guardarCorreo(correo: ParsedMail, deDrive: Fichero[], r: Repaso, porReclamar: Reclamo[], usuario: string): Promise<void> {
+  const quienVino = correo.from?.value?.[0]?.address ?? null;
+  const comun = {
+    remitente: quienVino,
+    // QUIEN FUE A VISITAR Y ESCANEAR, el primero de los cuatro papeles de
+    // una viabilidad. Se pone solo, que es su criterio: "que se cree solo,
+    // igual que quien hizo la visita o el polycam, que salen de los datos
+    // que cuelgan de esas acciones".
+    visito_id: await quienEscaneo(quienVino),
+    asunto: correo.subject?.trim() || null,
+    // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
+    fecha: correo.date ? correo.date.toISOString() : null,
+    // El Message-ID: con esto se vuelve siempre al correo original, a su
+    // fecha y a su cuerpo, sin copiarlos aqui.
+    identificador_correo: correo.messageId ?? null,
+    ruta_polycam: enlacePolycam(correo),
+  };
+
+  const adjuntos: Fichero[] = [
+    ...(correo.attachments ?? [])
+      .filter((a: Attachment) => a.content && a.size > 0)
+      .map((a: Attachment) => ({ nombre: a.filename ?? "escaneo", datos: a.content as Buffer, tipo: a.contentType ?? "application/octet-stream" })),
+    ...deDrive,
+  ];
+  let nuevo = false; // primera vez que se ve este correo
+
+  // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
+  // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
+  // tambien: queda constancia de que ese correo entro, que es lo que ella
+  // pidio -"se guardan los datos... y el archivo que tenga"-.
+  if (!adjuntos.length) {
+    const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
+    if (id) {
+      r.guardados++;
+      nuevo = true;
+    } else r.repetidos++;
+  }
+
+  // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
+  // escaneado distinto; por eso lo unico es la pareja del correo con el
+  // nombre del fichero, y no el correo a secas.
+  for (const a of adjuntos) {
+    const id = await meterEscaneado({ ...comun, nombre_original_fichero: a.nombre, fecha_escaneo: fechaDelEscaneo(a.nombre) });
+    if (!id) {
+      r.repetidos++;
+      continue;
+    }
+    r.guardados++;
+    nuevo = true;
+    // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
+    // carpeta y dos ficheros con el mismo nombre no se pisan.
+    const ruta = `${id}/${limpioNombre(a.nombre)}${extension(a.nombre)}`;
+    await subirFichero(ruta, a.datos, a.tipo, ALMACEN_POLYCAM);
+    await apuntarRuta(id, ruta);
+    r.ficheros++;
+  }
+
+  // SI FALTA ALGO, SE LE PIDE (Monica, 16-oct-2026: "el comercial no ha
+  // debido saber adjuntar el polycam", "o sin direccion en el asunto").
+  // Solo la primera vez que se ve el correo, para no escribirle en cada
+  // pasada. Lo que si trajo se queda guardado igual.
+  const faltaEscaneo = !adjuntos.length && !comun.ruta_polycam;
+  const faltaDireccion = !asuntoConDireccion(correo.subject ?? "");
+  if (nuevo && (faltaEscaneo || faltaDireccion) && sePuedeReclamar(quienVino, usuario, correo)) {
+    porReclamar.push({
+      para: quienVino!,
+      asunto: correo.subject?.trim() || "",
+      idCorreo: correo.messageId ?? null,
+      faltaEscaneo,
+      faltaDireccion,
+    });
+  }
+}
+
 export async function repasarBuzon(): Promise<Repaso> {
   const inicio = Date.now();
   // Si algo falla, que diga EN QUE PASO estaba: conectar, spam, buscar o un correo.
@@ -688,7 +771,20 @@ export async function repasarBuzon(): Promise<Repaso> {
     freno = setTimeout(() => mal(new Error(`colgada mas de 240 s (sin respuesta de Gmail)`)), 240_000);
   });
   try {
-    return await Promise.race([repasar(inicio, enPaso), colgada]);
+    // Con permiso de Google, por la API; sin el, por IMAP como siempre.
+    // Si el permiso se ha caido, no se para el buzon: sigue por IMAP y la
+    // pasada lo dice en sus errores, para que se reconecte.
+    enPaso("pedir el pase a Google");
+    let token: string | null = null;
+    let sinPase: string | null = null;
+    try {
+      token = await pase();
+    } catch (e) {
+      sinPase = e instanceof Error ? e.message : String(e);
+    }
+    const hecho = await Promise.race([token ? repasarPorApi(inicio, enPaso, token) : repasar(inicio, enPaso), colgada]);
+    if (sinPase) hecho.errores.unshift(sinPase);
+    return hecho;
   } catch (e) {
     throw new Error(`${paso}: ${e instanceof Error ? e.message : String(e)}`);
   } finally {
@@ -793,79 +889,7 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
           if (!bajado?.content) throw new Error("el correo no trae contenido");
           const correo: ParsedMail = await simpleParser(bajado.content);
           asunto = correo.subject?.trim() || "(sin asunto)";
-
-          const quienVino = correo.from?.value?.[0]?.address ?? null;
-          const comun = {
-            remitente: quienVino,
-            // QUIEN FUE A VISITAR Y ESCANEAR, el primero de los cuatro papeles de
-            // una viabilidad. Se pone solo, que es su criterio: "que se cree solo,
-            // igual que quien hizo la visita o el polycam, que salen de los datos
-            // que cuelgan de esas acciones".
-            visito_id: await quienEscaneo(quienVino),
-            asunto: correo.subject?.trim() || null,
-            // Cuando llego. Estaba sin guardar hasta el 3-oct-2026.
-            fecha: correo.date ? correo.date.toISOString() : null,
-            // El Message-ID: con esto se vuelve siempre al correo original, a su
-            // fecha y a su cuerpo, sin copiarlos aqui.
-            identificador_correo: correo.messageId ?? null,
-            ruta_polycam: enlacePolycam(correo),
-          };
-
-          const adjuntos = (correo.attachments ?? []).filter((a: Attachment) => a.content && a.size > 0);
-          let nuevo = false; // primera vez que se ve este correo
-
-          // SIN ADJUNTO TAMBIEN SE GUARDA. Es el caso del "enviar enlace" de
-          // Polycam, que no manda fichero. Y si no trae ni enlace ni fichero,
-          // tambien: queda constancia de que ese correo entro, que es lo que ella
-          // pidio -"se guardan los datos... y el archivo que tenga"-.
-          if (!adjuntos.length) {
-            const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
-            if (id) {
-              r.guardados++;
-              nuevo = true;
-            } else r.repetidos++;
-          }
-
-          // UNA FILA POR ADJUNTO. Un correo puede traer varios y cada uno es un
-          // escaneado distinto; por eso lo unico es la pareja del correo con el
-          // nombre del fichero, y no el correo a secas.
-          for (const a of adjuntos) {
-            const nombre = a.filename ?? "escaneo";
-            const id = await meterEscaneado({ ...comun, nombre_original_fichero: nombre, fecha_escaneo: fechaDelEscaneo(nombre) });
-            if (!id) {
-              r.repetidos++;
-              continue;
-            }
-            r.guardados++;
-            nuevo = true;
-            // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
-            // carpeta y dos ficheros con el mismo nombre no se pisan.
-            const ruta = `${id}/${limpioNombre(nombre)}${extension(nombre)}`;
-            await subirFichero(
-              ruta,
-              a.content as Buffer,
-              a.contentType ?? "application/octet-stream",
-              ALMACEN_POLYCAM,
-            );
-            await apuntarRuta(id, ruta);
-            r.ficheros++;
-          }
-
-          // SI FALTA ALGO, SE LE PIDE (Monica, 16-oct-2026: "el comercial no ha
-          // debido saber adjuntar el polycam", "o sin direccion en el asunto").
-          // Solo la primera vez que se ve el correo, para no escribirle en cada
-          // pasada. Lo que si trajo se queda guardado igual.
-          const faltaEscaneo = !adjuntos.length && !comun.ruta_polycam;
-          const faltaDireccion = !asuntoConDireccion(correo.subject ?? "");
-          if (nuevo && (faltaEscaneo || faltaDireccion) && sePuedeReclamar(quienVino, usuario, correo)) {
-            porReclamar.push({
-              para: quienVino!,
-              asunto: correo.subject?.trim() || "",
-              idCorreo: correo.messageId ?? null,
-              faltaEscaneo,
-              faltaDireccion,
-            });
-          }
+          await guardarCorreo(correo, [], r, porReclamar, usuario);
 
           // Hecho: leido, y fuera la etiqueta de "no supe colocarlo", que ya no
           // significa nada porque ahora todo se guarda.
@@ -900,6 +924,12 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
     else await cliente.logout();
   }
 
+  return rematar(r, porReclamar, usuario, clave, enPaso);
+}
+
+/** Lo que se hace al final de cada pasada, sea por IMAP o por la API: pedir lo
+ *  que falto y vincular solos los que no tienen duda. */
+async function rematar(r: Repaso, porReclamar: Reclamo[], usuario: string, clave: string, enPaso: (p: string) => void): Promise<Repaso> {
   // Fuera de la conexion IMAP: un SMTP lento no puede atascar el buzon.
   for (const q of porReclamar) {
     enPaso(`pedir el escaneo a ${q.para}`);
@@ -922,6 +952,90 @@ async function repasar(inicio: number, enPaso: (p: string) => void): Promise<Rep
   return r;
 }
 
+
+// ------------------------------------------------- por la API de Gmail
+
+/** LA PASADA POR LA API DE GMAIL (28-oct-2026). Lo mismo que por IMAP -rescatar
+ *  de Spam, cada correo sin leer o con la etiqueta de sin sitio, del mas nuevo al
+ *  mas viejo- pero el correo se baja entero de una vez por HTTPS, sin el goteo
+ *  que atascaba los .glb, y los enlaces de Drive se bajan como un adjunto mas.
+ *  Ya no hay "atascados": un correo que falla se reintenta en la siguiente. */
+async function repasarPorApi(inicio: number, enPaso: (p: string) => void, token: string): Promise<Repaso> {
+  const usuario = process.env.BUZON_POLYCAM_USUARIO;
+  const clave = process.env.BUZON_POLYCAM_CLAVE;
+  if (!usuario || !clave) throw new Error("Faltan BUZON_POLYCAM_USUARIO / BUZON_POLYCAM_CLAVE en el entorno.");
+
+  const r: Repaso = {
+    mirados: 0, rescatados: 0, guardados: 0, ficheros: 0, repetidos: 0, errores: [], quedan: 0, grandes: [], atascados: [], esperan: 0, reclamados: 0,
+  };
+  const porReclamar: Reclamo[] = [];
+
+  // Todo lo que haya sin leer en Spam vuelve a la bandeja (ver rescatarDeSpam).
+  enPaso("rescatar del spam");
+  for (const id of await buscar(token, "in:spam is:unread")) {
+    await cambiarEtiquetas(token, id, ["INBOX"], ["SPAM"]);
+    r.rescatados++;
+  }
+
+  enPaso("buscar los correos sin leer");
+  const lista = [...new Set([...(await buscar(token, "in:inbox is:unread")), ...(await buscar(token, `label:${SIN_SITIO}`))])];
+  const sinSitioId = await etiqueta(token, SIN_SITIO);
+
+  for (const [n, id] of lista.entries()) {
+    if (Date.now() - inicio > TOPE_MS) {
+      r.quedan = lista.length - n;
+      break;
+    }
+    enPaso(`correo ${id}`);
+    r.mirados++;
+    let asunto = "(sin asunto)";
+    try {
+      const info = await cabecera(token, id);
+      asunto = info.asunto?.trim() || asunto;
+      if (info.bytes > MAX_BYTES) {
+        const mb = (info.bytes / 1048576).toFixed(0);
+        r.grandes.push(`${asunto} · de ${info.de ?? "?"} · ${mb} MB`);
+        const grande = await etiqueta(token, GRANDE);
+        if (!info.etiquetas.includes(grande)) await cambiarEtiquetas(token, id, [grande], []);
+        continue;
+      }
+      // LOS AVISOS DE GOOGLE NO SON ESCANEOS (14-oct-2026): leidos y fuera.
+      if (esDeGoogle(info.de)) {
+        await cambiarEtiquetas(token, id, [], ["UNREAD"]);
+        continue;
+      }
+
+      const correo: ParsedMail = await simpleParser(await crudo(token, id));
+
+      // LOS ENLACES DE DRIVE (28-oct-2026): Gmail convierte en enlace todo
+      // adjunto de mas de 25 MB. Se bajan y cuentan como adjuntos. Si uno no se
+      // puede bajar, el correo entero se reintenta en la siguiente pasada: sin
+      // el, se le contestaria «falta el escaneo», que es mentira.
+      const deDrive: Fichero[] = [];
+      const texto = `${correo.text ?? ""}\n${typeof correo.html === "string" ? correo.html : ""}`;
+      for (const fid of enlacesDrive(texto)) {
+        const f = await fichaDrive(token, fid);
+        // Carpetas, documentos y hojas de Google no son ficheros que bajar.
+        if (f.tipo.startsWith("application/vnd.google-apps")) continue;
+        if (f.bytes > MAX_BYTES) {
+          r.grandes.push(`${asunto} · ${f.nombre} en Drive · ${(f.bytes / 1048576).toFixed(0)} MB`);
+          continue;
+        }
+        deDrive.push({ nombre: f.nombre, datos: await bajarDrive(token, fid), tipo: f.tipo || "application/octet-stream" });
+      }
+
+      await guardarCorreo(correo, deDrive, r, porReclamar, usuario);
+
+      // Hecho: leido y sin la etiqueta de sin sitio.
+      await cambiarEtiquetas(token, id, [], ["UNREAD", sinSitioId]);
+    } catch (e) {
+      // Un correo que falla NO se marca leido: se vuelve a intentar al rato.
+      r.errores.push(`${asunto} · ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  return rematar(r, porReclamar, usuario, clave, enPaso);
+}
 
 // ------------------------------------------------- pedir lo que no llego
 
