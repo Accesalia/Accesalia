@@ -76,6 +76,12 @@ export function Cabecera({
         izquierda={
           <>
             {g.codigo && <span className="text-[11px] font-bold tabular-nums text-carbon/60">{g.codigo}</span>}
+            {/* CUANDO SE ABRIO (Monica, 28-oct-2026). */}
+            {g.creada && (
+              <span className="text-[11px] tabular-nums text-carbon/55">
+                abierta el {g.creada.slice(8, 10)}/{g.creada.slice(5, 7)}/{g.creada.slice(0, 4)}
+              </span>
+            )}
             {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren. */}
               <h1 className="whitespace-nowrap text-[19px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_0_rgba(0,0,0,0.15)]">
                 {g.direccion}

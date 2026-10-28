@@ -15,7 +15,7 @@ import type { FilaAbierta } from "../../../lib/listaAbiertas";
 //   - pinchar una fila abre la ficha de la opp (hoy, la de bloques; la nueva cuando exista).
 
 type Paso = { clave: string; titulo: string; hecha: boolean };
-type Orden = "nombre" | "punto" | "dias" | "contacto" | "admin" | "importe";
+type Orden = "nombre" | "punto" | "dias" | "contacto" | "admin" | "importe" | "recientes";
 
 /** Lo de la firma en adelante (firmado, facturado, cobrado): fuera con «Ver solo las abiertas». */
 const FIRMADAS = new Set([
@@ -28,6 +28,7 @@ const SIN_CONTACTO = 60;
 
 const eur = (n: number) => n.toLocaleString("es-ES", { maximumFractionDigits: 0, useGrouping: "always" } as Intl.NumberFormatOptions) + " €";
 const fecha = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}` : "—");
+const fechaLarga = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 const lim = (s: string | null | undefined) => (s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(iso + "T12:00:00").getTime()) / 86_400_000);
 /** Las administraciones y personas que vienen en mayusculas, en minusculas con su inicial: que mande la direccion. */
@@ -82,6 +83,7 @@ export function ListaAbiertas({
       : orden === "punto" ? (ordenDe.get(f.clave ?? "") ?? 99)
       : orden === "contacto" ? (f.ultimoContacto ?? "0000")
       : orden === "admin" ? lim(f.empresa ?? "~")
+      : orden === "recientes" ? -new Date(f.abierta ?? "1970-01-01").getTime()
       : lim(f.nombre);
     return xs.sort((a, b) => {
       const x = val(a), y = val(b);
@@ -175,6 +177,7 @@ export function ListaAbiertas({
               <option value="contacto">Último contacto más antiguo</option>
               <option value="admin">Administrador</option>
               <option value="importe">Más importe</option>
+              <option value="recientes">Más recientes</option>
             </select>
           </label>
           <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -241,6 +244,8 @@ export function ListaAbiertas({
                         {f.aviso && <span className={chip}>{f.aviso}</span>}
                         {f.sinComunidad && <span className={chip}>sin dar de alta</span>}
                       </div>
+                      {/* CUANDO SE ABRIO (Monica, 28-oct-2026), bajo la direccion para no tocar las columnas de su maqueta. */}
+                      {f.abierta && <div className="text-[11.5px] text-carbon/50">abierta el {fechaLarga(f.abierta)}</div>}
                     </td>
                     <td className="max-w-[230px] truncate px-3 py-2 text-carbon/75" title={admin || undefined}>
                       {admin || <span className="text-carbon/35">—</span>}

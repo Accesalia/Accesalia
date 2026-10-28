@@ -58,6 +58,8 @@ export type FilaAbierta = {
   ultimoContacto: string | null;
   quieren: string | null;
   importe: number | null;
+  /** Cuando se abrio (Monica, 28-oct-2026: «no se cuales son recientes y cuales antiguas»). */
+  abierta: string | null;
 };
 
 const VIVA = "estado=not.in.(anulada,no_firmada,sustituida)";
@@ -67,10 +69,11 @@ const hoy = () => new Date();
 export async function listaAbiertas(comercialId: string | null): Promise<FilaAbierta[]> {
   type Opp = {
     id: string; nombre: string | null; codigo: string | null; comunidad_id: string | null; referencia_catastral: string | null;
+    fecha_apertura: string | null; creado_en: string;
     tipos: { tipo: { nombre: string } | null }[];
   };
   const ops = await leerTodo<Opp>(
-    "oportunidades?select=id,nombre,codigo,comunidad_id,referencia_catastral,tipos:oportunidad_tipos(tipo:tipo_id(nombre))" +
+    "oportunidades?select=id,nombre,codigo,comunidad_id,referencia_catastral,fecha_apertura,creado_en,tipos:oportunidad_tipos(tipo:tipo_id(nombre))" +
       `&estado=in.(abierta,pausada)${comercialId ? `&comercial_id=eq.${comercialId}` : ""}&order=nombre.asc,id.asc`,
   );
   const ids = ops.map((o) => o.id);
@@ -131,6 +134,7 @@ export async function listaAbiertas(comercialId: string | null): Promise<FilaAbi
       ultimoContacto: ultima.get(o.id) ?? null,
       quieren: intereses.length ? [...new Set(intereses.map(cortoInteres))].join(" + ") : null,
       importe: importe.get(o.id) ? Math.round(importe.get(o.id)!) : null,
+      abierta: o.fecha_apertura ?? o.creado_en.slice(0, 10),
     };
   });
 }
