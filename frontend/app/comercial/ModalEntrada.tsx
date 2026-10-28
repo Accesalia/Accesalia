@@ -6,6 +6,7 @@ import { Elegir, type Opcion } from "../components/Elegir";
 import type { OppEntrada } from "../../lib/entradaDiario";
 import { accionPermisosFotos, type GuardadoEntrada } from "./acciones";
 import { reducirFoto } from "../../lib/reducirFoto";
+import { avisarDatosNuevos } from "../components/AlDia";
 
 // GRABAR UNA ENTRADA DEL DIARIO (Monica, 28-sep-2026; rehecha el 8-oct-2026).
 //
@@ -144,7 +145,12 @@ export function ModalEntrada({
         );
       }
       const r = await guardar(fd);
-      if (r.ok) alCerrar();
+      if (r.ok) {
+        // Que la nota se vea ya, sin salir y volver a entrar (28-oct-2026).
+        router.refresh();
+        avisarDatosNuevos();
+        alCerrar();
+      }
       else {
         setError(r.error);
         setGuardando(false);

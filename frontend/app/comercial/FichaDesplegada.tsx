@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAlDia } from "../components/AlDia";
 import type { FichaExtracto, EntradaCuadro } from "../../lib/cuadroComercial";
 import { extractoOportunidad } from "./acciones";
 import { Miniaturas } from "../components/Miniaturas";
@@ -218,6 +219,9 @@ export function FichaDesplegada({ ficha, oportunidadId }: { ficha: FichaExtracto
   // piden al desplegar (Monica, 5-oct-2026). La demostracion ya los trae.
   const [extra, setExtra] = useState<Pick<FichaExtracto, "historia" | "contactos"> | null>(null);
   const [cargando, setCargando] = useState(false);
+  // Al guardar una nota o volver a la app, el diario se pide otra vez (28-oct-2026).
+  const [vuelta, setVuelta] = useState(0);
+  useAlDia(useCallback(() => setVuelta((v) => v + 1), []));
   useEffect(() => {
     if (ficha || !oportunidadId) return;
     let vivo = true;
@@ -228,7 +232,7 @@ export function FichaDesplegada({ ficha, oportunidadId }: { ficha: FichaExtracto
     return () => {
       vivo = false;
     };
-  }, [ficha, oportunidadId]);
+  }, [ficha, oportunidadId, vuelta]);
   const f: FichaExtracto | null =
     ficha ??
     (extra && (extra.historia.length > 0 || extra.contactos.length > 0)

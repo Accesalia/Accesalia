@@ -455,8 +455,11 @@ export async function vincularSolos(): Promise<number> {
  *  edificio. No se borra: se apunta cuando y quien, y deja de salir. Solo si
  *  no esta vinculado, que lo vinculado ya tiene dueño. */
 export async function descartar(polycamId: string, quien: string): Promise<void> {
+  // VINCULADO TAMBIEN SE DESCARTA (Monica, 28-oct-2026: «cuando ya esta enlazada a
+  // una oportunidad no hay boton para descartarla»). Se desvincula y se descarta
+  // de una vez; desvincular ya se niega si su viabilidad esta empezada.
   const v = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?select=polycam_id&polycam_id=eq.${polycamId}&limit=1`, { headers: cab, cache: "no-store" });
-  if (v.ok && ((await v.json()) as unknown[]).length) throw new Error("Está vinculado a un edificio: primero «corregir dirección».");
+  if (v.ok && ((await v.json()) as unknown[]).length) await desvincular(polycamId);
   const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?id=eq.${polycamId}&viabilidad_id=is.null`, {
     method: "PATCH",
     headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },

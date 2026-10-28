@@ -53,7 +53,7 @@ export function Descartar({ escaneoId }: { escaneoId: string }) {
         type="button"
         disabled={pendiente}
         onClick={() => {
-          if (window.confirm("¿Descartar este correo? No es un escaneo de ningún edificio y deja de salir aquí (no se borra).")) hacer(() => accionDescartar(escaneoId));
+          if (window.confirm("¿Descartar este escaneo? Deja de salir aquí y, si estaba vinculado, en su oportunidad (no se borra).")) hacer(() => accionDescartar(escaneoId));
         }}
         className="rounded-[8px] border border-[#CDBAB0] bg-white px-3 py-1 text-[11.5px] font-semibold leading-tight text-[#7a2420] transition hover:bg-[#f3ebe7] disabled:opacity-50"
       >

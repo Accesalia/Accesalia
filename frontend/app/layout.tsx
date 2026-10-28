@@ -4,6 +4,7 @@ import { quienSoy } from "../lib/sesion";
 import { Suspense } from "react";
 import { Postits } from "./components/postit/Postits";
 import { Rastro } from "./components/Rastro";
+import { AlDia } from "./components/AlDia";
 
 export const metadata: Metadata = {
   title: "Accesalia · ERP",
@@ -24,6 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="es">
       <body className="font-sans antialiased">
+        <AlDia />
         {children}
         {/* El rastro de pantallas, para que «volver» lleve a la anterior de verdad (27-oct-2026). */}
         <Suspense fallback={null}>

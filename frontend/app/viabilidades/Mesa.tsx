@@ -222,6 +222,8 @@ export function Mesa({
                       {t.danielResuelto && <span className={CHAPA_RESUELTO}>Resuelto por Daniel</span>}
                       {t.danielAvisado && !t.danielResuelto && t.viabilidadId && resuelveDaniel && <ResueltoPorDaniel viabilidadId={t.viabilidadId} />}
                       {t.vinculadoPorApp && !t.viabilidadId && t.escaneoId && <CorregirDireccion escaneoId={t.escaneoId} />}
+                      {/* Descartar tambien lo ya vinculado, mientras no haya viabilidad empezada (28-oct-2026). */}
+                      {!t.viabilidadId && t.escaneoId && <Descartar escaneoId={t.escaneoId} />}
                     </div>
                   </div>
                 ))
