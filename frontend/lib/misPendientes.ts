@@ -52,8 +52,10 @@ async function filtros(yo: Yo) {
     // Sin cartera y sin ver todo: ninguna oportunidad es suya.
     opps: veTodo(yo) ? "" : mio ? `&comercial_id=eq.${mio.id}` : null,
     llamadas: colocaLlamadas(yo),
-    // Los posibles de su captador; sin cartera y sin ver todo, ninguno.
-    posibles: veTodo(yo) ? "&comercial_captador_id=not.is.null" : mio ? `&comercial_captador_id=eq.${mio.id}` : null,
+    // Los sin consolidar de QUIEN LOS LLEVA (28-oct-2026: captador y «lo lleva»
+    // son cosas distintas; si direccion lo pasa a otro, le sale al nuevo).
+    // Direccion, todos; sin cartera y sin ver todo, ninguno.
+    posibles: veTodo(yo) ? "&comercial_captador_id=not.is.null" : mio ? `&comercial_id=eq.${mio.id}` : null,
   };
 }
 

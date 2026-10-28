@@ -200,11 +200,17 @@ export function Ficha({
   accion,
   puedeEditar,
   comision,
+  cambiaQuienLleva = false,
+  eligeEnNuevas = false,
 }: {
   ficha: FichaAdministracion;
   opciones: OpcionesFicha;
   accion: (fd: FormData) => void;
   puedeEditar: boolean;
+  /** Cambiar quien lleva a alguien que ya esta: solo direccion (28-oct-2026). */
+  cambiaQuienLleva?: boolean;
+  /** En una persona nueva, elegir quien la lleva: quien no tiene cartera propia. */
+  eligeEnNuevas?: boolean;
   /** Lo pactado: no lo ve, lo ve, o lo ve y lo cambia. */
   comision: "no" | "ve" | "edita";
 }) {
@@ -336,7 +342,13 @@ export function Ficha({
                     </label>
                     <Dato id={`p_${f.clave}_cargo`} nombre="Cargo" defecto={f.cargo} clase="sm:col-span-4" />
                     <div className="sm:col-span-4">
-                      <Elegir id={`p_${f.clave}_comercial`} nombre="Lo lleva" opciones={comerciales} defecto={f.comercialId ?? undefined} />
+                      <Elegir
+                        id={`p_${f.clave}_comercial`}
+                        nombre="Lo lleva"
+                        opciones={comerciales}
+                        defecto={f.comercialId ?? undefined}
+                        desactivado={f.nueva ? !eligeEnNuevas : !cambiaQuienLleva}
+                      />
                     </div>
                     <Dato id={`p_${f.clave}_tel`} nombre="Tel." defecto={f.telefono} pista={f.telefonoPersonal ? `personal: ${f.telefonoPersonal}` : undefined} clase="sm:col-span-4" />
                     <Dato id={`p_${f.clave}_mail`} nombre="Mail" defecto={f.correo} clase="sm:col-span-6" />

@@ -68,3 +68,12 @@ update public.puesto p
  where a.id = p.id and a.primera >= '2025-04-01' and a.comercial_primera is not null;
 
 drop table admins_captador;
+
+-- 5. (Monica, 28-oct: «aplicamos los 29 directamente») Los que seguian sin nadie
+--    que los llevara, ya con captador: los lleva su captador. 29 filas.
+update public.puesto p
+   set comercial_id = p.comercial_captador_id
+ where p.hasta is null and p.contrata_id is null and p.figura_legal_propietaria_id is null
+   and p.comercial_captador_id is not null and p.comercial_id is null
+   and ((p.empresa_id is null and p.cargo ilike 'administrador%')
+        or exists (select 1 from public.empresa e where e.id = p.empresa_id and e.tipo = 'administracion_fincas' and e.comercial_id is null));

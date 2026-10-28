@@ -78,9 +78,10 @@ export async function crearAdminDesdeMovil(yo: Yo, d: AdminDesdeMovil): Promise<
     contrata_id: null,
     cargo: CARGO_DE.administrador ?? "Administrador",
     telefono_empresa: telefono,
-    // NO entra en su cartera: es un POSIBLE suyo hasta la primera hoja firmada
-    // (Monica, 13-oct-2026). La base lo consolida al firmar.
-    comercial_id: null,
+    // Lo lleva quien lo trae desde el primer dia, sin consolidar hasta su
+    // primera hoja firmada (Monica, 28-oct-2026: captador, «lo lleva» y
+    // consolidado son tres cosas distintas).
+    comercial_id: mio?.id ?? null,
     comercial_captador_id: mio?.id ?? null,
     desde: hoy,
   });

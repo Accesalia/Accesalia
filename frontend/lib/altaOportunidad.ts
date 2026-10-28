@@ -416,10 +416,10 @@ export async function colocarPersonaNueva(
     contrata_id: enContrata,
     cargo: n.otro || CARGO_DE[n.que ?? ""] || null,
     telefono_empresa: n.telefono,
-    // Un administrador nuevo NO entra en la cartera de nadie hasta su primera
-    // hoja firmada (Monica, 13-oct-2026: la picaresca de "marcarlos"). Queda
-    // como POSIBLE de quien lo trae; la base lo consolida al firmar.
-    comercial_id: enContrata ? d.comercialId : null,
+    // El administrador nuevo lo lleva quien lo trae desde el primer dia, sin
+    // consolidar hasta su primera hoja firmada; solo direccion lo cambia de
+    // manos (Monica, 28-oct-2026).
+    comercial_id: enContrata || n.que === "administrador" ? d.comercialId : null,
     comercial_captador_id: d.comercialId,
     desde: hoy(),
   });

@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { BarraSuperior } from "../../../components/BarraSuperior";
 import { Salida } from "../../../components/Salida";
-import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { eligeComercialAlDarDeAlta, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { editaComision, leerFicha, opcionesFicha, veComision } from "../../../../lib/fichaAdministracion";
 import { Ficha } from "./Ficha";
 import { guardar } from "./acciones";
@@ -18,7 +18,7 @@ export default async function FichaAdministracionPagina({ params }: { params: Pr
   if (!yo) redirect(`/entrar?volver=/administracion/administraciones/${id}`);
   if (!puedeEntrar(yo, "administracion") && !puedeEntrar(yo, "comercial")) redirect("/menu");
 
-  const [ficha, opciones] = await Promise.all([leerFicha(id), opcionesFicha()]);
+  const [ficha, opciones, alta] = await Promise.all([leerFicha(id), opcionesFicha(), eligeComercialAlDarDeAlta(yo)]);
   if (!ficha) notFound();
 
   return (
@@ -33,6 +33,10 @@ export default async function FichaAdministracionPagina({ params }: { params: Pr
             accion={guardar.bind(null, id)}
             puedeEditar={puedeEntrar(yo, "administracion", "trabajar") || puedeEntrar(yo, "comercial", "trabajar")}
             comision={veComision(yo) ? (editaComision(yo) ? "edita" : "ve") : "no"}
+            // QUIEN LO LLEVA (Monica, 28-oct-2026): cambiarlo de manos, solo direccion;
+            // en una persona nueva elige quien no tiene cartera propia (la secretaria).
+            cambiaQuienLleva={yo.veTodo}
+            eligeEnNuevas={alta.elige}
           />
         </div>
       </main>

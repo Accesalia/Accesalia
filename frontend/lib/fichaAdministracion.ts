@@ -29,6 +29,7 @@
 // dos personas con la ficha abierta no se pisen lo que no tocaron.
 
 import "server-only";
+import { eligeComercialAlDarDeAlta } from "./sesion";
 import { nombreDeOpp } from "./direccionOpp";
 import { puntosDeOpps } from "./consulta";
 import { canalesDe, type Canal } from "./canales";
@@ -405,6 +406,11 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
   }
 
   // 3 · la gente
+  // QUIEN LA LLEVA (Monica, 28-oct-2026): una persona nueva la capta y la lleva
+  // quien la crea; si no tiene cartera propia (la secretaria, direccion), elige.
+  // Cambiar de manos a alguien que ya esta, solo direccion.
+  const alta = await eligeComercialAlDarDeAlta(yo);
+  const nuevaLaLleva = (elegido: string | null | undefined) => (alta.elige ? elegido ?? alta.mio?.id ?? null : alta.mio?.id ?? null);
   const nuevosIds = new Map<PersonaGuardar, string>();
   for (const p of d.personas) {
     const viejo = p.puestoId ? antes.personas.find((x) => x.puestoId === p.puestoId) : null;
@@ -425,7 +431,7 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
           cargo: p.cargo === undefined ? viejo.cargo : p.cargo,
           telefono_empresa: p.telefono,
           numero_colegiado: p.colegiado === undefined ? viejo.colegiado : p.colegiado,
-          comercial_id: p.comercialId === undefined ? viejo.comercialId : p.comercialId,
+          comercial_id: !yo.veTodo || p.comercialId === undefined ? viejo.comercialId : p.comercialId,
         },
       );
       // De empleado a jefe, o al reves: la marca "el que manda" del puesto.
@@ -443,7 +449,8 @@ export async function guardarFicha(id: string, d: FichaGuardar, yo: Yo): Promise
         cargo_clave: p.jefe ? "el que manda" : null,
         telefono_empresa: p.telefono,
         numero_colegiado: p.colegiado ?? null,
-        comercial_id: p.comercialId ?? null,
+        comercial_id: nuevaLaLleva(p.comercialId),
+        comercial_captador_id: nuevaLaLleva(p.comercialId),
         desde: hoy(),
       });
       nuevosIds.set(p, puesto!.id);
