@@ -142,6 +142,9 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 export async function crearAdministracion(d: DatosAdministracion): Promise<ResultadoAdministracion> {
   // 1 · la empresa, SOLO si tiene nombre. Sin nombre no se inventa una.
   let empresaId: string | null = null;
+  // Los departamentos de esta alta, por su nombre, para colocar a cada persona en el suyo.
+  const deptoDe = new Map<string, string>();
+  const clave = (x: string) => x.trim().toLowerCase();
   if (d.nombre) {
     const e = await crear<{ id: string }>("empresa", {
       nombre_accesalia: d.nombre,
@@ -190,6 +193,7 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
         telefono: dep.telefono,
         notas: dep.queHace,
       });
+      if (dep.nombre) deptoDe.set(clave(dep.nombre), fila.id);
       if (dep.correo) {
         await crear("correo", {
           // Del DEPARTAMENTO, y de nada mas: la BD exige un solo dueño.
@@ -212,9 +216,21 @@ export async function crearAdministracion(d: DatosAdministracion): Promise<Resul
       notas: p.notas,
       telefono_personal: p.telefonoPersonal,
     });
+    // SU DEPARTAMENTO (28-oct-2026: se pedia y no se guardaba). El de esta alta
+    // con ese nombre, o uno nuevo; sin administracion no hay donde colgarlo.
+    let departamentoId: string | null = null;
+    if (empresaId && p.departamento?.trim()) {
+      departamentoId = deptoDe.get(clave(p.departamento)) ?? null;
+      if (!departamentoId) {
+        const dep = await crear<{ id: string }>("empresa_departamento", { empresa_id: empresaId, departamento: p.departamento.trim() });
+        departamentoId = dep.id;
+        deptoDe.set(clave(p.departamento), dep.id);
+      }
+    }
     const pue = await crear<{ id: string }>("puesto", {
       persona_id: fila.id,
       empresa_id: empresaId,
+      departamento_id: departamentoId,
       cargo: manda ? null : p.cargo,
       cargo_clave: manda ? "el que manda" : null,
       telefono_empresa: p.telefonoTrabajo,
