@@ -12,6 +12,7 @@ import { direccionesVistas } from "../../lib/informeCostes";
 import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 import { oppsSinAdministrador } from "../../lib/adminComunidad";
 import { escaneosSinOpp } from "../../lib/polycamSinOpp";
+import { viabilidadesListas } from "../../lib/viabilidadesListas";
 
 export const dynamic = "force-dynamic";
 
@@ -174,6 +175,13 @@ export default async function Pendientes() {
         .then((l) => l.length)
         .catch(() => null)
     : null;
+  // VIABILIDAD LISTA (28-oct-2026): enviadas por el arquitecto y sin rematar. Las suyas; direccion, todas.
+  const listas = comercial
+    ? await (yo.veTodo ? Promise.resolve(null) : comercialDe(yo.id))
+        .then((m) => viabilidadesListas(m?.id ?? null, yo.veTodo))
+        .then((l) => l.length)
+        .catch(() => null)
+    : null;
   // ESCANEOS SIN OPORTUNIDAD (Monica, 28-oct-2026): los suyos; direccion, todos.
   const sinOpp = comercial
     ? await escaneosSinOpp(yo.veTodo ? {} : { visitoId: yo.id }).then((l) => l.length).catch(() => null)
@@ -271,9 +279,9 @@ export default async function Pendientes() {
       : []),
     ...(comercial
       ? [{
-          clave: "viabilidades", marco: "documentacion" as const, titulo: "Viabilidad lista",
-          pie: "Viabilidades ya preparadas, listas para tu revisión y enviar a la comunidad.",
-          numero: null, href: null, color: C.naranja,
+          clave: "viabilidades", marco: "documentacion" as const, titulo: "Viabilidad lista: te toca rematarla",
+          pie: "El arquitecto ya ha hecho su parte: pon tus precios, las tasas e ICIO y el texto, y genérala para la comunidad.",
+          numero: listas, href: "/pendientes/viabilidades-listas", color: C.naranja,
         }]
       : []),
     // ------------------------------------------ cosas que pueden interesarte
