@@ -30,7 +30,13 @@ export async function entrarConGoogle(fd: FormData) {
   const supabase = await clienteSesion();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${await origen()}/auth/callback?volver=${encodeURIComponent(volver)}` },
+    options: {
+      redirectTo: `${await origen()}/auth/callback?volver=${encodeURIComponent(volver)}`,
+      // QUE GOOGLE PREGUNTE SIEMPRE CON QUE CUENTA (Monica, 28-oct-2026). Sin
+      // esto entraba con la cuenta que el navegador tuviera abierta: desde la
+      // oficina, gerencia@ en vez de Daniel o Alex, y la app la rechazaba.
+      queryParams: { prompt: "select_account" },
+    },
   });
   if (error || !data.url) redirect("/entrar?error=google");
   redirect(data.url);
