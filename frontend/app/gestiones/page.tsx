@@ -95,6 +95,15 @@ const ACCESOS: Acceso[] = [
     href: "/relojes",
     soloDireccion: true,
   },
+  // EL PERMISO DE GOOGLE DEL BUZON DEL POLYCAM (Monica, 28-oct-2026).
+  {
+    nombre: "Buzón del Polycam",
+    color: "turquesa",
+    icono: "escaner",
+    desc: "Conectar el buzón de los escaneos con Google, para que los Polycam pesados no se atasquen",
+    href: "/gestiones/buzon-polycam",
+    soloDireccion: true,
+  },
   {
     nombre: "Calendario",
     color: "verde",

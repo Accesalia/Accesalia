@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const volver = (q: Record<string, string>) => NextResponse.redirect(new URL(`/comercial/buzon?${new URLSearchParams(q)}`, url.origin));
+  const volver = (q: Record<string, string>) => NextResponse.redirect(new URL(`/gestiones/buzon-polycam?${new URLSearchParams(q)}`, url.origin));
 
   const yo = await quienSoy();
   if (!yo?.veTodo) return NextResponse.json({ error: "Solo dirección." }, { status: 403 });
