@@ -69,6 +69,11 @@ export async function guardarDatoCabecera(
 ): Promise<string> {
   if (!uuid(oppId)) throw new Error("Oportunidad no válida");
   const comunidades = await comunidadesDeOpp(oppId);
+  // ANTES DE CREAR A NADIE (28-oct-2026): el administrador es de la comunidad, y
+  // sin comunidad no hay donde ponerlo. Antes se creaba la persona y luego daba
+  // este error, y quedaba suelta.
+  if (campo === "admin" && !comunidades.length)
+    throw new Error("Esta oportunidad aún no tiene comunidad: confirma su dirección en el Catastro y luego ponle el administrador.");
   let valor = d.valor;
   if (!valor && d.nueva?.nombre?.trim()) {
     // La persona nueva nace donde le toca: el contacto, como gente de la comunidad; el admin, como administrador.
@@ -93,7 +98,6 @@ export async function guardarDatoCabecera(
   }
 
   // campo === "admin": a todas las comunidades de la opp, con historial (el anterior se cierra con fecha de hoy).
-  if (!comunidades.length) throw new Error("Esta oportunidad no tiene comunidad: el administrador es de la comunidad.");
   const res = await Promise.all(
     comunidades.map((c) => ponerAdministrador(c.id, id, { cambia: true, nota: "Puesto desde la cabecera de la oportunidad (27-oct-2026)." })),
   );
