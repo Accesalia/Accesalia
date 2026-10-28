@@ -7,7 +7,6 @@ import { comercialDe, puedeEntrar, quienSoy } from "../../lib/sesion";
 import { deFueraSinAsignar } from "../../lib/alertasIEE";
 import { solicitudesPendientes } from "../../lib/rrhh";
 import { cuantosPorRevisar } from "../../lib/recibidos";
-import { cuantosApuntes } from "../../lib/apuntesSatelite";
 import { direccionesVistas } from "../../lib/informeCostes";
 import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 import { oppsSinAdministrador } from "../../lib/adminComunidad";
@@ -156,13 +155,12 @@ export default async function Pendientes() {
   // LAS OFERTAS ESPERANDO EL OK (Monica, 14-oct-2026): a quien tiene la funcion
   // de revisarlas. Se envian en caliente: no pueden esperar.
   const revisa = puedeRevisar(yo);
-  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, apuntes, vistas, ofertas, avisos] = await Promise.all([
+  const [{ notas, opps, llamadas }, radar, ausencias, recibidos, posibles, vistas, ofertas, avisos] = await Promise.all([
     misPendientes(yo),
     veRadar ? deFueraSinAsignar().catch(() => null) : Promise.resolve(null),
     resuelveRrhh ? solicitudesPendientes().catch(() => null) : Promise.resolve(null),
     cuantosPorRevisar(yo),
     comercial ? posiblesDe(yo).catch(() => null) : Promise.resolve(null),
-    comercial ? cuantosApuntes(yo).catch(() => null) : Promise.resolve(null),
     comercial ? direccionesVistas().catch(() => null) : Promise.resolve(null),
     revisa ? contarPendientes().catch(() => null) : Promise.resolve(null),
     misAvisos(yo),
@@ -193,25 +191,8 @@ export default async function Pendientes() {
 
   const tarjetas: Tarjeta[] = [
     // ---------------------------------------------- lo que esta a medio crear
-    ...(comercial
-      ? [
-          {
-            clave: "satelite_opps", marco: "a_medio_crear" as const, titulo: "Opps nuevas que has lanzado desde el satélite",
-            pie: "No están creadas, solo apuntadas: les faltan datos para poder darlas de alta.",
-            numero: apuntes?.oportunidad ?? null, href: "/pendientes/satelite?tipo=oportunidad", color: C.ambar,
-          },
-          {
-            clave: "satelite_admins", marco: "a_medio_crear" as const, titulo: "Administradores nuevos creados desde el satélite",
-            pie: "Me pasaste el dato, todo anotado, pero para crearlos hay que completar algunas cosas.",
-            numero: apuntes?.administrador ?? null, href: "/pendientes/satelite?tipo=administrador", color: C.verde,
-          },
-          {
-            clave: "satelite_contactos", marco: "a_medio_crear" as const, titulo: "Contactos nuevos que has apuntado desde el satélite",
-            pie: "Vecinos, contratistas y otros: me pasaste el dato con su nota, colócalos donde toque.",
-            numero: apuntes?.contacto ?? null, href: "/pendientes/satelite?tipo=contacto", color: C.verde,
-          },
-        ]
-      : []),
+    // LAS TARJETAS DEL SATELITE, FUERA (Monica, 28-oct-2026): desde hoy el satelite
+    // crea de verdad (lib/altaSatelite.ts) y ya no deja apuntes por completar.
     {
       // Monica, 28-oct-2026: «a medio montar» era psicologicamente muy negativo y
       // contaba lo que no hace falta. Solo lo que no se hace solo: el Catastro.
