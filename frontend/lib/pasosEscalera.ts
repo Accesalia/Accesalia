@@ -62,8 +62,9 @@ export type Fase =
 export const BLOQUES: { n: number; titulo: string; hitos: Fase[] }[] = [
   { n: 1, titulo: "Toma de datos", hitos: ["primer_contacto", "visita", "polycam", "tresd"] },
   { n: 2, titulo: "Ofertas a la comunidad", hitos: ["viabilidad_arquitecto", "preparacion_documentos", "envio_documentos"] },
-  { n: 3, titulo: "Decisión de los vecinos", hitos: ["junta"] },
-  { n: 4, titulo: "Cierre", hitos: ["firma", "cobro"] },
+  // 28-oct-2026: el 3 une la negociacion y su resultado (hasta la hoja firmada); el 4 es el seguimiento del cobro.
+  { n: 3, titulo: "Seguimiento y negociación", hitos: ["junta", "firma"] },
+  { n: 4, titulo: "Cobro", hitos: ["cobro"] },
 ];
 export const bloqueDeFase = (f: Fase | null): number | null => (f ? (BLOQUES.find((b) => b.hitos.includes(f))?.n ?? null) : null);
 

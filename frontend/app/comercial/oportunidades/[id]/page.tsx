@@ -24,7 +24,7 @@ import { fotosDeOpp } from "../../../../lib/fotos";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
-import { Bloque3, Bloque4 } from "./Bloque34";
+import { Bloque4 } from "./Bloque34";
 import { decisionCierreDe } from "../../../../lib/bloquesDecisionCierre";
 import { informesDeOportunidad } from "../../../../lib/informeCostes";
 import { correosEnviados } from "../../../../lib/envioCorreo";
@@ -45,6 +45,8 @@ import { datosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
 import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
 import { DropboxAntiguo } from "./DropboxAntiguo";
 import { OfertasComunidad, VISTAS_OFERTA, type VistaOferta } from "./OfertasComunidad";
+import { SeguimientoNegociacion, VISTAS_NEGOCIACION, type VistaNegociacion } from "./SeguimientoNegociacion";
+import { negociacionDe } from "../../../../lib/negociacion";
 
 export const dynamic = "force-dynamic";
 // El informe del edificio sale de lo guardado; solo si no hay nada va a Catastro
@@ -94,6 +96,7 @@ export default async function GestionOportunidad({
   const bloque = sp.bloque === "2" ? 2 : sp.bloque === "3" ? 3 : sp.bloque === "4" ? 4 : 1;
   // Lo elegido en el menu del bloque 2 (27-oct-2026). Sin nada, el bloque abre lo que pide atencion.
   const ver = (VISTAS_OFERTA as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaOferta) : null;
+  const ver3 = (VISTAS_NEGOCIACION as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaNegociacion) : null;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -129,10 +132,13 @@ export default async function GestionOportunidad({
   // Las listas para completar, solo si hace falta completar: son largas.
   const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
   const [documentacion, informes, enviados] =
-    bloque === 2
+    bloque === 2 || bloque === 3
       ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
       : [null, [], []];
   const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
+  // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (28-oct-2026): administradores con su comision, agenda de la comunidad, juntas
+  // y cambios pedidos (lib/negociacion.ts).
+  const negociacion = bloque === 3 ? await negociacionDe(id, g.direccion) : null;
   // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
   const fotos = bloque === 1 || bloque === 2 ? await fotosDeOpp(id).catch(() => []) : [];
   // EL CAJON DE DOCUMENTOS (25-oct-2026): al lado de las fotos en el bloque 1, y debajo de lo suyo en los demas
@@ -241,6 +247,66 @@ export default async function GestionOportunidad({
               )}
             </section>
     </>
+  );
+
+  // El 3D y las juntas se editaban en la segunda fila del bloque 3; desde el 28-oct van dentro de «Lo que quieren» y de
+  // «Juntas y reuniones» del bloque nuevo.
+  const formulario3D = (
+              <form id="el-3d" action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
+                <Titulo>El 3D</Titulo>
+                <div className="flex flex-col gap-3">
+                  <label className="block">
+                    <span className={ROTULO}>De qué tipo</span>
+                    <select name="tipo" defaultValue={g.tresD?.tipo ?? "generico_escalera"} className={CAMPO + " mt-1"}>
+                      {TIPOS_3D.map((t) => (
+                        <option key={t.valor} value={t.valor}>{t.texto}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className={ROTULO}>Cómo va</span>
+                    <select name="estado" defaultValue={g.tresD?.estado ?? "pedido"} className={CAMPO + " mt-1"}>
+                      {ESTADOS_3D.map((e) => (
+                        <option key={e.valor} value={e.valor}>{e.texto}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex gap-3">
+                    <label className="block flex-1">
+                      <span className={ROTULO}>Para cuándo hace falta</span>
+                      <input type="date" name="fecha_necesaria" defaultValue={g.tresD?.fechaNecesaria ?? ""} className={CAMPO + " mt-1"} />
+                    </label>
+                    <label className="block flex-1">
+                      <span className={ROTULO}>Entregado el</span>
+                      <input type="date" name="fecha_entrega" defaultValue={g.tresD?.fechaEntrega ?? ""} className={CAMPO + " mt-1"} />
+                    </label>
+                  </div>
+                </div>
+                <p className="mt-3 text-[11px] leading-snug text-carbon/50">
+                  Quién lo monta se apunta en el responsable de la fase «3D para junta», ahí arriba. Y el enlace al modelo,
+                  en esa misma fase.
+                </p>
+                <div className="mt-3 flex justify-end">
+                  <button className={BOTON}>Guardar</button>
+                </div>
+              </form>
+  );
+  const editorJuntas = (
+              <Serie
+                titulo="Las juntas"
+                pie="Una línea por junta: se aplazan, se repiten"
+                vacio="Todavía no hay ninguna junta apuntada."
+                estados={RESULTADOS_JUNTA}
+                guardar={accionJunta.bind(null, id)}
+                intentos={g.juntas.map((x) => ({
+                  id: x.id,
+                  fecha: x.fecha,
+                  estado: x.resultado,
+                  detalle: x.detalle,
+                  marca: x.seguimiento,
+                  marcaTexto: "perseguir",
+                }))}
+              />
   );
 
   return (
@@ -425,10 +491,34 @@ export default async function GestionOportunidad({
                 diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
               />
             </div>
+          ) : bloque === 3 && documentacion && negociacion && decision ? (
+            <div className="min-w-0 xl:col-span-2">
+              <SeguimientoNegociacion
+                id={id}
+                ver={ver3}
+                nombreOpp={g.direccion}
+                d={documentacion}
+                neg={negociacion}
+                contactos={contactos}
+                trajo={g.trajo}
+                quieren={quieren}
+                referencia={g.referenciaCatastral}
+                polycam={(() => {
+                  const h = g.hitos.find((x) => x.clave === "polycam");
+                  return h?.estado === "hecho" ? (h.fecha ?? "") : null;
+                })()}
+                tresD={g.tresD}
+                enviados={enviados}
+                diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
+                cierres={decision.cierres}
+                formulario3D={formulario3D}
+                editorJuntas={editorJuntas}
+              />
+            </div>
           ) : decision ? (
-            // Los bloques 3 y 4, en crudo: cada campo con donde vive (15-oct-2026).
+            // El bloque 4, en crudo: cada campo con donde vive (15-oct-2026). Pasa a ser el del cobro (28-oct).
             <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
-              {bloque === 3 ? <Bloque3 g={g} d={decision} /> : <Bloque4 d={decision} />}
+              <Bloque4 d={decision} />
               {cajon}
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
@@ -471,79 +561,11 @@ export default async function GestionOportunidad({
             </div>
           )}
 
-          {/* ============ el 3D y las juntas: del bloque 3 (15-oct-2026) ============
-              Las diez fases, que contratan y que le vendemos se fueron de aqui:
-              repetian la barra de la cabecera, el "interesados en" del cuadrito
-              gris y "El trato" del bloque 2. El 3D y las juntas son de la junta:
-              van al bloque 3, hasta que se rehaga con su maqueta. */}
-          {bloque === 3 && (
-            <div className="flex min-w-0 flex-col gap-5 xl:col-span-1 xl:row-start-2">
-              {/* ------------------------- 5 · el 3D ------------------------- */}
-              <form id="el-3d" action={accionTresD.bind(null, id)} className={CAJA + " p-4"}>
-                <Titulo>El 3D</Titulo>
-                <div className="flex flex-col gap-3">
-                  <label className="block">
-                    <span className={ROTULO}>De qué tipo</span>
-                    <select name="tipo" defaultValue={g.tresD?.tipo ?? "generico_escalera"} className={CAMPO + " mt-1"}>
-                      {TIPOS_3D.map((t) => (
-                        <option key={t.valor} value={t.valor}>{t.texto}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className={ROTULO}>Cómo va</span>
-                    <select name="estado" defaultValue={g.tresD?.estado ?? "pedido"} className={CAMPO + " mt-1"}>
-                      {ESTADOS_3D.map((e) => (
-                        <option key={e.valor} value={e.valor}>{e.texto}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className="flex gap-3">
-                    <label className="block flex-1">
-                      <span className={ROTULO}>Para cuándo hace falta</span>
-                      <input type="date" name="fecha_necesaria" defaultValue={g.tresD?.fechaNecesaria ?? ""} className={CAMPO + " mt-1"} />
-                    </label>
-                    <label className="block flex-1">
-                      <span className={ROTULO}>Entregado el</span>
-                      <input type="date" name="fecha_entrega" defaultValue={g.tresD?.fechaEntrega ?? ""} className={CAMPO + " mt-1"} />
-                    </label>
-                  </div>
-                </div>
-                <p className="mt-3 text-[11px] leading-snug text-carbon/50">
-                  Quién lo monta se apunta en el responsable de la fase «3D para junta», ahí arriba. Y el enlace al modelo,
-                  en esa misma fase.
-                </p>
-                <div className="mt-3 flex justify-end">
-                  <button className={BOTON}>Guardar</button>
-                </div>
-              </form>
-
-              {/* ------------------------ 6 · las juntas ------------------------
-                  SERIE, no ficha: una junta se aplaza, piden mas presupuestos y
-                  se vuelve a votar. "Ya nos han dado planton dos veces" es
-                  informacion de venta, y guardando solo la ultima se pierde. */}
-              <Serie
-                titulo="Las juntas"
-                pie="Una línea por junta: se aplazan, se repiten"
-                vacio="Todavía no hay ninguna junta apuntada."
-                estados={RESULTADOS_JUNTA}
-                guardar={accionJunta.bind(null, id)}
-                intentos={g.juntas.map((x) => ({
-                  id: x.id,
-                  fecha: x.fecha,
-                  estado: x.resultado,
-                  detalle: x.detalle,
-                  marca: x.seguimiento,
-                  marcaTexto: "perseguir",
-                }))}
-              />
-            </div>
-          )}
 
           {/* ============ cuarta columna: 7 · el diario de esta opp ============
               La nota nueva y lo que va pasando, bajo un mismo fondo crema: "ahorro
               sitio y da continuidad" (Monica, 16-oct-2026). */}
-          {bloque !== 2 && (
+          {bloque !== 2 && bloque !== 3 && (
           <div className="flex min-w-0 flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2 xl:col-start-2 xl:row-start-1">
             {diarioDentro}
           </div>

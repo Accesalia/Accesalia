@@ -43,7 +43,7 @@ const CERRADAS = ["no_firmada", "anulada", "sustituida"];
 
 /** Las ofertas del pasado: las hojas enviadas el mismo dia son un mismo envio (Monica, 27-oct: «para el historico,
  *  deberia salir de las hojas de encargo enviadas»). */
-function ofertasDeHojas(versiones: VersionHe[]) {
+export function ofertasDeHojas(versiones: VersionHe[]) {
   const porDia = new Map<string, VersionHe[]>();
   for (const v of versiones) {
     const f = v.fechas.enviada;

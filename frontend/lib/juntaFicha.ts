@@ -79,3 +79,31 @@ export async function marcarNosPidenIr(oppId: string, valor: boolean | null): Pr
     throw e;
   });
 }
+
+/** AGENDAR UNA REUNION DESDE EL BLOQUE 3 (Monica, 28-oct-2026: «voy a quedar con la comision de obras a explicarles
+ *  las ayudas el martes (agendar)»). La junta va por agendarJunta (su cita y la fecha en la junta); lo demas es una
+ *  cita normal en la agenda del comercial de la opp. Una sola fuente: la agenda; el bloque 3 la lee. */
+export async function agendarReunion(
+  oppId: string,
+  d: { agenda: string; tipo: string; dia: string; hora: string; lugar: string; tema: string; nombreOpp: string },
+  quien: string,
+): Promise<void> {
+  if (d.tipo === "junta") return agendarJunta(oppId, d, quien);
+  if (!uuid(oppId) || !uuid(d.agenda)) throw new Error("Falta de quién es la agenda.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.dia)) throw new Error("Falta el día.");
+  if (!/^\d{2}:\d{2}$/.test(d.hora)) throw new Error("Falta la hora.");
+  if (!d.tema.trim()) throw new Error("Falta con quién o el tema.");
+  await crearCita(
+    {
+      local: `${d.dia}T${d.hora}`,
+      tipo: d.tipo,
+      asunto: `${d.tema.trim()} · ${d.nombreOpp}`,
+      paraQue: d.tema.trim(),
+      direccion: d.lugar.trim() || d.nombreOpp,
+      conQuien: [{ tipo: "a_mano", nombre: d.tema.trim().slice(0, 80) }],
+      deQuien: d.agenda,
+      oportunidadId: oppId,
+    },
+    quien,
+  );
+}

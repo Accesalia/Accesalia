@@ -23,6 +23,7 @@ import { apuntarEnCajon, archivarDocumento, permisosCajon, quitarDelCajon } from
 import { crearEntrada } from "../../../../lib/entradaDiario";
 import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/acciones";
 import { cambiarDireccion, type PersonaNueva } from "../../../../lib/altaOportunidad";
+import { agendarReunion, choquesJunta } from "../../../../lib/juntaFicha";
 import { anadirContactoComunidad, buscarPersonas, guardarDatoCabecera, type CampoCabecera, type OpcionPersona } from "../../../../lib/datosCabecera";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
@@ -437,6 +438,34 @@ export async function accionAnadirContacto(id: string, n: PersonaNueva): Promise
   const yo = await permiso(id);
   try {
     await anadirContactoComunidad(id, n, yo.comercial?.id ?? null);
+    refrescar(id);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** AGENDAR DESDE EL BLOQUE 3 (Monica, 28-oct-2026): en la agenda del comercial de la opp (si no tiene, en la de quien
+ *  lo apunta), avisando antes si choca con otra cita. */
+async function agendaDeOpp(id: string, yoId: string): Promise<string> {
+  const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/oportunidades?select=comercial:comercial_id(equipo_id)&id=eq.${id}`, {
+    headers: { apikey: process.env.SUPABASE_SECRET_KEY ?? "", Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}` },
+    cache: "no-store",
+  });
+  const [o] = r.ok ? ((await r.json()) as { comercial: { equipo_id: string | null } | null }[]) : [];
+  return o?.comercial?.equipo_id ?? yoId;
+}
+export async function accionChoquesReunion(id: string, dia: string, hora: string) {
+  const yo = await permiso(id);
+  return choquesJunta(await agendaDeOpp(id, yo.id), dia, hora).catch(() => []);
+}
+export async function accionAgendarReunion(
+  id: string,
+  d: { tipo: string; dia: string; hora: string; lugar: string; tema: string; nombreOpp: string },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const yo = await permiso(id);
+  try {
+    await agendarReunion(id, { ...d, agenda: await agendaDeOpp(id, yo.id) }, yo.id);
     refrescar(id);
     return { ok: true };
   } catch (e) {
