@@ -61,6 +61,22 @@ async function crear<T>(tabla: string, fila: Record<string, unknown>): Promise<T
 }
 
 /** Crea la fila, o si ya esta (segun `conflicto`) la actualiza. Devuelve la fila. */
+/** Si el puesto no se puede crear, la persona recien creada se quita: sin
+ *  puesto no esta en ningun sitio y solo estorba (28-oct-2026: tres «Antonio
+ *  Cerdan» sueltos de tres intentos fallidos). */
+async function crearPuestoOQuitarPersona<T>(personaId: string, fila: Record<string, unknown>): Promise<T> {
+  try {
+    return await crear<T>("puesto", fila);
+  } catch (e) {
+    await fetch(`${URL_BASE}/rest/v1/persona?id=eq.${personaId}`, {
+      method: "DELETE",
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` },
+      cache: "no-store",
+    }).catch(() => null);
+    throw e;
+  }
+}
+
 async function crearOActualizar<T>(tabla: string, conflicto: string, fila: Record<string, unknown>): Promise<T[]> {
   const r = await fetch(`${URL_BASE}/rest/v1/${tabla}?on_conflict=${conflicto}`, {
     method: "POST",
@@ -343,12 +359,13 @@ export async function colocarPersonaNueva(
     const yaFigura = await leer<{ id_comodin: string }[]>(`figura_legal_propietaria?select=id_comodin&id_comodin=eq.${d.comunidadId}`);
     if (!yaFigura.length) await crear("figura_legal_propietaria", { id_comodin: d.comunidadId, figura: "Comunidad de Propietarios" });
     const per = await crear<{ id: string }>("persona", { nombre: n.nombre, activa: true });
-    const pu = await crear<{ id: string }>("puesto", {
+    const pu = await crearPuestoOQuitarPersona<{ id: string }>(per.id, {
       persona_id: per.id,
       figura_legal_propietaria_id: d.comunidadId,
       // Su papel, si se sabe («presidente», «secretaria»); si no, vecino (27-oct-2026).
       cargo: n.otro?.trim() || "Vecino",
-      cargo_clave: "vecino",
+      // Sin cargo_clave: la base solo admite «el que manda» (el jefe de una
+      // administracion) y «vecino» hacia fallar el alta con 23514 (Oscar, 28-oct-2026).
       telefono_empresa: n.telefono,
       desde: hoy(),
     });
@@ -364,7 +381,7 @@ export async function colocarPersonaNueva(
   // que no quede huerfano. La empresa se pone despues, cuando se sepa; la
   // contrata, en cambio, ya se sabe al elegirla.
   const enContrata = n.que === "contrata" && n.contrataId ? n.contrataId : null;
-  const pu = await crear<{ id: string }>("puesto", {
+  const pu = await crearPuestoOQuitarPersona<{ id: string }>(per.id, {
     persona_id: per.id,
     empresa_id: null,
     contrata_id: enContrata,
