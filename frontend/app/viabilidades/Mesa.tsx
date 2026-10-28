@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BarraSuperior } from "../components/BarraSuperior";
 import type { EscaneadoPendiente } from "../../lib/revisionPolycam";
-import type { PorHacer } from "../../lib/mesaViabilidades";
+import type { PorHacer, YaFuera } from "../../lib/mesaViabilidades";
 import { accionBuscar, accionVincular } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
 import { accionEmpezar, accionEmpezarSolicitud } from "./acciones";
@@ -83,6 +83,7 @@ export function Mesa({
   todas,
   sinVincular,
   descartados = [],
+  salidas = { enviadas: [], daniel: [] },
   ver,
   enviada,
   resuelveDaniel,
@@ -93,6 +94,8 @@ export function Mesa({
   sinVincular: EscaneadoPendiente[];
   /** Lo quitado de la mesa, para rescatarlo (28-oct-2026). */
   descartados?: Descartado[];
+  /** Lo que ya salio de la mesa: enviadas al comercial y avisadas a Daniel (28-oct-2026). */
+  salidas?: { enviadas: YaFuera[]; daniel: YaFuera[] };
   ver?: string;
   enviada: boolean;
   resuelveDaniel: boolean;
@@ -322,6 +325,10 @@ export function Mesa({
           </section>
         </div>
 
+        {/* LO QUE YA SALIO DE LA MESA (Monica, 28-oct-2026): para cotejar que no se ha perdido. */}
+        <ListaFuera titulo="Avisadas a Daniel, esperando su respuesta" lista={salidas.daniel} verbo="avisada" />
+        <ListaFuera titulo="Enviadas al comercial en los últimos dos meses" lista={salidas.enviadas} verbo="enviada" />
+
         {/* DESCARTADOS (Monica, 28-oct-2026): fuera de la mesa, pero se pueden rescatar. */}
         {descartados.length > 0 && (
           <details className="mt-8">
@@ -425,5 +432,33 @@ function Mensaje({ texto }: { texto: string }) {
     <p className="mt-1.5 max-w-[640px] whitespace-pre-line rounded-[8px] border-l-[3px] border-[#CDBAB0] bg-[#faf6f3] px-3 py-1.5 text-[12.5px] leading-[1.45] text-carbon/80">
       {texto}
     </p>
+  );
+}
+
+/** Una lista plegada de lo que ya salio de la mesa, con su «Abrir». */
+function ListaFuera({ titulo, lista, verbo }: { titulo: string; lista: YaFuera[]; verbo: string }) {
+  if (!lista.length) return null;
+  return (
+    <details className="mt-8">
+      <summary className="cursor-pointer text-[13px] font-semibold text-carbon/65">
+        {titulo} ({lista.length})
+      </summary>
+      <div className="mt-3 space-y-2">
+        {lista.map((v) => (
+          <div key={v.id} className={`${CARD} flex flex-wrap items-center justify-between gap-3 py-3`}>
+            <div className="min-w-0 flex-1">
+              <div className="text-[14px] font-bold text-carbon">{v.opp}</div>
+              <div className="mt-0.5 text-[11.5px] text-carbon/60">
+                {verbo} el {fecha(v.cuando)}
+                {v.quien ? ` · la hizo ${v.quien}` : ""}
+              </div>
+            </div>
+            <Link href={`/viabilidades/${v.id}`} prefetch={false} className={ENLACE_AJENO}>
+              Abrir
+            </Link>
+          </div>
+        ))}
+      </div>
+    </details>
   );
 }

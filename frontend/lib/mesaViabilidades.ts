@@ -719,6 +719,29 @@ async function juntarDosBorradores(a: string, b: string): Promise<string> {
   return queda.id;
 }
 
+/** LO QUE YA SALIO DE LA MESA (Monica, 28-oct-2026: «un sitio donde venga el
+ *  listado de las ya enviadas, para cotejar que no se ha perdido, sino que esta
+ *  en otra lista; igual que las descartadas. O la de enviadas a Daniel»).
+ *  · enviadas: al comercial, en los ultimos dos meses, la ultima arriba;
+ *  · daniel: avisado a Daniel y aun sin su respuesta ni enviada. */
+export type YaFuera = { id: string; opp: string; cuando: string; quien: string | null };
+export async function yaFuera(): Promise<{ enviadas: YaFuera[]; daniel: YaFuera[] }> {
+  type F = { id: string; enviada_en: string | null; daniel_avisado_en: string | null; oportunidades: { nombre: string | null; codigo: string | null } | null; redacta: { nombre: string } | null };
+  const sel = "id,enviada_en,daniel_avisado_en,oportunidades(nombre,codigo),redacta:redacta_id(nombre)";
+  const desde = new Date(Date.now() - 60 * 864e5).toISOString();
+  const [env, dan] = await Promise.all([
+    leer<F[]>(`viabilidades?select=${sel}&vigente=is.true&enviada_en=gte.${desde}&order=enviada_en.desc&limit=300`),
+    leer<F[]>(`viabilidades?select=${sel}&vigente=is.true&enviada_en=is.null&daniel_avisado_en=not.is.null&daniel_resuelto_en=is.null&order=daniel_avisado_en.desc`),
+  ]);
+  const fila = (f: F, cuando: string | null): YaFuera => ({
+    id: f.id,
+    opp: f.oportunidades?.nombre ?? f.oportunidades?.codigo ?? "(sin oportunidad)",
+    cuando: cuando ?? "",
+    quien: f.redacta?.nombre ?? null,
+  });
+  return { enviadas: env.map((f) => fila(f, f.enviada_en)), daniel: dan.map((f) => fila(f, f.daniel_avisado_en)) };
+}
+
 export async function marcar(id: string, que: "enviada_en"): Promise<void> {
   await escribir("PATCH", `viabilidades?id=eq.${id}`, { [que]: new Date().toISOString() }, "return=minimal");
 }
