@@ -40,6 +40,11 @@ export default async function Enviar({
   const plantillas = todas
     .filter((p) => !p.propietario_id || p.propietario_id === yo.id)
     .map((p) => ({ id: p.id, nombre: p.nombre, asunto: p.asunto, texto: p.texto, personal: !!p.propietario_id }));
+  // LA PLANTILLA DE LA OFERTA, YA PUESTA (Monica, 28-oct-2026: «no hay plantilla ni se rellena el asunto o el cuerpo»):
+  // al llegar desde «Preparar una oferta», la general «Envío de oferta».
+  const deOferta = listas.size
+    ? (plantillas.find((p) => !p.personal && p.nombre.trim().toLowerCase().replace("í", "i") === "envio de oferta")?.id ?? "")
+    : "";
 
   return (
     <div className="min-h-screen bg-form">
@@ -62,6 +67,8 @@ export default async function Enviar({
             marcados={marcados}
             destinatarios={d.destinatarios}
             plantillas={plantillas}
+            plantillaInicial={deOferta}
+            rellenar={{ direccion: d.nombre ?? "", comercial: d.comercial.nombre }}
             remitente={`${d.comercial.nombre} · Accesalia`}
             responderA={d.comercial.email}
           />

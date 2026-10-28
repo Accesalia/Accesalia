@@ -28,6 +28,8 @@ export function EnviarCorreo({
   plantillas,
   remitente,
   responderA,
+  plantillaInicial = "",
+  rellenar,
 }: {
   oppId: string;
   documentos: Doc[];
@@ -37,6 +39,10 @@ export function EnviarCorreo({
   plantillas: Plantilla[];
   remitente: string;
   responderA: string | null;
+  /** La que sale ya puesta (la de la oferta, al llegar desde «Preparar una oferta»). */
+  plantillaInicial?: string;
+  /** Lo que se cambia en la plantilla: {dirección} y {comercial}. */
+  rellenar: { direccion: string; comercial: string };
 }) {
   const router = useRouter();
   const [docs, setDocs] = useState<string[]>(marcados);
@@ -51,15 +57,20 @@ export function EnviarCorreo({
   };
   const [para, setPara] = useState<string[]>([]);
   const [otros, setOtros] = useState("");
-  const [plantilla, setPlantilla] = useState("");
-  const [asunto, setAsunto] = useState("");
-  const [cuerpo, setCuerpo] = useState("");
+  const relleno = (t: string) =>
+    t.replaceAll("{dirección}", rellenar.direccion).replaceAll("{direccion}", rellenar.direccion).replaceAll("{comercial}", rellenar.comercial);
+  const inicial = plantillas.find((p) => p.id === plantillaInicial);
+  const [plantilla, setPlantilla] = useState(inicial?.id ?? "");
+  const [asunto, setAsunto] = useState(inicial ? relleno(inicial.asunto) : "");
+  const [cuerpo, setCuerpo] = useState(inicial ? relleno(inicial.texto) : "");
   const [error, setError] = useState<string | null>(null);
   const [enCurso, empezar] = useTransition();
 
   const alterna = (lista: string[], v: string) => (lista.includes(v) ? lista.filter((x) => x !== v) : [...lista, v]);
   const todos = [...para, ...otros.split(/[,;\s]+/).map((x) => x.trim()).filter(Boolean)];
   const listo = todos.length > 0 && asunto.trim() && cuerpo.trim();
+  // QUE DIGA QUE FALTA (Monica, 28-oct-2026: el boton apagado, sin saber por que).
+  const falta = [!todos.length && "a quién", !asunto.trim() && "asunto", !cuerpo.trim() && "texto"].filter(Boolean).join(" · ");
 
   const enviar = () => {
     setError(null);
@@ -76,6 +87,7 @@ export function EnviarCorreo({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold text-carbon">Enviar a la comunidad</h1>
           <div className="flex items-center gap-2.5">
+            {falta && !enCurso && <span className="text-[13px] font-semibold text-alerta">Falta: {falta}</span>}
             <Link href={`/comercial/oportunidades/${oppId}?bloque=2`} className="rounded-lg border border-carbon/30 bg-white px-4 py-2 text-sm font-bold text-carbon/75 transition hover:border-carbon">
               Cancelar
             </Link>
@@ -174,8 +186,8 @@ export function EnviarCorreo({
             setPlantilla(v);
             const p = plantillas.find((x) => x.id === v);
             if (p) {
-              setAsunto(p.asunto);
-              setCuerpo(p.texto);
+              setAsunto(relleno(p.asunto));
+              setCuerpo(relleno(p.texto));
             }
           }}
           vacio={plantillas.length ? "elige una, o escribe el correo a mano…" : "no hay plantillas todavía"}
