@@ -24,3 +24,17 @@ export function enlaceFichero(ruta: string): string {
   const i = ruta.lastIndexOf("/");
   return `https://www.dropbox.com/home/${tramos(ruta.slice(0, i))}?preview=${encodeURIComponent(ruta.slice(i + 1))}`;
 }
+
+/** La misma ruta, para la API de la app (28-oct-2026). Con DROPBOX_RAIZ (el
+ *  espacio del equipo) se parte de la raiz del equipo, donde esta «D SM»; sin el,
+ *  de la carpeta de Daniel, que ya es «D SM». */
+export function rutaParaLaApi(ruta: string): string {
+  const desde = process.env.DROPBOX_RAIZ ? RAIZ : RAIZ.replace(/^D SM\//, "");
+  return "/" + `${desde}/${ruta}`.split("/").filter(Boolean).join("/");
+}
+
+/** El enlace de la ficha: pasa por la app, que pide a Dropbox uno solo para el
+ *  equipo (ver app/api/dropbox/enlace). */
+export function enlaceDeLaApp(ruta: string, fichero = false): string {
+  return `/api/dropbox/enlace?${new URLSearchParams({ ruta, ...(fichero ? { fichero: "1" } : {}) })}`;
+}

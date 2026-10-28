@@ -104,6 +104,15 @@ const ACCESOS: Acceso[] = [
     href: "/gestiones/buzon-polycam",
     soloDireccion: true,
   },
+  // EL PERMISO DE LA APP EN EL DROPBOX (Monica, 28-oct-2026).
+  {
+    nombre: "Dropbox",
+    color: "azul",
+    icono: "nube",
+    desc: "Conectar el Dropbox, para que los enlaces a las carpetas antiguas de las opps los abra todo el equipo y no solo Daniel",
+    href: "/gestiones/dropbox",
+    soloDireccion: true,
+  },
   {
     nombre: "Calendario",
     color: "verde",
