@@ -228,7 +228,7 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
   }
   // LA OFERTA NO SALE SIN SU OK (Monica, 14-oct-2026), y el ok es POR HOJA (25-oct-2026): las hojas solo se ofrecen
   // con el ok de Daniel (paraEnviar); un presupuesto, solo si TODAS las hojas que lleva lo tienen.
-  const pptosElegidos = elegidos.filter((x) => x.clave.startsWith("presupuesto:")).map((x) => x.clave.slice(13));
+  const pptosElegidos = elegidos.filter((x) => x.clave.startsWith("presupuesto:")).map((x) => x.clave.slice("presupuesto:".length));
   if (pptosElegidos.length) {
     const pp = await pedir<{ id: string; codigo: string | null; v: { estado: string } | null; hojas: { v: { estado: string } | null }[] }[]>(
       `presupuestos?select=id,codigo,v:he_version_id(estado),hojas:presupuesto_hojas(v:he_version_id(estado))&id=in.(${pptosElegidos.join(",")})`,
