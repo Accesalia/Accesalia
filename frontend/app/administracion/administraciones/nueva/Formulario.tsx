@@ -198,6 +198,13 @@ export function Formulario({
   const [gente, setGente] = useState<Fila[]>([nuevaFila()]);
   const [departamentos, setDepartamentos] = useState<Fila[]>([nuevaFila()]);
   const [contacto, setContacto] = useState({ jefe: "", trabajador: "" });
+  const [otroContacto, setOtroContacto] = useState(false);
+  const mirarContactos = (e: React.FormEvent<HTMLFormElement>) =>
+    setOtroContacto(
+      Array.from(e.currentTarget.elements).some(
+        (x) => /_(telefonoTrabajo|telefonoPersonal|correoTrabajo|correoPersonal)$/.test((x as HTMLInputElement).name ?? "") && (x as HTMLInputElement).value.trim() !== "",
+      ),
+    );
   const [respetar, setRespetar] = useState(false);
   const [comision, setComision] = useState("sin_hablar");
   const [correos, setCorreos] = useState(1);
@@ -217,7 +224,10 @@ export function Formulario({
     .map((f) => ({ valor: f.nombre.trim(), texto: f.nombre.trim() }));
 
   const hayPersona = jefes[0].nombre.trim() !== "" || gente[0].nombre.trim() !== "";
-  const hayContacto = contacto.jefe.trim() !== "" || contacto.trabajador.trim() !== "";
+  // CUALQUIER TELEFONO O CORREO DE CUALQUIERA (28-oct-2026): antes solo contaba
+  // el «Tel. trabajo» del primero, y con solo un correo no dejaba guardar aunque
+  // el texto dijera «correo o teléfono». Es lo mismo que comprueba el servidor.
+  const hayContacto = contacto.jefe.trim() !== "" || contacto.trabajador.trim() !== "" || otroContacto;
   const puedeGuardar = hayPersona && hayContacto;
 
   const alPulsarTecla = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -235,7 +245,7 @@ export function Formulario({
   };
 
   return (
-    <form action={accion} onSubmit={() => setEnviando(true)} onKeyDown={alPulsarTecla} className="grid gap-4">
+    <form action={accion} onSubmit={() => setEnviando(true)} onKeyDown={alPulsarTecla} onInput={mirarContactos} className="grid gap-4">
       {/* ---- la cabecera, sobre el fondo y sin tarjeta ---- */}
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">

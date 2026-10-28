@@ -61,7 +61,7 @@ function departamentos(fd: FormData) {
 export async function guardarAdministracion(fd: FormData) {
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/administracion/administraciones/nueva");
-  if (!puedeEntrar(yo, "administracion", "trabajar")) redirect("/administracion");
+  if (!puedeEntrar(yo, "administracion", "trabajar") && !puedeEntrar(yo, "comercial", "trabajar")) redirect("/administracion");
 
   const jefes = personas(fd, "jefe");
   const gente = personas(fd, "gente");
@@ -99,5 +99,8 @@ export async function guardarAdministracion(fd: FormData) {
   const hecho = await crearAdministracion(datos);
 
   revalidatePath("/administracion");
+  // El comercial sin area de administracion, a la ficha de lo que acaba de crear
+  // (si hay empresa) o a su area; el resto, como siempre.
+  if (!puedeEntrar(yo, "administracion")) redirect(hecho.empresaId ? `/administracion/administraciones/${hecho.empresaId}` : "/comercial");
   redirect("/administracion?alta=administracion&personas=" + hecho.personas);
 }

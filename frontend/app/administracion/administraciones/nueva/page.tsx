@@ -21,7 +21,9 @@ export default async function NuevaAdministracion({
   const { falta } = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/administracion/administraciones/nueva");
-  if (!puedeEntrar(yo, "administracion")) redirect("/menu");
+  // TAMBIEN EL COMERCIAL (28-oct-2026): su portada le ofrece «+ Alta nuevo
+  // Administrador» y esta pantalla le echaba si no tenia el area de administracion.
+  if (!puedeEntrar(yo, "administracion") && !puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
 
   const opciones = await opcionesAdministracion(yo.id);
 

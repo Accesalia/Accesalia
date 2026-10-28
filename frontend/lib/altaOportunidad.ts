@@ -43,6 +43,23 @@ async function leer<T>(path: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+/** La lista ENTERA, por tramos de 1.000: la base corta ahi aunque se le pida
+ *  mas, y sin avisar (28-oct-2026: de 1.652 puestos llegaban 1.000, y faltaban
+ *  administradores en el buscador del alta). La ruta debe llevar su `order`. */
+async function leerTodo<T>(path: string): Promise<T[]> {
+  const todo: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const r = await fetch(`${URL_BASE}/rest/v1/${path}`, {
+      headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}`, Range: `${desde}-${desde + 999}` },
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`Supabase REST ${r.status}: ${await r.text()}`);
+    const trozo = (await r.json()) as T[];
+    todo.push(...trozo);
+    if (trozo.length < 1000) return todo;
+  }
+}
+
 async function crear<T>(tabla: string, fila: Record<string, unknown>): Promise<T> {
   const r = await fetch(`${URL_BASE}/rest/v1/${tabla}`, {
     method: "POST",
@@ -164,23 +181,23 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
       "tipos_proyecto?select=id,nombre,padre:parent_id(nombre),usos:oportunidad_tipos(count)" +
         "&activo=is.true&elegible=is.true&contratable=is.true&order=orden.asc",
     ),
-    leer<{ id: string; nombre_accesalia: string; municipio: string | null }[]>(
+    leerTodo<{ id: string; nombre_accesalia: string; municipio: string | null }>(
       "empresa?select=id,nombre_accesalia,municipio&activa=is.true&tipo=eq.administracion_fincas" +
-        "&order=nombre_accesalia.asc&limit=2000",
+        "&order=nombre_accesalia.asc,id.asc",
     ),
     listaDeClaves(),
     leer<{ id: string; nombre: string }[]>("contratas?select=id,nombre&order=nombre.asc&limit=500").catch(() => []),
-    leer<{
+    leerTodo<{
       id: string;
       cargo: string | null;
       persona_id: string | null;
       figura_legal_propietaria_id: string | null;
       persona: { nombre: string } | null;
       empresa: { nombre_accesalia: string; tipo: string | null } | null;
-    }[]>("puesto?select=id,cargo,persona_id,figura_legal_propietaria_id,persona(nombre),empresa(nombre_accesalia,tipo)&hasta=is.null&limit=5000"),
+    }>("puesto?select=id,cargo,persona_id,figura_legal_propietaria_id,persona(nombre),empresa(nombre_accesalia,tipo)&hasta=is.null&order=id.asc"),
     // UNA SOLA AGENDA (15-oct-2026): la gente de las comunidades es un puesto que
     // cuelga de la comunidad; su nombre, para la pista.
-    leer<{ id: string; nombre: string }[]>("comunidades?select=id,nombre&limit=10000").catch(() => []),
+    leerTodo<{ id: string; nombre: string }>("comunidades?select=id,nombre&order=id.asc").catch(() => []),
     // Lo que sabemos de cada persona, en una linea (Monica, 15-oct-2026).
     fichasCortas().catch(() => null),
   ]);
@@ -188,8 +205,9 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
   // El numero que le toca a cada uno: una sola lectura de los codigos que ya
   // hay, y el correlativo se saca aqui. El de verdad se calcula al guardar.
   const anio = new Date().getFullYear();
-  const yaPuestos = await leer<{ codigo: string }[]>(
-    `oportunidades?select=codigo&codigo=not.is.null&order=codigo.desc&limit=3000`,
+  // Solo los de este año: son los unicos que cuentan para el correlativo.
+  const yaPuestos = await leerTodo<{ codigo: string }>(
+    `oportunidades?select=codigo&codigo=like.*-${anio}-*&order=codigo.desc`,
   ).catch(() => []);
   const codigoDe: Record<string, string> = {};
   for (const c of comerciales) {
@@ -219,10 +237,21 @@ export async function opcionesOportunidad(equipoId?: string, mio?: string | null
     administradores: Object.values(
       Object.fromEntries(
         puestos
-          .filter((p) => p.empresa?.tipo === "administracion_fincas" && p.persona?.nombre && p.persona_id)
+          // Tambien los SUELTOS (28-oct-2026): el administrador dado de alta sin su
+          // administracion todavia. Si no salen aqui, se vuelven a crear repetidos.
+          .filter(
+            (p) =>
+              (p.empresa?.tipo === "administracion_fincas" || (!p.empresa && !p.figura_legal_propietaria_id && /^administrador/i.test(p.cargo ?? ""))) &&
+              p.persona?.nombre &&
+              p.persona_id,
+          )
           .map((p) => [
             p.persona_id!,
-            { id: p.persona_id!, nombre: p.persona!.nombre, pista: fichas?.porPuesto.get(p.id) ?? p.empresa!.nombre_accesalia },
+            {
+              id: p.persona_id!,
+              nombre: p.persona!.nombre,
+              pista: fichas?.porPuesto.get(p.id) ?? p.empresa?.nombre_accesalia ?? "sin administración todavía",
+            },
           ]),
       ),
     ).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
