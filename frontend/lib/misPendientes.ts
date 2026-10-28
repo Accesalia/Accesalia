@@ -55,7 +55,9 @@ async function filtros(yo: Yo) {
     // Los sin consolidar de QUIEN LOS LLEVA (28-oct-2026: captador y «lo lleva»
     // son cosas distintas; si direccion lo pasa a otro, le sale al nuevo).
     // Direccion, todos; sin cartera y sin ver todo, ninguno.
-    posibles: veTodo(yo) ? "&comercial_captador_id=not.is.null" : mio ? `&comercial_id=eq.${mio.id}` : null,
+    // Solo direccion (28-oct-2026: el comercial no puede moverlo; a el le salen
+    // los que se le enfrian, lib/adminsDormidos.ts).
+    posibles: veTodo(yo) ? "&comercial_captador_id=not.is.null" : null,
   };
 }
 

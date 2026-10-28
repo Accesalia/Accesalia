@@ -11,6 +11,7 @@ import { direccionesVistas } from "../../lib/informeCostes";
 import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 import { oppsSinAdministrador } from "../../lib/adminComunidad";
 import { escaneosSinOpp } from "../../lib/polycamSinOpp";
+import { adminsDormidos } from "../../lib/adminsDormidos";
 import { viabilidadesListas } from "../../lib/viabilidadesListas";
 
 export const dynamic = "force-dynamic";
@@ -180,6 +181,13 @@ export default async function Pendientes() {
         .then((l) => l.length)
         .catch(() => null)
     : null;
+  // ADMINISTRADORES SIN MOVIMIENTO (28-oct-2026): los que lleva; direccion, todos.
+  const dormidos = comercial
+    ? await (yo.veTodo ? Promise.resolve(null) : comercialDe(yo.id))
+        .then((m) => adminsDormidos(m?.id ?? null, yo.veTodo))
+        .then((l) => l.length)
+        .catch(() => null)
+    : null;
   // ESCANEOS SIN OPORTUNIDAD (Monica, 28-oct-2026): los suyos; direccion, todos.
   const sinOpp = comercial
     ? await escaneosSinOpp(yo.veTodo ? {} : { visitoId: yo.id }).then((l) => l.length).catch(() => null)
@@ -275,10 +283,19 @@ export default async function Pendientes() {
             pie: "No han generado opp, pero alguien las pidió: te las guardo aquí por si quieres seguirles la pista.",
             numero: misVistas, href: "/comercial/direcciones-vistas", color: C.morado,
           },
+          // SIN CONSOLIDAR, SOLO DIRECCION (Monica, 28-oct-2026: «no es algo que
+          // ellos puedan cambiar»). Al comercial, los que se le enfrian.
+          ...(yo.veTodo
+            ? [{
+                clave: "posibles", marco: "interesarte" as const, titulo: "Administradores sin consolidar",
+                pie: "Captados que aún no han firmado nada: de quién son y desde cuándo.",
+                numero: posibles ? posibles.length : null, href: "/pendientes/administradores", color: C.arena,
+              }]
+            : []),
           {
-            clave: "posibles", marco: "interesarte" as const, titulo: "Administradores sin consolidar",
-            pie: "Posibles, no de tu cartera: insísteles hasta su primera hoja firmada.",
-            numero: posibles ? posibles.length : null, href: "/pendientes/administradores", color: C.arena,
+            clave: "dormidos", marco: "interesarte" as const, titulo: "Administradores sin movimiento desde hace 4 meses",
+            pie: "Ya nos dieron algo y llevamos más de 120 días sin hablar con ellos ni con sus oportunidades.",
+            numero: dormidos, href: "/pendientes/administradores-dormidos", color: C.arena,
           },
         ]
       : []),
