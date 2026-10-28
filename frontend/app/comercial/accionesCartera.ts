@@ -33,10 +33,19 @@ export async function accionAdminsParaElegir(): Promise<{ valor: string; texto: 
   const yo = await quienSoy();
   if (!yo) return [];
   const r = await fetch(
-    `${URL_BASE}/rest/v1/directorio_personas?select=fila,nombre,pista&vigente=is.true&donde_tipo=eq.administracion&nombre=neq.&order=nombre.asc&limit=5000`,
+    // TAMBIEN LOS SIN CONSOLIDAR (Oscar, 28-oct-2026: «Antonio Gonzalez y Amador
+    // me salen sin consolidar, pero al buscarlos no salen»): el administrador
+    // dado de alta suelto, sin su administracion todavia. Se puede elegir ya; la
+    // empresa se le pone despues.
+    `${URL_BASE}/rest/v1/directorio_personas?select=fila,nombre,pista,donde_tipo&vigente=is.true&nombre=neq.` +
+      `&or=${encodeURIComponent("(donde_tipo.eq.administracion,and(donde_tipo.eq.otro,cargo.ilike.administrador*))")}&order=nombre.asc&limit=5000`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },
   );
   if (!r.ok) return [];
-  const filas = (await r.json()) as { fila: string; nombre: string; pista: string | null }[];
-  return filas.map((f) => ({ valor: f.fila, texto: f.nombre, pista: f.pista || undefined }));
+  const filas = (await r.json()) as { fila: string; nombre: string; pista: string | null; donde_tipo: string }[];
+  return filas.map((f) => ({
+    valor: f.fila,
+    texto: f.nombre,
+    pista: f.donde_tipo === "administracion" ? f.pista || undefined : `sin administración todavía${f.pista ? ` · ${f.pista}` : ""}`,
+  }));
 }
