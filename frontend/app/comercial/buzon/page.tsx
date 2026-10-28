@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarraSuperior } from "../../components/BarraSuperior";
-import { oportunidadesAbiertas, sinSitio } from "../../../lib/buzonPolycam";
 import { puedeEntrar, quienSoy } from "../../../lib/sesion";
-import { accionColocar, accionRepasar } from "./acciones";
+import { accionRepasar } from "./acciones";
 import { Salida } from "../../components/Salida";
 import { hayPermiso } from "../../../lib/gmailBuzon";
 
@@ -38,7 +37,11 @@ export default async function Buzon({
   if (!yo) redirect("/entrar?volver=/comercial/buzon");
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
 
-  const [correos, oportunidades, conGoogle] = await Promise.all([sinSitio(), oportunidadesAbiertas(), hayPermiso()]);
+  // SIN LA LISTA DE «SIN SITIO» (Monica, 28-oct-2026: la pantalla tardaba en
+  // abrir). Desde el 2-oct todo lo que llega se guarda y va a la mesa de
+  // viabilidades: ningun correo se queda «sin sitio», y aun asi esta pantalla
+  // entraba al buzon por IMAP cada vez para buscarlos (siempre vacia).
+  const conGoogle = await hayPermiso();
 
   return (
     <div className="min-h-screen">
@@ -110,62 +113,13 @@ export default async function Buzon({
           </p>
         )}
 
-        <div className="mt-6 flex flex-col gap-4">
-          {correos.length === 0 ? (
-            <p className={CAJA + " px-5 py-10 text-center text-[14px] text-carbon/50"}>
-              Nada pendiente: todo lo que ha llegado se ha podido colocar.
-            </p>
-          ) : (
-            correos.map((c) => (
-              <form key={c.uid} action={accionColocar.bind(null, c.uid)} className={CAJA + " p-4"}>
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="text-[15px] font-bold text-carbon">{c.asunto}</span>
-                  <span className="text-[12px] text-carbon/55">
-                    {c.de} · {c.cuando}
-                  </span>
-                </div>
-
-                {c.adjuntos.length > 0 ? (
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {c.adjuntos.map((a) => (
-                      <span key={a} className="rounded-full border border-black/5 bg-hueso px-2 py-0.5 text-[11px] font-semibold text-carbon/70">
-                        {a}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-1.5 text-[12px] font-semibold text-alerta">Sin adjuntos: no trae ningún fichero.</p>
-                )}
-
-                {c.cuerpo && <p className="mt-2 whitespace-pre-wrap text-[13px] leading-snug text-carbon/70">{c.cuerpo}</p>}
-
-                <div className="mt-3 flex flex-wrap items-end gap-3">
-                  <label className="block min-w-[280px] flex-1">
-                    <span className="block text-[10px] font-bold uppercase tracking-[0.05em] text-[#237812]">
-                      De qué oportunidad es
-                    </span>
-                    <select name="oportunidad" defaultValue="" className={CAMPO + " mt-1"}>
-                      <option value="">— elige —</option>
-                      {oportunidades.map((o) => (
-                        <option key={o.valor} value={o.valor}>
-                          {o.texto}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button className={BOTON}>Colocarlo aquí</button>
-                </div>
-
-                {c.sugerencia && (
-                  <p className="mt-2 text-[12px] text-carbon/55">
-                    El asunto se parece a <b className="text-carbon/80">{c.sugerencia.nombre}</b>, pero esa dirección no
-                    tiene una única oportunidad abierta.
-                  </p>
-                )}
-              </form>
-            ))
-          )}
-        </div>
+        <p className={CAJA + " mt-6 px-5 py-6 text-[14px] text-carbon/70"}>
+          Todo lo que llega al buzón se guarda y va a la{" "}
+          <Link href="/viabilidades" className="font-semibold text-[#3f5f80] underline underline-offset-2">
+            mesa de viabilidades
+          </Link>
+          : allí se coloca cada escaneo en su edificio, se descarta lo que no vale y se ve lo que ya ha salido.
+        </p>
       </main>
     </div>
   );
