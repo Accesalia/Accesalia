@@ -37,9 +37,9 @@ export default async function OppsAMedias({ searchParams }: { searchParams: Prom
         <Salida href="/pendientes">
           ← Pendientes
         </Salida>
-        <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Oportunidades a medias · {lista.length}</h1>
+        <h1 className="mt-3 text-[25px] font-bold leading-tight text-carbon">Confirmar la dirección del Catastro · {lista.length}</h1>
         <p className="mt-1 text-[13px] text-carbon/70">
-          Sin dirección, contacto o siguiente paso no se puede generar viabilidad ni hoja. Pincha cada una para completarla.
+          Lo único que no se hace solo: busca su dirección en el Catastro y marca sus portales. Pincha cada una para hacerlo.
         </p>
 
         {supervisa && comerciales.length > 1 && (

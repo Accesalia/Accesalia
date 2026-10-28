@@ -22,7 +22,7 @@ import type { Opcion } from "../components/Elegir";
 // cuando hay red.
 //
 // SIMPLIFICADO (19-oct-2026): arriba Crear nuevo contacto / Crear nueva opp
-// (se apuntan, no se crean: se completan en el PC desde Pendientes); debajo la
+// (desde el 28-oct-2026 se CREAN de verdad: lib/altaSatelite.ts); debajo la
 // nota y sobre que va, una direccion y/o una persona; sin canal ni fecha en
 // pantalla (se guardan visita y hoy).
 //

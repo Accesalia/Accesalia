@@ -697,6 +697,26 @@ async function enlazarAccesosIds(oppId: string, portalIds: string[], deDonde: st
   return ids;
 }
 
+/** UNA DIRECCION QUE YA TENEMOS (una clave), elegida en el satelite (28-oct-2026):
+ *  la opp nace con sus accesos, su comunidad y su clave, sin pasar por Catastro,
+ *  porque esa direccion ya se confirmo. Devuelve cuantos accesos enlazo. */
+export async function enlazarClaveExistente(oppId: string, claveId: string, autorId: string | null): Promise<number> {
+  if (!/^[0-9a-f-]{36}$/.test(claveId)) return 0;
+  const [c] = await leer<{ id: string; absorbida_por: string | null }[]>(`claves?select=id,absorbida_por&id=eq.${claveId}&limit=1`);
+  if (!c) return 0;
+  const clave = c.absorbida_por ?? c.id;
+  const accesos = await leer<{ id: string }[]>(`accesos?select=id&clave_id=eq.${clave}`);
+  for (const a of accesos) {
+    const [ya] = await leer<{ hasta: string | null }[]>(`relacion_oportunidad_accesos?select=hasta&opp_id=eq.${oppId}&acceso_id=eq.${a.id}&limit=1`);
+    if (!ya) await crear("relacion_oportunidad_accesos", { opp_id: oppId, acceso_id: a.id, de_donde: "Dirección que ya teníamos, elegida en el satélite" });
+  }
+  if (accesos.length) {
+    await comunidadDesdeAccesos(oppId);
+    await claveDesdeAccesos(oppId, autorId, clave);
+  }
+  return accesos.length;
+}
+
 /** BUSCAR O CAMBIAR LA DIRECCION de una oportunidad ya creada (Monica,
  *  5-oct-2026). Dos casos, y los dos pasan mucho: se dejo provisional en el
  *  alta, o la direccion era otra -"nos dicen una calle de Parla y resulta que

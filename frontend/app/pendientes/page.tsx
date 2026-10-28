@@ -213,8 +213,10 @@ export default async function Pendientes() {
         ]
       : []),
     {
-      clave: "opps", marco: "a_medio_crear", titulo: "Opps a medio montar",
-      pie: "Falta mirar el Catastro, la persona de contacto o algo más: hay que completarlas.",
+      // Monica, 28-oct-2026: «a medio montar» era psicologicamente muy negativo y
+      // contaba lo que no hace falta. Solo lo que no se hace solo: el Catastro.
+      clave: "opps", marco: "a_medio_crear", titulo: "Opps que necesitan confirmar la dirección del Catastro",
+      pie: "Lo único que no se hace solo: busca la dirección en el Catastro y marca sus portales.",
       numero: opps.length, href: "/pendientes/oportunidades", color: C.azul,
     },
     ...(comercial

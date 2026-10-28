@@ -3,7 +3,8 @@ import { crearEntrada } from "../../../../lib/entradaDiario";
 import type { NuevaDesdeMovil } from "../../../../lib/oportunidadMovil";
 import type { AdminDesdeMovil } from "../../../../lib/adminMovil";
 import type { ContactoSat } from "../../../../lib/colaSatelite";
-import { apuntar, notaYaApuntada } from "../../../../lib/apuntesSatelite";
+import { notaYaApuntada } from "../../../../lib/apuntesSatelite";
+import { adminDesdeSatelite, contactoDesdeSatelite, oppDesdeSatelite } from "../../../../lib/altaSatelite";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 
 // GUARDAR UNA NOTA QUE LLEGA DEL SATELITE (8-oct-2026). Es la misma nota que
@@ -68,9 +69,12 @@ export async function POST(req: Request) {
   try {
     const fecha = c.fecha && /^\d{4}-\d{2}-\d{2}$/.test(c.fecha) ? c.fecha : new Date().toISOString().slice(0, 10);
     const fotos = Array.isArray(c.fotos) ? c.fotos.map(String) : [];
-    // NUEVO CONTACTO (19-oct-2026): se apunta, no se crea. El administrador
-    // como siempre (Pendientes sabe darlo de alta); los demas como "contacto",
-    // con lo que son, para colocarlos a mano.
+    // DESDE EL 28-OCT-2026 SE CREA DE VERDAD (Monica: «que exista; a pendientes
+    // para completar, si hace falta»). Antes se apuntaba y se completaba en la
+    // oficina (apuntes_satelite). Ver lib/altaSatelite.ts.
+    const autor = { id: yo.id, nombre: yo.nombre };
+    const base = { notaId: id ?? crypto.randomUUID(), texto: c.texto ?? "", canal: c.canal ?? "", fecha, fotos };
+    // NUEVO CONTACTO (19-oct-2026): administrador, vecino, contratista u otro.
     if (c.nuevoContacto) {
       const n = c.nuevoContacto;
       if (!(c.texto ?? "").trim()) throw new Error("Falta la nota: es obligatoria.");
@@ -78,50 +82,45 @@ export async function POST(req: Request) {
       if (!n.telefono?.trim() && !n.correo?.trim()) throw new Error("Falta el teléfono o el correo del contacto: al menos uno.");
       if (!TIPOS_CONTACTO[n.tipo]) throw new Error("Falta qué es: administrador, vecino, contratista u otro.");
       if (n.tipo === "otro" && !n.otro?.trim()) throw new Error("Has marcado «Otro»: escribe qué es.");
-      const esAdmin = n.tipo === "administrador";
-      await apuntar(yo, {
-        tipo: esAdmin ? "administrador" : "contacto", notaId: id ?? null, fecha, nota: c.texto ?? "", canal: c.canal ?? null, direccion: null,
+      const oportunidadId = n.oportunidadId && /^[0-9a-f-]{36}$/.test(n.oportunidadId) ? n.oportunidadId : null;
+      if (n.tipo === "administrador") {
+        await adminDesdeSatelite(autor, { ...base, nombre: n.nombre, telefono: n.telefono?.trim() || null, correo: n.correo?.trim() || null, oportunidadId });
+        return NextResponse.json({ ok: true, donde: "administrador creado: lo llevas tú" });
+      }
+      await contactoDesdeSatelite(autor, {
+        ...base,
         nombre: n.nombre,
-        datos: {
-          telefono: n.telefono?.trim() || null,
-          correo: n.correo?.trim() || null,
-          ...(esAdmin ? {} : { tipoContacto: n.tipo === "otro" ? n.otro!.trim() : TIPOS_CONTACTO[n.tipo] }),
-          oportunidadId: n.oportunidadId && /^[0-9a-f-]{36}$/.test(n.oportunidadId) ? n.oportunidadId : null,
-          sobre: n.sobre?.trim() || null,
-          fotos,
-        },
+        telefono: n.telefono?.trim() || null,
+        correo: n.correo?.trim() || null,
+        cargo: n.tipo === "otro" ? n.otro!.trim() : TIPOS_CONTACTO[n.tipo],
+        esVecino: n.tipo === "vecino",
+        oportunidadId,
       });
-      return NextResponse.json({ ok: true, donde: "apuntado: lo completas en la oficina (Pendientes)" });
+      return NextResponse.json({ ok: true, donde: "contacto creado en la agenda" });
     }
-    // NUEVO ADMINISTRADOR (lo que aun espere en algun movil con la version del
-    // 13-oct): se apunta, no se crea. La nota es obligatoria.
+    // NUEVO ADMINISTRADOR (lo que aun espere en algun movil con la version del 13-oct).
     if (c.nuevoAdmin) {
       if (!(c.texto ?? "").trim()) throw new Error("Falta la nota: es obligatoria.");
       if (!c.nuevoAdmin.nombre?.trim()) throw new Error("Falta el nombre del administrador.");
       if (!c.nuevoAdmin.telefono?.trim() && !c.nuevoAdmin.correo?.trim()) throw new Error("Falta el teléfono o el correo del administrador: al menos uno.");
-      await apuntar(yo, {
-        tipo: "administrador", notaId: id ?? null, fecha, nota: c.texto ?? "", canal: c.canal ?? null, direccion: null,
-        nombre: c.nuevoAdmin.nombre, datos: { telefono: c.nuevoAdmin.telefono ?? null, correo: c.nuevoAdmin.correo ?? null, fotos },
-      });
-      return NextResponse.json({ ok: true, donde: "apuntado: lo completas en la oficina (Pendientes)" });
+      await adminDesdeSatelite(autor, { ...base, nombre: c.nuevoAdmin.nombre, telefono: c.nuevoAdmin.telefono ?? null, correo: c.nuevoAdmin.correo ?? null, oportunidadId: null });
+      return NextResponse.json({ ok: true, donde: "administrador creado: lo llevas tú" });
     }
-    // ES NUEVA: la oportunidad se apunta, no se crea.
+    // ES NUEVA: la oportunidad nace ya.
     if (c.nueva && c.dondeTexto) {
-      await apuntar(yo, {
-        tipo: "oportunidad", notaId: id ?? null, fecha, nota: c.texto ?? "", canal: c.canal ?? null, direccion: c.dondeTexto, nombre: null,
-        datos: {
-          administrador: c.nueva.administrador ?? null,
-          contacto: c.nueva.contacto ?? null,
-          contactoNombre: c.nueva.contactoNombre ?? null,
-          contactoTelefono: c.nueva.contactoTelefono ?? null,
-          contactoCorreo: c.nueva.contactoCorreo ?? null,
-          tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
-          paso: c.nueva.paso ?? null,
-          claveId: c.claveId && /^[0-9a-f-]{36}$/.test(c.claveId) ? c.claveId : null,
-          fotos,
-        },
+      if (!(c.texto ?? "").trim()) throw new Error("Falta la nota: es obligatoria.");
+      await oppDesdeSatelite(autor, {
+        ...base,
+        direccion: c.dondeTexto,
+        claveId: c.claveId && /^[0-9a-f-]{36}$/.test(c.claveId) ? c.claveId : null,
+        contacto: c.nueva.contacto ?? null,
+        contactoNombre: c.nueva.contactoNombre ?? null,
+        contactoTelefono: c.nueva.contactoTelefono ?? null,
+        contactoCorreo: c.nueva.contactoCorreo ?? null,
+        tipos: Array.isArray(c.nueva.tipos) ? c.nueva.tipos.map(String) : [],
+        paso: c.nueva.paso ?? null,
       });
-      return NextResponse.json({ ok: true, donde: "apuntada: la completas y das de alta en la oficina (Pendientes)" });
+      return NextResponse.json({ ok: true, donde: "oportunidad creada: confirma su dirección en el Catastro desde su ficha" });
     }
     const oportunidadId = c.oportunidadId || null;
     const dondeTexto = c.dondeTexto || null;

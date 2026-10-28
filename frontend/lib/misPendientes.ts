@@ -174,9 +174,8 @@ export async function misPendientes(yo: Yo): Promise<{ notas: ItemPendiente[]; o
     })),
     opps: (opps.filas as { id: string; codigo: string | null; direccion: string | null; desde: string; falta_direccion: boolean; falta_contacto: boolean; falta_paso: boolean; comercial_id: string | null }[]).map((o) => {
       const falta: Falta[] = [];
+      // Solo el Catastro deja una opp en esta lista (28-oct-2026).
       if (o.falta_direccion) falta.push("direccion");
-      if (o.falta_contacto) falta.push("contacto");
-      if (o.falta_paso) falta.push("paso");
       return {
         id: o.id,
         clase: "oportunidad",
