@@ -447,7 +447,15 @@ export async function crearOportunidad(
   // El telefono y el correo van al PUESTO, no a la persona. Ella, 5-oct-2026:
   // "son del puesto salvo que expresamente se diga lo contrario. Son relaciones
   // laborales, no amigos".
-  const colocar = (n: PersonaNueva | null) => colocarPersonaNueva(n, { comunidadId: d.comunidadId ?? null, comercialId: d.comercialId ?? null });
+  // LOS DE LA COMUNIDAD, A SU COMUNIDAD (Monica, 28-oct-2026). Al crearlos aqui
+  // la comunidad casi nunca existe todavia (sale de los portales, mas abajo):
+  // se apuntan y, en cuanto existe, pasan a colgar de ella.
+  const deLaComunidad: string[] = [];
+  const colocar = async (n: PersonaNueva | null) => {
+    const ref = await colocarPersonaNueva(n, { comunidadId: d.comunidadId ?? null, comercialId: d.comercialId ?? null });
+    if (ref && n?.que === "vecino" && !d.comunidadId) deLaComunidad.push(ref.slice("persona:".length));
+    return ref;
+  };
 
   // 1 · las personas que se crean aqui mismo
   const administradorRef = await colocar(d.administradorNuevo);
@@ -567,7 +575,8 @@ export async function crearOportunidad(
     "Elegido por el comercial en el alta, en la ventana de buscar la dirección en Catastro",
   );
   // 9 · y, con los accesos ya vinculados, su comunidad.
-  await comunidadDesdeAccesos(op.id);
+  const comunidadNueva = await comunidadDesdeAccesos(op.id);
+  if (comunidadNueva && deLaComunidad.length) await aSuComunidad(deLaComunidad, comunidadNueva);
   // 10 · y su clave (el sitio, 13-oct-2026): la de su direccion, la que eligio
   //      el comercial (de la lista, o "unir" por compartir parcela), o una nueva.
   await claveDesdeAccesos(op.id, autorId, d.claveUnir);
@@ -695,6 +704,20 @@ async function enlazarAccesosIds(oppId: string, portalIds: string[], deDonde: st
     ids.push(acceso.id);
   }
   return ids;
+}
+
+/** Los vecinos (presidente, secretaria...) creados en el alta antes de que
+ *  existiera su comunidad: su puesto pasa a colgar de ella (28-oct-2026). */
+async function aSuComunidad(personaIds: string[], comunidadId: string): Promise<void> {
+  const [fig] = await leer<{ id_comodin: string }[]>(`figura_legal_propietaria?select=id_comodin&id_comodin=eq.${comunidadId}`);
+  if (!fig) await crear("figura_legal_propietaria", { id_comodin: comunidadId, figura: "Comunidad de Propietarios" });
+  for (const id of personaIds)
+    await actualizar(`puesto?persona_id=eq.${id}&hasta=is.null&empresa_id=is.null&contrata_id=is.null&figura_legal_propietaria_id=is.null`, {
+      figura_legal_propietaria_id: comunidadId,
+      // De la comunidad: no se capta ni se lleva, como el vecino de la cabecera.
+      comercial_captador_id: null,
+      comercial_id: null,
+    });
 }
 
 /** UNA DIRECCION QUE YA TENEMOS (una clave), elegida en el satelite (28-oct-2026):
