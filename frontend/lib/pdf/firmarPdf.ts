@@ -6,8 +6,8 @@
 // lib/firmaDigital.ts.
 //
 // La firma es la criptografica (la que Adobe valida en el panel de firmas) y,
-// ademas, un SELLO VISIBLE al pie de la ultima pagina: "Firmado digitalmente por
-// ... · NIF ... · fecha", para que quien lo lea en papel sepa que va firmado.
+// ademas, un SELLO VISIBLE: una linea al pie de cada pagina y, en la ultima, un sello grande como el de Adobe
+// (28-oct-2026), para que quien lo lea en papel sepa que va firmado.
 
 import forge from "node-forge";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -69,6 +69,8 @@ export function leerCertificado(p12: Uint8Array, clave: string): DatosCertificad
   };
 }
 
+// Como lo pone Adobe: «Fecha: 2026.10.28 18:07:18».
+const SELLO = new Intl.DateTimeFormat("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Europe/Madrid" });
 const FECHA = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
 
 /** Firma el PDF con el certificado. `firmante` es el nombre que sale en el
@@ -84,10 +86,38 @@ export async function firmarPdf(
   const paginas = doc.getPages();
   const ultima = paginas[paginas.length - 1];
 
-  // El sello, al pie de la ultima pagina, pequeño y en gris.
+  // EL SELLO (Monica, 28-oct-2026): en CADA pagina la linea pequeña de siempre al pie, y en la ULTIMA, ademas, un sello
+  // grande como el de Adobe («hay algun sitio donde aparece muy legible»): el nombre en grande a la izquierda y, a la
+  // derecha, «Firmado digitalmente por ...» con el NIF y la fecha. Va en una franja que se le añade a la ultima pagina
+  // por abajo, para no tapar nada del documento.
   const letra = await doc.embedFont(StandardFonts.Helvetica);
+  const negrita = await doc.embedFont(StandardFonts.HelveticaBold);
   const texto = `Firmado digitalmente por ${o.firmante}${o.nif ? ` · NIF ${o.nif}` : ""} · ${FECHA.format(cuando)}`;
-  ultima.drawText(texto, { x: 36, y: 14, size: 7, font: letra, color: rgb(0.35, 0.35, 0.35) });
+  for (const pag of paginas) {
+    const m = pag.getMediaBox();
+    pag.drawText(texto, { x: m.x + 36, y: m.y + 14, size: 7, font: letra, color: rgb(0.35, 0.35, 0.35) });
+  }
+  const FRANJA = 78;
+  const m = ultima.getMediaBox();
+  const c = ultima.getCropBox();
+  ultima.setMediaBox(m.x, m.y - FRANJA, m.width, m.height + FRANJA);
+  ultima.setCropBox(c.x, m.y - FRANJA, c.width, c.y + c.height - (m.y - FRANJA));
+  const x = m.x + 36;
+  const y = m.y - FRANJA + 10;
+  const nombre = o.firmante.toUpperCase();
+  const derecha = [`Firmado digitalmente por`, o.firmante, o.nif ? `NIF ${o.nif}` : null, `Fecha: ${SELLO.format(cuando).replace(",", "").replace(/-/g, ".")}`].filter(Boolean) as string[];
+  // el nombre en grande, en dos lineas si es largo
+  const palabras = nombre.split(/\s+/);
+  const mitad = palabras.length > 2 ? Math.ceil(palabras.length / 2) : palabras.length;
+  const lineasNombre = [palabras.slice(0, mitad).join(" "), palabras.slice(mitad).join(" ")].filter(Boolean);
+  const tam = lineasNombre.length > 1 ? 17 : 20;
+  lineasNombre.forEach((l, k) =>
+    ultima.drawText(l, { x, y: y + 34 - k * (tam + 3) + (lineasNombre.length > 1 ? 6 : 0), size: tam, font: negrita, color: rgb(0.13, 0.13, 0.13) }),
+  );
+  const anchoNombre = Math.max(...lineasNombre.map((l) => negrita.widthOfTextAtSize(l, tam)));
+  derecha.forEach((l, k) =>
+    ultima.drawText(l, { x: x + anchoNombre + 14, y: y + 46 - k * 11.5, size: 9, font: k === 1 ? negrita : letra, color: rgb(0.2, 0.2, 0.2) }),
+  );
 
   pdflibAddPlaceholder({
     pdfDoc: doc,
@@ -97,7 +127,7 @@ export async function firmarPdf(
     name: o.firmante,
     location: "Madrid",
     signingTime: cuando,
-    // Firma invisible: el sello de arriba hace de parte visible.
+    // Firma invisible: los sellos de arriba hacen de parte visible.
     widgetRect: [0, 0, 0, 0],
     appName: "Accesalia",
     signatureLength: 16384,
