@@ -45,6 +45,7 @@ const ERRORES: Record<string, string> = {
   sin_saldo: "Pides más días de los que te quedan.",
   propia: "Una solicitud tuya la resuelve otra persona de RRHH o dirección.",
   iban: "Esa cuenta no parece un IBAN. Revísala: empieza por ES y lleva 22 números más.",
+  correo: "Uno de los otros correos no parece un correo. Revísalo: sepáralos con comas.",
   saldo: "Falta el número de días del año.",
   salario: "Revisa el salario: el bruto y la fecha son obligatorios.",
   neto: "El neto no puede ser negativo.",

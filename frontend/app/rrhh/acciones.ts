@@ -21,6 +21,7 @@ import {
   guardarContrato,
   guardarDatosPersonales,
   guardarHorario,
+  guardarOtrosCorreos,
   guardarSalario,
   guardarSaldo,
   hoyMadrid,
@@ -326,6 +327,8 @@ export async function guardarFicha(fd: FormData) {
       netoMensual: neto,
       notas: texto(fd, "notas"),
     });
+    const mal = await guardarOtrosCorreos(personaId, texto(fd, "otros_correos"));
+    if (mal) redirect(`${volver}&error=correo#ficha`);
   } else if (parte === "contrato") {
     const desde = fecha(fd, "desde");
     if (!desde) redirect(`${volver}&error=fechas#ficha`);

@@ -143,6 +143,9 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               <Campo label="Cuenta para la nómina (IBAN)"><input name="iban" defaultValue={datos?.iban ?? ""} placeholder="ES00 0000 0000 0000 0000 0000" className={campo} /></Campo>
               <Campo label="Neto de un mes normal (€)"><input name="neto" inputMode="decimal" defaultValue={datos?.netoMensual ?? ""} className={campo} /></Campo>
               <Campo label="Notas"><input name="notas" defaultValue={datos?.notas ?? ""} className={campo} /></Campo>
+              <Campo label="Otros correos (los personales desde los que manda cosas; no sirven para entrar)">
+                <input name="otros_correos" defaultValue={persona.otrosCorreos.join(", ")} placeholder="nombre@hotmail.com, nombre@icloud.com" className={campo} />
+              </Campo>
             </Form>
           }
         >
@@ -153,6 +156,7 @@ export async function Ficha({ persona, hoy, direccion, volverA }: { persona: Per
               ["Cuenta", datos?.iban ? datos.iban.replace(/(.{4})/g, "$1 ").trim() : <Falta texto="falta: sin ella no se le puede pagar" />],
               ["Neto al mes", datos?.netoMensual != null ? EUR.format(datos.netoMensual) : <Falta />],
               ...(datos?.notas ? ([["Notas", datos.notas]] as [string, ReactNode][]) : []),
+              ...(persona.otrosCorreos.length ? ([["Otros correos", persona.otrosCorreos.join(", ")]] as [string, ReactNode][]) : []),
             ]}
           />
         </Bloque>

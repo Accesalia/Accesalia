@@ -550,7 +550,9 @@ async function quienEscaneo(remitente: string | null): Promise<string | null> {
   if (!mail || !mail.includes("@")) return null;
   try {
     const r = await fetch(
-      `${URL_BASE}/rest/v1/equipo?select=id&email=ilike.${encodeURIComponent(mail)}&limit=1`,
+      // Tambien sus OTROS CORREOS, los personales (28-oct-2026: Abraham escanea
+      // con su movil y llega desde su Hotmail).
+      `${URL_BASE}/rest/v1/equipo?select=id&or=${encodeURIComponent(`(email.ilike.${mail},otros_correos.cs.{"${mail}"})`)}&limit=1`,
       { headers: cab, cache: "no-store" },
     );
     if (!r.ok) return null;

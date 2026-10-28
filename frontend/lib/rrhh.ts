@@ -252,6 +252,8 @@ export type Persona = {
   nombre: string;
   apellidos: string | null;
   email: string | null;
+  /** Correos personales desde los que manda cosas: solo para reconocerlas, no para entrar (28-oct-2026). */
+  otrosCorreos: string[];
   activo: boolean; // en activo HOY: activo y sin fecha de baja pasada
   fechaBaja: string | null; // ultimo dia; puede ser futura
   motivoBaja: string | null;
@@ -263,6 +265,7 @@ type FilaPersona = {
   nombre: string;
   apellidos: string | null;
   email: string | null;
+  otros_correos: string[] | null;
   activo: boolean;
   fecha_baja: string | null;
   motivo_baja: string | null;
@@ -282,7 +285,7 @@ export const vigenteEn = (f: { desde: string | null; hasta: string | null }, dia
 export async function personas(activos: boolean | null = true): Promise<Persona[]> {
   const hoy = hoyMadrid();
   const filas = await rest<FilaPersona[]>(
-    "equipo?select=id,nombre,apellidos,email,activo,fecha_baja,motivo_baja,equipo_funciones(desde,hasta,funciones(id,clave,nombre))" +
+    "equipo?select=id,nombre,apellidos,email,otros_correos,activo,fecha_baja,motivo_baja,equipo_funciones(desde,hasta,funciones(id,clave,nombre))" +
       "&order=nombre.asc",
   );
   const todas = filas.map((f) => ({
@@ -290,6 +293,7 @@ export async function personas(activos: boolean | null = true): Promise<Persona[
     nombre: f.nombre,
     apellidos: f.apellidos,
     email: f.email,
+    otrosCorreos: f.otros_correos ?? [],
     activo: f.activo && (!f.fecha_baja || f.fecha_baja >= hoy),
     fechaBaja: f.fecha_baja,
     motivoBaja: f.motivo_baja,
@@ -832,4 +836,22 @@ export async function tiposDeDocumento(ids: string[]): Promise<Map<string, Set<s
     out.get(f.persona_id)!.add(f.tipo);
   }
   return out;
+}
+
+/** OTROS CORREOS (Monica, 28-oct-2026): los personales desde los que manda cosas
+ *  (Abraham escanea con su movil y llega desde su Hotmail). Solo para reconocer
+ *  lo que llega; para entrar en la app vale unicamente su correo de siempre. Lo
+ *  que ya llego desde ellos al buzon del Polycam pasa a ser suyo. */
+export async function guardarOtrosCorreos(personaId: string, texto: string | null): Promise<string | null> {
+  const lista = [...new Set((texto ?? "").split(/[\s,;]+/).map((c) => c.trim().toLowerCase()).filter(Boolean))];
+  const mal = lista.find((c) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c));
+  if (mal) return mal;
+  await rest(`equipo?id=eq.${personaId}`, { method: "PATCH", body: JSON.stringify({ otros_correos: lista }), headers: { Prefer: "return=minimal" } });
+  for (const c of lista)
+    await rest(`escaneados_polycam?visito_id=is.null&remitente=ilike.${encodeURIComponent(c)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ visito_id: personaId }),
+      headers: { Prefer: "return=minimal" },
+    });
+  return null;
 }
