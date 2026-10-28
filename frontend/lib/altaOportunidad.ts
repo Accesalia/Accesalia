@@ -301,7 +301,7 @@ export type DatosOportunidad = {
   /** Obligatorio: sin entrada del diario no hay oportunidad. */
   nota: string;
   /** Como se entero: visita, llamada, mail, escrito. Obligatorio (8-oct-2026). */
-  canalNota: string;
+  canalNota: string | null;
   /** Quien la escribe, para el texto historico de la nota; manda autor_id. */
   autorNombre: string;
   /** La fecha del CONTACTO, no la de hoy. */

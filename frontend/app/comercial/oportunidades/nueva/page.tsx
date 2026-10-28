@@ -93,8 +93,8 @@ export default async function NuevaOportunidad({
 
         {falta && (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-900">
-            No se ha guardado: hacían falta qué te han contado y cómo te has enterado, un comercial, el siguiente paso, con quién hablas a
-            partir de ahora, y al menos una de estas — dirección, administrador, teléfono o correo.
+            No se ha guardado: hacen falta qué te han contado y la dirección (aunque sea escrita a mano). Lo demás se puede
+            completar después.
           </p>
         )}
 

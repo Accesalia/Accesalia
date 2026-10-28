@@ -66,9 +66,12 @@ export async function completitud(oppId: string): Promise<Completitud> {
 
 /** Para las acciones que mandan algo HACIA FUERA: si falta algo, no se hace. */
 export async function exigirCompleta(oppId: string, que: string): Promise<void> {
-  const c = await completitud(oppId);
-  if (c.falta.length) {
-    throw new Error(`Antes de ${que}, completa la oportunidad: falta ${c.falta.map((f) => TEXTO_FALTA[f]).join(", ")}.`);
+  // SOLO LA DIRECCION (Monica, 28-oct-2026): sin contacto ni siguiente paso se
+  // puede generar igual, «porque igual te dicen "traemela y te lo presento en
+  // la oficina"; mejor tener mas libertad».
+  const falta = (await completitud(oppId)).falta.filter((f) => f === "direccion");
+  if (falta.length) {
+    throw new Error(`Antes de ${que}, completa la oportunidad: falta ${falta.map((f) => TEXTO_FALTA[f]).join(", ")}.`);
   }
 }
 

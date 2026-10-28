@@ -50,26 +50,12 @@ export async function guardarOportunidad(fd: FormData) {
   const otroNuevo = persona(fd, "otro_nuevo");
   const pasoArranque = texto(fd, "paso");
 
-  // Las tres condiciones de ella. Sin comercial no es una oportunidad, es una
-  // nota que se pierde: nadie recibe el aviso y nadie hace el seguimiento.
-  // Y el siguiente paso, que es lo que hace que la oportunidad no se escape:
-  // sin el no hay nada que perseguir manana.
-  const hayHilo = Boolean(
-    comunidadId ||
-    direccionProvisional ||
-    administradorPersonaId ||
-    administradorNuevo ||
-    quienNuevo?.telefono ||
-    quienNuevo?.correo,
-  );
-  // Y con quien hablo a partir de ahora (Monica, 5-oct-2026): obligatorio, y
-  // apuntando a alguien de verdad.
-  const quienLlama = Boolean(texto(fd, "quien") || quienNuevo || fd.get("quien_es_admin") === "on");
-  const hayContacto =
-    (fd.get("habla_llamo") === "on" && quienLlama) ||
-    (fd.get("habla_admin") === "on" && Boolean(administradorPersonaId || administradorNuevo)) ||
-    Boolean(otroNuevo);
-  if (!nota || !canalNota || !comercialId || !hayHilo || !pasoArranque || !hayContacto) redirect(VOLVER + "?falta=1");
+  // SOLO LA NOTA Y LA DIRECCION (Monica, 28-oct-2026: «solo nota y direccion
+  // obligatorias, resto opcional; comercial sale por defecto o lo pone la
+  // secretaria»). Antes tambien canal, paso, contacto y «algo para localizarla».
+  // Sin comercial no hay codigo: al comercial le sale el suyo.
+  const hayDireccion = Boolean(comunidadId || direccionProvisional || texto(fd, "nombre_opp") || texto(fd, "portal_ids"));
+  if (!nota || !comercialId || !hayDireccion) redirect(VOLVER + "?falta=1");
 
   const marcado = fd.get("nuevo_marcado") === "1";
   const nuevoNombre = texto(fd, "nuevo_nombre");
@@ -95,7 +81,8 @@ export async function guardarOportunidad(fd: FormData) {
     // Una fila por cada cosa que quieren: normalmente entre dos y cinco.
     tipoIds: fd.getAll("tipos").map(String).filter(Boolean),
     canalId: texto(fd, "canal"),
-    pasoArranque,
+    // Sin marcar, el primer contacto (28-oct-2026).
+    pasoArranque: pasoArranque ?? "primer_contacto",
     // Lo que sale de la ventana de Catastro. Sin ella, el nombre es lo escrito.
     nombre: texto(fd, "nombre_opp") ?? direccionProvisional,
     portalIds: (texto(fd, "portal_ids") ?? "").split(",").filter(Boolean),

@@ -303,7 +303,11 @@ export function Formulario({
     (hablaLlamo && (quien !== "" || quienNuevo !== null || quienEsAdmin)) ||
     (hablaAdmin && (admin !== "" || adminNuevo !== null)) ||
     otroNuevo !== null;
-  const puedeGuardar = nota.trim() !== "" && canalNota !== "" && comercial !== "" && hayHilo && paso !== "" && hayContacto;
+  // SOLO LA NOTA Y LA DIRECCION (Monica, 28-oct-2026: «no para eliminar campos,
+  // sino para no hacerlos obligatorios»). El comercial sale puesto (o lo pone la
+  // secretaria); canal, paso y contacto, si se saben. Como en el satelite.
+  const hayDireccion = resuelta !== null || direccion.trim() !== "";
+  const puedeGuardar = nota.trim() !== "" && comercial !== "" && hayDireccion;
   const sinBuscar = !buscarDireccion && !resuelta && direccion.trim() !== "";
 
   const guardarPersona = (p: Persona) => {
@@ -688,7 +692,6 @@ export function Formulario({
           {/* ---- con quién hablo a partir de ahora ---- */}
           <section className="w-[360px] shrink-0 rounded-[14px] border-[3px] border-white bg-[#ecefec] px-[56px] pb-[25px] pt-[16px]">
             <h3 className="text-center text-[14px] font-bold uppercase leading-[1.35] tracking-[0.88px] text-[#0c1a64]">
-              {!hayContacto && <span className="block text-[11px] text-obligatorio">Obligatorio</span>}
               Con quién hablo
               <span className="block text-[11px]">de esto a partir de ahora</span>
             </h3>
