@@ -45,7 +45,11 @@ export async function guardarOportunidad(fd: FormData) {
   const comunidadId = texto(fd, "comunidad");
   const direccionProvisional = texto(fd, "direccion_provisional");
   const administradorPersonaId = texto(fd, "administrador");
-  const administradorNuevo = persona(fd, "admin_nuevo");
+  // Lo que entra por el hueco del administrador ES administrador, diga lo que
+  // diga el formulario (28-oct-2026): si no, quedaba «vecino» puesto como
+  // administrador de la comunidad.
+  const adminEscrito = persona(fd, "admin_nuevo");
+  const administradorNuevo = adminEscrito ? { ...adminEscrito, que: "administrador", otro: null, contrataId: null } : null;
   const quienNuevo = persona(fd, "quien_nuevo");
   const otroNuevo = persona(fd, "otro_nuevo");
   const pasoArranque = texto(fd, "paso");

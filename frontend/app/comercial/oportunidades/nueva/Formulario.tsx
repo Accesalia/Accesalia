@@ -889,7 +889,9 @@ function ModalContacto({
                     type="checkbox"
                     checked={p.que === q.valor}
                     onChange={(e) => pon({ que: e.target.checked ? q.valor : "", otro: "" })}
-                    className="size-5 shrink-0 accent-[#5c4208]"
+                    // Abierta desde «Es un admin nuevo»: es administrador y no se cambia (28-oct-2026).
+                    disabled={!!queFijo}
+                    className="size-5 shrink-0 accent-[#5c4208] disabled:cursor-not-allowed"
                   />
                 </label>
               ))}
@@ -900,6 +902,7 @@ function ModalContacto({
               <input
                 value={p.otro}
                 onChange={(e) => pon({ otro: e.target.value, que: e.target.value ? "" : p.que })}
+                disabled={!!queFijo}
                 placeholder="Comisión de obras, pariente de alguien, conocido…"
                 className={campo}
               />
