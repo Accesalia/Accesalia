@@ -6,7 +6,8 @@ import { accionBuscar, accionVincular } from "./revision-polycam/acciones";
 import { Vincular } from "./revision-polycam/Piezas";
 import { accionEmpezar, accionEmpezarSolicitud } from "./acciones";
 import type { SolicitudPendiente } from "../../lib/solicitudViabilidad";
-import { CorregirDireccion, Descartar, MaterialPedido, ResueltoPorDaniel } from "./BotonesMesa";
+import { CorregirDireccion, Descartar, MaterialPedido, Rescatar, ResueltoPorDaniel } from "./BotonesMesa";
+import type { Descartado } from "../../lib/revisionPolycam";
 import { Salida } from "../components/Salida";
 
 // ============================================================================
@@ -81,6 +82,7 @@ export function Mesa({
   pedidas,
   todas,
   sinVincular,
+  descartados = [],
   ver,
   enviada,
   resuelveDaniel,
@@ -89,6 +91,8 @@ export function Mesa({
   pedidas: SolicitudPendiente[];
   todas: PorHacer[];
   sinVincular: EscaneadoPendiente[];
+  /** Lo quitado de la mesa, para rescatarlo (28-oct-2026). */
+  descartados?: Descartado[];
   ver?: string;
   enviada: boolean;
   resuelveDaniel: boolean;
@@ -214,17 +218,24 @@ export function Mesa({
                               <input type="hidden" name="escaneo" value={t.escaneoId ?? ""} />
                               <input type="hidden" name="opp" value={o.id} />
                               <button className={ABRIR} title={o.nombre ?? undefined}>
-                                {t.opps.length === 1 ? "Abrir" : `Abrir · ${o.codigo ?? o.proyecto ?? "opp"}`}
+                                {t.opps.length === 1 ? "Empezar" : `Empezar · ${o.codigo ?? o.proyecto ?? "opp"}`}
                               </button>
                             </form>
                           ))
+                        )}
+                        {/* VER SIN EMPEZAR (Monica, 28-oct-2026: «cada vez que abro un Polycam
+                            para verlo se marca como borrador»). «Empezar» crea la viabilidad. */}
+                        {!t.viabilidadId && t.escaneoId && (
+                          <Link href={`/viabilidades/escaneo/${t.escaneoId}`} className={ENLACE_AJENO}>
+                            Ver
+                          </Link>
                         )}
                       </div>
                       {t.danielResuelto && <span className={CHAPA_RESUELTO}>Resuelto por Daniel</span>}
                       {t.danielAvisado && !t.danielResuelto && t.viabilidadId && resuelveDaniel && <ResueltoPorDaniel viabilidadId={t.viabilidadId} />}
                       {t.vinculadoPorApp && !t.viabilidadId && t.escaneoId && <CorregirDireccion escaneoId={t.escaneoId} />}
-                      {/* Descartar tambien lo ya vinculado, mientras no haya viabilidad empezada (28-oct-2026). */}
-                      {!t.viabilidadId && t.escaneoId && <Descartar escaneoId={t.escaneoId} />}
+                      {/* Descartar cualquier tarjeta, tambien un borrador; se rescata abajo (28-oct-2026). */}
+                      {t.unEscaneo && <Descartar escaneoId={t.unEscaneo} />}
                     </div>
                   </div>
                 ))
@@ -299,6 +310,30 @@ export function Mesa({
             </div>
           </section>
         </div>
+
+        {/* DESCARTADOS (Monica, 28-oct-2026): fuera de la mesa, pero se pueden rescatar. */}
+        {descartados.length > 0 && (
+          <details className="mt-8">
+            <summary className="cursor-pointer text-[13px] font-semibold text-carbon/65">
+              Descartados en los últimos dos meses ({descartados.length})
+            </summary>
+            <div className="mt-3 space-y-2">
+              {descartados.map((d) => (
+                <div key={d.id} className={`${CARD} flex flex-wrap items-center justify-between gap-3 py-3`}>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-bold text-carbon">{d.asunto || "(sin asunto)"}</div>
+                    <div className="mt-0.5 text-[11.5px] text-carbon/60">
+                      {d.remitente ?? "sin remitente"} · descartado el {fecha(d.cuando.slice(0, 10))}
+                      {d.quien ? ` por ${d.quien}` : ""}
+                      {d.conViabilidad ? " · tenía borrador" : ""}
+                    </div>
+                  </div>
+                  <Rescatar escaneoId={d.id} />
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
       </main>
     </div>
   );

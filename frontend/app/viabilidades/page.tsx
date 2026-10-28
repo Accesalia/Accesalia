@@ -1,4 +1,4 @@
-import { pendientesDeRevisar } from "../../lib/revisionPolycam";
+import { descartados, pendientesDeRevisar } from "../../lib/revisionPolycam";
 import { porHacer } from "../../lib/mesaViabilidades";
 import { solicitudesPendientes } from "../../lib/solicitudViabilidad";
 import { haceViabilidades } from "./revision-polycam/acciones";
@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
 export default async function MesaDeViabilidades({ searchParams }: { searchParams: Promise<{ enviada?: string; ver?: string }> }) {
   const yo = await haceViabilidades();
   const { enviada, ver } = await searchParams;
-  const [sinVincular, todas, pedidas] = await Promise.all([pendientesDeRevisar(), porHacer(), solicitudesPendientes()]);
+  const [sinVincular, todas, pedidas, fuera] = await Promise.all([pendientesDeRevisar(), porHacer(), solicitudesPendientes(), descartados()]);
   const resuelveDaniel = yo.veTodo || yo.funciones.some((f) => f.clave === "responsable_tecnico");
-  return <Mesa pedidas={pedidas} todas={todas} sinVincular={sinVincular} ver={ver} enviada={!!enviada} resuelveDaniel={resuelveDaniel} />;
+  return <Mesa pedidas={pedidas} todas={todas} sinVincular={sinVincular} descartados={fuera} ver={ver} enviada={!!enviada} resuelveDaniel={resuelveDaniel} />;
 }
 

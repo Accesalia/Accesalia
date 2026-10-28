@@ -235,6 +235,8 @@ export type PorHacer = {
   remitente: string | null;
   /** Lo que escribio el comercial en el correo (28-oct-2026). */
   mensaje: string | null;
+  /** Un escaneo de la tarjeta, para descartarla entera (28-oct-2026). Null = pedida sin Polycam. */
+  unEscaneo: string | null;
   /** Para empezar: con que opp. Varias = elegir; ninguna = no se puede. */
   opps: { id: string; codigo: string | null; nombre: string | null; proyecto: string | null; comercial: string | null }[];
 };
@@ -265,7 +267,7 @@ const accesosDe = (e: EscaneoFila) => e.relacion_polycam_acceso.map((r) => r.acc
 export async function porHacer(): Promise<PorHacer[]> {
   // Los historicos traidos de Dropbox (ruta_dropbox) no son tarea de nadie: sus
   // viabilidades ya estan hechas (Monica, 26-oct-2026).
-  const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&ruta_dropbox=is.null&order=creado_en.asc`);
+  const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&ruta_dropbox=is.null&descartado_en=is.null&order=creado_en.asc`);
   type ViabFila = { id: string; enviada_en: string | null; daniel_avisado_en: string | null; daniel_resuelto_en: string | null; fecha_visita: string | null; oportunidades: OppFila | null };
   const ids = Array.from(new Set(escaneos.map((e) => e.viabilidad_id).filter((x): x is string => !!x)));
   const viabs = ids.length
@@ -299,6 +301,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       asunto: es[0].asunto,
       remitente: es[0].remitente,
       mensaje: es.map((x) => x.mensaje).find(Boolean) ?? null,
+      unEscaneo: es[0].id,
       opps: [],
     });
   }
@@ -324,6 +327,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       asunto: e.asunto,
       remitente: e.remitente,
       mensaje: e.mensaje,
+      unEscaneo: e.id,
       opps: opps.map((o) => ({ id: o.id, codigo: o.codigo, nombre: o.nombre, proyecto: proyectoDe(o), comercial: o.comercial?.nombre ?? null })),
     });
   }
@@ -354,6 +358,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       asunto: "Pedida sin Polycam",
       remitente: s.por?.nombre ?? null,
       mensaje: null,
+      unEscaneo: null,
       opps: [],
     });
   }
@@ -473,7 +478,7 @@ export async function mesa(id: string): Promise<Mesa | null> {
     leer<{ id: string; codigo: string; nombre: string; tiene_plano: boolean; n_renders: number }[]>(
       "modelos_escalera?select=id,codigo,nombre,tiene_plano,n_renders&activo=is.true&order=orden.asc.nullslast,codigo.asc",
     ),
-    leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&ruta_dropbox=is.null&order=creado_en.asc`),
+    leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=is.null&ruta_dropbox=is.null&descartado_en=is.null&order=creado_en.asc`),
   ]);
 
   // Las escaleras de la viabilidad: las de sus escaneos, sin repetir.

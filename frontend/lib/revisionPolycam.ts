@@ -455,21 +455,54 @@ export async function vincularSolos(): Promise<number> {
   return n;
 }
 
-/** "DESCARTAR" (Monica, 16-oct-2026): ese correo no es un escaneo de ningun
- *  edificio. No se borra: se apunta cuando y quien, y deja de salir. Solo si
- *  no esta vinculado, que lo vinculado ya tiene dueño. */
+/** "DESCARTAR" (Monica, 16-oct-2026): fuera de la mesa. No se borra: se apunta
+ *  cuando y quien, y deja de salir.
+ *
+ *  SE DESCARTA CUALQUIER COSA Y SE PUEDE RESCATAR (Monica, 28-oct-2026: «aunque
+ *  haya un borrador relleno; muchas veces el comercial dice "no lo hagas, ya me
+ *  ha llamado el administrador, que no quieren saber nada"»). Por eso NO se toca
+ *  nada mas: ni sus vinculos con el portal ni su borrador. Si tiene viabilidad,
+ *  se descartan todos los escaneos de esa viabilidad, que en la mesa son una
+ *  sola tarjeta. Rescatar lo deja exactamente como estaba. */
 export async function descartar(polycamId: string, quien: string): Promise<void> {
-  // VINCULADO TAMBIEN SE DESCARTA (Monica, 28-oct-2026: «cuando ya esta enlazada a
-  // una oportunidad no hay boton para descartarla»). Se desvincula y se descarta
-  // de una vez; desvincular ya se niega si su viabilidad esta empezada.
-  const v = await fetch(`${URL_BASE}/rest/v1/relacion_polycam_acceso?select=polycam_id&polycam_id=eq.${polycamId}&limit=1`, { headers: cab, cache: "no-store" });
-  if (v.ok && ((await v.json()) as unknown[]).length) await desvincular(polycamId);
-  const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?id=eq.${polycamId}&viabilidad_id=is.null`, {
+  await marcarDescarte(polycamId, { descartado_en: new Date().toISOString(), descartado_por: quien });
+}
+
+/** Rescatar lo descartado: vuelve a la mesa tal cual estaba. */
+export async function rescatar(polycamId: string): Promise<void> {
+  await marcarDescarte(polycamId, { descartado_en: null, descartado_por: null });
+}
+
+async function marcarDescarte(polycamId: string, cambio: { descartado_en: string | null; descartado_por: string | null }) {
+  const q = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?select=viabilidad_id&id=eq.${polycamId}`, { headers: cab, cache: "no-store" });
+  const [e] = q.ok ? ((await q.json()) as { viabilidad_id: string | null }[]) : [];
+  if (!e) throw new Error("No existe ese escaneado.");
+  const filtro = e.viabilidad_id ? `viabilidad_id=eq.${e.viabilidad_id}` : `id=eq.${polycamId}`;
+  const r = await fetch(`${URL_BASE}/rest/v1/escaneados_polycam?${filtro}`, {
     method: "PATCH",
     headers: { ...cab, "Content-Type": "application/json", Prefer: "return=minimal" },
-    body: JSON.stringify({ descartado_en: new Date().toISOString(), descartado_por: quien }),
+    body: JSON.stringify(cambio),
   });
   if (!r.ok) throw new Error(`escaneados_polycam ${r.status}: ${await r.text()}`);
+}
+
+export type Descartado = { id: string; asunto: string | null; remitente: string | null; cuando: string; quien: string | null; conViabilidad: boolean };
+
+/** Lo descartado de los ultimos dos meses, lo ultimo arriba, uno por viabilidad. */
+export async function descartados(): Promise<Descartado[]> {
+  const desde = new Date(Date.now() - 60 * 864e5).toISOString();
+  const r = await fetch(
+    `${URL_BASE}/rest/v1/escaneados_polycam?select=id,asunto,remitente,descartado_en,viabilidad_id,quien:descartado_por(nombre)` +
+      `&descartado_en=gte.${desde}&ruta_dropbox=is.null&order=descartado_en.desc&limit=200`,
+    { headers: cab, cache: "no-store" },
+  );
+  if (!r.ok) return [];
+  type F = { id: string; asunto: string | null; remitente: string | null; descartado_en: string; viabilidad_id: string | null; quien: { nombre: string } | null };
+  const vistas = new Set<string>();
+  return ((await r.json()) as F[])
+    .filter((f) => !f.viabilidad_id || (!vistas.has(f.viabilidad_id) && !!vistas.add(f.viabilidad_id)))
+    .filter((f) => !esDeGoogle(f.remitente))
+    .map((f) => ({ id: f.id, asunto: f.asunto, remitente: f.remitente, cuando: f.descartado_en, quien: f.quien?.nombre ?? null, conViabilidad: !!f.viabilidad_id }));
 }
 
 /** "CORREGIR DIRECCION": deshace lo que vinculo la app y lo devuelve a "necesito

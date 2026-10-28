@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { buscarAMano, descartar, desvincular, vincular, type Busqueda } from "../../../lib/revisionPolycam";
+import { buscarAMano, descartar, desvincular, rescatar, vincular, type Busqueda } from "../../../lib/revisionPolycam";
 import { quienSoy } from "../../../lib/sesion";
 
 const DONDE = "/viabilidades";
@@ -52,11 +52,23 @@ export async function accionCorregirDireccion(polycamId: string): Promise<{ ok: 
   }
 }
 
-/** "DESCARTAR" (Monica, 16-oct-2026): no es un escaneo de ningun edificio. */
+/** "DESCARTAR" (Monica, 16-oct-2026): fuera de la mesa; se puede rescatar (28-oct-2026). */
 export async function accionDescartar(polycamId: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const yo = await haceViabilidades();
   try {
     await descartar(polycamId, yo.id);
+    revalidatePath(DONDE);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+/** "RESCATAR" (Monica, 28-oct-2026): lo descartado vuelve a la mesa tal cual estaba. */
+export async function accionRescatar(polycamId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await haceViabilidades();
+  try {
+    await rescatar(polycamId);
     revalidatePath(DONDE);
     return { ok: true };
   } catch (e) {

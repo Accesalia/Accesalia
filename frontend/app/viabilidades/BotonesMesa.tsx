@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { accionResolverDaniel } from "./acciones";
-import { accionCorregirDireccion, accionDescartar } from "./revision-polycam/acciones";
+import { accionCorregirDireccion, accionDescartar, accionRescatar } from "./revision-polycam/acciones";
 import { accionEnlaceMaterial } from "../comercial/viabilidad-sin-polycam/acciones";
 
 // Los dos botones de la tarjeta de la mesa que hacen algo sin salir de ella
@@ -53,11 +53,29 @@ export function Descartar({ escaneoId }: { escaneoId: string }) {
         type="button"
         disabled={pendiente}
         onClick={() => {
-          if (window.confirm("¿Descartar este escaneo? Deja de salir aquí y, si estaba vinculado, en su oportunidad (no se borra).")) hacer(() => accionDescartar(escaneoId));
+          if (window.confirm("¿Quitar de la mesa? No se borra nada: se puede rescatar desde «Descartados», abajo del todo.")) hacer(() => accionDescartar(escaneoId));
         }}
         className="rounded-[8px] border border-[#CDBAB0] bg-white px-3 py-1 text-[11.5px] font-semibold leading-tight text-[#7a2420] transition hover:bg-[#f3ebe7] disabled:opacity-50"
       >
         descartar
+      </button>
+      {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
+    </span>
+  );
+}
+
+/** "Rescatar" (Monica, 28-oct-2026): lo descartado vuelve a la mesa tal cual estaba. */
+export function Rescatar({ escaneoId }: { escaneoId: string }) {
+  const { error, pendiente, hacer } = useAccion();
+  return (
+    <span className="inline-flex flex-col items-end">
+      <button
+        type="button"
+        disabled={pendiente}
+        onClick={() => hacer(() => accionRescatar(escaneoId))}
+        className="rounded-[8px] border border-[#b9c9d8] bg-white px-3 py-1 text-[11.5px] font-semibold leading-tight text-[#3f5f80] transition hover:bg-[#eef3f8] disabled:opacity-50"
+      >
+        rescatar
       </button>
       {error && <span className="mt-1 max-w-[220px] text-right text-[11px] text-alerta">{error}</span>}
     </span>
