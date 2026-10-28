@@ -60,7 +60,7 @@ export type Destinatario = { email: string; quien: string };
 export type ParaEnviar = {
   codigo: string | null;
   nombre: string;
-  comercial: { id: string; nombre: string; email: string | null } | null;
+  comercial: { id: string; nombre: string; email: string | null; telefono: string | null } | null;
   documentos: DocEnviable[];
   destinatarios: Destinatario[];
 };
@@ -74,7 +74,7 @@ type Opp = {
   contacto_provisional: string | null;
   correo_provisional: string | null;
   comunidad: { nombre: string } | null;
-  comercial: { id: string; nombre: string; apellidos: string | null; equipo: { email: string | null } | null } | null;
+  comercial: { id: string; nombre: string; apellidos: string | null; telefono: string | null; email: string | null; equipo: { email: string | null } | null } | null;
 };
 
 /** Lo que se puede mandar de una oportunidad y a quien. */
@@ -82,7 +82,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return null;
   const [o] = await pedir<Opp[]>(
     `oportunidades?select=codigo,nombre,comunidad_provisional,comunidad_id,puesto_id,contacto_provisional,correo_provisional,` +
-      `comunidad:comunidad_id(nombre),comercial:comercial_id(id,nombre,apellidos,equipo:equipo_id(email))&id=eq.${oppId}`,
+      `comunidad:comunidad_id(nombre),comercial:comercial_id(id,nombre,apellidos,telefono,email,equipo:equipo_id(email))&id=eq.${oppId}`,
   );
   if (!o) return null;
 
@@ -144,7 +144,12 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
     codigo: o.codigo,
     nombre: nombreDeOpp(o),
     comercial: o.comercial
-      ? { id: o.comercial.id, nombre: [o.comercial.nombre, o.comercial.apellidos].filter(Boolean).join(" "), email: o.comercial.equipo?.email ?? null }
+      ? {
+          id: o.comercial.id,
+          nombre: [o.comercial.nombre, o.comercial.apellidos].filter(Boolean).join(" "),
+          email: o.comercial.equipo?.email ?? o.comercial.email ?? null,
+          telefono: o.comercial.telefono,
+        }
       : null,
     documentos,
     destinatarios,
@@ -246,14 +251,22 @@ export async function enviarDesdeOportunidad(yo: Yo, oppId: string, e: Envio): P
 —
 Para enviarnos documentación (la hoja de encargo firmada, actas, DNI…): ${APP}/portal
 Entra con tu correo; te llegará un enlace para acceder.`;
+  // LA FIRMA DEL COMERCIAL (Monica, 28-oct-2026: «sin firma, da la sensacion de empresa fake»). El correo sale del
+  // buzon comercial, que no pone la firma de nadie: la pone la app, con los datos de su ficha de comercial y el logo.
+  const firma = firmaDe(d.comercial);
+  const logo = await fetch(`${APP}/logo-firma.jpg`, { cache: "force-cache" })
+    .then(async (x) => (x.ok ? new Uint8Array(await x.arrayBuffer()) : null))
+    .catch(() => null);
   const r = await enviarCorreo({
     desde: "comercial",
     para: para.join(", "),
     asunto: e.asunto.trim(),
-    texto: e.cuerpo.trim() + pie,
+    texto: e.cuerpo.trim() + "\n\n" + firma.texto + pie,
+    html: htmlDelCorreo(e.cuerpo.trim(), firma.html(!!logo), pie),
     responderA: d.comercial.email,
     nombreRemitente: remitente,
     adjuntos,
+    incrustadas: logo ? [{ cid: "logo-accesalia", nombre: "accesalia.jpg", contenido: logo, tipo: "image/jpeg" }] : [],
   });
 
   const documentos = elegidos.map((x) => ({ tipo: x.tipo, id: x.clave.split(":")[1], nombre: x.nombre, enlace: x.enlace }));
@@ -309,6 +322,42 @@ Entra con tu correo; te llegará un enlace para acceder.`;
   }
   recalcularLuego(oppId);
   return fila.id;
+}
+
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const telefonoBonito = (t: string) => {
+  const n = t.replace(/\D/g, "");
+  return n.length === 9 ? `${n.slice(0, 3)} ${n.slice(3, 6)} ${n.slice(6)}` : t.trim();
+};
+
+/** La firma del comercial: nombre, Accesalia, telefono y correo (los de su ficha), y el logo en la de html. */
+function firmaDe(c: { nombre: string; email: string | null; telefono: string | null }) {
+  const contacto = [c.telefono ? telefonoBonito(c.telefono) : null, c.email].filter(Boolean) as string[];
+  const texto = [c.nombre, "Departamento comercial · Accesalia", contacto.join(" · ")].filter(Boolean).join("\n");
+  const html = (conLogo: boolean) =>
+    `<table cellpadding="0" cellspacing="0" style="margin-top:18px;font-family:Arial,Helvetica,sans-serif;color:#2b2b2b">` +
+    `<tr><td style="padding-bottom:8px"><b style="font-size:15px">${esc(c.nombre)}</b><br>` +
+    `<span style="font-size:13px;color:#555">Departamento comercial · Accesalia</span>` +
+    (contacto.length
+      ? `<br><span style="font-size:13px;color:#555">${contacto.map((x) => (x.includes("@") ? `<a href="mailto:${esc(x)}" style="color:#555">${esc(x)}</a>` : esc(x))).join(" · ")}</span>`
+      : "") +
+    `</td></tr>` +
+    (conLogo ? `<tr><td><img src="cid:logo-accesalia" alt="Accesalia" width="180" style="display:block;border:0"></td></tr>` : "") +
+    `</table>`;
+  return { texto, html };
+}
+
+/** El correo en html: el texto tal cual (parrafos y saltos), la firma y el pie del portal. */
+function htmlDelCorreo(cuerpo: string, firma: string, pie: string): string {
+  const parrafos = cuerpo
+    .split(/\n{2,}/)
+    .map((p) => `<p style="margin:0 0 12px">${esc(p).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+  const enlazado = esc(pie.trim()).replace(/(https?:\/\/\S+)/g, '<a href="$1">$1</a>').replace(/\n/g, "<br>");
+  return (
+    `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#2b2b2b">${parrafos}${firma}` +
+    `<p style="margin-top:22px;font-size:12px;color:#777">${enlazado}</p></div>`
+  );
 }
 
 export type CorreoEnviado = {

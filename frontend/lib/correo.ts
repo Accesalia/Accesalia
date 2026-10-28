@@ -90,6 +90,7 @@ export async function enviarCorreo({
   responderA,
   nombreRemitente,
   adjuntos,
+  incrustadas,
 }: {
   /** De que AREA sale, que lo decide la tarea y no quien la ejecuta. */
   desde: Area;
@@ -106,6 +107,8 @@ export async function enviarCorreo({
   nombreRemitente?: string | null;
   /** Los ficheros adjuntos (los PDF de la oportunidad). */
   adjuntos?: { nombre: string; contenido: Uint8Array | Buffer }[];
+  /** Imagenes dentro del html (el logo de la firma): se citan con <img src="cid:...">. */
+  incrustadas?: { cid: string; nombre: string; contenido: Uint8Array | Buffer; tipo: string }[];
 }): Promise<Enviado> {
   const buzon = BUZONES[desde];
   const clave = CLAVES[desde];
@@ -130,7 +133,10 @@ export async function enviarCorreo({
       subject: asunto,
       text: texto,
       html,
-      attachments: adjuntos?.map((a) => ({ filename: a.nombre, content: Buffer.from(a.contenido), contentType: "application/pdf" })),
+      attachments: [
+        ...(adjuntos ?? []).map((a) => ({ filename: a.nombre, content: Buffer.from(a.contenido), contentType: "application/pdf" })),
+        ...(incrustadas ?? []).map((a) => ({ filename: a.nombre, content: Buffer.from(a.contenido), contentType: a.tipo, cid: a.cid })),
+      ],
     });
     return { ok: true };
   } catch (e) {
