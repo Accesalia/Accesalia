@@ -104,6 +104,15 @@ const ACCESOS: Acceso[] = [
     href: "/gestiones/buzon-polycam",
     soloDireccion: true,
   },
+  // EL PARTE DE AYER, EN PRUEBA (Monica, 28-oct-2026).
+  {
+    nombre: "El parte de ayer",
+    color: "turquesa",
+    icono: "lista",
+    desc: "Conectar el correo de cada comercial y que Sali prepare el parte de un día: lo que pasó y lo que no se puede escapar",
+    href: "/gestiones/parte-de-ayer",
+    soloDireccion: true,
+  },
   // EL PERMISO DE LA APP EN EL DROPBOX (Monica, 28-oct-2026).
   {
     nombre: "Dropbox",

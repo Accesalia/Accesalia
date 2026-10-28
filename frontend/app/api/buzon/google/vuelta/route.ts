@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { guardarPermiso } from "../../../../../lib/gmailBuzon";
+import { guardarPermisoComercial } from "../../../../../lib/parteDeAyer";
 import { quienSoy } from "../../../../../lib/sesion";
 
 // LA VUELTA DE GOOGLE con el permiso del buzon. Comprueba que viene de nuestro
@@ -18,6 +19,26 @@ export async function GET(req: Request) {
   if (!yo?.veTodo) return NextResponse.json({ error: "Solo dirección." }, { status: 403 });
 
   const tarro = await cookies();
+
+  // El correo de un comercial para el parte de ayer (./comercial): misma vuelta,
+  // otra cookie, que lleva el estado y de que comercial es.
+  const deComercial = tarro.get("correo_comercial_estado")?.value;
+  if (deComercial) {
+    tarro.delete({ name: "correo_comercial_estado", path: "/api/buzon/google" });
+    const [estado, comercialId] = deComercial.split(":");
+    const aParte = (q: Record<string, string>) => NextResponse.redirect(new URL(`/gestiones/parte-de-ayer?${new URLSearchParams(q)}`, url.origin));
+    if (url.searchParams.get("state") === estado) {
+      if (url.searchParams.get("error")) return aParte({ google_mal: "Google no dio el permiso (cancelado)." });
+      const codigo = url.searchParams.get("code");
+      if (!codigo) return aParte({ google_mal: "Google no devolvió el permiso." });
+      try {
+        return aParte({ google_ok: await guardarPermisoComercial(codigo, comercialId) });
+      } catch (e) {
+        return aParte({ google_mal: e instanceof Error ? e.message : String(e) });
+      }
+    }
+  }
+
   const esperado = tarro.get("buzon_google_estado")?.value;
   tarro.delete({ name: "buzon_google_estado", path: "/api/buzon/google" });
   if (url.searchParams.get("error")) return volver({ google_mal: "Google no dio el permiso (cancelado)." });

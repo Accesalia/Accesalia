@@ -31,7 +31,7 @@ const PERMISOS = [
 
 export const VUELTA = "https://accesalia-crm.vercel.app/api/buzon/google/vuelta";
 
-function cliente() {
+export function cliente() {
   const id = process.env.GMAIL_BUZON_CLIENT_ID;
   const secreto = process.env.GMAIL_BUZON_CLIENT_SECRET;
   if (!id || !secreto) throw new Error("Faltan GMAIL_BUZON_CLIENT_ID / GMAIL_BUZON_CLIENT_SECRET en Vercel.");
