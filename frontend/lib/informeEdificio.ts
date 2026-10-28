@@ -141,14 +141,19 @@ async function conCalma<T>(que: () => Promise<T>, reintentos = 1): Promise<T> {
   throw ultimo instanceof Error ? ultimo : new Error(String(ultimo));
 }
 
+// UN LIMITE A CADA PREGUNTA DE FUERA (28-oct-2026). Catastro, cuando no corta,
+// a veces se queda callado: la ficha de Castillo de Arevalo 21 espero mas de un
+// minuto dos veces y Vercel la corto. 15 s y se da por fallida (se reintenta otro dia).
+const PACIENCIA_MS = 15_000;
+
 async function jsonDe(u: string): Promise<Record<string, unknown>> {
-  const r = await fetch(u, { cache: "no-store", headers: { Accept: "application/json" } });
+  const r = await fetch(u, { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(PACIENCIA_MS) });
   if (!r.ok) throw new Error(`Catastro respondio ${r.status}`);
   return r.json() as Promise<Record<string, unknown>>;
 }
 
 async function textoDe(u: string): Promise<string> {
-  const r = await fetch(u, { cache: "no-store" });
+  const r = await fetch(u, { cache: "no-store", signal: AbortSignal.timeout(PACIENCIA_MS) });
   if (!r.ok) throw new Error(`Catastro respondio ${r.status}`);
   return r.text();
 }

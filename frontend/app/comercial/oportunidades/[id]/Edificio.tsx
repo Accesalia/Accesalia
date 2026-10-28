@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdificio";
 import { accionAscensor, accionPortal } from "./acciones";
 import { Patios } from "./Patios";
@@ -158,12 +159,18 @@ export async function Edificio({
   /** El distrito o barrio, que va con la referencia en la card del Catastro. */
   distrito?: string | null;
 }) {
-  const [i, asc, iee] = await Promise.all([
-    informeEdificio(referencia),
+  // UN TOPE A LA ESPERA (28-oct-2026). Con el Suspense la ficha ya se pinta sin
+  // el edificio, pero si Catastro no contestaba, este bloque se quedaba en
+  // «Trayendo…» hasta que Vercel cortaba al minuto. A los 35 s se dice y la
+  // consulta sigue por detras (after): queda guardada para la proxima vez.
+  const informe = informeEdificio(referencia);
+  const [llegado, asc, iee] = await Promise.all([
+    Promise.race([informe.then((v) => ({ v })), new Promise<null>((r) => setTimeout(() => r(null), 35_000))]),
     ascensorDe(referencia),
     ieeDe(referencia, id),
   ]);
-  return <EdificioVista i={i} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} />;
+  if (!llegado) after(() => informe.catch(() => null));
+  return <EdificioVista i={llegado?.v ?? null} tarde={!llegado} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} />;
 }
 
 /** Lo que se ve, con los datos ya traidos: aparte para poder mirarlo con datos de muestra. */
@@ -175,8 +182,11 @@ export function EdificioVista({
   id,
   fotos,
   distrito,
+  tarde = false,
 }: {
   i: Awaited<ReturnType<typeof informeEdificio>>;
+  /** Catastro no ha contestado a tiempo: sigue por detras (28-oct-2026). */
+  tarde?: boolean;
   asc: Awaited<ReturnType<typeof ascensorDe>>;
   iee: Awaited<ReturnType<typeof ieeDe>>;
   referencia: string;
@@ -187,6 +197,14 @@ export function EdificioVista({
 
   // Catastro puede no contestar, o la referencia puede estar mal escrita. Eso se
   // DICE, no se esconde, y se dice donde iba el informe.
+  if (!i && tarde)
+    return (
+      <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-1">
+        <b>Catastro está tardando en contestar.</b> Lo seguimos pidiendo por detrás y queda guardado: vuelve a abrir la
+        ficha en un par de minutos y estará.
+        {fotos}
+      </div>
+    );
   if (!i)
     return (
       <div className="rounded-[10px] border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-snug text-amber-900/80 xl:col-span-1">
