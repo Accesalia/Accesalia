@@ -49,6 +49,7 @@
 import "server-only";
 import { esDeGoogle, vincularSolos } from "./revisionPolycam";
 import { nombreDeOpp } from "./direccionOpp";
+import { direccionDelAsunto, enlaceAbrirOpp, escaneosSinOpp } from "./polycamSinOpp";
 import { bajarDrive, buscar, cabecera, cambiarEtiquetas, crudo, enlacesDrive, etiqueta, fichaDrive, pase } from "./gmailBuzon";
 
 import { ImapFlow } from "imapflow";
@@ -453,6 +454,10 @@ export type Repaso = {
   esperan: number;
   /** Correos llegados sin escaneo a cuyo remitente se le ha pedido que lo reenvie. */
   reclamados: number;
+  /** Los escaneos guardados en esta pasada (28-oct-2026). */
+  nuevos?: string[];
+  /** Comerciales avisados de que su escaneo no tiene oportunidad (28-oct-2026). */
+  sinOpp?: number;
 };
 
 const ESPERA_CORREO_MS = 60_000;
@@ -737,6 +742,7 @@ async function guardarCorreo(correo: ParsedMail, deDrive: Fichero[], r: Repaso, 
     const id = await meterEscaneado({ ...comun, nombre_original_fichero: null, fecha_escaneo: null });
     if (id) {
       r.guardados++;
+      (r.nuevos ??= []).push(id);
       nuevo = true;
     } else r.repetidos++;
   }
@@ -751,6 +757,7 @@ async function guardarCorreo(correo: ParsedMail, deDrive: Fichero[], r: Repaso, 
       continue;
     }
     r.guardados++;
+    (r.nuevos ??= []).push(id);
     nuevo = true;
     // La ruta lleva el id de la fila delante, asi cada escaneado tiene su
     // carpeta y dos ficheros con el mismo nombre no se pisan.
@@ -972,8 +979,59 @@ async function rematar(r: Repaso, porReclamar: Reclamo[], usuario: string, clave
   // vincula solo", y sin correo nuevo se quedaba ahi sin vincular nunca.
   enPaso("vincular solos los que no tienen duda");
   await vincularSolos().catch((e) => r.errores.push(`vincular solos · ${e instanceof Error ? e.message : String(e)}`));
+
+  // ESCANEO SIN OPORTUNIDAD (Monica, 28-oct-2026): al que lo mando se le escribe
+  // UNA vez, la pasada en que llega, con el enlace para abrirla. Si a ese correo
+  // ya se le ha pedido algo en esta pasada (falta escaneo o direccion), no se le
+  // escribe dos veces.
+  enPaso("avisar de los escaneos sin oportunidad");
+  try {
+    const yaEscritos = new Set(porReclamar.map((q) => q.idCorreo));
+    const porCorreo = new Map<string, Awaited<ReturnType<typeof escaneosSinOpp>>[number]>();
+    for (const e of await escaneosSinOpp({ ids: r.nuevos ?? [] })) {
+      const deCorreo = e.identificadorCorreo ?? e.id;
+      if (!yaEscritos.has(e.identificadorCorreo) && !porCorreo.has(deCorreo)) porCorreo.set(deCorreo, e);
+    }
+    for (const e of porCorreo.values()) {
+      const mail = correoLlano(e.remitente ?? "");
+      if (!mail.includes("@") || REMITENTES_ROBOT.has(mail) || mail === correoLlano(usuario) || /no-?reply|mailer-daemon|postmaster/i.test(mail)) continue;
+      try {
+        await avisarSinOpp(usuario, clave, e.remitente!, e.asunto, e.identificadorCorreo);
+        r.sinOpp = (r.sinOpp ?? 0) + 1;
+      } catch (err) {
+        r.errores.push(`avisar sin opp a ${e.remitente} · ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+  } catch (err) {
+    r.errores.push(`escaneos sin opp · ${err instanceof Error ? err.message : String(err)}`);
+  }
   enPaso("hecho");
   return r;
+}
+
+/** «Tu escaneo no pertenece a ninguna oportunidad: ¿la abrimos?», en el hilo del
+ *  correo que mando, con el enlace al alta ya con la direccion escrita. */
+async function avisarSinOpp(usuario: string, clave: string, para: string, asunto: string | null, idCorreo: string | null): Promise<void> {
+  const transporte = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: { user: usuario, pass: clave.replace(/\s+/g, "") },
+  });
+  const direccion = direccionDelAsunto(asunto);
+  await transporte.sendMail({
+    from: `"Accesalia · Polycam" <${usuario}>`,
+    to: para,
+    subject: asunto ? (/^re:/i.test(asunto) ? asunto : `Re: ${asunto}`) : "Escaneo sin oportunidad",
+    inReplyTo: idCorreo ?? undefined,
+    references: idCorreo ?? undefined,
+    headers: { "Auto-Submitted": "auto-replied" },
+    text:
+      `Hola:\n\nHa llegado tu escaneo${direccion ? ` de «${direccion}»` : ""}, pero no pertenece a ninguna oportunidad abierta ` +
+      `(o no hemos sabido a cuál).\n\nSi la dirección ya está vista y estudiada, ábrela aquí; el escaneo se colocará solo:\n` +
+      `${enlaceAbrirOpp(asunto, "https://accesalia-crm.vercel.app")}\n\n` +
+      `Si la oportunidad ya existe con otro nombre, díselo a Alex.\n\nLo tienes también en tus Pendientes.\n\nGracias,\nAccesalia`,
+  });
 }
 
 

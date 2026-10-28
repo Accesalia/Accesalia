@@ -11,6 +11,7 @@ import { cuantosApuntes } from "../../lib/apuntesSatelite";
 import { direccionesVistas } from "../../lib/informeCostes";
 import { contarPendientes, puedeRevisar } from "../../lib/revisionOferta";
 import { oppsSinAdministrador } from "../../lib/adminComunidad";
+import { escaneosSinOpp } from "../../lib/polycamSinOpp";
 
 export const dynamic = "force-dynamic";
 
@@ -173,6 +174,10 @@ export default async function Pendientes() {
         .then((l) => l.length)
         .catch(() => null)
     : null;
+  // ESCANEOS SIN OPORTUNIDAD (Monica, 28-oct-2026): los suyos; direccion, todos.
+  const sinOpp = comercial
+    ? await escaneosSinOpp(yo.veTodo ? {} : { visitoId: yo.id }).then((l) => l.length).catch(() => null)
+    : null;
   const ausenciasAjenas = ausencias ? ausencias.filter((a) => a.personaId !== yo.id).length : null;
   // Las direcciones con informe: las tuyas; direccion y supervision, todas (como su lista).
   const todasVistas = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar");
@@ -209,6 +214,13 @@ export default async function Pendientes() {
           clave: "sin_admin", marco: "a_medio_crear" as const, titulo: "Opps sin administrador",
           pie: "Abiertas de 2025-26 cuya comunidad no tiene administrador: ponle el suyo.",
           numero: sinAdmin, href: "/pendientes/sin-administrador", color: C.oliva,
+        }]
+      : []),
+    ...(comercial
+      ? [{
+          clave: "escaneos_sin_opp", marco: "a_medio_crear" as const, titulo: yo.veTodo ? "Escaneos sin oportunidad" : "Escaneos que has enviado sin oportunidad",
+          pie: "Si hay Polycam, la dirección se ha estudiado: abre su oportunidad y el escaneo se colocará solo.",
+          numero: sinOpp, href: "/pendientes/escaneos-sin-opp", color: C.ambar,
         }]
       : []),
     // -------------------------------------------- lo que necesita un humano
