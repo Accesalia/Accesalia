@@ -14,6 +14,7 @@ import {
 } from "../../../../lib/fichas";
 import { CAJA, ENLACE, Marco, ROT } from "../../Marco";
 import { Salida } from "../../../components/Salida";
+import { guardar, puedeEditarPersona } from "./acciones";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,11 @@ export const dynamic = "force-dynamic";
 // Y las secciones con llave, que solo ve quien la tiene ("la seccion es la
 // unidad de permiso"): empleado de Accesalia (RRHH, direccion y el mismo) y
 // comercial (direccion, supervision y el mismo).
+//
+// EDITABLE (Monica, 28-oct-2026): quien puede, escribe encima de sus datos
+// personales y de cada cargo vigente (cargo, telefono y correo del trabajo) y
+// guarda con Guardar, como en la ficha de administracion. Lo demas (su
+// administracion, comunidad u organismo) se cambia en la ficha de cada una.
 
 const MES = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric" });
 const mes = (v: string | null) => (v ? MES.format(new Date(v)) : null);
@@ -52,6 +58,18 @@ function Dato({ k, v }: { k: string; v: ReactNode }) {
   );
 }
 
+// FORMATO FICHA editable: etiqueta y campo en la misma linea (el de la ficha de administracion).
+const CAMPO =
+  "min-w-0 flex-1 border-0 border-b border-black/20 bg-transparent px-1 py-0.5 text-[14px] text-carbon outline-none transition placeholder:text-carbon/45 focus:border-lima";
+function Campo({ k, nombre, v, pista }: { k: string; nombre: string; v: string | null; pista?: string }) {
+  return (
+    <label className="flex items-baseline gap-3 py-0.5" htmlFor={nombre}>
+      <span className="w-[130px] shrink-0 text-[12.5px] text-carbon/65">{k}</span>
+      <input id={nombre} name={nombre} defaultValue={v ?? ""} placeholder={pista ?? "por completar"} className={CAMPO} />
+    </label>
+  );
+}
+
 function enlaceDe(c: Cargo): string | null {
   if (!c.entidadId) return null;
   if (c.mundo === "comunidad") return `/administracion/comunidades/${c.entidadId}`;
@@ -60,7 +78,7 @@ function enlaceDe(c: Cargo): string | null {
   return null;
 }
 
-function LineaCargo({ c, actual }: { c: Cargo; actual: boolean }) {
+function LineaCargo({ c, actual, edita = false }: { c: Cargo; actual: boolean; edita?: boolean }) {
   const href = enlaceDe(c);
   const donde = href ? (
     <Link href={href} className={ENLACE}>
@@ -77,8 +95,17 @@ function LineaCargo({ c, actual }: { c: Cargo; actual: boolean }) {
       {donde}
       {c.area ? ` · ${c.area}` : ""}
       {cuando && <span className="text-carbon/65"> · {cuando}</span>}
-      {(c.telefono || c.correos.length > 0) && (
-        <span className="text-carbon/65"> · {[c.telefono, ...c.correos].filter(Boolean).join(" · ")}</span>
+      {edita ? (
+        <span className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 pl-1 text-[13px]">
+          <input name={`c_${c.id}_cargo`} defaultValue={c.cargo ?? ""} placeholder="cargo" aria-label="Cargo" className={CAMPO + " max-w-[200px]"} />
+          <input name={`c_${c.id}_tel`} defaultValue={c.telefono ?? ""} placeholder="tel. trabajo" aria-label="Teléfono del trabajo" className={CAMPO + " max-w-[160px]"} />
+          <input name={`c_${c.id}_mail`} defaultValue={c.correos[0] ?? ""} placeholder="mail del trabajo" aria-label="Correo del trabajo" className={CAMPO + " max-w-[260px]"} />
+          {c.correos.length > 1 && <span className="text-carbon/65">· {c.correos.slice(1).join(" · ")}</span>}
+        </span>
+      ) : (
+        (c.telefono || c.correos.length > 0) && (
+          <span className="text-carbon/65"> · {[c.telefono, ...c.correos].filter(Boolean).join(" · ")}</span>
+        )
       )}
       {c.mundo === "administracion" && c.lleva.length > 0 && <Lleva lista={c.lleva} />}
     </li>
@@ -111,8 +138,9 @@ function Lleva({ lista }: { lista: Cargo["lleva"] }) {
   );
 }
 
-export default async function FichaDePersona({ params }: { params: Promise<{ id: string }> }) {
+export default async function FichaDePersona({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ guardado?: string }> }) {
   const { id } = await params;
+  const { guardado } = await searchParams;
   const yo = await quienSoy();
   if (!yo) redirect(`/entrar?volver=/consulta/personas/${id}`);
   const p = await fichaPersona(id);
@@ -122,6 +150,7 @@ export default async function FichaDePersona({ params }: { params: Promise<{ id:
   const esElMismo = !!p.empleado && p.empleado.email?.toLowerCase() === yo.email.toLowerCase();
   const veEmpleado = yo.veTodo || puedeEntrar(yo, "rrhh", "trabajar") || esElMismo;
   const veComercial = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar") || esElMismo;
+  const edita = await puedeEditarPersona(yo, p.empleado?.email ?? null, !!p.empleado);
 
   // Piso 3: lo de cada puesto vigente, una vez por entidad.
   const vistos = new Set<string>();
@@ -141,16 +170,44 @@ export default async function FichaDePersona({ params }: { params: Promise<{ id:
         ← Buscar
       </Salida>
 
+      <form action={guardar.bind(null, id)}>
       {/* ------------------------------ 1 · datos personales */}
-      <div className="mt-3 border-b border-black/10 pb-4">
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-3 border-b border-black/10 pb-4">
         <h1 className="text-3xl font-bold text-carbon">{[p.nombre, p.apellidos].filter(Boolean).join(" ")}</h1>
+        {edita && (
+          <div className="flex items-center gap-2">
+            {guardado && <span className="text-sm text-lima-dark">✓ Guardado</span>}
+            <Link href={`/consulta/personas/${id}`} className="rounded-lg border border-black/15 bg-white px-4 py-2 text-sm text-carbon/75 transition hover:border-lima">
+              Cancelar
+            </Link>
+            <button type="submit" className="rounded-lg bg-lima px-6 py-2 text-sm font-bold text-carbon transition hover:bg-lima-dark hover:text-white">
+              Guardar
+            </button>
+          </div>
+        )}
       </div>
       <Seccion titulo="Datos personales">
-        <Dato k="Nombre" v={p.nombre} />
-        <Dato k="Apellidos" v={p.apellidos} />
-        <Dato k="Teléfono personal" v={p.telefono} />
-        <Dato k="Correo personal" v={p.correos.map((c) => c.email).join(" · ")} />
-        {p.notas && <Dato k="Notas" v={<span className="whitespace-pre-wrap">{p.notas}</span>} />}
+        {edita ? (
+          <>
+            <Campo k="Nombre" nombre="nombre" v={p.nombre} />
+            <Campo k="Apellidos" nombre="apellidos" v={p.apellidos} />
+            <Campo k="Teléfono personal" nombre="telefono" v={p.telefono} />
+            <Campo k="Correo personal" nombre="correo" v={p.correos[0]?.email ?? null} />
+            {p.correos.length > 1 && <Dato k="Otros correos" v={p.correos.slice(1).map((c) => c.email).join(" · ")} />}
+            <label className="flex items-start gap-3 py-0.5" htmlFor="notas">
+              <span className="w-[130px] shrink-0 pt-1 text-[12.5px] text-carbon/65">Notas</span>
+              <textarea id="notas" name="notas" defaultValue={p.notas ?? ""} rows={p.notas ? 3 : 1} placeholder="por completar" className={CAMPO + " resize-y"} />
+            </label>
+          </>
+        ) : (
+          <>
+            <Dato k="Nombre" v={p.nombre} />
+            <Dato k="Apellidos" v={p.apellidos} />
+            <Dato k="Teléfono personal" v={p.telefono} />
+            <Dato k="Correo personal" v={p.correos.map((c) => c.email).join(" · ")} />
+            {p.notas && <Dato k="Notas" v={<span className="whitespace-pre-wrap">{p.notas}</span>} />}
+          </>
+        )}
       </Seccion>
 
       {/* ------------------------------ 2 · relacion con nosotros */}
@@ -160,7 +217,7 @@ export default async function FichaDePersona({ params }: { params: Promise<{ id:
         ) : (
           <>
             <div className="text-[12px] font-semibold uppercase tracking-wide text-carbon/65">Actual</div>
-            <ul>{p.actuales.map((c) => <LineaCargo key={c.id} c={c} actual />)}</ul>
+            <ul>{p.actuales.map((c) => <LineaCargo key={c.id} c={c} actual edita={edita} />)}</ul>
           </>
         )}
         {p.anteriores.length > 0 && (
@@ -170,6 +227,7 @@ export default async function FichaDePersona({ params }: { params: Promise<{ id:
           </>
         )}
       </Seccion>
+      </form>
 
       {/* ------------------------------ las secciones con llave */}
       {p.empleado && veEmpleado && (

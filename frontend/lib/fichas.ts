@@ -165,6 +165,66 @@ export async function fichaPersona(id: string): Promise<FichaPersona | null> {
   };
 }
 
+// ------------------------------------------- guardar la ficha de persona
+//
+// EDITABLE (Monica, 28-oct-2026, completando a Belen de SMFINCAS en Rio Segura 8:
+// «los campos no se pueden editar»). Como la ficha de administracion: se escribe
+// encima y se guarda con Guardar. Solo lo que se ve: sus datos personales y, de
+// cada cargo VIGENTE, el cargo, el telefono y el correo del trabajo. Lo de su
+// administracion, comunidad u organismo se cambia en la ficha de cada una.
+// Solo se escribe lo que cambia, y vaciar un correo no lo borra: se habla antes.
+
+export type CargoGuardar = { puestoId: string; cargo: string | null; telefono: string | null; correo: string | null };
+export type PersonaGuardar = {
+  nombre: string | null;
+  apellidos: string | null;
+  telefono: string | null;
+  correo: string | null;
+  notas: string | null;
+  cargos: CargoGuardar[];
+};
+
+async function escribir(metodo: "PATCH" | "POST", ruta: string, cuerpo: unknown): Promise<void> {
+  const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, {
+    method: metodo,
+    headers: { ...CAB, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify(cuerpo),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+}
+
+/** El correo de una persona (el suyo) o de un puesto (el del trabajo). */
+async function ponerCorreo(dueno: "persona_id" | "puesto_id", id: string, antes: string | null, ahora: string | null) {
+  if ((antes ?? null) === (ahora ?? null) || !ahora) return; // vaciarlo no borra el correo: se habla antes
+  const filtro = dueno === "persona_id" ? `persona_id=eq.${id}&puesto_id=is.null` : `puesto_id=eq.${id}`;
+  const [actual] = await leer<{ id: string }[]>(`correo?select=id&${filtro}&order=principal.desc&limit=1`);
+  if (actual) await escribir("PATCH", `correo?id=eq.${actual.id}`, { email: ahora });
+  else await escribir("POST", "correo", { [dueno]: id, email: ahora, etiqueta: dueno === "persona_id" ? "personal" : "general", principal: dueno === "puesto_id" });
+}
+
+export async function guardarPersona(id: string, d: PersonaGuardar): Promise<void> {
+  const antes = await fichaPersona(id);
+  if (!antes) throw new Error("Esa persona no existe.");
+  const persona: Record<string, unknown> = {};
+  if (d.nombre && d.nombre !== antes.nombre) persona.nombre = d.nombre; // sin nombre no se queda nadie
+  if ((d.apellidos ?? null) !== (antes.apellidos ?? null)) persona.apellidos = d.apellidos;
+  if ((d.telefono ?? null) !== (antes.telefono ?? null)) persona.telefono_personal = d.telefono;
+  if ((d.notas ?? null) !== (antes.notas ?? null)) persona.notas = d.notas;
+  if (Object.keys(persona).length) await escribir("PATCH", `persona?id=eq.${id}`, persona);
+  await ponerCorreo("persona_id", id, antes.correos[0]?.email ?? null, d.correo);
+
+  for (const c of d.cargos) {
+    const viejo = antes.actuales.find((x) => x.id === c.puestoId);
+    if (!viejo) continue; // no es suyo, o ya no es vigente: no se toca
+    const puesto: Record<string, unknown> = {};
+    if ((c.cargo ?? null) !== (viejo.cargo ?? null)) puesto.cargo = c.cargo;
+    if ((c.telefono ?? null) !== (viejo.telefono ?? null)) puesto.telefono_empresa = c.telefono;
+    if (Object.keys(puesto).length) await escribir("PATCH", `puesto?id=eq.${viejo.id}`, puesto);
+    await ponerCorreo("puesto_id", viejo.id, viejo.correos[0] ?? null, c.correo);
+  }
+}
+
 // ------------------------------------------- lo de su puesto vigente (piso 3)
 
 export type ResumenAdministracion = {
