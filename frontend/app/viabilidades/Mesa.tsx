@@ -187,6 +187,7 @@ export function Mesa({
                         {" · "}
                         <span className="font-semibold text-[#a3540f]">{espera(t.desde)}</span>
                       </div>
+                      {t.mensaje && <Mensaje texto={t.mensaje} />}
                       {t.vinculadoPorApp && (
                         <div className="mt-1.5 text-[11.5px] font-semibold text-[#3f5f80]" title={t.vinculadoPorApp}>
                           Vinculado por la app
@@ -263,6 +264,7 @@ export function Mesa({
                       <div className="mt-1 text-[11.5px] text-carbon/65">
                         {e.remitente ?? "sin remitente"} · <span className="font-semibold text-[#a3540f]">{espera(e.creadoEn)}</span>
                       </div>
+                      {e.mensaje && <Mensaje texto={e.mensaje} />}
                       <div className="mt-1.5 text-[12.5px] font-semibold" style={{ color: GRANATE }}>{e.motivo}</div>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
@@ -367,5 +369,15 @@ function PedidasSinPolycam({ pedidas }: { pedidas: SolicitudPendiente[] }) {
         })}
       </div>
     </section>
+  );
+}
+
+/** LO QUE ESCRIBIO EL COMERCIAL en el correo del escaneo (Monica, 28-oct-2026),
+ *  tal cual, para que Alex lo lea sin abrir el buzon. */
+function Mensaje({ texto }: { texto: string }) {
+  return (
+    <p className="mt-1.5 max-w-[640px] whitespace-pre-line rounded-[8px] border-l-[3px] border-[#CDBAB0] bg-[#faf6f3] px-3 py-1.5 text-[12.5px] leading-[1.45] text-carbon/80">
+      {texto}
+    </p>
   );
 }

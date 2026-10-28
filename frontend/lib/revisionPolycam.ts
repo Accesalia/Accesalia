@@ -121,6 +121,8 @@ export type EscaneadoPendiente = {
   creadoEn: string;
   remitente: string | null;
   asunto: string | null;
+  /** Lo que escribio el comercial en el correo (28-oct-2026). */
+  mensaje: string | null;
   nombreOriginal: string | null;
   /** El enlace de Polycam, si llego por ahi. */
   rutaPolycam: string | null;
@@ -324,11 +326,12 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
     polycam: string | null;
     fecha: string | null;
     fecha_escaneo: string | null;
+    mensaje: string | null;
   };
 
   const [escaneados, vinculos, accesos, citas, oppsDe] = await Promise.all([
     leerTodo<Escaneado>(
-      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo&descartado_en=is.null",
+      "escaneados_polycam?select=id,creado_en,remitente,asunto,nombre_original_fichero,ruta_polycam,polycam,fecha,fecha_escaneo,mensaje&descartado_en=is.null",
       "creado_en",
     ),
     leerTodo<{ polycam_id: string }>("relacion_polycam_acceso?select=polycam_id", "polycam_id"),
@@ -347,6 +350,7 @@ export async function pendientesDeRevisar(): Promise<EscaneadoPendiente[]> {
       creadoEn: e.creado_en,
       remitente: e.remitente,
       asunto: e.asunto,
+      mensaje: e.mensaje,
       nombreOriginal: e.nombre_original_fichero,
       rutaPolycam: e.ruta_polycam,
       enlaceFichero: e.polycam ? await enlaceFirmado(e.polycam) : null,

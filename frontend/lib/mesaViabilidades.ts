@@ -233,6 +233,8 @@ export type PorHacer = {
   /** El asunto y el remitente del correo (del escaneo mas antiguo), como en la maqueta. */
   asunto: string | null;
   remitente: string | null;
+  /** Lo que escribio el comercial en el correo (28-oct-2026). */
+  mensaje: string | null;
   /** Para empezar: con que opp. Varias = elegir; ninguna = no se puede. */
   opps: { id: string; codigo: string | null; nombre: string | null; proyecto: string | null; comercial: string | null }[];
 };
@@ -247,10 +249,11 @@ type EscaneoFila = {
   polycam: string | null;
   ruta_polycam: string | null;
   viabilidad_id: string | null;
+  mensaje: string | null;
   relacion_polycam_acceso: { automatico: boolean; motivo: string | null; accesos: AccesoFila | null }[];
 };
 const SEL_ESC =
-  "id,creado_en,asunto,remitente,nombre_original_fichero,fecha_escaneo,polycam,ruta_polycam,viabilidad_id," +
+  "id,creado_en,asunto,remitente,nombre_original_fichero,fecha_escaneo,polycam,ruta_polycam,viabilidad_id,mensaje," +
   "relacion_polycam_acceso!inner(automatico,motivo,accesos(id,municipio,tipo_via,nombre_via,numero,escalera))";
 /** Si lo vinculo la app, su porque. */
 const porApp = (e: EscaneoFila) => (e.relacion_polycam_acceso.some((r) => r.automatico) ? e.relacion_polycam_acceso.find((r) => r.motivo)?.motivo ?? "Vinculado por la app" : null);
@@ -295,6 +298,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       vinculadoPorApp: es.map(porApp).find(Boolean) ?? null,
       asunto: es[0].asunto,
       remitente: es[0].remitente,
+      mensaje: es.map((x) => x.mensaje).find(Boolean) ?? null,
       opps: [],
     });
   }
@@ -319,6 +323,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       vinculadoPorApp: porApp(e),
       asunto: e.asunto,
       remitente: e.remitente,
+      mensaje: e.mensaje,
       opps: opps.map((o) => ({ id: o.id, codigo: o.codigo, nombre: o.nombre, proyecto: proyectoDe(o), comercial: o.comercial?.nombre ?? null })),
     });
   }
@@ -348,6 +353,7 @@ export async function porHacer(): Promise<PorHacer[]> {
       vinculadoPorApp: null,
       asunto: "Pedida sin Polycam",
       remitente: s.por?.nombre ?? null,
+      mensaje: null,
       opps: [],
     });
   }

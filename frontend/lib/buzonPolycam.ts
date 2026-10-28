@@ -76,6 +76,10 @@ export const SIN_SITIO = "accesalia-sin-sitio";
  *  buzon con esta etiqueta y se ve aparte (12-oct-2026: el correo 12 colgaba
  *  TODAS las pasadas desde el 7-oct). */
 export const GRANDE = "accesalia-grande";
+/** La que pone la app a cada correo que ya ha recogido (28-oct-2026). Antes
+ *  "por recoger" era "sin leer", y bastaba con que alguien abriera el correo en
+ *  el Gmail del buzon para que la app no lo viera nunca (EBANISTERIA 7). */
+export const RECOGIDO = "accesalia-recogido";
 /** A partir de aqui no se baja solo. El almacen ademas no admite ficheros de mas de 50 MB. */
 const MAX_BYTES = 40 * 1024 * 1024;
 
@@ -500,6 +504,21 @@ export function fechaDelEscaneo(nombre: string): string | null {
   return `${a}-${String(mes).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
+/** El texto que escribio quien manda el correo, sin lo citado de correos
+ *  anteriores ("El ... escribio:", lineas con ">") ni la firma del movil. */
+export function cuerpoDelCorreo(correo: ParsedMail): string | null {
+  const lineas = (correo.text ?? "").replace(/\r/g, "").split("\n");
+  const fin = lineas.findIndex(
+    (l) =>
+      /^\s*(El|On)\s.+(escribi[oó]|wrote)\s*:?\s*$/i.test(l) ||
+      /^\s*-{2,}\s*(Mensaje original|Original Message|Forwarded message|Mensaje reenviado)/i.test(l) ||
+      /^\s*>/.test(l) ||
+      /^\s*(Enviado desde mi|Sent from my)\s/i.test(l),
+  );
+  const t = (fin >= 0 ? lineas.slice(0, fin) : lineas).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return t ? t.slice(0, 2000) : null;
+}
+
 type FilaEscaneado = {
   remitente: string | null;
   asunto: string | null;
@@ -510,6 +529,8 @@ type FilaEscaneado = {
   identificador_correo: string | null;
   nombre_original_fichero: string | null;
   ruta_polycam: string | null;
+  /** Lo que escribio el comercial en el cuerpo del correo. */
+  mensaje: string | null;
   /** QUIEN FUE A VISITAR Y ESCANEAR. Sale del correo del remitente, cuadrado
    *  con el del equipo. Si el remitente no es de nadie -el propio Polycam avisa
    *  desde notifications@poly.cam- se queda vacio: adivinar quien fue por el
@@ -695,6 +716,9 @@ async function guardarCorreo(correo: ParsedMail, deDrive: Fichero[], r: Repaso, 
     // fecha y a su cuerpo, sin copiarlos aqui.
     identificador_correo: correo.messageId ?? null,
     ruta_polycam: enlacePolycam(correo),
+    // LO QUE ESCRIBE EL COMERCIAL en el cuerpo (Monica, 28-oct-2026: «buenos
+    // dias Alex, este es el...»): sale en la mesa de Alex.
+    mensaje: cuerpoDelCorreo(correo),
   };
 
   const adjuntos: Fichero[] = [
@@ -977,9 +1001,17 @@ async function repasarPorApi(inicio: number, enPaso: (p: string) => void, token:
     r.rescatados++;
   }
 
-  enPaso("buscar los correos sin leer");
-  const lista = [...new Set([...(await buscar(token, "in:inbox is:unread")), ...(await buscar(token, `label:${SIN_SITIO}`))])];
+  // POR RECOGER = LO QUE NO LLEVA LA ETIQUETA DE LA APP (28-oct-2026), este
+  // abierto o no. Solo lo del ultimo mes: lo de antes ya paso por la puerta vieja.
+  enPaso("buscar los correos por recoger");
+  const lista = [
+    ...new Set([
+      ...(await buscar(token, `in:inbox newer_than:30d -label:${RECOGIDO} -label:${GRANDE}`)),
+      ...(await buscar(token, `label:${SIN_SITIO}`)),
+    ]),
+  ];
   const sinSitioId = await etiqueta(token, SIN_SITIO);
+  const recogidoId = await etiqueta(token, RECOGIDO);
 
   for (const [n, id] of lista.entries()) {
     if (Date.now() - inicio > TOPE_MS) {
@@ -1001,7 +1033,7 @@ async function repasarPorApi(inicio: number, enPaso: (p: string) => void, token:
       }
       // LOS AVISOS DE GOOGLE NO SON ESCANEOS (14-oct-2026): leidos y fuera.
       if (esDeGoogle(info.de)) {
-        await cambiarEtiquetas(token, id, [], ["UNREAD"]);
+        await cambiarEtiquetas(token, id, [recogidoId], ["UNREAD"]);
         continue;
       }
 
@@ -1026,8 +1058,8 @@ async function repasarPorApi(inicio: number, enPaso: (p: string) => void, token:
 
       await guardarCorreo(correo, deDrive, r, porReclamar, usuario);
 
-      // Hecho: leido y sin la etiqueta de sin sitio.
-      await cambiarEtiquetas(token, id, [], ["UNREAD", sinSitioId]);
+      // Hecho: recogido, leido y sin la etiqueta de sin sitio.
+      await cambiarEtiquetas(token, id, [recogidoId], ["UNREAD", sinSitioId]);
     } catch (e) {
       // Un correo que falla NO se marca leido: se vuelve a intentar al rato.
       r.errores.push(`${asunto} · ${e instanceof Error ? e.message : String(e)}`);
