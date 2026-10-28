@@ -10,14 +10,18 @@ import "server-only";
 //   DROPBOX_RAIZ (opcional)                                       el espacio del equipo, si la cuenta es de equipo
 // Sin ellas, todo dice claramente que falta el acceso: nada falla en silencio.
 
-export const hayAccesoDropbox = () => !!(process.env.DROPBOX_APP_KEY && process.env.DROPBOX_APP_SECRET && process.env.DROPBOX_REFRESH_TOKEN);
-export const SIN_ACCESO = "La app todavía no tiene acceso al Dropbox: falta poner su llave en Vercel (pendiente con Ana).";
+/** Si la app tiene acceso al Dropbox: la llave de Vercel o la del Vault (Gestiones → Dropbox). */
+export const hayAccesoDropbox = () => hayLlaveDropbox();
+export const SIN_ACCESO = "La app todavía no tiene acceso al Dropbox: conéctalo en Gestiones → Dropbox (con la cuenta de Daniel).";
 
 let llave: { valor: string; caduca: number } | null = null;
 
 // LA LLAVE PERMANENTE, DE VERCEL O DEL VAULT (28-oct-2026). Desde el boton
 // «Conectar el Dropbox» de Gestiones va cifrada al Vault (migracion
-// 20261028140000) y no hace falta copiarla a mano a Vercel. `hayAccesoDropbox`
+// 20261028140000) y no hace falta copiarla a mano a Vercel. Desde el 28-oct por
+// la tarde la app «Accesalia CRM» tiene tambien permiso de leer y subir ficheros
+// (Factusol y proformas: Monica, «mañana facturacion empieza a trabajar solo con
+// la app»), asi que todo usa esta llave. Lo de abajo es historia: `hayAccesoDropbox`
 // sigue mirando solo Vercel a proposito: la app de hoy solo tiene permiso para
 // enlaces, y Factusol y las proformas, que leen y suben ficheros, no deben
 // creerse con acceso hasta que se les de el suyo.
@@ -115,8 +119,7 @@ function cabeceras(token: string, arg?: object): Record<string, string> {
 
 /** Baja un fichero entero. ruta = desde la raiz del Dropbox: "/D SM/factusol/…". null si no existe. */
 export async function bajarFichero(ruta: string): Promise<Buffer | null> {
-  // Leer ficheros no entra en el permiso de los enlaces: solo con la llave de Vercel.
-  if (!hayAccesoDropbox()) throw new Error(SIN_ACCESO);
+  if (!(await hayAccesoDropbox())) throw new Error(SIN_ACCESO);
   const token = await llaveDeAcceso();
   const r = await fetch("https://content.dropboxapi.com/2/files/download", { method: "POST", headers: cabeceras(token, { path: ruta }), cache: "no-store" });
   if (r.status === 409) return null;
@@ -126,7 +129,7 @@ export async function bajarFichero(ruta: string): Promise<Buffer | null> {
 
 /** Sube un fichero (lo crea o lo sustituye). La carpeta se crea sola. */
 export async function subirFichero(ruta: string, contenido: Uint8Array): Promise<void> {
-  if (!hayAccesoDropbox()) throw new Error(SIN_ACCESO);
+  if (!(await hayAccesoDropbox())) throw new Error(SIN_ACCESO);
   const token = await llaveDeAcceso();
   const r = await fetch("https://content.dropboxapi.com/2/files/upload", {
     method: "POST",

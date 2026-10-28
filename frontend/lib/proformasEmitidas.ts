@@ -202,7 +202,7 @@ async function planFactusol(p: Proforma): Promise<Plan> {
     };
   }
   return {
-    comprobaciones: c, listo, carpeta, clienteNuevo: nuevo, dropbox: hayAccesoDropbox(), leido,
+    comprobaciones: c, listo, carpeta, clienteNuevo: nuevo, dropbox: await hayAccesoDropbox(), leido,
     ficheros: [...(nuevo ? ["CLI.xls · el cliente nuevo"] : []), "PCL.xls · el pedido", "LPC.xls · sus líneas"], pedido,
   };
 }
@@ -234,7 +234,7 @@ export async function enviarAFactusol(yo: Yo, id: string): Promise<{ dropbox: bo
   });
   if (!r.ok) throw new Error(`No se ha podido guardar la copia: ${r.status} ${await r.text()}`);
   let dropbox = false;
-  if (hayAccesoDropbox()) {
+  if (await hayAccesoDropbox()) {
     for (const [n, f] of Object.entries(ficheros)) await subirFichero(`${CARPETA_IMPORTAR}/${plan.carpeta}/${n}`, f);
     dropbox = true;
   }
