@@ -1166,8 +1166,15 @@ function textoReclamo(cual: string, q: Reclamo): string {
         ? "no trae el escaneo de Polycam: ni el fichero adjunto ni el enlace"
         : "en el asunto no viene la dirección del edificio, y sin ella no sabemos de cuál es el escaneo";
   const como = q.faltaEscaneo
-    ? "Desde Polycam: abre el escaneo, Exportar → GLB, y compártelo por correo a esta misma dirección, con la dirección del edificio en el asunto (calle, número y municipio). " +
-      "Si pesa demasiado para adjuntarlo, vale también el enlace de Polycam."
+    ? // LOS PASOS, NO SOLO «ESTA MAL» (Monica, 28-oct-2026). Y sin el enlace de
+      // «Descargar» de Polycam: abre su web con la cuenta del comercial y la app
+      // no puede entrar. Lo que pase de 25 MB lo convierte Gmail en Drive y se baja.
+      "Así entra solo en la app:\n" +
+      "1. En la app de Polycam, abre el escaneo y pulsa Exportar → GLTF.\n" +
+      "2. Compartir → Gmail, a esta misma dirección.\n" +
+      "3. En el asunto, la dirección del edificio: calle, número y municipio.\n\n" +
+      "No importa lo que pese: si pasa de 25 MB, Gmail lo convierte en un enlace de Drive y la app también se lo baja. " +
+      "El enlace de «Descargar» que Polycam manda a tu correo no sirve: abre su web con tu cuenta."
     : "Reenvíalo con la dirección del edificio en el asunto (calle, número y municipio), con el escaneo adjunto.";
   return `Hola:\n\nNos ha llegado tu correo ${cual}, pero ${falta}.\n\n¿Puedes volver a enviarlo? ${como}\n\nGracias,\nAccesalia`;
 }
