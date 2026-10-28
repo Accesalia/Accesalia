@@ -157,13 +157,35 @@ export async function ponerAdministrador(
  *  idea»): las abiertas de 2025-26 cuya comunidad no tiene administrador, de cada
  *  comercial (direccion, todas). Lee la vista opps_abiertas_sin_gestor, que ya va
  *  por la vista base (administradores_de_oportunidad). */
-export type OppSinAdmin = { id: string; codigo: string | null; nombre: string | null; apertura: string | null; comercialId: string | null };
-export async function oppsSinAdministrador(comercialId: string | null, todas: boolean): Promise<OppSinAdmin[]> {
+export type OppSinAdmin = { id: string; codigo: string | null; nombre: string | null; apertura: string | null; comercialId: string | null; municipios: string[] };
+export async function oppsSinAdministrador(comercialId: string | null, todas: boolean, conMunicipio = false): Promise<OppSinAdmin[]> {
   if (!todas && !comercialId) return [];
   const filas = await leer<{ oportunidad_id: string; codigo: string | null; nombre: string | null; fecha_apertura: string | null; comercial_id: string | null }[]>(
     "opps_abiertas_sin_gestor?select=oportunidad_id,codigo,nombre,fecha_apertura,comercial_id&fecha_apertura=gte.2025-01-01" +
       (todas ? "" : `&comercial_id=eq.${comercialId}`) +
       "&order=fecha_apertura.desc.nullslast&limit=2000",
   );
-  return filas.map((f) => ({ id: f.oportunidad_id, codigo: f.codigo, nombre: f.nombre, apertura: f.fecha_apertura, comercialId: f.comercial_id }));
+  // EL MUNICIPIO, para filtrar (Monica, 28-oct-2026: «son casi 400»): el de sus
+  // portales (accesos vigentes), no el que se lee en el nombre.
+  const municipios = new Map<string, Set<string>>();
+  if (conMunicipio) {
+    const ids = filas.map((f) => f.oportunidad_id);
+    for (let i = 0; i < ids.length; i += 150) {
+      const rels = await leer<{ opp_id: string; acceso: { municipio: string | null } | null }[]>(
+        `relacion_oportunidad_accesos?select=opp_id,acceso:acceso_id(municipio)&hasta=is.null&opp_id=in.(${ids.slice(i, i + 150).join(",")})`,
+      );
+      for (const r of rels) {
+        const m = r.acceso?.municipio?.trim();
+        if (m) municipios.set(r.opp_id, (municipios.get(r.opp_id) ?? new Set()).add(m));
+      }
+    }
+  }
+  return filas.map((f) => ({
+    id: f.oportunidad_id,
+    codigo: f.codigo,
+    nombre: f.nombre,
+    apertura: f.fecha_apertura,
+    comercialId: f.comercial_id,
+    municipios: [...(municipios.get(f.oportunidad_id) ?? [])].sort(),
+  }));
 }
