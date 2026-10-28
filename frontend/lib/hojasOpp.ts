@@ -70,6 +70,8 @@ export type VersionHe = {
   fechaEmision: string | null;
   /** La primera vez que paso por cada estado (fecha y hora): «cuando se envio», «cuando se firmo»… */
   fechas: Partial<Record<string, string>>;
+  /** El ULTIMO ok de Daniel (si se volvio a pedir, el nuevo): de ahi cuentan los 3 meses (OK_DURA_DIAS). */
+  okEn: string | null;
   /** El ultimo paso del historial, con su nota (los cambios que pide Daniel, el motivo de no firmada…). */
   ultimo: { estado: string; fecha: string; quien: string | null; nota: string | null } | null;
   importe: number;
@@ -82,6 +84,15 @@ export type VersionHe = {
   firmadaDocumentoId: string | null;
   presupuesto: { id: string; codigo: string | null } | null;
 };
+/** EL OK DE DANIEL DURA 3 MESES (Monica, 28-oct-2026): pasados, la hoja sin enviar no se ofrece hasta volver a pedirlo.
+ *  Una ya enviada no caduca (la comunidad puede firmarla), pero al reenviarla se avisa de que revise los importes. */
+export const OK_DURA_DIAS = 90;
+const masDe = (iso: string | null | undefined, dias: number) => !!iso && Date.now() - new Date(iso).getTime() > dias * 86_400_000;
+/** Con el ok de Daniel, sin enviar, y el ok tiene mas de 3 meses. */
+export const okCaducado = (v: Pick<VersionHe, "estado" | "okEn">) => v.estado === "ok_daniel" && masDe(v.okEn, OK_DURA_DIAS);
+/** Enviada a la comunidad hace mas de 3 meses: al reenviarla, revisar los importes. */
+export const enviadaHaceMucho = (v: Pick<VersionHe, "estado" | "fechas">) =>
+  ["enviada", "firma_con_errores"].includes(v.estado) && masDe(v.fechas.enviada, OK_DURA_DIAS);
 export type HojaHe = { codigo: string | null; actual: VersionHe; anteriores: VersionHe[] };
 
 type Fila = {
@@ -147,6 +158,7 @@ function aVersion(f: Fila): VersionHe {
     creadaEn: f.creado_en,
     fechaEmision: f.fecha_emision,
     fechas,
+    okEn: est.filter((e) => e.estado === "ok_daniel").at(-1)?.fecha ?? null,
     ultimo: u ? { estado: u.estado, fecha: u.fecha, quien: u.persona?.nombre ?? null, nota: u.nota } : null,
     importe,
     aExito,

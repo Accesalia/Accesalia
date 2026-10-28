@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { quienSoy } from "../../../../lib/sesion";
 import { puedeHacerHojas, puedeVerOpp } from "../../../../lib/hojaGenerador";
 import { descartarBorrador, modificarHoja, oppDeVersion } from "../../../../lib/hojaCompromisos";
-import { anularHoja, marcarEnviada, marcarNoFirmada, validarFirmada } from "../../../../lib/hojaEmitir";
+import { anularHoja, marcarEnviada, marcarNoFirmada, validarFirmada, volverAPedirOk } from "../../../../lib/hojaEmitir";
 import type { Yo } from "../../../../lib/sesion";
 
 // LO QUE SE HACE CON UNA HOJA DESDE EL BLOQUE 2 DE LA OPP (Monica, 25-oct-2026): «las acciones pasarían a esa pantalla».
@@ -54,4 +54,8 @@ export async function accionValidarFirmada(oppId: string, documentoId: string, v
   } catch (e) {
     return { ok: false as const, error: (e as Error).message };
   }
+}
+/** El ok de Daniel caducado (3 meses): la hoja vuelve a su mesa tal cual (Monica, 28-oct-2026). */
+export async function accionHojaPedirOkOtraVez(versionId: string) {
+  return conPermiso(versionId, (yo) => volverAPedirOk(versionId, yo));
 }

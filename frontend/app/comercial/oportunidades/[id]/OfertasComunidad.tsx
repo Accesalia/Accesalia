@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Documentacion } from "../../../../lib/bloqueDocumentacion";
 import type { VersionHe } from "../../../../lib/hojasOpp";
-import { FASE_HE } from "../../../../lib/hojasOpp";
+import { FASE_HE, OK_DURA_DIAS, enviadaHaceMucho, okCaducado } from "../../../../lib/hojasOpp";
+import { PedirOkOtraVez } from "./PedirOkOtraVez";
 import type { Necesidades } from "../../../../lib/necesidadesOpp";
 import type { InformeGuardado } from "../../../../lib/informeCostes";
 import type { CorreoEnviado } from "../../../../lib/envioCorreo";
@@ -107,6 +108,17 @@ export function OfertasComunidad({
   const aMedias = actuales.filter((v) => v.estado === "borrador" || v.estado === "cambios_daniel");
   const esperando = actuales.filter((v) => v.estado === "pendiente_ok_daniel");
   const listas = actuales.filter((v) => v.estado === "ok_daniel");
+  // LAS HOJAS DISPONIBLES (Monica, 28-oct-2026): una hoja con el ok se puede mandar las veces que haga falta (a otra
+  // persona, junto con otras, en otra combinacion): no se «gasta» al enviarla. Lo que caduca es el ok sin enviar, a los
+  // 3 meses (OK_DURA_DIAS): hay que volver a pedirlo.
+  const disponibles = actuales.filter((v) => ESPERA_FIRMADA.includes(v.estado) && !okCaducado(v));
+  const caducadas = actuales.filter((v) => okCaducado(v));
+  // Cada envio de cada hoja, con a quien (el registro de correos de la app).
+  const enviosDe = new Map<string, { fecha: string; para: string[] }[]>();
+  for (const c of enviados)
+    if (c.ok)
+      for (const x of c.documentos)
+        if (x.tipo === "Hoja de encargo") enviosDe.set(x.id, [...(enviosDe.get(x.id) ?? []), { fecha: c.creado_en, para: c.para }]);
   const ofertas = ofertasDeHojas(todas);
   const porValidar = d.firmadas.porValidar;
   const candidatas = actuales.filter((v) => ESPERA_FIRMADA.includes(v.estado));
@@ -167,14 +179,17 @@ export function OfertasComunidad({
               : { listo: false, estado: <><b className="text-[#9a6a00]">Pedida al arquitecto</b> · la está estudiando</> };
 
   // ---------------------------------------------------------------- la hoja de encargo
-  const hojaLista = listas.length > 0;
+  const hojaLista = disponibles.length > 0;
   const puedeEnviar = hojaLista && viab.listo;
-  const filaHoja = (x: VersionHe, que: ReactNode) => (
-    <li key={x.id} className="flex flex-wrap items-baseline gap-x-2 py-0.5 text-[12.5px]">
-      <b>{x.codigo ? `${x.codigo} v${x.numero}` : "sin código aún"}</b>
-      <span className="text-carbon/75">{x.tipos.join(" + ") || "Hoja de encargo"}</span>
-      <b>{EUR.format(x.importe)} €</b>
-      <span className="text-carbon/65">· {que}</span>
+  const filaHoja = (x: VersionHe, que: ReactNode, debajo?: ReactNode) => (
+    <li key={x.id} className={"py-0.5 text-[12.5px]" + (debajo ? " border-b border-dashed border-[#cfe5bc] py-1 last:border-0" : "")}>
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <b>{x.codigo ? `${x.codigo} v${x.numero}` : "sin código aún"}</b>
+        <span className="text-carbon/75">{x.tipos.join(" + ") || "Hoja de encargo"}</span>
+        <b>{EUR.format(x.importe)} €</b>
+        <span className="text-carbon/65">· {que}</span>
+      </div>
+      {debajo}
     </li>
   );
 
@@ -275,27 +290,57 @@ export function OfertasComunidad({
             {necesita?.aviso && <p className="mt-1.5 text-[12px] text-carbon/65">{necesita.aviso}</p>}
 
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              {/* --- 1 · la hoja de encargo con ok --- */}
+              {/* --- 1 · las hojas de encargo con ok (28-oct-2026) --- */}
               <div className={CAJA_R + (hojaLista ? " border-[#a9d18a] bg-[#f6fbf1]" : " border-[#e0b04a] bg-[#fffaf0]")}>
                 <div className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Necesitas · 1</div>
-                <div className="mt-0.5 text-[16px] font-bold">Hoja de encargo con el ok de Daniel</div>
-                <div className="mt-1.5">
-                  {hojaLista ? (
-                    <b className="text-lima-dark">✓ Lista para enviar</b>
-                  ) : esperando.length ? (
-                    <><b className="text-[#9a6a00]">Esperando el ok de Daniel</b> · desde el {dia(esperando[0].fechas.pendiente_ok_daniel ?? esperando[0].creadaEn)}</>
-                  ) : aMedias.length ? (
-                    <><b className="text-[#9a6a00]">A medias</b> · sin pedir el ok todavía</>
-                  ) : (
-                    <><b className="text-[#9a6a00]">Falta</b> · no hay ninguna hoja nueva preparada</>
-                  )}
-                </div>
-                {(listas.length > 0 || esperando.length > 0 || aMedias.length > 0) && (
-                  <ul className="mt-1.5">
-                    {listas.map((x) => filaHoja(x, <>con ok · <a href={`/comercial/hoja-encargo/pdf/${x.id}`} target="_blank" rel="noreferrer" className={ENLACE}>ver</a></>))}
-                    {esperando.map((x) => filaHoja(x, <>esperando el ok desde el {dia(x.fechas.pendiente_ok_daniel ?? x.creadaEn)}</>))}
-                    {aMedias.map((x) => filaHoja(x, <Link href={`/comercial/hoja-encargo?opp=${id}&borrador=${x.id}`} className={ENLACE}>seguir</Link>))}
-                  </ul>
+                <div className="mt-0.5 text-[16px] font-bold">Hojas de encargo con el ok de Daniel</div>
+                {!hojaLista && (
+                  <div className="mt-1.5">
+                    <b className="text-[#9a6a00]">Necesitas al menos una hoja de encargo con ok de Daniel para enviar una oferta.</b>
+                  </div>
+                )}
+                {hojaLista && (
+                  <>
+                    <div className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.06em] text-lima-dark">Hojas de encargo disponibles</div>
+                    <ul className="mt-0.5">
+                      {disponibles.map((x) => {
+                        const envios = enviosDe.get(x.id) ?? [];
+                        return filaHoja(
+                          x,
+                          <a href={`/comercial/hoja-encargo/pdf/${x.id}`} target="_blank" rel="noreferrer" className={ENLACE}>ver</a>,
+                          <div className="pl-3 text-[12px] text-carbon/70">
+                            {envios.length ? (
+                              envios.map((e, k) => <div key={k}>✉ enviada el {dia(e.fecha)} a {e.para.join(", ")}</div>)
+                            ) : x.estado === "ok_daniel" ? (
+                              <div>sin enviar · ok de Daniel del {dia(x.okEn)}</div>
+                            ) : (
+                              <div>✉ enviada el {dia(x.fechas.enviada)}</div>
+                            )}
+                            {enviadaHaceMucho(x) && (
+                              <div className="font-semibold text-[#9a6a00]">Se envió hace más de 3 meses: revisa los importes por si ya no valen.</div>
+                            )}
+                          </div>,
+                        );
+                      })}
+                    </ul>
+                  </>
+                )}
+                {(esperando.length > 0 || caducadas.length > 0 || aMedias.length > 0) && (
+                  <>
+                    <div className="mt-2.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#9a6a00]">Pendientes del ok de Daniel</div>
+                    <ul className="mt-0.5">
+                      {esperando.map((x) => filaHoja(x, <>esperando el ok desde el {dia(x.fechas.pendiente_ok_daniel ?? x.creadaEn)}</>))}
+                      {caducadas.map((x) =>
+                        filaHoja(
+                          x,
+                          <>
+                            <b className="text-[#9a6a00]">el ok caducó</b> (más de {OK_DURA_DIAS / 30} meses, del {dia(x.okEn)}) · <PedirOkOtraVez versionId={x.id} />
+                          </>,
+                        ),
+                      )}
+                      {aMedias.map((x) => filaHoja(x, <>a medias, sin pedir el ok · <Link href={`/comercial/hoja-encargo?opp=${id}&borrador=${x.id}`} className={ENLACE}>seguir</Link></>))}
+                    </ul>
+                  </>
                 )}
                 <div className="mt-3">
                   <Link href={`/comercial/hoja-encargo?opp=${id}`} className={hojaLista || esperando.length ? BOTON_S : BOTON_P}>
@@ -303,7 +348,7 @@ export function OfertasComunidad({
                   </Link>
                 </div>
                 <p className="mt-2.5 border-t border-dashed border-[#e2d3a8] pt-2 text-[12px] text-carbon/65">
-                  Al generarla va sola al ok de Daniel, con su presupuesto.
+                  Al generarla va sola al ok de Daniel, con su presupuesto. Puedes tener tantas como quieras y elegir cuáles van en cada correo. El ok dura {OK_DURA_DIAS / 30} meses.
                 </p>
               </div>
 
@@ -323,24 +368,22 @@ export function OfertasComunidad({
               </div>
             </div>
 
-            {/* --- enviar --- */}
+            {/* --- enviar (28-oct-2026: los adjuntos se eligen en el correo; aqui solo se dice que hay) --- */}
             <div className="mt-4 flex flex-wrap items-center gap-4 rounded-[12px] border border-[#d5dee8] bg-[#f3f6f9] px-4 py-3.5">
               <div className="min-w-[280px] flex-1">
                 <b className="text-[15px]">Enviar la oferta a la comunidad</b>
                 <p className="text-[12.5px] text-carbon/70">
-                  Se activa cuando tengas la hoja con ok{necesitaViab ? " y la viabilidad" : ""}. Con varias hojas te preguntará: ¿un presupuesto por hoja o uno para todas?
+                  Se activa con al menos una hoja disponible{necesitaViab ? " y la viabilidad" : ""}. En el correo eliges qué hojas van y a quién; con varias te preguntará: ¿un presupuesto por hoja o uno para todas?
                 </p>
-                <div className="mt-2 text-[12.5px]">
-                  <div className="text-carbon/70">Adjuntar también (opcional):</div>
-                  <div className="mt-1 grid grid-cols-[repeat(2,max-content)] gap-x-7 gap-y-1">
-                    <label className="whitespace-nowrap"><input type="checkbox" form="enviar-oferta" name="adjuntar" value="costes" disabled={!costes.length} /> Estudio de costes</label>
-                    <label className="whitespace-nowrap text-carbon/50" title="El estudio de ayudas todavía no tiene PDF: no se puede adjuntar a un correo."><input type="checkbox" disabled /> Estudio de ayudas posibles · falta su PDF</label>
-                    <label className="whitespace-nowrap text-carbon/50"><input type="checkbox" disabled /> Estado de protección · próximamente</label>
-                    <label className="whitespace-nowrap"><input type="checkbox" form="enviar-oferta" name="adjuntar" value="inmueble" disabled={!referencia} /> Informe general del inmueble</label>
-                  </div>
-                </div>
+                {(costes.length > 0 || referencia) && (
+                  <p className="mt-1.5 text-[12.5px] text-carbon/70">
+                    También hay para adjuntar:{" "}
+                    {[costes.length ? "estudio de costes" : null, referencia ? "informe general del inmueble" : null].filter(Boolean).join(" · ")}
+                  </p>
+                )}
               </div>
               <form id="enviar-oferta" action={`/comercial/oportunidades/${id}/enviar`} method="get">
+                <input type="hidden" name="oferta" value="1" />
                 <button
                   disabled={!puedeEnviar}
                   title={puedeEnviar ? undefined : `Falta ${!hojaLista ? "una hoja con el ok de Daniel" : "la viabilidad"}`}

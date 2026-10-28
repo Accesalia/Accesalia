@@ -10,7 +10,18 @@ import { accionEnviar } from "./acciones";
 // la plantilla; el texto se retoca antes de enviar. Sale del buzon comercial con
 // el nombre del comercial de la oportunidad, y las respuestas van a su correo.
 
-type Doc = { clave: string; tipo: string; nombre: string; enlace: string; fecha: string | null; hojaId?: string | null; lista?: boolean };
+type Doc = {
+  clave: string;
+  tipo: string;
+  nombre: string;
+  enlace: string;
+  fecha: string | null;
+  hojaId?: string | null;
+  lista?: boolean;
+  detalle?: string;
+  envios?: { fecha: string; para: string[] }[];
+  aviso?: string | null;
+};
 type Dest = { email: string; quien: string };
 type Plantilla = { id: string; nombre: string; asunto: string; texto: string; personal: boolean };
 
@@ -19,6 +30,7 @@ const CAMPO =
   "mt-1 w-full rounded-lg border border-carbon/40 bg-white px-3 py-1.5 text-sm text-carbon outline-none placeholder:text-carbon/55 focus:border-lima";
 const TARJETA = "rounded-2xl border border-[#5c5c5c] bg-form-card p-5";
 const FECHA = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Madrid" });
+const HORA = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
 
 export function EnviarCorreo({
   oppId,
@@ -64,9 +76,18 @@ export function EnviarCorreo({
   const [asunto, setAsunto] = useState(inicial ? relleno(inicial.asunto) : "");
   const [cuerpo, setCuerpo] = useState(inicial ? relleno(inicial.texto) : "");
   const [error, setError] = useState<string | null>(null);
+  // ENVIADO: te quedas aqui y lo ves (Monica, 28-oct-2026: «me saca de la pagina sin poder ver la confirmacion»).
+  const [hecho, setHecho] = useState<{ para: string[]; cuando: Date; docs: string[] } | null>(null);
   const [enCurso, empezar] = useTransition();
 
   const alterna = (lista: string[], v: string) => (lista.includes(v) ? lista.filter((x) => x !== v) : [...lista, v]);
+  // Al marcar una hoja se marca su presupuesto, y al quitarla se quita (con «uno para todas» el presupuesto se hace al enviar).
+  const marcar = (d: Doc) =>
+    setDocs((l) => {
+      if (!d.clave.startsWith("he:")) return alterna(l, d.clave);
+      const suyos = documentos.filter((x) => x.hojaId === d.clave.slice(3)).map((x) => x.clave);
+      return l.includes(d.clave) ? l.filter((c) => c !== d.clave && !suyos.includes(c)) : [...new Set([...l, d.clave, ...(conjunto ? [] : suyos)])];
+    });
   const todos = [...para, ...otros.split(/[,;\s]+/).map((x) => x.trim()).filter(Boolean)];
   const listo = todos.length > 0 && asunto.trim() && cuerpo.trim();
   // QUE DIGA QUE FALTA (Monica, 28-oct-2026: el boton apagado, sin saber por que).
@@ -76,10 +97,47 @@ export function EnviarCorreo({
     setError(null);
     empezar(async () => {
       const r = await accionEnviar(oppId, { docs, para: todos, asunto, cuerpo, plantillaId: plantilla || null, presupuestoConjunto: conjunto && hojasEnCorreo.length > 1 });
-      if (r.ok) router.push(`/comercial/oportunidades/${oppId}?bloque=2&enviado=1`);
-      else setError(r.error);
+      if (r.ok) {
+        setHecho({ para: todos, cuando: new Date(), docs: documentos.filter((x) => docs.includes(x.clave)).map((x) => x.nombre) });
+        router.refresh();
+      } else setError(r.error);
     });
   };
+
+  if (hecho)
+    return (
+      <section className="rounded-2xl border-2 border-lima bg-[#f6fbf1] p-6">
+        <div className="text-[26px] font-extrabold text-lima-dark">✓ Correo enviado</div>
+        <p className="mt-2 text-[15px] text-carbon">
+          a <b>{hecho.para.join(", ")}</b> · {HORA.format(hecho.cuando)}
+        </p>
+        {hecho.docs.length > 0 && (
+          <ul className="mt-2 list-disc pl-5 text-sm text-carbon/80">
+            {hecho.docs.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-sm text-carbon/70">Queda apuntado en el diario de la oportunidad.</p>
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          <Link href={`/comercial/oportunidades/${oppId}?bloque=2`} className="rounded-lg bg-lima px-5 py-2 text-sm font-extrabold text-carbon transition hover:bg-lima-dark hover:text-white">
+            Volver a la oportunidad
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setHecho(null);
+              setDocs([]);
+              setPara([]);
+              setOtros("");
+            }}
+            className="rounded-lg border border-carbon/30 bg-white px-4 py-2 text-sm font-bold text-carbon/75 transition hover:border-carbon"
+          >
+            Enviar otro correo
+          </button>
+        </div>
+      </section>
+    );
 
   return (
     <div className="space-y-4">
@@ -124,10 +182,24 @@ export function EnviarCorreo({
             <ul className="mt-2 space-y-1.5">
               {documentos.map((d) => (
                 <li key={d.clave} className="flex items-start gap-2 text-sm">
-                  <input id={d.clave} type="checkbox" checked={docs.includes(d.clave)} onChange={() => setDocs((l) => alterna(l, d.clave))} className="mt-1" />
+                  <input id={d.clave} type="checkbox" checked={docs.includes(d.clave)} onChange={() => marcar(d)} className="mt-1" />
                   <label htmlFor={d.clave} className="flex-1 text-carbon">
                     <b>{d.nombre}</b>
                     {d.fecha && <span className="text-carbon/65"> · {FECHA.format(new Date(d.fecha))}</span>}
+                    {d.detalle && <span className="block text-[13px] text-carbon/80">{d.detalle}</span>}
+                    {d.tipo === "Hoja de encargo" && (
+                      <span className="block text-[12px] text-carbon/65">
+                        {d.envios?.length
+                          ? d.envios.map((e, k) => (
+                              <span key={k} className="block">
+                                ✉ enviada el {FECHA.format(new Date(e.fecha))}
+                                {e.para.length ? ` a ${e.para.join(", ")}` : ""}
+                              </span>
+                            ))
+                          : "sin enviar todavía"}
+                      </span>
+                    )}
+                    {d.aviso && <span className="block text-[12px] font-semibold text-[#9a6a00]">{d.aviso}</span>}
                   </label>
                   <a href={d.enlace} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-lima-dark hover:underline">
                     ver

@@ -80,24 +80,50 @@ export async function generarHoja(oppId: string, filas: FilaHoja[], versionId: s
   const ppto = await presupuestoDeVersion(id);
   if (!ppto) avisos.push("La hoja no tiene nada que se cobre con importe: va sin presupuesto.");
   await ponerEstado(id, "pendiente_ok_daniel", yo, null);
+  avisos.push(
+    ...(await avisarRevision(
+      id,
+      `Hoja para tu ok: ${donde(v)}`,
+      `${yo.nombre} ha generado ${v.codigo_he ? `la versión ${v.numero_version} de la ${v.codigo_he}` : "una hoja de encargo"} de ${donde(v)} y espera tu ok.\n\n` +
+        `Va con ${ppto ? "su presupuesto" : "sin presupuesto"}${viab ? " y la viabilidad" : ""}.`,
+      yo,
+    )),
+  );
+  return { id, avisos };
+}
 
+/** El correo a quien revisa las ofertas (Daniel), con el enlace a la hoja. Devuelve los avisos de lo que no salio. */
+async function avisarRevision(id: string, asunto: string, texto: string, yo: Yo): Promise<string[]> {
+  const avisos: string[] = [];
   const revisan = await quienTieneLaFuncion(FUNCION_REVISION);
   for (const p of revisan) {
     if (!p.correo) { avisos.push(`${p.nombre} no tiene correo`); continue; }
     const e = await enviarCorreo({
       desde: "comercial",
       para: p.correo,
-      asunto: `Hoja para tu ok: ${donde(v)}`,
-      texto:
-        `${yo.nombre} ha generado ${v.codigo_he ? `la versión ${v.numero_version} de la ${v.codigo_he}` : "una hoja de encargo"} de ${donde(v)} y espera tu ok.\n\n` +
-        `Va con ${ppto ? "su presupuesto" : "sin presupuesto"}${viab ? " y la viabilidad" : ""}.\n\n` +
-        `Revísala aquí: ${APP}/comercial/revision?v=${id}\n`,
+      asunto,
+      texto: `${texto}\n\nRevísala aquí: ${APP}/comercial/revision?v=${id}\n`,
       responderA: yo.email,
     });
     if (!e.ok) avisos.push(`${p.nombre}: ${e.dice ?? "no salió el correo"}`);
   }
   if (!revisan.length) avisos.push("nadie tiene hoy la función de revisión de ofertas");
-  return { id, avisos };
+  return avisos;
+}
+
+/** VOLVER A PEDIR EL OK (Monica, 28-oct-2026: «un ok de Daniel debe durar 3 meses: después, la hoja debe renovarse, o al
+ *  menos volver a pedir ok»). La hoja vuelve tal cual a la mesa de Daniel; con su nuevo ok sale con la fecha de ese dia. */
+export async function volverAPedirOk(versionId: string, yo: Yo): Promise<void> {
+  const v = await versionDe(versionId);
+  if (v.estado !== "ok_daniel") throw new Error("Solo se vuelve a pedir el ok de una hoja con el ok sin enviar.");
+  await ponerEstado(v.id, "pendiente_ok_daniel", yo, "El ok tenía más de 3 meses: se vuelve a pedir.");
+  await avisarRevision(
+    v.id,
+    `Hoja para tu ok (renovar): ${donde(v)}`,
+    `${yo.nombre} vuelve a pedir tu ok para la ${v.codigo_he ?? "hoja de encargo"} v${v.numero_version} de ${donde(v)}: ` +
+      `el que diste tiene más de 3 meses. Revisa que los importes siguen valiendo.`,
+    yo,
+  );
 }
 
 /** El ok de Daniel o sus cambios. Solo quien tiene la funcion de revision de ofertas; no edita nada. */

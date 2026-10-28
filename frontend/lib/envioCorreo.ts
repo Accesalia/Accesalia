@@ -24,6 +24,7 @@ import type { FormaPago } from "./motorPresupuesto";
 import { anexoDeOportunidad } from "./anexoEdificio";
 import { pdfDelAnexo } from "./pdf/AnexoDoc";
 import { pdfDeHojaVersion } from "./hojaEmitir";
+import { ESPERA_FIRMADA, enviadaHaceMucho, hojasDeOpp, okCaducado } from "./hojasOpp";
 import { ponerEstado } from "./hojaCompromisos";
 import { recalcularLuego } from "./estadoOportunidad";
 import { informesDeOportunidad, leerInforme } from "./informeCostes";
@@ -55,6 +56,12 @@ export type DocEnviable = {
   hojaId?: string | null;
   /** Una hoja con el ok de Daniel sin enviar todavia: la oferta que se prepara. */
   lista?: boolean;
+  /** UNA HOJA, QUE LLEVA (Monica, 28-oct-2026: «no me dice que es cada hoja, solo el codigo»): sus tipos y su importe. */
+  detalle?: string;
+  /** Cada vez que se mando desde la app, y a quien (una hoja se puede mandar varias veces). */
+  envios?: { fecha: string; para: string[] }[];
+  /** Un aviso: enviada hace mas de 3 meses, revisar importes. */
+  aviso?: string | null;
 };
 export type Destinatario = { email: string; quien: string };
 export type ParaEnviar = {
@@ -87,7 +94,7 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
   if (!o) return null;
 
   // ---------------- los documentos generados
-  const [viabs, pptos, informes, nuevas] = await Promise.all([
+  const [viabs, pptosTodos, informes, hojas, yaEnviados] = await Promise.all([
     pedir<{ id: string; numero: string | null; version: number; rematada_en: string | null }[]>(
       `viabilidades?select=id,numero,version,rematada_en&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=creado_en.desc`,
     ),
@@ -95,15 +102,38 @@ export async function paraEnviar(oppId: string): Promise<ParaEnviar | null> {
       `presupuestos?select=id,codigo,generado_en,he_version_id&oportunidad_id=eq.${oppId}&url_pdf=not.is.null&order=generado_en.desc`,
     ),
     informesDeOportunidad(oppId),
-    // LAS HOJAS NUEVAS (25-oct-2026): las que tienen el ok de Daniel (para enviarlas) o ya se enviaron (para reenviarlas).
-    pedir<{ id: string; codigo_he: string | null; numero_version: number; fecha_emision: string | null; estado: string }[]>(
-      `he_versiones_hoja?select=id,codigo_he,numero_version,fecha_emision,estado&oportunidad_id=eq.${oppId}&pdf=not.is.null&estado=in.(ok_daniel,enviada,firma_con_errores)&order=creado_en.desc`,
-    ),
+    // LAS HOJAS NUEVAS (25-oct-2026): las que tienen el ok de Daniel (para enviarlas) o ya se enviaron (para reenviarlas),
+    // con lo que llevan. Las de ok caducado (3 meses sin enviar, 28-oct-2026) no se ofrecen.
+    hojasDeOpp(oppId).then((hs) => hs.map((h) => h.actual)),
+    // Lo que ya se mando de esta opp, para decir cuando y a quien fue cada hoja.
+    pedir<{ creado_en: string; para: string[]; documentos: { tipo: string; id: string }[] }[]>(
+      `correos_enviados?select=creado_en,para,documentos&oportunidad_id=eq.${oppId}&ok=is.true&order=creado_en.asc`,
+    ).catch(() => []),
   ]);
+  const nuevas = hojas.filter((v) => ESPERA_FIRMADA.includes(v.estado) && v.tienePdf && !okCaducado(v));
+  const caducadas = new Set(hojas.filter((v) => okCaducado(v)).map((v) => v.id));
+  const pptos = pptosTodos.filter((p) => !p.he_version_id || !caducadas.has(p.he_version_id));
+  const enviosDe = new Map<string, { fecha: string; para: string[] }[]>();
+  for (const c of yaEnviados)
+    for (const x of c.documentos ?? [])
+      if (x.tipo === "Hoja de encargo") enviosDe.set(x.id, [...(enviosDe.get(x.id) ?? []), { fecha: c.creado_en, para: c.para }]);
+  const EUROS = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2, useGrouping: "always" });
   const documentos: DocEnviable[] = [
     ...viabs.map((v) => ({ clave: `viabilidad:${v.id}`, tipo: "Viabilidad", nombre: `Viabilidad ${v.numero ?? ""} v${v.version}`.trim(), enlace: `/comercial/viabilidad/${v.id}/pdf`, fecha: v.rematada_en })),
     ...pptos.map((p) => ({ clave: `presupuesto:${p.id}`, tipo: "Presupuesto", nombre: `Presupuesto ${p.codigo ?? ""}`.trim(), enlace: `/comercial/presupuesto/pdf/${p.id}`, fecha: p.generado_en, hojaId: p.he_version_id })),
-    ...nuevas.map((v) => ({ clave: `he:${v.id}`, tipo: "Hoja de encargo", nombre: `Hoja de encargo ${v.codigo_he ?? ""} v${v.numero_version}`.trim(), enlace: `/comercial/hoja-encargo/pdf/${v.id}`, fecha: v.fecha_emision, lista: v.estado === "ok_daniel" })),
+    ...nuevas.map((v) => ({
+      clave: `he:${v.id}`,
+      tipo: "Hoja de encargo",
+      nombre: `Hoja de encargo ${v.codigo ?? ""} v${v.numero}`.trim(),
+      enlace: `/comercial/hoja-encargo/pdf/${v.id}`,
+      fecha: v.fechaEmision,
+      lista: v.estado === "ok_daniel",
+      detalle: [v.tipos.join(" + ") || null, v.importe ? `${EUROS.format(v.importe)} €` : null, v.aExito.length ? `${v.aExito.join(" % + ")} % a éxito` : null]
+        .filter(Boolean)
+        .join(" · "),
+      envios: enviosDe.get(v.id) ?? (v.fechas.enviada ? [{ fecha: v.fechas.enviada, para: [] }] : []),
+      aviso: enviadaHaceMucho(v) ? "Se envió hace más de 3 meses: revisa los importes por si ya no valen." : null,
+    })),
     ...informes
       .filter((x) => x.tipo === "estimacion_costes")
       .map((x) => ({ clave: `costes:${x.id}`, tipo: "Estimación de costes", nombre: `Estimación de costes · ${x.datos.obra}`, enlace: `/referencia/estimacion/informe/${x.id}/pdf`, fecha: x.creado_en })),

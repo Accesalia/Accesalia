@@ -17,7 +17,7 @@ export default async function Enviar({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ adjuntar?: string | string[] }>;
+  searchParams: Promise<{ oferta?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -26,23 +26,16 @@ export default async function Enviar({
   if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
   const [d, todas] = await Promise.all([paraEnviar(id), plantillasPara(yo, "comercial")]);
   if (!d) notFound();
-  // VIENE DE «PREPARAR UNA OFERTA» (bloque 2, 27-oct-2026): ya marcada la oferta -las hojas con ok sin enviar, sus
-  // presupuestos y la viabilidad mas reciente- y los adjuntos que se eligieron alli.
-  const adjuntar = new Set([sp.adjuntar ?? []].flat());
-  const listas = new Set(d.documentos.filter((x) => x.lista).map((x) => x.clave.slice(3)));
-  const marcados = [
-    ...d.documentos.filter((x) => x.lista || (x.hojaId && listas.has(x.hojaId))).map((x) => x.clave),
-    ...(listas.size ? d.documentos.filter((x) => x.clave.startsWith("viabilidad:")).slice(0, 1).map((x) => x.clave) : []),
-    ...(adjuntar.has("costes") ? d.documentos.filter((x) => x.clave.startsWith("costes:")).slice(0, 1).map((x) => x.clave) : []),
-    ...(adjuntar.has("inmueble") ? d.documentos.filter((x) => x.clave.startsWith("inmueble:")).map((x) => x.clave) : []),
-  ];
+  // VIENE DE «PREPARAR UNA OFERTA» (bloque 2). NADA MARCADO DE ENTRADA (Monica, 28-oct-2026: «no pongamos ninguna, que
+  // elijan ellos»): cada hoja dice que lleva, su importe y si ya se mando y a quien.
+  const deOfertaPreparada = sp.oferta === "1";
   // Al enviar, las plantillas que valen son las generales y las mias.
   const plantillas = todas
     .filter((p) => !p.propietario_id || p.propietario_id === yo.id)
     .map((p) => ({ id: p.id, nombre: p.nombre, asunto: p.asunto, texto: p.texto, personal: !!p.propietario_id }));
   // LA PLANTILLA DE LA OFERTA, YA PUESTA (Monica, 28-oct-2026: «no hay plantilla ni se rellena el asunto o el cuerpo»):
   // al llegar desde «Preparar una oferta», la general «Envío de oferta».
-  const deOferta = listas.size
+  const deOferta = deOfertaPreparada
     ? (plantillas.find((p) => !p.personal && p.nombre.trim().toLowerCase().replace("í", "i") === "envio de oferta")?.id ?? "")
     : "";
 
@@ -64,7 +57,6 @@ export default async function Enviar({
           <EnviarCorreo
             oppId={id}
             documentos={d.documentos}
-            marcados={marcados}
             destinatarios={d.destinatarios}
             plantillas={plantillas}
             plantillaInicial={deOferta}
