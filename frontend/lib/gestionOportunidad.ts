@@ -154,7 +154,7 @@ export type Gestion = {
   /** EL ADMINISTRADOR DE LA COMUNIDAD (Monica, 14-oct-2026: "cambialo"): el
    *  vigente en comunidad_admin_responsable, el mismo que cuenta la cartera. La
    *  cabecera lo ensena antes que el contacto apuntado en la opp. */
-  adminComunidad: { empresa: string | null; persona: string | null; municipio: string | null; telefono: string | null } | null;
+  adminComunidad: { empresa: string | null; persona: string | null; municipio: string | null; telefono: string | null; enEspera?: boolean } | null;
   /** MI CONTACTO EN LA COMUNIDAD: el que vino en la ficha de crear (una persona
    *  de la comunidad, o el apuntado a mano). No es la administracion. */
   contactoComunidad: { nombre: string; telefono: string | null; papel: string | null } | null;
@@ -267,6 +267,11 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
         apellidos: string | null;
         puesto: { cargo: string | null; empresa: { nombre_accesalia: string } | null; contrata: { nombre: string } | null }[];
       } | null;
+      espera: {
+        telefono_empresa: string | null;
+        persona: { nombre: string; apellidos: string | null; telefono_personal: string | null } | null;
+        empresa: { nombre_accesalia: string; municipio: string | null } | null;
+      } | null;
     }[]
   >(
     `oportunidades?select=id,codigo,nombre,estado,creado_en,fecha_apertura,comercial_id,comunidad_provisional,comunidad_id,referencia_catastral,vivos:relacion_oportunidad_accesos(count),` +
@@ -275,6 +280,8 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
       `comunidad:comunidad_id(nombre),comercial:comercial_id(nombre),duplicada:duplicada_de(id,codigo,nombre),motivo_anulacion,dropbox_carpeta,dropbox_ficha,` +
       `puesto:puesto_id(cargo,telefono_empresa,persona:persona_id(nombre),empresa:empresa_id(nombre_accesalia,municipio)),` +
       `contacto_provisional,telefono_provisional,` +
+      // El administrador EN ESPERA de comunidad (28-oct-2026).
+      `espera:admin_en_espera_puesto_id(telefono_empresa,persona:persona_id(nombre,apellidos,telefono_personal),empresa:empresa_id(nombre_accesalia,municipio)),` +
       `trajo:quien_lo_trae(nombre,apellidos,puesto(cargo,empresa(nombre_accesalia),contrata:contratas(nombre)))` +
       `&id=eq.${id}&limit=1&vivos.hasta=is.null&portales.hasta=is.null&pausas.hasta=is.null&trajo.puesto.hasta=is.null`,
   );
@@ -353,7 +360,16 @@ export async function gestionOportunidad(id: string): Promise<Gestion | null> {
           municipio: adminCom[0].empresa?.municipio ?? null,
           telefono: adminCom[0].puesto?.telefono_empresa ?? adminCom[0].puesto?.persona?.telefono_personal ?? null,
         }
-      : null,
+      : op.espera
+        ? {
+            // Sin comunidad todavia: el que espera en la opp (28-oct-2026).
+            empresa: op.espera.empresa?.nombre_accesalia ?? null,
+            persona: op.espera.persona ? [op.espera.persona.nombre, op.espera.persona.apellidos].filter(Boolean).join(" ") : null,
+            municipio: op.espera.empresa?.municipio ?? null,
+            telefono: op.espera.telefono_empresa ?? op.espera.persona?.telefono_personal ?? null,
+            enEspera: true,
+          }
+        : null,
     // El interlocutor de la comunidad es un puesto de la agenda sin empresa (un
     // presidente, un vecino): UNA SOLA AGENDA, 15-oct-2026.
     contactoComunidad: op.puesto && !op.puesto.empresa && op.puesto.persona

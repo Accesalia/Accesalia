@@ -586,6 +586,8 @@ export async function crearOportunidad(
   //      alta o, si no dijo nada, el de arriba. Una comunidad que ya tenia otro
   //      solo cambia si el comercial dijo «si, ha cambiado».
   await adminsAComunidades(op.id, administradorId, d.adminsComunidad ?? []).catch((e) => console.error("adminsAComunidades", e));
+  // Sin comunidad todavia (direccion escrita a mano): el administrador espera en la opp.
+  if (administradorId && !(await comunidadesDeOpp(op.id)).length) await adminEnEspera(op.id, administradorId).catch(() => false);
 
   // Nace con su estado: si no, no saldria en ninguna lista hasta la noche.
   recalcularLuego(op.id);
@@ -706,6 +708,29 @@ async function enlazarAccesosIds(oppId: string, portalIds: string[], deDonde: st
   return ids;
 }
 
+/** EL ADMINISTRADOR EN ESPERA (Monica, 28-oct-2026): el de una opp sin comunidad
+ *  espera en la opp. Ponerlo ahi (persona -> su puesto vigente). */
+export async function adminEnEspera(oppId: string, personaId: string): Promise<boolean> {
+  const [pu] = await leer<{ id: string }[]>(`puesto?select=id&persona_id=eq.${personaId}&hasta=is.null&order=desde.desc.nullslast&limit=1`);
+  if (!pu) return false;
+  await actualizar(`oportunidades?id=eq.${oppId}`, { admin_en_espera_puesto_id: pu.id });
+  return true;
+}
+
+/** ...y en cuanto la opp tiene comunidad, pasa a ella y la opp lo suelta. Si la
+ *  comunidad ya tenia otro administrador, no se toca (lo decide una persona). */
+export async function pasarAdminEnEspera(oppId: string): Promise<void> {
+  const [o] = await leer<{ admin_en_espera_puesto_id: string | null; espera: { persona_id: string | null } | null }[]>(
+    `oportunidades?select=admin_en_espera_puesto_id,espera:admin_en_espera_puesto_id(persona_id)&id=eq.${oppId}&limit=1`,
+  );
+  if (!o?.admin_en_espera_puesto_id || !o.espera?.persona_id) return;
+  const comunidades = await comunidadesDeOpp(oppId);
+  if (!comunidades.length) return;
+  for (const c of comunidades)
+    await ponerAdministrador(c.id, o.espera.persona_id, { cambia: false, nota: "Esperaba en la oportunidad hasta que tuvo comunidad (28-oct-2026)." });
+  await actualizar(`oportunidades?id=eq.${oppId}`, { admin_en_espera_puesto_id: null });
+}
+
 /** Los vecinos (presidente, secretaria...) creados en el alta antes de que
  *  existiera su comunidad: su puesto pasa a colgar de ella (28-oct-2026). */
 async function aSuComunidad(personaIds: string[], comunidadId: string): Promise<void> {
@@ -736,6 +761,7 @@ export async function enlazarClaveExistente(oppId: string, claveId: string, auto
   if (accesos.length) {
     await comunidadDesdeAccesos(oppId);
     await claveDesdeAccesos(oppId, autorId, clave);
+    await pasarAdminEnEspera(oppId);
   }
   return accesos.length;
 }
@@ -774,6 +800,8 @@ export async function cambiarDireccion(
   await comunidadDesdeAccesos(oppId);
   // Y su clave (13-oct-2026): la de su direccion, la que se eligio unir, o una nueva.
   await claveDesdeAccesos(oppId, null, r.unirA ?? null);
+  // Si tenia un administrador esperando comunidad, ahora pasa a ella.
+  await pasarAdminEnEspera(oppId);
 }
 
 // ------------------------------------------- ¿ya hay una opp aqui?

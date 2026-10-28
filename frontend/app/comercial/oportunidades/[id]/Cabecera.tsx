@@ -166,6 +166,7 @@ export function Cabecera({
                   {g.adminComunidad.empresa}
                   {g.adminComunidad.municipio && <span className="text-carbon/50"> {g.adminComunidad.municipio}</span>}
                   {g.adminComunidad.telefono && <span className="tabular-nums text-carbon/60"> · {g.adminComunidad.telefono}</span>}
+                  {g.adminComunidad.enEspera && <span className="text-carbon/50"> · en espera de la comunidad</span>}
                 </span>
               ) : (
                 <span className="text-carbon/50">— no se apuntó.</span>
