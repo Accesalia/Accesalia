@@ -96,6 +96,7 @@ export function OfertasComunidad({
   fotos,
   cajon,
   diario,
+  tira,
 }: {
   id: string;
   ver: VistaOferta | null;
@@ -114,6 +115,8 @@ export function OfertasComunidad({
   fotos: ReactNode;
   cajon: ReactNode;
   diario: ReactNode;
+  /** La tira del 3D y la viabilidad: arriba de la columna central. */
+  tira?: ReactNode;
 }) {
   const todas = d.hojasNuevas.flatMap((h) => [h.actual, ...h.anteriores]);
   const actuales = d.hojasNuevas.map((h) => h.actual);
@@ -292,7 +295,10 @@ export function OfertasComunidad({
       </nav>
 
       {/* ============================== EL CONTENIDO ============================== */}
-      <div className="min-w-0 bg-[#f1f3f5] px-5 py-4">
+      <div className="min-w-0 bg-[#f1f3f5]">
+        {/* La tira del 3D y la viabilidad, solo sobre la columna central (29-oct-2026). */}
+        {tira && <div className="bg-[#575d64] px-4 py-2.5">{tira}</div>}
+        <div className="px-5 py-4">
         {vista === "preparar" && (
           <>
             {titulo("Preparar una oferta para la comunidad", "Lo que necesitas para enviarla. Cuando todo esté en verde, se envía.")}
@@ -579,6 +585,7 @@ export function OfertasComunidad({
             {cajon}
           </>
         )}
+        </div>
       </div>
 
       {/* ============================== EL DIARIO, integrado ============================== */}

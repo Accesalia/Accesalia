@@ -432,7 +432,8 @@ export default async function GestionOportunidad({
             y el distrito a la card del Catastro. */}
         {/* LA TIRA DEL 3D Y LA VIABILIDAD, en TODOS los bloques (Monica, 29-oct-2026: «deberia ser transversal»), sobre su
             banda gris, arriba del recuadro del bloque. */}
-        {tiraBloque1 && <div className="mb-[10px] rounded-[10px] bg-[#575d64] px-4 py-2.5">{tiraBloque1}</div>}
+        {/* En los bloques 1, 2 y 3 va sobre su columna central (entre el menu y el diario); el 4, sin menu, aqui. */}
+        {tiraBloque1 && bloque === 4 && <div className="mb-[10px] rounded-[10px] bg-[#575d64] px-4 py-2.5">{tiraBloque1}</div>}
         {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
             contacto y siguiente paso. Solo en las que se miran (2025 en
             adelante y sin hoja enviada o firmada). */}
@@ -468,7 +469,7 @@ export default async function GestionOportunidad({
               <Bloque1
                 id={id}
                 ver={ver1}
-                tira={null}
+                tira={tiraBloque1}
                 referencia={g.referenciaCatastral}
                 distrito={distrito}
                 comunidadId={g.comunidadId}
@@ -507,6 +508,7 @@ export default async function GestionOportunidad({
                 fotos={<FotosOpp oppId={id} fotos={fotos} />}
                 cajon={cajon}
                 diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
+                tira={tiraBloque1}
               />
             </div>
           ) : bloque === 3 && documentacion && negociacion && decision ? (
@@ -531,6 +533,7 @@ export default async function GestionOportunidad({
                 cierres={decision.cierres}
                 formulario3D={formulario3D}
                 editorJuntas={editorJuntas}
+                tira={tiraBloque1}
               />
             </div>
           ) : decision ? (

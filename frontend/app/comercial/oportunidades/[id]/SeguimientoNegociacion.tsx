@@ -125,6 +125,7 @@ export function SeguimientoNegociacion({
   cierres,
   formulario3D,
   editorJuntas,
+  tira,
 }: {
   id: string;
   ver: VistaNegociacion | null;
@@ -144,6 +145,8 @@ export function SeguimientoNegociacion({
   formulario3D: ReactNode;
   /** Apuntar y corregir las juntas (fecha, resultado, que paso, seguimiento). */
   editorJuntas: ReactNode;
+  /** La tira del 3D y la viabilidad: arriba de la columna central. */
+  tira?: ReactNode;
 }) {
   const vista: VistaNegociacion = ver ?? "quien";
   const href = (v: VistaNegociacion) => `/comercial/oportunidades/${id}?bloque=3&ver=${v}`;
@@ -208,7 +211,10 @@ export function SeguimientoNegociacion({
       </nav>
 
       {/* ============================== EL CONTENIDO ============================== */}
-      <div className="min-w-0 bg-[#f1f3f5] px-5 py-4">
+      <div className="min-w-0 bg-[#f1f3f5]">
+        {/* La tira del 3D y la viabilidad, solo sobre la columna central (29-oct-2026). */}
+        {tira && <div className="bg-[#575d64] px-4 py-2.5">{tira}</div>}
+        <div className="px-5 py-4">
         {d.firmadas.porValidar.length > 0 && (
           <div className="mb-3 flex flex-wrap items-center gap-3 rounded-[10px] border-[1.5px] border-[#ecc96a] bg-[#fdf3d7] px-3 py-2 text-[#5a3d00]">
             <b>Hoja firmada, pendiente de que la valides para poder cobrarla.</b>
@@ -520,6 +526,7 @@ export function SeguimientoNegociacion({
             </div>
           </>
         )}
+        </div>
       </div>
     </section>
   );
