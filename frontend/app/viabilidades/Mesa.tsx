@@ -145,7 +145,8 @@ export function Mesa({
         )}
 
         {/* --------------------------- las pedidas sin Polycam (15-oct-2026) */}
-        {pedidas.length > 0 && <PedidasSinPolycam pedidas={pedidas} />}
+        {/* Siempre a la vista, aunque no haya ninguna (Monica, 29-oct-2026: «debe verse una nota tipo nada aqui»). */}
+        <PedidasSinPolycam pedidas={pedidas} />
 
         {/* ---------------------------------------------------- las dos columnas */}
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_2px_minmax(0,1fr)]">
@@ -377,6 +378,11 @@ function PedidasSinPolycam({ pedidas }: { pedidas: SolicitudPendiente[] }) {
       <Cabecera titulo="Viabilidades pedidas sin Polycam" n={pedidas.length} color="#3f5f80">
         <p className="mt-0.5 text-[13px] text-carbon">El comercial las ha pedido con su descripción y lo que tenga: fotos, planos, croquis…</p>
       </Cabecera>
+      {pedidas.length === 0 && (
+        <p className="mt-4 rounded-xl border border-dashed border-carbon/25 px-4 py-3 text-[14px] text-carbon/60">
+          Nada aquí: ningún comercial ha pedido una viabilidad sin Polycam.
+        </p>
+      )}
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {pedidas.map((s) => {
           const p = plazo(s.paraCuando);
