@@ -1,3 +1,4 @@
+import { Cargando } from "./Cargando";
 import Link from "next/link";
 import type { HitoGestion } from "../../../../lib/gestionOportunidad";
 import { BLOQUES } from "../../../../lib/pasosEscalera";
@@ -163,6 +164,7 @@ export function Pestanas({ hitos, visto, id }: { hitos: HitoGestion[]; visto: nu
         ) : (
           <Link key={b.n} href={`/comercial/oportunidades/${id}${b.n === 1 ? "" : `?bloque=${b.n}`}`} scroll={false} className={clase}>
             {dentro}
+            <Cargando />
           </Link>
         );
       })}

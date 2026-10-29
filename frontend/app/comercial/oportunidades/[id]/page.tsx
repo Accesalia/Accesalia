@@ -115,44 +115,58 @@ export default async function GestionOportunidad({
   // Lo que se puede anadir desde la cabecera: lo que se ofrece en el alta.
   const delAlta = new Set(COLUMNAS_INTERES.flatMap((c) => c.nombres));
   const paraAnadir = tipos.filter((t) => delAlta.has(t.nombre) && !g.tiposElegidos.includes(t.id));
-  const [cab, escaneo, contactos, distrito, viabilidad, completa, necesita, pedir] = await Promise.all([
-    // AL ABRIR LA FICHA se recalcula su paso (estado_oportunidad), y la cabecera
-    // lo lee ya al dia.
-    recalcular(id, "ficha").catch(() => undefined).then(() => cabeceraDe(id)),
-    escaneoDe(id).catch(() => null),
-    g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
-    g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
-    viabilidadDeOpp(id),
-    // ¿Le falta algo de lo que exige el camino? (8-oct-2026). Si falla, la
-    // ficha sale igual, sin el aviso.
-    completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
-    // Que hace falta antes de darles precio: Polycam y viabilidad (15-oct-2026).
-    // LA TIRA DEL 3D Y LA VIABILIDAD ES TRANSVERSAL (29-oct-2026): en todos los bloques.
-    necesidadesDe(id).catch(() => null),
-    // Pedir viabilidad y costes al arquitecto sin Polycam (el formulario es del hilo grafico).
-    datosPedirViabilidad(id).catch(() => null),
-  ]);
-  // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
-  const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
-  // Las listas para completar, solo si hace falta completar: son largas.
-  const paraCompletar = completa.falta.length ? await opcionesEntrada().catch(() => null) : null;
-  const [documentacion, informes, enviados] =
+  // TODO A LA VEZ (Monica, 29-oct-2026: «cambiar de una pestaña a otra tarda como 2 segundos»): antes se esperaba en
+  // fila, una consulta detras de otra (nueve tandas). Lo que no depende de nada se pide junto; lo poco que depende de
+  // otra cosa (las listas para completar, las reservas de los administradores), en una segunda tanda. Se pide lo mismo.
+  const [
+    [cab, escaneo, contactos, distrito, viabilidad, completa, necesita, pedir],
+    propuestaAdmin,
+    [documentacion, informes, enviados],
+    decision,
+    negociacion,
+    fotos,
+    [docsCajon, tiposDelCajon],
+  ] = await Promise.all([
+    Promise.all([
+      // AL ABRIR LA FICHA se recalcula su paso (estado_oportunidad), y la cabecera
+      // lo lee ya al dia.
+      recalcular(id, "ficha").catch(() => undefined).then(() => cabeceraDe(id)),
+      escaneoDe(id).catch(() => null),
+      g.comunidadId ? contactosDeComunidad(g.comunidadId) : Promise.resolve([]),
+      g.referenciaCatastral ? distritoDe(g.referenciaCatastral) : Promise.resolve(null),
+      viabilidadDeOpp(id),
+      // ¿Le falta algo de lo que exige el camino? (8-oct-2026). Si falla, la
+      // ficha sale igual, sin el aviso.
+      completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
+      // Que hace falta antes de darles precio: Polycam y viabilidad (15-oct-2026).
+      // LA TIRA DEL 3D Y LA VIABILIDAD ES TRANSVERSAL (29-oct-2026): en todos los bloques.
+      necesidadesDe(id).catch(() => null),
+      // Pedir viabilidad y costes al arquitecto sin Polycam (el formulario es del hilo grafico).
+      datosPedirViabilidad(id).catch(() => null),
+    ]),
+    // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
+    propuestaAdminComunidad(id).catch(() => null),
     bloque === 2 || bloque === 3
-      ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
+      ? Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
       : bloque === 1
-        ? [null, await informesDeOportunidad(id).catch(() => []), []]
-        : [null, [], []];
-  const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
-  // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (28-oct-2026): administradores con su comision, agenda de la comunidad, juntas
-  // y cambios pedidos (lib/negociacion.ts).
-  // En el bloque 1, sus administradores con su comision van en «Datos y contactos» (29-oct-2026).
-  const negociacion = bloque === 3 || bloque === 1 ? await negociacionDe(id, g.direccion).catch(() => null) : null;
-  const reservas = bloque === 1 && negociacion ? await reservasDeAdministraciones(negociacion.admins.map((a) => a.empresaId ?? "")).catch(() => new Map()) : new Map();
-  // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
-  const fotos = bloque === 1 || bloque === 2 ? await fotosDeOpp(id).catch(() => []) : [];
-  // EL CAJON DE DOCUMENTOS (25-oct-2026): al lado de las fotos en el bloque 1, y debajo de lo suyo en los demas
-  // (la orden de compra o el contrato llegan sobre todo despues de firmar).
-  const [docsCajon, tiposDelCajon] = await Promise.all([cajonDeOpp(id).catch(() => []), tiposCajon().catch(() => [])]);
+        ? Promise.all([Promise.resolve(null), informesDeOportunidad(id).catch(() => []), Promise.resolve([])])
+        : Promise.all([Promise.resolve(null), Promise.resolve([]), Promise.resolve([])]),
+    bloque === 3 || bloque === 4 ? decisionCierreDe(id) : Promise.resolve(null),
+    // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (28-oct-2026): administradores con su comision, agenda de la comunidad, juntas
+    // y cambios pedidos (lib/negociacion.ts). En el bloque 1, sus administradores con su comision van en «Datos y
+    // contactos» (29-oct-2026).
+    bloque === 3 || bloque === 1 ? negociacionDe(id, g.direccion).catch(() => null) : Promise.resolve(null),
+    // Las fotos de la opp (15-oct-2026).
+    bloque === 1 || bloque === 2 ? fotosDeOpp(id).catch(() => []) : Promise.resolve([]),
+    // EL CAJON DE DOCUMENTOS (25-oct-2026).
+    Promise.all([cajonDeOpp(id).catch(() => []), tiposCajon().catch(() => [])]),
+  ]);
+  // La segunda tanda: lo que depende de lo anterior.
+  const [paraCompletar, reservas] = await Promise.all([
+    // Las listas para completar, solo si hace falta completar: son largas.
+    completa.falta.length ? opcionesEntrada().catch(() => null) : Promise.resolve(null),
+    bloque === 1 && negociacion ? reservasDeAdministraciones(negociacion.admins.map((a) => a.empresaId ?? "")).catch(() => new Map()) : Promise.resolve(new Map()),
+  ]);
   const cajon = <CajonOpp oppId={id} docs={docsCajon} tipos={tiposDelCajon} />;
   const apartadoFotos =
     bloque === 1 ? (
