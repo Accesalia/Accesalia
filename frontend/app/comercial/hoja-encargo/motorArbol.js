@@ -347,6 +347,19 @@ export function montarArbol(root, datos) {
       }
       parrafos += `<div class="bloque"><b>${esc(titulo)}</b>${puntos.length ? `<ul>${puntos.map((y) => `<li>${esc(y.replace(/^•\s*/, ""))}</li>`).join("")}</ul>` : ""}</div>`;
     }
+    // CADA LINEA DICE DE QUE PROYECTO ES (Monica, 29-oct-2026: «cuando hay mas de uno, en la tabla de honorarios solo
+    // sale "redaccion del proyecto" sin especificar, y la comunidad tiene que ver cual es cual y que precio le
+    // corresponde»): la redaccion lleva delante su proyecto («Proyecto de ascensor: redaccion del proyecto…») y, si hay
+    // mas de un proyecto, las demas lineas de cada uno lo llevan entre parentesis. Igual en la forma de pago.
+    const esProyecto = (f) => f.bloque === "REDACCION PROYECTO" && nodo(f)?.t === "cab";
+    const proyectoDe = (f) => { let x = porRef.get(f.padre); while (x) { if (esProyecto(x)) return nodo(x).nombre; x = porRef.get(x.padre); } return null; };
+    const nProyectos = fs.filter(esProyecto).length;
+    const etiqueta = (f, n) => {
+      const p = proyectoDe(f);
+      if (!p) return n.nombre;
+      if (/^Redacci[oó]n del proyecto/i.test(n.nombre)) return `${p}: ${n.nombre.charAt(0).toLowerCase()}${n.nombre.slice(1)}`;
+      return nProyectos > 1 ? `${n.nombre} (${p.charAt(0).toLowerCase()}${p.slice(1)})` : n.nombre;
+    };
     // El desglose: cada linea que sale, con su precio, su % o «incluido»; el conjunto con los suyos debajo.
     let total = 0, exito = [];
     const filas = [];
@@ -371,11 +384,11 @@ export function montarArbol(root, datos) {
       else if (f.seCobra && f.aExito) valor = "a éxito";
       else if (f.seCobra && f.importe) { valor = precioIva(f.importe); total += f.importe; }
       else valor = "<i>incluido</i>";
-      filas.push(`<tr><td${dentro ? ' style="padding-left:16px"' : ""}>${esc(n.nombre)}</td><td class="r">${valor}</td></tr>`);
+      filas.push(`<tr><td${dentro ? ' style="padding-left:16px"' : ""}>${esc(etiqueta(f, n))}</td><td class="r">${valor}</td></tr>`);
     }
     const desglose = `<table>${filas.join("")}</table><div class="totalbanda">Total Honorarios Profesionales: ${eur2(total)} €${exito.map((x) => " + " + x).join("")} + IVA</div>`;
     // La forma de pago: de lo que se cobra en el papel (el conjunto con «solo el total», como una sola cosa).
-    const pagos = fs.filter((f) => f.seCobra && !f.sinForma && (f.formaId || f.formaPropia)).map((f) => `<li>${esc(nodo(f)?.nombre ?? "")}: ${esc(textoForma(f))}</li>`);
+    const pagos = fs.filter((f) => f.seCobra && !f.sinForma && (f.formaId || f.formaPropia)).map((f) => `<li>${esc(nodo(f) ? etiqueta(f, nodo(f)) : "")}: ${esc(textoForma(f))}</li>`);
     const pago = pagos.length ? `<p style="margin-top:12px"><b><u>Forma de Pago de Honorarios:</u></b></p><ul class="pago">${pagos.join("")}</ul>` : "";
     const icio = fs.some((f) => f.bloque === "TRAMITACION LICENCIAS") ? P.icio || "" : "";
     const caja = document.createElement("div");
