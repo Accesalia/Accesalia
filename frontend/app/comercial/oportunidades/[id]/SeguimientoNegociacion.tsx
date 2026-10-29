@@ -1,3 +1,4 @@
+import { AnadirContacto, DatoEditable } from "./DatoEditable";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import type { Documentacion } from "../../../../lib/bloqueDocumentacion";
@@ -219,11 +220,23 @@ export function SeguimientoNegociacion({
           <>
             {titulo("Quién es quién", "Las personas de esta negociación, con lo que sabemos de cada una.")}
             <div className="grid gap-3 lg:grid-cols-2">
-              {neg.admins.length === 0 && hueco("Esta comunidad no tiene administrador apuntado. Se pone en la cabecera, en «Administración».")}
+              {/* EDITAR AQUI MISMO (Monica, 29-oct-2026: «te remite a la cabecera: mal, deberia mostrarlo alli mismo»). */}
+              {neg.admins.length === 0 && (
+                <div className={CAJA}>
+                  <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Administrador</div>
+                  <DatoEditable oppId={id} campo="admin" hayDato={false}>
+                    <span className="text-carbon/60">— no se apuntó.</span>
+                  </DatoEditable>
+                </div>
+              )}
               {neg.admins.map((a) => (
                 <div key={(a.personaId ?? "") + (a.empresaId ?? "")} className={CAJA}>
                   <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Administrador</div>
-                  <div className="text-[15.5px] font-bold">{a.persona}</div>
+                  <div className="text-[15.5px] font-bold">
+                    <DatoEditable oppId={id} campo="admin" hayDato>
+                      {a.persona}
+                    </DatoEditable>
+                  </div>
                   <div className="text-carbon/70">
                     {[a.empresa, a.telefono].filter(Boolean).join(" · ")}
                     {a.empresaId && <> · <Link href={`/administracion/administraciones/${a.empresaId}`} className={ENLACE}>su ficha</Link></>}
@@ -237,7 +250,7 @@ export function SeguimientoNegociacion({
                   </div>
                 </div>
               ))}
-              {contactos.length > 0 && (
+              {(
                 <div className={CAJA}>
                   <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">La comunidad</div>
                   <ul className="mt-1 divide-y divide-[#f0f0f0]">
@@ -249,12 +262,17 @@ export function SeguimientoNegociacion({
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-1 text-[11.5px] text-carbon/60">Se añaden en la cabecera, en «+ añadir contacto».</div>
+                  {contactos.length === 0 && <p className="mt-1 text-[12.5px] text-carbon/60">Ningún contacto apuntado.</p>}
+                  <AnadirContacto oppId={id} />
                 </div>
               )}
               <div className={CAJA}>
                 <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Nos llegó a través de</div>
-                <div className="text-[14px] font-bold">{trajo ?? <span className="font-normal text-carbon/65">no se apuntó (se pone en la cabecera)</span>}</div>
+                <div className="text-[14px] font-bold">
+                  <DatoEditable oppId={id} campo="trajo" hayDato={!!trajo}>
+                    {trajo ?? <span className="font-normal text-carbon/65">— no se apuntó.</span>}
+                  </DatoEditable>
+                </div>
               </div>
               {(
                 [

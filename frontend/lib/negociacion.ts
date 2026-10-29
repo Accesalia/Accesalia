@@ -9,6 +9,8 @@
 //     en Google por el nombre»). Una sola fuente: citas.
 //   - LAS JUNTAS (juntas) y LOS CAMBIOS PEDIDOS (he_estados_hoja: cambios de la comunidad o del comercial).
 import "server-only";
+import { colocarPersonaNueva, type PersonaNueva } from "./altaOportunidad";
+import { comunidadesDeOpp } from "./adminComunidad";
 import { listaAcuerdos, type Acuerdo } from "./comisionesAdmin";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
@@ -44,7 +46,8 @@ export type JuntaNegociacion = {
 };
 export type CambioPedido = { id: string; version: string; estado: string; fecha: string; nota: string | null; quien: string | null; donde: string | null };
 export type Apartado = "presidente" | "comision_obras" | "vecino" | "contrata" | "competencia";
-export type Apunte = { id: string; apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; autor: string | null; creadoEn: string };
+/** «persona»: la de la agenda (29-oct-2026: «se debe seleccionar de agenda o crear nuevo contacto»); el texto, su nota. */
+export type Apunte = { id: string; apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; autor: string | null; creadoEn: string; persona: string | null };
 
 export type Negociacion = {
   admins: AdminNegociacion[];
@@ -95,8 +98,8 @@ export async function negociacionDe(oppId: string, nombreOpp: string): Promise<N
       `he_versiones_hoja?select=codigo_he,numero_version,estados:he_estados_hoja(id,estado,fecha,nota,donde,persona:persona_id(nombre))&oportunidad_id=eq.${oppId}`,
     ).catch(() => []),
     listaAcuerdos().catch(() => [] as Acuerdo[]),
-    leer<{ id: string; apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; autor: string | null; creado_en: string }[]>(
-      `negociacion_apuntes?select=id,apartado,texto,postura,autor,creado_en&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
+    leer<{ id: string; apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; autor: string | null; creado_en: string; persona: { nombre: string; apellidos: string | null } | null }[]>(
+      `negociacion_apuntes?select=id,apartado,texto,postura,autor,creado_en,persona:persona_id(nombre,apellidos)&oportunidad_id=eq.${oppId}&order=creado_en.desc`,
     ).catch(() => []),
   ]);
 
@@ -160,7 +163,10 @@ export async function negociacionDe(oppId: string, nombreOpp: string): Promise<N
       documentacion: j.documentacion, quorum: j.quorum, votosFavor: j.votos_favor, votosContra: j.votos_contra,
     })),
     cambios,
-    apuntes: apuntes.map((a) => ({ id: a.id, apartado: a.apartado, texto: a.texto, postura: a.postura, autor: a.autor, creadoEn: a.creado_en })),
+    apuntes: apuntes.map((a) => ({
+      id: a.id, apartado: a.apartado, texto: a.texto, postura: a.postura, autor: a.autor, creadoEn: a.creado_en,
+      persona: a.persona ? [a.persona.nombre, a.persona.apellidos].filter(Boolean).join(" ") : null,
+    })),
   };
 }
 
@@ -177,11 +183,39 @@ async function escribir(path: string, metodo: "POST" | "PATCH" | "DELETE", cuerp
 const APARTADOS: Apartado[] = ["presidente", "comision_obras", "vecino", "contrata", "competencia"];
 
 /** Un apunte de la negociacion (presidente, comision de obras, vecino a favor o en contra, contrata, competencia). */
-export async function apuntar(oppId: string, a: { apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null }, autor: { id: string; nombre: string }) {
+/** Su papel, para la persona nueva que nace desde aqui (como gente de la comunidad, o de una contrata). */
+const PAPEL: Record<Apartado, { que: string | null; otro: string | null }> = {
+  presidente: { que: "vecino", otro: "Presidente" },
+  comision_obras: { que: "vecino", otro: "Comisión de obras" },
+  vecino: { que: "vecino", otro: null },
+  contrata: { que: "contrata", otro: null },
+  competencia: { que: null, otro: "Competencia" },
+};
+
+/** «persona»: alguien de la agenda («persona:…») o una persona nueva, que se da de alta como en el alta de la opp
+ *  (colocarPersonaNueva: una sola manera de dar de alta a alguien). La nota es opcional si hay persona. */
+export async function apuntar(
+  oppId: string,
+  a: { apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; persona?: { valor: string | null; nueva: PersonaNueva | null } | null },
+  autor: { id: string; nombre: string },
+  comercialId: string | null,
+) {
   if (!uuid(oppId) || !APARTADOS.includes(a.apartado)) throw new Error("Apunte no válido.");
-  if (!a.texto.trim()) throw new Error("Escribe algo.");
+  let valor = a.persona?.valor ?? null;
+  if (!valor && a.persona?.nueva?.nombre?.trim()) {
+    const p = PAPEL[a.apartado];
+    const [com] = await comunidadesDeOpp(oppId);
+    valor = await colocarPersonaNueva(
+      { ...a.persona.nueva, nombre: a.persona.nueva.nombre.trim(), que: p.que, otro: a.persona.nueva.otro?.trim() || p.otro },
+      { comunidadId: com?.id ?? null, comercialId },
+    );
+  }
+  const [clase, personaId] = (valor ?? "").split(":");
+  if (valor && (clase !== "persona" || !uuid(personaId ?? ""))) throw new Error("Para esto hace falta una persona de la agenda.");
+  if (!valor && !a.texto.trim()) throw new Error("Elige a alguien de la agenda o escribe algo.");
   await escribir("negociacion_apuntes", "POST", {
-    oportunidad_id: oppId, apartado: a.apartado, texto: a.texto.trim(), postura: a.apartado === "vecino" ? a.postura : null, autor_id: autor.id, autor: autor.nombre,
+    oportunidad_id: oppId, apartado: a.apartado, texto: a.texto.trim(), persona_id: valor ? personaId : null,
+    postura: a.apartado === "vecino" ? a.postura : null, autor_id: autor.id, autor: autor.nombre,
   });
 }
 export async function quitarApunte(oppId: string, apunteId: string) {

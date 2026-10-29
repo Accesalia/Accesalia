@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { accionApuntar, accionDatosJunta, accionDondeCambio, accionQuitarApunte } from "./acciones";
+import { accionApuntar, accionBuscarPersonas, accionDatosJunta, accionDondeCambio, accionQuitarApunte } from "./acciones";
+import type { OpcionPersona } from "../../../../lib/datosCabecera";
 import type { Apartado, Apunte, JuntaNegociacion } from "../../../../lib/negociacion";
 
 // LO QUE SE APUNTA EN EL BLOQUE 3 SOBRE LA MARCHA (Monica, 28-oct-2026): «dejar el hueco para que el comercial, sobre
@@ -28,7 +29,12 @@ function useAccion() {
   return { ocupado, error, hacer };
 }
 
-/** Un apartado de «Quien es quien» que se rellena aqui: presidente, comision de obras, vecinos, contrata, competencia. */
+type Nueva = { nombre: string; telefono: string; correo: string; otro: string };
+const ENLACE = "text-[12px] font-semibold text-[#104269] underline-offset-2 hover:underline";
+
+/** Un apartado de «Quien es quien» que se rellena aqui: presidente, comision de obras, vecinos, contrata, competencia.
+ *  LA PERSONA, DE LA AGENDA (Monica, 29-oct-2026: «todo es campos de texto, no se selecciona de agenda. Eso es un
+ *  error»): se busca como en la cabecera o se crea nueva en su caja amarilla; la nota es opcional. */
 export function ApuntesApartado({
   oppId,
   apartado,
@@ -45,38 +51,143 @@ export function ApuntesApartado({
   const { ocupado, error, hacer } = useAccion();
   const [texto, setTexto] = useState("");
   const [postura, setPostura] = useState<"a_favor" | "en_contra" | null>(null);
+  const [q, setQ] = useState("");
+  const [lista, setLista] = useState<OpcionPersona[]>([]);
+  const [elegida, setElegida] = useState<OpcionPersona | null>(null);
+  const [nueva, setNueva] = useState<Nueva | null>(null);
   const esVecino = apartado === "vecino";
+
+  useEffect(() => {
+    if (elegida || nueva || q.trim().length < 2) return setLista([]);
+    const t = setTimeout(() => accionBuscarPersonas(oppId, q, "contacto").then(setLista), 250);
+    return () => clearTimeout(t);
+  }, [q, elegida, nueva, oppId]);
+
+  const limpiar = () => {
+    setTexto("");
+    setPostura(null);
+    setQ("");
+    setElegida(null);
+    setNueva(null);
+    setLista([]);
+  };
+  const hayPersona = !!elegida || !!nueva?.nombre.trim();
+  const apuntar = () =>
+    hacer(
+      () =>
+        accionApuntar(oppId, {
+          apartado,
+          texto,
+          postura,
+          persona: elegida
+            ? { valor: elegida.valor, nueva: null }
+            : nueva?.nombre.trim()
+              ? { valor: null, nueva: { nombre: nueva.nombre, telefono: nueva.telefono.trim() || null, correo: nueva.correo.trim() || null, que: null, otro: nueva.otro.trim() || null, contrataId: null } }
+              : null,
+        }),
+      limpiar,
+    );
+
   return (
-    <div className={"rounded-[12px] border px-4 py-3 " + (apuntes.length ? "border-[#d9d9d9]" : "border-dashed border-[#cfcfcf] bg-[#fcfcfa]")}>
+    <div className={"rounded-[12px] border px-4 py-3 " + (apuntes.length ? "border-[#5d646c] bg-white" : "border-dashed border-[#9aa0a6] bg-[#fcfcfa]")}>
       <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">{titulo}</div>
       {apuntes.length > 0 && (
         <ul className="mt-1 divide-y divide-[#f0f0f0]">
           {apuntes.map((a) => (
             <li key={a.id} className="flex items-baseline gap-2 py-1 text-[12.5px]">
               {a.postura && <b className={a.postura === "a_favor" ? "text-lima-dark" : "text-alerta"}>{a.postura === "a_favor" ? "A favor" : "En contra"}</b>}
-              <span className="flex-1 whitespace-pre-line">{a.texto}</span>
-              <span className="text-[11px] text-carbon/50">{dia(a.creadoEn)}{a.autor && ` · ${a.autor.split(" ")[0]}`}</span>
-              <button type="button" title="Quitar" disabled={ocupado} onClick={() => confirm("¿Quitas este apunte?") && hacer(() => accionQuitarApunte(oppId, a.id))} className="text-[12px] text-carbon/40 hover:text-alerta">
+              <span className="flex-1 whitespace-pre-line">
+                {a.persona && <b>{a.persona}</b>}
+                {a.persona && a.texto && " · "}
+                {a.texto}
+              </span>
+              <span className="text-[11px] text-carbon/50">
+                {dia(a.creadoEn)}
+                {a.autor && ` · ${a.autor.split(" ")[0]}`}
+              </span>
+              <button
+                type="button"
+                title="Quitar"
+                disabled={ocupado}
+                onClick={() => confirm("¿Quitas este apunte?") && hacer(() => accionQuitarApunte(oppId, a.id))}
+                className="text-[12px] text-carbon/40 hover:text-alerta"
+              >
                 ×
               </button>
             </li>
           ))}
         </ul>
       )}
+
+      {/* LA PERSONA: de la agenda, o nueva */}
+      <div className="mt-1.5">
+        {elegida ? (
+          <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
+            <b>{elegida.texto}</b>
+            <span className="text-carbon/60">{elegida.pista}</span>
+            <button type="button" className={ENLACE} onClick={() => setElegida(null)}>
+              cambiar
+            </button>
+          </div>
+        ) : nueva ? (
+          <div className="rounded-[8px] border border-[#ecd27a] bg-[#fff5cc] p-2">
+            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[#6b4a00]">{titulo}: persona nueva</div>
+            <div className="grid gap-1.5">
+              <input autoFocus value={nueva.nombre} onChange={(e) => setNueva({ ...nueva, nombre: e.target.value })} placeholder="Nombre y apellidos" className={CAMPO} />
+              <div className="grid grid-cols-2 gap-1.5">
+                <input value={nueva.telefono} onChange={(e) => setNueva({ ...nueva, telefono: e.target.value })} placeholder="Teléfono" className={CAMPO} />
+                <input value={nueva.correo} onChange={(e) => setNueva({ ...nueva, correo: e.target.value })} placeholder="Correo" className={CAMPO} />
+              </div>
+              {(esVecino || apartado === "competencia") && (
+                <input
+                  value={nueva.otro}
+                  onChange={(e) => setNueva({ ...nueva, otro: e.target.value })}
+                  placeholder={esVecino ? "Su papel o su piso: 3.º B, secretaria… (si no, vecino)" : "De qué empresa es"}
+                  className={CAMPO}
+                />
+              )}
+            </div>
+            <button type="button" className={ENLACE + " mt-1.5"} onClick={() => setNueva(null)}>
+              volver a buscar en la agenda
+            </button>
+          </div>
+        ) : (
+          <div className="relative">
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Busca en la agenda por nombre o apellidos…" className={CAMPO + " w-full"} />
+            {lista.length > 0 && (
+              <ul className="absolute left-0 right-0 top-full z-30 mt-1 max-h-[220px] overflow-y-auto rounded-[8px] border border-[#cfcfcf] bg-white p-1 shadow-lg">
+                {lista.map((o) => (
+                  <li key={o.valor}>
+                    <button type="button" onClick={() => setElegida(o)} className="block w-full rounded-[5px] px-2 py-1 text-left text-[12.5px] hover:bg-[#eef2f6]">
+                      {o.texto} <span className="text-carbon/60">· {o.pista}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-1 flex flex-wrap items-center gap-3 text-[12px]">
+              {q.trim().length >= 2 && !lista.length && <span className="text-carbon/60">No hay nadie con ese nombre.</span>}
+              <button type="button" className={ENLACE} onClick={() => setNueva({ nombre: q, telefono: "", correo: "", otro: "" })}>
+                + Es nueva: crearla
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         {esVecino && (
           <>
-            <label className="flex items-center gap-1 text-[12px]"><input type="radio" name={`p-${apartado}`} checked={postura === "a_favor"} onChange={() => setPostura("a_favor")} /> a favor</label>
-            <label className="flex items-center gap-1 text-[12px]"><input type="radio" name={`p-${apartado}`} checked={postura === "en_contra"} onChange={() => setPostura("en_contra")} /> en contra</label>
+            <label className="flex items-center gap-1 text-[12px]">
+              <input type="radio" name={`p-${apartado}`} checked={postura === "a_favor"} onChange={() => setPostura("a_favor")} /> a favor
+            </label>
+            <label className="flex items-center gap-1 text-[12px]">
+              <input type="radio" name={`p-${apartado}`} checked={postura === "en_contra"} onChange={() => setPostura("en_contra")} /> en contra
+            </label>
           </>
         )}
-        <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={`✎ ${pista}`} className={CAMPO + " min-w-[200px] flex-1"} />
-        <button
-          type="button"
-          className={BOTON}
-          disabled={ocupado || !texto.trim() || (esVecino && !postura)}
-          onClick={() => hacer(() => accionApuntar(oppId, { apartado, texto, postura }), () => { setTexto(""); setPostura(null); })}
-        >
+        <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={`✎ Nota (opcional): ${pista}`} className={CAMPO + " min-w-[200px] flex-1"} />
+        <button type="button" className={BOTON} disabled={ocupado || (!hayPersona && !texto.trim()) || (esVecino && !postura)} onClick={apuntar}>
           Apuntar
         </button>
       </div>

@@ -513,8 +513,11 @@ async function hacer3(id: string, f: (yo: Awaited<ReturnType<typeof permiso>>) =
     return { ok: false, error: (e as Error).message };
   }
 }
-export async function accionApuntar(id: string, a: { apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null }) {
-  return hacer3(id, (yo) => apuntar(id, a, { id: yo.id, nombre: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") }));
+export async function accionApuntar(
+  id: string,
+  a: { apartado: Apartado; texto: string; postura: "a_favor" | "en_contra" | null; persona?: { valor: string | null; nueva: PersonaNueva | null } | null },
+) {
+  return hacer3(id, async (yo) => apuntar(id, a, { id: yo.id, nombre: [yo.nombre, yo.apellidos].filter(Boolean).join(" ") }, (await comercialDe(yo.id))?.id ?? null));
 }
 export async function accionQuitarApunte(id: string, apunteId: string) {
   return hacer3(id, () => quitarApunte(id, apunteId));
