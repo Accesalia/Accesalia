@@ -147,21 +147,21 @@ export function Bloque4({ d }: { d: DecisionCierre }) {
               ? null
               : firmadas.map((h) => (
                   <div key={h.id}>
-                    {h.codigo} · firmada {fecha(h.fecha_firma)}
+                    <b>{h.tipos.join(" + ") || "Hoja de encargo"}</b> · firmada {fecha(h.fecha_firma)} <span className="text-carbon/55">{h.codigo}</span>
                   </div>
                 ))}
           </Campo>
           <Campo rotulo="Qué versión se firmó y por cuánto" en="he_versiones_hoja · he_lineas_compromisos (lo que se cobra)">
             {firmadas.map((h) => (
               <div key={h.id}>
-                {h.codigo} · {EUR.format(h.importe)} €
+                <b>{h.tipos.join(" + ") || "Hoja de encargo"}</b> · {EUR.format(h.importe)} € <span className="text-carbon/55">{h.codigo}</span>
               </div>
             ))}
           </Campo>
           <Campo rotulo="Verificada (lo firmado = lo enviado)" en="he_estados_hoja (ok_comercial)">
             {firmadas.filter((h) => h.verificada).map((h) => (
               <div key={h.id}>
-                {h.codigo} · validada {fecha(h.verificada!.fecha)}{h.verificada!.quien && <> · {h.verificada!.quien}</>}
+                <b>{h.tipos.join(" + ") || "Hoja de encargo"}</b> · validada {fecha(h.verificada!.fecha)}{h.verificada!.quien && <> · {h.verificada!.quien}</>} <span className="text-carbon/55">{h.codigo}</span>
               </div>
             ))}
           </Campo>
@@ -193,7 +193,7 @@ export function Bloque4({ d }: { d: DecisionCierre }) {
             {d.cierres[0]?.fecha_cierre ? fecha(d.cierres[0].fecha_cierre) : null}
           </Campo>
           <Campo rotulo="Hoja que no se firmó y por qué" en="he_estados_hoja (no_firmada / anulada, su nota)">
-            {sinFirma.length === 0 ? null : sinFirma.map((h) => <div key={h.id}>{h.codigo} — {h.motivo_sin_firma}</div>)}
+            {sinFirma.length === 0 ? null : sinFirma.map((h) => <div key={h.id}><b>{h.tipos.join(" + ") || "Hoja de encargo"}</b> — {h.motivo_sin_firma} <span className="text-carbon/55">{h.codigo}</span></div>)}
           </Campo>
           <Campo rotulo="Y entonces qué hacemos (volver a llamar en 6 meses · avisar si sale subvención · nada)" en={null}>
             <span className="text-[#a0a0a0]">

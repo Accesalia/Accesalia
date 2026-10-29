@@ -156,7 +156,13 @@ export function SeguimientoNegociacion({
   const juntaCelebrada = neg.juntas.find((j) => j.celebrada);
   const ahora = Date.now();
   const resultadoJunta = (v: string | null) => RESULTADOS_JUNTA.find((x) => x.valor === v)?.texto ?? v ?? "—";
-  const queEs = (x: VersionHe) => `${x.codigo ? `${x.codigo} v${x.numero}` : "sin código"} · ${x.tipos.join(" + ") || "hoja de encargo"} · ${EUR.format(x.importe)} €`;
+  // Primero lo que contiene, luego el importe y al final el codigo en gris (29-oct-2026).
+  const queEs = (x: VersionHe) => (
+    <>
+      <b>{x.tipos.join(" + ") || "Hoja de encargo"}</b> · {EUR.format(x.importe)} €{" "}
+      <span className="font-normal text-carbon/55">{x.codigo ? `${x.codigo} v${x.numero}` : "sin código"}</span>
+    </>
+  );
 
   const MENU: { v: VistaNegociacion; num: string; texto: string; chip?: string }[] = [
     { v: "quien", num: "1", texto: "Quién es quién", chip: neg.admins.length ? `${neg.admins.length} ${neg.admins.length === 1 ? "admin" : "admins"}` : undefined },
@@ -368,7 +374,7 @@ export function SeguimientoNegociacion({
                     <ul className="mt-1">
                       {o.hojas.map((x) => (
                         <li key={x.id} className="py-0.5 text-[12.5px]">
-                          <b>{queEs(x)}</b>
+                          {queEs(x)}
                           <span className={FIRMADAS.includes(x.estado) ? " font-bold text-lima-dark" : CERRADAS.includes(x.estado) ? " text-carbon/60" : " font-bold text-[#9a6a00]"}>
                             {" · "}
                             {FIRMADAS.includes(x.estado) ? "firmada" : x.estado === "no_firmada" ? "no firmada" : x.estado === "anulada" ? "anulada" : x.estado === "sustituida" ? "sustituida" : "sin firmar: pendiente de que decidan"}

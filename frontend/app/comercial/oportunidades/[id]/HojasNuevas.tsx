@@ -67,7 +67,11 @@ export function PorValidar({ oppId, doc, candidatas }: { oppId: string; doc: Doc
             {candidatas.map((v) => (
               <label key={v.id} className="flex items-center gap-1">
                 <input type="checkbox" checked={elegidas.includes(v.id)} onChange={(e) => setElegidas(e.target.checked ? [...elegidas, v.id] : elegidas.filter((x) => x !== v.id))} />
-                {v.codigo ? `${v.codigo} v${v.numero}` : "Sin código"}{v.aQuien && ` · ${v.aQuien}`}{v.tipos.length > 0 && ` · ${v.tipos.join(" + ")}`}
+                <b>{v.tipos.join(" + ") || "Hoja de encargo"}</b> · {EUR.format(v.importe)} €
+                <span className="text-carbon/55">
+                  {v.codigo ? `${v.codigo} v${v.numero}` : "sin código"}
+                  {v.aQuien && ` · ${v.aQuien}`}
+                </span>
               </label>
             ))}
           </div>
@@ -132,13 +136,15 @@ export function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string;
             {v.pausa.paraReanudar ? "en pausa · para reanudar" : "en pausa"}
           </span>
         )}
+        {/* PRIMERO LO QUE CONTIENE (Monica, 29-oct-2026: «el codigo es accesorio para un humano, saber lo que contiene la
+            hoja es critico»): lo que es en negrita, el importe, y el codigo al final en gris. */}
+        <b className="text-carbon">{v.tipos.join(" + ") || "Hoja de encargo"}</b>
         <span className="font-semibold">
           {EUR.format(v.importe)} €{v.aExito.map((x) => ` + ${pct(x)} % a éxito`).join("")}
         </span>
         <span className="min-w-0 flex-1 truncate text-[#6e6e6e]">
           {v.codigo ? `${v.codigo} v${v.numero}` : "Sin código aún"}
           {v.aQuien && ` · ${v.aQuien}`}
-          {v.tipos.length > 0 && ` · ${v.tipos.join(" + ")}`}
           {anteriores > 0 && ` · ${anteriores} versión${anteriores > 1 ? "es" : ""} anterior${anteriores > 1 ? "es" : ""}`}
         </span>
         <span className="flex flex-wrap gap-3">

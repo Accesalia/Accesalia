@@ -29,6 +29,8 @@ export type HojaCierre = {
   id: string;
   /** «HE-2026-0012 v2» */
   codigo: string;
+  /** Lo que contiene: los tipos (desglose) de sus lineas, sin repetir (29-oct-2026). */
+  tipos: string[];
   fase: string;
   fecha_firma: string | null;
   /** El porque de no firmada o anulada (la nota de su paso). */
@@ -61,7 +63,7 @@ export type DecisionCierre = {
 type FilaVersion = {
   id: string; codigo_he: string | null; numero_version: number; estado: string;
   estados: { estado: string; fecha: string; nota: string | null; persona: { nombre: string } | null }[];
-  lineas: { id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; desglosar_precios: boolean | null; bloque: { codigo: string } | null }[];
+  lineas: { id: string; padre_id: string | null; se_cobra: boolean; importe: number | null; desglosar_precios: boolean | null; bloque: { codigo: string } | null; desglose: { nombre: string } | null }[];
 };
 
 export async function decisionCierreDe(id: string): Promise<DecisionCierre> {
@@ -69,7 +71,7 @@ export async function decisionCierreDe(id: string): Promise<DecisionCierre> {
   const [versiones, cierres, recordatorios] = await Promise.all([
     leer<FilaVersion[]>(
       `he_versiones_hoja?select=id,codigo_he,numero_version,estado,estados:he_estados_hoja(estado,fecha,nota,persona:persona_id(nombre)),` +
-        `lineas:he_lineas_compromisos(id,padre_id,se_cobra,importe,desglosar_precios,bloque:bloque_id(codigo))&oportunidad_id=eq.${id}&order=creado_en.asc`,
+        `lineas:he_lineas_compromisos(id,padre_id,se_cobra,importe,desglosar_precios,bloque:bloque_id(codigo),desglose:desglose_id(nombre))&oportunidad_id=eq.${id}&order=creado_en.asc`,
     ).catch(vacio<FilaVersion>),
     leer<CierreOpp[]>(
       `motivo_cierre_oportunidad?select=resultado_final,motivo_perdido,notas,fecha_cierre&oportunidad_id=eq.${id}&order=creado_en.desc`,
@@ -98,7 +100,7 @@ export async function decisionCierreDe(id: string): Promise<DecisionCierre> {
     const sin = v.estado === "no_firmada" || v.estado === "anulada" ? ultimo(v, v.estado) : null;
     const ok = ultimo(v, "ok_comercial");
     return {
-      id: v.id, codigo: nombre(v), fase: v.estado, fecha_firma: FIRMADA.includes(v.estado) ? firma : null,
+      id: v.id, codigo: nombre(v), tipos: [...new Set(v.lineas.map((l) => l.desglose?.nombre).filter((x): x is string => !!x))], fase: v.estado, fecha_firma: FIRMADA.includes(v.estado) ? firma : null,
       motivo_sin_firma: sin?.nota ?? null, importe: importeDe(v), verificada: ok ? { fecha: ok.fecha, quien: ok.persona?.nombre ?? null } : null,
     };
   });
