@@ -197,13 +197,26 @@ export async function firmadasDeOpp(oppId: string): Promise<{ porValidar: DocCaj
   if (!/^[0-9a-f-]{36}$/.test(oppId)) return { porValidar: [], todas: new Map() };
   const [docs, versiones] = await Promise.all([
     cajonDeOpp(oppId),
-    leer<{ firmada_documento_id: string | null; estado: string }[]>(`he_versiones_hoja?select=firmada_documento_id,estado&oportunidad_id=eq.${oppId}`),
+    leer<{ firmada_documento_id: string | null; estado: string; codigo_he: string | null }[]>(`he_versiones_hoja?select=firmada_documento_id,estado,codigo_he&oportunidad_id=eq.${oppId}`),
   ]);
   const firmadas = docs.filter((d) => d.tipo === "Hoja de encargo firmada");
   const usadas = new Set(versiones.map((e) => e.firmada_documento_id).filter(Boolean));
   // Como la escalera (Monica, 26-oct-2026): solo hay algo que validar si alguna hoja espera su firma.
   const espera = versiones.some((v) => ESPERA_FIRMADA.includes(v.estado));
-  return { porValidar: espera ? firmadas.filter((d) => !usadas.has(d.id)) : [], todas: new Map(firmadas.map((d) => [d.id, d])) };
+  const esperan = new Set(versiones.filter((v) => ESPERA_FIRMADA.includes(v.estado)).map((v) => v.codigo_he).filter(Boolean));
+  return {
+    porValidar: espera ? firmadas.filter((d) => !usadas.has(d.id) && esDeUnaQueEspera(d.nombre, esperan)) : [],
+    todas: new Map(firmadas.map((d) => [d.id, d])),
+  };
+}
+
+/** COPIAS DEL HISTORICO (Monica, 29-oct-2026): la migracion del 25-oct archivo copias «(2)» de firmadas ya validadas y
+ *  firmadas de hojas anuladas, y salian para validar contra la hoja que espera firma (validarla la marcaria firmada y
+ *  la mandaria a facturacion). Una firmada cuyo nombre lleva el codigo de una hoja solo se ofrece si ESA hoja espera
+ *  su firma; sin codigo en el nombre (subida a mano), se ofrece como siempre. Siguen en Documentos. */
+function esDeUnaQueEspera(nombre: string | null, esperan: Set<string | null>): boolean {
+  const codigo = (nombre ?? "").match(/HE-\d{4}-\d{4}/)?.[0];
+  return !codigo || esperan.has(codigo);
 }
 
 /** Con que nombre se archiva la firmada que sube la comunidad por el portal: dice de que hoja es, para que el comercial
@@ -340,14 +353,19 @@ export async function firmadasSinValidarDe(oppIds: string[]): Promise<Map<string
   const [tipo] = await leer<{ id: string }[]>(`tipos_documento?select=id&nombre=eq.${encodeURIComponent("Hoja de encargo")}`);
   if (!tipo) return out;
   for (let i = 0; i < oppIds.length; i += 150) {
-    const docs = await leer<{ id: string; oportunidad_id: string }[]>(
-      `documentos?select=id,oportunidad_id&tipo_documento_id=eq.${tipo.id}&vigente=is.true&oportunidad_id=in.(${oppIds.slice(i, i + 150).join(",")})`,
+    const docs = await leer<{ id: string; oportunidad_id: string; nombre: string | null }[]>(
+      `documentos?select=id,oportunidad_id,nombre&tipo_documento_id=eq.${tipo.id}&vigente=is.true&oportunidad_id=in.(${oppIds.slice(i, i + 150).join(",")})`,
     );
     if (!docs.length) continue;
     const usadas = new Set(
       (await leer<{ firmada_documento_id: string }[]>(`he_versiones_hoja?select=firmada_documento_id&firmada_documento_id=in.(${docs.map((d) => d.id).join(",")})`)).map((x) => x.firmada_documento_id),
     );
-    for (const d of docs) if (!usadas.has(d.id)) out.set(d.oportunidad_id, (out.get(d.oportunidad_id) ?? 0) + 1);
+    const esperan = new Set(
+      (await leer<{ codigo_he: string | null }[]>(
+        `he_versiones_hoja?select=codigo_he&estado=in.(${ESPERA_FIRMADA.join(",")})&oportunidad_id=in.(${[...new Set(docs.map((d) => d.oportunidad_id))].join(",")})`,
+      )).map((x) => x.codigo_he),
+    );
+    for (const d of docs) if (!usadas.has(d.id) && esDeUnaQueEspera(d.nombre, esperan)) out.set(d.oportunidad_id, (out.get(d.oportunidad_id) ?? 0) + 1);
   }
   return out;
 }
