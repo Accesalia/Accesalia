@@ -231,7 +231,11 @@ export function SeguimientoNegociacion({
         {vista === "quien" && (
           <>
             {titulo("Quién es quién", "Las personas de esta negociación, con lo que sabemos de cada una.")}
-            <div className="grid gap-3 lg:grid-cols-2">
+            {/* DOS COLUMNAS (Monica, 29-oct-2026): a la izquierda, cada una por su cuenta, el administrador, quien la trajo, la
+                contrata y la competencia; a la derecha, LA COMUNIDAD como un marco que engloba su resumen (los contactos) y
+                debajo el presidente, la comision de obras y los vecinos que empujan. */}
+            <div className="grid items-start gap-3 lg:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-3">
               {/* EDITAR AQUI MISMO (Monica, 29-oct-2026: «te remite a la cabecera: mal, deberia mostrarlo alli mismo»). */}
               {neg.admins.length === 0 && (
                 <div className={CAJA}>
@@ -262,9 +266,34 @@ export function SeguimientoNegociacion({
                   </div>
                 </div>
               ))}
-              {(
+              <div className={CAJA}>
+                <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Nos llegó a través de</div>
+                <div className="text-[14px] font-bold">
+                  <DatoEditable oppId={id} campo="trajo" hayDato={!!trajo}>
+                    {trajo ?? <span className="font-normal text-carbon/65">— no se apuntó.</span>}
+                  </DatoEditable>
+                </div>
+              </div>
+                <ApuntesApartado
+                  oppId={id}
+                  apartado="contrata"
+                  titulo="Contrata"
+                  pista="¿la tienen elegida? ¿hay presupuesto previo? ¿de quién?"
+                  apuntes={neg.apuntes.filter((a) => a.apartado === "contrata")}
+                />
+                <ApuntesApartado
+                  oppId={id}
+                  apartado="competencia"
+                  titulo="Competencia"
+                  pista="¿han pedido oferta a otro arquitecto? ¿a quién y por cuánto?"
+                  apuntes={neg.apuntes.filter((a) => a.apartado === "competencia")}
+                />
+              </div>
+
+              <section className="flex min-w-0 flex-col gap-3 rounded-[14px] border-[1.5px] border-[#5d646c] bg-[#e4e7eb] p-3">
+                <div className="px-1 text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#104269]">La comunidad</div>
                 <div className={CAJA}>
-                  <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">La comunidad</div>
+                  <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Los contactos de la comunidad</div>
                   <ul className="mt-1 divide-y divide-[#f0f0f0]">
                     {contactos.map((c, n) => (
                       <li key={n} className="flex flex-wrap gap-x-2 py-1 text-[12.5px]">
@@ -277,41 +306,31 @@ export function SeguimientoNegociacion({
                   {contactos.length === 0 && <p className="mt-1 text-[12.5px] text-carbon/60">Ningún contacto apuntado.</p>}
                   <AnadirContacto oppId={id} />
                 </div>
-              )}
-              <div className={CAJA}>
-                <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Nos llegó a través de</div>
-                <div className="text-[14px] font-bold">
-                  <DatoEditable oppId={id} campo="trajo" hayDato={!!trajo}>
-                    {trajo ?? <span className="font-normal text-carbon/65">— no se apuntó.</span>}
-                  </DatoEditable>
-                </div>
-              </div>
-              {(
-                [
-                  ["presidente", "Presidente y sus notas", "quién es y lo que sabemos: «es mayor», «trabaja en Schindler», «está en contra»…"],
-                  ["comision_obras", "Comisión de obras", "¿hay? ¿quién la forma?"],
-                  ["vecino", "Vecinos que empujan la decisión", "quién y por qué: «el del bajo va a denunciar», «la del 4º va en silla de ruedas»"],
-                  ["contrata", "Contrata", "¿la tienen elegida? ¿hay presupuesto previo? ¿de quién?"],
-                  ["competencia", "Competencia", "¿han pedido oferta a otro arquitecto? ¿a quién y por cuánto?"],
-                ] as const
-              ).map(([ap, t, p]) => (
                 <ApuntesApartado
-                  key={ap}
                   oppId={id}
-                  apartado={ap}
-                  titulo={t}
-                  pista={p}
-                  apuntes={neg.apuntes.filter((a) => a.apartado === ap)}
-                  // El presidente y la comision de obras que ya figuran en la agenda de la comunidad, por su papel.
-                  enAgenda={
-                    ap === "presidente"
-                      ? contactos.filter((c) => /^\s*presiden/i.test(c.papel ?? ""))
-                      : ap === "comision_obras"
-                        ? contactos.filter((c) => /comisi[oó]n/i.test(c.papel ?? ""))
-                        : []
-                  }
+                  apartado="presidente"
+                  titulo="Presidente y sus notas"
+                  pista="quién es y lo que sabemos: «es mayor», «trabaja en Schindler», «está en contra»…"
+                  apuntes={neg.apuntes.filter((a) => a.apartado === "presidente")}
+                  // El presidente que ya figura en la agenda de la comunidad, por su papel.
+                  enAgenda={contactos.filter((c) => /^\s*presiden/i.test(c.papel ?? ""))}
                 />
-              ))}
+                <ApuntesApartado
+                  oppId={id}
+                  apartado="comision_obras"
+                  titulo="Comisión de obras"
+                  pista="¿hay? ¿quién la forma?"
+                  apuntes={neg.apuntes.filter((a) => a.apartado === "comision_obras")}
+                  enAgenda={contactos.filter((c) => /comisi[oó]n/i.test(c.papel ?? ""))}
+                />
+                <ApuntesApartado
+                  oppId={id}
+                  apartado="vecino"
+                  titulo="Vecinos que empujan la decisión"
+                  pista="quién y por qué: «el del bajo va a denunciar», «la del 4º va en silla de ruedas»"
+                  apuntes={neg.apuntes.filter((a) => a.apartado === "vecino")}
+                />
+              </section>
             </div>
           </>
         )}
