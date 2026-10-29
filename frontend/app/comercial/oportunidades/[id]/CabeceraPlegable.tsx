@@ -28,7 +28,12 @@ export function CabeceraPlegable({
         {izquierda}
         <div className="ml-auto flex min-w-0 items-center gap-2">
         {ir}
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-[8px] bg-white px-2.5 py-1">
+        {/* MELOCOTON QUE LLEGA AL BLANCO (Monica, 29-oct-2026: «darle algo de color y degradado, como el menu principal,
+            para destacarlo de las demas cards; algo discreto»): el velo de las tarjetas del menu, en melocoton. */}
+        <div
+          className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-[8px] border border-[#f3c3a0] px-2.5 py-1"
+          style={{ background: "linear-gradient(100deg, #ffd3b4 0%, #ffe6d4 30%, #ffffff 75%)" }}
+        >
           {caja}
           <button
             type="button"
