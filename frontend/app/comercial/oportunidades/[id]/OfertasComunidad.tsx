@@ -216,9 +216,10 @@ export function OfertasComunidad({
     </li>
   );
 
-  const MENU: { grupo: string; items: { v: VistaOferta; num: string; texto: string; chip?: { n: number; aviso?: boolean } }[] }[] = [
+  const MENU: { grupo: string; color: string; items: { v: VistaOferta; num: string; texto: string; chip?: { n: number; aviso?: boolean } }[] }[] = [
     {
       grupo: "1 · Oferta comercial",
+      color: "#2f6fb3",
       items: [
         { v: "preparar", num: "1.1", texto: "Preparar una oferta para la comunidad" },
         { v: "enviadas", num: "1.2", texto: "Revisar el estado de las ofertas enviadas", chip: { n: ofertas.length } },
@@ -227,11 +228,20 @@ export function OfertasComunidad({
     },
     {
       grupo: "2 · Soporte para ventas",
+      color: "#d4860b",
       items: [
         { v: "costes", num: "2.1", texto: "Estudio de costes" },
         { v: "ayudas", num: "2.2", texto: "Estudio de ayudas posibles" },
         { v: "proteccion", num: "2.3", texto: "Estado de protección" },
         { v: "inmueble", num: "2.4", texto: "Informe general del inmueble" },
+      ],
+    },
+    {
+      grupo: "Archivo",
+      color: "#8a929b",
+      items: [
+        { v: "fotos", num: "3", texto: "Fotos" },
+        { v: "documentos", num: "4", texto: "Documentos" },
       ],
     },
   ];
@@ -253,9 +263,10 @@ export function OfertasComunidad({
     <section className="grid min-h-[620px] overflow-hidden rounded-[10px] bg-white text-[13px] text-carbon xl:grid-cols-[250px_minmax(0,1fr)_300px]">
       {/* ============================== EL MENU ============================== */}
       <nav className="border-b border-[#e6e6e6] bg-[#fafbfc] py-3.5 xl:border-b-0 xl:border-r">
-        {MENU.map((g, gi) => (
-          <div key={g.grupo} className={gi ? "mt-4" : ""}>
-            <div className="mb-1 px-3.5 text-[11px] font-extrabold uppercase tracking-[0.08em]" style={{ color: AZUL }}>
+        {/* Cada grupo, unido por su linea de color (29-oct-2026, como el bloque 1). */}
+        {MENU.map((g) => (
+          <div key={g.grupo} className="mb-3.5 ml-2.5 border-l-4" style={{ borderColor: g.color }}>
+            <div className="px-3 pb-1 pt-0.5 text-[11px] font-extrabold uppercase tracking-[0.08em]" style={{ color: g.color }}>
               {g.grupo}
             </div>
             {g.items.map((it) => (
@@ -264,14 +275,12 @@ export function OfertasComunidad({
                 href={href(it.v)}
                 scroll={false}
                 replace
-                className={
-                  "flex items-center gap-2 border-l-[3px] px-3.5 py-2 transition " +
-                  (vista === it.v ? "border-[#104269] bg-[#E3EAF0] font-bold" : "border-transparent hover:bg-[#eef2f6]")
-                }
+                className={"flex items-center gap-2 rounded-r-[6px] px-3 py-1.5 transition " + (vista === it.v ? "font-bold" : "hover:bg-[#eef2f6]")}
+                style={vista === it.v ? { background: `color-mix(in srgb, ${g.color} 14%, #fff)` } : undefined}
               >
-                <span className="min-w-[22px] text-[11.5px] text-carbon/65">{it.num}</span>
+                <span className="min-w-[22px] text-[11.5px] font-normal text-carbon/65">{it.num}</span>
                 <span className="flex-1 leading-snug">{it.texto}</span>
-                {it.chip && (
+                {it.chip && it.chip.n > 0 && (
                   <span className={"rounded-[20px] px-2 py-px text-[11px] font-bold " + (it.chip.aviso ? "bg-[#fde3a0] text-[#6b4a00]" : "bg-[#dbe5ee] text-[#104269]")}>
                     {it.chip.n}
                   </span>
@@ -280,32 +289,10 @@ export function OfertasComunidad({
             ))}
           </div>
         ))}
-        <div className="mt-4">
-          {(
-            [
-              { v: "fotos", num: "3", texto: "Fotos" },
-              { v: "documentos", num: "4", texto: "Documentos" },
-            ] as const
-          ).map((it) => (
-            <Link
-              key={it.v}
-              href={href(it.v)}
-              scroll={false}
-              replace
-              className={
-                "flex items-center gap-2 border-l-[3px] px-3.5 py-2 text-[11.5px] font-bold uppercase tracking-[0.08em] transition " +
-                (vista === it.v ? "border-[#104269] bg-[#E3EAF0] text-carbon" : "border-transparent text-[#104269] hover:bg-[#eef2f6]")
-              }
-            >
-              <span className="min-w-[22px] text-carbon/65">{it.num}</span>
-              <span>{it.texto}</span>
-            </Link>
-          ))}
-        </div>
       </nav>
 
       {/* ============================== EL CONTENIDO ============================== */}
-      <div className="min-w-0 px-5 py-4">
+      <div className="min-w-0 bg-[#f1f3f5] px-5 py-4">
         {vista === "preparar" && (
           <>
             {titulo("Preparar una oferta para la comunidad", "Lo que necesitas para enviarla. Cuando todo esté en verde, se envía.")}
@@ -442,7 +429,7 @@ export function OfertasComunidad({
               ofertas[0] && <span className="text-[12.5px] text-carbon/65">{ofertas.length} · la última {hace(ofertas[0].fecha)}</span>,
             )}
             {enviados.length > 0 && (
-              <details className="mb-3 rounded-[10px] border border-[#d9d9d9] px-3.5 py-2" open>
+              <details className="mb-3 rounded-[10px] border border-[#d9d9d9] bg-white px-3.5 py-2" open>
                 <summary className="cursor-pointer text-[12.5px] font-bold" style={{ color: AZUL }}>
                   Lo enviado desde la app · {enviados.length} {enviados.length === 1 ? "correo" : "correos"}
                 </summary>
@@ -476,7 +463,7 @@ export function OfertasComunidad({
             ) : (
               <div className="flex flex-col gap-2.5">
                 {ofertas.map((o) => (
-                  <div key={o.fecha} className={"rounded-[12px] border border-[#d9d9d9] px-4 py-3 " + (o.estado.texto === "sustituida" ? "bg-[#fafafa]" : "")}>
+                  <div key={o.fecha} className={"rounded-[12px] border border-[#d9d9d9] px-4 py-3 " + (o.estado.texto === "sustituida" ? "bg-[#fafafa]" : "bg-white")}>
                     <div className="flex flex-wrap items-baseline gap-x-3">
                       <b className="text-[15px]">{dia(o.fecha)}</b>
                       <span className="text-[12px] text-carbon/65">{hace(o.fecha)}</span>

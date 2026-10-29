@@ -22,7 +22,9 @@ import { ApuntesApartado, DatosJunta, DondeCambio } from "./PiezasNegociacion";
 
 const AZUL = "#104269";
 const ENLACE = "font-semibold text-[#104269] underline-offset-2 hover:underline";
-const CAJA = "rounded-[12px] border border-[#d9d9d9] px-4 py-3";
+// 29-oct-2026: tarjetas blancas con borde gris oscuro sobre el centro en gris claro (como «Datos y contactos» del bloque 1).
+const CAJA = "rounded-[12px] border border-[#5d646c] bg-white px-4 py-3";
+const AZUL_GRUPO = "#2f6fb3";
 const H4 = "mb-1.5 text-[12px] font-bold uppercase tracking-[0.06em] text-[#104269]";
 const EUR = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2, useGrouping: "always" });
 const dia = (iso: string | null | undefined) => (iso ? iso.slice(0, 10).split("-").reverse().join("/") : "");
@@ -173,21 +175,25 @@ export function SeguimientoNegociacion({
   return (
     <section className="grid min-h-[620px] overflow-hidden rounded-[10px] bg-white text-[13px] text-carbon xl:grid-cols-[250px_minmax(0,1fr)]">
       {/* ============================== EL MENU ============================== */}
-      <nav className="border-b border-[#e6e6e6] bg-[#fafbfc] py-3.5 xl:border-b-0 xl:border-r">
-        <div className="mb-1 px-3.5 text-[11px] font-extrabold uppercase tracking-[0.08em]" style={{ color: AZUL }}>La negociación</div>
+      <nav className="border-b border-[#e6e6e6] bg-[#fafbfc] py-3.5 pr-2 xl:border-b-0 xl:border-r">
+        {/* El grupo, unido por su linea de color (29-oct-2026, como el bloque 1). */}
+        <div className="ml-2.5 border-l-4" style={{ borderColor: AZUL_GRUPO }}>
+        <div className="px-3 pb-1 pt-0.5 text-[11px] font-extrabold uppercase tracking-[0.08em]" style={{ color: AZUL_GRUPO }}>La negociación</div>
         {MENU.map((it) => (
           <Link
             key={it.v}
             href={href(it.v)}
             scroll={false}
             replace
-            className={"flex items-center gap-2 border-l-[3px] px-3.5 py-2 transition " + (vista === it.v ? "border-[#104269] bg-[#E3EAF0] font-bold" : "border-transparent hover:bg-[#eef2f6]")}
+            className={"flex items-center gap-2 rounded-r-[6px] px-3 py-1.5 transition " + (vista === it.v ? "font-bold" : "hover:bg-[#eef2f6]")}
+            style={vista === it.v ? { background: `color-mix(in srgb, ${AZUL_GRUPO} 14%, #fff)` } : undefined}
           >
             <span className="min-w-[18px] text-[11.5px] text-carbon/65">{it.num}</span>
             <span className="flex-1 leading-snug">{it.texto}</span>
             {it.chip && <span className="rounded-[20px] bg-[#dbe5ee] px-2 py-px text-[11px] font-bold text-[#104269]">{it.chip}</span>}
           </Link>
         ))}
+        </div>
         {/* EL RESULTADO, fijo bajo el menu: a que dijeron que si y lo pendiente. */}
         <Link href={href("resultado")} scroll={false} replace className={"mx-3 mt-4 block rounded-[10px] border px-3 py-2.5 text-[12px] " + colorRes + (vista === "resultado" ? " outline outline-2 outline-[#104269]" : "")}>
           <span className="text-carbon/65">Resultado</span>
@@ -201,7 +207,7 @@ export function SeguimientoNegociacion({
       </nav>
 
       {/* ============================== EL CONTENIDO ============================== */}
-      <div className="min-w-0 px-5 py-4">
+      <div className="min-w-0 bg-[#f1f3f5] px-5 py-4">
         {d.firmadas.porValidar.length > 0 && (
           <div className="mb-3 flex flex-wrap items-center gap-3 rounded-[10px] border-[1.5px] border-[#ecc96a] bg-[#fdf3d7] px-3 py-2 text-[#5a3d00]">
             <b>Hoja firmada, pendiente de que la valides para poder cobrarla.</b>
@@ -411,7 +417,7 @@ export function SeguimientoNegociacion({
               )}
             </div>
             {neg.juntas.map((j) => (
-              <div key={j.id} className={"mt-3 rounded-[12px] border-[1.5px] px-4 py-3 " + (j.celebrada ? "border-[#a9d18a] bg-[#f6fbf1]" : "border-[#d9d9d9]")}>
+              <div key={j.id} className={"mt-3 rounded-[12px] border-[1.5px] px-4 py-3 " + (j.celebrada ? "border-[#a9d18a] bg-[#f6fbf1]" : "border-[#5d646c] bg-white")}>
                 <div className="flex flex-wrap items-baseline gap-x-3">
                   <b className="text-[16px]">Junta{j.fecha ? ` del ${dia(j.fecha)}` : " sin fecha"}</b>
                   <span className="rounded-[20px] bg-white px-2 py-px text-[11px] font-bold text-lima-dark">{j.celebrada ? "celebrada" : "sin celebrar"} · {resultadoJunta(j.resultado)}</span>
