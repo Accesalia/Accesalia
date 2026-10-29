@@ -1,0 +1,324 @@
+<title>Bloque 4 · Rastro del dinero</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --grafito: #2e3236; --banda: #575d64; --contenido: #f1f3f5; --borde: #5d646c; --carbon: #1c1c1c; --gris: #6b7178;
+    --crema: #fffcf4; --crema-borde: #efe4c8; --verde: #3f8a1c; --verde-suave: #e6f2df; --azul: #2f6fb3; --azul-suave: #e3edf8;
+    --ambar: #d4860b; --ambar-suave: #fdf0d9; --archivo: #8a929b; --burdeos: #6b2135; --tinta: #104269; --nota: #fff6b8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--grafito); color: var(--carbon); font: 13px/1.45 Manrope, system-ui, sans-serif;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+  .marco { max-width: 1400px; margin: 0 auto; }
+  .notaM { background: var(--nota); border: 1px dashed #c9b200; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #4a4100; }
+  .notaM b { color: #2b2600; }
+  h1 { color: #fff; font-size: 22px; margin: 10px 0 2px; }
+  .sub { color: #ffffffa8; font-size: 12px; margin-bottom: 12px; }
+  .pest { display: flex; gap: 0; }
+  .pest button { flex: 1 1 0; min-width: 110px; font: inherit; font-weight: 700; font-size: 12px; text-align: left; padding: 9px 12px; cursor: pointer;
+    background: #3a3e44; color: #ffffffc0; border: .5px solid #fff; border-bottom: 0; border-radius: 8px 8px 0 0; }
+  .pest button.si { background: var(--contenido); color: var(--carbon); }
+  .pest button small { display: block; font-weight: 600; font-size: 10.5px; opacity: .7; }
+  .ficha { display: grid; grid-template-columns: 220px minmax(0, 1fr); background: var(--contenido); border-radius: 0 0 10px 10px; overflow: hidden; }
+  @media (max-width: 760px) { .ficha { grid-template-columns: 1fr; } }
+  .menu { background: #fff; border-right: 1px solid #d9dde1; padding: 12px 0; }
+  .grupo { margin: 0 0 14px; border-left: 3px solid var(--c); }
+  .grupo .t { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c); padding: 0 12px 4px; }
+  .grupo button { display: flex; width: 100%; justify-content: space-between; gap: 6px; font: inherit; font-size: 12.5px; text-align: left; border: 0; background: none; padding: 5px 12px; cursor: pointer; color: var(--carbon); }
+  .grupo button:hover { background: #f3f4f6; }
+  .grupo button.si { background: var(--contenido); font-weight: 800; }
+  .grupo button .n { color: var(--gris); font-weight: 600; }
+  .grupo button.gris { color: #9aa0a6; }
+  .centro { min-width: 0; }
+  .tira { background: var(--banda); padding: 10px 16px; }
+  .decir { background: var(--crema); border: .5px solid var(--crema-borde); border-radius: 10px; padding: 10px 14px; }
+  .decir .r { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--burdeos); }
+  .decir p { margin: 3px 0 0; font-size: 14.5px; font-weight: 600; }
+  .decir .falta { margin-top: 6px; font-size: 12.5px; color: #7a4a00; }
+  .vista { padding: 16px 20px 22px; display: none; }
+  .vista.si { display: block; }
+  .caja { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 12px 16px; }
+  .rot { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #1c1c1ca6; }
+  .pila { display: flex; flex-direction: column; gap: 12px; }
+  /* el eje */
+  .eje { overflow-x: auto; }
+  .ejeT { border-collapse: separate; border-spacing: 0; min-width: 860px; width: 100%; }
+  .ejeT th, .ejeT td { padding: 6px 6px; vertical-align: middle; }
+  .ejeT th.paso { width: 13%; text-align: center; font-size: 11.5px; font-weight: 700; }
+  .ejeT td.que { width: 22%; font-weight: 700; font-size: 12.5px; padding-right: 10px; }
+  .ejeT td.que small { display: block; font-weight: 600; color: var(--gris); font-size: 11px; }
+  .ejeT tr.fila td { border-top: 1px solid #e3e6ea; }
+  .pastilla { display: block; border-radius: 8px; padding: 5px 7px; font-size: 11.5px; text-align: center; line-height: 1.25; }
+  .pastilla b { display: block; font-size: 12.5px; }
+  .p-cobrado { background: var(--verde-suave); border: 1px solid #b6d9a4; color: #2b5e12; }
+  .p-pend { background: #fff; border: 1px solid #b9bfc5; color: #4a4f55; }
+  .p-ahora { background: var(--ambar-suave); border: 1.5px solid var(--ambar); color: #6b4300; }
+  .p-atasco { background: #fbe9ec; border: 1.5px solid #b23a4c; color: #6b2135; }
+  .p-exito { background: #fff; border: 1px dashed #9aa0a6; color: #5b6168; }
+  .tres { display: flex; justify-content: center; gap: 3px; margin-top: 4px; }
+  .tres i { width: 7px; height: 7px; border-radius: 50%; background: #d4d8dc; display: inline-block; }
+  .tres i.h { background: var(--verde); }
+  /* la linea de produccion */
+  .linea { position: relative; }
+  .ejeT tr.prod td { padding-top: 14px; }
+  .punto { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; background: none; border: 0; font: inherit; width: 100%; padding: 0; }
+  .punto .d { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #9aa0a6; background: #fff; }
+  .punto.h .d { background: var(--azul); border-color: var(--azul); }
+  .punto.a .d { background: #fff; border: 4px solid var(--ambar); }
+  .punto span { font-size: 11px; text-align: center; color: var(--gris); }
+  .punto.h span, .punto.a span { color: var(--carbon); font-weight: 700; }
+  .punto.sel .d { box-shadow: 0 0 0 4px #2f6fb340; }
+  .raya { height: 2px; background: linear-gradient(90deg, var(--azul) 0 38%, #c7ccd1 38% 100%); margin: 0 6px -10px; position: relative; top: 8px; }
+  .explica { margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 760px) { .explica { grid-template-columns: 1fr; } }
+  .explica > div { background: #fff; border: 1px solid #d0d5da; border-radius: 10px; padding: 8px 12px; }
+  .explica .de { border-color: var(--ambar); background: var(--ambar-suave); }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11.5px; color: var(--gris); margin-top: 8px; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 5px; }
+  .sq { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  /* solo para ti */
+  .tuya { border: 1.5px solid var(--verde); border-radius: 12px; background: linear-gradient(100deg, #e6f2df 0%, #fff 70%); padding: 12px 16px; }
+  .tuya .r { color: var(--verde); }
+  .cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+  .cifras div { background: #fff; border: 1px solid #cfe3c4; border-radius: 10px; padding: 8px 12px; }
+  .cifras b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; }
+  /* fases de la hoja */
+  .fases { display: flex; flex-wrap: wrap; gap: 0; margin-top: 10px; }
+  .fase { flex: 1 1 120px; position: relative; padding: 8px 10px 8px 14px; background: #eef0f2; border: 1px solid #d0d5da; margin-right: -1px; font-size: 11.5px; }
+  .fase b { display: block; font-size: 12px; }
+  .fase.h { background: var(--verde-suave); border-color: #b6d9a4; }
+  .fase.a { background: var(--ambar-suave); border-color: var(--ambar); }
+  .fase .q { color: var(--gris); }
+  .fase:first-child { border-radius: 8px 0 0 8px; } .fase:last-child { border-radius: 0 8px 8px 0; }
+  .vacio { color: #9aa0a6; }
+  .gris-bloque { opacity: .62; }
+  .subv { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .subv span { border: 1px dashed #b9bfc5; border-radius: 999px; padding: 3px 10px; font-size: 11.5px; color: #5b6168; background: #fff; }
+  .dos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 760px) { .dos { grid-template-columns: 1fr; } }
+  .campo { border-top: 1px solid #eceef0; padding: 6px 0; }
+  .campo:first-of-type { border-top: 0; }
+  .campo .k { font-size: 11px; color: var(--gris); font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
+  .chips span { border: 1px solid #c9ced3; border-radius: 999px; padding: 2px 9px; font-size: 11.5px; background: #fff; }
+</style>
+
+<div class="marco">
+  <div class="notaM"><b>Maqueta (29-oct-2026), no es la app.</b> Opp real: <b>Isturiz 9, Madrid</b> · HE-2026-0346 · Álvaro. Importes, hitos y lo cobrado son los de la base; las fechas de cobro y el punto de producción son <b>de ejemplo</b> (esta hoja no ha pasado por los botones nuevos). Lo amarillo son notas para ti.</div>
+  <h1>Isturiz 9, Madrid</h1>
+  <div class="sub">Pendientes de · la obra (plan de seguridad) &nbsp;·&nbsp; Admin: —</div>
+
+  <div class="pest">
+    <button data-b="1">1 · El edificio<small>visita y datos</small></button>
+    <button data-b="2">2 · Ofertas<small>a la comunidad</small></button>
+    <button data-b="3">3 · Seguimiento<small>y negociación</small></button>
+    <button data-b="4" class="si">4 · El dinero<small>y el encargo hasta el final</small></button>
+  </div>
+
+  <!-- ======================= BLOQUE 4 ======================= -->
+  <div class="ficha" id="b4">
+    <nav class="menu">
+      <div class="grupo" style="--c: var(--verde)"><div class="t">Rastro del dinero</div>
+        <button data-v="hojas">Hojas firmadas <span class="n">1</span></button>
+        <button data-v="cobros" class="si">Los cobros</button>
+        <button data-v="comision">Tu comisión</button>
+      </div>
+      <div class="grupo" style="--c: var(--azul)"><div class="t">El encargo en marcha</div>
+        <button data-v="prod">Por dónde va</button>
+      </div>
+      <div class="grupo" style="--c: var(--ambar)"><div class="t">Subvenciones</div>
+        <button data-v="subv">Convocatorias <span class="n">0</span></button>
+      </div>
+    </nav>
+
+    <div class="centro">
+      <!-- LA FRASE PARA EL TELEFONO -->
+      <div class="tira"><div class="decir">
+        <div class="r">Si llaman · «¿qué hay de lo mío?»</div>
+        <p>El proyecto del ascensor está entregado y pagado. Ahora va al Colegio a visar y después pedimos la licencia al Ayuntamiento. Cuando haya licencia y contrata, firmamos el plan de seguridad y empieza la obra.</p>
+        <div class="falta">⚠ De ellos: nada pendiente ahora mismo. &nbsp;·&nbsp; Próximo cobro: coordinación de seguridad, 920 €, al firmar el plan de seguridad.</div>
+      </div></div>
+
+      <!-- LOS COBROS: EL EJE -->
+      <section class="vista si" id="v-cobros"><div class="pila">
+        <div class="caja">
+          <div class="rot">Qué se cobra en cada punto · y por dónde va el encargo</div>
+          <div class="eje">
+            <table class="ejeT">
+              <thead><tr><th></th>
+                <th class="paso">Al contratar</th><th class="paso">Entrega del proyecto</th><th class="paso">Visado y licencia</th>
+                <th class="paso">Plan de seguridad · inicio de obra</th><th class="paso">Fin de obra</th><th class="paso">Concesión de la subvención</th></tr></thead>
+              <tbody>
+                <tr class="fila"><td class="que">Proyecto · ascensor<small>básico y de ejecución · <span class="num">5.980 €</span></small></td>
+                  <td><span class="pastilla p-cobrado"><b class="num">2.990 €</b>50 % · cobrada 17/06<span class="tres"><i class="h"></i><i class="h"></i><i class="h"></i></span></span></td>
+                  <td><span class="pastilla p-cobrado"><b class="num">2.990 €</b>50 % · cobrada 17/06<span class="tres"><i class="h"></i><i class="h"></i><i class="h"></i></span></span></td>
+                  <td></td><td></td><td></td><td></td></tr>
+                <tr class="fila"><td class="que">Documentación técnica anexa<small>IEE, CEE y comparativa de 3 presupuestos · <span class="num">1.980 €</span></small></td>
+                  <td><span class="pastilla p-cobrado"><b class="num">990 €</b>50 % · cobrada 17/06<span class="tres"><i class="h"></i><i class="h"></i><i class="h"></i></span></span></td>
+                  <td><span class="pastilla p-cobrado"><b class="num">990 €</b>50 % · cobrada 22/09<span class="tres"><i class="h"></i><i class="h"></i><i class="h"></i></span></span></td>
+                  <td></td><td></td><td></td><td></td></tr>
+                <tr class="fila"><td class="que">Coordinación de seguridad y salud<small><span class="num">920 €</span></small></td>
+                  <td></td><td></td><td></td>
+                  <td><span class="pastilla p-ahora"><b class="num">920 €</b>100 % · el siguiente<span class="tres"><i></i><i></i><i></i></span></span></td>
+                  <td></td><td></td></tr>
+                <tr class="fila"><td class="que">Gestión de subvenciones · accesibilidad<small>a éxito</small></td>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <td><span class="pastilla p-exito"><b>3,5 %</b>de lo concedido, cuando lo ingresen a la comunidad</span></td></tr>
+                <tr class="prod"><td class="que" style="color:var(--azul)">El encargo<small>pulsa un punto</small></td>
+                  <td><button class="punto h" data-p="contratar"><span class="d"></span><span>Firmada y cobrada la provisión</span></button></td>
+                  <td><button class="punto h" data-p="entrega"><span class="d"></span><span>Proyecto entregado</span></button></td>
+                  <td><button class="punto a sel" data-p="visado"><span class="d"></span><span>En el Colegio para visar</span></button></td>
+                  <td><button class="punto" data-p="pss"><span class="d"></span><span>Obra iniciada</span></button></td>
+                  <td><button class="punto" data-p="cfo"><span class="d"></span><span>Obra acabada</span></button></td>
+                  <td><button class="punto" data-p="concesion"><span class="d"></span><span>Subvención concedida</span></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="leyenda">
+            <span><i class="sq" style="background:var(--verde-suave);border:1px solid #b6d9a4"></i>cobrado</span>
+            <span><i class="sq" style="background:var(--ambar-suave);border:1.5px solid var(--ambar)"></i>el siguiente</span>
+            <span><i class="sq" style="background:#fbe9ec;border:1.5px solid #b23a4c"></i>atascada: emitida y sin cobrar</span>
+            <span><i class="sq" style="border:1px dashed #9aa0a6"></i>a éxito</span>
+            <span><span class="tres" style="margin:0"><i class="h"></i><i></i><i></i></span> en facturación · emitida · cobrada</span>
+          </div>
+          <div class="explica" id="explica"></div>
+        </div>
+        <div class="notaM"><b>Solo el resultado, no el papel:</b> emitida / atascada / cobrada y su fecha. Ni la factura ni el justificante se abren desde aquí: eso es de facturación.<br><b>No sale aquí:</b> «3 presupuestos: 3 % del PEM a la contrata, a éxito». Es lo que cobramos a la contrata y el comercial no lo ve (regla del 17-oct). Facturación sí lo ve en su pantalla.</div>
+        <div class="tuya">
+          <div class="rot r">Solo para ti · no se lo cuentes a la comunidad</div>
+          <div style="font-size:12.5px;margin-top:2px">Tu comisión en esta hoja: 3 % de lo que se cobra (la app resta antes la comisión del administrador).</div>
+          <div class="cifras">
+            <div><span class="rot">Te toca en total</span><b class="num">266,40 €</b><span style="font-size:11px;color:var(--gris)">+ 3 % de la subvención, si sale</span></div>
+            <div><span class="rot">Ya liberada</span><b class="num" style="color:var(--verde)">238,80 €</b><span style="font-size:11px;color:var(--gris)">de 7.960 € cobrados</span></div>
+            <div><span class="rot">Te falta</span><b class="num">27,60 €</b><span style="font-size:11px;color:var(--gris)">al firmar el plan de seguridad</span></div>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- HOJAS FIRMADAS -->
+      <section class="vista" id="v-hojas"><div class="pila">
+        <div class="caja">
+          <div style="font-size:14px"><b>Proyecto ascensor + documentación técnica + coordinación de seguridad + subvención</b> · <span class="num">8.880 €</span> <span style="color:var(--gris)">HE-2026-0346</span></div>
+          <div style="font-size:12px;color:var(--gris)">Firmada el 08/06/2026 · validada por Álvaro el 08/06/2026 · paga la comunidad, cargo en cuenta</div>
+          <div class="fases">
+            <div class="fase h"><b>1 · En facturación</b><span class="q">el comercial la valida</span><br>08/06/2026</div>
+            <div class="fase h"><b>2 · Pedido el cobro</b><span class="q">proforma enviada por correo</span><br>10/06/2026</div>
+            <div class="fase h"><b>3 · Primera parte cobrada</b><span class="q">justificante del banco subido</span><br>17/06/2026 · se libera tu comisión</div>
+            <div class="fase a"><b>4 · En producción</b><span class="q">la secretaria la mete</span><br>Proyectos · Subvenciones</div>
+          </div>
+        </div>
+        <div class="notaM">Fechas de 2 a 4 de ejemplo. Fase 2 = el correo con la proforma; fase 3 = el justificante del banco del primer hito; fase 4 = la secretaria (tus palabras de hoy).</div>
+      </div></section>
+
+      <!-- TU COMISION -->
+      <section class="vista" id="v-comision"><div class="pila">
+        <div class="tuya">
+          <div class="rot r">Solo para ti</div>
+          <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:12.5px">
+            <tr style="color:var(--gris);font-size:11px;text-align:left"><th>Cuándo</th><th>Qué se cobra</th><th style="text-align:right">Cobrado</th><th style="text-align:right">Tu parte</th><th>Estado</th></tr>
+            <tr><td>Al contratar</td><td>Proyecto + documentación, 50 %</td><td class="num" style="text-align:right">3.980 €</td><td class="num" style="text-align:right">119,40 €</td><td style="color:var(--verde);font-weight:700">liberada</td></tr>
+            <tr><td>Entrega del proyecto</td><td>Proyecto + documentación, 50 %</td><td class="num" style="text-align:right">3.980 €</td><td class="num" style="text-align:right">119,40 €</td><td style="color:var(--verde);font-weight:700">liberada</td></tr>
+            <tr><td>Plan de seguridad</td><td>Coordinación de seguridad</td><td class="num" style="text-align:right">—</td><td class="num" style="text-align:right">27,60 €</td><td>cuando se cobre</td></tr>
+            <tr><td>Concesión</td><td>Subvención, a éxito</td><td class="num" style="text-align:right">—</td><td style="text-align:right">3 % del 3,5 %</td><td>si sale</td></tr>
+          </table>
+        </div>
+        <div class="notaM">Sale del cálculo que ya existe (Comercial › Comisiones), filtrado a esta opp. Falta rellenar el % de Carlos.</div>
+      </div></section>
+
+      <!-- PRODUCCION -->
+      <section class="vista" id="v-prod"><div class="pila">
+        <div class="caja">
+          <div class="rot">Por dónde va · proyecto de ascensor</div>
+          <div class="fases">
+            <div class="fase h"><b>Nube</b>escaneado</div>
+            <div class="fase h"><b>Proyecto asignado</b>a un técnico</div>
+            <div class="fase h"><b>Proyecto terminado</b>entregado</div>
+            <div class="fase a"><b>Visado</b>en el Colegio</div>
+            <div class="fase"><b>Licencia pedida</b>DR o licencia · Ayto o ECU</div>
+            <div class="fase"><b>Licencia concedida</b></div>
+            <div class="fase"><b>Obra iniciada</b>+ plan de seguridad</div>
+            <div class="fase"><b>Obra acabada</b>fin de obra</div>
+          </div>
+        </div>
+        <div class="notaM">Hoy en la app solo existe «metida en producción» con sus áreas y la nube. Lo demás, en gris hasta que se enganchen las áreas. Cada área tendrá su lista de pasos.</div>
+      </div></section>
+
+      <!-- SUBVENCIONES -->
+      <section class="vista" id="v-subv"><div class="pila">
+        <div class="caja gris-bloque">
+          <div class="rot">Gestión de subvenciones · accesibilidad</div>
+          <div style="margin-top:4px">Una línea por convocatoria a la que se presente:</div>
+          <div class="subv"><span>Abierta</span><span>Documentación en preparación</span><span>Presentada</span><span>Requerido</span><span>Respondido</span><span>Salen las listas</span><span>Concedida · cuándo</span><span>Denegada · por qué</span></div>
+          <div style="margin-top:8px" class="vacio">Todavía ninguna convocatoria para esta opp.</div>
+        </div>
+        <div class="notaM">Sin tablas propias hoy: queda como hueco para no perder el plan.</div>
+      </div></section>
+
+    </div>
+  </div>
+
+  <!-- ======================= BLOQUE 3 · RESULTADO ======================= -->
+  <div class="ficha" id="b3" hidden>
+    <nav class="menu">
+      <div class="grupo" style="--c: #2f6fb3"><div class="t">…los de siempre</div>
+        <button class="gris">Lo que quieren</button><button class="gris">Quién es quién</button><button class="gris">Ofertas</button>
+      </div>
+      <div class="grupo" style="--c: #3f8a1c"><div class="t">Cómo acabó</div>
+        <button class="si">Resultado</button>
+      </div>
+    </nav>
+    <div class="centro"><section class="vista si"><div class="pila">
+      <div class="dos">
+        <div class="caja" style="border-color:var(--verde)">
+          <div class="rot" style="color:var(--verde)">Han dicho que SÍ</div>
+          <div class="campo"><div class="k">Qué firmaron</div><b>Proyecto ascensor + documentación técnica + coordinación de seguridad + subvención</b> · <span class="num">8.880 €</span> <span style="color:var(--gris)">HE-2026-0346</span></div>
+          <div class="campo"><div class="k">Cuándo</div>firmada el 08/06/2026 · validada por Álvaro el 08/06/2026</div>
+          <div class="campo"><div class="k">Cambios a boli en la firmada</div><span class="vacio">ninguno apuntado</span></div>
+          <div class="campo"><div class="k">Y ahora</div>sigue en el bloque 4 → el dinero y el encargo</div>
+        </div>
+        <div class="caja gris-bloque">
+          <div class="rot">Si dicen que NO</div>
+          <div class="campo"><div class="k">Por qué no</div><div class="chips"><span>no hay dinero</span><span>otro arquitecto</span><span>no lo ven necesario</span><span>no hay acuerdo en la junta</span><span>otro…</span></div></div>
+          <div class="campo"><div class="k">Contado con sus palabras</div><span class="vacio">—</span></div>
+          <div class="campo"><div class="k">Hoja que no se firmó</div><span class="vacio">—</span></div>
+          <div class="campo"><div class="k">Y entonces qué hacemos</div><div class="chips"><span>volver a llamar en 6 meses</span><span>avisar si sale subvención</span><span>nada</span></div></div>
+          <div class="campo"><div class="k">Fecha del cierre</div><span class="vacio">—</span></div>
+        </div>
+      </div>
+      <div class="notaM">Si dijeron que sí a una parte y no a otra, se rellenan las dos cajas. Si todavía no hay respuesta, las dos en gris con «aún sin respuesta».</div>
+    </div></section></div>
+  </div>
+</div>
+
+<script>
+  const EXPL = {
+    contratar: ["Firmaron la hoja y pagaron la provisión de fondos (el 50 % del proyecto y la documentación).", "Hecho.", "Nada."],
+    entrega: ["El técnico terminó el proyecto y se lo entregamos; con eso se cobró el otro 50 %.", "Hecho.", "Nada."],
+    visado: ["El Colegio de Arquitectos revisa que el proyecto cumple la normativa y lo sella. Con el visado se pide la licencia (o la declaración responsable) al Ayuntamiento.", "Visado: 2-4 semanas. Licencia: según el Ayuntamiento, de 1 a 6 meses.", "De ellos, nada. Les avisaremos cuando haya licencia para que elijan contrata."],
+    pss: ["Con la licencia y la contrata elegida, firmamos el plan de seguridad y empieza la obra. Aquí se cobra la coordinación de seguridad.", "Depende de cuándo elijan contrata.", "De ellos: elegir contrata y firmar con ella."],
+    cfo: ["Acaba la obra y firmamos el certificado final.", "La obra de un ascensor: 2-4 meses.", "—"],
+    concesion: ["La subvención de accesibilidad: se presenta cuando salga la convocatoria; cobramos el 3,5 % cuando la ingresen a la comunidad.", "Depende de la convocatoria.", "De ellos: la documentación que les pidamos para presentarla."],
+  };
+  const ex = document.getElementById("explica");
+  function pinta(k) {
+    const [q, t, f] = EXPL[k];
+    const deEllos = /^De ellos:/.test(f);
+    ex.innerHTML = `<div><div class="rot">Qué pasa aquí</div>${q}</div><div><div class="rot">Cuánto suele tardar</div>${t}</div><div class="${deEllos ? "de" : ""}"><div class="rot">Qué falta y de quién</div>${f}</div>`;
+    document.querySelectorAll(".punto").forEach((b) => b.classList.toggle("sel", b.dataset.p === k));
+  }
+  document.querySelectorAll(".punto").forEach((b) => b.addEventListener("click", () => pinta(b.dataset.p)));
+  pinta("visado");
+  document.querySelectorAll("#b4 .menu button[data-v]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("#b4 .menu button").forEach((x) => x.classList.toggle("si", x === b));
+    document.querySelectorAll("#b4 .vista").forEach((v) => v.classList.toggle("si", v.id === "v-" + b.dataset.v));
+  }));
+  document.querySelectorAll(".pest button").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.b !== "3" && b.dataset.b !== "4") return;
+    document.querySelectorAll(".pest button").forEach((x) => x.classList.toggle("si", x === b));
+    document.getElementById("b4").hidden = b.dataset.b !== "4";
+    document.getElementById("b3").hidden = b.dataset.b !== "3";
+  }));
+</script>

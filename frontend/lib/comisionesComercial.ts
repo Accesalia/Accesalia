@@ -56,6 +56,8 @@ export type Comercial = { id: string; nombre: string; pct: number | null; nota: 
 export type EstadoHito = "pendiente_emitir" | "emitida" | "cobrada" | "devuelta" | "a_exito" | "anulado" | "completado_sin_factura";
 export type HitoComision = {
   id: string;
+  /** El momento en que se cobra (encargo, entrega, pss...): el punto del encargo (bloque 4, 29-oct-2026). */
+  tipo: string;
   texto: string;
   importe: number | null;
   estado: EstadoHito;
@@ -120,11 +122,12 @@ function corto(b: { codigo: string; nombre_corto: string | null } | null, desc: 
   return "Otros";
 }
 
-/** TODO LO DE UN COMERCIAL: sus opps con hoja firmada, linea a linea y hito a hito. */
-export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]> {
+/** TODO LO DE UN COMERCIAL: sus opps con hoja firmada, linea a linea y hito a hito. Con `soloOpp`, solo esa opp (la
+ *  ficha de la opp, bloque 4, 29-oct-2026): con el % de su comercial. */
+export async function comisionesDe(c: Comercial, soloOpp?: string): Promise<OppComisionComercial[]> {
   type H = { id: string; numero_hoja: string | null; fecha_firma: string | null; oportunidad_id: string };
   const suyas = await leer<{ id: string; nombre: string | null; codigo: string | null }>(
-    `oportunidades?select=id,nombre,codigo&comercial_id=eq.${c.id}&estado=neq.anulada`,
+    `oportunidades?select=id,nombre,codigo&${soloOpp ? `id=eq.${soloOpp}` : `comercial_id=eq.${c.id}`}&estado=neq.anulada`,
   );
   if (!suyas.length) return [];
   const hojasTodas = await porTramos<H>(suyas.map((o) => o.id),
@@ -203,6 +206,7 @@ export async function comisionesDe(c: Comercial): Promise<OppComisionComercial[]
         const p = pagoDe.get(h.id);
         return {
           id: h.id,
+          tipo: h.tipo,
           texto: h.texto?.split(/[\n:]/)[0]?.trim() || TEXTO[h.tipo] || h.tipo,
           importe: h.importe == null ? null : Number(h.importe),
           estado,

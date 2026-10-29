@@ -11,7 +11,7 @@ import {
   TIPOS_3D,
 } from "../../../../lib/gestionOportunidad";
 import { CANALES } from "../../../../lib/entradaDiario";
-import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
+import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { accionAdminAComunidad, accionEntrada, accionJunta, accionTresD } from "./acciones";
 import { Serie, Titulo } from "./Piezas";
 import { AZUL, Pestanas } from "./Carril";
@@ -24,7 +24,8 @@ import { fotosDeOpp } from "../../../../lib/fotos";
 import { distritoDe } from "../../../../lib/informeEdificio";
 import { viabilidadDeOpp } from "../../../../lib/viabilidadComercial";
 import { documentacionDe } from "../../../../lib/bloqueDocumentacion";
-import { Bloque4 } from "./Bloque34";
+import { Bloque4Dinero, VISTAS_BLOQUE4, type VistaBloque4 } from "./Bloque4Dinero";
+import { dineroDeOpp } from "../../../../lib/bloque4";
 import { decisionCierreDe } from "../../../../lib/bloquesDecisionCierre";
 import { informesDeOportunidad } from "../../../../lib/informeCostes";
 import { correosEnviados } from "../../../../lib/envioCorreo";
@@ -101,6 +102,8 @@ export default async function GestionOportunidad({
   const ver3 = (VISTAS_NEGOCIACION as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaNegociacion) : null;
   // Lo elegido en el menu del bloque 1 (29-oct-2026). Sin nada, el Catastro.
   const ver1 = (VISTAS_BLOQUE1 as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaBloque1) : null;
+  // Lo elegido en el menu del bloque 4 (29-oct-2026). Sin nada, los cobros.
+  const ver4 = (VISTAS_BLOQUE4 as readonly string[]).includes(sp.ver ?? "") ? (sp.ver as VistaBloque4) : null;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -151,7 +154,7 @@ export default async function GestionOportunidad({
       : bloque === 1
         ? Promise.all([Promise.resolve(null), informesDeOportunidad(id).catch(() => []), Promise.resolve([])])
         : Promise.all([Promise.resolve(null), Promise.resolve([]), Promise.resolve([])]),
-    bloque === 3 || bloque === 4 ? decisionCierreDe(id) : Promise.resolve(null),
+    bloque === 3 ? decisionCierreDe(id) : Promise.resolve(null),
     // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (28-oct-2026): administradores con su comision, agenda de la comunidad, juntas
     // y cambios pedidos (lib/negociacion.ts). En el bloque 1, sus administradores con su comision van en «Datos y
     // contactos» (29-oct-2026).
@@ -162,11 +165,16 @@ export default async function GestionOportunidad({
     Promise.all([cajonDeOpp(id).catch(() => []), tiposCajon().catch(() => [])]),
   ]);
   // La segunda tanda: lo que depende de lo anterior.
-  const [paraCompletar, reservas] = await Promise.all([
+  const [paraCompletar, reservas, dinero, mio] = await Promise.all([
     // Las listas para completar, solo si hace falta completar: son largas.
     completa.falta.length ? opcionesEntrada().catch(() => null) : Promise.resolve(null),
     bloque === 1 && negociacion ? reservasDeAdministraciones(negociacion.admins.map((a) => a.empresaId ?? "")).catch(() => new Map()) : Promise.resolve(new Map()),
+    // BLOQUE 4 · EL DINERO (29-oct-2026): los cobros, las fases de cada hoja y la comision.
+    bloque === 4 ? dineroDeOpp(id).catch((e) => { console.error("dineroDeOpp", id, e); return null; }) : Promise.resolve(null),
+    bloque === 4 ? comercialDe(yo.id).catch(() => null) : Promise.resolve(null),
   ]);
+  // La comision del comercial la ve el suyo y direccion (como Comercial > Comisiones).
+  const verComision = yo.veTodo || puedeEntrar(yo, "comercial", "supervisar") || (!!mio && mio.id === dinero?.comision?.comercialId);
   const cajon = <CajonOpp oppId={id} docs={docsCajon} tipos={tiposDelCajon} />;
   const apartadoFotos =
     bloque === 1 ? (
@@ -447,7 +455,7 @@ export default async function GestionOportunidad({
         {/* LA TIRA DEL 3D Y LA VIABILIDAD, en TODOS los bloques (Monica, 29-oct-2026: «deberia ser transversal»), sobre su
             banda gris, arriba del recuadro del bloque. */}
         {/* En los bloques 1, 2 y 3 va sobre su columna central (entre el menu y el diario); el 4, sin menu, aqui. */}
-        {tiraBloque1 && bloque === 4 && <div className="mb-[10px] rounded-[10px] bg-[#575d64] px-4 py-2.5">{tiraBloque1}</div>}
+        {/* En el bloque 4 la tira del 3D se cambia por «¿que hay de lo mio?» (Monica, 29-oct-2026), dentro del bloque. */}
         {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
             contacto y siguiente paso. Solo en las que se miran (2025 en
             adelante y sin hoja enviada o firmada). */}
@@ -550,11 +558,10 @@ export default async function GestionOportunidad({
                 tira={tiraBloque1}
               />
             </div>
-          ) : decision ? (
-            // El bloque 4, en crudo: cada campo con donde vive (15-oct-2026). Pasa a ser el del cobro (28-oct).
-            <div className="flex min-w-0 flex-col gap-[10px] xl:col-span-1">
-              <Bloque4 d={decision} />
-              {cajon}
+          ) : bloque === 4 ? (
+            // BLOQUE 4 · EL DINERO Y EL ENCARGO HASTA EL FINAL (29-oct-2026), con su menu como el 1, el 2 y el 3.
+            <div className="min-w-0 xl:col-span-2">
+              <Bloque4Dinero id={id} ver={ver4} d={dinero} verComision={verComision} />
             </div>
           ) : g.referenciaCatastral && vista === "informe" ? (
             // El anexo tal cual sale en la viabilidad: lo que ve el cliente.
