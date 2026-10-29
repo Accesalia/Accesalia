@@ -182,10 +182,10 @@ export function Bloque1({
       </nav>
 
       {/* ============================== EL CONTENIDO ============================== */}
-      <div className="min-w-0">
+      <div className="min-w-0 bg-[#f1f3f5]">
         {/* La tira del 3D y la viabilidad, siempre, sobre una banda gris de lado a lado (29-oct-2026). */}
         <div className="bg-[#575d64] px-4 py-2.5">{tira}</div>
-        <div className={"px-5 pb-5 pt-4 " + (vista === "datos" ? "min-h-full bg-[#f1f3f5]" : "")}>
+        <div className="px-5 pb-5 pt-4">
           <div className="mb-3">
             <div className="flex flex-wrap items-baseline gap-3">
               <h3 className="text-[18px] font-bold">{titulo}</h3>
