@@ -20,8 +20,10 @@ export type ViabilidadLista = { id: string; opp: string; oppId: string; enviada:
 export async function viabilidadesListas(comercialId: string | null, todas: boolean, rematadas = false): Promise<ViabilidadLista[]> {
   if (!todas && !comercialId) return [];
   const r = await fetch(
-    `${URL_BASE}/rest/v1/viabilidades?select=id,enviada_en,redacta:redacta_id(nombre),oportunidades!inner(id,nombre,codigo,comercial_id,estado)` +
-      `&vigente=is.true&enviada_en=not.is.null&rematada_en=is.null&oportunidades.estado=eq.abierta` +
+    `${URL_BASE}/rest/v1/viabilidades?select=id,enviada_en,rematada_en,redacta:redacta_id(nombre),oportunidades!inner(id,nombre,codigo,comercial_id,estado)` +
+      `&vigente=is.true&enviada_en=not.is.null&oportunidades.estado=eq.abierta` +
+      // Las rematadas: las del ultimo mes (29-oct-2026: antes pedia las sin rematar y la fecha llegaba vacia).
+      (rematadas ? `&rematada_en=gte.${new Date(Date.now() - 30 * 86_400_000).toISOString()}` : `&rematada_en=is.null`) +
       (todas ? "" : `&oportunidades.comercial_id=eq.${comercialId}`) +
       `&order=${rematadas ? "rematada_en" : "enviada_en"}.desc&limit=500`,
     { headers: { apikey: SECRETO, Authorization: `Bearer ${SECRETO}` }, cache: "no-store" },

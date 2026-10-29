@@ -40,7 +40,7 @@ export default async function ViabilidadesListas() {
             <tbody>
               {lista.map((v) => (
                 <tr key={v.id} className="border-b border-black/10 align-middle">
-                  <td className="py-2 pr-4 text-[12px] text-carbon/60">{FECHA.format(new Date(v.enviada))}</td>
+                  <td className="py-2 pr-4 text-[12px] text-carbon/60">{v.enviada ? FECHA.format(new Date(v.enviada)) : "—"}</td>
                   <td className="max-w-[420px] py-2 pr-4">
                     <Link href={`/comercial/oportunidades/${v.oppId}`} className="font-semibold text-carbon hover:underline">
                       {v.opp}
@@ -67,7 +67,7 @@ export default async function ViabilidadesListas() {
             <tbody>
               {rematadas.map((v) => (
                 <tr key={v.id} className="border-b border-black/10 align-middle">
-                  <td className="py-2 pr-4 text-[12px] text-carbon/60">rematada el {FECHA.format(new Date(v.rematada!))}</td>
+                  <td className="py-2 pr-4 text-[12px] text-carbon/60">{v.rematada ? `rematada el ${FECHA.format(new Date(v.rematada))}` : "rematada"}</td>
                   <td className="max-w-[420px] py-2 pr-4">
                     <Link href={`/comercial/oportunidades/${v.oppId}`} className="font-semibold text-carbon hover:underline">
                       {v.opp}
