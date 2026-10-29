@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { FilaAbierta } from "../../../lib/listaAbiertas";
+import { LoQueFalta, type PasoLista } from "./LoQueFalta";
 
 // LA LISTA DE LA MAQUETA VALIDADA (docs/figma/oportunidades-abiertas-clara.html, 26-oct-2026). Sus reglas, de Monica:
 //   - UNA LINEA por opp, cada dato en su columna «como un Excel», los titulos solo en la cabecera (nada de «Esta en»
@@ -14,7 +15,7 @@ import type { FilaAbierta } from "../../../lib/listaAbiertas";
 //     Ver solo las abiertas» y «Ver solo» con la escalera. LOS FILTROS SE SUMAN («lo mantenemos asi»);
 //   - pinchar una fila abre la ficha de la opp (hoy, la de bloques; la nueva cuando exista).
 
-type Paso = { clave: string; titulo: string; hecha: boolean };
+type Paso = PasoLista;
 type Orden = "nombre" | "punto" | "dias" | "contacto" | "admin" | "importe" | "recientes" | "antiguas";
 /** CUANDO SE ABRIO, para filtrar (Monica, 29-oct-2026: «poder ordenar y filtrar por fecha arriba»). */
 type Cuando = "" | "mes" | "3m" | "6m" | "ano" | "pasado" | "mas1" | "entre";
@@ -82,6 +83,8 @@ export function ListaAbiertas({
   const [cuando, setCuando] = useState<Cuando>("");
   const [entre, setEntre] = useState({ desde: "", hasta: "" });
   const [pagina, setPagina] = useState(0);
+  // LAS DOS VISTAS (29-oct-2026): la lista, y «Lo que falta para avanzar» (las mismas opps, por de quien depende).
+  const [vista, setVista] = useState<"lista" | "avanzar">("lista");
 
   const ordenDe = useMemo(() => new Map(pasos.map((p, i) => [p.clave, i])), [pasos]);
   const hechaDe = useMemo(() => new Map(pasos.map((p) => [p.clave, p.hecha])), [pasos]);
@@ -150,14 +153,14 @@ export function ListaAbiertas({
           <span className="font-[family-name:var(--letra-menu)] text-[12px] font-extrabold uppercase tracking-[0.1em] text-[#f3ecdd]/85">
             Estas son las opps que tienes sobre la mesa <span className="text-[#a6dc7e]">→</span> vamos a moverlas
           </span>
-          {/* La pantalla de lo que falta para avanzar: aun no esta montada. */}
-          <span
-            title="La pantalla de lo que falta para avanzar: próximamente"
-            className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-[#a6dc7e]/40 bg-[#3a3e44] px-4 py-2 text-[13.5px] font-bold text-[#a6dc7e]/60"
+          {/* «Hacer algo con ellas» abre «Lo que falta para avanzar» (29-oct-2026). */}
+          <button
+            type="button"
+            onClick={() => setVista(vista === "lista" ? "avanzar" : "lista")}
+            className="flex items-center gap-2 rounded-xl border border-[#a6dc7e]/60 bg-[#3a3e44] px-4 py-2 text-[13.5px] font-bold text-[#a6dc7e] transition hover:border-[#a6dc7e] hover:bg-[#44494f]"
           >
-            Hacer algo con ellas
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#f3f4f1]/55">Próximamente</span>
-          </span>
+            {vista === "lista" ? "Hacer algo con ellas →" : "← Volver a la lista"}
+          </button>
         </div>
         {carteras && (
           <div className="ml-auto flex flex-wrap gap-1.5">
@@ -177,7 +180,29 @@ export function ListaAbiertas({
         )}
       </div>
 
-      <section className="mt-6 w-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_2px_4px_rgba(0,0,0,.18),0_18px_36px_-18px_rgba(0,0,0,.6)]">
+      <div className="mt-6 flex gap-1.5" role="tablist" aria-label="Cómo verlas">
+        {(
+          [
+            ["lista", `Lista · ${vistas.length}`],
+            ["avanzar", "Lo que falta para avanzar"],
+          ] as const
+        ).map(([k, t]) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={vista === k}
+            onClick={() => setVista(k)}
+            className={
+              "rounded-t-xl px-4 py-2 text-[14px] font-bold transition " +
+              (vista === k ? "bg-[#4f6072] text-white" : "bg-white/[0.06] text-[#f3f4f1]/70 hover:bg-white/[0.12] hover:text-white")
+            }
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <section className="w-full overflow-hidden rounded-2xl rounded-tl-none border border-black/5 bg-white shadow-[0_2px_4px_rgba(0,0,0,.18),0_18px_36px_-18px_rgba(0,0,0,.6)]">
         {/* La franja: buscador, ordenar y, a la derecha, los filtros (se suman). */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-[#4f6072] px-4 py-3">
           <label className="flex w-[290px] max-w-full items-center gap-2 rounded-xl border-2 border-white bg-white px-3 py-1.5 shadow-sm focus-within:border-lima">
@@ -261,6 +286,8 @@ export function ListaAbiertas({
           </div>
         </div>
 
+        {vista === "lista" && (
+        <>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead>
@@ -340,7 +367,10 @@ export function ListaAbiertas({
             Siguientes →
           </button>
         </div>
+        </>
+        )}
       </section>
+      {vista === "avanzar" && <LoQueFalta filas={vistas} pasos={pasos} />}
     </>
   );
 }

@@ -75,7 +75,9 @@ export type Paso = "escaneo" | "sin_hoja" | "hoja_enviada" | "junta" | "firma" |
 /** «validar»: ha llegado la hoja firmada y le toca al comercial darle su ok (Monica, 26-oct-2026: grupo propio). */
 export type Accion = "admin" | "interno" | "doc" | "polycam" | "perdida" | "validar";
 
-export type PasoEscalera = { clave: Clave; fase: Fase | null; seccion: Paso; accion: Accion | null; titulo: string };
+/** «quien»: en los pasos de un companero (accion "interno"), el PUESTO que lo lleva (29-oct-2026: «Lo que falta para
+ *  avanzar»). El puesto y no la persona, para que no se quede viejo. */
+export type PasoEscalera = { clave: Clave; fase: Fase | null; seccion: Paso; accion: Accion | null; titulo: string; quien?: string };
 
 /** LA EQUIVALENCIA (Monica, 15-oct-2026, cerrada con el hilo e3). LA FASE ES EL
  *  ULTIMO HITO ALCANZADO, y el copy dice que falta para alcanzar el siguiente.
@@ -91,10 +93,10 @@ export const PASOS: PasoEscalera[] = [
   // admin = fuera de casa (el pagador). «Se cobra al llegar a su hito» no es de la bandeja: accion null.
   { clave: "cobro_hito_posterior", fase: "cobro", seccion: "completado", accion: null, titulo: "Se cobra al llegar a su hito" },
   { clave: "falta_que_paguen", fase: "cobro", seccion: "cobro", accion: "admin", titulo: "Proforma enviada: falta que paguen" },
-  { clave: "facturacion_prepara", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Firmada: facturación prepara el primer cobro" },
+  { clave: "facturacion_prepara", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Firmada: facturación prepara el primer cobro", quien: "facturación" },
   { clave: "firma_con_errores", fase: "firma", seccion: "firma", accion: "admin", titulo: "Firma con errores: devuelta para corregir" },
   { clave: "firmada_por_validar", fase: "firma", seccion: "firma", accion: "validar", titulo: "Ha llegado la hoja firmada: falta tu ok comercial" },
-  { clave: "falta_ok_cobro_primera", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Pendiente del ok al cobro de la primera parte" },
+  { clave: "falta_ok_cobro_primera", fase: "cobro", seccion: "cobro", accion: "interno", titulo: "Pendiente del ok al cobro de la primera parte", quien: "facturación" },
   { clave: "junta_si_falta_firmada", fase: "firma", seccion: "firma", accion: "admin", titulo: "La junta votó sí: pendiente de que nos envíen la hoja firmada" },
   { clave: "junta_no", fase: "junta", seccion: "junta", accion: "perdida", titulo: "La junta votó que no: cerrarla como perdida" },
   { clave: "junta_que_votaron", fase: "junta", seccion: "junta", accion: "admin", titulo: "Pendientes de que confirmen qué votaron" },
@@ -102,14 +104,14 @@ export const PASOS: PasoEscalera[] = [
   { clave: "nueva_oferta_decision", fase: "envio_documentos", seccion: "hoja_enviada", accion: "admin", titulo: "Pendientes de la decisión sobre la nueva oferta" },
   { clave: "falta_fecha_junta", fase: "envio_documentos", seccion: "hoja_enviada", accion: "admin", titulo: "Falta que confirmen la fecha de la junta" },
   { clave: "nueva_oferta_enviar", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "Falta enviar la nueva oferta a la comunidad" },
-  { clave: "nueva_oferta_ok", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "interno", titulo: "Falta el ok a la nueva oferta" },
+  { clave: "nueva_oferta_ok", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "interno", titulo: "Falta el ok a la nueva oferta", quien: "revisión de ofertas" },
   { clave: "nueva_oferta_cambios", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "La revisión pidió cambios en la nueva oferta" },
   { clave: "nueva_oferta_elaborar", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "Pidieron modificar la oferta: elaborar la nueva oferta" },
   { clave: "falta_enviar_doc", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "Falta enviar la doc a la comunidad" },
   { clave: "revision_cambios", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "La revisión pidió cambios: corregir la oferta" },
-  { clave: "falta_ok_oferta", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "interno", titulo: "Falta el ok a la oferta" },
+  { clave: "falta_ok_oferta", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "interno", titulo: "Falta el ok a la oferta", quien: "revisión de ofertas" },
   { clave: "preparar_docs", fase: "preparacion_documentos", seccion: "sin_hoja", accion: "doc", titulo: "Preparar la HE, la VB y el presupuesto" },
-  { clave: "arquitecto_viabilidad", fase: "viabilidad_arquitecto", seccion: "sin_hoja", accion: "interno", titulo: "Que el arquitecto defina la viabilidad" },
+  { clave: "arquitecto_viabilidad", fase: "viabilidad_arquitecto", seccion: "sin_hoja", accion: "interno", titulo: "Que el arquitecto defina la viabilidad", quien: "el arquitecto" },
   // C': no necesita Polycam. Lo tiene que mover el comercial: no depende de nadie.
   // Su fase es la 1: la fase actual es el ultimo hito alcanzado QUE APLICA, y la
   // 2 y la 3 no aplican (Monica, 15-oct-2026).

@@ -31,7 +31,7 @@ export default async function Pagina({ searchParams }: { searchParams: Promise<{
   const filas = await listaAbiertas(elegido?.id ?? null);
   const hoy = FECHA_LARGA.format(new Date());
   // Los puntos de la escalera, en su orden, para el desplegable «Ver solo».
-  const pasos = PASOS.map((p) => ({ clave: p.clave, titulo: p.titulo, hecha: p.seccion === "completado" || p.seccion === "cerrada" }));
+  const pasos = PASOS.map((p) => ({ clave: p.clave, titulo: p.titulo, hecha: p.seccion === "completado" || p.seccion === "cerrada", accion: p.accion, quien: p.quien ?? null }));
 
   return (
     <div className={`${letraMenu.variable} min-h-screen bg-[#2e3236]`}>
