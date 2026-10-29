@@ -122,7 +122,7 @@ export function Cabecera({
         {/* LA TARJETA ES EL GRIS (Monica, 29-oct-2026: «dejaria la gris, con borde crema, y quitaria la blanca de
             debajo»): sobre el grafito, gris claro con su borde crema; dentro, lo de la misma direccion y lo que nos han
             contado. */}
-        <div className="flex min-w-0 flex-col rounded-[10px] border-[1.5px] border-[#efe4c8] bg-[#e8e8e4] px-3.5 py-2.5">
+        <div className="flex min-w-0 flex-col rounded-[10px] border border-white bg-[#e8e8e4] px-5 py-3.5">
           {/* El chip «Direccion mal apuntada, la corrijo» se fue (29-oct-2026): el nombre se corrige pulsandolo arriba. */}
 
           {/* EN LA MISMA DIRECCION: las otras opps, con sus ACCESOS (esc 1, esc
@@ -156,7 +156,7 @@ export function Cabecera({
 
           {/* LO QUE NOS HAN CONTADO, sobre su panel gris: la administracion, quien
               nos la trajo, el contacto en la comunidad y lo que dicen que quieren. */}
-          <div className="mt-auto">
+          <div>
             <p className="text-[12px] leading-[1.6]">
               <span className="mr-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Administración</span>
               {/* SOLO EL ADMINISTRADOR DE LA COMUNIDAD, el de la cartera (Monica,
