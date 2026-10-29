@@ -23,6 +23,7 @@ import { enviarCorreo } from "./correo";
 import { FUNCION_REVISION, puedeRevisar } from "./revisionOferta";
 import { nombreDeOpp } from "./direccionOpp";
 import { numerarClaveDeOpp } from "./claves";
+import { entrarEnFacturacion } from "./hojasNuevas";
 
 const URL_BASE = process.env.SUPABASE_URL ?? "";
 const SECRETO = process.env.SUPABASE_SECRET_KEY ?? "";
@@ -291,6 +292,21 @@ export async function validarFirmada(oppId: string, documentoId: string, version
   }
   // LA FIRMA NUMERA LA CLAVE (Monica, 13-oct-2026): si el sitio de la opp aun no tiene DIR, recibe el siguiente.
   if (decision === "ok") await numerarClaveDeOpp(oppId);
+  // EL OK DEL COMERCIAL LA PASA A FACTURACION (Monica, 29-oct-2026: «FUNDAMENTAL»): sus lineas y sus hitos de cobro, y
+  // sale en Nuevas Hojas Encargo Firmadas. Solo las que valida el comercial desde hoy (el historico ya esta en
+  // facturacion); si la hoja ya tiene sus fichas, entrarEnFacturacion no hace nada: no se duplica.
+  if (decision === "ok") {
+    const fallan: string[] = [];
+    for (const v of vs) {
+      try {
+        await entrarEnFacturacion(v.id, yo);
+      } catch (e) {
+        console.error("entrarEnFacturacion", v.id, e);
+        fallan.push(`${v.codigo_he ?? "hoja"} v${v.numero_version}`);
+      }
+    }
+    if (fallan.length) throw new Error(`Validada, pero ${fallan.join(", ")} no ha llegado a facturación. Avisa a facturación.`);
+  }
 }
 
 // ------------------------------------------------------------ la bandeja de Daniel (25-oct-2026)
