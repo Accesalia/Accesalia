@@ -200,3 +200,57 @@ export function Fila({ oppId, v, anteriores, fases, firmadas }: { oppId: string;
     </li>
   );
 }
+
+/** MODIFICAR Y ANULAR una hoja emitida, en «Preparar una oferta» (Monica, 29-oct-2026: «ya no sale la opcion de
+ *  modificar una hoja emitida, ni anularla»): lo mismo que en la fila de las enviadas, con su motivo en la propia fila. */
+export function ModificarAnular({ oppId, v }: { oppId: string; v: VersionHe }) {
+  const router = useRouter();
+  const [ocupado, empezar] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [pide, setPide] = useState<null | "anular" | "modificar">(null);
+  const [nota, setNota] = useState("");
+  const [quien, setQuien] = useState<"comunidad" | "comercial" | "">("");
+  const modificable = !!v.codigo && !["borrador", "pendiente_ok_daniel", "cambios_daniel", "sustituida", "anulada", "no_firmada"].includes(v.estado);
+  const anulable = v.estado !== "borrador" && !["no_firmada", "anulada", "sustituida"].includes(v.estado);
+  if (!modificable && !anulable) return null;
+  const hacer = (accion: () => Promise<{ ok: true; id?: string } | { ok: false; error: string }>, despues?: (id?: string) => void) =>
+    empezar(async () => {
+      setError(null);
+      const r = await accion();
+      if (!r.ok) return setError(r.error);
+      setPide(null); setNota(""); setQuien("");
+      if (despues) despues(r.id);
+      else router.refresh();
+    });
+  return (
+    <>
+      {modificable && <button type="button" className={ENLACE} disabled={ocupado} onClick={() => setPide(pide === "modificar" ? null : "modificar")}>modificar</button>}
+      {anulable && <button type="button" className={ENLACE} disabled={ocupado} onClick={() => setPide(pide === "anular" ? null : "anular")}>anular</button>}
+      {pide && (
+        <span className="mt-1 flex w-full flex-wrap items-center gap-2">
+          {pide === "modificar" && (
+            <>
+              <span>¿Quién pide el cambio?</span>
+              {(["comunidad", "comercial"] as const).map((x) => (
+                <label key={x} className="flex items-center gap-1">
+                  <input type="radio" name={`pide-p-${v.id}`} checked={quien === x} onChange={() => setQuien(x)} /> {x === "comunidad" ? "la comunidad" : "el comercial"}
+                </label>
+              ))}
+            </>
+          )}
+          <input type="text" value={nota} onChange={(e) => setNota(e.target.value)} placeholder={pide === "anular" ? "Por qué se anula" : "Qué cambia y por qué"}
+            className="min-w-[260px] flex-1 rounded-[5px] border border-[#cfcfcf] px-2 py-0.5" />
+          <button type="button" className={ENLACE} disabled={ocupado || !nota.trim() || (pide === "modificar" && !quien)}
+            onClick={() =>
+              pide === "anular" ? hacer(() => accionHojaAnular(v.id, nota))
+                : hacer(() => accionHojaModificar(v.id, quien as "comunidad" | "comercial", nota), (id) => router.push(`/comercial/hoja-encargo?opp=${oppId}&borrador=${id}`))
+            }>
+            {pide === "modificar" ? "crear la versión nueva" : "guardar"}
+          </button>
+          <button type="button" className={ENLACE} onClick={() => setPide(null)}>cancelar</button>
+        </span>
+      )}
+      {error && <span className="w-full font-semibold text-alerta">{error}</span>}
+    </>
+  );
+}

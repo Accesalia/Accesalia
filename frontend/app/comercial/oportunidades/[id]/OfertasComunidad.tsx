@@ -9,7 +9,7 @@ import type { InformeGuardado } from "../../../../lib/informeCostes";
 import type { CorreoEnviado } from "../../../../lib/envioCorreo";
 import type { DatosPedirViabilidad } from "../../viabilidad-sin-polycam/datos";
 import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
-import { Fila, PorValidar } from "./HojasNuevas";
+import { Fila, ModificarAnular, PorValidar } from "./HojasNuevas";
 import { TipoOferta } from "./TipoOferta";
 import { EscaneoPrevisto } from "./EscaneoPrevisto";
 import { letraMenu } from "../../../components/letraMenu";
@@ -214,6 +214,10 @@ export function OfertasComunidad({
         <span className="text-[12px] text-carbon/55">{x.codigo ? `${x.codigo} v${x.numero}` : "sin código aún"}</span>
         {nueva && <span className="rounded-[4px] bg-[#dbe8f6] px-1.5 py-px text-[10.5px] font-extrabold uppercase tracking-[0.03em] text-[#1f4f86]">nueva · sin enviar</span>}
         <span className="text-carbon/65">· {que}</span>
+        {/* Modificar y anular, tambien aqui (29-oct-2026). */}
+        <span className="flex flex-wrap items-center gap-x-3">
+          <ModificarAnular oppId={id} v={x} />
+        </span>
       </div>
       {debajo && <div className="pl-6">{debajo}</div>}
     </li>
