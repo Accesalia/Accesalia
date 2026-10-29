@@ -127,9 +127,10 @@ export default async function GestionOportunidad({
     // ficha sale igual, sin el aviso.
     completitud(id).catch(() => ({ aplica: false, falta: [] as Falta[] })),
     // Que hace falta antes de darles precio: Polycam y viabilidad (15-oct-2026).
-    bloque === 1 || bloque === 2 ? necesidadesDe(id).catch(() => null) : Promise.resolve(null),
+    // LA TIRA DEL 3D Y LA VIABILIDAD ES TRANSVERSAL (29-oct-2026): en todos los bloques.
+    necesidadesDe(id).catch(() => null),
     // Pedir viabilidad y costes al arquitecto sin Polycam (el formulario es del hilo grafico).
-    bloque === 1 || bloque === 2 ? datosPedirViabilidad(id).catch(() => null) : Promise.resolve(null),
+    datosPedirViabilidad(id).catch(() => null),
   ]);
   // Su administrador, a la comunidad, si la comunidad no tiene (8-oct-2026).
   const propuestaAdmin = await propuestaAdminComunidad(id).catch(() => null);
@@ -318,7 +319,7 @@ export default async function GestionOportunidad({
   );
 
   const tiraBloque1 =
-    bloque === 1 && necesita ? (
+    necesita ? (
             <TiraBloque1
               oppId={id}
               n={necesita}
@@ -429,8 +430,9 @@ export default async function GestionOportunidad({
             Polycam y la viabilidad en una linea crema sobre el contenido, y Ficha /
             Informe encima del diario. El codigo baja a la cabecera, y la referencia
             y el distrito a la card del Catastro. */}
-        {/* LA TIRA DEL BLOQUE 1 va ahora dentro de su recuadro, sobre la banda gris (Bloque1, 29-oct-2026). El paso de
-            «Ficha / Informe» es «3.2 Informe comercial» del menu. */}
+        {/* LA TIRA DEL 3D Y LA VIABILIDAD, en TODOS los bloques (Monica, 29-oct-2026: «deberia ser transversal»), sobre su
+            banda gris, arriba del recuadro del bloque. */}
+        {tiraBloque1 && <div className="mb-[10px] rounded-[10px] bg-[#575d64] px-4 py-2.5">{tiraBloque1}</div>}
         {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
             contacto y siguiente paso. Solo en las que se miran (2025 en
             adelante y sin hoja enviada o firmada). */}
@@ -466,7 +468,7 @@ export default async function GestionOportunidad({
               <Bloque1
                 id={id}
                 ver={ver1}
-                tira={tiraBloque1}
+                tira={null}
                 referencia={g.referenciaCatastral}
                 distrito={distrito}
                 comunidadId={g.comunidadId}

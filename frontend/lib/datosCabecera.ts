@@ -106,6 +106,18 @@ export async function guardarDatoCabecera(
   return res.includes("cambiado") ? "cambiado" : "guardado";
 }
 
+/** EL NOMBRE DE LA OPP, SOLO EL NOMBRE (Monica, 29-oct-2026): para corregir una errata sin tocar los portales ni la
+ *  referencia. Si cambia la calle, el numero o la localidad, la pantalla pregunta y se va a la ventana de Catastro
+ *  (cambiarDireccion), que reconecta los portales. Sin comunidad, el nombre provisional es lo unico que la nombra. */
+export async function renombrarOpp(oppId: string, nombre: string): Promise<void> {
+  if (!uuid(oppId)) throw new Error("Oportunidad no válida");
+  const n = nombre.replace(/\s+/g, " ").trim();
+  if (n.length < 3) throw new Error("El nombre es demasiado corto.");
+  const [op] = await leer<{ comunidad_id: string | null }[]>(`oportunidades?select=comunidad_id&id=eq.${oppId}&limit=1`);
+  if (!op) throw new Error("No existe esa oportunidad");
+  await cambiarOpp(oppId, { nombre: n, ...(op.comunidad_id ? {} : { comunidad_provisional: n }) });
+}
+
 /** Añadir un contacto a la comunidad (la caja «Contactos de la comunidad»): persona + puesto en la comunidad. */
 export async function anadirContactoComunidad(oppId: string, n: PersonaNueva, comercialId: string | null): Promise<void> {
   const comunidades = await comunidadesDeOpp(oppId);

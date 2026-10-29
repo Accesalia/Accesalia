@@ -25,7 +25,7 @@ import { marcarAscensor, marcarPortal } from "../../edificio/[referencia]/accion
 import { cambiarDireccion, type PersonaNueva } from "../../../../lib/altaOportunidad";
 import { agendarReunion, choquesJunta } from "../../../../lib/juntaFicha";
 import { apuntar, guardarDatosJunta, ponerDondeCambio, quitarApunte, type Apartado } from "../../../../lib/negociacion";
-import { anadirContactoComunidad, buscarPersonas, guardarDatoCabecera, type CampoCabecera, type OpcionPersona } from "../../../../lib/datosCabecera";
+import { anadirContactoComunidad, buscarPersonas, guardarDatoCabecera, type CampoCabecera, type OpcionPersona, renombrarOpp } from "../../../../lib/datosCabecera";
 import { guardarCompletar, ponerAdminEnComunidad, type DatosCompletar } from "../../../../lib/completa";
 import { comercialDe, puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { quedaPorCobrar } from "../../../../lib/cabeceraOpp";
@@ -458,6 +458,17 @@ export async function accionDatoCabecera(
     const que = await guardarDatoCabecera(id, campo, d, yo.comercial?.id ?? null);
     refrescar(id);
     return { ok: true, que };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+/** Corregir el nombre de la opp desde la cabecera, sin Catastro (una errata). */
+export async function accionNombreOpp(id: string, nombre: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await permiso(id);
+  try {
+    await renombrarOpp(id, nombre);
+    refrescar(id);
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

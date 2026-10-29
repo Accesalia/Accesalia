@@ -1,7 +1,7 @@
 import { AnadirContacto, DatoEditable } from "./DatoEditable";
 import Link from "next/link";
 import { Fragment } from "react";
-import { CambiarDireccion } from "./CambiarDireccion";
+import { NombreEditable } from "./NombreEditable";
 import { accionAnadirInteres, accionAnular, accionCerrar, accionPausar, accionQuitarInteres, accionReabrir, accionReabrirAnulada, accionReactivar } from "./acciones";
 import { BOTON, CAJA, CAMPO, ROTULO, ROT_CAJA } from "./estilo";
 import { CabeceraPlegable } from "./CabeceraPlegable";
@@ -76,17 +76,15 @@ export function Cabecera({
         izquierda={
           <>
             {g.codigo && <span className="text-[11px] font-bold tabular-nums text-carbon/60">{g.codigo}</span>}
-            {/* CUANDO SE ABRIO (Monica, 28-oct-2026). */}
-            {g.creada && (
-              <span className="text-[11px] tabular-nums text-carbon/55">
-                abierta el {g.creada.slice(8, 10)}/{g.creada.slice(5, 7)}/{g.creada.slice(0, 4)}
-              </span>
-            )}
+            {/* CUANDO SE ABRIO: ya no va aqui, sino en la caja de Administracion (29-oct-2026: «en direcciones largas se nos
+                come todo el ancho»). */}
             {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren. */}
-              <h1 className="whitespace-nowrap text-[19px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_0_rgba(0,0,0,0.15)]">
-                {g.direccion}
-                {cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#1F4E99] [text-shadow:none]">{cab.quieren}</span>}
-              </h1>
+            {/* EDITABLE COMO LO DEMAS (29-oct-2026): al guardar pregunta si toca la ficha de Catastro. */}
+            <NombreEditable
+              id={id}
+              nombre={g.direccion}
+              detras={cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#1F4E99] [text-shadow:none]">{cab.quieren}</span>}
+            />
             {/* El aviso de la direccion (provisional...) no se esconde en el panel. */}
             {g.aviso && (
               <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">{g.aviso}</span>
@@ -122,9 +120,7 @@ export function Cabecera({
         {/* El hueco que sobra va ENTRE el nombre y el cuadrito gris, que se
             queda abajo (Monica, 15-oct-2026). */}
         <div className={CAJA + " flex min-w-0 flex-col p-4"}>
-          <div className="flex flex-wrap items-center">
-            <CambiarDireccion id={id} actual={g.direccion} pendiente={Boolean(g.aviso)} />
-          </div>
+          {/* El chip «Direccion mal apuntada, la corrijo» se fue (29-oct-2026): el nombre se corrige pulsandolo arriba. */}
 
           {/* EN LA MISMA DIRECCION: las otras opps, con sus ACCESOS (esc 1, esc
               2...), lo que querian o contrataron y como acabaron. Cada una lleva
@@ -201,6 +197,14 @@ export function Cabecera({
               </span>
               </DatoEditable>
             </p>
+            {g.creada && (
+              <p className="text-[12px] font-bold leading-[1.6] text-[#76749D]">
+                Abierta el{" "}
+                <span className="font-normal tabular-nums text-carbon/75">
+                  {g.creada.slice(8, 10)}/{g.creada.slice(5, 7)}/{g.creada.slice(0, 4)}
+                </span>
+              </p>
+            )}
             {/* Se quitan con la x y se anaden: "asi luego la hoja de encargo sale
                 prerrellenada bien". */}
             <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[12px] font-bold leading-[1.6] text-[#76749D]">
