@@ -226,7 +226,7 @@ export function CarteraClara({
   const limpio = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const q = limpio(busca.trim());
   const cuenta = (f: Filtro) =>
-    f === "todos" ? c.gestores.length : f === "sin_contacto" ? c.gestores.filter(sinContacto90).length : f === "no_consolidados" ? c.noConsolidados.length : c.gestores.filter((g) => g.etiquetas.includes(f)).length;
+    f === "todos" ? c.gestores.length + c.noConsolidados.length : f === "sin_contacto" ? c.gestores.filter(sinContacto90).length : f === "no_consolidados" ? c.noConsolidados.length : c.gestores.filter((g) => g.etiquetas.includes(f)).length;
   const lista = useMemo(() => {
     const vale = (g: GestorCartera) =>
       filtro === "todos" ? true : filtro === "sin_contacto" ? sinContacto90(g) : filtro === "no_consolidados" ? false : g.etiquetas.includes(filtro);
@@ -386,31 +386,18 @@ export function CarteraClara({
             ) : (
               <ul className="max-h-[42rem] divide-y divide-black/20 overflow-y-auto">
                 {posibles.map((p) => (
-                  <li key={p.id} className="flex items-center gap-2 px-4 py-2">
-                    <Link href={`/consulta/personas/${p.personaId}`} className="min-w-0 flex-1 hover:underline">
-                      <span className="text-[14px] font-bold text-carbon">{p.nombre}</span>
-                      <span className="text-[13px] text-carbon/70">
-                        {" "}
-                        · {p.administracion ?? "sin administración"}
-                        {p.telefono ? ` · ${p.telefono}` : ""}
-                      </span>
-                    </Link>
-                    <span className="shrink-0 text-[12px] tabular-nums text-carbon/65">traído el {fecha(p.creado)}</span>
-                    <button
-                      type="button"
-                      onClick={() => setGrabando(`puesto:${p.id}`)}
-                      className="shrink-0 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-1 text-[12px] font-bold text-lima-dark hover:bg-lima hover:text-carbon"
-                    >
-                      GRABAR NOTA
-                    </button>
-                  </li>
+                  <FilaPosible key={p.id} p={p} alGrabar={() => setGrabando(`puesto:${p.id}`)} />
                 ))}
               </ul>
             )
-          ) : lista.length === 0 ? (
+          ) : lista.length === 0 && (filtro !== "todos" || posibles.length === 0) ? (
             <p className="px-4 py-6 text-[13px] text-carbon/65">{c.gestores.length ? "Ninguno con este filtro." : "Todavía no hay administradores consolidados."}</p>
           ) : (
             <ul className="max-h-[42rem] divide-y divide-black/20 overflow-y-auto">
+              {/* En «Todos» salen tambien los traidos que aun no han firmado, los primeros y con su marca
+                  (Monica, 29-oct-2026: Beatriz no encontraba al que acababa de dar de alta). */}
+              {filtro === "todos" &&
+                posibles.map((p) => <FilaPosible key={p.id} p={p} marca alGrabar={() => setGrabando(`puesto:${p.id}`)} />)}
               {lista.map((g) => (
                 <Tarjeta key={g.id} g={g} alGrabar={() => setGrabando(`puesto:${g.id}`)} />
               ))}
@@ -434,6 +421,33 @@ export function CarteraClara({
         <SinAdministrador c={c} sombra={sombraPanel} />
       </div>
     </>
+  );
+}
+
+/** Un administrador traido que aun no ha firmado ninguna hoja (no consolidado). */
+function FilaPosible({ p, marca = false, alGrabar }: { p: CarteraGestores["noConsolidados"][number]; marca?: boolean; alGrabar: () => void }) {
+  return (
+    <li className="flex items-center gap-2 px-4 py-2">
+      <Link href={`/consulta/personas/${p.personaId}`} className="min-w-0 flex-1 hover:underline">
+        <span className="text-[14px] font-bold text-carbon">{p.nombre}</span>
+        <span className="text-[13px] text-carbon/70">
+          {" "}
+          · {p.administracion ?? "sin administración"}
+          {p.telefono ? ` · ${p.telefono}` : ""}
+        </span>
+      </Link>
+      {marca && (
+        <span className="shrink-0 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11.5px] font-semibold text-amber-900">sin firmar aún</span>
+      )}
+      <span className="shrink-0 text-[12px] tabular-nums text-carbon/65">traído el {fecha(p.creado)}</span>
+      <button
+        type="button"
+        onClick={alGrabar}
+        className="shrink-0 rounded-lg border border-lima/60 bg-lima-soft px-2.5 py-1 text-[12px] font-bold text-lima-dark hover:bg-lima hover:text-carbon"
+      >
+        GRABAR NOTA
+      </button>
+    </li>
   );
 }
 
