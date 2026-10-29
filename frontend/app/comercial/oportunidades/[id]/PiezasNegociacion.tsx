@@ -41,12 +41,16 @@ export function ApuntesApartado({
   titulo,
   pista,
   apuntes,
+  enAgenda = [],
 }: {
   oppId: string;
   apartado: Apartado;
   titulo: string;
   pista: string;
   apuntes: Apunte[];
+  /** Quien ya figura en la agenda de la comunidad con ese papel (el presidente, la comision de obras): 29-oct-2026,
+   *  «aunque hay presidente, en quien es quien no sale». */
+  enAgenda?: { nombre: string; telefono: string | null; papel: string | null }[];
 }) {
   const { ocupado, error, hacer } = useAccion();
   const [texto, setTexto] = useState("");
@@ -89,8 +93,20 @@ export function ApuntesApartado({
     );
 
   return (
-    <div className={"rounded-[12px] border px-4 py-3 " + (apuntes.length ? "border-[#5d646c] bg-white" : "border-dashed border-[#9aa0a6] bg-[#fcfcfa]")}>
+    <div className={"rounded-[12px] border px-4 py-3 " + (apuntes.length || enAgenda.length ? "border-[#5d646c] bg-white" : "border-dashed border-[#9aa0a6] bg-[#fcfcfa]")}>
       <div className="text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">{titulo}</div>
+      {enAgenda.length > 0 && (
+        <ul className="mt-1">
+          {enAgenda.map((c, i) => (
+            <li key={i} className="flex flex-wrap items-baseline gap-x-2 py-0.5 text-[12.5px]">
+              <b>{c.nombre}</b>
+              {c.papel && <span className="text-carbon/65">{c.papel}</span>}
+              {c.telefono && <span className="tabular-nums text-carbon/70">· {c.telefono}</span>}
+              <span className="rounded-[4px] bg-[#eef2f6] px-1.5 text-[10.5px] font-semibold text-[#104269]">en la agenda</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {apuntes.length > 0 && (
         <ul className="mt-1 divide-y divide-[#f0f0f0]">
           {apuntes.map((a) => (

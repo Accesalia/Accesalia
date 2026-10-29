@@ -295,7 +295,22 @@ export function SeguimientoNegociacion({
                   ["competencia", "Competencia", "¿han pedido oferta a otro arquitecto? ¿a quién y por cuánto?"],
                 ] as const
               ).map(([ap, t, p]) => (
-                <ApuntesApartado key={ap} oppId={id} apartado={ap} titulo={t} pista={p} apuntes={neg.apuntes.filter((a) => a.apartado === ap)} />
+                <ApuntesApartado
+                  key={ap}
+                  oppId={id}
+                  apartado={ap}
+                  titulo={t}
+                  pista={p}
+                  apuntes={neg.apuntes.filter((a) => a.apartado === ap)}
+                  // El presidente y la comision de obras que ya figuran en la agenda de la comunidad, por su papel.
+                  enAgenda={
+                    ap === "presidente"
+                      ? contactos.filter((c) => /^\s*presiden/i.test(c.papel ?? ""))
+                      : ap === "comision_obras"
+                        ? contactos.filter((c) => /comisi[oó]n/i.test(c.papel ?? ""))
+                        : []
+                  }
+                />
               ))}
             </div>
           </>
