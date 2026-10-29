@@ -15,7 +15,9 @@ import type { FilaAbierta } from "../../../lib/listaAbiertas";
 //   - pinchar una fila abre la ficha de la opp (hoy, la de bloques; la nueva cuando exista).
 
 type Paso = { clave: string; titulo: string; hecha: boolean };
-type Orden = "nombre" | "punto" | "dias" | "contacto" | "admin" | "importe" | "recientes";
+type Orden = "nombre" | "punto" | "dias" | "contacto" | "admin" | "importe" | "recientes" | "antiguas";
+/** CUANDO SE ABRIO, para filtrar (Monica, 29-oct-2026: «poder ordenar y filtrar por fecha arriba»). */
+type Cuando = "" | "mes" | "3m" | "6m" | "ano" | "pasado" | "mas1" | "entre";
 
 /** Lo de la firma en adelante (firmado, facturado, cobrado): fuera con «Ver solo las abiertas». */
 const FIRMADAS = new Set([
@@ -30,6 +32,24 @@ const eur = (n: number) => n.toLocaleString("es-ES", { maximumFractionDigits: 0,
 const fecha = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}` : "—");
 const fechaLarga = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 const lim = (s: string | null | undefined) => (s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const hoyIso = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+const mesesAtras = (n: number) => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - n);
+  return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+};
+/** El tramo [desde, hasta] de cada opcion de «Abiertas» (AAAA-MM-DD; vacio = sin limite). */
+function tramo(c: Cuando, entre: { desde: string; hasta: string }): [string, string] {
+  const h = hoyIso(), a = h.slice(0, 4);
+  return c === "mes" ? [`${h.slice(0, 7)}-01`, ""]
+    : c === "3m" ? [mesesAtras(3), ""]
+    : c === "6m" ? [mesesAtras(6), ""]
+    : c === "ano" ? [`${a}-01-01`, ""]
+    : c === "pasado" ? [`${Number(a) - 1}-01-01`, `${Number(a) - 1}-12-31`]
+    : c === "mas1" ? ["", mesesAtras(12)]
+    : c === "entre" ? [entre.desde, entre.hasta]
+    : ["", ""];
+}
 const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(iso + "T12:00:00").getTime()) / 86_400_000);
 /** Las administraciones y personas que vienen en mayusculas, en minusculas con su inicial: que mande la direccion. */
 const MENORES = new Set(["de", "del", "la", "las", "los", "y", "e", "en"]);
@@ -59,6 +79,8 @@ export function ListaAbiertas({
   const [orden, setOrden] = useState<Orden>("nombre");
   const [soloAbiertas, setSoloAbiertas] = useState(false);
   const [punto, setPunto] = useState("");
+  const [cuando, setCuando] = useState<Cuando>("");
+  const [entre, setEntre] = useState({ desde: "", hasta: "" });
   const [pagina, setPagina] = useState(0);
 
   const ordenDe = useMemo(() => new Map(pasos.map((p, i) => [p.clave, i])), [pasos]);
@@ -71,10 +93,13 @@ export function ListaAbiertas({
 
   const vistas = useMemo(() => {
     const t = lim(q.trim());
+    const [desde, hasta] = tramo(cuando, entre);
     const xs = filas.filter(
       (f) =>
         (!soloAbiertas || !FIRMADAS.has(f.clave ?? "")) &&
         (!punto || f.clave === punto) &&
+        (!desde || (!!f.abierta && f.abierta >= desde)) &&
+        (!hasta || (!!f.abierta && f.abierta <= hasta)) &&
         (!t || lim([f.nombre, f.codigo, f.empresa, f.persona, f.quieren].join(" ")).includes(t)),
     );
     const val = (f: FilaAbierta): number | string =>
@@ -84,12 +109,13 @@ export function ListaAbiertas({
       : orden === "contacto" ? (f.ultimoContacto ?? "0000")
       : orden === "admin" ? lim(f.empresa ?? "~")
       : orden === "recientes" ? -new Date(f.abierta ?? "1970-01-01").getTime()
+      : orden === "antiguas" ? new Date(f.abierta ?? "9999-12-31").getTime()
       : lim(f.nombre);
     return xs.sort((a, b) => {
       const x = val(a), y = val(b);
       return x > y ? 1 : x < y ? -1 : lim(a.nombre).localeCompare(lim(b.nombre));
     });
-  }, [filas, q, orden, soloAbiertas, punto, ordenDe]);
+  }, [filas, q, orden, soloAbiertas, punto, cuando, entre, ordenDe]);
 
   const paginas = Math.max(1, Math.ceil(vistas.length / POR_PAGINA));
   const pag = Math.min(pagina, paginas - 1);
@@ -177,7 +203,8 @@ export function ListaAbiertas({
               <option value="contacto">Último contacto más antiguo</option>
               <option value="admin">Administrador</option>
               <option value="importe">Más importe</option>
-              <option value="recientes">Más recientes</option>
+              <option value="recientes">Apertura: más recientes</option>
+              <option value="antiguas">Apertura: más antiguas</option>
             </select>
           </label>
           <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -208,6 +235,26 @@ export function ListaAbiertas({
                 ))}
               </select>
             </label>
+            <label className={etiqueta}>
+              Abiertas
+              <select value={cuando} onChange={(e) => cambia(setCuando)(e.target.value as Cuando)} className={selector}>
+                <option value="">cuando sea</option>
+                <option value="mes">este mes</option>
+                <option value="3m">últimos 3 meses</option>
+                <option value="6m">últimos 6 meses</option>
+                <option value="ano">este año</option>
+                <option value="pasado">el año pasado</option>
+                <option value="mas1">hace más de un año</option>
+                <option value="entre">entre fechas…</option>
+              </select>
+            </label>
+            {cuando === "entre" && (
+              <span className="flex items-center gap-1.5 text-[13px] text-[#f3ecdd]">
+                <input type="date" aria-label="Abiertas desde" value={entre.desde} onChange={(e) => cambia(setEntre)({ ...entre, desde: e.target.value })} className={selector + " py-1"} />
+                y
+                <input type="date" aria-label="Abiertas hasta" value={entre.hasta} onChange={(e) => cambia(setEntre)({ ...entre, hasta: e.target.value })} className={selector + " py-1"} />
+              </span>
+            )}
             <p className="whitespace-nowrap text-[14px] font-semibold text-[#f3ecdd]">
               {vistas.length === filas.length ? `${filas.length} opps` : `${vistas.length} de ${filas.length} opps`}
             </p>
@@ -245,7 +292,7 @@ export function ListaAbiertas({
                         {f.sinComunidad && <span className={chip}>sin dar de alta</span>}
                       </div>
                       {/* CUANDO SE ABRIO (Monica, 28-oct-2026), bajo la direccion para no tocar las columnas de su maqueta. */}
-                      {f.abierta && <div className="text-[11.5px] text-carbon/50">abierta el {fechaLarga(f.abierta)}</div>}
+                      {f.abierta && <div className="text-[11.5px] text-carbon/75">abierta el {fechaLarga(f.abierta)}</div>}
                     </td>
                     <td className="max-w-[230px] truncate px-3 py-2 text-carbon/75" title={admin || undefined}>
                       {admin || <span className="text-carbon/35">—</span>}
