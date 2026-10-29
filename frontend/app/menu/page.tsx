@@ -250,6 +250,16 @@ const PUERTAS: Puerta[] = [
     href: "/comercial/bloques",
     funciones: ["direccion", "secretaria"],
   },
+  {
+    // COMISIONES A ADMINS (Monica, 29-oct-2026): junto a la plantilla de la hoja. La secretaria comercial, los
+    // comerciales y direccion: los acuerdos y el importe de una opp concreta. Los pagos, en Ecobalance.
+    nombre: "Comisiones a Admins",
+    grupo: "direccion",
+    icono: "porcentaje",
+    desc: "Lo pactado con cada administrador o colaborador: crearlo, cambiarlo y poner un importe distinto en una opp",
+    href: "/comercial/comisiones-admins",
+    funciones: ["direccion", "secretaria", "comercial", "supervision_comercial"],
+  },
 ];
 
 export default async function Menu() {

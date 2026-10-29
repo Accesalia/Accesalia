@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Acuerdo, Sobre } from "../../../../lib/comisionesAdmin";
 import { accionBuscarEmpresas, accionBuscarPersonas, accionGuardarAcuerdo } from "../acciones";
+import { accionBuscarEmpresasGestion, accionBuscarPersonasGestion, accionGuardarAcuerdoGestion } from "../../../comercial/comisiones-admins/acciones";
 
 // PARTE 1 DE LA FICHA: el acuerdo. Quien cobra, de que administraciones (o «solo
 // lo suyo»), y las tres condiciones. «Verificado» lo marca Monica tras revisarlo.
@@ -51,8 +52,14 @@ function Buscador<T extends { id: string; nombre: string }>({ buscar, elegir, pl
   );
 }
 
-export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
+/** modo «gestion» (Comisiones a Admins, 29-oct-2026): secretaria, comerciales y direccion; sin lo que va en B, y
+ *  «verificado» solo si puede verificar. */
+export function FormAcuerdo({ acuerdo: a, modo = "ecobalance", puedeVerificar = true }: { acuerdo: Acuerdo | null; modo?: "ecobalance" | "gestion"; puedeVerificar?: boolean }) {
   const router = useRouter();
+  const gestion = modo === "gestion";
+  const base = gestion ? "/comercial/comisiones-admins" : "/ecobalance/comisiones";
+  const buscarPersonas = gestion ? accionBuscarPersonasGestion : accionBuscarPersonas;
+  const buscarEmpresas = gestion ? accionBuscarEmpresasGestion : accionBuscarEmpresas;
   const [persona, setPersona] = useState<{ id: string; nombre: string } | null>(a?.personaId ? { id: a.personaId, nombre: a.persona ?? "" } : null);
   const [alcance, setAlcance] = useState<"empresas" | "lo_suyo">(a?.alcance ?? "empresas");
   const [empresas, setEmpresas] = useState<{ id: string; nombre: string }[]>(a?.alcance === "empresas" ? a.empresas : []);
@@ -82,7 +89,7 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
   const guardar = () =>
     empezar(async () => {
       setError(null);
-      const r = await accionGuardarAcuerdo(a?.id ?? null, {
+      const r = await (gestion ? accionGuardarAcuerdoGestion : accionGuardarAcuerdo)(a?.id ?? null, {
         personaId: persona?.id ?? null,
         alcance,
         empresas: empresas.map((e) => e.id),
@@ -102,7 +109,7 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
       });
       if (!r.ok) return setError(r.error);
       setHecho(true);
-      if (!a) router.push(`/ecobalance/comisiones/${r.id}`);
+      if (!a) router.push(`${base}/${r.id}`);
       else router.refresh();
     });
 
@@ -120,7 +127,7 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
               </button>
             </span>
           ) : (
-            <Buscador buscar={accionBuscarPersonas} elegir={(p) => setPersona(p)} placeholder="Buscar en la agenda…" pinta={(p) => `${p.nombre}${p.empresa ? ` · ${p.empresa}` : ""}`} />
+            <Buscador buscar={buscarPersonas} elegir={(p) => setPersona(p)} placeholder="Buscar en la agenda…" pinta={(p) => `${p.nombre}${p.empresa ? ` · ${p.empresa}` : ""}`} />
           )}
           <span className="text-[12px] text-carbon/50">el jefe: sus empleados no deben saber que existe</span>
         </div>
@@ -147,7 +154,7 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
                   </button>
                 </span>
               ))}
-              <Buscador buscar={accionBuscarEmpresas} elegir={(e) => setEmpresas((x) => (x.some((y) => y.id === e.id) ? x : [...x, e]))} placeholder="+ Añadir administración…" />
+              <Buscador buscar={buscarEmpresas} elegir={(e) => setEmpresas((x) => (x.some((y) => y.id === e.id) ? x : [...x, e]))} placeholder="+ Añadir administración…" />
             </div>
           )}
         </div>
@@ -177,10 +184,12 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
                     <input type="checkbox" checked={c.estado === "pendiente"} onChange={(e) => cambia(clave, { estado: e.target.checked ? "pendiente" : "pactada" })} className="accent-[#104269]" />
                     pendiente de negociar
                   </label>
-                  <label className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={c.enB} onChange={(e) => cambia(clave, { enB: e.target.checked })} className="accent-[#104269]" />
-                    en B (sin factura)
-                  </label>
+                  {!gestion && (
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" checked={c.enB} onChange={(e) => cambia(clave, { enB: e.target.checked })} className="accent-[#104269]" />
+                      en B (sin factura)
+                    </label>
+                  )}
                   {clave === "contrata" && (
                     <select value={c.via ?? ""} onChange={(e) => cambia(clave, { via: (e.target.value || null) as Cond["via"] })} className={`${campo} w-full`}>
                       <option value="">cómo llega: sin decir</option>
@@ -211,10 +220,16 @@ export function FormAcuerdo({ acuerdo: a }: { acuerdo: Acuerdo | null }) {
         <label className="flex items-center gap-1.5">
           hasta <input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} className={campo} />
         </label>
-        <label className="flex items-center gap-1.5 font-semibold">
-          <input type="checkbox" checked={verificado} onChange={(e) => setVerificado(e.target.checked)} className="h-4 w-4 accent-[#2f5d14]" />
-          verificado por Mónica
-        </label>
+        {puedeVerificar ? (
+          <label className="flex items-center gap-1.5 font-semibold">
+            <input type="checkbox" checked={verificado} onChange={(e) => setVerificado(e.target.checked)} className="h-4 w-4 accent-[#2f5d14]" />
+            verificado por Mónica
+          </label>
+        ) : (
+          <span className={"font-semibold " + (verificado ? "text-[#2f5d14]" : "text-[#875f07]")}>
+            {verificado ? "✓ verificado por Mónica" : "por revisar: cuenta cuando Mónica lo verifique"}
+          </span>
+        )}
       </div>
       <textarea value={notas} onChange={(e) => setNotas(e.target.value)} rows={2} placeholder="Notas del acuerdo…" className={`${campo} mt-3 w-full`} />
 

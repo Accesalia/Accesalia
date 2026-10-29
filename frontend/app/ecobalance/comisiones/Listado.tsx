@@ -12,11 +12,11 @@ import { textoCondicion } from "./formato";
 const TITULO = { proyecto: "Proyecto", subvenciones: "Subvenciones", contrata: "Contrata" } as const;
 const COLS = "grid-cols-[minmax(0,1.2fr)_minmax(0,1.3fr)_130px_130px_170px_110px]";
 
-function Fila({ a, repetidas }: { a: Acuerdo; repetidas: Set<string> }) {
+function Fila({ a, repetidas, base, gestion }: { a: Acuerdo; repetidas: Set<string>; base: string; gestion: boolean }) {
   const apagado = !a.vigente || a.noCobra;
   return (
     <Link
-      href={`/ecobalance/comisiones/${a.id}`}
+      href={`${base}/${a.id}`}
       className={`grid ${COLS} items-baseline gap-x-3 border-b border-black/5 px-4 py-2.5 text-[13.5px] last:border-0 hover:bg-[#fafbf9] ${apagado ? "opacity-55" : ""}`}
     >
       <span className="min-w-0 truncate font-semibold text-carbon">
@@ -37,7 +37,7 @@ function Fila({ a, repetidas }: { a: Acuerdo; repetidas: Set<string> }) {
         ))}
       </span>
       {SOBRES.map((s) => {
-        const t = textoCondicion(a.condiciones[s], s === "contrata");
+        const t = textoCondicion(a.condiciones[s], s === "contrata", gestion);
         return (
           <span key={s} className="min-w-0">
             {t ? (
@@ -64,7 +64,7 @@ function Fila({ a, repetidas }: { a: Acuerdo; repetidas: Set<string> }) {
   );
 }
 
-function Tabla({ titulo, nota, lista, repetidas }: { titulo: string; nota?: string; lista: Acuerdo[]; repetidas: Set<string> }) {
+function Tabla({ titulo, nota, lista, repetidas, base, gestion }: { titulo: string; nota?: string; lista: Acuerdo[]; repetidas: Set<string>; base: string; gestion: boolean }) {
   return (
     <section className="mt-6">
       <h2 className="text-[17px] font-bold text-carbon">
@@ -82,7 +82,7 @@ function Tabla({ titulo, nota, lista, repetidas }: { titulo: string; nota?: stri
         </div>
         {lista.length === 0 && <div className="px-5 py-6 text-center text-[13.5px] text-carbon/55">Ninguno.</div>}
         {lista.map((a) => (
-          <Fila key={a.id} a={a} repetidas={repetidas} />
+          <Fila key={a.id} a={a} repetidas={repetidas} base={base} gestion={gestion} />
         ))}
       </div>
     </section>
@@ -90,7 +90,10 @@ function Tabla({ titulo, nota, lista, repetidas }: { titulo: string; nota?: stri
 }
 
 /** El contenido, sin el permiso (lo pone quien lo pinta). */
-export async function ListadoComisiones() {
+/** modo «gestion»: la tarjeta Comisiones a Admins (29-oct-2026), sin lo que va en B. */
+export async function ListadoComisiones({ modo = "ecobalance" }: { modo?: "ecobalance" | "gestion" } = {}) {
+  const gestion = modo === "gestion";
+  const base = gestion ? "/comercial/comisiones-admins" : "/ecobalance/comisiones";
   const todos = await listaAcuerdos();
   // Una administracion en dos acuerdos vigentes: aviso (alguien cobraria dos veces).
   const cuenta = new Map<string, number>();
@@ -100,13 +103,17 @@ export async function ListadoComisiones() {
     <div className="min-h-screen">
       <BarraSuperior />
       <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-        <Salida href="/ecobalance">← Ecobalance</Salida>
+        <Salida href={gestion ? "/menu" : "/ecobalance"}>{gestion ? "← Menú" : "← Ecobalance"}</Salida>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-carbon">Comisiones de administradores</h1>
-            <p className="mt-1 text-[14px] text-carbon/65">Lo pactado con cada uno. Cobra el jefe; factura siempre a Ecobalance. Solo lo ven Ana, Daniel y Mónica.</p>
+            <h1 className="text-3xl font-bold text-carbon">{gestion ? "Comisiones a Admins" : "Comisiones de administradores"}</h1>
+            <p className="mt-1 text-[14px] text-carbon/65">
+              {gestion
+                ? "Lo pactado con cada uno: créalo, cámbialo o pon un importe distinto en una opp concreta. Cobra el jefe: sus empleados no deben saberlo."
+                : "Lo pactado con cada uno. Cobra el jefe; factura siempre a Ecobalance. Solo lo ven Ana, Daniel y Mónica."}
+            </p>
           </div>
-          <Link href="/ecobalance/comisiones/nuevo" className="ml-auto rounded-xl bg-carbon px-4 py-2 text-[14px] font-bold text-white hover:bg-carbon/85">
+          <Link href={`${base}/nuevo`} className="ml-auto rounded-xl bg-carbon px-4 py-2 text-[14px] font-bold text-white hover:bg-carbon/85">
             + Nuevo acuerdo
           </Link>
         </div>
@@ -115,12 +122,14 @@ export async function ListadoComisiones() {
             ⚠ Hay {repetidas.size === 1 ? "una administración" : `${repetidas.size} administraciones`} en más de un acuerdo vigente: revisa que nadie cobre dos veces.
           </p>
         )}
-        <Tabla titulo="Verificados" lista={todos.filter((a) => a.revision === "verificado")} repetidas={repetidas} />
+        <Tabla titulo="Verificados" lista={todos.filter((a) => a.revision === "verificado")} repetidas={repetidas} base={base} gestion={gestion} />
         <Tabla
           titulo="Por revisar"
           nota="No se dan por buenos hasta que Mónica los verifique: no cuentan para las hojas ni para lo que se les debe."
           lista={todos.filter((a) => a.revision !== "verificado")}
           repetidas={repetidas}
+          base={base}
+          gestion={gestion}
         />
       </main>
     </div>

@@ -38,7 +38,9 @@ async function porTramos<T>(ids: string[], hacer: (t: string) => string): Promis
 async function pedir(ruta: string, init: RequestInit) {
   const r = await fetch(`${URL_BASE}/rest/v1/${ruta}`, { ...init, headers: { ...CAB, ...(init.headers ?? {}) }, cache: "no-store" });
   if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
-  return r.status === 204 ? null : r.json();
+  // Con «return=minimal» un alta vuelve 201 sin cuerpo: no se lee como JSON.
+  const t = r.status === 204 ? "" : await r.text();
+  return t ? JSON.parse(t) : null;
 }
 
 /** Solo Ana (facturacion de Ecobalance) y direccion. */
@@ -479,4 +481,47 @@ export async function buscarEmpresas(q: string) {
   const t = q.trim().replace(/[,()*]/g, " ");
   if (t.length < 2) return [];
   return (await leer<{ id: string; nombre_accesalia: string }>(`empresa?select=id,nombre_accesalia&nombre_accesalia=ilike.*${encodeURIComponent(t)}*&limit=12`)).map((e) => ({ id: e.id, nombre: e.nombre_accesalia }));
+}
+
+// ------------------------------------------------------------ COMISIONES A ADMINS (gestion, 29-oct-2026)
+// La tarjeta «Comisiones a Admins» del menu (Monica, 29-oct-2026): la secretaria comercial, los comerciales y
+// direccion ven los acuerdos, los crean y los cambian, y ponen un importe distinto en UNA opp. SOLO LOS ACUERDOS:
+// los pagos (le debemos, su factura, pagada), sus PDF y lo que va en B siguen en Ecobalance (Ana, Daniel y Monica).
+
+export const puedeGestionarComisiones = (yo: Yo) =>
+  puedeVerComisiones(yo) || yo.funciones.some((f) => ["direccion", "secretaria", "comercial", "supervision_comercial"].includes(f.clave));
+/** Verificar un acuerdo (que cuente) es de Monica y direccion. */
+export const puedeVerificarComisiones = (yo: Yo) => yo.veTodo || yo.funciones.some((f) => f.clave === "direccion");
+
+export type ImporteAMano = { oppId: string; opp: string; sobre: Sobre; importe: number; notas: string | null };
+/** Las opps con un importe puesto a mano en este acuerdo. */
+export async function importesAMano(acuerdoId: string): Promise<ImporteAMano[]> {
+  if (!/^[0-9a-f-]{36}$/.test(acuerdoId)) return [];
+  const fs = await leer<{ oportunidad_id: string; sobre: Sobre; importe: number | null; notas: string | null; opp: { nombre: string | null; codigo: string | null } | null }>(
+    `comisiones_opp?select=oportunidad_id,sobre,importe,notas,opp:oportunidad_id(nombre,codigo)&acuerdo_id=eq.${acuerdoId}&importe_a_mano=is.true`,
+  );
+  return fs
+    .filter((f) => f.importe != null)
+    .map((f) => ({ oppId: f.oportunidad_id, opp: f.opp ? nombreDeOpp(f.opp) : "—", sobre: f.sobre, importe: Number(f.importe), notas: f.notas }))
+    .sort((a, b) => a.opp.localeCompare(b.opp));
+}
+/** Buscar una opp por su nombre, para ponerle un importe distinto. */
+export async function buscarOpps(q: string) {
+  const t = q.trim().replace(/[,()*]/g, " ");
+  if (t.length < 3) return [];
+  const os = await leer<{ id: string; nombre: string | null; codigo: string | null }>(
+    `oportunidades?select=id,nombre,codigo&nombre=ilike.*${encodeURIComponent(t)}*&estado=neq.anulada&limit=12`,
+  );
+  return os.map((o) => ({ id: o.id, nombre: nombreDeOpp(o) }));
+}
+/** Poner (o quitar, con null) el importe de una opp: manda sobre lo que diga el acuerdo. */
+export async function ponerImporteOpp(yo: Yo, acuerdoId: string, oppId: string, sobre: Sobre, importe: number | null, nota: string | null) {
+  if (!/^[0-9a-f-]{36}$/.test(acuerdoId) || !/^[0-9a-f-]{36}$/.test(oppId) || !SOBRES.includes(sobre)) throw new Error("Datos raros.");
+  if (importe != null && (!Number.isFinite(importe) || importe < 0)) throw new Error("El importe no vale.");
+  await apuntarDeuda(yo, acuerdoId, oppId, sobre, { importe });
+  await pedir(`comisiones_opp?acuerdo_id=eq.${acuerdoId}&oportunidad_id=eq.${oppId}&sobre=eq.${sobre}`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ notas: importe == null ? null : nota?.trim() || null }),
+  });
 }
