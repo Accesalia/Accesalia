@@ -119,14 +119,17 @@ export function Cabecera({
         {/* ---------------------------- la opp ---------------------------- */}
         {/* El hueco que sobra va ENTRE el nombre y el cuadrito gris, que se
             queda abajo (Monica, 15-oct-2026). */}
-        <div className={CAJA + " flex min-w-0 flex-col p-4"}>
+        {/* LA TARJETA ES EL GRIS (Monica, 29-oct-2026: «dejaria la gris, con borde crema, y quitaria la blanca de
+            debajo»): sobre el grafito, gris claro con su borde crema; dentro, lo de la misma direccion y lo que nos han
+            contado. */}
+        <div className="flex min-w-0 flex-col rounded-[10px] border-[1.5px] border-[#efe4c8] bg-[#e8e8e4] px-3.5 py-2.5">
           {/* El chip «Direccion mal apuntada, la corrijo» se fue (29-oct-2026): el nombre se corrige pulsandolo arriba. */}
 
           {/* EN LA MISMA DIRECCION: las otras opps, con sus ACCESOS (esc 1, esc
               2...), lo que querian o contrataron y como acabaron. Cada una lleva
               a su ficha. */}
           {cab.otras.length > 0 && (
-            <details className="mt-2.5 rounded-[6px] border border-carbon/25">
+            <details className="mb-2 rounded-[6px] border border-carbon/25 bg-white/60">
               <summary className="flex cursor-pointer list-none items-center justify-between px-2.5 py-1 text-[12px] font-semibold uppercase text-carbon">
                 <span>
                   En la misma dirección:{" "}
@@ -153,8 +156,7 @@ export function Cabecera({
 
           {/* LO QUE NOS HAN CONTADO, sobre su panel gris: la administracion, quien
               nos la trajo, el contacto en la comunidad y lo que dicen que quieren. */}
-          <div aria-hidden className="min-h-[10px] flex-1" />
-          <div className="rounded-[8px] bg-[#d9d9d9]/50 px-2.5 py-2">
+          <div className="mt-auto">
             <p className="text-[12px] leading-[1.6]">
               <span className="mr-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#76749D]">Administración</span>
               {/* SOLO EL ADMINISTRADOR DE LA COMUNIDAD, el de la cartera (Monica,
