@@ -75,7 +75,7 @@ export function Cabecera({
       <CabeceraPlegable
         izquierda={
           <>
-            {g.codigo && <span className="text-[11px] font-bold tabular-nums text-carbon/60">{g.codigo}</span>}
+            {g.codigo && <span className="text-[11px] font-bold tabular-nums text-white/65">{g.codigo}</span>}
             {/* CUANDO SE ABRIO: ya no va aqui, sino en la caja de Administracion (29-oct-2026: «en direcciones largas se nos
                 come todo el ancho»). */}
             {/* EL NOMBRE DE LA OPP, grande y sobre el verde, y detras lo que quieren. */}
@@ -83,7 +83,7 @@ export function Cabecera({
             <NombreEditable
               id={id}
               nombre={g.direccion}
-              detras={cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#1F4E99] [text-shadow:none]">{cab.quieren}</span>}
+              detras={cab.quieren && <span className="ml-2 align-middle text-[10.5px] font-bold uppercase text-[#9cc4ee] [text-shadow:none]">{cab.quieren}</span>}
             />
             {/* El aviso de la direccion (provisional...) no se esconde en el panel. */}
             {g.aviso && (

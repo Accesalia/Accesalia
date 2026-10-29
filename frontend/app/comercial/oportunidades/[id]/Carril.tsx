@@ -138,7 +138,9 @@ export function Pestanas({ hitos, visto, id }: { hitos: HitoGestion[]; visto: nu
         // EN UNA LINEA (Monica, 16-oct-2026, "reducir espacios"): "1 · Toma de
         // datos · Falta el Polycam".
         const clase =
-          "flex min-w-[150px] flex-1 items-baseline gap-1.5 overflow-hidden whitespace-nowrap rounded-t-[10px] px-3.5 py-2 " +
+          // Mas estrechas (29-oct-2026: que quepa el estado) y con borde blanco, activas e inactivas, para separarlas del
+          // grafito.
+          "flex min-w-[110px] flex-1 items-baseline gap-1.5 overflow-hidden whitespace-nowrap rounded-t-[10px] border-[1.5px] border-b-0 border-white px-3 py-2 " +
           // Pegadas al panel, como en su maqueta: las que no se ven, en blanco
           // translucido sobre el verde, NO en el blanco de las tarjetas ("parecen
           // botones mal puestos", 16-oct-2026).

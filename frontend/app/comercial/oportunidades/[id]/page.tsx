@@ -354,9 +354,9 @@ export default async function GestionOportunidad({
     ) : null;
 
   return (
-    // El verde de su maqueta del bloque 1 (#8EB180), en todos los bloques
-    // (Monica, 7-oct-2026).
-    <div className="min-h-screen" style={{ background: "#8EB180" }}>
+    // EL FONDO, GRAFITO como el del menu (Monica, 29-oct-2026: «el verde de fondo de la pagina esta feo»). Antes, el
+    // verde de su maqueta del bloque 1 (#8EB180).
+    <div className="min-h-screen" style={{ background: "#2e3236" }}>
       <BarraSuperior />
       {/* EL LIENZO CRECE CON LA VENTANA, HASTA UN TOPE (Monica, 7-oct-2026).
           Parte de su esqueleto de 1300 y crece con la pantalla, con su margen
@@ -398,7 +398,7 @@ export default async function GestionOportunidad({
           {/* LAS PESTAÑAS LLEGAN HASTA EL DIARIO, y en el hueco de encima del diario
               va el estado con pausar y cerrar (Monica, 16-oct-2026, "reducir
               espacios"). El ancho es el del diario mas el borde del panel. */}
-          <div className="grid items-end gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(332px,calc(352px+(100%-1424px)/3))]">
+          <div className="grid items-end gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(400px,calc(420px+(100%-1424px)/3))]">
             <Pestanas hitos={g.hitos} visto={bloque} id={id} />
             {cab && (
               <div className="mb-1.5">
