@@ -479,6 +479,8 @@ export default async function GestionOportunidad({
                 nFotos={fotos.length}
                 cajon={cajon}
                 nDocs={docsCajon.length}
+                presupuestosContrata={docsCajon.filter((d) => d.tipo === "Presupuesto de la contrata")}
+                tipoPresupuestoContrata={tiposDelCajon.flatMap((t) => t.tipos).find((t) => t.nombre === "Presupuesto de la contrata")?.id ?? null}
                 diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
               />
             </div>

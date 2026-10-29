@@ -6,6 +6,9 @@ import type { ContactoComunidad } from "../../../../lib/gestionOportunidad";
 import { textoReservado, type ReservaAdmin } from "../../../../lib/bloque1";
 import { Edificio, type ParteEdificio } from "./Edificio";
 import { accionEntrada } from "./acciones";
+import { AnadirContacto, DatoEditable } from "./DatoEditable";
+import { SubirConTipo } from "./SubirConTipo";
+import type { DocCajon } from "../../../../lib/cajonDocumentos";
 
 // BLOQUE 1 · TOMA DE DATOS, CON MENU (Monica, 29-oct-2026; su maqueta «Bloque 1 con menú»): como el 2 y el 3, el menu a
 // la izquierda, lo elegido en el centro y el diario a la derecha, en un solo recuadro. Arriba del centro, siempre, la tira
@@ -104,6 +107,8 @@ export function Bloque1({
   nFotos,
   cajon,
   nDocs,
+  presupuestosContrata,
+  tipoPresupuestoContrata,
   diario,
 }: {
   id: string;
@@ -121,6 +126,10 @@ export function Bloque1({
   nFotos: number;
   cajon: ReactNode;
   nDocs: number;
+  /** Los documentos archivados como «Presupuesto de la contrata»: si los hay, el proyecto se ajusta a ellos. */
+  presupuestosContrata: DocCajon[];
+  /** El tipo «Presupuesto de la contrata» del cajon, para subirlo desde su hueco ya archivado. */
+  tipoPresupuestoContrata: string | null;
   diario: ReactNode;
 }) {
   const vista: VistaBloque1 = ver ?? "catastro";
@@ -199,21 +208,25 @@ export function Bloque1({
           {vista === "datos" && (
             <div className="flex flex-col gap-3">
               <Caja titulo={admins.length > 1 ? "Administradores de la comunidad" : "Administrador de la comunidad"}>
-                {admins.length === 0 && <p className="text-carbon/60">No hay administración apuntada en la comunidad.</p>}
+                {admins.length === 0 && (
+                  <DatoEditable oppId={id} campo="admin" hayDato={false}>
+                    <span className="text-carbon/60">— no se apuntó.</span>
+                  </DatoEditable>
+                )}
                 {admins.map((a) => {
                   const r = a.empresaId ? reservas.get(a.empresaId) : undefined;
                   return (
                     <div key={(a.personaId ?? "") + (a.empresaId ?? "")} className="border-b border-dashed border-[#e5e5e5] py-1.5 last:border-0">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                        <span>
+                        <DatoEditable oppId={id} campo="admin" hayDato>
                           <b className="text-[14px]">{a.persona}</b>
                           {a.empresa && (
                             <span className="text-carbon/65">
                               {" "}
-                              · {a.empresaId ? <Link href={`/administracion/administraciones/${a.empresaId}`} className={ENLACE}>{a.empresa}</Link> : a.empresa}
+                              · {a.empresa}
                             </span>
                           )}
-                        </span>
+                        </DatoEditable>
                         {a.telefono && <span className="text-carbon/75">{a.telefono}</span>}
                       </div>
                       {r?.reservado && (
@@ -242,7 +255,6 @@ export function Bloque1({
 
               <Caja
                 titulo="Contactos de la comunidad"
-                extra={comunidadId && <Link href={`/administracion/comunidades/${comunidadId}`} className={ENLACE}>+ Añadir o cambiar en su ficha</Link>}
               >
                 {contactos.length === 0 && <p className="text-carbon/60">Ningún contacto apuntado.</p>}
                 {contactos.map((c, i) => (
@@ -254,14 +266,49 @@ export function Bloque1({
                     {c.telefono && <span className="text-carbon/75">{c.telefono}</span>}
                   </div>
                 ))}
+                <AnadirContacto oppId={id} />
                 <Nota id={id} sobre="los contactos de la comunidad" placeholder="Nota sobre los vecinos o el presidente (va al diario)" />
               </Caja>
 
               <Caja titulo="Quién nos lo trae">
                 <div className="flex gap-3 text-[13px]">
                   <b className="min-w-[170px] font-semibold text-carbon/70">Lo trae</b>
-                  <span>{trajo ?? <span className="text-carbon/55">sin apuntar</span>}</span>
+                  <DatoEditable oppId={id} campo="trajo" hayDato={!!trajo}>
+                    <span>{trajo ?? <span className="text-carbon/55">— no se apuntó.</span>}</span>
+                  </DatoEditable>
                 </div>
+                {/* EL PRESUPUESTO DE LA CONTRATA (Monica, 29-oct-2026): no se exige, pero su hueco esta siempre para completarlo
+                    si viene. Si esta, hay que tenerlo en cuenta: el proyecto se ajusta a lo que presupuesto la contrata. */}
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
+                  <b className="min-w-[170px] font-semibold text-carbon/70">Presupuesto de la contrata</b>
+                  {presupuestosContrata.length === 0 ? (
+                    <>
+                      <span className="text-carbon/50">— si viene,</span>
+                      {tipoPresupuestoContrata && <SubirConTipo oppId={id} tipoId={tipoPresupuestoContrata} rotulo="súbelo aquí" />}
+                    </>
+                  ) : (
+                    <span className="flex flex-wrap items-center gap-x-2">
+                      {presupuestosContrata.map((d, i) => (
+                        <span key={d.id}>
+                          {i > 0 && " · "}
+                          {d.url ? (
+                            <a href={d.url} target="_blank" rel="noreferrer" className={ENLACE}>
+                              {d.nombre}
+                            </a>
+                          ) : (
+                            d.nombre
+                          )}
+                        </span>
+                      ))}
+                      {tipoPresupuestoContrata && <SubirConTipo oppId={id} tipoId={tipoPresupuestoContrata} rotulo="+ otro" />}
+                    </span>
+                  )}
+                </div>
+                {presupuestosContrata.length > 0 && (
+                  <div className="mt-2 flex gap-2.5 rounded-[8px] border-[1.5px] border-[#e0b04a] bg-[#fffaf0] px-3 py-2 text-[#5a3d00]">
+                    ⚠<b>Hay presupuesto de la contrata: el proyecto tiene que ajustarse a lo que presupuestó.</b>
+                  </div>
+                )}
                 <Nota id={id} sobre="quién nos lo trae" placeholder="Lo que contó al traerla, o lo que hay que tener en cuenta (va al diario)" />
               </Caja>
             </div>

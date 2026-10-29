@@ -405,11 +405,11 @@ export async function accionPermisosCajon(oppId: string, nombres: string[]): Pro
     return { ok: false, error: (e as Error).message };
   }
 }
-export async function accionApuntarCajon(oppId: string, subidos: { ruta: string; nombre: string }[]): Promise<{ ok: true; n: number } | { ok: false; error: string }> {
+export async function accionApuntarCajon(oppId: string, subidos: { ruta: string; nombre: string }[], tipoId?: string): Promise<{ ok: true; n: number } | { ok: false; error: string }> {
   const yo = await quienSoy();
   if (!yo || !(await puedeVerOpp(yo, oppId))) return { ok: false, error: "No puedes tocar esta oportunidad." };
   try {
-    const n = await apuntarEnCajon(yo, oppId, subidos);
+    const n = await apuntarEnCajon(yo, oppId, subidos, tipoId);
     revalidatePath(`/comercial/oportunidades/${oppId}`);
     revalidatePath("/bandeja-comercial");
     return { ok: true, n };

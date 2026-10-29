@@ -147,15 +147,20 @@ export async function permisosCajon(oppId: string, nombres: string[]): Promise<{
 }
 
 /** Ya subidos: se apuntan en la opp, sin archivar. */
-export async function apuntarEnCajon(yo: Yo, oppId: string, subidos: { ruta: string; nombre: string }[]): Promise<number> {
+export async function apuntarEnCajon(yo: Yo, oppId: string, subidos: { ruta: string; nombre: string }[], tipoId?: string): Promise<number> {
   if (!uuid(oppId)) throw new Error("Oportunidad no válida.");
   const buenos = subidos.filter((s) => s.ruta.startsWith(`opp/${oppId}/`));
   if (!buenos.length) return 0;
+  // YA ARCHIVADO AL SUBIRLO (29-oct-2026): cuando se sube desde su hueco (el presupuesto de la contrata, en «Datos y
+  // contactos»), ya se sabe lo que es. Sin tipo, todo como siempre: queda sin archivar.
+  const tipo = tipoId ? (await tiposCajon()).flatMap((g) => g.tipos).find((t) => t.id === tipoId) : undefined;
+  if (tipoId && !tipo) throw new Error("Ese tipo no es de los del cajón.");
+  const archivado = tipo ? { tipo_documento_id: tipo.id, archivado_en: new Date().toISOString(), archivado_por: yo.id } : { tipo_documento_id: null };
   await pedir("documentos", {
     method: "POST",
     body: JSON.stringify(
       buenos.map((s) => ({
-        oportunidad_id: oppId, tipo_documento_id: null, backend: "supabase", storage_ref: s.ruta, naturaleza: "subido", nombre: s.nombre.slice(0, 200),
+        oportunidad_id: oppId, ...archivado, backend: "supabase", storage_ref: s.ruta, naturaleza: "subido", nombre: s.nombre.slice(0, 200),
         subido_por: yo.id, grupo_id: crypto.randomUUID(), vigente: true,
       })),
     ),
