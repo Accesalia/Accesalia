@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { intentarAnexo } from "../../lib/anexoGuardado";
-import { avisarDaniel, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, juntarEnLaMesa, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
+import { avisarDaniel, capturaDelCatastro, enlaceAlModelo, empezar, guardar, guardarCaptura, juntar, juntarEnLaMesa, marcar, resolverDaniel, type DatosMesa } from "../../lib/mesaViabilidades";
 import { haceViabilidades } from "./revision-polycam/acciones";
 import { recalcularLuego } from "../../lib/estadoOportunidad";
 import { empezarSolicitud } from "../../lib/solicitudViabilidad";
@@ -85,6 +85,16 @@ export async function accionCaptura(id: string, base64: string): Promise<string 
   const datos = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), "base64");
   if (datos.length < 100 || datos.length > 3_000_000) throw new Error("La captura no ha salido bien");
   return guardarCaptura(id, datos);
+}
+
+/** La imagen del Catastro (croquis o aerea) en lugar de la captura del 3D: las viabilidades sin Polycam (29-oct-2026). */
+export async function accionCapturaCatastro(id: string, que: "croquis" | "aerea"): Promise<{ ok: true; url: string | null } | { ok: false; error: string }> {
+  await haceViabilidades();
+  try {
+    return { ok: true, url: await capturaDelCatastro(id, que) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
 }
 
 export async function accionJuntar(id: string, escaneoId: string) {

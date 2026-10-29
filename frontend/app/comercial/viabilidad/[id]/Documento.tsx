@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { DocViabilidad, LineaTasa } from "../../../../lib/viabilidadComercial";
 import { loQueFalta } from "../../../../lib/viabilidadReglas";
-import { accionGenerar, accionGuardar } from "./acciones";
+import { accionCapturaCatastro, accionGenerar, accionGuardar } from "./acciones";
 
 // EL DOCUMENTO TAL CUAL SALDRA (maqueta del 3-oct, docs/figma/viabilidad.html):
 // las medidas y colores del papel son los suyos, copiados de la maqueta. Lo que
@@ -210,7 +210,31 @@ export function Documento({ d }: { d: DocViabilidad }) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img alt="Captura del 3D" src={d.capturaUrl} />
                 ) : (
-                  <span className="px-4 text-center text-[12px] text-amber-800/80">Falta la captura del 3D: la guarda Alex en la mesa</span>
+                  <span className="flex flex-col items-center gap-1.5 px-4 text-center text-[12px] text-amber-800/80">
+                    Falta la captura del 3D: la guarda Alex en la mesa.
+                    {/* Sin Polycam no hay 3D (Monica, 29-oct-2026): la imagen del Catastro cubre la captura. */}
+                    <span>O usa la del Catastro:</span>
+                    <span className="flex gap-1.5">
+                      {(["croquis", "aerea"] as const).map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          disabled={pendiente}
+                          onClick={() =>
+                            empezar(async () => {
+                              setError(null);
+                              const r = await accionCapturaCatastro(d.id, q);
+                              if (!r.ok) return setError(r.error);
+                              router.refresh();
+                            })
+                          }
+                          className="rounded-md border border-amber-700/40 bg-white px-2 py-0.5 font-semibold text-amber-900 hover:bg-amber-50"
+                        >
+                          {q === "croquis" ? "Croquis catastral" : "Foto aérea"}
+                        </button>
+                      ))}
+                    </span>
+                  </span>
                 )}
               </div>
             </div>

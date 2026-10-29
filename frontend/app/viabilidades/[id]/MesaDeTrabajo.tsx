@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { DatosMesa, Mesa } from "../../../lib/mesaViabilidades";
-import { accionAvisarDaniel, accionCaptura, accionEnviar, accionGuardar, accionJuntar, accionModelo } from "../acciones";
+import { accionAvisarDaniel, accionCaptura, accionCapturaCatastro, accionEnviar, accionGuardar, accionJuntar, accionModelo } from "../acciones";
 import { ElegirCatalogo } from "./ElegirCatalogo";
 
 // La mesa de Alex. Lo que decidio Monica (3-oct-2026):
@@ -302,6 +302,28 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               Falta la captura: gira el modelo hasta el ángulo bueno y pulsa <b>Guardar captura</b>. Va siempre en la viabilidad.
             </div>
           )}
+          {/* SIN POLYCAM NO HAY 3D (Monica, 29-oct-2026): la imagen del Catastro cubre la captura. */}
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-carbon/70">
+            <span>{captura ? "O cámbiala por" : "Sin 3D, usa"} la imagen del Catastro:</span>
+            {(["croquis", "aerea"] as const).map((q) => (
+              <button
+                key={q}
+                type="button"
+                disabled={capturando}
+                onClick={async () => {
+                  setError(null);
+                  setCapturando(true);
+                  const r = await accionCapturaCatastro(m.id, q);
+                  setCapturando(false);
+                  if (!r.ok) return setError(r.error);
+                  setCaptura(r.url);
+                }}
+                className={ajeno}
+              >
+                {q === "croquis" ? "Croquis catastral" : "Foto aérea"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ===================== derecha: lo que escribe Alex ===================== */}

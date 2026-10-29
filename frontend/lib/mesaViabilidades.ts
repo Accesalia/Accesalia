@@ -770,3 +770,25 @@ export async function avisarDaniel(id: string, motivo: string): Promise<string> 
   const escaneos = await leer<EscaneoFila[]>(`escaneados_polycam?select=${SEL_ESC}&viabilidad_id=eq.${id}`);
   return direccionDe(escaneos.flatMap(accesosDe));
 }
+
+/** LA IMAGEN DEL CATASTRO EN LUGAR DE LA CAPTURA DEL 3D (Monica, 29-oct-2026: «en las viabilidades sin Polycam no hay
+ *  imagen y no deja emitirla; que se pueda poner la captura de Catastro para que el campo este cubierto»). La misma
+ *  imagen que el anexo del edificio: el croquis catastral o la foto aerea (PNOA). Sustituye a la que hubiera. */
+export async function capturaDelCatastro(id: string, que: "croquis" | "aerea"): Promise<string | null> {
+  if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error("Viabilidad no válida.");
+  const [v] = await leer<{ oportunidad_id: string | null }[]>(`viabilidades?select=oportunidad_id&id=eq.${id}`);
+  if (!v?.oportunidad_id) throw new Error("Esta viabilidad no tiene oportunidad.");
+  const { anexoDeOportunidad } = await import("./anexoEdificio");
+  const a = await anexoDeOportunidad(v.oportunidad_id).catch(() => null);
+  const url = a ? (que === "croquis" ? a.croquis : a.aerea) : null;
+  if (!url) throw new Error("No hay imagen del Catastro para esta dirección (falta su referencia catastral).");
+  const r = await fetch(url, { cache: "no-store" }).catch(() => null);
+  if (!r?.ok) throw new Error("El Catastro no ha contestado: prueba otra vez en un momento.");
+  const datos = Buffer.from(await r.arrayBuffer());
+  if (datos.length < 500) throw new Error("La imagen del Catastro ha llegado vacía.");
+  const png = que === "croquis";
+  const ruta = `viabilidades/${id}/captura-${que}.${png ? "png" : "jpg"}`;
+  await subir(ruta, datos, png ? "image/png" : "image/jpeg");
+  await escribir("PATCH", `viabilidades?id=eq.${id}`, { captura: ruta, actualizado_en: new Date().toISOString() }, "return=minimal");
+  return firmar(ruta);
+}
