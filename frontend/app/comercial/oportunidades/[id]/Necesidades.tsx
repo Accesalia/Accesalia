@@ -22,9 +22,8 @@ import { EscaneoPrevisto } from "./EscaneoPrevisto";
 type N = { polycam: boolean; viabilidad: boolean; polycamAMano: boolean; viabilidadAMano: boolean; aviso: string | null; tresd?: boolean };
 
 const PASTILLA = "whitespace-nowrap rounded-full px-3 py-[3px] text-[9.5px] font-bold uppercase tracking-wide text-white";
-export const PASTILLA_PEDIR = PASTILLA + " bg-[#7a2a26] transition hover:bg-[#5e1f1c]";
-const LLEGADO = PASTILLA + " bg-[#3c6b2a]";
-const AREA = "flex min-w-0 flex-wrap items-center justify-center gap-x-1.5 gap-y-1 px-2";
+export const PASTILLA_PEDIR = PASTILLA + " bg-[#6b2135] transition hover:bg-[#52192a]";
+const ROT_TIRA = "text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-carbon/60";
 
 /** dd/mm/aa */
 const corta = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
@@ -64,85 +63,108 @@ export function TiraBloque1({
     });
 
   const CASILLA = "h-4 w-4 accent-[#104269]";
-  /** Automatico o a mano, en pequeño: el detalle, al pasar por encima. */
-  const como = (que: "polycam" | "viabilidad", aMano: boolean) =>
-    aMano ? (
-      <span className="text-[10.5px] text-carbon/50">
-        a mano ·{" "}
-        <button type="button" disabled={ocupado} onClick={() => marcar({ [que]: null })} className="underline hover:text-carbon">
-          volver a lo automático
-        </button>
-      </span>
-    ) : (
-      <span title="Automático, según lo que quieren. Si es una excepción, cámbialo aquí." className="cursor-help text-[10.5px] text-carbon/40">
-        (auto)
-      </span>
-    );
+
+  // LA VIABILIDAD, UNA DE TRES (Monica, 29-oct-2026, su maqueta «ejemplo barra 3d y viabilidad»): no hace falta, con
+  // Polycam o sin Polycam. Siempre las tres, para poder cambiar. Debajo, el flujo de la elegida: lo hecho en gris con
+  // su ✓, lo que toca resaltado, lo que falta en gris claro. Con Polycam empieza en «falta hacer y enviar el Polycam»;
+  // sin Polycam, en «pedir al arquitecto»; los dos acaban en la viabilidad recibida.
+  const opcion: "no" | "con" | "sin" = !n.viabilidad ? "no" : n.polycam ? "con" : "sin";
+  const elegir = (o: "no" | "con" | "sin") =>
+    marcar(o === "no" ? { viabilidad: false, polycam: false } : o === "con" ? { viabilidad: true, polycam: true } : { viabilidad: true, polycam: false });
+  type Paso = { texto: React.ReactNode; hecho: boolean };
+  const recibida = viabilidad ? (
+    <Link href={viabilidad.href} title={viabilidad.rotulo} className="underline-offset-2 hover:underline">
+      Recibida la viabilidad
+    </Link>
+  ) : (
+    "Recibida la viabilidad"
+  );
+  const flujo: Paso[] =
+    opcion === "con"
+      ? [
+          {
+            texto:
+              polycamRecibido === null ? (
+                <span className="flex flex-wrap items-center gap-1.5">
+                  Falta hacer y enviar el Polycam
+                  <EscaneoPrevisto id={oppId} inicial={escaneo} compacto />
+                </span>
+              ) : (
+                "Polycam hecho y enviado"
+              ),
+            hecho: polycamRecibido !== null,
+          },
+          { texto: polycamRecibido ? `Recibido el Polycam ${corta(polycamRecibido)}` : "Recibido el Polycam", hecho: polycamRecibido !== null && viabilidadRecibida },
+          { texto: recibida, hecho: false },
+        ]
+      : opcion === "sin"
+        ? [
+            { texto: pedir ?? "Pedida al arquitecto", hecho: !pedir },
+            { texto: "Pendiente del arquitecto", hecho: viabilidadRecibida },
+            { texto: recibida, hecho: false },
+          ]
+        : [];
+  // El paso en que esta: el primero sin hacer (si ha llegado la viabilidad, el ultimo).
+  const actual = viabilidadRecibida && opcion !== "no" ? flujo.length - 1 : flujo.findIndex((x) => !x.hecho);
+  const RADIO = "flex items-center gap-1.5 whitespace-nowrap";
 
   return (
-    <div className="rounded-[8px] bg-[#f6ecd2] py-1.5 text-[13px] text-carbon">
-      <div className="grid items-center gap-y-1.5 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,2.8fr)_minmax(0,1.6fr)]">
-        {/* ¿NECESITA 3D PARA LA JUNTA? Va aparte y PRIMERO: es lo que hay que marcar
-            expresamente, antes de la viabilidad para que Alex diga cual encaja.
-            Sin marcar = no. */}
-        <label className={AREA} title="Para la junta. Márcalo antes de la viabilidad: Alex dirá cuál encaja.">
-          <span className="flex items-center gap-1.5">
+    <div className="rounded-[8px] border border-[#efe4c8] bg-[#fffcf4] px-3.5 py-1.5 text-[13px] text-carbon">
+      <div className="grid gap-y-2 md:grid-cols-[auto_minmax(0,1fr)]">
+        {/* ¿NECESITA 3D PARA LA JUNTA? Aparte y primero: se marca antes de la viabilidad para que Alex diga cual encaja. */}
+        <div className="pr-5" title="Para la junta. Márcalo antes de la viabilidad: Alex dirá cuál encaja.">
+          <div className={ROT_TIRA}>3D</div>
+          <label className="mt-1 flex items-center gap-1.5 whitespace-nowrap">
             <input type="checkbox" checked={n.tresd ?? false} disabled={ocupado} onChange={(e) => marcar({ tresd: e.target.checked })} className={CASILLA} />
             Necesita 3D
-          </span>
-        </label>
-
-        {/* EL POLYCAM: si hace falta, la visita de escaneo hasta que llega. */}
-        <div className={AREA + " lg:border-l lg:border-carbon/30"}>
-          <label className="flex items-center gap-1.5">
-            <input type="checkbox" checked={n.polycam} disabled={ocupado} onChange={(e) => marcar({ polycam: e.target.checked })} className={CASILLA} />
-            Necesita Polycam
           </label>
-          {como("polycam", n.polycamAMano)}
-          {n.polycam &&
-            (polycamRecibido !== null ? (
-              <span className="flex items-center gap-1.5">
-                <span className={LLEGADO}>Recibido Polycam</span>
-                {polycamRecibido && <span className="text-[11.5px] tabular-nums text-carbon/60">{corta(polycamRecibido)}</span>}
-              </span>
-            ) : (
-              <span className="flex flex-wrap items-center gap-1.5">
-                <EscaneoPrevisto id={oppId} inicial={escaneo} compacto />
-                <span className="text-[11.5px] text-carbon/60">
-                  · recibido: <span className="text-carbon/45">todavía no</span>
-                </span>
-              </span>
-            ))}
         </div>
-
-        {/* LA VIABILIDAD: pedirla, o lo que ya ha llegado. */}
-        <div className={AREA + " lg:border-l lg:border-carbon/30"}>
-          <label className="flex items-center gap-1.5">
-            <input type="checkbox" checked={n.viabilidad} disabled={ocupado} onChange={(e) => marcar({ viabilidad: e.target.checked })} className={CASILLA} />
-            Necesita viabilidad
-          </label>
-          {como("viabilidad", n.viabilidadAMano)}
-          {n.viabilidad &&
-            (viabilidadRecibida ? (
-              viabilidad ? (
-                <Link href={viabilidad.href} title={viabilidad.rotulo} className={LLEGADO + " hover:bg-[#2f5621]"}>
-                  Recibida viabilidad →
-                </Link>
-              ) : (
-                <span className={LLEGADO}>Recibida viabilidad</span>
-              )
-            ) : (
-              pedir ??
-              (viabilidad && (
-                <Link href={viabilidad.href} className="whitespace-nowrap text-[11.5px] font-semibold text-carbon/70 underline hover:text-carbon">
-                  {viabilidad.rotulo} →
-                </Link>
-              ))
+        <div className="min-w-0 md:border-l-2 md:border-[#6b6255] md:pl-5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className={ROT_TIRA}>Viabilidad</span>
+            {(
+              [
+                ["no", "No hace falta"],
+                ["con", "Con Polycam"],
+                ["sin", "Sin Polycam"],
+              ] as const
+            ).map(([k, t]) => (
+              <label key={k} className={RADIO}>
+                <input type="radio" name={`viab-${oppId}`} checked={opcion === k} disabled={ocupado} onChange={() => elegir(k)} className={CASILLA} />
+                {t}
+              </label>
             ))}
+          </div>
+          <div className="mt-1 flex min-h-[24px] flex-wrap items-center gap-1 text-[12px]">
+            {opcion === "no" ? (
+              <span className="text-carbon/60">Ni Polycam ni viabilidad: se pasa directamente a darles precio.</span>
+            ) : (
+              flujo.map((x, i) => (
+                <span key={i} className="flex items-center gap-1">
+                  {i > 0 && <span className="text-carbon/30">›</span>}
+                  <span
+                    className={
+                      "whitespace-nowrap rounded-full px-2 py-px " +
+                      (i < actual || x.hecho
+                        ? "text-carbon/55"
+                        : i === actual
+                          ? i === flujo.length - 1
+                            ? "bg-[#3c6b2a] font-bold text-white"
+                            : "font-bold text-carbon ring-1 ring-carbon/25"
+                          : "text-carbon/35")
+                    }
+                  >
+                    {(i < actual || x.hecho) && "✓ "}
+                    {x.texto}
+                  </span>
+                </span>
+              ))
+            )}
+          </div>
         </div>
       </div>
       {(n.aviso || error) && (
-        <div className="mt-1 border-t border-carbon/10 px-3 pt-1 text-[12px]">
+        <div className="mt-1 border-t border-carbon/10 pt-1 text-[12px]">
           {n.aviso && <span className="text-carbon/75">{n.aviso}</span>}
           {error && <span className="ml-2 text-alerta">{error}</span>}
         </div>

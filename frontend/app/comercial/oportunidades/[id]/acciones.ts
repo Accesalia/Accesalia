@@ -162,8 +162,10 @@ export async function accionReactivar(id: string) {
 /** Grabar una entrada del diario ya enganchada a esta oportunidad. */
 export async function accionEntrada(id: string, fd: FormData) {
   const yo = await permiso(id);
+  // «Sobre el administrador: …» cuando la nota se escribe en una caja de «Datos y contactos» (29-oct-2026).
+  const sobre = String(fd.get("sobre") ?? "").trim();
   await crearEntrada({
-    texto: String(fd.get("texto") ?? ""),
+    texto: (sobre ? `Sobre ${sobre}: ` : "") + String(fd.get("texto") ?? ""),
     canal: String(fd.get("canal") ?? ""),
     fecha: texto(fd, "fecha"),
     oportunidadId: id,
@@ -231,6 +233,31 @@ export async function accionApuntarFotosOpp(oppId: string, rutas: string[]): Pro
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** OTRAS COSAS QUE VIMOS EN LA VISITA (Monica, 29-oct-2026): texto libre en la ficha del edificio, firmado con quien y
+ *  cuando, como el ascensor, el portal y los patios. Vacio = se borra. Upsert por lo mismo que los patios. */
+export async function accionOtrasVistas(referencia: string, id: string, fd: FormData) {
+  const yo = await quienSoy();
+  if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
+  if (!puedeEntrar(yo, "comercial", "trabajar")) redirect("/menu");
+  const texto = String(fd.get("otras") ?? "").trim().slice(0, 4000) || null;
+  await fetch(`${process.env.SUPABASE_URL}/rest/v1/ficha_catastro?on_conflict=referencia`, {
+    method: "POST",
+    headers: {
+      apikey: process.env.SUPABASE_SECRET_KEY ?? "",
+      Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY ?? ""}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({
+      referencia: referencia.replace(/\s/g, "").toUpperCase().slice(0, 14),
+      otras_vistas: texto,
+      otras_vistas_por: texto === null ? null : yo.id,
+      otras_vistas_en: texto === null ? null : new Date().toISOString(),
+    }),
+  });
+  revalidatePath(`/comercial/oportunidades/${id}`);
 }
 
 export async function accionPatios(referencia: string, id: string, fd: FormData) {

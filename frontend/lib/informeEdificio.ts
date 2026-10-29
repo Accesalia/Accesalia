@@ -1649,6 +1649,10 @@ export type Ascensor = {
   portal: boolean | null;
   portalQuien: string | null;
   portalCuando: string | null;
+  /** OTRAS COSAS QUE VIMOS (Monica, 29-oct-2026): texto libre, firmado como lo demas. */
+  otras: string | null;
+  otrasQuien: string | null;
+  otrasCuando: string | null;
 };
 
 /** LO QUE HEMOS VISTO NOSOTROS: el ascensor y los patios. Va aparte del informe
@@ -1661,13 +1665,15 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
   const vacio: Ascensor = {
     hay: null, quien: null, cuando: null, patios: null, patiosQuien: null, patiosCuando: null,
     portal: null, portalQuien: null, portalCuando: null,
+    otras: null, otrasQuien: null, otrasCuando: null,
   };
   if (!URL_BASE || !SECRETO) return vacio;
   try {
     const r = await fetch(
       `${URL_BASE}/rest/v1/ficha_catastro?select=tiene_ascensor,ascensor_visto_en,equipo:ascensor_visto_por(nombre),` +
         `patios,patios_vistos_en,conto:patios_vistos_por(nombre),` +
-        `portal_accesible,portal_visto_en,miro:portal_visto_por(nombre)&referencia=eq.${ref}&limit=1`,
+        `portal_accesible,portal_visto_en,miro:portal_visto_por(nombre),` +
+        `otras_vistas,otras_vistas_en,anoto:otras_vistas_por(nombre)&referencia=eq.${ref}&limit=1`,
       { headers: cab, cache: "no-store" },
     );
     if (!r.ok) return vacio;
@@ -1681,6 +1687,9 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
       portal_accesible: boolean | null;
       portal_visto_en: string | null;
       miro: { nombre: string } | null;
+      otras_vistas: string | null;
+      otras_vistas_en: string | null;
+      anoto: { nombre: string } | null;
     }[];
     if (!f) return vacio;
     return {
@@ -1693,6 +1702,9 @@ export async function ascensorDe(referenciaBruta: string): Promise<Ascensor> {
       portal: f.portal_accesible,
       portalQuien: f.miro?.nombre ?? null,
       portalCuando: f.portal_visto_en,
+      otras: f.otras_vistas,
+      otrasQuien: f.anoto?.nombre ?? null,
+      otrasCuando: f.otras_vistas_en,
     };
   } catch {
     return vacio;

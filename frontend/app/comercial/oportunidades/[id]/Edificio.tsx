@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { ascensorDe, ieeDe, informeEdificio } from "../../../../lib/informeEdificio";
-import { accionAscensor, accionPortal } from "./acciones";
+import { accionAscensor, accionOtrasVistas, accionPortal } from "./acciones";
 import { Patios } from "./Patios";
 import { ConsultarIee } from "./ConsultarIee";
 import { VolverAConsultar } from "./VolverAConsultar";
@@ -123,9 +123,9 @@ const EUR = new Intl.NumberFormat("es-ES");
 
 /** LAS TRES CARDS, PLEGABLES (Monica, 27-oct-2026): al entrar estan plegadas, se ve solo su titulo; un clic la
  *  despliega. <details> del navegador: sin JavaScript, cada una se abre y se cierra sola. */
-function Plegable({ className, titulo, children }: { className: string; titulo: React.ReactNode; children: React.ReactNode }) {
+function Plegable({ className, titulo, children, abierta }: { className: string; titulo: React.ReactNode; children: React.ReactNode; abierta?: boolean }) {
   return (
-    <details className={className + " group"}>
+    <details className={className + " group"} open={abierta}>
       <summary className="flex cursor-pointer list-none items-baseline gap-2 [&::-webkit-details-marker]:hidden">
         <span className="inline-block w-3 shrink-0 text-[11px] text-[#8a8a8a] transition group-open:rotate-90">▶</span>
         <div className="min-w-0 flex-1">{titulo}</div>
@@ -146,11 +146,14 @@ function Plegable({ className, titulo, children }: { className: string; titulo: 
  *      con el edificio y los usos en paralelo en vez de apilados;
  *    - abajo, a lo ancho, LO QUE CONDICIONA LO QUE PUEDO PEDIR: el IEE y la zona a
  *      la izquierda; lo ya concedido aqui y a 800 m, con su tabla, a la derecha. */
+export type ParteEdificio = "catastro" | "pedir" | "hacer" | "visto";
+
 export async function Edificio({
   referencia,
   id,
   fotos,
   distrito,
+  solo,
 }: {
   referencia: string;
   id: string;
@@ -158,6 +161,8 @@ export async function Edificio({
   fotos?: React.ReactNode;
   /** El distrito o barrio, que va con la referencia en la card del Catastro. */
   distrito?: string | null;
+  /** EL BLOQUE 1 CON MENU (29-oct-2026): solo esa parte, ya abierta. Sin nada, todo como antes. */
+  solo?: ParteEdificio;
 }) {
   // UN TOPE A LA ESPERA (28-oct-2026). Con el Suspense la ficha ya se pinta sin
   // el edificio, pero si Catastro no contestaba, este bloque se quedaba en
@@ -170,7 +175,7 @@ export async function Edificio({
     ieeDe(referencia, id),
   ]);
   if (!llegado) after(() => informe.catch(() => null));
-  return <EdificioVista i={llegado?.v ?? null} tarde={!llegado} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} />;
+  return <EdificioVista i={llegado?.v ?? null} tarde={!llegado} asc={asc} iee={iee} referencia={referencia} id={id} fotos={fotos} distrito={distrito} solo={solo} />;
 }
 
 /** Lo que se ve, con los datos ya traidos: aparte para poder mirarlo con datos de muestra. */
@@ -183,6 +188,7 @@ export function EdificioVista({
   fotos,
   distrito,
   tarde = false,
+  solo,
 }: {
   i: Awaited<ReturnType<typeof informeEdificio>>;
   /** Catastro no ha contestado a tiempo: sigue por detras (28-oct-2026). */
@@ -193,6 +199,7 @@ export function EdificioVista({
   id: string;
   fotos?: React.ReactNode;
   distrito?: string | null;
+  solo?: ParteEdificio;
 }) {
 
   // Catastro puede no contestar, o la referencia puede estar mal escrita. Eso se
@@ -334,32 +341,45 @@ export function EdificioVista({
   // LO QUE HEMOS VISTO Y LAS IMAGENES, en una columna estrecha a la derecha de las
   // cards (Monica, 16-oct-2026): arriba lo que hemos visto, debajo las miniaturas
   // apiladas. Se amplian al pincharlas, asi que no hace falta que ocupen.
-  const lateral = (
-    <div className="flex min-w-0 flex-col gap-[10px]">
-      {/* Lo que no dice ningun servicio: lo vimos nosotros, y por eso va firmado
-          con quien y cuando. En filas (15-oct-2026), con el portal accesible. */}
-      <section className="rounded-[10px] bg-[#E4EED9] px-2.5 py-2">
-        <div className="border-b border-[#1c1c1c]/15 pb-1 text-[10.5px] font-bold uppercase tracking-[0.03em] text-[#1c1c1c] underline underline-offset-2">
-          Lo que hemos visto nosotros
-        </div>
-        <div className="mt-2 flex flex-col gap-2">
-          <Visto que="¿Tiene ascensor?" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
-          {/* EL PORTAL ACCESIBLE (Monica, 15-oct-2026): si tiene escalones,
-              dentro o fuera, se le vende una rampa o una plataforma. */}
-          <Visto
-            que="¿Portal accesible?"
-            campo="portal"
-            hay={asc.portal}
-            quien={asc.portalQuien}
-            cuando={asc.portalCuando}
-            marcar={accionPortal.bind(null, referencia, id)}
+  /** LO QUE HEMOS VISTO NOSOTROS. En el menu del bloque 1 («2.1 Lo que vimos en la visita», 29-oct-2026) va a lo ancho
+   *  y con la cuarta pregunta: otras cosas que vimos, en texto libre. */
+  const visto = (ancho = false) => (
+    <section className={"rounded-[10px] bg-[#E4EED9] " + (ancho ? "px-4 py-3" : "px-2.5 py-2")}>
+      <div className="border-b border-[#1c1c1c]/15 pb-1 text-[10.5px] font-bold uppercase tracking-[0.03em] text-[#1c1c1c] underline underline-offset-2">
+        Lo que hemos visto nosotros
+      </div>
+      <div className={"mt-2 flex flex-col gap-2 " + (ancho ? "max-w-[520px]" : "")}>
+        <Visto que="¿Tiene ascensor?" hay={asc.hay} quien={asc.quien} cuando={asc.cuando} marcar={accionAscensor.bind(null, referencia, id)} />
+        <Visto que="¿Portal accesible?" campo="portal" hay={asc.portal} quien={asc.portalQuien} cuando={asc.portalCuando} marcar={accionPortal.bind(null, referencia, id)} />
+        <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
+      </div>
+      {ancho && (
+        <form action={accionOtrasVistas.bind(null, referencia, id)} className="mt-3 border-t border-[#1c1c1c]/15 pt-2.5">
+          <label htmlFor="otras-vistas" className="text-[12.5px] font-bold text-[#14781E]">
+            Otras cosas que vimos
+          </label>
+          <textarea
+            id="otras-vistas"
+            name="otras"
+            defaultValue={asc.otras ?? ""}
+            rows={3}
+            placeholder="Lo que llame la atención: grietas en el patio, cuarto de contadores en el hueco del ascensor, una vecina en silla de ruedas…"
+            className="mt-1 w-full resize-y rounded-[6px] border border-[#bdbdbd] bg-white px-2.5 py-1.5 text-[13px] leading-relaxed"
           />
-          {/* Los patios SE RELLENAN aqui: un numero, no un si/no -su maqueta
-              pregunta "¿cuantos?"-, y se guarda firmado. */}
-          <Patios referencia={referencia} id={id} patios={asc.patios} quien={asc.patiosQuien} cuando={asc.patiosCuando} />
-        </div>
-      </section>
-
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <button className="rounded-[6px] bg-lima px-3.5 py-1 text-[12.5px] font-bold text-white hover:bg-lima-dark">Guardar</button>
+            {asc.otrasQuien && (
+              <span className="text-[11px] text-[#8a8a8a]">
+                {asc.otrasQuien}
+                {asc.otrasCuando && <> el {asc.otrasCuando.slice(8, 10)}/{asc.otrasCuando.slice(5, 7)}</>}
+              </span>
+            )}
+          </div>
+        </form>
+      )}
+    </section>
+  );
+  const imagenes = (
       <section className={CAJA}>
         <div className={ROT_GRIS}>
           Las imágenes <span className="font-normal normal-case tracking-normal">· pincha para ampliar</span>
@@ -397,15 +417,16 @@ export function EdificioVista({
           ))}
         </div>
       </section>
+  );
+  const lateral = (
+    <div className="flex min-w-0 flex-col gap-[10px]">
+      {visto()}
+      {imagenes}
     </div>
   );
 
-  return (
-    <div className="grid min-w-0 items-start gap-[10px] lg:grid-cols-[minmax(0,1fr)_205px]">
-    <div className="flex min-w-0 flex-col gap-[10px]">
-      {/* ======== las tres cards, iguales y a lo ancho (Monica, 15-oct-2026) ========
-          Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
-      <Plegable
+  const cardCatastro = (
+      <Plegable abierta={!!solo}
         className={CAJA}
         titulo={
           <div className="flex flex-wrap items-baseline justify-between gap-x-3">
@@ -436,8 +457,9 @@ export function EdificioVista({
           </>,
         )}
       </Plegable>
-
-      <Plegable className={CARD + " border-[#0C8124]"} titulo={<div className={ROT + " mb-[3px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>}>
+  );
+  const cardPedir = (
+      <Plegable abierta={!!solo} className={CARD + " border-[#0C8124]"} titulo={<div className={ROT + " mb-[3px] text-[#0C8124]"}>Lo que condiciona lo que puedo pedir</div>}>
         {tabla(
           <>
             {grupo("pedir", "IEE", filasIee)}
@@ -490,8 +512,9 @@ export function EdificioVista({
           </div>
         )}
       </Plegable>
-
-      <Plegable className={CARD + " border-[#820707]"} titulo={<div className={ROT + " mb-[3px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>}>
+  );
+  const cardHacer = (
+      <Plegable abierta={!!solo} className={CARD + " border-[#820707]"} titulo={<div className={ROT + " mb-[3px] text-[#820707]"}>Lo que condiciona lo que puedo hacer</div>}>
         {hacer.length === 0 ? (
           <p className="mt-1 text-[11px] text-[#8a8a8a]">Nada que lo ate, o no se ha podido consultar.</p>
         ) : (
@@ -503,6 +526,28 @@ export function EdificioVista({
           )
         )}
       </Plegable>
+  );
+
+  // EL BLOQUE 1 CON MENU (Monica, 29-oct-2026): cada parte por separado, ya abierta.
+  if (solo === "catastro")
+    return (
+      <div className="grid min-w-0 items-start gap-[10px] lg:grid-cols-[minmax(0,1fr)_205px]">
+        {cardCatastro}
+        {imagenes}
+      </div>
+    );
+  if (solo === "pedir") return cardPedir;
+  if (solo === "hacer") return cardHacer;
+  if (solo === "visto") return visto(true);
+
+  return (
+    <div className="grid min-w-0 items-start gap-[10px] lg:grid-cols-[minmax(0,1fr)_205px]">
+    <div className="flex min-w-0 flex-col gap-[10px]">
+      {/* ======== las tres cards, iguales y a lo ancho (Monica, 15-oct-2026) ========
+          Campo · lo que dice · lo que añadimos nosotros. Catastro, pedir, hacer. */}
+      {cardCatastro}
+      {cardPedir}
+      {cardHacer}
 
       {/* ================= las fotos de la opp, abajo del todo ================= */}
       {fotos}

@@ -46,6 +46,8 @@ import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
 import { DropboxAntiguo } from "./DropboxAntiguo";
 import { OfertasComunidad, VISTAS_OFERTA, type VistaOferta } from "./OfertasComunidad";
 import { SeguimientoNegociacion, VISTAS_NEGOCIACION, type VistaNegociacion } from "./SeguimientoNegociacion";
+import { Bloque1, VISTAS_BLOQUE1, type VistaBloque1 } from "./Bloque1";
+import { reservasDeAdministraciones } from "../../../../lib/bloque1";
 import { negociacionDe } from "../../../../lib/negociacion";
 
 export const dynamic = "force-dynamic";
@@ -97,6 +99,8 @@ export default async function GestionOportunidad({
   // Lo elegido en el menu del bloque 2 (27-oct-2026). Sin nada, el bloque abre lo que pide atencion.
   const ver = (VISTAS_OFERTA as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaOferta) : null;
   const ver3 = (VISTAS_NEGOCIACION as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaNegociacion) : null;
+  // Lo elegido en el menu del bloque 1 (29-oct-2026). Sin nada, el Catastro.
+  const ver1 = (VISTAS_BLOQUE1 as string[]).includes(sp.ver ?? "") ? (sp.ver as VistaBloque1) : null;
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/comercial/oportunidades/" + id);
   if (!puedeEntrar(yo, "comercial")) redirect("/menu");
@@ -134,11 +138,15 @@ export default async function GestionOportunidad({
   const [documentacion, informes, enviados] =
     bloque === 2 || bloque === 3
       ? await Promise.all([documentacionDe(id), informesDeOportunidad(id).catch(() => []), correosEnviados(null, id).catch(() => [])])
-      : [null, [], []];
+      : bloque === 1
+        ? [null, await informesDeOportunidad(id).catch(() => []), []]
+        : [null, [], []];
   const decision = bloque === 3 || bloque === 4 ? await decisionCierreDe(id) : null;
   // BLOQUE 3 · SEGUIMIENTO Y NEGOCIACION (28-oct-2026): administradores con su comision, agenda de la comunidad, juntas
   // y cambios pedidos (lib/negociacion.ts).
-  const negociacion = bloque === 3 ? await negociacionDe(id, g.direccion) : null;
+  // En el bloque 1, sus administradores con su comision van en «Datos y contactos» (29-oct-2026).
+  const negociacion = bloque === 3 || bloque === 1 ? await negociacionDe(id, g.direccion).catch(() => null) : null;
+  const reservas = bloque === 1 && negociacion ? await reservasDeAdministraciones(negociacion.admins.map((a) => a.empresaId ?? "")).catch(() => new Map()) : new Map();
   // Las fotos de la opp, abajo del bloque 1 (15-oct-2026).
   const fotos = bloque === 1 || bloque === 2 ? await fotosDeOpp(id).catch(() => []) : [];
   // EL CAJON DE DOCUMENTOS (25-oct-2026): al lado de las fotos en el bloque 1, y debajo de lo suyo en los demas
@@ -309,6 +317,41 @@ export default async function GestionOportunidad({
               />
   );
 
+  const tiraBloque1 =
+    bloque === 1 && necesita ? (
+            <TiraBloque1
+              oppId={id}
+              n={necesita}
+              escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
+              polycamRecibido={(() => {
+                const h = g.hitos.find((x) => x.clave === "polycam");
+                return h?.estado === "hecho" ? (h.fecha ?? "") : null;
+              })()}
+              viabilidadRecibida={g.hitos.find((x) => x.clave === "viabilidad_arquitecto")?.estado === "hecho"}
+              // La viabilidad, cuando la hay: Alex la empezo y el comercial la remata
+              // en su pantalla (Monica, 6-oct-2026).
+              viabilidad={
+                viabilidad
+                  ? {
+                      // La historica (traida del Drive, 26-oct-2026) abre su PDF.
+                      href: viabilidad.historica !== null ? `/comercial/viabilidad/${viabilidad.id}/pdf` : `/comercial/viabilidad/${viabilidad.id}`,
+                      rotulo:
+                        viabilidad.historica !== null
+                          ? `Viabilidad${viabilidad.historica ? ` del ${new Date(viabilidad.historica).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}` : " (histórica)"}`
+                          : `Viabilidad${viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"}`,
+                    }
+                  : null
+              }
+              pedir={
+                // El boton solo cuando hace falta viabilidad y aun no ha llegado
+                // el Polycam ni se ha pedido (pasos A, B, C y C').
+                pedir && necesita.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") ? (
+                  <PedirViabilidad {...pedir} rotulo="Pedir al arquitecto" claseBoton={PASTILLA_PEDIR} />
+                ) : undefined
+              }
+            />
+    ) : null;
+
   return (
     // El verde de su maqueta del bloque 1 (#8EB180), en todos los bloques
     // (Monica, 7-oct-2026).
@@ -386,59 +429,8 @@ export default async function GestionOportunidad({
             Polycam y la viabilidad en una linea crema sobre el contenido, y Ficha /
             Informe encima del diario. El codigo baja a la cabecera, y la referencia
             y el distrito a la card del Catastro. */}
-        {bloque === 1 && necesita && (
-          <div className="mb-[8px] grid items-center gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(320px,calc(340px+(100%-1400px)/3))]">
-            <TiraBloque1
-              oppId={id}
-              n={necesita}
-              escaneo={escaneo ? aHoraMadrid(escaneo.inicio) : ""}
-              polycamRecibido={(() => {
-                const h = g.hitos.find((x) => x.clave === "polycam");
-                return h?.estado === "hecho" ? (h.fecha ?? "") : null;
-              })()}
-              viabilidadRecibida={g.hitos.find((x) => x.clave === "viabilidad_arquitecto")?.estado === "hecho"}
-              // La viabilidad, cuando la hay: Alex la empezo y el comercial la remata
-              // en su pantalla (Monica, 6-oct-2026).
-              viabilidad={
-                viabilidad
-                  ? {
-                      // La historica (traida del Drive, 26-oct-2026) abre su PDF.
-                      href: viabilidad.historica !== null ? `/comercial/viabilidad/${viabilidad.id}/pdf` : `/comercial/viabilidad/${viabilidad.id}`,
-                      rotulo:
-                        viabilidad.historica !== null
-                          ? `Viabilidad${viabilidad.historica ? ` del ${new Date(viabilidad.historica).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}` : " (histórica)"}`
-                          : `Viabilidad${viabilidad.numero ? ` ${viabilidad.numero} v${viabilidad.version}` : " (sin generar)"}`,
-                    }
-                  : null
-              }
-              pedir={
-                // El boton solo cuando hace falta viabilidad y aun no ha llegado
-                // el Polycam ni se ha pedido (pasos A, B, C y C').
-                pedir && necesita.viabilidad && ["cerrar_visita", "esperando_visita", "enviar_polycam", "pedir_viabilidad"].includes(cab?.falta.clave ?? "") ? (
-                  <PedirViabilidad {...pedir} rotulo="Pedir al arquitecto" claseBoton={PASTILLA_PEDIR} />
-                ) : undefined
-              }
-            />
-            {g.referenciaCatastral && (
-              <div className="flex justify-end gap-2">
-                {VISTAS.map((v) => (
-                  <Link
-                    key={v.clave}
-                    href={`/comercial/oportunidades/${id}${v.clave === "ficha" ? "" : `?vista=${v.clave}`}`}
-                    scroll={false}
-                    replace
-                    className={
-                      "rounded-[4px] px-4 py-1 text-[10.5px] font-bold uppercase transition " +
-                      (vista === v.clave ? "bg-lima text-[#1d3a0e]" : "bg-[#e4e4e4] text-carbon/60 hover:bg-white")
-                    }
-                  >
-                    {v.rotulo}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* LA TIRA DEL BLOQUE 1 va ahora dentro de su recuadro, sobre la banda gris (Bloque1, 29-oct-2026). El paso de
+            «Ficha / Informe» es «3.2 Informe comercial» del menu. */}
         {/* LO QUE LE FALTA para seguir el camino (8-oct-2026): direccion,
             contacto y siguiente paso. Solo en las que se miran (2025 en
             adelante y sin hoja enviada o firmada). */}
@@ -468,7 +460,29 @@ export default async function GestionOportunidad({
             (un tercio de lo que sobre). El contenido lleva dentro su columna
             estrecha de lo visto y las imagenes. */}
         <div className="grid items-start gap-[10px] xl:grid-cols-[minmax(0,1fr)_max(320px,calc(340px+(100%-1400px)/3))]">
-          {bloque === 2 && documentacion ? (
+          {bloque === 1 ? (
+            // BLOQUE 1 · TOMA DE DATOS, con su menu como el 2 y el 3 (29-oct-2026).
+            <div className="min-w-0 xl:col-span-2">
+              <Bloque1
+                id={id}
+                ver={ver1}
+                tira={tiraBloque1}
+                referencia={g.referenciaCatastral}
+                distrito={distrito}
+                comunidadId={g.comunidadId}
+                admins={negociacion?.admins ?? []}
+                reservas={reservas}
+                contactos={contactos}
+                trajo={g.trajo}
+                informes={informes}
+                fotos={<FotosOpp oppId={id} fotos={fotos} />}
+                nFotos={fotos.length}
+                cajon={cajon}
+                nDocs={docsCajon.length}
+                diario={<div className="flex flex-col gap-2 text-[13px]">{diarioDentro}</div>}
+              />
+            </div>
+          ) : bloque === 2 && documentacion ? (
             // BLOQUE 2 · OFERTAS A LA COMUNIDAD (27-oct-2026): menu, contenido y diario en un solo recuadro, a todo el ancho.
             <div className="min-w-0 xl:col-span-2">
               <OfertasComunidad
@@ -565,7 +579,7 @@ export default async function GestionOportunidad({
           {/* ============ cuarta columna: 7 · el diario de esta opp ============
               La nota nueva y lo que va pasando, bajo un mismo fondo crema: "ahorro
               sitio y da continuidad" (Monica, 16-oct-2026). */}
-          {bloque !== 2 && bloque !== 3 && (
+          {bloque !== 1 && bloque !== 2 && bloque !== 3 && (
           <div className="flex min-w-0 flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2 xl:col-start-2 xl:row-start-1">
             {diarioDentro}
           </div>
