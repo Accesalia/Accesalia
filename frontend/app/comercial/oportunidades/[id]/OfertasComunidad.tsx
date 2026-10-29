@@ -12,6 +12,7 @@ import { PedirViabilidad } from "../../viabilidad-sin-polycam/PedirViabilidad";
 import { Fila, PorValidar } from "./HojasNuevas";
 import { TipoOferta } from "./TipoOferta";
 import { EscaneoPrevisto } from "./EscaneoPrevisto";
+import { letraMenu } from "../../../components/letraMenu";
 
 // BLOQUE 2 · OFERTAS A LA COMUNIDAD (Monica, 27-oct-2026; maqueta docs/figma/bloque2-documentacion.html, «esta
 // inmejorable, yo montaria esto tal cual»). Antes «Documentacion». Se ordena por lo que el comercial viene a HACER (el
@@ -41,6 +42,18 @@ export const VISTAS_OFERTA: VistaOferta[] = ["preparar", "enviadas", "validar", 
 
 const ESPERA_FIRMADA = ["ok_daniel", "enviada", "firma_con_errores"];
 const CERRADAS = ["no_firmada", "anulada", "sustituida"];
+
+/** Un paso de «Preparar una oferta»: su numero grande delante, del color de como esta (29-oct-2026). */
+function Paso({ n, color, children }: { n: number; color: string; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-[64px_minmax(0,1fr)] items-start gap-x-3.5">
+      <div className="pt-1.5 text-right font-[family-name:var(--letra-menu)] text-[56px] font-extrabold leading-[0.9] tracking-[-0.04em]" style={{ color }}>
+        {n}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 /** Las ofertas del pasado: las hojas enviadas el mismo dia son un mismo envio (Monica, 27-oct: «para el historico,
  *  deberia salir de las hojas de encargo enviadas»). */
@@ -181,15 +194,25 @@ export function OfertasComunidad({
   // ---------------------------------------------------------------- la hoja de encargo
   const hojaLista = disponibles.length > 0;
   const puedeEnviar = hojaLista && viab.listo;
-  const filaHoja = (x: VersionHe, que: ReactNode, debajo?: ReactNode) => (
-    <li key={x.id} className={"py-0.5 text-[12.5px]" + (debajo ? " border-b border-dashed border-[#cfe5bc] py-1 last:border-0" : "")}>
-      <div className="flex flex-wrap items-baseline gap-x-2">
-        <b>{x.codigo ? `${x.codigo} v${x.numero}` : "sin código aún"}</b>
-        <span className="text-carbon/75">{x.tipos.join(" + ") || "Hoja de encargo"}</span>
+  // CADA HOJA, PARA EL COMERCIAL (Monica, 29-oct-2026): en negrita lo que es (lo que busca), el codigo en gris; delante,
+  // su estado: ✓ verde disponible, ⚠ ambar pendiente de Daniel, circulo de rayas a medias. «Nueva · sin enviar», la que
+  // tiene el ok y no ha salido nunca.
+  const ICONO = {
+    disponible: <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#3f8a1c] text-[10px] font-black leading-none text-white" aria-label="disponible">✓</span>,
+    pendiente: <span className="shrink-0 text-[15px] leading-none text-[#e0a51c]" aria-label="pendiente del ok de Daniel">▲</span>,
+    aMedias: <span className="h-4 w-4 shrink-0 rounded-full border-2 border-dashed border-[#b8b8b8]" aria-label="a medias" />,
+  };
+  const filaHoja = (x: VersionHe, icono: keyof typeof ICONO, que: ReactNode, debajo?: ReactNode, nueva?: boolean) => (
+    <li key={x.id} className="border-b border-dashed border-[#cfe5bc] py-1 text-[12.5px] last:border-0">
+      <div className="flex flex-wrap items-center gap-x-2">
+        {ICONO[icono]}
+        <b>{x.tipos.join(" + ") || "Hoja de encargo"}</b>
         <b>{EUR.format(x.importe)} €</b>
+        <span className="text-[12px] text-carbon/55">{x.codigo ? `${x.codigo} v${x.numero}` : "sin código aún"}</span>
+        {nueva && <span className="rounded-[4px] bg-[#dbe8f6] px-1.5 py-px text-[10.5px] font-extrabold uppercase tracking-[0.03em] text-[#1f4f86]">nueva · sin enviar</span>}
         <span className="text-carbon/65">· {que}</span>
       </div>
-      {debajo}
+      {debajo && <div className="pl-6">{debajo}</div>}
     </li>
   );
 
@@ -289,109 +312,124 @@ export function OfertasComunidad({
             {necesita && <TipoOferta oppId={id} polycam={necesita.polycam} viabilidad={necesita.viabilidad} />}
             {necesita?.aviso && <p className="mt-1.5 text-[12px] text-carbon/65">{necesita.aviso}</p>}
 
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              {/* --- 1 · las hojas de encargo con ok (28-oct-2026) --- */}
-              <div className={CAJA_R + (hojaLista ? " border-[#a9d18a] bg-[#f6fbf1]" : " border-[#e0b04a] bg-[#fffaf0]")}>
-                <div className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Necesitas · 1</div>
-                <div className="mt-0.5 text-[16px] font-bold">Hojas de encargo con el ok de Daniel</div>
-                {!hojaLista && (
-                  <div className="mt-1.5">
-                    <b className="text-[#9a6a00]">Necesitas al menos una hoja de encargo con ok de Daniel para enviar una oferta.</b>
+            {/* APILADAS Y NUMERADAS (Monica, 29-oct-2026: «a dos columnas no respira»): una debajo de otra, a todo el
+                ancho, cada paso con su numero grande. Sin viabilidad, su caja se queda en una linea y se renumera. */}
+            <div className={`${letraMenu.variable} mt-5 flex flex-col gap-3.5`}>
+              {necesitaViab ? (
+                <Paso n={1} color={viab.listo ? "#a9d18a" : "#e0b04a"}>
+                  <div className={CAJA_R + " grid items-center gap-x-5 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_auto]" + (viab.listo ? " border-[#a9d18a] bg-[#f6fbf1]" : " border-[#e0b04a] bg-[#fffaf0]")}>
+                    <div>
+                      <div className="text-[16px] font-bold">Viabilidad del arquitecto</div>
+                      <div className="mt-1.5">{viab.estado}</div>
+                    </div>
+                    <div>{viab.accion}</div>
+                    <p className="border-t border-dashed border-[#cfe5bc] pt-2 text-[12px] text-carbon/65 sm:col-span-2">
+                      {conPolycam
+                        ? "Con Polycam: la pide tu envío del escaneo al buzón."
+                        : "Sin Polycam: la pides con el botón «Solicitar que el arquitecto estudie la viabilidad»."}
+                    </p>
                   </div>
-                )}
-                {hojaLista && (
-                  <>
-                    <div className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.06em] text-lima-dark">Hojas de encargo disponibles</div>
-                    <ul className="mt-0.5">
-                      {disponibles.map((x) => {
-                        const envios = enviosDe.get(x.id) ?? [];
-                        return filaHoja(
-                          x,
-                          <a href={`/comercial/hoja-encargo/pdf/${x.id}`} target="_blank" rel="noreferrer" className={ENLACE}>ver</a>,
-                          <div className="pl-3 text-[12px] text-carbon/70">
-                            {envios.length ? (
-                              envios.map((e, k) => <div key={k}>✉ enviada el {dia(e.fecha)} a {e.para.join(", ")}</div>)
-                            ) : x.estado === "ok_daniel" ? (
-                              <div>sin enviar · ok de Daniel del {dia(x.okEn)}</div>
-                            ) : (
-                              <div>✉ enviada el {dia(x.fechas.enviada)}</div>
-                            )}
-                            {enviadaHaceMucho(x) && (
-                              <div className="font-semibold text-[#9a6a00]">Se envió hace más de 3 meses: revisa los importes por si ya no valen.</div>
-                            )}
-                          </div>,
-                        );
-                      })}
-                    </ul>
-                  </>
-                )}
-                {(esperando.length > 0 || caducadas.length > 0 || aMedias.length > 0) && (
-                  <>
-                    <div className="mt-2.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#9a6a00]">Pendientes del ok de Daniel</div>
-                    <ul className="mt-0.5">
-                      {esperando.map((x) => filaHoja(x, <>esperando el ok desde el {dia(x.fechas.pendiente_ok_daniel ?? x.creadaEn)}</>))}
-                      {caducadas.map((x) =>
-                        filaHoja(
-                          x,
-                          <>
-                            <b className="text-[#9a6a00]">el ok caducó</b> (más de {OK_DURA_DIAS / 30} meses, del {dia(x.okEn)}) · <PedirOkOtraVez versionId={x.id} />
-                          </>,
-                        ),
-                      )}
-                      {aMedias.map((x) => filaHoja(x, <>a medias, sin pedir el ok · <Link href={`/comercial/hoja-encargo?opp=${id}&borrador=${x.id}`} className={ENLACE}>seguir</Link></>))}
-                    </ul>
-                  </>
-                )}
-                <div className="mt-3">
-                  <Link href={`/comercial/hoja-encargo?opp=${id}`} className={hojaLista || esperando.length ? BOTON_S : BOTON_P}>
-                    + Crear hoja de encargo
-                  </Link>
+                </Paso>
+              ) : (
+                <p className="pl-[78px] text-[12.5px] text-carbon/70">✓ Esta oferta no necesita viabilidad del arquitecto.</p>
+              )}
+
+              {/* --- las hojas de encargo con ok (28-oct-2026) --- */}
+              <Paso n={necesitaViab ? 2 : 1} color={hojaLista ? "#a9d18a" : "#e0b04a"}>
+                <div className={CAJA_R + (hojaLista ? " border-[#a9d18a] bg-[#f6fbf1]" : " border-[#e0b04a] bg-[#fffaf0]")}>
+                  <div className="text-[16px] font-bold">Hojas de encargo con el ok de Daniel</div>
+                  {!hojaLista && (
+                    <div className="mt-1.5">
+                      <b className="text-[#9a6a00]">Necesitas al menos una hoja de encargo con ok de Daniel para enviar una oferta.</b>
+                    </div>
+                  )}
+                  {hojaLista && (
+                    <>
+                      <div className="mt-2.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-lima-dark">Hojas de encargo disponibles</div>
+                      <ul className="mt-0.5">
+                        {disponibles.map((x) => {
+                          const envios = enviosDe.get(x.id) ?? [];
+                          return filaHoja(
+                            x,
+                            "disponible",
+                            <a href={`/comercial/hoja-encargo/pdf/${x.id}`} target="_blank" rel="noreferrer" className={ENLACE}>ver</a>,
+                            <div className="text-[12px] text-carbon/70">
+                              {envios.length ? (
+                                envios.map((e, k) => <div key={k}>✉ enviada el {dia(e.fecha)} a {e.para.join(", ")}</div>)
+                              ) : x.estado === "ok_daniel" ? (
+                                <div>ok de Daniel del {dia(x.okEn)}</div>
+                              ) : (
+                                <div>✉ enviada el {dia(x.fechas.enviada)}</div>
+                              )}
+                              {enviadaHaceMucho(x) && (
+                                <div className="font-semibold text-[#9a6a00]">Se envió hace más de 3 meses: revisa los importes por si ya no valen.</div>
+                              )}
+                            </div>,
+                            !envios.length && x.estado === "ok_daniel",
+                          );
+                        })}
+                      </ul>
+                    </>
+                  )}
+                  {(esperando.length > 0 || caducadas.length > 0 || aMedias.length > 0) && (
+                    <>
+                      <div className="mt-3 text-[11px] font-extrabold uppercase tracking-[0.06em] text-[#9a6a00]">Pendientes del ok de Daniel</div>
+                      <ul className="mt-0.5">
+                        {esperando.map((x) => filaHoja(x, "pendiente", <>esperando el ok desde el {dia(x.fechas.pendiente_ok_daniel ?? x.creadaEn)}</>))}
+                        {caducadas.map((x) =>
+                          filaHoja(
+                            x,
+                            "pendiente",
+                            <>
+                              <b className="text-[#9a6a00]">el ok caducó</b> (más de {OK_DURA_DIAS / 30} meses, del {dia(x.okEn)}) · <PedirOkOtraVez versionId={x.id} />
+                            </>,
+                          ),
+                        )}
+                        {aMedias.map((x) => filaHoja(x, "aMedias", <>a medias, sin pedir el ok · <Link href={`/comercial/hoja-encargo?opp=${id}&borrador=${x.id}`} className={ENLACE}>seguir</Link></>))}
+                      </ul>
+                    </>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-dashed border-[#e2d3a8] pt-2.5">
+                    <Link href={`/comercial/hoja-encargo?opp=${id}`} className={hojaLista || esperando.length ? BOTON_S : BOTON_P}>
+                      + Crear hoja de encargo
+                    </Link>
+                    <p className="min-w-[260px] flex-1 text-[12px] text-carbon/65">
+                      Al generarla va sola al ok de Daniel, con su presupuesto. Puedes tener tantas como quieras y elegir cuáles van en cada correo. El ok dura {OK_DURA_DIAS / 30} meses.
+                    </p>
+                  </div>
                 </div>
-                <p className="mt-2.5 border-t border-dashed border-[#e2d3a8] pt-2 text-[12px] text-carbon/65">
-                  Al generarla va sola al ok de Daniel, con su presupuesto. Puedes tener tantas como quieras y elegir cuáles van en cada correo. El ok dura {OK_DURA_DIAS / 30} meses.
-                </p>
-              </div>
+              </Paso>
 
-              {/* --- 2 · la viabilidad --- */}
-              <div className={CAJA_R + (viab.listo ? " border-[#a9d18a] bg-[#f6fbf1]" : " border-[#e0b04a] bg-[#fffaf0]")}>
-                <div className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-carbon/65">Necesitas · 2</div>
-                <div className="mt-0.5 text-[16px] font-bold">Viabilidad del arquitecto</div>
-                <div className="mt-1.5">{viab.estado}</div>
-                {viab.accion && <div className="mt-3">{viab.accion}</div>}
-                {necesitaViab && (
-                  <p className="mt-2.5 border-t border-dashed border-[#cfe5bc] pt-2 text-[12px] text-carbon/65">
-                    {conPolycam
-                      ? "Con Polycam: la pide tu envío del escaneo al buzón."
-                      : "Sin Polycam: la pides con el botón «Solicitar que el arquitecto estudie la viabilidad»."}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* --- enviar (28-oct-2026: los adjuntos se eligen en el correo; aqui solo se dice que hay) --- */}
-            <div className="mt-4 flex flex-wrap items-center gap-4 rounded-[12px] border border-[#d5dee8] bg-[#f3f6f9] px-4 py-3.5">
-              <div className="min-w-[280px] flex-1">
-                <b className="text-[15px]">Enviar la oferta a la comunidad</b>
-                <p className="text-[12.5px] text-carbon/70">
-                  Se activa con al menos una hoja disponible{necesitaViab ? " y la viabilidad" : ""}. En el correo eliges qué hojas van y a quién; con varias te preguntará: ¿un presupuesto por hoja o uno para todas?
-                </p>
-                {(costes.length > 0 || referencia) && (
-                  <p className="mt-1.5 text-[12.5px] text-carbon/70">
-                    También hay para adjuntar:{" "}
-                    {[costes.length ? "estudio de costes" : null, referencia ? "informe general del inmueble" : null].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-              </div>
-              <form id="enviar-oferta" action={`/comercial/oportunidades/${id}/enviar`} method="get">
-                <input type="hidden" name="oferta" value="1" />
-                <button
-                  disabled={!puedeEnviar}
-                  title={puedeEnviar ? undefined : `Falta ${!hojaLista ? "una hoja con el ok de Daniel" : "la viabilidad"}`}
-                  className="rounded-[8px] bg-lima px-4 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-lima-dark disabled:cursor-not-allowed disabled:bg-[#cfcfcf] disabled:text-[#666]"
-                >
-                  ✉ Enviar oferta por mail
-                </button>
-              </form>
+              {/* --- enviar (28-oct-2026: los adjuntos se eligen en el correo; aqui solo se dice que hay) --- */}
+              <Paso n={necesitaViab ? 3 : 2} color="#8fb0cc">
+                <div className="flex flex-wrap items-center gap-4 rounded-[12px] border-[1.5px] border-[#8fb0cc] bg-[#f2f6fa] px-4 py-3.5">
+                  <div className="min-w-[260px] flex-1">
+                    <b className="text-[15px]">Enviar la oferta a la comunidad</b>
+                    <p className="text-[12.5px] text-carbon/70">
+                      Se activa con al menos una hoja disponible{necesitaViab ? " y la viabilidad" : ""}. En el correo eliges qué hojas van y a quién; con varias te preguntará: ¿un presupuesto por hoja o uno para todas?
+                    </p>
+                    {(costes.length > 0 || referencia) && (
+                      <p className="mt-1.5 text-[12.5px] text-carbon/70">
+                        También hay para adjuntar:{" "}
+                        {[costes.length ? "estudio de costes" : null, referencia ? "informe general del inmueble" : null].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                  <form id="enviar-oferta" action={`/comercial/oportunidades/${id}/enviar`} method="get" className="text-right">
+                    <input type="hidden" name="oferta" value="1" />
+                    <button
+                      disabled={!puedeEnviar}
+                      title={puedeEnviar ? undefined : `Falta ${!hojaLista ? "una hoja con el ok de Daniel" : "la viabilidad"}`}
+                      className="rounded-[8px] bg-lima px-4 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-lima-dark disabled:cursor-not-allowed disabled:bg-[#cfcfcf] disabled:text-[#666]"
+                    >
+                      ✉ Enviar oferta por mail
+                    </button>
+                    <div className={"mt-1.5 text-[12px] font-bold " + (puedeEnviar ? "text-lima-dark" : "text-[#9a6a00]")}>
+                      {puedeEnviar ? "Lista para enviar" : `Falta ${!hojaLista ? "una hoja con el ok de Daniel" : "la viabilidad"}`}
+                    </div>
+                  </form>
+                </div>
+              </Paso>
             </div>
           </>
         )}
