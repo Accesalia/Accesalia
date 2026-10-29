@@ -607,7 +607,8 @@ export default async function GestionOportunidad({
           {/* ============ cuarta columna: 7 · el diario de esta opp ============
               La nota nueva y lo que va pasando, bajo un mismo fondo crema: "ahorro
               sitio y da continuidad" (Monica, 16-oct-2026). */}
-          {bloque !== 1 && bloque !== 2 && bloque !== 3 && (
+          {/* El bloque 4 tampoco lo lleva (29-oct-2026): ocupaba la primera fila y el bloque se iba abajo. */}
+          {bloque !== 1 && bloque !== 2 && bloque !== 3 && bloque !== 4 && (
           <div className="flex min-w-0 flex-col gap-2 rounded-[10px] bg-[#fbf3d9] p-2 xl:col-start-2 xl:row-start-1">
             {diarioDentro}
           </div>
