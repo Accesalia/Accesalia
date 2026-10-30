@@ -91,6 +91,8 @@ export async function enviarCorreo({
   nombreRemitente,
   adjuntos,
   incrustadas,
+  copias,
+  idCorreo,
 }: {
   /** De que AREA sale, que lo decide la tarea y no quien la ejecuta. */
   desde: Area;
@@ -109,6 +111,11 @@ export async function enviarCorreo({
   adjuntos?: { nombre: string; contenido: Uint8Array | Buffer }[];
   /** Imagenes dentro del html (el logo de la firma): se citan con <img src="cid:...">. */
   incrustadas?: { cid: string; nombre: string; contenido: Uint8Array | Buffer; tipo: string }[];
+  /** En copia, separados por comas. */
+  copias?: string | null;
+  /** El Message-ID que llevara el correo, para reconocer despues sus respuestas
+   *  (las preguntas del escaneo, 30-oct-2026). Con sus <>. */
+  idCorreo?: string | null;
 }): Promise<Enviado> {
   const buzon = BUZONES[desde];
   const clave = CLAVES[desde];
@@ -129,6 +136,8 @@ export async function enviarCorreo({
     await transporte.sendMail({
       from: `"${(nombreRemitente || buzon.nombre).replace(/"/g, "")}" <${buzon.direccion}>`,
       to: para,
+      cc: copias || undefined,
+      messageId: idCorreo || undefined,
       replyTo: responderA || undefined,
       subject: asunto,
       text: texto,

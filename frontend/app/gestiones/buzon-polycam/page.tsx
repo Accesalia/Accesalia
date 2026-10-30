@@ -3,6 +3,8 @@ import { BarraSuperior } from "../../components/BarraSuperior";
 import { Salida } from "../../components/Salida";
 import { quienSoy } from "../../../lib/sesion";
 import { hayPermiso } from "../../../lib/gmailBuzon";
+import { AREAS_CONECTABLES, areasConectadas } from "../../../lib/buzonArea";
+import { direccionDe } from "../../../lib/correo";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +25,7 @@ export default async function BuzonPolycamGoogle({
   const yo = await quienSoy();
   if (!yo) redirect("/entrar?volver=/gestiones/buzon-polycam");
   if (!yo.veTodo) redirect("/menu");
-  const conectado = await hayPermiso();
+  const [conectado, areas] = await Promise.all([hayPermiso(), areasConectadas()]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -38,7 +40,7 @@ export default async function BuzonPolycamGoogle({
 
         {google_ok && (
           <p className="mt-4 rounded-xl border border-lima bg-lima-soft px-4 py-2.5 text-[13px] text-carbon">
-            Conectado con Google ({google_ok}). Desde la próxima pasada (cada 10 minutos) se baja por la API de Gmail.
+            Conectado con Google ({google_ok}). Desde la próxima pasada (cada 10 minutos) la app lo lee por la API de Gmail.
           </p>
         )}
         {google_mal && (
@@ -67,6 +69,30 @@ export default async function BuzonPolycamGoogle({
           <a href="/api/buzon/google" className={`${BOTON} mt-4`}>
             {conectado ? "Reconectar con Google" : "Conectar el buzón con Google"}
           </a>
+        </div>
+
+        {/* LOS BUZONES DE AREA (Monica, 30-oct-2026): solo lectura. De tecnicos@
+            la app lee las respuestas a las preguntas que se hacen desde la mesa
+            de viabilidades. */}
+        <h2 className="mt-8 text-[17px] font-bold text-carbon">Buzones de área</h2>
+        <p className="mt-1 text-[13px] text-carbon/60">
+          Solo lectura. De técnicos la app lee las respuestas a lo que se pregunta al comercial desde la mesa de viabilidades.
+        </p>
+        <div className="mt-3 rounded-2xl border border-black/5 bg-white shadow-sm">
+          {AREAS_CONECTABLES.map((a) => {
+            const si = areas.includes(a);
+            return (
+              <div key={a} className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.06] px-5 py-3 first:border-t-0">
+                <div className="text-[14px] text-carbon">
+                  <b>{direccionDe(a)}</b>
+                  <span className={"ml-2 text-[12.5px] " + (si ? "text-lima-dark" : "text-carbon/55")}>{si ? "conectado" : "sin conectar"}</span>
+                </div>
+                <a href={`/api/buzon/google/area?area=${a}`} className={BOTON}>
+                  {si ? "Reconectar" : "Conectar con Google"}
+                </a>
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>

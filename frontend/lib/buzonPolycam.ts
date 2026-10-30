@@ -69,7 +69,7 @@ const ALMACEN = "documentos-comerciales";
 // Se llama "y fotos" porque el escaneado no viene solo: el que los hace manda
 // ademas unas 30 fotos por direccion, y son mas peso que el propio .glb. Eso es
 // de otro sprint, pero el almacen ya se llama como lo que va a guardar.
-const ALMACEN_POLYCAM = "almacen-polycam-y-fotos";
+export const ALMACEN_POLYCAM = "almacen-polycam-y-fotos";
 
 /** La etiqueta que se le pone al correo que no se supo colocar. */
 export const SIN_SITIO = "accesalia-sin-sitio";
@@ -291,7 +291,7 @@ export function cotejar(
 
 // ------------------------------------------------------------------ almacen
 
-async function subirFichero(ruta: string, datos: Buffer, tipoMime: string, almacen = ALMACEN) {
+export async function subirFichero(ruta: string, datos: Buffer, tipoMime: string, almacen = ALMACEN) {
   const r = await fetch(`${URL_BASE}/storage/v1/object/${almacen}/${ruta}`, {
     method: "POST",
     headers: { ...cab, "Content-Type": tipoMime || "application/octet-stream" },
@@ -303,12 +303,12 @@ async function subirFichero(ruta: string, datos: Buffer, tipoMime: string, almac
 /** La extension, con su punto, o nada. `limpioNombre` la quita para hacer el
  *  nombre legible, y luego hay que devolverla: un fichero sin extension no lo
  *  abre nada. */
-const extension = (s: string) => {
+export const extension = (s: string) => {
   const m = s.match(/\.[a-z0-9]{1,8}$/i);
   return m ? m[0].toLowerCase() : "";
 };
 
-const limpioNombre = (s: string) =>
+export const limpioNombre = (s: string) =>
   aplanar(s.replace(/\.[a-z0-9]+$/i, ""))
     .replace(/ /g, "-")
     .slice(0, 60)

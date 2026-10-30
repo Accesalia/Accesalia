@@ -9,6 +9,7 @@ import type { SolicitudPendiente } from "../../lib/solicitudViabilidad";
 import { CorregirDireccion, Descartar, JuntarCon, MaterialPedido, Rescatar, ResueltoPorDaniel } from "./BotonesMesa";
 import type { Descartado } from "../../lib/revisionPolycam";
 import { Salida } from "../components/Salida";
+import type { EstadoPregunta } from "../../lib/preguntasEscaneo";
 
 // ============================================================================
 // MESA DE VIABILIDADES (Monica, 3-oct-2026; REHECHA el 14-oct-2026 sobre su
@@ -87,6 +88,7 @@ export function Mesa({
   ver,
   enviada,
   resuelveDaniel,
+  preguntas = {},
 }: {
   /** Las viabilidades pedidas sin Polycam que aun nadie ha empezado (15-oct-2026). */
   pedidas: SolicitudPendiente[];
@@ -98,6 +100,8 @@ export function Mesa({
   salidas?: { enviadas: YaFuera[]; daniel: YaFuera[] };
   ver?: string;
   enviada: boolean;
+  /** Lo preguntado a quien mando el Polycam, por escaneo (30-oct-2026). */
+  preguntas?: Record<string, EstadoPregunta>;
   resuelveDaniel: boolean;
 }) {
   // Los que la app va a vincular sola en su siguiente pasada (no tienen duda) no
@@ -206,6 +210,7 @@ export function Mesa({
                         <span className="font-semibold text-[#a3540f]">{espera(t.desde)}</span>
                       </div>
                       {t.mensaje && <Mensaje texto={t.mensaje} />}
+                      {t.unEscaneo && preguntas[t.unEscaneo] && <ChapaPregunta p={preguntas[t.unEscaneo]} />}
                       {t.vinculadoPorApp && (
                         <div className="mt-1.5 text-[11.5px] font-semibold text-[#3f5f80]" title={t.vinculadoPorApp}>
                           Vinculado por la app
@@ -291,6 +296,7 @@ export function Mesa({
                         {e.remitente ?? "sin remitente"} · <span className="font-semibold text-[#a3540f]">{espera(e.creadoEn)}</span>
                       </div>
                       {e.mensaje && <Mensaje texto={e.mensaje} />}
+                      {preguntas[e.id] && <ChapaPregunta p={preguntas[e.id]} />}
                       <div className="mt-1.5 text-[12.5px] font-semibold" style={{ color: GRANATE }}>{e.motivo}</div>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
@@ -433,6 +439,17 @@ function PedidasSinPolycam({ pedidas }: { pedidas: SolicitudPendiente[] }) {
 
 /** LO QUE ESCRIBIO EL COMERCIAL en el correo del escaneo (Monica, 28-oct-2026),
  *  tal cual, para que Alex lo lea sin abrir el buzon. */
+/** Lo preguntado a quien mando el Polycam: esperando o ya contestado. */
+function ChapaPregunta({ p }: { p: EstadoPregunta }) {
+  return (
+    <div className={"mt-1.5 text-[11.5px] font-semibold " + (p.contestada ? "text-lima-dark" : "text-amber-800")}>
+      {p.contestada ? "Contestada la pregunta a " : "Preguntado a "}
+      {p.quien ?? p.para}
+      {!p.contestada && <span className="font-normal text-carbon/60"> · {espera(p.cuando)}</span>}
+    </div>
+  );
+}
+
 function Mensaje({ texto }: { texto: string }) {
   return (
     <p className="mt-1.5 max-w-[640px] whitespace-pre-line rounded-[8px] border-l-[3px] border-[#CDBAB0] bg-[#faf6f3] px-3 py-1.5 text-[12.5px] leading-[1.45] text-carbon/80">

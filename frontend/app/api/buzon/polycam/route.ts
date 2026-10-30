@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { repasarBuzon } from "../../../../lib/buzonPolycam";
+import { repasarRespuestas } from "../../../../lib/preguntasEscaneo";
 import { puedeEntrar, quienSoy } from "../../../../lib/sesion";
 import { apuntarPasada, esElReloj } from "../../../../lib/reloj";
 
@@ -34,6 +35,15 @@ export async function GET(req: Request) {
   try {
     const hecho = await repasarBuzon();
     await apuntarPasada({ tarea: TAREA, empezada, ok: true, detalle: hecho, quien });
+    // Y de paso, las respuestas a las preguntas del escaneo, que llegan a
+    // tecnicos@ (30-oct-2026). Aparte: si fallan, el buzon del Polycam ya esta.
+    const respuestasEmpezadas = Date.now();
+    try {
+      const resp = await repasarRespuestas();
+      await apuntarPasada({ tarea: "respuestas_escaneo", empezada: respuestasEmpezadas, ok: true, detalle: resp, quien });
+    } catch (e) {
+      await apuntarPasada({ tarea: "respuestas_escaneo", empezada: respuestasEmpezadas, ok: false, dice: e instanceof Error ? e.message : String(e), quien });
+    }
     return NextResponse.json({ ok: true, ...hecho });
   } catch (e) {
     const dice = e instanceof Error ? e.message : String(e);

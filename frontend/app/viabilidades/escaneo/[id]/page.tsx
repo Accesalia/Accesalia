@@ -5,6 +5,7 @@ import { enlaceAlModelo } from "../../../../lib/mesaViabilidades";
 import { haceViabilidades } from "../../revision-polycam/acciones";
 import { Visor3D } from "../../../components/Visor3D";
 import { Salida } from "../../../components/Salida";
+import { PreguntarAlComercial } from "../../PreguntarAlComercial";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +66,8 @@ export default async function VerEscaneo({ params }: { params: Promise<{ id: str
             </a>
           </div>
         )}
+
+        <PreguntarAlComercial escaneoId={e.id} />
       </main>
     </div>
   );

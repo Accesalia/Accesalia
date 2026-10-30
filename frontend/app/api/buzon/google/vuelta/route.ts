@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { guardarPermiso } from "../../../../../lib/gmailBuzon";
 import { guardarPermisoComercial } from "../../../../../lib/parteDeAyer";
+import { guardarPermisoArea } from "../../../../../lib/buzonArea";
+import type { Area } from "../../../../../lib/correo";
 import { quienSoy } from "../../../../../lib/sesion";
 
 // LA VUELTA DE GOOGLE con el permiso del buzon. Comprueba que viene de nuestro
@@ -35,6 +37,23 @@ export async function GET(req: Request) {
         return aParte({ google_ok: await guardarPermisoComercial(codigo, comercialId) });
       } catch (e) {
         return aParte({ google_mal: e instanceof Error ? e.message : String(e) });
+      }
+    }
+  }
+
+  // Un buzon de area (../area): otra cookie, con el estado y que buzon es.
+  const deArea = tarro.get("buzon_area_estado")?.value;
+  if (deArea) {
+    tarro.delete({ name: "buzon_area_estado", path: "/api/buzon/google" });
+    const [estado, area] = deArea.split(":");
+    if (url.searchParams.get("state") === estado) {
+      if (url.searchParams.get("error")) return volver({ google_mal: "Google no dio el permiso (cancelado)." });
+      const codigo = url.searchParams.get("code");
+      if (!codigo) return volver({ google_mal: "Google no devolvió el permiso." });
+      try {
+        return volver({ google_ok: await guardarPermisoArea(codigo, area as Area) });
+      } catch (e) {
+        return volver({ google_mal: e instanceof Error ? e.message : String(e) });
       }
     }
   }

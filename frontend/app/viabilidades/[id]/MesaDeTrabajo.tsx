@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { DatosMesa, Mesa } from "../../../lib/mesaViabilidades";
 import { accionAvisarDaniel, accionCaptura, accionCapturaCatastro, accionEnviar, accionGuardar, accionJuntar, accionModelo } from "../acciones";
 import { ElegirCatalogo } from "./ElegirCatalogo";
+import { PreguntarAlComercial } from "../PreguntarAlComercial";
 
 // La mesa de Alex. Lo que decidio Monica (3-oct-2026):
 //   · la captura del 3D va SIEMPRE, y sale de aqui con un boton;
@@ -388,6 +389,8 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               </a>
             )}
           </div>
+
+          {activo && <PreguntarAlComercial escaneoId={activo} />}
 
           {captura ? (
             <div className="mt-3 flex items-center gap-3 rounded-xl border border-lima/40 bg-lima-soft p-2.5">

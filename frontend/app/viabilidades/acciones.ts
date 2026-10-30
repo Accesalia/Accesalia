@@ -9,6 +9,7 @@ import { haceViabilidades } from "./revision-polycam/acciones";
 import { recalcularLuego } from "../../lib/estadoOportunidad";
 import { empezarSolicitud } from "../../lib/solicitudViabilidad";
 import { enviarCorreo } from "../../lib/correo";
+import { cerrarPregunta, enviarPregunta, paraPreguntar, repasarRespuestas, type ParaPreguntar } from "../../lib/preguntasEscaneo";
 import { quienLlevaLaOpp, quienTieneLaFuncion, type Persona } from "../../lib/quienLleva";
 
 const APP = process.env.URL_PUBLICA ?? "https://accesalia-crm.vercel.app";
@@ -195,4 +196,40 @@ export async function accionEmpezarSolicitud(solicitudId: string) {
   const id = await empezarSolicitud(solicitudId, yo);
   revalidatePath("/viabilidades");
   redirect(`/viabilidades/${id}`);
+}
+
+// ---- PREGUNTAR AL COMERCIAL sobre un escaneo (Monica, 30-oct-2026). Lo que
+// se hace y por que, en lib/preguntasEscaneo.ts.
+
+export async function accionParaPreguntar(escaneoId: string): Promise<ParaPreguntar | null> {
+  await haceViabilidades();
+  return paraPreguntar(escaneoId);
+}
+
+/** Devuelve el fallo, o null si salio. */
+export async function accionPreguntar(escaneoId: string, asunto: string, texto: string, copias: string[]): Promise<string | null> {
+  const yo = await haceViabilidades();
+  const fallo = await enviarPregunta({ escaneoId, asunto, texto, copias, yo });
+  revalidatePath("/viabilidades");
+  return fallo;
+}
+
+export async function accionCerrarPregunta(id: string, cerrar: boolean): Promise<void> {
+  await haceViabilidades();
+  await cerrarPregunta(id, cerrar);
+  revalidatePath("/viabilidades");
+}
+
+/** Mirar ya si han contestado, sin esperar a la pasada de cada 10 minutos. */
+export async function accionMirarRespuestas(escaneoId: string): Promise<{ aviso: string | null; datos: ParaPreguntar | null }> {
+  await haceViabilidades();
+  let aviso: string | null = null;
+  try {
+    const r = await repasarRespuestas();
+    if (r.sinPermiso) aviso = "El buzón de técnicos aún no está conectado con Google: las respuestas no se pueden leer.";
+    else if (r.errores.length) aviso = r.errores.join(" · ");
+  } catch (e) {
+    aviso = e instanceof Error ? e.message : String(e);
+  }
+  return { aviso, datos: await paraPreguntar(escaneoId) };
 }
