@@ -122,8 +122,10 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
       const arrastre = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 5;
       inicio = null;
       if (arrastre) return;
-      const caja = v.getBoundingClientRect();
-      const toque = v.positionAndNormalFromPoint?.(e.clientX - caja.left, e.clientY - caja.top);
+      // Con las coordenadas de la PANTALLA: el visor ya resta su posicion. Restarla
+      // aqui tambien ponia el punto desplazado (Monica, 30-oct: «marca y mide,
+      // pero sale en otro punto de la imagen»).
+      const toque = v.positionAndNormalFromPoint?.(e.clientX, e.clientY);
       if (!toque) return;
       const p = { x: toque.position.x, y: toque.position.y, z: toque.position.z };
       setPuntos((ps) => (ps.length >= 2 ? [p] : [...ps, p]));
@@ -327,6 +329,8 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
                         key={`${i}-${p.x}-${p.y}-${p.z}`}
                         slot={`hotspot-medida-${i}`}
                         data-position={`${p.x}m ${p.y}m ${p.z}m`}
+                        // El visor pone la esquina del punto en el sitio: se centra.
+                        style={{ transform: "translate(-50%, -50%)" }}
                         className="pointer-events-none h-3 w-3 rounded-full border-2 border-white bg-alerta shadow"
                       />
                     ))}

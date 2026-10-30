@@ -21,7 +21,7 @@ const cuando = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
 
 export function PreguntarAlComercial({ escaneoId }: { escaneoId: string }) {
-  const [d, setD] = useState<ParaPreguntar | null | "cargando">("cargando");
+  const [d, setD] = useState<ParaPreguntar | null | "cargando" | { fallo: string }>("cargando");
   const [abierta, setAbierta] = useState(false);
   const [asunto, setAsunto] = useState("");
   const [texto, setTexto] = useState("");
@@ -36,10 +36,13 @@ export function PreguntarAlComercial({ escaneoId }: { escaneoId: string }) {
     setAbierta(false);
     accionParaPreguntar(escaneoId)
       .then(setD)
-      .catch(() => setD(null));
+      .catch((e) => setD({ fallo: e instanceof Error ? e.message : String(e) }));
   }, [escaneoId]);
 
   if (d === "cargando" || d === null) return null;
+  // Si no carga, se dice: una caja que desaparece en silencio no se echa en falta.
+  if ("fallo" in d)
+    return <p className="mt-3 rounded-lg border border-alerta/40 bg-[#fbeeee] px-3 py-1.5 text-[12.5px] text-alerta">No se ha podido cargar «Preguntar a quien lo mandó»: {d.fallo}</p>;
   const nombre = d.quien ?? d.para;
 
   const abrir = () => {
