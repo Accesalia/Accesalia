@@ -132,9 +132,16 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
     };
     v.addEventListener("pointerdown", abajo);
     v.addEventListener("pointerup", arriba);
+    // CURSOR EN CRUZ para apuntar (Monica, 30-oct-2026). El visor pone la mano
+    // («grab») por dentro y en cada arrastre: solo una regla !important de su
+    // propia hoja de estilo le gana.
+    const cruz = document.createElement("style");
+    cruz.textContent = ".userInput, .userInput * { cursor: crosshair !important; }";
+    v.shadowRoot?.appendChild(cruz);
     return () => {
       v.removeEventListener("pointerdown", abajo);
       v.removeEventListener("pointerup", arriba);
+      cruz.remove();
     };
   }, [midiendo, urlActiva]);
 
