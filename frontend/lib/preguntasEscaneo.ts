@@ -150,18 +150,23 @@ export async function enviarPregunta(d: {
   escaneoId: string;
   asunto: string;
   texto: string;
+  /** A quien. Sale con el remitente del Polycam, pero se puede cambiar (30-oct-2026). */
+  para: string[];
   copias: string[];
   yo: { id: string; nombre: string; apellidos: string | null };
 }): Promise<string | null> {
   const p = await paraPreguntar(d.escaneoId);
   if (!p) return "Ese escaneo no existe.";
-  if (!p.para) return "No se sabe quién mandó este escaneo: no hay a quién preguntar.";
+  const limpia = (l: string[]) => Array.from(new Set(l.map((c) => c.trim().toLowerCase()).filter(Boolean)));
+  const para = limpia(d.para);
+  if (!para.length) return "Falta a quién se le pregunta.";
   const texto = d.texto.trim();
   if (!texto) return "Escribe la pregunta.";
-  const copias = Array.from(new Set(d.copias.map((c) => c.trim().toLowerCase()).filter(Boolean))).filter((c) => c !== p.para);
-  const malos = copias.filter((c) => !correoValido(c));
+  const copias = limpia(d.copias).filter((c) => !para.includes(c));
+  const malos = [...para, ...copias].filter((c) => !correoValido(c));
   if (malos.length) return `Este correo no es válido: ${malos.join(", ")}`;
   const asunto = d.asunto.trim() || p.asunto;
+  const nombreDe = (c: string) => p.equipo.find((x) => x.email === c)?.nombre ?? c;
   const autor = [d.yo.nombre, d.yo.apellidos].filter(Boolean).join(" ");
 
   // El Message-ID propio: por el se encuentra despues el hilo en tecnicos@.
@@ -169,7 +174,7 @@ export async function enviarPregunta(d: {
   const r = await enviarCorreo({
     desde: "tecnicos",
     nombreRemitente: `${d.yo.nombre} · Accesalia`,
-    para: p.para,
+    para: para.join(", "),
     copias: copias.join(", ") || null,
     asunto,
     texto: `${texto}\n\n— ${autor}\n\nContesta a este correo (a todos, si hay más gente en copia): la respuesta le llega a la mesa de viabilidades.\n`,
@@ -180,7 +185,7 @@ export async function enviarPregunta(d: {
   await rest("escaneo_preguntas", {
     method: "POST",
     headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ escaneo_id: d.escaneoId, autor_id: d.yo.id, autor, para: p.para, copias, asunto, texto, id_correo: idCorreo }),
+    body: JSON.stringify({ escaneo_id: d.escaneoId, autor_id: d.yo.id, autor, para: para.join(", "), copias, asunto, texto, id_correo: idCorreo }),
   });
 
   // Al diario de la opp, si la hay. Si esto fallara, la pregunta ya salio y esta apuntada.
@@ -193,7 +198,7 @@ export async function enviarPregunta(d: {
         body: JSON.stringify({
           oportunidad_id: opp,
           fecha: new Date().toISOString().slice(0, 10),
-          texto: `Pregunta sobre el escaneo a ${p.quien ?? p.para}${copias.length ? ` (copia a ${copias.join(", ")})` : ""}: ${texto}`,
+          texto: `Pregunta sobre el escaneo a ${para.map(nombreDe).join(", ")}${copias.length ? ` (copia a ${copias.map(nombreDe).join(", ")})` : ""}: ${texto}`,
           autor,
           autor_id: d.yo.id,
           origen: "persona",

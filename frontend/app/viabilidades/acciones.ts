@@ -207,9 +207,9 @@ export async function accionParaPreguntar(escaneoId: string): Promise<ParaPregun
 }
 
 /** Devuelve el fallo, o null si salio. */
-export async function accionPreguntar(escaneoId: string, asunto: string, texto: string, copias: string[]): Promise<string | null> {
+export async function accionPreguntar(escaneoId: string, asunto: string, texto: string, para: string[], copias: string[]): Promise<string | null> {
   const yo = await haceViabilidades();
-  const fallo = await enviarPregunta({ escaneoId, asunto, texto, copias, yo });
+  const fallo = await enviarPregunta({ escaneoId, asunto, texto, para, copias, yo });
   revalidatePath("/viabilidades");
   return fallo;
 }
