@@ -38,6 +38,10 @@ const numero = (s: string) => {
 };
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
 
+// model-viewer es un elemento web, no de React: con nombre propio para poder
+// abrirlo y cerrarlo con los puntos de medir dentro.
+const ModeloVisor = "model-viewer" as unknown as React.ElementType;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type VisorEl = HTMLElement & { toDataURL: (tipo?: string) => string } & Record<string, any>;
 
@@ -72,6 +76,15 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
   const [capturando, setCapturando] = useState(false);
   const visor = useRef<VisorEl | null>(null);
 
+  // ---- MEDIR EN EL 3D (Monica, 30-oct-2026, lo que pidio Alex: el ancho de la
+  // escalera lo medía bajando el .glb, pasándolo a SketchUp y volviendo). Se
+  // pinchan dos puntos del escaneo y sale la distancia. El .glb de Polycam viene
+  // a escala real, en metros: la medida es la del escaneo, ni más ni menos fina.
+  const [midiendo, setMidiendo] = useState(false);
+  const [puntos, setPuntos] = useState<{ x: number; y: number; z: number }[]>([]);
+  const [linea, setLinea] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const distancia = puntos.length === 2 ? Math.hypot(puntos[0].x - puntos[1].x, puntos[0].y - puntos[1].y, puntos[0].z - puntos[1].z) : null;
+
   useEffect(() => {
     if (document.querySelector(`script[src="${VISOR}"]`)) return;
     const s = document.createElement("script");
@@ -90,6 +103,54 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
 
   const urlActiva = activo ? modelos[activo] : null;
   const escaneoActivo = m.escaneos.find((e) => e.id === activo) ?? null;
+
+  // Otro escaneo, otra medida.
+  useEffect(() => {
+    setPuntos([]);
+  }, [urlActiva]);
+
+  // Un clic sin arrastrar pone un punto; arrastrar sigue girando el modelo. El
+  // tercer clic empieza otra medida.
+  useEffect(() => {
+    const v = visor.current;
+    if (!v || !midiendo) return;
+    let inicio: { x: number; y: number } | null = null;
+    const abajo = (e: PointerEvent) => (inicio = { x: e.clientX, y: e.clientY });
+    const arriba = (e: PointerEvent) => {
+      if (!inicio) return;
+      const arrastre = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 5;
+      inicio = null;
+      if (arrastre) return;
+      const caja = v.getBoundingClientRect();
+      const toque = v.positionAndNormalFromPoint?.(e.clientX - caja.left, e.clientY - caja.top);
+      if (!toque) return;
+      const p = { x: toque.position.x, y: toque.position.y, z: toque.position.z };
+      setPuntos((ps) => (ps.length >= 2 ? [p] : [...ps, p]));
+    };
+    v.addEventListener("pointerdown", abajo);
+    v.addEventListener("pointerup", arriba);
+    return () => {
+      v.removeEventListener("pointerdown", abajo);
+      v.removeEventListener("pointerup", arriba);
+    };
+  }, [midiendo, urlActiva]);
+
+  // La raya entre los dos puntos, que sigue al modelo cuando se gira.
+  useEffect(() => {
+    const v = visor.current;
+    if (!v || puntos.length < 2) return setLinea(null);
+    const pintar = () => {
+      const a = v.queryHotspot?.("hotspot-medida-0");
+      const b = v.queryHotspot?.("hotspot-medida-1");
+      setLinea(a && b ? { x1: a.canvasPosition.x, y1: a.canvasPosition.y, x2: b.canvasPosition.x, y2: b.canvasPosition.y } : null);
+    };
+    const marco = requestAnimationFrame(() => requestAnimationFrame(pintar));
+    v.addEventListener("camera-change", pintar);
+    return () => {
+      cancelAnimationFrame(marco);
+      v.removeEventListener("camera-change", pintar);
+    };
+  }, [puntos]);
 
   /** La captura: lo que se ve en el visor ahora mismo. El lienzo del visor es
    *  transparente y en JPEG saldria NEGRO (visto el 3-oct), asi que se pinta
@@ -251,15 +312,43 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
               </p>
             ) : (
               <>
-                {/* @ts-expect-error: model-viewer es un elemento web, no de React */}
-                <model-viewer
+                <ModeloVisor
                   ref={visor}
                   key={urlActiva}
                   src={urlActiva}
                   camera-controls=""
                   shadow-intensity="1"
-                  style={{ width: "100%", height: "100%", background: "transparent" }}
-                />
+                  style={{ width: "100%", height: "100%", background: "transparent", cursor: midiendo ? "crosshair" : undefined }}
+                >
+                  {midiendo &&
+                    puntos.map((p, i) => (
+                      <div
+                        key={`${i}-${p.x}-${p.y}-${p.z}`}
+                        slot={`hotspot-medida-${i}`}
+                        data-position={`${p.x}m ${p.y}m ${p.z}m`}
+                        className="pointer-events-none h-3 w-3 rounded-full border-2 border-white bg-alerta shadow"
+                      />
+                    ))}
+                </ModeloVisor>
+                {midiendo && linea && (
+                  <svg className="pointer-events-none absolute inset-0 h-full w-full">
+                    <line x1={linea.x1} y1={linea.y1} x2={linea.x2} y2={linea.y2} stroke="#b03a2e" strokeWidth="2" strokeDasharray="6 4" />
+                  </svg>
+                )}
+                {midiendo && (
+                  <div className="pointer-events-none absolute left-3 top-3 rounded-lg bg-white/90 px-3 py-1.5 text-[12.5px] text-carbon shadow">
+                    {distancia !== null ? (
+                      <>
+                        <b className="text-[16px]">{distancia.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m</b>
+                        <span className="ml-2 text-carbon/55">pincha otro punto para medir de nuevo</span>
+                      </>
+                    ) : puntos.length === 1 ? (
+                      "Ahora pincha el segundo punto"
+                    ) : (
+                      "Pincha el primer punto (arrastrar sigue girando)"
+                    )}
+                  </div>
+                )}
                 <span className="pointer-events-none absolute bottom-2 left-3 text-[11px] text-carbon/50">
                   Arrastra para girar · rueda para acercar
                 </span>
@@ -271,6 +360,18 @@ export function MesaDeTrabajo({ m }: { m: Mesa }) {
             <button type="button" onClick={guardarCaptura} disabled={capturando || typeof urlActiva !== "string" || urlActiva === "cargando"} className={ajeno}>
               {capturando ? "Guardando…" : "Guardar captura"}
             </button>
+            {typeof urlActiva === "string" && urlActiva !== "cargando" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMidiendo((x) => !x);
+                  setPuntos([]);
+                }}
+                className={midiendo ? ajeno : ajenoClaro}
+              >
+                {midiendo ? "Dejar de medir" : "Medir"}
+              </button>
+            )}
             {typeof urlActiva === "string" && urlActiva !== "cargando" && (
               <a href={`${urlActiva}&download=${encodeURIComponent((escaneoActivo?.nombre ?? "escaneo").replace(/\.\w+$/, "") + ".glb")}`} className={ajenoClaro}>
                 Descargar .glb (SketchUp)
