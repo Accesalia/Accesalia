@@ -68,6 +68,9 @@ export function ElegirCatalogo({ catalogo, valor, cambiar }: { catalogo: Modelo[
       {detalle && (
         <Detalle
           c={detalle}
+          catalogo={catalogo}
+          ir={setDetalle}
+          valor={valor}
           elegido={detalle.id === valor}
           elegir={() => {
             cambiar(detalle.id);
@@ -81,7 +84,26 @@ export function ElegirCatalogo({ catalogo, valor, cambiar }: { catalogo: Modelo[
   );
 }
 
-function Detalle({ c, elegido, elegir, volver }: { c: Modelo; elegido: boolean; elegir: () => void; volver: () => void }) {
+// PASAR DE UN MODELO A OTRO SIN SALIR (Monica, 30-oct-2026, lo que pidio Alex):
+// "a veces hay que revisar varios modelos para ver el que encaja". A la
+// izquierda, el catalogo entero en miniatura; pulsar una cambia el detalle.
+function Detalle({
+  c,
+  catalogo,
+  ir,
+  valor,
+  elegido,
+  elegir,
+  volver,
+}: {
+  c: Modelo;
+  catalogo: Modelo[];
+  ir: (c: Modelo) => void;
+  valor: string;
+  elegido: boolean;
+  elegir: () => void;
+  volver: () => void;
+}) {
   const [imagen, setImagen] = useState<string | null>(null);
 
   // Escape vuelve, como el boton.
@@ -93,58 +115,103 @@ function Detalle({ c, elegido, elegir, volver }: { c: Modelo; elegido: boolean; 
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-carbon/60 p-4" onClick={volver}>
-      <div className="mx-auto max-w-[1100px] rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <button type="button" onClick={volver} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
-            ← Volver a la viabilidad
-          </button>
-          <div className="flex flex-wrap gap-2">
-            {c.plano && (
-              <a href={c.plano} target="_blank" rel="noreferrer" className={ver}>
-                Ver el plano
-              </a>
-            )}
-            <button
-              type="button"
-              onClick={elegir}
-              disabled={elegido}
-              className="inline-flex h-[30px] items-center rounded-[8px] bg-lima px-4 text-[13px] font-extrabold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-60"
-            >
-              {elegido ? "✓ Es el elegido" : `Elegir ${c.codigo}`}
-            </button>
-          </div>
-        </div>
-
-        <h2 className="mt-3 text-[20px] font-bold text-carbon">
-          {c.codigo} · {c.nombre}
-        </h2>
-
-        <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_300px]">
-          <div className="relative h-[520px] overflow-hidden rounded-xl border border-ajeno/30 bg-[#fffaf0]">
-            {/* @ts-expect-error: model-viewer es un elemento web, no de React */}
-            <model-viewer src={c.modelo} camera-controls="" shadow-intensity="1" style={{ width: "100%", height: "100%", background: "transparent" }} />
-            <span className="pointer-events-none absolute bottom-2 left-3 text-[11px] text-carbon/50">
-              Arrastra para girar · rueda para acercar · la primera vez tarda unos segundos
-            </span>
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={c.miniatura} alt={`Planta y sección de ${c.codigo}`} className="w-full rounded-xl border border-black/5 object-contain" />
-        </div>
-
-        {c.imagenes.length > 0 && (
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-            {c.imagenes.map((u) => (
-              <button key={u} type="button" onClick={() => setImagen(u)} className="overflow-hidden rounded-lg border border-black/5">
+      <div className="mx-auto flex max-w-[1340px] flex-col gap-4 rounded-2xl bg-white p-5 shadow-xl lg:flex-row" onClick={(e) => e.stopPropagation()}>
+        <nav className="flex shrink-0 gap-2 overflow-x-auto lg:sticky lg:top-4 lg:max-h-[calc(100vh-72px)] lg:w-[150px] lg:flex-col lg:self-start lg:overflow-y-auto lg:overflow-x-visible lg:pr-1">
+          {catalogo.map((m) => {
+            const este = m.id === c.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  setImagen(null);
+                  ir(m);
+                }}
+                title={m.nombre}
+                className={
+                  "flex w-[120px] shrink-0 flex-col overflow-hidden rounded-[10px] border bg-white text-left transition lg:w-full " +
+                  (este ? "border-[#3f5f80] ring-2 ring-ajeno/40" : "border-carbon/20 hover:border-carbon/40")
+                }
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={u} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover transition hover:scale-105" />
+                <img src={m.miniatura} alt={m.nombre} loading="lazy" className="h-[80px] w-full object-contain p-1" />
+                <span className={"border-t border-black/[0.06] px-2 py-1 text-[11px] " + (este ? "font-bold text-[#3f5f80]" : "font-semibold text-carbon/75")}>
+                  {m.id === valor ? "✓ " : ""}
+                  {m.codigo}
+                </span>
               </button>
-            ))}
+            );
+          })}
+        </nav>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onClick={volver} className="text-sm font-semibold text-carbon/55 transition hover:text-carbon">
+              ← Volver a la viabilidad
+            </button>
+            <div className="flex flex-wrap gap-2">
+              {c.plano && (
+                <a href={c.plano} target="_blank" rel="noreferrer" className={ver}>
+                  Ver el plano
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={elegir}
+                disabled={elegido}
+                className="inline-flex h-[30px] items-center rounded-[8px] bg-lima px-4 text-[13px] font-extrabold text-carbon transition hover:bg-lima-dark hover:text-white disabled:opacity-60"
+              >
+                {elegido ? "✓ Es el elegido" : `Elegir ${c.codigo}`}
+              </button>
+            </div>
           </div>
-        )}
+
+          <h2 className="mt-3 text-[20px] font-bold text-carbon">
+            {c.codigo} · {c.nombre}
+          </h2>
+
+          <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_300px]">
+            <div className="relative h-[520px] overflow-hidden rounded-xl border border-ajeno/30 bg-[#fffaf0]">
+              {/* @ts-expect-error: model-viewer es un elemento web, no de React */}
+              <model-viewer
+                src={c.modelo}
+                camera-controls=""
+                shadow-intensity="1"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: "transparent",
+                }}
+              />
+              <span className="pointer-events-none absolute bottom-2 left-3 text-[11px] text-carbon/50">
+                Arrastra para girar · rueda para acercar · la primera vez tarda unos segundos
+              </span>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={c.miniatura} alt={`Planta y sección de ${c.codigo}`} className="w-full rounded-xl border border-black/5 object-contain" />
+          </div>
+
+          {c.imagenes.length > 0 && (
+            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+              {c.imagenes.map((u) => (
+                <button key={u} type="button" onClick={() => setImagen(u)} className="overflow-hidden rounded-lg border border-black/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={u} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover transition hover:scale-105" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {imagen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4" onClick={(e) => { e.stopPropagation(); setImagen(null); }}>
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            setImagen(null);
+          }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagen} alt="" className="max-h-full max-w-full rounded-lg" />
         </div>
