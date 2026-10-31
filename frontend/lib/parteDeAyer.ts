@@ -328,11 +328,32 @@ export type ParteGuardado = {
 
 export async function partesGuardados(): Promise<ParteGuardado[]> {
   try {
-    return await rest<ParteGuardado[]>(
-      "partes_de_ayer?select=id,comercial_id,dia,modelo,hilos,texto,error,input_tokens,output_tokens,segundos,creado_en&order=creado_en.desc&limit=40",
-    );
+    return await rest<ParteGuardado[]>(`partes_de_ayer?select=${CAMPOS}&order=creado_en.desc&limit=40`);
   } catch {
     return []; // sin la migracion todavia
+  }
+}
+
+const CAMPOS = "id,comercial_id,dia,modelo,hilos,texto,error,input_tokens,output_tokens,segundos,creado_en";
+
+/** Los partes de un comercial en un dia (puede haber varios: modelos, repeticiones). */
+export async function partesDe(comercialId: string, dia: string): Promise<ParteGuardado[]> {
+  try {
+    return await rest<ParteGuardado[]>(`partes_de_ayer?select=${CAMPOS}&comercial_id=eq.${comercialId}&dia=eq.${dia}&order=creado_en.desc`);
+  } catch {
+    return [];
+  }
+}
+
+/** Los dias de ese comercial que ya tienen algun parte con texto, del mas nuevo al mas viejo. */
+export async function diasConParte(comercialId: string): Promise<string[]> {
+  try {
+    const filas = await rest<{ dia: string }[]>(
+      `partes_de_ayer?select=dia&comercial_id=eq.${comercialId}&texto=not.is.null&order=dia.desc&limit=200`,
+    );
+    return [...new Set(filas.map((f) => f.dia))];
+  } catch {
+    return [];
   }
 }
 
